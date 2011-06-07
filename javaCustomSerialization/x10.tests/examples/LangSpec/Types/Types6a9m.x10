@@ -26,7 +26,7 @@ public class Types6a9m extends x10Test {
     }
 
 
-// file Types line 2482
+// file Types line 2629
  // NOzzTEST
  static  class B{ static  class C{}}
  static  class D{ static  interface E{}}

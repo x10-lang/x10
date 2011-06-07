@@ -15,6 +15,8 @@ import x10.types.X10FieldDef;
 
 
 public class QualifiedVar extends XField<Type> {
+    private static final long serialVersionUID = -407228981450822754L;
+    
     // lazily initialized
     private String string;
     private String getString() {
@@ -23,8 +25,6 @@ public class QualifiedVar extends XField<Type> {
         }
         return string;
     }
-    
-  
     
     public QualifiedVar(Type fi, XVar r) {
         super(r, fi, false);

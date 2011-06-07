@@ -64,6 +64,7 @@ import x10.types.X10MemberDef;
 import polyglot.types.LazyRef_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 
@@ -538,7 +539,7 @@ public class Closure_c extends Expr_c implements Closure {
 		return false;
 	}
 
-	public Object constantValue() {
+	public ConstantValue constantValue() {
 		return null;
 	}
 

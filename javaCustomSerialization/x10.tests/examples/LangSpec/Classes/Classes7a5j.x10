@@ -1,4 +1,4 @@
-/* Current test harness gets confused by packages, but it would be in package Classes_nullary_getter_a;
+/* Current test harness gets confused by packages, but it would be in package Classes7a5j;
 */
 // Warning: This file is auto-generated from the TeX source of the language spec.
 // If you need it changed, work with the specification writers.
@@ -19,18 +19,29 @@ import harness.x10Test;
 
 
 
-public class Classes70 extends x10Test {
+public class Classes7a5j extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new Classes70().execute();
+        new Classes7a5j().execute();
     }
 
 
-// file Classes line 350
- static  class Exampllll[T] {
- public val x : T;
- def this(y:T) { x=y; }
-public final def x()=x;
+// file Classes line 824
+ // If example4() compiles, then the limitation in Classes7a5j's section is
+ // gone, so delete the whole subsection from the spec.
+ static class Cls {
+  property concrete(a:Int) = 7;
+}
+ static interface Inf {
+  property nullary(): Int;
+  property topLevel(z:Int):Boolean;
+  property allThree(z:Int):Int;
+}
+ static class Example{
+  def example1(Cls{self.concrete(3)==7}) = 1;
+  def example2(Inf{self.nullary()==7})   = 2;
+  def example3(Inf{self.topLevel(3)})    = 3;
+  //ERROR: def example4(Inf{self.allThree(3)==7}) = "fails";
 }
 
  static class Hook {

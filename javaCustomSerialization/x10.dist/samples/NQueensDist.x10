@@ -7,106 +7,110 @@
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
  *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright Australian National University 2011.
  */
-
-import x10.io.Console;
 
 /**
  * A distributed version of NQueens. Runs over NUM_PLACES.
- * Identical to NQueensPar, except that it runs over multiple placs.
- * Converted to 2.1 on 9/1/2010
+ * Identical to NQueensPar, except that work is distributed 
+ * over multiple places rather than shared between threads.
+ * Converted to 2.2 on 27/4/2011
  */
 public class NQueensDist {
-    public static val expectedSolutions =
+    public static val EXPECTED_SOLUTIONS =
         [0, 1, 0, 0, 2, 10, 4, 40, 92, 352, 724, 2680, 14200, 73712, 365596, 2279184, 14772512];
 
     val N:Int;
     val P:Int;
     val results:DistArray[Int](1);
+    val R:Region(1){rect};
 
     def this(N:Int, P:Int) { 
-	   this.N=N; 
-	   this.P=P;
-	   this.results = DistArray.make[Int](Dist.makeUnique(), (Point)=>0);
+        this.N=N;
+        this.P=P;
+        this.results = DistArray.make[Int](Dist.makeUnique(), 0);
+        this.R = 0..(N-1);
     }
     def start() {
-        new Board().search();
+        new Board().distSearch();
     }
     def run():Int {
-	   finish start();
-	   val result = results.reduce(((x:Int,y:Int) => x+y),0);
-	   return result;
-    }
-
-    /**
-     * Return an array of P regions, which together block divide the 1-D region R.
-     */
-    public static def block(R: Region(1){rect}, P: Int): Array[Region(1){rect}](1) = {
-        assert P >= 0;
-        val low = R.min()(0), high = R.max()(0), count = high-low+1;
-        val baseSize = count/P, extra = count - baseSize*P;
-        new Array[Region(1){rect}](P, (i:int):Region(1){rect} => {
-            val start = low+i*baseSize+ (i < extra? i:extra);
-            start..(start+baseSize+(i < extra?0:-1))
-        })
+       finish start();
+       val result = results.reduce(((x:Int,y:Int) => x+y),0);
+       return result;
     }
 
     class Board {
-        val q: Array[Int](1);
+        val q: Rail[Int];
+        /** The number of low-rank positions that are fixed in this board for the purposes of search. */
+        var fixed:Int;
         def this() {
-            q = new Array[Int](0);
+            q = new Rail[Int](N);
+            fixed = 0;
         }
-        def this(old:Array[Int](1), newItem:Int) {
-            val n = old.size;
-            q = new Array[Int](n+1, (i:int)=> (i < n? old(i) : newItem));
-        }
-        def safe(j: int) {
-            val n = q.size;
-            for (k in 0..(n-1)) {
-                if (j == q(k) || Math.abs(n-k) == Math.abs(j-q(k)))
+
+        /** 
+         * @return true if it is safe to put a queen in file <code>j</code>
+         * on the next rank after the last fixed position.
+         */
+        def safe(j:Int) {
+            for (k in 0..(fixed-1)) {
+                if (j == q(k) || Math.abs(fixed-k) == Math.abs(j-q(k)))
                     return false;
             }
             return true;
         }
-        /** Search for all solutions in parallel, on finding
-         * a solution update nSolutions.
-         */
-        def search(R: Region(1){rect}) {
-            for ([k] in R)
-                if (safe(k))
-                    new Board(q, k).search();
+
+        /** Search all positions for the current board. */
+        def search() {
+            for ([k] in R) searchOne(k);
         }
 
-        def search()  {
-            if (q.size == N) {
-                atomic NQueensDist.this.results(here.id)++;
-                return;
+        /**
+         * Modify the current board by adding a new queen
+         * in file <code>k</code> on rank <code>fixed</code>,
+         * and search for all safe positions with this prefix.
+         */
+        def searchOne(k:Int) {
+            if (safe(k)) {
+                if (fixed==(N-1)) {
+                    // all ranks safely filled
+                    atomic NQueensDist.this.results(here.id)++;
+                } else {
+                    q(fixed++) = k;
+                    search();
+                    fixed--;
+                }
             }
-            if (q.size == 0) {
-                val R = block(0..(N-1), P);
-                ateach ([q] in Dist.makeUnique())
-                   // copy of this made across the at divide
-                  search(R(q));
-            } else search(0..(N-1));
+        }
+
+        /**
+         * Search this board, dividing the work between all places
+         * using a block distribution of the current free rank.
+         */
+        def distSearch()  {
+            ateach([k] in Dist.makeBlock(R)) {
+                // implicit copy of 'this' made across the at divide
+                searchOne(k);
+            }
         }
     }
 
     public static def main(args:Array[String](1))  {
         val n = args.size > 0 ? Int.parse(args(0)) : 8;
-        println("N=" + n);
+        Console.OUT.println("N=" + n);
         //warmup
         //finish new NQueensPar(12, 1).start();
         val P = Place.MAX_PLACES;
-	    val nq = new NQueensDist(n,P);
-	    var start:Long = -System.nanoTime();
-	    val answer = nq.run();
-	    val result = answer==expectedSolutions(n);
-	    start += System.nanoTime();
-	    start /= 1000000;
-	    println("NQueensPar " + nq.N + "(P=" + P +
-		   ") has " + answer + " solutions" +
-		   (result? " (ok)." : " (wrong).") + "time=" + start + "ms");
+        val nq = new NQueensDist(n,P);
+        var start:Long = -System.nanoTime();
+        val answer = nq.run();
+        val result = answer==EXPECTED_SOLUTIONS(n);
+        start += System.nanoTime();
+        start /= 1000000;
+        Console.OUT.println("NQueensDist " + nq.N + "(P=" + P +
+                            ") has " + answer + " solutions" +
+                            (result? " (ok)." : " (wrong).") + 
+                            "time=" + start + "ms");
     }
-
-    static def println(s:String) { Console.OUT.println(s); }
 }

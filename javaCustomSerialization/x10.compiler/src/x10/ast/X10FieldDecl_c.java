@@ -331,7 +331,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         // of a field, without waiting for a ConstantsChecked pass to run.
         if (init instanceof StringLit) {
             String val = ((StringLit) init).value();
-            fi.setConstantValue(val);
+            fi.setConstantValue(x10.types.constants.ConstantValue.makeString(val));
         }
 
         // TODO: Could infer type of final fields as LCA of types assigned in the constructor.

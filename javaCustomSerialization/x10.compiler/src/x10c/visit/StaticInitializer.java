@@ -811,7 +811,7 @@ public class StaticInitializer extends ContextVisitor {
                                       FieldDef fdCond, FieldDef fdId, FieldDecl fdPLH, X10ClassDef classDef) {
         // get MethodDef
         Name name = Name.make(initializerPrefix+fName);
-        Type type = fieldInfo.right.type();
+        Type type = fieldInfo.fieldDef.type().get();
         MethodDef md = fieldInfo.methodDef;
         if (md == null) {
             md = makeMethodDef(pos, classDef.asType(), name, type);
@@ -1208,6 +1208,10 @@ public class StaticInitializer extends ContextVisitor {
                     return false;
             }
             return isConstantExpression(cc.target());
+        }
+        if (e instanceof Call) {
+            Call c = (Call) e;
+            return c.isConstant();
         }
         return false;
     }

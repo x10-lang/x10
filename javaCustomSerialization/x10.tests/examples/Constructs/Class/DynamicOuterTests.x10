@@ -19,15 +19,15 @@ import x10.compiler.tests.*;
  */
 public class DynamicOuterTests extends x10Test {
     static class A (i:Int) {
-        class X(j:String) {
+        class X(j:ULong) {
             def m(Int{self==A.this.i}){}
-            def n(a:A, x:A{self.i==a.i}.X{self.j=="x"}){}
+            def n(a:A, x:A{self.i==a.i}.X{self.j==0xd00d1eabadbaff1eUL}){}
         }
     }
 
     public def run(): boolean = {
         val a = new A(3);
-        val x = a.new X("x");
+        val x = a.new X(0xd00d1eabadbaff1eUL);
         x.m(a.i);
         x.m(3);
         // @ERR { x.m(4);  }

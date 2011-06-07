@@ -24,11 +24,16 @@
 
 //#define TRACE_JNI
 
-#define JRE_BIN_PATH "/jre/bin"
-#define JRE_CLIENT_PATH JRE_BIN_PATH "/client/"
-#define JRE_SERVER_PATH JRE_BIN_PATH "/server/"
-#define JRE_J9VM_PATH JRE_BIN_PATH "/j9vm/"
-#define JRE_CLASSIC_PATH JRE_BIN_PATH "/classic/"
+#define BIN_PATH "/bin"
+#define CLIENT_PATH BIN_PATH "/client/"
+#define SERVER_PATH BIN_PATH "/server/"
+#define J9VM_PATH BIN_PATH "/j9vm/"
+#define CLASSIC_PATH BIN_PATH "/classic/"
+#define JRE_PATH "/jre"
+#define JRE_CLIENT_PATH JRE_PATH CLIENT_PATH
+#define JRE_SERVER_PATH JRE_PATH SERVER_PATH
+#define JRE_J9VM_PATH JRE_PATH J9VM_PATH
+#define JRE_CLASSIC_PATH JRE_PATH CLASSIC_PATH
 #define JVM_DLL "jvm.dll"
 void* try_load_jvm_dll(const char* JAVA_HOME, const char* JAVA_HOME_REL_PATH) {
   int JAVA_HOME_length = strlen(JAVA_HOME);
@@ -60,7 +65,9 @@ void* load_jvm_dll() {
     return jvm_dll;
   }
   int error = ERROR_MOD_NOT_FOUND;
-  void* jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_SERVER_PATH);
+  void* jvm_dll;
+  // Try the JDK-relative paths first
+  jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_SERVER_PATH);
   if (jvm_dll != NULL) return jvm_dll;
   if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_CLIENT_PATH);
@@ -70,6 +77,19 @@ void* load_jvm_dll() {
   if (jvm_dll != NULL) return jvm_dll;
   if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   jvm_dll = try_load_jvm_dll(JAVA_HOME, JRE_CLASSIC_PATH);
+  if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
+  // Now try the JRE-relative paths
+  jvm_dll = try_load_jvm_dll(JAVA_HOME, SERVER_PATH);
+  if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
+  jvm_dll = try_load_jvm_dll(JAVA_HOME, CLIENT_PATH);
+  if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
+  jvm_dll = try_load_jvm_dll(JAVA_HOME, J9VM_PATH);
+  if (jvm_dll != NULL) return jvm_dll;
+  if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
+  jvm_dll = try_load_jvm_dll(JAVA_HOME, CLASSIC_PATH);
   if (jvm_dll != NULL) return jvm_dll;
   if (GetLastError() != ERROR_MOD_NOT_FOUND) error = GetLastError();
   fprintf(stderr, "JAVA_HOME ('%s') may not point to a JRE.  Unable to load '%s': Error %d\n", JAVA_HOME, JVM_DLL, error);
@@ -132,7 +152,13 @@ int main(int ac, char** av) {
       char* buf = (char*) malloc(sz * sizeof(char));
       strcpy(buf, prefix);
       strcat(buf, av[i]);
+//      for (char* s = strchr(buf, '/'); s != NULL; s = strchr(s, '/')) {
+//        *s = '\\';
+//      }
       args.options[j].optionString = buf;
+#ifdef TRACE_JNI
+      fprintf(stderr, "Classpath arg='%s'\n", buf);
+#endif
       args.options[j].extraInfo = NULL;
       args.nOptions--;
       continue;
@@ -149,7 +175,10 @@ int main(int ac, char** av) {
   args.options[j].extraInfo = NULL;
   ++j;
   args.ignoreUnrecognized = JNI_TRUE;
-  char* className = av[c];
+  char* className = strdup(av[c]);
+  for (char* s = strchr(className, '.'); s != NULL; s = strchr(s, '.')) {
+    *s = '/';
+  }
   if (c == ac) {
     fprintf(stderr, "Usage: %s [jvm_args] <classname> [prog_args]\n", av[0]);
     exit(2);

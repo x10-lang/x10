@@ -636,7 +636,6 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
     public native def compareTo(x:ULong): Int; /*  = (this.longVal + Long.MIN_VALUE).compareTo(x.longVal + Long.MIN_VALUE); */
 
     @Native("java", "\"x10.lang.ULong\"")
-    public def typeName():String {
-        return "x10.lang.ULong";
-    }
+    @Native("c++", "x10aux::type_name(#this)")
+    public native def typeName():String; /*  = "x10.lang.ULong"; */
 }

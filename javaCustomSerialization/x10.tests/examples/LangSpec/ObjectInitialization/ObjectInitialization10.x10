@@ -26,7 +26,7 @@ public class ObjectInitialization10 extends x10Test {
     }
 
 
-// file ObjectInitialization line 229
+// file ObjectInitialization line 223
 
 final static  class C2 {
   protected val a:Int, b:Int, c:Int;

@@ -162,7 +162,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @return the two's complement of this UInt.
      */
     @Native("java", "((int) -(#this))")
-    @Native("c++",  "((x10_int) -(#0))")
+    @Native("c++",  "((x10_uint) -(#0))")
     public native operator - this: UInt; /*  = UInt(-(intVal)); */
 
 
@@ -639,5 +639,6 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
     public native def compareTo(x:UInt): Int; /*  = (this.intVal + Int.MIN_VALUE).compareTo(x.intVal + Int.MIN_VALUE); */
     
     @Native("java", "\"x10.lang.UInt\"")
-    public def typeName():String = "x10.lang.UInt";
+    @Native("c++", "x10aux::type_name(#this)")
+    public native def typeName():String; /*  = "x10.lang.UInt"; */
 }

@@ -56,6 +56,7 @@ public class CodeCleanUp extends ContextVisitor {
     protected boolean reportStats;
     static protected long blockCount;
     static protected long unreachableCount;
+    protected X10AlphaRenamer alphaRenamer;
 
     /**
      * Creates a visitor for cleaning code.
@@ -68,185 +69,19 @@ public class CodeCleanUp extends ContextVisitor {
         xnf = nf;
         this.report = reporter.should_report("CodeCleanUp", 1);
         this.reportStats = reporter.should_report("CodeCleanUpStats", 1);
+        this.alphaRenamer = new X10AlphaRenamer(this, true);
     }
 
-    private class OneScopeRenamer extends NodeVisitor {
-        
-        protected Map<Name,Name> renamingMap;
-
-        protected Map<LocalDef, Name> oldNamesMap;
-        
-        // Tracks the set of variables known to be fresh.
-        protected Set<Name> freshVars;
-
-        protected Map<Name,Name> labelMap;
-        
-        public int scopeLevel;
-
-        /**
-         * Creates a visitor for alpha-renaming locals.
-         *
-         * @param nf  The node factory to be used when generating new nodes.
-         **/
-        public OneScopeRenamer() {
-
-            this.oldNamesMap = CollectionFactory.newHashMap();
-            this.renamingMap = CollectionFactory.newHashMap();
-            this.labelMap = CollectionFactory.newHashMap();
-            this.freshVars = CollectionFactory.newHashSet();
-            this.scopeLevel = 0;
-        }
-
-        /** Map from local def to old names. */
-        public Map<LocalDef, Name> getMap() {
-            return oldNamesMap;
-        }
-
-        public static final String LABEL_PREFIX = "label ";
-
-        public NodeVisitor enter(Node n) {
-            if (n instanceof Block) {
-                if (!((n instanceof StmtSeq) || n instanceof StmtExpr)) {
-                    // Bump the scope level
-                    scopeLevel++;
-                }
-            }
-
-            if (scopeLevel == 1) {
-                if (n instanceof LocalDecl) {
-                    LocalDecl l = (LocalDecl) n;
-                    Name name = l.name().id();
-
-                    if (!freshVars.contains(name)) {
-                        // Add a new entry to the current renaming map.
-                        Name name_ = Name.makeFresh(name);
-
-                        freshVars.add(name_);
-
-                        renamingMap.put(name, name_);
-                    }
-                }
-
-                if (n instanceof Labeled) {
-                    Labeled l = (Labeled) n;
-                    Name name = l.labelNode().id();
-                    Name key = Name.make(LABEL_PREFIX + name.toString());
-                    if (!freshVars.contains(key)) {
-                        Name name_ = Name.makeFresh(name);
-                        Name key_ = Name.make(LABEL_PREFIX + name_.toString());
-
-                        freshVars.add(key_);
-
-                        labelMap.put(key, name_);
-                    }
-                }
-            }
-            return this;
-        }
-
-        public Node leave(Node old, Node n, NodeVisitor v) {
-            if (n instanceof Block) {
-                if (!((n instanceof StmtSeq) || n instanceof StmtExpr)) {
-                    scopeLevel--;
-                    if (scopeLevel == 0) {
-                        // Pop the current name set off the stack and remove the
-                        // corresponding
-                        // entries from the renaming map.
-                        renamingMap.keySet().clear();
-                        labelMap.keySet().clear();
-                    }
-                }
-                assert (scopeLevel >= 0); 
-                return n;
-            }
-
-            if (n instanceof Local) {
-                // Rename the local if its name is in the renaming map.
-                Local l = (Local) n;
-                Name name = l.name().id();
-
-                if (!renamingMap.containsKey(name)) {
-                    return n;
-                }
-
-                // Update the local instance as necessary.
-                Name newName = renamingMap.get(name);
-                // LocalType li = l.localInstance();
-                // if (li != null) li.setName(newName);
-
-                return l.name(l.name().id(newName));
-            }
-
-            if (n instanceof LocalDecl) {
-                // Rename the local decl.
-                LocalDecl l = (LocalDecl) n;
-                Name name = l.name().id();
-
-                if (freshVars.contains(name)) {
-                    return n;
-                }
-
-                if (!renamingMap.containsKey(name)) {
-                    return n;
-                }
-
-                // Update the local instance as necessary.
-                Name newName = renamingMap.get(name);
-                LocalDef li = l.localDef();
-                if (li != null) {
-                    oldNamesMap.put(li, li.name());
-                    li.setName(newName);
-                }
-                return l.name(l.name().id(newName));
-            }
-
-            if (n instanceof Branch) {
-                // Rename the label if its name is in the renaming map.
-                Branch b = (Branch) n;
-
-                if (b.labelNode() == null) {
-                    return n;
-                }
-
-                Name name = b.labelNode().id();
-                Name key = Name.make(LABEL_PREFIX + name.toString());
-
-                if (!labelMap.containsKey(key)) {
-                    return n;
-                }
-
-                Name newName = labelMap.get(key);
-
-                return b.labelNode(b.labelNode().id(newName));
-            }
-
-            if (n instanceof Labeled) {
-                Labeled l = (Labeled) n;
-                Name name = l.labelNode().id();
-                Name key = Name.make(LABEL_PREFIX + name.toString());
-
-                if (freshVars.contains(key)) {
-                    return n;
-                }
-
-                if (!labelMap.containsKey(key)) {
-                    return n;
-                }
-
-                Name newName = labelMap.get(key);
-                return l.labelNode(l.labelNode().id(newName));
-            }
-
-            return n;
-        }
+    @Override
+    public Object shallowCopy() {
+        CodeCleanUp copy = (CodeCleanUp) super.shallowCopy();
+//        copy.alphaRenamer = new X10AlphaRenamer(this, false);
+        return copy;
     }
 
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
         if (!(n instanceof Block) || n instanceof StmtExpr || n instanceof SwitchBlock) {
-            return n;
-        }
-        if (parent instanceof AtStmt) {
             return n;
         }
         
@@ -306,8 +141,7 @@ public class CodeCleanUp extends ContextVisitor {
                     // flattening.
                     if (report) System.out.println("Cleaning up a block" + inner.position());
                     if (reportStats) blockCount++;
-                    X10AlphaRenamer oneScopeRen = new X10AlphaRenamer(this);
-                    if (!innerIsStmtSeq) inner = (Block) inner.visit(oneScopeRen);
+                    if (!innerIsStmtSeq) inner = (Block) inner.visit(alphaRenamer);
                     // Could add a check here that scopeLevel is back to 0???
                     stmtList.addAll(inner.statements());
                     changeMade = true;

@@ -26,6 +26,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.FlowGraph;
+import x10.types.constants.ConstantValue;
 
 /**
  * @author vj Feb 4, 2005
@@ -77,7 +78,7 @@ public class ParExpr_c extends Expr_c implements ParExpr {
     	return expr.isConstant();
     }
 
-    public Object constantValue() {
+    public ConstantValue constantValue() {
         if (! isConstant()) {
         	return null;
         }

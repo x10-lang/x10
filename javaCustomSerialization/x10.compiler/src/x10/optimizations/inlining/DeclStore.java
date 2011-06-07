@@ -10,6 +10,10 @@
  */
 package x10.optimizations.inlining;
 
+import java.util.Map;
+import java.util.Set;
+
+import polyglot.ast.Call;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -28,20 +32,30 @@ import polyglot.types.ContainerType;
 import polyglot.types.Def;
 import polyglot.types.Flags;
 import polyglot.types.MemberDef;
+import polyglot.types.ProcedureDef;
+import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.X10CompilerOptions;
+import x10.ast.ClosureCall;
 import x10.ast.InlinableCall;
+import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.optimizations.ForLoopOptimizer;
 import x10.optimizations.Optimizer;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10Def;
+import x10.types.X10MemberDef;
+import x10.types.X10ProcedureDef;
+import x10.util.CollectionFactory;
 import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.Desugarer;
 import x10.visit.ExpressionFlattener;
@@ -55,130 +69,110 @@ public class DeclStore {
 
     private static final boolean DEBUG = false;
 
-    public  Job job;
     private final TypeSystem ts;
     private final NodeFactory nf;
-    private final InlineCostEstimator ice;
-    private final ExtensionInfo extInfo;
-    private final Compiler compiler;
-            final InlinerCache cache;
-            final boolean INLINE_IMPLICIT;
-    private final boolean INLINE_STRUCT_CONSTRUCTORS;
-    private final int implicitMax;
+    private final Set<ProcedureDef> cannotInline ;
+    private final Map<ProcedureDef, ProcedureDecl> def2decl;
+    private final Map<ProcedureDef, Integer>       def2cost;
 
+    private Job job;
+    private InlineAnnotationUtils annotations;
+    private boolean implicit;
+    private int implicitMax;
+    private boolean initialized;
 
-    public DeclStore(Job job, TypeSystem ts, NodeFactory nf) {
-        this.job                   = job;
-        this.ts                    = ts;
-        this.nf                    = nf;
-        ice                        = new InlineCostEstimator(job, ts, nf);
-        cache                      = new InlinerCache();
-        extInfo                    = job.extensionInfo();
-        compiler                   = extInfo.compiler();
-        Configuration config       = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-        INLINE_IMPLICIT            = config.EXPERIMENTAL && config.OPTIMIZE && config.INLINE_METHODS_IMPLICIT;
-        INLINE_STRUCT_CONSTRUCTORS = config.INLINE_STRUCT_CONSTRUCTORS;
-     // implicitMax                = config.EXPERIMENTAL ? 1 : 0;
-        implicitMax                = 0;
+    public DeclStore(TypeSystem ts, NodeFactory nf) {
+        this.ts      = ts;
+        this.nf      = nf;
+        cannotInline = CollectionFactory.newHashSet();
+        def2decl     = CollectionFactory.newHashMap();
+        def2cost     = CollectionFactory.newHashMap();
+        initialized  = false;
+    }
+
+    public void startJob (Job j) {
+        job = j;
+        if (!initialized) { // this stuff needs a Job (any Job) to initialize but is otherwise final
+            initialized     = true;
+            annotations     = new InlineAnnotationUtils(job);
+            Configuration c = ((X10CompilerOptions) job.extensionInfo().getOptions()).x10_config;
+            implicit        = c.INLINE_METHODS_IMPLICIT;
+            implicitMax     = c.EXPERIMENTAL ? 1 : 0;
+            assert c.OPTIMIZE;
+        }
     }
 
     /**
      * @param call
-     * @param candidate
      * @return
      */
-    ProcedureDecl findDecl(InlinableCall call, MemberDef candidate, boolean required) {
-        // see if the declaration for this candidate has already been cached
-        ProcedureDecl decl = cache.getDecl(candidate);
-        if (null != decl) {
-            return decl;
-        }
-        // get container and declaration for inline candidate
-        ClassDef container = getContainer(candidate);
-        if (null == container) {
-            report("unable to find container for candidate: " +candidate, call);
-            cache.notInlinable(candidate);
+    ProcedureDecl retrieveDecl(InlinableCall call) {
+        X10ProcedureDef def = getDef(call);
+        if (!inlineable(def)) { 
+            report("candidate known to be uninlinable: " +def, call);
             return null;
         }
-        if (isVirtualOrNative(candidate, container)) {
-            report("call is virtual or native on candidate: " +candidate, call);
-            cache.notInlinable(candidate);
+        boolean required = annotations.inliningRequired(call) || annotations.inliningRequired(def);
+        if (!required && !implicit) {
+            report("inlining not required for candidate: " +def, call);
             return null;
         }
-        if (Inliner.annotationsPreventInlining((X10ClassDef) container)) {
-            report("of Native Class/Rep annotation of container: " +container, call);
-            cache.notInlinable(candidate);
+        ProcedureDecl decl = getDecl(call, def);
+        if (null == decl) 
             return null;
-        }
-        Job candidateJob = container.job();
-        if (null == candidateJob) {
-            // reconstruct job from position
-            report("unable to find job for candidate: " +candidate, call);
-            cache.notInlinable(candidate);
-            return null;
-        }
-        if (candidateJob.reportedErrors()) {
-            Warnings.issue(candidateJob, "Has reported compilation errors", call.position());
-        }
-        Node ast = getAST(candidateJob);
-        if (null == ast) {
-            report("unable to find valid ast for candidate: " +candidate, call);
-            cache.notInlinable(candidate);
-            cache.badJob(candidateJob);
-            return null;
-        }
-        if (this.job.compiler().errorQueue().hasErrors()) { // This may be overly conservative
-            report("there were errors compiling candidate: " +candidate, call);
-            cache.notInlinable(candidate);
-            cache.badJob(candidateJob);
-            return null;
-        }
-        decl = getDeclaration(candidate, ast);
-        if (null == decl) {
-            report("unable to find declaration for candidate: " +candidate, call);
-            cache.notInlinable(candidate);
-            return null;
-        }
-        if (Inliner.annotationsPreventInlining(decl) || Inliner.annotationsPreventInlining(decl.procedureInstance())) {
-            report("candidate declaration annotated to prevent inlining: " +candidate, call);
-            cache.notInlinable(candidate);
-            return null;
-        }
-        if (ExpressionFlattener.javaBackend(job) && hasSuper(decl)) {
-            report("candidate body contains super (not yet supported by Java backend): " +candidate, call);
-            cache.notInlinable(candidate);
-            return null;
-        }
-        if (!required && (INLINE_IMPLICIT || (call instanceof ConstructorCall && ts.isStruct(((ConstructorCall) call).constructorInstance().returnType()) && INLINE_STRUCT_CONSTRUCTORS))) {
-            int cost = getCost(decl, candidateJob);
-            if (implicitMax < cost) {
-                report("of excessive cost, " + cost, call);
-                cache.notInlinable(candidate);
+        if (implicit) {
+            int cost = getCost(def);
+            if (implicitMax < cost && !required) {
+                report("too expensive, cost = " + cost, call);
                 return null;
             }
-        } else if (!required) {
-            report("inlining not explicitly required", call);
-            cache.notInlinable(candidate);
-            return null;
         }
-        // remember what to inline this candidate with if we ever see it again
-        cache.putDecl(candidate, decl);
         return decl;
     }
 
     /**
-     * Get the definition of the Class that implements a given method.
-     * 
-     * @param candidate the method definition whose container is desired
-     * @return the definition of the Class containing md
+     * @param call
+     * @param def
+     * @return
      */
-    private ClassDef getContainer(MemberDef candidate) {
-        Ref<? extends ContainerType> containerRef = candidate.container();
-        ContainerType containerType = Types.get(containerRef);
-        Type containerBase = Types.baseType(containerType); 
-        assert (containerBase instanceof X10ClassType);
-        ClassDef container = ((ClassType) containerBase).def();
-        return container;
+    public ProcedureDecl getDecl(InlinableCall call, X10ProcedureDef def) {
+        ProcedureDecl decl = getDecl(def);
+        if (null == decl) {
+            try {
+                Job job = ((ClassType) Types.baseType(((MemberDef) def).container().get())).def().job();
+                if (null == job || null == job.extensionInfo() || null == job.extensionInfo().scheduler())
+                    return null;
+                Scheduler scheduler = job.extensionInfo().scheduler();
+                if (!scheduler.attempt(new Optimizer(scheduler, job).Harvester())) { // throw ICE ??
+                    report("job for candidate does not compile: " +def, call);
+                    cannotInline(def);
+                    return null;
+                }
+            } catch (CyclicDependencyException e) { // this should never happen
+                report("job for candidate does not compile: " +def, call);
+                cannotInline(def);
+                throw new InternalCompilerError("If A ->* B, A is at Harvester & ? -> A would break any cycle", call.position(), e);
+            }
+            decl = getDecl(def);
+        }
+        return decl;
+    }
+
+    /**
+     * @param call
+     * @return
+     */
+    X10ProcedureDef getDef(InlinableCall call) {
+        if (call instanceof Call) {
+            return (X10ProcedureDef) ((Call) call).methodInstance().def();
+        } 
+        if (call instanceof ConstructorCall) {
+            return (X10ProcedureDef) ((ConstructorCall) call).constructorInstance().def();
+        }
+        if (call instanceof ClosureCall) {
+            return (X10ProcedureDef) ((ClosureCall) call).closureInstance().def();
+        }
+        return null;
     }
 
     /**
@@ -188,137 +182,37 @@ public class DeclStore {
      * @param container the class containing the candidate
      * @return true, if the method obviously should not be inlined; false, otherwise
      */
-    private boolean isVirtualOrNative(MemberDef candidate, ClassDef container) {
-        Flags mf = candidate.flags();
-        Flags cf = container.flags();
-        if (mf.isNative() || cf.isNative())
-            return true;
-        if (!mf.isFinal() && !mf.isPrivate() && !mf.isStatic() && !cf.isFinal() && !container.isStruct() && !(candidate instanceof ConstructorDef))
-            return true;
-        return false;
+
+    private boolean inlineable(ProcedureDef def) {
+        return !cannotInline.contains(def);
+    }
+
+    public void cannotInline(ProcedureDef def) {
+        cannotInline.add(def);
+    }
+
+    public ProcedureDecl getDecl(Def def) {
+        return def2decl.get(def);
+    }
+
+    public void putDecl(ProcedureDef def, ProcedureDecl decl) {
+        def2decl.put(def, decl);
     }
 
     /**
-     * @param job
+     * @param def
+     * @param cost
+     */
+    public void putCost(ProcedureDef def, int cost) {
+        def2cost.put(def, cost);
+    }
+
+    /**
+     * @param def
      * @return
      */
-    private Node getAST(Job job) {
-        String source = job.source().toString().intern();
-        Node ast = cache.getAST(source);
-        if (null != ast)
-            return ast;
-        Scheduler scheduler = extInfo.scheduler();
-        Optimizer opt = new Optimizer(scheduler, job);
-        Goal harvester = opt.Harvester();
-        try {
-            if (scheduler.attempt(harvester)) {
-                ast = cache.getAST(source);
-                return ast;
-            }
-            report("unable to process " + job, job.ast());
-        } catch (CyclicDependencyException e) {
-            report("unable to process " + job + "  exception: " + e, job.ast());
-        }
-        cache.badJob(job);
-        return null;
-    }
-
-    /**
-     * @param job
-     * @return
-     */
-    private Node processAST(Job job) {
-        Node ast = job.ast();
-        ast = ast.visit(new X10TypeChecker(job, ts, nf, job.nodeMemo()).begin());
-        ast = ast.visit(new IfdefVisitor(job, ts, nf).begin());
-        ast = ast.visit(new Desugarer(job, ts, nf).begin());
-  //    ast = ast.visit(new X10InnerClassRemover(job, ts, nf).begin());
-        ast = ast.visit(new ForLoopOptimizer(job, ts, nf).begin());
-        if (x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(job.extensionInfo()))
-            ast = ast.visit(new ConstructorSplitterVisitor(job, ts, nf).begin());
-        return ast;
-    }
-
-    /**
-     * Walk an AST looking for the declaration of a given method.
-     * 
-     * @param candidate the method whose declaration is desired
-     * @param ast the abstract syntax tree containing the declaration
-     * @return the declaration for the indicated method, or 
-     *         null if no declaration can be found or it has an empty body.
-     */
-    private ProcedureDecl getDeclaration(final Def candidate, final Node ast) {
-        final Position pos = candidate.position();
-        final ProcedureDecl[] decl = new ProcedureDecl[1];
-        ast.visit(new NodeVisitor() { // find the declaration of md
-                    public Node override(Node n) {
-                        if (null != decl[0])
-                            return n; // we've already found the decl, short-circuit search
-                        if (n instanceof TypeNode)
-                            return n; // TypeNodes don't contain decls, short-circuit search
-                        if (!pos.isCompilerGenerated()&& !contains(n.position(), pos))
-                            return n; // definition of md isn't inside n, short-circuit search
-                        if (n instanceof ProcedureDecl && candidate == ((ProcedureDecl) n).procedureInstance()) {
-                            decl[0] = (ProcedureDecl) n;
-                            return n; // we found the decl for the candidate, short-circuit search
-                        }
-                        return null; // look for the decl inside n
-                    }
-                });
-        if (null == decl[0]) {
-            if (DEBUG) debug(report("declaration not found for " +candidate, null), null);
-            return null;
-        }
-        if (null == decl[0].body()) {
-            if (DEBUG) debug(report("no declaration body for " +decl[0]+ " (" +candidate+ ")", null), null);
-            return null;
-        }
-        if (ExpressionFlattener.cannotFlatten(decl[0], job)) {
-             if (DEBUG) debug(report("unflattenable declaration body for " +decl[0]+ "  (" +candidate+ ")", null), null);
-            return null;
-        }
-        return decl[0];
-    }
-
-    /**
-     * @param node
-     * @return
-     */
-    private boolean hasSuper(Node node) {
-        SuperFinderVisitor visitor = new SuperFinderVisitor();
-        node.visit(visitor);
-        return visitor.hasSuper;
-    }
-
-    // TODO: move this to Position
-    private static boolean contains(Position outer, Position inner) {
-        if (!outer.file().equals(inner.file()))
-            return false;
-        if (!outer.path().equals(inner.path()))
-            return false;
-        return (outer.offset() <= inner.offset() && inner.endOffset() <= inner.endOffset());
-    }
-
-    /**
-     * @param decl
-     * @param job
-     * @return
-     */
-    private int getCost(ProcedureDecl decl, Job job) {
-        int cost = ice.getCost(decl, job);
-        return cost;
-    }
-/*
-    final InlinerCache getCache() {
-        return cache;
-    }
-*/
-    /**
-     * @param report
-     * @param object
-     */
-    private void debug(String report, Node node) {
-        Inliner.debug(report, node);
+    private int getCost(X10ProcedureDef def) {
+        return def2cost.get(def);
     }
 
     /**

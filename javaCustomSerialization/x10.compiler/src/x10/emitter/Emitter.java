@@ -78,6 +78,7 @@ import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
 import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr;
+import x10.ast.OperatorNames;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
 import x10.ast.SettableAssign;
@@ -103,11 +104,13 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
+import x10.types.constants.StringValue;
 
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
 import x10.visit.ChangePositionVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
@@ -314,63 +317,73 @@ public class Emitter {
 	    return ""+c;
 	}
 
-	private static Name mangleIdentifier(Name n) {
-	    // TODO is a new hashmap really needed at every call?
-		Map<Name,Name> map = CollectionFactory.newHashMap();
-		map.put(Converter.operator_as, Name.make("$convert"));
-		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
-		map.put(SettableAssign.SET, Name.make("$set"));
-		map.put(ClosureCall.APPLY, Name.make("$apply"));
-		map.put(Name.make("operator+"), Name.make("$plus"));
-		map.put(Name.make("operator-"), Name.make("$minus"));
-		map.put(Name.make("operator*"), Name.make("$times"));
-		map.put(Name.make("operator/"), Name.make("$over"));
-		map.put(Name.make("operator%"), Name.make("$percent"));
-		map.put(Name.make("operator<"), Name.make("$lt"));
-		map.put(Name.make("operator>"), Name.make("$gt"));
-		map.put(Name.make("operator<="), Name.make("$le"));
-		map.put(Name.make("operator>="), Name.make("$ge"));
-		map.put(Name.make("operator<<"), Name.make("$left"));
-		map.put(Name.make("operator>>"), Name.make("$right"));
-		map.put(Name.make("operator>>>"), Name.make("$unsigned_right"));
-		map.put(Name.make("operator&"), Name.make("$ampersand"));
-		map.put(Name.make("operator|"), Name.make("$bar"));
-		map.put(Name.make("operator^"), Name.make("$caret"));
-		map.put(Name.make("operator~"), Name.make("$tilde"));
-		map.put(Name.make("operator&&"), Name.make("$and"));
-		map.put(Name.make("operator||"), Name.make("$or"));
-		map.put(Name.make("operator!"), Name.make("$not"));
-		map.put(Name.make("operator=="), Name.make("$equalsequals"));
-		map.put(Name.make("operator!="), Name.make("$ne"));
-		map.put(Name.makeUnchecked("operator.."), Name.make("$range"));
-		map.put(Name.makeUnchecked("operator->"), Name.make("$arrow"));
-		map.put(Name.makeUnchecked("operator in"), Name.make("$in"));
-		map.put(Name.make("inverse_operator+"), Name.make("$inv_plus"));
-		map.put(Name.make("inverse_operator-"), Name.make("$inv_minus"));
-		map.put(Name.make("inverse_operator*"), Name.make("$inv_times"));
-		map.put(Name.make("inverse_operator/"), Name.make("$inv_over"));
-		map.put(Name.make("inverse_operator%"), Name.make("$inv_percent"));
-		map.put(Name.make("inverse_operator<"), Name.make("$inv_lt"));
-		map.put(Name.make("inverse_operator>"), Name.make("$inv_gt"));
-		map.put(Name.make("inverse_operator<="), Name.make("$inv_le"));
-		map.put(Name.make("inverse_operator>="), Name.make("$inv_ge"));
-		map.put(Name.make("inverse_operator<<"), Name.make("$inv_left"));
-		map.put(Name.make("inverse_operator>>"), Name.make("$inv_right"));
-		map.put(Name.make("inverse_operator>>>"), Name.make("$inv_unsigned_right"));
-		map.put(Name.make("inverse_operator&"), Name.make("$inv_ampersand"));
-		map.put(Name.make("inverse_operator|"), Name.make("$inv_bar"));
-		map.put(Name.make("inverse_operator^"), Name.make("$inv_caret"));
-		map.put(Name.make("inverse_operator~"), Name.make("$inv_tilde"));
-		map.put(Name.make("inverse_operator&&"), Name.make("$inv_and"));
-		map.put(Name.make("inverse_operator||"), Name.make("$inv_or"));
-		map.put(Name.make("inverse_operator!"), Name.make("$inv_not"));
-		map.put(Name.make("inverse_operator=="), Name.make("$inv_equalsequals"));
-		map.put(Name.make("inverse_operator!="), Name.make("$inv_ne"));
-		map.put(Name.makeUnchecked("inverse_operator.."), Name.make("$inv_range"));
-		map.put(Name.makeUnchecked("inverse_operator->"), Name.make("$inv_arrow"));
-		map.put(Name.makeUnchecked("inverse_operator in"), Name.make("$inv_in"));
+	private static final Map<Name,Name> MANGLED_OPERATORS = CollectionFactory.newHashMap();
+	static {
+		Map<Name,Name> map = MANGLED_OPERATORS;
+		map.put(OperatorNames.AS, Name.make("$convert"));
+		map.put(OperatorNames.IMPLICIT_AS, Name.make("$implicit_convert"));
+		map.put(OperatorNames.SET, Name.make("$set"));
+		map.put(OperatorNames.APPLY, Name.make("$apply"));
+		map.put(OperatorNames.PLUS, Name.make("$plus"));
+		map.put(OperatorNames.MINUS, Name.make("$minus"));
+		map.put(OperatorNames.STAR, Name.make("$times"));
+		map.put(OperatorNames.SLASH, Name.make("$over"));
+		map.put(OperatorNames.PERCENT, Name.make("$percent"));
+		map.put(OperatorNames.LT, Name.make("$lt"));
+		map.put(OperatorNames.GT, Name.make("$gt"));
+		map.put(OperatorNames.LE, Name.make("$le"));
+		map.put(OperatorNames.GE, Name.make("$ge"));
+		map.put(OperatorNames.LEFT, Name.make("$left"));
+		map.put(OperatorNames.RIGHT, Name.make("$right"));
+		map.put(OperatorNames.RRIGHT, Name.make("$unsigned_right"));
+		map.put(OperatorNames.AMPERSAND, Name.make("$ampersand"));
+		map.put(OperatorNames.BAR, Name.make("$bar"));
+		map.put(OperatorNames.CARET, Name.make("$caret"));
+		map.put(OperatorNames.TILDE, Name.make("$tilde"));
+		map.put(OperatorNames.NTILDE, Name.make("$ntilde"));
+		map.put(OperatorNames.AND, Name.make("$and"));
+		map.put(OperatorNames.OR, Name.make("$or"));
+		map.put(OperatorNames.BANG, Name.make("$not"));
+		map.put(OperatorNames.EQ, Name.make("$equalsequals"));
+		map.put(OperatorNames.NE, Name.make("$ne"));
+		map.put(OperatorNames.RANGE, Name.make("$range"));
+		map.put(OperatorNames.ARROW, Name.make("$arrow"));
+		map.put(OperatorNames.LARROW, Name.make("$larrow"));
+		map.put(OperatorNames.FUNNEL, Name.make("$funnel"));
+		map.put(OperatorNames.LFUNNEL, Name.make("$lfunnel"));
+		map.put(OperatorNames.STARSTAR, Name.make("$starstar"));
+		map.put(OperatorNames.inverse(OperatorNames.PLUS), Name.make("$inv_plus"));
+		map.put(OperatorNames.inverse(OperatorNames.MINUS), Name.make("$inv_minus"));
+		map.put(OperatorNames.inverse(OperatorNames.STAR), Name.make("$inv_times"));
+		map.put(OperatorNames.inverse(OperatorNames.SLASH), Name.make("$inv_over"));
+		map.put(OperatorNames.inverse(OperatorNames.PERCENT), Name.make("$inv_percent"));
+		map.put(OperatorNames.inverse(OperatorNames.LT), Name.make("$inv_lt"));
+		map.put(OperatorNames.inverse(OperatorNames.GT), Name.make("$inv_gt"));
+		map.put(OperatorNames.inverse(OperatorNames.LE), Name.make("$inv_le"));
+		map.put(OperatorNames.inverse(OperatorNames.GE), Name.make("$inv_ge"));
+		map.put(OperatorNames.inverse(OperatorNames.LEFT), Name.make("$inv_left"));
+		map.put(OperatorNames.inverse(OperatorNames.RIGHT), Name.make("$inv_right"));
+		map.put(OperatorNames.inverse(OperatorNames.RRIGHT), Name.make("$inv_unsigned_right"));
+		map.put(OperatorNames.inverse(OperatorNames.AMPERSAND), Name.make("$inv_ampersand"));
+		map.put(OperatorNames.inverse(OperatorNames.BAR), Name.make("$inv_bar"));
+		map.put(OperatorNames.inverse(OperatorNames.CARET), Name.make("$inv_caret"));
+		map.put(OperatorNames.inverse(OperatorNames.TILDE), Name.make("$inv_tilde"));
+		map.put(OperatorNames.inverse(OperatorNames.NTILDE), Name.make("$inv_ntilde"));
+		map.put(OperatorNames.inverse(OperatorNames.AND), Name.make("$inv_and"));
+		map.put(OperatorNames.inverse(OperatorNames.OR), Name.make("$inv_or"));
+		map.put(OperatorNames.inverse(OperatorNames.BANG), Name.make("$inv_not"));
+		map.put(OperatorNames.inverse(OperatorNames.EQ), Name.make("$inv_equalsequals"));
+		map.put(OperatorNames.inverse(OperatorNames.NE), Name.make("$inv_ne"));
+		map.put(OperatorNames.inverse(OperatorNames.RANGE), Name.make("$inv_range"));
+		map.put(OperatorNames.inverse(OperatorNames.ARROW), Name.make("$inv_arrow"));
+		map.put(OperatorNames.inverse(OperatorNames.LARROW), Name.make("$inv_larrow"));
+		map.put(OperatorNames.inverse(OperatorNames.FUNNEL), Name.make("$inv_funnel"));
+		map.put(OperatorNames.inverse(OperatorNames.LFUNNEL), Name.make("$inv_lfunnel"));
+		map.put(OperatorNames.inverse(OperatorNames.STARSTAR), Name.make("$inv_starstar"));
+	}
 
-		Name o = map.get(n);
+	private static Name mangleIdentifier(Name n) {
+		Name o = MANGLED_OPERATORS.get(n);
 		if (o != null)
 			return o;
 
@@ -669,9 +682,9 @@ public class Emitter {
 			if (index < act.propertyInitializers().size()) {
 				Expr e = act.propertyInitializer(index);
 				if (e != null && e.isConstant()) {
-					Object v = e.constantValue();
-					if (v instanceof String) {
-						return (String) v;
+					ConstantValue v = e.constantValue();
+					if (v instanceof StringValue) {
+						return ((StringValue) v).value();
 					}
 				}
 			}
@@ -1247,7 +1260,17 @@ public class Emitter {
         }
     }
 
-    private static boolean isDispatcher(X10MethodDecl_c n) {
+    public static boolean isDispatcher(MethodInstance mi) {
+        for (Ref<? extends Type> ref: mi.def().formalTypes()) {
+            Type type = ref.get();
+            if (containsTypeParam(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static boolean isDispatcher(X10MethodDecl_c n) {
         for (int i = 0; i < n.formals().size(); i++) {
             Type type = n.formals().get(i).type().type();
             if (containsTypeParam(type)) {
@@ -2195,19 +2218,17 @@ public class Emitter {
                 }
                 if (!isContainsTypeParams) continue;
                 
-                // TODO remove the following code when it is confirmed
-                // XTENLANG-2756
-//                // only implements by itself not super class's
-//                List<Type> allInterfaces = new ArrayList<Type>();
-//                getAllInterfaces(ct.interfaces(), allInterfaces);
-//                boolean isContainInterfaces = false;
-//                for (Type type : allInterfaces) {
-//                    if (type.typeEquals(implemented.container(), tr.context())) {
-//                        isContainInterfaces = true;
-//                        break;
-//                    }
-//                }
-//                if (!isContainInterfaces) continue;
+                // only implements by itself not super class's
+                List<Type> allInterfaces = new ArrayList<Type>();
+                getAllInterfaces(ct.interfaces(), allInterfaces);
+                boolean isContainInterfaces = false;
+                for (Type type : allInterfaces) {
+                    if (type.typeEquals(implemented.container(), tr.context())) {
+                        isContainInterfaces = true;
+                        break;
+                    }
+                }
+                if (!isContainInterfaces) continue;
                 
                 if (!isContainSameSignature(targets, implemented)) {
                     targets.add(implemented);
@@ -2290,6 +2311,7 @@ public class Emitter {
     private static void getAllInterfaces(List<Type> interfaces, List<Type> allInterfaces) {
         allInterfaces.addAll(interfaces);
         for (Type type : interfaces) {
+        	type = Types.baseType(type);
             if (type instanceof X10ClassType) {
                 List<Type> interfaces1 = ((X10ClassType) type).interfaces();
                 getAllInterfaces(interfaces1, allInterfaces);
@@ -2655,6 +2677,11 @@ public class Emitter {
 	    else {
 	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
 	            prettyPrint(e, tr);
+	        }
+	        else if (!(actual instanceof ParameterType) && X10PrettyPrinterVisitor.isString(actual, tr.context()) &&
+	        		!(expectedBase instanceof ParameterType) && !X10PrettyPrinterVisitor.isString(expectedBase, tr.context())) {
+	        	expander = expander.boxTo(actual).castTo(expectedBase);
+	        	expander.expand(tr);
 	        }
 	        else {
 	            //cast eagerly
@@ -3345,6 +3372,15 @@ public class Emitter {
 
         w.write("}");
         w.newline();
+	}
+	
+	// N.B. these conditions are cut&pasted from printInlinedCode()
+	public boolean isInlinedCall(X10Call c) {
+	    TypeSystem xts = tr.typeSystem();
+	    if (!isMethodInlineTarget(xts, Types.baseType(c.target().type()))) return false;
+	    MethodInstance mi = c.methodInstance();
+	    if (mi.name() == SettableAssign.SET || mi.name() == ClosureCall.APPLY) return true;
+	    return false;
 	}
 
     public boolean printInlinedCode(X10Call_c c) {

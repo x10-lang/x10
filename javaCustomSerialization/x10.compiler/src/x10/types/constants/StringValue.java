@@ -10,21 +10,59 @@
  */
 package x10.types.constants;
 
+import polyglot.ast.NodeFactory;
+import polyglot.ast.StringLit;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
- * @author Bowen Alpern
- *
+ * A constant value that represents a String constant
  */
 public class StringValue extends ConstantValue {
     
-    public StringValue(TypeSystem ts, String s) {
-        super(s, ts.String());
+    private final String val;
+    
+    StringValue(String s) {
+        val = s;
+    }
+    
+    public String value() {
+        return val;
+    }
+    
+    public String toJavaObject() {
+        return val;
+    }
+    
+    public StringLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.String()));
+        return (StringLit)nf.StringLit(pos, val).type(type);
     }
 
-	@Override
-	public String value() {
-		return (String) value;
-	}
+    public StringLit toUntypedLit(NodeFactory nf, Position pos) {
+        return (StringLit)nf.StringLit(pos, val);
+    }
+
+    @Override
+    public boolean equals(Object that) {
+        if (that instanceof StringValue) {
+            return val.equals(((StringValue) that).val);
+        } else {
+            return false;
+        }
+    }
+    
+    @Override 
+    public int hashCode() {
+        return val.hashCode();
+    }
+    
+    @Override
+    public String toString() {
+        return val;
+    }
 
 }

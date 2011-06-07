@@ -25,6 +25,8 @@ import x10.types.X10MethodDef;
  * @author vj
  */
 public class CField extends XField<Def> implements Typed {
+    private static final long serialVersionUID = -1015395555006123008L;
+    
     // lazily initialized
     private String string;
     private String getString() {

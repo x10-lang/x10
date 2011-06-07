@@ -19,10 +19,10 @@ import harness.x10Test;
 
 
 
-public class MethodResolution10_Bad77_MustFailCompile extends x10Test {
+public class MethodResolution10_Bad55_MustFailCompile extends x10Test {
    public def run() : boolean = (new Hook()).run();
    public static def main(var args: Array[String](1)): void = {
-        new MethodResolution10_Bad77_MustFailCompile().execute();
+        new MethodResolution10_Bad55_MustFailCompile().execute();
     }
 
 
@@ -35,14 +35,8 @@ public class MethodResolution10_Bad77_MustFailCompile extends x10Test {
   public static  class Ace implements Surface {
     public static operator (Boolean) : Ace = new Ace();
     public static operator (Place) : Ace = new Ace();
-    public static operator (Ace) : Int = 123;
   }
   public static  class Face implements Surface, Deface{}
-  public static  class Brace {
-    public static operator (Brace) : Int = 321;
-    public static operator (Brace) : Boolean = true;
-
-  }
 
   public static  class A {}
   public static  class B extends A {}
@@ -59,23 +53,15 @@ public class MethodResolution10_Bad77_MustFailCompile extends x10Test {
      assert m(new C()) == 0 : "C";
      // An Ace is a Surface, unambiguous best choice
      assert m(new Ace()) == 3 : "Ace";
-     // ERROR: m(new Face());
-
-     // One coercion per argument may be used,
-     // e.g. Ace -> Int
-     assert m(new Ace()) == 1;
+ m(new Face()); // ERR
 
      // The match must be exact.
      // ERROR: assert m(here) == 3 : "Place";
-
 
      // Boolean could be handled directly, or by
      // implicit coercion Boolean -> Ace.
      // Direct matches always win.
      assert m(true) == 2 : "Boolean";
-
-     // The match must be unique:
- assert m(new Brace()) == 1; // ERR
   }
   public static def main(argv:Array[String](1)) {(new Res()).example(); Console.OUT.println("That's all!");}
  public def claim() { val ace : Ace = here; assert m(ace)==3; }

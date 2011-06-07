@@ -69,6 +69,7 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10MethodDecl_c;
@@ -145,9 +146,10 @@ public class Emitter {
     }
     private static String mangle_to_cpp(String str) {
         str = x10.emitter.Emitter.mangleIdentifier(str);
+        str = StringUtil.escape(str, true);
         if (isCPPKeyword(str))
             str = "_kwd__" + str;
-        return str.replace("$", "__");
+        return str.replace("$", "__").replace("\\", "__");
     }
     public static String mangled_method_name(String str) {
         return mangle_to_cpp(str);
@@ -278,6 +280,7 @@ public class Emitter {
 			// [DC] I believe that since we are only looking at constraints of the form self.f,
 			// there is no need to check the type of the class which this field is attached to as it will
 			// always be the type we are translating.
+			if (!(xvarf.field() instanceof X10FieldDef)) continue; // only support # within @Native on property fields, not methods
 			String property_name = ((X10FieldDef)xvarf.field()).name().toString();
 			// resolve to another variable, keep going
 			XVar closed_xvar = projected.bindingForVar(xvar);
@@ -794,6 +797,8 @@ public class Emitter {
     private boolean isPointerless(X10ClassType ct) {
         assert ct.isX10Struct() : "Only structs should be checked to see if they are pointerless";
         
+        if (ASTQuery.getCppRep(ct.x10Def()) != null) return false; // be conservative on @NativeRep
+
         for (FieldInstance fi : ct.fields()) {
             if (fi.flags().isStatic()) continue; // ignore static fields; only care about instance fields
             if (!fi.type().isNumeric()) {

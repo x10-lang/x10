@@ -20,6 +20,7 @@ import polyglot.ast.Formal;
 import polyglot.ast.LocalDecl;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
+import polyglot.types.ContainerType;
 import polyglot.types.LocalDef;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -316,11 +317,17 @@ public class InliningTypeTransformer extends TypeParamSubstTransformer {
             X10ConstructorDef cd = d.constructorDef();
             DepParameterExpr g = d.guard();
             TypeNode ot = d.offerType();
+            Ref<? extends Type> returnTypeRef;
+            if (null != d.returnType()) {
+                returnTypeRef = d.returnType().typeRef();
+            } else {
+                returnTypeRef = cd.returnType();
+            }
             return visitor().typeSystem().constructorDef(
                     cd.position(), 
                     cd.container(), 
                     cd.flags(), 
-                    d.returnType().typeRef(), 
+                    returnTypeRef, 
                     argTypes, 
                     cd.thisDef(), 
                     formalNames,

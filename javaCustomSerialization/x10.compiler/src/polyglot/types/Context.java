@@ -1009,9 +1009,13 @@ public class Context implements Resolver, Cloneable
         assert (depType == null);
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push static");
-        Context v = push();
+        Context v;
+        if (isCode() || isAsync() || isAt()) {
+            v = pushBlock();
+        } else {
+            v = push();
+        }
         v.staticContext = true;
-        
         return v;
     }
 
@@ -1118,7 +1122,7 @@ public class Context implements Resolver, Cloneable
     public Context pushDepType(polyglot.types.Ref<? extends polyglot.types.Type> ref) {
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push dep type");
-        Context v =  push();
+        Context v = pushBlock();
         v.depType = ref;
         v.inCode = false;
         return v;
@@ -1160,7 +1164,7 @@ public class Context implements Resolver, Cloneable
     public Context pushSuperTypeDeclaration(X10ClassDef type) {
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push super type");
-        Context v = push();
+        Context v = pushBlock();
         v.inSuperOf = type;
         v.inCode = false;
         

@@ -26,7 +26,7 @@ public class Vars_Tub extends x10Test {
     }
 
 
-// file Vars line 445
+// file Vars line 465
  static class Tub(p:Int){
   def this(pp:Int):Tub{self.p==pp} {property(pp);}
   def example() {

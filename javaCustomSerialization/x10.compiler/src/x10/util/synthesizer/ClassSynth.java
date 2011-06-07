@@ -97,7 +97,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
     }
 
     public ClassSynth(Job job, NodeFactory xnf, Context xct, Position pos, Type superType, String className) {
-        this(job, xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.TOP_LEVEL);
+        this(job, xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.MEMBER);
     }
 
     public X10ClassDef getClassDef() {

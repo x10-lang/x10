@@ -465,7 +465,7 @@ public class X10CPPTranslator extends Translator {
 //	            if (map.isEmpty())
 //	                return;
 	            s.forceNewline();
-	            LineNumberMap.exportForCPPDebugger(s, map);
+	            map.exportForCPPDebugger(s, map);
 	        }
 	    });
 	}

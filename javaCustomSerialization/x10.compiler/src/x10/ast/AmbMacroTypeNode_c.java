@@ -335,9 +335,18 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         return sb.toString();
     }
     
+    public Context enterChildScope(Node child, Context c) {
+        if (child != this.prefix) {
+            TypeSystem ts = c.typeSystem();
+            c = c.pushDepType(Types.<Type>ref(ts.unknownType(this.position)));
+        }
+        Context cc = super.enterChildScope(child, c);
+        return cc;
+    }
+    
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-        TypeSystem ts =  tc.typeSystem();
-        NodeFactory nf = (NodeFactory) tc.nodeFactory();
+        TypeSystem ts = tc.typeSystem();
+        NodeFactory nf = tc.nodeFactory();
         
         AmbMacroTypeNode_c n = this;
         
@@ -380,7 +389,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         	IllegalConstraint error;
         	@Override
         	public Node override(Node n) {
-        		if (n instanceof Binary ) {
+        		if (n instanceof Binary) {
         			Binary b = (Binary) n;
         			Binary.Operator bop = b.operator();
         			if (b.type().isBoolean() && bop.equals(Binary.COND_AND) 
@@ -401,7 +410,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         CheckMacroCallArgsVisitor v = new CheckMacroCallArgsVisitor();
         for (Expr arg : args) {
         	arg = (Expr) arg.visit(v);
-        	if (v.error !=null) {
+        	if (v.error != null) {
         		Errors.issue(tc.job(), v.error);
         	}
         }

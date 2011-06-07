@@ -7,7 +7,6 @@
 
 package polyglot.ast;
 
-import x10.ast.X10Binary;
 import x10.types.MethodInstance;
 
 /**
@@ -140,7 +139,7 @@ public interface Binary extends Expr
     Binary precedence(Precedence precedence);
     
     boolean invert();
-    X10Binary invert(boolean invert);
+    Binary invert(boolean invert);
     MethodInstance methodInstance();
-    X10Binary methodInstance(MethodInstance mi);
+    Binary methodInstance(MethodInstance mi);
 }

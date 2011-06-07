@@ -15,6 +15,7 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.constants.ConstantValue;
 
 /**
  * A <code>Binary</code> represents a Java binary expression, an
@@ -29,7 +30,7 @@ public abstract class Binary_c extends Expr_c implements Binary
     
     public abstract boolean isConstant();
     
-    public abstract Object constantValue();
+    public abstract ConstantValue constantValue();
     
     /** Type check the expression. */
     public abstract Node typeCheck(ContextVisitor tc);

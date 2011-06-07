@@ -542,7 +542,6 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
     public native def compareTo(x:UShort): Int; /*  = (this.shortVal + Short.MIN_VALUE).compareTo(x.shortVal + Short.MIN_VALUE); */
 
     @Native("java", "\"x10.lang.UShort\"")
-    public def typeName():String {
-        return "x10.lang.UShort";
-    }
+    @Native("c++", "x10aux::type_name(#this)")
+    public native def typeName():String; /*  = "x10.lang.UShort"; */
 }

@@ -47,6 +47,7 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.ast.While;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
@@ -658,7 +659,7 @@ public class WSCodePreprocessor extends ContextVisitor {
         String mName = WSUtil.getDividableForMethodName(n) + genMethodDecls.size();
         X10MethodDecl mDecl = synthDividableForMethod(n, mName, context, df, locals);
         
-        MethodDef mDef = mDecl.methodDef();
+        X10MethodDef mDef = mDecl.methodDef();
         
         //now generate the in-place call
         Call call = synthDividableForMethodCall(n.position(), context, mDef,
@@ -763,13 +764,19 @@ public class WSCodePreprocessor extends ContextVisitor {
         return mSynth.close();
     }
     
-    private Call synthDividableForMethodCall(Position pos, Context ct, MethodDef mDef, 
+    private Call synthDividableForMethodCall(Position pos, Context ct, X10MethodDef mDef, 
                                              Expr lowerRef, Expr upperRef, Expr sliceNumRef,
-                                             DividableFor df,  List<Local> locals){
+                                             DividableFor df, List<Local> locals){
 
         Id callId = nf.Id(pos, mDef.name());
         ArrayList<Expr> paras = new ArrayList<Expr>();
         ArrayList<Type> formalTypes = new ArrayList<Type>();
+        ArrayList<TypeNode> typeArgs = new ArrayList<TypeNode>();
+        ArrayList<Type> typeActuals = new ArrayList<Type>();
+        for (ParameterType pt : mDef.typeParameters()) {
+            typeActuals.add(pt);
+            typeArgs.add(nf.CanonicalTypeNode(pos, pt));
+        }
         paras.add(lowerRef); formalTypes.add(df.boundType);
         paras.add(upperRef); formalTypes.add(df.boundType);
         paras.add(sliceNumRef); formalTypes.add(ts.Int());
@@ -780,18 +787,19 @@ public class WSCodePreprocessor extends ContextVisitor {
         Receiver r; 
         //decide the right method: instance of static
         
-        if(mDef.flags().isStatic()){
+        if (mDef.flags().isStatic()) {
             r = nf.CanonicalTypeNode(compilerPos, ct.currentClass());
         }
-        else{
+        else {
             r = synth.thisRef(ct.currentClass(), compilerPos);
         }
-        Call call = (Call) nf.Call(pos, r, callId, paras).type(ts.Void());
+        Call call = (Call) nf.X10Call(pos, r, callId, typeArgs, paras).type(ts.Void());
         MethodInstance mi = mDef.asInstance();
         mi = (MethodInstance) mi.flags(mDef.flags());
         mi = mi.name(mDef.name());
         mi = mi.returnType( mDef.returnType().get());
         mi = mi.formalTypes(formalTypes);
+        mi = (MethodInstance) mi.typeParameters(typeActuals);
         
         return call.methodInstance(mi);
     }

@@ -1556,7 +1556,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     
             // Check if adding self==value makes the constraint on t inconsistent.
             
-            XLit val = XTerms.makeLit(value);
+            XLit val = CTerms.makeLit(value, base);
 
             CConstraint c = new CConstraint();
             c.addSelfBinding(val);
@@ -2074,18 +2074,28 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         // FIXME: is this the same as entails(CConstraint, CConstraint)?
         boolean entails = true;
+
         final CConstraint mig = Subst.subst(mi.guard(), newSymbols, miSymbols);
         final CConstraint mjg = Subst.subst(mj.guard(), newSymbols, mjSymbols);
         if (mjg == null) {
-            entails = mig == null || mig.valid();
+            entails &= mig == null || mig.valid();
         }
         else {
-            entails = mig == null 
+            entails &= mig == null 
             || mjg.entails(mig, new ConstraintMaker() {
                 public CConstraint make() throws XFailure {
-                    return  context.constraintProjection(mjg, mig);
+                    return context.constraintProjection(mjg, mig);
                 }
             });          
+        }
+
+        final TypeConstraint mitg = Subst.subst(mi.typeGuard(), newSymbols, miSymbols);
+        final TypeConstraint mjtg = Subst.subst(mj.typeGuard(), newSymbols, mjSymbols);
+        if (mjtg == null) {
+            entails &= mitg == null;
+        }
+        else {
+            entails &= mitg == null || mjtg.entails(mitg, context);          
         }
 
         if (! entails) {

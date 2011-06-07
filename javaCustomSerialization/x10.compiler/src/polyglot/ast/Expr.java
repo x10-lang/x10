@@ -10,6 +10,7 @@ package polyglot.ast;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.visit.PrettyPrinter;
+import x10.types.constants.ConstantValue;
 
 /**
  * An <code>Expr</code> represents any Java expression.  All expressions
@@ -32,7 +33,7 @@ public interface Expr extends Receiver, Term
     boolean isConstant();
 
     /** Returns the constant value of the expression, if any. */
-    Object constantValue();
+    ConstantValue constantValue();
     
     /**
      * Correctly parenthesize the subexpression <code>expr<code>

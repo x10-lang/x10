@@ -60,6 +60,7 @@ import polyglot.visit.ContextVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.X10CompilerOptions;
+import x10.ast.OperatorNames;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10CanonicalTypeNode_c;
 import x10.ast.X10Cast;
@@ -88,6 +89,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import polyglot.types.TypeSystem;
 
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
@@ -134,7 +136,7 @@ public class Converter {
 		if (ts.isSubtype(t1, toType, tc.context())) 
 			return e;
 		
-		ConversionType ct = ts.numericConversionValid(toType, e.type(), e.constantValue(), tc.context()) 
+		ConversionType ct = ts.numericConversionValid(toType, e.type(), ConstantValue.toJavaObject(e.constantValue()), tc.context()) 
 		? ConversionType.UNKNOWN_CONVERSION
 		: ConversionType.CALL_CONVERSION; // ConversionType.UNKNOWN_IMPLICIT_CONVERSION;
 		
@@ -714,7 +716,6 @@ public class Converter {
 		}
         return null;
 	}
-		
 		   
 	static Expr checkedConversionForTypeParameter(X10Cast cast, Type fromType, Type toType) {
 	    return cast.conversionType(ConversionType.CHECKED).type(toType);
@@ -722,7 +723,7 @@ public class Converter {
 	public static <T extends Node> T check(T n, ContextVisitor tc) throws SemanticException {
 		return (T) n.del().disambiguate(tc).del().typeCheck(tc).del().checkConstants(tc);
 	}
-	public static final Name operator_as = Name.make("operator_as");
-	public static final Name implicit_operator_as = Name.make("implicit_operator_as");
-
+	
+	public static final Name operator_as = OperatorNames.AS;
+	public static final Name implicit_operator_as = OperatorNames.IMPLICIT_AS;
 }

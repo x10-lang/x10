@@ -26,15 +26,16 @@ public class Vars80 extends x10Test {
     }
 
 
-// file Vars line 349
+// file Vars line 365
  static  class Example {
  static def example () {
 val [i] : Point = Point.make(11);
 assert i == 11;
 val p[j,k] = Point.make(22,33);
 assert j == 22 && k == 33;
-val q[l,m] = [44,55]; // coerces an array to a point.
+val q[l,m] = [44,55] as Point;
 assert l == 44 && m == 55;
+//ERROR: val [n] = p;
 }}
  static  class Hook{ def run() {Example.example(); return true;}}
 

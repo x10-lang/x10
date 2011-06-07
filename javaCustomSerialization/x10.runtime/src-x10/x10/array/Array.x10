@@ -369,7 +369,7 @@ public final class Array[T] (
      * over this array.<p>
      * @return an Iterable[T] over this array.
      */
-    public def values():Iterable[T] = new Iterable[T]() {
+    public @TempNoInline_0 def values():Iterable[T] = new Iterable[T]() {
     	public def iterator() = new Iterator[T]() {
     		val regIt = Array.this.iterator();
     		public def next() = Array.this(regIt.next());
@@ -384,9 +384,10 @@ public final class Array[T] (
     		public def hasNext() = regIt.hasNext();
     	};
     	// The :T below should not be needed, see XTENLANG-2700.
-    	public operator this(i:Int):T=Array.this(i); 
-    	public def size()=Array.this.size;
+    	public operator this(i:Int):T=Array.this(i);
+    	public property def size()=Array.this.size;
     };
+
     
     /**
      * Return the element of this array corresponding to the given index.

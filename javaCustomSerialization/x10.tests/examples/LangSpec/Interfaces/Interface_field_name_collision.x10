@@ -26,7 +26,7 @@ public class Interface_field_name_collision extends x10Test {
     }
 
 
-// file Interfaces line 219
+// file Interfaces line 220
 
 
  static interface E1 {static val a = 1;}

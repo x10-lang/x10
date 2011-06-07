@@ -406,14 +406,6 @@ public class TypeSystem_c implements TypeSystem
     {
         assert_(container);
         assert_(argTypes);
-
-        Type t = (Type) Types.get(returnType);
-        assert t != null : "Cannot set return type of constructor to " + t;
-        if (t==null)
-            throw new InternalCompilerError("Cannot set return type of constructor to " + t);
-        //t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
-        ((Ref<Type>)returnType).update(t);
-        //returnType = new Ref_c<X10ClassType>(t);
         return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisDef, formalNames, guard, typeGuard,  offerType);
     }
     
@@ -3715,7 +3707,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit FALSE() {
         if (FALSE == null)
-            FALSE = XTypeTranslator.translate(false);
+            FALSE = XTypeTranslator.translate(false, this);
         return FALSE;
     }
 
@@ -3723,7 +3715,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit TRUE() {
         if (TRUE == null)
-            TRUE = XTypeTranslator.translate(true);
+            TRUE = XTypeTranslator.translate(true, this);
         return TRUE;
     }
 
@@ -3731,7 +3723,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit NEG_ONE() {
         if (NEG_ONE == null)
-            NEG_ONE = XTypeTranslator.translate(-1);
+            NEG_ONE = XTypeTranslator.translate(-1, this);
         return NEG_ONE;
     }
 
@@ -3739,7 +3731,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit ZERO() {
         if (ZERO == null)
-            ZERO = XTypeTranslator.translate(0);
+            ZERO = XTypeTranslator.translate(0, this);
         return ZERO;
     }
 
@@ -3747,7 +3739,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit ONE() {
         if (ONE == null)
-            ONE = XTypeTranslator.translate(1);
+            ONE = XTypeTranslator.translate(1, this);
         return ONE;
     }
 
@@ -3755,7 +3747,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit TWO() {
         if (TWO == null)
-            TWO = XTypeTranslator.translate(2);
+            TWO = XTypeTranslator.translate(2, this);
         return TWO;
     }
 
@@ -3763,7 +3755,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit THREE() {
         if (THREE == null)
-            THREE = XTypeTranslator.translate(3);
+            THREE = XTypeTranslator.translate(3, this);
         return THREE;
     }
 
@@ -3771,7 +3763,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit NULL() {
         if (NULL == null)
-            NULL = XTypeTranslator.transNull();
+            NULL = XTypeTranslator.transNull(this);
         return NULL;
     }
    /* public boolean entails(final CConstraint c1, final CConstraint c2, final Context context, Type selfType) {

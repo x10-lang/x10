@@ -29,7 +29,7 @@ public class GenericOverriding10_MustFailCompile extends GenericTest {
     }
 
     static class B[T] extends A[T] {
-        def m[U](T) {T<:U} :Int{}  = 1;  // ShouldBeErr: guard is not entailed
+        def m[U](T) {T<:U} :Int{}  = 1; // ERR (type constraint in a guard not entailed)
     }
 
     val a = new A[int]();

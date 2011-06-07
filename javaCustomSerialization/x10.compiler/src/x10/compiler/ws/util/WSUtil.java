@@ -447,7 +447,7 @@ public class WSUtil {
      * @param wts WSTransformState
      * @return
      */
-    static public X10MethodDef createWSCallMethodDef(MethodDef methodDef, TypeSystem ts){
+    static public X10MethodDef createWSCallMethodDef(MethodDef methodDef, TypeSystem ts) {
     	
         X10ClassType containerClassType = (X10ClassType) methodDef.container().get();
         X10ClassDef containerClassDef = containerClassType.x10Def();
@@ -456,7 +456,7 @@ public class WSUtil {
         formalTypes.add(Types.ref(ts.Worker()));
         formalTypes.add(Types.ref(ts.Frame()));
         formalTypes.add(Types.ref(ts.FinishFrame()));
-        for(Ref<? extends Type> f : methodDef.formalTypes()){
+        for (Ref<? extends Type> f : methodDef.formalTypes()) {
             formalTypes.add(f); //all formals are added in
         }
         
@@ -468,6 +468,7 @@ public class WSUtil {
                 methodDef.returnType(), 
                 Name.make(WSUtil.getMethodFastPathName(methodDef)), 
                 formalTypes);
+        mDef.setTypeParameters(methodDef.typeParameters());
 
         List<LocalDef> formalNames = new ArrayList<LocalDef>();
         Name workerName = Name.make("worker");
@@ -479,7 +480,7 @@ public class WSUtil {
         formalNames.add(workerLDef);
         formalNames.add(upLDef);
         formalNames.add(ffLDef);
-        for(LocalDef f : methodDef.formalNames()){
+        for (LocalDef f : methodDef.formalNames()) {
             formalNames.add(f); //all formals are added in
         }
         mDef.setFormalNames(formalNames);
@@ -499,16 +500,21 @@ public class WSUtil {
      * @return new method call
      */
     public static X10Call replaceMethodCallWithWSMethodCall(NodeFactory xnf, X10Call aCall, X10MethodDef methodDef, 
-                                                  List<Expr> newArgs){
+                                                  List<Expr> newArgs) {
     	
         //for arguments & new method instance's formal types
         ArrayList<Expr> args = new ArrayList<Expr>(newArgs);
         args.addAll(aCall.arguments());
         ArrayList<Type> argTypes = new ArrayList<Type>();
-        for(Expr e : newArgs){
+        for (Expr e : newArgs) {
         	argTypes.add(e.type());
         }
         argTypes.addAll(aCall.methodInstance().formalTypes());
+        
+        ArrayList<Type> typeActuals = new ArrayList<Type>();
+        for (TypeNode ta : aCall.typeArguments()) {
+            typeActuals.add(ta.type());
+        }
         
         //for the name
         Name name = methodDef.name(); //new name
@@ -518,6 +524,7 @@ public class WSUtil {
         mi = mi.formalTypes(argTypes);
         mi = mi.returnType(aCall.methodInstance().returnType());
         mi = (MethodInstance) mi.container(aCall.methodInstance().container());
+        mi = (MethodInstance) mi.typeParameters(typeActuals);
         
         //build new call
         aCall = (X10Call) aCall.methodInstance(mi);

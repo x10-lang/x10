@@ -192,6 +192,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
     public static final String JAVA_LANG_SYSTEM = "java.lang.System";
     public static final String X10_CORE_REF = "x10.core.Ref";
+    public static final String X10_CORE_STRUCT = "x10.core.Struct";
+    public static final String X10_CORE_ANY = "x10.core.Any";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
@@ -441,7 +443,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("extends ");
             if (flags.isStruct()) {
                 assert superClassNode == null : superClassNode;
-                w.write("x10.core.Struct");
+                w.write(X10_CORE_STRUCT);
             } else {
                 assert superClassNode != null;
                 Type superType = superClassNode.type();
@@ -461,6 +463,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 interfaces.add(tn);
             }
         }
+    	// N.B. We cannot represent it with Type node since x10.core.Any is @NativeRep'ed to java.lang.Object instead of to x10.core.Any
         /*
          * Interfaces automatically extend Any if
          * (n.flags().flags().isInterface() && interfaces.isEmpty()) {
@@ -493,6 +496,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
             w.end();
+        }
+        else {
+        	// make all interfaces extend x10.core.Any
+        	// N.B. We cannot represent it with Type node since x10.core.Any is @NativeRep'ed to java.lang.Object instead of to x10.core.Any
+        	if (flags.isInterface() && !xts.isAny(def.asType())) {
+        		w.allowBreak(0);
+        		w.write("extends " + X10_CORE_ANY);
+        	}
         }
         w.unifiedBreak(0);
         w.end();
@@ -1610,6 +1621,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             return;
         }
 
+        if (c.isConstant()) {
+            Type t = Types.baseType(c.type());
+            if (t.isNumeric() || t.isBoolean() || t.isChar() || t.isNull() || isString(t, tr.context())) {
+                er.prettyPrint(c.constantValue().toLit(tr.nodeFactory(), tr.typeSystem(), t, Position.COMPILER_GENERATED), tr);
+                return;
+            }
+        }
+
         // XTENLANG-2680 invoke final methods as non-virtual call for optimization
         MethodInstance mi = c.methodInstance();
         Receiver target = c.target();
@@ -1950,8 +1969,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     // e.g. (Boolean) m(a)
                     if (castType.typeEquals(Types.baseType(exprType), tr.context())) {
                         boolean closeParen = false;
-                        if (expr instanceof X10Call || expr instanceof ClosureCall) {
-                            closeParen = er.printUnboxConversion(castType);
+                        if (expr instanceof X10Call) {
+                            X10Call call = (X10Call)expr;
+                            if ((isBoxedType(call.methodInstance().def().returnType().get()) && !er.isInlinedCall(call))
+                                    || er.isDispatcher(call.methodInstance()))
+                                closeParen = er.printUnboxConversion(castType);
+                        } else if (expr instanceof ClosureCall) {
+                            ClosureCall call = (ClosureCall)expr;
+                            if (isBoxedType(call.closureInstance().def().returnType().get()))
+                                closeParen = er.printUnboxConversion(castType);
                         }
                         c.printSubExpr(expr, w, tr);
                         if (closeParen) w.write(")");
@@ -2030,7 +2056,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write("(");
                         }
                         closeParen = true;
-                    } else if (exprType.isUnsignedNumeric() && isBoxedType(castType)) {
+                    } else if (exprType.isNumeric() && isBoxedType(castType)) {
                     	er.printBoxConversion(exprType);
                     	w.write("(");
                         closeParen = true;
@@ -2278,13 +2304,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // else
         // val = Long.toString((int) n.value());
         }
+        if (!n.type().isLongOrLess()) {
+            w.write("((");
+            er.printType(n.type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
+            w.write(")");
+        }
         w.write(val);
+        if (!n.type().isLongOrLess()) {
+            w.write(")");
+        }
     }
 
     @Override
     public void visit(StringLit_c n) {
         w.write("\"");
-        w.write(StringUtil.escape(n.stringValue()));
+        w.write(StringUtil.escape(n.value()));
         w.write("\"");
         // removed it since now we pass captured environment explicitly,
         // therefore the workaround is no longer needed.
