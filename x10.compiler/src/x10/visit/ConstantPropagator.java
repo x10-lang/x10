@@ -103,7 +103,7 @@ public class ConstantPropagator extends ContextVisitor {
             if (l.localInstance().def().isConstant()) {
                 ConstantValue o = l.localInstance().def().constantValue();
                 if (null != o && !(o instanceof StringValue)) {
-                    return o.toLit(nf, xts, n.position());      
+                    return o.toLit(nf, xts, l.type(), n.position());      
                 }
             }
         }
@@ -113,7 +113,7 @@ public class ConstantPropagator extends ContextVisitor {
             if (isConstant(e)) {
                 ConstantValue o = constantValue(e);
                 if (null != o) {
-                    return o.toLit(nf, xts, e.position());
+                    return o.toLit(nf, xts, e.type(), e.position());
                 }
             }
         }

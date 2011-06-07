@@ -14,9 +14,12 @@ import polyglot.ast.IntLit;
 import polyglot.ast.IntLit_c;
 import polyglot.ast.Lit;
 import polyglot.ast.NodeFactory;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
  * A class to represent that various kinds of Integral constants.
@@ -110,24 +113,28 @@ public final class IntegralValue extends ConstantValue {
     }
     
     @Override
-    public Lit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
-        IntLit lit = nf.IntLit(pos, kind, val);
+    public IntLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+        type = Types.addSelfBinding(type, CTerms.makeLit(val, getLitType(ts)));
+        return (IntLit)nf.IntLit(pos, kind, val).type(type);
+    }
+
+    private Type getLitType(TypeSystem ts) {
         if (isULong()) {
-            return (Lit) lit.type(ts.ULong());
+            return ts.ULong();
         } else if (isLong()) {
-            return (Lit)lit.type(ts.Long());
+            return ts.Long();
         } else if (isUInt()) {
-            return (Lit)lit.type(ts.UInt());
+            return ts.UInt();
         } else if (isInt()) {
-            return (Lit)lit.type(ts.Int());
+            return ts.Int();
         } else if (isUShort()) {
-            return (Lit)lit.type(ts.UShort());
+            return ts.UShort();
         } else if (isShort()) {
-            return (Lit)lit.type(ts.Short());
+            return ts.Short();
         } else if (isUByte()) {
-            return (Lit)lit.type(ts.UByte());
+            return ts.UByte();
         } else {
-            return (Lit)lit.type(ts.Byte());
+            return ts.Byte();
         }
     }
     

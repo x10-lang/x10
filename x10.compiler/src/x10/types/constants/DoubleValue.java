@@ -12,8 +12,11 @@ package x10.types.constants;
 
 import polyglot.ast.FloatLit;
 import polyglot.ast.NodeFactory;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
  * A class to represent a constant of type DOuble.
@@ -35,8 +38,9 @@ public final class DoubleValue extends ConstantValue {
         return Double.valueOf(val);
     }
     
-    public FloatLit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
-        return (FloatLit)nf.FloatLit(pos, FloatLit.DOUBLE, val).type(ts.Double());
+    public FloatLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.Double()));
+        return (FloatLit)nf.FloatLit(pos, FloatLit.DOUBLE, val).type(type);
     }
     
     public FloatLit toUntypedLit(NodeFactory nf, Position pos) {

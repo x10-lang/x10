@@ -323,8 +323,8 @@ public class X10Binary_c extends Binary_c {
                 if (op == MUL) return ConstantValue.makeIntegral(l * r, meet(lk, rk));
                 if (op == DIV) return ConstantValue.makeIntegral(l / r, meet(lk, rk));;
                 if (op == MOD) return ConstantValue.makeIntegral(l % r, meet(lk, rk));;
-                if (op == EQ) return ConstantValue.makeBoolean(l == r);
-                if (op == NE) return ConstantValue.makeBoolean(l != r);
+                if (op == EQ) return ConstantValue.makeBoolean(lk == rk && l == r);
+                if (op == NE) return ConstantValue.makeBoolean(lk != rk || l != r);
                 if (op == BIT_AND) return ConstantValue.makeIntegral(l & r, meet(lk, rk));;
                 if (op == BIT_OR) return ConstantValue.makeIntegral(l | r, meet(lk, rk));
                 if (op == BIT_XOR) return ConstantValue.makeIntegral(l ^ r, meet(lk, rk));

@@ -1624,7 +1624,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (c.isConstant()) {
             Type t = Types.baseType(c.type());
             if (t.isNumeric() || t.isBoolean() || t.isChar() || t.isNull() || isString(t, tr.context())) {
-                er.prettyPrint(c.constantValue().toLit(tr.nodeFactory(), tr.typeSystem(), Position.COMPILER_GENERATED), tr);
+                er.prettyPrint(c.constantValue().toLit(tr.nodeFactory(), tr.typeSystem(), t, Position.COMPILER_GENERATED), tr);
                 return;
             }
         }
@@ -2304,7 +2304,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // else
         // val = Long.toString((int) n.value());
         }
+        if (!n.type().isLongOrLess()) {
+            w.write("((");
+            er.printType(n.type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
+            w.write(")");
+        }
         w.write(val);
+        if (!n.type().isLongOrLess()) {
+            w.write(")");
+        }
     }
 
     @Override

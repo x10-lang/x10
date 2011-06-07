@@ -12,8 +12,11 @@ package x10.types.constants;
 
 import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
  * A constant value that represents a String constant
@@ -34,8 +37,9 @@ public class StringValue extends ConstantValue {
         return val;
     }
     
-    public StringLit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
-        return (StringLit)nf.StringLit(pos, val).type(ts.String());
+    public StringLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.String()));
+        return (StringLit)nf.StringLit(pos, val).type(type);
     }
 
     public StringLit toUntypedLit(NodeFactory nf, Position pos) {

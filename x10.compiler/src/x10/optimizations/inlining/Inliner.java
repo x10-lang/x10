@@ -272,7 +272,7 @@ public class Inliner extends ContextVisitor {
             }
             Object value = opts.x10_config.get(name);
             ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
-            Expr literal = cv.toLit(nf, ts, call.position());
+            Expr literal = cv.toLit(nf, ts, type, call.position());
             return literal;
         } catch (ConfigurationError e) {
             return null;

@@ -23,7 +23,7 @@ import polyglot.util.Position;
  */
 public abstract class ConstantValue {
     
-    public abstract Lit toLit(NodeFactory nf, TypeSystem ts, Position pos);
+    public abstract Lit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos);
 
     public abstract Lit toUntypedLit(NodeFactory nf, Position pos);
     

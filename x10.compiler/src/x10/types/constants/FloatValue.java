@@ -12,8 +12,11 @@ package x10.types.constants;
 
 import polyglot.ast.FloatLit;
 import polyglot.ast.NodeFactory;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
  * A class to represent a constant of type Float.
@@ -35,8 +38,9 @@ public final class FloatValue extends ConstantValue {
         return Float.valueOf(val);
     }
     
-    public FloatLit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
-        return (FloatLit)nf.FloatLit(pos, FloatLit.FLOAT, val).type(ts.Float());
+    public FloatLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.Float()));
+        return (FloatLit)nf.FloatLit(pos, FloatLit.FLOAT, val).type(type);
     }
 
     public FloatLit toUntypedLit(NodeFactory nf, Position pos) {

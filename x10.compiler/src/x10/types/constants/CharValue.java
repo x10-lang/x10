@@ -13,9 +13,12 @@ package x10.types.constants;
 import polyglot.ast.CharLit;
 import polyglot.ast.FloatLit;
 import polyglot.ast.NodeFactory;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
  * A class to represent a constant of type Char.
@@ -35,8 +38,9 @@ public final class CharValue extends ConstantValue {
         return Character.valueOf(val);
     }
     
-    public CharLit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
-        return (CharLit)nf.CharLit(pos, val).type(ts.Char());
+    public CharLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.Char()));
+        return (CharLit)nf.CharLit(pos, val).type(type);
     }
 
     public CharLit toUntypedLit(NodeFactory nf, Position pos) {

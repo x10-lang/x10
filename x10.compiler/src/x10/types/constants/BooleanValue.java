@@ -12,8 +12,11 @@ package x10.types.constants;
 
 import polyglot.ast.BooleanLit;
 import polyglot.ast.NodeFactory;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
  * A boolean constant value (true or false)
@@ -31,8 +34,9 @@ public final class BooleanValue extends ConstantValue {
 	
 	public Boolean toJavaObject() { return Boolean.valueOf(val); }
 	
-	public BooleanLit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
-	    return (BooleanLit) nf.BooleanLit(pos, val).type(ts.Boolean());
+	public BooleanLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+	    type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.Boolean()));
+	    return (BooleanLit)nf.BooleanLit(pos, val).type(type);
 	}
 
 	public BooleanLit toUntypedLit(NodeFactory nf, Position pos) {

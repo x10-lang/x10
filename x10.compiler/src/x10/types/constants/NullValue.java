@@ -13,9 +13,12 @@ package x10.types.constants;
 import polyglot.ast.Expr;
 import polyglot.ast.Lit;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.NullLit;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
  * A constant value the represents the constant null.
@@ -27,8 +30,9 @@ public final class NullValue extends ConstantValue {
     public Object toJavaObject() { return null; }
     
     @Override
-    public Lit toLit(NodeFactory nf, TypeSystem ts, Position pos) {
-        return nf.NullLit(pos);
+    public NullLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+        type = Types.addSelfBinding(type, CTerms.makeLit(null, ts.Null()));
+        return (NullLit)nf.NullLit(pos).type(type);
     }
 
     public Lit toUntypedLit(NodeFactory nf, Position pos) {
