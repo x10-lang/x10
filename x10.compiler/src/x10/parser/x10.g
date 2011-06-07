@@ -27,22 +27,28 @@
 
 %Terminals
 
-    IntegerLiteral        -- the usual
-    LongLiteral           -- IntegerLiteral followed by 'l' or 'L'
-    FloatingPointLiteral  --
-                          -- FloatingPointLiteral ::= Digits . Digits? ExponentPart? FloatingTypeSuffix?
-                          --                        | . Digits ExponentPart? FloatingTypeSuffix?
-                          --                        | Digits ExponentPart FloatingTypeSuffix?
-                          --                        | Digits ExponentPart? FloatingTypeSuffix
-                          --
-                          -- ExponentPart ::= ('e'|'E') ('+'|'-')? Digits
-                          -- FloatingTypeSuffix ::= 'f' |  'F'
-                          --
-    DoubleLiteral         -- See FloatingPointLiteral except that
-                          -- FloatingTypeSuffix ::= 'd' | 'D'
-                          --
-    CharacterLiteral      -- the usual
-    StringLiteral         -- the usual
+    IntegerLiteral         -- the usual
+    LongLiteral            -- IntegerLiteral followed by 'l' or 'L'
+    ByteLiteral            -- IntegerLiteral followed by 'y' or 'Y'
+    ShortLiteral           -- IntegerLiteral followed by 's' or 'S'
+    UnsignedIntegerLiteral -- IntegerLiteral followed by 'u' or 'U'
+    UnsignedLongLiteral    -- IntegerLiteral followed by 'u' or 'U' and 'l' or 'L' (in any order)
+    UnsignedByteLiteral    -- IntegerLiteral followed by 'u' or 'U' and 'y' or 'Y' (in any order)
+    UnsignedShortLiteral   -- IntegerLiteral followed by 'u' or 'U' and 's' or 'S' (in any order)
+    FloatingPointLiteral   --
+                           -- FloatingPointLiteral ::= Digits . Digits? ExponentPart? FloatingTypeSuffix?
+                           --                        | . Digits ExponentPart? FloatingTypeSuffix?
+                           --                        | Digits ExponentPart FloatingTypeSuffix?
+                           --                        | Digits ExponentPart? FloatingTypeSuffix
+                           --
+                           -- ExponentPart ::= ('e'|'E') ('+'|'-')? Digits
+                           -- FloatingTypeSuffix ::= 'f' |  'F'
+                           --
+    DoubleLiteral          -- See FloatingPointLiteral except that
+                           -- FloatingTypeSuffix ::= 'd' | 'D'
+                           --
+    CharacterLiteral       -- the usual
+    StringLiteral          -- the usual
 
     MINUS_MINUS ::= '--'
     OR ::= '|' 
@@ -207,14 +213,14 @@
 			r.rule_PackageName0(PackageName);
             $EndJava./
 
-    ExpressionName ::= AmbiguousName . ErrorId
+    ExpressionName ::= FullyQualifiedName . ErrorId
             /.$BeginJava
-			r.rule_ExpressionName0(AmbiguousName);
+			r.rule_ExpressionName0(FullyQualifiedName);
             $EndJava./
 
-    MethodName ::= AmbiguousName . ErrorId
+    MethodName ::= FullyQualifiedName . ErrorId
             /.$BeginJava
-			r.rule_MethodName0(AmbiguousName);
+			r.rule_MethodName0(FullyQualifiedName);
             $EndJava./
 
     PackageOrTypeName ::= PackageOrTypeName . ErrorId
@@ -222,9 +228,9 @@
 			r.rule_PackageOrTypeName0(PackageOrTypeName);
             $EndJava./
 
-    AmbiguousName ::= AmbiguousName . ErrorId
+    FullyQualifiedName ::= FullyQualifiedName . ErrorId
             /.$BeginJava
-			r.rule_AmbiguousName0(AmbiguousName);
+			r.rule_FullyQualifiedName0(FullyQualifiedName);
             $EndJava./
 
     FieldAccess ::= ErrorPrimaryPrefix
@@ -376,9 +382,6 @@
     MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration0(MethodModifiersopt,Identifier,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                
-
-                                            
         $EndJava./
       | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
         /.$BeginJava
@@ -461,9 +464,9 @@
 			r.rule_ExplicitConstructorInvocation3(Primary,TypeArgumentsopt,ArgumentListopt);
         $EndJava./
 
-    NormalInterfaceDeclaration ::= Modifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
+    InterfaceDeclaration ::= Modifiersopt interface Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt ExtendsInterfacesopt InterfaceBody
         /.$BeginJava
-			r.rule_NormalInterfaceDeclaration0(Modifiersopt,Identifier,TypeParamsWithVarianceopt,Propertiesopt,WhereClauseopt,ExtendsInterfacesopt,InterfaceBody);
+			r.rule_InterfaceDeclaration0(Modifiersopt,Identifier,TypeParamsWithVarianceopt,Propertiesopt,WhereClauseopt,ExtendsInterfacesopt,InterfaceBody);
         $EndJava./
 
     ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
@@ -474,9 +477,9 @@
         /.$BeginJava
 			r.rule_ClassInstanceCreationExpression2(Primary,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
         $EndJava./
-                                      | AmbiguousName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+                                      | FullyQualifiedName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-			r.rule_ClassInstanceCreationExpression3(AmbiguousName,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
+			r.rule_ClassInstanceCreationExpression3(FullyQualifiedName,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
         $EndJava./
                        
       AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
@@ -487,7 +490,7 @@
     -------------------------------------- Section:::Types
     Type ::= FunctionType
            |  ConstrainedType
-           |  VoidType
+           |  Void
 
     FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt  Offersopt => Type
         /.$BeginJava
@@ -496,11 +499,6 @@
 
     ClassType ::= NamedType
 
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    InterfaceType ::= FunctionType | NamedType | ( Type )
-    
     AnnotatedType ::= Type Annotations
         /.$BeginJava
 			r.rule_AnnotatedType0(Type,Annotations);
@@ -509,9 +507,9 @@
     ConstrainedType ::=  NamedType
            | AnnotatedType
 
-    VoidType ::= void
+    Void ::= void
         /.$BeginJava
-			r.rule_VoidType0();
+			r.rule_Void0();
         $EndJava./
 
 
@@ -560,9 +558,9 @@
     NamedType ::= NamedTypeNoConstraints
                 | DepNamedType
 
-    DepParameters ::= { ExistentialListopt Conjunctionopt }
-         /.$BeginJava
-			r.rule_DepParameters0(ExistentialListopt,Conjunctionopt);
+    DepParameters ::= { FUTURE_ExistentialListopt ConstraintConjunctionopt }
+        /.$BeginJava
+			r.rule_DepParameters0(FUTURE_ExistentialListopt,ConstraintConjunctionopt);
         $EndJava./
 
 
@@ -581,13 +579,13 @@
 			r.rule_FormalParameters0(FormalParameterListopt);
         $EndJava./
 
-    Conjunction ::= Expression
+    ConstraintConjunction ::= Expression
         /.$BeginJava
-			r.rule_Conjunction0(Expression);
+			r.rule_ConstraintConjunction0(Expression);
         $EndJava./
-                  | Conjunction , Expression
+                  | ConstraintConjunction , Expression
          /.$BeginJava
-			r.rule_Conjunction1(Conjunction,Expression);
+			r.rule_ConstraintConjunction1(ConstraintConjunction,Expression);
         $EndJava./
 
     HasZeroConstraint ::= Type$t1 haszero
@@ -609,39 +607,36 @@
 			r.rule_WhereClause0(DepParameters);
           $EndJava./
 
-    Conjunctionopt ::= %Empty
+    ConstraintConjunctionopt ::= %Empty
           /.$BeginJava
-			r.rule_Conjunctionopt0();
+			r.rule_ConstraintConjunctionopt0();
           $EndJava./
-          | Conjunction
+          | ConstraintConjunction
           /.$BeginJava
-			r.rule_Conjunctionopt1(Conjunction);
+			r.rule_ConstraintConjunctionopt1(ConstraintConjunction);
         $EndJava./
 
-    ExistentialListopt ::= %Empty
-          /.$BeginJava
-			r.rule_ExistentialListopt0();
-          $EndJava./
-          | ExistentialList ;
-          /.$BeginJava
-			r.rule_ExistentialListopt1(ExistentialList);
+    FUTURE_ExistentialListopt ::= %Empty
+        /.$BeginJava
+			r.rule_FUTURE_ExistentialListopt0();
+        $EndJava./
+                                | FUTURE_ExistentialList ;
+        /.$BeginJava
+			r.rule_FUTURE_ExistentialListopt1(FUTURE_ExistentialList);
         $EndJava./
 
-       ExistentialList ::= FormalParameter
+    FUTURE_ExistentialList ::= FormalParameter
         /.$BeginJava
-			r.rule_ExistentialList0(FormalParameter);
+			r.rule_FUTURE_ExistentialList0(FormalParameter);
         $EndJava./
-                          | ExistentialList ; FormalParameter
+                             | FUTURE_ExistentialList ; FormalParameter
         /.$BeginJava
-			r.rule_ExistentialList1(ExistentialList,FormalParameter);
+			r.rule_FUTURE_ExistentialList1(FUTURE_ExistentialList,FormalParameter);
         $EndJava./
 
 
     ------------------------------------- Section ::: Classes
-    ClassDeclaration ::= StructDeclaration
-                       | NormalClassDeclaration
-        
-    NormalClassDeclaration ::= Modifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
+    ClassDeclaration ::= Modifiersopt class Identifier TypeParamsWithVarianceopt Propertiesopt WhereClauseopt Superopt Interfacesopt ClassBody
         /.$BeginJava
 			r.rule_NormalClassDeclaration0(Modifiersopt,Identifier,TypeParamsWithVarianceopt,Propertiesopt,WhereClauseopt,Superopt,Interfacesopt,ClassBody);
         $EndJava./
@@ -924,9 +919,9 @@
         $EndJava./
 
 
-    AtStatement ::= at PlaceExpressionSingleList Statement
+    AtStatement ::= at ( PlaceExpression ) Statement
         /.$BeginJava
-			r.rule_AtStatement0(PlaceExpressionSingleList,Statement);
+			r.rule_AtStatement0(PlaceExpression,Statement);
         $EndJava./
 -- Begin XTENLANG-2660
 --                  | at ( PlaceExpression ; * ) Statement
@@ -1061,10 +1056,6 @@
         /.$BeginJava
 			r.rule_FinishStatement1(Statement);
         $EndJava./
-    PlaceExpressionSingleList ::= ( PlaceExpression )
-        /.$BeginJava
-			r.rule_PlaceExpressionSingleList0(PlaceExpression);
-        $EndJava./
 
     PlaceExpression ::= Expression
 
@@ -1100,13 +1091,21 @@
         $EndJava./
     
      --------------------------------------- Section :: Expression
-     TypeParamWithVarianceList ::= TypeParamWithVariance
+     TypeParamWithVarianceList ::= TypeParameter
         /.$BeginJava
-			r.rule_TypeParamWithVarianceList0(TypeParamWithVariance);
+			r.rule_TypeParamWithVarianceList0(TypeParameter);
         $EndJava./
-                      | TypeParamWithVarianceList , TypeParamWithVariance
+                      | OBSOLETE_TypeParamWithVariance
         /.$BeginJava
-			r.rule_TypeParamWithVarianceList1(TypeParamWithVarianceList,TypeParamWithVariance);
+			r.rule_TypeParamWithVarianceList1(OBSOLETE_TypeParamWithVariance);
+        $EndJava./
+                      | TypeParamWithVarianceList , TypeParameter
+        /.$BeginJava
+			r.rule_TypeParamWithVarianceList2(TypeParamWithVarianceList,TypeParameter);
+        $EndJava./
+                      | TypeParamWithVarianceList , OBSOLETE_TypeParamWithVariance
+        /.$BeginJava
+			r.rule_TypeParamWithVarianceList3(TypeParamWithVarianceList,OBSOLETE_TypeParamWithVariance);
         $EndJava./
         
      TypeParameterList ::= TypeParameter
@@ -1118,42 +1117,19 @@
 			r.rule_TypeParameterList1(TypeParameterList,TypeParameter);
         $EndJava./
         
-    TypeParamWithVariance ::= Identifier
+    OBSOLETE_TypeParamWithVariance ::= + TypeParameter
         /.$BeginJava
-			r.rule_TypeParamWithVariance0(Identifier);
+			r.rule_OBSOLETE_TypeParamWithVariance0(TypeParameter);
         $EndJava./
-                   | + Identifier
+                                     | - TypeParameter
         /.$BeginJava
-			r.rule_TypeParamWithVariance1(Identifier);
-        $EndJava./
-                   | - Identifier
-        /.$BeginJava
-			r.rule_TypeParamWithVariance2(Identifier);
+			r.rule_OBSOLETE_TypeParamWithVariance1(TypeParameter);
         $EndJava./
         
     TypeParameter ::= Identifier
         /.$BeginJava
 			r.rule_TypeParameter0(Identifier);
         $EndJava./
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    RegionExpression ::= Expression
---
---    RegionExpressionList ::= RegionExpression
---        /.$BeginJava
---                    List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
---                    l.add(RegionExpression);
---                    setResult(l);
---          $EndJava
---        ./
---               | RegionExpressionList , RegionExpression
---        /.$BeginJava
---                    RegionExpressionList.add(RegionExpression);
---                    //setResult(RegionExpressionList);
---          $EndJava
---        ./
 
     ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt  Offersopt => ClosureBody
         /.$BeginJava
@@ -1179,9 +1155,9 @@
         $EndJava./
                   
                   
-    AtExpression ::= at PlaceExpressionSingleList ClosureBody
+    AtExpression ::= at ( PlaceExpression ) ClosureBody
         /.$BeginJava
-			r.rule_AtExpression0(PlaceExpressionSingleList,ClosureBody);
+			r.rule_AtExpression0(PlaceExpression,ClosureBody);
         $EndJava./
 -- Begin XTENLANG-2660
 --                   | at ( PlaceExpression ; * ) ClosureBody
@@ -1229,43 +1205,10 @@
         
     ---------------------------------------- All the opts...
 
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    DepParametersopt ::= %Empty
---        /.$NullAction./
---                       | DepParameters
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    PropertyListopt ::=  %Empty
---        /.$BeginJavppa
---                    setResult(new TypedList<PropertyDecl>(new LinkedList<PropertyDecl>(), PropertyDecl.class, false));
---          $EndJava
---        ./
---                       | PropertyList
-                       
     WhereClauseopt ::= %Empty
         /.$NullAction./
                      | WhereClause
 
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    ClassModifiersopt ::= %Empty
---        /.$BeginJava
---             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
---          $EndJava ./
---          | ClassModifiers
---          
---    TypeDefModifiersopt ::= %Empty
---        /.$BeginJava
---             setResult(Collections.singletonList(nf.FlagsNode(JPGPosition.COMPILER_GENERATED, X10Flags.toX10Flags(Flags.NONE))));
---          $EndJava ./
---          | TypeDefModifiers
-          
     ClockedClauseopt ::= %Empty
         /.$BeginJava
 			r.rule_ClockedClauseopt0();
@@ -1326,18 +1269,18 @@
         /.$BeginJava
 			r.rule_ExpressionName1(Identifier);
         $EndJava./
-                     | AmbiguousName . Identifier
+                     | FullyQualifiedName . Identifier
         /.$BeginJava
-			r.rule_ExpressionName2(AmbiguousName,Identifier);
+			r.rule_ExpressionName2(FullyQualifiedName,Identifier);
         $EndJava./
 
     MethodName ::=? Identifier
         /.$BeginJava
 			r.rule_MethodName1(Identifier);
         $EndJava./
-                 | AmbiguousName . Identifier
+                 | FullyQualifiedName . Identifier
         /.$BeginJava
-			r.rule_MethodName2(AmbiguousName,Identifier);
+			r.rule_MethodName2(FullyQualifiedName,Identifier);
         $EndJava./
 
     PackageOrTypeName ::= Identifier
@@ -1349,13 +1292,13 @@
 			r.rule_PackageOrTypeName2(PackageOrTypeName,Identifier);
         $EndJava./
 
-    AmbiguousName ::=? Identifier
+    FullyQualifiedName ::=? Identifier
         /.$BeginJava
-			r.rule_AmbiguousName1(Identifier);
+			r.rule_FullyQualifiedName1(Identifier);
         $EndJava./
-                    | AmbiguousName . Identifier
+                    | FullyQualifiedName . Identifier
         /.$BeginJava
-			r.rule_AmbiguousName2(AmbiguousName,Identifier);
+			r.rule_FullyQualifiedName2(FullyQualifiedName,Identifier);
         $EndJava./
 
     -- Chapter 7
@@ -1423,6 +1366,7 @@
 --        /.$BadAction./
 
     TypeDeclaration ::= ClassDeclaration
+                      | StructDeclaration
                       | InterfaceDeclaration
                       | TypeDefDeclaration
                       | ;
@@ -1430,114 +1374,6 @@
 			r.rule_TypeDeclaration3();
         $EndJava./
 
-    -- Chapter 8
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    ClassModifiers ::= ClassModifier
---        /.$BeginJava
---                    List<Node> l = new LinkedList<Node>();
---                    l.addAll(ClassModifier);
---                    setResult(l);
---          $EndJava
---        ./
---                     | ClassModifiers ClassModifier
---        /.$BeginJava
---                    ClassModifiers.addAll(ClassModifier);
---          $EndJava
---        ./
---
---    ClassModifier ::= Annotation
---        /.$BeginJava
---                    setResult(Collections.singletonList(Annotation));
---          $EndJava
---        ./
---                    | public
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
---          $EndJava
---        ./
---                    | protected
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
---          $EndJava
---        ./
---                    | private
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
---          $EndJava
---        ./
---                    | abstract
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
---          $EndJava
---        ./
---                    | static
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
---          $EndJava
---        ./
---                    | final
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
---          $EndJava
---        ./
---                    | safe
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
---          $EndJava
---        ./
---        
---    TypeDefModifiers ::= TypeDefModifier
---        /.$BeginJava
---                    List<Node> l = new LinkedList<Node>();
---                    l.addAll(TypeDefModifier);
---                    setResult(l);
---          $EndJava
---        ./
---                     | TypeDefModifiers TypeDefModifier
---        /.$BeginJava
---                    TypeDefModifiers.addAll(TypeDefModifier);
---          $EndJava
---        ./
---
---    TypeDefModifier ::= Annotation
---        /.$BeginJava
---                    setResult(Collections.singletonList(Annotation));
---          $EndJava
---        ./
---                    | public
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
---          $EndJava
---        ./
---                    | protected
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
---          $EndJava
---        ./
---                    | private
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
---          $EndJava
---        ./
---                    | abstract
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
---          $EndJava
---        ./
---                    | static
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
---          $EndJava
---        ./
---                    | final
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
---          $EndJava
---        ./
-        
     --
     -- See Chapter 4
     --
@@ -1598,21 +1434,9 @@
         /.$BeginJava
 			r.rule_ClassMemberDeclaration2(PropertyMethodDeclaration);
         $EndJava./
-                             | TypeDefDeclaration
+                             | TypeDeclaration
         /.$BeginJava
-			r.rule_ClassMemberDeclaration3(TypeDefDeclaration);
-        $EndJava./
-                             | ClassDeclaration
-        /.$BeginJava
-			r.rule_ClassMemberDeclaration4(ClassDeclaration);
-        $EndJava./
-                             | InterfaceDeclaration
-        /.$BeginJava
-			r.rule_ClassMemberDeclaration5(InterfaceDeclaration);
-        $EndJava./
-                             | ;
-        /.$BeginJava
-			r.rule_ClassMemberDeclaration6();
+			r.rule_ClassMemberDeclaration3(TypeDeclaration);
         $EndJava./
     
     FormalDeclarators ::= FormalDeclarator
@@ -1682,53 +1506,6 @@
     
     VariableInitializer ::= Expression
     
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    FieldModifiers ::= FieldModifier
---        /.$BeginJava
---                    List<Node> l = new LinkedList<Node>();
---                    l.addAll(FieldModifier);
---                    setResult(l);
---          $EndJava
---        ./
---                     | FieldModifiers FieldModifier
---        /.$BeginJava
---                    FieldModifiers.addAll(FieldModifier);
---          $EndJava
---        ./
---    
---    FieldModifier ::= Annotation
---        /.$BeginJava
---                    setResult(Collections.singletonList(Annotation));
---          $EndJava
---        ./
---                    | public
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
---          $EndJava
---        ./
---                    | protected
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
---          $EndJava
---        ./
---                    | private
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
---          $EndJava
---        ./
---                    | static
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
---          $EndJava
---        ./
---                    | global
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
---          $EndJava
---        ./
-    
     ResultType ::= : Type
      /.$BeginJava
 			r.rule_ResultType0(Type);
@@ -1794,141 +1571,8 @@
         /.$BeginJava
 			r.rule_FormalParameter2(Type);
         $EndJava./
-    
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    VariableModifiers ::= VariableModifier
---        /.$BeginJava
---                    List<Node> l = new LinkedList<Node>();
---                    l.addAll(VariableModifier);
---                    setResult(l);
---          $EndJava
---        ./
---                        | VariableModifiers VariableModifier
---        /.$BeginJava
---                    VariableModifiers.addAll(VariableModifier);
---          $EndJava
---        ./
---    
---    VariableModifier ::= Annotation
---        /.$BeginJava
---                    setResult(Collections.singletonList(Annotation));
---          $EndJava
---        ./
---                       | shared
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SHARED)));
---          $EndJava
---        ./
-    
-    --
-    -- See above
-    --    
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    MethodModifiers ::= MethodModifier
---        /.$BeginJava
---                    List<Node> l = new LinkedList<Node>();
---                    l.addAll(MethodModifier);
---                    setResult(l);
---          $EndJava
---        ./
---                      | MethodModifiers MethodModifier
---        /.$BeginJava
---                    MethodModifiers.addAll(MethodModifier);
---          $EndJava
---        ./
---    
---    MethodModifier ::= Annotation
---        /.$BeginJava
---                    setResult(Collections.singletonList(Annotation));
---          $EndJava
---        ./
---                     | public
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
---          $EndJava
---        ./
---                     | protected
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
---          $EndJava
---        ./
---                     | private
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
---          $EndJava
---        ./
---                     | abstract
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
---          $EndJava
---        ./
---                     | static
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
---          $EndJava
---        ./
---                     | final
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
---          $EndJava
---        ./
---                     | native
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
---          $EndJava
---        ./
---                     | atomic
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.ATOMIC)));
---          $EndJava
---        ./
---                     | extern
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.EXTERN)));
---          $EndJava
---        ./
---                     | safe
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SAFE)));
---          $EndJava
---        ./
---                     | sequential
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.SEQUENTIAL)));
---          $EndJava
---        ./
---                     | nonblocking
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.NON_BLOCKING)));
---          $EndJava
---        ./
---                     | incomplete
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.INCOMPLETE)));
---          $EndJava
---        ./
---                     | property
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROPERTY)));
---          $EndJava
---        ./
---                     | global
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.GLOBAL)));
---          $EndJava
---        ./
---                     | proto
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), X10Flags.PROTO)));
---          $EndJava
---        ./
 
-    
-     Offers ::= offers Type
+    Offers ::= offers Type
         /.$BeginJava
 			r.rule_Offers0(Type);
         $EndJava./
@@ -1964,57 +1608,6 @@
 --                    setResult(nf.Initializer(pos(), nf.FlagsNode(pos(getLeftSpan()), Flags.STATIC), Block));
 --          $EndJava
 --        ./
-      
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    SimpleTypeName ::= Identifier
---        /.$BeginJava
---                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
---          $EndJava
---        ./
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    ConstructorModifiers ::= ConstructorModifier
---        /.$BeginJava
---                    List<Node> l = new LinkedList<Node>();
---                    l.addAll(ConstructorModifier);
---                    setResult(l);
---          $EndJava
---        ./
---                           | ConstructorModifiers ConstructorModifier
---        /.$BeginJava
---                    ConstructorModifiers.addAll(ConstructorModifier);
---          $EndJava
---        ./
---    
---    ConstructorModifier ::= Annotation
---        /.$BeginJava
---                    setResult(Collections.singletonList(Annotation));
---          $EndJava
---        ./
---                          | public
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
---          $EndJava
---        ./
---                          | protected
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
---          $EndJava
---        ./
---                          | private
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
---          $EndJava
---        ./
---                          | native
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NATIVE)));
---          $EndJava
---        ./
     
     ConstructorBody ::= = ConstructorBlock
         /.$BeginJava
@@ -2045,56 +1638,6 @@
 			r.rule_Arguments0(ArgumentList);
         $EndJava./
     
-    -- chapter 9
-    
-    InterfaceDeclaration ::= NormalInterfaceDeclaration
-    
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    InterfaceModifiers ::= InterfaceModifier
---        /.$BeginJava
---                    List<Node> l = new LinkedList<Node>();
---                    l.addAll(InterfaceModifier);
---                    setResult(l);
---          $EndJava
---        ./
---                         | InterfaceModifiers InterfaceModifier
---        /.$BeginJava
---                    InterfaceModifiers.addAll(InterfaceModifier);
---          $EndJava
---        ./
---    
---    InterfaceModifier ::= Annotation
---        /.$BeginJava
---                    setResult(Collections.singletonList(Annotation));
---          $EndJava
---        ./
---                        | public
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PUBLIC)));
---          $EndJava
---        ./
---                        | protected
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PROTECTED)));
---          $EndJava
---        ./
---                        | private
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.PRIVATE)));
---          $EndJava
---        ./
---                        | abstract
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.ABSTRACT)));
---          $EndJava
---        ./
---                        | static
---        /.$BeginJava
---                    setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.STATIC)));
---          $EndJava
---        ./
     
     ExtendsInterfaces ::= extends Type
         /.$BeginJava
@@ -2131,21 +1674,9 @@
         /.$BeginJava
 			r.rule_InterfaceMemberDeclaration2(FieldDeclaration);
         $EndJava./
-                                 | ClassDeclaration
+                                 | TypeDeclaration
         /.$BeginJava
-			r.rule_InterfaceMemberDeclaration3(ClassDeclaration);
-        $EndJava./
-                                 | InterfaceDeclaration
-        /.$BeginJava
-			r.rule_InterfaceMemberDeclaration4(InterfaceDeclaration);
-        $EndJava./
-                                 | TypeDefDeclaration
-        /.$BeginJava
-			r.rule_InterfaceMemberDeclaration5(TypeDefDeclaration);
-        $EndJava./
-                                 | ;
-        /.$BeginJava
-			r.rule_InterfaceMemberDeclaration6();
+			r.rule_InterfaceMemberDeclaration3(TypeDeclaration);
         $EndJava./
     
     Annotations ::= Annotation
@@ -2162,76 +1693,41 @@
 			r.rule_Annotation0(NamedTypeNoConstraints);
         $EndJava./
     
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    SimpleName ::= Identifier
---        /.$BeginJava
---                    setResult(new X10ParsedName(nf, ts, pos(), Identifier));
---          $EndJava
---        ./
-        
     Identifier ::= IDENTIFIER$ident
         /.$BeginJava
 			r.rule_Identifier0();
         $EndJava./
 
-    -- Chapter 10
-    
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    VariableInitializers ::= VariableInitializer
---        /.$BeginJava
---                    List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
---                    l.add(VariableInitializer);
---                    setResult(l);
---          $EndJava
---        ./
---                           | VariableInitializers , VariableInitializer
---        /.$BeginJava
---                    VariableInitializers.add(VariableInitializer);
---                    //setResult(VariableInitializers);
---          $EndJava
---        ./
-    
-    --
-    -- See Chapter 8
-    
-    -- Chapter 11
-    
-    -- Chapter 12
-    
-    -- Chapter 13
-    
-    -- Chapter 14
-    
     Block ::= { BlockStatementsopt }
         /.$BeginJava
 			r.rule_Block0(BlockStatementsopt);
         $EndJava./
     
-    BlockStatements ::= BlockStatement
+    BlockStatements ::= BlockInteriorStatement
         /.$BeginJava
-			r.rule_BlockStatements0(BlockStatement);
+			r.rule_BlockStatements0(BlockInteriorStatement);
         $EndJava./
-                      | BlockStatements BlockStatement
+                      | BlockStatements BlockInteriorStatement
         /.$BeginJava
-			r.rule_BlockStatements1(BlockStatements,BlockStatement);
+			r.rule_BlockStatements1(BlockStatements,BlockInteriorStatement);
         $EndJava./
     
-    BlockStatement ::= LocalVariableDeclarationStatement
-                     | ClassDeclaration
+    BlockInteriorStatement ::= LocalVariableDeclarationStatement
+                             | ClassDeclaration
         /.$BeginJava
-			r.rule_BlockStatement1(ClassDeclaration);
+			r.rule_BlockInteriorStatement1(ClassDeclaration);
         $EndJava./
-                     | TypeDefDeclaration
+                             | StructDeclaration
         /.$BeginJava
-			r.rule_BlockStatement2(TypeDefDeclaration);
+			r.rule_BlockInteriorStatement2(StructDeclaration);
+        $EndJava./
+                             | TypeDefDeclaration
+        /.$BeginJava
+			r.rule_BlockInteriorStatement3(TypeDefDeclaration);
         $EndJava./
                      | Statement
         /.$BeginJava
-			r.rule_BlockStatement3(Statement);
+			r.rule_BlockInteriorStatement4(Statement);
         $EndJava./
     
     IdentifierList ::= Identifier
@@ -2356,76 +1852,12 @@
               | ClassInstanceCreationExpression
               | FieldAccess
               | MethodInvocation
-              | MethodSelection
-              | OperatorFunction
+              | OBSOLETE_MethodSelection
+              | OBSOLETE_OperatorFunction
                         
-    OperatorFunction ::= TypeName . +
-            /.$BeginJava
-			r.rule_OperatorFunction0(TypeName);
-        $EndJava./
-                       | TypeName . -
-            /.$BeginJava
-			r.rule_OperatorFunction1(TypeName);
-        $EndJava./
-                       | TypeName . *
-            /.$BeginJava
-			r.rule_OperatorFunction2(TypeName);
-        $EndJava./
-                       | TypeName . /
-            /.$BeginJava
-			r.rule_OperatorFunction3(TypeName);
-        $EndJava./
-                       | TypeName . '%'
-            /.$BeginJava
-			r.rule_OperatorFunction4(TypeName);
-        $EndJava./
-                       | TypeName . &
-            /.$BeginJava
-			r.rule_OperatorFunction5(TypeName);
-        $EndJava./
-                       | TypeName . '|'
-            /.$BeginJava
-			r.rule_OperatorFunction6(TypeName);
-        $EndJava./
-                       | TypeName . ^
-            /.$BeginJava
-			r.rule_OperatorFunction7(TypeName);
-        $EndJava./
-                       | TypeName . <<
-            /.$BeginJava
-			r.rule_OperatorFunction8(TypeName);
-        $EndJava./
-                       | TypeName . >>
-            /.$BeginJava
-			r.rule_OperatorFunction9(TypeName);
-        $EndJava./
-                       | TypeName . >>>
-            /.$BeginJava
-			r.rule_OperatorFunction10(TypeName);
-        $EndJava./
-                       | TypeName . <
-            /.$BeginJava
-			r.rule_OperatorFunction11(TypeName);
-        $EndJava./
-                       | TypeName . <=
-            /.$BeginJava
-			r.rule_OperatorFunction12(TypeName);
-        $EndJava./
-                       | TypeName . >=
-            /.$BeginJava
-			r.rule_OperatorFunction13(TypeName);
-        $EndJava./
-                       | TypeName . >
-            /.$BeginJava
-			r.rule_OperatorFunction14(TypeName);
-        $EndJava./
-                       | TypeName . ==
-            /.$BeginJava
-			r.rule_OperatorFunction15(TypeName);
-        $EndJava./
-                       | TypeName . !=
-            /.$BeginJava
-			r.rule_OperatorFunction16(TypeName);
+    OBSOLETE_OperatorFunction ::= TypeName . BinOp
+        /.$BeginJava
+			r.rule_OBSOLETE_OperatorFunction0(TypeName,BinOp);
         $EndJava./
 
     Literal ::= IntegerLiteral$lit
@@ -2518,18 +1950,6 @@
         /.$BeginJava
 			r.rule_FieldAccess5(ClassName,Identifier);
         $EndJava./
-                  | Primary . class$c
-        /.$BeginJava
-			r.rule_FieldAccess6(Primary);
-        $EndJava./
-                  | super . class$c
-        /.$BeginJava
-			r.rule_FieldAccess7();
-        $EndJava./
-                  | ClassName . super$sup . class$c
-        /.$BeginJava
-			r.rule_FieldAccess8(ClassName);
-        $EndJava./
     
     MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
         /.$BeginJava
@@ -2552,21 +1972,21 @@
 			r.rule_MethodInvocation7(Primary,TypeArgumentsopt,ArgumentListopt);
         $EndJava./
         
-    MethodSelection ::= MethodName .  ( FormalParameterListopt )
+    OBSOLETE_MethodSelection ::= MethodName .  ( FormalParameterListopt )
         /.$BeginJava
-			r.rule_MethodSelection0(MethodName,FormalParameterListopt);
+			r.rule_OBSOLETE_MethodSelection0(MethodName,FormalParameterListopt);
         $EndJava./
-                       | Primary . Identifier .  ( FormalParameterListopt )
+                               | Primary . Identifier .  ( FormalParameterListopt )
         /.$BeginJava
-			r.rule_MethodSelection1(Primary,Identifier,FormalParameterListopt);
+			r.rule_OBSOLETE_MethodSelection1(Primary,Identifier,FormalParameterListopt);
         $EndJava./
-                       | super . Identifier .  ( FormalParameterListopt )
+                               | super . Identifier .  ( FormalParameterListopt )
         /.$BeginJava
-			r.rule_MethodSelection2(Identifier,FormalParameterListopt);
+			r.rule_OBSOLETE_MethodSelection2(Identifier,FormalParameterListopt);
         $EndJava./
-                       | ClassName . super$sup . Identifier .  ( FormalParameterListopt )
+                               | ClassName . super$sup . Identifier .  ( FormalParameterListopt )
         /.$BeginJava
-			r.rule_MethodSelection3(ClassName,Identifier,FormalParameterListopt);
+			r.rule_OBSOLETE_MethodSelection3(ClassName,Identifier,FormalParameterListopt);
         $EndJava./
 
     PostfixExpression ::= CastExpression
@@ -2891,6 +2311,7 @@
         /.$BeginJava
 			r.rule_PrefixOp3();
         $EndJava./
+    -- Non-standard X10 unary operators
       | ^
         /.$BeginJava
 			r.rule_PrefixOp4();
@@ -3078,23 +2499,6 @@
         $EndJava./
                                     | SwitchBlockStatementGroups
 
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    VariableModifiersopt ::= %Empty
---        /.$BeginJava
---                    setResult(Collections.<Node>emptyList());
---          $EndJava
---        ./
---                           | VariableModifiers
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    VariableInitializersopt ::= %Empty
---        /.$NullAction./
---                              | VariableInitializers
-
     InterfaceMemberDeclarationsopt ::= %Empty
         /.$BeginJava
 			r.rule_InterfaceMemberDeclarationsopt0();
@@ -3107,29 +2511,9 @@
         $EndJava./
                            | ExtendsInterfaces
 
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    InterfaceModifiersopt ::= %Empty
---        /.$BeginJava
---                    setResult(Collections.<Node>emptyList());
---          $EndJava
---        ./
---                            | InterfaceModifiers
-
     ClassBodyopt ::= %Empty
         /.$NullAction./
                    | ClassBody
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    Argumentsopt ::= %Empty
---        /.$BeginJava
---                    setResult(new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false));
---          $EndJava
---        ./
---                   | Arguments
 
     ArgumentListopt ::= %Empty
         /.$BeginJava
@@ -3146,16 +2530,6 @@
     ExplicitConstructorInvocationopt ::= %Empty
         /.$NullAction./
                                        | ExplicitConstructorInvocation
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    ConstructorModifiersopt ::= %Empty
---        /.$BeginJava
---                    setResult(Collections.<Node>emptyList());
---          $EndJava
---        ./
---                              | ConstructorModifiers
 
     FormalParameterListopt ::= %Empty
         /.$BeginJava
@@ -3174,36 +2548,6 @@
 			r.rule_Offersopt0();
         $EndJava./
                 | Offers
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    MethodModifiersopt ::= %Empty
---        /.$BeginJava
---                    setResult(Collections.<Node>emptyList());
---          $EndJava
---        ./
---                         | MethodModifiers
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    TypeModifieropt ::= %Empty
---        /.$BeginJava
---                    setResult(Collections.<Node>emptyList());
---          $EndJava
---        ./
---                         | TypeModifier
-
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    FieldModifiersopt ::= %Empty
---        /.$BeginJava
---                    setResult(Collections.<Node>emptyList());
---          $EndJava
---        ./
---                        | FieldModifiers
 
     ClassBodyDeclarationsopt ::= %Empty
         /.$BeginJava
@@ -3255,12 +2599,6 @@
         /.$NullAction./
                             | PackageDeclaration
                             
---
--- This is a useless nonterminal that is not used anywhere else in the grammar.
---
---    ResultTypeopt ::= %Empty
---        /.$NullAction./
---                            | ResultType
     HasResultTypeopt ::= %Empty
         /.$NullAction./
                             | HasResultType
@@ -3296,5 +2634,5 @@
 %End
 
 %Types
-	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | OperatorFunction | AmbiguousName | VariableDeclaratorWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | PlaceExpressionSingleList | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | VariableDeclarators | BlockStatementsopt | BlockStatements | StatementExpression | Expression | TypeParameterList | TypeParamWithVariance | VariableDeclaratorsWithType | Block | ResultType | MethodSelection | ForUpdate | FunctionType | Conjunction | TypeParamsWithVariance | HasZeroConstraint | ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | FormalDeclarators | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | ClassBodyDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | NormalClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | PlaceExpression | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassBodyDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | Offers | Super | NormalInterfaceDeclaration | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | Offersopt | TypeDeclarationsopt | ClassBodyDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | VoidType | WhileStatement | Clock | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | Conjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | ClockList | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | FieldKeyword | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | FieldDeclarators | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | ExistentialList | ForInitopt | ClockedClause | ClassDeclaration | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
+	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | OBSOLETE_OperatorFunction | FullyQualifiedName | VariableDeclaratorWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | VariableDeclarators | BlockStatementsopt | BlockStatements | StatementExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | VariableDeclaratorsWithType | Block | ResultType | OBSOLETE_MethodSelection | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | FormalDeclarators | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | ClassBodyDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | PlaceExpression | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassBodyDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | Offersopt | TypeDeclarationsopt | ClassBodyDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Clock | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | ClockList | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | FieldKeyword | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | FieldDeclarators | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
 %End
