@@ -145,45 +145,20 @@ public class Types {
     }
     
     
-    public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Any";
-        }
-        
-        @Override
-        public boolean isSubtype(x10.rtt.Type<?> o) {
-            return o == ANY;
-        };
-    };
-    // Fix for XTENLANG-1916
-    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class, new Type[] { ANY }) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Object";
-        }
-        
-        @Override
-        public boolean isSubtype(x10.rtt.Type<?> o) {
-            return o == OBJECT || o == ANY;
-        };
-    };
+    public static final RuntimeType<Object> ANY = new AnyType();
+    public static final RuntimeType<RefI> OBJECT = new ObjectType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
     public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class, new Type[] { ANY });
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
-    public static final RuntimeType<?> COMPARABLE = new RuntimeType(
+    public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
+        "x10.lang.Comparable",
         Comparable.class, 
         new RuntimeType.Variance[] {
             RuntimeType.Variance.INVARIANT
         }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Comparable";
-        }
-    };
+    );
 
     public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
     public static final RuntimeType<Character> CHAR = new CharType();
@@ -210,18 +185,14 @@ public class Types {
     public static final Object UINT_ZERO = x10.core.UInt.$box(0);
     public static final Object ULONG_ZERO = x10.core.ULong.$box((long)0);
 
-    public static final RuntimeType<String> STRING = new RuntimeType<String>(
-        String.class,
-        new Type[] {
-            new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
-            new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
-        }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.lang.String";
-        }
-    };
+    public static final RuntimeType<String> STRING = new NamedType<String>(
+    	"x10.lang.String",
+    	String.class,
+    	new Type[] {
+    		new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
+    		new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
+    	}
+    );
 
     // N.B. we cannot determine the type from auto-boxed java primitive now. 
     @Deprecated
