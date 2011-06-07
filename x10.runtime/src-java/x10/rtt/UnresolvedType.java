@@ -21,7 +21,11 @@ public final class UnresolvedType implements Type {
 
     private final int index;
     
+    @Deprecated
     public static UnresolvedType getParam(int index) {
+    	return PARAM(index);
+    }
+    public static UnresolvedType PARAM(int index) {
         assert index >= 0;
         if (index < params.length) {
             return params[index];

@@ -2978,7 +2978,7 @@ public class Emitter {
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
                         component = "x10.rtt.UnresolvedType.THIS";
                     } else if (Types.baseType(at) instanceof ParameterType) {
-                        component = "x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
+                        component = "x10.rtt.UnresolvedType.PARAM(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
                     } else {
                         component = new Expander(this) {
                             public void expand(Translator tr) {
@@ -3024,7 +3024,7 @@ public class Emitter {
                     if (ta.typeEquals(def.asType(), tr.context())) {
                         w.write("x10.rtt.UnresolvedType.THIS");
                     } else if (ta instanceof ParameterType) {
-                        w.write("x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
+                        w.write("x10.rtt.UnresolvedType.PARAM(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
                     } else {
                         printRTT(def, ta);
                     }
