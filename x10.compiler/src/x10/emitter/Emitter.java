@@ -1079,6 +1079,9 @@ public class Emitter {
 
         w.allowBreak(2, 2, " ", 1);
 
+        // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+        boolean canMangleMethodName = canMangleMethodName(n.methodDef().name(), n.methodDef().container().get());
+        
         // decl
         // print the method name
 		printMethodName(n.methodDef(), isInterface, isDispatcher);
@@ -1136,7 +1139,8 @@ public class Emitter {
 			    printType(
 			              type,
 			              (n.flags().flags().isStatic() ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS : 0) |
-			              (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES: 0)
+			              // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+                                      (boxPrimitives || !canMangleMethodName ? X10PrettyPrinterVisitor.BOX_PRIMITIVES: 0)
 			    );
 			    w.write(" ");
 			    Name name = f.name().id();
@@ -1196,7 +1200,7 @@ public class Emitter {
         return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type, tr.context());
     }
 
-    private final boolean doMangleSpecialReturnMethod(Name methodName, ContainerType containerType) {
+    public final boolean canMangleMethodName(Name methodName, ContainerType containerType) {
     	String methodNameString = methodName.toString();
     	return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
         && !isNativeClassToJava(containerType)
@@ -1207,7 +1211,8 @@ public class Emitter {
     }
     
     public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
-        if (X10PrettyPrinterVisitor.isGenericOverloading) {
+        // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def.name(), def.container().get())) {
             w.write(getMangledMethodName(def, !isInterface));
         }
         else {
@@ -1215,7 +1220,7 @@ public class Emitter {
         }
         if (!isDispatcher) {
             if (isSpecialReturnType) {
-                if (doMangleSpecialReturnMethod(def.name(), def.container().get())) {
+                if (canMangleMethodName(def.name(), def.container().get())) {
                     w.write(RETURN_SPECIAL_TYPE_SUFFIX);
                 }
             }
@@ -1233,7 +1238,7 @@ public class Emitter {
             w.write(mangleToJava(mi.name()));
         }
         if (isSpecialType(mi.returnType())) {
-            if (doMangleSpecialReturnMethod(mi.name(), mi.container())) {
+            if (canMangleMethodName(mi.name(), mi.container())) {
                 w.write(RETURN_SPECIAL_TYPE_SUFFIX);
             }
         }
@@ -2204,6 +2209,10 @@ public class Emitter {
                 if (st instanceof X10ClassType) {
                     if (!((X10ClassType) st).flags().isInterface()) {
                         continue;
+                    }
+                    // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+                    if (isNativeRepedToJava(st)) {
+                    	continue;
                     }
                 }
                 
