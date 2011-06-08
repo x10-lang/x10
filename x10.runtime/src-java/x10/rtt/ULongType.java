@@ -14,7 +14,12 @@ package x10.rtt;
 
 public class ULongType extends RuntimeType<x10.core.ULong> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.ULONG;
+    }
 
     public ULongType() {
         super(x10.core.ULong.class,

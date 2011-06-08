@@ -16,6 +16,11 @@ public class AnyType extends RuntimeType<Object> {
 
     private static final long serialVersionUID = 1L;
 
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.ANY;
+    }
+
     public AnyType() {
         super(Object.class);
     }

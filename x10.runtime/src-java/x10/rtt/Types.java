@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2011.
  */
 
 package x10.rtt;
@@ -14,7 +14,6 @@ package x10.rtt;
 import x10.core.Any;
 import x10.core.RefI;
 import x10.core.StructI;
-import x10.core.fun.Fun_0_1;
 
 
 public class Types {
@@ -149,7 +148,7 @@ public class Types {
     public static final RuntimeType<RefI> OBJECT = new ObjectType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
-    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class, new Type[] { ANY });
+    public static final RuntimeType<StructI> STRUCT = new StructType();
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
     public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
@@ -158,7 +157,12 @@ public class Types {
         new RuntimeType.Variance[] {
             RuntimeType.Variance.INVARIANT
         }
-    );
+    ) {
+        // make sure deserialized RTT object is not duplicated
+        private Object readResolve() throws java.io.ObjectStreamException {
+            return Types.COMPARABLE;
+        }
+    };
 
     public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
     public static final RuntimeType<Character> CHAR = new CharType();
@@ -185,14 +189,7 @@ public class Types {
     public static final Object UINT_ZERO = x10.core.UInt.$box(0);
     public static final Object ULONG_ZERO = x10.core.ULong.$box((long)0);
 
-    public static final RuntimeType<String> STRING = new NamedType<String>(
-    	"x10.lang.String",
-    	String.class,
-    	new Type[] {
-    		new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
-    		new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
-    	}
-    );
+    public static final RuntimeType<String> STRING = new StringType();
 
     // N.B. we cannot determine the type from auto-boxed java primitive now. 
     @Deprecated
@@ -485,6 +482,7 @@ public class Types {
             if (rtt == DOUBLE) return DOUBLE_ZERO;
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
+            // TODO make following $RTT singleton
             if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(typeParams[0], (java.lang.System) null);
             if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(typeParams[0], (java.lang.System) null);
             // for user-defined structs, call zero value constructor

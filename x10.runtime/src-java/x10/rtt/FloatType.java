@@ -14,7 +14,12 @@ package x10.rtt;
 
 public class FloatType extends RuntimeType<Float> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.FLOAT;
+    }
 
     public FloatType() {
         super(Float.class,

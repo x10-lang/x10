@@ -14,7 +14,12 @@ package x10.rtt;
 
 public class UShortType extends RuntimeType<x10.core.UShort> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.USHORT;
+    }
 
     public UShortType() {
         super(x10.core.UShort.class,

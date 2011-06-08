@@ -11,31 +11,30 @@
 
 package x10.rtt;
 
+import x10.core.fun.Fun_0_1;
 
-public class ObjectType extends RuntimeType<x10.core.RefI> {
+
+public class StringType extends RuntimeType<String> {
 
     private static final long serialVersionUID = 1L;
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
-        return Types.OBJECT;
+        return Types.STRING;
     }
 
-    public ObjectType() {
-        super(x10.core.RefI.class,
-            new Type[] { Types.ANY }
+    public StringType() {
+        super(String.class,
+            new Type[] {
+                new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
+                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
+            }
         );
     }
     
     @Override
     public String typeName() {
-        return "x10.lang.Object";
+        return "x10.lang.String";
     }
-    
-    // for shortcut
-    @Override
-    public boolean isSubtype(x10.rtt.Type<?> o) {
-        return o == Types.OBJECT || o == Types.ANY;
-    };
     
 }
