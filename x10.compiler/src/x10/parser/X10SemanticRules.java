@@ -1016,12 +1016,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr StatementExpression = (Expr) _StatementExpression;
         setResult(nf.Eval(pos(), StatementExpression));
     }
-    // Production: ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt Offersopt '=>' ClosureBody
-    void rule_ClosureExpression0(Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _ClosureBody) {
+    // Production: ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt '=>' ClosureBody
+    void rule_ClosureExpression0(Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _ClosureBody) {
         List<Formal> FormalParameters = (List<Formal>) _FormalParameters;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block ClosureBody = (Block) _ClosureBody;
         setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt,
                 HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,  ClosureBody));
@@ -1757,14 +1757,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     private void noMethodSelection() {
         syntaxError("Method selection syntax is no longer supported. Use closure syntax instead.",pos()); // see XTENLANG-2512
     }
-    // Production: FunctionType ::= TypeParametersopt '(' FormalParameterListopt ')' WhereClauseopt Offersopt '=>' Type
-    void rule_FunctionType0(Object _TypeParametersopt, Object _FormalParameterListopt, Object _WhereClauseopt, Object _Offersopt, Object _Type) {
+    // Production: FunctionType ::= TypeParametersopt '(' FormalParameterListopt ')' WhereClauseopt OBSOLETE_Offersopt '=>' Type
+    void rule_FunctionType0(Object _TypeParametersopt, Object _FormalParameterListopt, Object _WhereClauseopt, Object _OBSOLETE_Offersopt, Object _Type) {
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         List<Formal> FormalParameterListopt = (List<Formal>) _FormalParameterListopt;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         TypeNode Type = (TypeNode) _Type;
-        setResult(nf.FunctionTypeNode(pos(), TypeParametersopt, FormalParameterListopt, WhereClauseopt, Type,  Offersopt));
+        setResult(nf.FunctionTypeNode(pos(), TypeParametersopt, FormalParameterListopt, WhereClauseopt, Type,  OBSOLETE_Offersopt));
     }
     // Production: ConstraintConjunction ::= Expression
     void rule_ConstraintConjunction0(Object _Expression) {
@@ -1914,6 +1914,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     // Production: BinOp ::= '!'
     void rule_BinOp27() {
         setResult(Binary.BANG);
+    }
+    // Production: BinOp ::= '<>'
+    void rule_BinOp28() {
+        setResult(Binary.DIAMOND);
+    }
+    // Production: BinOp ::= '><'
+    void rule_BinOp29() {
+        setResult(Binary.BOWTIE);
     }
     // Production: EqualityExpression ::= EqualityExpression '==' RelationalExpression
     void rule_EqualityExpression1(Object _EqualityExpression, Object _RelationalExpression) {
@@ -2337,8 +2345,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeName,
                 Identifier));
     }
-    // Production: Offers ::= offers Type
-    void rule_Offers0(Object _Type) {
+    // Production: OBSOLETE_Offers ::= offers Type
+    void rule_OBSOLETE_Offers0(Object _Type) {
         TypeNode Type = (TypeNode) _Type;
         setResult(Type);
     }
@@ -2460,8 +2468,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         l.addAll(LocalVariableDeclaration);
         //setResult(l);
     }
-    // Production: OfferStatement ::= offer Expression ';'
-    void rule_OfferStatement0(Object _Expression) {
+    // Production: OBSOLETE_OfferStatement ::= offer Expression ';'
+    void rule_OBSOLETE_OfferStatement0(Object _Expression) {
         Expr Expression = (Expr) _Expression;
         setResult(nf.Offer(pos(), Expression));
     }
@@ -2495,8 +2503,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
                 Statement));
     }
-    // Production: Offersopt ::= %Empty
-    void rule_Offersopt0() {
+    // Production: OBSOLETE_Offersopt ::= %Empty
+    void rule_OBSOLETE_Offersopt0() {
         setResult(null);
     }
     // Production: TypeDeclarationsopt ::= %Empty
@@ -2733,11 +2741,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_Modifier10() {
         setResult(new FlagModifier(pos(), FlagModifier.CLOCKED));
     }
-    // Production: Clock ::= Expression
-    void rule_Clock0(Object _Expression) {
-        Expr Expression = (Expr) _Expression;
-        setResult(Expression);
-    }
     // Production: ExpressionName ::= FullyQualifiedName '.' ErrorId
     void rule_ExpressionName0(Object _FullyQualifiedName) {
         ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
@@ -2838,6 +2841,42 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_AssignmentOperator11() {
         setResult(Assign.BIT_OR_ASSIGN);
     }
+    // Production: AssignmentOperator ::= '..='
+    void rule_AssignmentOperator12() {
+        setResult(Assign.DOT_DOT_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '->='
+    void rule_AssignmentOperator13() {
+        setResult(Assign.ARROW_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '<-='
+    void rule_AssignmentOperator14() {
+        setResult(Assign.LARROW_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '-<='
+    void rule_AssignmentOperator15() {
+        setResult(Assign.FUNNEL_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '>-='
+    void rule_AssignmentOperator16() {
+        setResult(Assign.LFUNNEL_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '**='
+    void rule_AssignmentOperator17() {
+        setResult(Assign.STARSTAR_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '<>='
+    void rule_AssignmentOperator18() {
+        setResult(Assign.DIAMOND_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '><='
+    void rule_AssignmentOperator19() {
+        setResult(Assign.BOWTIE_ASSIGN);
+    }
+    // Production: AssignmentOperator ::= '~='
+    void rule_AssignmentOperator20() {
+        setResult(Assign.TWIDDLE_ASSIGN);
+    }
     // Production: ForUpdateopt ::= %Empty
     void rule_ForUpdateopt0() {
         setResult(new TypedList<ForUpdate>(new LinkedList<ForUpdate>(), ForUpdate.class, false));
@@ -2848,8 +2887,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr EqualityExpression = (Expr) _EqualityExpression;
         setResult(nf.Binary(pos(), AndExpression, Binary.BIT_AND, EqualityExpression));
     }
-    // Production: FinishExpression ::= finish '(' Expression ')' Block
-    void rule_FinishExpression0(Object _Expression, Object _Block) {
+    // Production: OBSOLETE_FinishExpression ::= finish '(' Expression ')' Block
+    void rule_OBSOLETE_FinishExpression0(Object _Expression, Object _Block) {
         Expr Expression = (Expr) _Expression;
         Block Block = (Block) _Block;
         setResult(nf.FinishExpr(pos(), Expression, Block));
@@ -2875,46 +2914,32 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_Catchesopt0() {
         setResult(new TypedList<Catch>(new LinkedList<Catch>(), Catch.class, false));
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration0(Object _MethodModifiersopt, Object _Identifier, Object _TypeParametersopt, Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration0(Object _MethodModifiersopt, Object _Identifier, Object _TypeParametersopt, Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         Id Identifier = (Id) _Identifier;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         List<Formal> FormalParameters = (List<Formal>) _FormalParameters;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
-        ProcedureDecl pd;
-        if (Identifier.id().toString().equals("this")) {
-            pd = nf.X10ConstructorDecl(pos(),
-                    extractFlags(modifiers),
-                    Identifier,
-                    HasResultTypeopt,
-                    TypeParametersopt,
-                    FormalParameters,
-                    WhereClauseopt,
-                    Offersopt,
-                    MethodBody);
-        }
-        else {
-            Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
-            pd = nf.X10MethodDecl(pos(),
+        Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
+        ProcedureDecl pd = nf.X10MethodDecl(pos(),
                     extractFlags(modifiers),
                     HasResultTypeopt == null ? nf.UnknownTypeNode(bodyStart.markCompilerGenerated()) : HasResultTypeopt,
                     Identifier,
                     TypeParametersopt,
                     FormalParameters,
                     WhereClauseopt,
-                    Offersopt,
+                    OBSOLETE_Offersopt,
                     MethodBody);
-        }
         pd = (ProcedureDecl) ((X10Ext) pd.ext()).annotations(extractAnnotations(modifiers));
         setResult(pd);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' BinOp '(' FormalParameter ')' WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration1(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _BinOp, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' BinOp '(' FormalParameter ')' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration1(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _BinOp, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         X10Formal fp1 = (X10Formal) _fp1;
@@ -2922,7 +2947,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         X10Formal fp2 = (X10Formal) _fp2;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Binary_c.binaryMethodName(BinOp);
@@ -2938,7 +2963,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Arrays.<Formal>asList(fp1, fp2),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (! flags.flags().isStatic()) {
@@ -2948,15 +2973,15 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp '(' FormalParameter ')' WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration2(Object _MethodModifiersopt, Object _TypeParametersopt, Object _PrefixOp, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp '(' FormalParameter ')' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration2(Object _MethodModifiersopt, Object _TypeParametersopt, Object _PrefixOp, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         Unary.Operator PrefixOp = (Unary.Operator) _PrefixOp;
         X10Formal fp2 = (X10Formal) _fp2;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Unary_c.unaryMethodName(PrefixOp);
@@ -2972,7 +2997,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (! flags.flags().isStatic()) {
@@ -2982,15 +3007,15 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp '(' FormalParameter ')' WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration3(Object _MethodModifiersopt, Object _TypeParametersopt, Object _BinOp, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp '(' FormalParameter ')' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration3(Object _MethodModifiersopt, Object _TypeParametersopt, Object _BinOp, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         Binary.Operator BinOp = (Binary.Operator) _BinOp;
         X10Formal fp2 = (X10Formal) _fp2;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Binary_c.binaryMethodName(BinOp);
@@ -3006,7 +3031,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp2),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (flags.flags().isStatic()) {
@@ -3016,15 +3041,15 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' BinOp this WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration4(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _BinOp, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' BinOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration4(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _BinOp, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         X10Formal fp1 = (X10Formal) _fp1;
         Binary.Operator BinOp = (Binary.Operator) _BinOp;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Binary_c.invBinaryMethodName(BinOp);
@@ -3040,7 +3065,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (flags.flags().isStatic()) {
@@ -3050,14 +3075,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration5(Object _MethodModifiersopt, Object _TypeParametersopt, Object _PrefixOp, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration5(Object _MethodModifiersopt, Object _TypeParametersopt, Object _PrefixOp, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         Unary.Operator PrefixOp = (Unary.Operator) _PrefixOp;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Name opName = X10Unary_c.unaryMethodName(PrefixOp);
@@ -3073,7 +3098,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Collections.<Formal>emptyList(),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (flags.flags().isStatic()) {
@@ -3083,14 +3108,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration6(Object _MethodModifiersopt, Object _TypeParametersopt, Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: ApplyOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration6(Object _MethodModifiersopt, Object _TypeParametersopt, Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         List<Formal> FormalParameters = (List<Formal>) _FormalParameters;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
@@ -3101,7 +3126,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 FormalParameters,
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (flags.flags().isStatic()) {
@@ -3111,15 +3136,15 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters '=' '(' FormalParameter ')' WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration7(Object _MethodModifiersopt, Object _TypeParametersopt, Object _FormalParameters, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: SetOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters '=' '(' FormalParameter ')' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration7(Object _MethodModifiersopt, Object _TypeParametersopt, Object _FormalParameters, Object _fp2, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         List<Formal> FormalParameters = (List<Formal>) _FormalParameters;
         X10Formal fp2 = (X10Formal) _fp2;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
@@ -3130,7 +3155,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 CollectionUtil.append(FormalParameters, Collections.singletonList(fp2)),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (flags.flags().isStatic()) {
@@ -3140,14 +3165,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' as Type WhereClauseopt Offersopt MethodBody
-    void rule_MethodDeclaration8(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _Type, Object _WhereClauseopt, Object _Offersopt, Object _MethodBody) {
+    // Production: ExplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' as Type WhereClauseopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration8(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _Type, Object _WhereClauseopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         X10Formal fp1 = (X10Formal) _fp1;
         TypeNode Type = (TypeNode) _Type;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
@@ -3157,7 +3182,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (! flags.flags().isStatic()) {
@@ -3167,14 +3192,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' as '?' WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration9(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: ExplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' as '?' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration9(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         X10Formal fp1 = (X10Formal) _fp1;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
@@ -3185,7 +3210,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (! flags.flags().isStatic()) {
@@ -3195,14 +3220,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         md = (MethodDecl) ((X10Ext) md.ext()).annotations(extractAnnotations(modifiers));
         setResult(md);
     }
-    // Production: MethodDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' WhereClauseopt HasResultTypeopt Offersopt MethodBody
-    void rule_MethodDeclaration10(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _MethodBody) {
+    // Production: ImplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt '(' FormalParameter ')' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+    void rule_MethodDeclaration10(Object _MethodModifiersopt, Object _TypeParametersopt, Object _fp1, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _MethodBody) {
         List<Modifier> MethodModifiersopt = (List<Modifier>) _MethodModifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         X10Formal fp1 = (X10Formal) _fp1;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block MethodBody = (Block) _MethodBody;
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         Position bodyStart = MethodBody == null ? pos().endOf() : MethodBody.position().startOf();
@@ -3213,7 +3238,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 Collections.<Formal>singletonList(fp1),
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 MethodBody);
         FlagsNode flags = md.flags();
         if (! flags.flags().isStatic()) {
@@ -3284,6 +3309,20 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr expr1 = (Expr) _expr1;
         Expr expr2 = (Expr) _expr2;
         Expr call = nf.Binary(pos(), expr1, Binary.BANG, expr2);
+        setResult(call);
+    }
+    // Production: ShiftExpression ::= ShiftExpression '<>' AdditiveExpression
+    void rule_ShiftExpression9(Object _expr1, Object _expr2) {
+        Expr expr1 = (Expr) _expr1;
+        Expr expr2 = (Expr) _expr2;
+        Expr call = nf.Binary(pos(), expr1, Binary.DIAMOND, expr2);
+        setResult(call);
+    }
+    // Production: ShiftExpression ::= ShiftExpression '><' AdditiveExpression
+    void rule_ShiftExpression10(Object _expr1, Object _expr2) {
+        Expr expr1 = (Expr) _expr1;
+        Expr expr2 = (Expr) _expr2;
+        Expr call = nf.Binary(pos(), expr1, Binary.BOWTIE, expr2);
         setResult(call);
     }
     // Production: ExplicitConstructorInvocation ::= this TypeArgumentsopt '(' ArgumentListopt ')' ';'
@@ -3376,20 +3415,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_Properties0(Object _PropertyList) {
         List<PropertyDecl> PropertyList = (List<PropertyDecl>) _PropertyList;
         setResult(PropertyList);
-    }
-    // Production: ClockList ::= Clock
-    void rule_ClockList0(Object _Clock) {
-        Expr Clock = (Expr) _Clock;
-        List<Expr> l = new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false);
-        l.add(Clock);
-        setResult(l);
-    }
-    // Production: ClockList ::= ClockList ',' Clock
-    void rule_ClockList1(Object _ClockList, Object _Clock) {
-        List<Expr> ClockList = (List<Expr>) _ClockList;
-        Expr Clock = (Expr) _Clock;
-        ClockList.add(Clock);
-        setResult(ClockList);
     }
     // Production: SwitchStatement ::= switch '(' Expression ')' SwitchBlock
     void rule_SwitchStatement0(Object _Expression, Object _SwitchBlock) {
@@ -3535,19 +3560,19 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_TypeParametersopt0() {
         setResult(new TypedList<TypeParamNode>(new LinkedList<TypeParamNode>(), TypeParamNode.class, false));
     }
-    // Production: AtStatement ::= at ( PlaceExpression ) Statement
-    // Production: AtStatement ::= at ( PlaceExpression ; * ) Statement
-    void rule_AtStatement0(Object _PlaceExpression, Object _Statement) {
-        Expr PlaceExpression = (Expr) _PlaceExpression;
+    // Production: AtStatement ::= at ( Expression ) Statement
+    // Production: AtStatement ::= at ( Expression ; * ) Statement
+    void rule_AtStatement0(Object _Expression, Object _Statement) {
+        Expr Expression = (Expr) _Expression;
         Stmt Statement = (Stmt) _Statement;
-        setResult(nf.AtStmt(pos(), PlaceExpression, Statement));
+        setResult(nf.AtStmt(pos(), Expression, Statement));
     }
-    // Production: AtStatement ::= at ( PlaceExpression ; AtCaptureDeclaratorsopt ) Statement
-    void rule_AtStatement1(Object _PlaceExpression, Object _AtCaptureDeclaratorsopt, Object _Statement) {
-        Expr PlaceExpression = (Expr) _PlaceExpression;
+    // Production: AtStatement ::= at ( Expression ; AtCaptureDeclaratorsopt ) Statement
+    void rule_AtStatement1(Object _Expression, Object _AtCaptureDeclaratorsopt, Object _Statement) {
+        Expr Expression = (Expr) _Expression;
         List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
         Stmt Statement = (Stmt) _Statement;
-        setResult(nf.AtStmt(pos(), PlaceExpression, AtCaptureDeclaratorsopt, Statement));
+        setResult(nf.AtStmt(pos(), Expression, AtCaptureDeclaratorsopt, Statement));
     }
     // Production: AtStatement ::= athome ( HomeVariableList ) Statement
     // Production: AtStatement ::= athome ( HomeVariableList ; * ) Statement
@@ -3858,14 +3883,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         tn = (TypeNode) ((X10Ext) tn.ext()).annotations((List<AnnotationNode>) Annotations);
         setResult(tn.position(pos()));
     }
-    // Production: ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt Offersopt ConstructorBody
-    void rule_ConstructorDeclaration0(Object _Modifiersopt, Object _TypeParametersopt, Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _Offersopt, Object _ConstructorBody) {
+    // Production: ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt ConstructorBody
+    void rule_ConstructorDeclaration0(Object _Modifiersopt, Object _TypeParametersopt, Object _FormalParameters, Object _WhereClauseopt, Object _HasResultTypeopt, Object _OBSOLETE_Offersopt, Object _ConstructorBody) {
         List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
         List<TypeParamNode> TypeParametersopt = (List<TypeParamNode>) _TypeParametersopt;
         List<Formal> FormalParameters = (List<Formal>) _FormalParameters;
         DepParameterExpr WhereClauseopt = (DepParameterExpr) _WhereClauseopt;
         TypeNode HasResultTypeopt = (TypeNode) _HasResultTypeopt;
-        TypeNode Offersopt = (TypeNode) _Offersopt;
+        TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block ConstructorBody = (Block) _ConstructorBody;
         List<Node> modifiers = checkConstructorModifiers(Modifiersopt);
         ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
@@ -3875,7 +3900,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeParametersopt,
                 FormalParameters,
                 WhereClauseopt,
-                Offersopt,
+                OBSOLETE_Offersopt,
                 ConstructorBody);
         cd = (ConstructorDecl) ((X10Ext) cd.ext()).annotations(extractAnnotations(modifiers));
         setResult(cd);
@@ -3962,19 +3987,19 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             setResult(nf.X10New(pos(), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
         else setResult(nf.X10New(pos(), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
     }
-    // Production: AtExpression ::= at ( PlaceExpression ) ClosureBody
-    // Production: AtExpression ::= at ( PlaceExpression ; * ) ClosureBody
-    void rule_AtExpression0(Object _PlaceExpression, Object _ClosureBody) {
-        Expr PlaceExpression = (Expr) _PlaceExpression;
+    // Production: AtExpression ::= at ( Expression ) ClosureBody
+    // Production: AtExpression ::= at ( Expression ; * ) ClosureBody
+    void rule_AtExpression0(Object _Expression, Object _ClosureBody) {
+        Expr Expression = (Expr) _Expression;
         Block ClosureBody = (Block) _ClosureBody;
-        setResult(nf.AtExpr(pos(), PlaceExpression, ClosureBody));
+        setResult(nf.AtExpr(pos(), Expression, ClosureBody));
     }
-    // Production: AtExpression ::= at ( PlaceExpression ; AtCaptureDeclaratorsopt ) ClosureBody
-    void rule_AtExpression1(Object _PlaceExpression, Object _AtCaptureDeclaratorsopt, Object _ClosureBody) {
-        Expr PlaceExpression = (Expr) _PlaceExpression;
+    // Production: AtExpression ::= at ( Expression ; AtCaptureDeclaratorsopt ) ClosureBody
+    void rule_AtExpression1(Object _Expression, Object _AtCaptureDeclaratorsopt, Object _ClosureBody) {
+        Expr Expression = (Expr) _Expression;
         List<Node> AtCaptureDeclaratorsopt = (List<Node>) _AtCaptureDeclaratorsopt;
         Block ClosureBody = (Block) _ClosureBody;
-        setResult(nf.AtExpr(pos(), PlaceExpression, AtCaptureDeclaratorsopt, ClosureBody));
+        setResult(nf.AtExpr(pos(), Expression, AtCaptureDeclaratorsopt, ClosureBody));
     }
     // Production: AtExpression ::= athome ( HomeVariableList ) ClosureBody
     // Production: AtExpression ::= athome ( HomeVariableList ; * ) ClosureBody
@@ -4243,12 +4268,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         X10Formal FormalParameter = (X10Formal) _FormalParameter;
         FUTURE_ExistentialList.add(FormalParameter.flags(nf.FlagsNode(Position.compilerGenerated(FormalParameter.position()), Flags.FINAL)));
     }
-    // Production: ClockedClause ::= clocked '(' ClockList ')'
-    void rule_ClockedClause0(Object _ClockList) {
-        List<Expr> ClockList = (List<Expr>) _ClockList;
-        setResult(ClockList);
+    // Production: ClockedClause ::= clocked Arguments
+    void rule_ClockedClause0(Object _Arguments) {
+        List<Expr> Arguments = (List<Expr>) _Arguments;
+        setResult(Arguments);
     }
-
 
 }
 

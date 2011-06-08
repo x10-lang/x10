@@ -351,6 +351,8 @@ public class Emitter {
 		map.put(OperatorNames.LARROW, Name.make("$larrow"));
 		map.put(OperatorNames.FUNNEL, Name.make("$funnel"));
 		map.put(OperatorNames.LFUNNEL, Name.make("$lfunnel"));
+		map.put(OperatorNames.DIAMOND, Name.make("$diamond"));
+		map.put(OperatorNames.BOWTIE, Name.make("$bowtie"));
 		map.put(OperatorNames.STARSTAR, Name.make("$starstar"));
 		map.put(OperatorNames.inverse(OperatorNames.PLUS), Name.make("$inv_plus"));
 		map.put(OperatorNames.inverse(OperatorNames.MINUS), Name.make("$inv_minus"));

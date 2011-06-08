@@ -109,6 +109,17 @@
     LARROW ::= '<-'
     FUNNEL ::= '-<'
     LFUNNEL ::= '>-'
+    DIAMOND ::= <>
+    BOWTIE ::= ><
+    RANGE_EQUAL ::= ..=
+    ARROW_EQUAL ::= '->='
+    STARSTAR_EQUAL ::= **=
+    TWIDDLE_EQUAL ::= ~=
+    LARROW_EQUAL ::= '<-='
+    FUNNEL_EQUAL ::= '-<='
+    LFUNNEL_EQUAL ::= '>-='
+    DIAMOND_EQUAL ::= <>=
+    BOWTIE_EQUAL ::= ><=
 %End
 
 %Define
@@ -297,20 +308,10 @@
         /.$BeginJava
 			r.rule_Modifier2();
         $EndJava./
---                   | extern
---        /.$BeginJava
---                    setResult(new FlagModifier(pos(), FlagModifier.EXTERN));
---          $EndJava
---        ./
                    | final
         /.$BeginJava
 			r.rule_Modifier3();
         $EndJava./
---                   | global
---        /.$BeginJava
---                    setResult(new FlagModifier(pos(), FlagModifier.GLOBAL));
---          $EndJava
---        ./
                    | native
         /.$BeginJava
 			r.rule_Modifier4();
@@ -379,61 +380,64 @@
 			r.rule_Property0(Annotationsopt,Identifier,ResultType);
         $EndJava./
 
-    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt  Offersopt MethodBody
+    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration0(MethodModifiersopt,Identifier,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
+			r.rule_MethodDeclaration0(MethodModifiersopt,Identifier,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
+                        | BinaryOperatorDeclaration
+                        | PrefixOperatorDeclaration
+                        | ApplyOperatorDeclaration
+                        | SetOperatorDeclaration
+                        | ConversionOperatorDeclaration
+
+    BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration1(MethodModifiersopt,TypeParametersopt,fp1,BinOp,fp2,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                    
+			r.rule_MethodDeclaration1(MethodModifiersopt,TypeParametersopt,fp1,BinOp,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
-      | MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
+                                | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration2(MethodModifiersopt,TypeParametersopt,PrefixOp,fp2,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                    
+			r.rule_MethodDeclaration3(MethodModifiersopt,TypeParametersopt,BinOp,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
-      | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
+                                | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration3(MethodModifiersopt,TypeParametersopt,BinOp,fp2,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                   
-        $EndJava./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt   Offersopt MethodBody
-        /.$BeginJava
-			r.rule_MethodDeclaration4(MethodModifiersopt,TypeParametersopt,fp1,BinOp,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                 
-        $EndJava./
-      | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt  Offersopt MethodBody
-        /.$BeginJava
-			r.rule_MethodDeclaration5(MethodModifiersopt,TypeParametersopt,PrefixOp,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                
-        $EndJava./
-      | MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt   Offersopt MethodBody
-        /.$BeginJava
-			r.rule_MethodDeclaration6(MethodModifiersopt,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                  
-        $EndJava./
-      | MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
-        /.$BeginJava
-			r.rule_MethodDeclaration7(MethodModifiersopt,TypeParametersopt,FormalParameters,fp2,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                     
+			r.rule_MethodDeclaration4(MethodModifiersopt,TypeParametersopt,fp1,BinOp,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
 
-        --  TODO: Type WhereClauseopt   is ambiguous!
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt  Offersopt MethodBody
+    PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration8(MethodModifiersopt,TypeParametersopt,fp1,Type,WhereClauseopt,Offersopt,MethodBody);
-                                                     
+			r.rule_MethodDeclaration2(MethodModifiersopt,TypeParametersopt,PrefixOp,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt   Offersopt MethodBody
+                                | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration9(MethodModifiersopt,TypeParametersopt,fp1,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                     
+			r.rule_MethodDeclaration5(MethodModifiersopt,TypeParametersopt,PrefixOp,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
-      | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt  Offersopt MethodBody
+
+    ApplyOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration10(MethodModifiersopt,TypeParametersopt,fp1,WhereClauseopt,HasResultTypeopt,Offersopt,MethodBody);
-                                                     
+			r.rule_MethodDeclaration6(MethodModifiersopt,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
+        $EndJava./
+
+    SetOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+        /.$BeginJava
+			r.rule_MethodDeclaration7(MethodModifiersopt,TypeParametersopt,FormalParameters,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
+        $EndJava./
+
+    ConversionOperatorDeclaration ::= ExplicitConversionOperatorDeclaration
+                                    | ImplicitConversionOperatorDeclaration
+
+    --  TODO: "Type WhereClauseopt" is ambiguous!
+    ExplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as Type WhereClauseopt OBSOLETE_Offersopt MethodBody
+        /.$BeginJava
+			r.rule_MethodDeclaration8(MethodModifiersopt,TypeParametersopt,fp1,Type,WhereClauseopt,OBSOLETE_Offersopt,MethodBody);
+        $EndJava./
+                                            | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as '?' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+        /.$BeginJava
+			r.rule_MethodDeclaration9(MethodModifiersopt,TypeParametersopt,fp1,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
+        $EndJava./
+
+    ImplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
+        /.$BeginJava
+			r.rule_MethodDeclaration10(MethodModifiersopt,TypeParametersopt,fp1,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
 
     PropertyMethodDeclaration ::= MethodModifiersopt Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt MethodBody
@@ -482,8 +486,8 @@
 			r.rule_ClassInstanceCreationExpression3(FullyQualifiedName,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
         $EndJava./
                        
-      AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
-       /.$BeginJava
+    AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
+        /.$BeginJava
 			r.rule_AssignPropertyCall0(TypeArgumentsopt,ArgumentListopt);
         $EndJava./
 
@@ -492,9 +496,9 @@
            |  ConstrainedType
            |  Void
 
-    FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt  Offersopt => Type
+    FunctionType ::= TypeParametersopt ( FormalParameterListopt ) WhereClauseopt OBSOLETE_Offersopt => Type
         /.$BeginJava
-			r.rule_FunctionType0(TypeParametersopt,FormalParameterListopt,WhereClauseopt,Offersopt,Type);
+			r.rule_FunctionType0(TypeParametersopt,FormalParameterListopt,WhereClauseopt,OBSOLETE_Offersopt,Type);
         $EndJava./
 
     ClassType ::= NamedType
@@ -620,10 +624,11 @@
         /.$BeginJava
 			r.rule_FUTURE_ExistentialListopt0();
         $EndJava./
-                                | FUTURE_ExistentialList ;
-        /.$BeginJava
-			r.rule_FUTURE_ExistentialListopt1(FUTURE_ExistentialList);
-        $EndJava./
+        -- TODO: re-enable this when adding support for named self
+--                                | FUTURE_ExistentialList ;
+--        /.$BeginJava
+--			r.rule_FUTURE_ExistentialListopt1(FUTURE_ExistentialList);
+--        $EndJava./
 
     FUTURE_ExistentialList ::= FormalParameter
         /.$BeginJava
@@ -647,9 +652,9 @@
 			r.rule_StructDeclaration0(Modifiersopt,Identifier,TypeParamsWithVarianceopt,Propertiesopt,WhereClauseopt,Interfacesopt,ClassBody);
         $EndJava./
 
-    ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt  Offersopt ConstructorBody
+    ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt ConstructorBody
         /.$BeginJava
-			r.rule_ConstructorDeclaration0(Modifiersopt,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,Offersopt,ConstructorBody);
+			r.rule_ConstructorDeclaration0(Modifiersopt,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,ConstructorBody);
                                                                
         $EndJava./
        
@@ -721,16 +726,14 @@
                 | AtStatement
                 | AtomicStatement
                 | WhenStatement
---                | ForEachStatement
                 | AtEachStatement
                 | FinishStatement
---                | AwaitStatement
                 | AssignPropertyCall
-                | OfferStatement
+                | OBSOLETE_OfferStatement
     
-   OfferStatement ::= offer Expression ;
+    OBSOLETE_OfferStatement ::= offer Expression ;
          /.$BeginJava
-			r.rule_OfferStatement0(Expression);
+			r.rule_OBSOLETE_OfferStatement0(Expression);
         $EndJava./
     
     IfThenStatement ::= if ( Expression ) Statement
@@ -757,7 +760,6 @@
                     | WhileStatement
                     | DoStatement
                     | AtEachStatement
---                    | ForEachStatement
     
     ExpressionStatement ::= StatementExpression ;
         /.$BeginJava
@@ -903,9 +905,9 @@
 			r.rule_Finally0(Block);
         $EndJava./
 
-    ClockedClause ::= clocked ( ClockList )
+    ClockedClause ::= clocked Arguments
         /.$BeginJava
-			r.rule_ClockedClause0(ClockList);
+			r.rule_ClockedClause0(Arguments);
         $EndJava./
         
 
@@ -919,18 +921,18 @@
         $EndJava./
 
 
-    AtStatement ::= at ( PlaceExpression ) Statement
+    AtStatement ::= at ( Expression ) Statement
         /.$BeginJava
-			r.rule_AtStatement0(PlaceExpression,Statement);
+			r.rule_AtStatement0(Expression,Statement);
         $EndJava./
 -- Begin XTENLANG-2660
---                  | at ( PlaceExpression ; * ) Statement
+--                  | at ( Expression ; * ) Statement
 --        /.$BeginJava
---			r.rule_AtStatement0(PlaceExpression,Statement);
+--			r.rule_AtStatement0(Expression,Statement);
 --        $EndJava./
---                  | at ( PlaceExpression ; AtCaptureDeclaratorsopt ) Statement
+--                  | at ( Expression ; AtCaptureDeclaratorsopt ) Statement
 --        /.$BeginJava
---			r.rule_AtStatement1(PlaceExpression,AtCaptureDeclaratorsopt,Statement);
+--			r.rule_AtStatement1(Expression,AtCaptureDeclaratorsopt,Statement);
 --        $EndJava./
 --                  | athome ( HomeVariableList ) Statement
 --        /.$BeginJava
@@ -979,57 +981,6 @@
 --          $EndJava
 --        ./
 
---    ForEachStatement ::= foreach ( LoopIndex in Expression ) ClockedClauseopt Statement
---        /.$BeginJava
---                    FlagsNode fn = LoopIndex.flags();
---                    if (! fn.flags().isFinal()) {
---                        syntaxError("Enhanced foreach loop may not have var loop index. " + LoopIndex, LoopIndex.position());
---                        fn = fn.flags(fn.flags().Final());
---                        LoopIndex = LoopIndex.flags(fn);
---                    }
---                    setResult(nf.ForEach(pos(),
---                                 LoopIndex,
---                                  Expression,
---                                  ClockedClauseopt,
---                                  Statement));
---          $EndJava
---        ./ 
---         | clocked foreach ( LoopIndex in Expression ) Statement
---        /.$BeginJava
---                    FlagsNode fn = LoopIndex.flags();
---                    if (! fn.flags().isFinal()) {
---                        syntaxError("Enhanced foreach loop may not have var loop index" + LoopIndex, LoopIndex.position());
---                        fn = fn.flags(fn.flags().Final());
---                        LoopIndex = LoopIndex.flags(fn);
---                    }
---                    setResult(nf.ForEach(pos(),
---                                  LoopIndex,
---                                  Expression,
---                                  Statement));
---          $EndJava
---        ./ 
---         | foreach ( Expression ) Statement
---        /.$BeginJava
---                    Id name = nf.Id(pos(), Name.makeFresh());
---                    TypeNode type = nf.UnknownTypeNode(pos());
---                    setResult(nf.ForEach(pos(),
---                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
---                            Expression,
---                            new TypedList<Expr>(new LinkedList<Expr>(), Expr.class, false),
---                            Statement));
---          $EndJava
---        ./ 
---         | clocked foreach ( Expression ) Statement
---        /.$BeginJava
---                    Id name = nf.Id(pos(), Name.makeFresh());
---                    TypeNode type = nf.UnknownTypeNode(pos());
---                    setResult(nf.ForEach(pos(),
---                            nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
---                            Expression,
---                            Statement));
---          $EndJava
---        ./ 
-
     AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
         /.$BeginJava
 			r.rule_AtEachStatement0(LoopIndex,Expression,ClockedClauseopt,Statement);
@@ -1056,29 +1007,6 @@
         /.$BeginJava
 			r.rule_FinishStatement1(Statement);
         $EndJava./
-
-    PlaceExpression ::= Expression
-
-    ClockList ::= Clock
-        /.$BeginJava
-			r.rule_ClockList0(Clock);
-        $EndJava./
-                | ClockList , Clock
-        /.$BeginJava
-			r.rule_ClockList1(ClockList,Clock);
-        $EndJava./
-
-    -- The type-checker will ensure that the identifier names a variable declared as a clock.
-    Clock ::= Expression
-        /.$BeginJava
-			r.rule_Clock0(Expression);
-        $EndJava./
---
---      Clock ::= Identifier
---        /.$BeginJava
---                    setResult(new X10ParsedName(nf, ts, pos(), Identifier).toExpr());
---          $EndJava
---        ./
 
     CastExpression ::= Primary
                      | ExpressionName
@@ -1131,9 +1059,9 @@
 			r.rule_TypeParameter0(Identifier);
         $EndJava./
 
-    ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt  Offersopt => ClosureBody
+    ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt => ClosureBody
         /.$BeginJava
-			r.rule_ClosureExpression0(FormalParameters,WhereClauseopt,HasResultTypeopt,Offersopt,ClosureBody);
+			r.rule_ClosureExpression0(FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,ClosureBody);
         $EndJava./
 
     LastExpression ::= Expression
@@ -1155,18 +1083,18 @@
         $EndJava./
                   
                   
-    AtExpression ::= at ( PlaceExpression ) ClosureBody
+    AtExpression ::= at ( Expression ) ClosureBody
         /.$BeginJava
-			r.rule_AtExpression0(PlaceExpression,ClosureBody);
+			r.rule_AtExpression0(Expression,ClosureBody);
         $EndJava./
 -- Begin XTENLANG-2660
---                   | at ( PlaceExpression ; * ) ClosureBody
+--                   | at ( Expression ; * ) ClosureBody
 --        /.$BeginJava
---			r.rule_AtExpression0(PlaceExpression,ClosureBody);
+--			r.rule_AtExpression0(Expression,ClosureBody);
 --        $EndJava./
---                   | at ( PlaceExpression ; AtCaptureDeclaratorsopt ) ClosureBody
+--                   | at ( Expression ; AtCaptureDeclaratorsopt ) ClosureBody
 --        /.$BeginJava
---			r.rule_AtExpression1(PlaceExpression,AtCaptureDeclaratorsopt,ClosureBody);
+--			r.rule_AtExpression1(Expression,AtCaptureDeclaratorsopt,ClosureBody);
 --        $EndJava./
 --                   | athome ( HomeVariableList ) ClosureBody
 --        /.$BeginJava
@@ -1198,9 +1126,9 @@
 --        $EndJava./
 -- End XTENLANG-2660
 
-    FinishExpression ::= finish ( Expression ) Block
+    OBSOLETE_FinishExpression ::= finish ( Expression ) Block
         /.$BeginJava
-			r.rule_FinishExpression0(Expression,Block);
+			r.rule_OBSOLETE_FinishExpression0(Expression,Block);
         $EndJava./
         
     ---------------------------------------- All the opts...
@@ -1519,15 +1447,6 @@
 			r.rule_HasResultType1(Type);
         $EndJava./
 
---
--- This duplicated rule is not needed!
---       
---    FormalParameters ::= ( FormalParameterList )
---        /.$BeginJava
---                    setResult(FormalParameterList);
---          $EndJava
---        ./
-    
     FormalParameterList ::= FormalParameter
         /.$BeginJava
 			r.rule_FormalParameterList0(FormalParameter);
@@ -1572,9 +1491,9 @@
 			r.rule_FormalParameter2(Type);
         $EndJava./
 
-    Offers ::= offers Type
+    OBSOLETE_Offers ::= offers Type
         /.$BeginJava
-			r.rule_Offers0(Type);
+			r.rule_OBSOLETE_Offers0(Type);
         $EndJava./
     
 
@@ -2132,6 +2051,14 @@
         /.$BeginJava
 			r.rule_ShiftExpression8(expr1,expr2);
         $EndJava./
+                      | ShiftExpression$expr1 <> AdditiveExpression$expr2
+        /.$BeginJava
+			r.rule_ShiftExpression9(expr1,expr2);
+        $EndJava./
+                      | ShiftExpression$expr1 >< AdditiveExpression$expr2
+        /.$BeginJava
+			r.rule_ShiftExpression10(expr1,expr2);
+        $EndJava./
     
     RelationalExpression ::= ShiftExpression
                            | HasZeroConstraint
@@ -2213,8 +2140,8 @@
     ConditionalExpression ::= ConditionalOrExpression
                             | ClosureExpression
                             | AtExpression
-                            | FinishExpression
-                            | ConditionalOrExpression ? Expression : ConditionalExpression
+                            | OBSOLETE_FinishExpression
+                            | ConditionalOrExpression '?' Expression ':' ConditionalExpression
         /.$BeginJava
 			r.rule_ConditionalExpression4(ConditionalOrExpression,Expression,ConditionalExpression);
         $EndJava./
@@ -2289,6 +2216,42 @@
         /.$BeginJava
 			r.rule_AssignmentOperator11();
         $EndJava./
+                         | '..='
+        /.$BeginJava
+			r.rule_AssignmentOperator12();
+        $EndJava./
+                         | '->='
+        /.$BeginJava
+			r.rule_AssignmentOperator13();
+        $EndJava./
+                         | '<-='
+        /.$BeginJava
+			r.rule_AssignmentOperator14();
+        $EndJava./
+                         | '-<='
+        /.$BeginJava
+			r.rule_AssignmentOperator15();
+        $EndJava./
+                         | '>-='
+        /.$BeginJava
+			r.rule_AssignmentOperator16();
+        $EndJava./
+                         | **=
+        /.$BeginJava
+			r.rule_AssignmentOperator17();
+        $EndJava./
+                         | <>=
+        /.$BeginJava
+			r.rule_AssignmentOperator18();
+        $EndJava./
+                         | ><=
+        /.$BeginJava
+			r.rule_AssignmentOperator19();
+        $EndJava./
+                         | ~=
+        /.$BeginJava
+			r.rule_AssignmentOperator20();
+        $EndJava./
     
     Expression ::= AssignmentExpression
     
@@ -2311,6 +2274,7 @@
         /.$BeginJava
 			r.rule_PrefixOp3();
         $EndJava./
+
     -- Non-standard X10 unary operators
       | ^
         /.$BeginJava
@@ -2454,6 +2418,14 @@
         /.$BeginJava
 			r.rule_BinOp27();
         $EndJava./
+      | <>
+        /.$BeginJava
+			r.rule_BinOp28();
+        $EndJava./
+      | ><
+        /.$BeginJava
+			r.rule_BinOp29();
+        $EndJava./
 
     --
     -- Optional rules
@@ -2537,17 +2509,11 @@
         $EndJava./
                              | FormalParameterList
 
---    Throwsopt ::= %Empty
---        /.$BeginJava
---                    setResult(new TypedList<TypeNode>(new LinkedList<TypeNode>(), TypeNode.class, false));
---          $EndJava
---        ./
---                | Throws
-     Offersopt ::= %Empty
+    OBSOLETE_Offersopt ::= %Empty
         /.$BeginJava
-			r.rule_Offersopt0();
+			r.rule_OBSOLETE_Offersopt0();
         $EndJava./
-                | Offers
+                | OBSOLETE_Offers
 
     ClassBodyDeclarationsopt ::= %Empty
         /.$BeginJava
@@ -2634,5 +2600,5 @@
 %End
 
 %Types
-	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | OBSOLETE_OperatorFunction | FullyQualifiedName | VariableDeclaratorWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | VariableDeclarators | BlockStatementsopt | BlockStatements | StatementExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | VariableDeclaratorsWithType | Block | ResultType | OBSOLETE_MethodSelection | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | FormalDeclarators | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | ClassBodyDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | PlaceExpression | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassBodyDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | Offersopt | TypeDeclarationsopt | ClassBodyDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Clock | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | ClockList | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | FieldKeyword | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | FieldDeclarators | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
+	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | OBSOLETE_OperatorFunction | FullyQualifiedName | VariableDeclaratorWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | VariableDeclarators | BlockStatementsopt | BlockStatements | StatementExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | VariableDeclaratorsWithType | Block | ResultType | OBSOLETE_MethodSelection | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | FormalDeclarators | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | ClassBodyDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassBodyDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassBodyDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | FieldKeyword | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | FieldDeclarators | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
 %End

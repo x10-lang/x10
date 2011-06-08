@@ -464,6 +464,8 @@ public class X10Binary_c extends Binary_c {
         methodNameMap.put(LARROW,   OperatorNames.LARROW);
         methodNameMap.put(FUNNEL,   OperatorNames.FUNNEL);
         methodNameMap.put(LFUNNEL,  OperatorNames.LFUNNEL);
+        methodNameMap.put(DIAMOND,  OperatorNames.DIAMOND);
+        methodNameMap.put(BOWTIE,   OperatorNames.BOWTIE);
         methodNameMap.put(STARSTAR, OperatorNames.STARSTAR);
         methodNameMap.put(TWIDDLE,  OperatorNames.TILDE);
         methodNameMap.put(NTWIDDLE, OperatorNames.NTILDE);
