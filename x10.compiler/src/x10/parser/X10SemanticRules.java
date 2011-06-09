@@ -3895,7 +3895,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkConstructorModifiers(Modifiersopt);
         ConstructorDecl cd = nf.X10ConstructorDecl(pos(),
                 extractFlags(modifiers),
-                nf.Id(pos(getRhsFirstTokenIndex(3)), "this"),
+                nf.Id(pos(getRhsFirstTokenIndex(3)), TypeSystem.CONSTRUCTOR_NAME),
                 HasResultTypeopt,
                 TypeParametersopt,
                 FormalParameters,

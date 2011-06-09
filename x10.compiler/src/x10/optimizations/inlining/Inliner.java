@@ -38,6 +38,7 @@ import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
@@ -257,30 +258,39 @@ public class Inliner extends ContextVisitor {
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
             X10ProcedureDef def = repository.getDef(call);
-            List<Type> a = AnnotationUtils.getAnnotations(def, annotations.ConstantType);
-            if (a.isEmpty()) return null;
-            Expr arg = ((X10ClassType) a.get(0)).propertyInitializer(0);
-            if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
-                return null;
             Type type = def.returnType().get();
+            List<Type> a = AnnotationUtils.getAnnotations(def, annotations.ConstantType);
             X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
-            String name = ((StringValue) arg.constantValue()).value();
-            Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
-            if (negate) {
-                assert ts.isBoolean(type);
-                name = name.substring(1);
-            }
-            Object value = opts.x10_config.get(name);
-            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
+            ConstantValue cv = extractCompileTimeConstant(type, a, opts, context);
+            if (cv == null) return null;
             Expr literal = cv.toLit(nf, ts, type, call.position());
             return literal;
+        }
+        finally {
+            x10Info.stats.stopTiming();
+        }
+    }
+
+    public static ConstantValue extractCompileTimeConstant(Type type, List<? extends Type> annotations, X10CompilerOptions opts, Context context) {
+        if (annotations.isEmpty()) return null;
+        TypeSystem ts = type.typeSystem();
+        Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
+        if (!arg.isConstant() || !arg.type().isSubtype(ts.String(), context)) 
+            return null;
+        String name = ((StringValue) arg.constantValue()).value();
+        Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
+        if (negate) {
+            assert ts.isBoolean(type);
+            name = name.substring(1);
+        }
+        try {
+            Object value = opts.x10_config.get(name);
+            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
+            return cv;
         } catch (ConfigurationError e) {
             return null;
         } catch (OptionError e) {
             return null;
-        }
-        finally {
-            x10Info.stats.stopTiming();
         }
     }
 

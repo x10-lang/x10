@@ -134,14 +134,11 @@ public class ConstantPropagator extends ContextVisitor {
             If c = (If) n;
             Expr cond = c.cond();
             if (isConstant(cond)) {
-                Object o = constantValue(cond);
-                if (o instanceof Boolean) {
-                    boolean b = (boolean) (Boolean) o;
-                    if (b)
-                        return c.consequent();
-                    else
-                        return c.alternative() != null ? c.alternative() : nf.Empty(pos);
-                }
+                boolean b = ((BooleanValue) constantValue(cond)).value();
+                if (b)
+                    return c.consequent();
+                else
+                    return c.alternative() != null ? c.alternative() : nf.Empty(pos);
             }
         }
 
@@ -204,11 +201,12 @@ public class ConstantPropagator extends ContextVisitor {
 
     public static boolean isConstant(Expr e) {
         
-        if (isNative(e))
-            return false;
-        
         Type type = e.type();
         if (null == type) // TODO: this should never happen, determine if and why it does
+            return false;
+        
+        TypeSystem ts = type.typeSystem();
+        if (isNative(e, ts))
             return false;
         
         if (type.typeSystem().isSubtype(type, type.typeSystem().String()))
@@ -224,7 +222,7 @@ public class ConstantPropagator extends ContextVisitor {
             Field f = (Field) e;
             if (f.target() instanceof Expr) {
                 Expr target = (Expr) f.target();
-                if (isNative(target))
+                if (isNative(target, ts))
                     return false;
                 Type t = target.type();
                 CConstraint c = Types.xclause(t);
@@ -264,17 +262,16 @@ public class ConstantPropagator extends ContextVisitor {
         return s instanceof Return || s instanceof Throw || s instanceof Branch;
     }
 
-    private static final QName NATIVE_ANNOTATION = QName.make("x10.compiler.Native");
     /**
      * Determine if a node is annotated "@Native".
      * 
      * @param node a node which may appear constant but be native instead
      * @return true, if node has an "@Native" annotation; false, otherwise
      */
-    private static boolean isNative(Node node) {
-        return    null != node.ext() 
+    private static boolean isNative(Node node, TypeSystem ts) {
+        return null != node.ext() 
                && node.ext() instanceof X10Ext 
-               && !((X10Ext) node.ext()).annotationNamed(NATIVE_ANNOTATION).isEmpty();
+               && !((X10Ext) node.ext()).annotationMatching(ts.NativeType()).isEmpty();
     }
 
 }

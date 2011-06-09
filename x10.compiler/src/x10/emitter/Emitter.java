@@ -120,7 +120,6 @@ import x10c.visit.StaticInitializer;
 
 public class Emitter {
 
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
     private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
     
@@ -160,18 +159,10 @@ public class Emitter {
 
 	CodeWriter w;
 	Translator tr;
-	private final Type imcType;
-	private final Type nativeClassType;
 
 	public Emitter(CodeWriter w, Translator tr) {
 		this.w=w;
 		this.tr=tr;
-		try {
-		    imcType = tr.typeSystem().forName(QName.make("x10.util.IndexedMemoryChunk"));
-            nativeClassType = tr.typeSystem().systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
-		} catch (SemanticException e1) {
-		    throw new InternalCompilerError("Something is terribly wrong");
-		}
 	}
 
 	private static final String[] NON_PRINTABLE = {
@@ -655,7 +646,7 @@ public class Emitter {
 	}
 
 	private String getNativeClassJavaRepParam(X10ClassDef def, int i) {
-        List<Type> as = def.annotationsMatching(nativeClassType);
+        List<Type> as = def.annotationsMatching(def.typeSystem().NativeClass());
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
             if (lang != null && lang.equals("java")) {
@@ -932,7 +923,7 @@ public class Emitter {
 
 	public boolean isIMC(Type type) {
         Type tbase = Types.baseType(type);
-        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(type.typeSystem().IndexedMemoryChunk(), tr.context());
     }
 
 	// not used

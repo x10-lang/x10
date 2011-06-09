@@ -165,29 +165,39 @@ public class X10Binary_c extends Binary_c {
         return false;
     }
 
-	public boolean isConstant() {
-		if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type())) {
-		    if (op == EQ || op == NE) {
-		        // Additional checks for type equality because conversions not applied for ==
-		        Type lt = left.type();
-		        Type rt = right.type();
-		        TypeSystem xts = (TypeSystem) lt.typeSystem();
-		        if (lt == null || rt == null)
-		            return false;
-		        if (lt.isClass() && rt.isClass()) {
-		            X10ClassType ltc = (X10ClassType)lt.toClass();
-		            X10ClassType rtc = (X10ClassType)rt.toClass();		            
-		            if (ltc.isX10Struct() || rtc.isX10Struct()) {
-		                return xts.typeBaseEquals(ltc, rtc, xts.emptyContext());
-		            }
-		        }
-		    }
-		   
-		    return true;
-		}
-		
-		return false;
-	}
+    public boolean isConstant() {
+        if (left.isConstant() && left.type().isBoolean()) {
+            if ((op == COND_AND || op == BIT_AND) && ((BooleanValue) left.constantValue()).value() == false) {
+                // false && e == false
+                return true;
+            }
+            if ((op == COND_OR || op == BIT_OR) && ((BooleanValue) left.constantValue()).value() == true) {
+                // true || e == true
+                return true;
+            }
+        }
+        if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type())) {
+            if (op == EQ || op == NE) {
+                // Additional checks for type equality because conversions not applied for ==
+                Type lt = left.type();
+                Type rt = right.type();
+                TypeSystem xts = (TypeSystem) lt.typeSystem();
+                if (lt == null || rt == null)
+                    return false;
+                if (lt.isClass() && rt.isClass()) {
+                    X10ClassType ltc = (X10ClassType)lt.toClass();
+                    X10ClassType rtc = (X10ClassType)rt.toClass();		            
+                    if (ltc.isX10Struct() || rtc.isX10Struct()) {
+                        return xts.typeBaseEquals(ltc, rtc, xts.emptyContext());
+                    }
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
 
     public ConstantValue constantValue() {
         ConstantValue result = superConstantValue();
@@ -220,13 +230,23 @@ public class X10Binary_c extends Binary_c {
     }
     
     private ConstantValue superConstantValue() {
-    	if (!isConstant()) {
-    		return null;
-    	}
+        if (!isConstant()) {
+            return null;
+        }
 
-	    ConstantValue lv = left.constantValue();
+        ConstantValue lv = left.constantValue();
         ConstantValue rv = right.constantValue();
-        
+
+        if (lv instanceof BooleanValue) {
+            boolean l = ((BooleanValue) lv).value();
+            // false && e == false
+            if (op == BIT_AND && l == false) return ConstantValue.makeBoolean(l);
+            if (op == COND_AND && l == false) return ConstantValue.makeBoolean(l);
+            // true || e == true
+            if (op == BIT_OR && l == true) return ConstantValue.makeBoolean(l);
+            if (op == COND_OR && l == true) return ConstantValue.makeBoolean(l);
+        }
+
         if (lv == null || rv == null) {
             System.out.println("AJA "+this+" ::: "+lv+" ::: "+rv);
             System.out.println(left+" "+left.getClass());

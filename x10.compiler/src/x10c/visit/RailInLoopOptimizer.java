@@ -89,8 +89,6 @@ public class RailInLoopOptimizer extends ContextVisitor {
     // map tmp values to Rail/IMC type exprs. e.g.) temp001 -> array.raw
     private final Map<Name, Expr> nameToRailIMC = CollectionFactory.newHashMap();
 
-    private Type imc;
-
     public RailInLoopOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (X10CTypeSystem_c) ts;
@@ -106,16 +104,6 @@ public class RailInLoopOptimizer extends ContextVisitor {
            localdefs.put(name, ldef);
            return ldef;
         }
-    }
-    
-    @Override
-    public NodeVisitor begin() {
-        try {
-            imc = xts.forName(QName.make("x10.util.IndexedMemoryChunk"));
-        } catch (SemanticException e1) {
-            throw new InternalCompilerError("Something is terribly wrong");
-        }
-        return super.begin();
     }
     
     @Override
@@ -563,7 +551,7 @@ public class RailInLoopOptimizer extends ContextVisitor {
 
     private boolean isIMC(Type type) {
         Type tbase = Types.baseType(type);
-        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(xts.IndexedMemoryChunk(), context);
     };
 
     private boolean isOptimizationTarget(Type ttype) {

@@ -58,22 +58,10 @@ public class JavaCaster extends ContextVisitor {
     private final TypeSystem xts;
     private final NodeFactory xnf;
 
-    private Type imc;
-
     public JavaCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
-    }
-    
-    @Override
-    public NodeVisitor begin() {
-        try {
-            imc = xts.forName(QName.make("x10.util.IndexedMemoryChunk"));
-        } catch (SemanticException e1) {
-            throw new InternalCompilerError("Something is terribly wrong");
-        }
-        return super.begin();
     }
     
     @Override
@@ -271,7 +259,7 @@ public class JavaCaster extends ContextVisitor {
 
     private boolean isIMC(Type type) {
         Type tbase = Types.baseType(type);
-        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(xts.IndexedMemoryChunk(), context);
     }
 
     // add casts for type constraints to type parameters
