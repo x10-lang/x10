@@ -1214,7 +1214,10 @@ public class Emitter {
     
     public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def.name(), def.container().get())) {
+        // WIP XTENLANG-2680 (ComparableTest.x10)
+        // enable it after enhancing canMangleMethodName with parameter list
+//        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def.name(), def.container().get())) {
+        if (X10PrettyPrinterVisitor.isGenericOverloading) {
             w.write(getMangledMethodName(def, !isInterface));
         }
         else {
