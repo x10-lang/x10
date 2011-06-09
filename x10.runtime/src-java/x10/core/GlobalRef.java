@@ -30,7 +30,7 @@ import x10.x10rt.X10JavaSerializer;
 public final class GlobalRef<T> extends x10.core.Struct implements
         Externalizable, X10JavaSerializable {
 	
-	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
+	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(GlobalRef.class.getName());
 
     public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.NamedType<GlobalRef<?>>(
         "x10.lang.GlobalRef",

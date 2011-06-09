@@ -39,8 +39,14 @@ public class MessageHandlers {
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
     		java.io.ObjectInputStream objStream = new java.io.ObjectInputStream(byteStream);
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast");
+            x10.core.fun.VoidFun_0_0 actObj;
+            if (x10.runtime.impl.java.Runtime.CUSTOM_JAVA_SERIALIZATION) {
+                X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+                actObj = (x10.core.fun.VoidFun_0_0) deserializer.deSerialize();
+            } else {
+                actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
+            }
+    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast and deserialization");
     		actObj.$apply();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after apply");
     		objStream.close();

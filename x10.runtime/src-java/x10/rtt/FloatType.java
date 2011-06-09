@@ -12,9 +12,16 @@
 package x10.rtt;
 
 
-public class FloatType extends RuntimeType<Float> {
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
+
+public class FloatType extends RuntimeType<Float> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(FloatType.class.getName());
 
     public FloatType() {
         super(Float.class,
@@ -70,5 +77,19 @@ public class FloatType extends RuntimeType<Float> {
     public int arrayLength(Object array) {
     	return ((float[]) array).length;
     }
-    
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(FloatType t, X10JavaDeserializer deserializer) throws IOException {
+        return new FloatType();
+    }
 }
