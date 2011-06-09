@@ -27,6 +27,8 @@ public abstract class ConstantValue {
 
     public abstract Lit toUntypedLit(NodeFactory nf, Position pos);
     
+    public abstract Type getLitType(TypeSystem ts);
+
     public abstract Object toJavaObject();
     
     public static Object toJavaObject(ConstantValue v) {

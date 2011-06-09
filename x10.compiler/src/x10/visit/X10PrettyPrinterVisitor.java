@@ -2306,13 +2306,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // val = Long.toString((int) n.value());
         }
         if (!n.type().isLongOrLess()) {
-            w.write("((");
-            er.printType(n.type(), PRINT_TYPE_PARAMS | NO_VARIANCE);
-            w.write(")");
+            assert (Types.baseType(n.type()).isAny());
+            w.write("(");
+            er.printBoxConversion(n.constantValue().getLitType(tr.typeSystem()));
+            w.write("(");
         }
         w.write(val);
         if (!n.type().isLongOrLess()) {
-            w.write(")");
+            w.write("))");
         }
     }
 

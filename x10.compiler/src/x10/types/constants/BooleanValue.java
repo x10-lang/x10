@@ -31,14 +31,22 @@ public final class BooleanValue extends ConstantValue {
 	public boolean value() {
 		return val;
 	}
-	
+
+	@Override
 	public Boolean toJavaObject() { return Boolean.valueOf(val); }
-	
+
+	@Override
 	public BooleanLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-	    type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.Boolean()));
+	    type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
 	    return (BooleanLit)nf.BooleanLit(pos, val).type(type);
 	}
 
+    @Override
+    public Type getLitType(TypeSystem ts) {
+        return ts.Boolean();
+    }
+
+    @Override
 	public BooleanLit toUntypedLit(NodeFactory nf, Position pos) {
 	    return (BooleanLit) nf.BooleanLit(pos, val);
 	}
