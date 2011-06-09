@@ -1797,7 +1797,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (isPrimitiveRepedJava(e.type())) {
                     // e.g) m((Integer) a) for m(T a)
                     // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-                    if (isBoxedType(defType) || !er.canMangleMethodName(def.name(), def.container().get())) {
+                    if (isBoxedType(defType) || !er.canMangleMethodName(def)) {
                         // this can print something like '(int)' or 'UInt.$box' depending on the type
                         // we require the parentheses to be printed below 
                         er.printBoxConversion(e.type());

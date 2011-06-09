@@ -1082,7 +1082,7 @@ public class Emitter {
         w.allowBreak(2, 2, " ", 1);
 
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-        boolean canMangleMethodName = canMangleMethodName(n.methodDef().name(), n.methodDef().container().get());
+        boolean canMangleMethodName = canMangleMethodName(n.methodDef());
         
         // decl
         // print the method name
@@ -1202,22 +1202,25 @@ public class Emitter {
         return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type, tr.context());
     }
 
-    public final boolean canMangleMethodName(Name methodName, ContainerType containerType) {
-    	String methodNameString = methodName.toString();
-    	return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
+    public final boolean canMangleMethodName(MethodDef def) {
+        ContainerType containerType = def.container().get();
+        String methodName = def.name().toString();
+        List<Ref<? extends Type>> formalTypes = def.formalTypes();
+        int numFormals = formalTypes.size();
+        boolean nonStatic = !def.flags().isStatic();
+        return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
         && !isNativeClassToJava(containerType)
         && !isNativeRepedToJava(containerType)
-        && !(methodNameString.equals("equals") || methodNameString.equals("toString") || methodNameString.equals("hashCode"))/*Any*/
-        && !(methodNameString.equals("compareTo"))/*Comparable*/
-        && !(methodNameString.startsWith(StaticInitializer.initializerPrefix) || methodNameString.startsWith(StaticInitializer.deserializerPrefix));
+        && !(nonStatic && ((methodName.equals("equals") && numFormals == 1) || (methodName.equals("toString") && numFormals == 0) || (methodName.equals("hashCode") && numFormals == 0)))/*Any*/
+        && !(nonStatic && ((methodName.equals("compareTo") && numFormals == 1)))/*Comparable*/
+        && !(methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix));
     }
     
     public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
         // WIP XTENLANG-2680 (ComparableTest.x10)
         // enable it after enhancing canMangleMethodName with parameter list
-//        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def.name(), def.container().get())) {
-        if (X10PrettyPrinterVisitor.isGenericOverloading) {
+        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def)) {
             w.write(getMangledMethodName(def, !isInterface));
         }
         else {
@@ -1225,7 +1228,7 @@ public class Emitter {
         }
         if (!isDispatcher) {
             if (isSpecialReturnType) {
-                if (canMangleMethodName(def.name(), def.container().get())) {
+                if (canMangleMethodName(def)) {
                     w.write(RETURN_SPECIAL_TYPE_SUFFIX);
                 }
             }
@@ -1243,7 +1246,7 @@ public class Emitter {
             w.write(mangleToJava(mi.name()));
         }
         if (isSpecialType(mi.returnType())) {
-            if (canMangleMethodName(mi.name(), mi.container())) {
+            if (canMangleMethodName(mi.def())) {
                 w.write(RETURN_SPECIAL_TYPE_SUFFIX);
             }
         }
