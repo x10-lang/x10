@@ -250,36 +250,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static <T> T deepCopy(T body) {
         if (CUSTOM_JAVA_SERIALIZATION) {
             try {
-
-                long startTime = 0L;
-                if (TRACE_SER) {
-                    startTime = System.nanoTime();
-                }
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                ObjectOutputStream oos = new ObjectOutputStream(baos);
-                X10JavaSerializer serializer = new X10JavaSerializer(oos);
-                if (TRACE_SER) {
-                    System.out.println("Starting serialization for deepCopy of " + body.getClass());
-                }
-                if (body instanceof X10JavaSerializable) {
-                    serializer.write((X10JavaSerializable) body);
-                } else if (body instanceof Float) {
-                    serializer.writeWithID((Float) body);
-                } else {
-                    if (TRACE_SER) {
-                        System.out.println("############# " + body.getClass() + "###########");
-                    }
-                }
-                if (TRACE_SER) {
-                    System.out.println("Done with serialization for deepCopy of " + body.getClass());
-                }
-                oos.close();
-                byte[] ba = baos.toByteArray();
-                if (TRACE_SER) {
-                    long endTime = System.nanoTime();
-                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
-                            + " microsecs.");
-                }
+                byte[] ba = serialize(body);
                 ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(ba));
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
                 if (TRACE_SER) {
@@ -327,13 +298,47 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
     }
 
+    private static <T> byte[] serialize(T body) throws IOException {
+        long startTime = 0L;
+        if (TRACE_SER) {
+            startTime = System.nanoTime();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
+        if (TRACE_SER) {
+            System.out.println("Starting serialization for deepCopy of " + body.getClass());
+        }
+        if (body instanceof X10JavaSerializable) {
+            serializer.write((X10JavaSerializable) body);
+        } else {
+            serializer.write(body);
+        }
+        if (TRACE_SER) {
+            System.out.println("Done with serialization for deepCopy of " + body.getClass());
+        }
+        oos.close();
+        byte[] ba = baos.toByteArray();
+        if (TRACE_SER) {
+            long endTime = System.nanoTime();
+            System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
+                    + " microsecs.");
+        }
+        return ba;
+    }
+
     // @MultiVM, add this method
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
+        byte[] msg;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            (new java.io.ObjectOutputStream(baos)).writeObject(body);
-            byte[] msg = baos.toByteArray();
-            int msgLen = baos.size();
+            if (CUSTOM_JAVA_SERIALIZATION) {
+                msg = serialize(body);
+            } else {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                (new java.io.ObjectOutputStream(baos)).writeObject(body);
+                msg = baos.toByteArray();
+            }
+            int msgLen = msg.length;
             if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
             x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
         } catch (java.io.IOException e) {
@@ -347,10 +352,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     // Special version of runAt for broadcast type communication
     // (Serialize once, run everywhere)
     public static void runAtAll(boolean includeHere, x10.core.fun.VoidFun_0_0 body) {
+        byte[] msg;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            (new java.io.ObjectOutputStream(baos)).writeObject(body);
-            byte[] msg = baos.toByteArray();
+            if (CUSTOM_JAVA_SERIALIZATION) {
+                msg = serialize(body);
+            } else {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                (new java.io.ObjectOutputStream(baos)).writeObject(body);
+                msg = baos.toByteArray();
+            }
             int hereId = X10RT.here();
             for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
                 x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);

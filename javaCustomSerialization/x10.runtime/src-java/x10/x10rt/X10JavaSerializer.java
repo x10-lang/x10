@@ -12,6 +12,8 @@
 package x10.x10rt;
 
 import x10.io.CustomSerialization;
+import x10.rtt.Type;
+import x10.x10rt.DeserializationDispatcher;
 
 import java.io.IOException;
 import java.io.ObjectOutput;
@@ -124,6 +126,14 @@ public class X10JavaSerializer {
         out.writeByte(b);
     }
 
+    public void write(byte[] b) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Byte : " + b);
+        }
+        out.writeInt(b.length);
+        out.write(b);
+    }
+
     public void write(short s) throws IOException {
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Short : " + s);
@@ -152,14 +162,6 @@ public class X10JavaSerializer {
         out.writeFloat(f);
     }
 
-    public void writeWithID(Float f) throws IOException {
-        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-            System.out.println("Float : " + f);
-        }
-        out.writeInt(DeserializationDispatcher.FLOAT_ID);
-        out.writeFloat(f);
-    }
-
     public void write(String str) throws IOException {
         if (str == null) {
             if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
@@ -175,5 +177,37 @@ public class X10JavaSerializer {
         }
         write(str.length());
         out.write(str.getBytes());
+    }
+
+    public  <T> void write(T p) throws IOException {
+        if (p == null) {
+             out.writeInt(DeserializationDispatcher.NULL_ID);
+            return;
+        }
+        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                System.out.println("Class name : " + p.getClass().getName() + " , id : " + id);
+        }
+
+        if (id == DeserializationDispatcher.STRING_ID) {
+            write(p.toString());
+            return;
+        }
+        out.writeInt(id);
+        if (id == DeserializationDispatcher.FLOAT_ID) {
+            out.writeFloat((Float)p);
+        } else if (id == DeserializationDispatcher.DOUBLE_ID) {
+            out.writeDouble((Double) p);
+        } else if (id == DeserializationDispatcher.INTEGER_ID) {
+            out.writeInt((Integer) p);
+        } else if (id == DeserializationDispatcher.BOOLEAN_ID) {
+            out.writeBoolean((Boolean) p);
+        } else if (id == DeserializationDispatcher.BYTE_ID) {
+            out.writeByte((Byte) p);
+        } else if (id == DeserializationDispatcher.CHARACTER_ID) {
+            out.writeChar((Character)p);
+        } else {
+            throw  new RuntimeException("################## Need to handle " + p.getClass().getName());
+        }
     }
 }

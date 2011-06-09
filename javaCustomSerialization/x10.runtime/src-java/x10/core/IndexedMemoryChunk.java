@@ -25,6 +25,7 @@ import x10.rtt.FloatType;
 import x10.rtt.IntType;
 import x10.rtt.LongType;
 import x10.rtt.NamedType;
+import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.ShortType;
@@ -36,7 +37,7 @@ import x10.x10rt.X10JavaSerializer;
 public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
+	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(IndexedMemoryChunk.class.getName());
 
     public int length;
     public Object value;
@@ -485,7 +486,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             }
             imc.value = values;
         } else  {
-            Object[] values = new Object[length];
+            Object[] values = (Object[]) imc.type.makeArray(length);
             for (int i = 0; i < length; i++) {
                    values[i] = deserializer.readRef();
             }

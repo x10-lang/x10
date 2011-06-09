@@ -12,9 +12,16 @@
 package x10.rtt;
 
 
-public class ShortType extends RuntimeType<Short> {
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
+
+public class ShortType extends RuntimeType<Short>implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ShortType.class.getName());
 
     public ShortType() {
         super(Short.class,
@@ -48,7 +55,7 @@ public class ShortType extends RuntimeType<Short> {
         }
         return arr;
     }
-    
+
     @Override
     public Short getArray(Object array, int i) {
         return ((short[]) array)[i];
@@ -69,6 +76,21 @@ public class ShortType extends RuntimeType<Short> {
     @Override
     public int arrayLength(Object array) {
     	return ((short[]) array).length;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(ShortType t, X10JavaDeserializer deserializer) throws IOException {
+        return new ShortType();
     }
     
 }

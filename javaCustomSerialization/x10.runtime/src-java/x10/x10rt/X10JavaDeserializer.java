@@ -32,10 +32,13 @@ public class X10JavaDeserializer {
             System.out.print("Serialization id  : ");
         }
         int serializationID = readInt();
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Class Name : " + DeserializationDispatcher.getClassNameForID(serializationID));
+        }
         return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }
 
-    public void readArray(Object[] array) throws IOException {
+    public <T> void readArray(T[] array) throws IOException {
         int length = array.length;
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Array length : " + length);
@@ -44,7 +47,7 @@ public class X10JavaDeserializer {
             if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
                 System.out.println("Deserializing element  : " + i);
             }
-            array[i] = readRef();
+            array[i] = (T)readRef();
         }
     }
 
@@ -93,6 +96,18 @@ public class X10JavaDeserializer {
         byte v = in.readByte();
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Byte : " + v);
+        }
+        return v;
+    }
+
+    public byte[] readByteArray() throws IOException {
+        int length = in.readInt();
+        byte[] v = new byte[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readByte();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Byte Array : " + v);
         }
         return v;
     }

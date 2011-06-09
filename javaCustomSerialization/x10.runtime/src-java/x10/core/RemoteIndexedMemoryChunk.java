@@ -23,7 +23,7 @@ import x10.x10rt.X10JavaSerializer;
 public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
+	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RemoteIndexedMemoryChunk.class.getName());
 
     private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
 

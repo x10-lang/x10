@@ -27,7 +27,7 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
     x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
-    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UByte.class.getName());
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.UBYTE;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}

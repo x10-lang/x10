@@ -579,19 +579,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
                 w.writeln("} ");
 
-                // Check whether we need to deserialize the super class
-                if (superClassNode != null && superClassNode.type().isClass()) {
-                    if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
-                            superClassNode.type().toString().equals("x10.lang.Throwable") ||
-                            superClassNode.type().toString().equals("x10.lang.Object") ||
-                            superClassNode.type().toString().equals("x10.lang.Any"))) {
-                        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                        w.write("java.lang.System.out.println( \"Deserialiazing super class " + superClassNode.type().toString() + " \");");
-                        w.writeln("}");
-                        er.printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                        w.writeln("._deserialize_body(obj, deserializer);");
-                    }
-                }
+                er.deserializeSuperClass(superClassNode);
 
                 List<ParameterType> parameterTypes = ct.x10Def().typeParameters();
 
@@ -600,7 +588,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write("obj.");
                         er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         w.write(" = ( " + X10_RUNTIME_TYPE_CLASS + " ) ");
-                        w.write("deserializer.readRef();");
+                        w.writeln("deserializer.readRef();");
                     }
 
                     for (int i = 0; i < ct.fields().size(); i++) {
@@ -669,10 +657,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialization_id
-                w.write("private final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-                w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());");
+                w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+                w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
+                w.write(Emitter.mangleToJava(def.name()));
+                w.writeln(".class.getName());");
                 w.newline();
-                w.forceNewline();
 
                 // _serialize_id()
                 w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
@@ -721,11 +710,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
                     w.write("java.lang.System.out.println(\" Gonna serialize field " + fieldName + " of type " + f.type().toString() + " in class " + ct.toString() + "\");");
                     w.writeln("} ");
-                    w.write("serializer.write(");
-                    if (!isPrimitiveRepedJava(f.type()) && !isString(f.type(), context)) {
-                        w.write("(x10.x10rt.X10JavaSerializable) ");
+
+                    if (isPrimitiveRepedJava(f.type()) || isString(f.type(), context)) {
+                        w.writeln("serializer.write(this." + fieldName + ");");
+                    } else {
+                        w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
+                        w.writeln("serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
+                        w.writeln("} else {");
+                        w.writeln("serializer.write(this." + fieldName + ");");
+                        w.writeln("}");
                     }
-                    w.writeln("this." + fieldName + ");");
                 }
                 w.end();
                 w.newline();

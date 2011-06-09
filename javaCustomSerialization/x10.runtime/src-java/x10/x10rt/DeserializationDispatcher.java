@@ -24,6 +24,12 @@ public class DeserializationDispatcher {
     public static final int NULL_ID = 0;
     public static final int STRING_ID = 1;
     public static final int FLOAT_ID = 2;
+    public static final int DOUBLE_ID = 3;
+    public static final int INTEGER_ID = 4;
+    public static final int BOOLEAN_ID = 5;
+    public static final int BYTE_ID = 6;
+    public static final int SHORT_ID = 7;
+    public static final int CHARACTER_ID = 8;
     public static final String NULL_VALUE = "__NULL__";
 
     private static final int INCREMENT_SIZE = 10;
@@ -33,17 +39,30 @@ public class DeserializationDispatcher {
     private static int i = NULL_ID;
 
     private static List<String> idToClassName = new ArrayList<String>();
+    private static Map<String, Integer> classNameToId = new HashMap<String, Integer>();
 //    private static Map<Integer, X10JavaSerializable> idToInstance = new HashMap<Integer, X10JavaSerializable>();
 
     public static int addDispatcher(String className) {
         if (i == NULL_ID) {
             idToClassName.add(NULL_ID, NULL_VALUE);
-            i++;
-            idToClassName.add(i, "java.lang.String");
+            add("java.lang.String");
+            add("java.lang.Float");
+            add("java.lang.Double");
+            add("java.lang.Integer");
+            add("java.lang.Boolean");
+            add("java.lang.Byte");
+            add("java.lang.Short");
+            add("java.lang.Character");
         }
         i++;
         idToClassName.add(i, className);
         return i;
+    }
+
+    private static void add(String str) {
+        i++;
+        classNameToId.put(str, i);
+        idToClassName.add(i, str);
     }
 
     public static Object getInstanceForId(int i, X10JavaDeserializer deserializer) throws IOException {
@@ -54,6 +73,18 @@ public class DeserializationDispatcher {
             return deserializer.readString();
         } else if (i == FLOAT_ID) {
             return deserializer.readFloat();
+        } else if (i == DOUBLE_ID) {
+            return deserializer.readDouble();
+        } else if (i == INTEGER_ID) {
+            return deserializer.readInt();
+        } else if (i == BOOLEAN_ID) {
+            return deserializer.readBoolean();
+        } else if (i == BYTE_ID) {
+            return deserializer.readByte();
+        } else if (i == SHORT_ID) {
+            return deserializer.readShort();
+        } else if (i == CHARACTER_ID) {
+            return deserializer.readChar();
         }
 
         final String className = idToClassName.get(i);
@@ -78,5 +109,9 @@ public class DeserializationDispatcher {
 
     public static String getClassNameForID(int id) {
         return idToClassName.get(id);
+    }
+
+    public static int getIDForClassName(String str) {
+        return classNameToId.get(str);
     }
 }

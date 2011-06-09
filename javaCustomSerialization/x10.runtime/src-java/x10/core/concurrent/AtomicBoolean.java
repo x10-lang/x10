@@ -24,7 +24,7 @@ import java.io.IOException;
 public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements RefI, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-	private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
+	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicBoolean.class.getName());
 
     public AtomicBoolean(java.lang.System[] $dummy) {
         super();
@@ -62,7 +62,7 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
 		serializer.write(this.get());
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaSerializable s, X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
 		return _deserialize_body(null, deserializer);
 	}
 

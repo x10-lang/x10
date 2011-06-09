@@ -12,9 +12,16 @@
 package x10.rtt;
 
 
-public class ULongType extends RuntimeType<x10.core.ULong> {
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
+
+public class ULongType extends RuntimeType<x10.core.ULong> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ULongType.class.getName());
 
     public ULongType() {
         super(x10.core.ULong.class,
@@ -71,6 +78,21 @@ public class ULongType extends RuntimeType<x10.core.ULong> {
     @Override
     public int arrayLength(Object array) {
     	return ((long[]) array).length;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(ULongType t, X10JavaDeserializer deserializer) throws IOException {
+        return new ULongType();
     }
     
 }

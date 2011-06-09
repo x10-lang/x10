@@ -25,7 +25,7 @@ import java.io.IOException;
 
 public class Vec<T> extends x10.core.Struct {
 
-    private final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(getClass().getName());
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Vec.class.getName());
 
     public int size;
     public x10.array.Array<T> backing;
@@ -174,7 +174,7 @@ public class Vec<T> extends x10.core.Struct {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaSerializable s, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
         Vec vec = new Vec(null);
 		return _deserialize_body(vec, deserializer);
 	}

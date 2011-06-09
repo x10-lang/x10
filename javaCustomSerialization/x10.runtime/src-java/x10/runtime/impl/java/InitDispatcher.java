@@ -18,6 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import x10.core.ThrowableUtilities;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 public abstract class InitDispatcher {
@@ -107,9 +109,11 @@ public abstract class InitDispatcher {
         return fieldId-1;
     }
 
-    static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
+    public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
     	private final int fieldId;
     	private final byte[] buf;
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(InitDispatcher.$Closure$Deserialize.class.getName());
+
         public void $apply() {
             // execute deserializer for fieldValue
             try {
@@ -134,11 +138,23 @@ public abstract class InitDispatcher {
         }
 
         public void _serialize(X10JavaSerializer serializer) throws IOException {
-            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+            serializer.write(fieldId);
+            serializer.write(buf);
         }
 
         public int _get_serialization_id() {
-            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+            return _serialization_id;
+        }
+
+        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+            return _deserialize_body(null, deserializer);
+        }
+
+        public static X10JavaSerializable _deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws IOException {
+            int id = deserializer.readInt();
+            byte[] bytes = deserializer.readByteArray();
+            $Closure$Deserialize v = new $Closure$Deserialize(id, bytes);
+            return (X10JavaSerializable) v;
         }
     }
     public static void broadcastStaticField(final Object fieldValue, final int fieldId) {
