@@ -22,6 +22,7 @@
 #include <x10rt_net.h>
 #include <pami.h>
 #include <pami_ext_hfi.h>
+#include <pami_ext_pe.h>
 
 //#define DEBUG 1
 
@@ -102,6 +103,7 @@ struct x10rt_pami_state
 	int numParallelContexts; // When X10_STATIC_THREADS=true, this is set to the value of X10_NTHREADS. Otherwise it's 0.
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
+	pami_extension_t async_extension; // for async progress
 } state;
 
 static void local_msg_dispatch (pami_context_t context, void* cookie, const void* header_addr, size_t header_size,
@@ -214,6 +216,16 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 		#ifdef DEBUG
 			fprintf(stderr, "send immediate size is %u bytes\n", state.sendImmediateLimit);
 		#endif
+	}
+
+	if (state.async_extension)
+	{
+		#ifdef DEBUG
+			fprintf(stderr, "ASYNC Progress enabled at place %u\n", state.myPlaceId);
+		#endif
+		async_progress_enable_fn pami_async_enable;
+		pami_async_enable = (async_progress_enable_fn) PAMI_Extension_symbol(state.async_extension, "async_enable");
+		pami_async_enable(context, PAMI_ASYNC_ALL);
 	}
 }
 
@@ -666,9 +678,26 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	pami_result_t   status = PAMI_ERROR;
 	const char    *name = "X10";
 	setenv("MP_MSG_API", name, 1);
-	setenv("MP_POLLING_INTERVAL", "99999999", 0); // TODO another PAMI issue
-	if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
-		error("Unable to initialize the PAMI client: %i\n", status);
+
+	// Check if we want to enable async progress
+	if (checkBoolEnvVar(getenv("X10RT_ASYNC_PROGRESS")))
+	{
+		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
+			error("Unable to initialize the PAMI client: %i\n", status);
+
+		status = PAMI_Extension_open (state.client, "EXT_pe_extension", &state.async_extension);
+		if (status != PAMI_SUCCESS)
+			error("ASYNC progress requested but unavailable at place %u because PAMI_Extension_open status=%u\n", state.myPlaceId, status);
+
+		// the extension is enabled for each context in the registerHandlers method.
+	}
+	else
+	{
+		state.async_extension = NULL;
+		setenv("MP_POLLING_INTERVAL", "2147483647", 0);
+		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
+			error("Unable to initialize the PAMI client: %i\n", status);
+	}
 
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
@@ -742,7 +771,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			}
 		}
 	}
-	
+
 	// create the world geometry
 	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
 	state.teams = (x10rt_pami_team*)malloc(sizeof(x10rt_pami_team));
@@ -1115,6 +1144,12 @@ void x10rt_net_finalize()
 	{
 		PAMI_Extension_close (state.hfi_extension);
 		state.hfi_update = NULL;
+	}
+
+	if (state.async_extension != NULL)
+	{
+		PAMI_Extension_close (state.async_extension);
+		state.async_extension = NULL;
 	}
 
 	if (state.numParallelContexts)
