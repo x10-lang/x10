@@ -50,16 +50,21 @@ public class KMeansSPMD {
                 Option("d","dim","number of dimensions"),
                 Option("s","slices","factor by which to oversubscribe computational resources"),
                 Option("n","num","quantity of points")]);
-            val fname = opts("-p", "points.dat"), num_clusters=opts("-c",4),
-                num_slices=opts("-s",1), num_global_points=opts("-n", 2000),
-                iterations=opts("-i",50), dim=opts("-d", 4);
-            val verbose = opts("-v"), quiet = opts("-q");
+            val fname = opts("-p", "points.dat");
+            val num_clusters=opts("-c",4);
+            val num_slices=opts("-s",1);
+            val num_global_points=opts("-n", 2000);
+            val iterations=opts("-i",50);
+            val dim=opts("-d", 4);
+            val verbose = opts("-v");
+            val quiet = opts("-q");
 
             if (!quiet)
                 Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
 
             // file is dimension-major
-            val file = new File(fname), fr = file.openRead();
+            val file = new File(fname);
+            val fr = file.openRead();
             val init_points = (int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
             val num_file_points = (file.size() / dim / 4) as Int;
             val file_points = new Array[Float](num_file_points*dim, init_points);
@@ -83,7 +88,8 @@ public class KMeansSPMD {
                             Console.OUT.println(h.toString()+" gets "+offset+" len "+num_slice_points);
                         val num_slice_points_stride = num_slice_points;
                         val init = (i:int) => {
-                            val d=i/num_slice_points_stride, p=i%num_slice_points_stride;
+                            val d=i/num_slice_points_stride;
+                            val p=i%num_slice_points_stride;
                             return p<num_slice_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0f;
                         };
 

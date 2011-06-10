@@ -18,7 +18,8 @@ import harness.x10Test;
  */
 public class Stencil1D extends x10Test {
     static epsilon  = 1E-4D;
-    val N: int, P: int;
+    val N: int;
+    val P: int;
     var iters: int;
     var delta: double = epsilon+1;
 
@@ -50,8 +51,11 @@ public class Stencil1D extends x10Test {
 
     public static def block(R: Region(1), P:Int):Rail[Region(1)] = {
         assert P >=0;
-        val low = R.min()(0), high = R.max()(0), count = high-low+1;
-        val baseSize = count/P, extra = count - baseSize*P;
+        val low = R.min()(0);
+        val high = R.max()(0);
+        val count = high-low+1;
+        val baseSize = count/P;
+        val extra = count - baseSize*P;
         new Rail[Region(1)](P, (i:int):Region(1) => {
           val start = low+i*baseSize+ (i < extra? i:extra);
           start..(start+baseSize+(i < extra?0:-1))

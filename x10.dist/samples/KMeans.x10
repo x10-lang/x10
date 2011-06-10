@@ -21,8 +21,11 @@ import x10.util.Random;
  */
 public class KMeans(myDim:Int) {
 
-    static DIM=2,  K=4, POINTS=2000, ITERATIONS=50;
-    static EPS=0.01F;
+    static val DIM=2;
+    static val K=4;
+    static val POINTS=2000;
+    static val ITERATIONS=50;
+    static val EPS=0.01F;
     
     static type ValVector(k:Int) = Array[Float]{self.rank==1,self.size==k,self.rect,self.zeroBased};
     static type ValVector = ValVector(DIM);

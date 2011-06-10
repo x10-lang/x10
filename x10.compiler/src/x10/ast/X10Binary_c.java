@@ -166,7 +166,9 @@ public class X10Binary_c extends Binary_c {
     }
 
     public boolean isConstant() {
-        if (left.isConstant() && left.type().isBoolean()) {
+        boolean lconst = left.isConstant();
+        Type lt = left.type();
+        if (lconst && lt.isBoolean()) {
             if ((op == COND_AND || op == BIT_AND) && ((BooleanValue) left.constantValue()).value() == false) {
                 // false && e == false
                 return true;
@@ -176,11 +178,11 @@ public class X10Binary_c extends Binary_c {
                 return true;
             }
         }
-        if (left.isConstant() && right.isConstant() && isPureOperation(left.type(), op, right.type())) {
+        boolean rconst = right.isConstant();
+        Type rt = right.type();
+        if (lconst && rconst && isPureOperation(lt, op, rt)) {
             if (op == EQ || op == NE) {
                 // Additional checks for type equality because conversions not applied for ==
-                Type lt = left.type();
-                Type rt = right.type();
                 TypeSystem xts = (TypeSystem) lt.typeSystem();
                 if (lt == null || rt == null)
                     return false;
