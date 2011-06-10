@@ -81,6 +81,12 @@ struct x10rt_pami_team
 	pami_task_t *places; // list of team members
 };
 
+struct x10rt_pami_team_databuffer
+{
+	uint32_t teamId;
+	void* cookie;
+};
+
 struct x10rt_buffered_data
 {
 	void* header;
@@ -420,7 +426,7 @@ static void local_put_dispatch (
 	pami_result_t status = PAMI_ERROR;
 
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
-		error("non-immediate dispatch not yet implemented");
+		error("non-immediate put dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
 	struct x10rt_pami_header_data* localParameters = (struct x10rt_pami_header_data*)malloc(sizeof(struct x10rt_pami_header_data));
@@ -526,7 +532,7 @@ static void local_get_dispatch (
 	pami_result_t status = PAMI_ERROR;
 
 	if (recv) // not all of the data is here yet, so we need to tell PAMI what to run when it's all here.
-		error("non-immediate dispatch not yet implemented");
+		error("non-immediate get dispatch not yet implemented");
 
 	// else, all the data is available, and ready to process
 	x10rt_msg_params* localParameters = (x10rt_msg_params*) malloc(sizeof(x10rt_msg_params));
@@ -623,6 +629,30 @@ static void team_creation_complete (pami_context_t   context,
 	#endif
 }
 
+
+static void team_create_dispatch_part2 (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	if (result != PAMI_SUCCESS)
+		error("Error detected in team_create_dispatch_part2");
+
+	x10rt_pami_team_databuffer *data = (x10rt_pami_team_databuffer *)cookie;
+
+	pami_configuration_t config;
+	config.name = PAMI_GEOMETRY_OPTIMIZE;
+
+	#ifdef DEBUG
+		fprintf(stderr, "Creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
+	#endif
+
+	pami_result_t   status = PAMI_ERROR;
+	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[data->teamId].geometry, state.teams[0].geometry, data->teamId, state.teams[data->teamId].places, state.teams[data->teamId].size, context, team_creation_complete, data->cookie);
+	if (status != PAMI_SUCCESS) error("Unable to create a new team");
+
+	free(cookie);
+}
+
 /*
  * This method is used to create a new team
  */
@@ -647,18 +677,39 @@ static void team_create_dispatch (
 	state.teams[newTeamId].size = pipe_size/(sizeof(uint32_t));
 	state.teams[newTeamId].places = (pami_task_t*)malloc(pipe_size);
 	if (state.teams[newTeamId].places == NULL) error("unable to allocate memory for holding the places in team_create_dispatch");
-	memcpy(state.teams[newTeamId].places, pipe_addr, pipe_size);
 
-	pami_configuration_t config;
-	config.name = PAMI_GEOMETRY_OPTIMIZE;
+	if (recv)
+	{
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u waiting on a partially delivered team creation message, len=%lu\n", state.myPlaceId, pipe_size);
+		#endif
 
-	#ifdef DEBUG
-		fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
-	#endif
+		x10rt_pami_team_databuffer *data = (x10rt_pami_team_databuffer *)malloc(sizeof(x10rt_pami_team_databuffer));
+		data->cookie = cookie;
+		data->teamId = newTeamId;
 
-	pami_result_t   status = PAMI_ERROR;
-	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, pipe_size/(sizeof(uint32_t)), context, team_creation_complete, cookie);
-	if (status != PAMI_SUCCESS) error("Unable to create a new team");
+		recv->local_fn = team_create_dispatch_part2;
+		recv->cookie   = data;
+		recv->type     = PAMI_TYPE_BYTE;
+		recv->addr     = state.teams[newTeamId].places;
+		recv->offset   = 0;
+		recv->data_fn  = PAMI_DATA_COPY;
+	}
+	else
+	{
+		memcpy(state.teams[newTeamId].places, pipe_addr, pipe_size);
+
+		pami_configuration_t config;
+		config.name = PAMI_GEOMETRY_OPTIMIZE;
+
+		#ifdef DEBUG
+			fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
+		#endif
+
+		pami_result_t   status = PAMI_ERROR;
+		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete, cookie);
+		if (status != PAMI_SUCCESS) error("Unable to create a new team");
+	}
 }
 
 
@@ -1315,11 +1366,11 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 
 	// This bit of removable code is here to verify that the runtime is NOT requesting a team with the same place in it more than once.
 	// TODO - remove when satisfied as stable
-	for (unsigned i=0; i<placec; i++)
+/*	for (unsigned i=0; i<placec; i++)
 		for (unsigned j=i+1; j<placec; j++)
 			if (placev[i] == placev[j])
 				error("Request to create a team with duplicate members");
-
+*/
 	// create a definition for the new team
 	uint32_t newTeamId = expandTeams(1)+1;
 	state.teams[newTeamId].size = placec;
