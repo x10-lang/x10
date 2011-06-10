@@ -1239,51 +1239,48 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr ConditionalAndExpression = (Expr) _ConditionalAndExpression;
         setResult(nf.Binary(pos(), ConditionalOrExpression, Binary.COND_OR, ConditionalAndExpression));
     }
-    // Production: LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
-    void rule_LocalVariableDeclaration0(Object _Modifiersopt, Object _VarKeyword, Object _VariableDeclarators) {
+    // Production: LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarator
+    void rule_LocalVariableDeclaration0(Object _Modifiersopt, Object _VarKeyword, Object _VariableDeclarator) {
         List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
         List<FlagsNode> VarKeyword = (List<FlagsNode>) _VarKeyword;
-        List<Object[]> VariableDeclarators = (List<Object[]>) _VariableDeclarators;
+        Object[] VariableDeclarator = (Object[]) _VariableDeclarator;
         List<Node> modifiers = checkVariableModifiers(Modifiersopt);
-        FlagsNode fn = VarKeyword==null ? extractFlags(modifiers, Flags.FINAL) : extractFlags(modifiers, VarKeyword);
+        FlagsNode fn = VarKeyword == null ? extractFlags(modifiers, Flags.FINAL) : extractFlags(modifiers, VarKeyword);
         List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
-        for (Object[] o : VariableDeclarators)
-        {
-            Position pos = (Position) o[0];
-            Position compilerGen = pos.markCompilerGenerated();
-            Id name = (Id) o[1];
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-            List<Id> exploded = (List<Id>) o[2];
-            DepParameterExpr guard = (DepParameterExpr) o[3];
-            TypeNode type = (TypeNode) o[4];
-            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
-            Expr init = (Expr) o[5];
-            LocalDecl ld = nf.LocalDecl(pos, fn,
-                    type, name, init, exploded);
-            ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
-            int index = 0;
-            l.add(ld);
-            if (exploded.size()>0 && init==null) {
-                syntaxError("An exploded point must have an initializer.",pos);
-            }
-            FlagsNode efn = extractFlags(modifiers, Flags.FINAL); // exploded vars are always final
-            for (Id id : exploded) {
-                TypeNode tni =
-                        init==null ? nf.CanonicalTypeNode(compilerGen, ts.Int()) : // we infer the type of the exploded components, however if there is no init, then we just assume Int to avoid cascading errors.
-                        explodedType(id.position()); // UnknownType
-                l.add(nf.LocalDecl(id.position(), efn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
-                index++;
-            }
+        Object[] o = VariableDeclarator;
+        Position pos = (Position) o[0];
+        Position compilerGen = pos.markCompilerGenerated();
+        Id name = (Id) o[1];
+        if (name == null) name = nf.Id(pos, Name.makeFresh());
+        List<Id> exploded = (List<Id>) o[2];
+        DepParameterExpr guard = (DepParameterExpr) o[3];
+        TypeNode type = (TypeNode) o[4];
+        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+        Expr init = (Expr) o[5];
+        LocalDecl ld = nf.LocalDecl(pos, fn, type, name, init, exploded);
+        ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
+        int index = 0;
+        l.add(ld);
+        if (exploded.size()>0 && init==null) {
+            syntaxError("An exploded point must have an initializer.",pos);
+        }
+        FlagsNode efn = extractFlags(modifiers, Flags.FINAL); // exploded vars are always final
+        for (Id id : exploded) {
+            TypeNode tni =
+                    init==null ? nf.CanonicalTypeNode(compilerGen, ts.Int()) : // we infer the type of the exploded components, however if there is no init, then we just assume Int to avoid cascading errors.
+                    explodedType(id.position()); // UnknownType
+            l.add(nf.LocalDecl(id.position(), efn, tni, id, init != null ? nf.ClosureCall(compilerGen, nf.Local(compilerGen, name),  Collections.<Expr>singletonList(nf.IntLit(compilerGen, IntLit.INT, index))) : null));
+            index++;
         }
         setResult(l);
     }
-    // Production: LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
-    void rule_LocalVariableDeclaration1(Object _Modifiersopt, Object _VariableDeclaratorsWithType) {
-        rule_LocalVariableDeclaration0(_Modifiersopt,null, _VariableDeclaratorsWithType);
+    // Production: LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorWithType
+    void rule_LocalVariableDeclaration1(Object _Modifiersopt, Object _VariableDeclaratorWithType) {
+        rule_LocalVariableDeclaration0(_Modifiersopt, null, _VariableDeclaratorWithType);
     }
-    // Production: LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
-    void rule_LocalVariableDeclaration2(Object _Modifiersopt, Object _VarKeyword, Object _FormalDeclarators) {
-        rule_LocalVariableDeclaration0(_Modifiersopt,_VarKeyword, _FormalDeclarators);
+    // Production: LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarator
+    void rule_LocalVariableDeclaration2(Object _Modifiersopt, Object _VarKeyword, Object _FormalDeclarator) {
+        rule_LocalVariableDeclaration0(_Modifiersopt, _VarKeyword, _FormalDeclarator);
     }
     // Production: InterfaceMemberDeclarationsopt ::= %Empty
     void rule_InterfaceMemberDeclarationsopt0() {
@@ -1628,20 +1625,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_SwitchLabel1() {
         setResult(nf.Default(pos()));
     }
-    // Production: VariableDeclarators ::= VariableDeclarator
-    void rule_VariableDeclarators0(Object _VariableDeclarator) {
-        Object[] VariableDeclarator = (Object[]) _VariableDeclarator;
-        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
-        l.add(VariableDeclarator);
-        setResult(l);
-    }
-    // Production: VariableDeclarators ::= VariableDeclarators ',' VariableDeclarator
-    void rule_VariableDeclarators1(Object _VariableDeclarators, Object _VariableDeclarator) {
-        List<Object[]> VariableDeclarators = (List<Object[]>) _VariableDeclarators;
-        Object[] VariableDeclarator = (Object[]) _VariableDeclarator;
-        VariableDeclarators.add(VariableDeclarator);
-        // setResult(VariableDeclarators);
-    }
     // Production: AtCaptureDeclarators ::= AtCaptureDeclarator
     void rule_AtCaptureDeclarators0(Object _AtCaptureDeclarator) {
         Node AtCaptureDeclarator = (Node) _AtCaptureDeclarator;
@@ -1714,29 +1697,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         syntaxError("Contravariance is no longer supported.",pos());
         setResult(TypeParameter.variance(ParameterType.Variance.CONTRAVARIANT).position(pos()));
     }
-    // Production: VariableDeclaratorsWithType ::= VariableDeclaratorWithType
-    void rule_VariableDeclaratorsWithType0(Object _VariableDeclaratorWithType) {
-        Object[] VariableDeclaratorWithType = (Object[]) _VariableDeclaratorWithType;
-        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
-        l.add(VariableDeclaratorWithType);
-        setResult(l);
-    }
-    // Production: VariableDeclaratorsWithType ::= VariableDeclaratorsWithType ',' VariableDeclaratorWithType
-    void rule_VariableDeclaratorsWithType1(Object _VariableDeclaratorsWithType, Object _VariableDeclaratorWithType) {
-        List<Object[]> VariableDeclaratorsWithType = (List<Object[]>) _VariableDeclaratorsWithType;
-        Object[] VariableDeclaratorWithType = (Object[]) _VariableDeclaratorWithType;
-        VariableDeclaratorsWithType.add(VariableDeclaratorWithType);
-        // setResult(VariableDeclaratorsWithType);
-    }
     // Production: Block ::= '{' BlockStatementsopt '}'
     void rule_Block0(Object _BlockStatementsopt) {
         List<Stmt> BlockStatementsopt = (List<Stmt>) _BlockStatementsopt;
         setResult(nf.Block(pos(), BlockStatementsopt));
-    }
-    // Production: ResultType ::= ':' Type
-    void rule_ResultType0(Object _Type) {
-        TypeNode Type = (TypeNode) _Type;
-        setResult(Type);
     }
     // Production: OBSOLETE_MethodSelection ::= MethodName '.' '(' FormalParameterListopt ')'
     void rule_OBSOLETE_MethodSelection0(Object _MethodName, Object _FormalParameterListopt) {
@@ -2020,19 +1984,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr Expression = (Expr) _Expression;
         setResult(nf.ParExpr(pos(), Expression));
     }
-    // Production: FormalDeclarators ::= FormalDeclarator
-    void rule_FormalDeclarators0(Object _FormalDeclarator) {
-        Object[] FormalDeclarator = (Object[]) _FormalDeclarator;
-        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
-        l.add(FormalDeclarator);
-        setResult(l);
-    }
-    // Production: FormalDeclarators ::= FormalDeclarators ',' FormalDeclarator
-    void rule_FormalDeclarators1(Object _FormalDeclarators, Object _FormalDeclarator) {
-        List<Object[]> FormalDeclarators = (List<Object[]>) _FormalDeclarators;
-        Object[] FormalDeclarator = (Object[]) _FormalDeclarator;
-        FormalDeclarators.add(FormalDeclarator);
-    }
     // Production: SingleTypeImportDeclaration ::= import TypeName ';'
     void rule_SingleTypeImportDeclaration0(Object _TypeName) {
         ParsedName TypeName = (ParsedName) _TypeName;
@@ -2089,13 +2040,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         DepParameterExpr DepParameters = (DepParameterExpr) _DepParameters;
         TypeNode type = nf.AmbDepTypeNode(pos(), ParameterizedNamedType, DepParameters);
         setResult(type);
-    }
-    // Production: ClassBodyDeclaration ::= ConstructorDeclaration
-    void rule_ClassBodyDeclaration1(Object _ConstructorDeclaration) {
-        ConstructorDecl ConstructorDeclaration = (ConstructorDecl) _ConstructorDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        l.add(ConstructorDeclaration);
-        setResult(l);
     }
     // Production: InterfaceBody ::= '{' InterfaceMemberDeclarationsopt '}'
     void rule_InterfaceBody0(Object _InterfaceMemberDeclarationsopt) {
@@ -2312,8 +2256,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<TypeNode> TypeArgumentList = (List<TypeNode>) _TypeArgumentList;
         setResult(TypeArgumentList);
     }
-    // Production: ClassBodyDeclarationsopt ::= %Empty
-    void rule_ClassBodyDeclarationsopt0() {
+    // Production: ClassMemberDeclarationsopt ::= %Empty
+    void rule_ClassMemberDeclarationsopt0() {
         setResult(new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false));
     }
     // Production: LeftHandSide ::= ExpressionName
@@ -2461,13 +2405,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Id Identifier = (Id) _Identifier;
         setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
     }
-    // Production: ForInit ::= LocalVariableDeclaration
-    void rule_ForInit1(Object _LocalVariableDeclaration) {
-        List<LocalDecl> LocalVariableDeclaration = (List<LocalDecl>) _LocalVariableDeclaration;
-        List<ForInit> l = new TypedList<ForInit>(new LinkedList<ForInit>(), ForInit.class, false);
-        l.addAll(LocalVariableDeclaration);
-        //setResult(l);
-    }
     // Production: OBSOLETE_OfferStatement ::= offer Expression ';'
     void rule_OBSOLETE_OfferStatement0(Object _Expression) {
         Expr Expression = (Expr) _Expression;
@@ -2511,47 +2448,28 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_TypeDeclarationsopt0() {
         setResult(new TypedList<TopLevelDecl>(new LinkedList<TopLevelDecl>(), TopLevelDecl.class, false));
     }
-    // Production: ClassBodyDeclarations ::= ClassBodyDeclarations ClassBodyDeclaration
-    void rule_ClassBodyDeclarations1(Object _ClassBodyDeclarations, Object _ClassBodyDeclaration) {
-        List<ClassMember> ClassBodyDeclarations = (List<ClassMember>) _ClassBodyDeclarations;
-        List<ClassMember> ClassBodyDeclaration = (List<ClassMember>) _ClassBodyDeclaration;
-        ClassBodyDeclarations.addAll(ClassBodyDeclaration);
-        // setResult(a);
+    // Production: ClassMemberDeclarations ::= ClassMemberDeclaration
+    void rule_ClassMemberDeclarations0(Object _ClassMemberDeclaration) {
+        ClassMember ClassMemberDeclaration = (ClassMember) _ClassMemberDeclaration;
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        if (ClassMemberDeclaration != null) {
+            l.add(ClassMemberDeclaration);
+        }
+        setResult(l);
+    }
+    // Production: ClassMemberDeclarations ::= ClassMemberDeclarations ClassMemberDeclaration
+    void rule_ClassMemberDeclarations1(Object _ClassMemberDeclarations, Object _ClassMemberDeclaration) {
+        List<ClassMember> ClassMemberDeclarations = (List<ClassMember>) _ClassMemberDeclarations;
+        ClassMember ClassMemberDeclaration = (ClassMember) _ClassMemberDeclaration;
+        if (ClassMemberDeclaration != null) {
+            ClassMemberDeclarations.add(ClassMemberDeclaration);
+        }
+        setResult(ClassMemberDeclarations);
     }
     // Production: WhereClause ::= DepParameters
     void rule_WhereClause0(Object _DepParameters) {
         DepParameterExpr DepParameters = (DepParameterExpr) _DepParameters;
         setResult(DepParameters);
-    }
-    // Production: InterfaceMemberDeclaration ::= MethodDeclaration
-    void rule_InterfaceMemberDeclaration0(Object _MethodDeclaration) {
-        ClassMember MethodDeclaration = (ClassMember) _MethodDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        l.add(MethodDeclaration);
-        setResult(l);
-    }
-    // Production: InterfaceMemberDeclaration ::= PropertyMethodDeclaration
-    void rule_InterfaceMemberDeclaration1(Object _PropertyMethodDeclaration) {
-        ClassMember PropertyMethodDeclaration = (ClassMember) _PropertyMethodDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        l.add(PropertyMethodDeclaration);
-        setResult(l);
-    }
-    // Production: InterfaceMemberDeclaration ::= FieldDeclaration
-    void rule_InterfaceMemberDeclaration2(Object _FieldDeclaration) {
-        List<ClassMember> FieldDeclaration = (List<ClassMember>) _FieldDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        l.addAll(FieldDeclaration);
-        setResult(l);
-    }
-    // Production: InterfaceMemberDeclaration ::= TypeDeclaration
-    void rule_InterfaceMemberDeclaration3(Object _TypeDeclaration) {
-        ClassMember TypeDeclaration = (ClassMember) _TypeDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        if (TypeDeclaration != null) {
-            l.add(TypeDeclaration);
-	}
-        setResult(l);
     }
     // Production: PackageDeclaration ::= Annotationsopt package PackageName ';'
     void rule_PackageDeclaration0(Object _Annotationsopt, Object _PackageName) {
@@ -2561,12 +2479,23 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         pn = (PackageNode) ((X10Ext) pn.ext()).annotations(Annotationsopt);
         setResult(pn.position(pos()));
     }
+    // Production: InterfaceMemberDeclarations ::= InterfaceMemberDeclaration
+    void rule_InterfaceMemberDeclarations0(Object _InterfaceMemberDeclaration) {
+        ClassMember InterfaceMemberDeclaration = (ClassMember) _InterfaceMemberDeclaration;
+        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
+        if (InterfaceMemberDeclaration != null) {
+            l.add(InterfaceMemberDeclaration);
+        }
+        setResult(l);
+    }
     // Production: InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
     void rule_InterfaceMemberDeclarations1(Object _InterfaceMemberDeclarations, Object _InterfaceMemberDeclaration) {
         List<ClassMember> InterfaceMemberDeclarations = (List<ClassMember>) _InterfaceMemberDeclarations;
-        List<ClassMember> InterfaceMemberDeclaration = (List<ClassMember>) _InterfaceMemberDeclaration;
-        InterfaceMemberDeclarations.addAll(InterfaceMemberDeclaration);
-        // setResult(l);
+        ClassMember InterfaceMemberDeclaration = (ClassMember) _InterfaceMemberDeclaration;
+        if (InterfaceMemberDeclaration != null) {
+            InterfaceMemberDeclarations.add(InterfaceMemberDeclaration);
+        }
+        setResult(InterfaceMemberDeclarations);
     }
     // Production: MethodInvocation ::= ErrorPrimaryPrefix '(' ArgumentListopt ')'
     void rule_MethodInvocation0(Object _ErrorPrimaryPrefix, Object _ArgumentListopt) {
@@ -2783,10 +2712,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Expr> ConstraintConjunction = (List<Expr>) _ConstraintConjunction;
         setResult(ConstraintConjunction);
     }
-    // Production: ClassBody ::= '{' ClassBodyDeclarationsopt '}'
-    void rule_ClassBody0(Object _ClassBodyDeclarationsopt) {
-        List<ClassMember> ClassBodyDeclarationsopt = (List<ClassMember>) _ClassBodyDeclarationsopt;
-        setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassBodyDeclarationsopt));
+    // Production: ClassBody ::= '{' ClassMemberDeclarationsopt '}'
+    void rule_ClassBody0(Object _ClassMemberDeclarationsopt) {
+        List<ClassMember> ClassMemberDeclarationsopt = (List<ClassMember>) _ClassMemberDeclarationsopt;
+        setResult(nf.ClassBody(pos(getLeftSpan(), getRightSpan()), ClassMemberDeclarationsopt));
     }
     // Production: Identifier ::= IDENTIFIER
     void rule_Identifier0() {
@@ -3432,6 +3361,19 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Id Identifieropt = (Id) _Identifieropt;
         setResult(nf.Continue(pos(), Identifieropt));
     }
+    // Production: LocalVariableDeclarationList ::= LocalVariableDeclaration
+    void rule_LocalVariableDeclarationList0(Object _LocalVariableDeclaration) {
+        List<LocalDecl> LocalVariableDeclaration = (List<LocalDecl>) _LocalVariableDeclaration;
+        List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
+        l.addAll(LocalVariableDeclaration);
+        setResult(l);
+    }
+    // Production: LocalVariableDeclarationList ::= LocalVariableDeclarationList ',' LocalVariableDeclaration
+    void rule_LocalVariableDeclarationList1(Object _LocalVariableDeclarationList, Object _LocalVariableDeclaration) {
+        List<LocalDecl> LocalVariableDeclarationList = (List<LocalDecl>) _LocalVariableDeclarationList;
+        List<LocalDecl> LocalVariableDeclaration = (List<LocalDecl>) _LocalVariableDeclaration;
+        LocalVariableDeclarationList.addAll(LocalVariableDeclaration);
+    }
     // Production: StatementExpressionList ::= StatementExpression
     void rule_StatementExpressionList0(Object _StatementExpression) {
         Expr StatementExpression = (Expr) _StatementExpression;
@@ -3667,33 +3609,28 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_MethodBody3(Object _Annotationsopt, Object _Block) {
         rule_MethodBody2(_Annotationsopt,_Block);
     }
-    // Production: FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarators ';'
-    void rule_FieldDeclaration0(Object _Modifiersopt, Object _FieldKeyword, Object _FieldDeclarators) {
+    // Production: FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarator ';'
+    void rule_FieldDeclaration0(Object _Modifiersopt, Object _FieldKeyword, Object _FieldDeclarator) {
         List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
         List<FlagsNode> FieldKeyword = (List<FlagsNode>) _FieldKeyword;
-        List<Object[]> FieldDeclarators = (List<Object[]>) _FieldDeclarators;
+        Object[] FieldDeclarator = (Object[]) _FieldDeclarator;
         List<Node> modifiers = checkFieldModifiers(Modifiersopt);
         FlagsNode fn = extractFlags(modifiers, FieldKeyword);
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        for (Object[] o : FieldDeclarators)
-        {
-            Position pos = (Position) o[0];
-            Id name = (Id) o[1];
-            if (name == null) name = nf.Id(pos, Name.makeFresh());
-            TypeNode type = (TypeNode) o[3];
-            if (type == null) type = nf.UnknownTypeNode(name.position());
-            Expr init = (Expr) o[4];
-            FieldDecl fd = nf.FieldDecl(pos, fn,
-                    type, name, init);
-            fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(modifiers));
-            fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(getRhsFirstTokenIndex(1)));
-            l.add(fd);
-        }
-        setResult(l);
+        Object[] o = FieldDeclarator;
+        Position pos = (Position) o[0];
+        Id name = (Id) o[1];
+        if (name == null) name = nf.Id(pos, Name.makeFresh());
+        TypeNode type = (TypeNode) o[3];
+        if (type == null) type = nf.UnknownTypeNode(name.position());
+        Expr init = (Expr) o[4];
+        FieldDecl fd = nf.FieldDecl(pos, fn, type, name, init);
+        fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(modifiers));
+        fd = (FieldDecl) ((X10Ext) fd.ext()).setComment(comment(getRhsFirstTokenIndex(1)));
+        setResult(fd);
     }
-    // Production: FieldDeclaration ::= Modifiersopt FieldDeclarators ';'
-    void rule_FieldDeclaration1(Object _Modifiersopt, Object _FieldDeclarators) {
-        rule_FieldDeclaration0(_Modifiersopt,Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)),_FieldDeclarators);
+    // Production: FieldDeclaration ::= Modifiersopt FieldDeclarator ';'
+    void rule_FieldDeclaration1(Object _Modifiersopt, Object _FieldDeclarator) {
+        rule_FieldDeclaration0(_Modifiersopt,Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)),_FieldDeclarator);
     }
     // Production: Interfaces ::= implements InterfaceTypeList
     void rule_Interfaces0(Object _InterfaceTypeList) {
@@ -3717,28 +3654,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr ShiftExpression = (Expr) _ShiftExpression;
         Expr AdditiveExpression = (Expr) _AdditiveExpression;
         setResult(nf.Binary(pos(), ShiftExpression, Binary.USHR, AdditiveExpression));
-    }
-    // Production: ClassMemberDeclaration ::= MethodDeclaration
-    void rule_ClassMemberDeclaration1(Object _MethodDeclaration) {
-        ClassMember MethodDeclaration = (ClassMember) _MethodDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        l.add(MethodDeclaration);
-        setResult(l);
-    }
-    // Production: ClassMemberDeclaration ::= PropertyMethodDeclaration
-    void rule_ClassMemberDeclaration2(Object _PropertyMethodDeclaration) {
-        ClassMember PropertyMethodDeclaration = (ClassMember) _PropertyMethodDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        l.add(PropertyMethodDeclaration);
-        setResult(l);
-    }
-    // Production: ClassMemberDeclaration ::= TypeDeclaration
-    void rule_ClassMemberDeclaration3(Object _TypeDeclaration) {
-        ClassMember TypeDeclaration = (ClassMember) _TypeDeclaration;
-        List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
-        if (TypeDeclaration != null)
-            l.add(TypeDeclaration);
-        setResult(l);
     }
     // Production: IfThenStatement ::= if '(' Expression ')' Statement
     void rule_IfThenStatement0(Object _Expression, Object _Statement) {
@@ -3778,22 +3693,14 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         l.addAll(BlockStatementsopt);
         setResult(nf.Block(pos(), l));
     }
-    // Production: FieldKeyword ::= val
-    void rule_FieldKeyword0() {
-        setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.FINAL)));
-    }
-    // Production: FieldKeyword ::= var
-    void rule_FieldKeyword1() {
-        setResult(Collections.singletonList(nf.FlagsNode(pos(), Flags.NONE)));
-    }
     // Production: InclusiveOrExpression ::= InclusiveOrExpression '|' ExclusiveOrExpression
     void rule_InclusiveOrExpression1(Object _InclusiveOrExpression, Object _ExclusiveOrExpression) {
         Expr InclusiveOrExpression = (Expr) _InclusiveOrExpression;
         Expr ExclusiveOrExpression = (Expr) _ExclusiveOrExpression;
         setResult(nf.Binary(pos(), InclusiveOrExpression, Binary.BIT_OR, ExclusiveOrExpression));
     }
-    // Production: HasResultType ::= ':' Type
-    void rule_HasResultType0(Object _Type) {
+    // Production: ResultType ::= ':' Type
+    void rule_ResultType0(Object _Type) {
         TypeNode Type = (TypeNode) _Type;
         setResult(Type);
     }
@@ -3933,20 +3840,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         X10Formal FormalParameter = (X10Formal) _FormalParameter;
         Block Block = (Block) _Block;
         setResult(nf.Catch(pos(), FormalParameter, Block));
-    }
-    // Production: FieldDeclarators ::= FieldDeclarator
-    void rule_FieldDeclarators0(Object _FieldDeclarator) {
-        Object[] FieldDeclarator = (Object[]) _FieldDeclarator;
-        List<Object[]> l = new TypedList<Object[]>(new LinkedList<Object[]>(), Object[].class, false);
-        l.add(FieldDeclarator);
-        setResult(l);
-    }
-    // Production: FieldDeclarators ::= FieldDeclarators ',' FieldDeclarator
-    void rule_FieldDeclarators1(Object _FieldDeclarators, Object _FieldDeclarator) {
-        List<Object[]> FieldDeclarators = (List<Object[]>) _FieldDeclarators;
-        Object[] FieldDeclarator = (Object[]) _FieldDeclarator;
-        FieldDeclarators.add(FieldDeclarator);
-        // setResult(FieldDeclarators);
     }
     // Production: FormalParameters ::= '(' FormalParameterListopt ')'
     void rule_FormalParameters0(Object _FormalParameterListopt) {

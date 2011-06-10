@@ -658,22 +658,11 @@
                                                                
         $EndJava./
        
-     Super ::= extends ClassType
+    Super ::= extends ClassType
         /.$BeginJava
 			r.rule_Super0(ClassType);
         $EndJava./
     
-    FieldKeyword ::= val
-        /.$BeginJava
-			r.rule_FieldKeyword0();
-        $EndJava./
-                   | var
-        /.$BeginJava
-			r.rule_FieldKeyword1();
-        $EndJava./
-                   
-                   
-                   
     VarKeyword ::= val 
         /.$BeginJava
 			r.rule_VarKeyword0();
@@ -682,18 +671,14 @@
         /.$BeginJava
 			r.rule_VarKeyword1();
         $EndJava./
-                    
-                   
-    FieldDeclaration ::= Modifiersopt FieldKeyword FieldDeclarators ;
+    
+    FieldDeclaration ::= Modifiersopt VarKeyword FieldDeclarator ;
         /.$BeginJava
-			r.rule_FieldDeclaration0(Modifiersopt,FieldKeyword,FieldDeclarators);
-        
+			r.rule_FieldDeclaration0(Modifiersopt,VarKeyword,FieldDeclarator);
         $EndJava./
-        
-                       | Modifiersopt FieldDeclarators ;
+                       | Modifiersopt FieldDeclarator ;
         /.$BeginJava
-			r.rule_FieldDeclaration1(Modifiersopt,FieldDeclarators);
-        
+			r.rule_FieldDeclaration1(Modifiersopt,FieldDeclarator);
         $EndJava./
         
         
@@ -841,10 +826,7 @@
         $EndJava./
     
     ForInit ::= StatementExpressionList
-              | LocalVariableDeclaration
-        /.$BeginJava
-			r.rule_ForInit1(LocalVariableDeclaration);
-        $EndJava./
+              | LocalVariableDeclarationList
     
     ForUpdate ::= StatementExpressionList
     
@@ -855,6 +837,15 @@
                               | StatementExpressionList , StatementExpression
         /.$BeginJava
 			r.rule_StatementExpressionList1(StatementExpressionList,StatementExpression);
+        $EndJava./
+    
+    LocalVariableDeclarationList ::= LocalVariableDeclaration
+        /.$BeginJava
+			r.rule_LocalVariableDeclarationList0(LocalVariableDeclaration);
+        $EndJava./
+                              | LocalVariableDeclarationList , LocalVariableDeclaration
+        /.$BeginJava
+			r.rule_LocalVariableDeclarationList1(LocalVariableDeclarationList,LocalVariableDeclaration);
         $EndJava./
     
     BreakStatement ::= break Identifieropt ;
@@ -1322,88 +1313,36 @@
     --
     -- See Chapter 4
     --
-    ClassBody ::= { ClassBodyDeclarationsopt }
+    ClassBody ::= { ClassMemberDeclarationsopt }
         /.$BeginJava
-			r.rule_ClassBody0(ClassBodyDeclarationsopt);
+			r.rule_ClassBody0(ClassMemberDeclarationsopt);
         $EndJava./
 
-    ClassBodyDeclarations ::= ClassBodyDeclaration
-                            | ClassBodyDeclarations ClassBodyDeclaration
+    ClassMemberDeclarations ::= ClassMemberDeclaration
         /.$BeginJava
-			r.rule_ClassBodyDeclarations1(ClassBodyDeclarations,ClassBodyDeclaration);
+			r.rule_ClassMemberDeclarations0(ClassMemberDeclaration);
+        $EndJava./
+                            | ClassMemberDeclarations ClassMemberDeclaration
+        /.$BeginJava
+			r.rule_ClassMemberDeclarations1(ClassMemberDeclarations,ClassMemberDeclaration);
         $EndJava./
 
-    ClassBodyDeclaration ::= ClassMemberDeclaration
---                           | InstanceInitializer
+    ClassMemberDeclaration ::= InterfaceMemberDeclaration
+                             | ConstructorDeclaration
+--                             | InstanceInitializer
 --        /.$BeginJava
 --                    List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
 --                    l.add(InstanceInitializer);
 --                    setResult(l);
 --          $EndJava
 --        ./
---                           | StaticInitializer
+--                             | StaticInitializer
 --        /.$BeginJava
 --                    List<ClassMember> l = new TypedList<ClassMember>(new LinkedList<ClassMember>(), ClassMember.class, false);
 --                    l.add(StaticInitializer);
 --                    setResult(l);
 --          $EndJava
 --        ./
-                           | ConstructorDeclaration
-        /.$BeginJava
-			r.rule_ClassBodyDeclaration1(ConstructorDeclaration);
-        $EndJava./
-
-    ClassMemberDeclaration ::= FieldDeclaration
-                             | MethodDeclaration
-        /.$BeginJava
-			r.rule_ClassMemberDeclaration1(MethodDeclaration);
-        $EndJava./
-                             | PropertyMethodDeclaration
-        /.$BeginJava
-			r.rule_ClassMemberDeclaration2(PropertyMethodDeclaration);
-        $EndJava./
-                             | TypeDeclaration
-        /.$BeginJava
-			r.rule_ClassMemberDeclaration3(TypeDeclaration);
-        $EndJava./
-    
-    FormalDeclarators ::= FormalDeclarator
-        /.$BeginJava
-			r.rule_FormalDeclarators0(FormalDeclarator);
-        $EndJava./
-                          | FormalDeclarators , FormalDeclarator
-        /.$BeginJava
-			r.rule_FormalDeclarators1(FormalDeclarators,FormalDeclarator);
-        $EndJava./
-    
-    
-    FieldDeclarators ::= FieldDeclarator
-        /.$BeginJava
-			r.rule_FieldDeclarators0(FieldDeclarator);
-        $EndJava./
-                          | FieldDeclarators , FieldDeclarator
-        /.$BeginJava
-			r.rule_FieldDeclarators1(FieldDeclarators,FieldDeclarator);
-        $EndJava./
-    
-    
-    VariableDeclaratorsWithType ::= VariableDeclaratorWithType
-        /.$BeginJava
-			r.rule_VariableDeclaratorsWithType0(VariableDeclaratorWithType);
-        $EndJava./
-                          | VariableDeclaratorsWithType , VariableDeclaratorWithType
-        /.$BeginJava
-			r.rule_VariableDeclaratorsWithType1(VariableDeclaratorsWithType,VariableDeclaratorWithType);
-        $EndJava./
-    
-    VariableDeclarators ::= VariableDeclarator
-        /.$BeginJava
-			r.rule_VariableDeclarators0(VariableDeclarator);
-        $EndJava./
-                          | VariableDeclarators , VariableDeclarator
-        /.$BeginJava
-			r.rule_VariableDeclarators1(VariableDeclarators,VariableDeclarator);
-        $EndJava./
     
     AtCaptureDeclarators ::= AtCaptureDeclarator
         /.$BeginJava
@@ -1435,15 +1374,12 @@
     VariableInitializer ::= Expression
     
     ResultType ::= : Type
-     /.$BeginJava
+        /.$BeginJava
 			r.rule_ResultType0(Type);
         $EndJava./
-    HasResultType ::= : Type
-     /.$BeginJava
-			r.rule_HasResultType0(Type);
-        $EndJava./
+    HasResultType ::= ResultType
                   | '<:' Type
-     /.$BeginJava
+        /.$BeginJava
 			r.rule_HasResultType1(Type);
         $EndJava./
 
@@ -1576,27 +1512,18 @@
         $EndJava./
     
     InterfaceMemberDeclarations ::= InterfaceMemberDeclaration
+        /.$BeginJava
+			r.rule_InterfaceMemberDeclarations0(InterfaceMemberDeclaration);
+        $EndJava./
                                   | InterfaceMemberDeclarations InterfaceMemberDeclaration
         /.$BeginJava
 			r.rule_InterfaceMemberDeclarations1(InterfaceMemberDeclarations,InterfaceMemberDeclaration);
         $EndJava./
     
     InterfaceMemberDeclaration ::= MethodDeclaration
-        /.$BeginJava
-			r.rule_InterfaceMemberDeclaration0(MethodDeclaration);
-        $EndJava./
                                  | PropertyMethodDeclaration
-        /.$BeginJava
-			r.rule_InterfaceMemberDeclaration1(PropertyMethodDeclaration);
-        $EndJava./
                                  | FieldDeclaration
-        /.$BeginJava
-			r.rule_InterfaceMemberDeclaration2(FieldDeclaration);
-        $EndJava./
                                  | TypeDeclaration
-        /.$BeginJava
-			r.rule_InterfaceMemberDeclaration3(TypeDeclaration);
-        $EndJava./
     
     Annotations ::= Annotation
         /.$BeginJava
@@ -1721,20 +1648,17 @@
     
     LocalVariableDeclarationStatement ::= LocalVariableDeclaration ;
     
-    LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
+    LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarator
         /.$BeginJava
-			r.rule_LocalVariableDeclaration0(Modifiersopt,VarKeyword,VariableDeclarators);
-        
+			r.rule_LocalVariableDeclaration0(Modifiersopt,VarKeyword,VariableDeclarator);
         $EndJava./
-                               | Modifiersopt VariableDeclaratorsWithType
+                               | Modifiersopt VariableDeclaratorWithType
         /.$BeginJava
-			r.rule_LocalVariableDeclaration1(Modifiersopt,VariableDeclaratorsWithType);
-        
+			r.rule_LocalVariableDeclaration1(Modifiersopt,VariableDeclaratorWithType);
         $EndJava./
-                  | Modifiersopt VarKeyword FormalDeclarators
+                               | Modifiersopt VarKeyword FormalDeclarator
         /.$BeginJava
-			r.rule_LocalVariableDeclaration2(Modifiersopt,VarKeyword,FormalDeclarators);
-        
+			r.rule_LocalVariableDeclaration2(Modifiersopt,VarKeyword,FormalDeclarator);
         $EndJava./
     
     --
@@ -2515,11 +2439,11 @@
         $EndJava./
                 | OBSOLETE_Offers
 
-    ClassBodyDeclarationsopt ::= %Empty
+    ClassMemberDeclarationsopt ::= %Empty
         /.$BeginJava
-			r.rule_ClassBodyDeclarationsopt0();
+			r.rule_ClassMemberDeclarationsopt0();
         $EndJava./
-                               | ClassBodyDeclarations
+                               | ClassMemberDeclarations
 
     Interfacesopt ::= %Empty
         /.$BeginJava
@@ -2600,5 +2524,5 @@
 %End
 
 %Types
-	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | OBSOLETE_OperatorFunction | FullyQualifiedName | VariableDeclaratorWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | VariableDeclarators | BlockStatementsopt | BlockStatements | StatementExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | VariableDeclaratorsWithType | Block | ResultType | OBSOLETE_MethodSelection | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | FormalDeclarators | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | ClassBodyDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassBodyDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassBodyDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | FieldKeyword | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | FieldDeclarators | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
+	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | OBSOLETE_OperatorFunction | FullyQualifiedName | VariableDeclaratorWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | BlockStatementsopt | BlockStatements | StatementExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | Block | ResultType | OBSOLETE_MethodSelection | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassMemberDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassMemberDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | LocalVariableDeclarationList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
 %End
