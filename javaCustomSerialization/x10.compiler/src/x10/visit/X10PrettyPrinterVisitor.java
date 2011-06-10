@@ -556,18 +556,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {
-            if (!def.flags().isInterface() && !config.NO_TRACES && !config.OPTIMIZE) {
+            if (!def.flags().isInterface() && !config.NO_TRACES) {
+
+                if (!config.OPTIMIZE) {
+                    // override to trace serialization
+                    w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+                    w.write("java.lang.System.out.println(\"Serializer: writeObject(ObjectOutputStream) of \" + this + \" calling\"); ");
+                    w.write("} ");
+                    w.write("oos.defaultWriteObject(); }");
+                    w.newline();
+                }
 
                 X10ClassType ct = def.asType();
                 ASTQuery query = new ASTQuery(tr);
-
-                // override to trace serialization
-                w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
-                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                w.write("java.lang.System.out.println(\"Serializer: writeObject(ObjectOutputStream) of \" + this + \" calling\"); ");
-                w.write("} ");
-                w.write("oos.defaultWriteObject(); }");
-                w.newline();
 
                 //_deserialize_body method
                 w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
