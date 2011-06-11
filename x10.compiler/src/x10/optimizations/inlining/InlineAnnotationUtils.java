@@ -68,7 +68,7 @@ public class InlineAnnotationUtils extends AnnotationUtils {
      * @return
      */
     boolean inliningProhibited(Node node) {
-        return hasAnnotation(node, NoInlineType);
+        return hasAnnotation(node, NoInlineType) || hasNativeAnnotations(node, job);
     }
 
     /**
