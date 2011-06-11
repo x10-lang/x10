@@ -12,11 +12,11 @@
 import harness.x10Test;
 
 /**
- * Test that the declaration of multiple variables in the same var decl, separated by commas, is not permitted.
+ * Test declaration of multiple variables in the same var decl, separated by commas. Fails currently.
  *
  * @author vj
  */
-public class MultiVar_MustFailCompile extends x10Test {
+public class MultiVar extends x10Test {
     var a:Float,b:Float; // ERR
 	public def run() = true;
     
