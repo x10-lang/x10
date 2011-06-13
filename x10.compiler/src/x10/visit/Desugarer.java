@@ -22,6 +22,7 @@ import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
@@ -150,6 +151,8 @@ public class Desugarer extends ContextVisitor {
             return visitInstanceof((X10Instanceof) n);
         if (n instanceof New)
             return desugarNew((New) n, this);
+        if (n instanceof ConstructorCall)
+            return desugarConstructorCall((ConstructorCall) n, this);
         if (n instanceof Call)
             return desugarCall((Call) n, this);
         // todo: also ctor calls (this&super), operators
@@ -394,11 +397,46 @@ public class Desugarer extends ContextVisitor {
         }
         return expr;
     }
-    private static Expr desugarCall(Call call_c, ContextVisitor v) {
-        return desugarCall(call_c, call_c, null, null, v);
+    private static Expr desugarCall(Call call, ContextVisitor v) {
+        return desugarCall(call, call, null, null, v);
     }                                       
-    private static Expr desugarNew(final New new_c, ContextVisitor v) {
-        return desugarCall(new_c, null, new_c, null, v);
+    private static Expr desugarNew(final New neu, ContextVisitor v) {
+        return desugarCall(neu, null, neu, null, v);
+    }
+    private static Stmt desugarConstructorCall(ConstructorCall cc, ContextVisitor v) {
+        final ProcedureInstance<? extends ProcedureDef> pi = cc.constructorInstance();
+        if (!pi.checkConstraintsAtRuntime()) {
+            return cc;
+        }
+        TypeSystem ts = v.typeSystem();
+        NodeFactory nf = v.nodeFactory();
+        Job job = v.job();
+        List<Expr> args = cc.arguments();
+        List<Expr> newArgs = new ArrayList<Expr>(args.size());
+        List<Formal> params = new ArrayList<Formal>(args.size());
+        Position pos = cc.position();
+        Context context = v.context();
+        Context closureContext = context.pushBlock();
+        /*
+         * For a constructor call this(e1,..,en), where this:T,e1:T1,..,en:Tn and T.this(f1:U1,..,fn:Un){g},
+         * we are going to be creating the following block:
+         * {val x1=e1 as U1;..;val xn=en as Un;if(!g[x1/f1;..;xn/fn])throw new FDCE();this(x1,..,xn);}
+         */
+        List<Stmt> statements = new ArrayList<Stmt>(1);
+        if (!computeDynamicCheck(pi, args, null, pos, v, params, closureContext, newArgs, statements))
+            return cc;
+        List<LocalDecl> fvars = new ArrayList<LocalDecl>(params.size());
+        int i = 0;
+        for (Formal f : params) {
+            fvars.add(nf.LocalDecl(pos, f.flags(), f.type(), f.name(), args.get(i++)).localDef(f.localDef()));
+        }
+        statements.addAll(0, fvars);
+        ConstructorCall newCC = cc.arguments(newArgs);
+        X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
+        ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext);
+        newCC = (ConstructorCall) newCC.visit(builder).visit(checker);
+        statements.add(newCC);
+        return nf.Block(pos, statements);
     }
     /**
      * 
@@ -452,11 +490,62 @@ public class Desugarer extends ContextVisitor {
             !procInst.checkConstraintsAtRuntime())
             return n;
 
-
         final Position pos = n.position();
         List<Expr> args = binary_c!=null ? Arrays.asList(binary_c.left(), binary_c.right()) : procCall.arguments();
 
+        final Receiver target;
+        if (binary_c!=null)
+            target = null;
+        else
+            target = (call_c==null ? new_c.qualifier() : call_c.target());
+        Expr oldReceiver = null;
+        if (target!=null &&
+            target instanceof Expr) { // making sure that the receiver is not a TypeNode
+            oldReceiver = (Expr) target;
+            args = new ArrayList<Expr>(args);
+            args.add(0, (Expr) oldReceiver);
+        }
+        ArrayList<Expr> newArgs = new ArrayList<Expr>(args.size());
+        ArrayList<Formal> params = new ArrayList<Formal>(args.size());
+        final Context context = v.context();
+        final Context closureContext = context.pushBlock();
 
+        /*
+         * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U.m(f1:U1,..,fn:Un):R,
+         * we are going to be creating the following closure call:
+         * ((p0:T,p1:T1,..,pn:Tn)=>{val x$0=p0 as U;val f1=p1 as U1;..;val fn=pn as Un;x$0.m(f1,..,fn)})(e1,..,en)
+         */
+        List<Stmt> statements = new ArrayList<Stmt>();
+        if (!computeDynamicCheck(procInst, args, oldReceiver, pos, v, params, closureContext, newArgs, statements))
+            return n;
+        final Expr newReceiver = oldReceiver==null ? null : newArgs.remove(0);
+        final ProcedureCall newProcCall;
+        if (newReceiver==null)
+            newProcCall = procCall;
+        else
+            newProcCall = (call_c!=null ? call_c.target(newReceiver) : new_c.qualifier(newReceiver));
+        Expr newExpr;
+        if (binary_c!=null)
+            newExpr = binary_c.left(newArgs.get(0)).right(newArgs.get(1));
+        else
+            newExpr = (Expr) newProcCall.arguments(newArgs);
+        X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
+        ContextVisitor checker = new X10TypeChecker(job, ts, nf, job.nodeMemo()).context(closureContext);
+        newExpr = (Expr) newExpr.visit(builder).visit(checker);
+        final Type resType = newExpr.type();
+        // if resType is void, then we shouldn't use return
+        final boolean isVoid = ts.isVoid(resType);
+        statements.add(isVoid ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
+        Block body = nf.Block(pos, statements);
+        //body = (Block) body.visit(builder).visit(checker); - there is a problem type-checking the return statement
+        Type closureRet = procInst.returnType();
+        Closure c = closure(pos, closureRet, params, body, v);
+        MethodInstance ci = c.closureDef().asType().applyMethod();
+        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);
+    }
+    public static boolean computeDynamicCheck(ProcedureInstance<?> procInst, List<Expr> args, Expr oldReceiver,
+            final Position pos, ContextVisitor v, List<Formal> params, Context closureContext,
+            List<Expr> newArgs, List<Stmt> statements) {
         // we shouldn't use the def, because sometimes the constraints come from the instance,
         // e.g.,  new Box[Int{self!=0}](v)
         // dynamically checks that v!=0  (but you can't see it in the def! only in the instance).
@@ -466,6 +555,10 @@ public class Desugarer extends ContextVisitor {
         // E.g.,
         // new Box[Int{self!=0}](i)  in the instance returns a formal  arg123:Int{self==arg123, arg123==i}  but without i!=0 !
         // so I take the original formal from the def (x:T) and do the paramSubst on it to get  x:Int{self!=0}
+        final TypeSystem ts = v.typeSystem();
+        final NodeFactory nf = v.nodeFactory();
+        final Job job = v.job();
+        final Context context = v.context();
         final ProcedureDef procDef = procInst.def();
         TypeParamSubst typeParamSubst =
                 procInst instanceof ReinstantiatedMethodInstance ? ((ReinstantiatedMethodInstance)procInst).typeParamSubst() :
@@ -474,37 +567,15 @@ public class Desugarer extends ContextVisitor {
         final List<Type> typeParam = procInst.typeParameters(); // note that X10ConstructorInstance_c.typeParameters returns an empty list! (there is a todo there!)
         if (typeParam!=null && typeParam.size()>0) {
             if (typeParamSubst==null) typeParamSubst = new TypeParamSubst(ts,Collections.EMPTY_LIST,Collections.EMPTY_LIST);
-            final ArrayList<Type> newArgs = typeParamSubst.copyTypeArguments();
-            newArgs.addAll(typeParam);
+            final ArrayList<Type> newTArgs = typeParamSubst.copyTypeArguments();
+            newTArgs.addAll(typeParam);
             final ArrayList<ParameterType> newParams = typeParamSubst.copyTypeParameters();
             newParams.addAll(procDef.typeParameters());
-            typeParamSubst = new TypeParamSubst(ts, newArgs,newParams);
+            typeParamSubst = new TypeParamSubst(ts, newTArgs,newParams);
         }
-        final List<LocalDef> oldFormals = procDef.formalNames();
-        assert oldFormals.size()==args.size();
-        Expr oldReceiver = null;
-        final Receiver target;
-        if (binary_c!=null)
-            target = null;
-        else
-            target = (call_c==null ? new_c.qualifier() : call_c.target());
-        if (target!=null &&
-            target instanceof Expr) { // making sure that the receiver is not a TypeNode
-            oldReceiver = (Expr) target;
-            args = new ArrayList<Expr>(args);
-            args.add(0, (Expr) oldReceiver);
-        }
-        ArrayList<Expr> newArgs = new ArrayList<Expr>(args.size());
-        ArrayList<Formal> params = new ArrayList<Formal>(args.size());
-        ArrayList<LocalDecl> locals = new ArrayList<LocalDecl>(args.size());
-        final Context context = v.context();
-        final Context closureContext = context.pushBlock();
 
-        /*
-         * For a call r.m(e1,..,en), where r:T,e1:T1,..,en:Tn and U.m(f1:U1,..,fn:Un):R,
-         * we are going to be creating the following closure call:
-         * ((p0:T,p1:T1,..,pn:Tn)=>{val x$0=p0 as U;val f1=p1 as U1;..;val fn=pn as Un;x$0.m(f1,..,fn)})(e1,..,en)
-         */
+        final List<LocalDef> oldFormals = procDef.formalNames();
+        List<LocalDecl> locals = new ArrayList<LocalDecl>(args.size());
         int i=0;
         List<VarDef> Ys = new ArrayList<VarDef>(args.size());
         List<VarDef> Xs = new ArrayList<VarDef>(args.size());
@@ -531,7 +602,7 @@ public class Desugarer extends ContextVisitor {
                     nf.CanonicalTypeNode(pos, pType), nf.Id(pos, pn)).localDef(pDef);
             params.add(pd);
             Local p = (Local) nf.Local(pos, nf.Id(pos, pn)).localInstance(pDef.asInstance()).type(pType);
-            Name xn = oldFormal!=null ? oldFormal.name() : Name.make("x$"+i); // to make sure it doesn't conflict/shadow an existing field
+            Name xn = oldFormal!=null ? Name.make("x$"+oldFormal.name()) : Name.make("x$"+i); // to make sure it doesn't conflict/shadow an existing field
             LocalDef xDef = ts.localDef(pos, ts.Final(), Types.ref(tType), xn);
             Expr c = Converter.attemptCoercion(v.context(closureContext), p, tType);
             c = (Expr) c.visit(v.context(closureContext));
@@ -550,20 +621,7 @@ public class Desugarer extends ContextVisitor {
             }
             i++;
         }
-
-        final Expr newReceiver = oldReceiver==null ? null : newArgs.remove(0);
-        final ProcedureCall newProcCall;
-        if (newReceiver==null)
-            newProcCall = procCall;
-        else
-            newProcCall = (call_c!=null ? call_c.target(newReceiver) : new_c.qualifier(newReceiver));
-        Expr newExpr;
-        if (binary_c!=null)
-            newExpr = binary_c.left(newArgs.get(0)).right(newArgs.get(1));
-        else
-            newExpr = (Expr) newProcCall.arguments(newArgs);
-
-
+        
         // we add the guard to the body, then the return stmt.
         // if (!(GUARDEXPR(a,b))) throw new FailedDynamicCheckException(...); return ...
         final Ref<CConstraint> guardRefConstraint = procDef.guard();
@@ -590,12 +648,14 @@ public class Desugarer extends ContextVisitor {
                 constraint = constraint.instantiateSelf(selfVar);
             addCheck(booleanGuard,constraint, localDef.name(), type, nf, ts, pos);
         }
-
+        
+        final Expr newReceiver = oldReceiver==null ? null : newArgs.get(0);
+        int offset = oldReceiver==null ? 0 : 1;
         // replace old formals in depExpr with the new locals
         final Map<Name,Expr> old2new = CollectionFactory.newHashMap(oldFormals.size());
-        for (int k=0; k<newArgs.size(); k++) {
-            Expr newE = newArgs.get(k);
-            old2new.put(oldFormals.get(k).name(),newE);
+        for (int k=0; k<oldFormals.size(); k++) {
+            Expr newE = newArgs.get(k+offset);
+            old2new.put(oldFormals.get(k).name(), newE);
         }
         // replace all AmbExpr with the new locals
         final X10TypeBuilder builder = new X10TypeBuilder(job, ts, nf);
@@ -638,37 +698,26 @@ public class Desugarer extends ContextVisitor {
                 // ignore expressions that have outer locals (constraint system bugs like XTENLANG_2638)
             }
         }
-
+        
         if (newCheck.size()==0)
-            return n; // nothing to check...
-
-        Warnings.dynamicCall(v.job(), Warnings.GeneratedDynamicCheck(n.position()));
-
+            return false; // nothing to check...
+        
+        Warnings.dynamicCall(v.job(), Warnings.GeneratedDynamicCheck(pos));
+        
         Expr newDep = newCheck.get(0);
         for (int k=1; k<newCheck.size(); k++) {
             Expr e = newCheck.get(k);
             newDep = nf.Binary(pos, newDep, Binary.Operator.COND_AND, e).type(ts.Boolean());
         }
-        // if (!newDep) throw new FailedDynamicCheckException(); return ...
-        final Type resType = newExpr.type();
+        // if (!newDep) throw new FailedDynamicCheckException();
         newDep = nf.Unary(pos, Unary.Operator.NOT, newDep).type(ts.Boolean());
         If anIf = nf.If(pos, newDep, nf.Throw(pos,
                 nf.New(pos, nf.CanonicalTypeNode(pos, ts.FailedDynamicCheckException()),
                         CollectionUtil.<Expr>list(nf.StringLit(pos, newDep.toString()))).type(ts.Throwable())));
-        // if resType is void, then we shouldn't use return
-        final boolean isVoid = ts.isVoid(resType);
-        newExpr = (Expr) newExpr.visit(builder).visit(checker);
         anIf = (If) anIf.visit(builder).visit(checker);
-        List<Stmt> statements = new ArrayList<Stmt>();
         statements.addAll(locals);
         statements.add(anIf);
-        statements.add(isVoid ? nf.Eval(pos,newExpr) : nf.Return(pos, newExpr));
-        Block body = nf.Block(pos, statements);
-        //body = (Block) body.visit(builder).visit(checker); - there is a problem type-checking the return statement
-        Type closureRet = procInst.returnType();
-        Closure c = closure(pos, closureRet, params, body, v);
-        MethodInstance ci = c.closureDef().asType().applyMethod();
-        return nf.ClosureCall(pos, c, args).closureInstance(ci).type(resType);
+        return true;
     }
     private static class OuterLocalUsed extends RuntimeException {}
 
