@@ -22,6 +22,7 @@ import java.util.Map;
 
 public class X10JavaSerializer {
 
+    //TODO Keith check what the C++ side do on arrays
     // When a Object is serialized record its position
     Map<X10JavaSerializable, Integer> objectMap = new IdentityHashMap<X10JavaSerializable, Integer>();
     ObjectOutput out;
@@ -51,7 +52,11 @@ public class X10JavaSerializer {
             System.out.println("Serializing  Class : " + obj.getClass());
             System.out.print("Serialization id : ");
         }
-        write(obj._get_serialization_id());
+        int i = obj._get_serialization_id();
+        if (i ==0) {
+            System.out.println();
+        }
+        write(i);
 //		Integer pos;
 //		if ((pos = objectMap.get(obj)) != null) {
 //			System.out.println("Object already in map pos : " + pos);
@@ -68,14 +73,15 @@ public class X10JavaSerializer {
 //		}
     }
 
-    public void write(CustomSerialization obj) {
+    public void write(CustomSerialization obj) throws IOException {
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("INSIDE method CustomSerialization ");
         }
+        write((X10JavaSerializable)obj);
     }
 
     public void write(X10JavaSerializable obj[]) throws IOException {
-        //TODO Keith check what the C++ side do on arrays
+
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.print("Length of array : ");
         }
@@ -105,6 +111,16 @@ public class X10JavaSerializer {
         out.writeInt(i);
     }
 
+    public void write(int[] i) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Int[] length  : " + i.length);
+        }
+        out.writeInt(i.length);
+        for (int j : i) {
+            out.writeInt(j);
+        }
+    }
+
     public void write(boolean b) throws IOException {
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Boolean : " + b);
@@ -112,11 +128,31 @@ public class X10JavaSerializer {
         out.writeBoolean(b);
     }
 
+    public void write(boolean v[]) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Boolean[] length : " + v.length);
+        }
+        out.writeInt(v.length);
+        for (boolean b: v) {
+            out.writeBoolean(b);
+        }
+    }
+
     public void write(char c) throws IOException {
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Char : " + c);
         }
         out.writeChar(c);
+    }
+
+    public void write(char[] v) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Char[] length : " + v.length);
+        }
+        out.writeInt(v.length);
+        for (char c:v) {
+            out.writeChar(c);
+        }
     }
 
     public void write(byte b) throws IOException {
@@ -141,11 +177,31 @@ public class X10JavaSerializer {
         out.writeShort(s);
     }
 
+    public void write(short[] v) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Short[] length : " + v.length);
+        }
+        out.writeInt(v.length);
+        for (short s:v) {
+            out.writeShort(s);
+        }
+    }
+
     public void write(long l) throws IOException {
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Long : " + l);
         }
         out.writeLong(l);
+    }
+
+    public void write(long[] v) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Long[] length : " + v.length);
+        }
+        out.writeInt(v.length);
+        for (long l:v) {
+            out.writeLong(l);
+        }
     }
 
     public void write(double d) throws IOException {
@@ -155,11 +211,31 @@ public class X10JavaSerializer {
         out.writeDouble(d);
     }
 
+    public void write(double[] v) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Double[] length : " + v.length);
+        }
+        out.writeInt(v.length);
+        for (double d:v) {
+            out.writeDouble(d);
+        }
+    }
+
     public void write(float f) throws IOException {
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Float : " + f);
         }
         out.writeFloat(f);
+    }
+
+    public void write(float[] v) throws IOException {
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Float[] length : " + v.length);
+        }
+        out.writeInt(v.length);
+        for (float f : v) {
+            out.writeFloat(f);
+        }
     }
 
     public void write(String str) throws IOException {
@@ -177,6 +253,17 @@ public class X10JavaSerializer {
         }
         write(str.length());
         out.write(str.getBytes());
+    }
+
+    public void write(String[] v) throws IOException {
+        out.writeInt(DeserializationDispatcher.STRING_ID);
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.print("String[] length : " + v.length);
+        }
+        out.writeInt(v.length);
+        for (String str: v) {
+            write(str);
+        }
     }
 
     public  <T> void write(T p) throws IOException {
