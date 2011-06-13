@@ -3273,9 +3273,11 @@ public class Emitter {
         w.newline(4);
         w.begin(0);
 
-        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-        w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
-        w.writeln("} ");
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+            w.writeln("} ");
+        }
 
 //        deserializeSuperClass(n.superClass());
 
@@ -3330,9 +3332,11 @@ public class Emitter {
         w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
-        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-        w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
-        w.writeln("} ");
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
+            w.writeln("} ");
+        }
 
 //        serializeSuperClass(n.superClass());
 
@@ -3345,15 +3349,18 @@ public class Emitter {
 	}
 
     public void serializeSuperClass(TypeNode superClassNode) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether need to serialize super class
         if (superClassNode != null && superClassNode.type().isClass()) {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Throwable") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                w.write("java.lang.System.out.println( \"Serialiazing super class " + superClassNode.type().toString() + " \");");
-                w.writeln("}");
+                if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                    w.write("java.lang.System.out.println( \"Serialiazing super class " + superClassNode.type().toString() + " \");");
+                    w.writeln("}");
+                }
                 w.write("super." + Emitter.SERIALIZE_BODY_METHOD + "(serializer);");
                 w.newline();
             }
@@ -3361,15 +3368,18 @@ public class Emitter {
     }
 
     public void deserializeSuperClass(TypeNode superClassNode) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether we need to deserialize the super class
         if (superClassNode != null && superClassNode.type().isClass()) {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Throwable") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                w.write("java.lang.System.out.println( \"Deserialiazing super class " + superClassNode.type().toString() + " \");");
-                w.writeln("}");
+                if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                    w.write("java.lang.System.out.println( \"Deserialiazing super class " + superClassNode.type().toString() + " \");");
+                    w.writeln("}");
+                }
                 printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 w.writeln("._deserialize_body(obj, deserializer);");
             }
