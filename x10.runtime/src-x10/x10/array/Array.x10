@@ -17,7 +17,6 @@ import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
-import x10.compiler.TempNoInline_0;
 import x10.compiler.NoReturn;
 import x10.util.IndexedMemoryChunk;
 
@@ -369,7 +368,7 @@ public final class Array[T] (
      * over this array.<p>
      * @return an Iterable[T] over this array.
      */
-    public @TempNoInline_0 def values():Iterable[T] = new Iterable[T]() {
+    public def values():Iterable[T] = new Iterable[T]() {
     	public def iterator() = new Iterator[T]() {
     		val regIt = Array.this.iterator();
     		public def next() = Array.this(regIt.next());
@@ -377,7 +376,7 @@ public final class Array[T] (
     	};
     };
     
-    public @TempNoInline_0 def sequence(){this.rank==1}:Sequence[T] = new Sequence[T]() {
+    public def sequence(){this.rank==1}:Sequence[T] = new Sequence[T]() {
     	public def iterator() = new Iterator[T]() {
     		val regIt = Array.this.iterator();
     		public def next() = Array.this(regIt.next());
