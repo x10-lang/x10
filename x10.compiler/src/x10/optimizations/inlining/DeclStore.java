@@ -176,15 +176,19 @@ public class DeclStore {
     }
 
     /**
-     * Check that a candidate method is eligible to be inlined.
+     * Check that a call is eligible to be inlined.
      * 
-     * @param candidate the method conside red for inlining
-     * @param container the class containing the candidate
-     * @return true, if the method obviously should not be inlined; false, otherwise
+     * @param def the procedure def of the callee
+     * @return true, if the callee obviously should not be inlined; false, otherwise
      */
-
     private boolean inlineable(ProcedureDef def) {
-        return !cannotInline.contains(def);
+        if (null != def2decl.get(def)) return true;
+        if (cannotInline.contains(def)) return false;
+        if (annotations.inliningProhibited(def)) {
+            cannotInline.add(def);
+            return false;
+        }
+        return true;
     }
 
     public void cannotInline(ProcedureDef def) {
