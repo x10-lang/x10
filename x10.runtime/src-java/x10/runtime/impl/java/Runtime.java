@@ -228,7 +228,15 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * Force use of custom java serialization. Default is to use default java serialization
      */
-    public static final boolean CUSTOM_JAVA_SERIALIZATION = Boolean.getBoolean("x10.CUSTOM_JAVA_SERIALIZATION");
+    public static final boolean CUSTOM_JAVA_SERIALIZATION = isCustomSerialization();
+
+    private static boolean isCustomSerialization() {
+        String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION");
+        if (property == null) {
+            return true;
+        }
+        return Boolean.valueOf(property);
+    }
 
     /**
      * Synchronously executes body at place(id)
