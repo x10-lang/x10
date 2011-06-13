@@ -17,7 +17,6 @@ import x10.compiler.Global;
 import x10.compiler.PerProcess;
 import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
-import x10.compiler.TempNoInline_1;
 
 import x10.util.Random;
 import x10.util.Stack;
@@ -382,9 +381,7 @@ import x10.util.concurrent.SimpleLatch;
         }
 
         // inner loop to help j9 jit
-        @TempNoInline_1
         private def loop():Boolean {
-            @TempNoInline_1
             for (var i:Int = 0; i < BOUND; i++) {
                 activity = poll();
                 if (activity == null) {
@@ -396,9 +393,7 @@ import x10.util.concurrent.SimpleLatch;
             return true;
         }
 
-        @TempNoInline_1
         def probe():void {
-            @TempNoInline_1
             // process all queued activities
             val tmp = activity; // save current activity
             event_probe();
@@ -420,9 +415,7 @@ import x10.util.concurrent.SimpleLatch;
         }
 
         // inner loop to help j9 jit
-        @TempNoInline_1
         private def loop2(latch:SimpleLatch):Boolean {
-            @TempNoInline_1
             for (var i:Int = 0; i < BOUND; i++) {
                 if (latch()) return false;
                 activity = poll();
