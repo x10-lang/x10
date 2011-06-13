@@ -65,6 +65,8 @@ import polyglot.types.LazyRef_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
 import x10.types.constants.ConstantValue;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 
@@ -333,6 +335,9 @@ public class Closure_c extends Expr_c implements Closure {
 	    Reporter reporter = c.typeSystem().extensionInfo().getOptions().reporter;
 		if (reporter.should_report(TOPICS, 5))
 			reporter.report(5, "enter scope of closure at " + position());
+		while (c.inDepType()) { // could happen if the closure appears in a constraint -- error already reported
+		    c = c.pop();
+		}
 		// TODO maybe we want a new type of "code context thingy" that is not a type system object, but can live on the Context stack.
 		c = c.pushCode(closureDef);
 		return c;
@@ -370,6 +375,26 @@ public class Closure_c extends Expr_c implements Closure {
 		    c.setPlace(placeTerm);
 		}
 
+		if (child == guard) {
+		    TypeSystem ts = c.typeSystem();
+		    c = c.pushDepType(Types.<Type>ref(ts.unknownType(this.position)));
+		}
+
+		// Add the closure guard into the environment.
+		if (guard != null) {
+		    if (child == body || child == returnType || child == hasType) {
+		        Ref<CConstraint> vc = guard.valueConstraint();
+		        Ref<TypeConstraint> tc = guard.typeConstraint();
+
+		        if (oldC==c && (vc != null || tc != null)) {
+		            c = c.pushBlock();
+		        }
+		        if (vc != null)
+		            c.addConstraint(vc);
+		        if (tc != null)
+		            c.setTypeConstraintWithContextTerms(tc);
+		    }
+		}
 		if (child == body && offerType != null && offerType.typeRef().known()) {
 		    if (oldC == c)
 		        c = c.pushBlock();

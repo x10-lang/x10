@@ -958,7 +958,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		// Step I.b.  Check the guard.
 		if (nn.guard() != null) {
-			DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), childtc);
+			ContextVisitor guardtc = childtc.context(childtc.context().pushDepType(Types.<Type>ref(xts.unknownType(nn.guard().position()))));
+			DepParameterExpr processedWhere = (DepParameterExpr) nn.visitChild(nn.guard(), guardtc);
 			nn = (X10MethodDecl) nn.guard(processedWhere);
 
 			VarChecker ac = new VarChecker(childtc.job());

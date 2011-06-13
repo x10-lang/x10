@@ -38,11 +38,13 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeCheckPreparer;
 import polyglot.visit.TypeChecker;
+import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.extension.X10Del_c;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
 import polyglot.types.TypeSystem;
+import x10.types.checker.VarChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
@@ -132,6 +134,17 @@ public class AmbDepTypeNode_c extends TypeNode_c implements AmbDepTypeNode, AddF
         
         DepParameterExpr constr = (DepParameterExpr) visitChild(dep, childtc);
         
+        VarChecker ac = (VarChecker) new VarChecker(childtc.job()).context(childtc.context());
+        try {
+            constr.visit(ac);
+        } catch (InternalCompilerError e) {
+            Errors.issue(childtc.job(),
+                    new Errors.GeneralError(e.getMessage(), e.position()), constr);
+        }
+        if (ac.error != null) {
+            Errors.issue(childtc.job(), ac.error, constr);
+        }
+
         CConstraint c = Types.get(constr.valueConstraint());
         t = Types.xclause(t, c);
         if (flags != null) {

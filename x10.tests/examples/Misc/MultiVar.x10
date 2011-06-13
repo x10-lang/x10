@@ -17,7 +17,7 @@ import harness.x10Test;
  * @author vj
  */
 public class MultiVar extends x10Test {
-    var a:Float,b:Float; // ERR
+    var a:Float,b:Float;
 	public def run() = true;
     
 
