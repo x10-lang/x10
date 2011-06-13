@@ -84,7 +84,6 @@ import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.JavaArrayType;
-import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
@@ -110,7 +109,6 @@ import x10.ast.AssignPropertyCall_c;
 import x10.ast.ClosureCall;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
-import x10.ast.ForLoop_c;
 import x10.ast.HasZeroTest_c;
 import x10.ast.LocalTypeDef_c;
 import x10.ast.ParExpr;
@@ -134,7 +132,6 @@ import x10.ast.X10ClassBody_c;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorCall_c;
 import x10.ast.X10ConstructorDecl_c;
-import x10.ast.X10Formal;
 import x10.ast.X10Initializer_c;
 import x10.ast.X10Instanceof_c;
 import x10.ast.X10LocalDecl_c;
@@ -146,11 +143,8 @@ import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.emitter.Emitter;
 import x10.emitter.Expander;
-import x10.emitter.Inline;
 import x10.emitter.Join;
-import x10.emitter.Loop;
 import x10.emitter.RuntimeTypeExpander;
-import x10.emitter.Template;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
 import x10.types.ConstrainedType;
@@ -281,7 +275,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             visit((X10Initializer_c) n);
             return;
         }
-
         tr.job().compiler().errorQueue()
                 .enqueue(ErrorInfo.SEMANTIC_ERROR, "Unhandled node type: " + n.getClass(), n.position());
 
@@ -1459,7 +1452,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(")");
         }
     }
-
+    
     @Override
     public void visit(X10Binary_c n) {
         Expr left = n.left();
@@ -1795,6 +1788,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // }
             else {
                 if (isPrimitiveRepedJava(e.type())) {
+                    boolean closeParen = false;
                     // e.g) m((Integer) a) for m(T a)
                     // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
                     if (isBoxedType(defType) || !er.canMangleMethodName(def)) {
@@ -1817,6 +1811,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             if (!(expr instanceof Closure_c)
                                     && xts.isParameterType(cl.closureInstance().def().returnType().get())) {
                                 // TODO:CAST
+                                closeParen = er.printUnboxConversion(e.type());
                                 w.write("(");
                                 er.printType(e.type(), BOX_PRIMITIVES);
                                 w.write(")");
@@ -1826,6 +1821,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("("); // it is important to add parentheses here, as some call may have been issued above
                     c.print(e, w, tr);
                     w.write(")");
+                    if (closeParen) w.write(")");
                     if (isMutableStruct(e.type())) {
                         w.write(".clone()");
                     }
@@ -2092,14 +2088,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 throw new InternalCompilerError("Ambiguous TypeNode survived type-checking.", tn.position());
             }
             break;
+        case BOXING:
+            er.printBoxConversion(c.type());
+            w.write("(");
+            er.prettyPrint(c.expr(), tr);
+            w.write(")");
+            break;
         case UNBOXING:
-            throw new InternalCompilerError("Unboxing conversions not yet supported.", tn.position());
+            boolean closeParen;
+            closeParen = er.printUnboxConversion(c.type());
+            er.prettyPrint(c.expr(), tr);
+            if (closeParen) w.write(")");
+            break;
         case UNKNOWN_IMPLICIT_CONVERSION:
             throw new InternalCompilerError("Unknown implicit conversion type after type-checking.", c.position());
         case UNKNOWN_CONVERSION:
             throw new InternalCompilerError("Unknown conversion type after type-checking.", c.position());
-        case BOXING:
-            throw new InternalCompilerError("Boxing conversion should have been rewritten.", c.position());
         }
     }
 

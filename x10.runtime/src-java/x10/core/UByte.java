@@ -45,6 +45,10 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
         return o.$value;
     }
     
+    public static byte $unbox(Object obj) {
+        return ((x10.core.UByte)obj).$value;
+    }
+    
     // make $box/$unbox idempotent
     public static UByte $box(UByte obj) {
         return obj;

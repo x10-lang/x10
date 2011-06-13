@@ -45,6 +45,10 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         return o.$value;
     }
     
+    public static short $unbox(Object obj) {
+        return ((x10.core.UShort)obj).$value;
+    }
+    
     // make $box/$unbox idempotent
     public static UShort $box(UShort obj) {
         return obj;

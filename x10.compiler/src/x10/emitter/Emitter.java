@@ -778,9 +778,11 @@ public class Emitter {
 	    if (type.isUnsignedNumeric()) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
+	        /*
 	        w.write("(");
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write(")");
+	        */
 	        return true;
 	    }
 	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type, tr.context())) {

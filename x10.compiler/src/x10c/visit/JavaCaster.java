@@ -71,7 +71,6 @@ public class JavaCaster extends ContextVisitor {
         n = typeBoundsReturnCast(parent, old, n);
         n = covReturnCast(parent, n);
         n = stringReturnCast(parent, n);
-        n = unsignedTCast(parent, n);
         if (X10PrettyPrinterVisitor.isSelfDispatch) {
             n = typeParamCast(parent, n);
         }
@@ -157,24 +156,6 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
     
-    private Node unsignedTCast(Node parent, Node n) throws SemanticException {
-        // Generic methods (return type T) can return boxed unsigned number (e.g., x10.core.UInt)
-        // but in the [UInt] subclass UInt is treated as unboxed int.
-        // We need to find all calls to T-typed methods and insert explicit cast to
-        // a concrete unsigned numeric type,  so that proper conversion method call is inserted later.
-        if (n instanceof X10Call && !(parent instanceof Eval)) {
-            X10Call call = (X10Call)n;
-            Receiver target = call.target();
-            MethodInstance mi = call.methodInstance();
-            if (!call.type().isUnsignedNumeric()) return n;
-            Type expectedReturnType = call.type();
-            if (mi.def().returnType().get().isParameterType()) {
-                return cast(call, expectedReturnType);
-            }
-        }
-        return n;
-    }
-
     private Node typeParamCast(Node parent, Node n) throws SemanticException {
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call) n;

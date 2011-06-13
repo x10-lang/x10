@@ -41,6 +41,10 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
         return obj.$value;
     }
     
+    public static int $unbox(Object obj) {
+        return ((x10.core.UInt)obj).$value;
+    }
+    
     // make $box/$unbox idempotent
     public static UInt $box(UInt obj) {
         return obj;

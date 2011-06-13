@@ -46,6 +46,10 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
         return obj;
     }
 
+    public static long $unbox(Object obj) {
+        return ((x10.core.ULong)obj).$value;
+    }
+    
     public static long $unbox(long value) {
         return value;
     }
