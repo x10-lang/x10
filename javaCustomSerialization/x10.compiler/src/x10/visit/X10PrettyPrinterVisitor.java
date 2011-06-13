@@ -577,9 +577,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline(4);
                 w.begin(0);
 
-                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
-                w.writeln("} ");
+                if (!config.NO_TRACES && !config.OPTIMIZE) {
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+                    w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                    w.writeln("} ");
+                }
 
                 er.deserializeSuperClass(superClassNode);
 
@@ -679,23 +681,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
-                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                w.write("java.lang.System.out.println(\"" + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
-                w.writeln("} ");
-                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                w.write("java.lang.System.out.println(\" Gonna serialize " + ct.toString() + " \");");
-                w.writeln("}");
+                if (!config.NO_TRACES && !config.OPTIMIZE) {
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+                    w.write("java.lang.System.out.println(\"" + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
+                    w.writeln("} ");
+                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                    w.write("java.lang.System.out.println(\" Gonna serialize " + ct.toString() + " \");");
+                    w.writeln("}");
+                }
 
                 er.serializeSuperClass(superClassNode);
 
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
 
-                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                    w.write("java.lang.System.out.println(\" Gonna serialize field parameter type \" + ");
-                    er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                    w.write(" );");
-                    w.writeln("} ");
+                    if (!config.NO_TRACES && !config.OPTIMIZE) {
+                        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                        w.write("java.lang.System.out.println(\" Gonna serialize field parameter type \" + ");
+                        er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        w.write(" );");
+                        w.writeln("} ");
+                    }
                     w.write("serializer.write( (x10.x10rt.X10JavaSerializable) this.");
                     er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     w.writeln(");");
@@ -709,9 +715,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (f.flags().isTransient()) // don't serialize transient fields
                         continue;
                     String fieldName = Emitter.mangleToJava(f.name());
-                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                    w.write("java.lang.System.out.println(\" Gonna serialize field " + fieldName + " of type " + f.type().toString() + " in class " + ct.toString() + "\");");
-                    w.writeln("} ");
+                    if (!config.NO_TRACES && !config.OPTIMIZE) {
+                        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
+                        w.write("java.lang.System.out.println(\" Gonna serialize field " + fieldName + " of type " + f.type().toString() + " in class " + ct.toString() + "\");");
+                        w.writeln("} ");
+                    }
 
                     if (isPrimitiveRepedJava(f.type()) || isString(f.type(), context)) {
                         w.writeln("serializer.write(this." + fieldName + ");");
