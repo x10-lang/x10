@@ -253,11 +253,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 byte[] ba = serialize(body);
                 ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(ba));
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
-                if (TRACE_SER) {
+                if (TRACE_SER_DETAIL) {
                     System.out.println("Starting deserialization for deepCopy of " + body.getClass());
                 }
                 body = (T) deserializer.deSerialize();
-                if (TRACE_SER) {
+                if (TRACE_SER_DETAIL) {
                     System.out.println("Done with deserialization for deepCopy of " + body.getClass());
                 }
             } catch (java.io.IOException e) {
@@ -306,16 +306,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         ObjectOutputStream oos = new ObjectOutputStream(baos);
         X10JavaSerializer serializer = new X10JavaSerializer(oos);
-        if (TRACE_SER) {
-            System.out.println("Starting serialization for deepCopy of " + body.getClass());
-        }
         if (body instanceof X10JavaSerializable) {
             serializer.write((X10JavaSerializable) body);
         } else {
             serializer.write(body);
-        }
-        if (TRACE_SER) {
-            System.out.println("Done with serialization for deepCopy of " + body.getClass());
         }
         oos.close();
         byte[] ba = baos.toByteArray();
@@ -332,7 +326,13 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         byte[] msg;
         try {
             if (CUSTOM_JAVA_SERIALIZATION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAt  " + body.getClass());
+                }
                 msg = serialize(body);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAt " + body.getClass());
+                }
             } else {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 (new java.io.ObjectOutputStream(baos)).writeObject(body);
@@ -355,7 +355,13 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         byte[] msg;
         try {
             if (CUSTOM_JAVA_SERIALIZATION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAtAll  " + body.getClass());
+                }
                 msg = serialize(body);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAtAll " + body.getClass());
+                }
             } else {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 (new java.io.ObjectOutputStream(baos)).writeObject(body);

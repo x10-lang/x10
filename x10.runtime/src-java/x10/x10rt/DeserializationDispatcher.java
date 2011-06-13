@@ -29,7 +29,8 @@ public class DeserializationDispatcher {
     public static final int BOOLEAN_ID = 5;
     public static final int BYTE_ID = 6;
     public static final int SHORT_ID = 7;
-    public static final int CHARACTER_ID = 8;
+    public static final int LONG_ID = 8;
+    public static final int CHARACTER_ID = 9;
     public static final String NULL_VALUE = "__NULL__";
 
     private static final int INCREMENT_SIZE = 10;
@@ -85,6 +86,8 @@ public class DeserializationDispatcher {
             return deserializer.readShort();
         } else if (i == CHARACTER_ID) {
             return deserializer.readChar();
+        } else if (i == LONG_ID) {
+            return deserializer.readLong();
         }
 
         final String className = idToClassName.get(i);

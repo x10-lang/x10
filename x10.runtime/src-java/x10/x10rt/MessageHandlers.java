@@ -10,6 +10,8 @@
  */
 package x10.x10rt;
 
+import x10.runtime.impl.java.Runtime;
+
 /**
  * A class to contain the Java portion of message send/receive pairs.
  */
@@ -42,7 +44,13 @@ public class MessageHandlers {
             x10.core.fun.VoidFun_0_0 actObj;
             if (x10.runtime.impl.java.Runtime.CUSTOM_JAVA_SERIALIZATION) {
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Starting deserialization ");
+                }
                 actObj = (x10.core.fun.VoidFun_0_0) deserializer.deSerialize();
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Ending deserialization ");
+                }
             } else {
                 actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
             }

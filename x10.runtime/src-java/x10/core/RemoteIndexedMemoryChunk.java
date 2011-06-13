@@ -20,6 +20,8 @@ import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
+import java.io.IOException;
+
 public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
@@ -143,12 +145,28 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
         return i == 0 ? type : null;
     }
     
-  //TODO Keith  do we need to serialize this?
-	public void _serialize(X10JavaSerializer serializer) {
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write(length);
+        serializer.write(id);
+        serializer.write(type);
+        serializer.write(home);
 	}
 
 	public int _get_serialization_id() {
 		return _serialization_id;
 	}
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        RemoteIndexedMemoryChunk rimc = new RemoteIndexedMemoryChunk(null);
+		return _deserialize_body(rimc, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(RemoteIndexedMemoryChunk rimc, X10JavaDeserializer deserializer) throws IOException {
+        rimc.length = deserializer.readInt();
+        rimc.id = deserializer.readInt();
+        rimc.type = (Type) deserializer.readRef();
+        rimc.home = (Place) deserializer.readRef();
+        return rimc;
+    }
 
 }

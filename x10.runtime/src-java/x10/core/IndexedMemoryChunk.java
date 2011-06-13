@@ -30,6 +30,7 @@ import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.ShortType;
 import x10.rtt.Type;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -187,8 +188,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     }
     
     // static nested class version of copyBody
-    static class $Closure$0 extends x10.core.Ref implements VoidFun_0_0 {
+    public static class $Closure$0 extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$0.class.getName());
         final Object srcData;
         final int dstId;
         final int dstIndex;
@@ -206,6 +208,86 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         public static final RuntimeType<$Closure$0> $RTT =
         	new x10.rtt.StaticVoidFunType<$Closure$0>($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, x10.rtt.Types.OBJECT });
         public RuntimeType<$Closure$0> $getRTT() { return $RTT; }
+
+        //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            serializer.write(this.numElems);
+            if (this.numElems > 0) {
+                if (this.srcData instanceof int[]) {
+                    serializer.write(DeserializationDispatcher.INTEGER_ID);
+                    serializer.write((int[]) this.srcData);
+                } else if (this.srcData instanceof double[]) {
+                    serializer.write(DeserializationDispatcher.DOUBLE_ID);
+                    serializer.write((double[]) this.srcData);
+                } else if (this.srcData instanceof float[]) {
+                    serializer.write(DeserializationDispatcher.FLOAT_ID);
+                    serializer.write((float[]) this.srcData);
+                } else if (this.srcData instanceof short[]) {
+                    serializer.write(DeserializationDispatcher.SHORT_ID);
+                    serializer.write((short[]) this.srcData);
+                } else if (this.srcData instanceof char[]) {
+                    serializer.write(DeserializationDispatcher.CHARACTER_ID);
+                    serializer.write((char[]) this.srcData);
+                } else if (this.srcData instanceof byte[]) {
+                    serializer.write(DeserializationDispatcher.BYTE_ID);
+                    serializer.write((byte[]) this.srcData);
+                } else if (this.srcData instanceof String[]) {
+                    serializer.write(DeserializationDispatcher.STRING_ID);
+                    serializer.write((String[]) this.srcData);
+                } else if (this.srcData instanceof long[]) {
+                    serializer.write(DeserializationDispatcher.LONG_ID);
+                    serializer.write((long[]) this.srcData);
+                } else if (this.srcData instanceof boolean[]) {
+                    serializer.write(DeserializationDispatcher.BOOLEAN_ID);
+                    serializer.write((boolean[]) this.srcData);
+                } else {
+                    serializer.write((X10JavaSerializable[]) this.srcData);
+                }
+            }
+            serializer.write(this.dstId);
+            serializer.write(this.dstIndex);
+        }
+
+        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+            return _deserialize_body(null, deserializer);
+        }
+
+        public static X10JavaSerializable _deserialize_body($Closure$0 closure$0, X10JavaDeserializer deserializer) throws IOException {
+            Object srcData = null;
+            int numElems = deserializer.readInt();
+            if (numElems > 0) {
+                int type = deserializer.readInt();
+                if (type == DeserializationDispatcher.INTEGER_ID) {
+                    srcData = deserializer.readIntArray();
+                } else if (type == DeserializationDispatcher.DOUBLE_ID) {
+                    srcData = deserializer.readDoubleArray();
+                } else if (type == DeserializationDispatcher.FLOAT_ID) {
+                    srcData = deserializer.readFloatArray();
+                } else if (type == DeserializationDispatcher.SHORT_ID) {
+                    srcData = deserializer.readShortArray();
+                } else if (type == DeserializationDispatcher.CHARACTER_ID) {
+                    srcData = deserializer.readCharArray();
+                } else if (type == DeserializationDispatcher.BYTE_ID) {
+                    srcData = deserializer.readByteArray();
+                } else if (type == DeserializationDispatcher.STRING_ID) {
+                    srcData = deserializer.readStringArray();
+                } else if (type == DeserializationDispatcher.LONG_ID) {
+                    srcData = deserializer.readLongArray();
+                } else if (type == DeserializationDispatcher.BOOLEAN_ID) {
+                    srcData = deserializer.readBooleanArray();
+                } else  {
+                    srcData = deserializer.readRef();
+                }
+            }
+            int dstId = deserializer.readInt();
+            int dstIndex = deserializer.readInt();
+            closure$0 = new $Closure$0(srcData, dstId, dstIndex, numElems);
+            return (X10JavaSerializable) closure$0;
+        }
+
+        public int _get_serialization_id() {
+            return _serialization_id;
+        }
     }
 
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
@@ -271,8 +353,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     }
     
     // static nested class version of copyBody1
-    static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
+    public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$1.class.getName());
         final int srcId;
         final int srcLength;
         final Type<T> srcType;
@@ -315,6 +398,46 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         public static final RuntimeType<$Closure$1<?>> $RTT =
         	new x10.rtt.StaticVoidFunType<$Closure$1<?>>($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, x10.rtt.Types.OBJECT });
         public RuntimeType<$Closure$1<?>> $getRTT() { return $RTT; }
+
+        //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            serializer.write(this.srcId);
+            serializer.write(this.srcLength);
+            serializer.write(this.srcType);
+            serializer.write(this.srcIndex);
+            serializer.write(this.dstWrapperId);
+            serializer.write(this.dstWrapperHome);
+            serializer.write(this.dstIndex);
+            serializer.write(this.numElems);
+        }
+
+        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+            return _deserialize_body(null, deserializer);
+        }
+
+        public static X10JavaSerializable _deserialize_body($Closure$1 closure$1, X10JavaDeserializer deserializer) throws IOException {
+            int srcId = deserializer.readInt();
+            int srcLength = deserializer.readInt();
+            Type srcType = (Type) deserializer.readRef();
+            int srcIndex = deserializer.readInt();
+            int dstWrapperId = deserializer.readInt();
+            Place dstWrapperHome = (Place) deserializer.readRef();
+            int dstIndex = deserializer.readInt();
+            int numElems = deserializer.readInt();
+            RemoteIndexedMemoryChunk src = new RemoteIndexedMemoryChunk(null);
+            src.id = srcId;
+            src.length = srcLength;
+            src.type = srcType;
+            RemoteIndexedMemoryChunk dst = new RemoteIndexedMemoryChunk(null);
+            dst.id = dstWrapperId;
+            dst.home = dstWrapperHome;
+            closure$1 = new $Closure$1(src, srcIndex, dst,  dstIndex,  numElems);
+            return (X10JavaSerializable) closure$1;
+        }
+
+        public int _get_serialization_id() {
+            return _serialization_id;
+        }
     }
 
     public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
@@ -432,6 +555,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 		return _serialization_id;
 	}
 
+    static int i = 0;
     public static X10JavaSerializable _deSerialize_body(IndexedMemoryChunk imc, X10JavaDeserializer deserializer) throws IOException {
         int length = deserializer.readInt();
         imc.length = length;

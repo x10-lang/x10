@@ -76,6 +76,18 @@ public class X10JavaDeserializer {
         return v;
     }
 
+    public int[] readIntArray() throws IOException {
+        int length = in.readInt();
+        int[] v = new int[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readInt();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Int Array : " + v);
+        }
+        return v;
+    }
+
     public boolean readBoolean() throws IOException {
         boolean v = in.readBoolean();
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
@@ -84,10 +96,34 @@ public class X10JavaDeserializer {
         return v;
     }
 
+    public boolean[] readBooleanArray() throws IOException {
+        int length = in.readInt();
+        boolean[] v = new boolean[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readBoolean();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Boolean Array : " + v);
+        }
+        return v;
+    }
+
     public char readChar() throws IOException {
         char v = in.readChar();
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Char : " + v);
+        }
+        return v;
+    }
+
+    public char[] readCharArray() throws IOException {
+        int length = in.readInt();
+        char[] v = new char[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readChar();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Char Array : " + v);
         }
         return v;
     }
@@ -120,10 +156,34 @@ public class X10JavaDeserializer {
         return v;
     }
 
+    public short[] readShortArray() throws IOException {
+        int length = in.readInt();
+        short[] v = new short[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readShort();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Short Array : " + v);
+        }
+        return v;
+    }
+
     public long readLong() throws IOException {
         long v = in.readLong();
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
             System.out.println("Long : " + v);
+        }
+        return v;
+    }
+
+    public long[] readLongArray() throws IOException {
+        int length = in.readInt();
+        long[] v = new long[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readLong();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Long Array : " + v);
         }
         return v;
     }
@@ -136,6 +196,18 @@ public class X10JavaDeserializer {
         return v;
     }
 
+    public double[] readDoubleArray() throws IOException {
+        int length = in.readInt();
+        double[] v = new double[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readDouble();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Double Array : " + v);
+        }
+        return v;
+    }
+
     public float readFloat() throws IOException {
         float v = in.readFloat();
         if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
@@ -144,8 +216,19 @@ public class X10JavaDeserializer {
         return v;
     }
 
-    public String readString() throws IOException {
+    public float[] readFloatArray() throws IOException {
+        int length = in.readInt();
+        float[] v = new float[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = in.readFloat();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("Float Array : " + v);
+        }
+        return v;
+    }
 
+    public String readString() throws IOException {
         int classID = in.readInt();
         if (classID == DeserializationDispatcher.NULL_ID) {
             if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
@@ -162,8 +245,24 @@ public class X10JavaDeserializer {
         return new String(bytes);
     }
 
+    public String[] readStringArray() throws IOException {
+        int length = in.readInt();
+        String[] v = new String[length];
+        for (int i = 0; i < length; i++) {
+             v[i] = readString();
+        }
+        if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+            System.out.println("String Array : " + v);
+        }
+        return v;
+    }
+
     public Object deSerialize() throws IOException {
-        return DeserializationDispatcher.getInstanceForId(readInt(), this);
+        Object o = DeserializationDispatcher.getInstanceForId(readInt(), this);
+        if (o == null) {
+            System.out.println();
+        }
+        return o;
     }
 
 }
