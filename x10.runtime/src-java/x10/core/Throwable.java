@@ -104,7 +104,15 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
 
     @Override
     public java.lang.String toString() {
-        return Types.typeName(this) + ": " + this.getMessage();
+        java.lang.String msg = this.getMessage();
+        java.lang.String name = Types.typeName(this);
+        if (msg == null) {
+            return name;
+        } else {
+            int length = name.length() + 2 + msg.length();
+            java.lang.StringBuilder buffer = new java.lang.StringBuilder(length);
+            return buffer.append(name).append(": ").append(msg).toString();
+        }
     }
 
 }
