@@ -11,7 +11,9 @@
 
 package x10.visit;
 
+import polyglot.ast.Allocation;
 import polyglot.ast.Call;
+import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
@@ -84,6 +86,10 @@ public abstract class NodeTransformer {
     }
 
     protected Expr transformExpr(Expr e, Expr old) {
+        if (e instanceof Allocation) {
+            Allocation o = old instanceof Allocation ? (Allocation) old : null;
+            return transform((Allocation) e, o);
+        }
         if (e instanceof Local) {
             Local o = old instanceof Local ? (Local) old : null;
             return transform((Local) e, o);
@@ -111,6 +117,9 @@ public abstract class NodeTransformer {
         } else if (e instanceof Special) {
             Special o = old instanceof Special ? (Special) old : null;
             return transform((Special) e, o);
+        } else if (e instanceof Cast) {
+            Cast o = old instanceof Cast ? (Cast) old : null;
+            return transform((Cast) e, o);
         }
         return transform(e, old);
     }
@@ -119,9 +128,18 @@ public abstract class NodeTransformer {
         return (Expr) transformNode((Node) e, (Node) old);
     }
 
+    protected Allocation transform(Allocation a, Allocation old) {
+        return (Allocation) transform((Expr) a, (Expr) old);
+    }
+
+    protected Cast transform(Cast c, Cast old) {
+        return (Cast) transform((Expr)c, (Expr) old);
+    }
+
     protected Local transform(Local l, Local old) {
         return (Local) transform((Expr) l, (Expr) old);
     }
+
     protected Field transform(Field f, Field old) {
         return (Field) transform((Expr) f, (Expr) old);
     }
