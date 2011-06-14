@@ -31,6 +31,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
+import polyglot.ast.VarDecl;
 import polyglot.frontend.Job;
 import polyglot.types.Name;
 import polyglot.types.QName;
@@ -199,7 +200,7 @@ public class ConstantPropagator extends ContextVisitor {
         return null;
     }
 
-    public static boolean isConstant(Expr e) {
+    private static boolean isConstant(Expr e) {
         
         Type type = e.type();
         if (null == type) // TODO: this should never happen, determine if and why it does
@@ -208,12 +209,12 @@ public class ConstantPropagator extends ContextVisitor {
         TypeSystem ts = type.typeSystem();
         if (isNative(e, ts))
             return false;
-        
-        if (type.typeSystem().isSubtype(type, type.typeSystem().String()))
-            return false; // Strings have reference semantics
-        
+
         if (type.isNull())
             return true;
+        
+        if (type.isReference())
+            return false; // Non-null exprs with reference type are not constants for the purpose of constant propagation
         
         if (e.isConstant())
             return true;
