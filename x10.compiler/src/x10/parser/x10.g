@@ -758,6 +758,21 @@
                           | PostDecrementExpression
                           | MethodInvocation
                           | ClassInstanceCreationExpression
+                          | OverloadableExpression
+
+    OverloadableExpression ::= OverloadableUnaryExpressionPlusMinus
+                             | OverloadableUnaryExpression
+                             | OverloadableRangeExpression
+                             | OverloadableMultiplicativeExpression
+                             | OverloadableAdditiveExpression
+                             | OverloadableShiftExpression
+                             | OverloadableRelationalExpression
+                             | OverloadableEqualityExpression
+                             | OverloadableAndExpression
+                             | OverloadableExclusiveOrExpression
+                             | OverloadableInclusiveOrExpression
+                             | OverloadableConditionalAndExpression
+                             | OverloadableConditionalOrExpression
     
     AssertStatement ::= assert Expression ;
         /.$BeginJava
@@ -1894,16 +1909,18 @@
         $EndJava./
     
     UnannotatedUnaryExpression ::= PreIncrementExpression
-                      | PreDecrementExpression
-                      | + UnaryExpressionNotPlusMinus
+                                 | PreDecrementExpression
+                                 | OverloadableUnaryExpressionPlusMinus
+                                 | UnaryExpressionNotPlusMinus
+
+    OverloadableUnaryExpressionPlusMinus ::= + UnaryExpressionNotPlusMinus
         /.$BeginJava
 			r.rule_UnannotatedUnaryExpression2(UnaryExpressionNotPlusMinus);
         $EndJava./
-                      | - UnaryExpressionNotPlusMinus
+                                           | - UnaryExpressionNotPlusMinus
         /.$BeginJava
 			r.rule_UnannotatedUnaryExpression3(UnaryExpressionNotPlusMinus);
         $EndJava./
-                      | UnaryExpressionNotPlusMinus
 
     UnaryExpression ::= UnannotatedUnaryExpression
                       | Annotations UnannotatedUnaryExpression
@@ -1922,7 +1939,9 @@
         $EndJava./
     
     UnaryExpressionNotPlusMinus ::= PostfixExpression
-                                  | ~ UnaryExpression
+                                  | OverloadableUnaryExpression
+
+    OverloadableUnaryExpression ::= ~ UnaryExpression
         /.$BeginJava
 			r.rule_UnaryExpressionNotPlusMinus1(UnaryExpression);
         $EndJava./
@@ -1956,77 +1975,85 @@
         $EndJava./
     
     RangeExpression ::= UnaryExpression
-                      | RangeExpression$expr1 .. UnaryExpression$expr2
+                      | OverloadableRangeExpression
+
+    OverloadableRangeExpression ::= RangeExpression .. UnaryExpression
         /.$BeginJava
-			r.rule_RangeExpression1(expr1,expr2);
+			r.rule_RangeExpression1(RangeExpression,UnaryExpression);
         $EndJava./
     
     MultiplicativeExpression ::= RangeExpression
-                               | MultiplicativeExpression * RangeExpression
+                               | OverloadableMultiplicativeExpression
+
+    OverloadableMultiplicativeExpression ::= MultiplicativeExpression * RangeExpression
         /.$BeginJava
 			r.rule_MultiplicativeExpression1(MultiplicativeExpression,RangeExpression);
         $EndJava./
-                               | MultiplicativeExpression / RangeExpression
+                                           | MultiplicativeExpression / RangeExpression
         /.$BeginJava
 			r.rule_MultiplicativeExpression2(MultiplicativeExpression,RangeExpression);
         $EndJava./
-                               | MultiplicativeExpression '%' RangeExpression
+                                           | MultiplicativeExpression '%' RangeExpression
         /.$BeginJava
 			r.rule_MultiplicativeExpression3(MultiplicativeExpression,RangeExpression);
         $EndJava./
-                               | MultiplicativeExpression ** RangeExpression
+                                           | MultiplicativeExpression ** RangeExpression
         /.$BeginJava
 			r.rule_MultiplicativeExpression4(MultiplicativeExpression,RangeExpression);
         $EndJava./
     
     AdditiveExpression ::= MultiplicativeExpression
-                         | AdditiveExpression + MultiplicativeExpression
+                         | OverloadableAdditiveExpression
+
+    OverloadableAdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
         /.$BeginJava
 			r.rule_AdditiveExpression1(AdditiveExpression,MultiplicativeExpression);
         $EndJava./
-                         | AdditiveExpression - MultiplicativeExpression
+                                     | AdditiveExpression - MultiplicativeExpression
         /.$BeginJava
 			r.rule_AdditiveExpression2(AdditiveExpression,MultiplicativeExpression);
         $EndJava./
     
     ShiftExpression ::= AdditiveExpression
-                      | ShiftExpression << AdditiveExpression
+                      | OverloadableShiftExpression
+
+    OverloadableShiftExpression ::= ShiftExpression << AdditiveExpression
         /.$BeginJava
 			r.rule_ShiftExpression1(ShiftExpression,AdditiveExpression);
         $EndJava./
-                      | ShiftExpression >> AdditiveExpression
+                                  | ShiftExpression >> AdditiveExpression
         /.$BeginJava
 			r.rule_ShiftExpression2(ShiftExpression,AdditiveExpression);
         $EndJava./
-                      | ShiftExpression >>> AdditiveExpression
+                                  | ShiftExpression >>> AdditiveExpression
         /.$BeginJava
 			r.rule_ShiftExpression3(ShiftExpression,AdditiveExpression);
         $EndJava./
-                      | ShiftExpression$expr1 '->' AdditiveExpression$expr2
+                                  | ShiftExpression$expr1 '->' AdditiveExpression$expr2
         /.$BeginJava
 			r.rule_ShiftExpression4(expr1,expr2);
         $EndJava./
-                      | ShiftExpression$expr1 '<-' AdditiveExpression$expr2
+                                  | ShiftExpression$expr1 '<-' AdditiveExpression$expr2
         /.$BeginJava
 			r.rule_ShiftExpression5(expr1,expr2);
         $EndJava./
-                      | ShiftExpression$expr1 '-<' AdditiveExpression$expr2
+                                  | ShiftExpression$expr1 '-<' AdditiveExpression$expr2
         /.$BeginJava
 			r.rule_ShiftExpression6(expr1,expr2);
         $EndJava./
-                      | ShiftExpression$expr1 '>-' AdditiveExpression$expr2
+                                  | ShiftExpression$expr1 '>-' AdditiveExpression$expr2
         /.$BeginJava
 			r.rule_ShiftExpression7(expr1,expr2);
         $EndJava./
-                      | ShiftExpression$expr1 '!' AdditiveExpression$expr2
+                                  | ShiftExpression$expr1 '!' AdditiveExpression$expr2
         /.$BeginJava
 			r.rule_ShiftExpression8(expr1,expr2);
         $EndJava./
-                      | ShiftExpression$expr1 <> AdditiveExpression$expr2
+                                  | ShiftExpression$expr1 <> AdditiveExpression$expr2
         /.$BeginJava
 			r.rule_ShiftExpression9(expr1,expr2);
         $EndJava./
-                      | ShiftExpression$expr1 >< AdditiveExpression$expr2
+                                  | ShiftExpression$expr1 >< AdditiveExpression$expr2
         /.$BeginJava
 			r.rule_ShiftExpression10(expr1,expr2);
         $EndJava./
@@ -2034,25 +2061,27 @@
     RelationalExpression ::= ShiftExpression
                            | HasZeroConstraint
                            | SubtypeConstraint
-                           | RelationalExpression < ShiftExpression
-        /.$BeginJava
-			r.rule_RelationalExpression3(RelationalExpression,ShiftExpression);
-        $EndJava./
-                           | RelationalExpression > ShiftExpression
-        /.$BeginJava
-			r.rule_RelationalExpression4(RelationalExpression,ShiftExpression);
-        $EndJava./
-                           | RelationalExpression <= ShiftExpression
-        /.$BeginJava
-			r.rule_RelationalExpression5(RelationalExpression,ShiftExpression);
-        $EndJava./
-                           | RelationalExpression >= ShiftExpression
-        /.$BeginJava
-			r.rule_RelationalExpression6(RelationalExpression,ShiftExpression);
-        $EndJava./
+                           | OverloadableRelationalExpression
                            | RelationalExpression instanceof Type
         /.$BeginJava
 			r.rule_RelationalExpression7(RelationalExpression,Type);
+        $EndJava./
+
+    OverloadableRelationalExpression ::= RelationalExpression < ShiftExpression
+        /.$BeginJava
+			r.rule_RelationalExpression3(RelationalExpression,ShiftExpression);
+        $EndJava./
+                                       | RelationalExpression > ShiftExpression
+        /.$BeginJava
+			r.rule_RelationalExpression4(RelationalExpression,ShiftExpression);
+        $EndJava./
+                                       | RelationalExpression <= ShiftExpression
+        /.$BeginJava
+			r.rule_RelationalExpression5(RelationalExpression,ShiftExpression);
+        $EndJava./
+                                       | RelationalExpression >= ShiftExpression
+        /.$BeginJava
+			r.rule_RelationalExpression6(RelationalExpression,ShiftExpression);
         $EndJava./
     
     EqualityExpression ::= RelationalExpression
@@ -2068,41 +2097,53 @@
         /.$BeginJava
 			r.rule_EqualityExpression3(t1,t2);
         $EndJava./
-                         | EqualityExpression ~ RelationalExpression
+                         | OverloadableEqualityExpression
+
+    OverloadableEqualityExpression ::= EqualityExpression ~ RelationalExpression
         /.$BeginJava
 			r.rule_EqualityExpression4(EqualityExpression,RelationalExpression);
         $EndJava./
-                         | EqualityExpression !~ RelationalExpression
+                                     | EqualityExpression !~ RelationalExpression
         /.$BeginJava
 			r.rule_EqualityExpression5(EqualityExpression,RelationalExpression);
         $EndJava./
     
     AndExpression ::= EqualityExpression
-                    | AndExpression & EqualityExpression
+                    | OverloadableAndExpression
+
+    OverloadableAndExpression ::= AndExpression & EqualityExpression
         /.$BeginJava
 			r.rule_AndExpression1(AndExpression,EqualityExpression);
         $EndJava./
     
     ExclusiveOrExpression ::= AndExpression
-                            | ExclusiveOrExpression ^ AndExpression
+                            | OverloadableExclusiveOrExpression
+
+    OverloadableExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
         /.$BeginJava
 			r.rule_ExclusiveOrExpression1(ExclusiveOrExpression,AndExpression);
         $EndJava./
     
     InclusiveOrExpression ::= ExclusiveOrExpression
-                            | InclusiveOrExpression '|' ExclusiveOrExpression
+                            | OverloadableInclusiveOrExpression
+
+    OverloadableInclusiveOrExpression ::= InclusiveOrExpression '|' ExclusiveOrExpression
         /.$BeginJava
 			r.rule_InclusiveOrExpression1(InclusiveOrExpression,ExclusiveOrExpression);
         $EndJava./
     
     ConditionalAndExpression ::= InclusiveOrExpression
-                               | ConditionalAndExpression && InclusiveOrExpression
+                               | OverloadableConditionalAndExpression
+
+    OverloadableConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
         /.$BeginJava
 			r.rule_ConditionalAndExpression1(ConditionalAndExpression,InclusiveOrExpression);
         $EndJava./
     
     ConditionalOrExpression ::= ConditionalAndExpression
-                              | ConditionalOrExpression || ConditionalAndExpression
+                              | OverloadableConditionalOrExpression
+
+    OverloadableConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
         /.$BeginJava
 			r.rule_ConditionalOrExpression1(ConditionalOrExpression,ConditionalAndExpression);
         $EndJava./
@@ -2571,5 +2612,5 @@
 %End
 
 %Types
-	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | FieldDeclarators | OBSOLETE_OperatorFunction | FullyQualifiedName | VariableDeclaratorWithType | VariableDeclaratorsWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | VariableDeclarators | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | BlockStatementsopt | BlockStatements | StatementExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | Block | ResultType | OBSOLETE_MethodSelection | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassMemberDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassMemberDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FormalDeclarators | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
+	Object ::= ExpressionStatement | ClosureExpression | PackageOrTypeName | Property | CastExpression | TypeParameter | FieldDeclarator | FieldDeclarators | OBSOLETE_OperatorFunction | FullyQualifiedName | VariableDeclaratorWithType | VariableDeclaratorsWithType | Finally | AnnotationStatement | TypeDeclarations | IdentifierList | TypeImportOnDemandDeclaration | BreakStatement | ConditionalOrExpression | LocalVariableDeclaration | InterfaceMemberDeclarationsopt | InterfaceTypeList | AtomicStatement | PackageName | RelationalExpression | BlockInteriorStatement | UnaryExpression | ExclusiveOrExpression | ClockedClauseopt | AdditiveExpression | AssignPropertyCall | MultiplicativeExpression | ClosureBody | TryStatement | FormalParameterList | UnannotatedUnaryExpression | SwitchBlock | VariableDeclarator | VariableDeclarators | TypeParamWithVarianceList | NonExpressionStatement | UnaryExpressionNotPlusMinus | Interfacesopt | ConditionalExpression | SwitchLabel | BlockStatementsopt | BlockStatements | StatementExpression | OverloadableExpression | OverloadableUnaryExpressionPlusMinus | OverloadableUnaryExpression | OverloadableRangeExpression | OverloadableMultiplicativeExpression | OverloadableAdditiveExpression | OverloadableShiftExpression | OverloadableRelationalExpression | OverloadableEqualityExpression | OverloadableAndExpression | OverloadableExclusiveOrExpression | OverloadableInclusiveOrExpression | OverloadableConditionalAndExpression | OverloadableConditionalOrExpression | Expression | TypeParameterList | OBSOLETE_TypeParamWithVariance | Block | ResultType | OBSOLETE_MethodSelection | ForUpdate | FunctionType | ConstraintConjunction | TypeParamsWithVariance | HasZeroConstraint | FUTURE_ExistentialListopt | Annotation | BinOp | EqualityExpression | Modifiersopt | PostfixExpression | BooleanLiteral | ArgumentList | FormalParametersopt | ExtendsInterfacesopt | LoopStatement | Primary | InterfaceDeclaration | RangeExpression | SingleTypeImportDeclaration | DepNamedType | ImportDeclaration | InterfaceBody | WhereClauseopt | LabeledStatement | TypeArgumentList | ClassDeclaration | ParameterizedNamedType | SimpleNamedType | PreIncrementExpression | LoopIndex | Arguments | Literal | TypeDeclaration | ArgumentListopt | TypeArguments | Superopt | ClassMemberDeclarationsopt | HasResultTypeopt | Statement | LeftHandSide | TypeName | OBSOLETE_Offers | Super | SwitchLabelsopt | Propertiesopt | FieldAccess | MethodName | ForInit | OBSOLETE_OfferStatement | Expressionopt | ExplicitConstructorInvocationopt | AtEachStatement | OBSOLETE_Offersopt | TypeDeclarationsopt | ClassMemberDeclarations | WhereClause | InterfaceMemberDeclaration | PackageDeclaration | InterfaceMemberDeclarations | MethodInvocation | PreDecrementExpression | PrefixOp | ConstrainedType | Void | WhileStatement | Modifier | ExpressionName | TypeParamsWithVarianceopt | FormalParameterListopt | ConstraintConjunctionopt | ClassBody | ForStatement | Identifier | ClassName | AssignmentOperator | ForUpdateopt | AndExpression | OBSOLETE_FinishExpression | ReturnStatement | SubtypeConstraint | Catchesopt | MethodDeclaration | BinaryOperatorDeclaration | PrefixOperatorDeclaration | ApplyOperatorDeclaration | SetOperatorDeclaration | ConversionOperatorDeclaration | ExplicitConversionOperatorDeclaration | ImplicitConversionOperatorDeclaration | AssertStatement | DepParameters | DoStatement | PostDecrementExpression | AssignmentExpression | NamedType | NamedTypeNoConstraints | ExplicitConstructorInvocation | FormalParameter | BasicForStatement | Properties | SwitchStatement | LocalVariableDeclarationStatement | ThrowStatement | StatementExpressionList | ContinueStatement | SwitchBlockStatementGroups | TypeDefDeclaration | PropertyMethodDeclaration | ExtendsInterfaces | SwitchBlockStatementGroup | TypeParametersopt | ClassBodyopt | AtStatement | ConstructorBody | WhenStatement | AsyncStatement | MethodBody | FieldDeclaration | PackageDeclarationopt | VariableInitializer | ShiftExpression | Interfaces | ClassMemberDeclaration | IfThenStatement | StructDeclaration | ConstructorBlock | InclusiveOrExpression | HasResultType | PropertyList | ConditionalAndExpression | SwitchLabels | ImportDeclarationsopt | IfThenElseStatement | Identifieropt | AnnotatedType | ErrorPrimaryPrefix | ErrorSuperPrefix | ErrorClassNameSuperPrefix | ConstructorDeclaration | PostIncrementExpression | Catches | SwitchBlockStatementGroupsopt | CatchClause | ConstantExpression | FormalParameters | ClassInstanceCreationExpression | AtExpression | Type | CompilationUnit | Assignment | MethodModifiersopt | LastExpression | VarKeyword | TypeArgumentsopt | Annotationsopt | LoopIndexDeclarator | FinishStatement | Annotations | ImportDeclarations | TypeParameters | EnhancedForStatement | EmptyStatement | ClassType | FormalDeclarator | FormalDeclarators | FUTURE_ExistentialList | ForInitopt | ClockedClause | AtCaptureDeclaratorsopt | AtCaptureDeclarators | AtCaptureDeclarator | HomeVariableList | HomeVariable | VarKeywordopt
 %End

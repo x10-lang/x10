@@ -2032,10 +2032,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         setResult(nf.Import(pos(getLeftSpan(), getRightSpan()), Import.CLASS, QName.make(TypeName.toString())));
     }
     // Production: RangeExpression ::= RangeExpression '..' UnaryExpression
-    void rule_RangeExpression1(Object _expr1, Object _expr2) {
-        Expr expr1 = (Expr) _expr1;
-        Expr expr2 = (Expr) _expr2;
-        Expr regionCall = nf.Binary(pos(), expr1, Binary.DOT_DOT, expr2);
+    void rule_RangeExpression1(Object _RangeExpression, Object _UnaryExpression) {
+        Expr RangeExpression = (Expr) _RangeExpression;
+        Expr UnaryExpression = (Expr) _UnaryExpression;
+        Expr regionCall = nf.Binary(pos(), RangeExpression, Binary.DOT_DOT, UnaryExpression);
         setResult(regionCall);
     }
     // Production: ParameterizedNamedType ::= SimpleNamedType Arguments
