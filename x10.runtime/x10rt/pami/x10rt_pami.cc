@@ -1698,7 +1698,7 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing barrier (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[state.collectiveAlgorithmSelection[BARRIER]].name, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing barrier (%i). cookie=%p\n", state.myPlaceId, role, state.collectiveAlgorithmSelection[BARRIER], (void*)tcb);
 	#endif
 	if (state.collectiveAlgorithmSelection[BARRIER] < num_algorithms[0])
 		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[BARRIER]];
@@ -1766,7 +1766,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing broadcast (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[state.collectiveAlgorithmSelection[BCAST]].name, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing broadcast (%i). cookie=%p\n", state.myPlaceId, role, state.collectiveAlgorithmSelection[BCAST], (void*)tcb);
 	#endif
 
 	if (state.collectiveAlgorithmSelection[BCAST] < num_algorithms[0])
@@ -1848,7 +1848,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	tcb->operation.cmd.xfer_scatter.stypecount = el*count;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing scatter (%s): role=%u, root=%u\n", state.myPlaceId, always_works_md[state.collectiveAlgorithmSelection[SCATTER]].name, role, root);
+		fprintf(stderr, "Place %u executing scatter (%i): role=%u, root=%u\n", state.myPlaceId, state.collectiveAlgorithmSelection[SCATTER], role, root);
 	#endif
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a scatter on team %u", team);
@@ -1925,7 +1925,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing AllToAll (%s) with team %u. cookie=%p\n", state.myPlaceId, role, always_works_md[state.collectiveAlgorithmSelection[ALLTOALL]].name, team, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing AllToAll (%i) with team %u. cookie=%p\n", state.myPlaceId, role, state.collectiveAlgorithmSelection[ALLTOALL], team, (void*)tcb);
 	#endif
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
@@ -1998,7 +1998,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	tcb->operation.cmd.xfer_allreduce.data_cookie = NULL;
 	tcb->operation.cmd.xfer_allreduce.commutative = 1;
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing allreduce (%s), with type=%u and op=%u\n", state.myPlaceId, always_works_md[state.collectiveAlgorithmSelection[ALLREDUCE]].name, dtype, op);
+		fprintf(stderr, "Place %u executing allreduce (%i), with type=%u and op=%u\n", state.myPlaceId, state.collectiveAlgorithmSelection[ALLREDUCE], dtype, op);
 	#endif
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an allreduce on team %u", team);
