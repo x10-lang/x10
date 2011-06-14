@@ -93,9 +93,14 @@ public class ConstantPropagator extends ContextVisitor {
         
         if (n instanceof LocalDecl) {
             LocalDecl d = (LocalDecl) n;
-            if (d.flags().flags().isFinal() && d.init() != null && isConstant(d.init())) {
-                d.localDef().setConstantValue(constantValue(d.init()));
-                return nf.Empty(d.position());
+            if (d.flags().flags().isFinal()) {
+                Expr init = d.init();
+                if (init != null && init.isConstant()) {
+                    d.localDef().setConstantValue(constantValue(init));
+                    if (isConstant(init)) {
+                        return nf.Empty(d.position());
+                    }
+                }
             }
         }
 
