@@ -305,23 +305,19 @@ public class Inliner extends ContextVisitor {
             report("of failure to instatiate closure", c);
             return null;
         }
-        InliningRewriter rewriter = new InliningRewriter(lit, job(), typeSystem(), nodeFactory(), context());
-        lit = (Closure) lit.visit(rewriter); // Ensure that the last statement of the body is the only return in the closure
-        if (null == lit) {
-            report("of failure to normalize closure", c);
-            return null;
-        }
-        if (null == lit.body()) {
+        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
+        // Ensure that the last statement of the body is the only return in the closure
+        Block body = InliningRewriter.rewriteClosureBody(lit, job(), context());
+        if (null == body) {
             report("normalized closure has no body", c);
             return null;
         }
-        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
         List<Expr> args = new ArrayList<Expr>();
         int i = 0;
         for (Expr a : c.arguments()) {
             args.add(createCast(a.position(), a, c.closureInstance().formalTypes().get(i++)));
         }
-        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), lit.body(), null, null, args);
+        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), body, null, null, args);
         if (null == result) {
             report("of failure to rewrite closure body", c);
             return null;
@@ -375,15 +371,15 @@ public class Inliner extends ContextVisitor {
                 }
             }
         }
-        InliningRewriter rewriter = new InliningRewriter(decl, thisDef, job(), typeSystem(), nodeFactory(), context());
-        decl = (ProcedureDecl) decl.visit(rewriter); // Ensure that the last statement of the body is the only return in the method
-        if (null == decl || null == decl.body()) {
+        // Ensure that the last statement of the body is the only return in the method
+        Block body = InliningRewriter.rewriteProcedureBody(decl, thisDef, job(), context());
+        if (null == body) {
             return null;
         }
         Expr result = rewriteInlinedBody( call.position(), 
                                           decl instanceof MethodDecl ? ((MethodDecl) decl).returnType().type() : null, 
                                           decl.formals(), 
-                                          decl.body(), 
+                                          body, 
                                           thisArg, 
                                           thisForm, 
                                           call.arguments() );

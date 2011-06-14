@@ -490,12 +490,14 @@ public class Closure_c extends Expr_c implements Closure {
 
 	// Propagate the captured variables to the parent closure (if any)
 	public static void propagateCapturedEnvironment(Context c, EnvironmentCapture def) {
-		for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
-		    Context o = c;
-		    while (o.currentCode() == def)
-		        o = o.pop().popToCode();
-		    o.recordCapturedVariable(vi);
-		}
+	    Context o = c;
+	    while (o != null && o.currentCode() == def)
+	        o = o.pop().popToCode();
+	    if (o == null)
+	        return;
+	    for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
+	        o.recordCapturedVariable(vi);
+	    }
 	}
 
 	@Override
