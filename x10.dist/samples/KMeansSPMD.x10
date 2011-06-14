@@ -60,7 +60,7 @@ public class KMeansSPMD {
             val quiet = opts("-q");
 
             if (!quiet)
-                Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+4);
+                Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+dim);
 
             // file is dimension-major
             val file = new File(fname);
@@ -192,7 +192,7 @@ public class KMeansSPMD {
             } // finish
 
         } catch (e : Throwable) {
-            e.printStackTrace(Console.ERR);
+        	e.printStackTrace();
         }
     }
 }
