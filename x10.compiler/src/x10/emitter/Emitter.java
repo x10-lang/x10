@@ -3598,6 +3598,7 @@ public class Emitter {
     		}
     		
     		w.write("{");
+    		w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native method
     		// always same?
     		if (!n.returnType().type().isVoid()) {
 //    		if (!mi.returnType().isVoid()) {
@@ -3607,6 +3608,7 @@ public class Emitter {
     		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		
     		w.write(";}");
+    		w.write("catch (java.lang.Throwable $exc$) { throw x10.core.ThrowableUtilities.convertJavaThrowable($exc$); } }"); // XTENLANG-2686
     		w.newline();
     		
     		return true;

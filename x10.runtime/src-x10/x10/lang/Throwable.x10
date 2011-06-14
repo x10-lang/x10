@@ -17,7 +17,8 @@ import x10.compiler.NativeRep;
 import x10.io.Printer;
 import x10.io.Console;
 
-@NativeRep("java", "x10.core.Throwable", null, "x10.core.Throwable.$RTT")
+// XTENLANG-2686: x10.lang.Throwable is now mapped to x10.core.X10Throwable, which is a subclass of x10.core.Throwable
+@NativeRep("java", "x10.core.X10Throwable", null, "x10.core.X10Throwable.$RTT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Throwable>", "x10::lang::Throwable", null)
 public class Throwable {
     @Native("java", "#this.getCause()")

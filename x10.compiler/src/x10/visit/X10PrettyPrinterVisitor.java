@@ -3277,7 +3277,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(Block_c n) {
         String s = Emitter.getJavaImplForStmt(n, tr.typeSystem());
         if (s != null) {
+            w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native block
             w.write(s);
+            w.write("} catch (java.lang.Throwable $exc$) { throw x10.core.ThrowableUtilities.convertJavaThrowable($exc$); }"); // XTENLANG-2686
         } else {
             n.translate(w, tr);
         }

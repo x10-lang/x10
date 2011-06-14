@@ -19,6 +19,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import x10.array.Array;
+import x10.runtime.impl.java.UnknownJavaThrowable;
 
 public abstract class ThrowableUtilities {
     
@@ -183,9 +184,11 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10RuntimeException;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable)e; // already wrapped
+            else return new UnknownJavaThrowable(e);
+            //x10Class = x10RuntimeException;
+            //message = e.getClass().getName() + ": " + message;
         }
         
         return createX10Throwable(x10Class, message, e);
@@ -196,9 +199,10 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10Exceptions.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10Exception;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            return new UnknownJavaThrowable(e);
+            //x10Class = x10Exception;
+            //message = e.getClass().getName() + ": " + message;
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -209,9 +213,10 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10Errors.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10Error;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            return new UnknownJavaThrowable(e);
+            //x10Class = x10Error;
+            //message = e.getClass().getName() + ": " + message;
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -222,9 +227,10 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10Throwables.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10Throwable;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            return new UnknownJavaThrowable(e);
+            //x10Class = x10Throwable;
+            //message = e.getClass().getName() + ": " + message;
         }
 
         return createX10Throwable(x10Class, message, e);
