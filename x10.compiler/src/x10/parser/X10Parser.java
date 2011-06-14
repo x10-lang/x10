@@ -1520,9 +1520,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 169:  AssertStatement ::= assert Expression ;
             //
             case 169: {
-                //#line 780 "x10/parser/x10.g"
+                //#line 777 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(2);
-                //#line 782 "x10/parser/x10.g"
+                //#line 779 "x10/parser/x10.g"
 		r.rule_AssertStatement0(Expression);
                 break;
             }
@@ -1530,11 +1530,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 170:  AssertStatement ::= assert Expression$expr1 : Expression$expr2 ;
             //
             case 170: {
-                //#line 784 "x10/parser/x10.g"
+                //#line 781 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(2);
-                //#line 784 "x10/parser/x10.g"
+                //#line 781 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(4);
-                //#line 786 "x10/parser/x10.g"
+                //#line 783 "x10/parser/x10.g"
 		r.rule_AssertStatement1(expr1,expr2);
                 break;
             }
@@ -1542,11 +1542,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 171:  SwitchStatement ::= switch ( Expression ) SwitchBlock
             //
             case 171: {
-                //#line 789 "x10/parser/x10.g"
+                //#line 786 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 789 "x10/parser/x10.g"
+                //#line 786 "x10/parser/x10.g"
                 Object SwitchBlock = (Object) getRhsSym(5);
-                //#line 791 "x10/parser/x10.g"
+                //#line 788 "x10/parser/x10.g"
 		r.rule_SwitchStatement0(Expression,SwitchBlock);
                 break;
             }
@@ -1554,11 +1554,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 172:  SwitchBlock ::= { SwitchBlockStatementGroupsopt SwitchLabelsopt }
             //
             case 172: {
-                //#line 794 "x10/parser/x10.g"
+                //#line 791 "x10/parser/x10.g"
                 Object SwitchBlockStatementGroupsopt = (Object) getRhsSym(2);
-                //#line 794 "x10/parser/x10.g"
+                //#line 791 "x10/parser/x10.g"
                 Object SwitchLabelsopt = (Object) getRhsSym(3);
-                //#line 796 "x10/parser/x10.g"
+                //#line 793 "x10/parser/x10.g"
 		r.rule_SwitchBlock0(SwitchBlockStatementGroupsopt,SwitchLabelsopt);
                 break;
             }
@@ -1566,11 +1566,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 174:  SwitchBlockStatementGroups ::= SwitchBlockStatementGroups SwitchBlockStatementGroup
             //
             case 174: {
-                //#line 800 "x10/parser/x10.g"
+                //#line 797 "x10/parser/x10.g"
                 Object SwitchBlockStatementGroups = (Object) getRhsSym(1);
-                //#line 800 "x10/parser/x10.g"
+                //#line 797 "x10/parser/x10.g"
                 Object SwitchBlockStatementGroup = (Object) getRhsSym(2);
-                //#line 802 "x10/parser/x10.g"
+                //#line 799 "x10/parser/x10.g"
 		r.rule_SwitchBlockStatementGroups1(SwitchBlockStatementGroups,SwitchBlockStatementGroup);
                 break;
             }
@@ -1578,11 +1578,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 175:  SwitchBlockStatementGroup ::= SwitchLabels BlockStatements
             //
             case 175: {
-                //#line 805 "x10/parser/x10.g"
+                //#line 802 "x10/parser/x10.g"
                 Object SwitchLabels = (Object) getRhsSym(1);
-                //#line 805 "x10/parser/x10.g"
+                //#line 802 "x10/parser/x10.g"
                 Object BlockStatements = (Object) getRhsSym(2);
-                //#line 807 "x10/parser/x10.g"
+                //#line 804 "x10/parser/x10.g"
 		r.rule_SwitchBlockStatementGroup0(SwitchLabels,BlockStatements);
                 break;
             }
@@ -1590,9 +1590,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 176:  SwitchLabels ::= SwitchLabel
             //
             case 176: {
-                //#line 810 "x10/parser/x10.g"
+                //#line 807 "x10/parser/x10.g"
                 Object SwitchLabel = (Object) getRhsSym(1);
-                //#line 812 "x10/parser/x10.g"
+                //#line 809 "x10/parser/x10.g"
 		r.rule_SwitchLabels0(SwitchLabel);
                 break;
             }
@@ -1600,11 +1600,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 177:  SwitchLabels ::= SwitchLabels SwitchLabel
             //
             case 177: {
-                //#line 814 "x10/parser/x10.g"
+                //#line 811 "x10/parser/x10.g"
                 Object SwitchLabels = (Object) getRhsSym(1);
-                //#line 814 "x10/parser/x10.g"
+                //#line 811 "x10/parser/x10.g"
                 Object SwitchLabel = (Object) getRhsSym(2);
-                //#line 816 "x10/parser/x10.g"
+                //#line 813 "x10/parser/x10.g"
 		r.rule_SwitchLabels1(SwitchLabels,SwitchLabel);
                 break;
             }
@@ -1612,9 +1612,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 178:  SwitchLabel ::= case ConstantExpression :
             //
             case 178: {
-                //#line 819 "x10/parser/x10.g"
+                //#line 816 "x10/parser/x10.g"
                 Object ConstantExpression = (Object) getRhsSym(2);
-                //#line 821 "x10/parser/x10.g"
+                //#line 818 "x10/parser/x10.g"
 		r.rule_SwitchLabel0(ConstantExpression);
                 break;
             }
@@ -1623,7 +1623,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 179: {
                 
-                //#line 825 "x10/parser/x10.g"
+                //#line 822 "x10/parser/x10.g"
 		r.rule_SwitchLabel1();
                 break;
             }
@@ -1631,11 +1631,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 180:  WhileStatement ::= while ( Expression ) Statement
             //
             case 180: {
-                //#line 828 "x10/parser/x10.g"
+                //#line 825 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 828 "x10/parser/x10.g"
+                //#line 825 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(5);
-                //#line 830 "x10/parser/x10.g"
+                //#line 827 "x10/parser/x10.g"
 		r.rule_WhileStatement0(Expression,Statement);
                 break;
             }
@@ -1643,11 +1643,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 181:  DoStatement ::= do Statement while ( Expression ) ;
             //
             case 181: {
-                //#line 833 "x10/parser/x10.g"
+                //#line 830 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(2);
-                //#line 833 "x10/parser/x10.g"
+                //#line 830 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(5);
-                //#line 835 "x10/parser/x10.g"
+                //#line 832 "x10/parser/x10.g"
 		r.rule_DoStatement0(Statement,Expression);
                 break;
             }
@@ -1655,15 +1655,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 184:  BasicForStatement ::= for ( ForInitopt ; Expressionopt ; ForUpdateopt ) Statement
             //
             case 184: {
-                //#line 841 "x10/parser/x10.g"
+                //#line 838 "x10/parser/x10.g"
                 Object ForInitopt = (Object) getRhsSym(3);
-                //#line 841 "x10/parser/x10.g"
+                //#line 838 "x10/parser/x10.g"
                 Object Expressionopt = (Object) getRhsSym(5);
-                //#line 841 "x10/parser/x10.g"
+                //#line 838 "x10/parser/x10.g"
                 Object ForUpdateopt = (Object) getRhsSym(7);
-                //#line 841 "x10/parser/x10.g"
+                //#line 838 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(9);
-                //#line 843 "x10/parser/x10.g"
+                //#line 840 "x10/parser/x10.g"
 		r.rule_BasicForStatement0(ForInitopt,Expressionopt,ForUpdateopt,Statement);
                 break;
             }
@@ -1671,9 +1671,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 186:  ForInit ::= LocalVariableDeclaration
             //
             case 186: {
-                //#line 847 "x10/parser/x10.g"
+                //#line 844 "x10/parser/x10.g"
                 Object LocalVariableDeclaration = (Object) getRhsSym(1);
-                //#line 849 "x10/parser/x10.g"
+                //#line 846 "x10/parser/x10.g"
 		r.rule_ForInit1(LocalVariableDeclaration);
                 break;
             }
@@ -1681,9 +1681,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 188:  StatementExpressionList ::= StatementExpression
             //
             case 188: {
-                //#line 854 "x10/parser/x10.g"
+                //#line 851 "x10/parser/x10.g"
                 Object StatementExpression = (Object) getRhsSym(1);
-                //#line 856 "x10/parser/x10.g"
+                //#line 853 "x10/parser/x10.g"
 		r.rule_StatementExpressionList0(StatementExpression);
                 break;
             }
@@ -1691,11 +1691,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 189:  StatementExpressionList ::= StatementExpressionList , StatementExpression
             //
             case 189: {
-                //#line 858 "x10/parser/x10.g"
+                //#line 855 "x10/parser/x10.g"
                 Object StatementExpressionList = (Object) getRhsSym(1);
-                //#line 858 "x10/parser/x10.g"
+                //#line 855 "x10/parser/x10.g"
                 Object StatementExpression = (Object) getRhsSym(3);
-                //#line 860 "x10/parser/x10.g"
+                //#line 857 "x10/parser/x10.g"
 		r.rule_StatementExpressionList1(StatementExpressionList,StatementExpression);
                 break;
             }
@@ -1703,9 +1703,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 190:  BreakStatement ::= break Identifieropt ;
             //
             case 190: {
-                //#line 863 "x10/parser/x10.g"
+                //#line 860 "x10/parser/x10.g"
                 Object Identifieropt = (Object) getRhsSym(2);
-                //#line 865 "x10/parser/x10.g"
+                //#line 862 "x10/parser/x10.g"
 		r.rule_BreakStatement0(Identifieropt);
                 break;
             }
@@ -1713,9 +1713,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 191:  ContinueStatement ::= continue Identifieropt ;
             //
             case 191: {
-                //#line 868 "x10/parser/x10.g"
+                //#line 865 "x10/parser/x10.g"
                 Object Identifieropt = (Object) getRhsSym(2);
-                //#line 870 "x10/parser/x10.g"
+                //#line 867 "x10/parser/x10.g"
 		r.rule_ContinueStatement0(Identifieropt);
                 break;
             }
@@ -1723,9 +1723,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 192:  ReturnStatement ::= return Expressionopt ;
             //
             case 192: {
-                //#line 873 "x10/parser/x10.g"
+                //#line 870 "x10/parser/x10.g"
                 Object Expressionopt = (Object) getRhsSym(2);
-                //#line 875 "x10/parser/x10.g"
+                //#line 872 "x10/parser/x10.g"
 		r.rule_ReturnStatement0(Expressionopt);
                 break;
             }
@@ -1733,9 +1733,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 193:  ThrowStatement ::= throw Expression ;
             //
             case 193: {
-                //#line 878 "x10/parser/x10.g"
+                //#line 875 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(2);
-                //#line 880 "x10/parser/x10.g"
+                //#line 877 "x10/parser/x10.g"
 		r.rule_ThrowStatement0(Expression);
                 break;
             }
@@ -1743,11 +1743,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 194:  TryStatement ::= try Block Catches
             //
             case 194: {
-                //#line 883 "x10/parser/x10.g"
+                //#line 880 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(2);
-                //#line 883 "x10/parser/x10.g"
+                //#line 880 "x10/parser/x10.g"
                 Object Catches = (Object) getRhsSym(3);
-                //#line 885 "x10/parser/x10.g"
+                //#line 882 "x10/parser/x10.g"
 		r.rule_TryStatement0(Block,Catches);
                 break;
             }
@@ -1755,13 +1755,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 195:  TryStatement ::= try Block Catchesopt Finally
             //
             case 195: {
-                //#line 887 "x10/parser/x10.g"
+                //#line 884 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(2);
-                //#line 887 "x10/parser/x10.g"
+                //#line 884 "x10/parser/x10.g"
                 Object Catchesopt = (Object) getRhsSym(3);
-                //#line 887 "x10/parser/x10.g"
+                //#line 884 "x10/parser/x10.g"
                 Object Finally = (Object) getRhsSym(4);
-                //#line 889 "x10/parser/x10.g"
+                //#line 886 "x10/parser/x10.g"
 		r.rule_TryStatement1(Block,Catchesopt,Finally);
                 break;
             }
@@ -1769,9 +1769,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 196:  Catches ::= CatchClause
             //
             case 196: {
-                //#line 892 "x10/parser/x10.g"
+                //#line 889 "x10/parser/x10.g"
                 Object CatchClause = (Object) getRhsSym(1);
-                //#line 894 "x10/parser/x10.g"
+                //#line 891 "x10/parser/x10.g"
 		r.rule_Catches0(CatchClause);
                 break;
             }
@@ -1779,11 +1779,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 197:  Catches ::= Catches CatchClause
             //
             case 197: {
-                //#line 896 "x10/parser/x10.g"
+                //#line 893 "x10/parser/x10.g"
                 Object Catches = (Object) getRhsSym(1);
-                //#line 896 "x10/parser/x10.g"
+                //#line 893 "x10/parser/x10.g"
                 Object CatchClause = (Object) getRhsSym(2);
-                //#line 898 "x10/parser/x10.g"
+                //#line 895 "x10/parser/x10.g"
 		r.rule_Catches1(Catches,CatchClause);
                 break;
             }
@@ -1791,11 +1791,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 198:  CatchClause ::= catch ( FormalParameter ) Block
             //
             case 198: {
-                //#line 901 "x10/parser/x10.g"
+                //#line 898 "x10/parser/x10.g"
                 Object FormalParameter = (Object) getRhsSym(3);
-                //#line 901 "x10/parser/x10.g"
+                //#line 898 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(5);
-                //#line 903 "x10/parser/x10.g"
+                //#line 900 "x10/parser/x10.g"
 		r.rule_CatchClause0(FormalParameter,Block);
                 break;
             }
@@ -1803,9 +1803,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 199:  Finally ::= finally Block
             //
             case 199: {
-                //#line 906 "x10/parser/x10.g"
+                //#line 903 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(2);
-                //#line 908 "x10/parser/x10.g"
+                //#line 905 "x10/parser/x10.g"
 		r.rule_Finally0(Block);
                 break;
             }
@@ -1813,9 +1813,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 200:  ClockedClause ::= clocked Arguments
             //
             case 200: {
-                //#line 911 "x10/parser/x10.g"
+                //#line 908 "x10/parser/x10.g"
                 Object Arguments = (Object) getRhsSym(2);
-                //#line 913 "x10/parser/x10.g"
+                //#line 910 "x10/parser/x10.g"
 		r.rule_ClockedClause0(Arguments);
                 break;
             }
@@ -1823,11 +1823,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 201:  AsyncStatement ::= async ClockedClauseopt Statement
             //
             case 201: {
-                //#line 917 "x10/parser/x10.g"
+                //#line 914 "x10/parser/x10.g"
                 Object ClockedClauseopt = (Object) getRhsSym(2);
-                //#line 917 "x10/parser/x10.g"
+                //#line 914 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(3);
-                //#line 919 "x10/parser/x10.g"
+                //#line 916 "x10/parser/x10.g"
 		r.rule_AsyncStatement0(ClockedClauseopt,Statement);
                 break;
             }
@@ -1835,9 +1835,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 202:  AsyncStatement ::= clocked async Statement
             //
             case 202: {
-                //#line 921 "x10/parser/x10.g"
+                //#line 918 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(3);
-                //#line 923 "x10/parser/x10.g"
+                //#line 920 "x10/parser/x10.g"
 		r.rule_AsyncStatement1(Statement);
                 break;
             }
@@ -1845,11 +1845,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 203:  AtStatement ::= at ( Expression ) Statement
             //
             case 203: {
-                //#line 927 "x10/parser/x10.g"
+                //#line 924 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 927 "x10/parser/x10.g"
+                //#line 924 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(5);
-                //#line 929 "x10/parser/x10.g"
+                //#line 926 "x10/parser/x10.g"
 		r.rule_AtStatement0(Expression,Statement);
                 break;
             }
@@ -1857,9 +1857,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 204:  AtomicStatement ::= atomic Statement
             //
             case 204: {
-                //#line 970 "x10/parser/x10.g"
+                //#line 967 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(2);
-                //#line 972 "x10/parser/x10.g"
+                //#line 969 "x10/parser/x10.g"
 		r.rule_AtomicStatement0(Statement);
                 break;
             }
@@ -1867,11 +1867,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 205:  WhenStatement ::= when ( Expression ) Statement
             //
             case 205: {
-                //#line 976 "x10/parser/x10.g"
+                //#line 973 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 976 "x10/parser/x10.g"
+                //#line 973 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(5);
-                //#line 978 "x10/parser/x10.g"
+                //#line 975 "x10/parser/x10.g"
 		r.rule_WhenStatement0(Expression,Statement);
                 break;
             }
@@ -1879,15 +1879,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 206:  AtEachStatement ::= ateach ( LoopIndex in Expression ) ClockedClauseopt Statement
             //
             case 206: {
-                //#line 987 "x10/parser/x10.g"
+                //#line 984 "x10/parser/x10.g"
                 Object LoopIndex = (Object) getRhsSym(3);
-                //#line 987 "x10/parser/x10.g"
+                //#line 984 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(5);
-                //#line 987 "x10/parser/x10.g"
+                //#line 984 "x10/parser/x10.g"
                 Object ClockedClauseopt = (Object) getRhsSym(7);
-                //#line 987 "x10/parser/x10.g"
+                //#line 984 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(8);
-                //#line 989 "x10/parser/x10.g"
+                //#line 986 "x10/parser/x10.g"
 		r.rule_AtEachStatement0(LoopIndex,Expression,ClockedClauseopt,Statement);
                 break;
             }
@@ -1895,11 +1895,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 207:  AtEachStatement ::= ateach ( Expression ) Statement
             //
             case 207: {
-                //#line 991 "x10/parser/x10.g"
+                //#line 988 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 991 "x10/parser/x10.g"
+                //#line 988 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(5);
-                //#line 993 "x10/parser/x10.g"
+                //#line 990 "x10/parser/x10.g"
 		r.rule_AtEachStatement1(Expression,Statement);
                 break;
             }
@@ -1907,13 +1907,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 208:  EnhancedForStatement ::= for ( LoopIndex in Expression ) Statement
             //
             case 208: {
-                //#line 995 "x10/parser/x10.g"
+                //#line 992 "x10/parser/x10.g"
                 Object LoopIndex = (Object) getRhsSym(3);
-                //#line 995 "x10/parser/x10.g"
+                //#line 992 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(5);
-                //#line 995 "x10/parser/x10.g"
+                //#line 992 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(7);
-                //#line 997 "x10/parser/x10.g"
+                //#line 994 "x10/parser/x10.g"
 		r.rule_EnhancedForStatement0(LoopIndex,Expression,Statement);
                 break;
             }
@@ -1921,11 +1921,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 209:  EnhancedForStatement ::= for ( Expression ) Statement
             //
             case 209: {
-                //#line 999 "x10/parser/x10.g"
+                //#line 996 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 999 "x10/parser/x10.g"
+                //#line 996 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(5);
-                //#line 1001 "x10/parser/x10.g"
+                //#line 998 "x10/parser/x10.g"
 		r.rule_EnhancedForStatement1(Expression,Statement);
                 break;
             }
@@ -1933,9 +1933,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 210:  FinishStatement ::= finish Statement
             //
             case 210: {
-                //#line 1005 "x10/parser/x10.g"
+                //#line 1002 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(2);
-                //#line 1007 "x10/parser/x10.g"
+                //#line 1004 "x10/parser/x10.g"
 		r.rule_FinishStatement0(Statement);
                 break;
             }
@@ -1943,9 +1943,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 211:  FinishStatement ::= clocked finish Statement
             //
             case 211: {
-                //#line 1009 "x10/parser/x10.g"
+                //#line 1006 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(3);
-                //#line 1011 "x10/parser/x10.g"
+                //#line 1008 "x10/parser/x10.g"
 		r.rule_FinishStatement1(Statement);
                 break;
             }
@@ -1953,9 +1953,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 213:  CastExpression ::= ExpressionName
             //
             case 213: {
-                //#line 1015 "x10/parser/x10.g"
+                //#line 1012 "x10/parser/x10.g"
                 Object ExpressionName = (Object) getRhsSym(1);
-                //#line 1017 "x10/parser/x10.g"
+                //#line 1014 "x10/parser/x10.g"
 		r.rule_CastExpression1(ExpressionName);
                 break;
             }
@@ -1963,11 +1963,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 214:  CastExpression ::= CastExpression as Type
             //
             case 214: {
-                //#line 1019 "x10/parser/x10.g"
+                //#line 1016 "x10/parser/x10.g"
                 Object CastExpression = (Object) getRhsSym(1);
-                //#line 1019 "x10/parser/x10.g"
+                //#line 1016 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 1021 "x10/parser/x10.g"
+                //#line 1018 "x10/parser/x10.g"
 		r.rule_CastExpression2(CastExpression,Type);
                 break;
             }
@@ -1975,9 +1975,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 215:  TypeParamWithVarianceList ::= TypeParameter
             //
             case 215: {
-                //#line 1025 "x10/parser/x10.g"
+                //#line 1022 "x10/parser/x10.g"
                 Object TypeParameter = (Object) getRhsSym(1);
-                //#line 1027 "x10/parser/x10.g"
+                //#line 1024 "x10/parser/x10.g"
 		r.rule_TypeParamWithVarianceList0(TypeParameter);
                 break;
             }
@@ -1985,9 +1985,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 216:  TypeParamWithVarianceList ::= OBSOLETE_TypeParamWithVariance
             //
             case 216: {
-                //#line 1029 "x10/parser/x10.g"
+                //#line 1026 "x10/parser/x10.g"
                 Object OBSOLETE_TypeParamWithVariance = (Object) getRhsSym(1);
-                //#line 1031 "x10/parser/x10.g"
+                //#line 1028 "x10/parser/x10.g"
 		r.rule_TypeParamWithVarianceList1(OBSOLETE_TypeParamWithVariance);
                 break;
             }
@@ -1995,11 +1995,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 217:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , TypeParameter
             //
             case 217: {
-                //#line 1033 "x10/parser/x10.g"
+                //#line 1030 "x10/parser/x10.g"
                 Object TypeParamWithVarianceList = (Object) getRhsSym(1);
-                //#line 1033 "x10/parser/x10.g"
+                //#line 1030 "x10/parser/x10.g"
                 Object TypeParameter = (Object) getRhsSym(3);
-                //#line 1035 "x10/parser/x10.g"
+                //#line 1032 "x10/parser/x10.g"
 		r.rule_TypeParamWithVarianceList2(TypeParamWithVarianceList,TypeParameter);
                 break;
             }
@@ -2007,11 +2007,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 218:  TypeParamWithVarianceList ::= TypeParamWithVarianceList , OBSOLETE_TypeParamWithVariance
             //
             case 218: {
-                //#line 1037 "x10/parser/x10.g"
+                //#line 1034 "x10/parser/x10.g"
                 Object TypeParamWithVarianceList = (Object) getRhsSym(1);
-                //#line 1037 "x10/parser/x10.g"
+                //#line 1034 "x10/parser/x10.g"
                 Object OBSOLETE_TypeParamWithVariance = (Object) getRhsSym(3);
-                //#line 1039 "x10/parser/x10.g"
+                //#line 1036 "x10/parser/x10.g"
 		r.rule_TypeParamWithVarianceList3(TypeParamWithVarianceList,OBSOLETE_TypeParamWithVariance);
                 break;
             }
@@ -2019,9 +2019,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 219:  TypeParameterList ::= TypeParameter
             //
             case 219: {
-                //#line 1042 "x10/parser/x10.g"
+                //#line 1039 "x10/parser/x10.g"
                 Object TypeParameter = (Object) getRhsSym(1);
-                //#line 1044 "x10/parser/x10.g"
+                //#line 1041 "x10/parser/x10.g"
 		r.rule_TypeParameterList0(TypeParameter);
                 break;
             }
@@ -2029,11 +2029,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 220:  TypeParameterList ::= TypeParameterList , TypeParameter
             //
             case 220: {
-                //#line 1046 "x10/parser/x10.g"
+                //#line 1043 "x10/parser/x10.g"
                 Object TypeParameterList = (Object) getRhsSym(1);
-                //#line 1046 "x10/parser/x10.g"
+                //#line 1043 "x10/parser/x10.g"
                 Object TypeParameter = (Object) getRhsSym(3);
-                //#line 1048 "x10/parser/x10.g"
+                //#line 1045 "x10/parser/x10.g"
 		r.rule_TypeParameterList1(TypeParameterList,TypeParameter);
                 break;
             }
@@ -2041,9 +2041,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 221:  OBSOLETE_TypeParamWithVariance ::= + TypeParameter
             //
             case 221: {
-                //#line 1051 "x10/parser/x10.g"
+                //#line 1048 "x10/parser/x10.g"
                 Object TypeParameter = (Object) getRhsSym(2);
-                //#line 1053 "x10/parser/x10.g"
+                //#line 1050 "x10/parser/x10.g"
 		r.rule_OBSOLETE_TypeParamWithVariance0(TypeParameter);
                 break;
             }
@@ -2051,9 +2051,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 222:  OBSOLETE_TypeParamWithVariance ::= - TypeParameter
             //
             case 222: {
-                //#line 1055 "x10/parser/x10.g"
+                //#line 1052 "x10/parser/x10.g"
                 Object TypeParameter = (Object) getRhsSym(2);
-                //#line 1057 "x10/parser/x10.g"
+                //#line 1054 "x10/parser/x10.g"
 		r.rule_OBSOLETE_TypeParamWithVariance1(TypeParameter);
                 break;
             }
@@ -2061,9 +2061,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 223:  TypeParameter ::= Identifier
             //
             case 223: {
-                //#line 1060 "x10/parser/x10.g"
+                //#line 1057 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1062 "x10/parser/x10.g"
+                //#line 1059 "x10/parser/x10.g"
 		r.rule_TypeParameter0(Identifier);
                 break;
             }
@@ -2071,17 +2071,17 @@ public class X10Parser extends Object implements RuleAction
             // Rule 224:  ClosureExpression ::= FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt => ClosureBody
             //
             case 224: {
-                //#line 1065 "x10/parser/x10.g"
+                //#line 1062 "x10/parser/x10.g"
                 Object FormalParameters = (Object) getRhsSym(1);
-                //#line 1065 "x10/parser/x10.g"
+                //#line 1062 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(2);
-                //#line 1065 "x10/parser/x10.g"
+                //#line 1062 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(3);
-                //#line 1065 "x10/parser/x10.g"
+                //#line 1062 "x10/parser/x10.g"
                 Object OBSOLETE_Offersopt = (Object) getRhsSym(4);
-                //#line 1065 "x10/parser/x10.g"
+                //#line 1062 "x10/parser/x10.g"
                 Object ClosureBody = (Object) getRhsSym(6);
-                //#line 1067 "x10/parser/x10.g"
+                //#line 1064 "x10/parser/x10.g"
 		r.rule_ClosureExpression0(FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,ClosureBody);
                 break;
             }
@@ -2089,9 +2089,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 225:  LastExpression ::= Expression
             //
             case 225: {
-                //#line 1070 "x10/parser/x10.g"
+                //#line 1067 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(1);
-                //#line 1072 "x10/parser/x10.g"
+                //#line 1069 "x10/parser/x10.g"
 		r.rule_LastExpression0(Expression);
                 break;
             }
@@ -2099,9 +2099,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 226:  ClosureBody ::= Expression
             //
             case 226: {
-                //#line 1075 "x10/parser/x10.g"
+                //#line 1072 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(1);
-                //#line 1077 "x10/parser/x10.g"
+                //#line 1074 "x10/parser/x10.g"
 		r.rule_ClosureBody0(Expression);
                 break;
             }
@@ -2109,13 +2109,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 227:  ClosureBody ::= Annotationsopt { BlockStatementsopt LastExpression }
             //
             case 227: {
-                //#line 1079 "x10/parser/x10.g"
+                //#line 1076 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1079 "x10/parser/x10.g"
+                //#line 1076 "x10/parser/x10.g"
                 Object BlockStatementsopt = (Object) getRhsSym(3);
-                //#line 1079 "x10/parser/x10.g"
+                //#line 1076 "x10/parser/x10.g"
                 Object LastExpression = (Object) getRhsSym(4);
-                //#line 1081 "x10/parser/x10.g"
+                //#line 1078 "x10/parser/x10.g"
 		r.rule_ClosureBody1(Annotationsopt,BlockStatementsopt,LastExpression);
                 break;
             }
@@ -2123,11 +2123,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 228:  ClosureBody ::= Annotationsopt Block
             //
             case 228: {
-                //#line 1083 "x10/parser/x10.g"
+                //#line 1080 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1083 "x10/parser/x10.g"
+                //#line 1080 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(2);
-                //#line 1085 "x10/parser/x10.g"
+                //#line 1082 "x10/parser/x10.g"
 		r.rule_ClosureBody2(Annotationsopt,Block);
                 break;
             }
@@ -2135,11 +2135,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 229:  AtExpression ::= at ( Expression ) ClosureBody
             //
             case 229: {
-                //#line 1089 "x10/parser/x10.g"
+                //#line 1086 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 1089 "x10/parser/x10.g"
+                //#line 1086 "x10/parser/x10.g"
                 Object ClosureBody = (Object) getRhsSym(5);
-                //#line 1091 "x10/parser/x10.g"
+                //#line 1088 "x10/parser/x10.g"
 		r.rule_AtExpression0(Expression,ClosureBody);
                 break;
             }
@@ -2147,11 +2147,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 230:  OBSOLETE_FinishExpression ::= finish ( Expression ) Block
             //
             case 230: {
-                //#line 1132 "x10/parser/x10.g"
+                //#line 1129 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 1132 "x10/parser/x10.g"
+                //#line 1129 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(5);
-                //#line 1134 "x10/parser/x10.g"
+                //#line 1131 "x10/parser/x10.g"
 		r.rule_OBSOLETE_FinishExpression0(Expression,Block);
                 break;
             }
@@ -2167,7 +2167,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 233: {
                 
-                //#line 1145 "x10/parser/x10.g"
+                //#line 1142 "x10/parser/x10.g"
 		r.rule_ClockedClauseopt0();
                 break;
             }
@@ -2175,9 +2175,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 235:  TypeName ::= Identifier
             //
             case 235: {
-                //#line 1154 "x10/parser/x10.g"
+                //#line 1151 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1156 "x10/parser/x10.g"
+                //#line 1153 "x10/parser/x10.g"
 		r.rule_TypeName1(Identifier);
                 break;
             }
@@ -2185,11 +2185,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 236:  TypeName ::= TypeName . Identifier
             //
             case 236: {
-                //#line 1158 "x10/parser/x10.g"
+                //#line 1155 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
-                //#line 1158 "x10/parser/x10.g"
+                //#line 1155 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1160 "x10/parser/x10.g"
+                //#line 1157 "x10/parser/x10.g"
 		r.rule_TypeName2(TypeName,Identifier);
                 break;
             }
@@ -2197,9 +2197,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 238:  TypeArguments ::= [ TypeArgumentList ]
             //
             case 238: {
-                //#line 1165 "x10/parser/x10.g"
+                //#line 1162 "x10/parser/x10.g"
                 Object TypeArgumentList = (Object) getRhsSym(2);
-                //#line 1167 "x10/parser/x10.g"
+                //#line 1164 "x10/parser/x10.g"
 		r.rule_TypeArguments0(TypeArgumentList);
                 break;
             }
@@ -2207,9 +2207,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 239:  TypeArgumentList ::= Type
             //
             case 239: {
-                //#line 1171 "x10/parser/x10.g"
+                //#line 1168 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(1);
-                //#line 1173 "x10/parser/x10.g"
+                //#line 1170 "x10/parser/x10.g"
 		r.rule_TypeArgumentList0(Type);
                 break;
             }
@@ -2217,11 +2217,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 240:  TypeArgumentList ::= TypeArgumentList , Type
             //
             case 240: {
-                //#line 1175 "x10/parser/x10.g"
+                //#line 1172 "x10/parser/x10.g"
                 Object TypeArgumentList = (Object) getRhsSym(1);
-                //#line 1175 "x10/parser/x10.g"
+                //#line 1172 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 1177 "x10/parser/x10.g"
+                //#line 1174 "x10/parser/x10.g"
 		r.rule_TypeArgumentList1(TypeArgumentList,Type);
                 break;
             }
@@ -2229,9 +2229,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 241:  PackageName ::= Identifier
             //
             case 241: {
-                //#line 1184 "x10/parser/x10.g"
+                //#line 1181 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1186 "x10/parser/x10.g"
+                //#line 1183 "x10/parser/x10.g"
 		r.rule_PackageName1(Identifier);
                 break;
             }
@@ -2239,11 +2239,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 242:  PackageName ::= PackageName . Identifier
             //
             case 242: {
-                //#line 1188 "x10/parser/x10.g"
+                //#line 1185 "x10/parser/x10.g"
                 Object PackageName = (Object) getRhsSym(1);
-                //#line 1188 "x10/parser/x10.g"
+                //#line 1185 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1190 "x10/parser/x10.g"
+                //#line 1187 "x10/parser/x10.g"
 		r.rule_PackageName2(PackageName,Identifier);
                 break;
             }
@@ -2251,9 +2251,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 243:  ExpressionName ::= Identifier
             //
             case 243: {
-                //#line 1199 "x10/parser/x10.g"
+                //#line 1196 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1201 "x10/parser/x10.g"
+                //#line 1198 "x10/parser/x10.g"
 		r.rule_ExpressionName1(Identifier);
                 break;
             }
@@ -2261,11 +2261,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 244:  ExpressionName ::= FullyQualifiedName . Identifier
             //
             case 244: {
-                //#line 1203 "x10/parser/x10.g"
+                //#line 1200 "x10/parser/x10.g"
                 Object FullyQualifiedName = (Object) getRhsSym(1);
-                //#line 1203 "x10/parser/x10.g"
+                //#line 1200 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1205 "x10/parser/x10.g"
+                //#line 1202 "x10/parser/x10.g"
 		r.rule_ExpressionName2(FullyQualifiedName,Identifier);
                 break;
             }
@@ -2273,9 +2273,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 245:  MethodName ::= Identifier
             //
             case 245: {
-                //#line 1208 "x10/parser/x10.g"
+                //#line 1205 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1210 "x10/parser/x10.g"
+                //#line 1207 "x10/parser/x10.g"
 		r.rule_MethodName1(Identifier);
                 break;
             }
@@ -2283,11 +2283,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 246:  MethodName ::= FullyQualifiedName . Identifier
             //
             case 246: {
-                //#line 1212 "x10/parser/x10.g"
+                //#line 1209 "x10/parser/x10.g"
                 Object FullyQualifiedName = (Object) getRhsSym(1);
-                //#line 1212 "x10/parser/x10.g"
+                //#line 1209 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1214 "x10/parser/x10.g"
+                //#line 1211 "x10/parser/x10.g"
 		r.rule_MethodName2(FullyQualifiedName,Identifier);
                 break;
             }
@@ -2295,9 +2295,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 247:  PackageOrTypeName ::= Identifier
             //
             case 247: {
-                //#line 1217 "x10/parser/x10.g"
+                //#line 1214 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1219 "x10/parser/x10.g"
+                //#line 1216 "x10/parser/x10.g"
 		r.rule_PackageOrTypeName1(Identifier);
                 break;
             }
@@ -2305,11 +2305,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 248:  PackageOrTypeName ::= PackageOrTypeName . Identifier
             //
             case 248: {
-                //#line 1221 "x10/parser/x10.g"
+                //#line 1218 "x10/parser/x10.g"
                 Object PackageOrTypeName = (Object) getRhsSym(1);
-                //#line 1221 "x10/parser/x10.g"
+                //#line 1218 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1223 "x10/parser/x10.g"
+                //#line 1220 "x10/parser/x10.g"
 		r.rule_PackageOrTypeName2(PackageOrTypeName,Identifier);
                 break;
             }
@@ -2317,9 +2317,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 249:  FullyQualifiedName ::= Identifier
             //
             case 249: {
-                //#line 1226 "x10/parser/x10.g"
+                //#line 1223 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1228 "x10/parser/x10.g"
+                //#line 1225 "x10/parser/x10.g"
 		r.rule_FullyQualifiedName1(Identifier);
                 break;
             }
@@ -2327,11 +2327,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 250:  FullyQualifiedName ::= FullyQualifiedName . Identifier
             //
             case 250: {
-                //#line 1230 "x10/parser/x10.g"
+                //#line 1227 "x10/parser/x10.g"
                 Object FullyQualifiedName = (Object) getRhsSym(1);
-                //#line 1230 "x10/parser/x10.g"
+                //#line 1227 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1232 "x10/parser/x10.g"
+                //#line 1229 "x10/parser/x10.g"
 		r.rule_FullyQualifiedName2(FullyQualifiedName,Identifier);
                 break;
             }
@@ -2339,11 +2339,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 251:  CompilationUnit ::= PackageDeclarationopt TypeDeclarationsopt
             //
             case 251: {
-                //#line 1237 "x10/parser/x10.g"
+                //#line 1234 "x10/parser/x10.g"
                 Object PackageDeclarationopt = (Object) getRhsSym(1);
-                //#line 1237 "x10/parser/x10.g"
+                //#line 1234 "x10/parser/x10.g"
                 Object TypeDeclarationsopt = (Object) getRhsSym(2);
-                //#line 1239 "x10/parser/x10.g"
+                //#line 1236 "x10/parser/x10.g"
 		r.rule_CompilationUnit0(PackageDeclarationopt,TypeDeclarationsopt);
                 break;
             }
@@ -2351,13 +2351,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 252:  CompilationUnit ::= PackageDeclarationopt ImportDeclarations TypeDeclarationsopt
             //
             case 252: {
-                //#line 1241 "x10/parser/x10.g"
+                //#line 1238 "x10/parser/x10.g"
                 Object PackageDeclarationopt = (Object) getRhsSym(1);
-                //#line 1241 "x10/parser/x10.g"
+                //#line 1238 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(2);
-                //#line 1241 "x10/parser/x10.g"
+                //#line 1238 "x10/parser/x10.g"
                 Object TypeDeclarationsopt = (Object) getRhsSym(3);
-                //#line 1243 "x10/parser/x10.g"
+                //#line 1240 "x10/parser/x10.g"
 		r.rule_CompilationUnit1(PackageDeclarationopt,ImportDeclarations,TypeDeclarationsopt);
                 break;
             }
@@ -2365,15 +2365,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 253:  CompilationUnit ::= ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
             case 253: {
-                //#line 1245 "x10/parser/x10.g"
+                //#line 1242 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(1);
-                //#line 1245 "x10/parser/x10.g"
+                //#line 1242 "x10/parser/x10.g"
                 Object misplacedPackageDeclaration = (Object) getRhsSym(2);
-                //#line 1245 "x10/parser/x10.g"
+                //#line 1242 "x10/parser/x10.g"
                 Object misplacedImportDeclarations = (Object) getRhsSym(3);
-                //#line 1245 "x10/parser/x10.g"
+                //#line 1242 "x10/parser/x10.g"
                 Object TypeDeclarationsopt = (Object) getRhsSym(4);
-                //#line 1247 "x10/parser/x10.g"
+                //#line 1244 "x10/parser/x10.g"
 		r.rule_CompilationUnit2(ImportDeclarations,misplacedPackageDeclaration,misplacedImportDeclarations,TypeDeclarationsopt);
                 break;
             }
@@ -2381,17 +2381,17 @@ public class X10Parser extends Object implements RuleAction
             // Rule 254:  CompilationUnit ::= PackageDeclaration ImportDeclarations PackageDeclaration$misplacedPackageDeclaration ImportDeclarationsopt$misplacedImportDeclarations TypeDeclarationsopt
             //
             case 254: {
-                //#line 1249 "x10/parser/x10.g"
+                //#line 1246 "x10/parser/x10.g"
                 Object PackageDeclaration = (Object) getRhsSym(1);
-                //#line 1249 "x10/parser/x10.g"
+                //#line 1246 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(2);
-                //#line 1249 "x10/parser/x10.g"
+                //#line 1246 "x10/parser/x10.g"
                 Object misplacedPackageDeclaration = (Object) getRhsSym(3);
-                //#line 1249 "x10/parser/x10.g"
+                //#line 1246 "x10/parser/x10.g"
                 Object misplacedImportDeclarations = (Object) getRhsSym(4);
-                //#line 1249 "x10/parser/x10.g"
+                //#line 1246 "x10/parser/x10.g"
                 Object TypeDeclarationsopt = (Object) getRhsSym(5);
-                //#line 1251 "x10/parser/x10.g"
+                //#line 1248 "x10/parser/x10.g"
 		r.rule_CompilationUnit3(PackageDeclaration,ImportDeclarations,misplacedPackageDeclaration,misplacedImportDeclarations,TypeDeclarationsopt);
                 break;
             }
@@ -2399,9 +2399,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 255:  ImportDeclarations ::= ImportDeclaration
             //
             case 255: {
-                //#line 1254 "x10/parser/x10.g"
+                //#line 1251 "x10/parser/x10.g"
                 Object ImportDeclaration = (Object) getRhsSym(1);
-                //#line 1256 "x10/parser/x10.g"
+                //#line 1253 "x10/parser/x10.g"
 		r.rule_ImportDeclarations0(ImportDeclaration);
                 break;
             }
@@ -2409,11 +2409,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 256:  ImportDeclarations ::= ImportDeclarations ImportDeclaration
             //
             case 256: {
-                //#line 1258 "x10/parser/x10.g"
+                //#line 1255 "x10/parser/x10.g"
                 Object ImportDeclarations = (Object) getRhsSym(1);
-                //#line 1258 "x10/parser/x10.g"
+                //#line 1255 "x10/parser/x10.g"
                 Object ImportDeclaration = (Object) getRhsSym(2);
-                //#line 1260 "x10/parser/x10.g"
+                //#line 1257 "x10/parser/x10.g"
 		r.rule_ImportDeclarations1(ImportDeclarations,ImportDeclaration);
                 break;
             }
@@ -2421,9 +2421,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 257:  TypeDeclarations ::= TypeDeclaration
             //
             case 257: {
-                //#line 1263 "x10/parser/x10.g"
+                //#line 1260 "x10/parser/x10.g"
                 Object TypeDeclaration = (Object) getRhsSym(1);
-                //#line 1265 "x10/parser/x10.g"
+                //#line 1262 "x10/parser/x10.g"
 		r.rule_TypeDeclarations0(TypeDeclaration);
                 break;
             }
@@ -2431,11 +2431,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 258:  TypeDeclarations ::= TypeDeclarations TypeDeclaration
             //
             case 258: {
-                //#line 1267 "x10/parser/x10.g"
+                //#line 1264 "x10/parser/x10.g"
                 Object TypeDeclarations = (Object) getRhsSym(1);
-                //#line 1267 "x10/parser/x10.g"
+                //#line 1264 "x10/parser/x10.g"
                 Object TypeDeclaration = (Object) getRhsSym(2);
-                //#line 1269 "x10/parser/x10.g"
+                //#line 1266 "x10/parser/x10.g"
 		r.rule_TypeDeclarations1(TypeDeclarations,TypeDeclaration);
                 break;
             }
@@ -2443,11 +2443,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 259:  PackageDeclaration ::= Annotationsopt package PackageName ;
             //
             case 259: {
-                //#line 1272 "x10/parser/x10.g"
+                //#line 1269 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1272 "x10/parser/x10.g"
+                //#line 1269 "x10/parser/x10.g"
                 Object PackageName = (Object) getRhsSym(3);
-                //#line 1274 "x10/parser/x10.g"
+                //#line 1271 "x10/parser/x10.g"
 		r.rule_PackageDeclaration0(Annotationsopt,PackageName);
                 break;
             }
@@ -2455,9 +2455,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 262:  SingleTypeImportDeclaration ::= import TypeName ;
             //
             case 262: {
-                //#line 1283 "x10/parser/x10.g"
+                //#line 1280 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(2);
-                //#line 1285 "x10/parser/x10.g"
+                //#line 1282 "x10/parser/x10.g"
 		r.rule_SingleTypeImportDeclaration0(TypeName);
                 break;
             }
@@ -2465,9 +2465,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 263:  TypeImportOnDemandDeclaration ::= import PackageOrTypeName . * ;
             //
             case 263: {
-                //#line 1288 "x10/parser/x10.g"
+                //#line 1285 "x10/parser/x10.g"
                 Object PackageOrTypeName = (Object) getRhsSym(2);
-                //#line 1290 "x10/parser/x10.g"
+                //#line 1287 "x10/parser/x10.g"
 		r.rule_TypeImportOnDemandDeclaration0(PackageOrTypeName);
                 break;
             }
@@ -2476,7 +2476,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 268: {
                 
-                //#line 1305 "x10/parser/x10.g"
+                //#line 1302 "x10/parser/x10.g"
 		r.rule_TypeDeclaration3();
                 break;
             }
@@ -2484,9 +2484,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 269:  Interfaces ::= implements InterfaceTypeList
             //
             case 269: {
-                //#line 1311 "x10/parser/x10.g"
+                //#line 1308 "x10/parser/x10.g"
                 Object InterfaceTypeList = (Object) getRhsSym(2);
-                //#line 1313 "x10/parser/x10.g"
+                //#line 1310 "x10/parser/x10.g"
 		r.rule_Interfaces0(InterfaceTypeList);
                 break;
             }
@@ -2494,9 +2494,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 270:  InterfaceTypeList ::= Type
             //
             case 270: {
-                //#line 1316 "x10/parser/x10.g"
+                //#line 1313 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(1);
-                //#line 1318 "x10/parser/x10.g"
+                //#line 1315 "x10/parser/x10.g"
 		r.rule_InterfaceTypeList0(Type);
                 break;
             }
@@ -2504,11 +2504,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 271:  InterfaceTypeList ::= InterfaceTypeList , Type
             //
             case 271: {
-                //#line 1320 "x10/parser/x10.g"
+                //#line 1317 "x10/parser/x10.g"
                 Object InterfaceTypeList = (Object) getRhsSym(1);
-                //#line 1320 "x10/parser/x10.g"
+                //#line 1317 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 1322 "x10/parser/x10.g"
+                //#line 1319 "x10/parser/x10.g"
 		r.rule_InterfaceTypeList1(InterfaceTypeList,Type);
                 break;
             }
@@ -2516,9 +2516,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 272:  ClassBody ::= { ClassMemberDeclarationsopt }
             //
             case 272: {
-                //#line 1328 "x10/parser/x10.g"
+                //#line 1325 "x10/parser/x10.g"
                 Object ClassMemberDeclarationsopt = (Object) getRhsSym(2);
-                //#line 1330 "x10/parser/x10.g"
+                //#line 1327 "x10/parser/x10.g"
 		r.rule_ClassBody0(ClassMemberDeclarationsopt);
                 break;
             }
@@ -2526,9 +2526,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 273:  ClassMemberDeclarations ::= ClassMemberDeclaration
             //
             case 273: {
-                //#line 1333 "x10/parser/x10.g"
+                //#line 1330 "x10/parser/x10.g"
                 Object ClassMemberDeclaration = (Object) getRhsSym(1);
-                //#line 1335 "x10/parser/x10.g"
+                //#line 1332 "x10/parser/x10.g"
 		r.rule_ClassMemberDeclarations0(ClassMemberDeclaration);
                 break;
             }
@@ -2536,11 +2536,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 274:  ClassMemberDeclarations ::= ClassMemberDeclarations ClassMemberDeclaration
             //
             case 274: {
-                //#line 1337 "x10/parser/x10.g"
+                //#line 1334 "x10/parser/x10.g"
                 Object ClassMemberDeclarations = (Object) getRhsSym(1);
-                //#line 1337 "x10/parser/x10.g"
+                //#line 1334 "x10/parser/x10.g"
                 Object ClassMemberDeclaration = (Object) getRhsSym(2);
-                //#line 1339 "x10/parser/x10.g"
+                //#line 1336 "x10/parser/x10.g"
 		r.rule_ClassMemberDeclarations1(ClassMemberDeclarations,ClassMemberDeclaration);
                 break;
             }
@@ -2548,9 +2548,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 276:  ClassMemberDeclaration ::= ConstructorDeclaration
             //
             case 276: {
-                //#line 1343 "x10/parser/x10.g"
+                //#line 1340 "x10/parser/x10.g"
                 Object ConstructorDeclaration = (Object) getRhsSym(1);
-                //#line 1345 "x10/parser/x10.g"
+                //#line 1342 "x10/parser/x10.g"
 		r.rule_ClassMemberDeclaration1(ConstructorDeclaration);
                 break;
             }
@@ -2558,9 +2558,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 277:  FormalDeclarators ::= FormalDeclarator
             //
             case 277: {
-                //#line 1362 "x10/parser/x10.g"
+                //#line 1359 "x10/parser/x10.g"
                 Object FormalDeclarator = (Object) getRhsSym(1);
-                //#line 1364 "x10/parser/x10.g"
+                //#line 1361 "x10/parser/x10.g"
 		r.rule_FormalDeclarators0(FormalDeclarator);
                 break;
             }
@@ -2568,11 +2568,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 278:  FormalDeclarators ::= FormalDeclarators , FormalDeclarator
             //
             case 278: {
-                //#line 1366 "x10/parser/x10.g"
+                //#line 1363 "x10/parser/x10.g"
                 Object FormalDeclarators = (Object) getRhsSym(1);
-                //#line 1366 "x10/parser/x10.g"
+                //#line 1363 "x10/parser/x10.g"
                 Object FormalDeclarator = (Object) getRhsSym(3);
-                //#line 1368 "x10/parser/x10.g"
+                //#line 1365 "x10/parser/x10.g"
 		r.rule_FormalDeclarators1(FormalDeclarators,FormalDeclarator);
                 break;
             }
@@ -2580,9 +2580,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 279:  FieldDeclarators ::= FieldDeclarator
             //
             case 279: {
-                //#line 1372 "x10/parser/x10.g"
+                //#line 1369 "x10/parser/x10.g"
                 Object FieldDeclarator = (Object) getRhsSym(1);
-                //#line 1374 "x10/parser/x10.g"
+                //#line 1371 "x10/parser/x10.g"
 		r.rule_FieldDeclarators0(FieldDeclarator);
                 break;
             }
@@ -2590,11 +2590,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 280:  FieldDeclarators ::= FieldDeclarators , FieldDeclarator
             //
             case 280: {
-                //#line 1376 "x10/parser/x10.g"
+                //#line 1373 "x10/parser/x10.g"
                 Object FieldDeclarators = (Object) getRhsSym(1);
-                //#line 1376 "x10/parser/x10.g"
+                //#line 1373 "x10/parser/x10.g"
                 Object FieldDeclarator = (Object) getRhsSym(3);
-                //#line 1378 "x10/parser/x10.g"
+                //#line 1375 "x10/parser/x10.g"
 		r.rule_FieldDeclarators1(FieldDeclarators,FieldDeclarator);
                 break;
             }
@@ -2602,9 +2602,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 281:  VariableDeclaratorsWithType ::= VariableDeclaratorWithType
             //
             case 281: {
-                //#line 1382 "x10/parser/x10.g"
+                //#line 1379 "x10/parser/x10.g"
                 Object VariableDeclaratorWithType = (Object) getRhsSym(1);
-                //#line 1384 "x10/parser/x10.g"
+                //#line 1381 "x10/parser/x10.g"
 		r.rule_VariableDeclaratorsWithType0(VariableDeclaratorWithType);
                 break;
             }
@@ -2612,11 +2612,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 282:  VariableDeclaratorsWithType ::= VariableDeclaratorsWithType , VariableDeclaratorWithType
             //
             case 282: {
-                //#line 1386 "x10/parser/x10.g"
+                //#line 1383 "x10/parser/x10.g"
                 Object VariableDeclaratorsWithType = (Object) getRhsSym(1);
-                //#line 1386 "x10/parser/x10.g"
+                //#line 1383 "x10/parser/x10.g"
                 Object VariableDeclaratorWithType = (Object) getRhsSym(3);
-                //#line 1388 "x10/parser/x10.g"
+                //#line 1385 "x10/parser/x10.g"
 		r.rule_VariableDeclaratorsWithType1(VariableDeclaratorsWithType,VariableDeclaratorWithType);
                 break;
             }
@@ -2624,9 +2624,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 283:  VariableDeclarators ::= VariableDeclarator
             //
             case 283: {
-                //#line 1391 "x10/parser/x10.g"
+                //#line 1388 "x10/parser/x10.g"
                 Object VariableDeclarator = (Object) getRhsSym(1);
-                //#line 1393 "x10/parser/x10.g"
+                //#line 1390 "x10/parser/x10.g"
 		r.rule_VariableDeclarators0(VariableDeclarator);
                 break;
             }
@@ -2634,11 +2634,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 284:  VariableDeclarators ::= VariableDeclarators , VariableDeclarator
             //
             case 284: {
-                //#line 1395 "x10/parser/x10.g"
+                //#line 1392 "x10/parser/x10.g"
                 Object VariableDeclarators = (Object) getRhsSym(1);
-                //#line 1395 "x10/parser/x10.g"
+                //#line 1392 "x10/parser/x10.g"
                 Object VariableDeclarator = (Object) getRhsSym(3);
-                //#line 1397 "x10/parser/x10.g"
+                //#line 1394 "x10/parser/x10.g"
 		r.rule_VariableDeclarators1(VariableDeclarators,VariableDeclarator);
                 break;
             }
@@ -2646,9 +2646,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 285:  AtCaptureDeclarators ::= AtCaptureDeclarator
             //
             case 285: {
-                //#line 1400 "x10/parser/x10.g"
+                //#line 1397 "x10/parser/x10.g"
                 Object AtCaptureDeclarator = (Object) getRhsSym(1);
-                //#line 1402 "x10/parser/x10.g"
+                //#line 1399 "x10/parser/x10.g"
 		r.rule_AtCaptureDeclarators0(AtCaptureDeclarator);
                 break;
             }
@@ -2656,11 +2656,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 286:  AtCaptureDeclarators ::= AtCaptureDeclarators , AtCaptureDeclarator
             //
             case 286: {
-                //#line 1404 "x10/parser/x10.g"
+                //#line 1401 "x10/parser/x10.g"
                 Object AtCaptureDeclarators = (Object) getRhsSym(1);
-                //#line 1404 "x10/parser/x10.g"
+                //#line 1401 "x10/parser/x10.g"
                 Object AtCaptureDeclarator = (Object) getRhsSym(3);
-                //#line 1406 "x10/parser/x10.g"
+                //#line 1403 "x10/parser/x10.g"
 		r.rule_AtCaptureDeclarators1(AtCaptureDeclarators,AtCaptureDeclarator);
                 break;
             }
@@ -2668,9 +2668,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 287:  HomeVariableList ::= HomeVariable
             //
             case 287: {
-                //#line 1409 "x10/parser/x10.g"
+                //#line 1406 "x10/parser/x10.g"
                 Object HomeVariable = (Object) getRhsSym(1);
-                //#line 1411 "x10/parser/x10.g"
+                //#line 1408 "x10/parser/x10.g"
 		r.rule_HomeVariableList0(HomeVariable);
                 break;
             }
@@ -2678,11 +2678,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 288:  HomeVariableList ::= HomeVariableList , HomeVariable
             //
             case 288: {
-                //#line 1413 "x10/parser/x10.g"
+                //#line 1410 "x10/parser/x10.g"
                 Object HomeVariableList = (Object) getRhsSym(1);
-                //#line 1413 "x10/parser/x10.g"
+                //#line 1410 "x10/parser/x10.g"
                 Object HomeVariable = (Object) getRhsSym(3);
-                //#line 1415 "x10/parser/x10.g"
+                //#line 1412 "x10/parser/x10.g"
 		r.rule_HomeVariableList1(HomeVariableList,HomeVariable);
                 break;
             }
@@ -2690,9 +2690,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 289:  HomeVariable ::= Identifier
             //
             case 289: {
-                //#line 1418 "x10/parser/x10.g"
+                //#line 1415 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1420 "x10/parser/x10.g"
+                //#line 1417 "x10/parser/x10.g"
 		r.rule_HomeVariable0(Identifier);
                 break;
             }
@@ -2701,7 +2701,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 290: {
                 
-                //#line 1424 "x10/parser/x10.g"
+                //#line 1421 "x10/parser/x10.g"
 		r.rule_HomeVariable1();
                 break;
             }
@@ -2709,9 +2709,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 292:  ResultType ::= : Type
             //
             case 292: {
-                //#line 1429 "x10/parser/x10.g"
+                //#line 1426 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
-                //#line 1431 "x10/parser/x10.g"
+                //#line 1428 "x10/parser/x10.g"
 		r.rule_ResultType0(Type);
                 break;
             }
@@ -2719,9 +2719,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 294:  HasResultType ::= <: Type
             //
             case 294: {
-                //#line 1434 "x10/parser/x10.g"
+                //#line 1431 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
-                //#line 1436 "x10/parser/x10.g"
+                //#line 1433 "x10/parser/x10.g"
 		r.rule_HasResultType1(Type);
                 break;
             }
@@ -2729,9 +2729,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 295:  FormalParameterList ::= FormalParameter
             //
             case 295: {
-                //#line 1439 "x10/parser/x10.g"
+                //#line 1436 "x10/parser/x10.g"
                 Object FormalParameter = (Object) getRhsSym(1);
-                //#line 1441 "x10/parser/x10.g"
+                //#line 1438 "x10/parser/x10.g"
 		r.rule_FormalParameterList0(FormalParameter);
                 break;
             }
@@ -2739,11 +2739,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 296:  FormalParameterList ::= FormalParameterList , FormalParameter
             //
             case 296: {
-                //#line 1443 "x10/parser/x10.g"
+                //#line 1440 "x10/parser/x10.g"
                 Object FormalParameterList = (Object) getRhsSym(1);
-                //#line 1443 "x10/parser/x10.g"
+                //#line 1440 "x10/parser/x10.g"
                 Object FormalParameter = (Object) getRhsSym(3);
-                //#line 1445 "x10/parser/x10.g"
+                //#line 1442 "x10/parser/x10.g"
 		r.rule_FormalParameterList1(FormalParameterList,FormalParameter);
                 break;
             }
@@ -2751,11 +2751,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 297:  LoopIndexDeclarator ::= Identifier HasResultTypeopt
             //
             case 297: {
-                //#line 1448 "x10/parser/x10.g"
+                //#line 1445 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1448 "x10/parser/x10.g"
+                //#line 1445 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(2);
-                //#line 1450 "x10/parser/x10.g"
+                //#line 1447 "x10/parser/x10.g"
 		r.rule_LoopIndexDeclarator0(Identifier,HasResultTypeopt);
                 break;
             }
@@ -2763,11 +2763,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 298:  LoopIndexDeclarator ::= [ IdentifierList ] HasResultTypeopt
             //
             case 298: {
-                //#line 1452 "x10/parser/x10.g"
+                //#line 1449 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 1452 "x10/parser/x10.g"
+                //#line 1449 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(4);
-                //#line 1454 "x10/parser/x10.g"
+                //#line 1451 "x10/parser/x10.g"
 		r.rule_LoopIndexDeclarator1(IdentifierList,HasResultTypeopt);
                 break;
             }
@@ -2775,13 +2775,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 299:  LoopIndexDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt
             //
             case 299: {
-                //#line 1456 "x10/parser/x10.g"
+                //#line 1453 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1456 "x10/parser/x10.g"
+                //#line 1453 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 1456 "x10/parser/x10.g"
+                //#line 1453 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(5);
-                //#line 1458 "x10/parser/x10.g"
+                //#line 1455 "x10/parser/x10.g"
 		r.rule_LoopIndexDeclarator2(Identifier,IdentifierList,HasResultTypeopt);
                 break;
             }
@@ -2789,11 +2789,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 300:  LoopIndex ::= Modifiersopt LoopIndexDeclarator
             //
             case 300: {
-                //#line 1461 "x10/parser/x10.g"
+                //#line 1458 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1461 "x10/parser/x10.g"
+                //#line 1458 "x10/parser/x10.g"
                 Object LoopIndexDeclarator = (Object) getRhsSym(2);
-                //#line 1463 "x10/parser/x10.g"
+                //#line 1460 "x10/parser/x10.g"
 		r.rule_LoopIndex0(Modifiersopt,LoopIndexDeclarator);
                 break;
             }
@@ -2801,13 +2801,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 301:  LoopIndex ::= Modifiersopt VarKeyword LoopIndexDeclarator
             //
             case 301: {
-                //#line 1465 "x10/parser/x10.g"
+                //#line 1462 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1465 "x10/parser/x10.g"
+                //#line 1462 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 1465 "x10/parser/x10.g"
+                //#line 1462 "x10/parser/x10.g"
                 Object LoopIndexDeclarator = (Object) getRhsSym(3);
-                //#line 1467 "x10/parser/x10.g"
+                //#line 1464 "x10/parser/x10.g"
 		r.rule_LoopIndex1(Modifiersopt,VarKeyword,LoopIndexDeclarator);
                 break;
             }
@@ -2815,11 +2815,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 302:  FormalParameter ::= Modifiersopt FormalDeclarator
             //
             case 302: {
-                //#line 1470 "x10/parser/x10.g"
+                //#line 1467 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1470 "x10/parser/x10.g"
+                //#line 1467 "x10/parser/x10.g"
                 Object FormalDeclarator = (Object) getRhsSym(2);
-                //#line 1472 "x10/parser/x10.g"
+                //#line 1469 "x10/parser/x10.g"
 		r.rule_FormalParameter0(Modifiersopt,FormalDeclarator);
                 break;
             }
@@ -2827,13 +2827,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 303:  FormalParameter ::= Modifiersopt VarKeyword FormalDeclarator
             //
             case 303: {
-                //#line 1474 "x10/parser/x10.g"
+                //#line 1471 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1474 "x10/parser/x10.g"
+                //#line 1471 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 1474 "x10/parser/x10.g"
+                //#line 1471 "x10/parser/x10.g"
                 Object FormalDeclarator = (Object) getRhsSym(3);
-                //#line 1476 "x10/parser/x10.g"
+                //#line 1473 "x10/parser/x10.g"
 		r.rule_FormalParameter1(Modifiersopt,VarKeyword,FormalDeclarator);
                 break;
             }
@@ -2841,9 +2841,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 304:  FormalParameter ::= Type
             //
             case 304: {
-                //#line 1478 "x10/parser/x10.g"
+                //#line 1475 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(1);
-                //#line 1480 "x10/parser/x10.g"
+                //#line 1477 "x10/parser/x10.g"
 		r.rule_FormalParameter2(Type);
                 break;
             }
@@ -2851,9 +2851,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 305:  OBSOLETE_Offers ::= offers Type
             //
             case 305: {
-                //#line 1483 "x10/parser/x10.g"
+                //#line 1480 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
-                //#line 1485 "x10/parser/x10.g"
+                //#line 1482 "x10/parser/x10.g"
 		r.rule_OBSOLETE_Offers0(Type);
                 break;
             }
@@ -2861,9 +2861,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 306:  MethodBody ::= = LastExpression ;
             //
             case 306: {
-                //#line 1489 "x10/parser/x10.g"
+                //#line 1486 "x10/parser/x10.g"
                 Object LastExpression = (Object) getRhsSym(2);
-                //#line 1491 "x10/parser/x10.g"
+                //#line 1488 "x10/parser/x10.g"
 		r.rule_MethodBody0(LastExpression);
                 break;
             }
@@ -2871,13 +2871,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 307:  MethodBody ::= = Annotationsopt { BlockStatementsopt LastExpression }
             //
             case 307: {
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1490 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(2);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1490 "x10/parser/x10.g"
                 Object BlockStatementsopt = (Object) getRhsSym(4);
-                //#line 1493 "x10/parser/x10.g"
+                //#line 1490 "x10/parser/x10.g"
                 Object LastExpression = (Object) getRhsSym(5);
-                //#line 1495 "x10/parser/x10.g"
+                //#line 1492 "x10/parser/x10.g"
 		r.rule_MethodBody1(Annotationsopt,BlockStatementsopt,LastExpression);
                 break;
             }
@@ -2885,11 +2885,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 308:  MethodBody ::= = Annotationsopt Block
             //
             case 308: {
-                //#line 1497 "x10/parser/x10.g"
+                //#line 1494 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(2);
-                //#line 1497 "x10/parser/x10.g"
+                //#line 1494 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(3);
-                //#line 1499 "x10/parser/x10.g"
+                //#line 1496 "x10/parser/x10.g"
 		r.rule_MethodBody2(Annotationsopt,Block);
                 break;
             }
@@ -2897,11 +2897,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 309:  MethodBody ::= Annotationsopt Block
             //
             case 309: {
-                //#line 1501 "x10/parser/x10.g"
+                //#line 1498 "x10/parser/x10.g"
                 Object Annotationsopt = (Object) getRhsSym(1);
-                //#line 1501 "x10/parser/x10.g"
+                //#line 1498 "x10/parser/x10.g"
                 Object Block = (Object) getRhsSym(2);
-                //#line 1503 "x10/parser/x10.g"
+                //#line 1500 "x10/parser/x10.g"
 		r.rule_MethodBody3(Annotationsopt,Block);
                 break;
             }
@@ -2916,9 +2916,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 311:  ConstructorBody ::= = ConstructorBlock
             //
             case 311: {
-                //#line 1520 "x10/parser/x10.g"
+                //#line 1517 "x10/parser/x10.g"
                 Object ConstructorBlock = (Object) getRhsSym(2);
-                //#line 1522 "x10/parser/x10.g"
+                //#line 1519 "x10/parser/x10.g"
 		r.rule_ConstructorBody0(ConstructorBlock);
                 break;
             }
@@ -2926,9 +2926,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 312:  ConstructorBody ::= ConstructorBlock
             //
             case 312: {
-                //#line 1524 "x10/parser/x10.g"
+                //#line 1521 "x10/parser/x10.g"
                 Object ConstructorBlock = (Object) getRhsSym(1);
-                //#line 1526 "x10/parser/x10.g"
+                //#line 1523 "x10/parser/x10.g"
 		r.rule_ConstructorBody1(ConstructorBlock);
                 break;
             }
@@ -2936,9 +2936,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 313:  ConstructorBody ::= = ExplicitConstructorInvocation
             //
             case 313: {
-                //#line 1528 "x10/parser/x10.g"
+                //#line 1525 "x10/parser/x10.g"
                 Object ExplicitConstructorInvocation = (Object) getRhsSym(2);
-                //#line 1530 "x10/parser/x10.g"
+                //#line 1527 "x10/parser/x10.g"
 		r.rule_ConstructorBody2(ExplicitConstructorInvocation);
                 break;
             }
@@ -2946,9 +2946,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 314:  ConstructorBody ::= = AssignPropertyCall
             //
             case 314: {
-                //#line 1532 "x10/parser/x10.g"
+                //#line 1529 "x10/parser/x10.g"
                 Object AssignPropertyCall = (Object) getRhsSym(2);
-                //#line 1534 "x10/parser/x10.g"
+                //#line 1531 "x10/parser/x10.g"
 		r.rule_ConstructorBody3(AssignPropertyCall);
                 break;
             }
@@ -2963,11 +2963,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 316:  ConstructorBlock ::= { ExplicitConstructorInvocationopt BlockStatementsopt }
             //
             case 316: {
-                //#line 1539 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 Object ExplicitConstructorInvocationopt = (Object) getRhsSym(2);
-                //#line 1539 "x10/parser/x10.g"
+                //#line 1536 "x10/parser/x10.g"
                 Object BlockStatementsopt = (Object) getRhsSym(3);
-                //#line 1541 "x10/parser/x10.g"
+                //#line 1538 "x10/parser/x10.g"
 		r.rule_ConstructorBlock0(ExplicitConstructorInvocationopt,BlockStatementsopt);
                 break;
             }
@@ -2975,9 +2975,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 317:  Arguments ::= ( ArgumentList )
             //
             case 317: {
-                //#line 1544 "x10/parser/x10.g"
+                //#line 1541 "x10/parser/x10.g"
                 Object ArgumentList = (Object) getRhsSym(2);
-                //#line 1546 "x10/parser/x10.g"
+                //#line 1543 "x10/parser/x10.g"
 		r.rule_Arguments0(ArgumentList);
                 break;
             }
@@ -2985,9 +2985,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 318:  ExtendsInterfaces ::= extends Type
             //
             case 318: {
-                //#line 1550 "x10/parser/x10.g"
+                //#line 1547 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(2);
-                //#line 1552 "x10/parser/x10.g"
+                //#line 1549 "x10/parser/x10.g"
 		r.rule_ExtendsInterfaces0(Type);
                 break;
             }
@@ -2995,11 +2995,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 319:  ExtendsInterfaces ::= ExtendsInterfaces , Type
             //
             case 319: {
-                //#line 1554 "x10/parser/x10.g"
+                //#line 1551 "x10/parser/x10.g"
                 Object ExtendsInterfaces = (Object) getRhsSym(1);
-                //#line 1554 "x10/parser/x10.g"
+                //#line 1551 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 1556 "x10/parser/x10.g"
+                //#line 1553 "x10/parser/x10.g"
 		r.rule_ExtendsInterfaces1(ExtendsInterfaces,Type);
                 break;
             }
@@ -3007,9 +3007,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 320:  InterfaceBody ::= { InterfaceMemberDeclarationsopt }
             //
             case 320: {
-                //#line 1562 "x10/parser/x10.g"
+                //#line 1559 "x10/parser/x10.g"
                 Object InterfaceMemberDeclarationsopt = (Object) getRhsSym(2);
-                //#line 1564 "x10/parser/x10.g"
+                //#line 1561 "x10/parser/x10.g"
 		r.rule_InterfaceBody0(InterfaceMemberDeclarationsopt);
                 break;
             }
@@ -3017,9 +3017,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 321:  InterfaceMemberDeclarations ::= InterfaceMemberDeclaration
             //
             case 321: {
-                //#line 1567 "x10/parser/x10.g"
+                //#line 1564 "x10/parser/x10.g"
                 Object InterfaceMemberDeclaration = (Object) getRhsSym(1);
-                //#line 1569 "x10/parser/x10.g"
+                //#line 1566 "x10/parser/x10.g"
 		r.rule_InterfaceMemberDeclarations0(InterfaceMemberDeclaration);
                 break;
             }
@@ -3027,11 +3027,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 322:  InterfaceMemberDeclarations ::= InterfaceMemberDeclarations InterfaceMemberDeclaration
             //
             case 322: {
-                //#line 1571 "x10/parser/x10.g"
+                //#line 1568 "x10/parser/x10.g"
                 Object InterfaceMemberDeclarations = (Object) getRhsSym(1);
-                //#line 1571 "x10/parser/x10.g"
+                //#line 1568 "x10/parser/x10.g"
                 Object InterfaceMemberDeclaration = (Object) getRhsSym(2);
-                //#line 1573 "x10/parser/x10.g"
+                //#line 1570 "x10/parser/x10.g"
 		r.rule_InterfaceMemberDeclarations1(InterfaceMemberDeclarations,InterfaceMemberDeclaration);
                 break;
             }
@@ -3039,9 +3039,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 323:  InterfaceMemberDeclaration ::= MethodDeclaration
             //
             case 323: {
-                //#line 1576 "x10/parser/x10.g"
+                //#line 1573 "x10/parser/x10.g"
                 Object MethodDeclaration = (Object) getRhsSym(1);
-                //#line 1578 "x10/parser/x10.g"
+                //#line 1575 "x10/parser/x10.g"
 		r.rule_InterfaceMemberDeclaration0(MethodDeclaration);
                 break;
             }
@@ -3049,9 +3049,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 324:  InterfaceMemberDeclaration ::= PropertyMethodDeclaration
             //
             case 324: {
-                //#line 1580 "x10/parser/x10.g"
+                //#line 1577 "x10/parser/x10.g"
                 Object PropertyMethodDeclaration = (Object) getRhsSym(1);
-                //#line 1582 "x10/parser/x10.g"
+                //#line 1579 "x10/parser/x10.g"
 		r.rule_InterfaceMemberDeclaration1(PropertyMethodDeclaration);
                 break;
             }
@@ -3059,9 +3059,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 325:  InterfaceMemberDeclaration ::= FieldDeclaration
             //
             case 325: {
-                //#line 1584 "x10/parser/x10.g"
+                //#line 1581 "x10/parser/x10.g"
                 Object FieldDeclaration = (Object) getRhsSym(1);
-                //#line 1586 "x10/parser/x10.g"
+                //#line 1583 "x10/parser/x10.g"
 		r.rule_InterfaceMemberDeclaration2(FieldDeclaration);
                 break;
             }
@@ -3069,9 +3069,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 326:  InterfaceMemberDeclaration ::= TypeDeclaration
             //
             case 326: {
-                //#line 1588 "x10/parser/x10.g"
+                //#line 1585 "x10/parser/x10.g"
                 Object TypeDeclaration = (Object) getRhsSym(1);
-                //#line 1590 "x10/parser/x10.g"
+                //#line 1587 "x10/parser/x10.g"
 		r.rule_InterfaceMemberDeclaration3(TypeDeclaration);
                 break;
             }
@@ -3079,9 +3079,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 327:  Annotations ::= Annotation
             //
             case 327: {
-                //#line 1593 "x10/parser/x10.g"
+                //#line 1590 "x10/parser/x10.g"
                 Object Annotation = (Object) getRhsSym(1);
-                //#line 1595 "x10/parser/x10.g"
+                //#line 1592 "x10/parser/x10.g"
 		r.rule_Annotations0(Annotation);
                 break;
             }
@@ -3089,11 +3089,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 328:  Annotations ::= Annotations Annotation
             //
             case 328: {
-                //#line 1597 "x10/parser/x10.g"
+                //#line 1594 "x10/parser/x10.g"
                 Object Annotations = (Object) getRhsSym(1);
-                //#line 1597 "x10/parser/x10.g"
+                //#line 1594 "x10/parser/x10.g"
                 Object Annotation = (Object) getRhsSym(2);
-                //#line 1599 "x10/parser/x10.g"
+                //#line 1596 "x10/parser/x10.g"
 		r.rule_Annotations1(Annotations,Annotation);
                 break;
             }
@@ -3101,9 +3101,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 329:  Annotation ::= @ NamedTypeNoConstraints
             //
             case 329: {
-                //#line 1602 "x10/parser/x10.g"
+                //#line 1599 "x10/parser/x10.g"
                 Object NamedTypeNoConstraints = (Object) getRhsSym(2);
-                //#line 1604 "x10/parser/x10.g"
+                //#line 1601 "x10/parser/x10.g"
 		r.rule_Annotation0(NamedTypeNoConstraints);
                 break;
             }
@@ -3111,9 +3111,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 330:  Identifier ::= IDENTIFIER$ident
             //
             case 330: {
-                //#line 1607 "x10/parser/x10.g"
+                //#line 1604 "x10/parser/x10.g"
                 IToken ident = (IToken) getRhsIToken(1);
-                //#line 1609 "x10/parser/x10.g"
+                //#line 1606 "x10/parser/x10.g"
 		r.rule_Identifier0();
                 break;
             }
@@ -3121,9 +3121,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 331:  Block ::= { BlockStatementsopt }
             //
             case 331: {
-                //#line 1612 "x10/parser/x10.g"
+                //#line 1609 "x10/parser/x10.g"
                 Object BlockStatementsopt = (Object) getRhsSym(2);
-                //#line 1614 "x10/parser/x10.g"
+                //#line 1611 "x10/parser/x10.g"
 		r.rule_Block0(BlockStatementsopt);
                 break;
             }
@@ -3131,9 +3131,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 332:  BlockStatements ::= BlockInteriorStatement
             //
             case 332: {
-                //#line 1617 "x10/parser/x10.g"
+                //#line 1614 "x10/parser/x10.g"
                 Object BlockInteriorStatement = (Object) getRhsSym(1);
-                //#line 1619 "x10/parser/x10.g"
+                //#line 1616 "x10/parser/x10.g"
 		r.rule_BlockStatements0(BlockInteriorStatement);
                 break;
             }
@@ -3141,11 +3141,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 333:  BlockStatements ::= BlockStatements BlockInteriorStatement
             //
             case 333: {
-                //#line 1621 "x10/parser/x10.g"
+                //#line 1618 "x10/parser/x10.g"
                 Object BlockStatements = (Object) getRhsSym(1);
-                //#line 1621 "x10/parser/x10.g"
+                //#line 1618 "x10/parser/x10.g"
                 Object BlockInteriorStatement = (Object) getRhsSym(2);
-                //#line 1623 "x10/parser/x10.g"
+                //#line 1620 "x10/parser/x10.g"
 		r.rule_BlockStatements1(BlockStatements,BlockInteriorStatement);
                 break;
             }
@@ -3153,9 +3153,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 335:  BlockInteriorStatement ::= ClassDeclaration
             //
             case 335: {
-                //#line 1627 "x10/parser/x10.g"
+                //#line 1624 "x10/parser/x10.g"
                 Object ClassDeclaration = (Object) getRhsSym(1);
-                //#line 1629 "x10/parser/x10.g"
+                //#line 1626 "x10/parser/x10.g"
 		r.rule_BlockInteriorStatement1(ClassDeclaration);
                 break;
             }
@@ -3163,9 +3163,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 336:  BlockInteriorStatement ::= StructDeclaration
             //
             case 336: {
-                //#line 1631 "x10/parser/x10.g"
+                //#line 1628 "x10/parser/x10.g"
                 Object StructDeclaration = (Object) getRhsSym(1);
-                //#line 1633 "x10/parser/x10.g"
+                //#line 1630 "x10/parser/x10.g"
 		r.rule_BlockInteriorStatement2(StructDeclaration);
                 break;
             }
@@ -3173,9 +3173,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 337:  BlockInteriorStatement ::= TypeDefDeclaration
             //
             case 337: {
-                //#line 1635 "x10/parser/x10.g"
+                //#line 1632 "x10/parser/x10.g"
                 Object TypeDefDeclaration = (Object) getRhsSym(1);
-                //#line 1637 "x10/parser/x10.g"
+                //#line 1634 "x10/parser/x10.g"
 		r.rule_BlockInteriorStatement3(TypeDefDeclaration);
                 break;
             }
@@ -3183,9 +3183,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 338:  BlockInteriorStatement ::= Statement
             //
             case 338: {
-                //#line 1639 "x10/parser/x10.g"
+                //#line 1636 "x10/parser/x10.g"
                 Object Statement = (Object) getRhsSym(1);
-                //#line 1641 "x10/parser/x10.g"
+                //#line 1638 "x10/parser/x10.g"
 		r.rule_BlockInteriorStatement4(Statement);
                 break;
             }
@@ -3193,9 +3193,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 339:  IdentifierList ::= Identifier
             //
             case 339: {
-                //#line 1644 "x10/parser/x10.g"
+                //#line 1641 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1646 "x10/parser/x10.g"
+                //#line 1643 "x10/parser/x10.g"
 		r.rule_IdentifierList0(Identifier);
                 break;
             }
@@ -3203,11 +3203,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 340:  IdentifierList ::= IdentifierList , Identifier
             //
             case 340: {
-                //#line 1648 "x10/parser/x10.g"
+                //#line 1645 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(1);
-                //#line 1648 "x10/parser/x10.g"
+                //#line 1645 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1650 "x10/parser/x10.g"
+                //#line 1647 "x10/parser/x10.g"
 		r.rule_IdentifierList1(IdentifierList,Identifier);
                 break;
             }
@@ -3215,11 +3215,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 341:  FormalDeclarator ::= Identifier ResultType
             //
             case 341: {
-                //#line 1653 "x10/parser/x10.g"
+                //#line 1650 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1653 "x10/parser/x10.g"
+                //#line 1650 "x10/parser/x10.g"
                 Object ResultType = (Object) getRhsSym(2);
-                //#line 1655 "x10/parser/x10.g"
+                //#line 1652 "x10/parser/x10.g"
 		r.rule_FormalDeclarator0(Identifier,ResultType);
                 break;
             }
@@ -3227,11 +3227,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 342:  FormalDeclarator ::= [ IdentifierList ] ResultType
             //
             case 342: {
-                //#line 1657 "x10/parser/x10.g"
+                //#line 1654 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 1657 "x10/parser/x10.g"
+                //#line 1654 "x10/parser/x10.g"
                 Object ResultType = (Object) getRhsSym(4);
-                //#line 1659 "x10/parser/x10.g"
+                //#line 1656 "x10/parser/x10.g"
 		r.rule_FormalDeclarator1(IdentifierList,ResultType);
                 break;
             }
@@ -3239,13 +3239,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 343:  FormalDeclarator ::= Identifier [ IdentifierList ] ResultType
             //
             case 343: {
-                //#line 1661 "x10/parser/x10.g"
+                //#line 1658 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1661 "x10/parser/x10.g"
+                //#line 1658 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 1661 "x10/parser/x10.g"
+                //#line 1658 "x10/parser/x10.g"
                 Object ResultType = (Object) getRhsSym(5);
-                //#line 1663 "x10/parser/x10.g"
+                //#line 1660 "x10/parser/x10.g"
 		r.rule_FormalDeclarator2(Identifier,IdentifierList,ResultType);
                 break;
             }
@@ -3253,11 +3253,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 344:  FieldDeclarator ::= Identifier HasResultType
             //
             case 344: {
-                //#line 1666 "x10/parser/x10.g"
+                //#line 1663 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1666 "x10/parser/x10.g"
+                //#line 1663 "x10/parser/x10.g"
                 Object HasResultType = (Object) getRhsSym(2);
-                //#line 1668 "x10/parser/x10.g"
+                //#line 1665 "x10/parser/x10.g"
 		r.rule_FieldDeclarator0(Identifier,HasResultType);
                 break;
             }
@@ -3265,13 +3265,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 345:  FieldDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
             case 345: {
-                //#line 1670 "x10/parser/x10.g"
+                //#line 1667 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1670 "x10/parser/x10.g"
+                //#line 1667 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(2);
-                //#line 1670 "x10/parser/x10.g"
+                //#line 1667 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(4);
-                //#line 1672 "x10/parser/x10.g"
+                //#line 1669 "x10/parser/x10.g"
 		r.rule_FieldDeclarator1(Identifier,HasResultTypeopt,VariableInitializer);
                 break;
             }
@@ -3279,13 +3279,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 346:  VariableDeclarator ::= Identifier HasResultTypeopt = VariableInitializer
             //
             case 346: {
-                //#line 1675 "x10/parser/x10.g"
+                //#line 1672 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1675 "x10/parser/x10.g"
+                //#line 1672 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(2);
-                //#line 1675 "x10/parser/x10.g"
+                //#line 1672 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(4);
-                //#line 1677 "x10/parser/x10.g"
+                //#line 1674 "x10/parser/x10.g"
 		r.rule_VariableDeclarator0(Identifier,HasResultTypeopt,VariableInitializer);
                 break;
             }
@@ -3293,13 +3293,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 347:  VariableDeclarator ::= [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
             case 347: {
-                //#line 1679 "x10/parser/x10.g"
+                //#line 1676 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 1679 "x10/parser/x10.g"
+                //#line 1676 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(4);
-                //#line 1679 "x10/parser/x10.g"
+                //#line 1676 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(6);
-                //#line 1681 "x10/parser/x10.g"
+                //#line 1678 "x10/parser/x10.g"
 		r.rule_VariableDeclarator1(IdentifierList,HasResultTypeopt,VariableInitializer);
                 break;
             }
@@ -3307,15 +3307,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 348:  VariableDeclarator ::= Identifier [ IdentifierList ] HasResultTypeopt = VariableInitializer
             //
             case 348: {
-                //#line 1683 "x10/parser/x10.g"
+                //#line 1680 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1683 "x10/parser/x10.g"
+                //#line 1680 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 1683 "x10/parser/x10.g"
+                //#line 1680 "x10/parser/x10.g"
                 Object HasResultTypeopt = (Object) getRhsSym(5);
-                //#line 1683 "x10/parser/x10.g"
+                //#line 1680 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(7);
-                //#line 1685 "x10/parser/x10.g"
+                //#line 1682 "x10/parser/x10.g"
 		r.rule_VariableDeclarator2(Identifier,IdentifierList,HasResultTypeopt,VariableInitializer);
                 break;
             }
@@ -3323,13 +3323,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 349:  VariableDeclaratorWithType ::= Identifier HasResultType = VariableInitializer
             //
             case 349: {
-                //#line 1688 "x10/parser/x10.g"
+                //#line 1685 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1688 "x10/parser/x10.g"
+                //#line 1685 "x10/parser/x10.g"
                 Object HasResultType = (Object) getRhsSym(2);
-                //#line 1688 "x10/parser/x10.g"
+                //#line 1685 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(4);
-                //#line 1690 "x10/parser/x10.g"
+                //#line 1687 "x10/parser/x10.g"
 		r.rule_VariableDeclaratorWithType0(Identifier,HasResultType,VariableInitializer);
                 break;
             }
@@ -3337,13 +3337,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 350:  VariableDeclaratorWithType ::= [ IdentifierList ] HasResultType = VariableInitializer
             //
             case 350: {
-                //#line 1692 "x10/parser/x10.g"
+                //#line 1689 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(2);
-                //#line 1692 "x10/parser/x10.g"
+                //#line 1689 "x10/parser/x10.g"
                 Object HasResultType = (Object) getRhsSym(4);
-                //#line 1692 "x10/parser/x10.g"
+                //#line 1689 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(6);
-                //#line 1694 "x10/parser/x10.g"
+                //#line 1691 "x10/parser/x10.g"
 		r.rule_VariableDeclaratorWithType1(IdentifierList,HasResultType,VariableInitializer);
                 break;
             }
@@ -3351,15 +3351,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 351:  VariableDeclaratorWithType ::= Identifier [ IdentifierList ] HasResultType = VariableInitializer
             //
             case 351: {
-                //#line 1696 "x10/parser/x10.g"
+                //#line 1693 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1696 "x10/parser/x10.g"
+                //#line 1693 "x10/parser/x10.g"
                 Object IdentifierList = (Object) getRhsSym(3);
-                //#line 1696 "x10/parser/x10.g"
+                //#line 1693 "x10/parser/x10.g"
                 Object HasResultType = (Object) getRhsSym(5);
-                //#line 1696 "x10/parser/x10.g"
+                //#line 1693 "x10/parser/x10.g"
                 Object VariableInitializer = (Object) getRhsSym(7);
-                //#line 1698 "x10/parser/x10.g"
+                //#line 1695 "x10/parser/x10.g"
 		r.rule_VariableDeclaratorWithType2(Identifier,IdentifierList,HasResultType,VariableInitializer);
                 break;
             }
@@ -3367,13 +3367,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 352:  AtCaptureDeclarator ::= Modifiersopt VarKeywordopt VariableDeclarator
             //
             case 352: {
-                //#line 1701 "x10/parser/x10.g"
+                //#line 1698 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1701 "x10/parser/x10.g"
+                //#line 1698 "x10/parser/x10.g"
                 Object VarKeywordopt = (Object) getRhsSym(2);
-                //#line 1701 "x10/parser/x10.g"
+                //#line 1698 "x10/parser/x10.g"
                 Object VariableDeclarator = (Object) getRhsSym(3);
-                //#line 1703 "x10/parser/x10.g"
+                //#line 1700 "x10/parser/x10.g"
 		r.rule_AtCaptureDeclarator0(Modifiersopt,VarKeywordopt,VariableDeclarator);
                 break;
             }
@@ -3381,9 +3381,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 353:  AtCaptureDeclarator ::= Identifier
             //
             case 353: {
-                //#line 1705 "x10/parser/x10.g"
+                //#line 1702 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 1707 "x10/parser/x10.g"
+                //#line 1704 "x10/parser/x10.g"
 		r.rule_AtCaptureDeclarator1(Identifier);
                 break;
             }
@@ -3392,7 +3392,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 354: {
                 
-                //#line 1711 "x10/parser/x10.g"
+                //#line 1708 "x10/parser/x10.g"
 		r.rule_AtCaptureDeclarator2();
                 break;
             }
@@ -3400,13 +3400,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 356:  LocalVariableDeclaration ::= Modifiersopt VarKeyword VariableDeclarators
             //
             case 356: {
-                //#line 1716 "x10/parser/x10.g"
+                //#line 1713 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1716 "x10/parser/x10.g"
+                //#line 1713 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 1716 "x10/parser/x10.g"
+                //#line 1713 "x10/parser/x10.g"
                 Object VariableDeclarators = (Object) getRhsSym(3);
-                //#line 1718 "x10/parser/x10.g"
+                //#line 1715 "x10/parser/x10.g"
 		r.rule_LocalVariableDeclaration0(Modifiersopt,VarKeyword,VariableDeclarators);
                 break;
             }
@@ -3414,11 +3414,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 357:  LocalVariableDeclaration ::= Modifiersopt VariableDeclaratorsWithType
             //
             case 357: {
-                //#line 1720 "x10/parser/x10.g"
+                //#line 1717 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1720 "x10/parser/x10.g"
+                //#line 1717 "x10/parser/x10.g"
                 Object VariableDeclaratorsWithType = (Object) getRhsSym(2);
-                //#line 1722 "x10/parser/x10.g"
+                //#line 1719 "x10/parser/x10.g"
 		r.rule_LocalVariableDeclaration1(Modifiersopt,VariableDeclaratorsWithType);
                 break;
             }
@@ -3426,13 +3426,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 358:  LocalVariableDeclaration ::= Modifiersopt VarKeyword FormalDeclarators
             //
             case 358: {
-                //#line 1724 "x10/parser/x10.g"
+                //#line 1721 "x10/parser/x10.g"
                 Object Modifiersopt = (Object) getRhsSym(1);
-                //#line 1724 "x10/parser/x10.g"
+                //#line 1721 "x10/parser/x10.g"
                 Object VarKeyword = (Object) getRhsSym(2);
-                //#line 1724 "x10/parser/x10.g"
+                //#line 1721 "x10/parser/x10.g"
                 Object FormalDeclarators = (Object) getRhsSym(3);
-                //#line 1726 "x10/parser/x10.g"
+                //#line 1723 "x10/parser/x10.g"
 		r.rule_LocalVariableDeclaration2(Modifiersopt,VarKeyword,FormalDeclarators);
                 break;
             }
@@ -3441,7 +3441,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 359: {
                 
-                //#line 1736 "x10/parser/x10.g"
+                //#line 1733 "x10/parser/x10.g"
 		r.rule_Primary0();
                 break;
             }
@@ -3449,9 +3449,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 360:  Primary ::= [ ArgumentListopt ]
             //
             case 360: {
-                //#line 1738 "x10/parser/x10.g"
+                //#line 1735 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(2);
-                //#line 1740 "x10/parser/x10.g"
+                //#line 1737 "x10/parser/x10.g"
 		r.rule_Primary1(ArgumentListopt);
                 break;
             }
@@ -3460,7 +3460,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 362: {
                 
-                //#line 1746 "x10/parser/x10.g"
+                //#line 1743 "x10/parser/x10.g"
 		r.rule_Primary3();
                 break;
             }
@@ -3469,7 +3469,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 363: {
                 
-                //#line 1750 "x10/parser/x10.g"
+                //#line 1747 "x10/parser/x10.g"
 		r.rule_Primary4();
                 break;
             }
@@ -3477,9 +3477,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 364:  Primary ::= ClassName . this
             //
             case 364: {
-                //#line 1752 "x10/parser/x10.g"
+                //#line 1749 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 1754 "x10/parser/x10.g"
+                //#line 1751 "x10/parser/x10.g"
 		r.rule_Primary5(ClassName);
                 break;
             }
@@ -3487,9 +3487,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 365:  Primary ::= ( Expression )
             //
             case 365: {
-                //#line 1756 "x10/parser/x10.g"
+                //#line 1753 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(2);
-                //#line 1758 "x10/parser/x10.g"
+                //#line 1755 "x10/parser/x10.g"
 		r.rule_Primary6(Expression);
                 break;
             }
@@ -3497,11 +3497,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 371:  OBSOLETE_OperatorFunction ::= TypeName . BinOp
             //
             case 371: {
-                //#line 1766 "x10/parser/x10.g"
+                //#line 1763 "x10/parser/x10.g"
                 Object TypeName = (Object) getRhsSym(1);
-                //#line 1766 "x10/parser/x10.g"
+                //#line 1763 "x10/parser/x10.g"
                 Object BinOp = (Object) getRhsSym(3);
-                //#line 1768 "x10/parser/x10.g"
+                //#line 1765 "x10/parser/x10.g"
 		r.rule_OBSOLETE_OperatorFunction0(TypeName,BinOp);
                 break;
             }
@@ -3509,9 +3509,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 372:  Literal ::= IntegerLiteral$lit
             //
             case 372: {
-                //#line 1771 "x10/parser/x10.g"
+                //#line 1768 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 1773 "x10/parser/x10.g"
+                //#line 1770 "x10/parser/x10.g"
 		r.rule_Literal0();
                 break;
             }
@@ -3519,9 +3519,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 373:  Literal ::= LongLiteral$lit
             //
             case 373: {
-                //#line 1775 "x10/parser/x10.g"
+                //#line 1772 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 1777 "x10/parser/x10.g"
+                //#line 1774 "x10/parser/x10.g"
 		r.rule_Literal1();
                 break;
             }
@@ -3530,7 +3530,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 374: {
                 
-                //#line 1781 "x10/parser/x10.g"
+                //#line 1778 "x10/parser/x10.g"
 		r.rule_LiteralByte();
                 break;
             }
@@ -3539,7 +3539,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 375: {
                 
-                //#line 1785 "x10/parser/x10.g"
+                //#line 1782 "x10/parser/x10.g"
 		r.rule_LiteralUByte();
                 break;
             }
@@ -3548,7 +3548,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 376: {
                 
-                //#line 1789 "x10/parser/x10.g"
+                //#line 1786 "x10/parser/x10.g"
 		r.rule_LiteralShort();
                 break;
             }
@@ -3557,7 +3557,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 377: {
                 
-                //#line 1793 "x10/parser/x10.g"
+                //#line 1790 "x10/parser/x10.g"
 		r.rule_LiteralUShort();
                 break;
             }
@@ -3565,9 +3565,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 378:  Literal ::= UnsignedIntegerLiteral$lit
             //
             case 378: {
-                //#line 1795 "x10/parser/x10.g"
+                //#line 1792 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 1797 "x10/parser/x10.g"
+                //#line 1794 "x10/parser/x10.g"
 		r.rule_Literal2();
                 break;
             }
@@ -3575,9 +3575,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 379:  Literal ::= UnsignedLongLiteral$lit
             //
             case 379: {
-                //#line 1799 "x10/parser/x10.g"
+                //#line 1796 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 1801 "x10/parser/x10.g"
+                //#line 1798 "x10/parser/x10.g"
 		r.rule_Literal3();
                 break;
             }
@@ -3585,9 +3585,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 380:  Literal ::= FloatingPointLiteral$lit
             //
             case 380: {
-                //#line 1803 "x10/parser/x10.g"
+                //#line 1800 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 1805 "x10/parser/x10.g"
+                //#line 1802 "x10/parser/x10.g"
 		r.rule_Literal4();
                 break;
             }
@@ -3595,9 +3595,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 381:  Literal ::= DoubleLiteral$lit
             //
             case 381: {
-                //#line 1807 "x10/parser/x10.g"
+                //#line 1804 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 1809 "x10/parser/x10.g"
+                //#line 1806 "x10/parser/x10.g"
 		r.rule_Literal5();
                 break;
             }
@@ -3605,9 +3605,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 382:  Literal ::= BooleanLiteral
             //
             case 382: {
-                //#line 1811 "x10/parser/x10.g"
+                //#line 1808 "x10/parser/x10.g"
                 Object BooleanLiteral = (Object) getRhsSym(1);
-                //#line 1813 "x10/parser/x10.g"
+                //#line 1810 "x10/parser/x10.g"
 		r.rule_Literal6(BooleanLiteral);
                 break;
             }
@@ -3615,9 +3615,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 383:  Literal ::= CharacterLiteral$lit
             //
             case 383: {
-                //#line 1815 "x10/parser/x10.g"
+                //#line 1812 "x10/parser/x10.g"
                 IToken lit = (IToken) getRhsIToken(1);
-                //#line 1817 "x10/parser/x10.g"
+                //#line 1814 "x10/parser/x10.g"
 		r.rule_Literal7();
                 break;
             }
@@ -3625,9 +3625,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 384:  Literal ::= StringLiteral$str
             //
             case 384: {
-                //#line 1819 "x10/parser/x10.g"
+                //#line 1816 "x10/parser/x10.g"
                 IToken str = (IToken) getRhsIToken(1);
-                //#line 1821 "x10/parser/x10.g"
+                //#line 1818 "x10/parser/x10.g"
 		r.rule_Literal8();
                 break;
             }
@@ -3636,7 +3636,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 385: {
                 
-                //#line 1825 "x10/parser/x10.g"
+                //#line 1822 "x10/parser/x10.g"
 		r.rule_Literal9();
                 break;
             }
@@ -3644,9 +3644,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 386:  BooleanLiteral ::= true$trueLiteral
             //
             case 386: {
-                //#line 1828 "x10/parser/x10.g"
+                //#line 1825 "x10/parser/x10.g"
                 IToken trueLiteral = (IToken) getRhsIToken(1);
-                //#line 1830 "x10/parser/x10.g"
+                //#line 1827 "x10/parser/x10.g"
 		r.rule_BooleanLiteral0();
                 break;
             }
@@ -3654,9 +3654,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 387:  BooleanLiteral ::= false$falseLiteral
             //
             case 387: {
-                //#line 1832 "x10/parser/x10.g"
+                //#line 1829 "x10/parser/x10.g"
                 IToken falseLiteral = (IToken) getRhsIToken(1);
-                //#line 1834 "x10/parser/x10.g"
+                //#line 1831 "x10/parser/x10.g"
 		r.rule_BooleanLiteral1();
                 break;
             }
@@ -3664,9 +3664,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 388:  ArgumentList ::= Expression
             //
             case 388: {
-                //#line 1840 "x10/parser/x10.g"
+                //#line 1837 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(1);
-                //#line 1842 "x10/parser/x10.g"
+                //#line 1839 "x10/parser/x10.g"
 		r.rule_ArgumentList0(Expression);
                 break;
             }
@@ -3674,11 +3674,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 389:  ArgumentList ::= ArgumentList , Expression
             //
             case 389: {
-                //#line 1844 "x10/parser/x10.g"
+                //#line 1841 "x10/parser/x10.g"
                 Object ArgumentList = (Object) getRhsSym(1);
-                //#line 1844 "x10/parser/x10.g"
+                //#line 1841 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 1846 "x10/parser/x10.g"
+                //#line 1843 "x10/parser/x10.g"
 		r.rule_ArgumentList1(ArgumentList,Expression);
                 break;
             }
@@ -3686,11 +3686,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 390:  FieldAccess ::= Primary . Identifier
             //
             case 390: {
-                //#line 1849 "x10/parser/x10.g"
+                //#line 1846 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 1849 "x10/parser/x10.g"
+                //#line 1846 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1851 "x10/parser/x10.g"
+                //#line 1848 "x10/parser/x10.g"
 		r.rule_FieldAccess3(Primary,Identifier);
                 break;
             }
@@ -3698,9 +3698,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 391:  FieldAccess ::= super . Identifier
             //
             case 391: {
-                //#line 1853 "x10/parser/x10.g"
+                //#line 1850 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1855 "x10/parser/x10.g"
+                //#line 1852 "x10/parser/x10.g"
 		r.rule_FieldAccess4(Identifier);
                 break;
             }
@@ -3708,13 +3708,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 392:  FieldAccess ::= ClassName . super$sup . Identifier
             //
             case 392: {
-                //#line 1857 "x10/parser/x10.g"
+                //#line 1854 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 1857 "x10/parser/x10.g"
+                //#line 1854 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1857 "x10/parser/x10.g"
+                //#line 1854 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(5);
-                //#line 1859 "x10/parser/x10.g"
+                //#line 1856 "x10/parser/x10.g"
 		r.rule_FieldAccess5(ClassName,Identifier);
                 break;
             }
@@ -3722,13 +3722,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 393:  MethodInvocation ::= MethodName TypeArgumentsopt ( ArgumentListopt )
             //
             case 393: {
-                //#line 1862 "x10/parser/x10.g"
+                //#line 1859 "x10/parser/x10.g"
                 Object MethodName = (Object) getRhsSym(1);
-                //#line 1862 "x10/parser/x10.g"
+                //#line 1859 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(2);
-                //#line 1862 "x10/parser/x10.g"
+                //#line 1859 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(4);
-                //#line 1864 "x10/parser/x10.g"
+                //#line 1861 "x10/parser/x10.g"
 		r.rule_MethodInvocation3(MethodName,TypeArgumentsopt,ArgumentListopt);
                 break;
             }
@@ -3736,15 +3736,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 394:  MethodInvocation ::= Primary . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 394: {
-                //#line 1866 "x10/parser/x10.g"
+                //#line 1863 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 1866 "x10/parser/x10.g"
+                //#line 1863 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1866 "x10/parser/x10.g"
+                //#line 1863 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(4);
-                //#line 1866 "x10/parser/x10.g"
+                //#line 1863 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(6);
-                //#line 1868 "x10/parser/x10.g"
+                //#line 1865 "x10/parser/x10.g"
 		r.rule_MethodInvocation4(Primary,Identifier,TypeArgumentsopt,ArgumentListopt);
                 break;
             }
@@ -3752,13 +3752,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 395:  MethodInvocation ::= super . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 395: {
-                //#line 1870 "x10/parser/x10.g"
+                //#line 1867 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1870 "x10/parser/x10.g"
+                //#line 1867 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(4);
-                //#line 1870 "x10/parser/x10.g"
+                //#line 1867 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(6);
-                //#line 1872 "x10/parser/x10.g"
+                //#line 1869 "x10/parser/x10.g"
 		r.rule_MethodInvocation5(Identifier,TypeArgumentsopt,ArgumentListopt);
                 break;
             }
@@ -3766,17 +3766,17 @@ public class X10Parser extends Object implements RuleAction
             // Rule 396:  MethodInvocation ::= ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
             //
             case 396: {
-                //#line 1874 "x10/parser/x10.g"
+                //#line 1871 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 1874 "x10/parser/x10.g"
+                //#line 1871 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1874 "x10/parser/x10.g"
+                //#line 1871 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(5);
-                //#line 1874 "x10/parser/x10.g"
+                //#line 1871 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(6);
-                //#line 1874 "x10/parser/x10.g"
+                //#line 1871 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(8);
-                //#line 1876 "x10/parser/x10.g"
+                //#line 1873 "x10/parser/x10.g"
 		r.rule_MethodInvocation6(ClassName,Identifier,TypeArgumentsopt,ArgumentListopt);
                 break;
             }
@@ -3784,13 +3784,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 397:  MethodInvocation ::= Primary TypeArgumentsopt ( ArgumentListopt )
             //
             case 397: {
-                //#line 1878 "x10/parser/x10.g"
+                //#line 1875 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 1878 "x10/parser/x10.g"
+                //#line 1875 "x10/parser/x10.g"
                 Object TypeArgumentsopt = (Object) getRhsSym(2);
-                //#line 1878 "x10/parser/x10.g"
+                //#line 1875 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(4);
-                //#line 1880 "x10/parser/x10.g"
+                //#line 1877 "x10/parser/x10.g"
 		r.rule_MethodInvocation7(Primary,TypeArgumentsopt,ArgumentListopt);
                 break;
             }
@@ -3798,11 +3798,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 398:  OBSOLETE_MethodSelection ::= MethodName . ( FormalParameterListopt )
             //
             case 398: {
-                //#line 1883 "x10/parser/x10.g"
+                //#line 1880 "x10/parser/x10.g"
                 Object MethodName = (Object) getRhsSym(1);
-                //#line 1883 "x10/parser/x10.g"
+                //#line 1880 "x10/parser/x10.g"
                 Object FormalParameterListopt = (Object) getRhsSym(4);
-                //#line 1885 "x10/parser/x10.g"
+                //#line 1882 "x10/parser/x10.g"
 		r.rule_OBSOLETE_MethodSelection0(MethodName,FormalParameterListopt);
                 break;
             }
@@ -3810,13 +3810,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 399:  OBSOLETE_MethodSelection ::= Primary . Identifier . ( FormalParameterListopt )
             //
             case 399: {
-                //#line 1887 "x10/parser/x10.g"
+                //#line 1884 "x10/parser/x10.g"
                 Object Primary = (Object) getRhsSym(1);
-                //#line 1887 "x10/parser/x10.g"
+                //#line 1884 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1887 "x10/parser/x10.g"
+                //#line 1884 "x10/parser/x10.g"
                 Object FormalParameterListopt = (Object) getRhsSym(6);
-                //#line 1889 "x10/parser/x10.g"
+                //#line 1886 "x10/parser/x10.g"
 		r.rule_OBSOLETE_MethodSelection1(Primary,Identifier,FormalParameterListopt);
                 break;
             }
@@ -3824,11 +3824,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 400:  OBSOLETE_MethodSelection ::= super . Identifier . ( FormalParameterListopt )
             //
             case 400: {
-                //#line 1891 "x10/parser/x10.g"
+                //#line 1888 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(3);
-                //#line 1891 "x10/parser/x10.g"
+                //#line 1888 "x10/parser/x10.g"
                 Object FormalParameterListopt = (Object) getRhsSym(6);
-                //#line 1893 "x10/parser/x10.g"
+                //#line 1890 "x10/parser/x10.g"
 		r.rule_OBSOLETE_MethodSelection2(Identifier,FormalParameterListopt);
                 break;
             }
@@ -3836,15 +3836,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 401:  OBSOLETE_MethodSelection ::= ClassName . super$sup . Identifier . ( FormalParameterListopt )
             //
             case 401: {
-                //#line 1895 "x10/parser/x10.g"
+                //#line 1892 "x10/parser/x10.g"
                 Object ClassName = (Object) getRhsSym(1);
-                //#line 1895 "x10/parser/x10.g"
+                //#line 1892 "x10/parser/x10.g"
                 IToken sup = (IToken) getRhsIToken(3);
-                //#line 1895 "x10/parser/x10.g"
+                //#line 1892 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(5);
-                //#line 1895 "x10/parser/x10.g"
+                //#line 1892 "x10/parser/x10.g"
                 Object FormalParameterListopt = (Object) getRhsSym(8);
-                //#line 1897 "x10/parser/x10.g"
+                //#line 1894 "x10/parser/x10.g"
 		r.rule_OBSOLETE_MethodSelection3(ClassName,Identifier,FormalParameterListopt);
                 break;
             }
@@ -3852,9 +3852,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 405:  PostIncrementExpression ::= PostfixExpression ++
             //
             case 405: {
-                //#line 1904 "x10/parser/x10.g"
+                //#line 1901 "x10/parser/x10.g"
                 Object PostfixExpression = (Object) getRhsSym(1);
-                //#line 1906 "x10/parser/x10.g"
+                //#line 1903 "x10/parser/x10.g"
 		r.rule_PostIncrementExpression0(PostfixExpression);
                 break;
             }
@@ -3862,9 +3862,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 406:  PostDecrementExpression ::= PostfixExpression --
             //
             case 406: {
-                //#line 1909 "x10/parser/x10.g"
+                //#line 1906 "x10/parser/x10.g"
                 Object PostfixExpression = (Object) getRhsSym(1);
-                //#line 1911 "x10/parser/x10.g"
+                //#line 1908 "x10/parser/x10.g"
 		r.rule_PostDecrementExpression0(PostfixExpression);
                 break;
             }
@@ -3872,9 +3872,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 411:  OverloadableUnaryExpressionPlusMinus ::= + UnaryExpressionNotPlusMinus
             //
             case 411: {
-                //#line 1919 "x10/parser/x10.g"
+                //#line 1916 "x10/parser/x10.g"
                 Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
-                //#line 1921 "x10/parser/x10.g"
+                //#line 1918 "x10/parser/x10.g"
 		r.rule_UnannotatedUnaryExpression2(UnaryExpressionNotPlusMinus);
                 break;
             }
@@ -3882,9 +3882,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 412:  OverloadableUnaryExpressionPlusMinus ::= - UnaryExpressionNotPlusMinus
             //
             case 412: {
-                //#line 1923 "x10/parser/x10.g"
+                //#line 1920 "x10/parser/x10.g"
                 Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
-                //#line 1925 "x10/parser/x10.g"
+                //#line 1922 "x10/parser/x10.g"
 		r.rule_UnannotatedUnaryExpression3(UnaryExpressionNotPlusMinus);
                 break;
             }
@@ -3892,11 +3892,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 414:  UnaryExpression ::= Annotations UnannotatedUnaryExpression
             //
             case 414: {
-                //#line 1929 "x10/parser/x10.g"
+                //#line 1926 "x10/parser/x10.g"
                 Object Annotations = (Object) getRhsSym(1);
-                //#line 1929 "x10/parser/x10.g"
+                //#line 1926 "x10/parser/x10.g"
                 Object UnannotatedUnaryExpression = (Object) getRhsSym(2);
-                //#line 1931 "x10/parser/x10.g"
+                //#line 1928 "x10/parser/x10.g"
 		r.rule_UnaryExpression1(Annotations,UnannotatedUnaryExpression);
                 break;
             }
@@ -3904,9 +3904,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 415:  PreIncrementExpression ::= ++ UnaryExpressionNotPlusMinus
             //
             case 415: {
-                //#line 1934 "x10/parser/x10.g"
+                //#line 1931 "x10/parser/x10.g"
                 Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
-                //#line 1936 "x10/parser/x10.g"
+                //#line 1933 "x10/parser/x10.g"
 		r.rule_PreIncrementExpression0(UnaryExpressionNotPlusMinus);
                 break;
             }
@@ -3914,9 +3914,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 416:  PreDecrementExpression ::= -- UnaryExpressionNotPlusMinus
             //
             case 416: {
-                //#line 1939 "x10/parser/x10.g"
+                //#line 1936 "x10/parser/x10.g"
                 Object UnaryExpressionNotPlusMinus = (Object) getRhsSym(2);
-                //#line 1941 "x10/parser/x10.g"
+                //#line 1938 "x10/parser/x10.g"
 		r.rule_PreDecrementExpression0(UnaryExpressionNotPlusMinus);
                 break;
             }
@@ -3924,9 +3924,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 419:  OverloadableUnaryExpression ::= ~ UnaryExpression
             //
             case 419: {
-                //#line 1947 "x10/parser/x10.g"
+                //#line 1944 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1949 "x10/parser/x10.g"
+                //#line 1946 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus1(UnaryExpression);
                 break;
             }
@@ -3934,9 +3934,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 420:  OverloadableUnaryExpression ::= ! UnaryExpression
             //
             case 420: {
-                //#line 1951 "x10/parser/x10.g"
+                //#line 1948 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1953 "x10/parser/x10.g"
+                //#line 1950 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus2(UnaryExpression);
                 break;
             }
@@ -3944,9 +3944,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 421:  OverloadableUnaryExpression ::= ^ UnaryExpression
             //
             case 421: {
-                //#line 1955 "x10/parser/x10.g"
+                //#line 1952 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1957 "x10/parser/x10.g"
+                //#line 1954 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus3(UnaryExpression);
                 break;
             }
@@ -3954,9 +3954,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 422:  OverloadableUnaryExpression ::= | UnaryExpression
             //
             case 422: {
-                //#line 1959 "x10/parser/x10.g"
+                //#line 1956 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1961 "x10/parser/x10.g"
+                //#line 1958 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus4(UnaryExpression);
                 break;
             }
@@ -3964,9 +3964,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 423:  OverloadableUnaryExpression ::= & UnaryExpression
             //
             case 423: {
-                //#line 1963 "x10/parser/x10.g"
+                //#line 1960 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1965 "x10/parser/x10.g"
+                //#line 1962 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus5(UnaryExpression);
                 break;
             }
@@ -3974,9 +3974,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 424:  OverloadableUnaryExpression ::= * UnaryExpression
             //
             case 424: {
-                //#line 1967 "x10/parser/x10.g"
+                //#line 1964 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1969 "x10/parser/x10.g"
+                //#line 1966 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus6(UnaryExpression);
                 break;
             }
@@ -3984,9 +3984,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 425:  OverloadableUnaryExpression ::= / UnaryExpression
             //
             case 425: {
-                //#line 1971 "x10/parser/x10.g"
+                //#line 1968 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1973 "x10/parser/x10.g"
+                //#line 1970 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus7(UnaryExpression);
                 break;
             }
@@ -3994,9 +3994,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 426:  OverloadableUnaryExpression ::= % UnaryExpression
             //
             case 426: {
-                //#line 1975 "x10/parser/x10.g"
+                //#line 1972 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(2);
-                //#line 1977 "x10/parser/x10.g"
+                //#line 1974 "x10/parser/x10.g"
 		r.rule_UnaryExpressionNotPlusMinus8(UnaryExpression);
                 break;
             }
@@ -4004,11 +4004,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 429:  OverloadableRangeExpression ::= RangeExpression .. UnaryExpression
             //
             case 429: {
-                //#line 1983 "x10/parser/x10.g"
+                //#line 1980 "x10/parser/x10.g"
                 Object RangeExpression = (Object) getRhsSym(1);
-                //#line 1983 "x10/parser/x10.g"
+                //#line 1980 "x10/parser/x10.g"
                 Object UnaryExpression = (Object) getRhsSym(3);
-                //#line 1985 "x10/parser/x10.g"
+                //#line 1982 "x10/parser/x10.g"
 		r.rule_RangeExpression1(RangeExpression,UnaryExpression);
                 break;
             }
@@ -4016,11 +4016,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 432:  OverloadableMultiplicativeExpression ::= MultiplicativeExpression * RangeExpression
             //
             case 432: {
-                //#line 1991 "x10/parser/x10.g"
+                //#line 1988 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(1);
-                //#line 1991 "x10/parser/x10.g"
+                //#line 1988 "x10/parser/x10.g"
                 Object RangeExpression = (Object) getRhsSym(3);
-                //#line 1993 "x10/parser/x10.g"
+                //#line 1990 "x10/parser/x10.g"
 		r.rule_MultiplicativeExpression1(MultiplicativeExpression,RangeExpression);
                 break;
             }
@@ -4028,11 +4028,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 433:  OverloadableMultiplicativeExpression ::= MultiplicativeExpression / RangeExpression
             //
             case 433: {
-                //#line 1995 "x10/parser/x10.g"
+                //#line 1992 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(1);
-                //#line 1995 "x10/parser/x10.g"
+                //#line 1992 "x10/parser/x10.g"
                 Object RangeExpression = (Object) getRhsSym(3);
-                //#line 1997 "x10/parser/x10.g"
+                //#line 1994 "x10/parser/x10.g"
 		r.rule_MultiplicativeExpression2(MultiplicativeExpression,RangeExpression);
                 break;
             }
@@ -4040,11 +4040,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 434:  OverloadableMultiplicativeExpression ::= MultiplicativeExpression % RangeExpression
             //
             case 434: {
-                //#line 1999 "x10/parser/x10.g"
+                //#line 1996 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(1);
-                //#line 1999 "x10/parser/x10.g"
+                //#line 1996 "x10/parser/x10.g"
                 Object RangeExpression = (Object) getRhsSym(3);
-                //#line 2001 "x10/parser/x10.g"
+                //#line 1998 "x10/parser/x10.g"
 		r.rule_MultiplicativeExpression3(MultiplicativeExpression,RangeExpression);
                 break;
             }
@@ -4052,11 +4052,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 435:  OverloadableMultiplicativeExpression ::= MultiplicativeExpression ** RangeExpression
             //
             case 435: {
-                //#line 2003 "x10/parser/x10.g"
+                //#line 2000 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(1);
-                //#line 2003 "x10/parser/x10.g"
+                //#line 2000 "x10/parser/x10.g"
                 Object RangeExpression = (Object) getRhsSym(3);
-                //#line 2005 "x10/parser/x10.g"
+                //#line 2002 "x10/parser/x10.g"
 		r.rule_MultiplicativeExpression4(MultiplicativeExpression,RangeExpression);
                 break;
             }
@@ -4064,11 +4064,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 438:  OverloadableAdditiveExpression ::= AdditiveExpression + MultiplicativeExpression
             //
             case 438: {
-                //#line 2011 "x10/parser/x10.g"
+                //#line 2008 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(1);
-                //#line 2011 "x10/parser/x10.g"
+                //#line 2008 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(3);
-                //#line 2013 "x10/parser/x10.g"
+                //#line 2010 "x10/parser/x10.g"
 		r.rule_AdditiveExpression1(AdditiveExpression,MultiplicativeExpression);
                 break;
             }
@@ -4076,11 +4076,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 439:  OverloadableAdditiveExpression ::= AdditiveExpression - MultiplicativeExpression
             //
             case 439: {
-                //#line 2015 "x10/parser/x10.g"
+                //#line 2012 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(1);
-                //#line 2015 "x10/parser/x10.g"
+                //#line 2012 "x10/parser/x10.g"
                 Object MultiplicativeExpression = (Object) getRhsSym(3);
-                //#line 2017 "x10/parser/x10.g"
+                //#line 2014 "x10/parser/x10.g"
 		r.rule_AdditiveExpression2(AdditiveExpression,MultiplicativeExpression);
                 break;
             }
@@ -4088,11 +4088,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 442:  OverloadableShiftExpression ::= ShiftExpression << AdditiveExpression
             //
             case 442: {
-                //#line 2023 "x10/parser/x10.g"
+                //#line 2020 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(1);
-                //#line 2023 "x10/parser/x10.g"
+                //#line 2020 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(3);
-                //#line 2025 "x10/parser/x10.g"
+                //#line 2022 "x10/parser/x10.g"
 		r.rule_ShiftExpression1(ShiftExpression,AdditiveExpression);
                 break;
             }
@@ -4100,11 +4100,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 443:  OverloadableShiftExpression ::= ShiftExpression >> AdditiveExpression
             //
             case 443: {
-                //#line 2027 "x10/parser/x10.g"
+                //#line 2024 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(1);
-                //#line 2027 "x10/parser/x10.g"
+                //#line 2024 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(3);
-                //#line 2029 "x10/parser/x10.g"
+                //#line 2026 "x10/parser/x10.g"
 		r.rule_ShiftExpression2(ShiftExpression,AdditiveExpression);
                 break;
             }
@@ -4112,11 +4112,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 444:  OverloadableShiftExpression ::= ShiftExpression >>> AdditiveExpression
             //
             case 444: {
-                //#line 2031 "x10/parser/x10.g"
+                //#line 2028 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(1);
-                //#line 2031 "x10/parser/x10.g"
+                //#line 2028 "x10/parser/x10.g"
                 Object AdditiveExpression = (Object) getRhsSym(3);
-                //#line 2033 "x10/parser/x10.g"
+                //#line 2030 "x10/parser/x10.g"
 		r.rule_ShiftExpression3(ShiftExpression,AdditiveExpression);
                 break;
             }
@@ -4124,11 +4124,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 445:  OverloadableShiftExpression ::= ShiftExpression$expr1 -> AdditiveExpression$expr2
             //
             case 445: {
-                //#line 2035 "x10/parser/x10.g"
+                //#line 2032 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(1);
-                //#line 2035 "x10/parser/x10.g"
+                //#line 2032 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
-                //#line 2037 "x10/parser/x10.g"
+                //#line 2034 "x10/parser/x10.g"
 		r.rule_ShiftExpression4(expr1,expr2);
                 break;
             }
@@ -4136,11 +4136,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 446:  OverloadableShiftExpression ::= ShiftExpression$expr1 <- AdditiveExpression$expr2
             //
             case 446: {
-                //#line 2039 "x10/parser/x10.g"
+                //#line 2036 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(1);
-                //#line 2039 "x10/parser/x10.g"
+                //#line 2036 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
-                //#line 2041 "x10/parser/x10.g"
+                //#line 2038 "x10/parser/x10.g"
 		r.rule_ShiftExpression5(expr1,expr2);
                 break;
             }
@@ -4148,11 +4148,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 447:  OverloadableShiftExpression ::= ShiftExpression$expr1 -< AdditiveExpression$expr2
             //
             case 447: {
-                //#line 2043 "x10/parser/x10.g"
+                //#line 2040 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(1);
-                //#line 2043 "x10/parser/x10.g"
+                //#line 2040 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
-                //#line 2045 "x10/parser/x10.g"
+                //#line 2042 "x10/parser/x10.g"
 		r.rule_ShiftExpression6(expr1,expr2);
                 break;
             }
@@ -4160,11 +4160,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 448:  OverloadableShiftExpression ::= ShiftExpression$expr1 >- AdditiveExpression$expr2
             //
             case 448: {
-                //#line 2047 "x10/parser/x10.g"
+                //#line 2044 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(1);
-                //#line 2047 "x10/parser/x10.g"
+                //#line 2044 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
-                //#line 2049 "x10/parser/x10.g"
+                //#line 2046 "x10/parser/x10.g"
 		r.rule_ShiftExpression7(expr1,expr2);
                 break;
             }
@@ -4172,11 +4172,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 449:  OverloadableShiftExpression ::= ShiftExpression$expr1 ! AdditiveExpression$expr2
             //
             case 449: {
-                //#line 2051 "x10/parser/x10.g"
+                //#line 2048 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(1);
-                //#line 2051 "x10/parser/x10.g"
+                //#line 2048 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
-                //#line 2053 "x10/parser/x10.g"
+                //#line 2050 "x10/parser/x10.g"
 		r.rule_ShiftExpression8(expr1,expr2);
                 break;
             }
@@ -4184,11 +4184,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 450:  OverloadableShiftExpression ::= ShiftExpression$expr1 <> AdditiveExpression$expr2
             //
             case 450: {
-                //#line 2055 "x10/parser/x10.g"
+                //#line 2052 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(1);
-                //#line 2055 "x10/parser/x10.g"
+                //#line 2052 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
-                //#line 2057 "x10/parser/x10.g"
+                //#line 2054 "x10/parser/x10.g"
 		r.rule_ShiftExpression9(expr1,expr2);
                 break;
             }
@@ -4196,11 +4196,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 451:  OverloadableShiftExpression ::= ShiftExpression$expr1 >< AdditiveExpression$expr2
             //
             case 451: {
-                //#line 2059 "x10/parser/x10.g"
+                //#line 2056 "x10/parser/x10.g"
                 Object expr1 = (Object) getRhsSym(1);
-                //#line 2059 "x10/parser/x10.g"
+                //#line 2056 "x10/parser/x10.g"
                 Object expr2 = (Object) getRhsSym(3);
-                //#line 2061 "x10/parser/x10.g"
+                //#line 2058 "x10/parser/x10.g"
 		r.rule_ShiftExpression10(expr1,expr2);
                 break;
             }
@@ -4208,11 +4208,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 456:  RelationalExpression ::= RelationalExpression instanceof Type
             //
             case 456: {
-                //#line 2068 "x10/parser/x10.g"
+                //#line 2065 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
-                //#line 2068 "x10/parser/x10.g"
+                //#line 2065 "x10/parser/x10.g"
                 Object Type = (Object) getRhsSym(3);
-                //#line 2070 "x10/parser/x10.g"
+                //#line 2067 "x10/parser/x10.g"
 		r.rule_RelationalExpression7(RelationalExpression,Type);
                 break;
             }
@@ -4220,11 +4220,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 457:  OverloadableRelationalExpression ::= RelationalExpression < ShiftExpression
             //
             case 457: {
-                //#line 2073 "x10/parser/x10.g"
+                //#line 2070 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
-                //#line 2073 "x10/parser/x10.g"
+                //#line 2070 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(3);
-                //#line 2075 "x10/parser/x10.g"
+                //#line 2072 "x10/parser/x10.g"
 		r.rule_RelationalExpression3(RelationalExpression,ShiftExpression);
                 break;
             }
@@ -4232,11 +4232,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 458:  OverloadableRelationalExpression ::= RelationalExpression > ShiftExpression
             //
             case 458: {
-                //#line 2077 "x10/parser/x10.g"
+                //#line 2074 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
-                //#line 2077 "x10/parser/x10.g"
+                //#line 2074 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(3);
-                //#line 2079 "x10/parser/x10.g"
+                //#line 2076 "x10/parser/x10.g"
 		r.rule_RelationalExpression4(RelationalExpression,ShiftExpression);
                 break;
             }
@@ -4244,11 +4244,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 459:  OverloadableRelationalExpression ::= RelationalExpression <= ShiftExpression
             //
             case 459: {
-                //#line 2081 "x10/parser/x10.g"
+                //#line 2078 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
-                //#line 2081 "x10/parser/x10.g"
+                //#line 2078 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(3);
-                //#line 2083 "x10/parser/x10.g"
+                //#line 2080 "x10/parser/x10.g"
 		r.rule_RelationalExpression5(RelationalExpression,ShiftExpression);
                 break;
             }
@@ -4256,11 +4256,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 460:  OverloadableRelationalExpression ::= RelationalExpression >= ShiftExpression
             //
             case 460: {
-                //#line 2085 "x10/parser/x10.g"
+                //#line 2082 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(1);
-                //#line 2085 "x10/parser/x10.g"
+                //#line 2082 "x10/parser/x10.g"
                 Object ShiftExpression = (Object) getRhsSym(3);
-                //#line 2087 "x10/parser/x10.g"
+                //#line 2084 "x10/parser/x10.g"
 		r.rule_RelationalExpression6(RelationalExpression,ShiftExpression);
                 break;
             }
@@ -4268,11 +4268,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 462:  EqualityExpression ::= EqualityExpression == RelationalExpression
             //
             case 462: {
-                //#line 2091 "x10/parser/x10.g"
+                //#line 2088 "x10/parser/x10.g"
                 Object EqualityExpression = (Object) getRhsSym(1);
-                //#line 2091 "x10/parser/x10.g"
+                //#line 2088 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(3);
-                //#line 2093 "x10/parser/x10.g"
+                //#line 2090 "x10/parser/x10.g"
 		r.rule_EqualityExpression1(EqualityExpression,RelationalExpression);
                 break;
             }
@@ -4280,11 +4280,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 463:  EqualityExpression ::= EqualityExpression != RelationalExpression
             //
             case 463: {
-                //#line 2095 "x10/parser/x10.g"
+                //#line 2092 "x10/parser/x10.g"
                 Object EqualityExpression = (Object) getRhsSym(1);
-                //#line 2095 "x10/parser/x10.g"
+                //#line 2092 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(3);
-                //#line 2097 "x10/parser/x10.g"
+                //#line 2094 "x10/parser/x10.g"
 		r.rule_EqualityExpression2(EqualityExpression,RelationalExpression);
                 break;
             }
@@ -4292,11 +4292,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 464:  EqualityExpression ::= Type$t1 == Type$t2
             //
             case 464: {
-                //#line 2099 "x10/parser/x10.g"
+                //#line 2096 "x10/parser/x10.g"
                 Object t1 = (Object) getRhsSym(1);
-                //#line 2099 "x10/parser/x10.g"
+                //#line 2096 "x10/parser/x10.g"
                 Object t2 = (Object) getRhsSym(3);
-                //#line 2101 "x10/parser/x10.g"
+                //#line 2098 "x10/parser/x10.g"
 		r.rule_EqualityExpression3(t1,t2);
                 break;
             }
@@ -4304,11 +4304,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 466:  OverloadableEqualityExpression ::= EqualityExpression ~ RelationalExpression
             //
             case 466: {
-                //#line 2105 "x10/parser/x10.g"
+                //#line 2102 "x10/parser/x10.g"
                 Object EqualityExpression = (Object) getRhsSym(1);
-                //#line 2105 "x10/parser/x10.g"
+                //#line 2102 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(3);
-                //#line 2107 "x10/parser/x10.g"
+                //#line 2104 "x10/parser/x10.g"
 		r.rule_EqualityExpression4(EqualityExpression,RelationalExpression);
                 break;
             }
@@ -4316,11 +4316,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 467:  OverloadableEqualityExpression ::= EqualityExpression !~ RelationalExpression
             //
             case 467: {
-                //#line 2109 "x10/parser/x10.g"
+                //#line 2106 "x10/parser/x10.g"
                 Object EqualityExpression = (Object) getRhsSym(1);
-                //#line 2109 "x10/parser/x10.g"
+                //#line 2106 "x10/parser/x10.g"
                 Object RelationalExpression = (Object) getRhsSym(3);
-                //#line 2111 "x10/parser/x10.g"
+                //#line 2108 "x10/parser/x10.g"
 		r.rule_EqualityExpression5(EqualityExpression,RelationalExpression);
                 break;
             }
@@ -4328,11 +4328,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 470:  OverloadableAndExpression ::= AndExpression & EqualityExpression
             //
             case 470: {
-                //#line 2117 "x10/parser/x10.g"
+                //#line 2114 "x10/parser/x10.g"
                 Object AndExpression = (Object) getRhsSym(1);
-                //#line 2117 "x10/parser/x10.g"
+                //#line 2114 "x10/parser/x10.g"
                 Object EqualityExpression = (Object) getRhsSym(3);
-                //#line 2119 "x10/parser/x10.g"
+                //#line 2116 "x10/parser/x10.g"
 		r.rule_AndExpression1(AndExpression,EqualityExpression);
                 break;
             }
@@ -4340,11 +4340,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 473:  OverloadableExclusiveOrExpression ::= ExclusiveOrExpression ^ AndExpression
             //
             case 473: {
-                //#line 2125 "x10/parser/x10.g"
+                //#line 2122 "x10/parser/x10.g"
                 Object ExclusiveOrExpression = (Object) getRhsSym(1);
-                //#line 2125 "x10/parser/x10.g"
+                //#line 2122 "x10/parser/x10.g"
                 Object AndExpression = (Object) getRhsSym(3);
-                //#line 2127 "x10/parser/x10.g"
+                //#line 2124 "x10/parser/x10.g"
 		r.rule_ExclusiveOrExpression1(ExclusiveOrExpression,AndExpression);
                 break;
             }
@@ -4352,11 +4352,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 476:  OverloadableInclusiveOrExpression ::= InclusiveOrExpression | ExclusiveOrExpression
             //
             case 476: {
-                //#line 2133 "x10/parser/x10.g"
+                //#line 2130 "x10/parser/x10.g"
                 Object InclusiveOrExpression = (Object) getRhsSym(1);
-                //#line 2133 "x10/parser/x10.g"
+                //#line 2130 "x10/parser/x10.g"
                 Object ExclusiveOrExpression = (Object) getRhsSym(3);
-                //#line 2135 "x10/parser/x10.g"
+                //#line 2132 "x10/parser/x10.g"
 		r.rule_InclusiveOrExpression1(InclusiveOrExpression,ExclusiveOrExpression);
                 break;
             }
@@ -4364,11 +4364,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 479:  OverloadableConditionalAndExpression ::= ConditionalAndExpression && InclusiveOrExpression
             //
             case 479: {
-                //#line 2141 "x10/parser/x10.g"
+                //#line 2138 "x10/parser/x10.g"
                 Object ConditionalAndExpression = (Object) getRhsSym(1);
-                //#line 2141 "x10/parser/x10.g"
+                //#line 2138 "x10/parser/x10.g"
                 Object InclusiveOrExpression = (Object) getRhsSym(3);
-                //#line 2143 "x10/parser/x10.g"
+                //#line 2140 "x10/parser/x10.g"
 		r.rule_ConditionalAndExpression1(ConditionalAndExpression,InclusiveOrExpression);
                 break;
             }
@@ -4376,11 +4376,11 @@ public class X10Parser extends Object implements RuleAction
             // Rule 482:  OverloadableConditionalOrExpression ::= ConditionalOrExpression || ConditionalAndExpression
             //
             case 482: {
-                //#line 2149 "x10/parser/x10.g"
+                //#line 2146 "x10/parser/x10.g"
                 Object ConditionalOrExpression = (Object) getRhsSym(1);
-                //#line 2149 "x10/parser/x10.g"
+                //#line 2146 "x10/parser/x10.g"
                 Object ConditionalAndExpression = (Object) getRhsSym(3);
-                //#line 2151 "x10/parser/x10.g"
+                //#line 2148 "x10/parser/x10.g"
 		r.rule_ConditionalOrExpression1(ConditionalOrExpression,ConditionalAndExpression);
                 break;
             }
@@ -4388,13 +4388,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 487:  ConditionalExpression ::= ConditionalOrExpression ? Expression : ConditionalExpression
             //
             case 487: {
-                //#line 2159 "x10/parser/x10.g"
+                //#line 2156 "x10/parser/x10.g"
                 Object ConditionalOrExpression = (Object) getRhsSym(1);
-                //#line 2159 "x10/parser/x10.g"
+                //#line 2156 "x10/parser/x10.g"
                 Object Expression = (Object) getRhsSym(3);
-                //#line 2159 "x10/parser/x10.g"
+                //#line 2156 "x10/parser/x10.g"
                 Object ConditionalExpression = (Object) getRhsSym(5);
-                //#line 2161 "x10/parser/x10.g"
+                //#line 2158 "x10/parser/x10.g"
 		r.rule_ConditionalExpression4(ConditionalOrExpression,Expression,ConditionalExpression);
                 break;
             }
@@ -4402,13 +4402,13 @@ public class X10Parser extends Object implements RuleAction
             // Rule 490:  Assignment ::= LeftHandSide AssignmentOperator AssignmentExpression
             //
             case 490: {
-                //#line 2167 "x10/parser/x10.g"
+                //#line 2164 "x10/parser/x10.g"
                 Object LeftHandSide = (Object) getRhsSym(1);
-                //#line 2167 "x10/parser/x10.g"
+                //#line 2164 "x10/parser/x10.g"
                 Object AssignmentOperator = (Object) getRhsSym(2);
-                //#line 2167 "x10/parser/x10.g"
+                //#line 2164 "x10/parser/x10.g"
                 Object AssignmentExpression = (Object) getRhsSym(3);
-                //#line 2169 "x10/parser/x10.g"
+                //#line 2166 "x10/parser/x10.g"
 		r.rule_Assignment0(LeftHandSide,AssignmentOperator,AssignmentExpression);
                 break;
             }
@@ -4416,15 +4416,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 491:  Assignment ::= ExpressionName$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
             case 491: {
-                //#line 2171 "x10/parser/x10.g"
+                //#line 2168 "x10/parser/x10.g"
                 Object e1 = (Object) getRhsSym(1);
-                //#line 2171 "x10/parser/x10.g"
+                //#line 2168 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(3);
-                //#line 2171 "x10/parser/x10.g"
+                //#line 2168 "x10/parser/x10.g"
                 Object AssignmentOperator = (Object) getRhsSym(5);
-                //#line 2171 "x10/parser/x10.g"
+                //#line 2168 "x10/parser/x10.g"
                 Object AssignmentExpression = (Object) getRhsSym(6);
-                //#line 2173 "x10/parser/x10.g"
+                //#line 2170 "x10/parser/x10.g"
 		r.rule_Assignment1(e1,ArgumentListopt,AssignmentOperator,AssignmentExpression);
                 break;
             }
@@ -4432,15 +4432,15 @@ public class X10Parser extends Object implements RuleAction
             // Rule 492:  Assignment ::= Primary$e1 ( ArgumentListopt ) AssignmentOperator AssignmentExpression
             //
             case 492: {
-                //#line 2175 "x10/parser/x10.g"
+                //#line 2172 "x10/parser/x10.g"
                 Object e1 = (Object) getRhsSym(1);
-                //#line 2175 "x10/parser/x10.g"
+                //#line 2172 "x10/parser/x10.g"
                 Object ArgumentListopt = (Object) getRhsSym(3);
-                //#line 2175 "x10/parser/x10.g"
+                //#line 2172 "x10/parser/x10.g"
                 Object AssignmentOperator = (Object) getRhsSym(5);
-                //#line 2175 "x10/parser/x10.g"
+                //#line 2172 "x10/parser/x10.g"
                 Object AssignmentExpression = (Object) getRhsSym(6);
-                //#line 2177 "x10/parser/x10.g"
+                //#line 2174 "x10/parser/x10.g"
 		r.rule_Assignment2(e1,ArgumentListopt,AssignmentOperator,AssignmentExpression);
                 break;
             }
@@ -4448,9 +4448,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 493:  LeftHandSide ::= ExpressionName
             //
             case 493: {
-                //#line 2180 "x10/parser/x10.g"
+                //#line 2177 "x10/parser/x10.g"
                 Object ExpressionName = (Object) getRhsSym(1);
-                //#line 2182 "x10/parser/x10.g"
+                //#line 2179 "x10/parser/x10.g"
 		r.rule_LeftHandSide0(ExpressionName);
                 break;
             }
@@ -4459,7 +4459,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 495: {
                 
-                //#line 2188 "x10/parser/x10.g"
+                //#line 2185 "x10/parser/x10.g"
 		r.rule_AssignmentOperator0();
                 break;
             }
@@ -4468,7 +4468,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 496: {
                 
-                //#line 2192 "x10/parser/x10.g"
+                //#line 2189 "x10/parser/x10.g"
 		r.rule_AssignmentOperator1();
                 break;
             }
@@ -4477,7 +4477,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 497: {
                 
-                //#line 2196 "x10/parser/x10.g"
+                //#line 2193 "x10/parser/x10.g"
 		r.rule_AssignmentOperator2();
                 break;
             }
@@ -4486,7 +4486,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 498: {
                 
-                //#line 2200 "x10/parser/x10.g"
+                //#line 2197 "x10/parser/x10.g"
 		r.rule_AssignmentOperator3();
                 break;
             }
@@ -4495,7 +4495,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 499: {
                 
-                //#line 2204 "x10/parser/x10.g"
+                //#line 2201 "x10/parser/x10.g"
 		r.rule_AssignmentOperator4();
                 break;
             }
@@ -4504,7 +4504,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 500: {
                 
-                //#line 2208 "x10/parser/x10.g"
+                //#line 2205 "x10/parser/x10.g"
 		r.rule_AssignmentOperator5();
                 break;
             }
@@ -4513,7 +4513,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 501: {
                 
-                //#line 2212 "x10/parser/x10.g"
+                //#line 2209 "x10/parser/x10.g"
 		r.rule_AssignmentOperator6();
                 break;
             }
@@ -4522,7 +4522,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 502: {
                 
-                //#line 2216 "x10/parser/x10.g"
+                //#line 2213 "x10/parser/x10.g"
 		r.rule_AssignmentOperator7();
                 break;
             }
@@ -4531,7 +4531,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 503: {
                 
-                //#line 2220 "x10/parser/x10.g"
+                //#line 2217 "x10/parser/x10.g"
 		r.rule_AssignmentOperator8();
                 break;
             }
@@ -4540,7 +4540,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 504: {
                 
-                //#line 2224 "x10/parser/x10.g"
+                //#line 2221 "x10/parser/x10.g"
 		r.rule_AssignmentOperator9();
                 break;
             }
@@ -4549,7 +4549,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 505: {
                 
-                //#line 2228 "x10/parser/x10.g"
+                //#line 2225 "x10/parser/x10.g"
 		r.rule_AssignmentOperator10();
                 break;
             }
@@ -4558,7 +4558,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 506: {
                 
-                //#line 2232 "x10/parser/x10.g"
+                //#line 2229 "x10/parser/x10.g"
 		r.rule_AssignmentOperator11();
                 break;
             }
@@ -4567,7 +4567,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 507: {
                 
-                //#line 2236 "x10/parser/x10.g"
+                //#line 2233 "x10/parser/x10.g"
 		r.rule_AssignmentOperator12();
                 break;
             }
@@ -4576,7 +4576,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 508: {
                 
-                //#line 2240 "x10/parser/x10.g"
+                //#line 2237 "x10/parser/x10.g"
 		r.rule_AssignmentOperator13();
                 break;
             }
@@ -4585,7 +4585,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 509: {
                 
-                //#line 2244 "x10/parser/x10.g"
+                //#line 2241 "x10/parser/x10.g"
 		r.rule_AssignmentOperator14();
                 break;
             }
@@ -4594,7 +4594,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 510: {
                 
-                //#line 2248 "x10/parser/x10.g"
+                //#line 2245 "x10/parser/x10.g"
 		r.rule_AssignmentOperator15();
                 break;
             }
@@ -4603,7 +4603,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 511: {
                 
-                //#line 2252 "x10/parser/x10.g"
+                //#line 2249 "x10/parser/x10.g"
 		r.rule_AssignmentOperator16();
                 break;
             }
@@ -4612,7 +4612,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 512: {
                 
-                //#line 2256 "x10/parser/x10.g"
+                //#line 2253 "x10/parser/x10.g"
 		r.rule_AssignmentOperator17();
                 break;
             }
@@ -4621,7 +4621,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 513: {
                 
-                //#line 2260 "x10/parser/x10.g"
+                //#line 2257 "x10/parser/x10.g"
 		r.rule_AssignmentOperator18();
                 break;
             }
@@ -4630,7 +4630,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 514: {
                 
-                //#line 2264 "x10/parser/x10.g"
+                //#line 2261 "x10/parser/x10.g"
 		r.rule_AssignmentOperator19();
                 break;
             }
@@ -4639,7 +4639,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 515: {
                 
-                //#line 2268 "x10/parser/x10.g"
+                //#line 2265 "x10/parser/x10.g"
 		r.rule_AssignmentOperator20();
                 break;
             }
@@ -4648,7 +4648,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 518: {
                 
-                //#line 2278 "x10/parser/x10.g"
+                //#line 2275 "x10/parser/x10.g"
 		r.rule_PrefixOp0();
                 break;
             }
@@ -4657,7 +4657,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 519: {
                 
-                //#line 2282 "x10/parser/x10.g"
+                //#line 2279 "x10/parser/x10.g"
 		r.rule_PrefixOp1();
                 break;
             }
@@ -4666,7 +4666,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 520: {
                 
-                //#line 2286 "x10/parser/x10.g"
+                //#line 2283 "x10/parser/x10.g"
 		r.rule_PrefixOp2();
                 break;
             }
@@ -4675,7 +4675,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 521: {
                 
-                //#line 2290 "x10/parser/x10.g"
+                //#line 2287 "x10/parser/x10.g"
 		r.rule_PrefixOp3();
                 break;
             }
@@ -4684,7 +4684,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 522: {
                 
-                //#line 2296 "x10/parser/x10.g"
+                //#line 2293 "x10/parser/x10.g"
 		r.rule_PrefixOp4();
                 break;
             }
@@ -4693,7 +4693,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 523: {
                 
-                //#line 2300 "x10/parser/x10.g"
+                //#line 2297 "x10/parser/x10.g"
 		r.rule_PrefixOp5();
                 break;
             }
@@ -4702,7 +4702,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 524: {
                 
-                //#line 2304 "x10/parser/x10.g"
+                //#line 2301 "x10/parser/x10.g"
 		r.rule_PrefixOp6();
                 break;
             }
@@ -4711,7 +4711,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 525: {
                 
-                //#line 2308 "x10/parser/x10.g"
+                //#line 2305 "x10/parser/x10.g"
 		r.rule_PrefixOp7();
                 break;
             }
@@ -4720,7 +4720,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 526: {
                 
-                //#line 2312 "x10/parser/x10.g"
+                //#line 2309 "x10/parser/x10.g"
 		r.rule_PrefixOp8();
                 break;
             }
@@ -4729,7 +4729,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 527: {
                 
-                //#line 2316 "x10/parser/x10.g"
+                //#line 2313 "x10/parser/x10.g"
 		r.rule_PrefixOp9();
                 break;
             }
@@ -4738,7 +4738,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 528: {
                 
-                //#line 2321 "x10/parser/x10.g"
+                //#line 2318 "x10/parser/x10.g"
 		r.rule_BinOp0();
                 break;
             }
@@ -4747,7 +4747,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 529: {
                 
-                //#line 2325 "x10/parser/x10.g"
+                //#line 2322 "x10/parser/x10.g"
 		r.rule_BinOp1();
                 break;
             }
@@ -4756,7 +4756,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 530: {
                 
-                //#line 2329 "x10/parser/x10.g"
+                //#line 2326 "x10/parser/x10.g"
 		r.rule_BinOp2();
                 break;
             }
@@ -4765,7 +4765,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 531: {
                 
-                //#line 2333 "x10/parser/x10.g"
+                //#line 2330 "x10/parser/x10.g"
 		r.rule_BinOp3();
                 break;
             }
@@ -4774,7 +4774,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 532: {
                 
-                //#line 2337 "x10/parser/x10.g"
+                //#line 2334 "x10/parser/x10.g"
 		r.rule_BinOp4();
                 break;
             }
@@ -4783,7 +4783,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 533: {
                 
-                //#line 2341 "x10/parser/x10.g"
+                //#line 2338 "x10/parser/x10.g"
 		r.rule_BinOp5();
                 break;
             }
@@ -4792,7 +4792,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 534: {
                 
-                //#line 2345 "x10/parser/x10.g"
+                //#line 2342 "x10/parser/x10.g"
 		r.rule_BinOp6();
                 break;
             }
@@ -4801,7 +4801,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 535: {
                 
-                //#line 2349 "x10/parser/x10.g"
+                //#line 2346 "x10/parser/x10.g"
 		r.rule_BinOp7();
                 break;
             }
@@ -4810,7 +4810,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 536: {
                 
-                //#line 2353 "x10/parser/x10.g"
+                //#line 2350 "x10/parser/x10.g"
 		r.rule_BinOp8();
                 break;
             }
@@ -4819,7 +4819,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 537: {
                 
-                //#line 2357 "x10/parser/x10.g"
+                //#line 2354 "x10/parser/x10.g"
 		r.rule_BinOp9();
                 break;
             }
@@ -4828,7 +4828,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 538: {
                 
-                //#line 2361 "x10/parser/x10.g"
+                //#line 2358 "x10/parser/x10.g"
 		r.rule_BinOp10();
                 break;
             }
@@ -4837,7 +4837,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 539: {
                 
-                //#line 2365 "x10/parser/x10.g"
+                //#line 2362 "x10/parser/x10.g"
 		r.rule_BinOp11();
                 break;
             }
@@ -4846,7 +4846,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 540: {
                 
-                //#line 2369 "x10/parser/x10.g"
+                //#line 2366 "x10/parser/x10.g"
 		r.rule_BinOp12();
                 break;
             }
@@ -4855,7 +4855,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 541: {
                 
-                //#line 2373 "x10/parser/x10.g"
+                //#line 2370 "x10/parser/x10.g"
 		r.rule_BinOp13();
                 break;
             }
@@ -4864,7 +4864,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 542: {
                 
-                //#line 2377 "x10/parser/x10.g"
+                //#line 2374 "x10/parser/x10.g"
 		r.rule_BinOp14();
                 break;
             }
@@ -4873,7 +4873,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 543: {
                 
-                //#line 2381 "x10/parser/x10.g"
+                //#line 2378 "x10/parser/x10.g"
 		r.rule_BinOp15();
                 break;
             }
@@ -4882,7 +4882,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 544: {
                 
-                //#line 2385 "x10/parser/x10.g"
+                //#line 2382 "x10/parser/x10.g"
 		r.rule_BinOp16();
                 break;
             }
@@ -4891,7 +4891,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 545: {
                 
-                //#line 2392 "x10/parser/x10.g"
+                //#line 2389 "x10/parser/x10.g"
 		r.rule_BinOp17();
                 break;
             }
@@ -4900,7 +4900,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 546: {
                 
-                //#line 2396 "x10/parser/x10.g"
+                //#line 2393 "x10/parser/x10.g"
 		r.rule_BinOp18();
                 break;
             }
@@ -4909,7 +4909,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 547: {
                 
-                //#line 2402 "x10/parser/x10.g"
+                //#line 2399 "x10/parser/x10.g"
 		r.rule_BinOp19();
                 break;
             }
@@ -4918,7 +4918,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 548: {
                 
-                //#line 2406 "x10/parser/x10.g"
+                //#line 2403 "x10/parser/x10.g"
 		r.rule_BinOp20();
                 break;
             }
@@ -4927,7 +4927,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 549: {
                 
-                //#line 2410 "x10/parser/x10.g"
+                //#line 2407 "x10/parser/x10.g"
 		r.rule_BinOp21();
                 break;
             }
@@ -4936,7 +4936,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 550: {
                 
-                //#line 2414 "x10/parser/x10.g"
+                //#line 2411 "x10/parser/x10.g"
 		r.rule_BinOp22();
                 break;
             }
@@ -4945,7 +4945,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 551: {
                 
-                //#line 2418 "x10/parser/x10.g"
+                //#line 2415 "x10/parser/x10.g"
 		r.rule_BinOp23();
                 break;
             }
@@ -4954,7 +4954,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 552: {
                 
-                //#line 2422 "x10/parser/x10.g"
+                //#line 2419 "x10/parser/x10.g"
 		r.rule_BinOp24();
                 break;
             }
@@ -4963,7 +4963,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 553: {
                 
-                //#line 2426 "x10/parser/x10.g"
+                //#line 2423 "x10/parser/x10.g"
 		r.rule_BinOp25();
                 break;
             }
@@ -4972,7 +4972,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 554: {
                 
-                //#line 2430 "x10/parser/x10.g"
+                //#line 2427 "x10/parser/x10.g"
 		r.rule_BinOp26();
                 break;
             }
@@ -4981,7 +4981,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 555: {
                 
-                //#line 2434 "x10/parser/x10.g"
+                //#line 2431 "x10/parser/x10.g"
 		r.rule_BinOp27();
                 break;
             }
@@ -4990,7 +4990,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 556: {
                 
-                //#line 2438 "x10/parser/x10.g"
+                //#line 2435 "x10/parser/x10.g"
 		r.rule_BinOp28();
                 break;
             }
@@ -4999,7 +4999,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 557: {
                 
-                //#line 2442 "x10/parser/x10.g"
+                //#line 2439 "x10/parser/x10.g"
 		r.rule_BinOp29();
                 break;
             }
@@ -5008,7 +5008,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 558: {
                 
-                //#line 2450 "x10/parser/x10.g"
+                //#line 2447 "x10/parser/x10.g"
 		r.rule_Catchesopt0();
                 break;
             }
@@ -5023,9 +5023,9 @@ public class X10Parser extends Object implements RuleAction
             // Rule 561:  Identifieropt ::= Identifier
             //
             case 561: {
-                //#line 2456 "x10/parser/x10.g"
+                //#line 2453 "x10/parser/x10.g"
                 Object Identifier = (Object) getRhsSym(1);
-                //#line 2458 "x10/parser/x10.g"
+                //#line 2455 "x10/parser/x10.g"
 		r.rule_Identifieropt1(Identifier);
                 break;
             }
@@ -5034,7 +5034,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 562: {
                 
-                //#line 2463 "x10/parser/x10.g"
+                //#line 2460 "x10/parser/x10.g"
 		r.rule_ForUpdateopt0();
                 break;
             }
@@ -5050,7 +5050,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 566: {
                 
-                //#line 2473 "x10/parser/x10.g"
+                //#line 2470 "x10/parser/x10.g"
 		r.rule_ForInitopt0();
                 break;
             }
@@ -5059,7 +5059,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 568: {
                 
-                //#line 2479 "x10/parser/x10.g"
+                //#line 2476 "x10/parser/x10.g"
 		r.rule_SwitchLabelsopt0();
                 break;
             }
@@ -5068,7 +5068,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 570: {
                 
-                //#line 2485 "x10/parser/x10.g"
+                //#line 2482 "x10/parser/x10.g"
 		r.rule_SwitchBlockStatementGroupsopt0();
                 break;
             }
@@ -5077,7 +5077,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 572: {
                 
-                //#line 2491 "x10/parser/x10.g"
+                //#line 2488 "x10/parser/x10.g"
 		r.rule_InterfaceMemberDeclarationsopt0();
                 break;
             }
@@ -5086,7 +5086,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 574: {
                 
-                //#line 2497 "x10/parser/x10.g"
+                //#line 2494 "x10/parser/x10.g"
 		r.rule_ExtendsInterfacesopt0();
                 break;
             }
@@ -5102,7 +5102,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 578: {
                 
-                //#line 2507 "x10/parser/x10.g"
+                //#line 2504 "x10/parser/x10.g"
 		r.rule_ArgumentListopt0();
                 break;
             }
@@ -5111,7 +5111,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 580: {
                 
-                //#line 2513 "x10/parser/x10.g"
+                //#line 2510 "x10/parser/x10.g"
 		r.rule_BlockStatementsopt0();
                 break;
             }
@@ -5127,7 +5127,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 584: {
                 
-                //#line 2523 "x10/parser/x10.g"
+                //#line 2520 "x10/parser/x10.g"
 		r.rule_FormalParameterListopt0();
                 break;
             }
@@ -5136,7 +5136,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 586: {
                 
-                //#line 2529 "x10/parser/x10.g"
+                //#line 2526 "x10/parser/x10.g"
 		r.rule_OBSOLETE_Offersopt0();
                 break;
             }
@@ -5145,7 +5145,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 588: {
                 
-                //#line 2535 "x10/parser/x10.g"
+                //#line 2532 "x10/parser/x10.g"
 		r.rule_ClassMemberDeclarationsopt0();
                 break;
             }
@@ -5154,7 +5154,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 590: {
                 
-                //#line 2541 "x10/parser/x10.g"
+                //#line 2538 "x10/parser/x10.g"
 		r.rule_Interfacesopt0();
                 break;
             }
@@ -5170,7 +5170,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 594: {
                 
-                //#line 2551 "x10/parser/x10.g"
+                //#line 2548 "x10/parser/x10.g"
 		r.rule_TypeParametersopt0();
                 break;
             }
@@ -5179,7 +5179,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 596: {
                 
-                //#line 2557 "x10/parser/x10.g"
+                //#line 2554 "x10/parser/x10.g"
 		r.rule_FormalParametersopt0();
                 break;
             }
@@ -5188,7 +5188,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 598: {
                 
-                //#line 2563 "x10/parser/x10.g"
+                //#line 2560 "x10/parser/x10.g"
 		r.rule_Annotationsopt0();
                 break;
             }
@@ -5197,7 +5197,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 600: {
                 
-                //#line 2569 "x10/parser/x10.g"
+                //#line 2566 "x10/parser/x10.g"
 		r.rule_TypeDeclarationsopt0();
                 break;
             }
@@ -5206,7 +5206,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 602: {
                 
-                //#line 2575 "x10/parser/x10.g"
+                //#line 2572 "x10/parser/x10.g"
 		r.rule_ImportDeclarationsopt0();
                 break;
             }
@@ -5229,7 +5229,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 608: {
                 
-                //#line 2589 "x10/parser/x10.g"
+                //#line 2586 "x10/parser/x10.g"
 		r.rule_TypeArgumentsopt0();
                 break;
             }
@@ -5238,7 +5238,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 610: {
                 
-                //#line 2595 "x10/parser/x10.g"
+                //#line 2592 "x10/parser/x10.g"
 		r.rule_TypeParamsWithVarianceopt0();
                 break;
             }
@@ -5247,7 +5247,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 612: {
                 
-                //#line 2601 "x10/parser/x10.g"
+                //#line 2598 "x10/parser/x10.g"
 		r.rule_Propertiesopt0();
                 break;
             }
@@ -5263,7 +5263,7 @@ public class X10Parser extends Object implements RuleAction
             //
             case 616: {
                 
-                //#line 2611 "x10/parser/x10.g"
+                //#line 2608 "x10/parser/x10.g"
 		r.rule_AtCaptureDeclaratorsopt0();
                 break;
             }
