@@ -33,7 +33,7 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
         this.$value = value;
     }
 
-    private abstract static class UByteCache {
+    private abstract static class Cache {
         static final UByte cache[] = new UByte[-(-128) + 127 + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -44,7 +44,7 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
 
     public static UByte $box(byte value) {
         final int offset = 128;
-        return UByteCache.cache[(int)value + offset];
+        return Cache.cache[(int)value + offset];  // fully cached
 //        return new UByte(value);
     }
     

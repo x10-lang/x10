@@ -33,20 +33,19 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         this.$value = value;
     }
 
-    private abstract static class UShortCache {
-        static final UShort cache[] = new UShort[-(-128) + 127 + 1];
+    private abstract static class Cache {
+        static final UShort cache[] = new UShort[256];
         static {
             for (int i = 0; i < cache.length; ++i) {
-                cache[i] = new UShort((short)(i - 128));
+                cache[i] = new UShort((short) i);
             }
         }
     }
 
     public static UShort $box(short value) {
-        final int offset = 128;
         int valueAsInt = value;
-        if (valueAsInt >= -128 && valueAsInt <= 127) {
-            return UShortCache.cache[valueAsInt + offset];
+        if (0 <= valueAsInt && valueAsInt < 256) {
+            return Cache.cache[valueAsInt];
         }
         return new UShort(value);
     }

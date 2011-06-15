@@ -33,40 +33,35 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
         this.$value = value;
     }
 
-    // value of x10.lang.UInt.UIntCache.high property
-    private static java.lang.String uintCacheHighPropValue = null;
-//    private static java.lang.String uintCacheHighPropValue = "127";
+    // value of x10.lang.UInt.Cache.high property
+    private static java.lang.String cacheHighPropValue = System.getProperty("x10.lang.UInt.Cache.high");
 
-    private abstract static class UIntCache {
+    private abstract static class Cache {
         static final int high;
         static final UInt cache[];
         static {
-            final int low = -128;
-
             // high value may be configured by property
-            int h = 127;
-            if (uintCacheHighPropValue != null) {
+            int h = 255;
+            if (cacheHighPropValue != null) {
                 // Use Long.decode here to avoid invoking methods that
                 // require Integer's autoboxing cache to be initialized
-                int i = java.lang.Long.decode(uintCacheHighPropValue).intValue();
-                i = Math.max(i, 127);
+                int i = java.lang.Long.decode(cacheHighPropValue).intValue();
+                i = Math.max(i, h);
                 // Maximum array size is Integer.MAX_VALUE
-                h = Math.min(i, Integer.MAX_VALUE - -low);
+                h = Math.min(i, Integer.MAX_VALUE);
             }
             high = h;
 
-            cache = new UInt[(high - low) + 1];
-            int j = low;
-            for (int k = 0; k < cache.length; ++k) {
-                cache[k] = new UInt(j++);
+            cache = new UInt[high + 1];
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new UInt(i);
             }
         }
     }
 
     public static UInt $box(int value) {
-        final int offset = 128;
-        if (value >= -128 && value <= UIntCache.high) {
-            return UIntCache.cache[value + offset];
+        if (0 <= value && value <= Cache.high) {
+            return Cache.cache[value];
         }
         return new UInt(value);
     }

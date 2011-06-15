@@ -33,19 +33,18 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
         this.$value = value;
     }
 
-    private abstract static class ULongCache {
-        static final ULong cache[] = new ULong[-(-128) + 127 + 1];
+    private abstract static class Cache {
+        static final ULong cache[] = new ULong[256];
         static {
             for (int i = 0; i < cache.length; ++i) {
-                cache[i] = new ULong(i - 128);
+                cache[i] = new ULong(i);
             }
         }
     }
 
     public static ULong $box(long value) {
-        final int offset = 128;
-        if (value >= -128 && value <= 127) {
-            return ULongCache.cache[(int)value + offset];
+        if (0 <= value && value < 256) {
+            return Cache.cache[(int) value];
         }
         return new ULong(value);
     }
