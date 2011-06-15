@@ -90,6 +90,8 @@ public class LongType extends RuntimeType<Long> implements X10JavaSerializable{
 	}
 
     public static X10JavaSerializable _deserialize_body(LongType t, X10JavaDeserializer deserializer) throws IOException {
-        return new LongType();
+        LongType longType = new LongType();
+        deserializer.record_reference(longType);
+        return longType;
     }
 }

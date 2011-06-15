@@ -90,7 +90,9 @@ public class BooleanType extends RuntimeType<Boolean> implements X10JavaSerializ
 	}
 
     public static X10JavaSerializable _deserialize_body(BooleanType t, X10JavaDeserializer deserializer) throws IOException {
-        return new BooleanType();
+        BooleanType booleanType = new BooleanType();
+        deserializer.record_reference(booleanType);
+        return booleanType;
     }
     
 }

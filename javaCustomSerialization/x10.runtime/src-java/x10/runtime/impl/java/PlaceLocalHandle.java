@@ -114,6 +114,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 
     public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
         PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null);
+        deserializer.record_reference(placeLocalHandle);
 		return _deserialize_body(placeLocalHandle, deserializer);
 	}
 

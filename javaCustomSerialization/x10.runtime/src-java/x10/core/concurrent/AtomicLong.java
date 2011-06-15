@@ -74,6 +74,7 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     public static X10JavaSerializable _deserialize_body(AtomicLong atomicLong, X10JavaDeserializer deserializer) throws IOException {
         long l = deserializer.readLong();
         AtomicLong al = new AtomicLong(l);
+        deserializer.record_reference(al);
         return al;
     }
 

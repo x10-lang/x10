@@ -126,6 +126,7 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
     public static X10JavaSerializable _deserialize_body(UShort us, X10JavaDeserializer deserializer) throws IOException {
         short value  = deserializer.readShort();
         us = new UShort(value);
+        deserializer.record_reference(us);
         return us;
     }
 }

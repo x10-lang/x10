@@ -108,6 +108,7 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
     public static X10JavaSerializable _deserialize_body(ULong ul, X10JavaDeserializer deserializer) throws IOException {
         long value  = deserializer.readLong();
         ul = new ULong(value);
+        deserializer.record_reference(ul);
         return ul;
     }
     

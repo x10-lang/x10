@@ -11,6 +11,7 @@
 
 package x10.x10rt;
 
+import x10.core.UInt;
 import x10.io.CustomSerialization;
 import x10.rtt.Type;
 import x10.x10rt.DeserializationDispatcher;
@@ -23,17 +24,15 @@ import java.util.Map;
 public class X10JavaSerializer {
 
     //TODO Keith check what the C++ side do on arrays
+
     // When a Object is serialized record its position
-    Map<X10JavaSerializable, Integer> objectMap = new IdentityHashMap<X10JavaSerializable, Integer>();
+    IdentityHashMap<Object, Integer> objectMap = new IdentityHashMap<Object, Integer>();
+    static final int refValue = Integer.parseInt("FFFFFFF", 16);
     ObjectOutput out;
     int counter = 0;
 
     public X10JavaSerializer(ObjectOutput out) {
         this.out = out;
-    }
-
-    public ObjectOutput getOutputStream() {
-        return out;
     }
 
     public void write(X10JavaSerializable obj) throws IOException {
@@ -45,25 +44,20 @@ public class X10JavaSerializer {
         if (obj.getClass().toString().equals("java.lang.Object")) {
             return;
         }
-        int i = obj._get_serialization_id();
-        if (i == 0) {
-            System.out.println();
+        Integer pos;
+        if ((pos = objectMap.get(obj)) != null) {
+            // We have serialized this object before hence no need to do it again
+            // In the C++ backend the value used is 0xFFFFFFFF
+            // TODO keith Make this compliant with C++ value also make the position relative
+            out.writeInt(refValue);
+            out.writeInt(pos);
+        } else {
+            objectMap.put(obj, counter);
+            counter++;
+            int i = obj._get_serialization_id();
+            write(i);
+            obj._serialize(this);
         }
-        write(i);
-//		Integer pos;
-//		if ((pos = objectMap.get(obj)) != null) {
-//			System.out.println("Object already in map pos : " + pos);
-//			// We have serialized this object beofre hence no need to do it again
-//			// In the C++ backend the value used is 0xFFFFFFFF
-//			// TODO keith Make this compliant with C++ value also make the position relative
-//				out.writeInt(Integer.parseInt("FFFFFFFF", 16));
-//				out.writeInt(pos);
-//		} else {
-//			System.out.println("Object not in map serializing " + counter);
-//			objectMap.put(obj, counter);
-//			counter++;
-        obj._serialize(this);
-//		}
     }
 
     public void write(CustomSerialization obj) throws IOException {
@@ -76,10 +70,6 @@ public class X10JavaSerializer {
         for (X10JavaSerializable o : obj) {
             write(o);
         }
-    }
-
-    public void javaSerialize(Object obj) throws IOException {
-        out.writeObject(obj);
     }
 
     public void write(int i) throws IOException {
@@ -192,6 +182,17 @@ public class X10JavaSerializer {
             out.writeInt(DeserializationDispatcher.NULL_ID);
             return;
         }
+        Integer pos;
+        if ((pos = objectMap.get(p)) != null) {
+			// We have serialized this object beofre hence no need to do it again
+			// In the C++ backend the value used is 0xFFFFFFFF
+			// TODO keith Make this compliant with C++ value also make the position relative
+            out.writeInt(refValue);
+		    out.writeInt(pos);
+            return;
+		}
+        objectMap.put(p, counter);
+        counter++;
         int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (id == DeserializationDispatcher.STRING_ID) {
             write(p.toString());
@@ -210,6 +211,8 @@ public class X10JavaSerializer {
             out.writeByte((Byte) p);
         } else if (id == DeserializationDispatcher.CHARACTER_ID) {
             out.writeChar((Character) p);
+        } else if (id == DeserializationDispatcher.LONG_ID) {
+            out.writeLong((Long) p);
         } else {
             throw new RuntimeException("################## Need to handle " + p.getClass().getName());
         }

@@ -249,7 +249,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
 
         public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-            return _deserialize_body(null, deserializer);
+            $Closure$0 closure$0 = null;
+            deserializer.record_reference(closure$0);
+            return _deserialize_body(closure$0, deserializer);
         }
 
         public static X10JavaSerializable _deserialize_body($Closure$0 closure$0, X10JavaDeserializer deserializer) throws IOException {
@@ -412,7 +414,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
 
         public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-            return _deserialize_body(null, deserializer);
+            $Closure$1 closure$1 = null;
+            deserializer.record_reference(closure$1);
+            return _deserialize_body(closure$1, deserializer);
         }
 
         public static X10JavaSerializable _deserialize_body($Closure$1 closure$1, X10JavaDeserializer deserializer) throws IOException {
@@ -432,6 +436,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             dst.id = dstWrapperId;
             dst.home = dstWrapperHome;
             closure$1 = new $Closure$1(src, srcIndex, dst,  dstIndex,  numElems);
+            deserializer.record_reference(closure$1);
             return (X10JavaSerializable) closure$1;
         }
 
@@ -548,6 +553,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 
 	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
         IndexedMemoryChunk imc = new IndexedMemoryChunk((java.lang.System[]) null);
+        deserializer.record_reference(imc);
         return _deSerialize_body(imc, deserializer);
 	}
 

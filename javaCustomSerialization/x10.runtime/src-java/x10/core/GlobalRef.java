@@ -308,6 +308,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
 	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
        GlobalRef gr = new GlobalRef();
+        deserializer.record_reference(gr);
         return _deserialize_body(gr, deserializer);
 	}
 

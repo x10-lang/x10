@@ -66,7 +66,9 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         String name = deserializer.readString();
         try {
             Class<?> aClass = Class.forName(deserializer.readString());
-            return new NamedType(name, aClass);
+            NamedType namedType = new NamedType(name, aClass);
+            deserializer.record_reference(namedType);
+            return namedType;
         } catch (ClassNotFoundException e) {
             // This should not happen though
             throw new RuntimeException(e);

@@ -19,7 +19,8 @@ import java.util.Map;
 public class X10JavaDeserializer {
 
     // When a Object is deserialized record its position
-    Map<Integer, X10JavaSerializable> objectMap = new IdentityHashMap<Integer, X10JavaSerializable>();
+    IdentityHashMap<Integer, Object> objectMap = new IdentityHashMap<Integer, Object>();
+    final int ref = Integer.parseInt("FFFFFFF", 16);
     ObjectInputStream in;
     int counter = 0;
 
@@ -27,8 +28,17 @@ public class X10JavaDeserializer {
         this.in = in;
     }
 
+    public void record_reference(Object obj) {
+            objectMap.put(counter, obj);
+            counter++;
+    }
+
     public Object readRef() throws IOException {
         int serializationID = readInt();
+        if (serializationID == ref) {
+            int position = readInt();
+            return objectMap.get(position);
+        }
         return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }
 
@@ -183,8 +193,11 @@ public class X10JavaDeserializer {
     }
 
     public Object deSerialize() throws IOException {
-        Object o = DeserializationDispatcher.getInstanceForId(readInt(), this);
-        return o;
+        int serializationID = readInt();
+        if (serializationID == ref) {
+            int position = readInt();
+            return objectMap.get(position);
+        }
+        return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }
-
 }

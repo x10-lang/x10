@@ -90,7 +90,9 @@ public class IntType extends RuntimeType<Integer> implements X10JavaSerializable
 	}
 
     public static X10JavaSerializable _deserialize_body(IntType t, X10JavaDeserializer deserializer) throws IOException {
-        return new IntType();
+        IntType intType = new IntType();
+        deserializer.record_reference(intType);
+        return intType;
     }
     
 }

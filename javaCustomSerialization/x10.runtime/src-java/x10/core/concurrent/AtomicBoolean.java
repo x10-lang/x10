@@ -69,6 +69,7 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     public static X10JavaSerializable _deserialize_body(AtomicBoolean atomicBoolean, X10JavaDeserializer deserializer) throws IOException {
         boolean b = deserializer.readBoolean();
         AtomicBoolean ab = new AtomicBoolean(b);
+        deserializer.record_reference(ab);
         return ab;
     }
 

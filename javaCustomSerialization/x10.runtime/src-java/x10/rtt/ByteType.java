@@ -90,7 +90,9 @@ public class ByteType extends RuntimeType<Byte> implements X10JavaSerializable {
 	}
 
     public static X10JavaSerializable _deserialize_body(ByteType t, X10JavaDeserializer deserializer) throws IOException {
-        return new ByteType();
+        ByteType byteType = new ByteType();
+        deserializer.record_reference(byteType);
+        return byteType;
     }
 
 }

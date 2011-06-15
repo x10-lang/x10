@@ -68,6 +68,7 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
 	public static X10JavaSerializable _deserialize_body(AtomicInteger atomicInteger, X10JavaDeserializer deserializer) throws IOException {
         int i = deserializer.readInt();
         AtomicInteger ai = new AtomicInteger(i);
+        deserializer.record_reference(ai);
         return ai;
 	}
 

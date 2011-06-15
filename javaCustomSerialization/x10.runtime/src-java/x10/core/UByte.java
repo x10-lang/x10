@@ -102,6 +102,7 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
     public static X10JavaSerializable _deserialize_body(UByte ub, X10JavaDeserializer deserializer) throws IOException {
         byte value  = deserializer.readByte();
         ub = new UByte(value);
+        deserializer.record_reference(ub);
         return ub;
     }
     

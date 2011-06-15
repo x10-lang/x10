@@ -99,6 +99,7 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
     public static X10JavaSerializable _deserialize_body(UInt ui, X10JavaDeserializer deserializer) throws IOException {
         int value  = deserializer.readInt();
         ui = new UInt(value);
+        deserializer.record_reference(ui);
         return ui;
     }
     
