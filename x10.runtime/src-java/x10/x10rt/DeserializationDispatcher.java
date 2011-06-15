@@ -70,26 +70,36 @@ public class DeserializationDispatcher {
 
         if (i <=8) {
             Object obj = null;
-            if (i == NULL_ID) {
-                return null;
-            } else if (i == STRING_ID) {
-                obj =  deserializer.readString();
-            } else if (i == FLOAT_ID) {
-                obj = deserializer.readFloat();
-            } else if (i == DOUBLE_ID) {
-                obj = deserializer.readDouble();
-            } else if (i == INTEGER_ID) {
-                obj = deserializer.readInt();
-            } else if (i == BOOLEAN_ID) {
-                obj = deserializer.readBoolean();
-            } else if (i == BYTE_ID) {
-                obj = deserializer.readByte();
-            } else if (i == SHORT_ID) {
-                obj = deserializer.readShort();
-            } else if (i == CHARACTER_ID) {
-                obj = deserializer.readChar();
-            } else if (i == LONG_ID) {
-                obj = deserializer.readLong();
+            switch(i) {
+                case NULL_ID:
+                    return null;
+                case STRING_ID:
+                     obj =  deserializer.readString();
+                    break;
+                case FLOAT_ID:
+                     obj = deserializer.readFloat();
+                    break;
+                case DOUBLE_ID:
+                     obj = deserializer.readDouble();
+                    break;
+                case INTEGER_ID:
+                      obj = deserializer.readInt();
+                    break;
+                case BOOLEAN_ID:
+                     obj = deserializer.readBoolean();
+                    break;
+                case BYTE_ID:
+                      obj = deserializer.readByte();
+                    break;
+                case SHORT_ID:
+                    obj = deserializer.readShort();
+                    break;
+                case  CHARACTER_ID:
+                     obj = deserializer.readChar();
+                    break;
+                case LONG_ID:
+                     obj = deserializer.readLong();
+                    break;
             }
             deserializer.record_reference(obj);
             return obj;
