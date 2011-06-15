@@ -47,6 +47,13 @@ public class TeamSupport {
         }
         return typeCode;
     }
+    
+    private static void ensureNativeImplAvailable(String methodName) {
+        if (X10RT.forceSinglePlace) {
+            System.err.println("About to die in " + methodName);
+            System.exit(1);
+        }
+    }
 	
 	public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<Integer> result) {
 	    Place[] np = (Place[])places.getBackingArray();
@@ -58,17 +65,20 @@ public class TeamSupport {
 
 	    FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
+	    ensureNativeImplAvailable("nativeMake");
 		nativeMakeImpl(int_places, count, nr, fs);
 	}
 	
 	
 	public static int nativeSize(int id) {
+	    ensureNativeImplAvailable("nativeSize");
 	    return nativeSizeImpl(id);
 	}
 	
 	public static void nativeBarrier(int id, int role) {
 	    FinishState fs = ActivityManagement.activityCreationBookkeeping();
 	    
+            ensureNativeImplAvailable("nativeBarrier");
 	    nativeBarrierImpl(id, role, fs);
 	}
 	
@@ -100,6 +110,7 @@ public class TeamSupport {
         
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
 
+        ensureNativeImplAvailable("nativeAllReduce");
         nativeAllReduceImpl(id, role, srcRaw, src_off, dstRaw, dst_off, count, op, typeCode, fs);
     }
 
@@ -123,6 +134,7 @@ public class TeamSupport {
     public static void nativeDel(int id, int role) {
         FinishState fs = ActivityManagement.activityCreationBookkeeping();
         
+        ensureNativeImplAvailable("nativeDel");
         nativeDelImpl(id, role, fs);
     }
     
