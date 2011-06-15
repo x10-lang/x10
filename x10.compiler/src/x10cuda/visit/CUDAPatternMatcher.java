@@ -39,11 +39,11 @@ import x10.ast.X10Formal;
 import x10.ast.X10Loop;
 import x10.ast.X10New;
 import x10.extension.X10Ext;
-import x10.optimizations.inlining.InliningTypeTransformer;
 import x10.types.MethodInstance;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.visit.NodeTransformingVisitor;
+import x10.visit.Reinstantiator;
 import x10cpp.visit.Emitter;
 import x10cuda.ast.CUDAKernel;
 import x10cuda.types.CUDAData;
@@ -240,8 +240,8 @@ public class CUDAPatternMatcher extends ContextVisitor {
 					//System.out.println("Got kernel: ");
 					//parent.prettyPrint(System.out);
 					//System.out.println();
-					InliningTypeTransformer transformer = new InliningTypeTransformer(TypeParamSubst.IDENTITY);
-					Block kernel_block = (Block) b.visit(new NodeTransformingVisitor(job, ts, nf, transformer).context(context()));
+					Reinstantiator reinstantiator = new Reinstantiator(TypeParamSubst.IDENTITY);
+					Block kernel_block = (Block) b.visit(new NodeTransformingVisitor(job, ts, nf, reinstantiator).context(context()));
 					boolean direct = kernelWantsDirectParams(b);
 					complainIfNot2(parent instanceof AtStmt, "@CUDA annotation must be on an at body", kernel_block);
 					

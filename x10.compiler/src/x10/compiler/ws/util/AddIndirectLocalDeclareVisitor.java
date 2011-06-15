@@ -27,10 +27,10 @@ import polyglot.frontend.Job;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.util.CollectionUtil;
-import x10.optimizations.inlining.InliningTypeTransformer;
 import x10.types.TypeParamSubst;
 import x10.util.CollectionFactory;
 import x10.visit.NodeTransformingVisitor;
+import x10.visit.Reinstantiator;
 
 /**
  * For inner class frames, each frame should have indirect references
@@ -65,8 +65,8 @@ public class AddIndirectLocalDeclareVisitor extends ContextVisitor {
             
             Block block = (Block)n;
             
-            InliningTypeTransformer transformer = new InliningTypeTransformer(TypeParamSubst.IDENTITY);
-            ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
+            Reinstantiator reinstantiator = new Reinstantiator(TypeParamSubst.IDENTITY);
+            ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, reinstantiator).context(context());
             block = (Block) block.visit(visitor); // reinstantiate locals in the body
             
             //first detect all locals;

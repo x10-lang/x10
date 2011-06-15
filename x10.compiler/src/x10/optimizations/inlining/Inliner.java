@@ -34,7 +34,6 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
-import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ConstructorInstance;
@@ -51,11 +50,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.util.ErrorInfo;
-import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.SilentErrorQueue;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
@@ -75,7 +71,6 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
-import x10.types.X10Def;
 import x10.types.X10LocalDef;
 import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
@@ -86,6 +81,7 @@ import x10.util.AltSynthesizer;
 import x10.visit.ConstantPropagator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.NodeTransformingVisitor;
+import x10.visit.Reinstantiator;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -515,7 +511,8 @@ public class Inliner extends ContextVisitor {
         try {
             if (DEBUG) debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance(), call.typeArguments());
-            InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
+       //   InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap, context().currentCode().staticContext());
+            Reinstantiator transformer = new Reinstantiator(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedCode = (CodeBlock) code.visit(visitor);
             return visitedCode;
