@@ -71,14 +71,21 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         return value;
     }
     
-    public boolean equals(Object o) {
+    public boolean _struct_equals$O(Object o) {
         if (o instanceof UShort && ((UShort)o).$value == $value)
             return true;
         return false;
     }
     
-    public boolean _struct_equals$O(Object o) {
-        return equals(o);
+    // inherit default implementation
+//    @Override
+//    public boolean equals(Object o) {
+//        return _struct_equals$O(o);
+//    }
+    
+    @Override
+    public int hashCode() {
+        return (int)$value;
     }
     
     @Override

@@ -69,14 +69,21 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
         return value;
     }
     
-    public boolean equals(Object o) {
+    public boolean _struct_equals$O(Object o) {
         if (o instanceof UByte && ((UByte)o).$value == $value)
             return true;
         return false;
     }
     
-    public boolean _struct_equals$O(Object o) {
-        return equals(o);
+    // inherit default implementation
+//    @Override
+//    public boolean equals(Object o) {
+//        return _struct_equals$O(o);
+//    }
+    
+    @Override
+    public int hashCode() {
+        return (int)$value;
     }
     
     @Override

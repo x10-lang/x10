@@ -66,14 +66,21 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
         return value;
     }
     
-    public boolean equals(Object obj) {
-        if (obj instanceof ULong && ((ULong)obj).$value == $value)
+    public boolean _struct_equals$O(Object o) {
+        if (o instanceof ULong && ((ULong) o).$value == $value)
             return true;
         return false;
     }
     
-    public boolean _struct_equals$O(Object o) {
-        return equals(o);
+    // inherit default implementation
+//    @Override
+//    public boolean equals(Object o) {
+//        return _struct_equals$O(o);
+//    }
+
+    @Override
+    public int hashCode() {
+        return (int)($value ^ ($value >>> 32));
     }
     
     @Override

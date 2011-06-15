@@ -83,18 +83,24 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
         return value;
     }
     
-    public boolean _struct_equals$O(Object obj) {
-        if (obj instanceof UInt && ((UInt) obj).$value == $value)
+    public boolean _struct_equals$O(Object o) {
+        if (o instanceof UInt && ((UInt) o).$value == $value)
             return true;
         return false;
     }
     
+    // inherit default implementation
+//    @Override
+//    public boolean equals(Object o) {
+//        return _struct_equals$O(o);
+//    }
+  
     @Override
-	public int hashCode() {
-    	return $value;
-	}
+    public int hashCode() {
+        return $value;
+    }
 
-	@Override
+    @Override
     public java.lang.String toString() {
         if ($value >= 0)
             return java.lang.Integer.toString($value);
