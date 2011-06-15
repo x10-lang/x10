@@ -184,13 +184,13 @@ public class X10JavaSerializer {
         }
         Integer pos;
         if ((pos = objectMap.get(p)) != null) {
-			// We have serialized this object beofre hence no need to do it again
-			// In the C++ backend the value used is 0xFFFFFFFF
-			// TODO keith Make this compliant with C++ value also make the position relative
+            // We have serialized this object beofre hence no need to do it again
+            // In the C++ backend the value used is 0xFFFFFFFF
+            // TODO keith Make this compliant with C++ value also make the position relative
             out.writeInt(refValue);
-		    out.writeInt(pos);
+            out.writeInt(pos);
             return;
-		}
+        }
         objectMap.put(p, counter);
         counter++;
         int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
@@ -199,22 +199,33 @@ public class X10JavaSerializer {
             return;
         }
         out.writeInt(id);
-        if (id == DeserializationDispatcher.FLOAT_ID) {
-            out.writeFloat((Float) p);
-        } else if (id == DeserializationDispatcher.DOUBLE_ID) {
-            out.writeDouble((Double) p);
-        } else if (id == DeserializationDispatcher.INTEGER_ID) {
-            out.writeInt((Integer) p);
-        } else if (id == DeserializationDispatcher.BOOLEAN_ID) {
-            out.writeBoolean((Boolean) p);
-        } else if (id == DeserializationDispatcher.BYTE_ID) {
-            out.writeByte((Byte) p);
-        } else if (id == DeserializationDispatcher.CHARACTER_ID) {
-            out.writeChar((Character) p);
-        } else if (id == DeserializationDispatcher.LONG_ID) {
-            out.writeLong((Long) p);
-        } else {
-            throw new RuntimeException("################## Need to handle " + p.getClass().getName());
+        switch (id) {
+            case DeserializationDispatcher.FLOAT_ID:
+                out.writeFloat((Float) p);
+                break;
+            case DeserializationDispatcher.DOUBLE_ID:
+                out.writeDouble((Double) p);
+                break;
+            case DeserializationDispatcher.INTEGER_ID:
+                out.writeInt((Integer) p);
+                break;
+            case DeserializationDispatcher.BOOLEAN_ID:
+                out.writeBoolean((Boolean) p);
+                break;
+            case DeserializationDispatcher.BYTE_ID:
+                out.writeByte((Byte) p);
+                break;
+            case DeserializationDispatcher.SHORT_ID:
+                out.writeByte((Short) p);
+                break;
+            case DeserializationDispatcher.CHARACTER_ID:
+                out.writeChar((Character) p);
+                break;
+            case DeserializationDispatcher.LONG_ID:
+                out.writeLong((Long) p);
+                break;
+            default:
+                throw new RuntimeException("################## Need to handle " + p.getClass().getName());
         }
     }
 }
