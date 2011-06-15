@@ -29,8 +29,8 @@ public class X10JavaDeserializer {
     }
 
     public void record_reference(Object obj) {
-            objectMap.put(counter, obj);
-            counter++;
+        objectMap.put(counter, obj);
+        counter++;
     }
 
     public Object readRef() throws IOException {

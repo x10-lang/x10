@@ -182,9 +182,9 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 	}
 
 	public static X10JavaSerializable _deserializer( X10JavaDeserializer deserializer) throws IOException {
-        ParameterizedType pt = null;
+        ParameterizedType pt = new ParameterizedType(null);
         deserializer.record_reference(pt);
-        return _deserialize_body(null, deserializer);
+        return _deserialize_body(pt, deserializer);
 	}
 
     public static X10JavaSerializable _deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {

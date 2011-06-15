@@ -68,26 +68,31 @@ public class DeserializationDispatcher {
 
     public static Object getInstanceForId(int i, X10JavaDeserializer deserializer) throws IOException {
 
-        if (i == NULL_ID) {
-            return null;
-        } else if (i == STRING_ID) {
-            return deserializer.readString();
-        } else if (i == FLOAT_ID) {
-            return deserializer.readFloat();
-        } else if (i == DOUBLE_ID) {
-            return deserializer.readDouble();
-        } else if (i == INTEGER_ID) {
-            return deserializer.readInt();
-        } else if (i == BOOLEAN_ID) {
-            return deserializer.readBoolean();
-        } else if (i == BYTE_ID) {
-            return deserializer.readByte();
-        } else if (i == SHORT_ID) {
-            return deserializer.readShort();
-        } else if (i == CHARACTER_ID) {
-            return deserializer.readChar();
-        } else if (i == LONG_ID) {
-            return deserializer.readLong();
+        if (i <=8) {
+            Object obj = null;
+            if (i == NULL_ID) {
+                return null;
+            } else if (i == STRING_ID) {
+                obj =  deserializer.readString();
+            } else if (i == FLOAT_ID) {
+                obj = deserializer.readFloat();
+            } else if (i == DOUBLE_ID) {
+                obj = deserializer.readDouble();
+            } else if (i == INTEGER_ID) {
+                obj = deserializer.readInt();
+            } else if (i == BOOLEAN_ID) {
+                obj = deserializer.readBoolean();
+            } else if (i == BYTE_ID) {
+                obj = deserializer.readByte();
+            } else if (i == SHORT_ID) {
+                obj = deserializer.readShort();
+            } else if (i == CHARACTER_ID) {
+                obj = deserializer.readChar();
+            } else if (i == LONG_ID) {
+                obj = deserializer.readLong();
+            }
+            deserializer.record_reference(obj);
+            return obj;
         }
 
         final String className = idToClassName.get(i);

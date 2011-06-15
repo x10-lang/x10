@@ -195,6 +195,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         final int dstId;
         final int dstIndex;
         final int numElems;
+
+        // Just for allocation
+        $Closure$0() {
+            this.srcData = null;
+        	this.dstId = 0;
+        	this.dstIndex = 0;
+        	this.numElems = 0;
+        }
         $Closure$0(Object srcData, int dstId, int dstIndex, int numElems) {
         	this.srcData = srcData;
         	this.dstId = dstId;
@@ -249,7 +257,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
 
         public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-            $Closure$0 closure$0 = null;
+            $Closure$0 closure$0 = new $Closure$0();
             deserializer.record_reference(closure$0);
             return _deserialize_body(closure$0, deserializer);
         }
@@ -366,6 +374,17 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         final Place dstWrapperHome;
         final int dstIndex;
         final int numElems;
+        //Just for allocation
+        $Closure$1() {
+        	this.srcId = 0;
+        	this.srcLength = 0;
+        	this.srcType = null;
+        	this.srcIndex = 0;
+        	this.dstWrapperId = 0;
+        	this.dstWrapperHome = null;
+        	this.dstIndex = 0;
+        	this.numElems = 0;
+        }
         $Closure$1(RemoteIndexedMemoryChunk<T> src, int srcIndex, RemoteIndexedMemoryChunk<T> dstWrapper, int dstIndex, int numElems) {
         	this.srcId = src.id;
         	this.srcLength = src.length;
@@ -414,7 +433,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
 
         public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-            $Closure$1 closure$1 = null;
+            $Closure$1 closure$1 = new $Closure$1();
             deserializer.record_reference(closure$1);
             return _deserialize_body(closure$1, deserializer);
         }
