@@ -14,6 +14,7 @@ import polyglot.types.Context;
 import polyglot.types.Types;
 import polyglot.visit.ContextVisitor;
 
+import x10.ast.Closure;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.TypeParamSubst;
@@ -37,7 +38,7 @@ public class InliningTypeTransformer extends Reinstantiator {
 
     /* (non-Javadoc)
      * @see x10.visit.TypeTransformer#transformClosureInstance(x10.types.ClosureInstance)
-     */
+     */ /*
     @Override
     protected ClosureInstance transformClosureInstance(ClosureInstance ci) {
         ci = super.transformClosureInstance(ci);
@@ -46,6 +47,19 @@ public class InliningTypeTransformer extends Reinstantiator {
         cd.setMethodContainer(Types.ref(visitor().context().currentCode().asInstance()));
         cd.setTypeContainer(Types.ref(visitor().context().currentClass()));
         return ci;
+    } */
+
+    /* (non-Javadoc)
+     * @see x10.visit.TypeTransformer#transform(x10.ast.Closure, x10.ast.Closure)
+     */
+    @Override
+    protected Closure transform(Closure d, Closure old) {
+        Closure c = super.transform(d, old);
+        ClosureDef cd = c.closureDef();
+        cd.setStaticContext(staticContext);
+        cd.setMethodContainer(Types.ref(visitor().context().currentCode().asInstance()));
+        cd.setTypeContainer(Types.ref(visitor().context().currentClass()));
+        return c.closureDef(cd);
     }
 
 }

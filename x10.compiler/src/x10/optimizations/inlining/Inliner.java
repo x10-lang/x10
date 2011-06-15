@@ -511,8 +511,8 @@ public class Inliner extends ContextVisitor {
         try {
             if (DEBUG) debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance(), call.typeArguments());
-       //   InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap, context().currentCode().staticContext());
-            Reinstantiator transformer = new Reinstantiator(typeMap);
+            InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap, context().currentCode().staticContext());
+       //   Reinstantiator transformer = new Reinstantiator(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedCode = (CodeBlock) code.visit(visitor);
             return visitedCode;
