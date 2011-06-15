@@ -153,14 +153,16 @@ namespace x10aux {
 
 
 
-    // Endian encoding/decoding support
-    template<class T> void code_bytes(T *x) {
-        (void) x;
+    // copy bytes with Endian encoding/decoding support
+    inline void copy_bytes(void *dest, const void *src, size_t n) {
         #if defined(__i386__) || defined(__x86_64__)
-        unsigned char *buf = (unsigned char*) x;
-        for (int i=0,j=sizeof(T)-1 ; i<j ; ++i,--j) {
-            std::swap(buf[i], buf[j]);
+        unsigned char *x = (unsigned char*) dest;
+        unsigned char *y = (unsigned char*) src;
+        for (size_t i=0,j=n-1; i<n; ++i,--j) {
+            x[i] = y[j];
         }
+        #else
+        memcpy(dest, src, n);
         #endif
     }
 
@@ -227,8 +229,7 @@ namespace x10aux {
                           <<(int)val<<" into buf: "<<&buf); \
         /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
         if (buf.cursor + sizeof(TYPE) >= buf.limit) buf.grow(); \
-        memcpy(buf.cursor, &val, sizeof(TYPE)); \
-        code_bytes((TYPE*)buf.cursor); \
+        copy_bytes(buf.cursor, &val, sizeof(TYPE)); \
         buf.cursor += sizeof(TYPE); \
     }
     #define PRIMITIVE_WRITE(TYPE) \
@@ -238,8 +239,7 @@ namespace x10aux {
                           <<val<<" into buf: "<<&buf); \
         /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
         if (buf.cursor + sizeof(TYPE) >= buf.limit) buf.grow(); \
-        memcpy(buf.cursor, &val, sizeof(TYPE)); \
-        code_bytes((TYPE*)buf.cursor); \
+        copy_bytes(buf.cursor, &val, sizeof(TYPE)); \
         buf.cursor += sizeof(TYPE); \
     }
     #define PRIMITIVE_VOLATILE_WRITE(TYPE) \
@@ -249,8 +249,7 @@ namespace x10aux {
                           <<val<<" into buf: "<<&buf); \
         /* *(TYPE*) buf.cursor = val; // Cannot do this because of alignment */ \
         if (buf.cursor + sizeof(TYPE) >= buf.limit) buf.grow(); \
-        memcpy(buf.cursor, const_cast<TYPE*>(&val), sizeof(TYPE));  \
-        code_bytes((TYPE*)buf.cursor); \
+        copy_bytes(buf.cursor, const_cast<TYPE*>(&val), sizeof(TYPE)); \
         buf.cursor += sizeof(TYPE); \
     }
     PRIMITIVE_WRITE(x10_boolean)
@@ -386,9 +385,8 @@ namespace x10aux {
     template<> inline TYPE deserialization_buffer::Read<TYPE>::_(deserialization_buffer &buf) { \
         /* //TYPE &val = *(TYPE*) buf.cursor; // Cannot do this because of alignment */ \
         TYPE val; \
-        memcpy(&val, buf.cursor, sizeof(TYPE)); \
+        copy_bytes(&val, buf.cursor, sizeof(TYPE)); \
         buf.cursor += sizeof(TYPE); \
-        code_bytes(&val); \
         _S_("Deserializing "<<star_rating<TYPE>()<<" a "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
             <<(int)val<<" from buf: "<<&buf); \
         return val; \
@@ -397,9 +395,8 @@ namespace x10aux {
     template<> inline TYPE deserialization_buffer::Read<TYPE>::_(deserialization_buffer &buf) { \
         /* //TYPE &val = *(TYPE*) buf.cursor; // Cannot do this because of alignment */ \
         TYPE val; \
-        memcpy(&val, buf.cursor, sizeof(TYPE)); \
+        copy_bytes(&val, buf.cursor, sizeof(TYPE)); \
         buf.cursor += sizeof(TYPE); \
-        code_bytes(&val); \
         _S_("Deserializing "<<star_rating<TYPE>()<<" a "<<ANSI_SER<<TYPENAME(TYPE)<<ANSI_RESET<<": " \
             <<val<<" from buf: "<<&buf); \
         return val; \
