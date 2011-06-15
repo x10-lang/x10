@@ -33,12 +33,23 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
         this.$value = value;
     }
 
+    private abstract static class UByteCache {
+        static final UByte cache[] = new UByte[-(-128) + 127 + 1];
+        static {
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new UByte((byte)(i - 128));
+            }
+        }
+    }
+
     public static UByte $box(byte value) {
-        return new UByte(value);
+        final int offset = 128;
+        return UByteCache.cache[(int)value + offset];
+//        return new UByte(value);
     }
     
     public static UByte $box(int value) {   // int is required for literals
-        return new UByte((byte)value);
+        return $box((byte)value);
     }
 
     public static byte $unbox(UByte o) {

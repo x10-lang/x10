@@ -33,7 +33,41 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
         this.$value = value;
     }
 
+    // value of x10.core.UInt.UIntCache.high property
+    private static java.lang.String uintCacheHighPropValue = null;
+//    private static java.lang.String uintCacheHighPropValue = "127";
+
+    private abstract static class UIntCache {
+        static final int high;
+        static final UInt cache[];
+        static {
+            final int low = -128;
+
+            // high value may be configured by property
+            int h = 127;
+            if (uintCacheHighPropValue != null) {
+                // Use Long.decode here to avoid invoking methods that
+                // require Integer's autoboxing cache to be initialized
+                int i = Long.decode(uintCacheHighPropValue).intValue();
+                i = Math.max(i, 127);
+                // Maximum array size is Integer.MAX_VALUE
+                h = Math.min(i, Integer.MAX_VALUE - -low);
+            }
+            high = h;
+
+            cache = new UInt[(high - low) + 1];
+            int j = low;
+            for (int k = 0; k < cache.length; ++k) {
+                cache[k] = new UInt(j++);
+            }
+        }
+    }
+
     public static UInt $box(int value) {
+        final int offset = 128;
+        if (value >= -128 && value <= UIntCache.high) {
+            return UIntCache.cache[value + offset];
+        }
         return new UInt(value);
     }
 
