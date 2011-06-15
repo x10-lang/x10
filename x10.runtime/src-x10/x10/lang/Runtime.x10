@@ -814,7 +814,7 @@ import x10.util.concurrent.SimpleLatch;
      */
     static class Remote[T] extends RemoteControl {
         public def this() { super(); }
-        private def this(Any) {
+        private def this(SerialData) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
         var t:Box[T] = null;
