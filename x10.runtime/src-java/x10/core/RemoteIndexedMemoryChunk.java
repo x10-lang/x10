@@ -158,6 +158,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
 
     public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
         RemoteIndexedMemoryChunk rimc = new RemoteIndexedMemoryChunk(null);
+        deserializer.record_reference(rimc);
 		return _deserialize_body(rimc, deserializer);
 	}
 

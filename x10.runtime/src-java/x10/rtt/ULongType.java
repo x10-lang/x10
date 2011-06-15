@@ -92,7 +92,9 @@ public class ULongType extends RuntimeType<x10.core.ULong> implements X10JavaSer
 	}
 
     public static X10JavaSerializable _deserialize_body(ULongType t, X10JavaDeserializer deserializer) throws IOException {
-        return new ULongType();
+        ULongType uLongType = new ULongType();
+        deserializer.record_reference(uLongType);
+        return uLongType;
     }
     
 }

@@ -312,6 +312,7 @@ final public class String extends x10.core.Ref implements
     public static X10JavaSerializable _deserialize_body(x10.core.String string, X10JavaDeserializer deserializer) throws IOException {
         java.lang.String str  = deserializer.readString();
         string = new x10.core.String(str);
+        deserializer.record_reference(string);
         return string;
     }
 

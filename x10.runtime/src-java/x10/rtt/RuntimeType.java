@@ -531,6 +531,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             // This should not happen though
             throw new RuntimeException(e);
         }
+        deserializer.record_reference(rt);
         return rt;
     }
 }

@@ -3291,11 +3291,15 @@ public class Emitter {
             params = params + mangleParameterType(at) + ", ";
         }
 
-        w.write("return ");
+        w.write("obj = (");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write(") ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(".");
         w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
-        w.write("(" + params + fieldName + ");");
+        w.writeln("(" + params + fieldName + ");");
+        w.writeln("deserializer.record_reference(obj);");
+        w.writeln("return obj;");
         w.end();
         w.newline();
         w.writeln("}");

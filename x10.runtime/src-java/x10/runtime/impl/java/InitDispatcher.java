@@ -154,6 +154,7 @@ public abstract class InitDispatcher {
             int id = deserializer.readInt();
             byte[] bytes = deserializer.readByteArray();
             $Closure$Deserialize v = new $Closure$Deserialize(id, bytes);
+            deserializer.record_reference(v);
             return (X10JavaSerializable) v;
         }
     }

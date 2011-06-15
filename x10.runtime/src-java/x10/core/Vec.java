@@ -176,6 +176,7 @@ public class Vec<T> extends x10.core.Struct {
 
     public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
         Vec vec = new Vec(null);
+        deserializer.record_reference(vec);
 		return _deserialize_body(vec, deserializer);
 	}
 
