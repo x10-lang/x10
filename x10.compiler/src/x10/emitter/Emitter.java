@@ -1104,6 +1104,18 @@ public class Emitter {
 		}
 		int formalNum = 1;
 		for (int i = 0; i < n.formals().size(); i++) {
+		    boolean forceBoxing = false;
+		    if (!canMangleMethodName) {
+		        // for methods, for which we cannot mangle name, a different boxing rule applies:
+		        // we force boxing of an argument if the method implements a method
+		        // with a boxed (generic) argument type in corresponding position
+		        for (MethodInstance supermeth : n.methodDef().asInstance().implemented(tr.context())) {
+		            if (isBoxedType(supermeth.def().formalTypes().get(i).get())) {
+		                forceBoxing = true;
+		                break;
+		            }
+		        }
+		    }
 			if (!first) {
 				w.write(",");
 				w.allowBreak(0, " ");
@@ -1135,7 +1147,7 @@ public class Emitter {
 			              type,
 			              (n.flags().flags().isStatic() ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS : 0) |
 			              // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-                                      (boxPrimitives || !canMangleMethodName ? X10PrettyPrinterVisitor.BOX_PRIMITIVES: 0)
+                                      (boxPrimitives || forceBoxing ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0)
 			    );
 			    w.write(" ");
 			    Name name = f.name().id();
