@@ -166,6 +166,21 @@ namespace x10aux {
         #endif
     }
 
+    // copy bulk data of size n of a given length, with Endian encoding/decoding support
+    inline void copy_bulk(void *dest, const void *src, x10_long length, size_t n) {
+        #if defined(__i386__) || defined(__x86_64__)
+        unsigned char *x = (unsigned char*) dest;
+        unsigned char *y = (unsigned char*) src;
+        for (long k=0; k<length; k++) {
+            for (int i=0,j=n-1; i<n; ++i,--j) {
+                x[i] = y[j];
+            }
+            x += n; y += n;
+        }
+        #else
+        memcpy(dest, src, length*n);
+        #endif
+    }
 
     // A growable buffer for serializing into
     class serialization_buffer {
@@ -174,6 +189,8 @@ namespace x10aux {
         char *limit;
         char *cursor;
         addr_map map;
+
+        void grow (size_t new_capacity);
 
     public:
 
@@ -194,6 +211,7 @@ namespace x10aux {
         char *borrow() { return buffer; }
 
         static void serialize_reference(serialization_buffer &buf, ref<x10::lang::Reference>);
+        static void copyIn(serialization_buffer &buf, const void* data, x10_long length, size_t sizeOfT);
 
         template <class T> void manually_record_reference(ref<T> val) {
             map.previous_position(val);
@@ -288,6 +306,17 @@ namespace x10aux {
         }
         serialize_reference(buf, ref<x10::lang::Reference>(val));
     }
+
+    inline void serialization_buffer::copyIn(serialization_buffer &buf,
+                                                const void *data,
+                                                x10_long length,
+                                                size_t sizeOfT) {
+        size_t numBytes = length * sizeOfT;
+        if (buf.cursor + numBytes >= buf.limit) buf.grow(buf.length() + numBytes);
+        copy_bulk(buf.cursor, data, length, sizeOfT);
+        buf.cursor += numBytes;
+    }
+
     
     // Case for captured stack variables e.g. captured_ref_lval<T> and captured_struct_lval<T>.
     template<class T> struct serialization_buffer::Write<captured_ref_lval<T> > {
@@ -332,6 +361,7 @@ namespace x10aux {
         size_t consumed (void) { return cursor - buffer; }
 
         static ref<x10::lang::Reference> deserialize_reference(deserialization_buffer &buf);
+        static void copyOut(deserialization_buffer &buf, void* data, x10_long length, size_t sizeOfT);
         
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Read;
@@ -378,6 +408,14 @@ namespace x10aux {
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
         // Call the struct's static deserialization method
         return T::_deserialize(buf);
+    }
+
+    inline void deserialization_buffer::copyOut(deserialization_buffer &buf,
+                                                void *data,
+                                                x10_long length,
+                                                size_t sizeOfT) {
+        copy_bulk(data, buf.cursor, length, sizeOfT);
+        buf.cursor += length * sizeOfT;
     }
 
     // Specializations for all simple primitives
