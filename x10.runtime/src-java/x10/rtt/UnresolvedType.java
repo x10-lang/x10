@@ -37,6 +37,23 @@ public final class UnresolvedType implements Type {
         this.index = index;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof UnresolvedType) {
+            UnresolvedType ut = (UnresolvedType) o;
+            if (index != ut.index) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return index;
+    }
+    
     public String toString() {
         return "UnresolvedType(" + index + ")";
     }

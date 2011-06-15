@@ -17,7 +17,7 @@ import x10.core.Any;
 
 public class RuntimeType<T> implements Type<T> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
@@ -59,17 +59,26 @@ public class RuntimeType<T> implements Type<T> {
         return typeName();
     }
     
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) o;
-            if (impl.equals(rt.impl)) {
-                return true;
+            if (!impl.equals(rt.impl)) {
+                return false;
             }
+            // N.B. for given impl, we assume variances and parents are unique.
+            // Therefore we don't need to compare them.
+            return true;
         }
         return false;
     }
     
+    @Override
+    public int hashCode() {
+        return impl.hashCode();
+    }
+
     public boolean isSubtype(Type<?> o) {
         if (this == o) return true;
         if (o == Types.ANY) return true;

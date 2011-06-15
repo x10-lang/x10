@@ -5,7 +5,7 @@ import x10.core.Any;
 
 public final class ParameterizedType<T> implements Type<T>{
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     private final RuntimeType<T> rtt;
     private final Type<?>[] params;
@@ -53,10 +53,13 @@ public final class ParameterizedType<T> implements Type<T>{
         if (this == o) return true;
         if (o instanceof ParameterizedType<?>) {
             ParameterizedType<?> t = (ParameterizedType<?>) o;
-            if (!rtt.getImpl().equals(t.getImpl())) {
+            if (!rtt.equals(t.rtt)) {
                 return false;
             }
             Type<?>[] parameters = t.params;
+            if (params.length != parameters.length) {
+                return false;
+            }
             for (int i = 0; i < params.length; i++) {
                 if (!params[i].equals(parameters[i])) {
                     return false;
@@ -65,6 +68,11 @@ public final class ParameterizedType<T> implements Type<T>{
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public final int hashCode() {
+        return rtt.hashCode();
     }
 
     public final int arrayLength(Object array) {
@@ -77,10 +85,6 @@ public final class ParameterizedType<T> implements Type<T>{
 
     public final Class<?> getImpl() {
         return rtt.getImpl();
-    }
-
-    public final int hashCode() {
-        return rtt.hashCode();
     }
 
     public final Object makeArray(int length) {
