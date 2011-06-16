@@ -581,10 +581,18 @@ public class Emitter {
 	}
 	*/
 
+	// return all X10 types that are mapped to Java primitives and require explicit boxing
+	public static boolean needExplicitBoxing(Type t) {
+            return t.isNumeric();
+            // TODO enable the following to allow Char implements Ordered
+//	    return t.isNumeric() || t.isChar();
+	}
 	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
 	static {
 		boxedPrimitives.put("x10.lang.Boolean", "java.lang.Boolean");
 		boxedPrimitives.put("x10.lang.Char", "java.lang.Character");
+		// TODO enable the following to allow Char implements Ordered
+//                boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
 		boxedPrimitives.put("x10.lang.Byte", "x10.core.Byte");
 		boxedPrimitives.put("x10.lang.Short", "x10.core.Short");
 		boxedPrimitives.put("x10.lang.Int", "x10.core.Int");
@@ -749,7 +757,7 @@ public class Emitter {
 	
 	public void printBoxConversion(Type type) {
 	    // treat unsigned types specially
-	    if (type.isNumeric()) {
+	    if (needExplicitBoxing(type)) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
@@ -772,7 +780,7 @@ public class Emitter {
 	 * @return Returns true if an additional closing parenthesis needs to be printed after expression
 	 */
 	public boolean printUnboxConversion(Type type) {
-	    if (type.isNumeric()) {
+            if (needExplicitBoxing(type)) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        /*
@@ -2648,7 +2656,7 @@ public class Emitter {
 	        prettyPrint(e, tr);
 	    }
 	    // for primitive
-	    else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()) {
+	    else if (actual.isBoolean() || needExplicitBoxing(actual)) {
 	        if (actual.typeEquals(expectedBase, tr.context())) {
 	            if (e instanceof X10Call && isBoxedType(Types.baseType(((X10Call) e).methodInstance().def().returnType().get()))) {
 	                expander = expander.unboxTo(expectedBase);
@@ -3464,8 +3472,8 @@ public class Emitter {
     		CastExpander targetArg = new CastExpander(w, this, target);
     		if (cast) {
     		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-    		    // in native methods of numerics (Int etc), the #this argument is expected to be unboxed 
-    		    if (mi.container().isNumeric())
+    		    // in native methods of numerics (Int etc), the #this argument is expected to be unboxed
+    		    if (needExplicitBoxing(mi.container()))
     		        targetArg = targetArg.unboxTo(mi.container());
     		}
     		
