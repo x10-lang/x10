@@ -97,7 +97,8 @@ public class DeclStore {
             annotations     = new InlineAnnotationUtils(job);
             Configuration c = ((X10CompilerOptions) job.extensionInfo().getOptions()).x10_config;
             implicit        = c.INLINE_METHODS_IMPLICIT;
-            implicitMax     = c.EXPERIMENTAL ? 1 : 0;
+      //    implicitMax     = c.EXPERIMENTAL ? 1 : 0;
+            implicitMax     = c.EXPERIMENTAL ? 2 : 1;
             assert c.OPTIMIZE;
         }
     }
@@ -143,7 +144,8 @@ public class DeclStore {
                 if (null == job || null == job.extensionInfo() || null == job.extensionInfo().scheduler())
                     return null;
                 Scheduler scheduler = job.extensionInfo().scheduler();
-                if (!scheduler.attempt(new Optimizer(scheduler, job).Harvester())) { // throw ICE ??
+                Goal goal = new Optimizer(scheduler, job).Harvester();
+                if (!scheduler.attempt(goal)) { // throw ICE ??
                     report("job for candidate does not compile: " +def, call);
                     cannotInline(def);
                     return null;

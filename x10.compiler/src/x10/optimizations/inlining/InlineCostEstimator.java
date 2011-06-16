@@ -11,10 +11,8 @@
 package x10.optimizations.inlining;
 
 
-import java.util.Arrays;
-import java.util.List;
-
 import polyglot.ast.Call_c;
+import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.Node;
 import polyglot.ast.Special;
@@ -30,9 +28,9 @@ import x10.visit.X10DelegatingVisitor;
  */
 class InlineCostEstimator extends NodeVisitor {
 
-    static final int MAX_ACTUAL_COST   = 0x0FFFF;
-    static final int NATIVE_CODE_COST  = 0x10000;
-    static final int JAVA_SPECIAL_COST = 0x20000;
+    static final int MAX_ACTUAL_COST  = 0x0FFFF;
+    static final int NATIVE_CODE_COST = 0x10000;
+    static final int JAVA_SUPER_COST  = 0x20000;
 
     InlineCostDelegate delegate;
     int cost[] = new int[1];
@@ -56,9 +54,10 @@ class InlineCostEstimator extends NodeVisitor {
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         if (n instanceof Special && ((Special) n).kind() == Special.SUPER && ExpressionFlattener.javaBackend(job)) {
-            cost[0] |= JAVA_SPECIAL_COST; // Java back-end cannot handle inlined super targets
-        }
-        if (annotations.isNativeCode(n)) {
+            cost[0] |= JAVA_SUPER_COST; // Java back-end cannot handle inlined super targets
+        } else if (n instanceof ConstructorCall && ((ConstructorCall) n).kind() == ConstructorCall.SUPER && ExpressionFlattener.javaBackend(job)) {
+            cost[0] |= JAVA_SUPER_COST; // Java back-end cannot handle inlined super calls either
+        } else if (annotations.isNativeCode(n)) {
             cost[0] |= NATIVE_CODE_COST;
         } else {
             delegate.visitAppropriate(n);
