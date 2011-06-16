@@ -34,7 +34,21 @@ final public class Long extends Numeric implements java.lang.Comparable<Long>,
         this.$value = value;
     }
 
-    public static Long $box(long value) { // int because literals essentially have int type in Java
+    private abstract static class Cache {
+        static final int low = -128;
+        static final int high = 127;
+        static final Long cache[] = new Long[high - low + 1];
+        static {
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new Long(low + i);
+            }
+        }
+    }
+
+    public static Long $box(long value) {
+        if (Cache.low <= value && value <= Cache.high) {
+            return Cache.cache[(int)value - Cache.low];
+        }
         return new Long(value);
     }
 

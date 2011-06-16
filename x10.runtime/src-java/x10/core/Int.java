@@ -33,8 +33,38 @@ final public class Int extends Numeric implements java.lang.Comparable<Int>,
     private Int(int value) {
         this.$value = value;
     }
+    
+    // value of x10.lang.Int.Cache.high property
+    private static java.lang.String cacheHighPropValue = System.getProperty("x10.lang.Int.Cache.high");
+
+    private abstract static class Cache {
+        static final int low = -128;
+        static final int high;
+        static final Int cache[];
+        static {
+            // high value may be configured by property
+            int h = 127;
+            if (cacheHighPropValue != null) {
+                // Use Long.decode here to avoid invoking methods that
+                // require Integer's autoboxing cache to be initialized
+                int i = java.lang.Long.decode(cacheHighPropValue).intValue();
+                i = Math.max(i, h);
+                // Maximum array size is Integer.MAX_VALUE
+                h = Math.min(i, Integer.MAX_VALUE + low);
+            }
+            high = h;
+
+            cache = new Int[high - low + 1];
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new Int(low + i);
+            }
+        }
+    }
 
     public static Int $box(int value) {
+        if (Cache.low <= value && value <= Cache.high) {
+            return Cache.cache[value - Cache.low];
+        }
         return new Int(value);
     }
 

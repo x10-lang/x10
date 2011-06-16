@@ -34,12 +34,27 @@ final public class Short extends Numeric implements java.lang.Comparable<Short>,
         this.$value = value;
     }
     
+    private abstract static class Cache {
+        static final int low = -128;
+        static final int high = 127;
+        static final Short cache[] = new Short[high - low + 1];
+        static {
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new Short((short)(low + i));
+            }
+        }
+    }
+
     public static Short $box(short value) {
+        int valueAsInt = value;
+        if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
+            return Cache.cache[valueAsInt - Cache.low];
+        }
         return new Short(value);
     }
 
     public static Short $box(int value) { // int because literals essentially have int type in Java
-        return new Short((short)value);
+        return $box((short)value);
     }
 
     public static short $unbox(Short obj) {

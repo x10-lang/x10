@@ -34,17 +34,19 @@ final public class ULong extends Numeric implements java.lang.Comparable<ULong>,
     }
 
     private abstract static class Cache {
-        static final ULong cache[] = new ULong[256];
+        static final int low = 0;
+        static final int high = 255;
+        static final ULong cache[] = new ULong[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
-                cache[i] = new ULong(i);
+                cache[i] = new ULong(low + i);
             }
         }
     }
 
     public static ULong $box(long value) {
-        if (0 <= value && value < 256) {
-            return Cache.cache[(int) value];
+        if (Cache.low <= value && value <= Cache.high) {
+            return Cache.cache[(int)value - Cache.low];
         }
         return new ULong(value);
     }

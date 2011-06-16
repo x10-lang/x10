@@ -34,24 +34,26 @@ final public class UShort extends Numeric implements java.lang.Comparable<UShort
     }
 
     private abstract static class Cache {
-        static final UShort cache[] = new UShort[256];
+        static final int low = 0;
+        static final int high = 255;
+        static final UShort cache[] = new UShort[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
-                cache[i] = new UShort((short) i);
+                cache[i] = new UShort((short)(low + i));
             }
         }
     }
 
     public static UShort $box(short value) {
         int valueAsInt = value;
-        if (0 <= valueAsInt && valueAsInt < 256) {
-            return Cache.cache[valueAsInt];
+        if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
+            return Cache.cache[valueAsInt - Cache.low];
         }
         return new UShort(value);
     }
     
     public static UShort $box(int value) {  // int is required for literals
-        return $box((short) value);
+        return $box((short)value);
     }
 
     public static short $unbox(UShort obj) {

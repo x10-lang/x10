@@ -34,12 +34,25 @@ final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
         this.$value = value;
     }
     
+    private abstract static class Cache {
+        static final int low = -128;
+        static final int high = 127;
+        static final Byte cache[] = new Byte[high - low + 1];
+        static {
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new Byte((byte)(low + i));
+            }
+        }
+    }
+
     public static Byte $box(byte value) {
-        return new Byte(value);
+        int valueAsInt = value;
+        return Cache.cache[valueAsInt - Cache.low];  // fully cached
+//        return new Byte(value);
     }
 
     public static Byte $box(int value) { // int because literals essentially have int type in Java
-        return new Byte((byte)value);
+        return $box((byte)value);
     }
 
     public static byte $unbox(Byte obj) {

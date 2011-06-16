@@ -37,6 +37,7 @@ final public class UInt extends Numeric implements java.lang.Comparable<UInt>,
     private static java.lang.String cacheHighPropValue = System.getProperty("x10.lang.UInt.Cache.high");
 
     private abstract static class Cache {
+        static final int low = 0;
         static final int high;
         static final UInt cache[];
         static {
@@ -48,20 +49,20 @@ final public class UInt extends Numeric implements java.lang.Comparable<UInt>,
                 int i = java.lang.Long.decode(cacheHighPropValue).intValue();
                 i = Math.max(i, h);
                 // Maximum array size is Integer.MAX_VALUE
-                h = Math.min(i, Integer.MAX_VALUE);
+                h = Math.min(i, Integer.MAX_VALUE + low);
             }
             high = h;
 
-            cache = new UInt[high + 1];
+            cache = new UInt[high - low + 1];
             for (int i = 0; i < cache.length; ++i) {
-                cache[i] = new UInt(i);
+                cache[i] = new UInt(low + i);
             }
         }
     }
 
     public static UInt $box(int value) {
-        if (0 <= value && value <= Cache.high) {
-            return Cache.cache[value];
+        if (Cache.low <= value && value <= Cache.high) {
+            return Cache.cache[value - Cache.low];
         }
         return new UInt(value);
     }

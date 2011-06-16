@@ -33,7 +33,22 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
         this.$value = value;
     }
 
+    private abstract static class Cache {
+        static final int low = 0;
+        static final int high = 127;
+        static final Char cache[] = new Char[high - low + 1];
+        static {
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new Char((char)(low + i));
+            }
+        }
+    }
+
     public static Char $box(char value) {
+        int valueAsInt = value;
+        if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
+            return Cache.cache[valueAsInt - Cache.low];
+        }
         return new Char(value);
     }
 
