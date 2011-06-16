@@ -171,8 +171,8 @@ namespace x10aux {
         #if defined(__i386__) || defined(__x86_64__)
         unsigned char *x = (unsigned char*) dest;
         unsigned char *y = (unsigned char*) src;
-        for (long k=0; k<length; k++) {
-            for (int i=0,j=n-1; i<n; ++i,--j) {
+        for (size_t k=0; k<length; k++) {
+            for (size_t i=0,j=n-1; i<n; ++i,--j) {
                 x[i] = y[j];
             }
             x += n; y += n;
