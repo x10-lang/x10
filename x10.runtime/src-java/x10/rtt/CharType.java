@@ -12,7 +12,7 @@
 package x10.rtt;
 
 
-public class CharType extends RuntimeType<Character> {
+public class CharType extends RuntimeType<x10.core.Char> {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,9 +22,10 @@ public class CharType extends RuntimeType<Character> {
     }
 
     public CharType() {
-        super(Character.class,
+        super(x10.core.Char.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }
@@ -37,7 +38,7 @@ public class CharType extends RuntimeType<Character> {
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Character;
+        return o instanceof x10.core.Char;
     }
 
     @Override
@@ -55,20 +56,18 @@ public class CharType extends RuntimeType<Character> {
     }
     
     @Override
-    public Character getArray(Object array, int i) {
-        return ((char[]) array)[i];
+    public x10.core.Char getArray(Object array, int i) {
+        return x10.core.Char.$box(((char[]) array)[i]);
     }
     
 //    @Override
-//    public Character setArray(Object array, int i, Character v) {
-//        // avoid boxing again
-////        return ((char[]) array)[i] = v;
-//        ((char[]) array)[i] = v;
+//    public Character setArray(Object array, int i, x10.core.Char v) {
+//        ((char[]) array)[i] = x10.core.Char.$unbox(v);
 //        return v;
 //    }
     @Override
-    public void setArray(Object array, int i, Character v) {
-        ((char[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Char v) {
+        ((char[]) array)[i] = x10.core.Char.$unbox(v);
     }
     
     @Override

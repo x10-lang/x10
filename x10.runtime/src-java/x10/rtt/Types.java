@@ -165,7 +165,7 @@ public class Types {
     };
 
     public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
-    public static final RuntimeType<Character> CHAR = new CharType();
+    public static final RuntimeType<x10.core.Char> CHAR = new CharType();
     public static final RuntimeType<x10.core.Byte> BYTE = new ByteType();
     public static final RuntimeType<x10.core.Short> SHORT = new ShortType();
     public static final RuntimeType<x10.core.Int> INT = new IntType();
@@ -177,7 +177,7 @@ public class Types {
     public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
     public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
     public static final Object BOOLEAN_ZERO = Boolean.valueOf(false);
-    public static final Object CHAR_ZERO = Character.valueOf((char) 0);
+    public static final Object CHAR_ZERO = x10.core.Char.$box((char)0);
     public static final Object BYTE_ZERO = x10.core.Byte.$box(0);
     public static final Object SHORT_ZERO = x10.core.Short.$box(0);
     public static final Object INT_ZERO = x10.core.Int.$box(0);
@@ -227,7 +227,8 @@ public class Types {
     
     public static char aschar(Object typeParamOrAny, Type<?> origRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
-        if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
+        if (typeParamOrAny instanceof x10.core.Char) return x10.core.Char.$unbox((x10.core.Char)typeParamOrAny);
+        else if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Char");
     }
 
@@ -368,7 +369,7 @@ public class Types {
         }
         
         if (rtt == BOOLEAN) {return asboolean(primOrTypeParam, convert ? BOOLEAN : null);}
-        if (rtt == CHAR) {return aschar(primOrTypeParam, convert ? CHAR : null);}
+        if (rtt == CHAR) {return x10.core.Char.$box(aschar(primOrTypeParam, convert ? CHAR : null));}
         if (rtt == BYTE) {return x10.core.Byte.$box(asbyte(primOrTypeParam, convert ? BYTE : null));}
         if (rtt == SHORT) {return x10.core.Short.$box(asshort(primOrTypeParam, convert ? SHORT : null));}
         if (rtt == INT) {return x10.core.Int.$box(asint(primOrTypeParam, convert ? INT : null));}

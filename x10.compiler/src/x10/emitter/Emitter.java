@@ -583,16 +583,12 @@ public class Emitter {
 
 	// return all X10 types that are mapped to Java primitives and require explicit boxing
 	public static boolean needExplicitBoxing(Type t) {
-            return t.isNumeric();
-            // TODO enable the following to allow Char implements Ordered
-//	    return t.isNumeric() || t.isChar();
+	    return t.isNumeric() || t.isChar();
 	}
 	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
 	static {
 		boxedPrimitives.put("x10.lang.Boolean", "java.lang.Boolean");
-		boxedPrimitives.put("x10.lang.Char", "java.lang.Character");
-		// TODO enable the following to allow Char implements Ordered
-//                boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
+                boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
 		boxedPrimitives.put("x10.lang.Byte", "x10.core.Byte");
 		boxedPrimitives.put("x10.lang.Short", "x10.core.Short");
 		boxedPrimitives.put("x10.lang.Int", "x10.core.Int");
