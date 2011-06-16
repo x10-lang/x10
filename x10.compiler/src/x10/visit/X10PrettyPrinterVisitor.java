@@ -75,6 +75,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.JavaArrayType;
+import polyglot.types.JavaArrayType_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
@@ -722,14 +723,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.writeln("} ");
                     }
 
-                    if (isPrimitiveRepedJava(f.type()) || isString(f.type(), context)) {
-                        w.writeln("serializer.write(this." + fieldName + ");");
+                    if (f.type().isArray()) {
+
+                        // If this is an array and not a java primitive we need to cast it into an array
+                        if (f.type() instanceof JavaArrayType_c && isPrimitiveRepedJava(((JavaArrayType_c)f.type()).base())) {
+                            w.writeln("serializer.write(this." + fieldName + ");");
+                        } else {
+                            w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable []) {");
+                            w.writeln("serializer.write( (x10.x10rt.X10JavaSerializable[]) this." + fieldName + ");");
+                            w.writeln("} else {");
+                            w.writeln("serializer.write(this." + fieldName + ");");
+                            w.writeln("}");
+                        }
                     } else {
-                        w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
-                        w.writeln("serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
-                        w.writeln("} else {");
-                        w.writeln("serializer.write(this." + fieldName + ");");
-                        w.writeln("}");
+                        if (isPrimitiveRepedJava(f.type()) || isString(f.type(), context)) {
+                            w.writeln("serializer.write(this." + fieldName + ");");
+                        } else {
+                            w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
+                            w.writeln("serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
+                            w.writeln("} else {");
+                            w.writeln("serializer.write(this." + fieldName + ");");
+                            w.writeln("}");
+                        }
                     }
                 }
                 w.end();
