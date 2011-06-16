@@ -14,7 +14,6 @@ package x10.lang;
 import x10.compiler.Global;
 import x10.compiler.Native;
 import x10.compiler.Pinned;
-import x10.compiler.TempNoInline_0;
 import x10.util.Map;
 
 /**
@@ -79,7 +78,7 @@ public final class Clock(name:String) {
     @Global private def get() = Runtime.activity().clockPhases().get(this).value;
     @Global private def put(ph:Int) = Runtime.activity().clockPhases().put(this, ph);
     @Global private def remove() = Runtime.activity().clockPhases().remove(this).value;
-    @Global @TempNoInline_0 def register() {
+    @Global def register() {
         if (dropped()) clockUseException("async clocked");
         val ph = get();
         at (root) {
@@ -102,7 +101,7 @@ public final class Clock(name:String) {
         }
         put(-ph);
     }
-     @Global @TempNoInline_0 def resumeInternal(entry:Map.Entry[Clock,Int]) {
+     @Global def resumeInternal(entry:Map.Entry[Clock,Int]) {
         Runtime.ensureNotInAtomic();
         val ph = entry.getValue();
         if (ph < 0) return;
@@ -123,7 +122,7 @@ public final class Clock(name:String) {
         }
         put(abs + 1);
     }
-    @Global @TempNoInline_0 def advanceInternal(entry:Map.Entry[Clock,Int]) {
+    @Global def advanceInternal(entry:Map.Entry[Clock,Int]) {
     	Runtime.ensureNotInAtomic();
         val ph = entry.getValue();
         val abs = Math.abs(ph);
@@ -141,7 +140,7 @@ public final class Clock(name:String) {
         	me.dropLocal(ph);
         }
     }
-    @Global @TempNoInline_0 def dropInternal(entry:Map.Entry[Clock,Int]) {
+    @Global def dropInternal(entry:Map.Entry[Clock,Int]) {
         val ph = entry.getValue();
         async at(root.home) {
 	    val rcl:Clock = root();
