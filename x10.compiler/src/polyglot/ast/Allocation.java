@@ -20,7 +20,17 @@ import polyglot.ast.TypeNode;
  *
  */
 public interface Allocation extends Expr {
-    
+
+    /**
+     * @return the type of the object being allocated
+     */
+    TypeNode objectType();
+
+    /**
+     * @param objType the type of the object being allocated
+     */
+    Allocation objectType(TypeNode objType);
+
     /**
      * @return the type arguments for the allocation
      */

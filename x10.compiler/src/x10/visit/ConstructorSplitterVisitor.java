@@ -104,7 +104,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return n;
             Type type          = n.type();
-            Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
+            Allocation a       = syn.createAllocation(pos, n.objectType(), n.typeArguments());
             a                  = (Allocation) copyAnnotations(n, a);
             LocalDecl ld       = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
             ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld), n);
@@ -122,7 +122,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return ld;
             Type type          = n.type();
-            Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
+            Allocation a       = syn.createAllocation(pos, n.objectType(), n.typeArguments());
             a                  = (Allocation) copyAnnotations(n, a);
             // We're in a statement context, so we can avoid a stmt expr.
             List<Stmt> stmts   = new ArrayList<Stmt>();
@@ -137,7 +137,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
                 // This happens when the type of the local decl is a supertype of the type of the new
                 // Introduce additional localdecl so that the constructor call can be made
                 // on a variable of the correct type. 
-                LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
+                LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("a"), a);
                 ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld2), n);
                 cc                 = (ConstructorCall) copyAnnotations(n, cc);
                 ld                 = ld.init(syn.createLocal(pos, ld2));

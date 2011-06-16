@@ -72,8 +72,8 @@ public abstract class NodeFactory_c extends AbstractNodeFactory_c implements Nod
         return n;
     }
 
-    public Allocation Allocation(Position pos) {
-        Allocation a = new Allocation_c(pos);
+    public Allocation Allocation(Position pos, TypeNode objType, List<TypeNode> typeArgs) {
+        Allocation a = new Allocation_c(pos, objType, typeArgs);
         a = (Allocation) a.ext(extFactory().extExpr());
         a = (Allocation) a.del(delFactory().delExpr());
         return a;

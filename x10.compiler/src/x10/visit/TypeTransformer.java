@@ -13,13 +13,13 @@ package x10.visit;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
+import java.util.Map;
 
-import polyglot.ast.Allocation;
 import polyglot.ast.Call;
-import polyglot.ast.Cast;
 import polyglot.ast.Expr;
 import polyglot.ast.Field;
 import polyglot.ast.FieldAssign;
@@ -32,21 +32,21 @@ import polyglot.ast.Special;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
 import polyglot.ast.VarDecl;
+import polyglot.types.ClassType;
+import polyglot.types.CodeDef;
 import polyglot.types.CodeInstance;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
 import polyglot.types.Ref;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
-import polyglot.util.InternalCompilerError;
-import polyglot.visit.ContextVisitor;
 import x10.ast.AssignPropertyCall;
 import x10.ast.Async;
 import x10.ast.AtEach;
 import x10.ast.AtStmt;
+import x10.ast.AtStmt_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.DepParameterExpr;
@@ -65,8 +65,8 @@ import x10.types.ClosureDef_c;
 import x10.types.ClosureInstance;
 import x10.types.ClosureType;
 import x10.types.ConstrainedType;
+import x10.types.EnvironmentCapture;
 import x10.types.FunctionType;
-import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.ThisDef;
 import x10.types.X10ClassType;
@@ -74,11 +74,16 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
+import x10.types.MethodInstance;
 import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
+import polyglot.types.TypeSystem;
+import polyglot.visit.ContextVisitor;
+import polyglot.util.CollectionUtil;
+import polyglot.util.InternalCompilerError;
 import x10.util.CollectionFactory;
 
 /**
@@ -337,39 +342,6 @@ public class TypeTransformer extends NodeTransformer {
             e = e.type(rt);
         }
         return super.transformExpr(e, old);
-    }
-
-    @Override
-    protected Allocation transform(Allocation a, Allocation old) {
-        Type type = a.type();
-        type = transformType(type);
-        if (!type.typeEquals(a.type(), visitor().context())) {
-            a = (Allocation) a.type(type);
-        }
-        boolean changed = false;
-        List<TypeNode> typeNodes = new ArrayList<TypeNode>();
-        for (TypeNode tn : a.typeArguments()) {
-            TypeNode typeNode = transform(tn, null);
-            typeNodes.add(typeNode);
-            if (!typeNode.type().typeEquals(tn.type(), visitor().context())) {
-                changed = true;
-            }
-        }
-        if (!changed)
-            return a;
-        return a.typeArguments(typeNodes);
-    }
-
-    @Override
-    protected Cast transform(Cast c, Cast old) {
-        Expr expr = transformExpr(c.expr(), old.expr());
-        if (expr != c.expr()) {
-            c = c.expr(expr);
-        }
-        TypeNode tn = transform(c.castType(), old.castType());
-        if (tn != c.castType())
-            c = c.castType(tn);
-        return c;
     }
 
     @Override
