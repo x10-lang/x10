@@ -24,6 +24,9 @@ public class LongType extends RuntimeType<x10.core.Long> {
         super(x10.core.Long.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }
