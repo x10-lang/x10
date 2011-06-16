@@ -18,7 +18,7 @@ import x10.rtt.Types;
  * Represents a boxed UByte value. Boxed representation is used when casting
  * a UByte value into type Any or parameter type T.
  */
-final public class UByte extends x10.core.Struct implements java.lang.Comparable<UByte>,
+final public class UByte extends Numeric implements java.lang.Comparable<UByte>,
     x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
@@ -57,7 +57,7 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
     }
     
     public static byte $unbox(Object obj) {
-        return ((x10.core.UByte)obj).$value;
+        return ((UByte)obj).$value;
     }
     
     // make $box/$unbox idempotent
@@ -125,4 +125,22 @@ final public class UByte extends x10.core.Struct implements java.lang.Comparable
     public Object $gt(UByte a, Type t) { return Unsigned.gt($value,a.$value); }
     public Object $le(UByte a, Type t) { return Unsigned.le($value,a.$value); }
     public Object $ge(UByte a, Type t) { return Unsigned.ge($value,a.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)(((int)$value)&0xff);
+    }
+    @Override
+    public long longValue() {
+        return (long)(((int)$value)&0xff);
+    }
+    @Override
+    public float floatValue() {
+        return (float)(((int)$value)&0xff);
+    }
+    @Override
+    public double doubleValue() {
+        return (double)(((int)$value)&0xff);
+    }
 }

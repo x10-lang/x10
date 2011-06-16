@@ -12,7 +12,7 @@
 package x10.rtt;
 
 
-public class DoubleType extends RuntimeType<Double> {
+public class DoubleType extends RuntimeType<x10.core.Double> {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,9 +22,11 @@ public class DoubleType extends RuntimeType<Double> {
     }
 
     public DoubleType() {
-        super(Double.class,
+        super(x10.core.Double.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                  new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }
@@ -37,7 +39,7 @@ public class DoubleType extends RuntimeType<Double> {
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Double;
+        return o instanceof x10.core.Double;
     }
 
     @Override
@@ -55,20 +57,13 @@ public class DoubleType extends RuntimeType<Double> {
     }
     
     @Override
-    public Double getArray(Object array, int i) {
-        return ((double[]) array)[i];
+    public x10.core.Double getArray(Object array, int i) {
+        return x10.core.Double.$box(((double[]) array)[i]);
     }
     
-//    @Override
-//    public Double setArray(Object array, int i, Double v) {
-//        // avoid boxing again
-////        return ((double[]) array)[i] = v;
-//        ((double[]) array)[i] = v;
-//        return v;
-//    }
     @Override
-    public void setArray(Object array, int i, Double v) {
-        ((double[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Double v) {
+        ((double[]) array)[i] = x10.core.Double.$unbox(v);
     }
     
     @Override

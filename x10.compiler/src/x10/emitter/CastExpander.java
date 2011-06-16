@@ -23,6 +23,7 @@ public class CastExpander extends Expander {
 	private final Expander child;
 	private final Node node;
 	private boolean boxConversion;     // flag requesting explicit boxing conversion
+	private boolean unboxConversion;   // flag requesting explicit unboxing conversion
 
 	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander, Expander child) {
 		super(er);
@@ -42,6 +43,11 @@ public class CastExpander extends Expander {
 	
 	private CastExpander setBoxConversion(boolean b) {
 	    boxConversion = b;
+	    return this;
+	}
+	
+	private CastExpander setUnboxConversion(boolean b) {
+	    unboxConversion = b;
 	    return this;
 	}
 
@@ -65,6 +71,11 @@ public class CastExpander extends Expander {
 	public CastExpander boxTo(Type castType) {
 	    return new CastExpander(w, er, new TypeExpander(er, castType, X10PrettyPrinterVisitor.BOX_PRIMITIVES), this)
 	        .setBoxConversion(true);
+	}
+	
+	public CastExpander unboxTo(Type castType) {
+	    return new CastExpander(w, er, new TypeExpander(er, castType, 0), this)
+	        .setUnboxConversion(true);
 	}
 
 	@Override
@@ -104,6 +115,12 @@ public class CastExpander extends Expander {
 		        w.write("(");         // required by printBoxConversion
 		        expandChild(tr);
 		        w.write("))");
+		    } else if (unboxConversion) {
+		        w.write("(");
+		        boolean closeParen = er.printUnboxConversion(type);
+		        expandChild(tr);
+		        if (closeParen) w.write(")");
+		        w.write(")");
 		    } else {
 		        w.write("((");
 		        typeExpander.expand(tr);

@@ -585,12 +585,12 @@ public class Emitter {
 	static {
 		boxedPrimitives.put("x10.lang.Boolean", "java.lang.Boolean");
 		boxedPrimitives.put("x10.lang.Char", "java.lang.Character");
-		boxedPrimitives.put("x10.lang.Byte", "java.lang.Byte");
-		boxedPrimitives.put("x10.lang.Short", "java.lang.Short");
-		boxedPrimitives.put("x10.lang.Int", "java.lang.Integer");
-		boxedPrimitives.put("x10.lang.Long", "java.lang.Long");
-		boxedPrimitives.put("x10.lang.Float", "java.lang.Float");
-		boxedPrimitives.put("x10.lang.Double", "java.lang.Double");
+		boxedPrimitives.put("x10.lang.Byte", "x10.core.Byte");
+		boxedPrimitives.put("x10.lang.Short", "x10.core.Short");
+		boxedPrimitives.put("x10.lang.Int", "x10.core.Int");
+		boxedPrimitives.put("x10.lang.Long", "x10.core.Long");
+		boxedPrimitives.put("x10.lang.Float", "x10.core.Float");
+		boxedPrimitives.put("x10.lang.Double", "x10.core.Double");
 		boxedPrimitives.put("x10.lang.UByte", "x10.core.UByte");
 		boxedPrimitives.put("x10.lang.UShort", "x10.core.UShort");
 		boxedPrimitives.put("x10.lang.UInt", "x10.core.UInt");
@@ -749,7 +749,7 @@ public class Emitter {
 	
 	public void printBoxConversion(Type type) {
 	    // treat unsigned types specially
-	    if (type.isUnsignedNumeric()) {
+	    if (type.isNumeric()) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
@@ -760,12 +760,9 @@ public class Emitter {
 	        // it requires parentheses to be printed after
 	    }
 	    else {
+	        // FIXME: maybe this is not needed at all? -- boxing of non-boxable types
 	        w.write("(");
 	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	        w.write(")");
-	        // double type cast is needed, e.g. for ((Byte)(byte)1)
-	        w.write("(");
-	        printType(type, 0);
 	        w.write(")");
 	    }
 	}
@@ -775,7 +772,7 @@ public class Emitter {
 	 * @return Returns true if an additional closing parenthesis needs to be printed after expression
 	 */
 	public boolean printUnboxConversion(Type type) {
-	    if (type.isUnsignedNumeric()) {
+	    if (type.isNumeric()) {
 	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        /*
@@ -791,9 +788,7 @@ public class Emitter {
 	        return true;
 	    }
 	    else {
-	        w.write("(");
-	        printType(type, 0);
-	        w.write(")");
+	        // FIXME: maybe this is not needed at all? -- unboxing of non-boxable types
 	        w.write("(");
 	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	        w.write(")");
@@ -1891,16 +1886,12 @@ public class Emitter {
 	    }
 
         boolean closeParen = false;
-        if (boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
+        if ((boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context()))
+                || (instantiateReturnType && !isBoxedType(impl.returnType()))) {
         	printBoxConversion(impl.returnType());
         	w.write("(");
             closeParen = true;
         }
-        if (impl.returnType().isUnsignedNumeric()) {
-        	printBoxConversion(impl.returnType());
-        	w.write("(");
-        	closeParen = true;
-	    }
 
 	    TypeSystem xts = tr.typeSystem();
 	    boolean isInterface2 = false;
@@ -1939,7 +1930,7 @@ public class Emitter {
 	        }
 	        Name name = Name.make("a" + (i + 1));
 	        boolean closeParenArg = false;
-	        if (isPrimitive(f)) {
+	        if (isPrimitive(f) && isBoxedType(def.formalTypes().get(i).get())) {
 	            closeParenArg = printUnboxConversion(f);
 	        }
 	        w.write(name.toString());
@@ -2013,7 +2004,7 @@ public class Emitter {
     	    }
     	    
     	    boolean closeParen = false;
-    	    if (mi.returnType().isUnsignedNumeric() && mi.def().returnType().get().isParameterType()) {
+    	    if (!isBoxedType(mi.returnType()) && isBoxedType(mi.def().returnType().get())) {
     	        // handle unboxing of the UInt values
     	        closeParen = printUnboxConversion(mi.returnType());
     	    }
@@ -2485,7 +2476,8 @@ public class Emitter {
                 }
                 
                 boolean needParen = false;
-                if (mi.returnType().isUnsignedNumeric()) {
+                // this dispatch methods returns Object, so box if the underlying type is not boxed
+                if (!isBoxedType(mi.returnType()) && !mi.returnType().isVoid()) {
                 	printBoxConversion(mi.returnType());
                 	w.write("(");
                 	needParen = true;
@@ -2516,21 +2508,10 @@ public class Emitter {
                         w.allowBreak(0, " ");
                     }
                     boolean closeParen = false;
-                    if (def.formalTypes().get(i).get() instanceof ParameterType) {
+                    if (isBoxedType(def.formalTypes().get(i).get())) {
                         Type bf = Types.baseType(f);
-                        if (f.isUnsignedNumeric()) {
+                        if (!isBoxedType(f)) {
                             closeParen = printUnboxConversion(f);
-                	        w.write("(");
-                	    	printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                	        w.write(")");
-                        } else if (f.isBoolean() || f.isNumeric()) {
-                            // TODO:CAST
-                            w.write("(");
-                            printType(f, 0);
-                            w.write(")");
-                            w.write("(");
-                            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                            w.write(")");
                         } else if (!isMethodParameter(bf, mi, tr.context())) {
                             // TODO:CAST
                             w.write("(");
@@ -2669,8 +2650,8 @@ public class Emitter {
 	    // for primitive
 	    else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()) {
 	        if (actual.typeEquals(expectedBase, tr.context())) {
-	            if (e instanceof X10Call && Types.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
-	                expander = expander.castTo(expectedBase);
+	            if (e instanceof X10Call && isBoxedType(Types.baseType(((X10Call) e).methodInstance().def().returnType().get()))) {
+	                expander = expander.unboxTo(expectedBase);
 	                expander.expand(tr);
 	            }
 	            else {
@@ -2680,8 +2661,8 @@ public class Emitter {
 
 	            //when the type of e has parameters, cast to actual boxed primitive. 
 	            if (!isNoArgumentType(e) || expected instanceof ConstrainedType) {
-	                expander = expander.castTo(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	                expander = expander.castTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	                // FIXME: casting after boxing should not be necessary
+	                expander = expander.boxTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	                expander.expand(tr);
 	            }
 	            else if (isBoxedType(expectedBase)) {
@@ -2707,7 +2688,10 @@ public class Emitter {
 	        }
 	        else {
 	            //cast eagerly
-	            expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            if (isBoxedType(actual) && !isBoxedType(expectedBase))
+    	            expander = expander.unboxTo(expectedBase);
+	            else 
+    	            expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	            expander.expand(tr);
 	        }
 	    }
@@ -3480,6 +3464,9 @@ public class Emitter {
     		CastExpander targetArg = new CastExpander(w, this, target);
     		if (cast) {
     		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+    		    // in native methods of numerics (Int etc), the #this argument is expected to be unboxed 
+    		    if (mi.container().isNumeric())
+    		        targetArg = targetArg.unboxTo(mi.container());
     		}
     		
 	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();

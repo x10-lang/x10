@@ -11,8 +11,7 @@
 
 package x10.rtt;
 
-
-public class ShortType extends RuntimeType<Short> {
+public class ShortType extends RuntimeType<x10.core.Short> {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,11 +21,11 @@ public class ShortType extends RuntimeType<Short> {
     }
 
     public ShortType() {
-        super(Short.class,
-              new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                  Types.STRUCT
-              });
+        super(x10.core.Short.class,
+            new Type[] {
+                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                Types.STRUCT
+            });
     }
     
     @Override
@@ -37,9 +36,9 @@ public class ShortType extends RuntimeType<Short> {
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Short;
+        return o instanceof x10.core.Short;
     }
-
+    
     @Override
     public Object makeArray(int length) {
         return new short[length];
@@ -49,26 +48,19 @@ public class ShortType extends RuntimeType<Short> {
     public Object makeArray(Object... elem) {
         short[] arr = new short[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).shortValue();
+            arr[i] = x10.core.Short.$unbox(elem[i]);
         }
         return arr;
     }
     
     @Override
-    public Short getArray(Object array, int i) {
-        return ((short[]) array)[i];
+    public x10.core.Short getArray(Object array, int i) {
+        return x10.core.Short.$box(((short[]) array)[i]);
     }
     
-//    @Override
-//    public Short setArray(Object array, int i, Short v) {
-//        // avoid boxing again
-////        return ((short[]) array)[i] = v;
-//        ((short[]) array)[i] = v;
-//        return v;
-//    }
     @Override
-    public void setArray(Object array, int i, Short v) {
-        ((short[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Short v) {
+        ((short[]) array)[i] = x10.core.Short.$unbox(v);
     }
     
     @Override

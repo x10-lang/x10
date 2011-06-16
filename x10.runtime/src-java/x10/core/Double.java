@@ -24,7 +24,7 @@ final public class Double extends Numeric implements java.lang.Comparable<Double
 {
     private static final long serialVersionUID = 1L;
     
-    public static final x10.rtt.RuntimeType<?> $RTT = Types.INT;
+    public static final x10.rtt.RuntimeType<?> $RTT = Types.DOUBLE;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
 

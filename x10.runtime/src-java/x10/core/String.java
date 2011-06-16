@@ -14,7 +14,7 @@ package x10.core;
 import x10.rtt.Types;
 
 final public class String extends x10.core.Ref implements
-    x10.core.fun.Fun_0_1<java.lang.Integer, java.lang.Character>,
+    x10.core.fun.Fun_0_1<x10.core.Int, java.lang.Character>,
     java.lang.Comparable<java.lang.String>, x10.util.Ordered
 {
 
@@ -26,8 +26,8 @@ final public class String extends x10.core.Ref implements
     public x10.rtt.Type<?> $getParam(int i) {return null;}
     
     // dispatcher for method abstract public (a1:Z1)=> U.$apply(a1:Z1): U
-    public java.lang.Character $apply(final java.lang.Integer a1, final x10.rtt.Type t1) {
-        return $apply((int)(java.lang.Integer)a1);
+    public java.lang.Character $apply(final x10.core.Int a1, final x10.rtt.Type t1) {
+        return $apply(x10.core.Int.$unbox(a1));
     }
 
     // dispatcher for method abstract public x10.lang.Comparable.compareTo(that:T): x10.lang.Int
@@ -242,6 +242,28 @@ final public class String extends x10.core.Ref implements
 //    {
 //        return new x10.core.String(java.lang.String.format(fmt.$value, args.raw().getObjectArray()));
 //    }
+	
+	public static java.lang.String format(java.lang.String format, Object[] args) {
+	    Object[] copy = new Object[args.length];
+	    // rebox x10.core.Int objects into java.lang.Integers
+	    for (int i = 0; i < args.length; i++) {
+    	    if (args[i] instanceof x10.core.Byte)
+	            copy[i] = new java.lang.Byte(x10.core.Byte.$unbox((x10.core.Byte)args[i]));
+    	    else if (args[i] instanceof x10.core.Short)
+	            copy[i] = new java.lang.Short(x10.core.Short.$unbox((x10.core.Short)args[i]));
+    	    else if (args[i] instanceof x10.core.Int)
+	            copy[i] = new java.lang.Integer(x10.core.Int.$unbox((x10.core.Int)args[i]));
+    	    else if (args[i] instanceof x10.core.Long)
+	            copy[i] = new java.lang.Long(x10.core.Long.$unbox((x10.core.Long)args[i]));
+    	    else if (args[i] instanceof x10.core.Float)
+	            copy[i] = new java.lang.Float(x10.core.Float.$unbox((x10.core.Float)args[i]));
+    	    else if (args[i] instanceof x10.core.Double)
+	            copy[i] = new java.lang.Double(x10.core.Double.$unbox((x10.core.Double)args[i]));
+	        else
+    	        copy[i] = args[i];
+	    }
+	    return java.lang.String.format(format, copy);
+	}
 
 //    public x10.core.String toLowerCase() {
 //        return new x10.core.String($value.toLowerCase());

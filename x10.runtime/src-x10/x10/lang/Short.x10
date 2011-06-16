@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "short", null, "x10.rtt.Types.SHORT")
 @NativeRep("c++", "x10_short", "x10_short", null)
-public struct Short implements Comparable[Short] /*TODO implements Arithmetic[Short], Bitwise[Short], Ordered[Short]*/ {
+public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Short], Ordered[Short] {
 
     /**
      * A less-than operator.

@@ -19,7 +19,7 @@ import x10.rtt.Types;
  * an Int value to type Any, parameter type T or superinterfaces such
  * as Comparable<Int>.
  */
-final public class Int extends x10.core.Struct implements java.lang.Comparable<Int>,
+final public class Int extends Numeric implements java.lang.Comparable<Int>,
     x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
@@ -42,6 +42,11 @@ final public class Int extends x10.core.Struct implements java.lang.Comparable<I
         return obj.$value;
     }
     
+    public static int $unbox(Object obj) {
+        if (obj instanceof Int) return ((Int)obj).$value;
+        else return ((Integer)obj).intValue();
+    }
+    
     // make $box/$unbox idempotent
     public static Int $box(Int obj) {
         return obj;
@@ -54,6 +59,15 @@ final public class Int extends x10.core.Struct implements java.lang.Comparable<I
     public boolean _struct_equals$O(Object obj) {
         if (obj instanceof Int && ((Int) obj).$value == $value)
             return true;
+        return false;
+    }
+    
+    public boolean equals(Object value) {
+        if (value instanceof Int) {
+            return ((Int) value).$value == $value;
+        } else if (value instanceof java.lang.Integer) { // integer literals come here as Integer autoboxed values
+            return ((java.lang.Integer) value).intValue() == $value;
+        }
         return false;
     }
     
@@ -96,4 +110,22 @@ final public class Int extends x10.core.Struct implements java.lang.Comparable<I
     public Object $gt(Int b, Type t) { return ($value > b.$value); }
     public Object $le(Int b, Type t) { return ($value <= b.$value); }
     public Object $ge(Int b, Type t) { return ($value >= b.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)$value;
+    }
+    @Override
+    public long longValue() {
+        return (long)$value;
+    }
+    @Override
+    public float floatValue() {
+        return (float)$value;
+    }
+    @Override
+    public double doubleValue() {
+        return (double)$value;
+    }
 }

@@ -18,7 +18,7 @@ import x10.rtt.Types;
  * Represents a boxed UInt value. Boxed representation is used when casting
  * a UInt value into type Any or parameter type T.
  */
-final public class UInt extends x10.core.Struct implements java.lang.Comparable<UInt>,
+final public class UInt extends Numeric implements java.lang.Comparable<UInt>,
     x10.lang.Arithmetic<UInt>, x10.lang.Bitwise<UInt>, x10.util.Ordered<UInt>
 {
     private static final long serialVersionUID = 1L;
@@ -71,7 +71,7 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
     }
     
     public static int $unbox(Object obj) {
-        return ((x10.core.UInt)obj).$value;
+        return ((UInt)obj).$value;
     }
     
     // make $box/$unbox idempotent
@@ -139,4 +139,22 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
     public Object $gt(UInt a, Type t) { return Unsigned.gt($value,a.$value); }
     public Object $le(UInt a, Type t) { return Unsigned.le($value,a.$value); }
     public Object $ge(UInt a, Type t) { return Unsigned.ge($value,a.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)$value;
+    }
+    @Override
+    public long longValue() {
+        return (long)(((long)$value)&0xffffFFFFl);
+    }
+    @Override
+    public float floatValue() {
+        return (float)(((long)$value)&0xffffFFFFl);
+    }
+    @Override
+    public double doubleValue() {
+        return (double)(((long)$value)&0xffffFFFFl);
+    }
 }

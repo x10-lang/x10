@@ -105,6 +105,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
@@ -769,7 +770,7 @@ public class StaticInitializer extends ContextVisitor {
         TypeNode receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
 
         FieldInstance fi = initInfo.fieldDef.asInstance();
-        Expr right = genDeserializeField(pos, ba, baName);
+        Expr right = (Expr)xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fi.type()), genDeserializeField(pos, ba, baName), Converter.ConversionType.PRIMITIVE).type(fi.type());
         Name name = initInfo.fieldDef.name();
         Expr left = xnf.Field(pos, receiver, xnf.Id(pos, name)).fieldInstance(fi).type(right.type());
 

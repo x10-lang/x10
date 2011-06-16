@@ -19,12 +19,12 @@ import x10.rtt.Types;
  * an Byte value to type Any, parameter type T or superinterfaces such
  * as Comparable<Byte>.
  */
-final public class Byte extends x10.core.Struct implements java.lang.Comparable<Byte>,
+final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
     x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
     
-    public static final x10.rtt.RuntimeType<?> $RTT = Types.INT;
+    public static final x10.rtt.RuntimeType<?> $RTT = Types.BYTE;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
 
@@ -114,6 +114,24 @@ final public class Byte extends x10.core.Struct implements java.lang.Comparable<
     public Object $gt(Byte b, Type t) { return ($value > b.$value); }
     public Object $le(Byte b, Type t) { return ($value <= b.$value); }
     public Object $ge(Byte b, Type t) { return ($value >= b.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)$value;
+    }
+    @Override
+    public long longValue() {
+        return (long)$value;
+    }
+    @Override
+    public float floatValue() {
+        return (float)$value;
+    }
+    @Override
+    public double doubleValue() {
+        return (double)$value;
+    }
     
     // imitate java.lang.Byte
     public static final byte MIN_VALUE = java.lang.Byte.MIN_VALUE;

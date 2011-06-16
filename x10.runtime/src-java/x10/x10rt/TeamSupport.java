@@ -53,7 +53,7 @@ public class TeamSupport {
         System.exit(1);
     }
 
-	public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<Integer> result) {
+	public static void nativeMake(IndexedMemoryChunk<Place> places, int count, IndexedMemoryChunk<x10.core.Int> result) {
 	    Place[] np = (Place[])places.getBackingArray();
 	    int[] int_places = new int[np.length];
 	    for (int i=0; i<places.length; i++) {
@@ -133,7 +133,7 @@ public class TeamSupport {
         aboutToDie("nativeIndexOfMin");
     }
 
-    public static void nativeSplit(int id, int role, int color, int new_role, IndexedMemoryChunk<Integer> result) {
+    public static void nativeSplit(int id, int role, int color, int new_role, IndexedMemoryChunk<x10.core.Int> result) {
         aboutToDie("nativeSplit");
     }
     

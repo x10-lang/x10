@@ -19,12 +19,12 @@ import x10.rtt.Types;
  * an Long value to type Any, parameter type T or superinterfaces such
  * as Comparable<Long>.
  */
-final public class Long extends x10.core.Struct implements java.lang.Comparable<Long>,
+final public class Long extends Numeric implements java.lang.Comparable<Long>,
     x10.lang.Arithmetic<Long>, x10.lang.Bitwise<Long>, x10.util.Ordered<Long>
 {
     private static final long serialVersionUID = 1L;
     
-    public static final x10.rtt.RuntimeType<?> $RTT = Types.INT;
+    public static final x10.rtt.RuntimeType<?> $RTT = Types.LONG;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
 
@@ -110,4 +110,22 @@ final public class Long extends x10.core.Struct implements java.lang.Comparable<
     public Object $gt(Long b, Type t) { return ($value > b.$value); }
     public Object $le(Long b, Type t) { return ($value <= b.$value); }
     public Object $ge(Long b, Type t) { return ($value >= b.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)$value;
+    }
+    @Override
+    public long longValue() {
+        return (long)$value;
+    }
+    @Override
+    public float floatValue() {
+        return (float)$value;
+    }
+    @Override
+    public double doubleValue() {
+        return (double)$value;
+    }
 }

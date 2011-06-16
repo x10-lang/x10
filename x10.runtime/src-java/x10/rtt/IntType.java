@@ -12,7 +12,7 @@
 package x10.rtt;
 
 
-public class IntType extends RuntimeType<Integer> {
+public class IntType extends RuntimeType<x10.core.Int> {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class IntType extends RuntimeType<Integer> {
     }
 
     public IntType() {
-        super(Integer.class,
+        super(x10.core.Int.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                 Types.STRUCT
@@ -37,7 +37,7 @@ public class IntType extends RuntimeType<Integer> {
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Integer;
+        return o instanceof x10.core.Int;
     }
     
     @Override
@@ -49,14 +49,14 @@ public class IntType extends RuntimeType<Integer> {
     public Object makeArray(Object... elem) {
         int[] arr = new int[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).intValue();
+            arr[i] = x10.core.Int.$unbox(elem[i]);
         }
         return arr;
     }
     
     @Override
-    public Integer getArray(Object array, int i) {
-        return ((int[]) array)[i];
+    public x10.core.Int getArray(Object array, int i) {
+        return x10.core.Int.$box(((int[]) array)[i]);
     }
     
 //    @Override
@@ -67,8 +67,8 @@ public class IntType extends RuntimeType<Integer> {
 //        return v;
 //    }
     @Override
-    public void setArray(Object array, int i, Integer v) {
-        ((int[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Int v) {
+        ((int[]) array)[i] = x10.core.Int.$unbox(v);
     }
     
     @Override

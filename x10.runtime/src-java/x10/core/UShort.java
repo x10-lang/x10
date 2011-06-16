@@ -18,7 +18,7 @@ import x10.rtt.Types;
  * Represents a boxed UShort value. Boxed representation is used when casting
  * a UShort value into type Any or parameter type T.
  */
-final public class UShort extends x10.core.Struct implements java.lang.Comparable<UShort>,
+final public class UShort extends Numeric implements java.lang.Comparable<UShort>,
     x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
@@ -54,12 +54,12 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         return $box((short) value);
     }
 
-    public static short $unbox(UShort o) {
-        return o.$value;
+    public static short $unbox(UShort obj) {
+        return obj.$value;
     }
     
     public static short $unbox(Object obj) {
-        return ((x10.core.UShort)obj).$value;
+        return ((UShort)obj).$value;
     }
     
     // make $box/$unbox idempotent
@@ -127,4 +127,22 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
     public Object $gt(UShort a, Type t) { return Unsigned.gt($value,a.$value); }
     public Object $le(UShort a, Type t) { return Unsigned.le($value,a.$value); }
     public Object $ge(UShort a, Type t) { return Unsigned.ge($value,a.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)(((int)$value)&0xffff);
+    }
+    @Override
+    public long longValue() {
+        return (long)(((int)$value)&0xffff);
+    }
+    @Override
+    public float floatValue() {
+        return (float)(((int)$value)&0xffff);
+    }
+    @Override
+    public double doubleValue() {
+        return (double)(((int)$value)&0xffff);
+    }
 }

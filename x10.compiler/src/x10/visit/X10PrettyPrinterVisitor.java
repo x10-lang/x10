@@ -1480,14 +1480,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else {
                 // x10.rtt.Equality.equalsequals(#0,#1)
                 w.write("x10.rtt.Equality.equalsequals(");
-                if (l.isUnsignedNumeric()) {
+                if (l.isNumeric()) {
                     er.printBoxConversion(l);
                 }
                 w.write("("); // required for printBoxConversion
                 er.prettyPrint(left, tr);
                 w.write(")");
                 w.write(",");
-                if (r.isUnsignedNumeric()) {
+                if (r.isNumeric()) {
                     er.printBoxConversion(r);
                 }
                 w.write("("); // required for printBoxConversion
@@ -1510,14 +1510,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else {
             	// (!x10.rtt.Equality.equalsequals(#0,#1))
             	w.write("(!x10.rtt.Equality.equalsequals(");
-                if (l.isUnsignedNumeric()) {
+                if (l.isNumeric()) {
                     er.printBoxConversion(l);
                 }
                 w.write("(");
                 er.prettyPrint(left, tr);
                 w.write(")");
             	w.write(",");
-                if (r.isUnsignedNumeric()) {
+                if (r.isNumeric()) {
                     er.printBoxConversion(r);
                 }
                 w.write("(");
@@ -1602,7 +1602,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
     
     public static boolean isBoxedType(Type t) {
-        if (t.isBoolean() || t.isChar() || t.isNumeric())
+        // void is included here, because synthetic methods have no definition and are reported as having type (void)
+        if (t.isBoolean() || t.isChar() || t.isNumeric() || t.isVoid())
             return false;
         else
             return true;
@@ -1788,7 +1789,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // }
             else {
                 if (isPrimitiveRepedJava(e.type())) {
-                    boolean closeParen = false;
                     boolean forceBoxing = false;
                     if (!er.canMangleMethodName(def)) {
                         // for methods with non-manglable names, we box argument
@@ -1802,6 +1802,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                     }
                     // e.g) m((Integer) a) for m(T a)
+                    boolean closeParen = false; // unbalanced closing parenthesis needed?
                     // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
                     if (isBoxedType(defType) || forceBoxing) {
                         // this can print something like '(int)' or 'UInt.$box' depending on the type
@@ -2091,7 +2092,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     er.prettyPrint(castTE, tr);
                     boolean convert = xts.isParameterType(exprType) || !xts.isAny(Types.baseType(exprType)) && xts.isParameterType(castType) || isString(castType, tr.context());
                     w.write("> cast" + (convert ? "Conversion" : "") + "(");
+                    boolean closeParen = false;
+                    if (exprType.isNumeric() && isBoxedType(castType)) {
+                        er.printBoxConversion(exprType);
+                        w.write("(");
+                        closeParen = true;
+                    }
                     er.prettyPrint(expr, tr);
+                    if (closeParen) w.write(")");
                     w.write(",");
                     er.prettyPrint(castRE, tr);
                     w.write(")");
@@ -2125,8 +2133,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     /*
-     * Field access -- this includes FieldAssign (because the left node of
-     * FieldAssign is a Field node!
+     * Field access -- this includes only access of fields for read;
+     * see visit(FieldAssign_c) for write access.
      */
     @Override
     public void visit(Field_c n) {
@@ -2171,7 +2179,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             assert target instanceof Expr;
             boolean closeParen = false;
             Type fieldType = n.fieldInstance().def().type().get();
-            if (xts.isStruct(target.type()) && n.type().isNumeric() && isBoxedType(fieldType)) {
+            if (xts.isStruct(target.type()) && !isBoxedType(n.type()) && isBoxedType(fieldType)) {
                 closeParen = er.printUnboxConversion(n.type());
             }
             w.begin(0);
@@ -2255,7 +2263,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         Type exprType = Types.baseType(c.expr().type());
         boolean needParen = false;
-        if (exprType.isUnsignedNumeric()) {
+        if (exprType.isNumeric()) {
         	er.printBoxConversion(exprType);
         	w.write("(");
         	needParen = true;
@@ -3051,7 +3059,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Expr e = l.get(i);
 
             Type castType = mi.formalTypes().get(i);
+            Type defType = mi.def().formalTypes().get(i).get();
 
+            boolean closeParen = false;
             if (isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
 
                 w.write("(");
@@ -3067,6 +3077,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 	er.printBoxConversion(e.type());
                     w.write("(");
                 }
+                closeParen = true;
+            } if (!isBoxedType(e.type()) && isBoxedType(defType)) {
+                er.printBoxConversion(e.type());
+                w.write("(");
+                closeParen = true;
             }
 
             c.print(e, w, tr);
@@ -3075,7 +3090,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(".clone()");
             }
 
-            if (isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
+            if (closeParen) {
                 w.write(")");
             }
 

@@ -27,7 +27,7 @@ import x10.util.Ordered;
 //                 v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
-public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
+public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ordered[Int] {
 
 
     /**

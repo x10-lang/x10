@@ -19,12 +19,12 @@ import x10.rtt.Types;
  * an Short value to type Any, parameter type T or superinterfaces such
  * as Comparable<Short>.
  */
-final public class Short extends x10.core.Struct implements java.lang.Comparable<Short>,
+final public class Short extends Numeric implements java.lang.Comparable<Short>,
     x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
 {
     private static final long serialVersionUID = 1L;
     
-    public static final x10.rtt.RuntimeType<?> $RTT = Types.INT;
+    public static final x10.rtt.RuntimeType<?> $RTT = Types.SHORT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
 
@@ -114,4 +114,22 @@ final public class Short extends x10.core.Struct implements java.lang.Comparable
     public Object $gt(Short b, Type t) { return ($value > b.$value); }
     public Object $le(Short b, Type t) { return ($value <= b.$value); }
     public Object $ge(Short b, Type t) { return ($value >= b.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)$value;
+    }
+    @Override
+    public long longValue() {
+        return (long)$value;
+    }
+    @Override
+    public float floatValue() {
+        return (float)$value;
+    }
+    @Override
+    public double doubleValue() {
+        return (double)$value;
+    }
 }

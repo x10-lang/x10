@@ -11,8 +11,7 @@
 
 package x10.rtt;
 
-
-public class ByteType extends RuntimeType<Byte> {
+public class ByteType extends RuntimeType<x10.core.Byte> {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,11 +21,11 @@ public class ByteType extends RuntimeType<Byte> {
     }
 
     public ByteType() {
-        super(Byte.class,
-              new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                  Types.STRUCT
-              });
+        super(x10.core.Byte.class,
+            new Type[] {
+                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                Types.STRUCT
+            });
     }
     
     @Override
@@ -37,9 +36,9 @@ public class ByteType extends RuntimeType<Byte> {
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Byte;
+        return o instanceof x10.core.Byte;
     }
-
+    
     @Override
     public Object makeArray(int length) {
         return new byte[length];
@@ -49,26 +48,19 @@ public class ByteType extends RuntimeType<Byte> {
     public Object makeArray(Object... elem) {
         byte[] arr = new byte[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).byteValue();
+            arr[i] = x10.core.Byte.$unbox(elem[i]);
         }
         return arr;
     }
     
     @Override
-    public Byte getArray(Object array, int i) {
-        return ((byte[]) array)[i];
+    public x10.core.Byte getArray(Object array, int i) {
+        return x10.core.Byte.$box(((byte[]) array)[i]);
     }
     
-//    @Override
-//    public Byte setArray(Object array, int i, Byte v) {
-//        // avoid boxing again
-////        return ((byte[]) array)[i] = v;
-//        ((byte[]) array)[i] = v;
-//        return v;
-//    }
     @Override
-    public void setArray(Object array, int i, Byte v) {
-        ((byte[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Byte v) {
+        ((byte[]) array)[i] = x10.core.Byte.$unbox(v);
     }
     
     @Override
