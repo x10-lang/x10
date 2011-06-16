@@ -53,9 +53,9 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
         super(message, cause);
     }
 
-    public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
+    public static final RuntimeType<X10Throwable> $RTT = new NamedType<X10Throwable>(
         "x10.lang.Throwable",
-        Throwable.class,
+        X10Throwable.class,
         new Type[] { x10.rtt.Types.OBJECT }
     );
     public RuntimeType<?> $getRTT() {
