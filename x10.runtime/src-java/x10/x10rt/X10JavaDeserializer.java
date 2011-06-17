@@ -21,7 +21,7 @@ public class X10JavaDeserializer {
 
     // When a Object is deserialized record its position
     List<Object> objectList;
-    final int ref = Integer.parseInt("FFFFFFF", 16);
+    public static final int ref = Integer.parseInt("FFFFFFF", 16);
     ObjectInputStream in;
 
     public X10JavaDeserializer(ObjectInputStream in) {
@@ -31,6 +31,10 @@ public class X10JavaDeserializer {
 
     public void record_reference(Object obj) {
         objectList.add(obj);
+    }
+
+    public Object getObjectAtPosition(int pos) {
+        return objectList.get(pos);
     }
 
     public Object readRef() throws IOException {
@@ -174,10 +178,14 @@ public class X10JavaDeserializer {
 
     public String readString() throws IOException {
         int classID = in.readInt();
-        if (classID == DeserializationDispatcher.NULL_ID) {
+        if (classID == ref) {
+            return (String) objectList.get(in.readInt());
+        } else if (classID == DeserializationDispatcher.NULL_ID) {
             return null;
         }
-        return readStringValue();
+        String str = readStringValue();
+        objectList.add(str);
+        return str;
     }
 
     public String readStringValue() throws IOException {

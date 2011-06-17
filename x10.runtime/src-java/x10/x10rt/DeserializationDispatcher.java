@@ -68,7 +68,9 @@ public class DeserializationDispatcher {
 
     public static Object getInstanceForId(int i, X10JavaDeserializer deserializer) throws IOException {
 
-        if (i <=8) {
+        if (i == X10JavaDeserializer.ref) {
+            return deserializer.getObjectAtPosition(deserializer.readInt());
+        } else if (i <=8) {
             Object obj = null;
             switch(i) {
                 case NULL_ID:

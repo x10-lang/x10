@@ -164,6 +164,22 @@ public class X10JavaSerializer {
             return;
         }
 
+        Integer pos;
+        if ((pos = objectMap.get(str)) != null) {
+            // We have serialized this object beofre hence no need to do it again
+            // In the C++ backend the value used is 0xFFFFFFFF
+            // TODO keith Make this compliant with C++ value also make the position relative
+            out.writeInt(refValue);
+            out.writeInt(pos);
+            return;
+        }
+
+        objectMap.put(str, counter);
+        counter++;
+        writeStringValue(str);
+    }
+
+    private void writeStringValue(String str) throws IOException {
         out.writeInt(DeserializationDispatcher.STRING_ID);
         write(str.length());
         out.write(str.getBytes());
@@ -195,7 +211,7 @@ public class X10JavaSerializer {
         counter++;
         int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (id == DeserializationDispatcher.STRING_ID) {
-            write(p.toString());
+            writeStringValue(p.toString());
             return;
         }
         out.writeInt(id);
