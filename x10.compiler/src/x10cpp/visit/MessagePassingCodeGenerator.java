@@ -1422,8 +1422,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			return;
 		}
 		int mid = getUniqueId_().intValue();
+		ClassifiedStream saved_closure_stream = context.closures;
 		if (def.typeParameters().size() != 0) {
 		    sw.pushCurrentStream(context.genericFunctions);
+		    context.closures = context.genericFunctionClosures;
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
 		    sw.write("#ifndef "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
 		    sw.write("#define "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
@@ -1528,6 +1530,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
 		    context.genericFunctions.writeln("#endif // "+guard+"_"+mi.name().toString()+"_"+mid);
 		}
+		context.closures = saved_closure_stream;
 	}
 
 
