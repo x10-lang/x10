@@ -14,11 +14,11 @@ package x10.core;
 import x10.rtt.Types;
 
 final public class String extends x10.core.Ref implements
-    x10.core.fun.Fun_0_1<x10.core.Int, java.lang.Character>,
+    x10.core.fun.Fun_0_1<x10.core.Int, x10.core.Char>,
     java.lang.Comparable<java.lang.String>, x10.util.Ordered
 {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public static final x10.rtt.RuntimeType<java.lang.String> $RTT = Types.STRING;
     
@@ -26,8 +26,8 @@ final public class String extends x10.core.Ref implements
     public x10.rtt.Type<?> $getParam(int i) {return null;}
     
     // dispatcher for method abstract public (a1:Z1)=> U.$apply(a1:Z1): U
-    public java.lang.Character $apply(final x10.core.Int a1, final x10.rtt.Type t1) {
-        return $apply(x10.core.Int.$unbox(a1));
+    public x10.core.Char $apply(final x10.core.Int a1, final x10.rtt.Type t1) {
+        return x10.core.Char.$box($apply(x10.core.Int.$unbox(a1)));
     }
 
     // dispatcher for method abstract public x10.lang.Comparable.compareTo(that:T): x10.lang.Int
