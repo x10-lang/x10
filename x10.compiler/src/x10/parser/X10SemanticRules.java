@@ -91,6 +91,7 @@ import x10.errors.Errors;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 
@@ -2452,7 +2453,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_FieldAccess5(Object _ClassName, Object _Identifier) {
         ParsedName ClassName = (ParsedName) _ClassName;
         Id Identifier = (Id) _Identifier;
-        setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan(),getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier));
+        setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), Identifier));
     }
     // Production: ForInit ::= LocalVariableDeclaration
     void rule_ForInit1(Object _LocalVariableDeclaration) {
@@ -2641,7 +2642,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Id Identifier = (Id) _Identifier;
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
-        setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
+        setResult(nf.X10Call(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), Identifier, TypeArgumentsopt, ArgumentListopt));
     }
     // Production: MethodInvocation ::= Primary TypeArgumentsopt '(' ArgumentListopt ')'
     void rule_MethodInvocation7(Object _Primary, Object _TypeArgumentsopt, Object _ArgumentListopt) {
@@ -2659,6 +2660,256 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         else {
             setResult(nf.ClosureCall(pos(), Primary, TypeArgumentsopt, ArgumentListopt));
         }
+    }
+    // Production: MethodInvocation ::= OperatorPrefix TypeArgumentsopt '(' ArgumentListopt ')'
+    void rule_MethodInvocation8(Object _OperatorPrefix, Object _TypeArgumentsopt, Object _ArgumentListopt) {
+        Expr OperatorPrefix = (Expr) _OperatorPrefix;
+        List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        if (OperatorPrefix instanceof Field) {
+            Field f = (Field) OperatorPrefix;
+            setResult(nf.X10Call(pos(), f.target(), f.name(), TypeArgumentsopt, ArgumentListopt));
+        }
+        else if (OperatorPrefix instanceof AmbExpr) {
+            AmbExpr f = (AmbExpr) OperatorPrefix;
+            setResult(nf.X10Call(pos(), null, f.name(), TypeArgumentsopt, ArgumentListopt));
+        }
+        else {
+            throw new InternalCompilerError("Invalid operator prefix", OperatorPrefix.position());
+        }
+    }
+    // Production: MethodInvocation ::= ClassName '.' operator as '[' Type ']' TypeArgumentsopt '(' ArgumentListopt ')'
+    void rule_OperatorPrefix25(Object _ClassName, Object _Type, Object _TypeArgumentsopt, Object _ArgumentListopt) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        TypeNode Type = (TypeNode) _Type;
+        List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        Name opName = Converter.operator_as;
+        setResult(nf.X10ConversionCall(pos(), ClassName.toType(), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(5)), opName), Type, TypeArgumentsopt, ArgumentListopt));
+    }
+    // Production: MethodInvocation ::= ClassName '.' operator '[' Type ']' TypeArgumentsopt '(' ArgumentListopt ')'
+    void rule_OperatorPrefix26(Object _ClassName, Object _Type, Object _TypeArgumentsopt, Object _ArgumentListopt) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        TypeNode Type = (TypeNode) _Type;
+        List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        Name opName = Converter.implicit_operator_as;
+        setResult(nf.X10ConversionCall(pos(), ClassName.toType(), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(4)), opName), Type, TypeArgumentsopt, ArgumentListopt));
+    }
+    // Production: OperatorPrefix ::= operator BinOp
+    void rule_OperatorPrefix0(Object _BinOp) {
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), null, nf.Id(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(2)), opName)));
+    }
+    // Production: OperatorPrefix ::= FullyQualifiedName '.' operator BinOp
+    void rule_OperatorPrefix1(Object _FullyQualifiedName, Object _BinOp) {
+        ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), FullyQualifiedName.toReceiver(), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= Primary '.' operator BinOp
+    void rule_OperatorPrefix2(Object _Primary, Object _BinOp) {
+        Expr Primary = (Expr) _Primary;
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= super '.' operator BinOp
+    void rule_OperatorPrefix3(Object _BinOp) {
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= ClassName '.' super '.' operator BinOp
+    void rule_OperatorPrefix4(Object _ClassName, Object _BinOp) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.binaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= operator '(' ')' BinOp
+    void rule_OperatorPrefix5(Object _BinOp) {
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), null, nf.Id(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= FullyQualifiedName '.' operator '(' ')' BinOp
+    void rule_OperatorPrefix6(Object _FullyQualifiedName, Object _BinOp) {
+        ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), FullyQualifiedName.toReceiver(), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= Primary '.' operator '(' ')' BinOp
+    void rule_OperatorPrefix7(Object _Primary, Object _BinOp) {
+        Expr Primary = (Expr) _Primary;
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= super '.' operator '(' ')' BinOp
+    void rule_OperatorPrefix8(Object _BinOp) {
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= ClassName '.' super '.' operator '(' ')' BinOp
+    void rule_OperatorPrefix9(Object _ClassName, Object _BinOp) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        Binary.Operator BinOp = (Binary.Operator) _BinOp;
+        Name opName = X10Binary_c.invBinaryMethodName(BinOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+BinOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5), getRhsLastTokenIndex(8)), opName)));
+    }
+    // Production: OperatorPrefix ::= operator PrefixOp
+    void rule_OperatorPrefix10(Object _PrefixOp) {
+        Unary.Operator PrefixOp = (Unary.Operator) _PrefixOp;
+        Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+PrefixOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), null, nf.Id(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(2)), opName)));
+    }
+    // Production: OperatorPrefix ::= FullyQualifiedName '.' operator PrefixOp
+    void rule_OperatorPrefix11(Object _FullyQualifiedName, Object _PrefixOp) {
+        ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
+        Unary.Operator PrefixOp = (Unary.Operator) _PrefixOp;
+        Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+PrefixOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), FullyQualifiedName.toReceiver(), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= Primary '.' operator PrefixOp
+    void rule_OperatorPrefix12(Object _Primary, Object _PrefixOp) {
+        Expr Primary = (Expr) _Primary;
+        Unary.Operator PrefixOp = (Unary.Operator) _PrefixOp;
+        Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+PrefixOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= super '.' operator PrefixOp
+    void rule_OperatorPrefix13(Object _PrefixOp) {
+        Unary.Operator PrefixOp = (Unary.Operator) _PrefixOp;
+        Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+PrefixOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= ClassName '.' super '.' operator PrefixOp
+    void rule_OperatorPrefix14(Object _ClassName, Object _PrefixOp) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        Unary.Operator PrefixOp = (Unary.Operator) _PrefixOp;
+        Name opName = X10Unary_c.unaryMethodName(PrefixOp);
+        if (opName == null) {
+            syntaxError("Cannot invoke binary operator '"+PrefixOp+"'.", pos());
+            opName = Name.make("invalid operator");
+        }
+        setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= operator '(' ')'
+    void rule_OperatorPrefix15() {
+        Name opName = ClosureCall.APPLY;
+        setResult(nf.Field(pos(), null, nf.Id(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), opName)));
+    }
+    // Production: OperatorPrefix ::= FullyQualifiedName '.' operator '(' ')'
+    void rule_OperatorPrefix16(Object _FullyQualifiedName) {
+        ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
+        Name opName = ClosureCall.APPLY;
+        setResult(nf.Field(pos(), FullyQualifiedName.toReceiver(), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(5)), opName)));
+    }
+    // Production: OperatorPrefix ::= Primary '.' operator '(' ')'
+    void rule_OperatorPrefix17(Object _Primary) {
+        Expr Primary = (Expr) _Primary;
+        Name opName = ClosureCall.APPLY;
+        setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(5)), opName)));
+    }
+    // Production: OperatorPrefix ::= super '.' operator '(' ')'
+    void rule_OperatorPrefix18() {
+        Name opName = ClosureCall.APPLY;
+        setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(5)), opName)));
+    }
+    // Production: OperatorPrefix ::= ClassName '.' super '.' operator '(' ')'
+    void rule_OperatorPrefix19(Object _ClassName) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        Name opName = ClosureCall.APPLY;
+        setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5), getRhsLastTokenIndex(7)), opName)));
+    }
+    // Production: OperatorPrefix ::= operator '(' ')' '='
+    void rule_OperatorPrefix20() {
+        Name opName = ClosureCall.APPLY;
+        setResult(nf.Field(pos(), null, nf.Id(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(4)), opName)));
+    }
+    // Production: OperatorPrefix ::= FullyQualifiedName '.' operator '(' ')' '='
+    void rule_OperatorPrefix21(Object _FullyQualifiedName) {
+        ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
+        Name opName = SettableAssign.SET;
+        setResult(nf.Field(pos(), FullyQualifiedName.toReceiver(), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= Primary '.' operator '(' ')' '='
+    void rule_OperatorPrefix22(Object _Primary) {
+        Expr Primary = (Expr) _Primary;
+        Name opName = SettableAssign.SET;
+        setResult(nf.Field(pos(), Primary, nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= super '.' operator '(' ')' '='
+    void rule_OperatorPrefix23() {
+        Name opName = SettableAssign.SET;
+        setResult(nf.Field(pos(), nf.Super(pos(getLeftSpan())), nf.Id(pos(getRhsFirstTokenIndex(3), getRhsLastTokenIndex(6)), opName)));
+    }
+    // Production: OperatorPrefix ::= ClassName '.' super '.' operator '(' ')' '='
+    void rule_OperatorPrefix24(Object _ClassName) {
+        ParsedName ClassName = (ParsedName) _ClassName;
+        Name opName = SettableAssign.SET;
+        setResult(nf.Field(pos(), nf.Super(pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3)), ClassName.toType()), nf.Id(pos(getRhsFirstTokenIndex(5), getRhsLastTokenIndex(8)), opName)));
     }
     // Production: PrefixOp ::= '+'
     void rule_PrefixOp0() {
@@ -3854,7 +4105,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         ParsedName ClassName = (ParsedName) _ClassName;
         Object[] a = new Object[3];
         a[0] = ClassName;
-        a[1] = pos(getRhsFirstTokenIndex(3));
+        a[1] = pos(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(3));
         a[2] = id(getRhsFirstTokenIndex(5));
         setResult(a);
     }

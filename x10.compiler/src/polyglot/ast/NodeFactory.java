@@ -265,6 +265,7 @@ public interface NodeFactory
     TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode type);
 
     X10Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArgs, List<Expr> args);
+    X10Call X10ConversionCall(Position pos, Receiver target, Id name, TypeNode convType, List<TypeNode> typeArgs, List<Expr> args);
     
     X10Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
     Async Async(Position pos, List<Expr> clocks, Stmt body);

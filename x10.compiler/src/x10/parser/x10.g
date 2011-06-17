@@ -1868,13 +1868,126 @@
         /.$BeginJava
 			r.rule_MethodInvocation5(Identifier,TypeArgumentsopt,ArgumentListopt);
         $EndJava./
-                       | ClassName . super$sup . Identifier TypeArgumentsopt ( ArgumentListopt )
+                       | ClassName . super . Identifier TypeArgumentsopt ( ArgumentListopt )
         /.$BeginJava
 			r.rule_MethodInvocation6(ClassName,Identifier,TypeArgumentsopt,ArgumentListopt);
         $EndJava./
                        | Primary TypeArgumentsopt ( ArgumentListopt )
         /.$BeginJava
 			r.rule_MethodInvocation7(Primary,TypeArgumentsopt,ArgumentListopt);
+        $EndJava./
+                       | OperatorPrefix TypeArgumentsopt ( ArgumentListopt )
+        /.$BeginJava
+			r.rule_MethodInvocation8(OperatorPrefix,TypeArgumentsopt,ArgumentListopt);
+        $EndJava./
+                       | ClassName . operator as '[' Type ']' TypeArgumentsopt ( ArgumentListopt )
+        /.$BeginJava
+			r.rule_OperatorPrefix25(ClassName,Type,TypeArgumentsopt,ArgumentListopt);
+        $EndJava./
+                       | ClassName . operator '[' Type ']' TypeArgumentsopt ( ArgumentListopt )
+        /.$BeginJava
+			r.rule_OperatorPrefix26(ClassName,Type,TypeArgumentsopt,ArgumentListopt);
+        $EndJava./
+
+    OperatorPrefix ::= operator BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix0(BinOp);
+        $EndJava./
+                       | FullyQualifiedName . operator BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix1(FullyQualifiedName,BinOp);
+        $EndJava./
+                       | Primary . operator BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix2(Primary,BinOp);
+        $EndJava./
+                       | super . operator BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix3(BinOp);
+        $EndJava./
+                       | ClassName . super . operator BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix4(ClassName,BinOp);
+        $EndJava./
+                       | operator ( ) BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix5(BinOp);
+        $EndJava./
+                       | FullyQualifiedName . operator ( ) BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix6(FullyQualifiedName,BinOp);
+        $EndJava./
+                       | Primary . operator ( ) BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix7(Primary,BinOp);
+        $EndJava./
+                       | super . operator ( ) BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix8(BinOp);
+        $EndJava./
+                       | ClassName . super . operator ( ) BinOp
+        /.$BeginJava
+			r.rule_OperatorPrefix9(ClassName,BinOp);
+        $EndJava./
+                       | operator PrefixOp
+        /.$BeginJava
+			r.rule_OperatorPrefix10(PrefixOp);
+        $EndJava./
+                       | FullyQualifiedName . operator PrefixOp
+        /.$BeginJava
+			r.rule_OperatorPrefix11(FullyQualifiedName,PrefixOp);
+        $EndJava./
+                       | Primary . operator PrefixOp
+        /.$BeginJava
+			r.rule_OperatorPrefix12(Primary,PrefixOp);
+        $EndJava./
+                       | super . operator PrefixOp
+        /.$BeginJava
+			r.rule_OperatorPrefix13(PrefixOp);
+        $EndJava./
+                       | ClassName . super . operator PrefixOp
+        /.$BeginJava
+			r.rule_OperatorPrefix14(ClassName,PrefixOp);
+        $EndJava./
+                       | operator ( )
+        /.$BeginJava
+			r.rule_OperatorPrefix15();
+        $EndJava./
+                       | FullyQualifiedName . operator ( )
+        /.$BeginJava
+			r.rule_OperatorPrefix16(FullyQualifiedName);
+        $EndJava./
+                       | Primary . operator ( )
+        /.$BeginJava
+			r.rule_OperatorPrefix17(Primary);
+        $EndJava./
+                       | super . operator ( )
+        /.$BeginJava
+			r.rule_OperatorPrefix18();
+        $EndJava./
+                       | ClassName . super . operator ( )
+        /.$BeginJava
+			r.rule_OperatorPrefix19(ClassName);
+        $EndJava./
+                       | operator ( ) =
+        /.$BeginJava
+			r.rule_OperatorPrefix20();
+        $EndJava./
+                       | FullyQualifiedName . operator ( ) =
+        /.$BeginJava
+			r.rule_OperatorPrefix21(FullyQualifiedName);
+        $EndJava./
+                       | Primary . operator ( ) =
+        /.$BeginJava
+			r.rule_OperatorPrefix22(Primary);
+        $EndJava./
+                       | super . operator ( ) =
+        /.$BeginJava
+			r.rule_OperatorPrefix23();
+        $EndJava./
+                       | ClassName . super . operator ( ) =
+        /.$BeginJava
+			r.rule_OperatorPrefix24(ClassName);
         $EndJava./
         
     OBSOLETE_MethodSelection ::= MethodName .  ( FormalParameterListopt )
