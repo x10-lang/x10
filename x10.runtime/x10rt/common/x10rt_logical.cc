@@ -33,6 +33,8 @@ namespace {
     x10rt_lgl_ctx g;
 }
 
+volatile x10rt_stats x10rt_lgl_stats;
+
 static void one_setter (void *arg)
 { *((int*)arg) = 1; }
 
@@ -808,6 +810,31 @@ void x10rt_lgl_probe (void)
 void x10rt_lgl_finalize (void)
 {
     x10rt_emu_coll_finalize();
+    if (getenv("X10RT_RXTX")) {
+        fprintf(stderr, "Place: %lu   msg_rx: %llu/%llu   msg_tx: %llu/%llu\n",
+                (unsigned long)x10rt_lgl_here(), 
+                (unsigned long long)x10rt_lgl_stats.msg.bytes_received,
+                (unsigned long long)x10rt_lgl_stats.msg.messages_received,
+                (unsigned long long)x10rt_lgl_stats.msg.bytes_sent,
+                (unsigned long long)x10rt_lgl_stats.msg.messages_sent);
+
+        fprintf(stderr, "Place: %lu   put_rx: %llu(&%llu)/%llu   put_tx: %llu(&%llu)/%llu\n",
+                (unsigned long)x10rt_lgl_here(), 
+                (unsigned long long)x10rt_lgl_stats.put.bytes_received,
+                (unsigned long long)x10rt_lgl_stats.put_copied_bytes_received,
+                (unsigned long long)x10rt_lgl_stats.put.messages_received,
+                (unsigned long long)x10rt_lgl_stats.put.bytes_sent,
+                (unsigned long long)x10rt_lgl_stats.put_copied_bytes_sent,
+                (unsigned long long)x10rt_lgl_stats.put.messages_sent);
+        fprintf(stderr, "Place: %lu   get_rx: %llu(&%llu)/%llu   get_tx: %llu(&%llu)/%llu\n",
+                (unsigned long)x10rt_lgl_here(), 
+                (unsigned long long)x10rt_lgl_stats.get.bytes_received,
+                (unsigned long long)x10rt_lgl_stats.get_copied_bytes_received,
+                (unsigned long long)x10rt_lgl_stats.get.messages_received,
+                (unsigned long long)x10rt_lgl_stats.get.bytes_sent,
+                (unsigned long long)x10rt_lgl_stats.get_copied_bytes_sent,
+                (unsigned long long)x10rt_lgl_stats.get.messages_sent);
+    }
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
             case X10RT_LGL_CUDA:

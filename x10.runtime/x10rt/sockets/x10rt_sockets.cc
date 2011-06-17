@@ -706,6 +706,8 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *parameters)
 {
+    x10rt_lgl_stats.msg.messages_sent++ ;
+    x10rt_lgl_stats.msg.bytes_sent += parameters->len;
 	flushPendingData();
 	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
@@ -734,6 +736,8 @@ void x10rt_net_send_msg (x10rt_msg_params *parameters)
 
 void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+    x10rt_lgl_stats.get.messages_sent++ ;
+    x10rt_lgl_stats.get.bytes_sent += parameters->len;
 	flushPendingData();
 	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
@@ -764,6 +768,9 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 
 void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_sz bufferLen)
 {
+    x10rt_lgl_stats.put.messages_sent++ ;
+    x10rt_lgl_stats.put.bytes_sent += parameters->len;
+    x10rt_lgl_stats.put_copied_bytes_sent += bufferLen;
 	flushPendingData();
 	if (initLink(parameters->dest_place) < 0)
 		error("establishing a connection");
@@ -924,6 +931,8 @@ bool probe (bool onlyProcessAccept)
 						state.socketLinks[whichPlaceToHandle].events = POLLIN | POLLPRI;
 						pthread_mutex_unlock(&state.readLock);
 						handlerCallback hcb = state.callBackTable[mp.type].handler;
+                        x10rt_lgl_stats.msg.messages_received++;
+                        x10rt_lgl_stats.msg.bytes_received += mp.len;
 						hcb(&mp);
 					}
 					break;
@@ -934,6 +943,8 @@ bool probe (bool onlyProcessAccept)
 							error("reading PUT datalen");
 
 						finderCallback fcb = state.callBackTable[mp.type].finder;
+                        x10rt_lgl_stats.put.messages_received++;
+                        x10rt_lgl_stats.put.bytes_received += mp.len;
 						void* dest = fcb(&mp, dataLen); // get the pointer to the destination location
 						if (dest == NULL)
 							error("invalid buffer provided for a PUT");
@@ -944,6 +955,7 @@ bool probe (bool onlyProcessAccept)
 						pthread_mutex_unlock(&state.readLock);
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
+                        x10rt_lgl_stats.put_copied_bytes_received += dataLen;
 					}
 					break;
 					case GET:
@@ -963,7 +975,10 @@ bool probe (bool onlyProcessAccept)
 						pthread_mutex_unlock(&state.readLock);
 
 						finderCallback fcb = state.callBackTable[mp.type].finder;
+                        x10rt_lgl_stats.get.messages_received++;
+                        x10rt_lgl_stats.get.bytes_received += mp.len;
 						void* src = fcb(&mp, dataLen);
+                        x10rt_lgl_stats.get_copied_bytes_sent += dataLen;
 
 						// send the data to the other side (the link is good, because we just read from it)
 						pthread_mutex_lock(&state.writeLocks[whichPlaceToHandle]);
@@ -1011,6 +1026,7 @@ bool probe (bool onlyProcessAccept)
 						mp.dest_place = whichPlaceToHandle;
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
+                        x10rt_lgl_stats.get_copied_bytes_received += dataLen;
 					}
 					break;
 					default: // this should never happen
