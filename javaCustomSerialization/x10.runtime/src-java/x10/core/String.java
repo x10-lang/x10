@@ -11,6 +11,7 @@
 
 package x10.core;
 
+import x10.lang.*;
 import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
@@ -306,13 +307,14 @@ final public class String extends x10.core.Ref implements
     }
 
     public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return _deserialize_body(null, deserializer);
+        String str = new String((java.lang.System[]) null);
+        deserializer.record_reference(str);
+        return _deserialize_body(str, deserializer);
     }
 
     public static X10JavaSerializable _deserialize_body(x10.core.String string, X10JavaDeserializer deserializer) throws IOException {
         java.lang.String str  = deserializer.readString();
-        string = new x10.core.String(str);
-        deserializer.record_reference(string);
+        string.$value = str;
         return string;
     }
 
