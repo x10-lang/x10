@@ -22,13 +22,18 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(NamedType.class.getName());
     
-    private final String typeName;
+    public String typeName;
 
+    // Just for allocation
+    public NamedType() {
+        super();
+    }
+    
     public NamedType(String typeName, Class<?> c) {
         super(c);
         this.typeName = typeName;
     }
-    
+
     public NamedType(String typeName, Class<?> c, Variance[] variances) {
         super(c, variances);
         this.typeName = typeName;
@@ -59,16 +64,18 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     }
 
     public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+        NamedType namedType = new NamedType();
+        deserializer.record_reference(namedType);
+		return _deserialize_body(namedType, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(NamedType ft, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable _deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
         String name = deserializer.readString();
         try {
-            Class<?> aClass = Class.forName(deserializer.readString());
-            NamedType namedType = new NamedType(name, aClass);
-            deserializer.record_reference(namedType);
-            return namedType;
+             Class<?> aClass = Class.forName(deserializer.readString());
+            nt.typeName = name;
+            nt.impl = aClass;
+            return nt;
         } catch (ClassNotFoundException e) {
             // This should not happen though
             throw new RuntimeException(e);

@@ -26,14 +26,18 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
-    private final Class<?> impl;
-    private final Variance[] variances;
-    private final Type<?>[] parents;
+    public Class<?> impl;
+    public Variance[] variances;
+    public Type<?>[] parents;
+
+    // Just for allocation
+    public RuntimeType() {
+    }
     
     public RuntimeType(Class<?> impl) {
         this(impl, null, null);
     }
-    
+
     public RuntimeType(Class<?> impl, Variance[] variances) {
         this(impl, variances, null);
     }
@@ -511,7 +515,9 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 	}
 
 	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+        RuntimeType rt = new RuntimeType();
+        deserializer.record_reference(rt);
+		return _deserialize_body(rt, deserializer);
 	}
 
 	public int _get_serialization_id() {
@@ -526,12 +532,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
         try {
             Class<?> aClass = Class.forName(className);
-            rt = new RuntimeType(aClass);
+            rt.impl = aClass;
         } catch (ClassNotFoundException e) {
             // This should not happen though
             throw new RuntimeException(e);
         }
-        deserializer.record_reference(rt);
+
         return rt;
     }
 }
