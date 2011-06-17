@@ -85,6 +85,7 @@ import polyglot.ast.Empty_c;
 import polyglot.ast.Eval_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
+import polyglot.ast.FieldAssign_c;
 import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Field_c;
 import polyglot.ast.FloatLit_c;
@@ -904,32 +905,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         sw.set(save_header, save_body);
 	}
-
+    
+    /**
+     * This method walks the AST for the ClassDecl n and finds all AST nodes
+     * that refer to types.  For example allocations, type nodes, instance field
+     * access and method calls.  It then extracts all the types referenced in these
+     * AST nodes by calling the helper method extractAllClassTypes.
+     */
     private ArrayList<ClassType> referencedTypes(X10ClassDecl_c n, X10ClassDef def) {
-        // FIXME: [IP] There is a problem with include ordering.
-		// We cannot just blindly include a header for every type used
-		// because of recursive dependences.  So we need to do partial
-		// ordering.  For that, we need to include only those headers
-		// that define classes for which the code needs a full definition.
-		// Otherwise, just declare a class and include the header in the
-		// implementation file instead.
-		// As I can see, the only uses that need a full definition are
-		// field reads (in static final field initializers) and
-		// inheritance.  So find all class declarations and field
-		// declarations, and do #include for those headers.
-		//
-		// [DC] static final field initialisers should be in the cc file,
-		// with everything else that needs a full definition (lookups,
-		// construction, etc)
-		//
-		// [DC] generic classes might cause a problem though, as their
-		// function bodies are in the header.  We can still get cycles
-		// through this approach.  We may need two layers of headers or
-		// something for generic classes, in a manner that reflects the
-		// (h,cc) pairing for non-generic classes.
-
-		// TODO: sort by namespace and combine things in the same namespace
-		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class, Allocation_c.class, X10Call_c.class);
+		X10SearchVisitor<Node> xTypes = new X10SearchVisitor<Node>(X10CanonicalTypeNode_c.class, Closure_c.class, Tuple_c.class, 
+		                                                           Allocation_c.class, X10Call_c.class, Field_c.class, FieldAssign_c.class);
 		n.visit(xTypes);
 		ArrayList<ClassType> types = new ArrayList<ClassType>();
 		Set<ClassType> dupes = CollectionFactory.newHashSet();
@@ -957,6 +942,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     extractAllClassTypes(((Allocation_c) tn).type(), types, dupes);
 		        } else if (tn instanceof X10Call_c) {
                     extractAllClassTypes(((X10Call_c) tn).methodInstance().container(), types, dupes);
+		        } else if (tn instanceof Field_c) {
+		            Field_c f = (Field_c)tn;
+		            if (!f.flags().isStatic()) {
+		                extractAllClassTypes(f.fieldInstance().container(), types, dupes);
+		            }
+		        } else if (tn instanceof FieldAssign_c) {
+		            FieldAssign_c f = (FieldAssign_c) tn;
+		            if (!f.fieldInstance().flags().isStatic()) {
+                        extractAllClassTypes(f.fieldInstance().container(), types, dupes);		                
+		            }
 		        }
 		    }
         }
