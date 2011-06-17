@@ -696,14 +696,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
-
-                    if (!config.NO_TRACES && !config.OPTIMIZE) {
-                        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                        w.write("java.lang.System.out.println(\" Gonna serialize field parameter type \" + ");
-                        er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                        w.write(" );");
-                        w.writeln("} ");
-                    }
                     w.write("serializer.write( (x10.x10rt.X10JavaSerializable) this.");
                     er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     w.writeln(");");
@@ -717,12 +709,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (f.flags().isTransient()) // don't serialize transient fields
                         continue;
                     String fieldName = Emitter.mangleToJava(f.name());
-                    if (!config.NO_TRACES && !config.OPTIMIZE) {
-                        w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                        w.write("java.lang.System.out.println(\" Gonna serialize field " + fieldName + " of type " + f.type().toString() + " in class " + ct.toString() + "\");");
-                        w.writeln("} ");
-                    }
-
                     if (f.type().isArray()) {
 
                         // If this is an array and not a java primitive we need to cast it into an array
