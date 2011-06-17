@@ -191,17 +191,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static class $Closure$0 extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
         private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$0.class.getName());
-        final Object srcData;
-        final int dstId;
-        final int dstIndex;
-        final int numElems;
+        public Object srcData;
+        public int dstId;
+        public int dstIndex;
+        public int numElems;
 
         // Just for allocation
         $Closure$0() {
-            this.srcData = null;
-        	this.dstId = 0;
-        	this.dstIndex = 0;
-        	this.numElems = 0;
         }
         $Closure$0(Object srcData, int dstId, int dstIndex, int numElems) {
         	this.srcData = srcData;
@@ -291,7 +287,10 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             }
             int dstId = deserializer.readInt();
             int dstIndex = deserializer.readInt();
-            closure$0 = new $Closure$0(srcData, dstId, dstIndex, numElems);
+            closure$0.srcData = srcData;
+            closure$0.dstId = dstId;
+            closure$0.dstIndex = dstIndex;
+            closure$0.numElems = numElems;
             return (X10JavaSerializable) closure$0;
         }
 
@@ -366,24 +365,17 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
         private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$1.class.getName());
-        final int srcId;
-        final int srcLength;
-        final Type<T> srcType;
-        final int srcIndex;
-        final int dstWrapperId;
-        final Place dstWrapperHome;
-        final int dstIndex;
-        final int numElems;
+        public int srcId;
+        public int srcLength;
+        public Type<T> srcType;
+        public int srcIndex;
+        public int dstWrapperId;
+        public Place dstWrapperHome;
+        public int dstIndex;
+        public int numElems;
+
         //Just for allocation
         $Closure$1() {
-        	this.srcId = 0;
-        	this.srcLength = 0;
-        	this.srcType = null;
-        	this.srcIndex = 0;
-        	this.dstWrapperId = 0;
-        	this.dstWrapperHome = null;
-        	this.dstIndex = 0;
-        	this.numElems = 0;
         }
         $Closure$1(RemoteIndexedMemoryChunk<T> src, int srcIndex, RemoteIndexedMemoryChunk<T> dstWrapper, int dstIndex, int numElems) {
         	this.srcId = src.id;
@@ -454,7 +446,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             RemoteIndexedMemoryChunk dst = new RemoteIndexedMemoryChunk(null);
             dst.id = dstWrapperId;
             dst.home = dstWrapperHome;
-            closure$1 = new $Closure$1(src, srcIndex, dst,  dstIndex,  numElems);
+            closure$1.srcId = srcId;
+        	closure$1.srcLength = srcLength;
+        	closure$1.srcType = srcType;
+        	closure$1.srcIndex = srcIndex;
+        	closure$1.dstWrapperId = dstWrapperId;
+        	closure$1.dstWrapperHome = dstWrapperHome;
+        	closure$1.dstIndex = dstIndex;
+        	closure$1.numElems = numElems;
             deserializer.record_reference(closure$1);
             return (X10JavaSerializable) closure$1;
         }

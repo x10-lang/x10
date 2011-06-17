@@ -66,7 +66,7 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     public Type<?> $getParam(int i) {
         return i == 0 ? T : null;
     }
-    private Type<T> T;
+    public Type<T> T;
 
 	public void _serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(T);
@@ -84,7 +84,7 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
 
 	public static X10JavaSerializable _deserialize_body(AtomicReference ar, X10JavaDeserializer deserializer) throws IOException {
         Type T = (Type) deserializer.readRef();
-        ar = new AtomicReference(T);
+        ar.T = T;
         return ar;
 	}
 }

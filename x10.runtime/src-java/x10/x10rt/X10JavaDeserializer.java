@@ -13,31 +13,31 @@ package x10.x10rt;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
+import java.util.ArrayList;
 import java.util.IdentityHashMap;
-import java.util.Map;
+import java.util.List;
 
 public class X10JavaDeserializer {
 
     // When a Object is deserialized record its position
-    IdentityHashMap<Integer, Object> objectMap = new IdentityHashMap<Integer, Object>();
+    List<Object> objectList;
     final int ref = Integer.parseInt("FFFFFFF", 16);
     ObjectInputStream in;
-    int counter = 0;
 
     public X10JavaDeserializer(ObjectInputStream in) {
         this.in = in;
+        objectList = new ArrayList<Object>();
     }
 
     public void record_reference(Object obj) {
-        objectMap.put(counter, obj);
-        counter++;
+        objectList.add(obj);
     }
 
     public Object readRef() throws IOException {
         int serializationID = readInt();
         if (serializationID == ref) {
             int position = readInt();
-            return objectMap.get(position);
+            return objectList.get(position);
         }
         return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }
@@ -177,6 +177,10 @@ public class X10JavaDeserializer {
         if (classID == DeserializationDispatcher.NULL_ID) {
             return null;
         }
+        return readStringValue();
+    }
+
+    public String readStringValue() throws IOException {
         int length = readInt();
         byte[] bytes = new byte[length];
         in.read(bytes);
@@ -196,7 +200,7 @@ public class X10JavaDeserializer {
         int serializationID = readInt();
         if (serializationID == ref) {
             int position = readInt();
-            return objectMap.get(position);
+            return objectList.get(position);
         }
         return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }

@@ -110,8 +110,8 @@ public abstract class InitDispatcher {
     }
 
     public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
-    	private final int fieldId;
-    	private final byte[] buf;
+    	public int fieldId;
+    	public byte[] buf;
         private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(InitDispatcher.$Closure$Deserialize.class.getName());
 
         public void $apply() {
@@ -125,6 +125,10 @@ public abstract class InitDispatcher {
                 e.printStackTrace();
                 throw new java.lang.Error(e);
             }
+        }
+
+        // Just for allocation
+        $Closure$Deserialize() {
         }
         $Closure$Deserialize(int fieldId, byte[] buf) {
         	this.fieldId = fieldId;
@@ -147,15 +151,17 @@ public abstract class InitDispatcher {
         }
 
         public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-            return _deserialize_body(null, deserializer);
+            $Closure$Deserialize closure$Deserialize = new $Closure$Deserialize();
+            deserializer.record_reference(closure$Deserialize);
+            return _deserialize_body(closure$Deserialize, deserializer);
         }
 
         public static X10JavaSerializable _deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws IOException {
             int id = deserializer.readInt();
             byte[] bytes = deserializer.readByteArray();
-            $Closure$Deserialize v = new $Closure$Deserialize(id, bytes);
-            deserializer.record_reference(v);
-            return (X10JavaSerializable) v;
+            closure$Deserialize.fieldId = id;
+            closure$Deserialize.buf = bytes;
+            return (X10JavaSerializable) closure$Deserialize;
         }
     }
     public static void broadcastStaticField(final Object fieldValue, final int fieldId) {
