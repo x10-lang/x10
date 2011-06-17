@@ -71,6 +71,7 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
+import x10.types.X10CodeDef;
 import x10.types.X10LocalDef;
 import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
@@ -511,7 +512,8 @@ public class Inliner extends ContextVisitor {
         try {
             if (DEBUG) debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance(), call.typeArguments());
-            InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap, context().currentCode().staticContext());
+            InliningTypeTransformer transformer =
+                new InliningTypeTransformer(typeMap, context().currentCode(), (X10CodeDef) code.codeDef());
        //   Reinstantiator transformer = new Reinstantiator(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedCode = (CodeBlock) code.visit(visitor);

@@ -10,14 +10,13 @@
  */
 package x10.optimizations.inlining;
 
-import polyglot.types.Context;
 import polyglot.types.Types;
-import polyglot.visit.ContextVisitor;
 
 import x10.ast.Closure;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
 import x10.types.TypeParamSubst;
+import x10.types.X10CodeDef;
 import x10.visit.Reinstantiator;
 
 /**
@@ -26,14 +25,16 @@ import x10.visit.Reinstantiator;
  */
 public class InliningTypeTransformer extends Reinstantiator {
 
-    private boolean staticContext;
+    private X10CodeDef caller;
+    private X10CodeDef callee;
 
     /**
      * @param subst
      */
-    public InliningTypeTransformer(TypeParamSubst subst, boolean sc) {
+    public InliningTypeTransformer(TypeParamSubst subst, X10CodeDef caller, X10CodeDef callee) {
         super(subst);
-        staticContext = sc;
+        this.caller = caller;
+        this.callee = callee;
     }
 
     /* (non-Javadoc)
@@ -56,8 +57,10 @@ public class InliningTypeTransformer extends Reinstantiator {
     protected Closure transform(Closure d, Closure old) {
         Closure c = super.transform(d, old);
         ClosureDef cd = c.closureDef();
-        cd.setStaticContext(staticContext);
-        cd.setMethodContainer(Types.ref(visitor().context().currentCode().asInstance()));
+        cd.setStaticContext(caller.staticContext());
+        X10CodeDef currentCode = visitor().context().currentCode();
+        if (currentCode == callee) currentCode = caller; // minor hack: remap callee to caller
+        cd.setMethodContainer(Types.ref(currentCode.asInstance()));
         cd.setTypeContainer(Types.ref(visitor().context().currentClass()));
         return c.closureDef(cd);
     }
