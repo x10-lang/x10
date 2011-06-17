@@ -69,7 +69,8 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     public Type<T> T;
 
 	public void _serialize(X10JavaSerializer serializer) throws IOException {
-		serializer.write(T);
+		serializer.write(this.T);
+		serializer.write(get());
 	}
 
 	public int _get_serialization_id() {
@@ -85,6 +86,8 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
 	public static X10JavaSerializable _deserialize_body(AtomicReference ar, X10JavaDeserializer deserializer) throws IOException {
         Type T = (Type) deserializer.readRef();
         ar.T = T;
+        Object value = deserializer.readRef();
+        ar.set(value);
         return ar;
 	}
 }
