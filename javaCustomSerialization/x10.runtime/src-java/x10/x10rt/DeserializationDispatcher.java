@@ -74,7 +74,7 @@ public class DeserializationDispatcher {
                 case NULL_ID:
                     return null;
                 case STRING_ID:
-                     obj =  deserializer.readString();
+                     obj =  deserializer.readStringValue();
                     break;
                 case FLOAT_ID:
                      obj = deserializer.readFloat();

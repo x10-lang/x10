@@ -13,8 +13,8 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ParameterizedType.class.getName());
 
-    private final RuntimeType<T> rtt;
-    private final Type<?>[] params;
+    public RuntimeType<T> rtt;
+    public Type<?>[] params;
     
     RuntimeType<T> getRuntimeType() {
         return rtt;
@@ -28,7 +28,11 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         this.rtt = rtt;
         this.params = params;
     }
-    
+
+    // Constructor just for allocation
+    public ParameterizedType() {
+    }
+
     public final boolean isSubtype(Type<?> o) {
         if (this == o) return true;
         if (o == Types.ANY) return true;
@@ -182,17 +186,18 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 	}
 
 	public static X10JavaSerializable _deserializer( X10JavaDeserializer deserializer) throws IOException {
-        ParameterizedType pt = new ParameterizedType(null);
+        ParameterizedType pt = new ParameterizedType();
         deserializer.record_reference(pt);
         return _deserialize_body(pt, deserializer);
 	}
 
     public static X10JavaSerializable _deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {
 		RuntimeType rt = (RuntimeType) deserializer.deSerialize();
+        pt.rtt = rt;
         int length = deserializer.readInt();
         Type[] ps = new Type[length];
         deserializer.readArray(ps);
-        pt = new ParameterizedType(rt, ps);
+        pt.params = ps;
         return pt;
     }
 
