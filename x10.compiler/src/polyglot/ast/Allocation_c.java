@@ -110,4 +110,7 @@ public class Allocation_c extends Expr_c implements Allocation {
         return null;
     }
 
+    public String toString() {
+        return "new " + objectType;
+    }
 }

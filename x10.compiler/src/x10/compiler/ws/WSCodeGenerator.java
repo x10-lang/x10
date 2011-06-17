@@ -175,15 +175,15 @@ public class WSCodeGenerator extends ContextVisitor {
                 
                 ClosureDefReinstantiator closureProcessor = new ClosureDefReinstantiator(job, ts, nf);
                 closureProcessor.begin();
-                closureProcessor.context(context());
+                closureProcessor = (ClosureDefReinstantiator) closureProcessor.context(context());
                 
                 Desugarer desugarer = ((x10.ExtensionInfo) job.extensionInfo()).makeDesugarer(job);
                 desugarer.begin();
-                desugarer.context(context()); //copy current context
+                desugarer = (Desugarer) desugarer.context(context()); //copy current context
                 
                 X10InnerClassRemover innerclassRemover = new X10InnerClassRemover(job, ts, nf);
                 innerclassRemover.begin();
-                innerclassRemover.context(context()); //copy current context
+                innerclassRemover = (X10InnerClassRemover) innerclassRemover.context(context()); //copy current context
                 
                 cDecl = (X10ClassDecl) cDecl.visit(closureProcessor);
                 cDecl = (X10ClassDecl) cDecl.visit(desugarer);

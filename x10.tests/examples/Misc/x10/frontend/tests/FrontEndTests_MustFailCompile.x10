@@ -3806,9 +3806,9 @@ class TestComparableAndArithmetic {
 		  use(compare(x,y));
 		  use(compare(x,x));
 		  use(compare(y,y));
-		  use(add(x,y)); // ShouldNotBeERR
-		  use(add(x,x)); // ShouldNotBeERR
-		  use(add(y,y)); // ShouldNotBeERR
+		  use(add(x,y));
+		  use(add(x,x));
+		  use(add(y,y));
 	  }
 	  {
 		  var x:Double=2.0;
@@ -3816,12 +3816,12 @@ class TestComparableAndArithmetic {
 		  use(compare(x,y));
 		  use(compare(x,x));
 		  use(compare(y,y));
-		  use(add(x,y)); // ShouldNotBeERR
-		  use(add(x,x)); // ShouldNotBeERR
-		  use(add(y,y)); // ShouldNotBeERR
+		  use(add(x,y));
+		  use(add(x,x));
+		  use(add(y,y));
 	  }
   }
-  def use(i:Int) {}
+  def use[T](i:T) {}
 }
 
 interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation 
