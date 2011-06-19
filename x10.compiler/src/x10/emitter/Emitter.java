@@ -608,7 +608,7 @@ public class Emitter {
 		boxedPrimitives.put("x10.lang.UInt", "x10.core.UInt");
 		boxedPrimitives.put("x10.lang.ULong", "x10.core.ULong");
 	}
-	private static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
+	public static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
 	    String pat = getJavaRep(def);
 	    if (pat != null && boxPrimitives) {
 	        String orig = def.fullName().toString();

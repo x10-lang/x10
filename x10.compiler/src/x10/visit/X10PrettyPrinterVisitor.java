@@ -596,6 +596,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.writeln("deserializer.readRef();");
                     }
 
+                String str;
                     for (int i = 0; i < ct.fields().size(); i++) {
                         FieldInstance f = ct.fields().get(i);
                         if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
@@ -605,11 +606,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             continue;
                         if (f.type().isParameterType()) {
                             w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = deserializer.readRef();");
-                        } else if (f.type().isInt() || f.type().isDouble() || f.type().isFloat() || f.type().isByte() || f.type().isChar() || f.type().isShort() || f.type().isLong() || f.type().isBoolean()) {
-
+                        } else if ((str = needsCasting(f.type())) != null) {
                             // Want these to be readInteger and so on.....
-                            String str = f.type().name().toString();
-                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str.substring(str.lastIndexOf(".") + 1) + "();");
+                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str + "();");
                         } else {
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
@@ -808,6 +807,40 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline();
         w.write("}");
         w.newline(0);
+    }
+
+    private String needsCasting(Type type) {
+
+        // is this a java primitive
+        if(type.isInt() || type.isDouble() || type.isFloat() || type.isByte() || type.isChar() || type.isShort() || type.isLong() || type.isBoolean()) {
+            String str = type.name().toString();
+            return str.substring(str.lastIndexOf(".") + 1);
+        }
+        if (type instanceof X10ClassType) {
+			X10ClassDef cd = ((X10ClassType) type).x10Def();
+			String pat = Emitter.getJavaRep(cd, false);
+            if (pat !=null) {
+                if (pat.equals("int")) {
+                    return "Int";
+                } if (pat.equals("double")) {
+                    return "Double";
+                } if (pat.equals("float")) {
+                    return "Float";
+                } if (pat.equals("byte")) {
+                    return "Byte";
+                } if (pat.equals("char")) {
+                    return "Char";
+                } if (pat.equals("short")) {
+                    return "Short";
+                } if (pat.equals("long")) {
+                    return "Long";
+                } if (pat.equals("boolean")) {
+                    return "Boolean";
+                }
+            }
+        }
+
+        return null;
     }
 
     private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
