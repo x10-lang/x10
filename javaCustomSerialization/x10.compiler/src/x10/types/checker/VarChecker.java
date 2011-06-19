@@ -28,8 +28,8 @@ public class VarChecker extends ContextVisitor {
     public Node override(Node n) {
         if (n instanceof NamedVariable) {
             NamedVariable e = (NamedVariable) n;
-            if (! e.flags().isFinal())
-                error = new Errors.VarMustBeFinalInTypeDef(e.name().toString(), e.position()); 
+//            if (! e.flags().isFinal())
+//                error = new Errors.VarMustBeFinalInTypeDef(e.name().toString(), e.position()); 
 
             if (n instanceof Field) {
                 Field l = (Field) n;

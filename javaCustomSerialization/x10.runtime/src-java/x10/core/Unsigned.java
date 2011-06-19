@@ -241,7 +241,7 @@ public abstract class Unsigned {
         return toString(a, 10);
     }
     public static java.lang.String toString(int a, int radix) {
-        return Long.toString(toULong(a), radix);
+        return java.lang.Long.toString(toULong(a), radix);
     }
     public static java.lang.String toString(int a) {
         return toString(a, 10);

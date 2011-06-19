@@ -42,7 +42,7 @@ public class LocalVar<T> extends x10.core.Ref {
         oos.defaultWriteObject();
     }
 
-    private static final Map<Long, Object> idToObject = new ConcurrentHashMap<Long, Object>();
+    private static final Map<java.lang.Long, Object> idToObject = new ConcurrentHashMap<java.lang.Long, Object>();
     private static final Object nullObject = new Object();
     private static AtomicLong lastId = new AtomicLong(0);
 

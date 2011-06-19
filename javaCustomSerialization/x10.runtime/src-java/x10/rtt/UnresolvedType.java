@@ -25,7 +25,11 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
 
     private final int index;
     
+    @Deprecated
     public static UnresolvedType getParam(int index) {
+    	return PARAM(index);
+    }
+    public static UnresolvedType PARAM(int index) {
         assert index >= 0;
         if (index < params.length) {
             return params[index];
@@ -37,6 +41,23 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
         this.index = index;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof UnresolvedType) {
+            UnresolvedType ut = (UnresolvedType) o;
+            if (index != ut.index) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return index;
+    }
+    
     public String toString() {
         return "UnresolvedType(" + index + ")";
     }

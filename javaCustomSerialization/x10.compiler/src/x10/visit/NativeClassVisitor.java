@@ -102,7 +102,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassName(X10ClassDef def) throws SemanticException {
-        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.NativeClass();
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -114,7 +114,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassPackage(X10ClassDef def) throws SemanticException {
-        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.NativeClass();
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);

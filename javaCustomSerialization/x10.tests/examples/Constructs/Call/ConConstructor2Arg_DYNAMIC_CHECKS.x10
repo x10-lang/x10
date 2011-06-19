@@ -21,7 +21,7 @@ public class ConConstructor2Arg_DYNAMIC_CHECKS extends x10Test {
 	def this(q:A{self.i==2}, i:Int(q.i)){}
 	def this(i:Int) {
 		// This call will compile only if -STATIC_CHECKS is not set.
-		this(new A(i),i); // ERR (see XTENLANG-2375 and XTENLANG-2376. it should be a warning
+		this(new A(i),i); // ERR warning: generated dynamic check
 	}
 	
 	public def run(): boolean {

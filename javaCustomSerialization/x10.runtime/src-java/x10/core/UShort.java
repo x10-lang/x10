@@ -24,7 +24,7 @@ import java.io.IOException;
  * Represents a boxed UShort value. Boxed representation is used when casting
  * a UShort value into type Any or parameter type T.
  */
-final public class UShort extends x10.core.Struct implements java.lang.Comparable<UShort>,
+final public class UShort extends Numeric implements java.lang.Comparable<UShort>,
     x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
@@ -40,16 +40,35 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         this.$value = value;
     }
 
+    private abstract static class Cache {
+        static final int low = 0;
+        static final int high = 255;
+        static final UShort cache[] = new UShort[high - low + 1];
+        static {
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new UShort((short)(low + i));
+            }
+        }
+    }
+
     public static UShort $box(short value) {
+        int valueAsInt = value;
+        if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
+            return Cache.cache[valueAsInt - Cache.low];
+        }
         return new UShort(value);
     }
     
     public static UShort $box(int value) {  // int is required for literals
-        return new UShort((short) value);
+        return $box((short)value);
     }
 
-    public static short $unbox(UShort o) {
-        return o.$value;
+    public static short $unbox(UShort obj) {
+        return obj.$value;
+    }
+    
+    public static short $unbox(Object obj) {
+        return ((UShort)obj).$value;
     }
     
     // make $box/$unbox idempotent
@@ -61,14 +80,21 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         return value;
     }
     
-    public boolean equals(Object o) {
+    public boolean _struct_equals$O(Object o) {
         if (o instanceof UShort && ((UShort)o).$value == $value)
             return true;
         return false;
     }
     
-    public boolean _struct_equals$O(Object o) {
-        return equals(o);
+    // inherit default implementation
+//    @Override
+//    public boolean equals(Object o) {
+//        return _struct_equals$O(o);
+//    }
+    
+    @Override
+    public int hashCode() {
+        return (int)$value;
     }
     
     @Override
@@ -128,5 +154,23 @@ final public class UShort extends x10.core.Struct implements java.lang.Comparabl
         us = new UShort(value);
         deserializer.record_reference(us);
         return us;
+    }
+
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)(((int)$value)&0xffff);
+    }
+    @Override
+    public long longValue() {
+        return (long)(((int)$value)&0xffff);
+    }
+    @Override
+    public float floatValue() {
+        return (float)(((int)$value)&0xffff);
+    }
+    @Override
+    public double doubleValue() {
+        return (double)(((int)$value)&0xffff);
     }
 }

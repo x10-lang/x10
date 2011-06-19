@@ -58,22 +58,10 @@ public class JavaCaster extends ContextVisitor {
     private final TypeSystem xts;
     private final NodeFactory xnf;
 
-    private Type imc;
-
     public JavaCaster(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
-    }
-    
-    @Override
-    public NodeVisitor begin() {
-        try {
-            imc = xts.forName(QName.make("x10.util.IndexedMemoryChunk"));
-        } catch (SemanticException e1) {
-            throw new InternalCompilerError("Something is terribly wrong");
-        }
-        return super.begin();
     }
     
     @Override
@@ -83,7 +71,6 @@ public class JavaCaster extends ContextVisitor {
         n = typeBoundsReturnCast(parent, old, n);
         n = covReturnCast(parent, n);
         n = stringReturnCast(parent, n);
-        n = unsignedTCast(parent, n);
         if (X10PrettyPrinterVisitor.isSelfDispatch) {
             n = typeParamCast(parent, n);
         }
@@ -169,24 +156,6 @@ public class JavaCaster extends ContextVisitor {
         return n;
     }
     
-    private Node unsignedTCast(Node parent, Node n) throws SemanticException {
-        // Generic methods (return type T) can return boxed unsigned number (e.g., x10.core.UInt)
-        // but in the [UInt] subclass UInt is treated as unboxed int.
-        // We need to find all calls to T-typed methods and insert explicit cast to
-        // a concrete unsigned numeric type,  so that proper conversion method call is inserted later.
-        if (n instanceof X10Call && !(parent instanceof Eval)) {
-            X10Call call = (X10Call)n;
-            Receiver target = call.target();
-            MethodInstance mi = call.methodInstance();
-            if (!call.type().isUnsignedNumeric()) return n;
-            Type expectedReturnType = call.type();
-            if (mi.def().returnType().get().isParameterType()) {
-                return cast(call, expectedReturnType);
-            }
-        }
-        return n;
-    }
-
     private Node typeParamCast(Node parent, Node n) throws SemanticException {
         if (n instanceof X10Call && !(parent instanceof Eval)) {
             X10Call call = (X10Call) n;
@@ -271,7 +240,7 @@ public class JavaCaster extends ContextVisitor {
 
     private boolean isIMC(Type type) {
         Type tbase = Types.baseType(type);
-        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imc, context);
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(xts.IndexedMemoryChunk(), context);
     }
 
     // add casts for type constraints to type parameters

@@ -27,7 +27,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "double", null, "x10.rtt.Types.DOUBLE")
 @NativeRep("c++", "x10_double", "x10_double", null)
-public struct Double implements Comparable[Double] /*TODO implements Arithmetic[Double], Ordered[Double]*/ {
+public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[Double] {
 
 
     /**

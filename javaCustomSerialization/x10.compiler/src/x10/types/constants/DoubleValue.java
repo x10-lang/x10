@@ -33,16 +33,24 @@ public final class DoubleValue extends ConstantValue {
     public double value() {
         return val;
     }
-    
+
+    @Override
     public Double toJavaObject() {
         return Double.valueOf(val);
     }
-    
+
+    @Override
     public FloatLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.Double()));
+        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
         return (FloatLit)nf.FloatLit(pos, FloatLit.DOUBLE, val).type(type);
     }
-    
+
+    @Override
+    public Type getLitType(TypeSystem ts) {
+        return ts.Double();
+    }
+
+    @Override
     public FloatLit toUntypedLit(NodeFactory nf, Position pos) {
         return (FloatLit)nf.FloatLit(pos, FloatLit.DOUBLE, val);
     }

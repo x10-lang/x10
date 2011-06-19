@@ -255,13 +255,9 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        }
 	    }
 
-        if (ci.checkConstraintsAtRuntime()) {
-            // currently we can't do runtime code generation for a ctor call that needs to check a ctor guard,
-            // see XTENLANG-2375 and XTENLANG-2376
-            Errors.issue(tc.job(), new Errors.ConstructorGuardNotSatisfied(n.position()), n);
-        } else {
-            Warnings.checkErrorAndGuard(tc, ci, n);
-        }
+	    if (!ci.checkConstraintsAtRuntime()) {
+	        Warnings.checkErrorAndGuard(tc, ci, n);
+	    }
 
 	    n = (X10ConstructorCall_c) n.constructorInstance(ci);
 	    n = (X10ConstructorCall_c) n.arguments(args);

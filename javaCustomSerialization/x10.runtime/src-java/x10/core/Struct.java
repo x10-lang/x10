@@ -18,14 +18,15 @@ import x10.rtt.Types;
 // Base class for all X10 structs
 public abstract class Struct implements StructI {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	public Struct(java.lang.System[] $dummy) {}
+    public Struct(java.lang.System[] $dummy) {}
 	
-	public Struct $init() {return this;}
+    public Struct $init() {return this;}
 	
     public Struct() {}
 
+    // default implementation
     @Override
     public boolean equals(Object o) {
         return _struct_equals$O(o);

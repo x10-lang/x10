@@ -18,15 +18,23 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class IntType extends RuntimeType<Integer> implements X10JavaSerializable {
+public class IntType extends RuntimeType<x10.core.Int> implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(IntType.class.getName());
 
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.INT;
+    }
+
     public IntType() {
-        super(Integer.class,
+        super(x10.core.Int.class,
             new Type[] {
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }
@@ -39,7 +47,7 @@ public class IntType extends RuntimeType<Integer> implements X10JavaSerializable
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Integer;
+        return o instanceof x10.core.Int;
     }
     
     @Override
@@ -51,26 +59,24 @@ public class IntType extends RuntimeType<Integer> implements X10JavaSerializable
     public Object makeArray(Object... elem) {
         int[] arr = new int[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).intValue();
+            arr[i] = x10.core.Int.$unbox(elem[i]);
         }
         return arr;
     }
     
     @Override
-    public Integer getArray(Object array, int i) {
-        return ((int[]) array)[i];
+    public x10.core.Int getArray(Object array, int i) {
+        return x10.core.Int.$box(((int[]) array)[i]);
     }
     
 //    @Override
-//    public Integer setArray(Object array, int i, Integer v) {
-//        // avoid boxing again
-////        return ((int[]) array)[i] = v;
-//        ((int[]) array)[i] = v;
+//    public x10.core.Int setArray(Object array, int i, x10.core.Int v) {
+//        ((int[]) array)[i] = x10.core.Int.$unbox(v);
 //        return v;
 //    }
     @Override
-    public void setArray(Object array, int i, Integer v) {
-        ((int[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Int v) {
+        ((int[]) array)[i] = x10.core.Int.$unbox(v);
     }
     
     @Override

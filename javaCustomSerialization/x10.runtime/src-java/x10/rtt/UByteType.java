@@ -21,6 +21,11 @@ public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSer
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UByteType.class.getName());
 
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.UBYTE;
+    }
+
     public UByteType() {
         super(x10.core.UByte.class,
             new Type[] {

@@ -407,13 +407,27 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         		return null;
         	}
         }
-        CheckMacroCallArgsVisitor v = new CheckMacroCallArgsVisitor();
         for (Expr arg : args) {
-        	arg = (Expr) arg.visit(v);
-        	if (v.error != null) {
-        		Errors.issue(tc.job(), v.error);
-        	}
+            CheckMacroCallArgsVisitor v = new CheckMacroCallArgsVisitor();
+            arg.visit(v);
+            if (v.error != null) {
+                Errors.issue(tc.job(), v.error, arg);
+            }
         }
+
+        for (Expr arg : args) {
+            VarChecker ac = (VarChecker) new VarChecker(childtc.job()).context(childtc.context());
+            try {
+                arg.visit(ac);
+            } catch (InternalCompilerError e) {
+                Errors.issue(childtc.job(),
+                        new Errors.GeneralError(e.getMessage(), e.position()), arg);
+            }
+            if (ac.error != null) {
+                Errors.issue(childtc.job(), ac.error, arg);
+            }
+        }
+
         try {
             tn = n.disambiguateBase(tc);
         }
@@ -491,19 +505,6 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     	result = (X10CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
     	result = (X10CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
     	result = (X10CanonicalTypeNode) result.typeCheck(childtc);
-    	{
-    	    VarChecker ac = (VarChecker) new VarChecker(childtc.job()).context(childtc.context());
-    	    try {
-    	        result.visit(ac);
-    	    } catch (InternalCompilerError e) {
-    	        Errors.issue(childtc.job(),
-    	                new Errors.GeneralError(e.getMessage(), e.position()), result);
-    	    }
-    	    
-    	    if (ac.error != null) {
-    	        Errors.issue(childtc.job(), ac.error, result);
-    	    }
-    	}
     	return result;
     }
     

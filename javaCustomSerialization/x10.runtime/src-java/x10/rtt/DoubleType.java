@@ -18,15 +18,22 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class DoubleType extends RuntimeType<Double> implements X10JavaSerializable{
+public class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaSerializable{
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DoubleType.class.getName());
 
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.DOUBLE;
+    }
+
     public DoubleType() {
-        super(Double.class,
+        super(x10.core.Double.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                  new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }
@@ -39,7 +46,7 @@ public class DoubleType extends RuntimeType<Double> implements X10JavaSerializab
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Double;
+        return o instanceof x10.core.Double;
     }
 
     @Override
@@ -57,20 +64,13 @@ public class DoubleType extends RuntimeType<Double> implements X10JavaSerializab
     }
     
     @Override
-    public Double getArray(Object array, int i) {
-        return ((double[]) array)[i];
+    public x10.core.Double getArray(Object array, int i) {
+        return x10.core.Double.$box(((double[]) array)[i]);
     }
     
-//    @Override
-//    public Double setArray(Object array, int i, Double v) {
-//        // avoid boxing again
-////        return ((double[]) array)[i] = v;
-//        ((double[]) array)[i] = v;
-//        return v;
-//    }
     @Override
-    public void setArray(Object array, int i, Double v) {
-        ((double[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Double v) {
+        ((double[]) array)[i] = x10.core.Double.$unbox(v);
     }
     
     @Override

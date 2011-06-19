@@ -23,7 +23,7 @@ import java.io.IOException;
  * Represents a boxed ULong value. Boxed representation is used when casting
  * a ULong value into type Any or parameter type T.
  */
-final public class ULong extends x10.core.Struct implements java.lang.Comparable<ULong>,
+final public class ULong extends Numeric implements java.lang.Comparable<ULong>,
     x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
 {
     private static final long serialVersionUID = 1L;
@@ -39,7 +39,21 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
         this.$value = value;
     }
 
+    private abstract static class Cache {
+        static final int low = 0;
+        static final int high = 255;
+        static final ULong cache[] = new ULong[high - low + 1];
+        static {
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new ULong(low + i);
+            }
+        }
+    }
+
     public static ULong $box(long value) {
+        if (Cache.low <= value && value <= Cache.high) {
+            return Cache.cache[(int)value - Cache.low];
+        }
         return new ULong(value);
     }
     
@@ -52,18 +66,29 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
         return obj;
     }
 
+    public static long $unbox(Object obj) {
+        return ((x10.core.ULong)obj).$value;
+    }
+    
     public static long $unbox(long value) {
         return value;
     }
     
-    public boolean equals(Object obj) {
-        if (obj instanceof ULong && ((ULong)obj).$value == $value)
+    public boolean _struct_equals$O(Object o) {
+        if (o instanceof ULong && ((ULong) o).$value == $value)
             return true;
         return false;
     }
     
-    public boolean _struct_equals$O(Object o) {
-        return equals(o);
+    // inherit default implementation
+//    @Override
+//    public boolean equals(Object o) {
+//        return _struct_equals$O(o);
+//    }
+
+    @Override
+    public int hashCode() {
+        return (int)($value ^ ($value >>> 32));
     }
     
     @Override
@@ -134,4 +159,24 @@ final public class ULong extends x10.core.Struct implements java.lang.Comparable
     public Object $gt(ULong a, Type t) { return Unsigned.gt($value,a.$value); }
     public Object $le(ULong a, Type t) { return Unsigned.le($value,a.$value); }
     public Object $ge(ULong a, Type t) { return Unsigned.ge($value,a.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)$value;
+    }
+    @Override
+    public long longValue() {
+        return (long)$value;
+    }
+    @Override
+    public float floatValue() {
+        if ($value >= 0) return (float)$value;
+        else return ((float)$value - 2.0f*java.lang.Long.MIN_VALUE);
+    }
+    @Override
+    public double doubleValue() {
+        if ($value >= 0) return (double)$value;
+        else return ((double)$value - 2.0*java.lang.Long.MIN_VALUE);
+    }
 }

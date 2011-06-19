@@ -71,6 +71,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         membersSynth = new ArrayList<IClassMemberSynth>();
 
         classDef = (X10ClassDef) xts.createClassDef();
+        classDef.setThisDef(xts.thisDef(pos, Types.ref(classDef.asType())));
         classDef.superType(Types.ref(superType)); // And the super Type
 
         List<Ref<? extends Type>> interfacesRef = new ArrayList<Ref<? extends Type>>();

@@ -14,6 +14,7 @@ import polyglot.ast.Expr;
 import polyglot.ast.Lit;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.NullLit;
+import polyglot.types.NullType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -26,15 +27,22 @@ import x10.types.constraints.CTerms;
 public final class NullValue extends ConstantValue {
 
     NullValue() { }
-    
+
+    @Override
     public Object toJavaObject() { return null; }
     
     @Override
     public NullLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(null, ts.Null()));
+        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
         return (NullLit)nf.NullLit(pos).type(type);
     }
 
+    @Override
+    public NullType getLitType(TypeSystem ts) {
+        return ts.Null();
+    }
+
+    @Override
     public Lit toUntypedLit(NodeFactory nf, Position pos) {
         return nf.NullLit(pos);
     }

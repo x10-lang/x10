@@ -72,7 +72,8 @@ public class InlineDeclHarvester extends ContextVisitor {
             ProcedureDecl   decl = (ProcedureDecl) n;
             X10ProcedureDef pdef = (X10ProcedureDef) decl.procedureInstance();
             X10ClassDef     cdef = ((ClassType) Types.baseType(((MemberDef) pdef).container().get())).def();
-            if ( annotations.inliningProhibited(cdef) ||
+            if ( annotations.inliningProhibited(decl) ||
+                 annotations.inliningProhibited(cdef) ||
                  annotations.inliningProhibited(pdef) ||
                  ExpressionFlattener.cannotFlatten(n) ||
                  isVirtualOrNative(pdef, cdef)        ||

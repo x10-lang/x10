@@ -99,7 +99,8 @@ public final class IntegralValue extends ConstantValue {
     public boolean isULong() {
         return kind.equals(IntLit.Kind.ULONG);
     }
-    
+
+    @Override
     public Object toJavaObject() {
         if (isByte() || isUByte()) {
             return Integer.valueOf((byte)val);
@@ -114,11 +115,12 @@ public final class IntegralValue extends ConstantValue {
     
     @Override
     public IntLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(val, getLitType(ts)));
+        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
         return (IntLit)nf.IntLit(pos, kind, val).type(type);
     }
 
-    private Type getLitType(TypeSystem ts) {
+    @Override
+    public Type getLitType(TypeSystem ts) {
         if (isULong()) {
             return ts.ULong();
         } else if (isLong()) {
@@ -137,7 +139,8 @@ public final class IntegralValue extends ConstantValue {
             return ts.Byte();
         }
     }
-    
+
+    @Override
     public IntLit toUntypedLit(NodeFactory nf, Position pos) {
         return nf.IntLit(pos, kind, val);
     }

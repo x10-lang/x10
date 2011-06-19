@@ -23,7 +23,7 @@ import java.io.IOException;
  * Represents a boxed UInt value. Boxed representation is used when casting
  * a UInt value into type Any or parameter type T.
  */
-final public class UInt extends x10.core.Struct implements java.lang.Comparable<UInt>,
+final public class UInt extends Numeric implements java.lang.Comparable<UInt>,
     x10.lang.Arithmetic<UInt>, x10.lang.Bitwise<UInt>, x10.util.Ordered<UInt>
 {
     private static final long serialVersionUID = 1L;
@@ -39,12 +39,46 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
         this.$value = value;
     }
 
+    // value of x10.lang.UInt.Cache.high property
+    private static java.lang.String cacheHighPropValue = System.getProperty("x10.lang.UInt.Cache.high");
+
+    private abstract static class Cache {
+        static final int low = 0;
+        static final int high;
+        static final UInt cache[];
+        static {
+            // high value may be configured by property
+            int h = 255;
+            if (cacheHighPropValue != null) {
+                // Use Long.decode here to avoid invoking methods that
+                // require Integer's autoboxing cache to be initialized
+                int i = java.lang.Long.decode(cacheHighPropValue).intValue();
+                i = Math.max(i, h);
+                // Maximum array size is Integer.MAX_VALUE
+                h = Math.min(i, Integer.MAX_VALUE + low);
+            }
+            high = h;
+
+            cache = new UInt[high - low + 1];
+            for (int i = 0; i < cache.length; ++i) {
+                cache[i] = new UInt(low + i);
+            }
+        }
+    }
+
     public static UInt $box(int value) {
+        if (Cache.low <= value && value <= Cache.high) {
+            return Cache.cache[value - Cache.low];
+        }
         return new UInt(value);
     }
 
     public static int $unbox(UInt obj) {
         return obj.$value;
+    }
+    
+    public static int $unbox(Object obj) {
+        return ((UInt)obj).$value;
     }
     
     // make $box/$unbox idempotent
@@ -56,18 +90,24 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
         return value;
     }
     
-    public boolean _struct_equals$O(Object obj) {
-        if (obj instanceof UInt && ((UInt) obj).$value == $value)
+    public boolean _struct_equals$O(Object o) {
+        if (o instanceof UInt && ((UInt) o).$value == $value)
             return true;
         return false;
     }
     
+    // inherit default implementation
+//    @Override
+//    public boolean equals(Object o) {
+//        return _struct_equals$O(o);
+//    }
+  
     @Override
-	public int hashCode() {
-    	return $value;
-	}
+    public int hashCode() {
+        return $value;
+    }
 
-	@Override
+    @Override
     public java.lang.String toString() {
         if ($value >= 0)
             return java.lang.Integer.toString($value);
@@ -125,4 +165,22 @@ final public class UInt extends x10.core.Struct implements java.lang.Comparable<
     public Object $gt(UInt a, Type t) { return Unsigned.gt($value,a.$value); }
     public Object $le(UInt a, Type t) { return Unsigned.le($value,a.$value); }
     public Object $ge(UInt a, Type t) { return Unsigned.ge($value,a.$value); }
+    
+    // extends abstract class java.lang.Number
+    @Override
+    public int intValue() {
+        return (int)$value;
+    }
+    @Override
+    public long longValue() {
+        return (long)(((long)$value)&0xffffFFFFl);
+    }
+    @Override
+    public float floatValue() {
+        return (float)(((long)$value)&0xffffFFFFl);
+    }
+    @Override
+    public double doubleValue() {
+        return (double)(((long)$value)&0xffffFFFFl);
+    }
 }

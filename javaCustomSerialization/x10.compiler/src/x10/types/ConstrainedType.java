@@ -434,13 +434,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		 * @return
 		 */
 		public ConstrainedType addRank(int x) {
-		    return addRank(CTerms.makeLit(new Integer(x), ts.Int()));
+		    return addRank(CTerms.makeLit(x, ts.Int()));
 		}
 		public ConstrainedType addSize(int x) {
 		    return addIntProperty(x, Name.make("size"));
 		}
 		public ConstrainedType addIntProperty(int x, Name name) {
-		    return addProperty(CTerms.makeLit(new Integer(x), ts.Int()), name);
+		    return addProperty(CTerms.makeLit(x, ts.Int()), name);
 		}
 
 		/**

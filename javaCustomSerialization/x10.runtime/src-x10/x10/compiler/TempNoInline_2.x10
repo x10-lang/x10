@@ -11,7 +11,7 @@
 
 package x10.compiler;
 
-// import x10.compiler.NoInline;
+import x10.lang.annotations.*;
 
 /**
  * This annotation is used to allow the programmer
@@ -26,5 +26,5 @@ package x10.compiler;
  * It is required to get a build implicitly inlining methods of size 1;
  */
  
- public interface TempNoInline_2 extends NoInline {
+ public interface TempNoInline_2 extends MethodAnnotation, StatementAnnotation, ExpressionAnnotation {
  }

@@ -186,6 +186,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             // body of main activity
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
+            // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
+            if (t instanceof UnknownJavaThrowable) t = t.getCause();
             t.printStackTrace();
             setExitCode(1);
         }

@@ -73,7 +73,7 @@ public final class Configuration extends x10.config.Configuration {
     public boolean INLINE_CLOSURES = true;
     private static final String INLINE_CLOSURES_desc = "Enable inlining of closure literal calls";
 
-    public boolean INLINE_METHODS_IMPLICIT = false;
+    public boolean INLINE_METHODS_IMPLICIT = true;
     private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
 
     public boolean INLINE_CONSTRUCTORS = true;

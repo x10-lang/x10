@@ -69,25 +69,10 @@ public class InlineHelper extends ContextVisitor {
     private final TypeSystem xts;
     private final NodeFactory xnf;
 
-    private Type InlineType;
-    public static final QName INLINE_ANNOTATION = QName.make("x10.compiler.Inline");
-
     public InlineHelper(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (TypeSystem) ts;
         xnf = (NodeFactory) nf;
-    }
-
-    @Override
-    public NodeVisitor begin() {
-        try {
-            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
-        }
-        catch (SemanticException e) {
-            System.out.println("Unable to find "+INLINE_ANNOTATION+": "+e);
-            InlineType = null;
-        }
-        return super.begin();
     }
 
     @Override

@@ -54,10 +54,12 @@ public class KMeansCUDA {
                 Option("i","iterations","quit after this many iterations"),
                 Option("c","clusters","number of clusters to find"),
                 Option("n","num","quantity of points")]);
-            val fname = opts("-p", "points.dat"), num_clusters=opts("-c",8),
-                num_global_points=opts("-n", 100000),
-                iterations=opts("-i",500);
-            val verbose = opts("-v"), quiet = opts("-q");
+            val fname = opts("-p", "points.dat");
+            val num_clusters=opts("-c",8);
+            val num_global_points=opts("-n", 100000);
+            val iterations=opts("-i",500);
+            val verbose = opts("-v");
+            val quiet = opts("-q");
             val dim = 4; // must be compiletime constant
 
             val MEM_ALIGN = 32; // FOR CUDA
@@ -66,7 +68,8 @@ public class KMeansCUDA {
                 Console.OUT.println("points: "+num_global_points+" clusters: "+num_clusters+" dim: "+dim);
 
             // file is dimension-major
-            val file = new File(fname), fr = file.openRead();
+            val file = new File(fname);
+            val fr = file.openRead();
             val init_points = (Int) => Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
             val num_file_points = (file.size() / 4 / dim) as Int;
             val file_points = new Array[Float](num_file_points*dim, init_points);
@@ -108,7 +111,8 @@ public class KMeansCUDA {
                         }
                         val num_local_points_stride = round_up(num_local_points,MEM_ALIGN);
                         val init = (i:Int) => {
-                            val d=i/num_local_points_stride, p=i%num_local_points_stride;
+                            val d=i/num_local_points_stride;
+                            val p=i%num_local_points_stride;
                             return p<num_local_points ? file_points(((p+offset)%num_file_points)*dim + d) : 0f;
                         };
 
@@ -138,8 +142,8 @@ public class KMeansCUDA {
                             var start_time : Long = System.currentTimeMillis();
                             // classify kernel
                             finish async at (gpu) @CUDA @CUDADirectParams {
-                                val blocks = CUDAUtilities.autoBlocks(),
-                                    threads = CUDAUtilities.autoThreads();
+                                val blocks = CUDAUtilities.autoBlocks();
+                                val threads = CUDAUtilities.autoThreads();
                                 finish for (block in 0..(blocks-1)) async {
                                     val clustercache = new Array[Float](clusters_copy);
                                     clocked finish for (thread in 0..(threads-1)) clocked async {

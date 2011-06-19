@@ -46,7 +46,7 @@ public interface NodeFactory
     Id Id(Position pos, Name id);
     Id Id(Position pos, String id); // for backward compat
 
-    Allocation Allocation(Position pos);
+    Allocation Allocation(Position pos, TypeNode objType, List<TypeNode> typeArgs);
 
     AmbExpr AmbExpr(Position pos, Id name);
     Expr ExprFromQualifiedName(Position pos, QName qualifiedName);
@@ -265,6 +265,7 @@ public interface NodeFactory
     TypeDecl TypeDecl(Position pos, FlagsNode flags, Id name, List<TypeParamNode> typeParameters, List<Formal> formals, DepParameterExpr guard, TypeNode type);
 
     X10Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArgs, List<Expr> args);
+    X10Call X10ConversionCall(Position pos, Receiver target, Id name, TypeNode convType, List<TypeNode> typeArgs, List<Expr> args);
     
     X10Instanceof Instanceof(Position pos, Expr expr, TypeNode type);
     Async Async(Position pos, List<Expr> clocks, Stmt body);

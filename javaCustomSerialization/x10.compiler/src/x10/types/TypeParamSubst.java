@@ -162,6 +162,10 @@ public class TypeParamSubst {
 	    return identityInstantiation;
 	}
 
+	public boolean isEager() {
+	    return eager;
+	}
+	
 	private static boolean isIdentityInstantiation(List<? extends Type> tas, List<ParameterType> tps) {
 	    if (tas == null) return true;
 	    int n = tps.size();
@@ -376,6 +380,7 @@ public class TypeParamSubst {
 		    ci = (X10ConstructorInstance) ci.formalNames(reinstantiate(ci.formalNames()));
 		    ci = (X10ConstructorInstance) ci.formalTypes(reinstantiate(ci.formalTypes()));
 		    //ci = (X10ConstructorInstance) ci.throwTypes(reinstantiate(ci.throwTypes()));
+		    ci = (X10ConstructorInstance) ci.typeParameters(reinstantiate(ci.typeParameters()));
 		    ci = (X10ConstructorInstance) ci.container(reinstantiate(ci.container()));
 		    ci = (X10ConstructorInstance) ci.guard(reinstantiate(ci.guard()));
 		    ci = (X10ConstructorInstance) ci.typeGuard(reinstantiate(ci.typeGuard()));

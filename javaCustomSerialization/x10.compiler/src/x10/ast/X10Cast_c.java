@@ -237,13 +237,30 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     /** Write the expression to an output file. */
     public void prettyPrint(CodeWriter w, PrettyPrinter tr)
     {
-	w.begin(0);
-	w.write("(");
-	print(castType, w, tr);
-	w.write(")");
-	w.allowBreak(2, " ");
-	printSubExpr(expr, w, tr);
-	w.end();
+        if (convert == ConversionType.UNBOXING) {
+            w.begin(0);
+            print(castType, w, tr);
+            w.write(".$unbox(");
+            printSubExpr(expr, w, tr);
+            w.write(")");
+            w.end();
+        } else if (convert == ConversionType.BOXING) {
+            w.begin(0);
+            print(castType, w, tr);
+            w.write(".$box(");
+            printSubExpr(expr, w, tr);
+            w.write(")");
+            w.end();
+            
+        } else {
+            w.begin(0);
+            w.write("(");
+            print(castType, w, tr);
+            w.write(")");
+            w.allowBreak(2, " ");
+            printSubExpr(expr, w, tr);
+            w.end();
+        }
     }
 
     public Term firstChild() {

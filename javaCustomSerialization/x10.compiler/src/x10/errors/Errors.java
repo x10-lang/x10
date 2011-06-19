@@ -1811,7 +1811,7 @@ public class Errors {
 	        super("Cannot access a non-static field "+fi+" from a static context.", p);
 	    }
 	    public CannotAccessNonStaticFromStaticContext(MethodInstance mi, Position p) {
-	        super("Cannot access a non-static field "+mi+" from a static context.", p);
+	        super("Cannot access a non-static method "+mi+" from a static context.", p);
 	    }
 	}
 	public static class ConstraintOnThisIsInconsistent extends EqualByTypeAndPosException {

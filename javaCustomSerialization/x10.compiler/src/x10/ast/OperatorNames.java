@@ -36,7 +36,7 @@ public class OperatorNames {
     public static final Name NTILDE =      Name.make("operator!~");
     public static final Name AND =         Name.make("operator&&");
     public static final Name OR =          Name.make("operator||");
-    public static final Name BANG =         Name.make("operator!");
+    public static final Name BANG =        Name.make("operator!");
     public static final Name EQ =          Name.make("operator==");
     public static final Name NE =          Name.make("operator!=");
     public static final Name RANGE =       Name.makeUnchecked("operator..");
@@ -44,6 +44,8 @@ public class OperatorNames {
     public static final Name LARROW =      Name.make("operator<-");
     public static final Name FUNNEL =      Name.make("operator-<");
     public static final Name LFUNNEL =     Name.make("operator>-");
+    public static final Name DIAMOND =     Name.make("operator<>");
+    public static final Name BOWTIE =      Name.make("operator><");
     public static final Name STARSTAR =    Name.make("operator**");
     public static final Name APPLY =       Name.make("operator()");
     public static final Name SET =         Name.make("operator()="); 
