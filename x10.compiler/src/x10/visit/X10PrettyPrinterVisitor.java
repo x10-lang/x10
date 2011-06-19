@@ -574,7 +574,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 //_deserialize_body method
                 w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
-                w.writeln(Emitter.mangleToJava(def.name()) + " obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+                w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
                 w.newline(4);
                 w.begin(0);
 
@@ -590,7 +590,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                     for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                         final Type at = i.next();
-                        w.write("obj.");
+                        w.write("_obj.");
                         er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                         w.write(" = ( " + X10_RUNTIME_TYPE_CLASS + " ) ");
                         w.writeln("deserializer.readRef();");
@@ -605,20 +605,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         if (f.flags().isTransient()) // don't serialize transient fields
                             continue;
                         if (f.type().isParameterType()) {
-                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = deserializer.readRef();");
+                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.readRef();");
                         } else if ((str = needsCasting(f.type())) != null) {
                             // Want these to be readInteger and so on.....
-                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str + "();");
+                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str + "();");
                         } else {
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.writeln(") deserializer.readRef();");
-                            w.writeln("obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         }
                     }
 
-                w.writeln("return obj;");
+                w.writeln("return _obj;");
                 w.end();
                 w.newline();
                 w.writeln("}");
@@ -635,15 +635,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " obj = new  " + Emitter.mangleToJava(def.name()) + "( (java.lang.System[]) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new  " + Emitter.mangleToJava(def.name()) + "( (java.lang.System[]) null);");
                         } else {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " obj = new  " + Emitter.mangleToJava(def.name()) + "( null, (java.lang.System) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new  " + Emitter.mangleToJava(def.name()) + "( null, (java.lang.System) null);");
                         }
                     } else {
                         if (def.flags().isAbstract()) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " obj = ( " + Emitter.mangleToJava(def.name()) + "  )" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = ( " + Emitter.mangleToJava(def.name()) + "  )" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
                         } else {
-                            w.write(Emitter.mangleToJava(def.name()) + " obj = new " + Emitter.mangleToJava(def.name()) + " ( ");
+                            w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + " ( ");
                             if (supportConstructorSplitting
                                     && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
                                     && !def.flags().isInterface()) {
@@ -653,8 +653,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             }
                         }
                     }
-                    w.writeln("deserializer.record_reference(obj);");
-                    w.writeln("return _deserialize_body(obj, deserializer);");
+                    w.writeln("deserializer.record_reference(_obj);");
+                    w.writeln("return _deserialize_body(_obj, deserializer);");
                 }
                 w.end();
                 w.newline();
