@@ -34,10 +34,10 @@ import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Variable;
-import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.MemberDef;
@@ -50,11 +50,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
-import polyglot.util.ErrorInfo;
-import polyglot.util.ErrorQueue;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import polyglot.util.SilentErrorQueue;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
@@ -74,7 +71,7 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
-import x10.types.X10Def;
+import x10.types.X10CodeDef;
 import x10.types.X10LocalDef;
 import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
@@ -85,6 +82,7 @@ import x10.util.AltSynthesizer;
 import x10.visit.ConstantPropagator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.NodeTransformingVisitor;
+import x10.visit.Reinstantiator;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -257,30 +255,39 @@ public class Inliner extends ContextVisitor {
         x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
         try {
             X10ProcedureDef def = repository.getDef(call);
-            List<Type> a = AnnotationUtils.getAnnotations(def, annotations.ConstantType);
-            if (a.isEmpty()) return null;
-            Expr arg = ((X10ClassType) a.get(0)).propertyInitializer(0);
-            if (!arg.isConstant() || !arg.type().typeEquals(ts.String(), context)) 
-                return null;
             Type type = def.returnType().get();
+            List<Type> a = AnnotationUtils.getAnnotations(def, annotations.ConstantType);
             X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
-            String name = ((StringValue) arg.constantValue()).value();
-            Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
-            if (negate) {
-                assert ts.isBoolean(type);
-                name = name.substring(1);
-            }
-            Object value = opts.x10_config.get(name);
-            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
+            ConstantValue cv = extractCompileTimeConstant(type, a, opts, context);
+            if (cv == null) return null;
             Expr literal = cv.toLit(nf, ts, type, call.position());
             return literal;
+        }
+        finally {
+            x10Info.stats.stopTiming();
+        }
+    }
+
+    public static ConstantValue extractCompileTimeConstant(Type type, List<? extends Type> annotations, X10CompilerOptions opts, Context context) {
+        if (annotations.isEmpty()) return null;
+        TypeSystem ts = type.typeSystem();
+        Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
+        if (!arg.isConstant() || !arg.type().isSubtype(ts.String(), context)) 
+            return null;
+        String name = ((StringValue) arg.constantValue()).value();
+        Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
+        if (negate) {
+            assert ts.isBoolean(type);
+            name = name.substring(1);
+        }
+        try {
+            Object value = opts.x10_config.get(name);
+            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
+            return cv;
         } catch (ConfigurationError e) {
             return null;
         } catch (OptionError e) {
             return null;
-        }
-        finally {
-            x10Info.stats.stopTiming();
         }
     }
 
@@ -295,23 +302,19 @@ public class Inliner extends ContextVisitor {
             report("of failure to instatiate closure", c);
             return null;
         }
-        InliningRewriter rewriter = new InliningRewriter(lit, job(), typeSystem(), nodeFactory(), context());
-        lit = (Closure) lit.visit(rewriter); // Ensure that the last statement of the body is the only return in the closure
-        if (null == lit) {
-            report("of failure to normalize closure", c);
-            return null;
-        }
-        if (null == lit.body()) {
+        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
+        // Ensure that the last statement of the body is the only return in the closure
+        Block body = InliningRewriter.rewriteClosureBody(lit, job(), context());
+        if (null == body) {
             report("normalized closure has no body", c);
             return null;
         }
-        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
         List<Expr> args = new ArrayList<Expr>();
         int i = 0;
         for (Expr a : c.arguments()) {
             args.add(createCast(a.position(), a, c.closureInstance().formalTypes().get(i++)));
         }
-        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), lit.body(), null, null, args);
+        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), body, null, null, args);
         if (null == result) {
             report("of failure to rewrite closure body", c);
             return null;
@@ -365,15 +368,15 @@ public class Inliner extends ContextVisitor {
                 }
             }
         }
-        InliningRewriter rewriter = new InliningRewriter(decl, thisDef, job(), typeSystem(), nodeFactory(), context());
-        decl = (ProcedureDecl) decl.visit(rewriter); // Ensure that the last statement of the body is the only return in the method
-        if (null == decl || null == decl.body()) {
+        // Ensure that the last statement of the body is the only return in the method
+        Block body = InliningRewriter.rewriteProcedureBody(decl, thisDef, job(), context());
+        if (null == body) {
             return null;
         }
         Expr result = rewriteInlinedBody( call.position(), 
                                           decl instanceof MethodDecl ? ((MethodDecl) decl).returnType().type() : null, 
                                           decl.formals(), 
-                                          decl.body(), 
+                                          body, 
                                           thisArg, 
                                           thisForm, 
                                           call.arguments() );
@@ -509,7 +512,9 @@ public class Inliner extends ContextVisitor {
         try {
             if (DEBUG) debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance(), call.typeArguments());
-            InliningTypeTransformer transformer = new InliningTypeTransformer(typeMap);
+            InliningTypeTransformer transformer =
+                new InliningTypeTransformer(typeMap, context().currentCode(), (X10CodeDef) code.codeDef());
+       //   Reinstantiator transformer = new Reinstantiator(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedCode = (CodeBlock) code.visit(visitor);
             return visitedCode;

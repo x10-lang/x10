@@ -14,28 +14,29 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import polyglot.types.ClassType;
+import polyglot.types.ContainerType;
 import polyglot.types.LocalInstance;
 import polyglot.types.NullType;
 import polyglot.types.SemanticException;
-import polyglot.types.ContainerType;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.types.UnknownType;
 import x10.constraint.XFailure;
-import x10.constraint.XLocal;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
+import x10.constraint.XVar;
+import x10.types.ClosureInstance;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
+import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
-import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType;
-import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
@@ -469,6 +470,59 @@ public class Subst {
     }
 
     public static MethodInstance subst(MethodInstance mi, XTerm y, XVar x) throws SemanticException {
+        return subst(mi, new XTerm[] { y }, new XVar[] { x });
+    }
+
+    /**
+     * @param ci
+     * @param y
+     * @param x
+     * @return
+     * @throws SemanticException 
+     */
+    public static ClosureInstance subst(ClosureInstance ci, XTerm[] y, XVar[] x) throws SemanticException {
+        Type returnType = ci.returnType();
+        Type newReturnType = subst(returnType, y, x);
+        if (newReturnType != returnType) {
+            ci = (ClosureInstance) ci.returnType(newReturnType);
+        }
+        List<Type> formalTypes = ci.formalTypes();
+        List<Type> newFormalTypes = subst(formalTypes, y, x);
+        if (newFormalTypes != formalTypes) {
+            ci = (ClosureInstance) ci.formalTypes(newFormalTypes);
+        }
+        List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
+        boolean changed = false;
+        for (LocalInstance li : ci.formalNames()) {
+            try {
+                LocalInstance newLI = subst((X10LocalInstance) li, y, x);
+                if (newLI != li) changed = true;
+                newFormalNames.add(newLI);
+            }
+            catch (SemanticException e) {
+                newFormalNames.add(li);
+            }
+        }
+        if (changed) {
+            ci = (ClosureInstance) ci.formalNames(newFormalNames);
+        }
+        ClassType ct = (ClassType) subst(ci.typeContainer(), y, x);
+        if (ct != ci.typeContainer()) {
+            ci =  (ClosureInstance) ci.typeContainer(ct);
+        }
+        /* FIXME I'm not sure how to do substitution on a ClosureInstance's method container.  
+        // It won't matter for the Inlining type transformer which overwrites the method container.
+        // But, it might for other users of the Reinstantiator.
+        //
+        ContainerType ct = (ContainerType) subst(ci.methodContainer(), y, x);
+        if (ct != ci.methodContainer()) {
+            ci =  (ClosureInstance) ci.methodContainer(ct);
+        }
+        */
+        return ci;
+    }
+
+    public static ClosureInstance subst(ClosureInstance mi, XTerm y, XVar x) throws SemanticException {
         return subst(mi, new XTerm[] { y }, new XVar[] { x });
     }
 

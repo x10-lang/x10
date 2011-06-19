@@ -23,6 +23,11 @@ public class ULongType extends RuntimeType<x10.core.ULong> implements X10JavaSer
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ULongType.class.getName());
 
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.ULONG;
+    }
+
     public ULongType() {
         super(x10.core.ULong.class,
             new Type[] {

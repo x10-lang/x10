@@ -25,7 +25,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "long", null, "x10.rtt.Types.LONG")
 @NativeRep("c++", "x10_long", "x10_long", null)
-public struct Long implements Comparable[Long] /*TODO implements Arithmetic[Long], Bitwise[Long], Ordered[Long]*/ {
+public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long], Ordered[Long] {
 
 
     /**

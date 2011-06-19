@@ -27,7 +27,7 @@ public class Equality {
     public static int compareTo(char a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(byte a, byte b) { return a == b; }
-    public static boolean equalsequals(byte a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(byte a, Object b) { return equalsequals(x10.core.Byte.$box(a), b); }
     public static int compareTo(byte a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(byte a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(byte a, int b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -37,7 +37,7 @@ public class Equality {
     public static int compareTo(byte a, Comparable b) { return compareTo((Comparable) a, b); }
 
     public static boolean equalsequals(short a, short b) { return a == b; }
-    public static boolean equalsequals(short a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(short a, Object b) { return equalsequals(x10.core.Short.$box(a), b); }
     public static int compareTo(short a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(short a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(short a, int b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -47,7 +47,7 @@ public class Equality {
     public static int compareTo(short a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(int a, int b) { return a == b; }
-    public static boolean equalsequals(int a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(int a, Object b) { return equalsequals(x10.core.Int.$box(a), b); }
     public static int compareTo(int a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(int a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(int a, int b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -57,7 +57,7 @@ public class Equality {
     public static int compareTo(int a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(long a, long b) { return a == b; }
-    public static boolean equalsequals(long a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(long a, Object b) { return equalsequals(x10.core.Long.$box(a), b); }
     public static int compareTo(long a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(long a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(long a, int b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -67,7 +67,7 @@ public class Equality {
     public static int compareTo(long a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(float a, float b) { return a == b; }
-    public static boolean equalsequals(float a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(float a, Object b) { return equalsequals(x10.core.Float.$box(a), b); }
     public static int compareTo(float a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(float a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(float a, int b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -77,7 +77,7 @@ public class Equality {
     public static int compareTo(float a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(double a, double b) { return a == b; }
-    public static boolean equalsequals(double a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(double a, Object b) { return equalsequals(x10.core.Double.$box(a), b); }
     public static int compareTo(double a, byte b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(double a, short b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(double a, int b) { return a == b ? 0 : (a < b ? -1 : 1); }
@@ -87,18 +87,18 @@ public class Equality {
     public static int compareTo(double a, Comparable b) { return compareTo((Comparable) a, b); }
     
     public static boolean equalsequals(Object a, boolean b) { return equalsequals(a, (Object) b); }
-    public static boolean equalsequals(Object a, byte b) { return equalsequals(a, (Object) b); }
-    public static boolean equalsequals(Object a, short b) { return equalsequals(a, (Object) b); }
+    public static boolean equalsequals(Object a, byte b) { return equalsequals(a, x10.core.Byte.$box(b)); }
+    public static boolean equalsequals(Object a, short b) { return equalsequals(a, x10.core.Short.$box(b)); }
     public static boolean equalsequals(Object a, char b) { return equalsequals(a, (Object) b); }
-    public static boolean equalsequals(Object a, int b) { return equalsequals(a, (Object) b); }
-    public static boolean equalsequals(Object a, long b) { return equalsequals(a, (Object) b); }
-    public static boolean equalsequals(Object a, float b) { return equalsequals(a, (Object) b); }
-    public static boolean equalsequals(Object a, double b) { return equalsequals(a, (Object) b); }
+    public static boolean equalsequals(Object a, int b) { return equalsequals(a, x10.core.Int.$box(b)); }
+    public static boolean equalsequals(Object a, long b) { return equalsequals(a, x10.core.Long.$box(b)); }
+    public static boolean equalsequals(Object a, float b) { return equalsequals(a, x10.core.Float.$box(b)); }
+    public static boolean equalsequals(Object a, double b) { return equalsequals(a, x10.core.Double.$box(b)); }
     public static int compareTo(Comparable a, boolean b) { return compareTo(a, (Comparable) b); }
     public static int compareTo(Comparable a, byte b) { return compareTo(a, (Comparable) b); }
     public static int compareTo(Comparable a, short b) { return compareTo(a, (Comparable) b); }
     public static int compareTo(Comparable a, char b) { return compareTo(a, (Comparable) b); }
-    public static int compareTo(Comparable a, int b) { return compareTo(a, (Comparable) b); }
+    public static int compareTo(Comparable a, int b) { return compareTo(a, x10.core.Int.$box(b)); }
     public static int compareTo(Comparable a, long b) { return compareTo(a, (Comparable) b); }
     public static int compareTo(Comparable a, float b) { return compareTo(a, (Comparable) b); }
     public static int compareTo(Comparable a, double b) { return compareTo(a, (Comparable) b); }
@@ -112,8 +112,8 @@ public class Equality {
         if (a == null || b == null) return false;
 
         // For boxed String object
-        if (a instanceof x10.core.String) a = ((x10.core.String) a).$value;
-        if (b instanceof x10.core.String) b = ((x10.core.String) b).$value;
+        if (a instanceof x10.core.String) a = x10.core.String.$unbox((x10.core.String) a);
+        if (b instanceof x10.core.String) b = x10.core.String.$unbox((x10.core.String) b);
         if (a == b) return true;
 
         if (a instanceof RefI || b instanceof RefI) return false;
@@ -132,28 +132,44 @@ public class Equality {
     public static int compareTo(Comparable a, Comparable b) { return a.compareTo(b); }
     
     private static boolean equalsNumbers(Object a, Object b) {
-        if (a instanceof Double && b instanceof Double) {
-            return (double) (Double) a == (double) (Double) b;
+        if (a instanceof x10.core.Double && b instanceof x10.core.Double) {
+            return x10.core.Double.$unbox((x10.core.Double)a) == x10.core.Double.$unbox((x10.core.Double)b);
         }
         
-        if (a instanceof Float && b instanceof Float) {
-            return (float) (Float) a == (float) (Float) b;
+        if (a instanceof x10.core.Float && b instanceof x10.core.Float) {
+            return x10.core.Float.$unbox((x10.core.Float)a) == x10.core.Float.$unbox((x10.core.Float)b);
         }
         
-        if (a instanceof Long && b instanceof Long) {
-            return (long) (Long) a == (long) (Long) b;
+        if (a instanceof x10.core.Long && b instanceof x10.core.Long) {
+            return x10.core.Long.$unbox((x10.core.Long)a) == x10.core.Long.$unbox((x10.core.Long)b);
+        }
+
+        if (a instanceof x10.core.Int && b instanceof x10.core.Int) {
+            return x10.core.Int.$unbox((x10.core.Int)a) == x10.core.Int.$unbox((x10.core.Int)b);
         }
         
-        if (a instanceof Integer && b instanceof Integer) {
-            return (int) (Integer) a == (int) (Integer) b;
+        if (a instanceof x10.core.Short && b instanceof x10.core.Short) {
+            return x10.core.Short.$unbox((x10.core.Short)a) == x10.core.Short.$unbox((x10.core.Short)b);
         }
         
-        if (a instanceof Short && b instanceof Short) {
-            return (short) (Short) a == (short) (Short) b;
+        if (a instanceof x10.core.Byte && b instanceof x10.core.Byte) {
+            return x10.core.Byte.$unbox((x10.core.Byte)a) == x10.core.Byte.$unbox((x10.core.Byte)b);
         }
         
-        if (a instanceof Byte && b instanceof Byte) {
-            return (byte) (Byte) a == (byte) (Byte) b;
+        if (a instanceof x10.core.ULong && b instanceof x10.core.ULong) {
+            return x10.core.ULong.$unbox((x10.core.ULong)a) == x10.core.ULong.$unbox((x10.core.ULong)b);
+        }
+
+        if (a instanceof x10.core.UInt && b instanceof x10.core.UInt) {
+            return x10.core.UInt.$unbox((x10.core.UInt)a) == x10.core.UInt.$unbox((x10.core.UInt)b);
+        }
+        
+        if (a instanceof x10.core.UShort && b instanceof x10.core.UShort) {
+            return x10.core.UShort.$unbox((x10.core.UShort)a) == x10.core.UShort.$unbox((x10.core.UShort)b);
+        }
+        
+        if (a instanceof x10.core.UByte && b instanceof x10.core.UByte) {
+            return x10.core.UByte.$unbox((x10.core.UByte)a) == x10.core.UByte.$unbox((x10.core.UByte)b);
         }
         
         return false;

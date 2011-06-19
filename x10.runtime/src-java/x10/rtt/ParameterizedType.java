@@ -63,10 +63,13 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         if (this == o) return true;
         if (o instanceof ParameterizedType<?>) {
             ParameterizedType<?> t = (ParameterizedType<?>) o;
-            if (!rtt.getImpl().equals(t.getImpl())) {
+            if (!rtt.equals(t.rtt)) {
                 return false;
             }
             Type<?>[] parameters = t.params;
+            if (params.length != parameters.length) {
+                return false;
+            }
             for (int i = 0; i < params.length; i++) {
                 if (!params[i].equals(parameters[i])) {
                     return false;
@@ -75,6 +78,11 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public final int hashCode() {
+        return rtt.hashCode();
     }
 
     public final int arrayLength(Object array) {
@@ -87,10 +95,6 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 
     public final Class<?> getImpl() {
         return rtt.getImpl();
-    }
-
-    public final int hashCode() {
-        return rtt.hashCode();
     }
 
     public final Object makeArray(int length) {

@@ -118,7 +118,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
 		    Flags oldFlags = cd.flags().flags();
 		    Flags flags = context.inStaticContext() ? oldFlags.Private().Static() : oldFlags.Private();
-		    Id name = nf.Id(cd.name().position(), UniqueID.newID(cd.name().toString()));
+		    Id name = nf.Id(cd.name().position(), cd.name().toString()+"$"+cd.position().offset());
 		    cd = cd.name(name);
 		    cd = cd.flags(cd.flags().flags(flags));
 		    cd.classDef().flags(flags);
@@ -280,7 +280,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
 	    Flags oldFlags = neu.anonType().flags();
 	    Flags flags = context.inStaticContext() ? oldFlags.Private().Static() : oldFlags.Private();
-	    Id name = nf.Id(pos, UniqueID.newID("Anonymous"));
+	    Id name = nf.Id(pos, "Anonymous"+"$"+neu.position().offset());
 	    ClassDecl cd = nf.ClassDecl(pos, nf.FlagsNode(pos, flags), name, superClass, interfaces, body);
 
 	    X10ClassDef type = neu.anonType();

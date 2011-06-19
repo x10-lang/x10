@@ -69,10 +69,15 @@ serialization_buffer::serialization_buffer (void)
 { }
 
 void serialization_buffer::grow (void) {
-    size_t new_length = length(); // no change in used portion of buffer
     size_t old_capacity = capacity();
     size_t new_capacity = (size_t) (old_capacity * 2.0); // increase capacity by a factor
     if (new_capacity<16) new_capacity = 16; // biggest primitive we might serialise -- a SIMD variable
+
+    grow(new_capacity);
+}
+
+void serialization_buffer::grow (size_t new_capacity) {
+    size_t new_length = length(); // no change in used portion of buffer
     
     // do not use GC
     buffer = (char*)std::realloc(buffer, new_capacity);

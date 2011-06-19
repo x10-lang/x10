@@ -33,16 +33,24 @@ public final class CharValue extends ConstantValue {
     public char value() {
         return val;
     }
-    
+
+    @Override
     public Character toJavaObject() {
         return Character.valueOf(val);
     }
-    
+
+    @Override
     public CharLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.Char()));
+        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
         return (CharLit)nf.CharLit(pos, val).type(type);
     }
 
+    @Override
+    public Type getLitType(TypeSystem ts) {
+        return ts.Char();
+    }
+
+    @Override
     public CharLit toUntypedLit(NodeFactory nf, Position pos) {
         return (CharLit)nf.CharLit(pos, val);
     }

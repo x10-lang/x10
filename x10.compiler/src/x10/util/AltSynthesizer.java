@@ -1157,8 +1157,8 @@ public class AltSynthesizer {
      * @return a synthesized Allocation node.
      * TODO: move to Synthesizer
      */
-    public Allocation createAllocation(Position pos, Type type, List<TypeNode> typeArgs) {
-        return (Allocation) ((Allocation) ((X10NodeFactory_c) nf).Allocation(pos).type(type)).typeArguments(typeArgs);
+    public Allocation createAllocation(Position pos, TypeNode objType, List<TypeNode> typeArgs) {
+        return (Allocation) ((Allocation) ((X10NodeFactory_c) nf).Allocation(pos, objType, typeArgs).type(objType.type()));
     }
 
     

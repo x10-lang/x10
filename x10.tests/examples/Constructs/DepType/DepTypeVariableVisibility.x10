@@ -9,22 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-//LIMITATION:
-// visibility checking not currently implemented.  And Nate, at
-// least, thinks it never should be.
-
 import harness.x10Test;
 
 /**
- * A local variable referenced in a deptype in a method declaration must have 
- * greater or equal accessibility/visibility than the declaration.
- * 
- * This restriction probably is 4.4.3 "Constraint Semantics", in a static semantic 
- * rule called "Variable visibility"
+ * A local variable referenced in a deptype in a method declaration may be private.
  *
  * @author pvarma
  */
-public class DepTypeVariableVisibility_MustFailCompile extends x10Test {
+public class DepTypeVariableVisibility extends x10Test {
    private val traceOn = true;
    public def m(t: boolean(traceOn))
       : boolean(traceOn) 
@@ -34,6 +26,6 @@ public class DepTypeVariableVisibility_MustFailCompile extends x10Test {
 	   return true;
 	}
 	public static def main(var args: Array[String](1)): void = {
-		new DepTypeVariableVisibility_MustFailCompile().execute();
+		new DepTypeVariableVisibility().execute();
 	}
 }

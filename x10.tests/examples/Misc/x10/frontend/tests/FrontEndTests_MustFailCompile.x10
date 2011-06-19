@@ -355,7 +355,8 @@ class TestUncountedAsync1 {
 	//so the statement in S might or might not get executed.
 	//Therefore even after a "finish" we still can't use anything assigned in S.                
 	def test1() {
-		val q:Int,q2:Int;
+		val q:Int;
+		val q2:Int;
 		finish {
 			q2=2;
 			use(q2);
@@ -829,8 +830,14 @@ class TestAsync {
 	static def use(a:Int) {}
 	
 	public static def main(Array[String]) {
-	     var i:Int, j:Int, k:Int, x:Int, y:Int;
-         val m:Int, n:Int, q:Int;
+	     var i:Int;
+	     var j:Int;
+	     var k:Int;
+	     var x:Int;
+	     var y:Int;
+         val m:Int;
+         val n:Int;
+         val q:Int;
 
          x=1;
 		 finish async { use(x); x=4; use(x); }
@@ -885,8 +892,14 @@ class TestAsync {
 	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new RuntimeException("ERROR! loc="+loc+" expected="+expected+" a="+a); }
 	
 	public static def main2(Array[String]) {
-	     var i:Int, j:Int, k:Int, x:Int, y:Int;
-         val m:Int, n:Int, q:Int;
+	     var i:Int;
+	     var j:Int;
+	     var k:Int;
+	     var x:Int;
+	     var y:Int;
+         val m:Int;
+         val n:Int;
+         val q:Int;
 
          x=1;
 		 finish async { use2(101,1,x); x=4; use2(102,4,x); }
@@ -1095,7 +1108,8 @@ class TestAnonymousClass {
 
 
 class C57 {
- var m: Int{self!=0}, n:Int{self!=0};
+ var m: Int{self!=0};
+ var n: Int{self!=0};
  @NonEscaping private final def ctorLike() {
   n = m; 
  }
@@ -3787,25 +3801,27 @@ class TestComparableAndArithmetic {
   def add[T](x:T,y:T) { T <: Arithmetic[T] } = x+y;
   def test() {
 	  {
-		  var x:Int=2, y:Int=3;
+		  var x:Int=2;
+		  var y:Int=3;
 		  use(compare(x,y));
 		  use(compare(x,x));
 		  use(compare(y,y));
-		  use(add(x,y)); // ShouldNotBeERR
-		  use(add(x,x)); // ShouldNotBeERR
-		  use(add(y,y)); // ShouldNotBeERR
+		  use(add(x,y));
+		  use(add(x,x));
+		  use(add(y,y));
 	  }
 	  {
-		  var x:Double=2.0, y:Double=3.0;
+		  var x:Double=2.0;
+		  var y:Double=3.0;
 		  use(compare(x,y));
 		  use(compare(x,x));
 		  use(compare(y,y));
-		  use(add(x,y)); // ShouldNotBeERR
-		  use(add(x,x)); // ShouldNotBeERR
-		  use(add(y,y)); // ShouldNotBeERR
+		  use(add(x,y));
+		  use(add(x,x));
+		  use(add(y,y));
 	  }
   }
-  def use(i:Int) {}
+  def use[T](i:T) {}
 }
 
 interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation 

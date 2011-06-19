@@ -919,6 +919,8 @@ public interface TypeSystem {
      */
     X10ClassType FailedDynamicCheckException();
 
+    X10ClassType IndexedMemoryChunk();
+
     // types used in WS codegen
     X10ClassType Frame();
     X10ClassType FinishFrame();
@@ -935,7 +937,9 @@ public interface TypeSystem {
     
     // annotation types used in codegen
     X10ClassType StackAllocate();
+    X10ClassType Inline();
     X10ClassType InlineOnly();
+    X10ClassType NoInline();
     X10ClassType Ephemeral();
     X10ClassType Header();
     X10ClassType Uninitialized();
@@ -949,6 +953,8 @@ public interface TypeSystem {
 
     X10ClassType NativeType();
     X10ClassType NativeRep();
+    X10ClassType NativeClass();
+    X10ClassType CompileTimeConstant();
 
     XLit FALSE();
 

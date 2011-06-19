@@ -18,15 +18,22 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class FloatType extends RuntimeType<Float> implements X10JavaSerializable{
+public class FloatType extends RuntimeType<x10.core.Float> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(FloatType.class.getName());
 
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.FLOAT;
+    }
+
     public FloatType() {
-        super(Float.class,
+        super(x10.core.Float.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                  new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }
@@ -39,7 +46,7 @@ public class FloatType extends RuntimeType<Float> implements X10JavaSerializable
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Float;
+        return o instanceof x10.core.Float;
     }
 
     @Override
@@ -57,20 +64,13 @@ public class FloatType extends RuntimeType<Float> implements X10JavaSerializable
     }
     
     @Override
-    public Float getArray(Object array, int i) {
-        return ((float[]) array)[i];
+    public x10.core.Float getArray(Object array, int i) {
+        return x10.core.Float.$box(((float[]) array)[i]);
     }
     
-//    @Override
-//    public Float setArray(Object array, int i, Float v) {
-//        // avoid boxing again
-////        return ((float[]) array)[i] = v;
-//        ((float[]) array)[i] = v;
-//        return v;
-//    }
     @Override
-    public void setArray(Object array, int i, Float v) {
-        ((float[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Float v) {
+        ((float[]) array)[i] = x10.core.Float.$unbox(v);
     }
     
     @Override

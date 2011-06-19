@@ -31,6 +31,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
+import polyglot.ast.VarDecl;
 import polyglot.frontend.Job;
 import polyglot.types.Name;
 import polyglot.types.QName;
@@ -92,9 +93,14 @@ public class ConstantPropagator extends ContextVisitor {
         
         if (n instanceof LocalDecl) {
             LocalDecl d = (LocalDecl) n;
-            if (d.flags().flags().isFinal() && d.init() != null && isConstant(d.init())) {
-                d.localDef().setConstantValue(constantValue(d.init()));
-                return nf.Empty(d.position());
+            if (d.flags().flags().isFinal()) {
+                Expr init = d.init();
+                if (init != null && init.isConstant()) {
+                    d.localDef().setConstantValue(constantValue(init));
+                    if (isConstant(init)) {
+                        return nf.Empty(d.position());
+                    }
+                }
             }
         }
 
@@ -134,14 +140,11 @@ public class ConstantPropagator extends ContextVisitor {
             If c = (If) n;
             Expr cond = c.cond();
             if (isConstant(cond)) {
-                Object o = constantValue(cond);
-                if (o instanceof Boolean) {
-                    boolean b = (boolean) (Boolean) o;
-                    if (b)
-                        return c.consequent();
-                    else
-                        return c.alternative() != null ? c.alternative() : nf.Empty(pos);
-                }
+                boolean b = ((BooleanValue) constantValue(cond)).value();
+                if (b)
+                    return c.consequent();
+                else
+                    return c.alternative() != null ? c.alternative() : nf.Empty(pos);
             }
         }
 
@@ -202,20 +205,21 @@ public class ConstantPropagator extends ContextVisitor {
         return null;
     }
 
-    public static boolean isConstant(Expr e) {
-        
-        if (isNative(e))
-            return false;
+    private static boolean isConstant(Expr e) {
         
         Type type = e.type();
         if (null == type) // TODO: this should never happen, determine if and why it does
             return false;
         
-        if (type.typeSystem().isSubtype(type, type.typeSystem().String()))
-            return false; // Strings have reference semantics
-        
+        TypeSystem ts = type.typeSystem();
+        if (isNative(e, ts))
+            return false;
+
         if (type.isNull())
             return true;
+        
+        if (type.isReference())
+            return false; // Non-null exprs with reference type are not constants for the purpose of constant propagation
         
         if (e.isConstant())
             return true;
@@ -224,7 +228,7 @@ public class ConstantPropagator extends ContextVisitor {
             Field f = (Field) e;
             if (f.target() instanceof Expr) {
                 Expr target = (Expr) f.target();
-                if (isNative(target))
+                if (isNative(target, ts))
                     return false;
                 Type t = target.type();
                 CConstraint c = Types.xclause(t);
@@ -264,17 +268,16 @@ public class ConstantPropagator extends ContextVisitor {
         return s instanceof Return || s instanceof Throw || s instanceof Branch;
     }
 
-    private static final QName NATIVE_ANNOTATION = QName.make("x10.compiler.Native");
     /**
      * Determine if a node is annotated "@Native".
      * 
      * @param node a node which may appear constant but be native instead
      * @return true, if node has an "@Native" annotation; false, otherwise
      */
-    private static boolean isNative(Node node) {
-        return    null != node.ext() 
+    private static boolean isNative(Node node, TypeSystem ts) {
+        return null != node.ext() 
                && node.ext() instanceof X10Ext 
-               && !((X10Ext) node.ext()).annotationNamed(NATIVE_ANNOTATION).isEmpty();
+               && !((X10Ext) node.ext()).annotationMatching(ts.NativeType()).isEmpty();
     }
 
 }

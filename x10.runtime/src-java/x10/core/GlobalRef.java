@@ -115,9 +115,9 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     }
 
     private static AtomicLong lastId = new AtomicLong(0L);
-    private static ConcurrentHashMap<Long, Object> id2Object = new ConcurrentHashMap<Long, Object>();
-    private static ConcurrentHashMap<GlobalRefEntry, Long> object2Id = new ConcurrentHashMap<GlobalRefEntry, Long>();
-    private static WeakHashMap<GlobalRefEntry, Long> mortal2Id = new WeakHashMap<GlobalRefEntry, Long>();
+    private static ConcurrentHashMap<java.lang.Long, Object> id2Object = new ConcurrentHashMap<java.lang.Long, Object>();
+    private static ConcurrentHashMap<GlobalRefEntry, java.lang.Long> object2Id = new ConcurrentHashMap<GlobalRefEntry, java.lang.Long>();
+    private static WeakHashMap<GlobalRefEntry, java.lang.Long> mortal2Id = new WeakHashMap<GlobalRefEntry, java.lang.Long>();
 
     private x10.rtt.Type<?> T;
     public x10.lang.Place home;
@@ -177,7 +177,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
         t = encodeNull(t);
 
-        Long tmpId = lastId.incrementAndGet();
+        java.lang.Long tmpId = lastId.incrementAndGet();
 
         if (t instanceof Mortal) {
             WeakGlobalRefEntry weakEntry = new WeakGlobalRefEntry(tmpId, t,
@@ -185,7 +185,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
             id2Object.put(tmpId, weakEntry);
             synchronized (referenceQueue) {
                 GlobalRefEntry entry = wrapObject(t);
-                Long existingId = mortal2Id.get(entry);
+                java.lang.Long existingId = mortal2Id.get(entry);
                 if (existingId != null) {
                     this.id = existingId;
                     mortal2Id.remove(tmpId);
@@ -198,7 +198,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         } else {
             id2Object.put(tmpId, t);//set id first.
 
-            Long existingId = object2Id.putIfAbsent(wrapObject(t), tmpId);//set object second.
+            java.lang.Long existingId = object2Id.putIfAbsent(wrapObject(t), tmpId);//set object second.
             if (existingId != null) {
                 this.id = existingId;
                 id2Object.remove(tmpId);

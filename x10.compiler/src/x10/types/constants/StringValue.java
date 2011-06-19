@@ -32,16 +32,24 @@ public class StringValue extends ConstantValue {
     public String value() {
         return val;
     }
-    
+
+    @Override
     public String toJavaObject() {
         return val;
     }
-    
+
+    @Override
     public StringLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(val, ts.String()));
+        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
         return (StringLit)nf.StringLit(pos, val).type(type);
     }
 
+    @Override
+    public Type getLitType(TypeSystem ts) {
+        return ts.String();
+    }
+
+    @Override
     public StringLit toUntypedLit(NodeFactory nf, Position pos) {
         return (StringLit)nf.StringLit(pos, val);
     }

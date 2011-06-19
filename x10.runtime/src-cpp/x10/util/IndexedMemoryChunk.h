@@ -1,3 +1,15 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2010.
+ *  (C) Copyright Australian National University 2011.
+ */
+
 #ifndef __X10_UTIL_INDEXEDMEMORYCHUNK_H
 #define __X10_UTIL_INDEXEDMEMORYCHUNK_H
 
@@ -393,7 +405,6 @@ x10::util::RemoteIndexedMemoryChunk<T> x10::util::IndexedMemoryChunk<T>::getCong
 {
     return RemoteIndexedMemoryChunk<T>(raw(), length(), p);
 }
-    
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,
                                                                     x10aux::serialization_buffer& buf) {
@@ -419,6 +430,70 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10au
 
         for (int i=0; i<len; i++) {
             __set(i, buf.read<T>());
+        }
+    }
+}
+
+#define PRIMITIVE_COPY_SERIALIZATION(TYPE) \
+template<> inline void x10::util::IndexedMemoryChunk<TYPE>::_serialize(x10::util::IndexedMemoryChunk<TYPE> this_, \
+                                                                    x10aux::serialization_buffer& buf) {\
+    buf.write((this_->len));\
+    buf.copyIn(buf, this_->raw(), this_->len, sizeof(TYPE));\
+}\
+template<> inline void x10::util::IndexedMemoryChunk<TYPE>::_deserialize_body(x10aux::deserialization_buffer& buf) {\
+    len = buf.read<x10_int>();\
+    if (0 == len) {\
+        data = 0;\
+    } else {\
+        size_t alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;\
+        size_t size = alignment + len*sizeof(TYPE);\
+        TYPE* allocMem = x10aux::alloc<TYPE>(size, false);\
+        size_t alignDelta = alignment-1;\
+        size_t alignMask = ~alignDelta;\
+        size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;\
+        data = (x10_ulong)alignedMem;\
+        buf.copyOut(buf, raw(), (x10_long)len, sizeof(TYPE));\
+    }\
+}
+namespace x10 {
+    namespace lang {
+        class Complex;
+    }
+    namespace util {
+        PRIMITIVE_COPY_SERIALIZATION(x10_boolean)
+        PRIMITIVE_COPY_SERIALIZATION(x10_byte)
+        PRIMITIVE_COPY_SERIALIZATION(x10_ubyte)
+        PRIMITIVE_COPY_SERIALIZATION(x10_char)
+        PRIMITIVE_COPY_SERIALIZATION(x10_short)
+        PRIMITIVE_COPY_SERIALIZATION(x10_ushort)
+        PRIMITIVE_COPY_SERIALIZATION(x10_int)
+        PRIMITIVE_COPY_SERIALIZATION(x10_uint)
+        PRIMITIVE_COPY_SERIALIZATION(x10_long)
+        PRIMITIVE_COPY_SERIALIZATION(x10_ulong)
+        PRIMITIVE_COPY_SERIALIZATION(x10_float)
+        PRIMITIVE_COPY_SERIALIZATION(x10_double)
+
+        template<> inline void x10::util::IndexedMemoryChunk<x10::lang::Complex>::_serialize(x10::util::IndexedMemoryChunk<x10::lang::Complex> this_, x10aux::serialization_buffer& buf) {
+            buf.write((this_->len));
+            // Complex is serialized as two doubles
+            buf.copyIn(buf, this_->raw(), this_->len*2, sizeof(x10_double));
+        }
+
+        template<> inline void x10::util::IndexedMemoryChunk<x10::lang::Complex>::_deserialize_body(x10aux::deserialization_buffer& buf) {
+            len = buf.read<x10_int>();
+            if (0 == len) {
+                data = 0;
+            } else {
+                size_t alignment = X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT;
+                // Complex is serialized as two doubles
+                size_t size = alignment + len*2*sizeof(x10_double);
+                x10::lang::Complex* allocMem = x10aux::alloc<x10::lang::Complex>(size, false);
+                size_t alignDelta = alignment-1;
+                size_t alignMask = ~alignDelta;
+                size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
+                data = (x10_ulong)alignedMem;
+                buf.copyOut(buf, raw(), (x10_long)(len*2), sizeof(x10_double));
+            }
         }
     }
 }

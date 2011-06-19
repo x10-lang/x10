@@ -1220,9 +1220,97 @@ public class X10Lexer extends Object implements RuleAction
             }
     
             //
-            // Rule 435:  IntLiteralAndRange ::= Integer . .
+            // Rule 435:  Token ::= < >
             //
             case 435: { 
+                makeToken(X10Parsersym.TK_DIAMOND);
+                  break;
+            }
+    
+            //
+            // Rule 436:  Token ::= > <
+            //
+            case 436: { 
+                makeToken(X10Parsersym.TK_BOWTIE);
+                  break;
+            }
+    
+            //
+            // Rule 437:  Token ::= . . =
+            //
+            case 437: { 
+                makeToken(X10Parsersym.TK_RANGE_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 438:  Token ::= - > =
+            //
+            case 438: { 
+                makeToken(X10Parsersym.TK_ARROW_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 439:  Token ::= * * =
+            //
+            case 439: { 
+                makeToken(X10Parsersym.TK_STARSTAR_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 440:  Token ::= ~ =
+            //
+            case 440: { 
+                makeToken(X10Parsersym.TK_TWIDDLE_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 441:  Token ::= < - =
+            //
+            case 441: { 
+                makeToken(X10Parsersym.TK_LARROW_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 442:  Token ::= - < =
+            //
+            case 442: { 
+                makeToken(X10Parsersym.TK_FUNNEL_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 443:  Token ::= > - =
+            //
+            case 443: { 
+                makeToken(X10Parsersym.TK_LFUNNEL_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 444:  Token ::= < > =
+            //
+            case 444: { 
+                makeToken(X10Parsersym.TK_DIAMOND_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 445:  Token ::= > < =
+            //
+            case 445: { 
+                makeToken(X10Parsersym.TK_BOWTIE_EQUAL);
+                  break;
+            }
+    
+            //
+            // Rule 446:  IntLiteralAndRange ::= Integer . .
+            //
+            case 446: { 
                  makeToken(getRhsFirstTokenIndex(1), getRhsLastTokenIndex(1), X10Parsersym.TK_IntegerLiteral);
                  makeToken(getToken(2), getToken(3), X10Parsersym.TK_RANGE);
                    break;

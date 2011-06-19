@@ -358,6 +358,13 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return (X10ClassDecl) ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), superClass, interfaces, body, tci);
 	}
 
+	public X10Call X10ConversionCall(Position pos, Receiver target, Id name, TypeNode conversionType, List<TypeNode> typeArguments, List<Expr> args) {
+		X10Call n = new X10ConversionCall_c(pos, target, name, conversionType, typeArguments, args);
+		n = (X10Call) n.ext(extFactory().extExpr());
+		n = (X10Call) n.del(delFactory().delExpr());
+		return n;
+	}
+	
 	public X10Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArguments, List<Expr> args) {
 		X10Call n = new X10Call_c(pos, target, name, typeArguments, args);
 		n = (X10Call) n.ext(extFactory().extExpr());

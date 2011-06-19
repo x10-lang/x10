@@ -53,7 +53,7 @@ public class CLit extends XLit implements Typed {
 
     @Override
     public String toString() {
-        if (type.isUnsignedNumeric()) {
+        if (type != null && type.isUnsignedNumeric()) {
             return new IntLit_c(Position.COMPILER_GENERATED, getIntLitKind(type), ((Number) val).longValue()).toString();
         }
         return super.toString();

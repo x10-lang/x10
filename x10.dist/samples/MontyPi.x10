@@ -29,7 +29,8 @@ public class MontyPi {
             val r = new Random();
             var result:double=0.0D;
             for(c in 1..N) {
-                val x = r.nextDouble(), y=r.nextDouble();
+                val x = r.nextDouble();
+                val y = r.nextDouble();
                 if (x*x +y*y <= 1.0) result++;
             }
             result

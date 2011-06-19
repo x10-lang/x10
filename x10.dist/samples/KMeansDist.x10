@@ -14,7 +14,10 @@ import x10.util.Random;
 
 public class KMeansDist {
 
-    static val DIM=2, CLUSTERS=4, POINTS=2000, ITERATIONS=50;
+    static val DIM=2;
+    static val CLUSTERS=4;
+    static val POINTS=2000;
+    static val ITERATIONS=50;
 
     static val points_region = 0..(POINTS-1)*0..(DIM-1);
 

@@ -75,7 +75,6 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.optimizations.inlining.InliningTypeTransformer;
 import x10.types.ConstrainedType;
 import x10.types.MethodInstance;
 import x10.types.TypeParamSubst;
@@ -85,6 +84,7 @@ import x10.types.constants.IntegralValue;
 import x10.types.constraints.CConstraint;
 import x10.visit.Desugarer;
 import x10.visit.NodeTransformingVisitor;
+import x10.visit.Reinstantiator;
 import x10.visit.TypeTransformer;
 
 /**
@@ -718,8 +718,8 @@ public class LoopUnroller extends ContextVisitor {
             } else {
                 subbedBody= (Stmt) subbedBody.copy();
             }
-            InliningTypeTransformer transformer= new InliningTypeTransformer(TypeParamSubst.IDENTITY);
-            ContextVisitor visitor= new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
+            Reinstantiator reinstantiator= new Reinstantiator(TypeParamSubst.IDENTITY);
+            ContextVisitor visitor= new NodeTransformingVisitor(job, ts, nf, reinstantiator).context(context());
             subbedBody= (Stmt) subbedBody.visit(visitor); // reinstantiate locals in the body
             newLoopBodyStmts.add(subbedBody);
         }

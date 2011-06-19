@@ -27,7 +27,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "float", null, "x10.rtt.Types.FLOAT")
 @NativeRep("c++", "x10_float", "x10_float", null)
-public struct Float implements Comparable[Float] /*TODO implements Arithmetic[Float], Ordered[Float]*/ {
+public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Float] {
 
     /**
      * A less-than operator.

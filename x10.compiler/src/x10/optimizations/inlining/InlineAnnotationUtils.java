@@ -37,15 +37,6 @@ public class InlineAnnotationUtils extends AnnotationUtils {
     Type NativeClassType;
     Type ConstantType;
 
-    /**
-     * Names of the annotation types that pertain to inlining.
-     */
-    private static final QName CONSTANT_ANNOTATION     = QName.make("x10.compiler.CompileTimeConstant");
-    private static final QName INLINE_ANNOTATION       = QName.make("x10.compiler.Inline");
-    private static final QName INLINE_ONLY_ANNOTATION  = QName.make("x10.compiler.InlineOnly");
-    private static final QName NO_INLINE_ANNOTATION    = QName.make("x10.compiler.NoInline");
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
-
     private Job job;
 
     /**
@@ -55,18 +46,13 @@ public class InlineAnnotationUtils extends AnnotationUtils {
     InlineAnnotationUtils(Job job) throws InternalCompilerError {
         this.job = job;
         TypeSystem ts = job.extensionInfo().typeSystem(); 
-        try {
-            ConstantType = ts.systemResolver().findOne(CONSTANT_ANNOTATION);
-            InlineType = ts.systemResolver().findOne(INLINE_ANNOTATION);
-            InlineOnlyType = ts.systemResolver().findOne(INLINE_ONLY_ANNOTATION);
-            NoInlineType = ts.systemResolver().findOne(NO_INLINE_ANNOTATION);
-            NativeType = ts.NativeType();
-            NativeRepType = ts.NativeRep();
-            NativeClassType = ts.systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
-        } catch (SemanticException e) {
-            InternalCompilerError ice = new InternalCompilerError("Unable to find required Annotation Type", e);
-            throw ice; // annotation types are required!
-        }
+        ConstantType = ts.CompileTimeConstant();
+        InlineType = ts.Inline();
+        InlineOnlyType = ts.InlineOnly();
+        NoInlineType = ts.NoInline();
+        NativeType = ts.NativeType();
+        NativeRepType = ts.NativeRep();
+        NativeClassType = ts.NativeClass();
     }
 
     /**
@@ -82,7 +68,7 @@ public class InlineAnnotationUtils extends AnnotationUtils {
      * @return
      */
     boolean inliningProhibited(Node node) {
-        return hasAnnotation(node, NoInlineType);
+        return hasAnnotation(node, NoInlineType) || hasNativeAnnotations(node, job);
     }
 
     /**

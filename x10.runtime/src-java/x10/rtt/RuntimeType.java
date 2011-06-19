@@ -21,7 +21,7 @@ import x10.x10rt.X10JavaSerializer;
 
 public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RuntimeType.class.getName());
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
@@ -68,17 +68,26 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return typeName();
     }
     
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) o;
-            if (impl.equals(rt.impl)) {
-                return true;
+            if (!impl.equals(rt.impl)) {
+                return false;
             }
+            // N.B. for given impl, we assume variances and parents are unique.
+            // Therefore we don't need to compare them.
+            return true;
         }
         return false;
     }
     
+    @Override
+    public int hashCode() {
+        return impl.hashCode();
+    }
+
     public boolean isSubtype(Type<?> o) {
         if (this == o) return true;
         if (o == Types.ANY) return true;

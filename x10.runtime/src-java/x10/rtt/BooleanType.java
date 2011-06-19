@@ -23,6 +23,11 @@ public class BooleanType extends RuntimeType<Boolean> implements X10JavaSerializ
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(BooleanType.class.getName());
 
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.BOOLEAN;
+    }
+
     public BooleanType() {
         super(Boolean.class,
               new Type[] {

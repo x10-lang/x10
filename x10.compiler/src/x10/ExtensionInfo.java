@@ -491,6 +491,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        private Goal addPreOptimizationGoals(Job job, List<Goal> goals) {
            final Goal typeCheckBarrierGoal = TypeCheckBarrier();
+           goals.add(MoveFieldInitializers(job)); // should do this before desugaring
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
            desugarerGoal.addPrereq(typeCheckBarrierGoal);
@@ -526,7 +527,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                }
            }
 
-           goals.add(MoveFieldInitializers(job));
            goals.add(X10Expanded(job));
            goals.add(X10RewriteAtomicMethods(job));
 

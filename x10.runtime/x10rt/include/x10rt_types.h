@@ -166,11 +166,51 @@ typedef enum {
  * Structure to hold a remote update operation
  */
 typedef struct {
-    unsigned int       dest;            /* Destination place            */
-    unsigned int       op;              /* Atomic operation type       */
-    unsigned long long dest_buf;        /* buffer on destination place */
-    unsigned long long value;  		    /* operand value for operation */
+    /** Destination place           */
+    unsigned int       dest;
+    /** Atomic operation type       */
+    unsigned int       op;
+    /** buffer on destination place */
+    unsigned long long dest_buf;
+    /** operand value for operation */
+    unsigned long long value;
 } x10rt_remote_op_params;
+
+/**
+ * Structure to hold runtime statistics
+ */
+typedef struct {
+    /** Total number of client-provided bytes sent by X10RT */
+    uint64_t bytes_sent;
+    /** Total number of client-provided messages sent by X10RT */
+    uint64_t messages_sent;
+    /** Total number of client-provided bytes received by X10RT */
+    uint64_t bytes_received;
+    /** Total number of client-provided messages received by X10RT */
+    uint64_t messages_received;
+} x10rt_msg_stats;
+
+/**
+ * Structure to hold runtime statistics for various kinds of messages
+ */
+typedef struct {
+    /** Statistics related to x10rt_send_msg calls */
+    x10rt_msg_stats msg;
+
+    /** Statistics related to the preliminary byte buffer part of x10rt_send_put calls (not the actual copy) */
+    x10rt_msg_stats put;
+    /** The total number of bytes copied from this place to other places via put operations */
+    uint64_t put_copied_bytes_sent;
+    /** The total number of bytes copied to this place from other places via remote put operations */
+    uint64_t put_copied_bytes_received;
+
+    /** Statistics related to the preliminary byte buffer part of x10rt_send_get calls (not the actual copy) */
+    x10rt_msg_stats get;
+    /** The total number of bytes copied from this place to other places via remote get operations */
+    uint64_t get_copied_bytes_sent;
+    /** The total number of bytes copied to this place from other places via get operations */
+    uint64_t get_copied_bytes_received;
+} x10rt_stats;
 
 #endif
 
