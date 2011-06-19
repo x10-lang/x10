@@ -439,13 +439,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             Place dstWrapperHome = (Place) deserializer.readRef();
             int dstIndex = deserializer.readInt();
             int numElems = deserializer.readInt();
-            RemoteIndexedMemoryChunk src = new RemoteIndexedMemoryChunk(null);
-            src.id = srcId;
-            src.length = srcLength;
-            src.type = srcType;
-            RemoteIndexedMemoryChunk dst = new RemoteIndexedMemoryChunk(null);
-            dst.id = dstWrapperId;
-            dst.home = dstWrapperHome;
             closure$1.srcId = srcId;
         	closure$1.srcLength = srcLength;
         	closure$1.srcType = srcType;
@@ -454,7 +447,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         	closure$1.dstWrapperHome = dstWrapperHome;
         	closure$1.dstIndex = dstIndex;
         	closure$1.numElems = numElems;
-            deserializer.record_reference(closure$1);
             return (X10JavaSerializable) closure$1;
         }
 
