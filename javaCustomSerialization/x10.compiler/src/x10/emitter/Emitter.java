@@ -3270,7 +3270,7 @@ public class Emitter {
 
         //_deserialize_body method
         w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
-        w.writeln(Emitter.mangleToJava(def.name()) + " obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
 
@@ -3292,14 +3292,14 @@ public class Emitter {
             params = params + mangleParameterType(at) + ", ";
         }
 
-        w.write("obj = (");
+        w.write("_obj = (");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(") ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(".");
         w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
         w.writeln("(" + params + fieldName + ");");
-        w.writeln("return obj;");
+        w.writeln("return _obj;");
         w.end();
         w.newline();
         w.writeln("}");
@@ -3309,7 +3309,7 @@ public class Emitter {
         w.writeln("public static x10.x10rt.X10JavaSerializable _deserializer( x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
-        w.write(Emitter.mangleToJava(def.name()) + " obj = new " + Emitter.mangleToJava(def.name()) + "(");
+        w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(");
         if (X10PrettyPrinterVisitor.supportConstructorSplitting
                 && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
                 && !def.flags().isInterface()) {
@@ -3320,8 +3320,8 @@ public class Emitter {
             }
             w.writeln(" (x10.io.SerialData) null);");
         }
-        w.writeln("deserializer.record_reference(obj);");
-        w.writeln("return _deserialize_body(obj, deserializer);");
+        w.writeln("deserializer.record_reference(_obj);");
+        w.writeln("return _deserialize_body(_obj, deserializer);");
         w.end();
         w.newline();
         w.writeln("}");
@@ -3398,7 +3398,7 @@ public class Emitter {
                     w.writeln("}");
                 }
                 printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                w.writeln("._deserialize_body(obj, deserializer);");
+                w.writeln("._deserialize_body(_obj, deserializer);");
             }
         }
     }
