@@ -215,7 +215,7 @@ public class Types {
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-    	return isNumericType(rtt) || rtt.isSubtype(STRUCT);
+    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isSubtype(STRUCT);
     }
 
     
@@ -488,7 +488,7 @@ public class Types {
                     params[i] = zeroValue(paramTypes[i]);
                 }
                 */
-                assert typeParams == null ? paramTypes.length == 1 : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.String[])null*/;
+                assert typeParams == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
                 int i = 0;
                 if (typeParams != null) {
                     for ( ; i < typeParams.length; ++i) {
