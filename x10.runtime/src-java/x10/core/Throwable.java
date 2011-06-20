@@ -86,11 +86,30 @@ public class Throwable extends java.lang.RuntimeException {
 		return super.getMessage();
 	}
 
+    public final x10.array.Array<java.lang.String> $getStackTrace() {
+        StackTraceElement[] elements = getStackTrace();
+        java.lang.String str[] = new java.lang.String[elements.length];
+        for (int i=0 ; i<elements.length ; ++i) {
+            str[i] = elements[i].toString();
+        }
+        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+    }
+
     // XTENLANG-2680
-	public void printStackTrace(x10.io.Printer p) {
-	    // See @Native annotation in Throwable.x10
-		x10.core.ThrowableUtilities.printStackTrace(this, p);
-	}
+//	public void printStackTrace(x10.io.Printer p) {
+//	    // See @Native annotation in Throwable.x10
+//		x10.core.ThrowableUtilities.printStackTrace(this, p);
+//	}
+    public void printStackTrace(x10.io.Printer p) {
+        x10.core.io.OutputStream os = p.getNativeOutputStream();
+        java.io.PrintStream ps = null;
+        if (os.stream instanceof java.io.PrintStream) {
+            ps = (java.io.PrintStream) os.stream;
+        } else {
+            ps = new java.io.PrintStream(os.stream);
+        }
+        printStackTrace(ps);
+    }
 
     /* XTENLANG-2686: RTT is not necessary any more since this class is not mapped to x10.lang.Throwable
     public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
