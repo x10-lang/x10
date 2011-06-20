@@ -608,6 +608,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         } else if ((str = needsCasting(f.type())) != null) {
                             // Want these to be readInteger and so on.....
                             w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str + "();");
+                        } else if(f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
+                            // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
+                            w.write("Object[] " + Emitter.mangleToJava(f.name()) + " = (Object[]) deserializer.readRef();");
+                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         } else {
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
