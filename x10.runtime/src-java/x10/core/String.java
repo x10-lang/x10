@@ -20,7 +20,7 @@ final public class String extends x10.core.Ref implements
 
     private static final long serialVersionUID = 1L;
 
-    public static final x10.rtt.RuntimeType<java.lang.String> $RTT = Types.STRING;
+    public static final x10.rtt.RuntimeType<String> $RTT = Types.STRING;
     
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}

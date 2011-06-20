@@ -14,7 +14,7 @@ package x10.rtt;
 import x10.core.fun.Fun_0_1;
 
 
-public class StringType extends RuntimeType<String> {
+public class StringType extends RuntimeType<x10.core.String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,12 +24,19 @@ public class StringType extends RuntimeType<String> {
     }
 
     public StringType() {
-        super(String.class,
+        super(x10.core.String.class,
             new Type[] {
                 new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
             }
         );
+    }
+    
+    @Override
+    public boolean instanceof$(Object obj) {
+        // rules for String boxing currently are not straightforward,
+        // so we accept both unboxed (java.lang) and boxed (x10.core) objects.
+        return obj instanceof java.lang.String || obj instanceof x10.core.String;
     }
     
     @Override
