@@ -60,6 +60,7 @@ public class Types {
     public static String typeName(char value) {
     	return CHAR.typeName();
     }
+    // N.B. typeName({byte,short,int,long}) are for signed types.
     public static String typeName(byte value) {
     	return BYTE.typeName();
     }
@@ -81,6 +82,7 @@ public class Types {
 
     
     // Fast implementation of Any.hashCode() without boxing
+    // N.B. hashCode for unsigned types are same as those for signed types
     public static int hashCode(Object value) {
         return value.hashCode();
     }
