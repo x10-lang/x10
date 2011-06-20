@@ -12,7 +12,6 @@
 package x10.array;
 
 import x10.io.*;
-import x10.compiler.TempNoInline_0;
 
 
 /**
@@ -291,7 +290,7 @@ final class PolyScanner(rank:Int)/*(C:PolyMat)*/ {
      *   2. hide inside iterator(body:(Point)=>void)?
      */
 
-    public @TempNoInline_0 def iterator():Iterator[Point(rank)] = new Iterator[Point(rank)]() {
+    public def iterator():Iterator[Point(rank)] = new Iterator[Point(rank)]() {
     	val it = new RailIt();
         public final def hasNext() = it.hasNext();
         public final def next(): Point(rank) = it.next(); 
