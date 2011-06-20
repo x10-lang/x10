@@ -2663,13 +2663,7 @@ public class Emitter {
 	            }
 	        } else {
 
-	            //when the type of e has parameters, cast to actual boxed primitive. 
-	            if (!isNoArgumentType(e) || expected instanceof ConstrainedType) {
-	                // FIXME: casting after boxing should not be necessary
-	                expander = expander.boxTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	                expander.expand(tr);
-	            }
-	            else if (isBoxedType(expectedBase)) {
+	            if (isBoxedType(expectedBase)) {
 	                // when expected type is T or Any, include an explicit boxing transformation
 	                expander = expander.boxTo(actual).castTo(expectedBase);
 	                expander.expand(tr);
