@@ -191,7 +191,7 @@ public class Types {
     public static final Object UINT_ZERO = x10.core.UInt.$box(0);
     public static final Object ULONG_ZERO = x10.core.ULong.$box((long)0);
 
-    public static final RuntimeType<x10.core.String> STRING = new StringType();
+    public static final RuntimeType<String> STRING = new StringType();
 
     // N.B. we cannot determine the type from auto-boxed java primitive now. 
 //    @Deprecated

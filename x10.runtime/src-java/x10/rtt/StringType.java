@@ -14,7 +14,7 @@ package x10.rtt;
 import x10.core.fun.Fun_0_1;
 
 
-public class StringType extends RuntimeType<x10.core.String> {
+public class StringType extends RuntimeType<String> {
 
     private static final long serialVersionUID = 1L;
 
@@ -24,7 +24,7 @@ public class StringType extends RuntimeType<x10.core.String> {
     }
 
     public StringType() {
-        super(x10.core.String.class,
+        super(String.class,
             new Type[] {
                 new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
                 new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
