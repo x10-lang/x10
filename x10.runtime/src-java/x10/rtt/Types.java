@@ -22,8 +22,8 @@ public class Types {
 		RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
         	rtt = ((Any) obj).$getRTT();
-        } else if (Types.getNativeRepRTT(obj) != null) {
-        	rtt = Types.getNativeRepRTT(obj);
+//        } else if (Types.getNativeRepRTT(obj) != null) {
+//        	rtt = Types.getNativeRepRTT(obj);
         } else if (obj != null) {
             // Note: for java classes that don't have RTTs
         	// TODO add the superclass and all interfaces to parents
@@ -192,19 +192,19 @@ public class Types {
     public static final RuntimeType<String> STRING = new StringType();
 
     // N.B. we cannot determine the type from auto-boxed java primitive now. 
-    @Deprecated
-    public static RuntimeType<?> getNativeRepRTT(Object o) {
-        if (o instanceof Byte) return BYTE;
-        if (o instanceof Short) return SHORT;
-        if (o instanceof Integer) return INT;
-        if (o instanceof Long) return LONG;
-        if (o instanceof Float) return FLOAT;
-        if (o instanceof Double) return DOUBLE;
-        if (o instanceof Character) return CHAR;
-        if (o instanceof Boolean) return BOOLEAN;
-        if (o instanceof String) return STRING;
-        return null;
-    }
+//    @Deprecated
+//    public static RuntimeType<?> getNativeRepRTT(Object o) {
+//        if (o instanceof Byte) return BYTE;
+//        if (o instanceof Short) return SHORT;
+//        if (o instanceof Integer) return INT;
+//        if (o instanceof Long) return LONG;
+//        if (o instanceof Float) return FLOAT;
+//        if (o instanceof Double) return DOUBLE;
+//        if (o instanceof Character) return CHAR;
+//        if (o instanceof Boolean) return BOOLEAN;
+//        if (o instanceof String) return STRING;
+//        return null;
+//    }
 
     static boolean isNumericType(Type<?> rtt) {
         if (rtt == BYTE  || rtt == SHORT  || rtt == INT  || rtt == LONG  ||
