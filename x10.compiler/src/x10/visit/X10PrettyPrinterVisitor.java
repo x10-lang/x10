@@ -571,6 +571,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 X10ClassType ct = def.asType();
                 ASTQuery query = new ASTQuery(tr);
 
+                // Prints out custom serialization/deserialization code, the imeplementation resembles closely what the C++ backend does
+
                 //_deserialize_body method
                 w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
                 w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
@@ -587,14 +589,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 List<ParameterType> parameterTypes = ct.x10Def().typeParameters();
 
-                    for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
-                        final Type at = i.next();
-                        w.write("_obj.");
-                        er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                        w.write(" = ( " + X10_RUNTIME_TYPE_CLASS + " ) ");
-                        w.writeln("deserializer.readRef();");
-                    }
+                // Deserialize any parameter types
+                for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
+                    final Type at = i.next();
+                    w.write("_obj.");
+                    er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.write(" = ( " + X10_RUNTIME_TYPE_CLASS + " ) ");
+                    w.writeln("deserializer.readRef();");
+                }
 
+                // Deserialize the public variables of this class , we do not serialize transient or static variables
                 String str;
                     for (int i = 0; i < ct.fields().size(); i++) {
                         FieldInstance f = ct.fields().get(i);
@@ -606,13 +610,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         if (f.type().isParameterType()) {
                             w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.readRef();");
                         } else if ((str = needsCasting(f.type())) != null) {
-                            // Want these to be readInteger and so on.....
+                            // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling soecial methods
                             w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str + "();");
                         } else if(f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                             // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
                             w.write("Object[] " + Emitter.mangleToJava(f.name()) + " = (Object[]) deserializer.readRef();");
                             w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         } else {
+                            // deserialize the variable and cast it back to the correct type
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
                             er.printType(f.type(), BOX_PRIMITIVES);
@@ -694,8 +699,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.writeln("}");
                 }
 
+                // Serialize the super class first
                 er.serializeSuperClass(superClassNode);
 
+                // Serialize any type parameters
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
                     w.write("serializer.write( (x10.x10rt.X10JavaSerializable) this.");
@@ -703,6 +710,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.writeln(");");
                 }
 
+                // Serialize the public variables of this class , we do not serialize transient or static variables
                 for (int i = 0; i < ct.fields().size(); i++) {
                     FieldInstance f = ct.fields().get(i);
                     if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;

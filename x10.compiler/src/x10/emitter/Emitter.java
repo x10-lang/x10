@@ -3375,6 +3375,7 @@ public class Emitter {
         w.newline();
 	}
 
+    // Emits the code to serialize the super class
     public void serializeSuperClass(TypeNode superClassNode) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether need to serialize super class
@@ -3394,6 +3395,7 @@ public class Emitter {
         }
     }
 
+    // Emits the code to deserialize the super class
     public void deserializeSuperClass(TypeNode superClassNode) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether we need to deserialize the super class
