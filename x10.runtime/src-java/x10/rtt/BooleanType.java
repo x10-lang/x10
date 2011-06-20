@@ -12,7 +12,7 @@
 package x10.rtt;
 
 
-public class BooleanType extends RuntimeType<Boolean> {
+public class BooleanType extends RuntimeType<x10.core.Boolean> {
 
     private static final long serialVersionUID = 1L;
 
@@ -22,7 +22,7 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
 
     public BooleanType() {
-        super(Boolean.class,
+        super(x10.core.Boolean.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
@@ -37,7 +37,7 @@ public class BooleanType extends RuntimeType<Boolean> {
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Boolean;
+        return o instanceof x10.core.Boolean;
     }
 
     @Override
@@ -55,20 +55,18 @@ public class BooleanType extends RuntimeType<Boolean> {
     }
     
     @Override
-    public Boolean getArray(Object array, int i) {
-        return ((boolean[]) array)[i];
+    public x10.core.Boolean getArray(Object array, int i) {
+        return x10.core.Boolean.$box(((boolean[]) array)[i]);
     }
     
 //    @Override
-//    public Boolean setArray(Object array, int i, Boolean v) {
-//        // avoid boxing again
-////        return ((boolean[]) array)[i] = v;
-//        ((boolean[]) array)[i] = v;
+//    public x10.core.Boolean setArray(Object array, int i, x10.core.Boolean v) {
+//        ((boolean[]) array)[i] = x10.core.Boolean.$unbox(v);
 //        return v;
 //    }
     @Override
-    public void setArray(Object array, int i, Boolean v) {
-        ((boolean[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Boolean v) {
+        ((boolean[]) array)[i] = x10.core.Boolean.$unbox(v);
     }
     
     @Override

@@ -166,7 +166,7 @@ public class Types {
         }
     };
 
-    public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
+    public static final RuntimeType<x10.core.Boolean> BOOLEAN = new BooleanType();
     public static final RuntimeType<x10.core.Char> CHAR = new CharType();
     public static final RuntimeType<x10.core.Byte> BYTE = new ByteType();
     public static final RuntimeType<x10.core.Short> SHORT = new ShortType();
@@ -178,7 +178,7 @@ public class Types {
     public static final RuntimeType<x10.core.UShort> USHORT = new UShortType();
     public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
     public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
-    public static final Object BOOLEAN_ZERO = Boolean.valueOf(false);
+    public static final Object BOOLEAN_ZERO = x10.core.Boolean.FALSE;
     public static final Object CHAR_ZERO = x10.core.Char.$box((char)0);
     public static final Object BYTE_ZERO = x10.core.Byte.$box(0);
     public static final Object SHORT_ZERO = x10.core.Short.$box(0);
