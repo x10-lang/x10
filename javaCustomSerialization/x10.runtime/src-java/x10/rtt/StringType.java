@@ -33,6 +33,13 @@ public class StringType extends RuntimeType<String> {
     }
     
     @Override
+    public boolean instanceof$(Object obj) {
+        // rules for String boxing currently are not straightforward,
+        // so we accept both unboxed (java.lang) and boxed (x10.core) objects.
+        return obj instanceof java.lang.String || obj instanceof x10.core.String;
+    }
+    
+    @Override
     public String typeName() {
         return "x10.lang.String";
     }

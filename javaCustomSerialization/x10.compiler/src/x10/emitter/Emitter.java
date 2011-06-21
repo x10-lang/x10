@@ -588,11 +588,11 @@ public class Emitter {
 
 	// return all X10 types that are mapped to Java primitives and require explicit boxing
 	public static boolean needExplicitBoxing(Type t) {
-	    return t.isNumeric() || t.isChar();
+	    return t.isNumeric() || t.isChar() || t.isBoolean();
 	}
 	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
 	static {
-		boxedPrimitives.put("x10.lang.Boolean", "java.lang.Boolean");
+		boxedPrimitives.put("x10.lang.Boolean", "x10.core.Boolean");
                 boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
 		boxedPrimitives.put("x10.lang.Byte", "x10.core.Byte");
 		boxedPrimitives.put("x10.lang.Short", "x10.core.Short");
@@ -1809,7 +1809,7 @@ public class Emitter {
 	    }
 	    
 	    // e.g int m() overrides or implements T m()
-	    boolean instantiateReturnType = Types.baseType(def.returnType().get()) instanceof ParameterType;
+	    boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
 	    if (boxReturnValue) {
 	        if (X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
 	            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
@@ -2668,13 +2668,7 @@ public class Emitter {
 	            }
 	        } else {
 
-	            //when the type of e has parameters, cast to actual boxed primitive. 
-	            if (!isNoArgumentType(e) || expected instanceof ConstrainedType) {
-	                // FIXME: casting after boxing should not be necessary
-	                expander = expander.boxTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	                expander.expand(tr);
-	            }
-	            else if (isBoxedType(expectedBase)) {
+	            if (isBoxedType(expectedBase)) {
 	                // when expected type is T or Any, include an explicit boxing transformation
 	                expander = expander.boxTo(actual).castTo(expectedBase);
 	                expander.expand(tr);

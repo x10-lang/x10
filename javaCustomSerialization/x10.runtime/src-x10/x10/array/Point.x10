@@ -12,9 +12,6 @@
 package x10.array;
 
 import x10.util.Ordered;
-import x10.compiler.TempNoInline_0;
-import x10.compiler.TempNoInline_2;
-import x10.compiler.TempNoInline_3;
 
 /**
  * The type <code>Point(rank)</code> represents a point in a
@@ -113,7 +110,7 @@ public final class Point(rank:Int) implements (Int) => Int,
     /**
      * Returns a <code>Point p</code> of rank <code>rank</code> with <code>p(i)=init(i)</code>.
      */
-    public @TempNoInline_0 static def make(rank:Int, init:(i:Int)=>int):Point(rank) {
+    public static def make(rank:Int, init:(i:Int)=>int):Point(rank) {
         switch(rank) {
             case 1: return new Point(init(0)) as Point(rank);
 	        case 2: return new Point(init(0), init(1)) as Point(rank);
@@ -141,7 +138,7 @@ public final class Point(rank:Int) implements (Int) => Int,
 
     /**  The point <code>-p</code> is the same as <code>p</code> with each index negated.
      */
-    public @TempNoInline_0 operator - this: Point(rank) 
+    public operator - this: Point(rank) 
        = Point.make(rank, (i:Int)=>-this(i));
 
     /**  The ith coordinate of point <code>p+q</code> is <code>p(i)+q(i)</code>.
