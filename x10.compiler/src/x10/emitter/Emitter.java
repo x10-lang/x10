@@ -1804,7 +1804,7 @@ public class Emitter {
 	    }
 	    
 	    // e.g int m() overrides or implements T m()
-	    boolean instantiateReturnType = Types.baseType(def.returnType().get()) instanceof ParameterType;
+	    boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
 	    if (boxReturnValue) {
 	        if (X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
 	            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
