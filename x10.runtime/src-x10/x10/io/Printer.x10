@@ -59,7 +59,7 @@ public class Printer extends FilterWriter {
         catch (e: IOException) {
             // should use a finally block here but until we fix XTENLANG-203 this is better
             lock.unlock();
-            throw new IORuntimeException(e.getMessage());
+            throw e;
         }
         // should use a finally block here but until we fix XTENLANG-203 this is better
         lock.unlock();

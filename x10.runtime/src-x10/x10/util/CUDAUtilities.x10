@@ -12,7 +12,6 @@
 package x10.util;
 
 import x10.compiler.Native;
-import x10.compiler.TempNoInline_0;
 
 /** A collection of functions useful in/around CUDA kernels.
  * @author Dave Cunningham
@@ -61,7 +60,7 @@ public class CUDAUtilities {
 
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: Array[T](1){rail})
         : RemoteArray[T]{self.rank==1, self.array.home==place}
-    { @TempNoInline_0
+    {
         if (place.isCUDA()) {
             return makeCUDAArray(place, numElements, init.raw());
         } else {
@@ -77,7 +76,7 @@ public class CUDAUtilities {
 
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: T)
         : RemoteArray[T]{self.rank==1, self.home==place}
-    { @TempNoInline_0
+    {
         if (place.isCUDA()) {
             val chunk = IndexedMemoryChunk.allocateUninitialized[T](numElements);
             for ([i] in 0..(numElements-1)) chunk(i) = init;
@@ -89,7 +88,7 @@ public class CUDAUtilities {
 
     public static def makeRemoteArray[T] (place:Place, numElements:Int, init: (Int)=>T)
         : RemoteArray[T]{self.rank==1, self.home==place}
-    { @TempNoInline_0
+    {
         if (place.isCUDA()) {
             val chunk = IndexedMemoryChunk.allocateUninitialized[T](numElements);
             for ([i] in 0..(numElements-1)) chunk(i) = init(i);

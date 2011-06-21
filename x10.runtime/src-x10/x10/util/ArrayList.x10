@@ -11,8 +11,6 @@
 
 package x10.util;
 
-import x10.compiler.TempNoInline_0;
-
 public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
 
     private val a: GrowableIndexedMemoryChunk[T];
@@ -238,7 +236,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         qsort(a, l+1, hi, cmp);
     }
 
-    private @TempNoInline_0 def exch(a: GrowableIndexedMemoryChunk[T], i: int, j: int): void {
+    private def exch(a: GrowableIndexedMemoryChunk[T], i: int, j: int): void {
         val temp = a(i);
         a(i) = a(j);
         a(j) = temp;

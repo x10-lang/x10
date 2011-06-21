@@ -638,7 +638,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
     @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
     public native def compareTo(x:UInt): Int; /*  = (this.intVal + Int.MIN_VALUE).compareTo(x.intVal + Int.MIN_VALUE); */
     
-    @Native("java", "\"x10.lang.UInt\"")
+    @Native("java", "x10.rtt.Types.UINT.typeName()")
     @Native("c++", "x10aux::type_name(#this)")
     public native def typeName():String; /*  = "x10.lang.UInt"; */
 }

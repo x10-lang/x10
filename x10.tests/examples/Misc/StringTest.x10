@@ -16,15 +16,15 @@ import harness.x10Test;
  */
 public class StringTest extends x10Test {
 
-	public var v: int;
-	public def this(): StringTest = {
-		v = 10;
-	}
+    public var v: int;
+    public def this(): StringTest = {
+        v = 10;
+    }
 
-	public def run(): boolean = {
-		var foo: String = "the number is "+v;
-		if (!(v == 10 && foo.equals("the number is "+"10"))) return false;
-		if (foo.charAt(2) != 'e') return false;
+    public def run(): boolean = {
+        var foo: String = "the number is "+v;
+        if (!(v == 10 && foo.equals("the number is "+"10"))) return false;
+        if (foo.charAt(2) != 'e') return false;
 
         val start = "Start Twelve  ";
         chk(start.trim().equals("Start Twelve"));
@@ -32,10 +32,18 @@ public class StringTest extends x10Test {
         chk(end.trim().equals("Total Ten."));
         val bothEnds = "  Four  ";
         chk(bothEnds.trim().equals("Four"));
-		return true;
-	}
 
-	public static def main(var args: Array[String](1)): void = {
-		new StringTest().execute();
-	}
+        val s1 = "abc";
+        chk(s1 instanceof String);
+        chk((s1 as Any) instanceof String);
+        val a1 = s1 as Any;
+        chk(a1 instanceof String);
+        chk((a1 as String) instanceof String);
+
+        return true;
+    }
+
+    public static def main(var args: Array[String](1)): void = {
+        new StringTest().execute();
+    }
 }

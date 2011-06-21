@@ -13,7 +13,8 @@ import harness.x10Test;
 
 public class KMeansSPMDTest extends x10Test {
     public def run():boolean {
-         val args = new Array[String](0);
+         val args = new Array[String](2);
+         args(0) = "-p"; args(1) = "../../x10.dist/samples/points.dat";
          KMeansSPMD.main(args);
          return true;
     }

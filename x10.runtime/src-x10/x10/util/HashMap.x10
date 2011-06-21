@@ -11,8 +11,6 @@
 
 package x10.util;
 
-import x10.compiler.TempNoInline_0;
-import x10.compiler.TempNoInline_1;
 import x10.compiler.NonEscaping;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
@@ -66,7 +64,7 @@ import x10.io.SerialData;
         init(pow2);
     }
     
-    @NonEscaping final @TempNoInline_1 def init(sz: int): void {
+    @NonEscaping final def init(sz: int): void {
         // check that sz is a power of 2
         assert (sz & -sz) == sz;
         assert sz >= MIN_SIZE;
@@ -147,7 +145,7 @@ import x10.io.SerialData;
     }
     
     public def put(k: K, v: V): Box[V] = putInternal(k,v);
-    @NonEscaping @TempNoInline_0 protected final def putInternal(k: K, v: V): Box[V] {
+    @NonEscaping protected final def putInternal(k: K, v: V): Box[V] {
         if (occupation == table.length() || (shouldRehash && occupation >= table.length() / 2))
             rehashInternal();
 
@@ -183,7 +181,7 @@ import x10.io.SerialData;
     }
     
     public def rehash():void { rehashInternal(); }
-    @TempNoInline_0 @NonEscaping protected final def rehashInternal(): void {
+    @NonEscaping protected final def rehashInternal(): void {
         modCount++;
         val t = table;
         val oldSize = size;

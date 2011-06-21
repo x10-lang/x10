@@ -770,7 +770,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 c = c - '0';
             }
 
-            if (c > radix) {
+            if (c >= radix) {
                 if (!reportedError) {
                     syntaxError("Invalid digit: '"+s.charAt(i)+"'",pos);
                     reportedError = true;

@@ -12,8 +12,6 @@
 package x10.array;
 
 import x10.compiler.Inline;
-import x10.compiler.TempNoInline_0;
-import x10.compiler.TempNoInline_3;
 
 /**
  * A Region(rank) represents a set of points of class Point(rank). The
@@ -59,7 +57,7 @@ public abstract class Region(
     /**
      * Construct an empty region of the specified rank.
      */
-    public static @TempNoInline_0 def makeEmpty(rank:int):Region(rank){self!=null,rect} = new EmptyRegion(rank);
+    public static def makeEmpty(rank:int):Region(rank){self!=null,rect} = new EmptyRegion(rank);
      
     /**
      * Construct an unbounded region of a given rank that contains all
@@ -153,7 +151,7 @@ public abstract class Region(
      * Construct a rank-n rectangular region that is the Cartesian
      * product of the specified rank-1 rectangular regions.
      */
-    public static @TempNoInline_3 def make[T](regions:Array[T](1)){T<:Region(1){self.rect}}:Region(regions.size){self.rect} {
+    public static def make[T](regions:Array[T](1)){T<:Region(1){self.rect}}:Region(regions.size){self.rect} {
         var r:Region  = regions(0);
         for (var i:int = 1; i<regions.size; i++)
             r = r.product(regions(i));
@@ -439,7 +437,7 @@ public abstract class Region(
     
     public operator this + (v: Point(rank)) = translate(v);
     public operator (v: Point(rank)) + this = translate(v);
-    public operator this - (v: Point(rank)) = @TempNoInline_0 translate(-v);
+    public operator this - (v: Point(rank)) = translate(-v);
 
 
     //

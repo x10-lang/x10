@@ -18,7 +18,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class BooleanType extends RuntimeType<Boolean> implements X10JavaSerializable{
+public class BooleanType extends RuntimeType<x10.core.Boolean> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(BooleanType.class.getName());
@@ -29,7 +29,7 @@ public class BooleanType extends RuntimeType<Boolean> implements X10JavaSerializ
     }
 
     public BooleanType() {
-        super(Boolean.class,
+        super(x10.core.Boolean.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
                   Types.STRUCT
@@ -44,7 +44,7 @@ public class BooleanType extends RuntimeType<Boolean> implements X10JavaSerializ
     // for shortcut 
     @Override
     public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Boolean;
+        return o instanceof x10.core.Boolean;
     }
 
     @Override
@@ -62,20 +62,18 @@ public class BooleanType extends RuntimeType<Boolean> implements X10JavaSerializ
     }
     
     @Override
-    public Boolean getArray(Object array, int i) {
-        return ((boolean[]) array)[i];
+    public x10.core.Boolean getArray(Object array, int i) {
+        return x10.core.Boolean.$box(((boolean[]) array)[i]);
     }
     
 //    @Override
-//    public Boolean setArray(Object array, int i, Boolean v) {
-//        // avoid boxing again
-////        return ((boolean[]) array)[i] = v;
-//        ((boolean[]) array)[i] = v;
+//    public x10.core.Boolean setArray(Object array, int i, x10.core.Boolean v) {
+//        ((boolean[]) array)[i] = x10.core.Boolean.$unbox(v);
 //        return v;
 //    }
     @Override
-    public void setArray(Object array, int i, Boolean v) {
-        ((boolean[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Boolean v) {
+        ((boolean[]) array)[i] = x10.core.Boolean.$unbox(v);
     }
     
     @Override

@@ -94,6 +94,33 @@ public class OutputStream extends Ref {
         }
     }
 
+    public static OutputStream getNativeOutputStream(x10.io.Writer w) {
+        OutputStream os = null;
+        x10.io.Writer ww = w;
+        while (true) {
+            if (ww instanceof x10.io.FilterWriter) {
+                ww = ((x10.io.FilterWriter) ww).w;
+            }
+            else if (ww instanceof x10.io.OutputStreamWriter) {
+                os = ((x10.io.OutputStreamWriter) ww).out;
+                break;
+            }
+            else if (ww instanceof x10.io.StringWriter) {
+                // TODO
+                assert false;
+                break;
+            }
+            else {
+                if (ww != null) {
+                    // TODO unknown subtype of Writer
+                    assert false;
+                }
+                break;
+            }
+        }
+        return os;
+    }
+
     //
     // Runtime type information
     //

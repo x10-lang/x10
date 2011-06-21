@@ -56,16 +56,18 @@ public class Throwable {
         val m = getMessage();
         return m == null ? typeName() : typeName() + ": " + getMessage();
     }
-   
-    @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#this)")
+
+    // @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#this)")
+    @Native("java", "#this.$getStackTrace()")
     @Native("c++", "(#this)->getStackTrace()")
     public final native def getStackTrace() : Array[String](1);
 
     @Native("java", "#this.printStackTrace()")
     @Native("c++", "(#this)->printStackTrace()")
     public native def printStackTrace() : void;
-    
-    @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#this, #p)")
+
+    // @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#this, #p)")
+    @Native("java", "#this.printStackTrace(#p)")
     @Native("c++",  "(#this)->printStackTrace(#p)")
     public native def printStackTrace(p: Printer) : void;
 

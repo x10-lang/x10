@@ -22,8 +22,8 @@ public class Types {
 		RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
         	rtt = ((Any) obj).$getRTT();
-        } else if (Types.getNativeRepRTT(obj) != null) {
-        	rtt = Types.getNativeRepRTT(obj);
+//        } else if (Types.getNativeRepRTT(obj) != null) {
+//        	rtt = Types.getNativeRepRTT(obj);
         } else if (obj != null) {
             // Note: for java classes that don't have RTTs
         	// TODO add the superclass and all interfaces to parents
@@ -60,6 +60,7 @@ public class Types {
     public static String typeName(char value) {
     	return CHAR.typeName();
     }
+    // N.B. typeName({byte,short,int,long}) are for signed types.
     public static String typeName(byte value) {
     	return BYTE.typeName();
     }
@@ -81,6 +82,7 @@ public class Types {
 
     
     // Fast implementation of Any.hashCode() without boxing
+    // N.B. hashCode for unsigned types are same as those for signed types
     public static int hashCode(Object value) {
         return value.hashCode();
     }
@@ -164,7 +166,7 @@ public class Types {
         }
     };
 
-    public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
+    public static final RuntimeType<x10.core.Boolean> BOOLEAN = new BooleanType();
     public static final RuntimeType<x10.core.Char> CHAR = new CharType();
     public static final RuntimeType<x10.core.Byte> BYTE = new ByteType();
     public static final RuntimeType<x10.core.Short> SHORT = new ShortType();
@@ -176,7 +178,7 @@ public class Types {
     public static final RuntimeType<x10.core.UShort> USHORT = new UShortType();
     public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
     public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
-    public static final Object BOOLEAN_ZERO = Boolean.valueOf(false);
+    public static final Object BOOLEAN_ZERO = x10.core.Boolean.FALSE;
     public static final Object CHAR_ZERO = x10.core.Char.$box((char)0);
     public static final Object BYTE_ZERO = x10.core.Byte.$box(0);
     public static final Object SHORT_ZERO = x10.core.Short.$box(0);
@@ -192,19 +194,19 @@ public class Types {
     public static final RuntimeType<String> STRING = new StringType();
 
     // N.B. we cannot determine the type from auto-boxed java primitive now. 
-    @Deprecated
-    public static RuntimeType<?> getNativeRepRTT(Object o) {
-        if (o instanceof Byte) return BYTE;
-        if (o instanceof Short) return SHORT;
-        if (o instanceof Integer) return INT;
-        if (o instanceof Long) return LONG;
-        if (o instanceof Float) return FLOAT;
-        if (o instanceof Double) return DOUBLE;
-        if (o instanceof Character) return CHAR;
-        if (o instanceof Boolean) return BOOLEAN;
-        if (o instanceof String) return STRING;
-        return null;
-    }
+//    @Deprecated
+//    public static RuntimeType<?> getNativeRepRTT(Object o) {
+//        if (o instanceof Byte) return BYTE;
+//        if (o instanceof Short) return SHORT;
+//        if (o instanceof Integer) return INT;
+//        if (o instanceof Long) return LONG;
+//        if (o instanceof Float) return FLOAT;
+//        if (o instanceof Double) return DOUBLE;
+//        if (o instanceof Character) return CHAR;
+//        if (o instanceof Boolean) return BOOLEAN;
+//        if (o instanceof String) return STRING;
+//        return null;
+//    }
 
     static boolean isNumericType(Type<?> rtt) {
         if (rtt == BYTE  || rtt == SHORT  || rtt == INT  || rtt == LONG  ||
@@ -215,7 +217,7 @@ public class Types {
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-    	return isNumericType(rtt) || rtt.isSubtype(STRUCT);
+    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isSubtype(STRUCT);
     }
 
     
@@ -488,7 +490,7 @@ public class Types {
                     params[i] = zeroValue(paramTypes[i]);
                 }
                 */
-                assert typeParams == null ? paramTypes.length == 1 : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.String[])null*/;
+                assert typeParams == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
                 int i = 0;
                 if (typeParams != null) {
                     for ( ; i < typeParams.length; ++i) {
