@@ -308,7 +308,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
     }
 
-    private static <T> byte[] serialize(T body) throws IOException {
+    public static <T> byte[] serialize(T body) throws IOException {
         long startTime = 0L;
         if (TRACE_SER) {
             startTime = System.nanoTime();

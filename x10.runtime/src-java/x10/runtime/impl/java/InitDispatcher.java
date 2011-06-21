@@ -173,6 +173,7 @@ public abstract class InitDispatcher {
         // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
 
         // serialize to bytearray
+
         final byte[] buf = serializeField(fieldValue);
         
         // create a deserialization closure
@@ -184,6 +185,9 @@ public abstract class InitDispatcher {
 
     private static byte[] serializeField(Object object) {
         try {
+            if (Runtime.CUSTOM_JAVA_SERIALIZATION) {
+                return Runtime.serialize(object);
+            }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
             java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
             out.writeObject(object);
@@ -200,6 +204,11 @@ public abstract class InitDispatcher {
         try {
             java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
             java.io.ObjectInputStream in = new java.io.ObjectInputStream(bais);
+
+            if (Runtime.CUSTOM_JAVA_SERIALIZATION) {
+                X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
+                return deserializer.deSerialize();
+            }
             Object val = in.readObject();
             in.close();
             return val;
