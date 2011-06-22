@@ -168,6 +168,22 @@ public class Types {
     	return Double.toString(value);
     }
     
+    // for convenience
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt) {
+        return rtt.instanceof$(o);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0) {
+        return rtt.instanceof$(o, param0);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1) {
+        return rtt.instanceof$(o, param0, param1);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1, Type<?> param2) {
+        return rtt.instanceof$(o, param0, param1, param2);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?>... params) {
+        return rtt.instanceof$(o, params);
+    }
     
     public static final RuntimeType<Object> ANY = new AnyType();
     public static final RuntimeType<RefI> OBJECT = new ObjectType();
