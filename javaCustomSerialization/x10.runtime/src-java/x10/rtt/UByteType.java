@@ -95,7 +95,7 @@ public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSer
 	}
 
     public static X10JavaSerializable _deserialize_body(UByteType t, X10JavaDeserializer deserializer) throws java.io.IOException {
-        UByteType uByteType = new UByteType();
+        UByteType uByteType = (UByteType) Types.UBYTE;
         deserializer.record_reference(uByteType);
         return uByteType;
     }

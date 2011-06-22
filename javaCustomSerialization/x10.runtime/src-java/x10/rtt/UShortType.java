@@ -95,7 +95,7 @@ public class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaS
 	}
 
     public static X10JavaSerializable _deserialize_body(UShortType t, X10JavaDeserializer deserializer) throws java.io.IOException {
-        UShortType uShortType = new UShortType();
+        UShortType uShortType = (UShortType) Types.USHORT;
         deserializer.record_reference(uShortType);
         return uShortType;
     }

@@ -95,7 +95,7 @@ public class CharType extends RuntimeType<x10.core.Char>implements X10JavaSerial
 	}
 
     public static X10JavaSerializable _deserialize_body(CharType t, X10JavaDeserializer deserializer) throws IOException {
-        CharType charType = new CharType();
+        CharType charType = (CharType) Types.CHAR;
         deserializer.record_reference(charType);
         return charType;
     }

@@ -90,7 +90,7 @@ public class ShortType extends RuntimeType<x10.core.Short>implements X10JavaSeri
 	}
 
     public static X10JavaSerializable _deserialize_body(ShortType t, X10JavaDeserializer deserializer) throws IOException {
-        ShortType shortType = new ShortType();
+        ShortType shortType = (ShortType) Types.SHORT;
         deserializer.record_reference(shortType);
         return shortType;
     }

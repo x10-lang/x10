@@ -91,7 +91,7 @@ public class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaS
 	}
 
     public static X10JavaSerializable _deserialize_body(DoubleType t, X10JavaDeserializer deserializer) throws IOException {
-        DoubleType doubleType = new DoubleType();
+        DoubleType doubleType = (DoubleType) Types.DOUBLE;
         deserializer.record_reference(doubleType);
         return doubleType;
     }
