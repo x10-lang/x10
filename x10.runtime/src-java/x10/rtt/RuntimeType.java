@@ -173,6 +173,10 @@ public class RuntimeType<T> implements Type<T> {
             }
             return instantiateCheck(params, rtt, any);
         }
+        else if (Types.supportJavaInterop) {
+            RuntimeType<?> rtt = Types.getRTT(o);
+            return instantiateCheck(params, rtt, o);
+        }
         /*
         else if (o instanceof String) {
             // @NativeRep'ed String type (the one with parents info)

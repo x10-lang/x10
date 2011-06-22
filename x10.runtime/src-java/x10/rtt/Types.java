@@ -22,6 +22,47 @@ public class Types {
 //    public static final boolean supportJavaInterop = true;
     public static final boolean supportJavaInterop = false;
     
+    public static RuntimeType<?> getRTT(Class<?> impl) {
+        java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
+        Class<?>[] interfaces = impl.getInterfaces();
+        Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
+        if (supportJavaInterop && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
+            // type parameters for unknown raw Java classes are Any
+            x10.rtt.RuntimeType.Variance[] variances = new x10.rtt.RuntimeType.Variance[typeVariables.length];
+            java.util.Arrays.fill(variances, x10.rtt.RuntimeType.Variance.INVARIANT);
+            // add superclass and all interfaces to parents
+            x10.rtt.Type<?>[] parents = new x10.rtt.Type[interfaces.length + (superclass != null ? 1 : 0)];
+            int i = 0;
+            for (Class<?> intf : interfaces) {
+                java.lang.reflect.TypeVariable<?>[] intfTypeVariables = intf.getTypeParameters();
+                RuntimeType<?> parentRTT = getRTT(intf);
+                if (intfTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[intfTypeVariables.length];
+                    java.util.Arrays.fill(parentParams, Types.ANY);
+                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                } else {
+                    parents[i] = parentRTT;
+                }
+                ++i;
+            }
+            if (superclass != null) {
+                java.lang.reflect.TypeVariable<?>[] superclassTypeVariables = superclass.getTypeParameters();
+                RuntimeType<?> parentRTT = getRTT(superclass);
+                if (superclassTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[superclassTypeVariables.length];
+                    java.util.Arrays.fill(parentParams, Types.ANY);
+                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                } else {
+                    parents[i] = parentRTT;
+                }
+                ++i;
+            }
+            return new RuntimeType(impl, variances, parents);
+        } else {
+            return new RuntimeType(impl);
+        }
+        // TODO cache RTT to WeakHashMap<Class,RuntimeType>
+    }
     public static RuntimeType<?> getRTT(Object obj) {
         RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
@@ -29,19 +70,8 @@ public class Types {
 //        } else if (Types.getNativeRepRTT(obj) != null) {
 //            rtt = Types.getNativeRepRTT(obj);
         } else if (obj != null) {
-            // Note: for java classes that don't have RTTs
-            Class<?> impl = obj.getClass();
-            java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
-            if (supportJavaInterop && typeVariables.length > 0) {
-                // TODO add the superclass and all interfaces to parents
-                // type parameters for unknown raw Java classes are Any
-                x10.rtt.RuntimeType.Variance[] variances = new x10.rtt.RuntimeType.Variance[typeVariables.length];
-                java.util.Arrays.fill(variances, x10.rtt.RuntimeType.Variance.INVARIANT);
-                rtt = new RuntimeType(impl, variances);
-            } else {
-                rtt = new RuntimeType(impl);
-            }
-            // TODO cache RTT to WeakHashMap<Class,RuntimeType>
+            // rtt for raw Java classes
+            rtt = getRTT(obj.getClass());
         }
         return rtt;
     }
