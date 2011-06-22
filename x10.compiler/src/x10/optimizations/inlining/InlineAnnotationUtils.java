@@ -36,6 +36,7 @@ public class InlineAnnotationUtils extends AnnotationUtils {
     Type NativeRepType;
     Type NativeClassType;
     Type ConstantType;
+    Type EmbedType;
 
     private Job job;
 
@@ -53,6 +54,7 @@ public class InlineAnnotationUtils extends AnnotationUtils {
         NativeType = ts.NativeType();
         NativeRepType = ts.NativeRep();
         NativeClassType = ts.NativeClass();
+        EmbedType = ts.Embed();
     }
 
     /**
@@ -96,6 +98,13 @@ public class InlineAnnotationUtils extends AnnotationUtils {
      */
     boolean isNativeCode(Node n) {
         return hasNativeAnnotations(n, job);
+    }
+
+    /**
+     * @return
+     */
+    public boolean hasEmbedAnnotation(Node n) {
+        return hasAnnotation(n, EmbedType);
     }
 
 }

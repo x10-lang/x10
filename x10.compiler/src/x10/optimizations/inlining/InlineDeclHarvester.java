@@ -13,24 +13,18 @@ package x10.optimizations.inlining;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureDecl;
-import polyglot.ast.Special;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
-import polyglot.types.ContainerType;
 import polyglot.types.Flags;
 import polyglot.types.MemberDef;
-import polyglot.types.ProcedureDef;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.types.X10ClassDef;
-import x10.types.X10ClassType;
 import x10.types.X10ProcedureDef;
 import x10.visit.ExpressionFlattener;
 
@@ -82,7 +76,7 @@ public class InlineDeclHarvester extends ContextVisitor {
                 repository.cannotInline(pdef);
                 return new NodeVisitor() { public Node override(Node n) { return n; } }; // don't visit anything
             }
-            return new InlineCostEstimator(job);
+            return new InlineCostEstimator(job, decl);
         }
         return this;
     }
@@ -94,11 +88,13 @@ public class InlineDeclHarvester extends ContextVisitor {
     protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
         if (n instanceof ProcedureDecl && v instanceof InlineCostEstimator) {
             ProcedureDecl       dcl = (ProcedureDecl) n;
-            ProcedureDef        def = dcl.procedureInstance();
+            X10ProcedureDef     def = (X10ProcedureDef) dcl.procedureInstance();
             InlineCostEstimator ice = (InlineCostEstimator) v;
+            assert old == ice.getDecl();
             if (InlineCostEstimator.MAX_ACTUAL_COST < ice.getCost()) {
                 repository.cannotInline(def);
             } else {
+                repository.putICE(def, ice);
                 repository.putDecl(def, dcl);
                 repository.putCost(def, ice.getCost());
             }
