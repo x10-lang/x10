@@ -39,7 +39,7 @@ public class UByteType extends RuntimeType<x10.core.UByte> {
 
     // for shortcut 
     @Override
-    public boolean instanceof$(Object o) {
+    public boolean instanceOf(Object o) {
         return o instanceof x10.core.UByte;
     }
     

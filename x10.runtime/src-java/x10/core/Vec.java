@@ -125,7 +125,7 @@ public class Vec<T> extends x10.core.Struct {
     }
 
     final public boolean equals(java.lang.Object other) {
-        if (!Vec.$RTT.instanceof$(other, T)) {
+        if (!Vec.$RTT.instanceOf(other, T)) {
             return false;
         }
         return this.equals_0_$_x10$util$Vec_T_$((Vec) Types.asStruct(new ParameterizedType(Vec.$RTT, T), other));
@@ -140,7 +140,7 @@ public class Vec<T> extends x10.core.Struct {
     }
 
     final public boolean _struct_equals$O(java.lang.Object other) {
-        if (!Vec.$RTT.instanceof$(other, T)) return false;
+        if (!Vec.$RTT.instanceOf(other, T)) return false;
         return this._struct_equals_0_$_x10$util$Vec_T_$((Vec) Types.asStruct(new ParameterizedType(Vec.$RTT, T), other));
     }
 

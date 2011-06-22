@@ -2213,7 +2213,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Type t = c.compareType().type();
 
         // Now x10.lang.Object is @NativeRep'ed to x10.core.RefI.
-        // Therefore x10.rtt.Types.OBJECT.instanceof$(o) works as designed.
+        // Therefore x10.rtt.Types.OBJECT.instanceOf(o) works as designed.
 //        // Fix for XTENLANG-1099
 //        TypeSystem xts = tr.typeSystem();
 //        if (xts.typeEquals(xts.Object(), t, tr.context())) {
@@ -2259,7 +2259,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         w.write(".");
-        w.write("instanceof$(");
+        w.write("instanceOf(");
 
         Type exprType = Types.baseType(c.expr().type());
         boolean needParen = false;
@@ -2479,7 +2479,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write("x10.core.ArrayFactory.<");
         er.printType(t, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-        w.write(">");
+        w.write("> ");
         w.write("makeArrayFromJavaArray(");
         new RuntimeTypeExpander(er, t).expand();
         w.write(", ");

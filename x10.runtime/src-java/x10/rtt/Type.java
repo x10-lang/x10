@@ -13,7 +13,7 @@ package x10.rtt;
 
 
 public interface Type<T> extends java.io.Serializable {
-    boolean instanceof$(Object o);
+    boolean instanceOf(Object o);
     
     boolean equals(Object o);
     boolean isSubtype(Type<?> o);

@@ -74,7 +74,7 @@ public final class UnresolvedType implements Type {
         throw new UnsupportedOperationException();
     }
 
-    public final boolean instanceof$(Object o) {
+    public final boolean instanceOf(Object o) {
         throw new UnsupportedOperationException();
     }
 

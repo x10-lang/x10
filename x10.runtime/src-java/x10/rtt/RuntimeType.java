@@ -102,7 +102,7 @@ public class RuntimeType<T> implements Type<T> {
         return true;
     }
 
-    public boolean instanceof$(Object o) {
+    public boolean instanceOf(Object o) {
         if (o == null) {return false;}
         if (o.getClass() == impl) {
             return true;
@@ -111,7 +111,7 @@ public class RuntimeType<T> implements Type<T> {
     }
 
     // o instanceof This and params
-    public final boolean instanceof$(Object o, Type<?>... params) {
+    public final boolean instanceOf(Object o, Type<?>... params) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
@@ -387,7 +387,7 @@ public class RuntimeType<T> implements Type<T> {
     }
     
     // for shortcut
-    public boolean instanceof$(Object o, Type<?> param0) {
+    public boolean instanceOf(Object o, Type<?> param0) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
@@ -425,7 +425,7 @@ public class RuntimeType<T> implements Type<T> {
 
 
     // for shortcut
-    public final boolean instanceof$(Object o, Type<?> param0, Type<?> param1) {
+    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
@@ -476,7 +476,7 @@ public class RuntimeType<T> implements Type<T> {
 
 
     // for shortcut 
-    public final boolean instanceof$(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
+    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
