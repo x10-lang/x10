@@ -45,6 +45,34 @@ public class Types {
         }
         return rtt;
     }
+//    // WIP Java interop
+//    public static RuntimeType<?> getRTT(byte obj) {
+//        return BYTE;
+//    }
+//    public static RuntimeType<?> getRTT(short obj) {
+//        return SHORT;
+//    }
+//    public static RuntimeType<?> getRTT(int obj) {
+//        return INT;
+//    }
+//    public static RuntimeType<?> getRTT(long obj) {
+//        return LONG;
+//    }
+//    public static RuntimeType<?> getRTT(float obj) {
+//        return FLOAT;
+//    }
+//    public static RuntimeType<?> getRTT(double obj) {
+//        return DOUBLE;
+//    }
+//    public static RuntimeType<?> getRTT(char obj) {
+//        return CHAR;
+//    }
+//    public static RuntimeType<?> getRTT(boolean obj) {
+//        return BOOLEAN;
+//    }
+//    public static RuntimeType<?> getRTT(java.lang.String obj) {
+//        return STRING;
+//    }
     
     public static Type<?> getParam(Object obj, int i) {
         if (obj instanceof x10.core.Any) {
@@ -183,6 +211,64 @@ public class Types {
     }
     public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?>... params) {
         return rtt.instanceOf(o, params);
+    }
+    // box java primitives to x10 boxed types
+    public static Object $box(Object o) {
+        if (o instanceof java.lang.Byte) {
+            return x10.core.Byte.$box(((java.lang.Byte) o).byteValue());
+        }
+        if (o instanceof java.lang.Short) {
+            return x10.core.Short.$box(((java.lang.Short) o).shortValue());
+        }
+        if (o instanceof java.lang.Integer) {
+            return x10.core.Int.$box(((java.lang.Integer) o).intValue());
+        }
+        if (o instanceof java.lang.Long) {
+            return x10.core.Long.$box(((java.lang.Long) o).longValue());
+        }
+        if (o instanceof java.lang.Float) {
+            return x10.core.Float.$box(((java.lang.Float) o).floatValue());
+        }
+        if (o instanceof java.lang.Double) {
+            return x10.core.Double.$box(((java.lang.Double) o).doubleValue());
+        }
+        if (o instanceof java.lang.Character) {
+            return x10.core.Char.$box(((java.lang.Character) o).charValue());
+        }
+        if (o instanceof java.lang.Boolean) {
+            return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
+        }
+        if (o instanceof java.lang.String) {
+            return x10.core.String.$box((java.lang.String) o);
+        }
+        return o;
+    }
+    public static x10.core.Byte $box(byte o) {
+        return x10.core.Byte.$box(o);
+    }
+    public static x10.core.Short $box(short o) {
+        return x10.core.Short.$box(o);
+    }
+    public static x10.core.Int $box(int o) {
+        return x10.core.Int.$box(o);
+    }
+    public static x10.core.Long $box(long o) {
+        return x10.core.Long.$box(o);
+    }
+    public static x10.core.Float $box(float o) {
+        return x10.core.Float.$box(o);
+    }
+    public static x10.core.Double $box(double o) {
+        return x10.core.Double.$box(o);
+    }
+    public static x10.core.Char $box(char o) {
+        return x10.core.Char.$box(o);
+    }
+    public static x10.core.Boolean $box(boolean o) {
+        return x10.core.Boolean.$box(o);
+    }
+    public static x10.core.String $box(java.lang.String o) {
+        return x10.core.String.$box(o);
     }
     
     public static final RuntimeType<Object> ANY = new AnyType();
