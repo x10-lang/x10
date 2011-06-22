@@ -18,23 +18,46 @@ import x10.core.StructI;
 
 public class Types {
     
-	public static RuntimeType<?> getRTT(Object obj) {
-		RuntimeType<?> rtt = null;
+    // WIP Java interop
+//    public static final boolean supportJavaInterop = true;
+    public static final boolean supportJavaInterop = false;
+    
+    public static RuntimeType<?> getRTT(Object obj) {
+        RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
-        	rtt = ((Any) obj).$getRTT();
+            rtt = ((Any) obj).$getRTT();
 //        } else if (Types.getNativeRepRTT(obj) != null) {
-//        	rtt = Types.getNativeRepRTT(obj);
+//            rtt = Types.getNativeRepRTT(obj);
         } else if (obj != null) {
             // Note: for java classes that don't have RTTs
-        	// TODO add the superclass and all interfaces to parents
-        	// TODO add type parameters as Any
-        	// TODO cache RTT to WeakHashMap<Class,RuntimeType>
-        	rtt = new RuntimeType(obj.getClass());
+            Class<?> impl = obj.getClass();
+            java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
+            if (supportJavaInterop && typeVariables.length > 0) {
+                // TODO add the superclass and all interfaces to parents
+                // type parameters for unknown raw Java classes are Any
+                x10.rtt.RuntimeType.Variance[] variances = new x10.rtt.RuntimeType.Variance[typeVariables.length];
+                java.util.Arrays.fill(variances, x10.rtt.RuntimeType.Variance.INVARIANT);
+                rtt = new RuntimeType(impl, variances);
+            } else {
+                rtt = new RuntimeType(impl);
+            }
+            // TODO cache RTT to WeakHashMap<Class,RuntimeType>
         }
         return rtt;
-	}
-	
-	
+    }
+    
+    public static Type<?> getParam(Object obj, int i) {
+        if (obj instanceof x10.core.Any) {
+            return ((Any) obj).$getParam(i);
+        }
+        // type parameters for unknown raw Java classes are Any
+        if (supportJavaInterop) {
+            return ANY;
+        }
+        assert false;
+        return null;
+    }
+    
 	// XTENLANG-2488
 	// get $RTT field from class using reflection
 	public static <T> RuntimeType<T> $RTT(Class<?> c) {
