@@ -96,7 +96,7 @@ public class IntType extends RuntimeType<x10.core.Int> implements X10JavaSeriali
 	}
 
     public static X10JavaSerializable _deserialize_body(IntType t, X10JavaDeserializer deserializer) throws IOException {
-        IntType intType = new IntType();
+        IntType intType = (IntType) Types.INT;
         deserializer.record_reference(intType);
         return intType;
     }

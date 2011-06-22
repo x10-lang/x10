@@ -97,7 +97,7 @@ public class UIntType extends RuntimeType<x10.core.UInt> implements X10JavaSeria
 	}
 
     public static X10JavaSerializable _deserialize_body(UIntType t, X10JavaDeserializer deserializer) throws IOException {
-        UIntType uIntType = new UIntType();
+        UIntType uIntType = (UIntType) Types.UINT;
         deserializer.record_reference(uIntType);
         return uIntType;
     }

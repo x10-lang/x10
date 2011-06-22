@@ -90,7 +90,7 @@ public class FloatType extends RuntimeType<x10.core.Float> implements X10JavaSer
 	}
 
     public static X10JavaSerializable _deserialize_body(FloatType t, X10JavaDeserializer deserializer) throws IOException {
-        FloatType floatType = new FloatType();
+        FloatType floatType = (FloatType) Types.FLOAT;
         deserializer.record_reference(floatType);
         return floatType;
     }
