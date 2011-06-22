@@ -300,6 +300,53 @@ public class Types {
     public static x10.core.String $box(java.lang.String o) {
         return x10.core.String.$box(o);
     }
+    public static Object $boxu(Object o) {
+        if (o instanceof java.lang.Byte) {
+            return x10.core.UByte.$box(((java.lang.Byte) o).byteValue());
+        }
+        if (o instanceof java.lang.Short) {
+            return x10.core.UShort.$box(((java.lang.Short) o).shortValue());
+        }
+        if (o instanceof java.lang.Integer) {
+            return x10.core.UInt.$box(((java.lang.Integer) o).intValue());
+        }
+        if (o instanceof java.lang.Long) {
+            return x10.core.ULong.$box(((java.lang.Long) o).longValue());
+        }
+        assert !(o instanceof java.lang.Float);
+        assert !(o instanceof java.lang.Double);
+        assert !(o instanceof java.lang.Character);
+        assert !(o instanceof java.lang.Boolean);
+        assert !(o instanceof java.lang.String);
+//        if (o instanceof java.lang.Float) {
+//            return x10.core.Float.$box(((java.lang.Float) o).floatValue());
+//        }
+//        if (o instanceof java.lang.Double) {
+//            return x10.core.Double.$box(((java.lang.Double) o).doubleValue());
+//        }
+//        if (o instanceof java.lang.Character) {
+//            return x10.core.Char.$box(((java.lang.Character) o).charValue());
+//        }
+//        if (o instanceof java.lang.Boolean) {
+//            return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
+//        }
+//        if (o instanceof java.lang.String) {
+//            return x10.core.String.$box((java.lang.String) o);
+//        }
+        return o;
+    }
+    public static x10.core.UByte $boxu(byte o) {
+        return x10.core.UByte.$box(o);
+    }
+    public static x10.core.UShort $boxu(short o) {
+        return x10.core.UShort.$box(o);
+    }
+    public static x10.core.UInt $boxu(int o) {
+        return x10.core.UInt.$box(o);
+    }
+    public static x10.core.ULong $boxu(long o) {
+        return x10.core.ULong.$box(o);
+    }
     
     public static final RuntimeType<Object> ANY = new AnyType();
     public static final RuntimeType<RefI> OBJECT = new ObjectType();
