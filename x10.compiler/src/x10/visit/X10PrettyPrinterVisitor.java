@@ -3757,12 +3757,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         final List<Catch> catchBlocks = c.catchBlocks();
 
         boolean isJavaCheckedExceptionCaught = false;
+        boolean isConstrainedExceptionCaught = false; // XTENLANG-2384
         for (int i = 0; i < catchBlocks.size(); ++i) {
             Type type = catchBlocks.get(i).catchType();
             if (type.toString().startsWith("java") && !type.isUncheckedException()) {
                 // found Java checked exceptions caught here!!
                 isJavaCheckedExceptionCaught = true;
             }
+            if (type instanceof ConstrainedType) // XTENLANG-2384: Check if there is a constained type in catchBlocks
+                isConstrainedExceptionCaught = true;
         }
         if (isJavaCheckedExceptionCaught) {
             final String temp = "$ex";
@@ -3814,10 +3817,33 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             });
         }
 
-        for (int i = 0; i < catchBlocks.size(); ++i) {
-            expander.addCatchBlock(catchBlocks.get(i));
+        // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
+        if (isConstrainedExceptionCaught) {
+            final String temp = "$ex";
+            expander.addCatchBlock("x10.core.X10Throwable", temp, new Expander(er) {
+                public void expand(Translator tr) {
+                    w.newline();
+                    for (int i = 0; i < catchBlocks.size(); ++i) {
+                        Catch cb = catchBlocks.get(i);
+                        Type type = cb.catchType();
+                        w.write("if (" + temp + " instanceof ");
+                        er.printType(type, 0);
+                        if (type instanceof ConstrainedType) {
+                            ConstrainedType ctype = (ConstrainedType)type;
+                            //w.write(" && true/* Constraint condition check */"); // TODO: add constraint check here
+                        }
+                        w.write(")"); w.newline();
+                        cb.body().translate(w, tr);
+                        w.write("else "); w.newline();
+                    }
+                    w.write("{ throw "+ temp + "; }"); w.newline();
+                }
+            });
+        } else { // XTENLANG-2384: Normal case, no constrained type in catchBlocks
+            for (int i = 0; i < catchBlocks.size(); ++i) {
+                expander.addCatchBlock(catchBlocks.get(i));
+            }
         }
-
         expander.expand(tr);
     }
 
