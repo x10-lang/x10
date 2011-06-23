@@ -355,6 +355,10 @@ public class Options {
             macros.add(macro);
             i++;
         }
+        else if (args[i].equals("-gpt"))
+        {
+            macros.add("__GPT__");
+        }
         else if (!args[i].startsWith("-")) {
             source.add(args[i]);
             File f = new File(args[i]).getParentFile();
