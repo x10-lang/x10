@@ -37,6 +37,7 @@ import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
+import polyglot.util.Position;
 import polyglot.util.QuotedStringTokenizer;
 import polyglot.visit.Translator;
 import x10.X10CompilerOptions;
@@ -65,6 +66,22 @@ public class X10Translator extends Translator {
         }
         return sb.toString();
     }
+
+    /**
+     * @param position
+     * @return
+     */
+    private String inlineIndicater(Position position) {
+        StringBuilder sb = new StringBuilder();
+        if (null != position.outer()) {
+            sb.append(' ');
+            while (null != position.outer()) {
+                sb.append('.');
+                position = position.outer();
+            }
+        }
+        return sb.toString();
+    }
     
     @Override
     public void print(Node parent, Node n, CodeWriter w) {
@@ -78,15 +95,15 @@ public class X10Translator extends Translator {
                  (n instanceof ConstructorDecl) ||
                  (n instanceof ClassDecl)))
         {
-//            w.write("\n//#line " + line + "\n");
-            w.write("\n//#line " + line + " \"" + escapePath(file) + "\"\n");
+//          w.write("\n//#line " + line + "\n");
+//          w.write("\n//#line " + line + " \"" + escapePath(file) + "\"\n");
+            w.write("\n//#line " + line + inlineIndicater(n.position()) + " \"" + escapePath(file) + "\"\n");
         }
 
         super.print(parent, n, w);
     }
 
-
-	public boolean inInnerClass() {
+    public boolean inInnerClass() {
 		return inInnerClass;
 	}
 
