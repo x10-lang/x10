@@ -32,10 +32,12 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         new x10.rtt.Type[] { x10.rtt.Types.STRUCT }
     );
 
+    @Override
     public x10.rtt.RuntimeType<GlobalRef<?>> $getRTT() {
         return $RTT;
     }
 
+    @Override
     public x10.rtt.Type<?> $getParam(int i) {
         if (i == 0)
             return T;
@@ -72,6 +74,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
             hashCode = System.identityHashCode(referent);
         }
 
+        @Override
         public int hashCode() {
             return hashCode;
         }
@@ -84,10 +87,12 @@ public final class GlobalRef<T> extends x10.core.Struct implements
             this.t = t;
         }
 
+        @Override
         public int hashCode() {
             return System.identityHashCode(t);
         }
 
+        @Override
         public boolean equals(Object obj) {
             if (this == obj)
                 return true;
@@ -128,7 +133,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         t = null;
     }
 
-    public GlobalRef $init() {
+    @Override
+    public GlobalRef<T> $init() {
         T = null;
         home = null;
         id = 0L;
@@ -136,7 +142,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         return this;
     }
 
-    public GlobalRef $init(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
+    public GlobalRef<T> $init(final x10.rtt.Type<?> T, T t, java.lang.Class<?> dummy$0) {
         this.T = T;
         this.home = x10.lang.Runtime.home();
         this.t = t;
@@ -214,16 +220,19 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         return this.home;
     }
 
+    @Override
     final public java.lang.String toString() {
         globalize();
         return "GlobalRef(" + this.home + "," + this.id + ")";
     }
 
+    @Override
     final public int hashCode() {
         globalize();
         return (this.home.hashCode() << 18) + (int) this.id;
     }
 
+    @Override
     final public boolean equals(java.lang.Object other) {
         if (!(other instanceof GlobalRef<?>))
             return false;

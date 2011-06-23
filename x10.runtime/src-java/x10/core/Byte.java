@@ -82,6 +82,7 @@ final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Byte) {
             return ((Byte) value).$value == $value;
@@ -132,19 +133,19 @@ final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
     public Object $ge(Byte b, Type t) { return ($value >= b.$value); }
     
     // extends abstract class java.lang.Number
-    @Override
+//    @Override
     public int intValue() {
         return (int)$value;
     }
-    @Override
+//    @Override
     public long longValue() {
         return (long)$value;
     }
-    @Override
+//    @Override
     public float floatValue() {
         return (float)$value;
     }
-    @Override
+//    @Override
     public double doubleValue() {
         return (double)$value;
     }

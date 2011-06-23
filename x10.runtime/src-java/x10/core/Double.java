@@ -62,6 +62,7 @@ final public class Double extends Numeric implements java.lang.Comparable<Double
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Double) {
             return ((Double) value).$value == $value;

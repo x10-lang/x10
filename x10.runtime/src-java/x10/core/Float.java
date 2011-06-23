@@ -62,6 +62,7 @@ final public class Float extends Numeric implements java.lang.Comparable<Float>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Float) {
             return ((Float) value).$value == $value;

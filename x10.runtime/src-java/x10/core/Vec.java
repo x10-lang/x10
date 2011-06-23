@@ -22,6 +22,7 @@ public class Vec<T> extends x10.core.Struct {
     public int size;
     public x10.array.Array<T> backing;
 
+    @Override
     public Vec<T> clone() {
         return new Vec<T>(T, this);
     }
@@ -56,7 +57,7 @@ public class Vec<T> extends x10.core.Struct {
         super($dummy);
     }
 
-    public Vec $init(final Type<T> T, final int s) {
+    public Vec<T> $init(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
         this.backing = x10.array.Array.<T> $make(T, size);
@@ -69,7 +70,7 @@ public class Vec<T> extends x10.core.Struct {
         this.backing = x10.array.Array.<T> $make(T, size);
     }
 
-    public Vec $init(final Type<T> T, Vec<T> other) {
+    public Vec<T> $init(final Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
         this.backing = x10.array.Array.<T> $make(T, other.size);
@@ -113,10 +114,12 @@ public class Vec<T> extends x10.core.Struct {
 
     final native public java.lang.String typeName();
 
+    @Override
     final public java.lang.String toString() {
         return "struct x10.util.Vec: size=" + size;
     }
 
+    @Override
     final public int hashCode() {
         int result = 1;
         result = 8191 * result + ((java.lang.Object) this.size).hashCode();
@@ -124,6 +127,7 @@ public class Vec<T> extends x10.core.Struct {
         return result;
     }
 
+    @Override
     final public boolean equals(java.lang.Object other) {
         if (!Vec.$RTT.instanceOf(other, T)) {
             return false;

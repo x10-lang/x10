@@ -79,6 +79,7 @@ final public class Long extends Numeric implements java.lang.Comparable<Long>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Long) {
             return ((Long) value).$value == $value;

@@ -82,6 +82,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct {
         return new IndexedMemoryChunk<T>(type, length, zeroed);
     }
 
+    @Override
     public java.lang.String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append("IndexedMemoryChunk(");

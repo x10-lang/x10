@@ -84,6 +84,7 @@ final public class Short extends Numeric implements java.lang.Comparable<Short>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Short) {
             return ((Short) value).$value == $value;

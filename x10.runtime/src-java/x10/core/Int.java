@@ -93,6 +93,7 @@ final public class Int extends Numeric implements java.lang.Comparable<Int>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Int) {
             return ((Int) value).$value == $value;
