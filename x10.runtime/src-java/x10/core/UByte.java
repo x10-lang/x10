@@ -34,8 +34,9 @@ final public class UByte extends Numeric implements java.lang.Comparable<UByte>,
     }
 
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.UByte.Cache.enabled", "false"));
         static final int low = -128;
-        static final int high = 127;
+        static final int high = enabled ? 127 : low; // disable caching
         static final UByte cache[] = new UByte[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -45,9 +46,11 @@ final public class UByte extends Numeric implements java.lang.Comparable<UByte>,
     }
 
     public static UByte $box(byte value) {
-        int valueAsInt = value;
-        return Cache.cache[valueAsInt - Cache.low];  // fully cached
-//        return new UByte(value);
+        if (Cache.enabled) {
+            int valueAsInt = value;
+            return Cache.cache[valueAsInt - Cache.low];  // fully cached
+        }
+        return new UByte(value);
     }
     
     public static UByte $box(int value) {   // int is required for literals

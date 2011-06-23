@@ -34,8 +34,9 @@ final public class UShort extends Numeric implements java.lang.Comparable<UShort
     }
 
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.UShort.Cache.enabled", "false"));
         static final int low = 0;
-        static final int high = 255;
+        static final int high = enabled ? 255 : low; // disable caching
         static final UShort cache[] = new UShort[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -45,9 +46,11 @@ final public class UShort extends Numeric implements java.lang.Comparable<UShort
     }
 
     public static UShort $box(short value) {
-        int valueAsInt = value;
-        if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
-            return Cache.cache[valueAsInt - Cache.low];
+        if (Cache.enabled) {
+            int valueAsInt = value;
+            if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
+                return Cache.cache[valueAsInt - Cache.low];
+            }
         }
         return new UShort(value);
     }

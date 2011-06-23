@@ -35,8 +35,9 @@ final public class Long extends Numeric implements java.lang.Comparable<Long>,
     }
 
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Long.Cache.enabled", "false"));
         static final int low = -128;
-        static final int high = 127;
+        static final int high = enabled ? 127 : low; // disable caching
         static final Long cache[] = new Long[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -46,8 +47,10 @@ final public class Long extends Numeric implements java.lang.Comparable<Long>,
     }
 
     public static Long $box(long value) {
-        if (Cache.low <= value && value <= Cache.high) {
-            return Cache.cache[(int)value - Cache.low];
+        if (Cache.enabled){ 
+            if (Cache.low <= value && value <= Cache.high) {
+                return Cache.cache[(int)value - Cache.low];
+            }
         }
         return new Long(value);
     }

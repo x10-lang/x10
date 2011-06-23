@@ -34,8 +34,9 @@ final public class ULong extends Numeric implements java.lang.Comparable<ULong>,
     }
 
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.ULong.Cache.enabled", "false"));
         static final int low = 0;
-        static final int high = 255;
+        static final int high = enabled ? 255 : low; // disable caching
         static final ULong cache[] = new ULong[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -45,8 +46,10 @@ final public class ULong extends Numeric implements java.lang.Comparable<ULong>,
     }
 
     public static ULong $box(long value) {
-        if (Cache.low <= value && value <= Cache.high) {
-            return Cache.cache[(int)value - Cache.low];
+        if (Cache.enabled) {
+            if (Cache.low <= value && value <= Cache.high) {
+                return Cache.cache[(int)value - Cache.low];
+            }
         }
         return new ULong(value);
     }
