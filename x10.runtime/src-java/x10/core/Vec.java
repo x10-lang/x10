@@ -114,7 +114,7 @@ public class Vec<T> extends x10.core.Struct {
     final native public java.lang.String typeName();
 
     final public java.lang.String toString() {
-        return "struct x10.util.Vec: size=" + size + " backing=" + this.backing;
+        return "struct x10.util.Vec: size=" + size;
     }
 
     final public int hashCode() {
@@ -134,7 +134,7 @@ public class Vec<T> extends x10.core.Struct {
     final public boolean equals_0_$_x10$util$Vec_T_$(Vec other) {
         if (this.size != other.size) return false;
         for (int i = 0; i < this.size; ++i) {
-            if (this.backing.$apply$G(i) != other.backing.$apply$G(i)) return false;
+            if (!this.backing.$apply$G(i).equals(other.backing.$apply$G(i))) return false;
         }
         return true;
     }
@@ -147,7 +147,7 @@ public class Vec<T> extends x10.core.Struct {
     final public boolean _struct_equals_0_$_x10$util$Vec_T_$(Vec other) {
         if (this.size != other.size) return false;
         for (int i = 0; i < this.size; ++i) {
-            if (this.backing.$apply$G(i) != other.backing.$apply$G(i)) return false;
+            if (!this.backing.$apply$G(i).equals(other.backing.$apply$G(i))) return false;
         }
         return true;
     }
