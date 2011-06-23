@@ -68,7 +68,7 @@ public class StringBuilder implements Builder[Any,String] {
     public def insert(p:Int, x:Long) = insertString(p, x.toString());
     public def insert(p:Int, x:Float) = insertString(p, x.toString());
     public def insert(p:Int, x:Double) = insertString(p, x.toString());
-    public def insert(p:Int, x:String) = insertString(p, x);
+    public def insert(p:Int, x:String) = x == null ? insertString(p, "null") : insertString(p, x);
 
     public def addString(s:String/*{self!=null}*/): StringBuilder {
         for (var i: int = 0; i < s.length(); i++) {
@@ -78,7 +78,7 @@ public class StringBuilder implements Builder[Any,String] {
         return this;
     }
 
-    public def insertString(pos:Int, s: String): StringBuilder {
+    public def insertString(pos:Int, s: String/*{self!=null}*/): StringBuilder {
         var loc:Int = pos;
         if (s.length() == 0)
             return this;
