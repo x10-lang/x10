@@ -71,7 +71,7 @@ public class X10Translator extends Translator {
      * @param position
      * @return
      */
-    private String inlineIndicater(Position position) {
+    private String inlineIndicator(Position position) {
         StringBuilder sb = new StringBuilder();
         if (null != position.outer()) {
             sb.append(' ');
@@ -97,7 +97,7 @@ public class X10Translator extends Translator {
         {
 //          w.write("\n//#line " + line + "\n");
 //          w.write("\n//#line " + line + " \"" + escapePath(file) + "\"\n");
-            w.write("\n//#line " + line + inlineIndicater(n.position()) + " \"" + escapePath(file) + "\"\n");
+            w.write("\n//#line " + line + inlineIndicator(n.position()) + " \"" + escapePath(file) + "\"\n");
         }
 
         super.print(parent, n, w);
