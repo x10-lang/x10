@@ -29,6 +29,7 @@ import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.ShortType;
+import x10.rtt.StringType;
 import x10.rtt.Type;
 import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
@@ -512,7 +513,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 	public void _serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(length);
         serializer.write(type);
-
         if (type instanceof FloatType) {
             float[] castValue = (float[]) value;
             for (float v : castValue) {
@@ -553,6 +553,11 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             for (boolean v : castValue) {
                 serializer.write(v);
             }
+        } else if (type instanceof StringType) {
+            java.lang.String [] castValue = (java.lang.String[]) value;
+            for (java.lang.String v : castValue) {
+                serializer.write(v);
+            }
         } else {
             Object [] castValue = (Object[]) value;
             for (Object v : castValue) {
@@ -571,7 +576,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 		return _serialization_id;
 	}
 
-    static int i = 0;
     public static X10JavaSerializable _deSerialize_body(IndexedMemoryChunk imc, X10JavaDeserializer deserializer) throws IOException {
         int length = deserializer.readInt();
         imc.length = length;
@@ -623,6 +627,12 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             byte[] values = (byte[]) imc.type.makeArray(length);
             for (int i = 0; i < length; i++) {
                    values[i] = deserializer.readByte();
+            }
+            imc.value = values;
+        } else if (imc.type instanceof StringType) {
+            java.lang.String[] values = (java.lang.String[]) imc.type.makeArray(length);
+            for (int i = 0; i < length; i++) {
+                values[i] = deserializer.readString();
             }
             imc.value = values;
         } else  {

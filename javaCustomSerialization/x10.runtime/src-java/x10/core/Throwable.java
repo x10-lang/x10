@@ -23,6 +23,7 @@ import java.io.IOException;
 public class Throwable extends java.lang.RuntimeException {
 
 	private static final long serialVersionUID = 1L;
+    public java.lang.String message = null;
 
 	public Throwable(java.lang.System[] $dummy) {
 	    super();
@@ -39,6 +40,7 @@ public class Throwable extends java.lang.RuntimeException {
     
     public Throwable(java.lang.String message) {
         super(message);
+        this.message = message;
     }
 
     // TODO
@@ -46,6 +48,7 @@ public class Throwable extends java.lang.RuntimeException {
     
     public Throwable(java.lang.Throwable cause) {
         super(cause);
+        message = (cause==null ? null : cause.toString());
     }
 
     // TODO
@@ -53,6 +56,7 @@ public class Throwable extends java.lang.RuntimeException {
     
     public Throwable(java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
+        this.message = message;
     }
 
     /* TODO to be removed
@@ -85,6 +89,16 @@ public class Throwable extends java.lang.RuntimeException {
 
     // XTENLANG-2680
 	public java.lang.String getMessage$O() {
+        if (message != null) {
+            return message;
+        }
+		return super.getMessage();
+	}
+
+    public java.lang.String getMessage() {
+        if (message != null) {
+            return message;
+        }
 		return super.getMessage();
 	}
 
