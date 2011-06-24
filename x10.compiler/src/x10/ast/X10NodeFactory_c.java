@@ -532,7 +532,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	public X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
 						 List<Formal> vars, boolean unnamed)
 	{
-		X10Formal n = new X10Formal_c(pos, flags, type, name, vars, unnamed);
+		X10Formal n = new X10Formal_c(unnamed?pos.markCompilerGenerated():pos, flags, type, name, vars, unnamed);
 		n = (X10Formal) n.ext(extFactory().extFormal());
 		n = (X10Formal) n.del(delFactory().delFormal());
 		return n;
