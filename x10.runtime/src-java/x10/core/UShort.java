@@ -18,7 +18,7 @@ import x10.rtt.Types;
  * Represents a boxed UShort value. Boxed representation is used when casting
  * a UShort value into type Any or parameter type T.
  */
-final public class UShort extends Numeric implements java.lang.Comparable<UShort>,
+final public class UShort extends Number implements StructI, java.lang.Comparable<UShort>,
     x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
@@ -82,11 +82,10 @@ final public class UShort extends Numeric implements java.lang.Comparable<UShort
         return false;
     }
     
-    // inherit default implementation
-//    @Override
-//    public boolean equals(Object o) {
-//        return _struct_equals$O(o);
-//    }
+    @Override
+    public boolean equals(Object o) {
+        return _struct_equals$O(o);
+    }
     
     @Override
     public int hashCode() {

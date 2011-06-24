@@ -19,8 +19,8 @@ import x10.rtt.Types;
  * an Double value to type Any, parameter type T or superinterfaces such
  * as Comparable<Double>.
  */
-final public class Double extends Numeric implements java.lang.Comparable<Double>,
-    x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
+final public class Double extends Number implements StructI,
+	java.lang.Comparable<Double>, x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
 {
     private static final long serialVersionUID = 1L;
     

@@ -19,7 +19,7 @@ import x10.rtt.Types;
  * an Long value to type Any, parameter type T or superinterfaces such
  * as Comparable<Long>.
  */
-final public class Long extends Numeric implements java.lang.Comparable<Long>,
+final public class Long extends Number implements StructI, java.lang.Comparable<Long>,
     x10.lang.Arithmetic<Long>, x10.lang.Bitwise<Long>, x10.util.Ordered<Long>
 {
     private static final long serialVersionUID = 1L;

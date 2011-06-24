@@ -19,8 +19,8 @@ import x10.rtt.Types;
  * an Float value to type Any, parameter type T or superinterfaces such
  * as Comparable<Float>.
  */
-final public class Float extends Numeric implements java.lang.Comparable<Float>,
-    x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
+final public class Float extends Number implements StructI,
+	java.lang.Comparable<Float>, x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
 {
     private static final long serialVersionUID = 1L;
     

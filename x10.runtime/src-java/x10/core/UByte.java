@@ -18,7 +18,7 @@ import x10.rtt.Types;
  * Represents a boxed UByte value. Boxed representation is used when casting
  * a UByte value into type Any or parameter type T.
  */
-final public class UByte extends Numeric implements java.lang.Comparable<UByte>,
+final public class UByte extends Number implements StructI, java.lang.Comparable<UByte>,
     x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
@@ -80,11 +80,10 @@ final public class UByte extends Numeric implements java.lang.Comparable<UByte>,
         return false;
     }
     
-    // inherit default implementation
-//    @Override
-//    public boolean equals(Object o) {
-//        return _struct_equals$O(o);
-//    }
+    @Override
+    public boolean equals(Object o) {
+        return _struct_equals$O(o);
+    }
     
     @Override
     public int hashCode() {

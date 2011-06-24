@@ -19,7 +19,7 @@ import x10.rtt.Types;
  * an Byte value to type Any, parameter type T or superinterfaces such
  * as Comparable<Byte>.
  */
-final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
+final public class Byte extends Number implements StructI, java.lang.Comparable<Byte>,
     x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;

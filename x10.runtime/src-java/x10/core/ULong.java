@@ -18,7 +18,7 @@ import x10.rtt.Types;
  * Represents a boxed ULong value. Boxed representation is used when casting
  * a ULong value into type Any or parameter type T.
  */
-final public class ULong extends Numeric implements java.lang.Comparable<ULong>,
+final public class ULong extends Number implements StructI, java.lang.Comparable<ULong>,
     x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
 {
     private static final long serialVersionUID = 1L;
@@ -77,11 +77,10 @@ final public class ULong extends Numeric implements java.lang.Comparable<ULong>,
         return false;
     }
     
-    // inherit default implementation
-//    @Override
-//    public boolean equals(Object o) {
-//        return _struct_equals$O(o);
-//    }
+    @Override
+    public boolean equals(Object o) {
+        return _struct_equals$O(o);
+    }
 
     @Override
     public int hashCode() {
