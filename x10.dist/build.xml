@@ -155,6 +155,7 @@
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
+    <target name="dist-x10rt" depends="runtime-x10rt"/>
     <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
     <target name="dist-java-cpp" depends="init,build,common-jar,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -332,6 +333,10 @@
 
     <target name="runtime-cpp" depends="init">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-cpp" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+
+    <target name="runtime-x10rt" depends="init">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-x10rt" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
     <target name="bridge-jar" depends="init,compiler-jar">
