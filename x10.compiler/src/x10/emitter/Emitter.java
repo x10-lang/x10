@@ -3284,8 +3284,6 @@ public class Emitter {
             w.writeln("} ");
         }
 
-//        deserializeSuperClass(n.superClass());
-
         String params = "";
         w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) deserializer.readRef();");
         for (ParameterType at : def.typeParameters()) {
@@ -3375,7 +3373,6 @@ public class Emitter {
         // Check whether need to serialize super class
         if (superClassNode != null && superClassNode.type().isClass()) {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
-                    superClassNode.type().toString().equals("x10.lang.Throwable") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
                 if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
@@ -3395,7 +3392,6 @@ public class Emitter {
         // Check whether we need to deserialize the super class
         if (superClassNode != null && superClassNode.type().isClass()) {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
-                    superClassNode.type().toString().equals("x10.lang.Throwable") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
                 if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {

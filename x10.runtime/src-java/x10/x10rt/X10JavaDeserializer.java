@@ -20,18 +20,26 @@ import java.util.List;
 public class X10JavaDeserializer {
 
     // When a Object is deserialized record its position
-    List<Object> objectList;
+    private List<Object> objectList;
     public static final int ref = Integer.parseInt("FFFFFFF", 16);
-    ObjectInputStream in;
+    private ObjectInputStream in;
+    private int counter = 0;
 
     public X10JavaDeserializer(ObjectInputStream in) {
         this.in = in;
         objectList = new ArrayList<Object>();
     }
 
-    public void record_reference(Object obj) {
-        objectList.add(obj);
+    public int record_reference(Object obj) {
+        objectList.add(counter, obj);
+        counter++;
+        return counter;
     }
+
+    public void update_reference(int pos, Object obj) {
+        objectList.set(pos, obj);
+    }
+
 
     public Object getObjectAtPosition(int pos) {
         return objectList.get(pos);
@@ -179,19 +187,23 @@ public class X10JavaDeserializer {
     public String readString() throws IOException {
         int classID = in.readInt();
         if (classID == ref) {
-            return (String) objectList.get(in.readInt());
+            int pos = in.readInt();
+            return (String) objectList.get(pos);
         } else if (classID == DeserializationDispatcher.NULL_ID) {
             return null;
         }
         String str = readStringValue();
-        objectList.add(str);
+        record_reference(str);
         return str;
     }
 
     public String readStringValue() throws IOException {
         int length = readInt();
         byte[] bytes = new byte[length];
-        in.read(bytes);
+        int read = 0;
+        while (read < length) {
+                read += in.read(bytes, read, length-read);
+        }
         return new String(bytes);
     }
 
