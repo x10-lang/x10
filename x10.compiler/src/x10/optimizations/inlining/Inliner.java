@@ -84,6 +84,7 @@ import x10.visit.ConstantPropagator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.NodeTransformingVisitor;
 import x10.visit.Reinstantiator;
+import x10cuda.ast.CUDAKernel;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -177,6 +178,9 @@ public class Inliner extends ContextVisitor {
         }
         if (node instanceof InlinableCall) {
             return null; // will handle @NoInline annotation seperately
+        }
+        if (node instanceof CUDAKernel) {
+            return node;  // disable inlining within a CUDAKernal XTENLANG-2824.  
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
             if (annotations.inliningProhibited(((X10ClassDecl) node).classDef())) {
