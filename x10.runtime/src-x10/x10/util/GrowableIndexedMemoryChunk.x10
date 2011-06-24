@@ -14,6 +14,7 @@ package x10.util;
 import x10.compiler.CompilerFlags;
 import x10.compiler.Inline;
 import x10.compiler.NoInline;
+import x10.compiler.NoReturn;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 
@@ -201,11 +202,11 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
         imc = tmp;
     }
 
-    private static @NoInline def raiseIndexOutOfBounds(idx:int, length:int) {
+    private static @NoInline @NoReturn def raiseIndexOutOfBounds(idx:int, length:int) {
         throw new ArrayIndexOutOfBoundsException("Index is "+idx+"; length is "+length);
     }
 
-    private static @NoInline def illegalGap(idx:int, length:int) {
+    private static @NoInline @NoReturn def illegalGap(idx:int, length:int) {
         throw new UnsupportedOperationException("Insert at "+idx+" would have created gap (length = "+length+")");
     }
 }
