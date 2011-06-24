@@ -389,6 +389,7 @@ import x10.util.concurrent.SimpleLatch;
                     if (activity == null) return false;
                 }
                 activity.run();
+                deallocObject(activity);
             }
             return true;
         }
@@ -404,6 +405,7 @@ import x10.util.concurrent.SimpleLatch;
                     return;
                 }
                 activity.run();
+                deallocObject(activity);
             }
         }
 
@@ -425,6 +427,7 @@ import x10.util.concurrent.SimpleLatch;
 //                    return false;
 //                }
                 activity.run();
+                deallocObject(activity);
             }
             return true;
         }
@@ -939,6 +942,7 @@ import x10.util.concurrent.SimpleLatch;
         val a = activity();
         val finishState = a.swapFinish(f);
         finishState.waitForFinish();
+        deallocObject(finishState);
     }
 
     /**
