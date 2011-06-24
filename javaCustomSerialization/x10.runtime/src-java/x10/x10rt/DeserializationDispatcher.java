@@ -16,6 +16,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,12 +41,11 @@ public class DeserializationDispatcher {
     private static int i = NULL_ID;
 
     private static List<String> idToClassName = new ArrayList<String>();
-    private static Map<String, Integer> classNameToId = new HashMap<String, Integer>();
-//    private static Map<Integer, X10JavaSerializable> idToInstance = new HashMap<Integer, X10JavaSerializable>();
+    private static Map<String, Integer> classNameToId = new HashMap<String, Integer> ();
 
     public static int addDispatcher(String className) {
         if (i == NULL_ID) {
-            idToClassName.add(NULL_ID, NULL_VALUE);
+            add(NULL_VALUE);
             add("java.lang.String");
             add("java.lang.Float");
             add("java.lang.Double");
@@ -55,15 +55,14 @@ public class DeserializationDispatcher {
             add("java.lang.Short");
             add("java.lang.Character");
         }
-        i++;
-        idToClassName.add(i, className);
-        return i;
+        add(className);
+        return i-1;
     }
 
     private static void add(String str) {
-        i++;
         classNameToId.put(str, i);
         idToClassName.add(i, str);
+        i++;
     }
 
     public static Object getInstanceForId(int i, X10JavaDeserializer deserializer) throws IOException {
@@ -132,6 +131,18 @@ public class DeserializationDispatcher {
     }
 
     public static int getIDForClassName(String str) {
-        return classNameToId.get(str);
+        Integer integer = classNameToId.get(str);
+
+        // When there are inner classes the type name is of the form A.B.C where
+        // C is an inner class of B. But classNameToId uses class.getName() to store
+        // the class names thus the following code is a workaround for this issue. We
+        // need to have the class name cause we do class.forName using this name
+        // but the typenames are stored at A.B.C so this disconnect is inevitable
+        if (integer == null) {
+            int i = str.lastIndexOf(".");
+            String s = str.substring(0, i) + "$" + str.substring(i + 1);
+            integer = classNameToId.get(s);
+        }
+        return integer;
     }
 }

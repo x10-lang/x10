@@ -3329,13 +3329,6 @@ public class Emitter {
         w.writeln("}");
         w.newline();
 
-        // _serialization_id
-        w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-        w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
-        w.write(Emitter.mangleToJava(def.name()));
-        w.writeln(".class.getName());");
-        w.newline();
-
         // _serialize_id()
         w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
         w.newline(4);

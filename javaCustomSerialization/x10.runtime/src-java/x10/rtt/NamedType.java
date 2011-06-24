@@ -11,6 +11,7 @@
 
 package x10.rtt;
 
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -55,8 +56,9 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     }
 
     public void _serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write(typeName);
-        serializer.write(super.getImpl().getName());
+        super._serialize(serializer);
+        int classId = DeserializationDispatcher.getIDForClassName(typeName);
+        serializer.write(classId);
     }
 
     public int _get_serialization_id() {
@@ -70,16 +72,9 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
 	}
 
     public static X10JavaSerializable _deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
-        String name = deserializer.readString();
-        try {
-             Class<?> aClass = Class.forName(deserializer.readString());
-            nt.typeName = name;
-            nt.impl = aClass;
-            return nt;
-        } catch (ClassNotFoundException e) {
-            // This should not happen though
-            throw new RuntimeException(e);
-        }
+        RuntimeType._deserialize_body(nt, deserializer);
+        int classId = deserializer.readInt();
+        nt.typeName = DeserializationDispatcher.getClassNameForID(classId);
+        return nt;
     }
-
 }

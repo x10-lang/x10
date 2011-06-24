@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.lang.reflect.Array;
 
 import x10.core.Any;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -520,7 +521,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
 	public void _serialize(X10JavaSerializer serializer) throws IOException {
         String name = impl.getName();
-        serializer.write(name);
+        int classId = DeserializationDispatcher.getIDForClassName(name);
+        serializer.write(classId);
 	}
 
 	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
@@ -534,8 +536,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 	}
 
     public static X10JavaSerializable _deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
-
-        String className = deserializer.readString();
+        int classId = deserializer.readInt();
+        String className = DeserializationDispatcher.getClassNameForID(classId);
         if (className == null) {
             return null;
         }
@@ -546,7 +548,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             // This should not happen though
             throw new RuntimeException(e);
         }
-
         return rt;
     }
 }
