@@ -524,6 +524,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             long serialVersionUID = 1L;
             w.write("private static final long serialVersionUID = " + serialVersionUID + "L;");
             w.newline();
+
+            // _serialization_id
+            w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
+            w.write(Emitter.mangleToJava(def.name()));
+            w.writeln(".class.getName());");
+            w.newline();
         }
 
         // print the clone method
@@ -667,13 +674,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.end();
                 w.newline();
                 w.writeln("}");
-                w.newline();
-
-                // _serialization_id
-                w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-                w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
-                w.write(Emitter.mangleToJava(def.name()));
-                w.writeln(".class.getName());");
                 w.newline();
 
                 // _serialize_id()
