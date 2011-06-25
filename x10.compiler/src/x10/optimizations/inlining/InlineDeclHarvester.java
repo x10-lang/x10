@@ -90,14 +90,7 @@ public class InlineDeclHarvester extends ContextVisitor {
             ProcedureDecl       dcl = (ProcedureDecl) n;
             X10ProcedureDef     def = (X10ProcedureDef) dcl.procedureInstance();
             InlineCostEstimator ice = (InlineCostEstimator) v;
-            assert old == ice.getDecl();
-            if (InlineCostEstimator.MAX_ACTUAL_COST < ice.getCost()) {
-                repository.cannotInline(def);
-            } else {
-                repository.putICE(def, ice);
-                repository.putDecl(def, dcl);
-                repository.putCost(def, ice.getCost());
-            }
+            repository.putICE(def, ice);
         }
         return n;
     }

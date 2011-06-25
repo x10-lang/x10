@@ -40,45 +40,44 @@ class InlineCostEstimator extends NodeVisitor {
     static final boolean XTENLANG_2818 = true; // FIXME: Java back-end does not support non-virtual instance calls
     static final boolean XTENLANG_2819 = true; // FIXME: C++  back-end generates incorrect code for embedded fields
 
-    static final int MAX_ACTUAL_COST  = 0x0FFFF;
-    static final int NATIVE_CODE_COST = 0x10000;
-    static final int JAVA_SUPER_COST  = 0x20000; // see XTENLANG_2818
-    static final int CPP_EMBED_COST   = 0x40000; // see XTENLANG_2819
+    private InlineCostDelegate delegate;
+    protected int cost[] = new int[1];
+    private ProcedureDecl decl;
+    private Job job;
+    private InlineAnnotationUtils annotations;
+    boolean inlinable;
 
-    InlineCostDelegate delegate;
-    int cost[] = new int[1];
-    ProcedureDecl decl;
-    Job job;
-    InlineAnnotationUtils annotations;
-    
+    InlineCostEstimator() { // create a placeholder for an uninlinable decl
+        inlinable = false;
+    }
+
     InlineCostEstimator(Job j, ProcedureDecl pd) {
         job         = j;
         decl        = pd;
         annotations = new InlineAnnotationUtils(job);
         delegate    = new InlineCostDelegate(this);
+        inlinable   = true;
     }
 
-    int getCost() {
-        return cost[0];
+    ProcedureDecl getDecl(int budget) {
+        if (cost[0] <= budget)
+            return decl;
+        return null;
     }
 
-    ProcedureDecl getDecl() {
-        return decl;
-    }
-    
     /* (non-Javadoc)
      * @see polyglot.visit.NodeVisitor#leave(polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
      */
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         if (XTENLANG_2818 && n instanceof Special && ((Special) n).kind() == Special.SUPER && ExpressionFlattener.javaBackend(job)) {
-            cost[0] |= JAVA_SUPER_COST; // Java back-end cannot handle inlined super targets
+            inlinable = false;     // Java back-end cannot handle inlined super targets
         } else if (XTENLANG_2818 && n instanceof ConstructorCall && ((ConstructorCall) n).kind() == ConstructorCall.SUPER && ExpressionFlattener.javaBackend(job)) {
-            cost[0] |= JAVA_SUPER_COST; // Java back-end cannot handle inlined super calls either
+            inlinable = false;     // Java back-end cannot handle inlined super calls either
         } else if (XTENLANG_2819 && annotations.hasEmbedAnnotation(n) && !ExpressionFlattener.javaBackend(job)) {
-            cost[0] |= CPP_EMBED_COST;      // C++  back-end cannot handle embedded fields
+            inlinable = false;     // C++  back-end cannot handle embedded fields
         } else if (annotations.isNativeCode(n)) {
-            cost[0] |= NATIVE_CODE_COST;
+            inlinable = false;
         } else {
             delegate.visitAppropriate(n);
         }
