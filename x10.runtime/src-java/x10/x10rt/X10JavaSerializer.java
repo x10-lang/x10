@@ -11,15 +11,12 @@
 
 package x10.x10rt;
 
-import x10.core.UInt;
 import x10.io.CustomSerialization;
-import x10.rtt.Type;
-import x10.x10rt.DeserializationDispatcher;
+import x10.runtime.impl.java.Runtime;
 
 import java.io.IOException;
 import java.io.ObjectOutput;
 import java.util.IdentityHashMap;
-import java.util.Map;
 
 public class X10JavaSerializer {
 
@@ -37,26 +34,32 @@ public class X10JavaSerializer {
 
     public void write(X10JavaSerializable obj) throws IOException {
         if (obj == null) {
-            out.writeInt(DeserializationDispatcher.NULL_ID);
+            writeNull();
             return;
         }
 
         if (obj.getClass().toString().equals("java.lang.Object")) {
             return;
         }
-        Integer pos;
-        if ((pos = objectMap.get(obj)) != null) {
-            // We have serialized this object before hence no need to do it again
-            // In the C++ backend the value used is 0xFFFFFFFF
-            // TODO keith Make this compliant with C++ value also make the position relative
-            out.writeInt(refValue);
-            out.writeInt(pos);
-        } else {
-            objectMap.put(obj, counter);
-            counter++;
-            int i = obj._get_serialization_id();
-            write(i);
-            obj._serialize(this);
+        Integer pos = previous_position(obj);
+        if (pos !=null) {
+            return;
+        }
+        int i = obj._get_serialization_id();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing id " + i  + " of type " + obj.getClass());
+        }
+        write(i);
+        obj._serialize(this);
+        if (Runtime.TRACE_SER) {
+            System.out.println("Completed serialization of type " + obj.getClass());
+        }
+    }
+
+    private void writeNull() throws IOException {
+        out.writeInt(DeserializationDispatcher.NULL_ID);
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a null reference");
         }
     }
 
@@ -73,6 +76,9 @@ public class X10JavaSerializer {
     }
 
     public void write(int i) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a int: " + i);
+        }
         out.writeInt(i);
     }
 
@@ -84,6 +90,9 @@ public class X10JavaSerializer {
     }
 
     public void write(boolean b) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a boolean: " + b);
+        }
         out.writeBoolean(b);
     }
 
@@ -95,6 +104,9 @@ public class X10JavaSerializer {
     }
 
     public void write(char c) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a chat: " + c);
+        }
         out.writeChar(c);
     }
 
@@ -106,6 +118,9 @@ public class X10JavaSerializer {
     }
 
     public void write(byte b) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a byte: " + b);
+        }
         out.writeByte(b);
     }
 
@@ -115,6 +130,9 @@ public class X10JavaSerializer {
     }
 
     public void write(short s) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a short: " + s);
+        }
         out.writeShort(s);
     }
 
@@ -126,6 +144,9 @@ public class X10JavaSerializer {
     }
 
     public void write(long l) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a long: " + l);
+        }
         out.writeLong(l);
     }
 
@@ -137,6 +158,9 @@ public class X10JavaSerializer {
     }
 
     public void write(double d) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a double: " + d);
+        }
         out.writeDouble(d);
     }
 
@@ -148,6 +172,9 @@ public class X10JavaSerializer {
     }
 
     public void write(float f) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a float: " + f);
+        }
         out.writeFloat(f);
     }
 
@@ -160,22 +187,18 @@ public class X10JavaSerializer {
 
     public void write(String str) throws IOException {
         if (str == null) {
-            out.writeInt(DeserializationDispatcher.NULL_ID);
+            writeNull();
             return;
         }
 
-        Integer pos;
-        if ((pos = objectMap.get(str)) != null) {
-            // We have serialized this object beofre hence no need to do it again
-            // In the C++ backend the value used is 0xFFFFFFFF
-            // TODO keith Make this compliant with C++ value also make the position relative
-            out.writeInt(refValue);
-            out.writeInt(pos);
-            return;
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a String: " + str);
         }
 
-        objectMap.put(str, counter);
-        counter++;
+        Integer pos = previous_position(str);
+        if (pos != null) {
+            return;
+        }
         writeStringValue(str);
     }
 
@@ -195,26 +218,22 @@ public class X10JavaSerializer {
 
     public <T> void write(T p) throws IOException {
         if (p == null) {
-            out.writeInt(DeserializationDispatcher.NULL_ID);
+            writeNull();
             return;
         }
-        Integer pos;
-        if ((pos = objectMap.get(p)) != null) {
-            // We have serialized this object beofre hence no need to do it again
-            // In the C++ backend the value used is 0xFFFFFFFF
-            // TODO keith Make this compliant with C++ value also make the position relative
-            out.writeInt(refValue);
-            out.writeInt(pos);
+        Integer pos = previous_position(p);
+        if (pos != null) {
             return;
         }
-        objectMap.put(p, counter);
-        counter++;
         int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (id == DeserializationDispatcher.STRING_ID) {
             writeStringValue(p.toString());
             return;
         }
         out.writeInt(id);
+        if (Runtime.TRACE_SER) {
+            System.out.println("Serializing a " + p.getClass() + ": " + p);
+        }
         switch (id) {
             case DeserializationDispatcher.FLOAT_ID:
                 out.writeFloat((Float) p);
@@ -243,5 +262,26 @@ public class X10JavaSerializer {
             default:
                 throw new RuntimeException("################## Need to handle " + p.getClass().getName());
         }
+    }
+
+    private Integer previous_position(Object obj) throws IOException {
+        Integer pos = objectMap.get(obj);
+        if (pos != null) {
+            if (Runtime.TRACE_SER) {
+                System.out.println("\t\tFound repeated reference of type " + obj.getClass() + " at " + pos + " (absolute) in map");
+            }
+            // We have serialized this object beofre hence no need to do it again
+            // In the C++ backend the value used is 0xFFFFFFFF
+            // TODO keith Make this compliant with C++ value also make the position relative
+            out.writeInt(refValue);
+            out.writeInt(pos);
+        } else {
+            objectMap.put(obj, counter);
+            if (Runtime.TRACE_SER) {
+                System.out.println("\t\tRecorded new reference of type " + obj.getClass() + " at " + counter + " (absolute) in map");
+            }
+            counter++;
+        }
+        return pos;
     }
 }
