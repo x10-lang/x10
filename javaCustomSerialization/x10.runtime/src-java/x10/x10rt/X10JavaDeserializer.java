@@ -11,10 +11,11 @@
 
 package x10.x10rt;
 
+import x10.runtime.impl.java.Runtime;
+
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
 import java.util.List;
 
 public class X10JavaDeserializer {
@@ -42,14 +43,17 @@ public class X10JavaDeserializer {
 
 
     public Object getObjectAtPosition(int pos) {
-        return objectList.get(pos);
+        Object o = objectList.get(pos);
+        if (Runtime.TRACE_SER) {
+            System.out.println("\t\tRetrieving repeated reference  of type " + o.getClass() + " at " + pos + "  (absolute) in map");
+        }
+        return o;
     }
 
     public Object readRef() throws IOException {
         int serializationID = readInt();
         if (serializationID == ref) {
-            int position = readInt();
-            return objectList.get(position);
+            return getObjectAtPosition(readInt());
         }
         return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }
@@ -74,6 +78,9 @@ public class X10JavaDeserializer {
 
     public int readInt() throws IOException {
         int v = in.readInt();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a int: " + v);
+        }
         return v;
     }
 
@@ -88,6 +95,9 @@ public class X10JavaDeserializer {
 
     public boolean readBoolean() throws IOException {
         boolean v = in.readBoolean();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a boolean: " + v);
+        }
         return v;
     }
 
@@ -102,6 +112,9 @@ public class X10JavaDeserializer {
 
     public char readChar() throws IOException {
         char v = in.readChar();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a char: " + v);
+        }
         return v;
     }
 
@@ -116,6 +129,9 @@ public class X10JavaDeserializer {
 
     public byte readByte() throws IOException {
         byte v = in.readByte();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a byte: " + v);
+        }
         return v;
     }
 
@@ -130,6 +146,9 @@ public class X10JavaDeserializer {
 
     public short readShort() throws IOException {
         short v = in.readShort();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a short: " + v);
+        }
         return v;
     }
 
@@ -144,6 +163,9 @@ public class X10JavaDeserializer {
 
     public long readLong() throws IOException {
         long v = in.readLong();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a long: " + v);
+        }
         return v;
     }
 
@@ -158,6 +180,9 @@ public class X10JavaDeserializer {
 
     public double readDouble() throws IOException {
         double v = in.readDouble();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a double: " + v);
+        }
         return v;
     }
 
@@ -172,6 +197,9 @@ public class X10JavaDeserializer {
 
     public float readFloat() throws IOException {
         float v = in.readFloat();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a float: " + v);
+        }
         return v;
     }
 
@@ -187,12 +215,17 @@ public class X10JavaDeserializer {
     public String readString() throws IOException {
         int classID = in.readInt();
         if (classID == ref) {
-            int pos = in.readInt();
-            return (String) objectList.get(pos);
+            return (String) getObjectAtPosition(readInt());
         } else if (classID == DeserializationDispatcher.NULL_ID) {
+            if (Runtime.TRACE_SER) {
+                System.out.println("Deserializing a null reference");
+            }
             return null;
         }
         String str = readStringValue();
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing a String: " + str);
+        }
         record_reference(str);
         return str;
     }
@@ -219,8 +252,7 @@ public class X10JavaDeserializer {
     public Object deSerialize() throws IOException {
         int serializationID = readInt();
         if (serializationID == ref) {
-            int position = readInt();
-            return objectList.get(position);
+            return getObjectAtPosition(readInt());
         }
         return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }

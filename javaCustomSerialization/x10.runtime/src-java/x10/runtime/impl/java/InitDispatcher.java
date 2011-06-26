@@ -71,6 +71,9 @@ public abstract class InitDispatcher {
         }
     }
     public static void runInitializer() {
+        if (Runtime.TRACE_SER) {
+            System.out.println("There are " + initializeMethods.size() + " initializers to run");
+        }
         for (final Method initializer : initializeMethods) {
             // System.out.println("runInitializer executes " + initializer.getName());
         	// create an initialization closure
@@ -80,6 +83,9 @@ public abstract class InitDispatcher {
         }
         // static initialization all finished
         fieldId = -1;
+        if (Runtime.TRACE_SER) {
+            System.out.println("====================== STATIC INITIALIZATION DONE ======================");
+        }
     }
 
     public static int addInitializer(String className, String fieldName) {

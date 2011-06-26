@@ -3368,11 +3368,6 @@ public class Emitter {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                    w.write("java.lang.System.out.println( \"Serialiazing super class " + superClassNode.type().toString() + " \");");
-                    w.writeln("}");
-                }
                 w.write("super." + Emitter.SERIALIZE_BODY_METHOD + "(serializer);");
                 w.newline();
             }
@@ -3387,11 +3382,6 @@ public class Emitter {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) { ");
-                    w.write("java.lang.System.out.println( \"Deserialiazing super class " + superClassNode.type().toString() + " \");");
-                    w.writeln("}");
-                }
                 printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 w.writeln("._deserialize_body(_obj, deserializer);");
             }

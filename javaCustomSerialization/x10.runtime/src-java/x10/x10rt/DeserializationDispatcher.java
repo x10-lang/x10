@@ -11,12 +11,13 @@
 
 package x10.x10rt;
 
+import x10.runtime.impl.java.Runtime;
+
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -69,11 +70,17 @@ public class DeserializationDispatcher {
 
         if (i == X10JavaDeserializer.ref) {
             return deserializer.getObjectAtPosition(deserializer.readInt());
+        } else if (i == NULL_ID) {
+            if (Runtime.TRACE_SER) {
+                System.out.println("Deserialized a null reference");
+            }
+            return null;
         } else if (i <=8) {
+            if (Runtime.TRACE_SER) {
+                System.out.println("Deserializing non-null value with id " + i);
+            }
             Object obj = null;
             switch(i) {
-                case NULL_ID:
-                    return null;
                 case STRING_ID:
                      obj =  deserializer.readStringValue();
                     break;
@@ -106,6 +113,9 @@ public class DeserializationDispatcher {
             return obj;
         }
 
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing non-null value with id " + i);
+        }
         final String className = idToClassName.get(i);
         try {
             Class<?> clazz = Class.forName(className);
