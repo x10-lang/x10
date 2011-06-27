@@ -97,6 +97,8 @@ public class DeclStore {
                 throw new InternalCompilerError("If A ->* B, A is at Harvester & ? -> A would break any cycle", call.position(), e);
             }
             ice = getICE(def);
+            if (null == ice)
+                return null; // FIXME: need a cannonical representation of a ProcedureDecl that can be computed at a call site and at compilation; ProcedureDef isn't it !!
         }
         if (!ice.inlinable) return null;
         boolean required = annotations.inliningRequired(call) || annotations.inliningRequired(def);
