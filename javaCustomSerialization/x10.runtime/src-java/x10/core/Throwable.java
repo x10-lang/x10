@@ -153,13 +153,4 @@ public class Throwable extends java.lang.RuntimeException {
             return buffer.append(name).append(": ").append(msg).toString();
         }
     }
-
-    //TODO Keith Do we need to serialize this?
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
-    }
-
-    public int _get_serialization_id() {
-        return 0;
-    }
-
 }
