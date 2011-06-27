@@ -148,10 +148,10 @@ public class DeserializationDispatcher {
         // the class names thus the following code is a workaround for this issue. We
         // need to have the class name cause we do class.forName using this name
         // but the typenames are stored at A.B.C so this disconnect is inevitable
-        if (integer == null) {
-            int i = str.lastIndexOf(".");
-            String s = str.substring(0, i) + "$" + str.substring(i + 1);
-            integer = classNameToId.get(s);
+        int i;
+        while (integer == null && ((i = str.lastIndexOf(".")) > 0)) {
+            str = str.substring(0, i) + "$" + str.substring(i + 1);
+            integer = classNameToId.get(str);
         }
         return integer;
     }
