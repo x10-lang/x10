@@ -161,7 +161,7 @@ public class WSSynthesizer {
         return backMSynth;
     }
     public ConstructorSynth createConstructorSynth(ClassSynth classSynth){
-        ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
+        ConstructorSynth conSynth = classSynth.createConstructor(classSynth.pos());
         conSynth.addAnnotation(genHeaderAnnotation());
         return conSynth;
     }
@@ -492,7 +492,7 @@ public class WSSynthesizer {
 
         //now create the body
         CodeBlockSynth mBodySynth = methodSynth.getMethodBodySynth(compilerPos);        
-        NewInstanceSynth niSynth = new NewInstanceSynth(nf, ct, compilerPos, classSynth.getClassDef().asType());
+        NewInstanceSynth niSynth = new NewInstanceSynth(nf, ct, classSynth.pos(), classSynth.getClassDef().asType());
         niSynth.addArgument(ts.Frame(), upRef);
         niSynth.addArgument(ts.FinishFrame(), ffRef);
         niSynth.addArguments(orgFormalTypes, orgFormalRefs);
