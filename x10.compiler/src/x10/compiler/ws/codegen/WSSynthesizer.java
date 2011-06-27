@@ -122,9 +122,13 @@ public class WSSynthesizer {
         this.synth = new Synthesizer(nf, ts);
     }
     
+    public Position position(Position pos, String s) {
+        return new Position(pos.path(), pos.nameAndLineString() + s);
+    }
+    
     public ClassSynth createClassSynth(Job job, Context ct, Type superClassType,
                                        X10ClassDef outClassDef, Flags flags, String className){
-        ClassSynth classSynth = new ClassSynth(job, nf, ct, compilerPos, superClassType, className);
+        ClassSynth classSynth = new ClassSynth(job, nf, ct, position(outClassDef.position(), className), superClassType, className);
         classSynth.setKind(ClassDef.MEMBER);
         classSynth.setFlags(flags);
         classSynth.setOuter(outClassDef);
@@ -132,7 +136,7 @@ public class WSSynthesizer {
     }
     
     public MethodSynth createFastMethodSynth(ClassSynth classSynth, boolean isInline){
-        MethodSynth fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
+        MethodSynth fastMSynth = classSynth.createMethod(classSynth.pos(), FAST.toString());
         fastMSynth.setFlag(Flags.PUBLIC);
         if (isInline){
             //only set inline to inner frames, not top frames
@@ -143,14 +147,14 @@ public class WSSynthesizer {
     }
     
     public MethodSynth createResumeMethodSynth(ClassSynth classSynth){
-        MethodSynth resumeMSynth = classSynth.createMethod(compilerPos, RESUME.toString());
+        MethodSynth resumeMSynth = classSynth.createMethod(classSynth.pos(), RESUME.toString());
         resumeMSynth.setFlag(Flags.PUBLIC);
         resumeMSynth.addFormal(compilerPos, Flags.FINAL, ts.Worker(), WORKER.toString());
         return resumeMSynth;
     }
     
     public MethodSynth createBackMethodSynth(ClassSynth classSynth){
-        MethodSynth backMSynth = classSynth.createMethod(compilerPos, BACK.toString());
+        MethodSynth backMSynth = classSynth.createMethod(classSynth.pos(), BACK.toString());
         backMSynth.setFlag(Flags.PUBLIC);
         backMSynth.addFormal(compilerPos, Flags.FINAL, ts.Worker(), WORKER.toString());
         backMSynth.addFormal(compilerPos, Flags.FINAL, ts.Frame(), FRAME.toString());
@@ -177,7 +181,7 @@ public class WSSynthesizer {
         Context ct = classSynth.getContext();
         ClassType cType = classSynth.getDef().asType();
         Type scType = PlaceChecker.AddIsHereClause(cType, ct);
-        MethodSynth methodSynth = classSynth.createMethod(compilerPos, REMAP.toString());
+        MethodSynth methodSynth = classSynth.createMethod(classSynth.pos(), REMAP.toString());
                 
         //upcast new instance
         Type upCastTargetType;
@@ -459,7 +463,7 @@ public class WSSynthesizer {
         
         String fastPathName = WSUtil.getMethodFastPathName(methodDef);
         MethodSynth methodSynth;
-        methodSynth = new MethodSynth(nf, ct, compilerPos, containerClassDef, fastPathName);
+        methodSynth = new MethodSynth(nf, ct, methodDef.position(), containerClassDef, fastPathName);
         methodSynth.setFlag(methodDef.flags());
         methodSynth.setReturnType(methodDef.returnType().get());
        
