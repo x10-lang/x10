@@ -147,7 +147,7 @@ public class DeclStore {
      * @return
      */
     private String cannonize(X10ProcedureDef def) {
-        return (def.position().path()+ " " +def.position().nameAndLineString()+ ": " +def.signature()).intern();
+        return (def.position().nameAndLineString()+ ": " +def.signature()).intern();
     }
 
 }
