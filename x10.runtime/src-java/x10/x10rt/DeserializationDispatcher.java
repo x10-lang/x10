@@ -149,9 +149,18 @@ public class DeserializationDispatcher {
         // need to have the class name cause we do class.forName using this name
         // but the typenames are stored at A.B.C so this disconnect is inevitable
         int i;
-        while (integer == null && ((i = str.lastIndexOf(".")) > 0)) {
-            str = str.substring(0, i) + "$" + str.substring(i + 1);
-            integer = classNameToId.get(str);
+        String s = str;
+        while (integer == null && ((i = s.lastIndexOf(".")) > 0)) {
+            s = s.substring(0, i) + "$" + s.substring(i + 1);
+            integer = classNameToId.get(s);
+        }
+        if (integer == null) {
+            // x10.lang.Throwable is mapped to X10Throwable this causes issues
+            // when a typename is set to x10.lang.Throwable cause we do not have a
+            // class by that name. This is a workaround to get around that issue.
+            if (str.equals("x10.lang.Throwable")) {
+                return getIDForClassName("x10.core.X10Throwable");
+            }
         }
         return integer;
     }

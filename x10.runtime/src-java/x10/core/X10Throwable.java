@@ -77,7 +77,7 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
     public void _serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(getMessage());
         // TODO ideally we should serialize cause but its java.lang.Throwable which makes it tough
-        serializer.write((X10JavaSerializable)null);
+//        serializer.write(getCause());
         serializer.write($getStackTrace());
     }
 
@@ -95,10 +95,12 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
         String message = deserializer.readString();
         t.message = message;
         x10.array.Array<java.lang.String> stackTrace = (Array<String>) deserializer.readRef();
-        StackTraceElement[] elements = new StackTraceElement[stackTrace.size];
-        Iterator<Point> iterator = stackTrace.iterator();
-        int i = 0;
-            while(iterator.hasNext$O()) {
+        StackTraceElement[] elements;
+        if (stackTrace != null) {
+            elements = new StackTraceElement[stackTrace.size];
+            Iterator<Point> iterator = stackTrace.iterator();
+            int i = 0;
+            while (iterator.hasNext$O()) {
                 String s = stackTrace.$apply$G(iterator.next$G());
                 int index = s.indexOf("(");
                 String classAndMethod = s.substring(0, index);
@@ -115,6 +117,9 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
                 elements[i] = new StackTraceElement(className, methodName, strings[0], lineNumber);
                 i++;
             }
+        } else {
+            elements = new StackTraceElement[0];
+        }
         t.setStackTrace(elements);
         return t;
     }
