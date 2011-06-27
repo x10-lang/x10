@@ -40,29 +40,54 @@ class InlineCostEstimator extends NodeVisitor {
     static final boolean XTENLANG_2818 = true; // FIXME: Java back-end does not support non-virtual instance calls
     static final boolean XTENLANG_2819 = true; // FIXME: C++  back-end generates incorrect code for embedded fields
 
-    private InlineCostDelegate delegate;
-    protected int cost[] = new int[1];
-    private ProcedureDecl decl;
-    private Job job;
-    private InlineAnnotationUtils annotations;
     boolean inlinable;
+    String reason;
+    final private Job job;
+    final private ProcedureDecl decl;
+    final private InlineAnnotationUtils annotations;
+    final private InlineCostDelegate delegate;
+    final protected int cost[] = new int[1];
 
-    InlineCostEstimator() { // create a placeholder for an uninlinable decl
-        inlinable = false;
+    InlineCostEstimator(String r) {
+        inlinable   = false;
+        reason      = r;
+        job         = null;
+        decl        = null;
+        annotations = null;
+        delegate    = null;
+        
     }
 
     InlineCostEstimator(Job j, ProcedureDecl pd) {
+        inlinable   = true;
         job         = j;
         decl        = pd;
         annotations = new InlineAnnotationUtils(job);
         delegate    = new InlineCostDelegate(this);
-        inlinable   = true;
     }
 
-    ProcedureDecl getDecl(int budget) {
-        if (cost[0] <= budget)
+    public ProcedureDecl getDecl(int budget) {
+        if (inlinable && cost[0] <= budget)
             return decl;
         return null;
+    }
+
+    /**
+     * @param r
+     */
+    private void cannotInline(String r) {
+        inlinable = false;
+        reason    = r;
+    }
+
+    /* (non-Javadoc)
+     * @see polyglot.visit.NodeVisitor#override(polyglot.ast.Node)
+     */
+    @Override
+    public Node override(Node n) {
+        if (!inlinable) 
+            return n; // don't visit
+        return null;  // visit
     }
 
     /* (non-Javadoc)
@@ -71,13 +96,13 @@ class InlineCostEstimator extends NodeVisitor {
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
         if (XTENLANG_2818 && n instanceof Special && ((Special) n).kind() == Special.SUPER && ExpressionFlattener.javaBackend(job)) {
-            inlinable = false;     // Java back-end cannot handle inlined super targets
+            cannotInline("Java back-end cannot handle inlined super targets");
         } else if (XTENLANG_2818 && n instanceof ConstructorCall && ((ConstructorCall) n).kind() == ConstructorCall.SUPER && ExpressionFlattener.javaBackend(job)) {
-            inlinable = false;     // Java back-end cannot handle inlined super calls either
+            cannotInline("Java back-end cannot handle inlined super calls either");
         } else if (XTENLANG_2819 && annotations.hasEmbedAnnotation(n) && !ExpressionFlattener.javaBackend(job)) {
-            inlinable = false;     // C++  back-end cannot handle embedded fields
+            cannotInline("C++  back-end cannot handle embedded fields");
         } else if (annotations.isNativeCode(n)) {
-            inlinable = false;
+            cannotInline("Procedure body contains native code");
         } else {
             delegate.visitAppropriate(n);
         }
@@ -188,4 +213,5 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
     public final void visit(Node_c n) {
         ice.cost[0] += NO_COST;
     }
+
 }

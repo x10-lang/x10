@@ -27,6 +27,7 @@ import polyglot.types.ProcedureDef;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
@@ -44,7 +45,7 @@ public class DeclStore {
 
     private final TypeSystem ts;
     private final NodeFactory nf;
-    private final Map<String, InlineCostEstimator> declPackageMap;
+    private final Map<String, InlineCostEstimator> declPackages;
 
     private Job job;
     private InlineAnnotationUtils annotations;
@@ -52,11 +53,14 @@ public class DeclStore {
     private int implicitMax;
     private boolean initialized;
 
+    private InlineCostEstimator ambiguousDef;
+
     public DeclStore(TypeSystem ts, NodeFactory nf) {
         this.ts      = ts;
         this.nf      = nf;
-        declPackageMap      = CollectionFactory.newHashMap();
+        declPackages = CollectionFactory.newHashMap();
         initialized  = false;
+        ambiguousDef = new InlineCostEstimator("ProcecureDef does not contain necessary position information to disambiguate ProcedureDecl");
     }
 
     public void startJob (Job j) {
@@ -77,8 +81,8 @@ public class DeclStore {
      */
     ProcedureDecl retrieveDecl(InlinableCall call) {
         X10ProcedureDef def = getDef(call);
-        InlineCostEstimator ice = getICE(def);
-        if (null == ice) {
+        InlineCostEstimator pkg = getDeclPackage(def);
+        if (null == pkg) {
             try {
                 Job job = ((ClassType) Types.baseType(((MemberDef) def).container().get())).def().job();
                 if (null == job || null == job.extensionInfo() || null == job.extensionInfo().scheduler())
@@ -86,22 +90,19 @@ public class DeclStore {
                 Scheduler scheduler = job.extensionInfo().scheduler();
                 Goal goal = new Optimizer(scheduler, job).Harvester();
                 if (!scheduler.attempt(goal)) { // throw ICE ??
-                    report("job for candidate does not compile: " +def, call);
-                    cannotInline(def);
+                    putDeclPackage(def, new InlineCostEstimator("job for candidate does not compile: " +def));
                     return null;
                 }
             } catch (CyclicDependencyException e) { // this should never happen
-                report("job for candidate does not compile: " +def, call);
-                cannotInline(def);
+                putDeclPackage(def, new InlineCostEstimator("job for candidate does not compile: " +def+ " (" +e+ ")"));
                 throw new InternalCompilerError("If A ->* B, A is at Harvester & ? -> A would break any cycle", call.position(), e);
             }
-            ice = getICE(def);
-            if (null == ice)
-                return null; // FIXME: need a cannonical representation of a ProcedureDecl that can be computed at a call site and at compilation; ProcedureDef isn't it !!
+            pkg = getDeclPackage(def);
+            assert null != pkg;
         }
-        if (!ice.inlinable) return null;
+        if (!pkg.inlinable) return null;
         boolean required = annotations.inliningRequired(call) || annotations.inliningRequired(def);
-        ProcedureDecl decl = ice.getDecl(required ? Integer.MAX_VALUE : implicit ? implicitMax : 0);
+        ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicit ? implicitMax : 0);
         return decl;
     }
 
@@ -126,41 +127,27 @@ public class DeclStore {
      * @param def
      * @return
      */
-    InlineCostEstimator getICE(X10ProcedureDef def) {
-        return declPackageMap.get(cannonize(def));
+    InlineCostEstimator getDeclPackage(X10ProcedureDef def) {
+        if (Position.COMPILER_GENERATED == def.position())
+            return ambiguousDef;
+        return declPackages.get(cannonize(def));
     }
 
     /**
      * @param def
-     * @param ice
+     * @param pkg
      */
-    void putICE(X10ProcedureDef def, InlineCostEstimator ice) {
-        declPackageMap.put(cannonize(def), ice);
+    void putDeclPackage(X10ProcedureDef def, InlineCostEstimator pkg) {
+        declPackages.put(cannonize(def), pkg);
     }
 
-    /**
-     * @param def
-     */
-    public void cannotInline(X10ProcedureDef def) {
-        putICE(def, new InlineCostEstimator());
-    }
 
     /**
      * @param def
      * @return
      */
     private String cannonize(X10ProcedureDef def) {
-        return (def.position().nameAndLineString()+ ": " +def.signature()).intern();
+        return (def.position().path()+ " " +def.position().nameAndLineString()+ ": " +def.signature()).intern();
     }
 
-    /**
-     * @param string
-     * @param ast
-     */
-    private String report(String string, Node ast) {
-//      return inliner.report(string, ast);
-        return string;
-    }
-
-    
 }

@@ -22,6 +22,7 @@ import polyglot.types.MemberDef;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.types.X10ClassDef;
@@ -66,17 +67,21 @@ public class InlineDeclHarvester extends ContextVisitor {
             ProcedureDecl   decl = (ProcedureDecl) n;
             X10ProcedureDef pdef = (X10ProcedureDef) decl.procedureInstance();
             X10ClassDef     cdef = ((ClassType) Types.baseType(((MemberDef) pdef).container().get())).def();
-            if ( annotations.inliningProhibited(decl) ||
+            InlineCostEstimator pkg;
+            if ( (Position.COMPILER_GENERATED == n.position()) ||
+                 annotations.inliningProhibited(decl) ||
                  annotations.inliningProhibited(cdef) ||
                  annotations.inliningProhibited(pdef) ||
                  ExpressionFlattener.cannotFlatten(n) ||
                  isVirtualOrNative(pdef, cdef)        ||
                  null == decl.body()
                ) {
-                repository.cannotInline(pdef);
-                return new NodeVisitor() { public Node override(Node n) { return n; } }; // don't visit anything
+                pkg = new InlineCostEstimator("Call is uninlinable"); // inlining prohibited
+                repository.putDeclPackage(pdef, pkg);
+            } else {
+                pkg = new InlineCostEstimator(job, decl);
             }
-            return new InlineCostEstimator(job, decl);
+            return pkg;
         }
         return this;
     }
@@ -89,8 +94,8 @@ public class InlineDeclHarvester extends ContextVisitor {
         if (n instanceof ProcedureDecl && v instanceof InlineCostEstimator) {
             ProcedureDecl       dcl = (ProcedureDecl) n;
             X10ProcedureDef     def = (X10ProcedureDef) dcl.procedureInstance();
-            InlineCostEstimator ice = (InlineCostEstimator) v;
-            repository.putICE(def, ice);
+            InlineCostEstimator pkg = (InlineCostEstimator) v;
+            repository.putDeclPackage(def, pkg);
         }
         return n;
     }
