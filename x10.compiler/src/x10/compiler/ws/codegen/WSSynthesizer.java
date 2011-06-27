@@ -124,7 +124,7 @@ public class WSSynthesizer {
     
     public ClassSynth createClassSynth(Job job, Context ct, Type superClassType,
                                        X10ClassDef outClassDef, Flags flags, String className){
-        ClassSynth classSynth = new ClassSynth(job, nf, ct, superClassType, className);
+        ClassSynth classSynth = new ClassSynth(job, nf, ct, compilerPos, superClassType, className);
         classSynth.setKind(ClassDef.MEMBER);
         classSynth.setFlags(flags);
         classSynth.setOuter(outClassDef);
@@ -459,7 +459,7 @@ public class WSSynthesizer {
         
         String fastPathName = WSUtil.getMethodFastPathName(methodDef);
         MethodSynth methodSynth;
-        methodSynth = new MethodSynth(nf, ct, containerClassDef, fastPathName);
+        methodSynth = new MethodSynth(nf, ct, compilerPos, containerClassDef, fastPathName);
         methodSynth.setFlag(methodDef.flags());
         methodSynth.setReturnType(methodDef.returnType().get());
        
