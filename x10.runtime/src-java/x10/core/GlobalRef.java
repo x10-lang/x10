@@ -301,4 +301,101 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         //        + t);
     }
 
+
+    public static class LocalEval extends x10.core.Ref {
+
+	private static final long serialVersionUID = 1L;
+	public static final x10.rtt.RuntimeType<LocalEval> $RTT = new x10.rtt.NamedType<LocalEval>("x10.lang.GlobalRef.LocalEval", LocalEval.class, new x10.rtt.Type[] {x10.rtt.Types.OBJECT});
+	public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+    
+	// constructor just for allocation
+	public LocalEval(final java.lang.System[] $dummy) { super($dummy);}
+	public LocalEval $init() {return this;}
+	// creation method for java code
+	public static LocalEval $make(){return new LocalEval((java.lang.System[])null).$init();}
+        
+
+	public static <$T, $U> $U evalAtHome(x10.rtt.Type $T, x10.rtt.Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval) {
+	    if (x10.rtt.Equality.equalsequals(x10.lang.Runtime.home(),ref.home)) {
+		return eval.$apply(ref.$apply$G(),$T);
+	    } else {
+		return x10.lang.Runtime.<$U>evalAt_1_$_x10$lang$Runtime_T_$$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (java.lang.Class<?>) null));
+	    }
+	}
+        
+        
+	public static <$T> $T getLocalOrCopy(x10.rtt.Type $T, x10.core.GlobalRef<$T> ref) {
+	    if (x10.rtt.Equality.equalsequals(x10.lang.Runtime.home(),ref.home)) {
+		return ref.$apply$G();
+	    } else {
+		return x10.lang.Runtime.<$T>evalAt_1_$_x10$lang$Runtime_T_$$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (java.lang.Class<?>) null));
+	    }
+	}
+
+
+	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
+	    private static final long serialVersionUID = 1L;
+	    public static final x10.rtt.RuntimeType<$Closure$Eval> $RTT =
+		new x10.rtt.StaticFunType<$Closure$Eval>($Closure$Eval.class, 
+							 new x10.rtt.RuntimeType.Variance[] {x10.rtt.RuntimeType.Variance.INVARIANT, x10.rtt.RuntimeType.Variance.INVARIANT},
+							 new x10.rtt.Type[] {new x10.rtt.ParameterizedType(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1)), x10.rtt.Types.OBJECT});
+	    public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+	    public x10.rtt.Type<?> $getParam(int i) {if (i ==0)return $T;if (i ==1)return $U;return null;}
+
+	    // constructor just for allocation
+	    public $Closure$Eval(final java.lang.System[] $dummy) { super($dummy);}
+	    public $Closure$Eval(x10.rtt.Type $T, x10.rtt.Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, java.lang.Class<?> $dummy0) {
+		this.$T = $T;
+		this.$U = $U;
+		this.ref = ref;
+		this.eval = eval;
+	    }
+	    // creation method for java code
+	    public static <$T, $U> $Closure$Eval $make(x10.rtt.Type $T, x10.rtt.Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, java.lang.Class<?> $dummy0){
+		return new $Closure$Eval($T, $U, ref, eval, (java.lang.Class<?>) null);
+	    }
+
+	    private x10.rtt.Type $T;
+	    private x10.rtt.Type $U;
+
+	    public x10.core.GlobalRef<$T> ref;
+	    public x10.core.fun.Fun_0_1<$T,$U> eval;
+                
+	    public $U $apply$G() {
+		return this.eval.$apply(this.ref.$apply$G(),$T);
+	    }
+	}
+
+            
+	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
+	    private static final long serialVersionUID = 1L;
+	    public static final x10.rtt.RuntimeType<$Closure$Apply> $RTT =
+		new x10.rtt.StaticFunType<$Closure$Apply>($Closure$Apply.class, 
+							  new x10.rtt.RuntimeType.Variance[] {x10.rtt.RuntimeType.Variance.INVARIANT},
+							  new x10.rtt.Type[] {new x10.rtt.ParameterizedType(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0)), x10.rtt.Types.OBJECT});
+	    public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+	    public x10.rtt.Type<?> $getParam(int i) {if (i ==0)return $T;return null;}
+
+	    // constructor just for allocation
+	    public $Closure$Apply(final java.lang.System[] $dummy) { super($dummy);}
+	    public $Closure$Apply(x10.rtt.Type $T, x10.core.GlobalRef<$T> ref, java.lang.Class<?> $dummy0) {
+		this.$T = $T;
+		this.ref = ref;
+	    }
+	    // creation method for java code
+	    public static <$T> $Closure$Apply $make(x10.rtt.Type $T, x10.core.GlobalRef<$T> ref, java.lang.Class<?> $dummy0) {
+		return new $Closure$Apply($T, ref,(java.lang.Class<?>) null);
+	    }
+	
+	    private x10.rtt.Type $T;
+
+	    public x10.core.GlobalRef<$T> ref;
+
+	    public $T $apply$G() {
+		return this.ref.$apply$G();
+	    }
+	}
+
+    }
+        
 }
