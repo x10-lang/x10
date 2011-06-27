@@ -44,7 +44,7 @@ public class DeclStore {
 
     private final TypeSystem ts;
     private final NodeFactory nf;
-    private final Map<ProcedureDef, InlineCostEstimator> def2ICE;
+    private final Map<String, InlineCostEstimator> declPackageMap;
 
     private Job job;
     private InlineAnnotationUtils annotations;
@@ -55,7 +55,7 @@ public class DeclStore {
     public DeclStore(TypeSystem ts, NodeFactory nf) {
         this.ts      = ts;
         this.nf      = nf;
-        def2ICE      = CollectionFactory.newHashMap();
+        declPackageMap      = CollectionFactory.newHashMap();
         initialized  = false;
     }
 
@@ -66,7 +66,6 @@ public class DeclStore {
             annotations     = new InlineAnnotationUtils(job);
             Configuration c = ((X10CompilerOptions) job.extensionInfo().getOptions()).x10_config;
             implicit        = c.INLINE_METHODS_IMPLICIT;
-      //    implicitMax     = c.EXPERIMENTAL ? 1 : 0;
             implicitMax     = (c.EXPERIMENTAL ? 3 : 2)*InlineCostDelegate.CALL_COST - 1;
             assert c.OPTIMIZE;
         }
@@ -128,7 +127,7 @@ public class DeclStore {
      * @return
      */
     InlineCostEstimator getICE(X10ProcedureDef def) {
-        return def2ICE.get(def);
+        return declPackageMap.get(cannonize(def));
     }
 
     /**
@@ -136,7 +135,7 @@ public class DeclStore {
      * @param ice
      */
     void putICE(X10ProcedureDef def, InlineCostEstimator ice) {
-        def2ICE.put(def, ice);
+        declPackageMap.put(cannonize(def), ice);
     }
 
     /**
@@ -144,6 +143,14 @@ public class DeclStore {
      */
     public void cannotInline(X10ProcedureDef def) {
         putICE(def, new InlineCostEstimator());
+    }
+
+    /**
+     * @param def
+     * @return
+     */
+    private String cannonize(X10ProcedureDef def) {
+        return (def.position().nameAndLineString()+ ": " +def.signature()).intern();
     }
 
     /**
