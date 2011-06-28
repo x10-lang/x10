@@ -21,9 +21,9 @@ import x10.x10rt.X10RT;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -261,7 +261,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         if (CUSTOM_JAVA_SERIALIZATION) {
             try {
                 byte[] ba = serialize(body);
-                ObjectInputStream ois = new ObjectInputStream(new ByteArrayInputStream(ba));
+                DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Starting deserialization for deepCopy of " + body.getClass());
@@ -314,7 +314,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             startTime = System.nanoTime();
         }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        ObjectOutputStream oos = new ObjectOutputStream(baos);
+        DataOutputStream oos = new DataOutputStream(baos);
         X10JavaSerializer serializer = new X10JavaSerializer(oos);
         if (body instanceof X10JavaSerializable) {
             serializer.write((X10JavaSerializable) body);

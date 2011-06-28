@@ -14,8 +14,8 @@ package x10.x10rt;
 import x10.io.CustomSerialization;
 import x10.runtime.impl.java.Runtime;
 
+import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutput;
 import java.util.IdentityHashMap;
 
 public class X10JavaSerializer {
@@ -25,10 +25,10 @@ public class X10JavaSerializer {
     // When a Object is serialized record its position
     IdentityHashMap<Object, Integer> objectMap = new IdentityHashMap<Object, Integer>();
     static final int refValue = Integer.parseInt("FFFFFFF", 16);
-    ObjectOutput out;
+    DataOutputStream out;
     int counter = 0;
 
-    public X10JavaSerializer(ObjectOutput out) {
+    public X10JavaSerializer(DataOutputStream out) {
         this.out = out;
     }
 
