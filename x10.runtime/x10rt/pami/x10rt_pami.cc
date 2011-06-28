@@ -26,7 +26,19 @@
 
 //#define DEBUG 1
 
+// locally defined environment variables
+#define X10RT_PAMI_ASYNC_PROGRESS "X10RT_PAMI_ASYNC_PROGRESS"
+#define X10RT_PAMI_BLOCKING_SEND "X10RT_PAMI_BLOCKING_SEND"
+#define X10RT_PAMI_DISABLE_HFI "X10RT_PAMI_DISABLE_HFI"
+#define X10RT_PAMI_BARRIER_ALG "X10RT_PAMI_BARRIER_ALG"
+#define X10RT_PAMI_BCAST_ALG "X10RT_PAMI_BCAST_ALG"
+#define X10RT_PAMI_SCATTER_ALG "X10RT_PAMI_SCATTER_ALG"
+#define X10RT_PAMI_ALLTOALL_ALG "X10RT_PAMI_ALLTOALL_ALG"
+#define X10RT_PAMI_ALLREDUCE_ALG "X10RT_PAMI_ALLREDUCE_ALG"
+
 enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE, NEW_TEAM}; // PAMI doesn't send messages with type=0... it just silently eats them.
+enum COLLTYPE{BARRIER=0, BCAST, SCATTER, ALLTOALL, ALLREDUCE};
+
 //mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
 typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
@@ -112,6 +124,7 @@ struct x10rt_pami_state
 	hfi_remote_update_fn hfi_update;
 	pami_extension_t async_extension; // for async progress
 	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
+	int collectiveAlgorithmSelection[5]; // algorithm selection for each supported collective. barrier, broadcast, scatter, alltoall, allreduce
 } state;
 
 static void local_msg_dispatch (pami_context_t context, void* cookie, const void* header_addr, size_t header_size,
@@ -735,7 +748,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	setenv("MP_MSG_API", name, 1);
 
 	// Check if we want to enable async progress
-	if (checkBoolEnvVar(getenv("X10RT_ASYNC_PROGRESS")))
+	if (checkBoolEnvVar(getenv(X10RT_PAMI_ASYNC_PROGRESS)))
 	{
 		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI client: %i\n", status);
@@ -753,13 +766,6 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI client: %i\n", status);
 	}
-
-	// check if we should have send block until all data is out
-	if (checkBoolEnvVar(getenv("X10RT_PAMI_BLOCKING_SEND")))
-		state.blockingSend = true;
-	else
-		state.blockingSend = false;
-
 
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
@@ -807,7 +813,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	#endif
 
 	// see if HFI should be used
-	if (checkBoolEnvVar(getenv("X10RT_DISABLE_HFI")))
+	if (checkBoolEnvVar(getenv(X10RT_PAMI_DISABLE_HFI)))
 		state.hfi_update = NULL;
 	else
 	{
@@ -843,6 +849,25 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	state.teams[0].places = NULL;
 	status = PAMI_Geometry_world(state.client, &state.teams[0].geometry);
 	if (status != PAMI_SUCCESS) error("Unable to create the world geometry");
+
+	// check if we should have send block until all data is out
+	if (checkBoolEnvVar(getenv(X10RT_PAMI_BLOCKING_SEND)))
+		state.blockingSend = true;
+	else
+		state.blockingSend = false;
+
+	// check for overrides to the collective algorithm selection
+	memset(state.collectiveAlgorithmSelection, 0, sizeof(state.collectiveAlgorithmSelection));
+	if (getenv(X10RT_PAMI_BARRIER_ALG))
+		state.collectiveAlgorithmSelection[BARRIER] = atoi(getenv(X10RT_PAMI_BARRIER_ALG));
+	if (getenv(X10RT_PAMI_BCAST_ALG))
+		state.collectiveAlgorithmSelection[BCAST] = atoi(getenv(X10RT_PAMI_BCAST_ALG));
+	if (getenv(X10RT_PAMI_SCATTER_ALG))
+		state.collectiveAlgorithmSelection[SCATTER] = atoi(getenv(X10RT_PAMI_SCATTER_ALG));
+	if (getenv(X10RT_PAMI_ALLTOALL_ALG))
+		state.collectiveAlgorithmSelection[ALLTOALL] = atoi(getenv(X10RT_PAMI_ALLTOALL_ALG));
+	if (getenv(X10RT_PAMI_ALLREDUCE_ALG))
+		state.collectiveAlgorithmSelection[ALLREDUCE] = atoi(getenv(X10RT_PAMI_ALLREDUCE_ALG));
 }
 
 
@@ -1673,9 +1698,12 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing barrier (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing barrier (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[state.collectiveAlgorithmSelection[BARRIER]].name, (void*)tcb);
 	#endif
-	tcb->operation.algorithm = always_works_alg[0];
+	if (state.collectiveAlgorithmSelection[BARRIER] < num_algorithms[0])
+		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[BARRIER]];
+	else
+		tcb->operation.algorithm = must_query_alg[state.collectiveAlgorithmSelection[BARRIER]-num_algorithms[0]];
 
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a barrier on team %u", team);
@@ -1738,10 +1766,13 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing broadcast (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[0].name, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing broadcast (%s). cookie=%p\n", state.myPlaceId, role, always_works_md[state.collectiveAlgorithmSelection[BCAST]].name, (void*)tcb);
 	#endif
 
-	tcb->operation.algorithm = always_works_alg[0];
+	if (state.collectiveAlgorithmSelection[BCAST] < num_algorithms[0])
+		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[BCAST]];
+	else
+		tcb->operation.algorithm = must_query_alg[state.collectiveAlgorithmSelection[BCAST]-num_algorithms[0]];
 	tcb->operation.cmd.xfer_broadcast.type = PAMI_TYPE_BYTE;
 	tcb->operation.cmd.xfer_broadcast.typecount = count*el;
 	if (team == 0)
@@ -1801,7 +1832,10 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	tcb->operation.algorithm = always_works_alg[0];
+	if (state.collectiveAlgorithmSelection[SCATTER] < num_algorithms[0])
+		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[SCATTER]];
+	else
+		tcb->operation.algorithm = must_query_alg[state.collectiveAlgorithmSelection[SCATTER]-num_algorithms[0]];
 	tcb->operation.cmd.xfer_scatter.rcvbuf = (char*)dbuf;
 	if (team == 0)
 		tcb->operation.cmd.xfer_scatter.root = root;
@@ -1814,7 +1848,7 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	tcb->operation.cmd.xfer_scatter.stypecount = el*count;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing scatter (%s): role=%u, root=%u\n", state.myPlaceId, always_works_md[0].name, role, root);
+		fprintf(stderr, "Place %u executing scatter (%s): role=%u, root=%u\n", state.myPlaceId, always_works_md[state.collectiveAlgorithmSelection[SCATTER]].name, role, root);
 	#endif
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue a scatter on team %u", team);
@@ -1866,8 +1900,10 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
 	// NOTE: I've had lots of issues with these algorithms, bouncing between "I0:Pairwise:P2P:P2P" (alg[0]) and I0:M2MComposite:P2P:P2P (alg[1])
-	int chosenAlg = 0; // (state.teams[team].size > 32) ? 1 : 0;
-	tcb->operation.algorithm = always_works_alg[chosenAlg];
+	if (state.collectiveAlgorithmSelection[ALLTOALL] < num_algorithms[0])
+		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[ALLTOALL]];
+	else
+		tcb->operation.algorithm = must_query_alg[state.collectiveAlgorithmSelection[ALLTOALL]-num_algorithms[0]];
 	tcb->operation.cmd.xfer_alltoall.rcvbuf = (char*)dbuf;
 	tcb->operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_BYTE;
 	tcb->operation.cmd.xfer_alltoall.rtypecount = el*count;
@@ -1889,7 +1925,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 			}
 			fprintf(stderr, ".\n");
 		}
-		fprintf(stderr, "Place %u, role %u executing AllToAll (%s) with team %u. cookie=%p\n", state.myPlaceId, role, always_works_md[chosenAlg].name, team, (void*)tcb);
+		fprintf(stderr, "Place %u, role %u executing AllToAll (%s) with team %u. cookie=%p\n", state.myPlaceId, role, always_works_md[state.collectiveAlgorithmSelection[ALLTOALL]].name, team, (void*)tcb);
 	#endif
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an all-to-all on team %u", team);
@@ -1938,7 +1974,10 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
 	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
-	tcb->operation.algorithm = always_works_alg[0];
+	if (state.collectiveAlgorithmSelection[ALLREDUCE] < num_algorithms[0])
+		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[ALLREDUCE]];
+	else
+		tcb->operation.algorithm = must_query_alg[state.collectiveAlgorithmSelection[ALLREDUCE]-num_algorithms[0]];
 	tcb->operation.cmd.xfer_allreduce.sndbuf = (char*)sbuf;
 	tcb->operation.cmd.xfer_allreduce.stype = DATATYPE_CONVERSION_TABLE[dtype];
 	tcb->operation.cmd.xfer_allreduce.stypecount = count;
@@ -1959,7 +1998,7 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	tcb->operation.cmd.xfer_allreduce.data_cookie = NULL;
 	tcb->operation.cmd.xfer_allreduce.commutative = 1;
 	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing allreduce (%s), with type=%u and op=%u\n", state.myPlaceId, always_works_md[0].name, dtype, op);
+		fprintf(stderr, "Place %u executing allreduce (%s), with type=%u and op=%u\n", state.myPlaceId, always_works_md[state.collectiveAlgorithmSelection[ALLREDUCE]].name, dtype, op);
 	#endif
 	status = PAMI_Collective(context, &tcb->operation);
 	if (status != PAMI_SUCCESS) error("Unable to issue an allreduce on team %u", team);
