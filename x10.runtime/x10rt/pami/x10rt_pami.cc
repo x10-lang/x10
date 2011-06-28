@@ -91,6 +91,7 @@ struct x10rt_buffered_data
 {
 	void* header;
 	void* data;
+	unsigned* sendActive;
 };
 
 struct x10rt_pami_state
@@ -110,6 +111,7 @@ struct x10rt_pami_state
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
 	pami_extension_t async_extension; // for async progress
+	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
 } state;
 
 static void local_msg_dispatch (pami_context_t context, void* cookie, const void* header_addr, size_t header_size,
@@ -291,6 +293,8 @@ static void free_buffered_data (pami_context_t   context,
 	x10rt_buffered_data *bd = (x10rt_buffered_data*)cookie;
 	free(bd->header);
 	free(bd->data);
+	if (state.blockingSend)
+		(*bd->sendActive)--;
 	free(bd);
 }
 
@@ -643,7 +647,7 @@ static void team_create_dispatch_part2 (pami_context_t   context,
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
+		fprintf(stderr, "Creating a new team %u at place %u of size %u\n", data->teamId, state.myPlaceId, state.teams[data->teamId].size);
 	#endif
 
 	pami_result_t   status = PAMI_ERROR;
@@ -749,6 +753,13 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI client: %i\n", status);
 	}
+
+	// check if we should have send block until all data is out
+	if (checkBoolEnvVar(getenv("X10RT_PAMI_BLOCKING_SEND")))
+		state.blockingSend = true;
+	else
+		state.blockingSend = false;
+
 
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
@@ -972,14 +983,22 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		parameters.events.local_fn      = free_buffered_data;
 		parameters.events.remote_fn     = NULL;
 
+		unsigned sendActive = 1;
+		bd->sendActive = &sendActive;
+
 		#ifdef DEBUG
 			fprintf(stderr, "(%u) send_msg\n", state.myPlaceId);
 		#endif
 
 		if (state.numParallelContexts)
 		{
-			if ((status = PAMI_Send(getConcurrentContext(), &parameters)) != PAMI_SUCCESS)
+			pami_context_t context = getConcurrentContext();
+			if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
 				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+
+			if (state.blockingSend)
+				while(sendActive)
+					PAMI_Context_advance(context, 1);
 		}
 		else
 		{
@@ -987,6 +1006,11 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
 			if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
 				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+
+			if (state.blockingSend)
+				while(sendActive)
+					PAMI_Context_advance(state.context[0], 1);
+
 			PAMI_Context_unlock(state.context[0]);
 		}
 	}
