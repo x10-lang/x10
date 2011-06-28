@@ -12,6 +12,10 @@ package x10.x10rt;
 
 import x10.runtime.impl.java.Runtime;
 
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+
 /**
  * A class to contain the Java portion of message send/receive pairs.
  */
@@ -39,11 +43,12 @@ public class MessageHandlers {
     		java.io.ByteArrayInputStream byteStream 
     			= new java.io.ByteArrayInputStream(args);
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
-    		java.io.ObjectInputStream objStream = new java.io.ObjectInputStream(byteStream);
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
             x10.core.fun.VoidFun_0_0 actObj;
+            InputStream objStream;
             if (x10.runtime.impl.java.Runtime.CUSTOM_JAVA_SERIALIZATION) {
-                X10JavaDeserializer deserializer = new X10JavaDeserializer(objStream);
+                objStream = new DataInputStream(byteStream);
+    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
+                X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
                 if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
                     System.out.println("Starting deserialization ");
                 }
@@ -52,7 +57,9 @@ public class MessageHandlers {
                     System.out.println("Ending deserialization ");
                 }
             } else {
-                actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
+                objStream = new java.io.ObjectInputStream(byteStream);
+    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
+                actObj = (x10.core.fun.VoidFun_0_0) ((ObjectInputStream)objStream).readObject();
             }
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast and deserialization");
     		actObj.$apply();

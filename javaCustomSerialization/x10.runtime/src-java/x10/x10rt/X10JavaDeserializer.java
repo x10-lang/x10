@@ -13,8 +13,8 @@ package x10.x10rt;
 
 import x10.runtime.impl.java.Runtime;
 
+import java.io.DataInputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,10 +23,10 @@ public class X10JavaDeserializer {
     // When a Object is deserialized record its position
     private List<Object> objectList;
     public static final int ref = Integer.parseInt("FFFFFFF", 16);
-    private ObjectInputStream in;
+    private DataInputStream in;
     private int counter = 0;
 
-    public X10JavaDeserializer(ObjectInputStream in) {
+    public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
         objectList = new ArrayList<Object>();
     }
@@ -63,17 +63,6 @@ public class X10JavaDeserializer {
         for (int i = 0; i < length; i++) {
             array[i] = (T) readRef();
         }
-    }
-
-    public Object javaDeserialize() throws IOException {
-        Object obj = null;
-        try {
-            obj = in.readObject();
-        } catch (ClassNotFoundException e) {
-            // This should never happen cause we write both ends of the code
-            throw new java.lang.RuntimeException(e);
-        }
-        return obj;
     }
 
     public int readInt() throws IOException {

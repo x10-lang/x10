@@ -11,7 +11,12 @@
 
 package x10.runtime.impl.java;
 
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -195,7 +200,7 @@ public abstract class InitDispatcher {
                 return Runtime.serialize(object);
             }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
+            ObjectOutputStream out = new ObjectOutputStream(baos);
             out.writeObject(object);
             out.close();
             return baos.toByteArray();
@@ -209,12 +214,16 @@ public abstract class InitDispatcher {
     public static Object deserializeField(byte[] buf) {
         try {
             java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            java.io.ObjectInputStream in = new java.io.ObjectInputStream(bais);
+
 
             if (Runtime.CUSTOM_JAVA_SERIALIZATION) {
+                DataInputStream in = new DataInputStream(bais);
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
-                return deserializer.deSerialize();
+                Object o = deserializer.deSerialize();
+                in.close();
+                return o;
             }
+            ObjectInputStream in = new ObjectInputStream(bais);
             Object val = in.readObject();
             in.close();
             return val;
