@@ -60,6 +60,12 @@ public class DeserializationDispatcher {
         return i-1;
     }
 
+    public static int addDispatcher(String className, String alternate) {
+        int i = addDispatcher(className);
+        classNameToId.put(alternate,  i);
+        return i;
+    }
+
     private static void add(String str) {
         classNameToId.put(str, i);
         idToClassName.add(i, str);
@@ -153,14 +159,6 @@ public class DeserializationDispatcher {
         while (integer == null && ((i = s.lastIndexOf(".")) > 0)) {
             s = s.substring(0, i) + "$" + s.substring(i + 1);
             integer = classNameToId.get(s);
-        }
-        if (integer == null) {
-            // x10.lang.Throwable is mapped to X10Throwable this causes issues
-            // when a typename is set to x10.lang.Throwable cause we do not have a
-            // class by that name. This is a workaround to get around that issue.
-            if (str.equals("x10.lang.Throwable")) {
-                return getIDForClassName("x10.core.X10Throwable");
-            }
         }
         return integer;
     }
