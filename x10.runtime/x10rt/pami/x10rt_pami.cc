@@ -22,7 +22,6 @@
 #include <x10rt_net.h>
 #include <pami.h>
 #include <pami_ext_hfi.h>
-#include <pami_ext_pe.h>
 
 //#define DEBUG 1
 
@@ -45,6 +44,19 @@ typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*teamCallback2)(x10rt_team, void *);
 typedef void (*teamCallback)(void *);
+
+// definitions for PAMI async progress
+#define PAMIX_CLIENT_ASYNC_GUARANTEE 1016
+typedef enum
+{
+	PAMIX_ASYNC_ALL =    0,
+	PAMIX_ASYNC_EXT = 1000
+} pamix_async_t;
+typedef void (* pamix_async_function) (pami_context_t context, void *cookie);
+typedef pami_result_t (* async_progress_register_function) (pami_context_t context, pamix_async_function progress_fn,
+		pamix_async_function suspend_fn, pamix_async_function resume_fn, void* cookie);
+typedef pami_result_t (* async_progress_enable_function) (pami_context_t context, pamix_async_t event_type);
+typedef pami_result_t (* async_progress_disable_function) (pami_context_t context, pamix_async_t event_type);
 
 // the values for pami_dt are mapped to the indexes of x10rt_red_type
 pami_type_t DATATYPE_CONVERSION_TABLE[] = {PAMI_TYPE_UNSIGNED_CHAR, PAMI_TYPE_SIGNED_CHAR, PAMI_TYPE_SIGNED_SHORT, PAMI_TYPE_UNSIGNED_SHORT, PAMI_TYPE_SIGNED_INT,
@@ -240,12 +252,21 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 
 	if (state.async_extension)
 	{
+		pami_configuration_t configuration;
+		configuration.name = (pami_attribute_name_t)PAMIX_CLIENT_ASYNC_GUARANTEE;
+		PAMI_Client_query (state.client, &configuration, 1);
+		if (configuration.value.intval == 0)
+		{
+			async_progress_register_function PAMIX_Context_async_progress_register = (async_progress_register_function) PAMI_Extension_symbol (state.async_extension, "register");
+			PAMIX_Context_async_progress_register (context, NULL, NULL, NULL, NULL);
+		}
+
+		async_progress_enable_function PAMIX_Context_async_progress_enable = (async_progress_enable_function) PAMI_Extension_symbol (state.async_extension, "enable");
+		PAMIX_Context_async_progress_enable (context, PAMIX_ASYNC_ALL);
+
 		#ifdef DEBUG
 			fprintf(stderr, "ASYNC Progress enabled at place %u\n", state.myPlaceId);
 		#endif
-		async_progress_enable_fn pami_async_enable;
-		pami_async_enable = (async_progress_enable_fn) PAMI_Extension_symbol(state.async_extension, "async_enable");
-		pami_async_enable(context, PAMI_ASYNC_ALL);
 	}
 }
 
@@ -758,7 +779,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI client: %i\n", status);
 
-		status = PAMI_Extension_open (state.client, "EXT_pe_extension", &state.async_extension);
+		status = PAMI_Extension_open(state.client, "EXT_async_progress", &state.async_extension);
 		if (status != PAMI_SUCCESS)
 			error("ASYNC progress requested but unavailable at place %u because PAMI_Extension_open status=%u\n", state.myPlaceId, status);
 
@@ -1277,6 +1298,12 @@ void x10rt_net_finalize()
 
 	if (state.async_extension != NULL)
 	{
+		async_progress_disable_function PAMIX_Context_async_progress_disable = (async_progress_disable_function) PAMI_Extension_symbol (state.async_extension, "disable");
+		if (state.numParallelContexts)
+			for (int i=0; i<state.numParallelContexts; i++)
+				PAMIX_Context_async_progress_disable (state.context[i], PAMIX_ASYNC_ALL);
+		else
+			PAMIX_Context_async_progress_disable (state.context[0], PAMIX_ASYNC_ALL);
 		PAMI_Extension_close (state.async_extension);
 		state.async_extension = NULL;
 	}
