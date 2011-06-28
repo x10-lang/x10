@@ -103,7 +103,6 @@ struct x10rt_buffered_data
 {
 	void* header;
 	void* data;
-	unsigned* sendActive;
 };
 
 struct x10rt_pami_state
@@ -124,7 +123,7 @@ struct x10rt_pami_state
 	hfi_remote_update_fn hfi_update;
 	pami_extension_t async_extension; // for async progress
 	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
-	int collectiveAlgorithmSelection[5]; // algorithm selection for each supported collective. barrier, broadcast, scatter, alltoall, allreduce
+	uint32_t collectiveAlgorithmSelection[5]; // algorithm selection for each supported collective. barrier, broadcast, scatter, alltoall, allreduce
 } state;
 
 static void local_msg_dispatch (pami_context_t context, void* cookie, const void* header_addr, size_t header_size,
@@ -297,6 +296,14 @@ static void cookie_free (pami_context_t   context,
 	free(cookie);
 }
 
+static void cookie_decrement (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	unsigned * active = (unsigned *) cookie;
+	(*active)--;
+}
+
 static void free_buffered_data (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
@@ -306,8 +313,6 @@ static void free_buffered_data (pami_context_t   context,
 	x10rt_buffered_data *bd = (x10rt_buffered_data*)cookie;
 	free(bd->header);
 	free(bd->data);
-	if (state.blockingSend)
-		(*bd->sendActive)--;
 	free(bd);
 }
 
@@ -991,52 +996,76 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	}
 	else
 	{
-		x10rt_buffered_data *bd = (x10rt_buffered_data *)malloc(sizeof(x10rt_buffered_data));
-		bd->header = malloc(sizeof(p->type));
-		memcpy(bd->header, &p->type, sizeof(p->type));
-		bd->data = malloc(p->len);
-		memcpy(bd->data, p->msg, p->len);
 		pami_send_t parameters;
 		parameters.send.dispatch        = STANDARD;
-		parameters.send.header.iov_base = bd->header;
 		parameters.send.header.iov_len  = sizeof(p->type);
-		parameters.send.data.iov_base   = bd->data;
 		parameters.send.data.iov_len    = p->len;
 		parameters.send.dest 			= target;
 		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
-		parameters.events.cookie        = bd;
-		parameters.events.local_fn      = free_buffered_data;
 		parameters.events.remote_fn     = NULL;
-
-		unsigned sendActive = 1;
-		bd->sendActive = &sendActive;
 
 		#ifdef DEBUG
 			fprintf(stderr, "(%u) send_msg\n", state.myPlaceId);
 		#endif
 
-		if (state.numParallelContexts)
+		if (state.blockingSend)
 		{
-			pami_context_t context = getConcurrentContext();
-			if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+			volatile unsigned sendActive = 1;
 
-			if (state.blockingSend)
+			parameters.send.header.iov_base = &p->type;
+			parameters.send.data.iov_base   = p->msg;
+			parameters.events.cookie        = (void *)&sendActive;
+			parameters.events.local_fn      = cookie_decrement;
+
+			if (state.numParallelContexts)
+			{
+				pami_context_t context = getConcurrentContext();
+				if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
+					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+
 				while(sendActive)
 					PAMI_Context_advance(context, 1);
-		}
-		else
-		{
-			status = PAMI_Context_lock(state.context[0]);
-			if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
-			if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
-				error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+			}
+			else
+			{
+				status = PAMI_Context_lock(state.context[0]);
+				if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
+				if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
+					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
-			if (state.blockingSend)
 				while(sendActive)
 					PAMI_Context_advance(state.context[0], 1);
 
-			PAMI_Context_unlock(state.context[0]);
+				PAMI_Context_unlock(state.context[0]);
+			}
+		}
+		else
+		{
+			x10rt_buffered_data *bd = (x10rt_buffered_data *)malloc(sizeof(x10rt_buffered_data));
+			bd->header = malloc(sizeof(p->type));
+			memcpy(bd->header, &p->type, sizeof(p->type));
+			bd->data = malloc(p->len);
+			memcpy(bd->data, p->msg, p->len);
+
+			parameters.send.header.iov_base = bd->header;
+			parameters.send.data.iov_base   = bd->data;
+			parameters.events.cookie        = bd;
+			parameters.events.local_fn      = free_buffered_data;
+
+			if (state.numParallelContexts)
+			{
+				pami_context_t context = getConcurrentContext();
+				if ((status = PAMI_Send(context, &parameters)) != PAMI_SUCCESS)
+					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+			}
+			else
+			{
+				status = PAMI_Context_lock(state.context[0]);
+				if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
+				if ((status = PAMI_Send(state.context[0], &parameters)) != PAMI_SUCCESS)
+					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
+				PAMI_Context_unlock(state.context[0]);
+			}
 		}
 	}
 }
