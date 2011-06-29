@@ -8,7 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2010.
  */
-package x10.optimizations.inlining;
+package x10.visit;
 
 import java.util.Map;
 import java.util.Set;

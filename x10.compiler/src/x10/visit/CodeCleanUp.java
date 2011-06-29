@@ -41,7 +41,6 @@ import x10.ast.AtStmt;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
 import x10.extension.X10Ext;
-import x10.optimizations.inlining.X10AlphaRenamer;
 import x10.util.CollectionFactory;
 
 /**

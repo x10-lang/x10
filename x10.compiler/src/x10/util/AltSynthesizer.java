@@ -516,6 +516,18 @@ public class AltSynthesizer {
     }
 
     /**
+     * @param pos
+     * @param expr
+     * @param type
+     * @param context
+     * @return
+     */
+    public Expr createUncheckedCast(Position pos, Expr expr, Type type, Context context) {
+        if (ts.typeDeepBaseEquals(expr.type(), type, context))
+            return expr;
+        return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, type), expr, Converter.ConversionType.UNCHECKED).type(type);
+    }
+    /**
      * Create a coercion (implicit conversion) expression.
      * 
      * @param pos the Position of the cast in the source code
