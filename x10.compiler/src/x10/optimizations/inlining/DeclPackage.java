@@ -15,8 +15,8 @@ import polyglot.ast.Assign_c;
 import polyglot.ast.Call_c;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorCall_c;
+import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
-import polyglot.ast.FieldDecl;
 import polyglot.ast.Lit_c;
 import polyglot.ast.Local_c;
 import polyglot.ast.Node;
@@ -24,8 +24,12 @@ import polyglot.ast.Node_c;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Special;
 import polyglot.frontend.Job;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall_c;
+import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
 import x10.ast.StmtExpr_c;
 import x10.visit.ExpressionFlattener;
@@ -113,6 +117,7 @@ class DeclPackage extends NodeVisitor {
 
 final class CostDelegate extends X10DelegatingVisitor{
     static final int CALL_COST        = 0x10;
+    static final int CONSTRUCTOR_COST = 8;
     static final int OPERATION_COST   = 2;
     static final int SMALL_COST       = 1;
     static final int NO_COST          = 0;
@@ -133,30 +138,40 @@ final class CostDelegate extends X10DelegatingVisitor{
     }
 
     /**
-     * Closure calls are charged less than other calls.
+     * Closure calls are free, if the target is a closure literal.
      * 
      * @see x10.visit.X10DelegatingVisitor#visit(x10.ast.ClosureCall_c)
      */
     @Override
-    public void visit(ClosureCall_c n) { // todo handle cases separately
-        pkg.cost[0] += OPERATION_COST;
+    public void visit(ClosureCall_c n) {
+        if (!(n.target() instanceof Closure))
+            pkg.cost[0] += CALL_COST;
     }
 
     /**
-     * Constructor calls are charged 16.
+     * Constructor calls are charged 8.
      * 
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.ConstructorCall_c)
      */
-    public final void visit(ConstructorCall_c c) { // todo cc are cheaper
-        pkg.cost[0] += CALL_COST;
+    public final void visit(ConstructorCall_c c) { 
+        pkg.cost[0] += CONSTRUCTOR_COST;
     }
 
     /**
-     * Method calls are charged 16.
+     * Method calls are charged 16. 
+     * Intrinsic calls are charged 2.
      * 
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Call_c)
      */
-    public final void visit(Call_c c) { // TODO handle target Arithmetic, boolean, and Char or @intrinsic
+    public final void visit(Call_c c) {
+        if (c.target() instanceof Expr) { // TODO @intrinsic
+            Type type = Types.baseType(((Expr) c.target()).type());
+            TypeSystem ts = type.typeSystem();
+            if (ts.isLongOrLess(type) || ts.isChar(type) || ts.isBoolean(type)) {
+                pkg.cost[0] += OPERATION_COST;
+                return;
+            }
+        }
         pkg.cost[0] += CALL_COST;
     }
 
