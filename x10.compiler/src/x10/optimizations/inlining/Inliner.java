@@ -27,6 +27,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureCall;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
@@ -37,7 +38,6 @@ import polyglot.ast.Variable;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -75,7 +75,6 @@ import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
 import x10.types.X10LocalDef;
 import x10.types.X10ProcedureDef;
-import x10.types.checker.Converter;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
 import x10.types.constraints.CTerms;
@@ -84,7 +83,6 @@ import x10.util.AnnotationUtils;
 import x10.visit.ConstantPropagator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.NodeTransformingVisitor;
-import x10.visit.Reinstantiator;
 import x10.visit.X10AlphaRenamer;
 import x10cuda.ast.CUDAKernel;
 
@@ -100,7 +98,7 @@ import x10cuda.ast.CUDAKernel;
  * 
  * @author nystrom
  * @author igor
- * @author Bowen Alpern (alpernb@us.ibm.com)
+ * @author Bowen Alpern
  */
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
@@ -130,22 +128,26 @@ public class Inliner extends ContextVisitor {
     private DeclStore repository;
     private InlineUtils utils;
 
-    private final boolean INLINE_CONSTANTS;
-    private final boolean INLINE_METHODS;
-    private final boolean INLINE_CLOSURES;
-    private final boolean INLINE_CONSTRUCTORS;
-
+    /**
+     * Create a new Inliner.
+     * 
+     * @param job the Job whose procedures (methods, constructors, and closures) are to have their procedure calls inlined
+     * @param ts the current TypeSystem
+     * @param nf the current NodeFactory
+     */
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         syn                   = new AltSynthesizer(ts, nf);
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
         Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-        INLINE_CONSTANTS      = config.OPTIMIZE && config.INLINE_CONSTANTS;
-        INLINE_METHODS        = config.OPTIMIZE && config.INLINE_METHODS;
-        INLINE_CLOSURES       = config.OPTIMIZE && config.INLINE_CLOSURES;
-        INLINE_CONSTRUCTORS   = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
     }
 
+    /**
+     * Initialize this Inliner.  
+     * Some of this initialization cannot be done in the constructor or in would introduce cycles in the schedule.
+     * 
+     * @see polyglot.visit.ContextVisitor#begin()
+     */
     @Override
     public NodeVisitor begin() {
         repository        = job.compiler().getInlinerData(job, ts, nf);
@@ -172,9 +174,6 @@ public class Inliner extends ContextVisitor {
             if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }
-        if (node instanceof ConstructorCall && !INLINE_CONSTRUCTORS) {
-            return node; // for now, don't flatten constructor calls
-        }
         if (node instanceof X10MethodDecl) {
             return null; // @NoInline annotation means something else
         }
@@ -189,38 +188,39 @@ public class Inliner extends ContextVisitor {
                 return node;
             }
         }
-        if (utils.inliningProhibited(node)) { // allows whole AST's to be ignored TODO: DEBUG only (remove this)
+        if (utils.inliningProhibited(node)) { // allows whole AST's to be ignored (primarily DEBUG only (remove this)
             if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
             return node;
         }
         return null;
     }
 
+    /**
+     * Rewrite procedure (method, constructor, closure) call nodes, inlining the body of the callee.
+     * 
+     * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
+     */
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+        if (n instanceof X10MethodDecl && AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), utils.InlineOnlyType))
+            return null;
+        if (!(n instanceof ProcedureCall))
+            return n;
         Position pos = n.position();
         inliningRequired = false;
         reasons.clear();
         Node result = null;
-        if (n instanceof ClosureCall && INLINE_CLOSURES) {
+        if (n instanceof ClosureCall) {
             if (4 <= VERBOSITY)
                 Warnings.issue(job, "? inline level " +inlineInstances.size()+ " closure " +n, pos);
             result = inlineClosureCall((ClosureCall) n);
         } else if (n instanceof InlinableCall) {
-            if (INLINE_CONSTANTS) {
-                result = inlineConstant((InlinableCall) n);
-                if (null != result) 
-                    return result;
-            }
-            if (INLINE_METHODS) {
-                if (4 <= VERBOSITY)
-                    Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
-                result = inlineCall((InlinableCall) n);
-            }
-        } else if (n instanceof X10MethodDecl) {
-            if (AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), utils.InlineOnlyType))
-                return null; // ASK: is this the right way to remove a method decl from the ast?
-            return n;
-        } else {
+            result = inlineConstant((InlinableCall) n);
+            if (null != result) 
+                return result;
+            if (4 <= VERBOSITY)
+                Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
+            result = inlineCall((InlinableCall) n);
+        } else { // this shouldn't happen
             return n;
         }
         if (null == result) { // cannot inline this call
@@ -242,60 +242,12 @@ public class Inliner extends ContextVisitor {
             }
             return n;
         }
-        if (n != result) { // inlining this call
-            if (n instanceof ConstructorCall && result instanceof StmtExpr) { // evaluate the expr // method calls in Stmt context are already sowrapped
-                result = syn.createEval((StmtExpr) result);
-            }
-            if (3 <= VERBOSITY) {
-                Warnings.issue(job, "INLINING: " +n+ " (level " +inlineInstances.size()+ ")", pos);
-            }
+        if (n instanceof ConstructorCall && result instanceof StmtExpr) { // evaluate the expr // method calls in Stmt context are already sowrapped
+            result = syn.createEval((StmtExpr) result);
         }
+        if (n != result && 3 <= VERBOSITY)
+            Warnings.issue(job, "INLINING: " +n+ " (level " +inlineInstances.size()+ ")", pos);
         return result;
-    }
-
-    /**
-     * @param call
-     * @return
-     */
-    private Node inlineConstant(InlinableCall call) {
-        x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
-        x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
-        try {
-            X10ProcedureDef def = repository.getDef(call);
-            Type type = def.returnType().get();
-            List<Type> a = AnnotationUtils.getAnnotations(def, utils.ConstantType);
-            X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
-            ConstantValue cv = extractCompileTimeConstant(type, a, opts, context);
-            if (cv == null) return null;
-            Expr literal = cv.toLit(nf, ts, type, call.position());
-            return literal;
-        }
-        finally {
-            x10Info.stats.stopTiming();
-        }
-    }
-
-    public static ConstantValue extractCompileTimeConstant(Type type, List<? extends Type> annotations, X10CompilerOptions opts, Context context) {
-        if (annotations.isEmpty()) return null;
-        TypeSystem ts = type.typeSystem();
-        Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
-        if (!arg.isConstant() || !arg.type().isSubtype(ts.String(), context)) 
-            return null;
-        String name = ((StringValue) arg.constantValue()).value();
-        Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
-        if (negate) {
-            assert ts.isBoolean(type);
-            name = name.substring(1);
-        }
-        try {
-            Object value = opts.x10_config.get(name);
-            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
-            return cv;
-        } catch (ConfigurationError e) {
-            return null;
-        } catch (OptionError e) {
-            return null;
-        }
     }
 
     private Expr inlineClosureCall(ClosureCall c) {
@@ -342,6 +294,51 @@ public class Inliner extends ContextVisitor {
             return (Closure) ((Variable) target).constantValue();
         }
         return null;
+    }
+
+    /**
+     * @param call
+     * @return
+     */
+    private Node inlineConstant(InlinableCall call) {
+        x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
+        x10Info.stats.startTiming("ConstantPropagator", "ConstantPropagator");
+        try {
+            X10ProcedureDef def = repository.getDef(call);
+            Type type = def.returnType().get();
+            List<Type> a = AnnotationUtils.getAnnotations(def, utils.ConstantType);
+            X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
+            ConstantValue cv = extractCompileTimeConstant(type, a, opts, context);
+            if (cv == null) return null;
+            Expr literal = cv.toLit(nf, ts, type, call.position());
+            return literal;
+        }
+        finally {
+            x10Info.stats.stopTiming();
+        }
+    }
+
+    public static ConstantValue extractCompileTimeConstant(Type type, List<? extends Type> annotations, X10CompilerOptions opts, Context context) {
+        if (annotations.isEmpty()) return null;
+        TypeSystem ts = type.typeSystem();
+        Expr arg = ((X10ClassType) annotations.get(0)).propertyInitializer(0);
+        if (!arg.isConstant() || !arg.type().isSubtype(ts.String(), context)) 
+            return null;
+        String name = ((StringValue) arg.constantValue()).value();
+        Boolean negate = name.startsWith("!"); // hack to allow @CompileTimeConstant("!NO_CHECKS")
+        if (negate) {
+            assert ts.isBoolean(type);
+            name = name.substring(1);
+        }
+        try {
+            Object value = opts.x10_config.get(name);
+            ConstantValue cv = ConstantValue.make(type, negate ? ! (Boolean) value : value);
+            return cv;
+        } catch (ConfigurationError e) {
+            return null;
+        } catch (OptionError e) {
+            return null;
+        }
     }
 
     private Expr inlineCall(InlinableCall call) {

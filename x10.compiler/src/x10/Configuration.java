@@ -63,22 +63,12 @@ public final class Configuration extends x10.config.Configuration {
     public boolean SPLIT_CONSTRUCTORS = true;
     private static final String SPLIT_CONSTRUCTORS_desc = "Replace New with Allocation and ConstructorCall nodes";
 
-    public boolean INLINE_CONSTANTS = true;
-    private static final String INLINE_CONSTANTS_desc = "Enable inlining of command-line flag values";
+    public boolean INLINE = true;
+    private static final String INLINE_desc = "Enable explicit and implicit inlining of methods, constructors, closures, andcommand-line constants";
 
-    public boolean INLINE_METHODS = true;
-    private static final String INLINE_METHODS_desc = "Perform method inlining optimizations";
+    public int INLINE_SIZE = 1;
+    private static final String INLINE_SIZE_desc = "Maximum number of calls in a method to be implicitly inlined (-1 turns off implicit inlining)";
     
-    // Note: this has more limited affect than CLOSURE_INLINING which also must be true for the Inliner to inline closure calls
-    public boolean INLINE_CLOSURES = true;
-    private static final String INLINE_CLOSURES_desc = "Enable inlining of closure literal calls";
-
-    public boolean INLINE_METHODS_IMPLICIT = true;
-    private static final String INLINE_METHODS_IMPLICIT_desc = "Inline methods that don't make many calls";
-
-    public boolean INLINE_CONSTRUCTORS = true;
-    private static final String INLINE_CONSTRUCTORS_desc = "Inline constructor calls";
-
     public boolean ALLOW_STATEMENT_EXPRESSIONS = true;
     private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";
 

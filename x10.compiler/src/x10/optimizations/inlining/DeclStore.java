@@ -49,7 +49,6 @@ public class DeclStore {
 
     private Job job;
     private InlineUtils utils;
-    private boolean implicit;
     private int implicitMax;
     private boolean initialized;
 
@@ -69,9 +68,9 @@ public class DeclStore {
             initialized     = true;
             utils           = new InlineUtils(job);
             Configuration c = ((X10CompilerOptions) job.extensionInfo().getOptions()).x10_config;
-            implicit        = c.INLINE_METHODS_IMPLICIT;
-            implicitMax     = (c.EXPERIMENTAL ? 3 : 2)*CostDelegate.CALL_COST - 1;
-            assert c.OPTIMIZE;
+            int impCalls    = c.INLINE_SIZE + (c.EXPERIMENTAL ? 1 : 0);
+            implicitMax     = (impCalls+1)*CostDelegate.CALL_COST - 1;
+            assert c.OPTIMIZE && (c.INLINE || 0 < c.INLINE_SIZE);
         }
     }
 
@@ -102,7 +101,7 @@ public class DeclStore {
         }
         if (!pkg.inlinable) return null;
         boolean required = utils.inliningRequired(call) || utils.inliningRequired(def);
-        ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicit ? implicitMax : 0);
+        ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicitMax);
         return decl;
     }
 

@@ -36,12 +36,7 @@ public class Optimizer {
 
     public static boolean INLINING(ExtensionInfo extInfo) {
         Configuration config = extInfo.getOptions().x10_config;
-        if (!config.OPTIMIZE)        return false;
-        if (config.INLINE_CONSTANTS) return true;
-        if (config.INLINE_METHODS)   return true;
-        if (config.INLINE_CLOSURES)  return true;
-        if (config.INLINE_METHODS_IMPLICIT) return true;
-        return false;
+        return config.OPTIMIZE && (config.INLINE || 0 < config.INLINE_SIZE);
     }
 
     public static boolean FLATTENING(ExtensionInfo extInfo) {
