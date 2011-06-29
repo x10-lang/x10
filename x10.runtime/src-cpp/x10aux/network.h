@@ -113,6 +113,25 @@ namespace x10aux {
     extern volatile x10_long serialized_bytes;
     extern volatile x10_long deserialized_bytes;
 
+    // use templates to avoid including Runtime__X10RTStats.h and friends from x10aux
+    template<class U> U get_X10RTMessageStats (x10rt_msg_stats &m)
+    {
+        return U::_make(m.bytes_sent, m.messages_sent, m.bytes_received, m.messages_received);
+    }
+
+    template<class T, class U> T get_X10RTStats (void)
+    {
+        x10rt_stats s;
+        x10rt_get_stats(&s);
+        return T::_make(x10aux::get_X10RTMessageStats<U>(s.msg),
+                        x10aux::get_X10RTMessageStats<U>(s.put),
+                        s.put_copied_bytes_sent,
+                        s.put_copied_bytes_received,
+                        x10aux::get_X10RTMessageStats<U>(s.get),
+                        s.get_copied_bytes_sent,
+                        s.get_copied_bytes_received);
+    }
+
     extern x10_int platform_max_threads;
     extern x10_boolean default_static_threads;
 

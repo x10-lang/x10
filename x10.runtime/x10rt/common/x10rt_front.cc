@@ -183,3 +183,13 @@ void x10rt_remote_ptr_setter (x10rt_remote_ptr v, void *arg)
 { *((x10rt_remote_ptr*)arg) = v; }
 
 
+
+void x10rt_get_stats (x10rt_stats *s)
+{ x10rt_lgl_get_stats(s); }
+
+void x10rt_set_stats (x10rt_stats *s)
+{ x10rt_lgl_set_stats(s); }
+
+void x10rt_zero_stats (x10rt_stats *s)
+{ x10rt_lgl_zero_stats(s); }
+

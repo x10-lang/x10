@@ -222,6 +222,10 @@ X10RT_C void x10rt_lgl_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
  */
 X10RT_C void x10rt_lgl_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
+X10RT_C void x10rt_lgl_get_stats (x10rt_stats *s);
+X10RT_C void x10rt_lgl_set_stats (x10rt_stats *s);
+X10RT_C void x10rt_lgl_zero_stats (x10rt_stats *s);
+
 
 /** \see #x10rt_remote_alloc
  * \param place As in x10rt_remote_alloc.
