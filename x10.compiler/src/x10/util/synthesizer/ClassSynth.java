@@ -93,10 +93,6 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
      * @param superType
      * @param className
      */
-    public ClassSynth(Job job, NodeFactory xnf, Context xct, Type superType, String className) {
-        this(job, xnf, xct, compilerPos, superType, className);
-    }
-
     public ClassSynth(Job job, NodeFactory xnf, Context xct, Position pos, Type superType, String className) {
         this(job, xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.MEMBER);
     }

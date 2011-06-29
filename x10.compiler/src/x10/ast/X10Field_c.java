@@ -307,7 +307,7 @@ public class X10Field_c extends Field_c {
             fi = fi.error(error);
         }
 
-        if (target() instanceof X10Special) {
+        if (isFieldOfThis(this)) {
             c.recordCapturedVariable(fi);
         }
 
@@ -340,13 +340,19 @@ public class X10Field_c extends Field_c {
 		    } catch (SemanticException e) {
 		        Errors.issue(tc.job(), e);
 		    }
-        }
+		}
 
 		// Not needed in the orthogonal locality proposal.
 		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
 		//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
 		return result;
+	}
+
+	public static boolean isFieldOfThis(Field f) {
+	    Receiver target = f.target();
+	    if (target == null && !f.flags().isStatic()) return true;
+	    return target instanceof X10Special && ((X10Special) target).qualifier() == null;
 	}
 
 	/**

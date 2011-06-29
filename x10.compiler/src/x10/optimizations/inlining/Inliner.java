@@ -37,6 +37,7 @@ import polyglot.ast.Variable;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -83,6 +84,7 @@ import x10.visit.ConstantPropagator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.NodeTransformingVisitor;
 import x10.visit.Reinstantiator;
+import x10cuda.ast.CUDAKernel;
 
 /**
  * This visitor inlines calls to methods and closures under the following
@@ -176,6 +178,9 @@ public class Inliner extends ContextVisitor {
         }
         if (node instanceof InlinableCall) {
             return null; // will handle @NoInline annotation seperately
+        }
+        if (node instanceof CUDAKernel) {
+            return node;  // disable inlining within a CUDAKernal XTENLANG-2824.  
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
             if (annotations.inliningProhibited(((X10ClassDecl) node).classDef())) {
@@ -314,7 +319,7 @@ public class Inliner extends ContextVisitor {
         for (Expr a : c.arguments()) {
             args.add(createCast(a.position(), a, c.closureInstance().formalTypes().get(i++)));
         }
-        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), body, null, null, args);
+        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), body, null, args);
         if (null == result) {
             report("of failure to rewrite closure body", c);
             return null;
@@ -351,37 +356,9 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         decl = (ProcedureDecl) decl.visit(new X10AlphaRenamer(this));
-        LocalDecl thisArg = createThisArg(call);
-        LocalDecl thisForm = null == thisArg ? null : createThisFormal(call, thisArg);
-        LocalDef thisDef = null == thisForm ? null : thisForm.localDef();
-        if (call instanceof ConstructorCall) {
-            if (call.target() instanceof Local) { // the local was created by the compiler splitting a new, it's safe to use as this
-                thisDef = ((Local) call.target()).localInstance().def();
-                thisArg = null;
-                thisForm = null;
-            } else {
-                Type type = ((ConstructorCall) call).constructorInstance().returnType();
-                if (ts.isStruct(type)) {
-                    // can't inline struct constructors with this as target
-                    report("cannot inline constructor call with this target for struct " + type, call);
-                    return null;
-                }
-            }
-        }
-        // Ensure that the last statement of the body is the only return in the method
-        Block body = InliningRewriter.rewriteProcedureBody(decl, thisDef, job(), context());
-        if (null == body) {
-            return null;
-        }
-        Expr result = rewriteInlinedBody( call.position(), 
-                                          decl instanceof MethodDecl ? ((MethodDecl) decl).returnType().type() : null, 
-                                          decl.formals(), 
-                                          body, 
-                                          thisArg, 
-                                          thisForm, 
-                                          call.arguments() );
+        Expr result = rewriteDecl(call, decl);
         if (null == result) {
-            report("body doesn't contain a return (throw only)", call);
+            report("cannot rewrite decl", call);
             return null;
         }
         if (-1 == inlineInstances.search(signature) && inlineInstances.size() < INLINE_DEPTH_LIMIT) { // non recursive inlining of the inlined body
@@ -399,6 +376,43 @@ public class Inliner extends ContextVisitor {
             result = (Expr) propagateConstants(result);
         }
         // TODO: tell context that the place of result is the same as that of its surrounding context
+        return result;
+    }
+
+    /**
+     * @param call
+     * @param decl
+     * @return
+     */
+    public Expr rewriteDecl(InlinableCall call, ProcedureDecl decl) {
+        LocalDecl thisArg = null;
+        LocalDef thisDef = null;
+        if (null != call.target() && call.target() instanceof Expr) {
+            Expr target = (Expr) call.target();
+            if (target instanceof Local) {
+                thisDef = ((Local) target).localInstance().def();
+            } else {
+                if (call instanceof ConstructorCall) {
+                    Type type = ((ConstructorCall) call).constructorInstance().returnType();
+                    if (ts.isStruct(type)) {
+                        report("cannot inline constructor call with non Local target for struct " + type, call);
+                        return null;
+                    }
+                }
+                thisArg = reifyThis(call);
+                thisDef = thisArg.localDef();
+            }
+        }
+        Block body = InliningRewriter.rewriteProcedureBody(decl, thisDef, job(), context());
+        if (null == body) {
+            return null;
+        }
+        Expr result = rewriteInlinedBody( call.position(),
+                                          decl instanceof MethodDecl ? ((MethodDecl) decl).returnType().type() : null,
+                                          decl.formals(),
+                                          body,
+                                          thisArg,
+                                          call.arguments() );
         return result;
     }
 
@@ -421,25 +435,6 @@ public class Inliner extends ContextVisitor {
         if (decl instanceof MethodDecl) id += ":" +((MethodDecl) decl).returnType().nameString();
         return id;
     }
-
-
-    private String backend;
-
-    /**
-     * Get the identity String for the specific backend of this compile
-     * @return the backend's identity String for this compilation
-     */ // TODO refactor so that the backends and I get there identity strings from the same place (move into ExtensionInfo
-    private String getBackend() {
-        ExtensionInfo extensionInfo = (ExtensionInfo) ts.extensionInfo();
-        if (extensionInfo instanceof x10c.ExtensionInfo)
-            return "\"java\"";
-        if (extensionInfo instanceof x10cpp.ExtensionInfo)
-            return "\"c++\""; 
-        if (extensionInfo instanceof x10cuda.ExtensionInfo)
-            return "\"cuda\"";
-        return "";
-    }
-
 
     private Node propagateConstants(Node n) {
         x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
@@ -465,16 +460,21 @@ public class Inliner extends ContextVisitor {
         return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNCHECKED).type(toType);
     }
 
-    private LocalDecl createThisArg(InlinableCall c) {
-        if (!(c.target() instanceof Expr))
-            return null;
-        Expr target = (Expr) c.target();
+    private LocalDecl reifyThis(InlinableCall call) {
+        assert call.target() instanceof Expr;
+        Expr target = (Expr) call.target();
+        Position position = target.position();
         if (target instanceof Special && ((Special) target).kind() == Special.SUPER) {
             target = rewriteSuperAsThis((Special) target);
         }
-        LocalDef def = ts.localDef(c.target().position(), ts.Final(), Types.ref(c.target().type()), Name.makeFresh("target"));
-        LocalDecl ths = syn.createLocalDecl(c.target().position(), def, target);
-        return ths;
+        
+        ProcedureInstance<? extends ProcedureDef> pi = call instanceof Call ? ((Call) call).procedureInstance() : ((ConstructorCall) call).procedureInstance();
+        Type type = ((MemberDef) pi.def()).container().get();
+        type = makeTypeMap(pi, call.typeArguments()).reinstantiate(type);
+        
+        Expr expr = createCast(position, target, type);
+        LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.makeFresh("this"), expr);
+        return thisDecl;
     }
 
     /*
@@ -497,28 +497,17 @@ public class Inliner extends ContextVisitor {
         return result;
     }
 
-    private LocalDecl createThisFormal(InlinableCall call, LocalDecl init) {
-        if (call instanceof Call && ((Call) call).methodInstance().flags().isStatic()) 
-            return null;
-        ProcedureInstance<? extends ProcedureDef> pi = call instanceof Call ? ((Call) call).procedureInstance() : ((ConstructorCall) call).procedureInstance();
-        TypeParamSubst typeMap = makeTypeMap(pi, call.typeArguments());
-        Type thisType = typeMap.reinstantiate(((MemberDef) pi.def()).container().get());
-        Expr expr = null == init ? null : createCast(init.position(), syn.createLocal(init.position(), init), thisType);
-        LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.makeFresh("this"), expr);
-        return thisDecl;
-    }
-
     private CodeBlock instantiate(final CodeBlock code, InlinableCall call) {
         try {
             if (DEBUG) debug("Instantiate " + code, call);
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance(), call.typeArguments());
             InliningTypeTransformer transformer =
-                new InliningTypeTransformer(typeMap, context().currentCode(), (X10CodeDef) code.codeDef());
+                new InliningTypeTransformer(typeMap, context().currentCode(), (X10CodeDef) code.codeDef(), call.position());
        //   Reinstantiator transformer = new Reinstantiator(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedCode = (CodeBlock) code.visit(visitor);
             return visitedCode;
-        } catch (Exception e) {
+        } catch (Throwable e) {
             String message = "Exception during instantiation of " +code+ " for " +call+ ": " +e;
             Warnings.issue(job(), message, call.position());
             return null;
@@ -570,67 +559,45 @@ public class Inliner extends ContextVisitor {
     }
 
     // TODO: generate a closure call instead of a statement expression // is this still necessary?
-    private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl thisArg, LocalDecl thisFormal, List<Expr> args) {
+    private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl thisDecl, List<Expr> args) {
+        List<Stmt> statements = new ArrayList<Stmt>();
 
+        // declare locals for 'this', if there is one, and any formal parameters
+        if (thisDecl != null) { // declare temporary for "this" arg
+            statements.add(thisDecl);
+        }
+        assert (args.size() == formals.size());
+        for (int i = 0; i < args.size(); i++) {
+            Expr arg = args.get(i);
+            X10Formal formal = (X10Formal) formals.get(i);
+            Expr expr = createCast(arg.position(), arg, formal.type().type());
+            LocalDecl ld = syn.createLocalDecl(formal, expr);
+            tieLocalDefToItself(ld.localDef());
+            statements.add(ld);
+        }
+        
         // Create statement expression from body.
         // body is in normal form:
         // 1) last statement in body is a return statement, and
         // 2) this is the only return in the body.
         List<Stmt> bodyStmts = body.statements();
         if (!(bodyStmts.get(bodyStmts.size() - 1) instanceof Return)) {
-            return null; // body could not be normalized, must be something we
-                         // cannot yet inline
+            report("body cannot be normalized", body);
+            return null;
         }
         Return ret = (Return) bodyStmts.get(bodyStmts.size() - 1);
-        List<Stmt> statements = new ArrayList<Stmt>();
         for (Stmt stmt : bodyStmts) {
             if (stmt != ret) {
                 statements.add(stmt);
             }
         }
-        Expr e = ret.expr();
-        if (null != e) {
+        Expr expr = ret.expr();
+        if (null != expr) {
             assert null != retType; // null retType => constructor call body (which shouldn't return an expr)
-            e = createCast(e.position(), e, retType);
+            expr = createCast(expr.position(), expr, retType);
         }
-        StmtExpr result = syn.createStmtExpr(pos, statements, e);
+        StmtExpr result = syn.createStmtExpr(pos, statements, expr);
 
-        // create declarations to prepend to result
-        List<Stmt> declarations = new ArrayList<Stmt>();
-        if (thisArg != null) { // declare temporary for "this" arg, if call isn't static
-            declarations.add(thisArg);
-        }
-        
-        if (args.size() != formals.size()) {
-            System.out.println("ERROR: parameter mismatch at " + pos);
-            System.out.println("\tformals:\t" +formals);
-            System.out.println("\targs:   \t" +args);
-            assert false;
-        }
-        
-        // initialize temporaries to args
-        LocalDecl[] temps = new LocalDecl[args.size()];
-        for (int i = 0; i < temps.length; i++) {
-            Expr a = args.get(i);
-            temps[i] = syn.createLocalDecl(a.position(), Flags.FINAL, Name.makeFresh(), a);
-            tieLocalDefToItself(temps[i].localDef());
-            declarations.add(temps[i]);
-        }
-        if (thisFormal != null) { // declare local for "this" parameter, if method isn't static
-            declarations.add(thisFormal);
-        }
-        // initialize new locals (transformed formals) to temporaries (args)
-        for (int i = 0; i < temps.length; i++) {
-            LocalDecl temp = temps[i];
-            X10Formal formal = (X10Formal) formals.get(i);
-            Expr value = createCast(temp.position(), syn.createLocal(temp.position(), temp), formal.type().type());
-            LocalDecl local = syn.createLocalDecl(formal, value);
-            tieLocalDefToItself(local.localDef());
-            tieLocalDef(local.localDef(), temp.localDef());
-            declarations.add(local);
-        }
-
-        result = result.prepend(declarations);
         return result;
     }
 

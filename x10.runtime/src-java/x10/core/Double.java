@@ -24,8 +24,8 @@ import java.io.IOException;
  * an Double value to type Any, parameter type T or superinterfaces such
  * as Comparable<Double>.
  */
-final public class Double extends Numeric implements java.lang.Comparable<Double>,
-    x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
+final public class Double extends Number implements StructI,
+	java.lang.Comparable<Double>, x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
 {
     private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Double.class.getName());
@@ -68,6 +68,7 @@ final public class Double extends Numeric implements java.lang.Comparable<Double
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Double) {
             return ((Double) value).$value == $value;

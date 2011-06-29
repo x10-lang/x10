@@ -22,6 +22,7 @@ import polyglot.types.Name;
 import polyglot.visit.AlphaRenamer;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.Closure;
 import x10.util.CollectionFactory;
 
 public class X10AlphaRenamer extends AlphaRenamer {
@@ -49,7 +50,17 @@ public class X10AlphaRenamer extends AlphaRenamer {
             Formal f = (Formal) n;
             localDefMap.put(f.name().id(), f.localDef());
         }
-        return super.enter(n);
+        X10AlphaRenamer res = (X10AlphaRenamer) super.enter(n);
+        if (n instanceof Closure) {
+            // [IP] Closures may have formals that shadow outer locals
+            Closure c = (Closure) n;
+            res = (X10AlphaRenamer) res.shallowCopy();
+            res.renamingMap = CollectionFactory.newHashMap(this.renamingMap);
+            for (Formal f : c.formals()) {
+                res.renamingMap.remove(f.name());
+            }
+        }
+        return res;
     }
 
     @Override

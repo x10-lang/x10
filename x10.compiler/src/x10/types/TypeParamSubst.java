@@ -221,9 +221,9 @@ public class TypeParamSubst {
 	}
 
     private TypeParamSubst reinstantiateTPS(TypeParamSubst t) {
-        List<? extends Type> tas = reinstantiate(t.typeArguments);
+        //List<? extends Type> tas = reinstantiate(t.typeArguments);
         List<ParameterType> tps = reinstantiate(t.typeParameters);
-        return new TypeParamSubst(ts, tas, tps, eager);
+        return new TypeParamSubst(ts, t.typeArguments, tps, t.eager);
     }
 
 	private X10LocalInstance reinstantiateLI(X10LocalInstance t) {

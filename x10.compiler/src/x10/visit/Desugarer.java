@@ -82,6 +82,7 @@ import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
+import x10.ast.X10Field_c;
 import x10.ast.X10Instanceof;
 import x10.ast.X10Local_c;
 import x10.ast.X10Special;
@@ -320,8 +321,9 @@ public class Desugarer extends ContextVisitor {
                     cd.addCapturedVariable(li);
                 }
             } else if (n instanceof Field) {
-                if (((Field) n).target() instanceof X10Special) {
-                    cd.addCapturedVariable(((Field) n).fieldInstance());
+                Field f = (Field) n;
+                if (X10Field_c.isFieldOfThis(f)) {
+                    cd.addCapturedVariable(f.fieldInstance());
                 }
             } else if (n instanceof X10Special) {
                 X10MemberDef code = (X10MemberDef) context.currentCode();

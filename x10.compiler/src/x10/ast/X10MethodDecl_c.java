@@ -256,14 +256,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 		mi.setFormalNames(formalNames);
 
-		if (n.returnType() instanceof UnknownTypeNode && n.body() == null && X10FieldDecl_c.shouldInferType(this, ts)) {
-			Errors.issue(tb.job(),
-			             new Errors.CannotInferMethodReturnType(position()));
-			NodeFactory nf = tb.nodeFactory();
-			Position rtpos = n.returnType().position();
-			n = (X10MethodDecl_c) n.returnType(nf.CanonicalTypeNode(rtpos, ts.unknownType(rtpos)));
-		}
-
 		Flags xf = mi.flags();
 		if (xf.isProperty()) {
 			final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
@@ -921,8 +913,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
         TypeChecker childtc = (TypeChecker) tc.enter(parent, nn);
         nn = (X10MethodDecl) X10Del_c.visitAnnotations(nn, childtc);
 
-        // Do not infer types of native fields
-        if (nn.returnType() instanceof UnknownTypeNode && ! X10FieldDecl_c.shouldInferType(this, xts))
+        // Do not infer types of native methods
+        if (nn.returnType() instanceof UnknownTypeNode && ! X10FieldDecl_c.shouldInferType(nn, xts))
             Errors.issue(tc.job(), new Errors.CannotInferNativeMethodReturnType(position()));
         
 		// Step I.a.  Check the formals.
@@ -1099,16 +1091,21 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		nn = (X10MethodDecl) nn.body((Block) nn.visitChild(nn.body(), childtc2));
 		nn = (X10MethodDecl) childtc2.leave(parent, old, nn, childtc2);
 
-		if (nn.returnType() instanceof UnknownTypeNode && X10FieldDecl_c.shouldInferType(this, tc.typeSystem())) {
+		if (nn.returnType() instanceof UnknownTypeNode && X10FieldDecl_c.shouldInferType(nn, xts)) {
 			NodeFactory nf = tc.nodeFactory();
-			TypeSystem ts = tc.typeSystem();
+			if (nn.body() == null) {
+			    Errors.issue(tc.job(), new Errors.CannotInferMethodReturnType(nn.position()));
+			    Position rtpos = nn.returnType().position();
+			    nn = (X10MethodDecl_c) nn.returnType(nf.CanonicalTypeNode(rtpos, xts.unknownType(rtpos)));
+			}
+
 			// Body had no return statement.  Set to void.
 			Type t;
-			if (!ts.isUnknown(nn.returnType().typeRef().getCached())) {
+			if (!xts.isUnknown(nn.returnType().typeRef().getCached())) {
 				t = nn.returnType().typeRef().getCached();
 			}
 			else {
-				t = ts.Void();
+				t = xts.Void();
 			}
 			((Ref<Type>) nn.returnType().typeRef()).update(t);
 			nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), t));

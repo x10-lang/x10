@@ -114,7 +114,7 @@ public class WSMethodFrameClassGen extends WSRegularFrameClassGen {
      * @throws SemanticException
      */
     protected void genOperatorMethod(Type returnType) throws SemanticException{
-        MethodSynth operatorMSynth = classSynth.createMethod(compilerPos, WSSynthesizer.OPERATOR.toString());
+        MethodSynth operatorMSynth = classSynth.createMethod(classSynth.pos(), WSSynthesizer.OPERATOR.toString());
         operatorMSynth.setFlag(Flags.PUBLIC);
         operatorMSynth.setReturnType(returnType);
         CodeBlockSynth operatorMBSynth = operatorMSynth.getMethodBodySynth(compilerPos);

@@ -117,10 +117,6 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     public List<Expr> args() {
         return this.args;
     }
-    Flags flags;
-    public void addFlags(Flags f) {
-  	  this.flags = f;
-    }
     public AmbMacroTypeNode args(List<Expr> args) {
 	    AmbMacroTypeNode_c n = (AmbMacroTypeNode_c) copy();
 	    n.args = TypedList.copyAndCheck(args, Expr.class, true);

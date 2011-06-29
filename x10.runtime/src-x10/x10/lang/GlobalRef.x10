@@ -68,7 +68,7 @@ public struct GlobalRef[T](
      * However, because it does not use a place constraint on the
      * method, it avoids a dynamic place check on the first branch.
      */
-    @Native("java", "x10.lang.GlobalRef<#T$box>.LocalEval.evalAtHome<#T$box,#U$box>(#this, #eval)")
+    @Native("java", "x10.core.GlobalRef.LocalEval.<#T$box,#U$box>evalAtHome(#T$rtt,#U$rtt,#this,#eval)")
     @Native("c++", "x10::lang::GlobalRef__LocalEval::evalAtHome<#T,#U >(#this, #eval)")
     public native def evalAtHome[U](eval:(T)=> U):U;
 
@@ -82,7 +82,7 @@ public struct GlobalRef[T](
      * However, because it does not use a place constraint on the
      * method, it avoids a dynamic place check on the first branch.
      */
-    @Native("java", "x10.lang.GlobalRef<#T$box>.LocalEval.getLocalOrCopy<#T$box>(#this)")
+    @Native("java", "x10.core.GlobalRef.LocalEval.<#T$box>getLocalOrCopy(#T$rtt,#this)")
     @Native("c++", "x10::lang::GlobalRef__LocalEval::getLocalOrCopy<#T >(#this)")
     public native def getLocalOrCopy():T;
 
@@ -130,7 +130,7 @@ public struct GlobalRef[T](
          * However, as it does not use a place constraint on the
          * method, it avoids a dynamic place check on the first branch.
          */
-        public def getLocalOrCopy[T](ref:GlobalRef[T]){T <: Object}:T {
+        public static def getLocalOrCopy[T](ref:GlobalRef[T]){T <: Object}:T {
             if (here == ref.home) {
                 return ref.localApply();
             } else {

@@ -24,7 +24,7 @@ import java.io.IOException;
  * an Long value to type Any, parameter type T or superinterfaces such
  * as Comparable<Long>.
  */
-final public class Long extends Numeric implements java.lang.Comparable<Long>,
+final public class Long extends Number implements StructI, java.lang.Comparable<Long>,
     x10.lang.Arithmetic<Long>, x10.lang.Bitwise<Long>, x10.util.Ordered<Long>
 {
     private static final long serialVersionUID = 1L;
@@ -41,8 +41,9 @@ final public class Long extends Numeric implements java.lang.Comparable<Long>,
     }
 
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Long.Cache.enabled", "false"));
         static final int low = -128;
-        static final int high = 127;
+        static final int high = enabled ? 127 : low; // disable caching
         static final Long cache[] = new Long[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -52,8 +53,10 @@ final public class Long extends Numeric implements java.lang.Comparable<Long>,
     }
 
     public static Long $box(long value) {
-        if (Cache.low <= value && value <= Cache.high) {
-            return Cache.cache[(int)value - Cache.low];
+        if (Cache.enabled){ 
+            if (Cache.low <= value && value <= Cache.high) {
+                return Cache.cache[(int)value - Cache.low];
+            }
         }
         return new Long(value);
     }
@@ -82,6 +85,7 @@ final public class Long extends Numeric implements java.lang.Comparable<Long>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Long) {
             return ((Long) value).$value == $value;

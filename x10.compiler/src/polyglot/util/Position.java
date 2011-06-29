@@ -35,6 +35,7 @@ public class Position implements Serializable, Copy
     private int endOffset;
     
     private boolean compilerGenerated;
+    private Position outer = null;
 
     public static final int UNKNOWN = -1;
     public static final int END_UNUSED = -2;
@@ -220,6 +221,39 @@ public class Position implements Serializable, Copy
         return path;
     }
 
+    public Position outer() {
+        return this.outer;
+    }
+
+    public Position outerMost() {
+        Position p = this;
+        while (p.outer != null)
+            p = p.outer;
+        return p;
+    }
+
+    public Position outer(Position o) {
+        Position p = copy();
+        p.outer = o;
+        return p;
+    }
+
+    public Position addOuter(Position o) {
+        if (o == this) {
+            return this;
+        }
+        if (this.outer == null) {
+            return outer(o);
+        }
+        Position t = this.outer.addOuter(o);
+        if (t == this.outer) {
+            return this;
+        }
+        Position p = copy();
+        p.outer = t;
+        return p;
+    }
+
     public String nameAndLineString() {
         // Maybe we should use path here, if it isn't too long...
         String s = path;
@@ -270,6 +304,9 @@ public class Position implements Serializable, Copy
             }
         }
         
+        if (outer != null) {
+            s += " inlined from " + outer;
+        }
         return s;
     }
 }

@@ -24,7 +24,7 @@ import java.io.IOException;
  * an Int value to type Any, parameter type T or superinterfaces such
  * as Comparable<Int>.
  */
-final public class Int extends Numeric implements java.lang.Comparable<Int>,
+final public class Int extends Number implements StructI, java.lang.Comparable<Int>,
     x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
@@ -40,25 +40,24 @@ final public class Int extends Numeric implements java.lang.Comparable<Int>,
         this.$value = value;
     }
     
-    // value of x10.lang.Int.Cache.high property
-    private static java.lang.String cacheHighPropValue = System.getProperty("x10.lang.Int.Cache.high");
-
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Int.Cache.enabled", "false"));
         static final int low = -128;
         static final int high;
         static final Int cache[];
         static {
             // high value may be configured by property
             int h = 127;
-            if (cacheHighPropValue != null) {
+            java.lang.String highPropValue = System.getProperty("x10.lang.Int.Cache.high");
+            if (highPropValue != null) {
                 // Use Long.decode here to avoid invoking methods that
                 // require Integer's autoboxing cache to be initialized
-                int i = java.lang.Long.decode(cacheHighPropValue).intValue();
+                int i = java.lang.Long.decode(highPropValue).intValue();
                 i = Math.max(i, h);
                 // Maximum array size is Integer.MAX_VALUE
                 h = Math.min(i, Integer.MAX_VALUE + low);
             }
-            high = h;
+            high = enabled ? h : low; // disable caching
 
             cache = new Int[high - low + 1];
             for (int i = 0; i < cache.length; ++i) {
@@ -68,8 +67,10 @@ final public class Int extends Numeric implements java.lang.Comparable<Int>,
     }
 
     public static Int $box(int value) {
-        if (Cache.low <= value && value <= Cache.high) {
-            return Cache.cache[value - Cache.low];
+        if (Cache.enabled) { 
+            if (Cache.low <= value && value <= Cache.high) {
+                return Cache.cache[value - Cache.low];
+            }
         }
         return new Int(value);
     }
@@ -98,6 +99,7 @@ final public class Int extends Numeric implements java.lang.Comparable<Int>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Int) {
             return ((Int) value).$value == $value;

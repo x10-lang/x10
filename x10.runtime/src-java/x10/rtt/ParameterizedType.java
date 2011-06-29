@@ -54,8 +54,8 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         return false;
     }
 
-    public final boolean instanceof$(Object o) {
-        return rtt.instanceof$(o, params);
+    public final boolean instanceOf(Object o) {
+        return rtt.instanceOf(o, params);
     }
     
     @Override

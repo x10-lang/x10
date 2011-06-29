@@ -89,17 +89,18 @@ public class Random {
             return nextLong() & (n-1);
         }
 
-        // Get the next power of 2 greater than n
-        var pow2: long = 1;
-        while (pow2 < n)
-            pow2 <<= 1;
+        var mask: long = 1L;
+        while ((n & ~mask) != 0L) {
+            mask <<= 1;
+            mask |= 1L;
+        }
 
         // Keep generating numbers of the right size until we get
         // one in range.  The expected number of iterations is 2.
         var x: long;
 
         do {
-            x = nextLong() & (pow2-1);
+            x = nextLong() & mask;
         } while (x >= n);
 
         return x;

@@ -24,8 +24,8 @@ import java.io.IOException;
  * an Float value to type Any, parameter type T or superinterfaces such
  * as Comparable<Float>.
  */
-final public class Float extends Numeric implements java.lang.Comparable<Float>,
-    x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
+final public class Float extends Number implements StructI,
+	java.lang.Comparable<Float>, x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
 {
     private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Float.class.getName());
@@ -68,6 +68,7 @@ final public class Float extends Numeric implements java.lang.Comparable<Float>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Float) {
             return ((Float) value).$value == $value;
