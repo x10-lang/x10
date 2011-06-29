@@ -24,7 +24,7 @@ import java.io.IOException;
  * an Short value to type Any, parameter type T or superinterfaces such
  * as Comparable<Short>.
  */
-final public class Short extends Numeric implements java.lang.Comparable<Short>,
+final public class Short extends Number implements StructI, java.lang.Comparable<Short>,
     x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
 {
     private static final long serialVersionUID = 1L;
@@ -41,8 +41,9 @@ final public class Short extends Numeric implements java.lang.Comparable<Short>,
     }
     
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Short.Cache.enabled", "false"));
         static final int low = -128;
-        static final int high = 127;
+        static final int high = enabled ? 127 : low; // disable caching
         static final Short cache[] = new Short[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -52,9 +53,11 @@ final public class Short extends Numeric implements java.lang.Comparable<Short>,
     }
 
     public static Short $box(short value) {
-        int valueAsInt = value;
-        if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
-            return Cache.cache[valueAsInt - Cache.low];
+        if (Cache.enabled) {
+            int valueAsInt = value;
+            if (Cache.low <= valueAsInt && valueAsInt <= Cache.high) {
+                return Cache.cache[valueAsInt - Cache.low];
+            }
         }
         return new Short(value);
     }
@@ -87,6 +90,7 @@ final public class Short extends Numeric implements java.lang.Comparable<Short>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Short) {
             return ((Short) value).$value == $value;

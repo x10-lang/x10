@@ -47,6 +47,14 @@ public class AnnotationUtils {
 
     /**
      * @param def
+     * @return
+     */
+    public static List<Type> getAnnotations(X10Def def) {
+        return def.annotations();
+    }
+
+    /**
+     * @param def
      * @param type
      * @return
      */
@@ -73,9 +81,21 @@ public class AnnotationUtils {
         return ((X10Ext) node.ext()).annotationMatching(type);
     }
 
-    private static final List<String> javaNativeStrings = Arrays.asList("java");
-    private static final List<String> cppNativeStrings  = Arrays.asList("c++", "cuda");
+    /**
+     * @param node
+     * @return
+     */
+    public List<X10ClassType> getAnnotations(Node node) {
+        assert node.ext() instanceof X10Ext;
+        return ((X10Ext) node.ext()).annotationTypes();
+    }
 
+    private static final List<String> javaNativeStrings = Arrays.asList("java");
+    private static final List<String> cudaNativeStrings = Arrays.asList("c++", "cuda");
+    private static final List<String> cppNativeStrings  = Arrays.asList("c++");
+
+    // XTENLANG-2824: chose between cudaNativeStrings and cppNativeStrings based on whether or not
+    // we are within a CUDAKernel
     public static List<X10ClassType> getNativeAnnotations (Node node, Job job) {
         List<X10ClassType> result = new ArrayList<X10ClassType>();
         X10ClassType type = job.extensionInfo().typeSystem().NativeType();

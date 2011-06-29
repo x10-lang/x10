@@ -311,6 +311,11 @@ public class X10CPPTranslator extends Translator {
     	File dest_path = new File(dest_path_);
     	// don't copy if the two dirs are the same...
     	if (src_path.equals(dest_path)) return;
+        // don't copy if the file path is absolute...
+    	if (new File(file).isAbsolute()) return;
+    	// TODO: fix issue with NativeCPPInclude
+        // TODO: disambiguate #include <header.h> vs #include "header.h"
+        // TODO: system header with relative path should not be copied
     	if (!dest_path.exists()) dest_path.mkdir();
     	assert src_path.isDirectory() : src_path_+" is not a directory";
     	assert dest_path.isDirectory() : dest_path_+" is not a directory";

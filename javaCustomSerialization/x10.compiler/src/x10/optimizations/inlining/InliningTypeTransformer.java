@@ -10,7 +10,10 @@
  */
 package x10.optimizations.inlining;
 
+import polyglot.ast.Node;
 import polyglot.types.Types;
+import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 
 import x10.ast.Closure;
 import x10.types.ClosureDef;
@@ -27,14 +30,19 @@ public class InliningTypeTransformer extends Reinstantiator {
 
     private X10CodeDef caller;
     private X10CodeDef callee;
+    private Position position;
 
     /**
      * @param subst
+     * @param caller
+     * @param callee
+     * @param position
      */
-    public InliningTypeTransformer(TypeParamSubst subst, X10CodeDef caller, X10CodeDef callee) {
+    public InliningTypeTransformer(TypeParamSubst subst, X10CodeDef caller, X10CodeDef callee, Position position) {
         super(subst);
         this.caller = caller;
         this.callee = callee;
+        this.position = position;
     }
 
     /* (non-Javadoc)
@@ -63,6 +71,15 @@ public class InliningTypeTransformer extends Reinstantiator {
         cd.setMethodContainer(Types.ref(currentCode.asInstance()));
         cd.setTypeContainer(Types.ref(visitor().context().currentClass()));
         return c.closureDef(cd);
+    }
+
+    @Override
+    public Node transform(Node n, Node old, ContextVisitor v) {
+        n = super.transform(n, old, v);
+        if (n.position() != position) { // may happen when inlining closures
+            n = n.position(n.position().addOuter(position));
+        }
+        return n;
     }
 
 }

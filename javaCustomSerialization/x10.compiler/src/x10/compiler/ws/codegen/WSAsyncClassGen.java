@@ -221,7 +221,7 @@ public class WSAsyncClassGen extends AbstractWSClassGen {
     
     private void genMoveMethod(Set<Name> localDeclaredVar) throws SemanticException {
         //Move method - Used to move data for all out scope assign statements
-        MethodSynth moveMSynth = classSynth.createMethod(compilerPos, WSSynthesizer.MOVE.toString());
+        MethodSynth moveMSynth = classSynth.createMethod(classSynth.pos(), WSSynthesizer.MOVE.toString());
         moveMSynth.setFlag(Flags.PUBLIC);
         Expr moveFfRef = moveMSynth.addFormal(compilerPos, Flags.FINAL, xts.FinishFrame(), WSSynthesizer.FF.toString());
         CodeBlockSynth moveBodySynth = moveMSynth.getMethodBodySynth(compilerPos);

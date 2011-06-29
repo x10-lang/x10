@@ -24,7 +24,7 @@ import java.io.IOException;
  * an Byte value to type Any, parameter type T or superinterfaces such
  * as Comparable<Byte>.
  */
-final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
+final public class Byte extends Number implements StructI, java.lang.Comparable<Byte>,
     x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
@@ -41,8 +41,9 @@ final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
     }
     
     private abstract static class Cache {
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Byte.Cache.enabled", "false"));
         static final int low = -128;
-        static final int high = 127;
+        static final int high = enabled ? 127 : low; // disable caching
         static final Byte cache[] = new Byte[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
@@ -52,9 +53,11 @@ final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
     }
 
     public static Byte $box(byte value) {
-        int valueAsInt = value;
-        return Cache.cache[valueAsInt - Cache.low];  // fully cached
-//        return new Byte(value);
+        if (Cache.enabled) {
+            int valueAsInt = value;
+            return Cache.cache[valueAsInt - Cache.low];  // fully cached
+        }
+        return new Byte(value);
     }
 
     public static Byte $box(int value) { // int because literals essentially have int type in Java
@@ -85,6 +88,7 @@ final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
         return false;
     }
     
+    @Override
     public boolean equals(Object value) {
         if (value instanceof Byte) {
             return ((Byte) value).$value == $value;
@@ -135,19 +139,19 @@ final public class Byte extends Numeric implements java.lang.Comparable<Byte>,
     public Object $ge(Byte b, Type t) { return ($value >= b.$value); }
     
     // extends abstract class java.lang.Number
-    @Override
+//    @Override
     public int intValue() {
         return (int)$value;
     }
-    @Override
+//    @Override
     public long longValue() {
         return (long)$value;
     }
-    @Override
+//    @Override
     public float floatValue() {
         return (float)$value;
     }
-    @Override
+//    @Override
     public double doubleValue() {
         return (double)$value;
     }

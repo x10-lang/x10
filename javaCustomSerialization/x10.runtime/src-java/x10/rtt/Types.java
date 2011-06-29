@@ -18,23 +18,104 @@ import x10.core.StructI;
 
 public class Types {
     
-	public static RuntimeType<?> getRTT(Object obj) {
-		RuntimeType<?> rtt = null;
+    // WIP Java interop
+//    public static final boolean supportJavaInterop = true;
+    public static final boolean supportJavaInterop = false;
+    
+    public static RuntimeType<?> getRTT(Class<?> impl) {
+        java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
+        Class<?>[] interfaces = impl.getInterfaces();
+        Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
+        if (supportJavaInterop && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
+            // type parameters for unknown raw Java classes are Any
+            x10.rtt.RuntimeType.Variance[] variances = new x10.rtt.RuntimeType.Variance[typeVariables.length];
+            java.util.Arrays.fill(variances, x10.rtt.RuntimeType.Variance.INVARIANT);
+            // add superclass and all interfaces to parents
+            x10.rtt.Type<?>[] parents = new x10.rtt.Type[interfaces.length + (superclass != null ? 1 : 0)];
+            int i = 0;
+            for (Class<?> intf : interfaces) {
+                java.lang.reflect.TypeVariable<?>[] intfTypeVariables = intf.getTypeParameters();
+                RuntimeType<?> parentRTT = getRTT(intf);
+                if (intfTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[intfTypeVariables.length];
+                    java.util.Arrays.fill(parentParams, Types.ANY);
+                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                } else {
+                    parents[i] = parentRTT;
+                }
+                ++i;
+            }
+            if (superclass != null) {
+                java.lang.reflect.TypeVariable<?>[] superclassTypeVariables = superclass.getTypeParameters();
+                RuntimeType<?> parentRTT = getRTT(superclass);
+                if (superclassTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[superclassTypeVariables.length];
+                    java.util.Arrays.fill(parentParams, Types.ANY);
+                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                } else {
+                    parents[i] = parentRTT;
+                }
+                ++i;
+            }
+            return new RuntimeType(impl, variances, parents);
+        } else {
+            return new RuntimeType(impl);
+        }
+        // TODO cache RTT to WeakHashMap<Class,RuntimeType>
+    }
+    public static RuntimeType<?> getRTT(Object obj) {
+        RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
-        	rtt = ((Any) obj).$getRTT();
+            rtt = ((Any) obj).$getRTT();
 //        } else if (Types.getNativeRepRTT(obj) != null) {
-//        	rtt = Types.getNativeRepRTT(obj);
+//            rtt = Types.getNativeRepRTT(obj);
         } else if (obj != null) {
-            // Note: for java classes that don't have RTTs
-        	// TODO add the superclass and all interfaces to parents
-        	// TODO add type parameters as Any
-        	// TODO cache RTT to WeakHashMap<Class,RuntimeType>
-        	rtt = new RuntimeType(obj.getClass());
+            // rtt for raw Java classes
+            rtt = getRTT(obj.getClass());
         }
         return rtt;
-	}
-	
-	
+    }
+//    // WIP Java interop
+//    public static RuntimeType<?> getRTT(byte obj) {
+//        return BYTE;
+//    }
+//    public static RuntimeType<?> getRTT(short obj) {
+//        return SHORT;
+//    }
+//    public static RuntimeType<?> getRTT(int obj) {
+//        return INT;
+//    }
+//    public static RuntimeType<?> getRTT(long obj) {
+//        return LONG;
+//    }
+//    public static RuntimeType<?> getRTT(float obj) {
+//        return FLOAT;
+//    }
+//    public static RuntimeType<?> getRTT(double obj) {
+//        return DOUBLE;
+//    }
+//    public static RuntimeType<?> getRTT(char obj) {
+//        return CHAR;
+//    }
+//    public static RuntimeType<?> getRTT(boolean obj) {
+//        return BOOLEAN;
+//    }
+//    public static RuntimeType<?> getRTT(java.lang.String obj) {
+//        return STRING;
+//    }
+    
+    public static Type<?> getParam(Object obj, int i) {
+        if (obj instanceof x10.core.Any) {
+            return ((Any) obj).$getParam(i);
+        }
+        // type parameters for unknown raw Java classes are Any
+        if (supportJavaInterop) {
+            return ANY;
+        }
+        assert false;
+        return null;
+    }
+    
 	// XTENLANG-2488
 	// get $RTT field from class using reflection
 	public static <T> RuntimeType<T> $RTT(Class<?> c) {
@@ -145,6 +226,127 @@ public class Types {
     	return Double.toString(value);
     }
     
+    // for convenience
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt) {
+        return rtt.instanceOf(o);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0) {
+        return rtt.instanceOf(o, param0);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1) {
+        return rtt.instanceOf(o, param0, param1);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1, Type<?> param2) {
+        return rtt.instanceOf(o, param0, param1, param2);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?>... params) {
+        return rtt.instanceOf(o, params);
+    }
+    // box java primitives to x10 boxed types
+    public static Object $box(Object o) {
+        if (o instanceof java.lang.Byte) {
+            return x10.core.Byte.$box(((java.lang.Byte) o).byteValue());
+        }
+        if (o instanceof java.lang.Short) {
+            return x10.core.Short.$box(((java.lang.Short) o).shortValue());
+        }
+        if (o instanceof java.lang.Integer) {
+            return x10.core.Int.$box(((java.lang.Integer) o).intValue());
+        }
+        if (o instanceof java.lang.Long) {
+            return x10.core.Long.$box(((java.lang.Long) o).longValue());
+        }
+        if (o instanceof java.lang.Float) {
+            return x10.core.Float.$box(((java.lang.Float) o).floatValue());
+        }
+        if (o instanceof java.lang.Double) {
+            return x10.core.Double.$box(((java.lang.Double) o).doubleValue());
+        }
+        if (o instanceof java.lang.Character) {
+            return x10.core.Char.$box(((java.lang.Character) o).charValue());
+        }
+        if (o instanceof java.lang.Boolean) {
+            return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
+        }
+        if (o instanceof java.lang.String) {
+            return x10.core.String.$box((java.lang.String) o);
+        }
+        return o;
+    }
+    public static x10.core.Byte $box(byte o) {
+        return x10.core.Byte.$box(o);
+    }
+    public static x10.core.Short $box(short o) {
+        return x10.core.Short.$box(o);
+    }
+    public static x10.core.Int $box(int o) {
+        return x10.core.Int.$box(o);
+    }
+    public static x10.core.Long $box(long o) {
+        return x10.core.Long.$box(o);
+    }
+    public static x10.core.Float $box(float o) {
+        return x10.core.Float.$box(o);
+    }
+    public static x10.core.Double $box(double o) {
+        return x10.core.Double.$box(o);
+    }
+    public static x10.core.Char $box(char o) {
+        return x10.core.Char.$box(o);
+    }
+    public static x10.core.Boolean $box(boolean o) {
+        return x10.core.Boolean.$box(o);
+    }
+    public static x10.core.String $box(java.lang.String o) {
+        return x10.core.String.$box(o);
+    }
+    public static Object $boxu(Object o) {
+        if (o instanceof java.lang.Byte) {
+            return x10.core.UByte.$box(((java.lang.Byte) o).byteValue());
+        }
+        if (o instanceof java.lang.Short) {
+            return x10.core.UShort.$box(((java.lang.Short) o).shortValue());
+        }
+        if (o instanceof java.lang.Integer) {
+            return x10.core.UInt.$box(((java.lang.Integer) o).intValue());
+        }
+        if (o instanceof java.lang.Long) {
+            return x10.core.ULong.$box(((java.lang.Long) o).longValue());
+        }
+        assert !(o instanceof java.lang.Float);
+        assert !(o instanceof java.lang.Double);
+        assert !(o instanceof java.lang.Character);
+        assert !(o instanceof java.lang.Boolean);
+        assert !(o instanceof java.lang.String);
+//        if (o instanceof java.lang.Float) {
+//            return x10.core.Float.$box(((java.lang.Float) o).floatValue());
+//        }
+//        if (o instanceof java.lang.Double) {
+//            return x10.core.Double.$box(((java.lang.Double) o).doubleValue());
+//        }
+//        if (o instanceof java.lang.Character) {
+//            return x10.core.Char.$box(((java.lang.Character) o).charValue());
+//        }
+//        if (o instanceof java.lang.Boolean) {
+//            return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
+//        }
+//        if (o instanceof java.lang.String) {
+//            return x10.core.String.$box((java.lang.String) o);
+//        }
+        return o;
+    }
+    public static x10.core.UByte $boxu(byte o) {
+        return x10.core.UByte.$box(o);
+    }
+    public static x10.core.UShort $boxu(short o) {
+        return x10.core.UShort.$box(o);
+    }
+    public static x10.core.UInt $boxu(int o) {
+        return x10.core.UInt.$box(o);
+    }
+    public static x10.core.ULong $boxu(long o) {
+        return x10.core.ULong.$box(o);
+    }
     
     public static final RuntimeType<Object> ANY = new AnyType();
     public static final RuntimeType<RefI> OBJECT = new ObjectType();
@@ -407,14 +609,14 @@ public class Types {
 
     public static <T> T cast(final java.lang.Object self, x10.rtt.Type<?> rtt) {
         if (self == null) return null;
-        if (rtt != null && !rtt.instanceof$(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.instanceOf(self)) throw new x10.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
     public static <T> T castConversion(final java.lang.Object self, x10.rtt.Type<?> rtt) {
         if (self == null) return null;
         T ret = (T) conversion(rtt, self, true);
-        if (rtt != null && !rtt.instanceof$(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.instanceOf(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
         return ret;
     }
 

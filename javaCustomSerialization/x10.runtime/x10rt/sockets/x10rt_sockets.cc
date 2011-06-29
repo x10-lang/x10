@@ -81,7 +81,7 @@ struct x10SocketState
 	pthread_mutex_t* writeLocks; // a lock to prevent overlapping writes on each socket
 	// special case for index=myPlaceId on the above three.  The socket link is the local listen socket,
 	// the read lock is used for listen socket handling and write lock for launcher communication
-	bool useNonblockingLinks; // flag to enable/disable buffered writes
+	bool useNonblockingLinks; // flag to enable/disable buffered writes.  True by default
 	struct x10SocketDataToWrite* pendingWrites;
 	pthread_mutex_t pendingWriteLock;
 } state;
@@ -306,6 +306,8 @@ int nonBlockingRead(int fd, void * p, unsigned cnt)
 		}
 		if (rc == 0)
 		{
+			if (bytesleft == cnt) // nothing has been read, and nothing to read.
+				return 0;
 			flushPendingData();
 			continue;
 		}
