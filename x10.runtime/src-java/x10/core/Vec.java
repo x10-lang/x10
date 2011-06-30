@@ -75,7 +75,9 @@ public class Vec<T> extends x10.core.Struct {
         this.size = other.size;
         this.backing = x10.array.Array.<T> $make(T, other.size);
         for (int i = 0; i < this.size; ++i) {
+            // WIP for Emitter.mangleSignedNumeric
             this.backing.$set_1_$$x10$array$Array_T$G(i, other.backing.$apply$G(i));
+//            this.backing.$set$s0_1_$$x10$array$Array_T$G(i, other.backing.$apply$s0$G(i));
         }
         return this;
     }
@@ -85,7 +87,9 @@ public class Vec<T> extends x10.core.Struct {
         this.size = other.size;
         this.backing = x10.array.Array.<T> $make(T, other.size);
         for (int i = 0; i < this.size; ++i) {
+            // WIP for Emitter.mangleSignedNumeric
             this.backing.$set_1_$$x10$array$Array_T$G(i, other.backing.$apply$G(i));
+//            this.backing.$set$s0_1_$$x10$array$Array_T$G(i, other.backing.$apply$s0$G(i));
         }
     }
 
@@ -101,11 +105,15 @@ public class Vec<T> extends x10.core.Struct {
     }
 
     final public T get(final int i) {
+        // WIP for Emitter.mangleSignedNumeric
         return backing.$apply$G(i);
+//        return backing.$apply$s0$G(i);
     }
 
     final public T set(final int i, final T v) {
+        // WIP for Emitter.mangleSignedNumeric
         return backing.$set_1_$$x10$array$Array_T$G(i, v);
+//        return backing.$set$s0_1_$$x10$array$Array_T$G(i, v);
     }
 
     final public int size() {
@@ -138,7 +146,9 @@ public class Vec<T> extends x10.core.Struct {
     final public boolean equals_0_$_x10$util$Vec_T_$(Vec other) {
         if (this.size != other.size) return false;
         for (int i = 0; i < this.size; ++i) {
+            // WIP for Emitter.mangleSignedNumeric
             if (!this.backing.$apply$G(i).equals(other.backing.$apply$G(i))) return false;
+//            if (!this.backing.$apply$s0$G(i).equals(other.backing.$apply$s0$G(i))) return false;
         }
         return true;
     }
@@ -151,7 +161,9 @@ public class Vec<T> extends x10.core.Struct {
     final public boolean _struct_equals_0_$_x10$util$Vec_T_$(Vec other) {
         if (this.size != other.size) return false;
         for (int i = 0; i < this.size; ++i) {
+            // WIP for Emitter.mangleSignedNumeric
             if (!this.backing.$apply$G(i).equals(other.backing.$apply$G(i))) return false;
+//            if (!this.backing.$apply$s0$G(i).equals(other.backing.$apply$s0$G(i))) return false;
         }
         return true;
     }

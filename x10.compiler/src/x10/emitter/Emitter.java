@@ -127,6 +127,13 @@ public class Emitter {
     private static final boolean mangleTypeVariable = true;
     private static final String PARAMETER_TYPE_PREFIX = "$";
     
+    // N.B. Introduction of Java.int as a different type from x10.lang.Int requires method name mangling.
+    // WIP for Emitter.mangleSignedNumeric
+//    private static final boolean mangleSignedNumeric = true;
+    private static final boolean mangleSignedNumeric = false;
+    private static final String SIGNED_NUMERIC_TYPE_PREFIX = "$s";
+    private static final String UNSIGNED_NUMERIC_TYPE_PREFIX = "$u";
+    
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
@@ -1436,7 +1443,11 @@ public class Emitter {
 
     private static void buildMangledMethodName(ClassType ct, StringBuilder sb, int i, Type type, boolean printIncludingGeneric) {
         if (type.isUnsignedNumeric()) {
-            sb.append("$u" + i);
+            sb.append(UNSIGNED_NUMERIC_TYPE_PREFIX + i);
+        }
+        // for Emitter.mangleSignedNumeric
+        if (mangleSignedNumeric && type.isSignedNumeric()) {
+            sb.append(SIGNED_NUMERIC_TYPE_PREFIX + i);
         }
         Type t = Types.baseType(type);
         if (t instanceof X10ClassType && (printIncludingGeneric || (!printIncludingGeneric && !containsTypeParam(t)))) {

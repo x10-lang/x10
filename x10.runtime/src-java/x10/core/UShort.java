@@ -125,6 +125,10 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public UShort $left$G(final int count) { return UShort.$box($value << count); }
     public UShort $right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
     public UShort $unsigned_right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); }        
+    // for Emitter.mangleSignedNumeric
+    public UShort $left$s0$G(final int count) { return UShort.$box($value << count); }
+    public UShort $right$s0$G(final int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
+    public UShort $unsigned_right$s0$G(final int count) { return UShort.$box((0xffff & $value) >>> count); }        
     
     // implements Ordered<UShort>. Rely on autoboxing of booleans
     public Object $lt(UShort a, Type t) { return Unsigned.lt($value,a.$value); }

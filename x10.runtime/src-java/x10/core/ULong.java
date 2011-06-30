@@ -130,6 +130,10 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
     public ULong $left$G(final int count) { return ULong.$box($value << count); }
     public ULong $right$G(final int count) { return ULong.$box($value >>> count); } // ULong is always unsigned
     public ULong $unsigned_right$G(final int count) { return ULong.$box($value >>> count); }        
+    // for Emitter.mangleSignedNumeric
+    public ULong $left$s0$G(final int count) { return ULong.$box($value << count); }
+    public ULong $right$s0$G(final int count) { return ULong.$box($value >>> count); } // ULong is always unsigned
+    public ULong $unsigned_right$s0$G(final int count) { return ULong.$box($value >>> count); }        
     
     // implements Ordered<ULong>. Rely on autoboxing of booleans
     public Object $lt(ULong a, Type t) { return Unsigned.lt($value,a.$value); }
