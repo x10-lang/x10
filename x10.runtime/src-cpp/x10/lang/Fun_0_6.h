@@ -51,19 +51,19 @@ namespace x10 {
             };
 
             static R __apply(x10aux::ref<x10::lang::Reference> recv, P1 arg1, P2 arg2, P3 arg3, P4 arg4, P5 arg5, P6 arg6) {
-                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P5,R> >(recv->_getITables())->__apply))(arg1, arg2, arg3, arg4, arg5, arg6);
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P6,R> >(recv->_getITables())->__apply))(arg1, arg2, arg3, arg4, arg5, arg6);
             }
             static x10_boolean equals(x10aux::ref<x10::lang::Reference> recv, x10aux::ref<x10::lang::Any> arg1) {
-                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P5,R> >(recv->_getITables())->equals))(arg1);
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P6,R> >(recv->_getITables())->equals))(arg1);
             }
             static x10_int hashCode(x10aux::ref<x10::lang::Reference> recv) {
-                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P5,R> >(recv->_getITables())->hashCode))();
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P6,R> >(recv->_getITables())->hashCode))();
             }
             static x10aux::ref<x10::lang::String> toString(x10aux::ref<x10::lang::Reference> recv) {
-                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P5,R> >(recv->_getITables())->toString))();
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P6,R> >(recv->_getITables())->toString))();
             }
             static x10aux::ref<x10::lang::String> typeName(x10aux::ref<x10::lang::Reference> recv) {
-                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P5,R> >(recv->_getITables())->typeName))();
+                return (recv.operator->()->*(x10aux::findITable<Fun_0_6<P1,P2,P3,P4,P5,P6,R> >(recv->_getITables())->typeName))();
             }
         };
 
