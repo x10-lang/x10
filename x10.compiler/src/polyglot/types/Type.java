@@ -187,7 +187,12 @@ public interface Type extends Qualifier, Annotated, Named
      * Return true if double, float, long, int, short, byte, or char.
      */
     boolean isNumeric();
-    
+
+    /**
+     * Return true if long, int, short, or byte.
+     */
+    boolean isSignedNumeric();
+
     /**
      * Return true if ulong, uint, ushort, or ubyte.
      */
