@@ -795,7 +795,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             List<Ref<? extends Type>> formalTypes = xcd.formalTypes();
             for (Ref<? extends Type> ref : formalTypes) {
                 Type t = ref.get();
-                if (Types.baseType(t) instanceof ParameterType || hasParams(t)) {
+                Type bt = Types.baseType(t);
+                if (bt instanceof ParameterType || hasParams(t) || bt.isUnsignedNumeric()) {
                     containsParamOrParameterized = true;
                     break;
                 }
