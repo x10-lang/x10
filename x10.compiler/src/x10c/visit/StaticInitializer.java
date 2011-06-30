@@ -715,20 +715,16 @@ public class StaticInitializer extends ContextVisitor {
             return xnf.IntLit(pos, IntLit.INT, 0).type(type);
         else if (type.isLong())
             return xnf.IntLit(pos, IntLit.LONG, 0).type(type);
+        else if (type.isUByte() || type.isUShort() || type.isUInt())
+            return xnf.IntLit(pos, IntLit.UINT, 0).type(type);
+        else if (type.isULong())
+            return xnf.IntLit(pos, IntLit.ULONG, 0).type(type);
         else if (type.isFloat())
             return xnf.FloatLit(pos, FloatLit.FLOAT, 0.0).type(type);
         else if (type.isDouble())
             return xnf.FloatLit(pos, FloatLit.DOUBLE, 0.0).type(type);
         else if (type == xts.String())
             return xnf.NullLit(pos).type(type);
-        else if (xts.isSubtype(type, xts.UByte()) || xts.isSubtype(type, xts.UShort()) ||
-                 xts.isSubtype(type, xts.UInt()) || xts.isSubtype(type, xts.ULong())) {
-            ConstructorDef cd = xts.defaultConstructor(pos, Types.ref((ClassType)type)); 
-            ConstructorInstance ci = xts.createConstructorInstance(pos, Types.ref(cd));
-            List<Expr> args = new ArrayList<Expr>();
-            args.add(xnf.IntLit(pos, IntLit.INT, 0).type(type));
-            return xnf.New(pos, xnf.X10CanonicalTypeNode(pos, type), args).constructorInstance(ci).type(type);
-        }
         else
             return null;
     }
