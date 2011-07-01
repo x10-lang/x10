@@ -12,9 +12,16 @@
 package x10.x10rt;
 
 
+import x10.runtime.impl.java.Runtime;
+
 import java.io.IOException;
 
 public interface X10JavaSerializable {
+
+    /**
+     * Force use of custom java serialization. Default is to use default java serialization
+    */
+    public static final boolean CUSTOM_JAVA_SERIALIZATION = Runtime.isCustomSerialization();
 
 	public void _serialize(X10JavaSerializer serializer) throws IOException;
 	public int _get_serialization_id();

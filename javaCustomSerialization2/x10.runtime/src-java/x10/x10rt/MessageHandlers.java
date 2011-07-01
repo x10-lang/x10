@@ -45,7 +45,7 @@ public class MessageHandlers {
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
             x10.core.fun.VoidFun_0_0 actObj;
             InputStream objStream;
-            if (x10.runtime.impl.java.Runtime.CUSTOM_JAVA_SERIALIZATION) {
+            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
                 objStream = new DataInputStream(byteStream);
     		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
                 X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);

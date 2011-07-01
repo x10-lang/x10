@@ -229,12 +229,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static final boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
 
-    /**
-     * Force use of custom java serialization. Default is to use default java serialization
-     */
-    public static final boolean CUSTOM_JAVA_SERIALIZATION = isCustomSerialization();
-
-    private static boolean isCustomSerialization() {
+    public static Boolean isCustomSerialization() {
         String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION");
         if (property == null) {
             return true;
@@ -260,7 +255,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Copy body (same place)
      */
     public static <T> T deepCopy(T body) {
-        if (CUSTOM_JAVA_SERIALIZATION) {
+        if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
             try {
                 byte[] ba = serialize(body);
                 DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
@@ -337,7 +332,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
-            if (CUSTOM_JAVA_SERIALIZATION) {
+            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Starting serialization for runAt  " + body.getClass());
                 }
@@ -366,7 +361,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static void runAtAll(boolean includeHere, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
-            if (CUSTOM_JAVA_SERIALIZATION) {
+            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Starting serialization for runAtAll  " + body.getClass());
                 }
