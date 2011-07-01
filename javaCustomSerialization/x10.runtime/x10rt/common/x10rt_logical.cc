@@ -33,7 +33,7 @@ namespace {
     x10rt_lgl_ctx g;
 }
 
-volatile x10rt_stats x10rt_lgl_stats;
+x10rt_stats x10rt_lgl_stats;
 
 static void one_setter (void *arg)
 { *((int*)arg) = 1; }
@@ -966,4 +966,22 @@ void x10rt_lgl_allreduce (x10rt_team team, x10rt_place role,
         x10rt_emu_allreduce(team, role, sbuf, dbuf, op, dtype, count, ch, arg);
     }
 }
+
+
+void x10rt_lgl_get_stats (x10rt_stats *s)
+{
+    *s = x10rt_lgl_stats;
+}
+
+void x10rt_lgl_set_stats (x10rt_stats *s)
+{
+    x10rt_lgl_stats = *s;
+}
+
+
+void x10rt_lgl_zero_stats (x10rt_stats *s)
+{
+    memset(s, 0, sizeof(*s));
+}
+
 

@@ -31,7 +31,7 @@ public class CovariantOverride extends x10Test {
     public def run(): boolean = {
 	val b = new B();
 	chk(b.f() == 2);
-	chk(b.g() == "efg");
+	chk(b.g().equals("efg"));
 	chk(b.h() == 3u);
 	return true;
     }

@@ -15,8 +15,8 @@ import polyglot.ast.Assign_c;
 import polyglot.ast.Call_c;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorCall_c;
+import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
-import polyglot.ast.FieldDecl;
 import polyglot.ast.Lit_c;
 import polyglot.ast.Local_c;
 import polyglot.ast.Node;
@@ -24,8 +24,12 @@ import polyglot.ast.Node_c;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Special;
 import polyglot.frontend.Job;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall_c;
+import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
 import x10.ast.StmtExpr_c;
 import x10.visit.ExpressionFlattener;
@@ -35,7 +39,7 @@ import x10.visit.X10DelegatingVisitor;
  * @author Bowen Alpern
  *
  */
-class InlineCostEstimator extends NodeVisitor {
+class DeclPackage extends NodeVisitor {
     
     static final boolean XTENLANG_2818 = true; // FIXME: Java back-end does not support non-virtual instance calls
     static final boolean XTENLANG_2819 = true; // FIXME: C++  back-end generates incorrect code for embedded fields
@@ -44,26 +48,26 @@ class InlineCostEstimator extends NodeVisitor {
     String reason;
     final private Job job;
     final private ProcedureDecl decl;
-    final private InlineAnnotationUtils annotations;
-    final private InlineCostDelegate delegate;
+    final private InlineUtils utils;
+    final private CostDelegate delegate;
     final protected int cost[] = new int[1];
 
-    InlineCostEstimator(String r) {
-        inlinable   = false;
-        reason      = r;
-        job         = null;
-        decl        = null;
-        annotations = null;
-        delegate    = null;
+    DeclPackage(String r) {
+        inlinable = false;
+        reason    = r;
+        job       = null;
+        decl      = null;
+        utils     = null;
+        delegate  = null;
         
     }
 
-    InlineCostEstimator(Job j, ProcedureDecl pd) {
-        inlinable   = true;
-        job         = j;
-        decl        = pd;
-        annotations = new InlineAnnotationUtils(job);
-        delegate    = new InlineCostDelegate(this);
+    DeclPackage(Job j, ProcedureDecl pd) {
+        inlinable = true;
+        job       = j;
+        decl      = pd;
+        utils     = new InlineUtils(job);
+        delegate  = new CostDelegate(this);
     }
 
     public ProcedureDecl getDecl(int budget) {
@@ -99,9 +103,9 @@ class InlineCostEstimator extends NodeVisitor {
             cannotInline("Java back-end cannot handle inlined super targets");
         } else if (XTENLANG_2818 && n instanceof ConstructorCall && ((ConstructorCall) n).kind() == ConstructorCall.SUPER && ExpressionFlattener.javaBackend(job)) {
             cannotInline("Java back-end cannot handle inlined super calls either");
-        } else if (XTENLANG_2819 && annotations.hasEmbedAnnotation(n) && !ExpressionFlattener.javaBackend(job)) {
+        } else if (XTENLANG_2819 && utils.hasEmbedAnnotation(n) && !ExpressionFlattener.javaBackend(job)) {
             cannotInline("C++  back-end cannot handle embedded fields");
-        } else if (annotations.isNativeCode(n)) {
+        } else if (utils.isNativeCode(n)) {
             cannotInline("Procedure body contains native code");
         } else {
             delegate.visitAppropriate(n);
@@ -111,16 +115,17 @@ class InlineCostEstimator extends NodeVisitor {
 
 }
 
-final class InlineCostDelegate extends X10DelegatingVisitor{
+final class CostDelegate extends X10DelegatingVisitor{
     static final int CALL_COST        = 0x10;
+    static final int CONSTRUCTOR_COST = 8;
     static final int OPERATION_COST   = 2;
     static final int SMALL_COST       = 1;
     static final int NO_COST          = 0;
 
-    final InlineCostEstimator ice;
+    final DeclPackage pkg;
 
-    InlineCostDelegate(InlineCostEstimator ce) {
-        ice = ce;
+    CostDelegate(DeclPackage dp) {
+        pkg = dp;
     }
 
     /**
@@ -129,35 +134,45 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      * @see x10.visit.X10DelegatingVisitor#visit(x10.ast.AssignPropertyCall_c)
      */
     public final void visit(AssignPropertyCall_c c) {
-        ice.cost[0] += NO_COST;
+        pkg.cost[0] += NO_COST;
     }
 
     /**
-     * Closure calls are charged less than other calls.
+     * Closure calls are free, if the target is a closure literal.
      * 
      * @see x10.visit.X10DelegatingVisitor#visit(x10.ast.ClosureCall_c)
      */
     @Override
-    public void visit(ClosureCall_c n) { // todo handle cases separately
-        ice.cost[0] += OPERATION_COST;
+    public void visit(ClosureCall_c n) {
+        if (!(n.target() instanceof Closure))
+            pkg.cost[0] += CALL_COST;
     }
 
     /**
-     * Constructor calls are charged 16.
+     * Constructor calls are charged 8.
      * 
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.ConstructorCall_c)
      */
-    public final void visit(ConstructorCall_c c) { // todo cc are cheaper
-        ice.cost[0] += CALL_COST;
+    public final void visit(ConstructorCall_c c) { 
+        pkg.cost[0] += CONSTRUCTOR_COST;
     }
 
     /**
-     * Method calls are charged 16.
+     * Method calls are charged 16. 
+     * Intrinsic calls are charged 2.
      * 
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Call_c)
      */
-    public final void visit(Call_c c) { // TODO handle target Arithmetic, boolean, and Char or @intrinsic
-        ice.cost[0] += CALL_COST;
+    public final void visit(Call_c c) {
+        if (c.target() instanceof Expr) { // TODO @intrinsic
+            Type type = Types.baseType(((Expr) c.target()).type());
+            TypeSystem ts = type.typeSystem();
+            if (ts.isLongOrLess(type) || ts.isChar(type) || ts.isBoolean(type)) {
+                pkg.cost[0] += OPERATION_COST;
+                return;
+            }
+        }
+        pkg.cost[0] += CALL_COST;
     }
 
     /**
@@ -166,14 +181,14 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Lit_c)
      */
     public final void visit(Lit_c l) {
-        ice.cost[0] += NO_COST;
+        pkg.cost[0] += NO_COST;
     }
 
     /**
      * Locals are not charged.
      */
     public final void visit(Local_c l) {
-        ice.cost[0] += NO_COST;
+        pkg.cost[0] += NO_COST;
     }
 
     /**
@@ -183,7 +198,7 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      */
     @Override
     public void visit(Assign_c n) {
-        ice.cost[0] += NO_COST;
+        pkg.cost[0] += NO_COST;
     }
 
     /**
@@ -193,7 +208,7 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      */
     @Override
     public void visit(StmtExpr_c n) {
-        ice.cost[0] += NO_COST;
+        pkg.cost[0] += NO_COST;
     }
 
     /**
@@ -202,7 +217,7 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Expr_c)
      */
     public final void visit(Expr_c e) {
-        ice.cost[0] += OPERATION_COST;
+        pkg.cost[0] += OPERATION_COST;
     }
 
     /**
@@ -211,7 +226,7 @@ final class InlineCostDelegate extends X10DelegatingVisitor{
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Node_c)
      */
     public final void visit(Node_c n) {
-        ice.cost[0] += NO_COST;
+        pkg.cost[0] += NO_COST;
     }
 
 }

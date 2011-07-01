@@ -27,6 +27,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.ProcedureCall;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
@@ -37,7 +38,6 @@ import polyglot.ast.Variable;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.types.ConstructorInstance;
-import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
@@ -75,15 +75,15 @@ import x10.types.X10ClassType;
 import x10.types.X10CodeDef;
 import x10.types.X10LocalDef;
 import x10.types.X10ProcedureDef;
-import x10.types.checker.Converter;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
 import x10.types.constraints.CTerms;
 import x10.util.AltSynthesizer;
+import x10.util.AnnotationUtils;
 import x10.visit.ConstantPropagator;
 import x10.visit.ExpressionFlattener;
 import x10.visit.NodeTransformingVisitor;
-import x10.visit.Reinstantiator;
+import x10.visit.X10AlphaRenamer;
 import x10cuda.ast.CUDAKernel;
 
 /**
@@ -98,7 +98,7 @@ import x10cuda.ast.CUDAKernel;
  * 
  * @author nystrom
  * @author igor
- * @author Bowen Alpern (alpernb@us.ibm.com)
+ * @author Bowen Alpern
  */
 @SuppressWarnings("unchecked")
 public class Inliner extends ContextVisitor {
@@ -126,28 +126,32 @@ public class Inliner extends ContextVisitor {
     private final int recursionDepth[] = new int[1]; // number of calls to the same procedure currently being inlined
     private final AltSynthesizer syn;
     private DeclStore repository;
-    private InlineAnnotationUtils annotations;
+    private InlineUtils utils;
 
-    private final boolean INLINE_CONSTANTS;
-    private final boolean INLINE_METHODS;
-    private final boolean INLINE_CLOSURES;
-    private final boolean INLINE_CONSTRUCTORS;
-
+    /**
+     * Create a new Inliner.
+     * 
+     * @param job the Job whose procedures (methods, constructors, and closures) are to have their procedure calls inlined
+     * @param ts the current TypeSystem
+     * @param nf the current NodeFactory
+     */
     public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         syn                   = new AltSynthesizer(ts, nf);
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
         Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
-        INLINE_CONSTANTS      = config.OPTIMIZE && config.INLINE_CONSTANTS;
-        INLINE_METHODS        = config.OPTIMIZE && config.INLINE_METHODS;
-        INLINE_CLOSURES       = config.OPTIMIZE && config.INLINE_CLOSURES;
-        INLINE_CONSTRUCTORS   = x10.optimizations.Optimizer.CONSTRUCTOR_SPLITTING(extInfo) && config.INLINE_CONSTRUCTORS;
     }
 
+    /**
+     * Initialize this Inliner.  
+     * Some of this initialization cannot be done in the constructor or in would introduce cycles in the schedule.
+     * 
+     * @see polyglot.visit.ContextVisitor#begin()
+     */
     @Override
     public NodeVisitor begin() {
         repository        = job.compiler().getInlinerData(job, ts, nf);
-        annotations       = new InlineAnnotationUtils(job);
+        utils             = new InlineUtils(job);
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
         timer();
         return super.begin();
@@ -170,9 +174,6 @@ public class Inliner extends ContextVisitor {
             if (DEBUG) debug("Cannot flatten: short-circuiting inlining for children of " + node, node);
             return node; // don't inline inside Nodes that cannot be Flattened
         }
-        if (node instanceof ConstructorCall && !INLINE_CONSTRUCTORS) {
-            return node; // for now, don't flatten constructor calls
-        }
         if (node instanceof X10MethodDecl) {
             return null; // @NoInline annotation means something else
         }
@@ -183,42 +184,43 @@ public class Inliner extends ContextVisitor {
             return node;  // disable inlining within a CUDAKernal XTENLANG-2824.  
         }
         if (node instanceof ClassDecl) { // Don't try to inline native classes
-            if (annotations.inliningProhibited(((X10ClassDecl) node).classDef())) {
+            if (utils.inliningProhibited(((X10ClassDecl) node).classDef())) {
                 return node;
             }
         }
-        if (annotations.inliningProhibited(node)) { // allows whole AST's to be ignored TODO: DEBUG only (remove this)
+        if (utils.inliningProhibited(node)) { // allows whole AST's to be ignored (primarily DEBUG only (remove this)
             if (DEBUG) debug("Explicit @NoInline annotation: short-circuiting inlining for children of " + node, node);
             return node;
         }
         return null;
     }
 
+    /**
+     * Rewrite procedure (method, constructor, closure) call nodes, inlining the body of the callee.
+     * 
+     * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
+     */
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+        if (n instanceof X10MethodDecl && AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), utils.InlineOnlyType))
+            return null;
+        if (!(n instanceof ProcedureCall))
+            return n;
         Position pos = n.position();
         inliningRequired = false;
         reasons.clear();
         Node result = null;
-        if (n instanceof ClosureCall && INLINE_CLOSURES) {
+        if (n instanceof ClosureCall) {
             if (4 <= VERBOSITY)
                 Warnings.issue(job, "? inline level " +inlineInstances.size()+ " closure " +n, pos);
             result = inlineClosureCall((ClosureCall) n);
         } else if (n instanceof InlinableCall) {
-            if (INLINE_CONSTANTS) {
-                result = inlineConstant((InlinableCall) n);
-                if (null != result) 
-                    return result;
-            }
-            if (INLINE_METHODS) {
-                if (4 <= VERBOSITY)
-                    Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
-                result = inlineCall((InlinableCall) n);
-            }
-        } else if (n instanceof X10MethodDecl) {
-            if (AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), annotations.InlineOnlyType))
-                return null; // ASK: is this the right way to remove a method decl from the ast?
-            return n;
-        } else {
+            result = inlineConstant((InlinableCall) n);
+            if (null != result) 
+                return result;
+            if (4 <= VERBOSITY)
+                Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
+            result = inlineCall((InlinableCall) n);
+        } else { // this shouldn't happen
             return n;
         }
         if (null == result) { // cannot inline this call
@@ -240,15 +242,58 @@ public class Inliner extends ContextVisitor {
             }
             return n;
         }
-        if (n != result) { // inlining this call
-            if (n instanceof ConstructorCall && result instanceof StmtExpr) { // evaluate the expr // method calls in Stmt context are already sowrapped
-                result = syn.createEval((StmtExpr) result);
-            }
-            if (3 <= VERBOSITY) {
-                Warnings.issue(job, "INLINING: " +n+ " (level " +inlineInstances.size()+ ")", pos);
-            }
+        if (n instanceof ConstructorCall && result instanceof StmtExpr) { // evaluate the expr // method calls in Stmt context are already sowrapped
+            result = syn.createEval((StmtExpr) result);
         }
+        if (n != result && 3 <= VERBOSITY)
+            Warnings.issue(job, "INLINING: " +n+ " (level " +inlineInstances.size()+ ")", pos);
         return result;
+    }
+
+    private Expr inlineClosureCall(ClosureCall c) {
+        Closure lit = getClosure(c.target());
+        if (null == lit) {
+            report("of non literal closure call target " +c.target(), c);
+            return null;
+        }
+        lit = (Closure) instantiate(lit, c);
+        if (null == lit) {
+            report("of failure to instatiate closure", c);
+            return null;
+        }
+        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
+        // Ensure that the last statement of the body is the only return in the closure
+        Block body = InliningRewriter.rewriteClosureBody(lit, job(), context());
+        if (null == body) {
+            report("normalized closure has no body", c);
+            return null;
+        }
+        List<Expr> args = new ArrayList<Expr>();
+        int i = 0;
+        for (Expr a : c.arguments()) {
+            args.add(syn.createUncheckedCast(a.position(), a, c.closureInstance().formalTypes().get(i++), context()));
+        }
+        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), body, null, args);
+        if (null == result) {
+            report("of failure to rewrite closure body", c);
+            return null;
+        }
+        result = (Expr) result.visit(this);
+        result = (Expr) propagateConstants(result);
+        return result;
+    }
+
+    private Closure getClosure(Expr target) {
+        if (target instanceof Closure)
+            return (Closure) target;
+        if (target instanceof ParExpr)
+            return getClosure(((ParExpr) target).expr());
+        // TODO Inline Locals (and field instances?) that have literal closure values
+        // that is, recognize the value final Closure Variables as constants
+        if (target instanceof Variable && ((Variable) target).isConstant()) {
+            return (Closure) ((Variable) target).constantValue();
+        }
+        return null;
     }
 
     /**
@@ -261,7 +306,7 @@ public class Inliner extends ContextVisitor {
         try {
             X10ProcedureDef def = repository.getDef(call);
             Type type = def.returnType().get();
-            List<Type> a = AnnotationUtils.getAnnotations(def, annotations.ConstantType);
+            List<Type> a = AnnotationUtils.getAnnotations(def, utils.ConstantType);
             X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
             ConstantValue cv = extractCompileTimeConstant(type, a, opts, context);
             if (cv == null) return null;
@@ -296,54 +341,8 @@ public class Inliner extends ContextVisitor {
         }
     }
 
-    private Expr inlineClosureCall(ClosureCall c) {
-        Closure lit = getClosure(c.target());
-        if (null == lit) {
-            report("of non literal closure call target " +c.target(), c);
-            return null;
-        }
-        lit = (Closure) instantiate(lit, c);
-        if (null == lit) {
-            report("of failure to instatiate closure", c);
-            return null;
-        }
-        lit = (Closure) lit.visit(new X10AlphaRenamer(this));
-        // Ensure that the last statement of the body is the only return in the closure
-        Block body = InliningRewriter.rewriteClosureBody(lit, job(), context());
-        if (null == body) {
-            report("normalized closure has no body", c);
-            return null;
-        }
-        List<Expr> args = new ArrayList<Expr>();
-        int i = 0;
-        for (Expr a : c.arguments()) {
-            args.add(createCast(a.position(), a, c.closureInstance().formalTypes().get(i++)));
-        }
-        Expr result = rewriteInlinedBody(c.position(), lit.returnType().type(), lit.formals(), body, null, args);
-        if (null == result) {
-            report("of failure to rewrite closure body", c);
-            return null;
-        }
-        result = (Expr) result.visit(this);
-        result = (Expr) propagateConstants(result);
-        return result;
-    }
-
-    private Closure getClosure(Expr target) {
-        if (target instanceof Closure)
-            return (Closure) target;
-        if (target instanceof ParExpr)
-            return getClosure(((ParExpr) target).expr());
-        // TODO Inline Locals (and field instances?) that have literal closure values
-        // that is, recognize the value final Closure Variables as constants
-        if (target instanceof Variable && ((Variable) target).isConstant()) {
-            return (Closure) ((Variable) target).constantValue();
-        }
-        return null;
-    }
-
     private Expr inlineCall(InlinableCall call) {
-        if (annotations.inliningProhibited(call)) {
+        if (utils.inliningProhibited(call)) {
             report("of annotation at call site", call);
             return null;
         }
@@ -444,22 +443,6 @@ public class Inliner extends ContextVisitor {
         return retNode;
     }
 
-    /**
-     * Create a cast (explicit conversion) expression.
-     * 
-     * @param pos the Position of the cast in the source code
-     * @param expr the Expr being cast
-     * @param toType the resultant type
-     * @return the synthesized Cast expression (expr as toType), or 
-     *         the original expression (if the cast is unnecessary) 
-     * TODO: move into Synthesizer
-     */
-    public Expr createCast(Position pos, Expr expr, Type toType) {
-        if (ts.typeDeepBaseEquals(expr.type(), toType, context()))
-            return expr;
-        return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, toType), expr, Converter.ConversionType.UNCHECKED).type(toType);
-    }
-
     private LocalDecl reifyThis(InlinableCall call) {
         assert call.target() instanceof Expr;
         Expr target = (Expr) call.target();
@@ -472,7 +455,7 @@ public class Inliner extends ContextVisitor {
         Type type = ((MemberDef) pi.def()).container().get();
         type = makeTypeMap(pi, call.typeArguments()).reinstantiate(type);
         
-        Expr expr = createCast(position, target, type);
+        Expr expr = syn.createUncheckedCast(position, target, type, context());
         LocalDecl thisDecl = syn.createLocalDecl(call.position(), Flags.FINAL, Name.makeFresh("this"), expr);
         return thisDecl;
     }
@@ -570,7 +553,7 @@ public class Inliner extends ContextVisitor {
         for (int i = 0; i < args.size(); i++) {
             Expr arg = args.get(i);
             X10Formal formal = (X10Formal) formals.get(i);
-            Expr expr = createCast(arg.position(), arg, formal.type().type());
+            Expr expr = syn.createUncheckedCast(arg.position(), arg, formal.type().type(), context());
             LocalDecl ld = syn.createLocalDecl(formal, expr);
             tieLocalDefToItself(ld.localDef());
             statements.add(ld);
@@ -594,7 +577,7 @@ public class Inliner extends ContextVisitor {
         Expr expr = ret.expr();
         if (null != expr) {
             assert null != retType; // null retType => constructor call body (which shouldn't return an expr)
-            expr = createCast(expr.position(), expr, retType);
+            expr = syn.createUncheckedCast(expr.position(), expr, retType, context());
         }
         StmtExpr result = syn.createStmtExpr(pos, statements, expr);
 

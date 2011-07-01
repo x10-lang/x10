@@ -19,12 +19,13 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import x10.extension.X10Ext;
 import x10.types.X10Def;
+import x10.util.AnnotationUtils;
 
 /**
  * @author Bowen Alpern
  *
  */
-public class InlineAnnotationUtils extends AnnotationUtils {
+public class InlineUtils extends AnnotationUtils {
 
     /**
      * Annotation types.
@@ -44,7 +45,7 @@ public class InlineAnnotationUtils extends AnnotationUtils {
      * @param j 
      * @throws InternalCompilerError
      */
-    InlineAnnotationUtils(Job job) throws InternalCompilerError {
+    InlineUtils(Job job) throws InternalCompilerError {
         this.job = job;
         TypeSystem ts = job.extensionInfo().typeSystem(); 
         ConstantType = ts.CompileTimeConstant();

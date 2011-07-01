@@ -38,7 +38,7 @@ public class Types {
                 RuntimeType<?> parentRTT = getRTT(intf);
                 if (intfTypeVariables.length > 0) {
                     Type<?>[] parentParams = new Type<?>[intfTypeVariables.length];
-                    java.util.Arrays.fill(parentParams, Types.ANY);
+                    java.util.Arrays.fill(parentParams, ANY);
                     parents[i] = new ParameterizedType(parentRTT, parentParams);
                 } else {
                     parents[i] = parentRTT;
@@ -50,7 +50,7 @@ public class Types {
                 RuntimeType<?> parentRTT = getRTT(superclass);
                 if (superclassTypeVariables.length > 0) {
                     Type<?>[] parentParams = new Type<?>[superclassTypeVariables.length];
-                    java.util.Arrays.fill(parentParams, Types.ANY);
+                    java.util.Arrays.fill(parentParams, ANY);
                     parents[i] = new ParameterizedType(parentRTT, parentParams);
                 } else {
                     parents[i] = parentRTT;
@@ -67,8 +67,6 @@ public class Types {
         RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
             rtt = ((Any) obj).$getRTT();
-//        } else if (Types.getNativeRepRTT(obj) != null) {
-//            rtt = Types.getNativeRepRTT(obj);
         } else if (obj != null) {
             // rtt for raw Java classes
             rtt = getRTT(obj.getClass());
@@ -364,7 +362,7 @@ public class Types {
     ) {
         // make sure deserialized RTT object is not duplicated
         private Object readResolve() throws java.io.ObjectStreamException {
-            return Types.COMPARABLE;
+            return COMPARABLE;
         }
     };
 
@@ -380,35 +378,20 @@ public class Types {
     public static final RuntimeType<x10.core.UShort> USHORT = new UShortType();
     public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
     public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
-    public static final Object BOOLEAN_ZERO = x10.core.Boolean.FALSE;
-    public static final Object CHAR_ZERO = x10.core.Char.$box((char)0);
-    public static final Object BYTE_ZERO = x10.core.Byte.$box(0);
-    public static final Object SHORT_ZERO = x10.core.Short.$box(0);
-    public static final Object INT_ZERO = x10.core.Int.$box(0);
-    public static final Object LONG_ZERO = x10.core.Long.$box(0l);
-    public static final Object FLOAT_ZERO = x10.core.Float.$box(0.0F);
-    public static final Object DOUBLE_ZERO = x10.core.Double.$box(0.0);
-    public static final Object UBYTE_ZERO = x10.core.UByte.$box((byte)0);
-    public static final Object USHORT_ZERO = x10.core.UShort.$box((short)0);
-    public static final Object UINT_ZERO = x10.core.UInt.$box(0);
-    public static final Object ULONG_ZERO = x10.core.ULong.$box((long)0);
+    public static final x10.core.Boolean BOOLEAN_ZERO = x10.core.Boolean.FALSE;
+    public static final x10.core.Char CHAR_ZERO = x10.core.Char.$box((char)0);
+    public static final x10.core.Byte BYTE_ZERO = x10.core.Byte.$box(0);
+    public static final x10.core.Short SHORT_ZERO = x10.core.Short.$box(0);
+    public static final x10.core.Int INT_ZERO = x10.core.Int.$box(0);
+    public static final x10.core.Long LONG_ZERO = x10.core.Long.$box(0l);
+    public static final x10.core.Float FLOAT_ZERO = x10.core.Float.$box(0.0F);
+    public static final x10.core.Double DOUBLE_ZERO = x10.core.Double.$box(0.0);
+    public static final x10.core.UByte UBYTE_ZERO = x10.core.UByte.$box((byte)0);
+    public static final x10.core.UShort USHORT_ZERO = x10.core.UShort.$box((short)0);
+    public static final x10.core.UInt UINT_ZERO = x10.core.UInt.$box(0);
+    public static final x10.core.ULong ULONG_ZERO = x10.core.ULong.$box((long)0);
 
     public static final RuntimeType<String> STRING = new StringType();
-
-    // N.B. we cannot determine the type from auto-boxed java primitive now. 
-//    @Deprecated
-//    public static RuntimeType<?> getNativeRepRTT(Object o) {
-//        if (o instanceof Byte) return BYTE;
-//        if (o instanceof Short) return SHORT;
-//        if (o instanceof Integer) return INT;
-//        if (o instanceof Long) return LONG;
-//        if (o instanceof Float) return FLOAT;
-//        if (o instanceof Double) return DOUBLE;
-//        if (o instanceof Character) return CHAR;
-//        if (o instanceof Boolean) return BOOLEAN;
-//        if (o instanceof String) return STRING;
-//        return null;
-//    }
 
     static boolean isNumericType(Type<?> rtt) {
         if (rtt == BYTE  || rtt == SHORT  || rtt == INT  || rtt == LONG  ||

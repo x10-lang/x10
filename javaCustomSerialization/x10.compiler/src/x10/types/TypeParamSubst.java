@@ -38,10 +38,12 @@ import x10.types.constraints.TypeConstraint;
 
 
 /**
- * Comments by vj.
  * Implements a type substitution [ActualT1,..., ActualTn/FormalX1,..., FormalXn].
+ * A substitution is lazy by default (creating a reinstantiated wrapper object for
+ * constructor and method instances), but can also be eager (replacing the types
+ * right away).  Eager substitutions cannot be used until after typechecking, as
+ * that may introduce dependency cycles.  
  * @author nystrom
- *
  */
 public class TypeParamSubst {
 	public static final TypeParamSubst IDENTITY = new TypeParamSubst();
