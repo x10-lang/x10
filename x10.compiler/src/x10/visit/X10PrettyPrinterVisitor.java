@@ -812,7 +812,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline(0);
     }
 
-    private String needsCasting(Type type) {
+    public static String needsCasting(Type type) {
 
         // is this a java primitive
         if(type.isInt() || type.isDouble() || type.isFloat() || type.isByte() || type.isChar() || type.isShort() || type.isLong() || type.isBoolean()) {
