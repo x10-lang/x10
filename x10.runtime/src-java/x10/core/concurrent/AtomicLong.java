@@ -15,10 +15,16 @@ import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements RefI {
+import java.io.IOException;
+
+public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements RefI, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicLong.class.getName());
 
 	public AtomicLong(java.lang.System[] $dummy) {
 	    super();
@@ -51,6 +57,25 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     public RuntimeType<AtomicLong> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {
         return null;
+    }
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.write(this.get());
+	}
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserialize_body(AtomicLong atomicLong, X10JavaDeserializer deserializer) throws IOException {
+        long l = deserializer.readLong();
+        AtomicLong al = new AtomicLong(l);
+        deserializer.record_reference(al);
+        return al;
     }
 
 }

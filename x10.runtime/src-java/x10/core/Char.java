@@ -13,6 +13,11 @@ package x10.core;
 
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 /**
  * Represents a boxed Char value. Boxed representation is used when casting
@@ -22,6 +27,7 @@ import x10.rtt.Types;
 final public class Char extends Struct implements java.lang.Comparable<Char>, x10.util.Ordered<Char>
 {
     private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Char.class.getName());
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.CHAR;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -101,7 +107,26 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
         if ($value > o.$value) return 1;
         else if ($value < o.$value) return -1;
         return 0;
-    }      
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(Char c, X10JavaDeserializer deserializer) throws IOException {
+        char value  = deserializer.readChar();
+        c = new Char(value);
+        deserializer.record_reference(c);
+        return c;
+    }
     
     // implements Ordered<Char>. Rely on autoboxing of booleans
     public Object $lt(Char b, Type t) { return ($value < b.$value); }

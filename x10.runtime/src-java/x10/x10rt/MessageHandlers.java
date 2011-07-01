@@ -10,6 +10,12 @@
  */
 package x10.x10rt;
 
+import x10.runtime.impl.java.Runtime;
+
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.ObjectInputStream;
+
 /**
  * A class to contain the Java portion of message send/receive pairs.
  */
@@ -30,16 +36,32 @@ public class MessageHandlers {
     private static native void runClosureAtSendImpl(int place, int arraylen, byte[] rawBytes);
     
     // Invoked from native code at receiving place
+    // This function gets called by the callback thats registered to handle messages with the X10 RT implementation
     private static void runClosureAtReceive(byte[] args) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("@MultiVM : runClosureAtReceive is called");
     		java.io.ByteArrayInputStream byteStream 
     			= new java.io.ByteArrayInputStream(args);
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
-    		java.io.ObjectInputStream objStream = new java.io.ObjectInputStream(byteStream);
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) objStream.readObject();
-    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast");
+            x10.core.fun.VoidFun_0_0 actObj;
+            InputStream objStream;
+            if (x10.runtime.impl.java.Runtime.CUSTOM_JAVA_SERIALIZATION) {
+                objStream = new DataInputStream(byteStream);
+    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
+                X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Starting deserialization ");
+                }
+                actObj = (x10.core.fun.VoidFun_0_0) deserializer.deSerialize();
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Ending deserialization ");
+                }
+            } else {
+                objStream = new java.io.ObjectInputStream(byteStream);
+    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
+                actObj = (x10.core.fun.VoidFun_0_0) ((ObjectInputStream)objStream).readObject();
+            }
+    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast and deserialization");
     		actObj.$apply();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after apply");
     		objStream.close();

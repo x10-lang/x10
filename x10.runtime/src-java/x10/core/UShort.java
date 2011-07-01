@@ -13,6 +13,12 @@ package x10.core;
 
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 /**
  * Represents a boxed UShort value. Boxed representation is used when casting
@@ -22,7 +28,8 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
-    
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UShort.class.getName());
+
     public static final x10.rtt.RuntimeType<?> $RTT = Types.USHORT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     public x10.rtt.Type<?> $getParam(int i) {return null;}
@@ -108,7 +115,7 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
         else if (a < b) return -1;
         return 0;
     }
-    
+
     // implements Arithmetic<UShort>
     public UShort $plus$G() { return this; }
     public UShort $minus$G() { return UShort.$box(-$value); }
@@ -135,7 +142,26 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public Object $gt(UShort a, Type t) { return Unsigned.gt($value,a.$value); }
     public Object $le(UShort a, Type t) { return Unsigned.le($value,a.$value); }
     public Object $ge(UShort a, Type t) { return Unsigned.ge($value,a.$value); }
-    
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(UShort us, X10JavaDeserializer deserializer) throws IOException {
+        short value  = deserializer.readShort();
+        us = new UShort(value);
+        deserializer.record_reference(us);
+        return us;
+    }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {

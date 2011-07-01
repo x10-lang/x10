@@ -12,9 +12,17 @@
 package x10.rtt;
 
 
-public class CharType extends RuntimeType<x10.core.Char> {
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
+
+public class CharType extends RuntimeType<x10.core.Char>implements X10JavaSerializable {
+
 
     private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(CharType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
@@ -73,6 +81,23 @@ public class CharType extends RuntimeType<x10.core.Char> {
     @Override
     public int arrayLength(Object array) {
     	return ((char[]) array).length;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return _deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(CharType t, X10JavaDeserializer deserializer) throws IOException {
+        CharType charType = (CharType) Types.CHAR;
+        deserializer.record_reference(charType);
+        return charType;
     }
 
 }

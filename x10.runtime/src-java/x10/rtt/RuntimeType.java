@@ -11,24 +11,34 @@
 
 package x10.rtt;
 
+import java.io.IOException;
 import java.lang.reflect.Array;
 
 import x10.core.Any;
+import x10.x10rt.DeserializationDispatcher;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public class RuntimeType<T> implements Type<T> {
+public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RuntimeType.class.getName());
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
-    private final Class<?> impl;
-    private final Variance[] variances;
-    private final Type<?>[] parents;
+    public Class<?> impl;
+    public Variance[] variances;
+    public Type<?>[] parents;
+
+    // Just for allocation
+    public RuntimeType() {
+    }
     
     public RuntimeType(Class<?> impl) {
         this(impl, null, null);
     }
-    
+
     public RuntimeType(Class<?> impl, Variance[] variances) {
         this(impl, variances, null);
     }
@@ -522,5 +532,37 @@ public class RuntimeType<T> implements Type<T> {
         else {
             return false;
         }
+    }
+
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+        String name = impl.getName();
+        int classId = DeserializationDispatcher.getIDForClassName(name);
+        serializer.write(classId);
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        RuntimeType rt = new RuntimeType();
+        deserializer.record_reference(rt);
+		return _deserialize_body(rt, deserializer);
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
+        int classId = deserializer.readInt();
+        String className = DeserializationDispatcher.getClassNameForID(classId);
+        if (className == null) {
+            return null;
+        }
+        try {
+            Class<?> aClass = Class.forName(className);
+            rt.impl = aClass;
+        } catch (ClassNotFoundException e) {
+            // This should not happen though
+            throw new RuntimeException(e);
+        }
+        return rt;
     }
 }

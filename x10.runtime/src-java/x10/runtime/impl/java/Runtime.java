@@ -11,16 +11,21 @@
 
 package x10.runtime.impl.java;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-import java.util.Map;
-
 import x10.core.ThrowableUtilities;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.runtime.impl.java.Thread;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 import x10.x10rt.X10RT;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Map;
 
 public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
@@ -103,6 +108,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         public x10.rtt.Type<?> $getParam(int i) {
             return null;
         }
+
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
+        }
+
+        public int _get_serialization_id() {
+            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
+        }
     }
 
     // body of main activity
@@ -136,6 +149,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
         public x10.rtt.Type<?> $getParam(int i) {
             return null;
+        }
+
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
+        }
+
+        public int _get_serialization_id() {
+            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
 
@@ -202,6 +223,25 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static final boolean TRACE_SER = Boolean.getBoolean("x10.TRACE_SER");
 
+    //TODO Keith Remove this later
+    /**
+     * Emit detail serialization traces for java serialization. Using for debugging in preliminary stage
+     */
+    public static final boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
+
+    /**
+     * Force use of custom java serialization. Default is to use default java serialization
+     */
+    public static final boolean CUSTOM_JAVA_SERIALIZATION = isCustomSerialization();
+
+    private static boolean isCustomSerialization() {
+        String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION");
+        if (property == null) {
+            return true;
+        }
+        return Boolean.valueOf(property);
+    }
+
     /**
      * Synchronously executes body at place(id)
      */
@@ -220,43 +260,97 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Copy body (same place)
      */
     public static <T> T deepCopy(T body) {
-        try {
-            // copy body
-            long startTime = 0L;
-            if (TRACE_SER) {
-                startTime = System.nanoTime();
+        if (CUSTOM_JAVA_SERIALIZATION) {
+            try {
+                byte[] ba = serialize(body);
+                DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
+                X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting deserialization for deepCopy of " + body.getClass());
+                }
+                body = (T) deserializer.deSerialize();
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with deserialization for deepCopy of " + body.getClass());
+                }
+            } catch (java.io.IOException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
             }
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
-            oos.writeObject(body);
-            oos.close();
-            byte[] ba = baos.toByteArray();
-            if (TRACE_SER) {
-                long endTime = System.nanoTime();
-                System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
-                        + " microsecs.");
+            return body;
+        } else {
+            try {
+                // copy body
+                long startTime = 0L;
+                if (TRACE_SER) {
+                    startTime = System.nanoTime();
+                }
+                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+                java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
+                oos.writeObject(body);
+                oos.close();
+                byte[] ba = baos.toByteArray();
+                if (TRACE_SER) {
+                    long endTime = System.nanoTime();
+                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
+                            + " microsecs.");
+                }
+                java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba));
+                body = (T) ois.readObject();
+                ois.close();
+            } catch (java.io.IOException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
             }
-            java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba));
-            body = (T) ois.readObject();
-            ois.close();
-        } catch (java.io.IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new java.lang.Error(e);
+            return body;
         }
-        return body;
+    }
+
+    public static <T> byte[] serialize(T body) throws IOException {
+        long startTime = 0L;
+        if (TRACE_SER) {
+            startTime = System.nanoTime();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
+        if (body instanceof X10JavaSerializable) {
+            serializer.write((X10JavaSerializable) body);
+        } else {
+            serializer.write(body);
+        }
+        oos.close();
+        byte[] ba = baos.toByteArray();
+        if (TRACE_SER) {
+            long endTime = System.nanoTime();
+            System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
+                    + " microsecs.");
+        }
+        return ba;
     }
 
     // @MultiVM, add this method
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
+        byte[] msg;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            (new java.io.ObjectOutputStream(baos)).writeObject(body);
-            byte[] msg = baos.toByteArray();
-            int msgLen = baos.size();
+            if (CUSTOM_JAVA_SERIALIZATION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAt  " + body.getClass());
+                }
+                msg = serialize(body);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAt " + body.getClass());
+                }
+            } else {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                (new java.io.ObjectOutputStream(baos)).writeObject(body);
+                msg = baos.toByteArray();
+            }
+            int msgLen = msg.length;
             if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
             x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
         } catch (java.io.IOException e) {
@@ -270,10 +364,21 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     // Special version of runAt for broadcast type communication
     // (Serialize once, run everywhere)
     public static void runAtAll(boolean includeHere, x10.core.fun.VoidFun_0_0 body) {
+        byte[] msg;
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            (new java.io.ObjectOutputStream(baos)).writeObject(body);
-            byte[] msg = baos.toByteArray();
+            if (CUSTOM_JAVA_SERIALIZATION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAtAll  " + body.getClass());
+                }
+                msg = serialize(body);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAtAll " + body.getClass());
+                }
+            } else {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                (new java.io.ObjectOutputStream(baos)).writeObject(body);
+                msg = baos.toByteArray();
+            }
             int hereId = X10RT.here();
             for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
                 x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
@@ -353,4 +458,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             if (verbose) e.printStackTrace();
         }
     }
+
+    public int _get_serialization_id() {
+		throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+	}
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+	}
 }

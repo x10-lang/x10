@@ -13,6 +13,11 @@ package x10.core;
 
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 /**
  * Represents a boxed Int value. Boxed representation is used when casting
@@ -23,6 +28,7 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Int.class.getName());
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.INT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -163,5 +169,24 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     @Override
     public double doubleValue() {
         return (double)$value;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(Int i, X10JavaDeserializer deserializer) throws IOException {
+        int value  = deserializer.readInt();
+        i = new Int(value);
+        deserializer.record_reference(i);
+        return i;
     }
 }

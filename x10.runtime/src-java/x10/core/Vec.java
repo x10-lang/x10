@@ -11,13 +11,21 @@
 
 package x10.core;
 
+import x10.array.Array;
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 public class Vec<T> extends x10.core.Struct {
+
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Vec.class.getName());
 
     public int size;
     public x10.array.Array<T> backing;
@@ -170,5 +178,31 @@ public class Vec<T> extends x10.core.Struct {
 
     final public Vec<T> x10$util$Vec$$x10$util$Vec$this() {
         return this;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write(T);
+        serializer.write(size);
+        serializer.write(backing);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        Vec vec = new Vec(null);
+        deserializer.record_reference(vec);
+		return _deserialize_body(vec, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(Vec vec, X10JavaDeserializer deserializer) throws IOException {
+        Type T = (Type) deserializer.readRef();
+        int size = deserializer.readInt();
+        x10.array.Array backing = (Array) deserializer.readRef();
+        vec.T = T;
+        vec.size = size;
+        vec.backing = backing;
+        return vec;
     }
 }

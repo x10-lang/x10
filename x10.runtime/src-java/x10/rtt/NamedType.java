@@ -11,17 +11,30 @@
 
 package x10.rtt;
 
-public class NamedType<T> extends RuntimeType<T> {
+import x10.x10rt.DeserializationDispatcher;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
+
+public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(NamedType.class.getName());
     
-    private final String typeName;
+    public String typeName;
 
+    // Just for allocation
+    public NamedType() {
+        super();
+    }
+    
     public NamedType(String typeName, Class<?> c) {
         super(c);
         this.typeName = typeName;
     }
-    
+
     public NamedType(String typeName, Class<?> c, Variance[] variances) {
         super(c, variances);
         this.typeName = typeName;
@@ -42,4 +55,26 @@ public class NamedType<T> extends RuntimeType<T> {
         return typeName;
     }
 
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        super._serialize(serializer);
+        int classId = DeserializationDispatcher.getIDForClassName(typeName);
+        serializer.write(classId);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        NamedType namedType = new NamedType();
+        deserializer.record_reference(namedType);
+		return _deserialize_body(namedType, deserializer);
+	}
+
+    public static X10JavaSerializable _deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
+        RuntimeType._deserialize_body(nt, deserializer);
+        int classId = deserializer.readInt();
+        nt.typeName = DeserializationDispatcher.getClassNameForID(classId);
+        return nt;
+    }
 }

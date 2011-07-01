@@ -18,6 +18,9 @@ import x10.compiler.PerProcess;
 import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
 
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
+
 import x10.util.Random;
 import x10.util.Stack;
 import x10.util.Box;
@@ -425,7 +428,7 @@ import x10.util.concurrent.SimpleLatch;
         def available():Int = permits;
     }
 
-    @Pinned public final static class Worker extends Thread {
+    @Pinned public final static class Worker extends Thread implements CustomSerialization {
         // bound on loop iterations to help j9 jit
         private static BOUND = 100;
 
@@ -543,6 +546,23 @@ import x10.util.concurrent.SimpleLatch;
             if (!STATIC_THREADS) {
                 super.unpark();
             }
+        }
+        
+        /**
+         * Serialization of Worker objects is forbidden.
+         * @throws UnsupportedOperationException
+         */
+        public def serialize():SerialData {
+        	throw new UnsupportedOperationException("Cannot serialize "+typeName());
+        }
+
+        /**
+         * Serialization of Worker objects is forbidden.
+         * @throws UnsupportedOperationException
+         */
+        public def this(a:SerialData) {
+        	super(a);
+        	throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }
 
@@ -887,7 +907,7 @@ import x10.util.concurrent.SimpleLatch;
      */
     static class Remote[T] extends RemoteControl {
         public def this() { super(); }
-        private def this(Any) {
+        private def this(SerialData) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
         var t:Box[T] = null;

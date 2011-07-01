@@ -1,7 +1,11 @@
 package x10.rtt;
 
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class UnresolvedType implements Type {
+
+public final class UnresolvedType implements Type, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -99,6 +103,23 @@ public final class UnresolvedType implements Type {
 
     public final String typeName() {
         return toString();
+    }
+
+	public void _serialize(X10JavaSerializer serializer) {
+		throw new UnsupportedOperationException();
+		
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) {
+		throw new UnsupportedOperationException();
+	}
+
+	public int _get_serialization_id() {
+		throw new UnsupportedOperationException();
+	}
+
+    public static X10JavaSerializable _deserialize_body(UnresolvedType ut, X10JavaDeserializer deserializer) {
+        throw new UnsupportedOperationException();
     }
 
 }

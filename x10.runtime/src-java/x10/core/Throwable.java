@@ -15,12 +15,15 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaSerializer;
 
+import java.io.IOException;
 // XTENLANG-2686: Now x10.core.Throwable is a superclass of x10.lang.Throwable (mapped to x10.core.X10Throwable),
 //                and also a superclass of x10.runtime.impl.java.WrappedThrowable and UnknownJavaThrowable.
 public class Throwable extends java.lang.RuntimeException {
 
 	private static final long serialVersionUID = 1L;
+    public java.lang.String message = null;
 
 	public Throwable(java.lang.System[] $dummy) {
 	    super();
@@ -37,6 +40,7 @@ public class Throwable extends java.lang.RuntimeException {
     
     public Throwable(java.lang.String message) {
         super(message);
+        this.message = message;
     }
 
     // TODO
@@ -44,6 +48,7 @@ public class Throwable extends java.lang.RuntimeException {
     
     public Throwable(java.lang.Throwable cause) {
         super(cause);
+        message = (cause==null ? null : cause.toString());
     }
 
     // TODO
@@ -51,6 +56,7 @@ public class Throwable extends java.lang.RuntimeException {
     
     public Throwable(java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
+        this.message = message;
     }
 
     /* TODO to be removed
@@ -83,6 +89,16 @@ public class Throwable extends java.lang.RuntimeException {
 
     // XTENLANG-2680
 	public java.lang.String getMessage$O() {
+        if (message != null) {
+            return message;
+        }
+		return super.getMessage();
+	}
+
+    public java.lang.String getMessage() {
+        if (message != null) {
+            return message;
+        }
 		return super.getMessage();
 	}
 
@@ -137,5 +153,4 @@ public class Throwable extends java.lang.RuntimeException {
             return buffer.append(name).append(": ").append(msg).toString();
         }
     }
-
 }

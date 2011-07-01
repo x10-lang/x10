@@ -12,6 +12,8 @@
 package x10.lang;
 
 import x10.compiler.NativeRep;
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
 
 /**
  * Native thread. Only to be used in the runtime implementation.
@@ -20,7 +22,8 @@ import x10.compiler.NativeRep;
  */
 @NativeRep("java", "x10.runtime.impl.java.Thread", null, "x10.runtime.impl.java.Thread.$RTT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Thread>", "x10::lang::Thread", null)
-class Thread {
+class Thread implements CustomSerialization {
+
     public native def this(String);
 
     public static native def currentThread():Thread;
@@ -44,6 +47,22 @@ class Thread {
     public native def home():Place;
 
     public native operator this():void;
+
+    /**
+     * Serialization of Thread objects is forbidden.
+     * @throws UnsupportedOperationException
+     */
+    public def serialize():SerialData {
+    	throw new UnsupportedOperationException("Cannot serialize "+typeName());
+    }
+
+    /**
+     * Serialization of Thread objects is forbidden.
+     * @throws UnsupportedOperationException
+     */
+    public def this(SerialData) {
+    	throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+    }
 }
 
 // vim:shiftwidth=4:tabstop=4:expandtab

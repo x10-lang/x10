@@ -13,6 +13,11 @@ package x10.core;
 
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 /**
  * Represents a boxed Float value. Boxed representation is used when casting
@@ -23,6 +28,7 @@ final public class Float extends Number implements StructI,
 	java.lang.Comparable<Float>, x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
 {
     private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Float.class.getName());
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.FLOAT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -119,5 +125,24 @@ final public class Float extends Number implements StructI,
     @Override
     public double doubleValue() {
         return (double)$value;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(Float f, X10JavaDeserializer deserializer) throws IOException {
+        float value  = deserializer.readFloat();
+        f = new Float(value);
+        deserializer.record_reference(f);
+        return f;
     }
 }

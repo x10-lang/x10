@@ -12,6 +12,11 @@
 package x10.core;
 
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 /**
  * Represents a boxed Boolean value. Boxed representation is used when casting
@@ -21,6 +26,7 @@ import x10.rtt.Types;
 final public class Boolean extends Struct implements java.lang.Comparable<Boolean>
 {
     private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Boolean.class.getName());
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.BOOLEAN;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -86,6 +92,24 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
     // implements Comparable<Boolean>
     public int compareTo(Boolean o) {
         return (o.$value == $value ? 0 : ($value ? 1 : -1));
-    }      
-        
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(Boolean b, X10JavaDeserializer deserializer) throws IOException {
+        boolean value  = deserializer.readBoolean();
+        b = new Boolean(value);
+        deserializer.record_reference(b);
+        return b;
+    }
 }

@@ -11,12 +11,16 @@
 
 package x10.runtime.impl.java;
 
+import x10.io.SerialData;
 import x10.lang.Place;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaSerializer;
 import x10.x10rt.X10RT;
+
+import java.io.IOException;
 
 /**
  * @author Christian Grothoff
@@ -39,6 +43,9 @@ public class Thread extends java.lang.Thread implements x10.core.RefI {
 	public x10.core.fun.VoidFun_0_0 body;
 
 	public Thread(java.lang.System[] $dummy) {}
+	public Thread(SerialData $dummy) {
+        throw new UnsupportedOperationException("Cannot deserialize Thread");
+    }
 
 	public Thread $init(String name) {
 	    setName(name);
@@ -125,7 +132,16 @@ public class Thread extends java.lang.Thread implements x10.core.RefI {
             throw e1;
         }
     }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        }
+
+        public int _get_serialization_id() {
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        }
     // for Emitter.mangleSignedNumeric
+
     public static void sleep$s0$s1(long time, int nanos) {
         try {
             java.lang.Thread.sleep(time, nanos);

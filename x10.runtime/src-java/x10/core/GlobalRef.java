@@ -20,10 +20,17 @@ import java.util.WeakHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicLong;
 
+import x10.lang.Place;
 import x10.lang.Runtime.Mortal;
+import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
 public final class GlobalRef<T> extends x10.core.Struct implements
-        Externalizable {
+        Externalizable, X10JavaSerializable {
+	
+	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(GlobalRef.class.getName(), "x10.lang.GlobalRef");
 
     public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.NamedType<GlobalRef<?>>(
         "x10.lang.GlobalRef",
@@ -301,10 +308,54 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         //        + t);
     }
 
+	public void _serialize(X10JavaSerializer serializer) throws IOException {
+        globalize();
+        serializer.write(T);
+        serializer.write(home);
+        serializer.write(id);
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+       GlobalRef gr = new GlobalRef();
+        deserializer.record_reference(gr);
+        return _deserialize_body(gr, deserializer);
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserialize_body(GlobalRef gr, X10JavaDeserializer deserializer) throws IOException {
+        x10.rtt.Type<?> T = (Type<?>) deserializer.readRef();
+        Place home = (Place) deserializer.readRef();
+        long id = deserializer.readLong();
+        gr.home = home;
+        gr.id = id;
+        gr.T = T;
+        if (gr.home.id == x10.lang.Runtime.home().id) {
+            gr.t = GlobalRef.id2Object.get(id);
+            if (gr.t instanceof WeakGlobalRefEntry) {
+                gr.t = ((WeakGlobalRefEntry) gr.t).get();
+            }
+            if (gr.t == null) {
+                throw new IllegalStateException(
+                        "referenced object doesn't exist. id=" + gr.id
+                                + ", mortal="
+                                + (gr.t instanceof WeakGlobalRefEntry));
+            }
+
+            gr.t = decodeNull(gr.t);
+
+        } else {
+            gr.t = null;
+        }
+        return gr;
+    }
 
     public static class LocalEval extends x10.core.Ref {
 
 	private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(LocalEval.class.getName());
 	public static final x10.rtt.RuntimeType<LocalEval> $RTT = new x10.rtt.NamedType<LocalEval>("x10.lang.GlobalRef.LocalEval", LocalEval.class, new x10.rtt.Type[] {x10.rtt.Types.OBJECT});
 	public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     
@@ -332,9 +383,27 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 	    }
 	}
 
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+	}
+
+	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+       LocalEval obj = new LocalEval((System []) null);
+        deserializer.record_reference(obj);
+        return _deserialize_body(obj, deserializer);
+	}
+
+	public int _get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable _deserialize_body(LocalEval obj, X10JavaDeserializer deserializer) throws IOException {
+           return obj;
+    }
+
 
 	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$Eval.class.getName());
 	    public static final x10.rtt.RuntimeType<$Closure$Eval> $RTT =
 		new x10.rtt.StaticFunType<$Closure$Eval>($Closure$Eval.class, 
 							 new x10.rtt.RuntimeType.Variance[] {x10.rtt.RuntimeType.Variance.INVARIANT, x10.rtt.RuntimeType.Variance.INVARIANT},
@@ -364,11 +433,41 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 	    public $U $apply$G() {
 		return this.eval.$apply(this.ref.$apply$G(),$T);
 	    }
+
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            serializer.write($T);
+            serializer.write($U);
+            serializer.write(ref);
+            serializer.write(eval);
+        }
+
+        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+            $Closure$Eval obj = new $Closure$Eval((System[]) null);
+            deserializer.record_reference(obj);
+            return _deserialize_body(obj, deserializer);
+        }
+
+        public int _get_serialization_id() {
+            return _serialization_id;
+        }
+
+        public static X10JavaSerializable _deserialize_body($Closure$Eval obj, X10JavaDeserializer deserializer) throws IOException {
+            x10.rtt.Type $T = (Type) deserializer.readRef();
+            obj.$T = $T;
+            x10.rtt.Type $U = (Type) deserializer.readRef();
+            obj.$U = $U;
+            GlobalRef ref = (GlobalRef) deserializer.readRef();
+            obj.ref = ref;
+            x10.core.fun.Fun_0_1 eval = ( x10.core.fun.Fun_0_1)deserializer.readRef();
+            obj.eval = eval;
+            return obj;
+        }
 	}
 
             
 	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$Apply.class.getName());
 	    public static final x10.rtt.RuntimeType<$Closure$Apply> $RTT =
 		new x10.rtt.StaticFunType<$Closure$Apply>($Closure$Apply.class, 
 							  new x10.rtt.RuntimeType.Variance[] {x10.rtt.RuntimeType.Variance.INVARIANT},
@@ -394,8 +493,29 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 	    public $T $apply$G() {
 		return this.ref.$apply$G();
 	    }
-	}
 
+        public void _serialize(X10JavaSerializer serializer) throws IOException {
+            serializer.write($T);
+            serializer.write(ref);
+        }
+
+        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+            $Closure$Apply obj = new $Closure$Apply((System[]) null);
+            deserializer.record_reference(obj);
+            return _deserialize_body(obj, deserializer);
+        }
+
+        public int _get_serialization_id() {
+            return _serialization_id;
+        }
+
+        public static X10JavaSerializable _deserialize_body($Closure$Apply obj, X10JavaDeserializer deserializer) throws IOException {
+            x10.rtt.Type $T = (Type) deserializer.readRef();
+            obj.$T = $T;
+            GlobalRef ref = (GlobalRef) deserializer.readRef();
+            obj.ref = ref;
+            return obj;
+        }
+	}
     }
-        
 }

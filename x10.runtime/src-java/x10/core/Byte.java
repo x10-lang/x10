@@ -13,6 +13,11 @@ package x10.core;
 
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 /**
  * Represents a boxed Byte value. Boxed representation is used when casting
@@ -23,6 +28,7 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Byte.class.getName());
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.BYTE;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -152,6 +158,25 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
 //    @Override
     public double doubleValue() {
         return (double)$value;
+    }
+
+    public void _serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write($value);
+    }
+
+    public int _get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return _deserialize_body(null, deserializer);
+    }
+
+    public static X10JavaSerializable _deserialize_body(Byte b, X10JavaDeserializer deserializer) throws IOException {
+        byte value  = deserializer.readByte();
+        b = new Byte(value);
+        deserializer.record_reference(b);
+        return b;
     }
     
     // imitate java.lang.Byte

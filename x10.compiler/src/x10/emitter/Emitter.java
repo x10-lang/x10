@@ -112,6 +112,7 @@ import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
 import x10.types.constants.ConstantValue;
 import x10.visit.ChangePositionVisitor;
+import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
 import x10c.types.BackingArrayType;
@@ -163,6 +164,10 @@ public class Emitter {
 	        }
 	        )
 	);
+
+    public static final String SERIALIZE_ID_METHOD = "_get_serialization_id";
+    public static final String SERIALIZATION_ID_FIELD = "_serialization_id";
+    public static final String SERIALIZE_BODY_METHOD = "_serialize";
 
 	CodeWriter w;
 	Translator tr;
@@ -607,7 +612,7 @@ public class Emitter {
 		boxedPrimitives.put("x10.lang.UInt", "x10.core.UInt");
 		boxedPrimitives.put("x10.lang.ULong", "x10.core.ULong");
 	}
-	private static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
+	public static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
 	    String pat = getJavaRep(def);
 	    if (pat != null && boxPrimitives) {
 	        String orig = def.fullName().toString();
@@ -3278,9 +3283,123 @@ public class Emitter {
             w.newline();
         }
 
+        //_deserialize_body method
+        w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
+        w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.newline(4);
+        w.begin(0);
+
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+            w.writeln("} ");
+        }
+
+        String params = "";
+        w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) deserializer.readRef();");
+        for (ParameterType at : def.typeParameters()) {
+            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
+            printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+            w.write(" = ( " + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ) ");
+            w.writeln("deserializer.readRef();");
+            params = params + mangleParameterType(at) + ", ";
+        }
+
+        w.write("_obj = (");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write(") ");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write(".");
+        w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+        w.writeln("(" + params + fieldName + ");");
+        w.writeln("return _obj;");
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
+
+        // _deserializer  method
+        w.writeln("public static x10.x10rt.X10JavaSerializable _deserializer( x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.newline(4);
+        w.begin(0);
+        w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(");
+        if (X10PrettyPrinterVisitor.supportConstructorSplitting
+                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
+                && !def.flags().isInterface()) {
+            w.writeln(" (java.lang.System[]) null); ");
+        } else {
+            for (int i = 0; i < def.typeParameters().size(); i++) {
+                w.write("null, ");
+            }
+            w.writeln(" (x10.io.SerialData) null);");
+        }
+        w.writeln("deserializer.record_reference(_obj);");
+        w.writeln("return _deserialize_body(_obj, deserializer);");
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
+
+        // _serialize_id()
+        w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
+        w.newline(4);
+        w.begin(0);
+        w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
+
+        // _serialize()
+        w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
+        w.newline(4);
+        w.begin(0);
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
+            w.writeln("} ");
+        }
+
+        w.writeln(fieldName + " = serialize(); ");
+        w.writeln("serializer.write(" + fieldName + ");");
+        for (ParameterType at : def.typeParameters()) {
+            w.writeln("serializer.write(" + mangleParameterType(at) + ");");
+        }
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
 	}
 
-	// TODO haszero
+    // Emits the code to serialize the super class
+    public void serializeSuperClass(TypeNode superClassNode) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+        // Check whether need to serialize super class
+        if (superClassNode != null && superClassNode.type().isClass()) {
+            if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
+                    superClassNode.type().toString().equals("x10.lang.Object") ||
+                    superClassNode.type().toString().equals("x10.lang.Any"))) {
+                w.write("super." + Emitter.SERIALIZE_BODY_METHOD + "(serializer);");
+                w.newline();
+            }
+        }
+    }
+
+    // Emits the code to deserialize the super class
+    public void deserializeSuperClass(TypeNode superClassNode) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+        // Check whether we need to deserialize the super class
+        if (superClassNode != null && superClassNode.type().isClass()) {
+            if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
+                    superClassNode.type().toString().equals("x10.lang.Object") ||
+                    superClassNode.type().toString().equals("x10.lang.Any"))) {
+                printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                w.writeln("._deserialize_body(_obj, deserializer);");
+            }
+        }
+    }
+
+    // TODO haszero
 	public void generateZeroValueConstructor(X10ClassDef def, X10ClassDecl_c n) {
         w.write("// zero value constructor");
         w.newline();

@@ -6,19 +6,16 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-package x10.array;
+package x10.x10rt;
 
 
-public class UnboundedRegionException extends RuntimeException {
+import java.io.IOException;
 
-    public def this(msg: String): UnboundedRegionException {
-        super(msg);
-    }
+public interface X10JavaSerializable {
 
-    public def this(): UnboundedRegionException {
-        super();
-    }
+	public void _serialize(X10JavaSerializer serializer) throws IOException;
+	public int _get_serialization_id();
 }
