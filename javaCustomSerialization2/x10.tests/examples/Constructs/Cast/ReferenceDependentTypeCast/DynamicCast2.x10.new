@@ -1,0 +1,34 @@
+/*
+ *
+ * (C) Copyright IBM Corporation 2006
+ *
+ *  This file is part of X10 Test.
+ *
+ */
+import harness.x10Test;;
+
+/**
+ * Purpose: Checks dynamic cast detects constraint restriction is not valid. 
+ * X10DepTypeClassTwo(:p==1) <-- X10DepTypeClassTwo(:p==0&&q==1)
+ * @author vcave
+ **/
+public class DynamicCast2 extends x10Test {
+
+	public def run(): boolean = {
+		try {						
+			var object: x10.lang.Object = new X10DepTypeClassTwo(0,1);
+			
+			// contraint widening but illegal
+			var convertedObject: X10DepTypeClassTwo{p==1} = (X10DepTypeClassTwo{p==1})) object;
+		}catch(var e: ClassCastException) {
+			return true;
+		}
+
+		return false;
+	}
+
+	public static def main(var args: Array[String](1)): void = {
+		new DynamicCast2().execute();
+	}
+
+}

@@ -1,0 +1,19 @@
+#!/usr/bin/env bash
+
+UNAME=`uname -s`
+FILE_SEP='/'; if [[ "$UNAME" = CYGWIN* ]]; then FILE_SEP='\\'; fi
+PATH_SEP=':'; if [[ "$UNAME" = CYGWIN* ]]; then PATH_SEP=';'; fi
+
+prog=$(readlink "$0" 2>&1)
+[ $? -eq 127 -o "$prog" = "" ] && prog="$0"
+export X10_DIST="$(cd "$(dirname "$prog")/.." && pwd)"
+if [[ "$UNAME" = CYGWIN* ]]; then X10_DIST="$(cygpath -aw "$X10_DIST")"; fi
+
+[ -z "$TOOLSJAR" ] && export TOOLSJAR="$JAVA_HOME/lib/tools.jar"
+if [[ "$UNAME" = CYGWIN* ]]; then TOOLSJAR="$(cygpath -aw "$TOOLSJAR")"; fi
+
+export CP_OVERRIDE="${X10_DIST}${FILE_SEP}lib${FILE_SEP}x10doc.jar${PATH_SEP}${TOOLSJAR}${PATH_SEP}"
+export DEXT="x10doc.ExtensionInfo"
+
+exec "${X10_DIST}/bin/x10c" "$@"
+

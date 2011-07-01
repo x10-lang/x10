@@ -1,0 +1,239 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2010.
+ */
+
+package x10.lang;
+
+
+interface Ops {
+	interface Byte {
+		public static val `+` = (x:x10.lang.Byte,y:x10.lang.Byte) => x+y;
+		public static val `-` = (x:x10.lang.Byte,y:x10.lang.Byte) => x-y;
+		public static val `*` = (x:x10.lang.Byte,y:x10.lang.Byte) => x*y;
+		public static val `/` = (x:x10.lang.Byte,y:x10.lang.Byte) => x/y;
+		public static val `%` = (x:x10.lang.Byte,y:x10.lang.Byte) => x%y;
+		public static val `&` = (x:x10.lang.Byte,y:x10.lang.Byte) => x&y;
+		public static val `|` = (x:x10.lang.Byte,y:x10.lang.Byte) => x|y;
+		public static val `^` = (x:x10.lang.Byte,y:x10.lang.Byte) => x^y;
+		public static val `<<` = (x:x10.lang.Byte,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.Byte,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.Byte,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.Byte,y:x10.lang.Byte) => x<y;
+		public static val `<=` = (x:x10.lang.Byte,y:x10.lang.Byte) => x<=y;
+		public static val `>` = (x:x10.lang.Byte,y:x10.lang.Byte) => x>y;
+		public static val `>=` = (x:x10.lang.Byte,y:x10.lang.Byte) => x>=y;
+		public static val `~` = (x:x10.lang.Byte) => ~x;
+	}
+	interface UByte {
+		public static val `+` = (x:x10.lang.UByte,y:x10.lang.UByte) => x+y;
+		public static val `-` = (x:x10.lang.UByte,y:x10.lang.UByte) => x-y;
+		public static val `*` = (x:x10.lang.UByte,y:x10.lang.UByte) => x*y;
+		public static val `/` = (x:x10.lang.UByte,y:x10.lang.UByte) => x/y;
+		public static val `%` = (x:x10.lang.UByte,y:x10.lang.UByte) => x%y;
+		public static val `&` = (x:x10.lang.UByte,y:x10.lang.UByte) => x&y;
+		public static val `|` = (x:x10.lang.UByte,y:x10.lang.UByte) => x|y;
+		public static val `^` = (x:x10.lang.UByte,y:x10.lang.UByte) => x^y;
+		public static val `<<` = (x:x10.lang.UByte,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.UByte,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.UByte,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.UByte,y:x10.lang.UByte) => x<y;
+		public static val `<=` = (x:x10.lang.UByte,y:x10.lang.UByte) => x<=y;
+		public static val `>` = (x:x10.lang.UByte,y:x10.lang.UByte) => x>y;
+		public static val `>=` = (x:x10.lang.UByte,y:x10.lang.UByte) => x>=y;
+		public static val `~` = (x:x10.lang.UByte) => ~x;
+	}
+	interface Short {
+		public static val `+` = (x:x10.lang.Short,y:x10.lang.Short) => x+y;
+		public static val `-` = (x:x10.lang.Short,y:x10.lang.Short) => x-y;
+		public static val `*` = (x:x10.lang.Short,y:x10.lang.Short) => x*y;
+		public static val `/` = (x:x10.lang.Short,y:x10.lang.Short) => x/y;
+		public static val `%` = (x:x10.lang.Short,y:x10.lang.Short) => x%y;
+		public static val `&` = (x:x10.lang.Short,y:x10.lang.Short) => x&y;
+		public static val `|` = (x:x10.lang.Short,y:x10.lang.Short) => x|y;
+		public static val `^` = (x:x10.lang.Short,y:x10.lang.Short) => x^y;
+		public static val `<<` = (x:x10.lang.Short,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.Short,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.Short,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.Short,y:x10.lang.Short) => x<y;
+		public static val `<=` = (x:x10.lang.Short,y:x10.lang.Short) => x<=y;
+		public static val `>` = (x:x10.lang.Short,y:x10.lang.Short) => x>y;
+		public static val `>=` = (x:x10.lang.Short,y:x10.lang.Short) => x>=y;
+		public static val `~` = (x:x10.lang.Short) => ~x;
+	}
+	interface UShort {
+		public static val `+` = (x:x10.lang.UShort,y:x10.lang.UShort) => x+y;
+		public static val `-` = (x:x10.lang.UShort,y:x10.lang.UShort) => x-y;
+		public static val `*` = (x:x10.lang.UShort,y:x10.lang.UShort) => x*y;
+		public static val `/` = (x:x10.lang.UShort,y:x10.lang.UShort) => x/y;
+		public static val `%` = (x:x10.lang.UShort,y:x10.lang.UShort) => x%y;
+		public static val `&` = (x:x10.lang.UShort,y:x10.lang.UShort) => x&y;
+		public static val `|` = (x:x10.lang.UShort,y:x10.lang.UShort) => x|y;
+		public static val `^` = (x:x10.lang.UShort,y:x10.lang.UShort) => x^y;
+		public static val `<<` = (x:x10.lang.UShort,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.UShort,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.UShort,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.UShort,y:x10.lang.UShort) => x<y;
+		public static val `<=` = (x:x10.lang.UShort,y:x10.lang.UShort) => x<=y;
+		public static val `>` = (x:x10.lang.UShort,y:x10.lang.UShort) => x>y;
+		public static val `>=` = (x:x10.lang.UShort,y:x10.lang.UShort) => x>=y;
+		public static val `~` = (x:x10.lang.UShort) => ~x;   
+	}
+	interface Int {
+		public static val `+` = (x:x10.lang.Int,y:x10.lang.Int) => x+y;
+		public static val `-` = (x:x10.lang.Int,y:x10.lang.Int) => x-y;
+		public static val `*` = (x:x10.lang.Int,y:x10.lang.Int) => x*y;
+		public static val `/` = (x:x10.lang.Int,y:x10.lang.Int) => x/y;
+		public static val `%` = (x:x10.lang.Int,y:x10.lang.Int) => x%y;
+		public static val `&` = (x:x10.lang.Int,y:x10.lang.Int) => x&y;
+		public static val `|` = (x:x10.lang.Int,y:x10.lang.Int) => x|y;
+		public static val `^` = (x:x10.lang.Int,y:x10.lang.Int) => x^y;
+		public static val `<<` = (x:x10.lang.Int,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.Int,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.Int,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.Int,y:x10.lang.Int) => x<y;
+		public static val `<=` = (x:x10.lang.Int,y:x10.lang.Int) => x<=y;
+		public static val `>` = (x:x10.lang.Int,y:x10.lang.Int) => x>y;
+		public static val `>=` = (x:x10.lang.Int,y:x10.lang.Int) => x>=y;
+		public static val `~` = (x:x10.lang.Int) => ~x;   
+	}
+	interface UInt {
+		public static val `+` = (x:x10.lang.UInt,y:x10.lang.UInt) => x+y;
+		public static val `-` = (x:x10.lang.UInt,y:x10.lang.UInt) => x-y;
+		public static val `*` = (x:x10.lang.UInt,y:x10.lang.UInt) => x*y;
+		public static val `/` = (x:x10.lang.UInt,y:x10.lang.UInt) => x/y;
+		public static val `%` = (x:x10.lang.UInt,y:x10.lang.UInt) => x%y;
+		public static val `&` = (x:x10.lang.UInt,y:x10.lang.UInt) => x&y;
+		public static val `|` = (x:x10.lang.UInt,y:x10.lang.UInt) => x|y;
+		public static val `^` = (x:x10.lang.UInt,y:x10.lang.UInt) => x^y;
+		public static val `<<` = (x:x10.lang.UInt,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.UInt,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.UInt,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.UInt,y:x10.lang.UInt) => x<y;
+		public static val `<=` = (x:x10.lang.UInt,y:x10.lang.UInt) => x<=y;
+		public static val `>` = (x:x10.lang.UInt,y:x10.lang.UInt) => x>y;
+		public static val `>=` = (x:x10.lang.UInt,y:x10.lang.UInt) => x>=y;
+		public static val `~` = (x:x10.lang.UInt) => ~x;
+	}
+	interface Long {
+		public static val `+` = (x:x10.lang.Long,y:x10.lang.Long) => x+y;
+		public static val `-` = (x:x10.lang.Long,y:x10.lang.Long) => x-y;
+		public static val `*` = (x:x10.lang.Long,y:x10.lang.Long) => x*y;
+		public static val `/` = (x:x10.lang.Long,y:x10.lang.Long) => x/y;
+		public static val `%` = (x:x10.lang.Long,y:x10.lang.Long) => x%y;
+		public static val `&` = (x:x10.lang.Long,y:x10.lang.Long) => x&y;
+		public static val `|` = (x:x10.lang.Long,y:x10.lang.Long) => x|y;
+		public static val `^` = (x:x10.lang.Long,y:x10.lang.Long) => x^y;
+		public static val `<<` = (x:x10.lang.Long,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.Long,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.Long,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.Long,y:x10.lang.Long) => x<y;
+		public static val `<=` = (x:x10.lang.Long,y:x10.lang.Long) => x<=y;
+		public static val `>` = (x:x10.lang.Long,y:x10.lang.Long) => x>y;
+		public static val `>=` = (x:x10.lang.Long,y:x10.lang.Long) => x>=y;
+		public static val `~` = (x:x10.lang.Long) => ~x;
+	}
+	interface ULong {
+		public static val `+` = (x:x10.lang.ULong,y:x10.lang.ULong) => x+y;
+		public static val `-` = (x:x10.lang.ULong,y:x10.lang.ULong) => x-y;
+		public static val `*` = (x:x10.lang.ULong,y:x10.lang.ULong) => x*y;
+		public static val `/` = (x:x10.lang.ULong,y:x10.lang.ULong) => x/y;
+		public static val `%` = (x:x10.lang.ULong,y:x10.lang.ULong) => x%y;
+		public static val `&` = (x:x10.lang.ULong,y:x10.lang.ULong) => x&y;
+		public static val `|` = (x:x10.lang.ULong,y:x10.lang.ULong) => x|y;
+		public static val `^` = (x:x10.lang.ULong,y:x10.lang.ULong) => x^y;
+		public static val `<<` = (x:x10.lang.ULong,y:x10.lang.Int) => x<<y;
+		public static val `>>` = (x:x10.lang.ULong,y:x10.lang.Int) => x>>y;
+		public static val `>>>` = (x:x10.lang.ULong,y:x10.lang.Int) => x>>>y;
+		public static val `<` = (x:x10.lang.ULong,y:x10.lang.ULong) => x<y;
+		public static val `<=` = (x:x10.lang.ULong,y:x10.lang.ULong) => x<=y;
+		public static val `>` = (x:x10.lang.ULong,y:x10.lang.ULong) => x>y;
+		public static val `>=` = (x:x10.lang.ULong,y:x10.lang.ULong) => x>=y;
+		public static val `~` = (x:x10.lang.ULong) => ~x;
+	}
+	interface Float {
+		public static val `+` = (x:x10.lang.Float,y:x10.lang.Float) => x+y;
+		public static val `-` = (x:x10.lang.Float,y:x10.lang.Float) => x-y;
+		public static val `*` = (x:x10.lang.Float,y:x10.lang.Float) => x*y;
+		public static val `/` = (x:x10.lang.Float,y:x10.lang.Float) => x/y;
+		public static val `%` = (x:x10.lang.Float,y:x10.lang.Float) => x%y;
+		public static val `<` = (x:x10.lang.Float,y:x10.lang.Float) => x<y;
+		public static val `<=` = (x:x10.lang.Float,y:x10.lang.Float) => x<=y;
+		public static val `>` = (x:x10.lang.Float,y:x10.lang.Float) => x>y;
+		public static val `>=` = (x:x10.lang.Float,y:x10.lang.Float) => x>=y;
+	}
+	interface Double {
+		public static val `+` = (x:x10.lang.Double,y:x10.lang.Double) => x+y;
+		public static val `-` = (x:x10.lang.Double,y:x10.lang.Double) => x-y;
+		public static val `*` = (x:x10.lang.Double,y:x10.lang.Double) => x*y;
+		public static val `/` = (x:x10.lang.Double,y:x10.lang.Double) => x/y;
+		public static val `%` = (x:x10.lang.Double,y:x10.lang.Double) => x%y;
+		public static val `<` = (x:x10.lang.Double,y:x10.lang.Double) => x<y;
+		public static val `<=` = (x:x10.lang.Double,y:x10.lang.Double) => x<=y;
+		public static val `>` = (x:x10.lang.Double,y:x10.lang.Double) => x>y;
+		public static val `>=` = (x:x10.lang.Double,y:x10.lang.Double) => x>=y;
+	}
+	interface Boolean {
+		public static val `!` = (x:x10.lang.Boolean) => !x;
+		public static val `&` = (x:x10.lang.Boolean,y:x10.lang.Boolean) => x&y;
+		public static val `|` = (x:x10.lang.Boolean,y:x10.lang.Boolean) => x|y;
+		public static val `^` = (x:x10.lang.Boolean,y:x10.lang.Boolean) => x^y;
+	}
+	interface Char {
+		public static val `+` = (x:x10.lang.Char,y:x10.lang.Int) => x+y;
+		public static val `-` = (x:x10.lang.Char,y:x10.lang.Char) => x-y;
+		public static val `<` = (x:x10.lang.Char,y:x10.lang.Char) => x<y;
+		public static val `<=` = (x:x10.lang.Char,y:x10.lang.Char) => x<=y;
+		public static val `>` = (x:x10.lang.Char,y:x10.lang.Char) => x>y;
+		public static val `>=` = (x:x10.lang.Char,y:x10.lang.Char) => x>=y;
+	}
+	interface String {
+		public static val `+` = (x:x10.lang.String,y:x10.lang.String) => x+y;
+		public static val `<` = (x:x10.lang.String,y:x10.lang.String) => x<y;
+		public static val `<=` = (x:x10.lang.String,y:x10.lang.String) => x<=y;
+		public static val `>` = (x:x10.lang.String,y:x10.lang.String) => x>y;
+		public static val `>=` = (x:x10.lang.String,y:x10.lang.String) => x>=y;
+	}
+	// see http://jira.codehaus.org/browse/XTENLANG-2575
+	interface Point {
+		public static val `+` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x+y;
+		public static val `-` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x-y;
+		public static val `*` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x*y;
+		public static val `/` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x/y;
+		public static val `<` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x<y;
+		public static val `<=` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x<=y;
+		public static val `>` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x>y;
+		public static val `>=` = (x:x10.array.Point,y:x10.array.Point(x.rank)) => x>=y;
+	}
+	interface Region {	
+		public static val `+` = (x:x10.array.Region,y:x10.array.Point(x.rank)) => x+y;
+		public static val `-` = (x:x10.array.Region,y:x10.array.Point(x.rank)) => x-y;
+		public static val `*` = (x:x10.array.Region,y:x10.array.Region) => x*y;
+		public static val `&&` = (x:x10.array.Region,y:x10.array.Region(x.rank)) => x&&y;
+		public static val `->` = (x:x10.array.Region,y:x10.lang.Place) => x->y;
+	}
+	interface Complex {	
+		public static val `+` = (x:x10.lang.Complex,y:x10.lang.Complex) => x+y;
+		public static val `-` = (x:x10.lang.Complex,y:x10.lang.Complex) => x-y;
+		public static val `*` = (x:x10.lang.Complex,y:x10.lang.Complex) => x*y;
+		public static val `/` = (x:x10.lang.Complex,y:x10.lang.Complex) => x/y;
+		// todo:x10.lang. add comparison to complex
+	//    public static val `<` = (x:x10.lang.Complex,y:x10.lang.Complex) => x<y;
+	//    public static val `<=` = (x:x10.lang.Complex,y:x10.lang.Complex) => x<=y;
+	//    public static val `>` = (x:x10.lang.Complex,y:x10.lang.Complex) => x>y;
+	//    public static val `>=` = (x:x10.lang.Complex,y:x10.lang.Complex) => x>=y;
+	}
+	interface IntRange {
+		public static val `+` = (x:x10.lang.IntRange,y:x10.lang.Int) => x+y;
+		public static val `-` = (x:x10.lang.IntRange,y:x10.lang.Int) => x-y;
+		public static val `*` = (x:x10.lang.IntRange,y:x10.lang.IntRange) => x*y;
+		public static val `->` = (x:x10.lang.IntRange,y:x10.lang.Place) => x->y;
+	}
+
+}
