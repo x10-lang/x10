@@ -24,7 +24,7 @@ import x10.Configuration;
 import x10.ExtensionInfo;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
 import x10.X10CompilerOptions;
-import x10.optimizations.inlining.InlineDeclHarvester;
+import x10.optimizations.inlining.DeclPackager;
 import x10.optimizations.inlining.Inliner;
 import x10.visit.CodeCleanUp;
 import x10.visit.ConstantPropagator;
@@ -36,12 +36,7 @@ public class Optimizer {
 
     public static boolean INLINING(ExtensionInfo extInfo) {
         Configuration config = extInfo.getOptions().x10_config;
-        if (!config.OPTIMIZE)        return false;
-        if (config.INLINE_CONSTANTS) return true;
-        if (config.INLINE_METHODS)   return true;
-        if (config.INLINE_CLOSURES)  return true;
-        if (config.INLINE_METHODS_IMPLICIT) return true;
-        return false;
+        return config.OPTIMIZE && (config.INLINE || 0 < config.INLINE_SIZE);
     }
 
     public static boolean FLATTENING(ExtensionInfo extInfo) {
@@ -98,7 +93,7 @@ public class Optimizer {
     private List<Goal> goals() {
         List<Goal> goals = preInlinerGoals();
         if (INLINING(extInfo)) {
-            goals.add(Harvester());
+            goals.add(Packager());
             goals.add(Inliner());
         }
         if (FLATTENING(extInfo)) {
@@ -131,9 +126,9 @@ public class Optimizer {
         return goal.intern(scheduler);
     }
 
-    public Goal Harvester() {
-        NodeVisitor visitor = new InlineDeclHarvester(job, ts, nf);
-        Goal goal = new ValidatingVisitorGoal("Harvested", job, visitor);
+    public Goal Packager() {
+        NodeVisitor visitor = new DeclPackager(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("Packaged decl's", job, visitor);
         return goal.intern(scheduler);
     }
 

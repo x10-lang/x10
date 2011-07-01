@@ -193,6 +193,24 @@ public abstract class InitDispatcher {
         // Invoke the closure at all places except here
         Runtime.runAtAll(false, body);
     }
+    // for Emitter.mangleSignedNumeric
+    public static void broadcastStaticField$s1(final Object fieldValue, final int fieldId) {
+        // no need for broadcast while running on a single place
+        if (Runtime.MAX_PLACES <= 1) {
+                return;
+        }
+        
+        // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
+
+        // serialize to bytearray
+        final byte[] buf = serializeField(fieldValue);
+        
+        // create a deserialization closure
+        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        
+        // Invoke the closure at all places except here
+        Runtime.runAtAll(false, body);
+    }
 
     private static byte[] serializeField(Object object) {
         try {

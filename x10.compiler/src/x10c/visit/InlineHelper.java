@@ -280,7 +280,7 @@ public class InlineHelper extends ContextVisitor {
         }
         // caller side
         X10CompilerOptions opts = (X10CompilerOptions) job.extensionInfo().getOptions();
-        if (n instanceof X10Call && opts.x10_config.INLINE_METHODS) {
+        if (n instanceof X10Call && opts.x10_config.INLINE) {
             X10Call call = (X10Call) n;
             Receiver target = call.target();
             MethodInstance mi = call.methodInstance();

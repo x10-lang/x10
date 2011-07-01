@@ -34,17 +34,17 @@ import x10.visit.ExpressionFlattener;
  * TODO: cache the Decl's and there inline cost info
  *
  */
-public class InlineDeclHarvester extends ContextVisitor {
+public class DeclPackager extends ContextVisitor {
 
     private DeclStore repository;
-    private InlineAnnotationUtils annotations;
+    private InlineUtils utils;
 
     /**
      * @param job
      * @param ts
      * @param nf
      */
-    public InlineDeclHarvester(Job job, TypeSystem ts, NodeFactory nf) {
+    public DeclPackager(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
     }
 
@@ -54,7 +54,7 @@ public class InlineDeclHarvester extends ContextVisitor {
     @Override
     public NodeVisitor begin() {
         repository = job.compiler().getInlinerData(job, ts, nf);
-        annotations = new InlineAnnotationUtils(job);
+        utils = new InlineUtils(job);
         return super.begin();
     }
 
@@ -67,19 +67,19 @@ public class InlineDeclHarvester extends ContextVisitor {
             ProcedureDecl   decl = (ProcedureDecl) n;
             X10ProcedureDef pdef = (X10ProcedureDef) decl.procedureInstance();
             X10ClassDef     cdef = ((ClassType) Types.baseType(((MemberDef) pdef).container().get())).def();
-            InlineCostEstimator pkg;
+            DeclPackage pkg;
             if ( (Position.COMPILER_GENERATED == n.position()) ||
-                 annotations.inliningProhibited(decl) ||
-                 annotations.inliningProhibited(cdef) ||
-                 annotations.inliningProhibited(pdef) ||
+                 utils.inliningProhibited(decl) ||
+                 utils.inliningProhibited(cdef) ||
+                 utils.inliningProhibited(pdef) ||
                  ExpressionFlattener.cannotFlatten(n) ||
-                 isVirtualOrNative(pdef, cdef)        ||
+                 isVirtualOrNative(pdef, cdef) ||
                  null == decl.body()
                ) {
-                pkg = new InlineCostEstimator("Call is uninlinable"); // inlining prohibited
+                pkg = new DeclPackage("Call is uninlinable"); // inlining prohibited
                 repository.putDeclPackage(pdef, pkg);
             } else {
-                pkg = new InlineCostEstimator(job, decl);
+                pkg = new DeclPackage(job, decl);
             }
             return pkg;
         }
@@ -91,11 +91,9 @@ public class InlineDeclHarvester extends ContextVisitor {
      */
     @Override
     protected Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (n instanceof ProcedureDecl && v instanceof InlineCostEstimator) {
-            ProcedureDecl       dcl = (ProcedureDecl) n;
-            X10ProcedureDef     def = (X10ProcedureDef) dcl.procedureInstance();
-            InlineCostEstimator pkg = (InlineCostEstimator) v;
-            repository.putDeclPackage(def, pkg);
+        if (n instanceof ProcedureDecl && v instanceof DeclPackage) {
+            X10ProcedureDef def = (X10ProcedureDef) ((ProcedureDecl) n).procedureInstance();
+            repository.putDeclPackage(def, (DeclPackage) v);
         }
         return n;
     }

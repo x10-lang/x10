@@ -148,6 +148,10 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     public UByte $left$G(final int count) { return UByte.$box($value << count); }
     public UByte $right$G(final int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
     public UByte $unsigned_right$G(final int count) { return UByte.$box((0xff & $value) >>> count); }        
+    // for Emitter.mangleSignedNumeric
+    public UByte $left$s0$G(final int count) { return UByte.$box($value << count); }
+    public UByte $right$s0$G(final int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
+    public UByte $unsigned_right$s0$G(final int count) { return UByte.$box((0xff & $value) >>> count); }        
     
     // implements Ordered<UByte>. Rely on autoboxing of booleans
     public Object $lt(UByte a, Type t) { return Unsigned.lt($value,a.$value); }

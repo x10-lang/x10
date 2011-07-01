@@ -727,6 +727,10 @@ public class TypeSystem_c implements TypeSystem
         return t.isLongOrLess() || t.isFloat() || t.isDouble() || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
     }
 
+    public boolean isSignedNumeric(Type t) {
+        return  isByte(t) || isShort(t) || isInt(t) || isLong(t);
+    }
+
     public boolean isUnsignedNumeric(Type t) {
         return  isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
     }

@@ -148,6 +148,7 @@ public class CXXCommandBuilder {
         if (usingXLC()) {
             cxxCmd.add("-qsuppress=1540-0809"    // Do not warn about empty sources
                                + ":1540-1101"    // Do not warn about non-void functions with no return
+                               + ":1540-1102"    // Do not warn about uninitialized variables
                                + ":1500-029");   // Do not warn about being unable to inline when optimizing
         } else {
             cxxCmd.add("-Wno-long-long");        // Do not warn about using long long

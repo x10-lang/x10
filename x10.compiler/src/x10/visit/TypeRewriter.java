@@ -8,7 +8,7 @@
  *
  *  (C) Copyright IBM Corporation 2010.
  */
-package x10.optimizations.inlining;
+package x10.visit;
 
 import java.util.Map;
 import java.util.Set;
@@ -29,7 +29,6 @@ import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.constraints.CTerms;
 import x10.types.matcher.Subst;
-import x10.visit.TypeTransformer;
 
 public class TypeRewriter extends TypeTransformer {
 

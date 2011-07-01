@@ -2220,7 +2220,26 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			sw.write("return;");
 		} else {
 			sw.write("return ");
+			boolean needsCast = false;
+			Context context = tr.context();
+			if (context.currentCode() instanceof X10MethodDef) {
+			    X10MethodDef md = (X10MethodDef) context.currentCode();
+			    MethodInstance mi = md.asInstance();
+			    TypeSystem xts = tr.typeSystem();
+			    // the cast is because our generated member function may use a more general
+			    // return type because c++ does not support covariant smartptr returns
+			    // TODO: See TODO in CastInjector.
+			    Type ret_type = emitter.findRootMethodReturnType(md, null, mi);
+			    needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type, context);
+			    if (needsCast) {
+			        sw.write("x10aux::class_cast_unchecked");
+			        sw.write(chevrons(Emitter.translateType(ret_type, true)) + "(");
+			    }
+			}
 			ret.print(e, sw, tr);
+			if (needsCast) {
+			    sw.write(")");
+			}
 			sw.write(";"); sw.newline();
 		}
 	}
@@ -2687,7 +2706,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         Type ret_type = emitter.findRootMethodReturnType(md, null, mi);
 		boolean needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type, context);
 		if (needsCast) {
-			sw.write("static_cast" + chevrons(Emitter.translateType(mi.returnType(), true)) + "(");
+			sw.write("x10aux::class_cast_unchecked");
+			sw.write(chevrons(Emitter.translateType(mi.returnType(), true)) + "(");
 		}
 
 		sw.begin(0);
@@ -3238,7 +3258,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (n.catchBlocks().size() > 0) {
 		    String excVar = "__exc" + refVar;
 		    // Note that the following c-style cast only works because Throwable is
-		    // *not* an interface and thus is not virtually inheritted.  If it
+		    // *not* an interface and thus is not virtually inherited.  If it
 		    // were, we would have to static_cast the exception to Throwable on
 		    // throw (otherwise we would need to offset by an unknown quantity).
 		    String exception_ref = Emitter.translateType(xts.Throwable(), true);
