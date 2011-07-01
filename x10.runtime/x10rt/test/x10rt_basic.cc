@@ -266,7 +266,7 @@ int main(int argc, char **argv)
         for (int i=0 ; i<16 ; ++i) {
             run_test(1, 1, 1024, false, false);
             run_test(1, 1, 1024, true, false);
-            run_test(1, 1, 1024, true, true);
+            run_test(1, 1, 1024, false, true);
         }
     }
 
