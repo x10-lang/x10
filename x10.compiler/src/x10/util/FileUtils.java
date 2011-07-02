@@ -21,6 +21,7 @@ import java.nio.channels.FileChannel;
 public abstract class FileUtils {
     
     public static void copyFile(File sourceFile, File targetFile) throws IOException {
+        if (targetFile.equals(sourceFile)) return;
         FileInputStream sourceInputStream = null;
         FileOutputStream targetOutputStream = null;
         try {
