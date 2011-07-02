@@ -51,6 +51,7 @@ import x10.ast.ClosureCall;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSUtil;
+import x10.types.MethodInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
@@ -596,11 +597,9 @@ public class WSSynthesizer {
      * @throws SemanticException
      */
     public Stmt genWSCallStmt(Call orgCall, ClassSynth classSynth, MethodSynth methodSynth) throws SemanticException{
-        MethodDef methodDef = orgCall.methodInstance().def();
-
         Context ct = classSynth.getContext();
       
-        X10MethodDef mDef = WSUtil.createWSCallMethodDef(methodDef, ts);
+        MethodInstance mi = WSUtil.createWSMethodInstance(orgCall.methodInstance(), ts);
 
         //preparing the references for invocation the call
         Type cType = classSynth.getDef().asType();
@@ -626,7 +625,7 @@ public class WSSynthesizer {
         newArgs.add(parentRef);
         newArgs.add(ffRef);
         
-        X10Call fastMCall = WSUtil.replaceMethodCallWithWSMethodCall(nf,(X10Call) orgCall, mDef, newArgs);
+        X10Call fastMCall = WSUtil.replaceMethodCallWithWSMethodCall(nf,(X10Call) orgCall, mi, newArgs);
         
         return nf.Eval(orgCall.position(), fastMCall);
     }
