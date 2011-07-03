@@ -11,27 +11,45 @@
 package x10.optimizations.inlining;
 
 
+import polyglot.ast.Allocation_c;
 import polyglot.ast.Assign_c;
 import polyglot.ast.Call_c;
 import polyglot.ast.ConstructorCall;
 import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.Expr;
 import polyglot.ast.Expr_c;
+import polyglot.ast.Instanceof_c;
 import polyglot.ast.Lit_c;
 import polyglot.ast.Local_c;
+import polyglot.ast.Loop_c;
+import polyglot.ast.NewArray_c;
+import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Node_c;
 import polyglot.ast.ProcedureDecl;
+import polyglot.ast.Return_c;
 import polyglot.ast.Special;
+import polyglot.ast.Stmt_c;
+import polyglot.ast.Throw_c;
 import polyglot.frontend.Job;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AssignPropertyCall_c;
+import x10.ast.Async_c;
+import x10.ast.AtEach_c;
+import x10.ast.AtExpr_c;
+import x10.ast.AtStmt_c;
+import x10.ast.Atomic_c;
 import x10.ast.Closure;
 import x10.ast.ClosureCall_c;
+import x10.ast.Finish_c;
+import x10.ast.Next_c;
 import x10.ast.StmtExpr_c;
+import x10.ast.Tuple_c;
+import x10.ast.When_c;
+import x10.ast.X10Loop_c;
 import x10.visit.ExpressionFlattener;
 import x10.visit.X10DelegatingVisitor;
 
@@ -71,8 +89,9 @@ class DeclPackage extends NodeVisitor {
     }
 
     public ProcedureDecl getDecl(int budget) {
-        if (inlinable && cost[0] <= budget)
+        if (inlinable && cost[0] <= budget) {
             return decl;
+        }
         return null;
     }
 
@@ -116,8 +135,9 @@ class DeclPackage extends NodeVisitor {
 }
 
 final class CostDelegate extends X10DelegatingVisitor{
-    static final int CALL_COST        = 0x10;
-    static final int CONSTRUCTOR_COST = 8;
+    static final int CALL_COST        = 8;
+    static final int NEW_COST         = CALL_COST/2;
+    static final int CONSTRUCTOR_COST = CALL_COST/2;
     static final int OPERATION_COST   = 2;
     static final int SMALL_COST       = 1;
     static final int NO_COST          = 0;
@@ -158,8 +178,8 @@ final class CostDelegate extends X10DelegatingVisitor{
     }
 
     /**
-     * Method calls are charged 16. 
-     * Intrinsic calls are charged 2.
+     * Method calls are charged CALL_COST
+     * Intrinsic calls are charged OPERATION_COST
      * 
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Call_c)
      */
@@ -174,6 +194,35 @@ final class CostDelegate extends X10DelegatingVisitor{
         }
         pkg.cost[0] += CALL_COST;
     }
+
+    /**
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Allocation_c)
+     */
+    public final void visit(Allocation_c e) {
+        pkg.cost[0] += NEW_COST;
+    }
+
+    /**
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.NewArray_c)
+     */
+    public final void visit(NewArray_c e) {
+        pkg.cost[0] += NEW_COST;
+    }
+
+    /**
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Tuple_c)
+     */
+    public final void visit(Tuple_c e) {
+        pkg.cost[0] += NEW_COST;
+    }
+
+    /**
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.New_c)
+     */
+    public final void visit(New_c e) {
+        pkg.cost[0] += NEW_COST + CONSTRUCTOR_COST;
+    }
+    
 
     /**
      * Literals are not charged.
@@ -202,6 +251,16 @@ final class CostDelegate extends X10DelegatingVisitor{
     }
 
     /**
+     * when inlined, a return is just like an assignment; therefore  not charged.
+     * 
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Return_c)
+     */
+    @Override
+    public void visit(Return_c n) {
+        pkg.cost[0] += NO_COST;
+    }
+
+    /**
      * Statement Expressions are not charged.
      *
      * @see x10.visit.X10DelegatingVisitor#visit(x10.ast.StmtExpr_c)
@@ -212,12 +271,118 @@ final class CostDelegate extends X10DelegatingVisitor{
     }
 
     /**
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Instanceof_c)
+     */
+    public final void visit(Instanceof_c e) {
+        pkg.cost[0] += CALL_COST;
+    }
+
+    /**
+     * Multiple calls.
+     * 
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.AtExpr_c)
+     */
+    public final void visit(AtExpr_c e) {
+        pkg.cost[0] += 3 * CALL_COST;
+    }
+   
+    /**
      * Other expressions are charged 2.
      *
      * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Expr_c)
      */
     public final void visit(Expr_c e) {
         pkg.cost[0] += OPERATION_COST;
+    }
+    
+    /**
+     * Charged as if it was a call.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.AtStmt_c)
+     */
+    public final void visit(AtStmt_c s) {
+        pkg.cost[0] += CALL_COST;
+    }
+
+    /**
+     * Charged as if it was a call.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Async_c)
+     */
+    public final void visit(Async_c s) {
+        pkg.cost[0] += CALL_COST;
+    }
+
+    /**
+     * Multiple calls.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Atomic_c)
+     */
+    public final void visit(Atomic_c s) {
+        pkg.cost[0] += 3 * CALL_COST;
+    }
+
+    /**
+     * Multiple calls.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Finish_c)
+     */
+    public final void visit(Finish_c s) {
+        pkg.cost[0] += 3 * CALL_COST;
+    }
+
+    /**
+     * Complex loops will get also charged in their sub-exprs.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Loop_c)
+     */
+    public final void visit(Loop_c s) {
+        pkg.cost[0] += 2 * OPERATION_COST;
+    }
+
+    /**
+     * Complex loops will get also charged in their sub-exprs.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.X10Loop_c)
+     */
+    public final void visit(X10Loop_c s) {
+        pkg.cost[0] += 2 * OPERATION_COST;
+    }
+
+    /**
+     * Multiple calls.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.AtEach_c)
+     */
+    public final void visit(AtEach_c s) {
+        pkg.cost[0] += 5 * CALL_COST;
+    }
+
+    /**
+     * A call.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Next_c)
+     */
+    public final void visit(Next_c s) {
+        pkg.cost[0] += CALL_COST;
+    }
+
+    /**
+     * A call.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.Throw_c)
+     */
+    public final void visit(Throw_c s) {
+        pkg.cost[0] += CALL_COST;
+    }
+
+    /**
+     * Multiple calls.
+     *
+     * @see x10.visit.X10DelegatingVisitor#visit(polyglot.ast.When_c)
+     */
+    public final void visit(When_c s) {
+        pkg.cost[0] += 4 * CALL_COST;
     }
 
     /**
