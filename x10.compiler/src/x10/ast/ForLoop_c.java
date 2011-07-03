@@ -114,7 +114,7 @@ public class ForLoop_c extends X10Loop_c implements ForLoop {
 			}
 			w.write("]");
 		}
-		w.write(" : ");
+		w.write(" in ");
 		printBlock(domain, w, tr);
 		w.write(") ");
 		printSubStmt(body, w, tr);

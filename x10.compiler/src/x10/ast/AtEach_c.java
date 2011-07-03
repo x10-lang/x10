@@ -181,13 +181,13 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	}
 
 	public String toString() {
-		return "ateach (" + formal + ":" + domain + ")" + (clocks != null ? " clocked(" + clocks + ")" : "") + body;
+		return "ateach (" + formal + " in " + domain + ")" + (clocks != null ? " clocked(" + clocks + ")" : "") + body;
 	}
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("ateach(");
 		printBlock(formal, w, tr);
-		w.write(" : ");
+		w.write(" in ");
 		printBlock(domain, w, tr);
 		w.write(") ");
 		if (clocks != null) {
