@@ -3604,6 +3604,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("this");
                 }
             } else {
+                // WIP XTENLANG-2818
+//                if (c.kind() == ConstructorCall.SUPER) {
+//                    target.translate(w, tr);
+//                    w.write(".");
+//                    // TODO support super constructor call
+//                    w.write(CONSTRUCTOR_METHOD_NAME);
+//                    printConstructorArgumentList(c, c, c.constructorInstance(), null);
+//                    w.write(";");
+//                    return;
+//                }
                 // N.B. HACK! to initialize x10.lang.Object, call ((x10.core.Ref) target).$init() since x10.lang.Object is @NativeRep'ed to x10.core.RefI!
             	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);
