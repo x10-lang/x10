@@ -5,14 +5,44 @@ import java.io.*;
 
 public class Basic {
 
-    private static interface RunnableWithBuf extends Serializable {
-        public void run(byte[] buf);
+    private static final int _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RunnableWithBuf.class.getName());
+    private static final int _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Handler.class.getName());
+
+    private static class RunnableWithBuf implements Serializable, x10.x10rt.X10JavaSerializable {
+        public static final int Ping = 1;
+        public static final int Pong = 2;
+        public static final int Quit = 3;
+        private int id;
+        private RunnableWithBuf() { }
+        public RunnableWithBuf(int id) {
+            this.id = id;
+        }
+        public void run(byte[] buf) {
+            switch (id) {
+                case Ping: Basic.recv_msg_ping(buf); break;
+                case Pong: Basic.recv_msg_pong(buf); break;
+                case Quit: Basic.recv_quit(buf); break;
+            }
+        }
+        public static RunnableWithBuf _deserialize_body(RunnableWithBuf _obj, x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+            _obj.id = deserializer.readInt();
+            return _obj;
+        }
+        public static RunnableWithBuf _deserializer(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+            RunnableWithBuf _obj = new RunnableWithBuf();
+            deserializer.record_reference(_obj);
+            return _deserialize_body(_obj, deserializer);
+        }
+        public int _get_serialization_id() { return _RunnableWithBuf_id; }
+        public void _serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
+            serializer.write(this.id);
+        }
     }
     static RunnableWithBuf Ping, Pong, Quit;
     static {
-        Ping = new RunnableWithBuf() { public void run(byte[] buf) { Basic.recv_msg_ping(buf); } };
-        Pong = new RunnableWithBuf() { public void run(byte[] buf) { Basic.recv_msg_pong(buf); } };
-        Quit = new RunnableWithBuf() { public void run(byte[] buf) { Basic.recv_quit(buf); } };
+        Ping = new RunnableWithBuf(RunnableWithBuf.Ping);
+        Pong = new RunnableWithBuf(RunnableWithBuf.Pong);
+        Quit = new RunnableWithBuf(RunnableWithBuf.Quit);
     }
 
     byte[] buf;
@@ -208,6 +238,7 @@ public class Basic {
     private static class Handler implements VoidFun_0_0 {
         public RunnableWithBuf id;
         public byte[] buf;
+        private Handler() { }
         public Handler(RunnableWithBuf id, byte[] buf, int len) {
             this.id = id;
             byte[] newbuf = buf;
@@ -220,13 +251,38 @@ public class Basic {
         public void $apply() { id.run(buf); }
         public RuntimeType<?> $getRTT() { return x10.core.Any.$RTT; }
         public Type<?> $getParam(int i) { throw new IllegalArgumentException(); }
+        public static Handler _deserialize_body(Handler _obj, x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+            _obj.id = (RunnableWithBuf) deserializer.readRef();
+            _obj.buf = deserializer.readByteArray();
+            return _obj;
+        }
+        public static Handler _deserializer(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+            Handler _obj = new Handler();
+            deserializer.record_reference(_obj);
+            return _deserialize_body(_obj, deserializer);
+        }
+        public int _get_serialization_id() { return _Handler_id; }
+        public void _serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
+            serializer.write((x10.x10rt.X10JavaSerializable) this.id);
+            if (this.buf == null) {
+                serializer.write((Object) this.buf);
+            } else {
+                serializer.write(this.buf);
+            }
+        }
     }
     // serialization helper
     public static void sendMsg(int place, RunnableWithBuf runner, byte[] buf, int len) {
         try {
             VoidFun_0_0 body = new Handler(runner, buf, len);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            (new java.io.ObjectOutputStream(baos)).writeObject(body);
+            if (x10.runtime.impl.java.Runtime.CUSTOM_JAVA_SERIALIZATION) {
+                DataOutputStream objStream = new DataOutputStream(baos); // TODO: use Runtime.serialize()
+                x10.x10rt.X10JavaSerializer serializer = new x10.x10rt.X10JavaSerializer(objStream);
+                serializer.write((x10.x10rt.X10JavaSerializable) body);
+            } else {
+                (new java.io.ObjectOutputStream(baos)).writeObject(body);
+            }
             byte[] msg = baos.toByteArray();
             int msgLen = baos.size();
             //System.err.println(X10RT.here()+": About to send a message to place "+place);
