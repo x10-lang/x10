@@ -581,14 +581,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 ASTQuery query = new ASTQuery(tr);
 
                 //_deserialize_body method
-                w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
+                w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
                 w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
                 w.newline(4);
                 w.begin(0);
 
                 if (!config.NO_TRACES && !config.OPTIMIZE) {
                     w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                    w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                    w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
                     w.writeln("} ");
                 }
 
@@ -621,7 +621,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str + "();");
                         } else if(f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                             // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
-                            w.write("Object[] " + Emitter.mangleToJava(f.name()) + " = (Object[]) deserializer.readRef();");
+                            w.write("java.lang.Object[] " + Emitter.mangleToJava(f.name()) + " = (java.lang.Object[]) deserializer.readRef();");
                             w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         } else {
                             // deserialize the variable and cast it back to the correct type
@@ -640,7 +640,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _deserializer  method
-                w.writeln("public static x10.x10rt.X10JavaSerializable _deserializer( x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+                w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
                 w.newline(4);
                 w.begin(0);
 
@@ -650,13 +650,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new  " + Emitter.mangleToJava(def.name()) + "( (java.lang.System[]) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "((java.lang.System[]) null);");
                         } else {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new  " + Emitter.mangleToJava(def.name()) + "( null, (java.lang.System) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(null, (java.lang.System) null);");
                         }
                     } else {
                         if (def.flags().isAbstract()) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = ( " + Emitter.mangleToJava(def.name()) + "  )" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = ( " + Emitter.mangleToJava(def.name()) + " )" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
                         } else {
                             w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + " ( ");
                             if (supportConstructorSplitting
@@ -669,7 +669,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                     }
                     w.writeln("deserializer.record_reference(_obj);");
-                    w.writeln("return _deserialize_body(_obj, deserializer);");
+                    w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "(_obj, deserializer);");
                 }
                 w.end();
                 w.newline();
@@ -687,7 +687,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialize()
-                w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
+                w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 

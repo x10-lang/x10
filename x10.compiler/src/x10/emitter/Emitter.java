@@ -167,7 +167,9 @@ public class Emitter {
 
     public static final String SERIALIZE_ID_METHOD = "_get_serialization_id";
     public static final String SERIALIZATION_ID_FIELD = "_serialization_id";
-    public static final String SERIALIZE_BODY_METHOD = "_serialize";
+    public static final String SERIALIZE_METHOD = "_serialize";
+    public static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
+    public static final String DESERIALIZER_METHOD = "_deserializer";
 
 	CodeWriter w;
 	Translator tr;
@@ -3284,14 +3286,14 @@ public class Emitter {
         }
 
         //_deserialize_body method
-        w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
+        w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
         w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
 
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+            w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
             w.writeln("} ");
         }
 
@@ -3319,7 +3321,7 @@ public class Emitter {
         w.newline();
 
         // _deserializer  method
-        w.writeln("public static x10.x10rt.X10JavaSerializable _deserializer( x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
         w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(");
@@ -3334,7 +3336,7 @@ public class Emitter {
             w.writeln(" (x10.io.SerialData) null);");
         }
         w.writeln("deserializer.record_reference(_obj);");
-        w.writeln("return _deserialize_body(_obj, deserializer);");
+        w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "(_obj, deserializer);");
         w.end();
         w.newline();
         w.writeln("}");
@@ -3351,12 +3353,12 @@ public class Emitter {
         w.newline();
 
         // _serialize()
-        w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
+        w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
+            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
             w.writeln("} ");
         }
 
@@ -3379,7 +3381,7 @@ public class Emitter {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                w.write("super." + Emitter.SERIALIZE_BODY_METHOD + "(serializer);");
+                w.write("super." + Emitter.SERIALIZE_METHOD + "(serializer);");
                 w.newline();
             }
         }
@@ -3394,7 +3396,7 @@ public class Emitter {
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
                 printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                w.writeln("._deserialize_body(_obj, deserializer);");
+                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "(_obj, deserializer);");
             }
         }
     }
