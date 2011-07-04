@@ -563,9 +563,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {
-            if (!def.flags().isInterface() && !config.NO_TRACES) {
+            if (!def.flags().isInterface()) {
 
-                if (!config.OPTIMIZE) {
+                if (!config.NO_TRACES && !config.OPTIMIZE) {
                     // override to trace serialization
                     w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
                     w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
@@ -575,10 +575,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.newline();
                 }
 
+                // Prints out custom serialization/deserialization code, the imeplementation resembles closely what the C++ backend does
+
                 X10ClassType ct = def.asType();
                 ASTQuery query = new ASTQuery(tr);
-
-                // Prints out custom serialization/deserialization code, the imeplementation resembles closely what the C++ backend does
 
                 //_deserialize_body method
                 w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
