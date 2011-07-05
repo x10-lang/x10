@@ -77,18 +77,18 @@ public class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSeria
     	return ((byte[]) array).length;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(ByteType t, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(ByteType t, X10JavaDeserializer deserializer) throws IOException {
         ByteType byteType = (ByteType) Types.BYTE;
         deserializer.record_reference(byteType);
         return byteType;

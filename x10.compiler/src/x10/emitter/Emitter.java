@@ -165,12 +165,6 @@ public class Emitter {
 	        )
 	);
 
-    public static final String SERIALIZE_ID_METHOD = "_get_serialization_id";
-    public static final String SERIALIZATION_ID_FIELD = "_serialization_id";
-    public static final String SERIALIZE_METHOD = "_serialize";
-    public static final String DESERIALIZE_BODY_METHOD = "_deserialize_body";
-    public static final String DESERIALIZER_METHOD = "_deserializer";
-
 	CodeWriter w;
 	Translator tr;
 
@@ -388,6 +382,12 @@ public class Emitter {
 		map.put(OperatorNames.inverse(OperatorNames.LFUNNEL), Name.make("$inv_lfunnel"));
 		map.put(OperatorNames.inverse(OperatorNames.STARSTAR), Name.make("$inv_starstar"));
 	}
+
+    public static final String SERIALIZE_ID_METHOD = "$_get_serialization_id";
+    public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";
+    public static final String SERIALIZE_METHOD = "$_serialize";
+    public static final String DESERIALIZE_BODY_METHOD = "$_deserialize_body";
+    public static final String DESERIALIZER_METHOD = "$_deserializer";
 
 	private static Name mangleIdentifier(Name n) {
 		Name o = MANGLED_OPERATORS.get(n);
@@ -3244,7 +3244,7 @@ public class Emitter {
 
         //_deserialize_body method
         w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
-        w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
 
@@ -3255,33 +3255,33 @@ public class Emitter {
         }
 
         String params = "";
-        w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) deserializer.readRef();");
+        w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
         for (ParameterType at : def.typeParameters()) {
             w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
             printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
             w.write(" = ( " + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ) ");
-            w.writeln("deserializer.readRef();");
+            w.writeln("$deserializer.readRef();");
             params = params + mangleParameterType(at) + ", ";
         }
 
-        w.write("_obj = (");
+        w.write("$_obj = (");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(") ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(".");
         w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
         w.writeln("(" + params + fieldName + ");");
-        w.writeln("return _obj;");
+        w.writeln("return $_obj;");
         w.end();
         w.newline();
         w.writeln("}");
         w.newline();
 
         // _deserializer  method
-        w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
-        w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(");
+        w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(");
         if (X10PrettyPrinterVisitor.supportConstructorSplitting
             // XTENLANG-2830
             /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
@@ -3293,8 +3293,8 @@ public class Emitter {
             }
             w.writeln("(x10.io.SerialData) null);");
         }
-        w.writeln("deserializer.record_reference(_obj);");
-        w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "(_obj, deserializer);");
+        w.writeln("$deserializer.record_reference($_obj);");
+        w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
         w.end();
         w.newline();
         w.writeln("}");
@@ -3311,7 +3311,7 @@ public class Emitter {
         w.newline();
 
         // _serialize()
-        w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
+        w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
@@ -3321,9 +3321,9 @@ public class Emitter {
         }
 
         w.writeln(fieldName + " = serialize(); ");
-        w.writeln("serializer.write(" + fieldName + ");");
+        w.writeln("$serializer.write(" + fieldName + ");");
         for (ParameterType at : def.typeParameters()) {
-            w.writeln("serializer.write(" + mangleParameterType(at) + ");");
+            w.writeln("$serializer.write(" + mangleParameterType(at) + ");");
         }
         w.end();
         w.newline();
@@ -3339,7 +3339,7 @@ public class Emitter {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                w.write("super." + Emitter.SERIALIZE_METHOD + "(serializer);");
+                w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
                 w.newline();
             }
         }
@@ -3354,7 +3354,7 @@ public class Emitter {
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
                 printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "(_obj, deserializer);");
+                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
             }
         }
     }

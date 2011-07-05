@@ -134,14 +134,14 @@ public class Thread extends java.lang.Thread implements x10.core.RefI {
         }
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
-    public int _get_serialization_id() {
-        throw new UnsupportedOperationException("Cannot serialize " + getClass());
-    }
-    
+        public int $_get_serialization_id() {
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        }
+
     // for Emitter.mangleSignedNumeric
     public static void sleep$s0$s1(long time, int nanos) {
         try {

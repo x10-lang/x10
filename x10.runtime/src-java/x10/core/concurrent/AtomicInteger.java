@@ -59,22 +59,22 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     public Type<?> $getParam(int i) {
         return null;
     }
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-	public static X10JavaSerializable _deserialize_body(AtomicInteger atomicInteger, X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable $_deserialize_body(AtomicInteger atomicInteger, X10JavaDeserializer deserializer) throws IOException {
         int i = deserializer.readInt();
         AtomicInteger ai = new AtomicInteger(i);
         deserializer.record_reference(ai);
         return ai;
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 }

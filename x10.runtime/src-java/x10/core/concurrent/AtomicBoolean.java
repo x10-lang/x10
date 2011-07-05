@@ -60,22 +60,22 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
         return null;
     }
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(AtomicBoolean atomicBoolean, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(AtomicBoolean atomicBoolean, X10JavaDeserializer deserializer) throws IOException {
         boolean b = deserializer.readBoolean();
         AtomicBoolean ab = new AtomicBoolean(b);
         deserializer.record_reference(ab);
         return ab;
     }
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 

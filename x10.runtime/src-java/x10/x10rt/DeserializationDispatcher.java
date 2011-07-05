@@ -125,7 +125,7 @@ public class DeserializationDispatcher {
         final String className = idToClassName.get(i);
         try {
             Class<?> clazz = Class.forName(className);
-            Method method = clazz.getMethod("_deserializer", X10JavaDeserializer.class);
+            Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
             method.setAccessible(true);
             return method.invoke(null, deserializer);
         } catch (ClassNotFoundException e) {

@@ -60,19 +60,19 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
         return null;
     }
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return $_deserialize_body(null, deserializer);
     }
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deserialize_body(AtomicLong atomicLong, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(AtomicLong atomicLong, X10JavaDeserializer deserializer) throws IOException {
         long l = deserializer.readLong();
         AtomicLong al = new AtomicLong(l);
         deserializer.record_reference(al);

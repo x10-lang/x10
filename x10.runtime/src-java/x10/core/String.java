@@ -324,23 +324,23 @@ final public class String extends x10.core.Ref implements
 //        return new x10.core.String(x + y.$value);
 //    }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write($value);
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         String str = new String((java.lang.System[]) null);
         deserializer.record_reference(str);
-        return _deserialize_body(str, deserializer);
+        return $_deserialize_body(str, deserializer);
     }
 
-    public static X10JavaSerializable _deserialize_body(x10.core.String string, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(x10.core.String string, X10JavaDeserializer deserializer) throws IOException {
         java.lang.String str  = deserializer.readString();
         string.$value = str;
         return string;
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 }

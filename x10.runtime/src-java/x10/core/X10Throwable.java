@@ -75,24 +75,24 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
         return null;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(getMessage());
         // TODO ideally we should serialize cause but its java.lang.Throwable which makes it tough
 //        serializer.write(getCause());
         serializer.write($getStackTrace());
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         X10Throwable t = new X10Throwable((java.lang.System[])null);
         deserializer.record_reference(t);
-        return _deserialize_body(t, deserializer);
+        return $_deserialize_body(t, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(X10Throwable t, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(X10Throwable t, X10JavaDeserializer deserializer) throws IOException {
         String message = deserializer.readString();
         t.message = message;
         x10.array.Array<java.lang.String> stackTrace = (Array<String>) deserializer.readRef();

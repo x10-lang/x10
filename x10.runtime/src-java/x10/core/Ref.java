@@ -52,7 +52,7 @@ public class Ref implements RefI {
         return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException { }
+    public void $_serialize(X10JavaSerializer serializer) throws IOException { }
 
-    public int _get_serialization_id() { return 0; }
+    public int $_get_serialization_id() { return 0; }
 }

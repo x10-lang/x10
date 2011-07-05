@@ -11,6 +11,7 @@
 
 package x10.runtime.impl.java;
 
+import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -61,11 +62,11 @@ public abstract class InitDispatcher {
             return null;
         }
 
-        public void _serialize(X10JavaSerializer serializer) throws java.io.IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
     }
@@ -146,22 +147,22 @@ public abstract class InitDispatcher {
             return null;
         }
 
-        public void _serialize(X10JavaSerializer serializer) throws java.io.IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             serializer.write(fieldId);
             serializer.write(buf);
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             return _serialization_id;
         }
 
-        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
             $Closure$Deserialize closure$Deserialize = new $Closure$Deserialize();
             deserializer.record_reference(closure$Deserialize);
-            return _deserialize_body(closure$Deserialize, deserializer);
+            return $_deserialize_body(closure$Deserialize, deserializer);
         }
 
-        public static X10JavaSerializable _deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static X10JavaSerializable $_deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws IOException {
             int id = deserializer.readInt();
             byte[] bytes = deserializer.readByteArray();
             closure$Deserialize.fieldId = id;

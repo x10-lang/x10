@@ -217,7 +217,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         public RuntimeType<$Closure$0> $getRTT() { return $RTT; }
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             serializer.write(this.numElems);
             if (this.numElems > 0) {
                 if (this.srcData instanceof int[]) {
@@ -255,13 +255,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             serializer.write(this.dstIndex);
         }
 
-        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
             $Closure$0 closure$0 = new $Closure$0();
             deserializer.record_reference(closure$0);
-            return _deserialize_body(closure$0, deserializer);
+            return $_deserialize_body(closure$0, deserializer);
         }
 
-        public static X10JavaSerializable _deserialize_body($Closure$0 closure$0, X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserialize_body($Closure$0 closure$0, X10JavaDeserializer deserializer) throws IOException {
             Object srcData = null;
             int numElems = deserializer.readInt();
             if (numElems > 0) {
@@ -297,7 +297,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return (X10JavaSerializable) closure$0;
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             return _serialization_id;
         }
     }
@@ -416,7 +416,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         public RuntimeType<$Closure$1<?>> $getRTT() { return $RTT; }
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             serializer.write(this.srcId);
             serializer.write(this.srcLength);
             serializer.write(this.srcType);
@@ -427,13 +427,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             serializer.write(this.numElems);
         }
 
-        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
             $Closure$1 closure$1 = new $Closure$1();
             deserializer.record_reference(closure$1);
-            return _deserialize_body(closure$1, deserializer);
+            return $_deserialize_body(closure$1, deserializer);
         }
 
-        public static X10JavaSerializable _deserialize_body($Closure$1 closure$1, X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserialize_body($Closure$1 closure$1, X10JavaDeserializer deserializer) throws IOException {
             int srcId = deserializer.readInt();
             int srcLength = deserializer.readInt();
             Type srcType = (Type) deserializer.readRef();
@@ -453,7 +453,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return (X10JavaSerializable) closure$1;
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             return _serialization_id;
         }
     }
@@ -512,7 +512,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public double[] getDoubleArray() { return (double[]) value; }
     public Object[] getObjectArray() { return (Object[]) value; }
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(length);
         serializer.write(type);
         if (type instanceof FloatType) {
@@ -568,13 +568,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         IndexedMemoryChunk imc = new IndexedMemoryChunk((java.lang.System[]) null);
         deserializer.record_reference(imc);
         return _deSerialize_body(imc, deserializer);
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
