@@ -41,6 +41,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     private String[] args;
 
+    // constructor just for allocation
     public Runtime(java.lang.System[] $dummy) {
         // TODO
         // super($dummy);
@@ -109,11 +110,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             return null;
         }
 
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
@@ -151,11 +152,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             return null;
         }
 
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
@@ -454,11 +455,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
 		throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 }

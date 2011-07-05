@@ -113,19 +113,19 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
         return 0;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write($value);
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return $_deserialize_body(null, deserializer);
     }
 
-    public static X10JavaSerializable _deserialize_body(UByte ub, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(UByte ub, X10JavaDeserializer deserializer) throws IOException {
         byte value  = deserializer.readByte();
         ub = new UByte(value);
         deserializer.record_reference(ub);

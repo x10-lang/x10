@@ -22,6 +22,7 @@ public class InputStream extends Ref {
 
     private java.io.InputStream stream;
 
+    // constructor just for allocation
     public InputStream(java.lang.System[] $dummy) {
         super($dummy);
     }

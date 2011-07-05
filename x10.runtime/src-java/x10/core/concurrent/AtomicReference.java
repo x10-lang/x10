@@ -24,14 +24,15 @@ import java.io.IOException;
 
 public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI, X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicReference.class.getName());
 
-	public AtomicReference(java.lang.System[] $dummy) {
-	    super();
-	}
+    // constructor just for allocation
+    public AtomicReference(java.lang.System[] $dummy) {
+        super();
+    }
 	
-	public AtomicReference $init(Type<T> T) {
+    public AtomicReference $init(Type<T> T) {
         this.T = T;
         return this;
     }
@@ -68,22 +69,22 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     }
     public Type<T> T;
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.T);
 		serializer.write(get());
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         AtomicReference ar = new AtomicReference((System[])null);
         deserializer.record_reference(ar);
-		return _deserialize_body(ar, deserializer);
+		return $_deserialize_body(ar, deserializer);
 	}
 
-	public static X10JavaSerializable _deserialize_body(AtomicReference ar, X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable $_deserialize_body(AtomicReference ar, X10JavaDeserializer deserializer) throws IOException {
         Type T = (Type) deserializer.readRef();
         ar.T = T;
         Object value = deserializer.readRef();

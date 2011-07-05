@@ -15,8 +15,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -67,11 +65,11 @@ public abstract class InitDispatcher {
             return null;
         }
 
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
     }
@@ -143,8 +141,8 @@ public abstract class InitDispatcher {
         $Closure$Deserialize() {
         }
         $Closure$Deserialize(int fieldId, byte[] buf) {
-        	this.fieldId = fieldId;
-        	this.buf = buf;
+            this.fieldId = fieldId;
+            this.buf = buf;
         }
         public x10.rtt.RuntimeType<?> $getRTT() {
             return $RTT;
@@ -153,22 +151,22 @@ public abstract class InitDispatcher {
             return null;
         }
 
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             serializer.write(fieldId);
             serializer.write(buf);
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             return _serialization_id;
         }
 
-        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
             $Closure$Deserialize closure$Deserialize = new $Closure$Deserialize();
             deserializer.record_reference(closure$Deserialize);
-            return _deserialize_body(closure$Deserialize, deserializer);
+            return $_deserialize_body(closure$Deserialize, deserializer);
         }
 
-        public static X10JavaSerializable _deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws IOException {
             int id = deserializer.readInt();
             byte[] bytes = deserializer.readByteArray();
             closure$Deserialize.fieldId = id;
@@ -444,7 +442,7 @@ public abstract class InitDispatcher {
                 return Runtime.serialize(object);
             }
             java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            ObjectOutputStream out = new ObjectOutputStream(baos);
+            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
             out.writeObject(object);
             out.close();
             return baos.toByteArray();
@@ -459,13 +457,13 @@ public abstract class InitDispatcher {
         try {
             java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
             if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
-                DataInputStream in = new DataInputStream(bais);
+                java.io.DataInputStream in = new java.io.DataInputStream(bais);
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
                 Object o = deserializer.deSerialize();
                 in.close();
                 return o;
             }
-            ObjectInputStream in = new ObjectInputStream(bais);
+            java.io.ObjectInputStream in = new java.io.ObjectInputStream(bais);
             Object val = in.readObject();
             in.close();
             return val;

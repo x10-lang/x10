@@ -83,18 +83,18 @@ public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSer
     	return ((byte[]) array).length;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws java.io.IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-		return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(UByteType t, X10JavaDeserializer deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserialize_body(UByteType t, X10JavaDeserializer deserializer) throws java.io.IOException {
         UByteType uByteType = (UByteType) Types.UBYTE;
         deserializer.record_reference(uByteType);
         return uByteType;

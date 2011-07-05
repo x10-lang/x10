@@ -129,6 +129,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     private long id; // place local id of referenced object
     transient Object t;
     
+    // constructor just for allocation
     public GlobalRef(java.lang.System[] $dummy) {
         super($dummy);
     }
@@ -308,24 +309,24 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         //        + t);
     }
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
         globalize();
         serializer.write(T);
         serializer.write(home);
         serializer.write(id);
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
        GlobalRef gr = new GlobalRef();
         deserializer.record_reference(gr);
-        return _deserialize_body(gr, deserializer);
+        return $_deserialize_body(gr, deserializer);
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deserialize_body(GlobalRef gr, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(GlobalRef gr, X10JavaDeserializer deserializer) throws IOException {
         x10.rtt.Type<?> T = (Type<?>) deserializer.readRef();
         Place home = (Place) deserializer.readRef();
         long id = deserializer.readLong();
@@ -383,20 +384,20 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 	    }
 	}
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
        LocalEval obj = new LocalEval((System []) null);
         deserializer.record_reference(obj);
-        return _deserialize_body(obj, deserializer);
+        return $_deserialize_body(obj, deserializer);
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deserialize_body(LocalEval obj, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(LocalEval obj, X10JavaDeserializer deserializer) throws IOException {
            return obj;
     }
 
@@ -434,24 +435,24 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 		return this.eval.$apply(this.ref.$apply$G(),$T);
 	    }
 
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             serializer.write($T);
             serializer.write($U);
             serializer.write(ref);
             serializer.write(eval);
         }
 
-        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
             $Closure$Eval obj = new $Closure$Eval((System[]) null);
             deserializer.record_reference(obj);
-            return _deserialize_body(obj, deserializer);
+            return $_deserialize_body(obj, deserializer);
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             return _serialization_id;
         }
 
-        public static X10JavaSerializable _deserialize_body($Closure$Eval obj, X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserialize_body($Closure$Eval obj, X10JavaDeserializer deserializer) throws IOException {
             x10.rtt.Type $T = (Type) deserializer.readRef();
             obj.$T = $T;
             x10.rtt.Type $U = (Type) deserializer.readRef();
@@ -494,22 +495,22 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 		return this.ref.$apply$G();
 	    }
 
-        public void _serialize(X10JavaSerializer serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer serializer) throws IOException {
             serializer.write($T);
             serializer.write(ref);
         }
 
-        public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
             $Closure$Apply obj = new $Closure$Apply((System[]) null);
             deserializer.record_reference(obj);
-            return _deserialize_body(obj, deserializer);
+            return $_deserialize_body(obj, deserializer);
         }
 
-        public int _get_serialization_id() {
+        public int $_get_serialization_id() {
             return _serialization_id;
         }
 
-        public static X10JavaSerializable _deserialize_body($Closure$Apply obj, X10JavaDeserializer deserializer) throws IOException {
+        public static X10JavaSerializable $_deserialize_body($Closure$Apply obj, X10JavaDeserializer deserializer) throws IOException {
             x10.rtt.Type $T = (Type) deserializer.readRef();
             obj.$T = $T;
             GlobalRef ref = (GlobalRef) deserializer.readRef();

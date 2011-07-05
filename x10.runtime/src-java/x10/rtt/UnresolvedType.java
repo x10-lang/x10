@@ -105,20 +105,20 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
         return toString();
     }
 
-	public void _serialize(X10JavaSerializer serializer) {
+	public void $_serialize(X10JavaSerializer serializer) {
 		throw new UnsupportedOperationException();
 		
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) {
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) {
 		throw new UnsupportedOperationException();
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		throw new UnsupportedOperationException();
 	}
 
-    public static X10JavaSerializable _deserialize_body(UnresolvedType ut, X10JavaDeserializer deserializer) {
+    public static X10JavaSerializable $_deserialize_body(UnresolvedType ut, X10JavaDeserializer deserializer) {
         throw new UnsupportedOperationException();
     }
 

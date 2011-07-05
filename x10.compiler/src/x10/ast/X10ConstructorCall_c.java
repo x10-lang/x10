@@ -30,6 +30,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -127,6 +128,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    return (X10ConstructorCall) super.constructorInstance(ci);
 	}
 
+        @Override
 	public Node typeCheck(ContextVisitor tc) {
 
 	    X10ConstructorInstance ci;
@@ -295,13 +297,28 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
         }
     }
 
+    @Override
     public String toString() {
-	    return (qualifier != null ? qualifier + "." : "") + kind + arguments;
-	}
+        StringBuffer sb = new StringBuffer();
+        sb.append(qualifier != null ? qualifier + "." : "");
+        sb.append(kind);
+        /*
+        if (typeArguments != null && typeArguments.size() > 0) {
+            sb.append("[");
+            sb.append(CollectionUtil.listToString(typeArguments));
+            sb.append("]");
+        }
+        */
+        sb.append("(");
+        sb.append(CollectionUtil.listToString(arguments));
+        sb.append(")");
+        return sb.toString();
+    }
 
     /* (non-Javadoc)
      * @see polyglot.ast.ConstructorCall#target(polyglot.ast.Expr)
      */
+    @Override
     public X10ConstructorCall target(Expr target) {
         return (X10ConstructorCall) super.target(target);
     }

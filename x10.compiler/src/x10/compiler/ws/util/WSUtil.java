@@ -41,6 +41,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
+import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.ProcedureDef;
@@ -487,6 +488,33 @@ public class WSUtil {
         return mDef;
     }
     
+    static public MethodInstance createWSMethodInstance(MethodInstance mi, TypeSystem ts) {
+    	X10MethodDef mDef = createWSCallMethodDef(mi.def(), ts);
+    	MethodInstance m = mDef.asInstance();
+
+    	List<Type> formalTypes = new ArrayList<Type>();
+        formalTypes.add((ts.Worker()));
+        formalTypes.add((ts.Frame()));
+        formalTypes.add((ts.FinishFrame()));
+        for (Type f : mi.formalTypes()) {
+            formalTypes.add(f); //all formals are added in
+        }
+        m = m.formalTypes(formalTypes);
+        
+        List<LocalInstance> formalNames = new ArrayList<LocalInstance>();
+        formalNames.add(ts.localDef(mi.position(), Flags.FINAL, Types.ref(ts.Worker()), Name.make("worker")).asInstance());
+        formalNames.add(ts.localDef(mi.position(), Flags.FINAL, Types.ref(ts.Frame()), Name.make("up")).asInstance());
+        formalNames.add(ts.localDef(mi.position(), Flags.FINAL, Types.ref(ts.FinishFrame()), Name.make("ff")).asInstance());
+        for (LocalInstance f : mi.formalNames()) {
+            formalNames.add(f); //all formals are added in
+        }
+        m = (MethodInstance) m.formalNames(formalNames);
+        
+        m = (MethodInstance) m.typeParameters(mi.typeParameters());
+        
+        return m;
+    }
+
     /**
      * 
      * Replace original call, e.g. fib(n) with generated WS call
@@ -499,38 +527,19 @@ public class WSUtil {
      * @param newArgs additional arguments, including worker/frame/upframe
      * @return new method call
      */
-    public static X10Call replaceMethodCallWithWSMethodCall(NodeFactory xnf, X10Call aCall, X10MethodDef methodDef, 
+    public static X10Call replaceMethodCallWithWSMethodCall(NodeFactory xnf, X10Call aCall, MethodInstance mi, 
                                                   List<Expr> newArgs) {
     	
-        //for arguments & new method instance's formal types
         ArrayList<Expr> args = new ArrayList<Expr>(newArgs);
         args.addAll(aCall.arguments());
-        ArrayList<Type> argTypes = new ArrayList<Type>();
-        for (Expr e : newArgs) {
-        	argTypes.add(e.type());
-        }
-        argTypes.addAll(aCall.methodInstance().formalTypes());
-        
-        ArrayList<Type> typeActuals = new ArrayList<Type>();
-        for (TypeNode ta : aCall.typeArguments()) {
-            typeActuals.add(ta.type());
-        }
         
         //for the name
-        Name name = methodDef.name(); //new name
-        
-        //new method instance with original properties
-        MethodInstance mi = methodDef.asInstance();
-        mi = mi.formalTypes(argTypes);
-        mi = mi.returnType(aCall.methodInstance().returnType());
-        mi = (MethodInstance) mi.container(aCall.methodInstance().container());
-        mi = (MethodInstance) mi.typeParameters(typeActuals);
+        Name name = mi.name(); //new name
         
         //build new call
         aCall = (X10Call) aCall.methodInstance(mi);
         aCall = (X10Call) aCall.name(xnf.Id(aCall.name().position(), name));
         aCall = (X10Call) aCall.arguments(args);
-        aCall.type(methodDef.returnType().get());
         return aCall;
     }
     

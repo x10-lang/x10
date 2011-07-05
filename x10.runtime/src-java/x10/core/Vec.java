@@ -61,6 +61,7 @@ public class Vec<T> extends x10.core.Struct {
         oos.defaultWriteObject();
     }
     
+    // constructor just for allocation
     public Vec(java.lang.System[] $dummy) {
         super($dummy);
     }
@@ -180,23 +181,23 @@ public class Vec<T> extends x10.core.Struct {
         return this;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(T);
         serializer.write(size);
         serializer.write(backing);
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         Vec vec = new Vec(null);
         deserializer.record_reference(vec);
-		return _deserialize_body(vec, deserializer);
+		return $_deserialize_body(vec, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(Vec vec, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(Vec vec, X10JavaDeserializer deserializer) throws IOException {
         Type T = (Type) deserializer.readRef();
         int size = deserializer.readInt();
         x10.array.Array backing = (Array) deserializer.readRef();

@@ -85,18 +85,18 @@ public class UIntType extends RuntimeType<x10.core.UInt> implements X10JavaSeria
     	return ((int[]) array).length;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(UIntType t, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(UIntType t, X10JavaDeserializer deserializer) throws IOException {
         UIntType uIntType = (UIntType) Types.UINT;
         deserializer.record_reference(uIntType);
         return uIntType;

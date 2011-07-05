@@ -55,24 +55,24 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         return typeName;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
-        super._serialize(serializer);
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+        super.$_serialize(serializer);
         int classId = DeserializationDispatcher.getIDForClassName(typeName);
         serializer.write(classId);
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         NamedType namedType = new NamedType();
         deserializer.record_reference(namedType);
-		return _deserialize_body(namedType, deserializer);
+		return $_deserialize_body(namedType, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
-        RuntimeType._deserialize_body(nt, deserializer);
+    public static X10JavaSerializable $_deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
+        RuntimeType.$_deserialize_body(nt, deserializer);
         int classId = deserializer.readInt();
         nt.typeName = DeserializationDispatcher.getClassNameForID(classId);
         return nt;

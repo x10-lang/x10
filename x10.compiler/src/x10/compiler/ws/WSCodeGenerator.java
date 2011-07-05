@@ -56,6 +56,7 @@ import x10.compiler.ws.util.ClosureDefReinstantiator;
 import x10.compiler.ws.util.WSUtil;
 import x10.compiler.ws.util.WSTransformationContent;
 import x10.compiler.ws.WSTransformState.MethodType;
+import x10.types.MethodInstance;
 import x10.types.X10MethodDef;
 import x10.util.Synthesizer;
 import x10.visit.Desugarer;
@@ -109,12 +110,12 @@ public class WSCodeGenerator extends ContextVisitor {
             switch(wts.getCallSiteType(call)){
             case MATCHED_CALL: //change the target
                 //two steps, create a new method def, and change the call
-                X10MethodDef mDef = WSUtil.createWSCallMethodDef(call.methodInstance().def(), ts);
+                MethodInstance mi = WSUtil.createWSMethodInstance(call.methodInstance(), ts);
                 List<Expr> newArgs = new ArrayList<Expr>();
                 newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Worker()));
                 newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.Frame()));
                 newArgs.add(nf.NullLit(Position.COMPILER_GENERATED).type(ts.FinishFrame()));
-                return WSUtil.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mDef, newArgs);
+                return WSUtil.replaceMethodCallWithWSMethodCall(nf, (X10Call) call, mi, newArgs);
             case CONCURRENT_CALL:  //do nothing, leave the transformation in method decl transformation
             case NORMAL:
             default:

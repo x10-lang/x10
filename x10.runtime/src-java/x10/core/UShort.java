@@ -143,19 +143,19 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public Object $le(UShort a, Type t) { return Unsigned.le($value,a.$value); }
     public Object $ge(UShort a, Type t) { return Unsigned.ge($value,a.$value); }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write($value);
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+        return $_deserialize_body(null, deserializer);
     }
 
-    public static X10JavaSerializable _deserialize_body(UShort us, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(UShort us, X10JavaDeserializer deserializer) throws IOException {
         short value  = deserializer.readShort();
         us = new UShort(value);
         deserializer.record_reference(us);
