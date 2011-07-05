@@ -20,6 +20,7 @@ public abstract class Struct implements StructI {
 
     private static final long serialVersionUID = 1L;
 
+    // constructor just for allocation
     public Struct(java.lang.System[] $dummy) {}
 	
     public Struct $init() {return this;}

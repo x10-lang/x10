@@ -61,6 +61,7 @@ public class Vec<T> extends x10.core.Struct {
         oos.defaultWriteObject();
     }
     
+    // constructor just for allocation
     public Vec(java.lang.System[] $dummy) {
         super($dummy);
     }

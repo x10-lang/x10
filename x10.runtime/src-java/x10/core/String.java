@@ -11,7 +11,6 @@
 
 package x10.core;
 
-import x10.lang.*;
 import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
@@ -68,6 +67,7 @@ final public class String extends x10.core.Ref implements
         $value = value;
     }
 
+    // constructor just for allocation
     public String(java.lang.System[] $dummy) {
         super($dummy);
     }

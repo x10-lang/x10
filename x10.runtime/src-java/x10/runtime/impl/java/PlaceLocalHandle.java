@@ -58,6 +58,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     	return this;
     }
 
+    // constructor just for allocation
     public PlaceLocalHandle(java.lang.System[] $dummy) {
         //super($dummy);
     }

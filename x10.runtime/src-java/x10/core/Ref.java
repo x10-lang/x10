@@ -24,14 +24,15 @@ import java.io.IOException;
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref implements RefI {
     
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// N.B. this is called implicitly by all subclasses of Ref
+    // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
 
-	public Ref(java.lang.System[] $dummy) {}
+    // constructor just for allocation
+    public Ref(java.lang.System[] $dummy) {}
 
-	public Ref $init(){return this;}
+    public Ref $init(){return this;}
 	
     public static Ref $make() { return new Ref(); }
 

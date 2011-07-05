@@ -28,14 +28,15 @@ import java.lang.String;
 //                This makes it possible to have non-X10-catchable exceptions (e.g. UnknownJavaException) under x10.core.Throwable.
 public class X10Throwable extends x10.core.Throwable implements RefI {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(X10Throwable.class.getName(), "x10.lang.Throwable");
 
-	public X10Throwable(java.lang.System[] $dummy) {
-	    super();
-	}
+    // constructor just for allocation
+    public X10Throwable(java.lang.System[] $dummy) {
+        super();
+    }
 
-	public X10Throwable $init() {return this;}
+    public X10Throwable $init() {return this;}
     
     public X10Throwable() {
         super();

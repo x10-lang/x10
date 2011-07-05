@@ -129,6 +129,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     private long id; // place local id of referenced object
     transient Object t;
     
+    // constructor just for allocation
     public GlobalRef(java.lang.System[] $dummy) {
         super($dummy);
     }
