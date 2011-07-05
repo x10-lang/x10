@@ -24,14 +24,15 @@ import java.io.IOException;
 
 public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI, X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicReference.class.getName());
 
-	public AtomicReference(java.lang.System[] $dummy) {
-	    super();
-	}
+    // constructor just for allocation
+    public AtomicReference(java.lang.System[] $dummy) {
+        super();
+    }
 	
-	public AtomicReference $init(Type<T> T) {
+    public AtomicReference $init(Type<T> T) {
         this.T = T;
         return this;
     }

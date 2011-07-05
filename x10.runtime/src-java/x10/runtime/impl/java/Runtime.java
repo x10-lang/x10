@@ -41,6 +41,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     private String[] args;
 
+    // constructor just for allocation
     public Runtime(java.lang.System[] $dummy) {
         // TODO
         // super($dummy);

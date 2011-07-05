@@ -23,6 +23,7 @@ public class OutputStream extends Ref {
     // XTENLANG-2680
     /*private*/public java.io.OutputStream stream;
 
+    // constructor just for allocation
     public OutputStream(java.lang.System[] $dummy) {
         super($dummy);
     }

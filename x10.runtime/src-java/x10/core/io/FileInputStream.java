@@ -17,13 +17,13 @@ import x10.rtt.Type;
 
 public class FileInputStream extends InputStream {
     
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	private FileInputStream(String name) throws java.io.FileNotFoundException {
+    private FileInputStream(String name) throws java.io.FileNotFoundException {
         super(new java.io.FileInputStream(name));
     }
 
-    public static FileInputStream make(String name) {
+    public static FileInputStream $make(String name) {
         try {
             return new FileInputStream(name);
         } catch (java.io.FileNotFoundException e) {

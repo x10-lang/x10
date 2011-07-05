@@ -34,6 +34,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
     public Type<T> type;
     public Place home;
     
+    // constructor just for allocation
     public RemoteIndexedMemoryChunk(java.lang.System[] $dummy) {
         super($dummy);
     }

@@ -51,6 +51,7 @@ public class LocalVar<T> extends x10.core.Ref {
     private x10.rtt.Type<?> T;
     private long id;
 
+    // constructor just for allocation
     public LocalVar(java.lang.System[] $dummy) {
         super($dummy);
     }

@@ -45,6 +45,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public Object value;
     public Type<T> type;
 
+    // constructor just for allocation
     public IndexedMemoryChunk(java.lang.System[] $dummy) {
         super($dummy);
     }
