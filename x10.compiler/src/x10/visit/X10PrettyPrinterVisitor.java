@@ -650,21 +650,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "((java.lang.System[]) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "((" + JAVA_LANG_SYSTEM + "[]) null);");
                         } else {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(null, (java.lang.System) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + JAVA_LANG_SYSTEM + ") null);");
                         }
                     } else {
                         if (def.flags().isAbstract()) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = ( " + Emitter.mangleToJava(def.name()) + " )" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = (" + Emitter.mangleToJava(def.name()) + ")" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
                         } else {
-                            w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + " ( ");
+                            w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(");
                             if (supportConstructorSplitting
-                                    && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
-                                    && !def.flags().isInterface()) {
-                                w.writeln(" (java.lang.System[]) null); ");
+                                // XTENLANG-2830
+                                /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+                                && !def.flags().isInterface()) {
+                                w.writeln("(" + JAVA_LANG_SYSTEM + "[]) null); ");
                             } else {
-                                w.writeln(" );");
+                                w.writeln(");");
                             }
                         }
                     }
@@ -750,8 +751,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // print the constructor just for allocation
         if (supportConstructorSplitting
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
-                && !def.flags().isInterface()) {
+            // XTENLANG-2830
+            /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+            && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
             w.write("public " + Emitter.mangleToJava(def.name()) + "(");

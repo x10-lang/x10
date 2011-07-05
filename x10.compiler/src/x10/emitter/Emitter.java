@@ -3283,14 +3283,15 @@ public class Emitter {
         w.begin(0);
         w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(");
         if (X10PrettyPrinterVisitor.supportConstructorSplitting
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
-                && !def.flags().isInterface()) {
-            w.writeln(" (java.lang.System[]) null); ");
+            // XTENLANG-2830
+            /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+            && !def.flags().isInterface()) {
+            w.writeln("(" + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + "[]) null); ");
         } else {
             for (int i = 0; i < def.typeParameters().size(); i++) {
                 w.write("null, ");
             }
-            w.writeln(" (x10.io.SerialData) null);");
+            w.writeln("(x10.io.SerialData) null);");
         }
         w.writeln("deserializer.record_reference(_obj);");
         w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "(_obj, deserializer);");
@@ -3366,7 +3367,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
         	w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
         }
-        w.write("final java.lang.System $dummy) { ");
+        w.write("final " + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + " $dummy) { ");
 
         /* struct does not have super type
         // call super zero value constructor
@@ -3374,8 +3375,8 @@ public class Emitter {
         if (superType0Ref != null) {
             Type superType0 = superType0Ref.get();
             X10ClassType superType;
-            if (superType0 instanceof ConstrainedType_c) {
-                superType = (X10ClassType) ((ConstrainedType_c) superType0).baseType().get();
+            if (superType0 instanceof ConstrainedType) {
+                superType = (X10ClassType) ((ConstrainedType) superType0).baseType().get();
             } else {
                 superType = (X10ClassType) superType0;
             }
@@ -3387,7 +3388,7 @@ public class Emitter {
                     w.write(", ");
                 }
             }
-            w.write("(java.lang.System) null); ");
+            w.write("$dummy); ");
         }
         */
         
@@ -3450,7 +3451,7 @@ public class Emitter {
                             w.write(", ");
                         }
                     }
-                    w.write("(java.lang.System) null); ");
+                    w.write("$dummy); ");
                 }
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
