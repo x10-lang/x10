@@ -24,17 +24,17 @@ public class Basic {
                 case Quit: Basic.recv_quit(buf); break;
             }
         }
-        public static RunnableWithBuf _deserialize_body(RunnableWithBuf _obj, x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static RunnableWithBuf $_deserialize_body(RunnableWithBuf _obj, x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
             _obj.id = deserializer.readInt();
             return _obj;
         }
-        public static RunnableWithBuf _deserializer(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static RunnableWithBuf $_deserializer(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
             RunnableWithBuf _obj = new RunnableWithBuf();
             deserializer.record_reference(_obj);
-            return _deserialize_body(_obj, deserializer);
+            return $_deserialize_body(_obj, deserializer);
         }
-        public int _get_serialization_id() { return _RunnableWithBuf_id; }
-        public void _serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
+        public int $_get_serialization_id() { return _RunnableWithBuf_id; }
+        public void $_serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write(this.id);
         }
     }
@@ -251,18 +251,18 @@ public class Basic {
         public void $apply() { id.run(buf); }
         public RuntimeType<?> $getRTT() { return x10.core.Any.$RTT; }
         public Type<?> $getParam(int i) { throw new IllegalArgumentException(); }
-        public static Handler _deserialize_body(Handler _obj, x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static Handler $_deserialize_body(Handler _obj, x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
             _obj.id = (RunnableWithBuf) deserializer.readRef();
             _obj.buf = deserializer.readByteArray();
             return _obj;
         }
-        public static Handler _deserializer(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
+        public static Handler $_deserializer(x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException {
             Handler _obj = new Handler();
             deserializer.record_reference(_obj);
-            return _deserialize_body(_obj, deserializer);
+            return $_deserialize_body(_obj, deserializer);
         }
-        public int _get_serialization_id() { return _Handler_id; }
-        public void _serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
+        public int $_get_serialization_id() { return _Handler_id; }
+        public void $_serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write((x10.x10rt.X10JavaSerializable) this.id);
             if (this.buf == null) {
                 serializer.write((Object) this.buf);
