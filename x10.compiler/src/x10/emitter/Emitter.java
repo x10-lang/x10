@@ -457,18 +457,6 @@ public class Emitter {
     	return mangleParameterType(tpn.name().id());
     }
 
-    // not used
-//	/**
-//	 * Support "inline" .xcd so that you dont have to create a separate xcd file
-//	 * for a short code fragment.
-//	 * 
-//	 * @param components
-//	 * @param regex
-//	 */
-//	public void dumpCodeString(String regex, Object... components) {
-//		dumpRegex("internal", components, tr, regex);
-//	}
-
     public void dumpRegex(String id, Map<String,Object> components, Translator tr, String regex) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         int len = regex.length();
@@ -577,24 +565,6 @@ public class Emitter {
 		return null;
 	}
 	
-	// not used
-	/*
-	private static boolean isPrimitiveJavaRep(X10ClassDef def) {
-		String pat = getJavaRep(def);
-		if (pat == null) {
-			return false;
-		}
-		String[] s = new String[] { "boolean", "byte", "char",
-				"short", "int", "long", "float", "double" };
-		for (int i = 0; i < s.length; i++) {
-			if (pat.equals(s[i])) {
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
-
 	// return all X10 types that are mapped to Java primitives and require explicit boxing
 	public static boolean needExplicitBoxing(Type t) {
 	    return t.isNumeric() || t.isChar() || t.isBoolean();
@@ -940,19 +910,6 @@ public class Emitter {
         Type tbase = Types.baseType(type);
         return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(type.typeSystem().IndexedMemoryChunk(), tr.context());
     }
-
-	// not used
-    public static boolean isAbstract(MemberInstance<?> mi) {
-		if (mi.flags().isAbstract())
-			return true;
-		Type t = Types.baseType(mi.container());
-		if (t instanceof ClassType) {
-			ClassType ct = (ClassType) t;
-			if (ct.flags().isInterface())
-				return true;
-		}
-		return false;
-	}
 
     // See comments in Native.x10
     /**
