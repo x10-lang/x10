@@ -553,7 +553,9 @@ public class Inliner extends ContextVisitor {
         for (int i = 0; i < args.size(); i++) {
             Expr arg = args.get(i);
             X10Formal formal = (X10Formal) formals.get(i);
+            X10LocalDef localDef = formal.localDef();
             Expr expr = syn.createUncheckedCast(arg.position(), arg, formal.type().type(), context());
+            localDef.setType(Types.ref(expr.type()));
             LocalDecl ld = syn.createLocalDecl(formal, expr);
             tieLocalDefToItself(ld.localDef());
             statements.add(ld);

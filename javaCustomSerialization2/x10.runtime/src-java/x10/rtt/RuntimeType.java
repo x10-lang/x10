@@ -534,23 +534,23 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
     }
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
         String name = impl.getName();
         int classId = DeserializationDispatcher.getIDForClassName(name);
         serializer.write(classId);
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         RuntimeType rt = new RuntimeType();
         deserializer.record_reference(rt);
-		return _deserialize_body(rt, deserializer);
+		return $_deserialize_body(rt, deserializer);
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
         int classId = deserializer.readInt();
         String className = DeserializationDispatcher.getClassNameForID(classId);
         if (className == null) {

@@ -23,13 +23,15 @@ import java.io.IOException;
 
 public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteger implements RefI, X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
-	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicInteger.class.getName());
+    private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicInteger.class.getName());
 
-	public AtomicInteger(java.lang.System[] $dummy) {
-	    super();
-	}
-	public AtomicInteger $init() {return this;}
+    // constructor just for allocation
+    public AtomicInteger(java.lang.System[] $dummy) {
+        super();
+    }
+    
+    public AtomicInteger $init() {return this;}
 	
     public AtomicInteger() {
         super();
@@ -57,22 +59,22 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     public Type<?> $getParam(int i) {
         return null;
     }
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}
 
-	public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-	public static X10JavaSerializable _deserialize_body(AtomicInteger atomicInteger, X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable $_deserialize_body(AtomicInteger atomicInteger, X10JavaDeserializer deserializer) throws IOException {
         int i = deserializer.readInt();
         AtomicInteger ai = new AtomicInteger(i);
         deserializer.record_reference(ai);
         return ai;
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 }

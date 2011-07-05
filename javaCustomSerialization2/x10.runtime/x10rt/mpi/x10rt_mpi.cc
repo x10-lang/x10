@@ -529,6 +529,9 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
     assert(!global_state.finalized);
     assert(p->type > 0);
 
+    x10rt_lgl_stats.msg.messages_sent++ ;
+    x10rt_lgl_stats.msg.bytes_sent += p->len;
+
     x10rt_req * req;
     req = global_state.free_list.popNoFail();
     static bool in_recursion = false;
@@ -573,6 +576,9 @@ void x10rt_net_send_msg(x10rt_msg_params * p) {
 }
 
 void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
+    x10rt_lgl_stats.get.messages_sent++ ;
+    x10rt_lgl_stats.get.bytes_sent += p->len;
+
     int                 get_msg_len;
     x10rt_req         * req;
     x10rt_nw_req      * get_msg;
@@ -652,6 +658,10 @@ void x10rt_net_send_get(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
 
 
 void x10rt_net_send_put(x10rt_msg_params *p, void *buf, x10rt_copy_sz len) {
+    x10rt_lgl_stats.put.messages_sent++ ;
+    x10rt_lgl_stats.put.bytes_sent += p->len;
+    x10rt_lgl_stats.put_copied_bytes_sent += len;
+
     int put_msg_len;
     x10rt_put_req * put_msg;
     assert(global_state.init);
@@ -744,6 +754,9 @@ static void recv_completion(int ix, int bytes,
 
     assert(ix > 0);
 
+    x10rt_lgl_stats.msg.messages_received++;
+    x10rt_lgl_stats.msg.bytes_received += p.len;
+
     release_lock(&global_state.lock);
     {
         cb(&p);
@@ -764,6 +777,8 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
                            get_req->msg_len
                          };
     q->remove(req);
+    x10rt_lgl_stats.get_copied_bytes_received += get_req->len;
+
     release_lock(&global_state.lock);
     cb(&p, get_req->len);
     get_lock(&global_state.lock);
@@ -795,9 +810,12 @@ static void get_incoming_req_completion(int dest_place,
                            get_nw_req->msg_len
                          };
     q->remove(req);
+    x10rt_lgl_stats.get.messages_received++;
+    x10rt_lgl_stats.get.bytes_received += p.len;
     release_lock(&global_state.lock);
     void * local = cb(&p, len);
     get_lock(&global_state.lock);
+    x10rt_lgl_stats.get_copied_bytes_sent += len;
 
     free(req->getBuf());
 
@@ -857,6 +875,9 @@ static void put_incoming_req_completion(int src_place,
                            put_req->msg_len
                          };
     q->remove(req);
+    x10rt_lgl_stats.put.messages_received++;
+    x10rt_lgl_stats.put.bytes_received += p.len;
+
     release_lock(&global_state.lock);
     void * local = cb(&p, len);
     get_lock(&global_state.lock);
@@ -885,6 +906,7 @@ static void put_incoming_data_completion(x10rt_req_queue * q, x10rt_req * req) {
                            put_req->msg_len
                          };
     q->remove(req);
+    x10rt_lgl_stats.put_copied_bytes_received += put_req->len;
     release_lock(&global_state.lock);
     cb(&p, put_req->len);
     get_lock(&global_state.lock);

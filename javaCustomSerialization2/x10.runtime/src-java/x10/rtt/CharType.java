@@ -83,18 +83,18 @@ public class CharType extends RuntimeType<x10.core.Char>implements X10JavaSerial
     	return ((char[]) array).length;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(CharType t, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(CharType t, X10JavaDeserializer deserializer) throws IOException {
         CharType charType = (CharType) Types.CHAR;
         deserializer.record_reference(charType);
         return charType;

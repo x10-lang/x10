@@ -34,6 +34,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
     public Type<T> type;
     public Place home;
     
+    // constructor just for allocation
     public RemoteIndexedMemoryChunk(java.lang.System[] $dummy) {
         super($dummy);
     }
@@ -145,24 +146,24 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
         return i == 0 ? type : null;
     }
     
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(length);
         serializer.write(id);
         serializer.write(type);
         serializer.write(home);
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         RemoteIndexedMemoryChunk rimc = new RemoteIndexedMemoryChunk(null);
         deserializer.record_reference(rimc);
-		return _deserialize_body(rimc, deserializer);
+		return $_deserialize_body(rimc, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(RemoteIndexedMemoryChunk rimc, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(RemoteIndexedMemoryChunk rimc, X10JavaDeserializer deserializer) throws IOException {
         rimc.length = deserializer.readInt();
         rimc.id = deserializer.readInt();
         rimc.type = (Type) deserializer.readRef();

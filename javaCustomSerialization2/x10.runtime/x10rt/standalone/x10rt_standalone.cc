@@ -656,6 +656,8 @@ x10rt_place x10rt_net_here (void)
 
 void x10rt_net_send_msg (x10rt_msg_params *p)
 {
+    x10rt_lgl_stats.msg.messages_sent++ ;
+    x10rt_lgl_stats.msg.bytes_sent += p->len;
 	// originating place calls this method, to send something? to a remote place.  It returns once the data transfer is complete.
 	// There is not really anything to do here except put the pointer to the message into the receivers buffer
 	insertNewMessage(STANDARD, p, NULL, 0, NULL);
@@ -663,6 +665,8 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 
 void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
+    x10rt_lgl_stats.get.messages_sent++ ;
+    x10rt_lgl_stats.get.bytes_sent += p->len;
 	// The local place uses this method to bring in data from a remote place
 	insertNewMessage(GET, p, buf, len, NULL);
 }
@@ -689,6 +693,9 @@ x10rt_remote_ptr x10rt_net_register_mem (void *ptr, size_t)
 
 void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 { 
+    x10rt_lgl_stats.put.messages_sent++ ;
+    x10rt_lgl_stats.put.bytes_sent += p->len;
+    x10rt_lgl_stats.put_copied_bytes_sent += len;
 	// originating place calls this method, to transfer data to a remote place.  It returns once the data transfer is complete.
 	insertNewMessage(PUT, p, buf, len, NULL);
 }
@@ -764,23 +771,31 @@ void x10rt_net_probe (void)
 			case STANDARD:
 			{
 				handlerCallback hcb = state.callBackTable[mp.type].handler;
+                x10rt_lgl_stats.msg.messages_received++;
+                x10rt_lgl_stats.msg.bytes_received += mp.len;
 				hcb(&mp);
 			}
 			break;
 			case PUT:
 			{
 				finderCallback fcb = state.callBackTable[mp.type].finder;
+                x10rt_lgl_stats.put.messages_received++;
+                x10rt_lgl_stats.put.bytes_received += mp.len;
 				void* dest = fcb(&mp, entry->payloadLen); // get the pointer to the destination location
 				memcpy(dest, (char*)entry+sizeof(struct x10StandaloneMessageQueueEntry)+entry->msgLen, entry->payloadLen); // copy the data to the destination
 				notifierCallback ncb = state.callBackTable[mp.type].notifier;
 				ncb(&mp, entry->payloadLen);
+                x10rt_lgl_stats.put_copied_bytes_received += entry->payloadLen;
 			}
 			break;
 			case GET:
 			{
 				// this is the request for data.
 				finderCallback fcb = state.callBackTable[mp.type].finder;
+                x10rt_lgl_stats.get.messages_received++;
+                x10rt_lgl_stats.get.bytes_received += mp.len;
 				void* src = fcb(&mp, entry->payloadLen);
+                x10rt_lgl_stats.get_copied_bytes_sent += entry->payloadLen;
 
 				// send the data to the other side
 				mp.dest_place = entry->from;
@@ -798,6 +813,7 @@ void x10rt_net_probe (void)
 
 				notifierCallback ncb = state.callBackTable[mp.type].notifier;
 				ncb(&mp, entry->payloadLen);
+                x10rt_lgl_stats.get_copied_bytes_received += entry->payloadLen;
 			}
 			break;
 			default: // this should never happen

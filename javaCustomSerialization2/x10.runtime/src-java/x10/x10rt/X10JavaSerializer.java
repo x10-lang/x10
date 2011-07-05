@@ -45,12 +45,12 @@ public class X10JavaSerializer {
         if (pos !=null) {
             return;
         }
-        int i = obj._get_serialization_id();
+        int i = obj.$_get_serialization_id();
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing id " + i  + " of type " + obj.getClass());
         }
         write(i);
-        obj._serialize(this);
+        obj.$_serialize(this);
         if (Runtime.TRACE_SER) {
             System.out.println("Completed serialization of type " + obj.getClass());
         }

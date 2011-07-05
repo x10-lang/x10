@@ -184,18 +184,18 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         return str;
     }
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(rtt);
         serializer.write(params);
 	}
 
-	public static X10JavaSerializable _deserializer( X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable $_deserializer( X10JavaDeserializer deserializer) throws IOException {
         ParameterizedType pt = new ParameterizedType();
         deserializer.record_reference(pt);
-        return _deserialize_body(pt, deserializer);
+        return $_deserialize_body(pt, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {
 		RuntimeType rt = (RuntimeType) deserializer.deSerialize();
         pt.rtt = rt;
         int length = deserializer.readInt();
@@ -205,7 +205,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         return pt;
     }
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 }

@@ -109,11 +109,11 @@ public class NativeFile extends java.io.File implements RefI {
     public RuntimeType<NativeFile> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
-    public void _serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 

@@ -58,6 +58,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     	return this;
     }
 
+    // constructor just for allocation
     public PlaceLocalHandle(java.lang.System[] $dummy) {
         //super($dummy);
     }
@@ -99,22 +100,22 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
         return "PlaceLocalHandle(" + this.id + ")";
     }
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException {
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(id);
 	}
 
-	public static X10JavaSerializable _deserialize_body(PlaceLocalHandle placeLocalHandle, X10JavaDeserializer deserializer) throws IOException {
+	public static X10JavaSerializable $_deserialize_body(PlaceLocalHandle placeLocalHandle, X10JavaDeserializer deserializer) throws IOException {
         placeLocalHandle.id = deserializer.readInt();
         return placeLocalHandle;
 	}
 
-	public int _get_serialization_id() {
+	public int $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null);
         deserializer.record_reference(placeLocalHandle);
-		return _deserialize_body(placeLocalHandle, deserializer);
+		return $_deserialize_body(placeLocalHandle, deserializer);
 	}
 }

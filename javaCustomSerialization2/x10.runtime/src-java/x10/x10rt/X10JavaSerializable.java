@@ -23,6 +23,6 @@ public interface X10JavaSerializable {
     */
     public static final boolean CUSTOM_JAVA_SERIALIZATION = Runtime.isCustomSerialization();
 
-	public void _serialize(X10JavaSerializer serializer) throws IOException;
-	public int _get_serialization_id();
+	public void $_serialize(X10JavaSerializer serializer) throws IOException;
+	public int $_get_serialization_id();
 }

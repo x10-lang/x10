@@ -83,18 +83,18 @@ public class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaS
     	return ((short[]) array).length;
     }
 
-    public void _serialize(X10JavaSerializer serializer) throws java.io.IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
     }
 
-    public int _get_serialization_id() {
+    public int $_get_serialization_id() {
         return _serialization_id;
     }
 
-    public static X10JavaSerializable _deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-		return _deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+		return $_deserialize_body(null, deserializer);
 	}
 
-    public static X10JavaSerializable _deserialize_body(UShortType t, X10JavaDeserializer deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserialize_body(UShortType t, X10JavaDeserializer deserializer) throws java.io.IOException {
         UShortType uShortType = (UShortType) Types.USHORT;
         deserializer.record_reference(uShortType);
         return uShortType;

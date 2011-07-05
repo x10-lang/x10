@@ -563,9 +563,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else {
-            if (!def.flags().isInterface() && !config.NO_TRACES) {
+            if (!def.flags().isInterface()) {
 
-                if (!config.OPTIMIZE) {
+                if (!config.NO_TRACES && !config.OPTIMIZE) {
                     // override to trace serialization
                     w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
                     w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
@@ -575,20 +575,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.newline();
                 }
 
+                // Prints out custom serialization/deserialization code, the imeplementation resembles closely what the C++ backend does
+
                 X10ClassType ct = def.asType();
                 ASTQuery query = new ASTQuery(tr);
 
-                // Prints out custom serialization/deserialization code, the imeplementation resembles closely what the C++ backend does
-
                 //_deserialize_body method
-                w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
-                w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+                w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+                w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
                 w.newline(4);
                 w.begin(0);
 
                 if (!config.NO_TRACES && !config.OPTIMIZE) {
                     w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                    w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                    w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
                     w.writeln("} ");
                 }
 
@@ -599,10 +599,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // Deserialize any parameter types
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
-                    w.write("_obj.");
+                    w.write("$_obj.");
                     er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     w.write(" = ( " + X10_RUNTIME_TYPE_CLASS + " ) ");
-                    w.writeln("deserializer.readRef();");
+                    w.writeln("$deserializer.readRef();");
                 }
 
                 // Deserialize the public variables of this class , we do not serialize transient or static variables
@@ -615,32 +615,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         if (f.flags().isTransient()) // don't serialize transient fields
                             continue;
                         if (f.type().isParameterType()) {
-                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.readRef();");
+                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.readRef();");
                         } else if ((str = needsCasting(f.type())) != null) {
                             // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling soecial methods
-                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = deserializer.read" + str + "();");
+                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.read" + str + "();");
                         } else if(f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                             // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
-                            w.write("Object[] " + Emitter.mangleToJava(f.name()) + " = (Object[]) deserializer.readRef();");
-                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                            w.write("java.lang.Object[] " + Emitter.mangleToJava(f.name()) + " = (java.lang.Object[]) $deserializer.readRef();");
+                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         } else {
                             // deserialize the variable and cast it back to the correct type
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
                             er.printType(f.type(), BOX_PRIMITIVES);
-                            w.writeln(") deserializer.readRef();");
-                            w.writeln("_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                            w.writeln(") $deserializer.readRef();");
+                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         }
                     }
 
-                w.writeln("return _obj;");
+                w.writeln("return $_obj;");
                 w.end();
                 w.newline();
                 w.writeln("}");
                 w.newline();
 
                 // _deserializer  method
-                w.writeln("public static x10.x10rt.X10JavaSerializable _deserializer( x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+                w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
                 w.newline(4);
                 w.begin(0);
 
@@ -650,26 +650,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new  " + Emitter.mangleToJava(def.name()) + "( (java.lang.System[]) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + JAVA_LANG_SYSTEM + "[]) null);");
                         } else {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = new  " + Emitter.mangleToJava(def.name()) + "( null, (java.lang.System) null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + JAVA_LANG_SYSTEM + ") null);");
                         }
                     } else {
                         if (def.flags().isAbstract()) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " _obj = ( " + Emitter.mangleToJava(def.name()) + "  )" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = (" + Emitter.mangleToJava(def.name()) + ")" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
                         } else {
-                            w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + " ( ");
+                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(");
                             if (supportConstructorSplitting
-                                    && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
-                                    && !def.flags().isInterface()) {
-                                w.writeln(" (java.lang.System[]) null); ");
+                                // XTENLANG-2830
+                                /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+                                && !def.flags().isInterface()) {
+                                w.writeln("(" + JAVA_LANG_SYSTEM + "[]) null); ");
                             } else {
-                                w.writeln(" );");
+                                w.writeln(");");
                             }
                         }
                     }
-                    w.writeln("deserializer.record_reference(_obj);");
-                    w.writeln("return _deserialize_body(_obj, deserializer);");
+                    w.writeln("$deserializer.record_reference($_obj);");
+                    w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
                 }
                 w.end();
                 w.newline();
@@ -687,7 +688,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialize()
-                w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
+                w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 
@@ -697,7 +698,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // Serialize any type parameters
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
-                    w.write("serializer.write( (x10.x10rt.X10JavaSerializable) this.");
+                    w.write("$serializer.write( (x10.x10rt.X10JavaSerializable) this.");
                     er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     w.writeln(");");
                 }
@@ -715,22 +716,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                         // If this is an array and not a java primitive we need to cast it into an array
                         if (f.type() instanceof JavaArrayType_c && isPrimitiveRepedJava(((JavaArrayType_c)f.type()).base())) {
-                            w.writeln("serializer.write(this." + fieldName + ");");
+                            w.writeln("$serializer.write(this." + fieldName + ");");
                         } else {
                             w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable []) {");
-                            w.writeln("serializer.write( (x10.x10rt.X10JavaSerializable[]) this." + fieldName + ");");
+                            w.writeln("$serializer.write( (x10.x10rt.X10JavaSerializable[]) this." + fieldName + ");");
                             w.writeln("} else {");
-                            w.writeln("serializer.write(this." + fieldName + ");");
+                            w.writeln("$serializer.write(this." + fieldName + ");");
                             w.writeln("}");
                         }
                     } else {
                         if (isPrimitiveRepedJava(f.type()) || isString(f.type(), context)) {
-                            w.writeln("serializer.write(this." + fieldName + ");");
+                            w.writeln("$serializer.write(this." + fieldName + ");");
                         } else {
                             w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
-                            w.writeln("serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
+                            w.writeln("$serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
                             w.writeln("} else {");
-                            w.writeln("serializer.write(this." + fieldName + ");");
+                            w.writeln("$serializer.write(this." + fieldName + ");");
                             w.writeln("}");
                         }
                     }
@@ -750,8 +751,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         // print the constructor just for allocation
         if (supportConstructorSplitting
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
-                && !def.flags().isInterface()) {
+            // XTENLANG-2830
+            /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+            && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
             w.write("public " + Emitter.mangleToJava(def.name()) + "(");
@@ -3604,6 +3606,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("this");
                 }
             } else {
+                // WIP XTENLANG-2818
+//                if (c.kind() == ConstructorCall.SUPER) {
+//                    target.translate(w, tr);
+//                    w.write(".");
+//                    // TODO support super constructor call
+//                    w.write(CONSTRUCTOR_METHOD_NAME);
+//                    printConstructorArgumentList(c, c, c.constructorInstance(), null);
+//                    w.write(";");
+//                    return;
+//                }
                 // N.B. HACK! to initialize x10.lang.Object, call ((x10.core.Ref) target).$init() since x10.lang.Object is @NativeRep'ed to x10.core.RefI!
             	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);

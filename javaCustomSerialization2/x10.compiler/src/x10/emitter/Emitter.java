@@ -165,10 +165,6 @@ public class Emitter {
 	        )
 	);
 
-    public static final String SERIALIZE_ID_METHOD = "_get_serialization_id";
-    public static final String SERIALIZATION_ID_FIELD = "_serialization_id";
-    public static final String SERIALIZE_BODY_METHOD = "_serialize";
-
 	CodeWriter w;
 	Translator tr;
 
@@ -387,6 +383,12 @@ public class Emitter {
 		map.put(OperatorNames.inverse(OperatorNames.STARSTAR), Name.make("$inv_starstar"));
 	}
 
+    public static final String SERIALIZE_ID_METHOD = "$_get_serialization_id";
+    public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";
+    public static final String SERIALIZE_METHOD = "$_serialize";
+    public static final String DESERIALIZE_BODY_METHOD = "$_deserialize_body";
+    public static final String DESERIALIZER_METHOD = "$_deserializer";
+
 	private static Name mangleIdentifier(Name n) {
 		Name o = MANGLED_OPERATORS.get(n);
 		if (o != null)
@@ -454,18 +456,6 @@ public class Emitter {
     public static String mangleParameterType(TypeParamNode tpn) {
     	return mangleParameterType(tpn.name().id());
     }
-
-    // not used
-//	/**
-//	 * Support "inline" .xcd so that you dont have to create a separate xcd file
-//	 * for a short code fragment.
-//	 * 
-//	 * @param components
-//	 * @param regex
-//	 */
-//	public void dumpCodeString(String regex, Object... components) {
-//		dumpRegex("internal", components, tr, regex);
-//	}
 
     public void dumpRegex(String id, Map<String,Object> components, Translator tr, String regex) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
@@ -575,24 +565,6 @@ public class Emitter {
 		return null;
 	}
 	
-	// not used
-	/*
-	private static boolean isPrimitiveJavaRep(X10ClassDef def) {
-		String pat = getJavaRep(def);
-		if (pat == null) {
-			return false;
-		}
-		String[] s = new String[] { "boolean", "byte", "char",
-				"short", "int", "long", "float", "double" };
-		for (int i = 0; i < s.length; i++) {
-			if (pat.equals(s[i])) {
-				return true;
-			}
-		}
-		return false;
-	}
-	*/
-
 	// return all X10 types that are mapped to Java primitives and require explicit boxing
 	public static boolean needExplicitBoxing(Type t) {
 	    return t.isNumeric() || t.isChar() || t.isBoolean();
@@ -938,19 +910,6 @@ public class Emitter {
         Type tbase = Types.baseType(type);
         return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(type.typeSystem().IndexedMemoryChunk(), tr.context());
     }
-
-	// not used
-    public static boolean isAbstract(MemberInstance<?> mi) {
-		if (mi.flags().isAbstract())
-			return true;
-		Type t = Types.baseType(mi.container());
-		if (t instanceof ClassType) {
-			ClassType ct = (ClassType) t;
-			if (ct.flags().isInterface())
-				return true;
-		}
-		return false;
-	}
 
     // See comments in Native.x10
     /**
@@ -3284,57 +3243,58 @@ public class Emitter {
         }
 
         //_deserialize_body method
-        w.write("public static x10.x10rt.X10JavaSerializable _deserialize_body(");
-        w.writeln(Emitter.mangleToJava(def.name()) + " _obj , x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+        w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
 
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\"X10JavaSerializable: _deserialize_body() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+            w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
             w.writeln("} ");
         }
 
         String params = "";
-        w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) deserializer.readRef();");
+        w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
         for (ParameterType at : def.typeParameters()) {
             w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
             printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
             w.write(" = ( " + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ) ");
-            w.writeln("deserializer.readRef();");
+            w.writeln("$deserializer.readRef();");
             params = params + mangleParameterType(at) + ", ";
         }
 
-        w.write("_obj = (");
+        w.write("$_obj = (");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(") ");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(".");
         w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
         w.writeln("(" + params + fieldName + ");");
-        w.writeln("return _obj;");
+        w.writeln("return $_obj;");
         w.end();
         w.newline();
         w.writeln("}");
         w.newline();
 
         // _deserializer  method
-        w.writeln("public static x10.x10rt.X10JavaSerializable _deserializer( x10.x10rt.X10JavaDeserializer deserializer) throws java.io.IOException { ");
+        w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
         w.newline(4);
         w.begin(0);
-        w.write(Emitter.mangleToJava(def.name()) + " _obj = new " + Emitter.mangleToJava(def.name()) + "(");
+        w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(");
         if (X10PrettyPrinterVisitor.supportConstructorSplitting
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))
-                && !def.flags().isInterface()) {
-            w.writeln(" (java.lang.System[]) null); ");
+            // XTENLANG-2830
+            /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+            && !def.flags().isInterface()) {
+            w.writeln("(" + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + "[]) null); ");
         } else {
             for (int i = 0; i < def.typeParameters().size(); i++) {
                 w.write("null, ");
             }
-            w.writeln(" (x10.io.SerialData) null);");
+            w.writeln("(x10.io.SerialData) null);");
         }
-        w.writeln("deserializer.record_reference(_obj);");
-        w.writeln("return _deserialize_body(_obj, deserializer);");
+        w.writeln("$deserializer.record_reference($_obj);");
+        w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
         w.end();
         w.newline();
         w.writeln("}");
@@ -3351,19 +3311,19 @@ public class Emitter {
         w.newline();
 
         // _serialize()
-        w.writeln("public void " + Emitter.SERIALIZE_BODY_METHOD + "(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {");
+        w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_BODY_METHOD + " of \" + this + \" calling\"); ");
+            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
             w.writeln("} ");
         }
 
         w.writeln(fieldName + " = serialize(); ");
-        w.writeln("serializer.write(" + fieldName + ");");
+        w.writeln("$serializer.write(" + fieldName + ");");
         for (ParameterType at : def.typeParameters()) {
-            w.writeln("serializer.write(" + mangleParameterType(at) + ");");
+            w.writeln("$serializer.write(" + mangleParameterType(at) + ");");
         }
         w.end();
         w.newline();
@@ -3379,7 +3339,7 @@ public class Emitter {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                w.write("super." + Emitter.SERIALIZE_BODY_METHOD + "(serializer);");
+                w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
                 w.newline();
             }
         }
@@ -3394,7 +3354,7 @@ public class Emitter {
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
                 printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                w.writeln("._deserialize_body(_obj, deserializer);");
+                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
             }
         }
     }
@@ -3407,7 +3367,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
         	w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
         }
-        w.write("final java.lang.System $dummy) { ");
+        w.write("final " + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + " $dummy) { ");
 
         /* struct does not have super type
         // call super zero value constructor
@@ -3415,8 +3375,8 @@ public class Emitter {
         if (superType0Ref != null) {
             Type superType0 = superType0Ref.get();
             X10ClassType superType;
-            if (superType0 instanceof ConstrainedType_c) {
-                superType = (X10ClassType) ((ConstrainedType_c) superType0).baseType().get();
+            if (superType0 instanceof ConstrainedType) {
+                superType = (X10ClassType) ((ConstrainedType) superType0).baseType().get();
             } else {
                 superType = (X10ClassType) superType0;
             }
@@ -3428,7 +3388,7 @@ public class Emitter {
                     w.write(", ");
                 }
             }
-            w.write("(java.lang.System) null); ");
+            w.write("$dummy); ");
         }
         */
         
@@ -3491,7 +3451,7 @@ public class Emitter {
                             w.write(", ");
                         }
                     }
-                    w.write("(java.lang.System) null); ");
+                    w.write("$dummy); ");
                 }
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"

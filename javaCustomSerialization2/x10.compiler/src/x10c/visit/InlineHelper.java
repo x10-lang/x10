@@ -51,6 +51,7 @@ import polyglot.visit.NodeVisitor;
 import x10.X10CompilerOptions;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
+import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl;
 import x10.emitter.Emitter;
 import x10.types.ParameterType;
@@ -228,6 +229,10 @@ public class InlineHelper extends ContextVisitor {
                         cd.addMethod(nmd);
                         nmembers.add(nmdcl);
                     }
+                    // WIP XTENLANG-2818
+//                    else if (cm instanceof X10ConstructorDecl) {
+//                        // TODO check super constructor call
+//                    }
                     else {
                         nmembers.add(cm);
                     }
