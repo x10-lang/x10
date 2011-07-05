@@ -59,7 +59,8 @@ import x10.visit.X10DelegatingVisitor;
  */
 class DeclPackage extends NodeVisitor {
     
-    static final boolean XTENLANG_2818 = true; // FIXME: Java back-end does not support non-virtual instance calls
+    static final boolean XTENLANG_2818_METHOD = true; // FIXME: Java back-end does not support non-virtual instance calls
+    static final boolean XTENLANG_2818_CTOR = true; // FIXME: Java back-end does not support non-virtual constructor calls
     static final boolean XTENLANG_2819 = true; // FIXME: C++  back-end generates incorrect code for embedded fields
 
     boolean inlinable;
@@ -118,9 +119,9 @@ class DeclPackage extends NodeVisitor {
      */
     @Override
     public Node leave(Node old, Node n, NodeVisitor v) {
-        if (XTENLANG_2818 && n instanceof Special && ((Special) n).kind() == Special.SUPER && ExpressionFlattener.javaBackend(job)) {
+        if (XTENLANG_2818_METHOD && n instanceof Special && ((Special) n).kind() == Special.SUPER && ExpressionFlattener.javaBackend(job)) {
             cannotInline("Java back-end cannot handle inlined super targets");
-        } else if (XTENLANG_2818 && n instanceof ConstructorCall && ((ConstructorCall) n).kind() == ConstructorCall.SUPER && ExpressionFlattener.javaBackend(job)) {
+        } else if (XTENLANG_2818_CTOR && n instanceof ConstructorCall && ((ConstructorCall) n).kind() == ConstructorCall.SUPER && ExpressionFlattener.javaBackend(job)) {
             cannotInline("Java back-end cannot handle inlined super calls either");
         } else if (XTENLANG_2819 && utils.hasEmbedAnnotation(n) && !ExpressionFlattener.javaBackend(job)) {
             cannotInline("C++  back-end cannot handle embedded fields");
