@@ -65,6 +65,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return parents;
     }
     
+    @Override
     public String toString() {
         return typeName();
     }
@@ -334,13 +335,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     public String typeName() {
-        String name = impl.toString();
-        if (name.startsWith("class ")) {
-            name = name.substring("class ".length());
-        } else if (name.startsWith("interface ")) {
-            name = name.substring("interface ".length());
-        }
-        return name;
+        return impl.getName();
     }
 
     protected final String typeNameForFun(Object o) {
