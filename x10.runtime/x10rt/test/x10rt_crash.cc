@@ -9,13 +9,33 @@
 
 #include <strings.h>
 #include <unistd.h>
+#include <signal.h>
+#include <stdio.h>
 
 #include <x10rt_front.h>
 
 int *null_ptr = 0;
 
+static void report_fault(int signal)
+{
+	switch(signal)
+	{
+		case SIGSEGV:
+			printf("Segmentation Fault\n");
+		break;
+		case SIGFPE:
+			printf("Floating Point Exeption\n");
+		break;
+	}
+	abort();
+}
+
 int main(int argc, char **argv)
 {
+	// the default signal handler doesn't flush stderr, so we register our own, which does.
+	signal(SIGSEGV,report_fault);
+	signal(SIGFPE,report_fault);
+
     x10rt_init(&argc, &argv);
     x10rt_registration_complete();
 

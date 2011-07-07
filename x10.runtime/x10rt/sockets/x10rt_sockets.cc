@@ -897,6 +897,7 @@ bool probe (bool onlyProcessAccept)
 				#endif
 
 				x10rt_msg_params mp;
+				mp.dest_endpoint = 0;
 				mp.dest_place = state.myPlaceId;
 				if (nonBlockingRead(state.socketLinks[whichPlaceToHandle].fd, &mp.type, sizeof(x10rt_msg_type)) < (int)sizeof(x10rt_msg_type))
 					error("reading x10rt_msg_params.type");
