@@ -37,7 +37,7 @@ namespace x10aux {
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
     template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked);
 
-    template<class T> static GPUSAFE ref<T> real_class_cast(ref<x10::lang::Reference> obj, bool checked) {
+    template<class T> static inline GPUSAFE ref<T> real_class_cast(ref<x10::lang::Reference> obj, bool checked) {
         if (checked && !obj.isNull()) {
             const RuntimeType *from = obj->_type();
             const RuntimeType *to = getRTT<ref<T> >();
