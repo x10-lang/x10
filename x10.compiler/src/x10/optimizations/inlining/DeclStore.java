@@ -17,6 +17,8 @@ import polyglot.ast.ConstructorCall;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureDecl;
+import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -32,6 +34,7 @@ import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
 import x10.ast.InlinableCall;
+import x10.ast.X10Call_c;
 import x10.optimizations.Optimizer;
 import x10.types.X10ProcedureDef;
 import x10.util.CollectionFactory;
@@ -99,9 +102,13 @@ public class DeclStore {
             pkg = getDeclPackage(def);
             assert null != pkg;
         }
-        if (!pkg.inlinable) return null;
+        boolean nonVirtual = false;
+        nonVirtual |= call instanceof X10Call_c && ((X10Call_c) call).nonVirtual();
+        Receiver target = call.target();
+        nonVirtual |= target instanceof Special && ((Special) target).kind() == Special.SUPER;
+        if (!nonVirtual && !pkg.inlinable) return null;
         boolean required = utils.inliningRequired(call) || utils.inliningRequired(def);
-        ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicitMax);
+        ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicitMax, !nonVirtual);
         return decl;
     }
 
