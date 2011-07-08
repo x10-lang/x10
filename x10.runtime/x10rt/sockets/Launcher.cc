@@ -406,7 +406,7 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	    int status;
  		if (waitpid(_pidlst[_numchildren], &status, 0) == _pidlst[_numchildren])
 		{
- 			if (WIFSIGNALED(status))
+ 			if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
  				exitcode = 128 + WTERMSIG(status);
  			else
  				exitcode = WEXITSTATUS(status);
@@ -903,7 +903,7 @@ void Launcher::cb_sighandler_cld(int signo)
 				if (WEXITSTATUS(status) != 0)
 					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
 				#endif
-				if (WIFSIGNALED(status))
+				if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
 					_singleton->_returncode = 128 + WTERMSIG(status);
 				else
 					_singleton->_returncode = WEXITSTATUS(status);
