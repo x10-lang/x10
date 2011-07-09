@@ -964,8 +964,8 @@ public class Synthesizer {
         // constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p, xnf.FlagsNode(p, Flags.PRIVATE), cDecl
                 .name(), fList,  block);
-        xd.typeParameters(cDecl.typeParameters());
-        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+        xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+        xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
         ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), Flags.PRIVATE, ftList);
         return (X10ConstructorDecl) xd.constructorDef(xDef);
@@ -1022,8 +1022,8 @@ public class Synthesizer {
                 cDecl.name(),
                 fList,                              // formal types
                 block);
-        xd.typeParameters(cDecl.typeParameters());
-        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+        xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+        xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
@@ -1343,8 +1343,8 @@ public class Synthesizer {
                 cDecl.name(),
                 Collections.<Formal>emptyList(),
                 xnf.Block(p));
-        xd.typeParameters(cDecl.typeParameters());
-        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+        xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+        xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),

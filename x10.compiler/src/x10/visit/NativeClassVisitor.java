@@ -57,6 +57,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
+import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl;
@@ -234,8 +235,8 @@ public class NativeClassVisitor extends ContextVisitor {
                     cdecl.name(),
                     Collections.<Formal>singletonList(f),
                     xnf.Block(p,ctorBlock));
-            xd.typeParameters(cdecl.typeParameters());
-            xd.returnType(ftnode);
+            xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+            xd = xd.returnType(ftnode);
 
             ConstructorDef xdef = xts.constructorDef(p,
                     Types.ref(cdef.asType()),
