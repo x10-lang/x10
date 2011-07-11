@@ -166,7 +166,9 @@ public class PreLoader {
             File[] files = directory.listFiles();
             for (File file : files) {
                 if (file.isDirectory()) {
-                    assert !file.getName().contains(".");
+                    if (!file.getName().contains(".")) {
+                        System.out.println(file.getName());
+                    }
                     findClasses(file, packageName + "." + file.getName());
                 } else if (file.getName().endsWith(".class")) {
                     Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
