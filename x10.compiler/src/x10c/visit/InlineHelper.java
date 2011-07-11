@@ -121,7 +121,7 @@ public class InlineHelper extends ContextVisitor {
                                         }
                                     }
                                     if (parent instanceof Call && n instanceof Special) {
-                                        if (((Special) n).kind().equals(Special.SUPER) && ((Special) n).type().toClass().def() == cd) {
+                                        if (((Special) n).kind().equals(Special.SUPER) && Types.selfBinding(((Special) n).type()).equals(cd.thisVar())) {
                                             Call call = (Call) parent;
                                             if (!containsMethod(supers, call)) {
                                                 supers.add(call);
