@@ -18,10 +18,11 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaSerializable{
+public class DoubleType extends RuntimeType<x10.core.Double> {
+//public class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaSerializable{
 
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DoubleType.class.getName());
+//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DoubleType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
@@ -79,21 +80,21 @@ public class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaS
     }
 
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-    }
-
-    public int $_get_serialization_id() {
-        return _serialization_id;
-    }
-
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return $_deserialize_body(null, deserializer);
-	}
-
-    public static X10JavaSerializable $_deserialize_body(DoubleType t, X10JavaDeserializer deserializer) throws IOException {
-        DoubleType doubleType = (DoubleType) Types.DOUBLE;
-        deserializer.record_reference(doubleType);
-        return doubleType;
-    }
+//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+//    }
+//
+//    public int $_get_serialization_id() {
+//        return _serialization_id;
+//    }
+//
+//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+//		return $_deserialize_body(null, deserializer);
+//	}
+//
+//    public static X10JavaSerializable $_deserialize_body(DoubleType t, X10JavaDeserializer deserializer) throws IOException {
+//        DoubleType doubleType = (DoubleType) Types.DOUBLE;
+//        deserializer.record_reference(doubleType);
+//        return doubleType;
+//    }
     
 }

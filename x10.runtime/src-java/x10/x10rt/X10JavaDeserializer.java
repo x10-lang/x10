@@ -34,7 +34,7 @@ public class X10JavaDeserializer {
     public int record_reference(Object obj) {
         objectList.add(counter, obj);
         counter++;
-        return counter;
+        return counter - 1;
     }
 
     public void update_reference(int pos, Object obj) {
