@@ -13,7 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-
+import x10.compiler.NonEscaping;
 import x10.io.Printer;
 import x10.io.Console;
 
@@ -64,12 +64,12 @@ public class Throwable {
 
     @Native("java", "#this.printStackTrace()")
     @Native("c++", "(#this)->printStackTrace()")
-    public native def printStackTrace() : void;
+    @NonEscaping final public native def printStackTrace() : void;
 
     // @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#this, #p)")
     @Native("java", "#this.printStackTrace(#p)")
     @Native("c++",  "(#this)->printStackTrace(#p)")
-    public native def printStackTrace(p: Printer) : void;
+    @NonEscaping final public native def printStackTrace(p: Printer) : void;
 
     @Native("java", "#this.fillInStackTrace()")
     @Native("c++", "(#this)->fillInStackTrace()")
