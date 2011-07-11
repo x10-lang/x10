@@ -17,14 +17,15 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSerializable {
+public class ByteType extends RuntimeType<x10.core.Byte> {
+//public class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.BYTE;
     }
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ByteType.class.getName());
+//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ByteType.class.getName());
 
     public ByteType() {
         super(x10.core.Byte.class,
@@ -77,21 +78,21 @@ public class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSeria
     	return ((byte[]) array).length;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-    }
-
-    public int $_get_serialization_id() {
-        return _serialization_id;
-    }
-
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return $_deserialize_body(null, deserializer);
-	}
-
-    public static X10JavaSerializable $_deserialize_body(ByteType t, X10JavaDeserializer deserializer) throws IOException {
-        ByteType byteType = (ByteType) Types.BYTE;
-        deserializer.record_reference(byteType);
-        return byteType;
-    }
+//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+//    }
+//
+//    public int $_get_serialization_id() {
+//        return _serialization_id;
+//    }
+//
+//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+//		return $_deserialize_body(null, deserializer);
+//	}
+//
+//    public static X10JavaSerializable $_deserialize_body(ByteType t, X10JavaDeserializer deserializer) throws IOException {
+//        ByteType byteType = (ByteType) Types.BYTE;
+//        deserializer.record_reference(byteType);
+//        return byteType;
+//    }
 
 }

@@ -542,8 +542,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
 	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         RuntimeType rt = new RuntimeType();
-        deserializer.record_reference(rt);
-		return $_deserialize_body(rt, deserializer);
+        int i = deserializer.record_reference(rt);
+        X10JavaSerializable x10JavaSerializable = $_deserialize_body(rt, deserializer);
+        if (rt != x10JavaSerializable) {
+            deserializer.update_reference(i, x10JavaSerializable);
+        }
+        return x10JavaSerializable;
 	}
 
 	public int $_get_serialization_id() {
@@ -555,6 +559,34 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         String className = DeserializationDispatcher.getClassNameForID(classId);
         if (className == null) {
             return null;
+        } else if ("x10.core.Boolean".equals(className)) {
+            return Types.BOOLEAN;
+        } else if ("x10.core.Byte".equals(className)) {
+            return Types.BYTE;
+        } else if ("x10.core.Char".equals(className)) {
+            return Types.CHAR;
+        } else if ("x10.core.Double".equals(className)) {
+            return Types.DOUBLE;
+        } else if ("x10.core.Float".equals(className)) {
+            return Types.FLOAT;
+        } else if ("x10.core.Int".equals(className)) {
+            return Types.INT;
+        } else if ("x10.core.Long".equals(className)) {
+            return Types.LONG;
+        } else if ("x10.core.Object".equals(className)) {
+            return Types.OBJECT;
+        } else if ("x10.core.Short".equals(className)) {
+            return Types.SHORT;
+        } else if ("x10.core.String".equals(className)) {
+            return Types.STRING;
+        } else if ("x10.core.UByte".equals(className)) {
+            return Types.UBYTE;
+        } else if ("x10.core.UInt".equals(className)) {
+            return Types.UINT;
+        } else if ("x10.core.ULong".equals(className)) {
+            return Types.ULONG;
+        } else if ("x10.core.UShort".equals(className)) {
+            return Types.USHORT;
         }
         try {
             Class<?> aClass = Class.forName(className);

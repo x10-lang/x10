@@ -16,10 +16,11 @@ import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
-public class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaSerializable{
+public class UShortType extends RuntimeType<x10.core.UShort> {
+//public class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UShortType.class.getName());
+//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UShortType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
@@ -83,21 +84,21 @@ public class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaS
     	return ((short[]) array).length;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
-    }
-
-    public int $_get_serialization_id() {
-        return _serialization_id;
-    }
-
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-		return $_deserialize_body(null, deserializer);
-	}
-
-    public static X10JavaSerializable $_deserialize_body(UShortType t, X10JavaDeserializer deserializer) throws java.io.IOException {
-        UShortType uShortType = (UShortType) Types.USHORT;
-        deserializer.record_reference(uShortType);
-        return uShortType;
-    }
+//    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
+//    }
+//
+//    public int $_get_serialization_id() {
+//        return _serialization_id;
+//    }
+//
+//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+//		return $_deserialize_body(null, deserializer);
+//	}
+//
+//    public static X10JavaSerializable $_deserialize_body(UShortType t, X10JavaDeserializer deserializer) throws java.io.IOException {
+//        UShortType uShortType = (UShortType) Types.USHORT;
+//        deserializer.record_reference(uShortType);
+//        return uShortType;
+//    }
     
 }
