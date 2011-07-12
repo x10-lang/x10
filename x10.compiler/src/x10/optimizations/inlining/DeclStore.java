@@ -100,7 +100,7 @@ public class DeclStore {
                 throw new InternalCompilerError("If A ->* B, A is at Harvester & ? -> A would break any cycle", call.position(), e);
             }
             pkg = getDeclPackage(def);
-            assert null != pkg;
+            assert null != pkg; // FIXME this assertion may fail if a class overrides a final method of its super class.
         }
         boolean nonVirtual = false;
         nonVirtual |= call instanceof X10Call_c && ((X10Call_c) call).nonVirtual();
