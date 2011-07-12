@@ -149,9 +149,9 @@ public class InlineHelper extends ContextVisitor {
                     X10MethodDef md = mi.x10Def();
                     X10ClassType ct = md.container().get().toClass();
                     // The method is non-final, because the names may clash
-                    X10MethodDef nmd = xts.methodDef(md.position(), md.container(), Flags.PUBLIC,
+                    X10MethodDef nmd = xts.methodDef(md.position(), Types.ref(cd.asType()), Flags.PUBLIC,
                             md.returnType(), makeSuperBridgeName(ct.def(), md.name()), md.typeParameters(),
-                            md.formalTypes(), md.thisDef(), md.formalNames(), md.guard(), md.typeGuard(),
+                            md.formalTypes(), cd.thisDef(), md.formalNames(), md.guard(), md.typeGuard(),
                             md.offerType(), null);
                     superBridges.put(md, nmd);
                 }
@@ -331,8 +331,8 @@ public class InlineHelper extends ContextVisitor {
                 }
                 // generate bridge methods for super call
                 for (X10MethodDef md : superBridges.keySet()) {
-                    if (((X10ClassType) md.container().get()).def() != cd) continue; // check that we are in the right class
                     X10MethodDef nmd = superBridges.get(md);
+                    if (((X10ClassType) nmd.container().get()).def() != cd) continue; // check that we are in the right class
                     List<Formal> formals = new ArrayList<Formal>();
                     List<Expr> arguments = new ArrayList<Expr>(nmd.formalTypes().size());
                     int i = 0;
