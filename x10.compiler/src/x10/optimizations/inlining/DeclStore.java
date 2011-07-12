@@ -34,7 +34,6 @@ import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
 import x10.ast.InlinableCall;
-import x10.ast.X10Call_c;
 import x10.optimizations.Optimizer;
 import x10.types.X10ProcedureDef;
 import x10.util.CollectionFactory;
@@ -103,9 +102,9 @@ public class DeclStore {
             assert null != pkg; // FIXME this assertion may fail if a class overrides a final method of its super class.
         }
         boolean nonVirtual = false;
-        nonVirtual |= call instanceof X10Call_c && ((X10Call_c) call).nonVirtual();
-        Receiver target = call.target();
-        nonVirtual |= target instanceof Special && ((Special) target).kind() == Special.SUPER;
+//        nonVirtual |= call instanceof Call && ((Call) call).nonVirtual(); // is this really used // TODO rewrite non-virtual call with super bridge call
+//        nonVirtual |= call.target() instanceof Special && ((Special) call.target()).kind() == Special.SUPER; // TODO rewrite non-virtual call with super bridge call
+//        nonVirtual |= call instanceof ConstructorCall && ((ConstructorCall) call).kind() == ConstructorCall.SUPER; // TODO rewrite non-virtual call with super bridge call
         if (!nonVirtual && !pkg.inlinable) return null;
         boolean required = utils.inliningRequired(call) || utils.inliningRequired(def);
         ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicitMax, !nonVirtual);
