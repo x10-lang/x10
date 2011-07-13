@@ -451,6 +451,22 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             n = x10.util.Struct.addStructMethods(tb,n);
 
 
+
+        //I need a way to access the outer instance when generating dynamic_checks.
+        //For example:
+        //class A(a:Any) {
+        //  class B(b:Any) {
+        //    def m() {a!=null} {...}
+        //  }
+        //}
+        //class Test {
+        //  def test(b:B) {
+        //    b.m(); // with DYNAMIC_CHECKS it will check that "a!=null", by dynamically inserting this code:  "if (!(b.OUTER.a!=null)) throw new FailedDynamicCheckException(); b.m()"
+        //  }
+        //}
+        //However, we don't have a way to access the outer instance!
+        //So we generate methods that return it.
+        //
         // adding methods to access the outer instances (used in Desugarer.desugarCall)
         // The method name includes both the container name and the qualifier name to handle this nasty case:
         //class A[T] {
