@@ -83,9 +83,11 @@ public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSer
     	return ((byte[]) array).length;
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }

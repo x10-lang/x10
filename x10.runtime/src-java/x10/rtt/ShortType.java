@@ -78,9 +78,11 @@ public class ShortType extends RuntimeType<x10.core.Short>implements X10JavaSeri
     	return ((short[]) array).length;
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }

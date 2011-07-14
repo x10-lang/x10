@@ -78,9 +78,11 @@ public class LongType extends RuntimeType<x10.core.Long> implements X10JavaSeria
     	return ((long[]) array).length;
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }

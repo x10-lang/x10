@@ -50,9 +50,11 @@ public class StringType extends RuntimeType<String> implements X10JavaSerializab
         return "x10.lang.String";
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }

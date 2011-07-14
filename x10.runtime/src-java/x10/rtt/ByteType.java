@@ -77,9 +77,11 @@ public class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSeria
     	return ((byte[]) array).length;
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }

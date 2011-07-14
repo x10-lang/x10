@@ -84,9 +84,11 @@ public class IntType extends RuntimeType<x10.core.Int> implements X10JavaSeriali
     	return ((int[]) array).length;
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }

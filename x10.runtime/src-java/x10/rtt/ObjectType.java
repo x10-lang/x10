@@ -45,9 +45,11 @@ public class ObjectType extends RuntimeType<x10.core.RefI> {
         return o == Types.OBJECT || o == Types.ANY;
     };
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }

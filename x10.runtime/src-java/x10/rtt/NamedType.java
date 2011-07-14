@@ -55,12 +55,14 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         return typeName;
     }
 
+    @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         super.$_serialize(serializer);
         int classId = DeserializationDispatcher.getIDForClassName(typeName);
         serializer.write(classId);
     }
 
+    @Override
     public int $_get_serialization_id() {
         return _serialization_id;
     }
