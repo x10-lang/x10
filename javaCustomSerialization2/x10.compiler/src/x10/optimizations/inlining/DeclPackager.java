@@ -73,10 +73,13 @@ public class DeclPackager extends ContextVisitor {
                  utils.inliningProhibited(cdef) ||
                  utils.inliningProhibited(pdef) ||
                  ExpressionFlattener.cannotFlatten(n) ||
-                 isVirtualOrNative(pdef, cdef) ||
+                 isNative(pdef, cdef) ||
                  null == decl.body()
                ) {
                 pkg = new DeclPackage("Call is uninlinable"); // inlining prohibited
+                repository.putDeclPackage(pdef, pkg);
+            } else if (isVirtual(pdef, cdef)) {
+                pkg = new DeclPackage("Only non-virtual call is inlinable", job, decl);
                 repository.putDeclPackage(pdef, pkg);
             } else {
                 pkg = new DeclPackage(job, decl);
@@ -105,11 +108,24 @@ public class DeclPackager extends ContextVisitor {
      * @param container the class containing the def
      * @return true, if the method obviously should not be inlined; false, otherwise
      */
-    private boolean isVirtualOrNative(X10ProcedureDef def, ClassDef container) {
+    private boolean isNative(X10ProcedureDef def, ClassDef container) {
         Flags mf = ((MemberDef) def).flags();
         Flags cf = container.flags();
         if (mf.isNative() || cf.isNative())
             return true;
+        return false;
+    }
+
+    /**
+     * Check that a method is eligible to be inlined for non-virtual call.
+     * 
+     * @param def the method considered for inlining
+     * @param container the class containing the def
+     * @return true, if the method obviously should not be inlined; false, otherwise
+     */
+    private boolean isVirtual(X10ProcedureDef def, ClassDef container) {
+        Flags mf = ((MemberDef) def).flags();
+        Flags cf = container.flags();
         if (mf.isStatic() || mf.isFinal() || mf.isPrivate() || (def instanceof ConstructorDef))
             return false;
         if ( cf.isFinal() || container.isStruct())

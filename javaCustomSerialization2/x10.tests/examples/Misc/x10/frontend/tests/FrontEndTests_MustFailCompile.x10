@@ -6878,3 +6878,13 @@ class XTENLANG_2745 {
 		catch (e : Exn) {}// ERR
 	}
 }
+class TestResolutionOfNull {
+	def m(Any):Int = 1;
+	def m(String):String = "1";
+	def m2(String):String = "1";
+	def m2(Any):Int = 1;
+	def test() {
+		val x:String = m(null);
+		val y:String = m2(null);
+	}
+}

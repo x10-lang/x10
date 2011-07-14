@@ -43,7 +43,7 @@ serialization_id_t const StaticInitBroadcastDispatcher::STATIC_BROADCAST_ID =
 void StaticInitBroadcastDispatcher::doBroadcast(serialization_id_t id, char* the_buf, x10_uint sz) {
     assert (the_buf != NULL);
     for (x10aux::place place = 1; place < x10aux::num_hosts ; place++) {
-        x10rt_msg_params p = {place, DeserializationDispatcher::getMsgType(id), the_buf, sz};
+        x10rt_msg_params p = {place, DeserializationDispatcher::getMsgType(id), the_buf, sz, 0};
         x10rt_send_msg(&p);
     }
 }

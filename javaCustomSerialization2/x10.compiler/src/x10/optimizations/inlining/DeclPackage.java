@@ -78,7 +78,15 @@ class DeclPackage extends NodeVisitor {
         decl      = null;
         utils     = null;
         delegate  = null;
-        
+    }
+
+    DeclPackage(String r, Job j, ProcedureDecl pd) {
+        inlinable = false;
+        reason    = r;
+        job       = j;
+        decl      = pd;
+        utils     = new InlineUtils(job);
+        delegate  = new CostDelegate(this);
     }
 
     DeclPackage(Job j, ProcedureDecl pd) {
@@ -89,8 +97,8 @@ class DeclPackage extends NodeVisitor {
         delegate  = new CostDelegate(this);
     }
 
-    public ProcedureDecl getDecl(int budget) {
-        if (inlinable && cost[0] <= budget) {
+    public ProcedureDecl getDecl(int budget, boolean inlinableOnly) {
+        if ((!inlinableOnly || inlinable) && cost[0] <= budget) {
             return decl;
         }
         return null;

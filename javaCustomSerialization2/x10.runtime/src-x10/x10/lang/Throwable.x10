@@ -13,7 +13,7 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-
+import x10.compiler.NonEscaping;
 import x10.io.Printer;
 import x10.io.Console;
 

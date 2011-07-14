@@ -360,7 +360,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
     Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields);
 
     // Create a new constructor for an anonymous class.
-    ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {
+    protected ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {
 	// Build the list of formal parameters and list of arguments for the super call.
 	List<Formal> formals = new ArrayList<Formal>();
 	List<Expr> args = new ArrayList<Expr>();
@@ -385,7 +385,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 	    argTypes.add(li.type());
 	}
 
-	Position pos = cd.position();
+	Position pos = cd.position().markCompilerGenerated();
 
 	// Create the super call.
 	ConstructorCall cc = nf.SuperCall(pos, args);

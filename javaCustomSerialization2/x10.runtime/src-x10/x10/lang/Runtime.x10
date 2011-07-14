@@ -75,15 +75,30 @@ import x10.util.concurrent.SimpleLatch;
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#id, #body)")
     @Native("c++", "x10aux::run_closure_at(#id, #body)")
     static def runClosureAt(id:Int, body:()=>void):void { body(); }
+    
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#id, #body)")
+    @Native("c++", "x10aux::run_closure_at(#id, #body, #endpoint)")
+    static def runClosureAt(id:Int, body:()=>void, endpoint:Int):void { body(); }
 
     @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#id, #body)")
     @Native("c++", "x10aux::run_closure_at(#id, #body)")
     static def runClosureCopyAt(id:Int, body:()=>void):void { body(); }
+    
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureCopyAt(#id, #body)")
+    @Native("c++", "x10aux::run_closure_at(#id, #body, #endpoint)")
+    static def runClosureCopyAt(id:Int, body:()=>void, endpoint:Int):void { body(); }
 
     @Native("c++", "x10aux::run_async_at(#id, #body, #finishState)")
     static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void {
         val closure = ()=> @x10.compiler.RemoteInvocation {execute(body, finishState);};
         runClosureCopyAt(id, closure);
+        dealloc(closure);
+    }
+    
+    @Native("c++", "x10aux::run_async_at(#id, #body, #finishState, #endpoint)")
+    static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState, endpoint:Int):void {
+        val closure = ()=> @x10.compiler.RemoteInvocation {execute(body, finishState);};
+        runClosureCopyAt(id, closure, endpoint);
         dealloc(closure);
     }
 
@@ -758,6 +773,10 @@ import x10.util.concurrent.SimpleLatch;
      * Run async at
      */
     public static def runAsync(place:Place, clocks:Rail[Clock], body:()=>void):void {
+    	runAsync(place, clocks, body, 0);
+    }
+    
+    public static def runAsync(place:Place, clocks:Rail[Clock], body:()=>void, endpoint:Int):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
@@ -769,13 +788,17 @@ import x10.util.concurrent.SimpleLatch;
             execute(new Activity(deepCopy(body), state, clockPhases));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, state, clockPhases)); };
-            runClosureCopyAt(place.id, closure);
+            runClosureCopyAt(place.id, closure, endpoint);
             dealloc(closure);
         }
         dealloc(body);
     }
-
+    
     public static def runAsync(place:Place, body:()=>void):void {
+    	runAsync(place, body, 0);
+    }
+
+    public static def runAsync(place:Place, body:()=>void, endpoint:Int):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
@@ -785,7 +808,7 @@ import x10.util.concurrent.SimpleLatch;
         if (place.id == hereInt()) {
             execute(new Activity(deepCopy(body), state));
         } else {
-            runAsyncAt(place.id, body, state); // optimized case
+            runAsyncAt(place.id, body, state, endpoint); // optimized case
         }
         dealloc(body);
     }
@@ -822,6 +845,10 @@ import x10.util.concurrent.SimpleLatch;
      * Run @Uncounted async at
      */
     public static def runUncountedAsync(place:Place, body:()=>void):void {
+    	runUncountedAsync(place, body, 0);
+    }
+    
+    public static def runUncountedAsync(place:Place, body:()=>void, endpoint:Int):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
@@ -830,7 +857,7 @@ import x10.util.concurrent.SimpleLatch;
             execute(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH)); };
-            runClosureCopyAt(place.id, closure);
+            runClosureCopyAt(place.id, closure, endpoint);
             dealloc(closure);
         }
         dealloc(body);

@@ -368,20 +368,28 @@ public final class Array[T] (
      * over this array.<p>
      * @return an Iterable[T] over this array.
      */
-    public def values():Iterable[T] = new Iterable[T]() {
-    	public def iterator() = new Iterator[T]() {
-    		val regIt = Array.this.iterator();
-    		public def next() = Array.this(regIt.next());
-    		public def hasNext() = regIt.hasNext();
-    	};
-    };
+    public @Inline def values():Iterable[T] {
+        if (rect) {
+            return new Iterable[T]() {
+    	        public def iterator() = new Iterator[T]() {
+    		    var cur:int = 0;
+    		    public def next() = Array.this.raw(cur++);
+    		    public def hasNext() = cur < Array.this.raw.length();
+    	        };
+            };
+        } else {
+            return new Iterable[T]() {
+    	        public def iterator() = new Iterator[T]() {
+    		    val regIt = Array.this.iterator();
+    		    public def next() = Array.this(regIt.next());
+    		    public def hasNext() = regIt.hasNext();
+    	        };
+            };
+        }
+    }
     
     public def sequence(){this.rank==1}:Sequence[T] = new Sequence[T]() {
-    	public def iterator() = new Iterator[T]() {
-    		val regIt = Array.this.iterator();
-    		public def next() = Array.this(regIt.next());
-    		public def hasNext() = regIt.hasNext();
-    	};
+    	public def iterator() = Array.this.values().iterator();
     	// The :T below should not be needed, see XTENLANG-2700.
     	public operator this(i:Int):T=Array.this(i);
     	public property def size()=Array.this.size;

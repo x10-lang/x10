@@ -79,7 +79,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
     env->GetByteArrayRegion(array, 0, arrayLen, (jbyte*)writer.cursor);
     // Byte array, so no need to endian swap
 
-    x10rt_msg_params msg = {place, runClosureAt_HandlerID, writer.buffer, numBytes};
+    x10rt_msg_params msg = {place, runClosureAt_HandlerID, writer.buffer, numBytes, 0};
     x10rt_send_msg(&msg);
 
     //fclose(fp);

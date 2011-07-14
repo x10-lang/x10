@@ -666,7 +666,7 @@ public class LineNumberMap extends StringTable {
 		cm._members.add(v);
 	}
 	
-	public void addClosureMember(String name, String type, String containingClass, String file, int startLine, int endLine)
+	public void addClosureMember(String name, String type, String containingClass, String containerWithTemplateArgs, String file, int startLine, int endLine)
 	{
 		if (closureMembers == null)
 			closureMembers = new LinkedHashMap<Integer, ClassMapInfo>();
@@ -676,7 +676,7 @@ public class LineNumberMap extends StringTable {
 			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size(), false);
 			cm = new ClassMapInfo();			
 			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			cm._sizeOfArg = containingClass;
+			cm._sizeOfArg = containerWithTemplateArgs.replace("TPMGL(", "class TPMGL(");
 			cm._type = 100; // all closures are type 100
 			cm._file = file;
 			closureMembers.put(stringId(containingClass), cm);
@@ -1389,7 +1389,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B051711, // 2011-05-23, 17:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B070B0F, // 2011-07-11, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");

@@ -434,7 +434,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "((short) (java.lang.Integer.parseInt(#s, #radix) & 0xffff))")
+    @Native("java", "((short)(java.lang.Integer.parseInt(#s, #radix) & 0xffff))")
     @Native("c++", "x10aux::short_utils::parseUShort(#1, #2)")
     public static native def parseUShort(s:String, radix:Int): UShort; /*  //throwsNumberFormatException 
     {
@@ -444,7 +444,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "java.lang.Integer.parseInt(#s)")
+    @Native("java", "((short)(java.lang.Integer.parseInt(#s) & 0xffff))")
     @Native("c++", "x10aux::short_utils::parseUShort(#1)")
     public static native def parseUShort(s:String): UShort; /*  //throwsNumberFormatException 
     {
@@ -458,7 +458,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return the UShort represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable UShort.
      */
-    @Native("java", "((short) (java.lang.Integer.parseInt(#s, #radix) & 0xffff))")
+    @Native("java", "((short)(java.lang.Integer.parseInt(#s, #radix) & 0xffff))")
     @Native("c++", "x10aux::short_utils::parseUShort(#1, #2)")
     public static native def parse(s:String, radix:Int): UShort; /*  //throwsNumberFormatException 
     {
@@ -475,7 +475,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return the UShort represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable UShort.
      */
-    @Native("java", "((short) (java.lang.Integer.parseInt(#s) & 0xffff)")
+    @Native("java", "((short)(java.lang.Integer.parseInt(#s) & 0xffff))")
     @Native("c++", "x10aux::short_utils::parseUShort(#1)")
     public static native def parse(s:String): UShort; /*  //throwsNumberFormatException 
     {

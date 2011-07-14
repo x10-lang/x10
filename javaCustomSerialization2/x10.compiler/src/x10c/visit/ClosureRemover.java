@@ -440,9 +440,9 @@ public class ClosureRemover extends ContextVisitor {
                     }
                     
                     X10ConstructorDecl consdcl = (X10ConstructorDecl) xnf.ConstructorDecl(pos, xnf.FlagsNode(pos, Flags.PRIVATE), staticNestedClassDecl.name(), formals, body2);
-                    consdcl.typeParameters(staticNestedClassDecl.typeParameters());
+                    consdcl = consdcl.typeParameters(Collections.<TypeParamNode>emptyList());
                     CanonicalTypeNode typeNode = xnf.CanonicalTypeNode(pos, staticNestedClassDef.asType());
-                    consdcl.returnType(typeNode);
+                    consdcl = consdcl.returnType(typeNode);
                     
                     List<Type> typeArgs = new ArrayList<Type>(staticNestedClassDef.typeParameters());
                     X10ClassType staticNestedClassType = staticNestedClassDef.asType().typeArguments(typeArgs);

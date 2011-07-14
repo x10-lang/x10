@@ -76,8 +76,7 @@ public final class OptionsParser {
     public operator this (key:String):Boolean = set.containsKey(key) || map.containsKey(key);
 
     public operator this (key:String, d:String):String = map.getOrElse(key, d);
-    /* Uncomment on resolution of XTENLANG-1413
-    public operator this (key:String, d:UByte) { //throws Err {
+    public operator this (key:String, d:UByte):UByte { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -86,7 +85,6 @@ public final class OptionsParser {
             throw new Err("Expected UByte, got: \""+v+"\"");
         }
     }
-    */
     public operator this (key:String, d:Byte):Byte { // throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
@@ -96,8 +94,7 @@ public final class OptionsParser {
             throw new Err("Expected Byte, got: \""+v+"\"");
         }
     }
-    /* Uncomment on resolution of XTENLANG-1413
-    public operator this (key:String, d:UShort) { //throws Err {
+    public operator this (key:String, d:UShort):UShort { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -106,7 +103,6 @@ public final class OptionsParser {
             throw new Err("Expected UShort, got: \""+v+"\"");
         }
     }
-    */
     public operator this (key:String, d:Short):Short { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
@@ -116,8 +112,7 @@ public final class OptionsParser {
             throw new Err("Expected Short, got: \""+v+"\"");
         }
     }
-    /* Uncomment on resolution of XTENLANG-1413
-    public operator this (key:String, d:UInt) { //throws Err {
+    public operator this (key:String, d:UInt):UInt { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -126,18 +121,16 @@ public final class OptionsParser {
             throw new Err("Expected UInt, got: \""+v+"\"");
         }
     }
-    */
     public operator this (key:String, d:Int):Int { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
             return Int.parse(v);
         } catch (e:NumberFormatException) {
-            throw new Err("Expected Long, got: \""+v+"\"");
+            throw new Err("Expected Int, got: \""+v+"\"");
         }
     }
-    /* Uncomment on resolution of XTENLANG-1413
-    public operator this (key:String, d:ULong) { //throws Err {
+    public operator this (key:String, d:ULong):ULong { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
@@ -146,14 +139,13 @@ public final class OptionsParser {
             throw new Err("Expected ULong, got: \""+v+"\"");
         }
     }
-    */
     public operator this (key:String, d:Long):Long { //throws Err {
         if (!map.containsKey(key)) return d;
         val v = map.getOrElse(key, "???");
         try {
             return Long.parse(v);
         } catch (e:NumberFormatException) {
-            throw new Err("Expected Int, got: \""+v+"\"");
+            throw new Err("Expected Long, got: \""+v+"\"");
         }
     }
 

@@ -433,7 +433,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "((byte) (java.lang.Integer.parseInt(#s, #radix) & 0xff))")
+    @Native("java", "((byte)(java.lang.Integer.parseInt(#s, #radix) & 0xff))")
     @Native("c++", "(x10aux::byte_utils::parseUByte(#1, #2))")
     public static def parseUByte(s:String, radix:Int): UByte //throws NumberFormatException 
     {
@@ -443,7 +443,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "java.lang.Integer.parseInt(#s)")
+    @Native("java", "((byte)(java.lang.Integer.parseInt(#s) & 0xff))")
     @Native("c++", "(x10aux::byte_utils::parseUByte(#1))")
     public static def parseUByte(s:String): UByte //throws NumberFormatException 
     {
@@ -457,7 +457,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return the UByte represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable UByte.
      */
-    @Native("java", "((byte) (java.lang.Integer.parseInt(#s, #radix) & 0xff))")
+    @Native("java", "((byte)(java.lang.Integer.parseInt(#s, #radix) & 0xff))")
     @Native("c++", "(x10aux::byte_utils::parseUByte(#1, #2))")
     public static native def parse(s:String, radix:Int): UByte; /*  //throws NumberFormatException 
     {
@@ -474,7 +474,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return the UByte represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable UByte.
      */
-    @Native("java", "java.lang.Integer.parseInt(#s)")
+    @Native("java", "((byte)(java.lang.Integer.parseInt(#s) & 0xff))")
     @Native("c++", "(x10aux::byte_utils::parseUByte(#1))")
     public static native def parse(s:String): UByte; /*  //throws NumberFormatException 
     {
