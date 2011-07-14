@@ -17,6 +17,8 @@ import polyglot.ast.ConstructorCall;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.ProcedureDecl;
+import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
@@ -97,11 +99,15 @@ public class DeclStore {
                 throw new InternalCompilerError("If A ->* B, A is at Harvester & ? -> A would break any cycle", call.position(), e);
             }
             pkg = getDeclPackage(def);
-            assert null != pkg;
+            assert null != pkg; // FIXME this assertion may fail if a class overrides a final method of its super class.
         }
-        if (!pkg.inlinable) return null;
+        boolean nonVirtual = false;
+//        nonVirtual |= call instanceof Call && ((Call) call).nonVirtual(); // is this really used // TODO rewrite non-virtual call with super bridge call
+//        nonVirtual |= call.target() instanceof Special && ((Special) call.target()).kind() == Special.SUPER; // TODO rewrite non-virtual call with super bridge call
+//        nonVirtual |= call instanceof ConstructorCall && ((ConstructorCall) call).kind() == ConstructorCall.SUPER; // TODO rewrite non-virtual call with super bridge call
+        if (!nonVirtual && !pkg.inlinable) return null;
         boolean required = utils.inliningRequired(call) || utils.inliningRequired(def);
-        ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicitMax);
+        ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicitMax, !nonVirtual);
         return decl;
     }
 

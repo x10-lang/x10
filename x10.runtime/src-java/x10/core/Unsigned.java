@@ -221,12 +221,9 @@ public abstract class Unsigned {
         }
         return ulong.longValue();
     }
-    /*
-    // followings are correct but not used
-    public static long parseULong(String s) {
+    public static long parseULong(java.lang.String s) {
         return parseULong(s, 10);
     }
-    */
     
     public static java.lang.String toString(byte a, int radix) {
         return Integer.toString(toUInt(a), radix);

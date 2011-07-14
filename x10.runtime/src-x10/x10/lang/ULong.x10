@@ -440,20 +440,22 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
+    @Native("java", "x10.core.Unsigned.parseULong(#s, #radix)")
     @Native("c++", "x10aux::long_utils::parseULong(#1, #2)")
-    public static def parseULong(s:String, radix:Int): ULong //throws NumberFormatException 
+    public static native def parseULong(s:String, radix:Int): ULong; /* //throws NumberFormatException 
     {
         return parse(s, radix);
-    }
+    }*/
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
+    @Native("java", "x10.core.Unsigned.parseULong(#s)")
     @Native("c++", "x10aux::long_utils::parseULong(#1)")
-    public static def parseULong(s:String): ULong //throws NumberFormatException 
+    public static native def parseULong(s:String): ULong; /* //throws NumberFormatException 
     {
         return parse(s);
-    }
+    } */
 
     /**
      * Parses the String argument as a ULong in the radix specified by the second argument.
@@ -476,11 +478,12 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the ULong represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable ULong.
      */
+    @Native("java", "x10.core.Unsigned.parseULong(#s)")
     @Native("c++", "x10aux::long_utils::parseULong(#1)")
-    public static def parse(s:String): ULong //throws NumberFormatException 
+    public static native def parse(s:String): ULong; /* //throws NumberFormatException 
     {
         return parse(s, 10);
-    }
+    } */
 
 
     /**

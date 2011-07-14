@@ -29,6 +29,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.ConstructorDef;
+import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.LocalInstance;
@@ -50,6 +51,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeBuilder;
 import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10New;
 import x10.types.AsyncDef;
@@ -196,6 +198,15 @@ public class X10LocalClassRemover extends LocalClassRemover {
         X10CodeDef md = (X10CodeDef) currentCode;
         X10ClassType t = ((X10ClassType)def.asType()).typeArguments(new ArrayList<Type>(md.typeParameters()));
         return t;
+    }
+
+    @Override
+    protected X10ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {
+        X10ConstructorDecl res = (X10ConstructorDecl) super.addConstructor(cd, neu, superCI);
+        Position pos = res.position();
+        Type rType = cd.classDef().asType();
+        rType = Types.instantiateTypeParametersExplicitly(rType);
+        return res.returnType(nf.CanonicalTypeNode(pos, rType));
     }
 
     /**

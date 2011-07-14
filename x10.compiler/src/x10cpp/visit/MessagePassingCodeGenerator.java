@@ -3494,7 +3494,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        		String name = var.name().toString();
 		        		if (name.equals(THIS)) 
 		    				name = SAVED_THIS;
-		        		lineNumberMap.addClosureMember(name, var.type().toString(), cname, c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
+		        		lineNumberMap.addClosureMember(name, var.type().toString(), cname, cnamet_.toString(), c.currentCode().position().file(), c.currentCode().position().line(), c.currentCode().position().endLine());
 		        	}
 		        	if (numMembers > 0)
 		        	{

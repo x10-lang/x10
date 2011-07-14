@@ -120,6 +120,7 @@ struct x10rt_buffered_data
 struct x10rt_pami_state
 {
 	uint32_t numPlaces;
+	uint32_t numEndpoints; // per place, all places have the same number of endpoints
 	uint32_t myPlaceId;
 	uint32_t sendImmediateLimit;
 	x10rtCallback* callBackTable;
@@ -390,6 +391,7 @@ static void local_msg_dispatch (
 		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)malloc(sizeof(struct x10rt_msg_params));
 		if (hdr == NULL) error("Unable to allocate memory for a msg_dispatch callback");
 		hdr->dest_place = state.myPlaceId;
+		hdr->dest_endpoint = 0; // TODO
 		hdr->len = pipe_size; // this is going to be large-ish, otherwise recv would be null
 		hdr->msg = malloc(pipe_size);
 		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
@@ -408,6 +410,7 @@ static void local_msg_dispatch (
 	{	// all the data is available, and ready to process
 		x10rt_msg_params mp;
 		mp.dest_place = state.myPlaceId;
+		mp.dest_endpoint = 0; // TODO
 		mp.type = *((x10rt_msg_type*)header_addr);
 		mp.len = pipe_size;
 		if (mp.len > 0)
@@ -582,6 +585,7 @@ static void local_get_dispatch (
 	if (localParameters == NULL) error("Unable to allocate memory for a local_get_dispatch header");
 	struct x10rt_pami_header_data* header = (struct x10rt_pami_header_data*) header_addr;
 	localParameters->dest_place = state.myPlaceId;
+	localParameters->dest_endpoint = 0; // TODO
 	localParameters->type = header->x10msg.type;
 	localParameters->msg = (void*)pipe_addr;
 	localParameters->len = pipe_size;
@@ -834,6 +838,21 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	state.myPlaceId = configuration[0].value.intval;
 	state.numPlaces = configuration[1].value.intval;
 
+	// TODO - this endpoint code is for the "bronze" version of pami endpoint support, added in build 1122a
+	// it needs to change to the real version when that becomes available
+	char * endpointVar = getenv("PAMI_DEBUG_SCAFFOLD_ENDPOINTS");
+	if (endpointVar)
+	{
+		state.numEndpoints = atoi(endpointVar);
+		#ifdef DEBUG
+			fprintf(stderr, "Using %u endpoints per place\n", state.numEndpoints);
+		#endif
+		if (state.numEndpoints > 1)
+			state.numPlaces = state.numPlaces / state.numEndpoints;
+	}
+	else
+		state.numEndpoints = 1;
+
 	#ifdef DEBUG
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
 	#endif
@@ -983,7 +1002,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a message from place %u to %u\n", state.myPlaceId, p->dest_place);
 	#endif
-	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
+	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 	if (p->len + sizeof(p->type) <= state.sendImmediateLimit)
@@ -1101,7 +1120,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
-	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
+	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 	if (sizeof(struct x10rt_pami_header_data) + p->len <= state.sendImmediateLimit)
@@ -1109,6 +1128,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		struct x10rt_pami_header_data header;
 		header.x10msg.type = p->type;
 		header.x10msg.dest_place = p->dest_place;
+		header.x10msg.dest_endpoint = 0; // TODO
 		header.x10msg.len = p->len;
 		header.data_len = len;
 		header.data_ptr = buf;
@@ -1201,7 +1221,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 
-	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, 0, &target)) != PAMI_SUCCESS)
+	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 	// note: this malloc gets freed when the response comes in
@@ -1211,6 +1231,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	header->data_ptr = buf;
 	header->x10msg.type = p->type;
 	header->x10msg.dest_place = p->dest_place;
+	header->x10msg.dest_endpoint = 0; // TODO
 	header->x10msg.len = p->len;
 	// save the msg data for the notifier
 	if (p->len > 0)
