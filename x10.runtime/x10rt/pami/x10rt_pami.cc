@@ -838,17 +838,14 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	state.myPlaceId = configuration[0].value.intval;
 	state.numPlaces = configuration[1].value.intval;
 
-	// TODO - this endpoint code is for the "bronze" version of pami endpoint support, added in build 1122a
+	// TODO - this endpoint code is for the "silver" version of pami endpoint support
 	// it needs to change to the real version when that becomes available
-	char * endpointVar = getenv("PAMI_DEBUG_SCAFFOLD_ENDPOINTS");
+	char * endpointVar = getenv("MP_ENDPOINTS");
 	if (endpointVar)
 	{
 		state.numEndpoints = atoi(endpointVar);
-		#ifdef DEBUG
-			fprintf(stderr, "Using %u endpoints per place\n", state.numEndpoints);
-		#endif
-		if (state.numEndpoints > 1)
-			state.numPlaces = state.numPlaces / state.numEndpoints;
+		if (state.numEndpoints <= 0)
+			state.numEndpoints = 1;
 	}
 	else
 		state.numEndpoints = 1;
@@ -1002,6 +999,22 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	#ifdef DEBUG
 		fprintf(stderr, "Preparing to send a message from place %u to %u\n", state.myPlaceId, p->dest_place);
 	#endif
+
+	// this block is just a temporary way to test if endpoints are working
+	// TODO: remove this when endpoints are fully supported
+	if (state.numEndpoints > 1 && p->dest_endpoint == 0)
+	{
+		pami_context_t c = getConcurrentContext();
+		for (int i=0; i<state.numParallelContexts; i++)
+		{
+			if (c == state.context[i])
+			{
+				p->dest_endpoint = i;
+				break;
+			}
+		}
+	}
+
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
@@ -1120,6 +1133,22 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 {
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
+
+	// this block is just a temporary way to test if endpoints are working
+	// TODO: remove this when endpoints are fully supported
+	if (state.numEndpoints > 1 && p->dest_endpoint == 0)
+	{
+		pami_context_t c = getConcurrentContext();
+		for (int i=0; i<state.numParallelContexts; i++)
+		{
+			if (c == state.context[i])
+			{
+				p->dest_endpoint = i;
+				break;
+			}
+		}
+	}
+
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
@@ -1220,6 +1249,21 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	// GET is implemented as a send msg, followed by a PUT
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
+
+	// this block is just a temporary way to test if endpoints are working
+	// TODO: remove this when endpoints are fully supported
+	if (state.numEndpoints > 1 && p->dest_endpoint == 0)
+	{
+		pami_context_t c = getConcurrentContext();
+		for (int i=0; i<state.numParallelContexts; i++)
+		{
+			if (c == state.context[i])
+			{
+				p->dest_endpoint = i;
+				break;
+			}
+		}
+	}
 
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
