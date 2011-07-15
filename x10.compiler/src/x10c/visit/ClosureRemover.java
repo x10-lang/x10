@@ -468,9 +468,7 @@ public class ClosureRemover extends ContextVisitor {
                     ClassBody cb = staticNestedClassDecl.body();
                     nmembers.add((ClassMember) staticNestedClassDecl.body(cb.members(cm)).typeCheck(this));
                     
-                    // TODO
-//                    return xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(staticNestedClassType)), args).constructorInstance(consd.asInstance()).type(cl.type()).typeCheck(this);
-                    return xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(staticNestedClassType)), args).constructorInstance(consd.asInstance()).type(cl.type());
+                    return xnf.New(pos, xnf.CanonicalTypeNode(pos, Types.ref(staticNestedClassType)), args).constructorInstance(consd.asInstance()).type(staticNestedClassType);
                 }
                 return n;
             }
