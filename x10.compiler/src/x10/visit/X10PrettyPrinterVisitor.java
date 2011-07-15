@@ -531,6 +531,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class.getName());");
             w.newline();
+        } else {
+            // We need to assign ID's even for interfaces cause they could be used ad parameterized types
+            // _serialization_id
+            w.write("public static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
+            w.write(Emitter.mangleToJava(def.name()));
+            w.writeln(".class.getName());");
+            w.newline();
         }
 
         // print the clone method
