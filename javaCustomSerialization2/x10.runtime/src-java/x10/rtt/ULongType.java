@@ -85,6 +85,7 @@ public class ULongType extends RuntimeType<x10.core.ULong> {
     public int arrayLength(Object array) {
     	return ((long[]) array).length;
     }
+
 //
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 //    }

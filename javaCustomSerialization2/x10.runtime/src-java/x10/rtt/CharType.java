@@ -100,5 +100,4 @@ public class CharType extends RuntimeType<x10.core.Char> {
 //        deserializer.record_reference(charType);
 //        return charType;
 //    }
-
 }

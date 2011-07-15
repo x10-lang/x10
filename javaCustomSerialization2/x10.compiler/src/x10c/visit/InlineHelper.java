@@ -80,7 +80,7 @@ public class InlineHelper extends ContextVisitor {
     private final TypeSystem xts;
     private final NodeFactory xnf;
     private Map<X10MethodDef,X10MethodDef> privateBridges = CollectionFactory.<X10MethodDef,X10MethodDef>newHashMap();
-    private Map<X10MethodDef,X10MethodDef> superBridges = CollectionFactory.<X10MethodDef,X10MethodDef>newHashMap();
+    private Map<MethodInstance,X10MethodDef> superBridges = CollectionFactory.<MethodInstance,X10MethodDef>newHashMap();
 
     public InlineHelper(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -106,25 +106,31 @@ public class InlineHelper extends ContextVisitor {
                 for (ClassMember cm : d.body().members()) {
                     if (cm instanceof X10MethodDecl) {
                         X10MethodDecl mdcl = (X10MethodDecl) cm;
-                        X10MethodDef md = mdcl.methodDef();
+                        final X10MethodDef md = mdcl.methodDef();
                         // compute bridge methods for private methods
                         if (mdcl.body() != null && prepareForInlining(md)) {
                             mdcl.body().visit(new NodeVisitor() {
                                 @Override
                                 public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
-                                    if (n instanceof Call && ((Call)n).target() instanceof Special) {
-                                        if (((Special)((Call)n).target()).kind().equals(Special.SUPER)) {
-                                            Call call = (Call) n;
-                                            if (!containsMethod(supers, call)) {
-                                                supers.add(call);
-                                            }
-                                        }
-                                    }
                                     if (parent instanceof Call && n instanceof Special) {
                                         if (((Special) n).kind().equals(Special.SUPER) && Types.selfBinding(((Special) n).type()).equals(cd.thisVar())) {
                                             Call call = (Call) parent;
                                             if (!containsMethod(supers, call)) {
                                                 supers.add(call);
+                                                // generate bridge methods for super call
+                                                MethodInstance smi = call.methodInstance(); // this will be the superclass method
+                                                X10ClassType ct = smi.container().toClass();
+                                                // The method is non-final, because the names may clash
+                                                List<Ref<? extends Type>> formalTypes = new ArrayList<Ref<? extends Type>>(smi.formalTypes().size());
+                                                for (Type ft : smi.formalTypes()) {
+                                                    formalTypes.add(Types.ref(ft));
+                                                }
+                                                X10MethodDef nmd = xts.methodDef(smi.position(), Types.ref(cd.asType()),
+                                                        Flags.PUBLIC, Types.ref(smi.returnType()),
+                                                        makeSuperBridgeName(ct.def(), smi.name()), md.typeParameters(),
+                                                        formalTypes, cd.thisDef(), Types.toLocalDefList(smi.formalNames()), Types.ref(smi.guard()),
+                                                        Types.ref(smi.typeGuard()), smi.offerType(), null);
+                                                superBridges.put(smi, nmd);
                                             }
                                         }
                                     }
@@ -135,6 +141,7 @@ public class InlineHelper extends ContextVisitor {
                         if (!md.flags().isPrivate()) {
                             continue;
                         }
+                        // generate bridge methods for private method
                         Name pmn = makePrivateBridgeName(md.name());
                         X10MethodDef nmd = findPrivateBridgeMethod(pmn, md);
                         if (nmd == null) {
@@ -142,18 +149,6 @@ public class InlineHelper extends ContextVisitor {
                         }
                         privateBridges.put(md, nmd);
                     }
-                }
-                // generate bridge methods for super call
-                for (Call call : supers) {
-                    MethodInstance mi = call.methodInstance(); // this will be the superclass method
-                    X10MethodDef md = mi.x10Def();
-                    X10ClassType ct = md.container().get().toClass();
-                    // The method is non-final, because the names may clash
-                    X10MethodDef nmd = xts.methodDef(md.position(), Types.ref(cd.asType()), Flags.PUBLIC,
-                            md.returnType(), makeSuperBridgeName(ct.def(), md.name()), md.typeParameters(),
-                            md.formalTypes(), cd.thisDef(), md.formalNames(), md.guard(), md.typeGuard(),
-                            md.offerType(), null);
-                    superBridges.put(md, nmd);
                 }
             }
         }
@@ -330,8 +325,8 @@ public class InlineHelper extends ContextVisitor {
                     
                 }
                 // generate bridge methods for super call
-                for (X10MethodDef md : superBridges.keySet()) {
-                    X10MethodDef nmd = superBridges.get(md);
+                for (MethodInstance mi : superBridges.keySet()) {
+                    X10MethodDef nmd = superBridges.get(mi);
                     if (((X10ClassType) nmd.container().get()).def() != cd) continue; // check that we are in the right class
                     List<Formal> formals = new ArrayList<Formal>();
                     List<Expr> arguments = new ArrayList<Expr>(nmd.formalTypes().size());
@@ -346,8 +341,8 @@ public class InlineHelper extends ContextVisitor {
                         ++i;
                     }
                     Type rt = nmd.returnType().get();
-                    Type container = md.container().get();
-                    Call call = (Call) xnf.Call(pos, xnf.Super(pos).type(container), xnf.Id(pos, md.name()), arguments).methodInstance(md.asInstance()).type(rt);
+                    Type container = mi.container();
+                    Call call = (Call) xnf.Call(pos, xnf.Super(pos).type(container), xnf.Id(pos, mi.name()), arguments).methodInstance(mi).type(rt);
                     call = call.nonVirtual(true);
                     Block body;
                     if (rt.isVoid()) {

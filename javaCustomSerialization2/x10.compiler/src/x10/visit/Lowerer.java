@@ -268,7 +268,7 @@ public class Lowerer extends ContextVisitor {
     			clocks =nclocks;
     		}
     		try {
-    			return visitAsyncPlace(async, place, body);
+    			return visitAsyncPlace(async, place, body, atStm.atDef().capturedEnvironment());
     		} catch (SemanticException z) {
     			return null;
     		}
@@ -455,11 +455,10 @@ public class Lowerer extends ContextVisitor {
     }
     // Begin asyncs
     // rewrite @Uncounted async S, with special translation for @Uncounted async at (p) S.
-    private Stmt visitAsyncPlace(Async a, Expr place, Stmt body) throws SemanticException {
-    	List<Expr> clocks = clocks(a.clocked(), a.clocks());
+    private Stmt visitAsyncPlace(Async a, Expr place, Stmt body, List<VarInstance<? extends VarDef>> env) throws SemanticException {
+        List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
-        List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
         if (a.clocked()) {
             env = new ArrayList<VarInstance<? extends VarDef>>(env);
             env.add(clockStack.peek().localInstance());

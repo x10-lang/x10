@@ -98,5 +98,4 @@ public class BooleanType extends RuntimeType<x10.core.Boolean>{
 //        deserializer.record_reference(booleanType);
 //        return booleanType;
 //    }
-    
 }

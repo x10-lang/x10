@@ -94,5 +94,4 @@ public class ByteType extends RuntimeType<x10.core.Byte> {
 //        deserializer.record_reference(byteType);
 //        return byteType;
 //    }
-
 }
