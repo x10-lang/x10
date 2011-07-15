@@ -461,9 +461,6 @@ public class X10Call_c extends Call_c implements X10Call {
         try {
             if (mi.flags().isStatic() || c.inStaticContext()) {
                 Type container = findContainer(xts, mi);
-                XVar thisVar = getThis(container);
-                if (thisVar != null)
-                    container = Types.setSelfVar(container, thisVar);
                 return nf.CanonicalTypeNode(prefixPos, container).typeRef(Types.ref(container));
             } else {
                 // The method is non-static, so we must prepend with "this", but we
