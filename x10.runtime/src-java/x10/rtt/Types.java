@@ -38,6 +38,7 @@ public class Types {
                 RuntimeType<?> parentRTT = getRTT(intf);
                 if (intfTypeVariables.length > 0) {
                     Type<?>[] parentParams = new Type<?>[intfTypeVariables.length];
+                    // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
                     parents[i] = new ParameterizedType(parentRTT, parentParams);
                 } else {
@@ -50,6 +51,7 @@ public class Types {
                 RuntimeType<?> parentRTT = getRTT(superclass);
                 if (superclassTypeVariables.length > 0) {
                     Type<?>[] parentParams = new Type<?>[superclassTypeVariables.length];
+                    // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
                     parents[i] = new ParameterizedType(parentRTT, parentParams);
                 } else {
@@ -108,6 +110,7 @@ public class Types {
         }
         // type parameters for unknown raw Java classes are Any
         if (supportJavaInterop) {
+            // TODO bounds
             return ANY;
         }
         assert false;
