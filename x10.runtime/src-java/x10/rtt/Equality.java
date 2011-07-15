@@ -17,14 +17,14 @@ import x10.core.StructI;
 
 public class Equality {
     public static boolean equalsequals(boolean a, boolean b) { return a == b; }
-    public static boolean equalsequals(boolean a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(boolean a, Object b) { return equalsequals(x10.core.Boolean.$box(a), b); }
     public static int compareTo(boolean a, boolean b) { return a == b ? 0 : (b ? -1 : 1); }
-    public static int compareTo(boolean a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(boolean a, Comparable b) { return compareTo(x10.core.Boolean.$box(a), b); }
     
     public static boolean equalsequals(char a, char b) { return a == b; }
-    public static boolean equalsequals(char a, Object b) { return equalsequals((Object) a, b); }
+    public static boolean equalsequals(char a, Object b) { return equalsequals(x10.core.Char.$box(a), b); }
     public static int compareTo(char a, char b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(char a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(char a, Comparable b) { return compareTo(x10.core.Char.$box(a), b); }
     
     public static boolean equalsequals(byte a, byte b) { return a == b; }
     public static boolean equalsequals(byte a, Object b) { return equalsequals(x10.core.Byte.$box(a), b); }
@@ -34,7 +34,7 @@ public class Equality {
     public static int compareTo(byte a, long b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(byte a, float b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(byte a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(byte a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(byte a, Comparable b) { return compareTo(x10.core.Byte.$box(a), b); }
 
     public static boolean equalsequals(short a, short b) { return a == b; }
     public static boolean equalsequals(short a, Object b) { return equalsequals(x10.core.Short.$box(a), b); }
@@ -44,7 +44,7 @@ public class Equality {
     public static int compareTo(short a, long b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(short a, float b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(short a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(short a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(short a, Comparable b) { return compareTo(x10.core.Short.$box(a), b); }
     
     public static boolean equalsequals(int a, int b) { return a == b; }
     public static boolean equalsequals(int a, Object b) { return equalsequals(x10.core.Int.$box(a), b); }
@@ -54,7 +54,7 @@ public class Equality {
     public static int compareTo(int a, long b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(int a, float b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(int a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(int a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(int a, Comparable b) { return compareTo(x10.core.Int.$box(a), b); }
     
     public static boolean equalsequals(long a, long b) { return a == b; }
     public static boolean equalsequals(long a, Object b) { return equalsequals(x10.core.Long.$box(a), b); }
@@ -64,7 +64,7 @@ public class Equality {
     public static int compareTo(long a, long b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(long a, float b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(long a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(long a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(long a, Comparable b) { return compareTo(x10.core.Long.$box(a), b); }
     
     public static boolean equalsequals(float a, float b) { return a == b; }
     public static boolean equalsequals(float a, Object b) { return equalsequals(x10.core.Float.$box(a), b); }
@@ -74,7 +74,7 @@ public class Equality {
     public static int compareTo(float a, long b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(float a, float b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(float a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(float a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(float a, Comparable b) { return compareTo(x10.core.Float.$box(a), b); }
     
     public static boolean equalsequals(double a, double b) { return a == b; }
     public static boolean equalsequals(double a, Object b) { return equalsequals(x10.core.Double.$box(a), b); }
@@ -84,24 +84,24 @@ public class Equality {
     public static int compareTo(double a, long b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(double a, float b) { return a == b ? 0 : (a < b ? -1 : 1); }
     public static int compareTo(double a, double b) { return a == b ? 0 : (a < b ? -1 : 1); }
-    public static int compareTo(double a, Comparable b) { return compareTo((Comparable) a, b); }
+    public static int compareTo(double a, Comparable b) { return compareTo(x10.core.Double.$box(a), b); }
     
-    public static boolean equalsequals(Object a, boolean b) { return equalsequals(a, (Object) b); }
+    public static boolean equalsequals(Object a, boolean b) { return equalsequals(a, x10.core.Boolean.$box(b)); }
     public static boolean equalsequals(Object a, byte b) { return equalsequals(a, x10.core.Byte.$box(b)); }
     public static boolean equalsequals(Object a, short b) { return equalsequals(a, x10.core.Short.$box(b)); }
-    public static boolean equalsequals(Object a, char b) { return equalsequals(a, (Object) b); }
+    public static boolean equalsequals(Object a, char b) { return equalsequals(a, x10.core.Char.$box(b)); }
     public static boolean equalsequals(Object a, int b) { return equalsequals(a, x10.core.Int.$box(b)); }
     public static boolean equalsequals(Object a, long b) { return equalsequals(a, x10.core.Long.$box(b)); }
     public static boolean equalsequals(Object a, float b) { return equalsequals(a, x10.core.Float.$box(b)); }
     public static boolean equalsequals(Object a, double b) { return equalsequals(a, x10.core.Double.$box(b)); }
-    public static int compareTo(Comparable a, boolean b) { return compareTo(a, (Comparable) b); }
-    public static int compareTo(Comparable a, byte b) { return compareTo(a, (Comparable) b); }
-    public static int compareTo(Comparable a, short b) { return compareTo(a, (Comparable) b); }
-    public static int compareTo(Comparable a, char b) { return compareTo(a, (Comparable) b); }
+    public static int compareTo(Comparable a, boolean b) { return compareTo(a, x10.core.Boolean.$box(b)); }
+    public static int compareTo(Comparable a, byte b) { return compareTo(a, x10.core.Byte.$box(b)); }
+    public static int compareTo(Comparable a, short b) { return compareTo(a, x10.core.Short.$box(b)); }
+    public static int compareTo(Comparable a, char b) { return compareTo(a, x10.core.Char.$box(b)); }
     public static int compareTo(Comparable a, int b) { return compareTo(a, x10.core.Int.$box(b)); }
-    public static int compareTo(Comparable a, long b) { return compareTo(a, (Comparable) b); }
-    public static int compareTo(Comparable a, float b) { return compareTo(a, (Comparable) b); }
-    public static int compareTo(Comparable a, double b) { return compareTo(a, (Comparable) b); }
+    public static int compareTo(Comparable a, long b) { return compareTo(a, x10.core.Long.$box(b)); }
+    public static int compareTo(Comparable a, float b) { return compareTo(a, x10.core.Float.$box(b)); }
+    public static int compareTo(Comparable a, double b) { return compareTo(a, x10.core.Double.$box(b)); }
 
     public static boolean equalsequals(Object a, Object b) {
         // Ref equality is pointer equality.
@@ -124,14 +124,14 @@ public class Equality {
         if (a instanceof Character && b instanceof Character)
             return (char) (Character) a == (char) (Character) b;
         if (a instanceof Number && b instanceof Number)
-            return equalsNumbers(a, b);
+            return equalsNumbers((Number) a, (Number) b);
         if (a instanceof StructI) return ((StructI) a)._struct_equals$O(b);
         
         return false;
     }
     public static int compareTo(Comparable a, Comparable b) { return a.compareTo(b); }
     
-    private static boolean equalsNumbers(Object a, Object b) {
+    private static boolean equalsNumbers(Number a, Number b) {
         if (a instanceof x10.core.Double && b instanceof x10.core.Double) {
             return x10.core.Double.$unbox((x10.core.Double)a) == x10.core.Double.$unbox((x10.core.Double)b);
         }

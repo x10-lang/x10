@@ -100,5 +100,4 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
 //        deserializer.record_reference(uShortType);
 //        return uShortType;
 //    }
-    
 }

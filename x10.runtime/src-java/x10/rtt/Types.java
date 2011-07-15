@@ -34,10 +34,11 @@ public class Types {
             x10.rtt.Type<?>[] parents = new x10.rtt.Type[interfaces.length + (superclass != null ? 1 : 0)];
             int i = 0;
             for (Class<?> intf : interfaces) {
-                java.lang.reflect.TypeVariable<?>[] intfTypeVariables = intf.getTypeParameters();
+                java.lang.reflect.TypeVariable<?>[] parentTypeVariables = intf.getTypeParameters();
                 RuntimeType<?> parentRTT = getRTT(intf);
-                if (intfTypeVariables.length > 0) {
-                    Type<?>[] parentParams = new Type<?>[intfTypeVariables.length];
+                if (parentTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
+                    // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
                     parents[i] = new ParameterizedType(parentRTT, parentParams);
                 } else {
@@ -46,10 +47,11 @@ public class Types {
                 ++i;
             }
             if (superclass != null) {
-                java.lang.reflect.TypeVariable<?>[] superclassTypeVariables = superclass.getTypeParameters();
+                java.lang.reflect.TypeVariable<?>[] parentTypeVariables = superclass.getTypeParameters();
                 RuntimeType<?> parentRTT = getRTT(superclass);
-                if (superclassTypeVariables.length > 0) {
-                    Type<?>[] parentParams = new Type<?>[superclassTypeVariables.length];
+                if (parentTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
+                    // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
                     parents[i] = new ParameterizedType(parentRTT, parentParams);
                 } else {
@@ -108,6 +110,7 @@ public class Types {
         }
         // type parameters for unknown raw Java classes are Any
         if (supportJavaInterop) {
+            // TODO bounds
             return ANY;
         }
         assert false;
@@ -654,7 +657,7 @@ public class Types {
                 Class<?>[] paramTypes = null;
                 for (java.lang.reflect.Constructor<?> ctor0 : impl.getConstructors()) {
                     paramTypes = ctor0.getParameterTypes();
-                    if (paramTypes[paramTypes.length-1].equals(java.lang.System.class)) {
+                    if (paramTypes.length >= 1 && paramTypes[paramTypes.length-1].equals(java.lang.System.class)) {
                         ctor = ctor0;
                         break;
                     }

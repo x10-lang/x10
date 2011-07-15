@@ -112,6 +112,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     	rtt.setArray(array, i, v);
     }
 
+    @Override
     public final String toString() {
         return typeName();
     }

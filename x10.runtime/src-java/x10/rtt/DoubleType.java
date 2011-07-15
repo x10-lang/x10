@@ -79,7 +79,6 @@ public class DoubleType extends RuntimeType<x10.core.Double> {
     	return ((double[]) array).length;
     }
 
-
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 //    }
 //
