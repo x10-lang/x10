@@ -247,12 +247,12 @@ public abstract class Unsigned {
     public static java.lang.String toString(int a) {
         return toString(a, 10);
     }
+    */
     public static java.lang.String toString(long a, int radix) {
         return toULONG(a).toString(radix);
     }
     public static java.lang.String toString(long a) {
         return toULONG(a).toString();
     }
-    */
     
 }
