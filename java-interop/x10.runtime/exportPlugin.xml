@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="x10.runtime" default="build.update.jar" basedir=".">
+  <import file="../x10dt.update/buildCommon.xml"/>
+  <import file="../x10dt.update/buildPluginCommon.xml"/>
+
+  <!-- ================================================================================= -->
+
+  <!-- BRT: is this left here explicitly?  -->
+  <target name="plugin.jar" depends="init,javaInit,munge.manifest" unless="${plugin.jar.name}" description="Create jar: ${plugin.jar.name}.">
+    <delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
+    <mkdir dir="${temp.folder}/${plugin.jar.name}.bin"/>
+    <mkdir dir="${build.result.folder}"/>
+    <property name="build" location="${basedir}/classes"/>
+    <ant antfile="build.xml" target="build-xrx"/>
+    <jar jarfile="${build.result.folder}/${plugin.jar.name}"  manifest="${temp.folder}/MANIFEST.MF" >
+      <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
+      <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
+    </jar>
+    <delete dir="${temp.folder}/${plugin.jar.name}.bin"/>
+  </target>
+
+</project>

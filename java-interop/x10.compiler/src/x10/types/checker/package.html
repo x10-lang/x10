@@ -1,0 +1,104 @@
+<h1>Implementation of place types.</h1>
+
+<p>
+The key idea is that we add to the context a constrained term,
+<code>placeTerm</code> (of type place), representing the current known information
+about <code>here</code>.
+
+<code>placeTerm</code>'s term represents the current place (the value of
+<code>here</code>).  <code>placeTerm</code> is an <code>XTerm</code> of type place, and its
+constraint specifies equalities relating this XTerm to other
+XTerms.  E.g. we may know that <code>here = p1, here = p2</code>. So then PlaceTerm
+will be <code>p1 given p1=p2</code> or <code>p2, given p1=p2</code>. 
+
+<p><code>here</code> must never occur in the PlaceTerm.
+
+<p>
+Here is how the value of <code>placeTerm</code> is defined for various pieces of code where
+<code>here</code> can be used:
+
+<ul>
+<li>
+  <bf>global method:</bf> (arg list, return type, body)
+  (Recall that all struct instance methods and all static methods are global.)
+  placeTerm is set to a new UQV, representing a fixed but unknown place.
+
+<li>
+  <bf>Body of an initializer of a static field, static initializer:</bf>
+  placeTerm is set to <code>FIRST_PLACE</code>.
+<li>
+  <bf>Body of a non-global class instance method:</bf>
+  <code>placeTerm</code> is set to <code>this.home</code>
+</ul>
+
+<p>
+The <code>at(p) e</code> or <code>at(p) S</code> introduces place-shifts. 
+
+<p>
+<ul>
+<li>
+  To make it easier for programmers to write code, we permit the place
+  argument <code>p</code> of the <code>at</code> expression <code>at(p) e</code> or statement <code>at(p) s</code> to be of
+  type <code>Object</code> or of type <code>Place</code>. In case it is of type <code>Object</code>, the <code>at</code>
+  expression/statement will automatically coerce <code>p</code> to <code>p.home</code>.
+<li>
+  <code>p</code> is permitted to be any expression, including a method call. 
+</ul>
+
+<p>
+A new placeTerm is created and pushed into the current context. The
+placeTerm is the variable <code>v</code> if <code>p's</code> type equates <code>self</code> to <code>v</code>. Otherwise
+the <code>placeTerm</code> is set to a new UQV <code>v</code>. The constraint of the <code>placeTerm</code>
+is the constraint in the type of <code>p</code>, with the substitution <code>v/self</code> applied
+if <code>v</code> was generated.
+
+<p>
+At an implementation level, <code>XContext</code> and <code>ClosureDef_c</code> now carry two
+additional items, a <code>placeTerm</code> and a <code>placeConstraint</code>. The
+<code>typeCheckOverride</code> method of <code>AtExpr_c</code> is modified to establish the
+value of the <code>placeTerm</code> and <code>placeConstraint</code> fields in the <code>ClosureDef_c</code> associated with the body of the <code>AtExpr_c</code>. 
+
+<p>
+<ul>
+<li>
+   This is necessary so that type inference for the body of the
+   <code>AtExpr_c</code> work correctly. The type of the <code>AtExpr</code> is the return type
+   of the closure representing its body. Now a closure body may have
+   multiple return statements inside it. The type of the closure is
+   taken to be the merge (least upper bound) of the types of the
+   expressions returned from within the body of the closure. This
+   information is recorded in the associated <code>codeDef()</code>, of type
+   <code>ClosureDef</code>.
+<li>
+   The way type inference for a closure/method body works is as
+   follows. A resolver is set for the return type, containing a
+   reference to the AST for the body at the time of type
+   building. This resolver will be forced to execute when the
+   <code>returnType</code> is visited during type-checking, and is
+   disambiguated. By this point, <code>typeCheckOverride</code> will have been
+   called on the parent AST node (atExpr). Unfortunately, this node is
+   <em>a copy</em> of the node with which the resolver was initialized!
+   Hence, we need to ensure that when the resolver runs it has access
+   to the constrained placeTerm. We ensure this by storing the
+   information in the <code>ClosureDef</code> associated with the <code>AtExpr</code> AST, since
+   all copies of the AST refer to the same <code>ClosureDef</code>.
+</ul>
+<p>
+Additionally, we modify the type-checking of <code>X10New_c</code> to add the
+clause <code>self.home=v,c</code>, where <code>v given c</code> is the current <code>placeTerm</code> obtained
+from the context.
+
+<ul><li>
+   An important point: We we have to implement "adding the clause
+   <code>self.homen==here</code>" by adding to the type of the <code>X10New_c</code>
+   expression the constraints <code>self.home==placeTerm, placeConstraint</code>. This is the right thing to do since <code>placeTerm</code> may
+   be a symbolic variable about which the only pieces of information
+   we have are those in <code>placeConstraint</code>.
+<li>
+   Thus if <code>p</code> is a final variable, the type-checker can infer that
+   the type of <code>at(p) (new Foo())</code> is <code>Foo{self.home==p}</code>. If
+   <code>p()</code> is a procedure call with the return type <code>Place{self==x}</code>
+   then the type of <code>at (p())(new Foo())</code> will be inferred as
+   <code>Foo{self.home==_1786, _1786==x}</code> (for some new symbolic variable
+   <code>_1786</code>), i.e. <code>Foo{self.home==x}</code>
+</ul>

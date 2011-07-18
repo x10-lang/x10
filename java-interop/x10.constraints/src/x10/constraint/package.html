@@ -1,0 +1,34 @@
+<h2>The X10 base constraint system</h2>
+
+The constraint system is defined over the following terms:
+
+<p>
+<pre>
+(Terms) t ::= x -- local variables
+              l  -- literals
+              C.f  -- static field
+              t.f  -- field access
+              a(i) -- array access
+              f(t1,..., tn) -- arbitrary function application
+</pre>
+
+<p>
+For arbitrary function application, no particular propagation rule is implemented. (Need to add
+at least the uninterpreted function application rules, i.e. 
+<p>
+<pre>
+s1=t1,..., sn=tn <=> f(s1,..., sn)=f(t1,..., tn)
+</pre>
+
+<p>
+The constraints are:
+<p>
+<pre>
+(Constraints) c ::= t == t -- equality constraint
+                    t != t -- disequality constraint
+                    ! c    -- negation, no particular constraint propagation rules
+                    a(t1,..., tn) -- atomic formula
+                    c,c    -- conjunction
+                    x^c    -- existential quantification
+</pre>
+
