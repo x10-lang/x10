@@ -343,7 +343,6 @@ public class InlineHelper extends ContextVisitor {
                     Type rt = nmd.returnType().get();
                     Type container = mi.container();
                     Call call = (Call) xnf.Call(pos, xnf.Super(pos).type(container), xnf.Id(pos, mi.name()), arguments).methodInstance(mi).type(rt);
-                    call = call.nonVirtual(true);
                     Block body;
                     if (rt.isVoid()) {
                         body = xnf.Block(pos, xnf.Eval(pos, call));
@@ -405,11 +404,11 @@ public class InlineHelper extends ContextVisitor {
         return n;
     }
 
-    private Name makeSuperBridgeName(final ClassDef cd, Name name) {
+    public static Name makeSuperBridgeName(final ClassDef cd, Name name) {
         return Name.make(Emitter.mangleAndFlattenQName(cd.asType().fullName()) + "$" + Emitter.mangleToJava(name) + BRIDGE_TO_SUPER_SUFFIX);
     }
 
-    private Name makePrivateBridgeName(Name name) {
+    public static Name makePrivateBridgeName(Name name) {
         return Name.make(Emitter.mangleToJava(name) + BRIDGE_TO_PRIVATE_SUFFIX);
     }
 

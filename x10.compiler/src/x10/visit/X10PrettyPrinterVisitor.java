@@ -160,6 +160,7 @@ import x10c.ast.X10CBackingArrayNewArray_c;
 import x10c.ast.X10CBackingArray_c;
 import x10c.types.X10CContext_c;
 import x10c.visit.ClosureRemover;
+import x10c.visit.InlineHelper;
 import x10cpp.visit.ASTQuery;
 
 import java.util.AbstractList;
@@ -1984,13 +1985,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
 
-            boolean isParamReturnType = Types.baseType(mi.def().returnType().get()) instanceof ParameterType
+            MethodDef md = mi.def();
+            boolean isParamReturnType = Types.baseType(md.returnType().get()) instanceof ParameterType
                     || instantiatesReturnType;
 
-            boolean isSpecialReturnType = er.isSpecialType(mi.def().returnType().get());
+            boolean isSpecialReturnType = er.isSpecialType(md.returnType().get());
+
+            if (c.nonVirtual()) {
+                Name name = InlineHelper.makeSuperBridgeName(mi.container().toClass().def(), mi.name());
+                List<MethodInstance> bridges = target.type().toClass().methodsNamed(name);
+                assert (bridges.size()==1);
+                md = bridges.get(0).def();
+                isParamReturnType = false;
+                w.write("/"+"*"+"non-virtual"+"*"+"/");
+            }
 
             // call
-            er.printMethodName(mi.def(), invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
+            er.printMethodName(md, invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
         }
 
         // print the argument list
