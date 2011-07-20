@@ -1,14 +1,20 @@
 package x10.rtt;
 
 import x10.core.Any;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 
-public final class ParameterizedType<T> implements Type<T>{
+public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ParameterizedType.class.getName());
 
-    private final RuntimeType<T> rtt;
-    private final Type<?>[] params;
+    public RuntimeType<T> rtt;
+    public Type<?>[] params;
     
     RuntimeType<T> getRuntimeType() {
         return rtt;
@@ -22,7 +28,11 @@ public final class ParameterizedType<T> implements Type<T>{
         this.rtt = rtt;
         this.params = params;
     }
-    
+
+    // Constructor just for allocation
+    public ParameterizedType() {
+    }
+
     public final boolean isSubtype(Type<?> o) {
         if (this == o) return true;
         if (o == Types.ANY) return true;
@@ -44,8 +54,8 @@ public final class ParameterizedType<T> implements Type<T>{
         return false;
     }
 
-    public final boolean instanceof$(Object o) {
-        return rtt.instanceof$(o, params);
+    public final boolean instanceOf(Object o) {
+        return rtt.instanceOf(o, params);
     }
     
     @Override
@@ -53,10 +63,13 @@ public final class ParameterizedType<T> implements Type<T>{
         if (this == o) return true;
         if (o instanceof ParameterizedType<?>) {
             ParameterizedType<?> t = (ParameterizedType<?>) o;
-            if (!rtt.getImpl().equals(t.getImpl())) {
+            if (!rtt.equals(t.rtt)) {
                 return false;
             }
             Type<?>[] parameters = t.params;
+            if (params.length != parameters.length) {
+                return false;
+            }
             for (int i = 0; i < params.length; i++) {
                 if (!params[i].equals(parameters[i])) {
                     return false;
@@ -65,6 +78,11 @@ public final class ParameterizedType<T> implements Type<T>{
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public final int hashCode() {
+        return rtt.hashCode();
     }
 
     public final int arrayLength(Object array) {
@@ -77,10 +95,6 @@ public final class ParameterizedType<T> implements Type<T>{
 
     public final Class<?> getImpl() {
         return rtt.getImpl();
-    }
-
-    public final int hashCode() {
-        return rtt.hashCode();
     }
 
     public final Object makeArray(int length) {
@@ -98,6 +112,7 @@ public final class ParameterizedType<T> implements Type<T>{
     	rtt.setArray(array, i, v);
     }
 
+    @Override
     public final String toString() {
         return typeName();
     }
@@ -170,4 +185,28 @@ public final class ParameterizedType<T> implements Type<T>{
         return str;
     }
 
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.write(rtt);
+        serializer.write(params);
+	}
+
+	public static X10JavaSerializable $_deserializer( X10JavaDeserializer deserializer) throws IOException {
+        ParameterizedType pt = new ParameterizedType();
+        deserializer.record_reference(pt);
+        return $_deserialize_body(pt, deserializer);
+	}
+
+    public static X10JavaSerializable $_deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {
+		RuntimeType rt = (RuntimeType) deserializer.deSerialize();
+        pt.rtt = rt;
+        int length = deserializer.readInt();
+        Type[] ps = new Type[length];
+        deserializer.readArray(ps);
+        pt.params = ps;
+        return pt;
+    }
+
+	public int $_get_serialization_id() {
+		return _serialization_id;
+	}
 }

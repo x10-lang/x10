@@ -27,7 +27,7 @@ import x10.util.Ordered;
 //                 v-- when used
 @NativeRep("c++", "x10_int", "x10_int", null)
 //                            ^ when constructed
-public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], Bitwise[Int], Ordered[Int]*/ {
+public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ordered[Int] {
 
 
     /**
@@ -275,7 +275,7 @@ public struct Int implements Comparable[Int] /*TODO implements Arithmetic[Int], 
      * @param x the given UInt
      * @return the given UInt converted to an Int.
      */
-    @Native("java", "((int) (#x.intVal))")
+    @Native("java", "((int)#x)")
     @Native("c++",  "((x10_int) (#1))")
     public native static operator (x:UInt) as Int;
 

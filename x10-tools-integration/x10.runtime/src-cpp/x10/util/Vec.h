@@ -17,6 +17,8 @@
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
 
+#include <x10/lang/String.h>
+
 // NOTE: this class has a matching declaration in x10aux/vec_decl.h
 
 namespace x10 {
@@ -28,14 +30,26 @@ namespace x10 {
                 RTT_H_DECLS_STRUCT
         };
 
-        template <class T, x10_int SZ> struct NativeVec{
+        template <> struct NativeVec_rtt<void> {
+                static x10aux::RuntimeType rtt;
+                static const x10aux::RuntimeType* getRTT() { return & rtt; }
+        };
 
-                static const x10aux::RuntimeType* getRTT() { return &NativeVec_rtt<T>::rtt; }
+        template <class T, x10_int SZ> struct NativeVec : public NativeVec_rtt<T> {
+
+                NativeVec<T,SZ> *operator->() { return this; }
+
 
                 inline x10_int size() const { return SZ; }
                 T arr[SZ];
                 NativeVec(void) { };
-                NativeVec(size_t sz) { (void) sz; };
+                NativeVec(size_t sz) {
+                        (void) sz;
+                        // COMMENT OUT rest of code in this function to avoid initialisation assignments
+                        for (size_t i=0 ; i<SZ ; ++i) {
+                                arr[i] = x10aux::zeroValue<T>();
+                        }
+                }
                 const T &get (int i) const { return arr[i]; }
                 const T &set (const T &v, int i) { arr[i] = v; return v; }
                 NativeVec(const NativeVec<T,SZ> &src)
@@ -47,17 +61,58 @@ namespace x10 {
                         assert(src.size() == SZ);
                         ::memcpy(arr, src.arr, SZ * sizeof(T));
                 }
+                x10aux::ref<x10::lang::String> toString (void)
+                {
+                        return x10aux::string_utils::lit("struct x10.util.Vec: size=")+x10aux::to_string(SZ);
+                }
+                x10_int hashCode (void) { return (x10_int)SZ; }
+                x10_boolean _struct_equals(NativeVec<T,SZ> other)
+                {
+                        for (size_t i=0 ; i<SZ ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                x10_boolean _struct_equals(NativeVec<T,-1> other)
+                {
+                        if (other.sz != SZ) return false;
+                        for (size_t i=0 ; i<SZ ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                x10_boolean equals(NativeVec<T,SZ> other)
+                {
+                        for (size_t i=0 ; i<SZ ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                x10_boolean equals(NativeVec<T,-1> other)
+                {
+                        if (other.sz != SZ) return false;
+                        for (size_t i=0 ; i<SZ ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                x10_boolean equals(x10aux::ref<x10::lang::Any> other)
+                {
+                        // FIXME: this sucks
+                        return false;
+                }
+
         };
 
-        template <class T> struct NativeVec<T,-1> {
+        template <class T> struct NativeVec<T,-1> : public NativeVec_rtt<T> {
 
-                static const x10aux::RuntimeType* getRTT() { return &NativeVec_rtt<T>::rtt; }
+                NativeVec<T,-1> *operator->() { return this; }
 
                 T *arr;
                 size_t sz;
                 inline x10_int size() const { return sz; }
                 NativeVec(void) :arr(NULL), sz(0) { };
-                NativeVec(size_t sz_) :arr(x10aux::alloc<T>(sz*sizeof(T))), sz(sz_) { };
+                NativeVec(size_t sz_) :arr(x10aux::alloc<T>(sz*sizeof(T))), sz(sz_) { ::memset(arr, 0, sz*sizeof(T)); };
                 ~NativeVec(void) { }
                 const T &get (int i) const { return arr[i]; }
                 const T &set (const T &v, int i) { arr[i] = v; return v; }
@@ -77,6 +132,48 @@ namespace x10 {
                     : arr(x10aux::alloc<T>(SZ*sizeof(T))), sz(SZ)
                 {
                         ::memcpy(arr, src.arr, sz * sizeof(T));
+                }
+                x10aux::ref<x10::lang::String> toString (void)
+                {
+                        return x10aux::string_utils::lit("struct x10.util.Vec: size=")+x10aux::to_string(sz);
+                }
+                x10_int hashCode (void) { return (x10_int)sz; }
+                template<int SZ> x10_boolean equals(NativeVec<T,SZ> other)
+                {
+                        if (sz != SZ) return false;
+                        for (size_t i=0 ; i<SZ ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                x10_boolean equals(NativeVec<T,-1> other)
+                {
+                        if (sz != other.sz) return false;
+                        for (size_t i=0 ; i<sz ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                template<int SZ> x10_boolean _struct_equals(NativeVec<T,SZ> other)
+                {
+                        if (sz != SZ) return false;
+                        for (size_t i=0 ; i<SZ ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                x10_boolean _struct_equals(NativeVec<T,-1> other)
+                {
+                        if (sz != other.sz) return false;
+                        for (size_t i=0 ; i<sz ; ++i) {
+                                if (!x10aux::struct_equals(arr[i], other.arr[i])) return false;
+                        }
+                        return true;
+                }
+                x10_boolean equals(x10aux::ref<x10::lang::Any> other)
+                {
+                        // FIXME: this sucks
+                        return false;
                 }
         };
     }

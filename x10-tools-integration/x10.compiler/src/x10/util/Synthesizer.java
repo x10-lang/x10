@@ -40,8 +40,10 @@ import polyglot.ast.MethodDecl;
 import polyglot.ast.New;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Typed;
 import polyglot.ast.Unary;
 import polyglot.frontend.Globals;
 import polyglot.types.ClassDef;
@@ -100,12 +102,15 @@ import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
+import x10.types.constraints.CLit;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.CThis;
+import x10.types.constraints.QualifiedVar;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
+import x10.types.constants.StringValue;
 
 /**
  * A utility to help synthesize fragments of ASTs. Most of the methods on this class are intended to
@@ -339,7 +344,7 @@ public class Synthesizer {
         // has been converted to a variable reference.
         final Type type = initializer.type();
         if (!xts.typeEquals(type, xts.Void(), context)) {
-            final Name varName = context.getNewVarName();
+            final Name varName = Context.getNewVarName();
             final TypeNode tn = xnf.CanonicalTypeNode(pos, type);
             final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
             final Id varId = xnf.Id(pos, varName);
@@ -368,8 +373,7 @@ public class Synthesizer {
 	 * @param xc
 	 * @return
 	 */
-	public Expr makeLocalVar(Position pos, Flags flags, Expr  e, List<Stmt> stmtList,
-			 Context xc) {
+	public Expr makeLocalVar(Position pos, Flags flags, Expr e, List<Stmt> stmtList, Context xc) {
 		Expr result = null;
 		if (flags == null) {
 			flags = Flags.NONE;
@@ -377,7 +381,7 @@ public class Synthesizer {
 		// has been converted to a variable reference.
 		final Type type = e.type();
 		if (! xts.typeEquals(type, xts.Void(), xc)) {
-			final Name varName = xc.getNewVarName();
+			final Name varName = Context.getNewVarName();
 			final TypeNode tn = xnf.CanonicalTypeNode(pos,type);
 			final LocalDef li = xts.localDef(pos, flags, Types.ref(type), varName);
 			final Id varId = xnf.Id(pos, varName);
@@ -760,7 +764,7 @@ public class Synthesizer {
 		CConstraint c = new CConstraint();
 		XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		try {
-			c.addBinding(id, XTerms.makeLit(0));
+			c.addBinding(id, CTerms.makeLit(0, xts.Int()));
 			Type type = Types.xclause(xts.Place(), c);
 			assert Types.consistent(type);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
@@ -821,8 +825,8 @@ public class Synthesizer {
 				X10ClassType act = (X10ClassType) bt; 
 				if (index < act.propertyInitializers().size()) {
 					Expr e = act.propertyInitializer(index);
-					if (e.isConstant() && e.constantValue() instanceof String) {
-						return (String) e.constantValue();
+					if (e.isConstant() && e.constantValue() instanceof StringValue) {
+						return ((StringValue) e.constantValue()).value();
 					}   
 				}   
 			}   
@@ -960,8 +964,8 @@ public class Synthesizer {
         // constructor
         X10ConstructorDecl xd = (X10ConstructorDecl) xnf.ConstructorDecl(p, xnf.FlagsNode(p, Flags.PRIVATE), cDecl
                 .name(), fList,  block);
-        xd.typeParameters(cDecl.typeParameters());
-        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+        xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+        xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
         ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), Flags.PRIVATE, ftList);
         return (X10ConstructorDecl) xd.constructorDef(xDef);
@@ -1018,8 +1022,8 @@ public class Synthesizer {
                 cDecl.name(),
                 fList,                              // formal types
                 block);
-        xd.typeParameters(cDecl.typeParameters());
-        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+        xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+        xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
@@ -1339,8 +1343,8 @@ public class Synthesizer {
                 cDecl.name(),
                 Collections.<Formal>emptyList(),
                 xnf.Block(p));
-        xd.typeParameters(cDecl.typeParameters());
-        xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
+        xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+        xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
         ConstructorDef xDef = xts.constructorDef(p,
                 Types.ref(cDef.asType()),
@@ -1395,7 +1399,7 @@ public class Synthesizer {
 				typeArgs.add(nf.X10CanonicalTypeNode(pos, t));
 		}
 
-		DepParameterExpr dep = nf.DepParameterExpr(pos, makeExpr(c, pos));
+		DepParameterExpr dep = nf.DepParameterExpr(pos, makeExpr(c, Types.baseType(type), pos));
 		
 		QName qName = QName.make(typeName);
 		QName qual = qName.qualifier();
@@ -1438,7 +1442,7 @@ public class Synthesizer {
         } else if (t instanceof CLocal) {
             CLocal local = (CLocal) t;
             res.add(local.localDef());
-        } else if (t instanceof XFormula) {
+        } else if (t instanceof XFormula<?>) {
             final XFormula<?> xFormula = (XFormula<?>) t;
             for (XTerm tt: xFormula.arguments())
                 res.addAll(getLocals(tt));
@@ -1451,34 +1455,43 @@ public class Synthesizer {
      * @return the expression corresponding to the constraint
      * @seeAlso X10TypeTranslator.constraint(...): it generates a constraint from an AST.
      */
-    Expr makeExpr(XTerm t, Position pos) {
+    Expr makeExpr(XTerm t, Type baseType, Position pos) {
         if (t instanceof CField) 
-            return makeExpr((CField) t, pos);
+            return makeExpr((CField) t, baseType, pos);
         if (t instanceof XLit)
-            return makeExpr((XLit) t, pos);
+            return makeExpr((XLit) t, baseType, pos);
         if (t instanceof XEquals)
-            return makeExpr((XEquals) t, pos);
+            return makeExpr((XEquals) t, baseType, pos);
         if (t instanceof XDisEquals)
-            return makeExpr((XDisEquals) t, pos);
+            return makeExpr((XDisEquals) t, baseType, pos);
         if (t instanceof CSelf)
-            return makeExpr((CSelf) t, pos); // this must occur before XLocal_c
+            return makeExpr((CSelf) t, baseType, pos); // this must occur before XLocal_c
         if (t instanceof CThis)
-            return makeExpr((CThis) t, pos); // this must occur before XLocal_c
+            // If we were able to ensure that a CThis without an enclosing QVar
+            // always represents a non-qualified this, then we should pass null here.
+            // However, an occurrence of a qualified this in an arg to a macro call
+            // is treated as if it is not in a deptype, and for such a qualified this
+            // we get a CThis from XTypeTranslaor, not a QualifiedVar.
+            // So we pass ((CThis) t).type(). It is safe to do so.
+            return makeExpr((CThis) t, /*null,*/ ((CThis) t).type(), baseType, pos); // this must occur before XLocal_c
         if (t instanceof XEQV)
-            return makeExpr((XEQV) t, pos); // this must occur before XLocal_c
+            return makeExpr((XEQV) t, baseType, pos); // this must occur before XLocal_c
         if (t instanceof XUQV)
-            return makeExpr((XUQV) t, pos); // this must occur before XLocal_c
+            return makeExpr((XUQV) t, baseType, pos); // this must occur before XLocal_c
+        if (t instanceof QualifiedVar) {
+            return makeExpr((QualifiedVar) t, baseType, pos);
+        }
         if (t instanceof CLocal)
-            return makeExpr((CLocal) t, pos);
+            return makeExpr((CLocal) t, baseType, pos);
         if (t instanceof XNot)
-            return makeExpr((XNot) t, pos);
+            return makeExpr((XNot) t, baseType, pos);
         if (t instanceof XFormula<?>)
-            return makeExpr((XFormula<?>) t, pos);
+            return makeExpr((XFormula<?>) t, baseType, pos);
         // FIXME: warn about being unable to translate the term
         return null;
     }
 
-    TypeNode makeTypeNode(XVar receiver, Position pos) {
+    TypeNode makeTypeNode(XVar receiver, Type baseType, Position pos) {
         if (!(receiver instanceof XLit))
             return null;
         Object val = ((XLit) receiver).val();
@@ -1491,12 +1504,12 @@ public class Synthesizer {
         }
     }
 
-    Expr makeExpr(CField t, Position pos) {
+    Expr makeExpr(CField t, Type baseType, Position pos) {
         if (t.isHidden())
             return null;
-        Receiver r = makeExpr(t.receiver(), pos);
+        Receiver r = makeExpr(t.receiver(), baseType, pos);
         if (r == null) {
-            r = makeTypeNode(t.receiver(), pos);
+            r = makeTypeNode(t.receiver(), baseType, pos);
         }
         if (r == null)
             return null;
@@ -1513,12 +1526,52 @@ public class Synthesizer {
     }
 
     // FIXME: merge with makeExpr(XLocal, Position)
-    Expr makeExpr(CSelf t, Position pos) {
+    Expr makeExpr(CSelf t, Type baseType, Position pos) {
         return xnf.Special(pos, X10Special.SELF);
     }
-    Expr makeExpr(CThis ct, Position pos) {
+  /*  if (n instanceof Special){
+        // if it's an outer instance, then we need to access the outer field
+        Special special = (Special) n;
+        TypeNode qualifer = special.qualifier();
+        if (qualifer==null) return newReceiver;
+        // qualifer doesn't have type info because it was created in Synthesizer.makeExpr
+        qualifer = (TypeNode) qualifer.visit(builder).visit(checker);
+        ClassType ct =  qualifer.type().toClass();
+        ClassType receiverType = Types.getClassType(newReceiver.type(), ts, context);
+        if (receiverType==null)
+            return newReceiver;
+        final ClassDef newReceiverDef = receiverType.def();
+        final ClassDef qualifierDef = ct.def();
+        if (newReceiverDef==qualifierDef)
+            return newReceiver;
+        return nf.Call(pos,newReceiver, nf.Id(pos,X10ClassDecl_c.getThisMethod(newReceiverDef.fullName(),ct.fullName())));
+    }*/
+    Expr makeExpr(QualifiedVar v, Type baseType, Position pos) {
         TypeNode tn = null;
-        Type type = ct.type();
+        ClassType ct = v.type().toClass();
+        XVar var = v.receiver();
+        if (var instanceof CThis)  // use old code, but with type taken from v
+            return makeExpr((CThis) var, v.type(), baseType, pos);
+        if (! (var instanceof Typed || var instanceof CSelf))
+            // Unable to generate an expression for this term.
+            return null;
+        // Todo: Make self Typed.
+        Type varType;
+        
+        if (var instanceof CSelf) {
+            varType = baseType;
+        } else {
+            varType = ((Typed) var).type();
+        }
+        ClassType varClassType = Types.getClassType(varType, xts);
+        ClassDef varDef = varClassType.def(); 
+        return xnf.Call(pos, 
+                        xnf.AmbExpr(pos, xnf.Id(pos,Name.make(var.toString()))),
+                        xnf.Id(pos, X10ClassDecl_c.getThisMethod(varDef.fullName(), 
+                                                                 ct.fullName())));
+    }
+    Expr makeExpr(CThis ct, Type type, Type baseType, Position pos) {
+        TypeNode tn = null;
         if (type != null) {
             tn = xnf.CanonicalTypeNode(pos, type);
         }
@@ -1526,42 +1579,47 @@ public class Synthesizer {
                 : xnf.Special(pos, X10Special.THIS, tn);
      
     }
-    Expr makeExpr(XEQV t, Position pos) {
+    Expr makeExpr(XEQV t, Type baseType, Position pos) {
         assert false;
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
-    Expr makeExpr(XUQV t, Position pos) {
+    Expr makeExpr(XUQV t, Type baseType, Position pos) {
         String str = t.toString();
-        if (str.equals("here"))
+        if (t == PlaceChecker.here())
             return xnf.Here(pos);
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
 
     // FIXME: merge with makeExpr(XEQV, Position)
-    Expr makeExpr(CLocal t, Position pos) {
+    Expr makeExpr(CLocal t, Type baseType, Position pos) {
         String str = t.name().toString();
-        if (str.equals("here"))
-            return xnf.Here(pos);
         return xnf.AmbExpr(pos, xnf.Id(pos,t.name().name()));
     }
 
-    Expr makeExpr(XNot t, Position pos) {
-        Expr expr = makeExpr(t.arguments().get(0), pos);
+    Expr makeExpr(XNot t, Type baseType, Position pos) {
+        Expr expr = makeExpr(t.arguments().get(0), baseType, pos);
         if (expr == null)
             return null;
         return xnf.Unary(pos, expr, Unary.NOT);
     }
 
-    Expr makeExpr(XLit t, Position pos) {
+    Expr makeExpr(XLit t, Type baseType, Position pos) {
+        if (t instanceof CLit) {
+            CLit l = (CLit) t;
+            if (baseType != null && !xts.isSubtype(l.type(), baseType)) {
+                throw new InternalCompilerError("Invalid expected literal type: "+baseType+" for "+l.type());
+            }
+            baseType = l.type();
+        }
         Object val = t.val();
         if (val == null)
             return xnf.NullLit(pos);
         if (val instanceof String)
             return xnf.StringLit(pos, (String) val);
         if (val instanceof Integer)
-            return xnf.IntLit(pos, IntLit.INT, ((Integer) val).intValue());
+            return xnf.IntLit(pos, CLit.getIntLitKind(baseType), ((Integer) val).intValue());
         if (val instanceof Long)
-            return xnf.IntLit(pos, IntLit.LONG, ((Long) val).longValue());
+            return xnf.IntLit(pos, CLit.getIntLitKind(baseType), ((Long) val).longValue());
         if (val instanceof Boolean)
             return xnf.BooleanLit(pos, ((Boolean) val).booleanValue());
         if (val instanceof Character)
@@ -1576,26 +1634,26 @@ public class Synthesizer {
         return null;
     }
 
-    Expr makeExpr(XEquals t, Position pos) {
-        Expr left = makeExpr(t.arguments().get(0), pos);
-        Expr right = makeExpr(t.arguments().get(1), pos);
+    Expr makeExpr(XEquals t, Type baseType, Position pos) {
+        Expr left = makeExpr(t.arguments().get(0), baseType, pos);
+        Expr right = makeExpr(t.arguments().get(1), baseType, pos);
         if (left == null || right == null)
             return null;
         return xnf.Binary(pos, left, Binary.EQ, right);
     }
 
-    Expr makeExpr(XDisEquals t, Position pos) {
-        Expr left = makeExpr(t.arguments().get(0), pos);
-        Expr right = makeExpr(t.arguments().get(1), pos);
+    Expr makeExpr(XDisEquals t, Type baseType, Position pos) {
+        Expr left = makeExpr(t.arguments().get(0), baseType, pos);
+        Expr right = makeExpr(t.arguments().get(1), baseType, pos);
         if (left == null || right == null)
             return null;
         return xnf.Binary(pos, left, Binary.NE, right);
     }
 
-    Expr makeExpr(XFormula<?> t, Position pos) {
+    Expr makeExpr(XFormula<?> t, Type baseType, Position pos) {
         List<Expr> args = new ArrayList<Expr>();
         for (XTerm a : t.arguments()) {
-            Expr e = makeExpr(a, pos);
+            Expr e = makeExpr(a, baseType, pos);
             if (e == null)
                 return null;
             args.add(e);
@@ -1623,14 +1681,14 @@ public class Synthesizer {
         //}
     }
 
-    public List<Expr> makeExpr(CConstraint c, Position pos) {
+    public List<Expr> makeExpr(CConstraint c, Type baseType, Position pos) {
         List<Expr> es = new ArrayList<Expr>();
-        if (c==null)
+        if (c == null)
             return es;
-        List<XTerm> terms  = c.extConstraints();
+        List<XTerm> terms = c.extConstraints();
 
         for (XTerm term : terms) {
-            Expr e = makeExpr(term, pos);
+            Expr e = makeExpr(term, null, pos);
             if (e != null)
                 es.add(e);
         }

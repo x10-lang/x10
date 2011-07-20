@@ -47,9 +47,11 @@ import polyglot.types.Types;
 import polyglot.util.Pair;
 import polyglot.util.Position;
 import x10.ast.AnnotationNode;
+import x10.ast.ClosureCall;
 import x10.ast.X10Call;
 import x10.ast.X10MethodDecl;
 import x10.compiler.ws.util.WSUtil;
+import x10.types.MethodInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10MethodDef;
@@ -101,7 +103,7 @@ public class WSSynthesizer {
     static final protected Name REDIRECT = Name.make("redirect");
     static final protected Name CONTINUE_LATER = Name.make("continueLater");
     static final protected Name CONTINUE_NOW = Name.make("continueNow");
-    static final protected Name OPERATOR = Name.make("operator()");
+    static final protected Name OPERATOR = ClosureCall.APPLY;
     static final protected Name ENTER_ATOMIC = Name.make("enterAtomic");
     static final protected Name EXIT_WHEN = Name.make("exitWSWhen");
     static final protected Name ACCEPT = Name.make("accept");    
@@ -121,9 +123,13 @@ public class WSSynthesizer {
         this.synth = new Synthesizer(nf, ts);
     }
     
+    public Position position(Position pos, String s) {
+        return new Position(pos.path(), pos.nameAndLineString() + s);
+    }
+    
     public ClassSynth createClassSynth(Job job, Context ct, Type superClassType,
                                        X10ClassDef outClassDef, Flags flags, String className){
-        ClassSynth classSynth = new ClassSynth(job, nf, ct, superClassType, className);
+        ClassSynth classSynth = new ClassSynth(job, nf, ct, position(outClassDef.position(), className), superClassType, className);
         classSynth.setKind(ClassDef.MEMBER);
         classSynth.setFlags(flags);
         classSynth.setOuter(outClassDef);
@@ -131,7 +137,7 @@ public class WSSynthesizer {
     }
     
     public MethodSynth createFastMethodSynth(ClassSynth classSynth, boolean isInline){
-        MethodSynth fastMSynth = classSynth.createMethod(compilerPos, FAST.toString());
+        MethodSynth fastMSynth = classSynth.createMethod(classSynth.pos(), FAST.toString());
         fastMSynth.setFlag(Flags.PUBLIC);
         if (isInline){
             //only set inline to inner frames, not top frames
@@ -142,21 +148,21 @@ public class WSSynthesizer {
     }
     
     public MethodSynth createResumeMethodSynth(ClassSynth classSynth){
-        MethodSynth resumeMSynth = classSynth.createMethod(compilerPos, RESUME.toString());
+        MethodSynth resumeMSynth = classSynth.createMethod(classSynth.pos(), RESUME.toString());
         resumeMSynth.setFlag(Flags.PUBLIC);
         resumeMSynth.addFormal(compilerPos, Flags.FINAL, ts.Worker(), WORKER.toString());
         return resumeMSynth;
     }
     
     public MethodSynth createBackMethodSynth(ClassSynth classSynth){
-        MethodSynth backMSynth = classSynth.createMethod(compilerPos, BACK.toString());
+        MethodSynth backMSynth = classSynth.createMethod(classSynth.pos(), BACK.toString());
         backMSynth.setFlag(Flags.PUBLIC);
         backMSynth.addFormal(compilerPos, Flags.FINAL, ts.Worker(), WORKER.toString());
         backMSynth.addFormal(compilerPos, Flags.FINAL, ts.Frame(), FRAME.toString());
         return backMSynth;
     }
     public ConstructorSynth createConstructorSynth(ClassSynth classSynth){
-        ConstructorSynth conSynth = classSynth.createConstructor(compilerPos);
+        ConstructorSynth conSynth = classSynth.createConstructor(classSynth.pos());
         conSynth.addAnnotation(genHeaderAnnotation());
         return conSynth;
     }
@@ -176,7 +182,7 @@ public class WSSynthesizer {
         Context ct = classSynth.getContext();
         ClassType cType = classSynth.getDef().asType();
         Type scType = PlaceChecker.AddIsHereClause(cType, ct);
-        MethodSynth methodSynth = classSynth.createMethod(compilerPos, REMAP.toString());
+        MethodSynth methodSynth = classSynth.createMethod(classSynth.pos(), REMAP.toString());
                 
         //upcast new instance
         Type upCastTargetType;
@@ -458,7 +464,7 @@ public class WSSynthesizer {
         
         String fastPathName = WSUtil.getMethodFastPathName(methodDef);
         MethodSynth methodSynth;
-        methodSynth = new MethodSynth(nf, ct, containerClassDef, fastPathName);
+        methodSynth = new MethodSynth(nf, ct, methodDef.position(), containerClassDef, fastPathName);
         methodSynth.setFlag(methodDef.flags());
         methodSynth.setReturnType(methodDef.returnType().get());
        
@@ -487,7 +493,7 @@ public class WSSynthesizer {
 
         //now create the body
         CodeBlockSynth mBodySynth = methodSynth.getMethodBodySynth(compilerPos);        
-        NewInstanceSynth niSynth = new NewInstanceSynth(nf, ct, compilerPos, classSynth.getClassDef().asType());
+        NewInstanceSynth niSynth = new NewInstanceSynth(nf, ct, classSynth.pos(), classSynth.getClassDef().asType());
         niSynth.addArgument(ts.Frame(), upRef);
         niSynth.addArgument(ts.FinishFrame(), ffRef);
         niSynth.addArguments(orgFormalTypes, orgFormalRefs);
@@ -591,11 +597,9 @@ public class WSSynthesizer {
      * @throws SemanticException
      */
     public Stmt genWSCallStmt(Call orgCall, ClassSynth classSynth, MethodSynth methodSynth) throws SemanticException{
-        MethodDef methodDef = orgCall.methodInstance().def();
-
         Context ct = classSynth.getContext();
       
-        X10MethodDef mDef = WSUtil.createWSCallMethodDef(methodDef, ts);
+        MethodInstance mi = WSUtil.createWSMethodInstance(orgCall.methodInstance(), ts);
 
         //preparing the references for invocation the call
         Type cType = classSynth.getDef().asType();
@@ -621,7 +625,7 @@ public class WSSynthesizer {
         newArgs.add(parentRef);
         newArgs.add(ffRef);
         
-        X10Call fastMCall = WSUtil.replaceMethodCallWithWSMethodCall(nf,(X10Call) orgCall, mDef, newArgs);
+        X10Call fastMCall = WSUtil.replaceMethodCallWithWSMethodCall(nf,(X10Call) orgCall, mi, newArgs);
         
         return nf.Eval(orgCall.position(), fastMCall);
     }

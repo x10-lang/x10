@@ -37,6 +37,7 @@ import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 public class TypeDef_c extends MemberDef_c implements TypeDef {
 	private static final long serialVersionUID = -5353460234705168368L;
@@ -184,6 +185,14 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 
 	public void setThisDef(ThisDef thisDef) {
 		this.thisDef = thisDef;
+	}
+
+	protected XConstrainedTerm placeTerm;
+	public XConstrainedTerm placeTerm() { return placeTerm; }
+	public void setPlaceTerm(XConstrainedTerm pt) {
+	    if (placeTerm != null)
+	        assert (placeTerm == null);
+	    placeTerm = pt;
 	}
 
 	public List<LocalDef> formalNames() {

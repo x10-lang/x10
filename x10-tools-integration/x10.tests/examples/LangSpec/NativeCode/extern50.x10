@@ -26,7 +26,7 @@ public class extern50 extends x10Test {
     }
 
 
-// file NativeCode line 101
+// file NativeCode line 102
  static class Species {
   @Native("c++","printf(\"Sum=%d\", ((#1)+(#2)) )")
   @Native("java","System.out.println(\"\" + ((#1)+(#2)))")

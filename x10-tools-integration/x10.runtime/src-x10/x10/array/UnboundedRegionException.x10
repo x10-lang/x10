@@ -17,4 +17,8 @@ public class UnboundedRegionException extends RuntimeException {
     public def this(msg: String): UnboundedRegionException {
         super(msg);
     }
+
+    public def this(): UnboundedRegionException {
+        super();
+    }
 }

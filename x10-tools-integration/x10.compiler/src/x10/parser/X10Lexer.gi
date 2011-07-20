@@ -148,6 +148,18 @@
     LARROW
     FUNNEL
     LFUNNEL
+    DIAMOND
+    BOWTIE
+
+    RANGE_EQUAL
+    ARROW_EQUAL
+    STARSTAR_EQUAL
+    TWIDDLE_EQUAL
+    LARROW_EQUAL
+    FUNNEL_EQUAL
+    LFUNNEL_EQUAL
+    DIAMOND_EQUAL
+    BOWTIE_EQUAL
 
     IDENTIFIER
 
@@ -926,6 +938,66 @@
                     makeToken($_LFUNNEL);
           $EndAction
         ./
+
+    Token ::= '<' '>'
+        /.$BeginAction
+                    makeToken($_DIAMOND);
+          $EndAction
+        ./
+
+    Token ::= '>' '<'
+        /.$BeginAction
+                    makeToken($_BOWTIE);
+          $EndAction
+        ./
+
+    Token ::= '.' '.' '='
+        /.$BeginAction
+                    makeToken($_RANGE_EQUAL);
+          $EndAction
+        ./
+    Token ::= '-' '>' '='
+        /.$BeginAction
+                    makeToken($_ARROW_EQUAL);
+          $EndAction
+        ./
+    Token ::= '*' '*' '='
+        /.$BeginAction
+                    makeToken($_STARSTAR_EQUAL);
+          $EndAction
+        ./
+    Token ::= '~' '='
+        /.$BeginAction
+                    makeToken($_TWIDDLE_EQUAL);
+          $EndAction
+        ./
+    Token ::= '<' '-' '='
+        /.$BeginAction
+                    makeToken($_LARROW_EQUAL);
+          $EndAction
+        ./
+    Token ::= '-' '<' '='
+        /.$BeginAction
+                    makeToken($_FUNNEL_EQUAL);
+          $EndAction
+        ./
+    Token ::= '>' '-' '='
+        /.$BeginAction
+                    makeToken($_LFUNNEL_EQUAL);
+          $EndAction
+        ./
+    Token ::= '<' '>' '='
+        /.$BeginAction
+                    makeToken($_DIAMOND_EQUAL);
+          $EndAction
+        ./
+
+    Token ::= '>' '<' '='
+        /.$BeginAction
+                    makeToken($_BOWTIE_EQUAL);
+          $EndAction
+        ./
+
 
     IntLiteralAndRange ::= Integer '.' '.'
          /.$BeginAction

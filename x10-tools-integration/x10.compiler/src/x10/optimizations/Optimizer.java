@@ -22,8 +22,9 @@ import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 import x10.Configuration;
 import x10.ExtensionInfo;
-import x10.X10CompilerOptions;
 import x10.ExtensionInfo.X10Scheduler.ValidatingVisitorGoal;
+import x10.X10CompilerOptions;
+import x10.optimizations.inlining.DeclPackager;
 import x10.optimizations.inlining.Inliner;
 import x10.visit.CodeCleanUp;
 import x10.visit.ConstantPropagator;
@@ -35,12 +36,7 @@ public class Optimizer {
 
     public static boolean INLINING(ExtensionInfo extInfo) {
         Configuration config = extInfo.getOptions().x10_config;
-        if (!config.OPTIMIZE)        return false;
-        if (config.INLINE_CONSTANTS) return true;
-        if (config.INLINE_METHODS)   return true;
-        if (config.INLINE_CLOSURES)  return true;
-        if (config.INLINE_METHODS_IMPLICIT) return true;
-        return false;
+        return config.OPTIMIZE && (config.INLINE || 0 < config.INLINE_SIZE);
     }
 
     public static boolean FLATTENING(ExtensionInfo extInfo) {
@@ -61,24 +57,29 @@ public class Optimizer {
     private final Scheduler     scheduler;
     private final Job           job;
     private final ExtensionInfo extInfo;
+    private final Configuration config;
     private final TypeSystem    ts;
     private final NodeFactory   nf;
 
-    private Optimizer(Scheduler s, Job j) {
+    public Optimizer(Scheduler s, Job j) {
         scheduler = s;
         job       = j;
         extInfo   = (ExtensionInfo) j.extensionInfo();
+        config    = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         ts        = extInfo.typeSystem();
         nf        = extInfo.nodeFactory();
+    }
+
+    public static List<Goal> preInlinerGoals(Scheduler scheduler, Job job) {
+        return new Optimizer(scheduler, job).preInlinerGoals();
     }
 
     public static List<Goal> goals(Scheduler scheduler, Job job) {
         return new Optimizer(scheduler, job).goals();
     }
 
-    private List<Goal> goals() {
+    private List<Goal> preInlinerGoals() {
         List<Goal> goals = new ArrayList<Goal>();
-        Configuration config = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
         if (CONSTRUCTOR_SPLITTING(extInfo)) {
             goals.add(ConstructorSplitter());
         }
@@ -86,13 +87,19 @@ public class Optimizer {
             goals.add(LoopUnrolling());
             goals.add(ForLoopOptimizations());
         }
+        return goals;
+    }
+
+    private List<Goal> goals() {
+        List<Goal> goals = preInlinerGoals();
         if (INLINING(extInfo)) {
+            goals.add(Packager());
             goals.add(Inliner());
         }
         if (FLATTENING(extInfo)) {
             goals.add(ExpressionFlattener());
         }
-        if (config.CODE_CLEAN_UP) {
+        if (config.CODE_CLEAN_UP && !config.DEBUG) {
             goals.add(CodeCleanUp());
         }
         // workaround for XTENLANG-2705
@@ -116,6 +123,12 @@ public class Optimizer {
     public Goal ForLoopOptimizations() {
         NodeVisitor visitor = new ForLoopOptimizer(job, ts, nf);
         Goal goal = new ValidatingVisitorGoal("For Loop Optimizations", job, visitor);
+        return goal.intern(scheduler);
+    }
+
+    public Goal Packager() {
+        NodeVisitor visitor = new DeclPackager(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("Packaged decl's", job, visitor);
         return goal.intern(scheduler);
     }
 

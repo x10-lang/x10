@@ -25,6 +25,13 @@ public class GenericOverloading11_MustFailCompile extends GenericTest {
 
     static def m[T,U](T) = 0;
     static def m[T,U](U) = 1;
+	def test1() {
+		val x:Int{self==0} = m[Int,String](1);
+		val y:Int{self==1} = m[Int,String]("a");
+	}
+	def test2() {
+		m[Int,Int](1); // ERR
+	}
 
     public def run(): boolean = true;
 

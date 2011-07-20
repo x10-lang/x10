@@ -28,6 +28,7 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import x10.errors.Errors;
+import x10.types.constants.ConstantValue;
 
 /**
  * @author vj Feb 4, 2005
@@ -122,7 +123,7 @@ public class SubtypeTest_c extends Expr_c implements SubtypeTest {
 		return false;
 	}
 
-	public Object constantValue() {
+	public ConstantValue constantValue() {
 		return null;
 	}
 

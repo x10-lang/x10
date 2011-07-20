@@ -20,7 +20,5 @@ public interface ThisDef extends VarDef, X10Def {
     ThisInstance asInstance();
     XVar thisVar();
     void setThisVar(XVar thisVar);
-    XTerm placeTerm();
-    void setPlaceTerm(XTerm xt);
     public static final Name THIS = Name.make("this");
 }

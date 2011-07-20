@@ -26,7 +26,7 @@ public class InnerClasses70 extends x10Test {
     }
 
 
-// file InnerClasses line 313
+// file InnerClasses line 321
 abstract static  class Choice(name: String) {
   def this(name:String) {property(name);}
   def choose(b:Boolean) {

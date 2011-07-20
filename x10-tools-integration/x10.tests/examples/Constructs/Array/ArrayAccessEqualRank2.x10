@@ -32,12 +32,13 @@ public class ArrayAccessEqualRank2 extends x10Test {
 
     public def run(): boolean = {
 
-	val R = Region.make(0,9), S = Region.make(0,9); 
+	val R = Region.make(0,9);
+        val S = Region.make(0,9); 
 	// R and S should both be rank 1.
 	val D = Dist.make(R);
 	val E = Dist.make(S);
-        val a = DistArray.make[Int](D, (Point)=>0), 
-	b = DistArray.make[Int](E,(Point)=>0);
+        val a = DistArray.make[Int](D, (Point)=>0);
+        val b = DistArray.make[Int](E, (Point)=>0);
 	arrayEqual(a,b);
         return true;
     }

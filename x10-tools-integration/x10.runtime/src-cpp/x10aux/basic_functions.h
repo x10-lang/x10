@@ -56,6 +56,7 @@ namespace x10aux {
     inline GPUSAFE x10_boolean compare_references(ref<x10::lang::Reference> x, ref<x10::lang::Reference> y) {
         if (x == y) return true;
         if (x.isNull()) return y.isNull();
+        if (y.isNull()) return false;
         return compare_references_slow(x, y);
     }        
 

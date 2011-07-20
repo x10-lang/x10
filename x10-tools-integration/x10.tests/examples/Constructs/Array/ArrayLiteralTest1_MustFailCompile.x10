@@ -22,7 +22,8 @@ public class ArrayLiteralTest1_MustFailCompile extends x10Test {
         val r = [1, 2, 3];
         val a = [0 as Int{self!=0}, // ERR: Cannot cast expression to type
                  1 as Int{self!=0},2 as Int{self!=0},3 as Int{self!=0}];
-        var sumr:int=0, suma:int=0;
+        var sumr:int=0;
+        var suma:int=0;
         for (i in a.values()) suma += i;
         for (i in r.values()) sumr +=i;
         return suma==6 && sumr==6;

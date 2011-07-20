@@ -12,10 +12,13 @@
 package x10.ast;
 
 import polyglot.ast.Expr;
+import x10.types.constraints.XConstrainedTerm;
 
 /** The node constructed for the X10 place designator here.
  *
  */
 public interface Here extends Expr {
+    XConstrainedTerm placeTerm();
+    Here placeTerm(XConstrainedTerm pt);
 }
 

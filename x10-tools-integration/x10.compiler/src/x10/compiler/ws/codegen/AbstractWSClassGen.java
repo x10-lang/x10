@@ -106,8 +106,6 @@ import x10.util.synthesizer.SuperCallSynth;
 import x10.visit.ExpressionFlattener;
 
 /**
- * @author Haichuan
- * 
  * The base of different kinds of WS class generator
  * 
  * Because one method will be divided into different segments (control flows)
@@ -117,8 +115,9 @@ import x10.visit.ExpressionFlattener;
  * In order to represent the tree structure, the AbstractWSClassGen
  * is a tree node, too. It has parent and child
  *
+ * @author Haichuan
  */
-public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{   
+public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap {   
 
     static final protected Position compilerPos = Position.COMPILER_GENERATED;
     
@@ -331,14 +330,10 @@ public abstract class AbstractWSClassGen implements ILocalToFieldContainerMap{
         CodeBlockSynth resumeBodySynth = resumeMSynth.getMethodBodySynth(compilerPos);
         CodeBlockSynth backBodySynth = backMSynth.getMethodBodySynth(compilerPos);
         
-        // Processing closure's def: create different clsoureDef for fast&resume path's closure
-        fastBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), fastMSynth.getDef()));
-        resumeBodySynth.addCodeProcessingJob(new ClosureDefReinstantiator(xts, xct, this.getClassDef(), resumeMSynth.getDef()));
-
         // add change locals to fields
-        fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
-        backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(xnf, this.getRefToDeclMap()));
+        fastBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(job, this.getRefToDeclMap()).context(xct));
+        resumeBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(job, this.getRefToDeclMap()).context(xct));
+        backBodySynth.addCodeProcessingJob(new AddIndirectLocalDeclareVisitor(job, this.getRefToDeclMap()).context(xct));
     }
 
     protected abstract void genMethods() throws SemanticException;

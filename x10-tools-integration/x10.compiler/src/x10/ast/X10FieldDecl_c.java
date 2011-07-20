@@ -331,7 +331,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         // of a field, without waiting for a ConstantsChecked pass to run.
         if (init instanceof StringLit) {
             String val = ((StringLit) init).value();
-            fi.setConstantValue(val);
+            fi.setConstantValue(x10.types.constants.ConstantValue.makeString(val));
         }
 
         // TODO: Could infer type of final fields as LCA of types assigned in the constructor.
@@ -345,20 +345,14 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
         return n;
     }
     
-	    private static boolean computing = false;
 	    public static boolean shouldInferType(Node n, TypeSystem ts) {
-	        if (computing)
-	            throw new NullPointerException();
 	        try {
-	            computing = true;
 	            Type at = ts.systemResolver().findOne(QName.make("x10.compiler.NoInferType"));
 	            boolean res = ((X10Ext)n.ext()).annotationMatching(at).isEmpty();
 	            if (res == true) return true;
-                return res;
+	            return res;
 	        } catch (SemanticException e) {
 	            return false;
-	        } finally {
-	            computing = false;
 	        }
 	    }
 
@@ -383,21 +377,21 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
 	    @Override
 	    public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-            NodeVisitor childtc = tc.enter(parent, this);
+	        X10FieldDecl_c nn = this;
+	        X10FieldDecl old = nn;
 
-            List<AnnotationNode> oldAnnotations = ((X10Ext) ext()).annotations();
-            List<AnnotationNode> newAnnotations = node().visitList(oldAnnotations, childtc);
+	        NodeVisitor childtc = tc.enter(parent, nn);
+	        nn = (X10FieldDecl_c) X10Del_c.visitAnnotations(nn, childtc);
 
-            // Do not infer types of native fields
-            if (type instanceof UnknownTypeNode && ! shouldInferType(this, tc.typeSystem()))
-                Errors.issue(tc.job(), new Errors.CannotInferNativeFieldType(position()));
+	        // Do not infer types of native fields
+	        if (nn.type() instanceof UnknownTypeNode && ! shouldInferType(nn, tc.typeSystem()))
+	            Errors.issue(tc.job(), new Errors.CannotInferNativeFieldType(nn.position()));
 
-            if (hasType != null && ! flags().flags().isFinal()) {
-	            Errors.issue(tc.job(), new Errors.OnlyValMayHaveHasType(this));
+	        if (nn.hasType != null && ! nn.flags().flags().isFinal()) {
+	            Errors.issue(tc.job(), new Errors.OnlyValMayHaveHasType(nn));
 	        }
-	        if (type() instanceof UnknownTypeNode && shouldInferType(this, tc.typeSystem())) {
-
-	            Expr init = (Expr) this.visitChild(init(), childtc);
+	        if (nn.type() instanceof UnknownTypeNode && shouldInferType(nn, tc.typeSystem())) {
+	            Expr init = (Expr) nn.visitChild(nn.init(), childtc);
 	            if (init != null) {
 	                Type t = init.type();
 	                if (t instanceof X10ClassType) {
@@ -409,15 +403,15 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                            t = ct.superClass();
 	                    }
 	                }
-	                Context xc = enterChildScope(type(), tc.context());
+	                Context xc = nn.enterChildScope(nn.type(), tc.context());
 	                t = PlaceChecker.ReplaceHereByPlaceTerm(t, xc);
-	                LazyRef<Type> r = (LazyRef<Type>) type().typeRef();
+	                LazyRef<Type> r = (LazyRef<Type>) nn.type().typeRef();
 	                r.update(t);
 	                TypeNode htn = null;
 	                {
-	                    TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
-	                    if (hasType != null) {
-	                        htn = (TypeNode) visitChild(hasType, childtc);
+	                    TypeNode tn = (TypeNode) nn.visitChild(nn.type(), childtc);
+	                    if (nn.hasType != null) {
+	                        htn = (TypeNode) nn.visitChild(nn.hasType, childtc);
 	                        boolean checkSubType = true;
 	                        try {
 	                            Types.checkMissingParameters(htn);
@@ -425,33 +419,27 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	                            Errors.issue(tc.job(), e, htn);
 	                            checkSubType = false;
 	                        }
-	                        if (checkSubType && ! htn.type().typeSystem().isSubtype(type().type(), htn.type(),tc.context())) {
-	                            xc = (Context) enterChildScope(init, tc.context());
+	                        if (checkSubType && ! htn.type().typeSystem().isSubtype(nn.type().type(), htn.type(),tc.context())) {
+	                            xc = (Context) nn.enterChildScope(init, tc.context());
 	                            Expr newInit = Converter.attemptCoercion(tc.context(xc), init, htn.type());
 	                            if (newInit == null) {
 	                                Errors.issue(tc.job(),
-	                                             new Errors.TypeIsNotASubtypeOfTypeBound(type().type(),
+	                                             new Errors.TypeIsNotASubtypeOfTypeBound(nn.type().type(),
 	                                                                                     htn.type(),
-	                                                                                     position()));
+	                                                                                     nn.position()));
 	                            } else {
-                                    init = newInit;
-                                    r.update(newInit.type()); 
+	                                init = newInit;
+	                                r.update(newInit.type()); 
 	                            }
 	                        }
 	                    }
 	                }
-	                FlagsNode flags = (FlagsNode) this.visitChild(flags(), childtc);
-	                Id name = (Id) this.visitChild(name(), childtc);
-	                TypeNode tn = (TypeNode) this.visitChild(type(), childtc);
+	                FlagsNode flags = (FlagsNode) nn.visitChild(nn.flags(), childtc);
+	                Id name = (Id) nn.visitChild(nn.name(), childtc);
+	                TypeNode tn = (TypeNode) nn.visitChild(nn.type(), childtc);
 
-	                Node n = tc.leave(parent, this, reconstruct(flags, tn, name, init, htn), childtc);
-	                if (oldAnnotations == null || oldAnnotations.isEmpty()) {
-	                    return n;
-	                }
-	                if (! CollectionUtil.allEqual(oldAnnotations, newAnnotations)) {
-	                    return ((X10Del) n.del()).annotations(newAnnotations);
-	                }
-	                return n;
+	                nn = nn.reconstruct(flags, tn, name, init, htn);
+	                return tc.leave(parent, old, nn, childtc);
 	            }
 	        }
 	        return null;
@@ -516,7 +504,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
             if (needsInit || isTransient) {
                 final boolean hasZero = Types.isHaszero(type, xc);
                 // creating an init.
-	    		Expr e = Types.getZeroVal(typeNode,position().markCompilerGenerated(),tc);
+                ContextVisitor tcWithNewContext = tc.context(xc);
+	    		Expr e = Types.getZeroVal(typeNode,position().markCompilerGenerated(),tcWithNewContext);
                 if (needsInit) {
                     if (e != null) {
                         n = (X10FieldDecl_c) n.init(e);

@@ -35,8 +35,11 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.errors.Errors;
+
+import x10.types.constraints.QualifiedVar;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
+import x10.types.X10ClassDef;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalDef_c;
 import x10.types.X10LocalInstance;
@@ -45,12 +48,14 @@ import x10.types.X10ProcedureDef;
 import x10.types.X10ProcedureInstance;
 import x10.types.MacroType;
 import polyglot.types.TypeSystem;
+import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 import x10.X10CompilerOptions;
 
 
@@ -139,7 +144,7 @@ public class Matcher {
 	private static <PI extends X10ProcedureInstance<?>> PI instantiate(
 			final Context context, 
 			final PI me, 
-			/*inout*/ Type[] thisTypeArray,  
+			final /*inout*/ Type[] thisTypeArray,  
 			List<Type> typeActuals, 
 			final List<Type> actualsIn, 
 			boolean checkActuals) throws SemanticException
@@ -176,6 +181,7 @@ public class Matcher {
 			if (st == null)
 				thisType = Types.instantiateSelf(ythiseqv, thisType);
 		}
+		final Type thisTypeFinal = thisType;
 		thisTypeArray[0] = thisType;
 
 		XVar[] x = getSymbolicNames(me.formalNames(), xts); 
@@ -213,11 +219,16 @@ public class Matcher {
 				xthis = CTerms.makeThis(); 
 		}
 
+		final XVar codePlace = Types.getPlaceTerm(me);
+		XConstrainedTerm currentPlaceTerm = context.currentPlaceTerm();
+		final XTerm currentPlace = currentPlaceTerm != null ? currentPlaceTerm.term() : XTerms.makeEQV();
+
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
 		final Type[] Y = new Type[typeFormals.size()];
 		for (int i = 0; i < typeFormals.size(); i++) {
 	            Type xtype = xts.expandMacros(typeFormals.get(i));
 	            Y[i] = xts.expandMacros(typeActuals.get(i));
+	            Y[i] = Subst.subst(Y[i], currentPlace, codePlace);
 	           
 	            // TODO: should enforce this statically
 	            assert xtype instanceof ParameterType : xtype + " is not a ParameterType, is a " 
@@ -245,38 +256,50 @@ public class Matcher {
 	        		public void run() {
 	        			try {
 	        				Type rt = me.returnType(); // may be a macrotype
-	        				// Do not replace here by placeTerm. The return type may be used
-	        				// to compute the type of a closure, e.g. () => m(...)
-	        				// The type of the closure has to use here, so that 
-	        			    // here can get bound to the place at the point of invocation
-	        				// (rather than the point of definition). 
-	        			
+	        				rt = Subst.subst(rt, currentPlace, codePlace);
 	        				Type newReturnType = Subst.subst(rt, y2eqv, x2, Y, X);
+	        				// Replace all outer#this variables in the constraint
+	        				// (if any) by QualifiedVar's.
+	        				if (newReturnType instanceof ConstrainedType) {
+	        				    if (! isStatic) {
+	        				        List<X10ClassDef> outers = Types.outerTypes(thisTypeFinal);
+	        				        // Do not replace the lowest level this by qvar's -- only outer this.
+	        				        // That will be taken care of by existing code. 
+	        				        if (outers != null && outers.size() > 1) {
+	        				            XVar[] outerThis = new XVar[outers.size()-1];
+	        				            XVar[] outerYs = new XVar[outers.size()-1];
+	        				            for (int i=1; i < outers.size(); ++i) {
+	        				                outerYs[i-1] = new QualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
+	        				                outerThis[i-1]= outers.get(i).thisVar();
+	        				            }
+	        				            newReturnType = Subst.subst(newReturnType, outerYs, outerThis);
+	        				        } 
+	        				    }
+	        				}
 	        				if (! newReturnType.isVoid() && ! xts.isUnknown(newReturnType)) {
-	        					try {
-	        						
-	        						newReturnType = Subst.addIn(newReturnType, returnEnv2);
-	        						if ((! isStatic) && (! yeqvIsSymbol) ) {
-	        							newReturnType = Subst.project(newReturnType, ythiseqv);
-	        						}
-	        						for (int i= 1; i < actuals.size()+1; ++i) {
-	        						    newReturnType = Subst.project(newReturnType, (XVar) ys[i]);  
-	        						    
-	        						    
-	        						    Type t = actualsIn.get(i-1);
-	        						    XVar self = t instanceof ConstrainedType 
-	        						    ? Types.selfVar((ConstrainedType) t) : null;
-	        						    if (self != null) 
-	        						        newReturnType = Subst.project(newReturnType, self);
-	        						        
-	        								
-	        						}
-	        					} catch (XFailure z) {
-	        						throw new Errors.InconsistentReturnType(newReturnType, me);
-	        					}
+	        				    Type nrt = Subst.addIn(newReturnType, returnEnv2);
+	        				    if (xts.consistent(nrt, context))
+	        				        newReturnType = nrt;
+	        				    if ((! isStatic) && (! yeqvIsSymbol) ) {
+	        				        nrt = Subst.project(newReturnType, ythiseqv);
+	        				        if (xts.consistent(nrt, context))
+	        				            newReturnType = nrt;
+	        				    }
+	        				    for (int i= 1; i < actuals.size()+1; ++i) {
+	        				        nrt = Subst.project(newReturnType, (XVar) ys[i]);  
+	        				        if (xts.consistent(nrt, context))
+	        				            newReturnType = nrt;
+	        				        Type t = actualsIn.get(i-1);
+	        				        XVar self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
+	        				        if (self != null) {
+	        				            nrt = Subst.project(newReturnType, self);
+	        				            if (xts.consistent(nrt, context))
+	        				                newReturnType = nrt;
+	        				        }
+	        				    }
 	        				}
 	        				if (! xts.consistent(newReturnType, context)) {
-	        					throw  new Errors.InconsistentReturnType(newReturnType, me);
+	        				    throw new Errors.InconsistentReturnType(newReturnType, me);
 	        				}
 	        				newReturnTypeRef.update(newReturnType);
 	        			}
@@ -299,6 +322,7 @@ public class Matcher {
 			if (checkActuals) {
 				for (Type t : formals) {
 					t = Subst.subst(t, y2eqv, x2, Y, X); 
+					t = Subst.subst(t, currentPlace, codePlace);
 					newFormalTypes.add(t);
 				}
 			} else 	{
@@ -311,13 +335,10 @@ public class Matcher {
 				}
 				for (Type t : formals) {
 					t = Subst.subst(t, y2eqv, x2, Y, X); 
+					t = Subst.subst(t, currentPlace, codePlace);
 					if (! (env == null || env.valid())) {
-						try {
-							if (! isStatic)
-								t = Subst.addIn(t, env); 
-						} catch (XFailure z) {
-							t = xts.unknownType(me.position());
-						}
+						if (! isStatic)
+							t = Subst.addIn(t, env); 
 					}
 					if (! isStatic && ! yeqvIsSymbol) {
 						t = Subst.project(t, (XVar) ys[0]);
@@ -341,10 +362,12 @@ public class Matcher {
 		}
 		{ // set up the guard.
 	        	CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
+	        	newWhere = Subst.subst(newWhere, currentPlace, codePlace);
 	        	newMe = newMe.guard(newWhere);
 		}
 		{   // set up the type guard.
 	        	TypeConstraint newTWhere = Subst.subst(me.typeGuard(), y2eqv, x2, Y, X);
+	        	newTWhere = Subst.subst(newTWhere, currentPlace, codePlace);
 	        	newMe = newMe.typeGuard(newTWhere);
 		}
 		if (! checkActuals) {
@@ -422,7 +445,7 @@ public class Matcher {
 						Types.baseType(xtype), context2))
 					newMe = newMe.checkConstraintsAtRuntime(true);
 				else
-					throw new Errors.InvalidParameter(ytype, xtype, me.position());
+					throw Errors.InvalidParameter.make(i, newMe, ytype, xtype, context2, me.position());
 			}
 		}
 		// Update the types to reflect the newly computed formalTypes.

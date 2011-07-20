@@ -15,16 +15,22 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaSerializer;
 
-public class Throwable extends java.lang.RuntimeException implements RefI {
+import java.io.IOException;
+// XTENLANG-2686: Now x10.core.Throwable is a superclass of x10.lang.Throwable (mapped to x10.core.X10Throwable),
+//                and also a superclass of x10.runtime.impl.java.WrappedThrowable and UnknownJavaThrowable.
+public class Throwable extends java.lang.RuntimeException {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
+    public java.lang.String message = null;
 
-	public Throwable(java.lang.System[] $dummy) {
-	    super();
-	}
+    // constructor just for allocation
+    public Throwable(java.lang.System[] $dummy) {
+        super();
+    }
 
-	public Throwable $init() {return this;}
+    public Throwable $init() {return this;}
     
     public Throwable() {
         super();
@@ -35,6 +41,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     
     public Throwable(java.lang.String message) {
         super(message);
+        this.message = message;
     }
 
     // TODO
@@ -42,6 +49,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     
     public Throwable(java.lang.Throwable cause) {
         super(cause);
+        message = (cause==null ? null : cause.toString());
     }
 
     // TODO
@@ -49,6 +57,7 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     
     public Throwable(java.lang.String message, java.lang.Throwable cause) {
         super(message, cause);
+        this.message = message;
     }
 
     /* TODO to be removed
@@ -81,15 +90,45 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
 
     // XTENLANG-2680
 	public java.lang.String getMessage$O() {
+        if (message != null) {
+            return message;
+        }
 		return super.getMessage();
 	}
 
-    // XTENLANG-2680
-	public void printStackTrace(x10.io.Printer p) {
-	    // See @Native annotation in Throwable.x10
-		x10.core.ThrowableUtilities.printStackTrace(this, p);
+    public java.lang.String getMessage() {
+        if (message != null) {
+            return message;
+        }
+		return super.getMessage();
 	}
 
+    public final x10.array.Array<java.lang.String> $getStackTrace() {
+        StackTraceElement[] elements = getStackTrace();
+        java.lang.String str[] = new java.lang.String[elements.length];
+        for (int i=0 ; i<elements.length ; ++i) {
+            str[i] = elements[i].toString();
+        }
+        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+    }
+
+    // XTENLANG-2680
+//	public void printStackTrace(x10.io.Printer p) {
+//	    // See @Native annotation in Throwable.x10
+//		x10.core.ThrowableUtilities.printStackTrace(this, p);
+//	}
+    public void printStackTrace(x10.io.Printer p) {
+        x10.core.io.OutputStream os = p.getNativeOutputStream();
+        java.io.PrintStream ps = null;
+        if (os.stream instanceof java.io.PrintStream) {
+            ps = (java.io.PrintStream) os.stream;
+        } else {
+            ps = new java.io.PrintStream(os.stream);
+        }
+        printStackTrace(ps);
+    }
+
+    /* XTENLANG-2686: RTT is not necessary any more since this class is not mapped to x10.lang.Throwable
     public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
         "x10.lang.Throwable",
         Throwable.class,
@@ -101,10 +140,18 @@ public class Throwable extends java.lang.RuntimeException implements RefI {
     public Type<?> $getParam(int i) {
         return null;
     }
+    */
 
     @Override
     public java.lang.String toString() {
-        return Types.typeName(this) + ": " + this.getMessage();
+        java.lang.String msg = this.getMessage();
+        java.lang.String name = Types.typeName(this);
+        if (msg == null) {
+            return name;
+        } else {
+            int length = name.length() + 2 + msg.length();
+            java.lang.StringBuilder buffer = new java.lang.StringBuilder(length);
+            return buffer.append(name).append(": ").append(msg).toString();
+        }
     }
-
 }

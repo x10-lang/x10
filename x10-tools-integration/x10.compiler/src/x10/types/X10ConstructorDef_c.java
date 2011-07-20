@@ -31,6 +31,7 @@ import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 /**
  * An X10ConstructorDef_c varies from a ConstructorDef_c only in that it
@@ -130,6 +131,14 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.thisDef = thisDef;
     }
     
+    protected XConstrainedTerm placeTerm;
+    public XConstrainedTerm placeTerm() { return placeTerm; }
+    public void setPlaceTerm(XConstrainedTerm pt) {
+        if (placeTerm != null)
+            assert (placeTerm == null);
+        placeTerm = pt;
+    }
+
     public List<LocalDef> formalNames() {
 	return Collections.unmodifiableList(formalNames);
     }

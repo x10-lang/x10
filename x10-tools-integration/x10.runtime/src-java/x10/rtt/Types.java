@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2011.
  */
 
 package x10.rtt;
@@ -14,43 +14,109 @@ package x10.rtt;
 import x10.core.Any;
 import x10.core.RefI;
 import x10.core.StructI;
-import x10.core.fun.Fun_0_1;
 
 
 public class Types {
-	// not used
-//    public static boolean instanceof$(Type<?> t, Object o) {
-//        return t.instanceof$(o);
-//    }
-//
-//    public static Object cast$(Type<?> t, Object o) {
-//        if (! instanceof$(t, o))
-//            throw new ClassCastException(t.toString());
-//        return o;
-//    }
-//
-//    // Hack to get around parsing problems for generated Java casts.
-//    public static <T> T javacast(Object o) {
-//        return (T) o;
-//    }
     
-	public static RuntimeType<?> getRTT(Object obj) {
-		RuntimeType<?> rtt = null;
+    // WIP Java interop
+//    public static final boolean supportJavaInterop = true;
+    public static final boolean supportJavaInterop = false;
+    
+    public static RuntimeType<?> getRTT(Class<?> impl) {
+        java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
+        Class<?>[] interfaces = impl.getInterfaces();
+        Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
+        if (supportJavaInterop && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
+            // type parameters for unknown raw Java classes are Any
+            x10.rtt.RuntimeType.Variance[] variances = new x10.rtt.RuntimeType.Variance[typeVariables.length];
+            java.util.Arrays.fill(variances, x10.rtt.RuntimeType.Variance.INVARIANT);
+            // add superclass and all interfaces to parents
+            x10.rtt.Type<?>[] parents = new x10.rtt.Type[interfaces.length + (superclass != null ? 1 : 0)];
+            int i = 0;
+            for (Class<?> intf : interfaces) {
+                java.lang.reflect.TypeVariable<?>[] parentTypeVariables = intf.getTypeParameters();
+                RuntimeType<?> parentRTT = getRTT(intf);
+                if (parentTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
+                    // TODO bounds
+                    java.util.Arrays.fill(parentParams, ANY);
+                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                } else {
+                    parents[i] = parentRTT;
+                }
+                ++i;
+            }
+            if (superclass != null) {
+                java.lang.reflect.TypeVariable<?>[] parentTypeVariables = superclass.getTypeParameters();
+                RuntimeType<?> parentRTT = getRTT(superclass);
+                if (parentTypeVariables.length > 0) {
+                    Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
+                    // TODO bounds
+                    java.util.Arrays.fill(parentParams, ANY);
+                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                } else {
+                    parents[i] = parentRTT;
+                }
+                ++i;
+            }
+            return new RuntimeType(impl, variances, parents);
+        } else {
+            return new RuntimeType(impl);
+        }
+        // TODO cache RTT to WeakHashMap<Class,RuntimeType>
+    }
+    public static RuntimeType<?> getRTT(Object obj) {
+        RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
-        	rtt = ((Any) obj).$getRTT();
-        } else if (Types.getNativeRepRTT(obj) != null) {
-        	rtt = Types.getNativeRepRTT(obj);
+            rtt = ((Any) obj).$getRTT();
         } else if (obj != null) {
-            // Note: for java classes that don't have RTTs
-        	// TODO add the superclass and all interfaces to parents
-        	// TODO add type parameters as Any
-        	// TODO cache RTT to WeakHashMap<Class,RuntimeType>
-        	rtt = new RuntimeType(obj.getClass());
+            // rtt for raw Java classes
+            rtt = getRTT(obj.getClass());
         }
         return rtt;
-	}
-	
-	
+    }
+//    // WIP Java interop
+//    public static RuntimeType<?> getRTT(byte obj) {
+//        return BYTE;
+//    }
+//    public static RuntimeType<?> getRTT(short obj) {
+//        return SHORT;
+//    }
+//    public static RuntimeType<?> getRTT(int obj) {
+//        return INT;
+//    }
+//    public static RuntimeType<?> getRTT(long obj) {
+//        return LONG;
+//    }
+//    public static RuntimeType<?> getRTT(float obj) {
+//        return FLOAT;
+//    }
+//    public static RuntimeType<?> getRTT(double obj) {
+//        return DOUBLE;
+//    }
+//    public static RuntimeType<?> getRTT(char obj) {
+//        return CHAR;
+//    }
+//    public static RuntimeType<?> getRTT(boolean obj) {
+//        return BOOLEAN;
+//    }
+//    public static RuntimeType<?> getRTT(java.lang.String obj) {
+//        return STRING;
+//    }
+    
+    public static Type<?> getParam(Object obj, int i) {
+        if (obj instanceof x10.core.Any) {
+            return ((Any) obj).$getParam(i);
+        }
+        // type parameters for unknown raw Java classes are Any
+        if (supportJavaInterop) {
+            // TODO bounds
+            return ANY;
+        }
+        assert false;
+        return null;
+    }
+    
 	// XTENLANG-2488
 	// get $RTT field from class using reflection
 	public static <T> RuntimeType<T> $RTT(Class<?> c) {
@@ -76,6 +142,7 @@ public class Types {
     public static String typeName(char value) {
     	return CHAR.typeName();
     }
+    // N.B. typeName({byte,short,int,long}) are for signed types.
     public static String typeName(byte value) {
     	return BYTE.typeName();
     }
@@ -97,6 +164,7 @@ public class Types {
 
     
     // Fast implementation of Any.hashCode() without boxing
+    // N.B. hashCode for unsigned types are same as those for signed types
     public static int hashCode(Object value) {
         return value.hashCode();
     }
@@ -159,245 +227,328 @@ public class Types {
     	return Double.toString(value);
     }
     
-    // not used
-//    public static RuntimeType runtimeType(Class<?> c) {
-//        return new RuntimeType<Class<?>>(c);
-//    }
-
-    public static final RuntimeType<Object> ANY = new RuntimeType<Object>(Object.class) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Any";
+    // for convenience
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt) {
+        return rtt.instanceOf(o);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0) {
+        return rtt.instanceOf(o, param0);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1) {
+        return rtt.instanceOf(o, param0, param1);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1, Type<?> param2) {
+        return rtt.instanceOf(o, param0, param1, param2);
+    }
+    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?>... params) {
+        return rtt.instanceOf(o, params);
+    }
+    // box java primitives to x10 boxed types
+    public static Object $box(Object o) {
+        if (o instanceof java.lang.Byte) {
+            return x10.core.Byte.$box(((java.lang.Byte) o).byteValue());
         }
-        
-        @Override
-        public boolean isSubtype(x10.rtt.Type<?> o) {
-            return o == ANY;
-        };
-    };
-    // Fix for XTENLANG-1916
-    // N.B. any X10 type is either Object or Struct that has Any as parents
-//    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class) {
-    public static final RuntimeType<RefI> OBJECT = new RuntimeType<RefI>(RefI.class, new Type[] { ANY }) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Object";
+        if (o instanceof java.lang.Short) {
+            return x10.core.Short.$box(((java.lang.Short) o).shortValue());
         }
-        
-        @Override
-        public boolean isSubtype(x10.rtt.Type<?> o) {
-            return o == OBJECT || o == ANY;
-        };
-    };
+        if (o instanceof java.lang.Integer) {
+            return x10.core.Int.$box(((java.lang.Integer) o).intValue());
+        }
+        if (o instanceof java.lang.Long) {
+            return x10.core.Long.$box(((java.lang.Long) o).longValue());
+        }
+        if (o instanceof java.lang.Float) {
+            return x10.core.Float.$box(((java.lang.Float) o).floatValue());
+        }
+        if (o instanceof java.lang.Double) {
+            return x10.core.Double.$box(((java.lang.Double) o).doubleValue());
+        }
+        if (o instanceof java.lang.Character) {
+            return x10.core.Char.$box(((java.lang.Character) o).charValue());
+        }
+        if (o instanceof java.lang.Boolean) {
+            return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
+        }
+        if (o instanceof java.lang.String) {
+            return x10.core.String.$box((java.lang.String) o);
+        }
+        return o;
+    }
+    public static x10.core.Byte $box(byte o) {
+        return x10.core.Byte.$box(o);
+    }
+    public static x10.core.Short $box(short o) {
+        return x10.core.Short.$box(o);
+    }
+    public static x10.core.Int $box(int o) {
+        return x10.core.Int.$box(o);
+    }
+    public static x10.core.Long $box(long o) {
+        return x10.core.Long.$box(o);
+    }
+    public static x10.core.Float $box(float o) {
+        return x10.core.Float.$box(o);
+    }
+    public static x10.core.Double $box(double o) {
+        return x10.core.Double.$box(o);
+    }
+    public static x10.core.Char $box(char o) {
+        return x10.core.Char.$box(o);
+    }
+    public static x10.core.Boolean $box(boolean o) {
+        return x10.core.Boolean.$box(o);
+    }
+    public static x10.core.String $box(java.lang.String o) {
+        return x10.core.String.$box(o);
+    }
+    public static Object $boxu(Object o) {
+        if (o instanceof java.lang.Byte) {
+            return x10.core.UByte.$box(((java.lang.Byte) o).byteValue());
+        }
+        if (o instanceof java.lang.Short) {
+            return x10.core.UShort.$box(((java.lang.Short) o).shortValue());
+        }
+        if (o instanceof java.lang.Integer) {
+            return x10.core.UInt.$box(((java.lang.Integer) o).intValue());
+        }
+        if (o instanceof java.lang.Long) {
+            return x10.core.ULong.$box(((java.lang.Long) o).longValue());
+        }
+        assert !(o instanceof java.lang.Float);
+        assert !(o instanceof java.lang.Double);
+        assert !(o instanceof java.lang.Character);
+        assert !(o instanceof java.lang.Boolean);
+        assert !(o instanceof java.lang.String);
+//        if (o instanceof java.lang.Float) {
+//            return x10.core.Float.$box(((java.lang.Float) o).floatValue());
+//        }
+//        if (o instanceof java.lang.Double) {
+//            return x10.core.Double.$box(((java.lang.Double) o).doubleValue());
+//        }
+//        if (o instanceof java.lang.Character) {
+//            return x10.core.Char.$box(((java.lang.Character) o).charValue());
+//        }
+//        if (o instanceof java.lang.Boolean) {
+//            return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
+//        }
+//        if (o instanceof java.lang.String) {
+//            return x10.core.String.$box((java.lang.String) o);
+//        }
+        return o;
+    }
+    public static x10.core.UByte $boxu(byte o) {
+        return x10.core.UByte.$box(o);
+    }
+    public static x10.core.UShort $boxu(short o) {
+        return x10.core.UShort.$box(o);
+    }
+    public static x10.core.UInt $boxu(int o) {
+        return x10.core.UInt.$box(o);
+    }
+    public static x10.core.ULong $boxu(long o) {
+        return x10.core.ULong.$box(o);
+    }
+    
+    public static final RuntimeType<Object> ANY = new AnyType();
+    public static final RuntimeType<RefI> OBJECT = new ObjectType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
-    // N.B. any X10 type is either Object or Struct that has Any as parents
-//    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class);
-    public static final RuntimeType<StructI> STRUCT = new RuntimeType<StructI>(StructI.class, new Type[] { ANY });
+    public static final RuntimeType<StructI> STRUCT = new StructType();
 
     // create rtt of comparable before all types that implement comparable (e.g. int)
-    public static final RuntimeType<?> COMPARABLE = new RuntimeType(
+    public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
+        "x10.lang.Comparable",
         Comparable.class, 
         new RuntimeType.Variance[] {
             RuntimeType.Variance.INVARIANT
         }
     ) {
-        @Override
-        public String typeName() {
-            return "x10.lang.Comparable";
+        // make sure deserialized RTT object is not duplicated
+        private Object readResolve() throws java.io.ObjectStreamException {
+            return COMPARABLE;
         }
     };
 
-    public static final RuntimeType<Boolean> BOOLEAN = new BooleanType();
-    public static final RuntimeType<Byte> BYTE = new ByteType();
-    public static final RuntimeType<Short> SHORT = new ShortType();
-    public static final RuntimeType<Character> CHAR = new CharType();
-    public static final RuntimeType<Integer> INT = new IntType();
-    public static final RuntimeType<Long> LONG = new LongType();
-    public static final RuntimeType<Float> FLOAT = new FloatType();
-    public static final RuntimeType<Double> DOUBLE = new DoubleType();
-    public static final Object BOOLEAN_ZERO = Boolean.valueOf(false);
-    public static final Object BYTE_ZERO = Byte.valueOf((byte) 0);
-    public static final Object SHORT_ZERO = Short.valueOf((short) 0);
-    public static final Object CHAR_ZERO = Character.valueOf((char) 0);
-    public static final Object INT_ZERO = Integer.valueOf(0);
-    public static final Object LONG_ZERO = Long.valueOf(0L);
-    public static final Object FLOAT_ZERO = Float.valueOf(0.0F);
-    public static final Object DOUBLE_ZERO = Double.valueOf(0.0);
+    public static final RuntimeType<x10.core.Boolean> BOOLEAN = new BooleanType();
+    public static final RuntimeType<x10.core.Char> CHAR = new CharType();
+    public static final RuntimeType<x10.core.Byte> BYTE = new ByteType();
+    public static final RuntimeType<x10.core.Short> SHORT = new ShortType();
+    public static final RuntimeType<x10.core.Int> INT = new IntType();
+    public static final RuntimeType<x10.core.Long> LONG = new LongType();
+    public static final RuntimeType<x10.core.Float> FLOAT = new FloatType();
+    public static final RuntimeType<x10.core.Double> DOUBLE = new DoubleType();
+    public static final RuntimeType<x10.core.UByte> UBYTE = new UByteType();
+    public static final RuntimeType<x10.core.UShort> USHORT = new UShortType();
+    public static final RuntimeType<x10.core.UInt> UINT = new UIntType();
+    public static final RuntimeType<x10.core.ULong> ULONG = new ULongType();
+    public static final x10.core.Boolean BOOLEAN_ZERO = x10.core.Boolean.FALSE;
+    public static final x10.core.Char CHAR_ZERO = x10.core.Char.$box((char)0);
+    public static final x10.core.Byte BYTE_ZERO = x10.core.Byte.$box(0);
+    public static final x10.core.Short SHORT_ZERO = x10.core.Short.$box(0);
+    public static final x10.core.Int INT_ZERO = x10.core.Int.$box(0);
+    public static final x10.core.Long LONG_ZERO = x10.core.Long.$box(0l);
+    public static final x10.core.Float FLOAT_ZERO = x10.core.Float.$box(0.0F);
+    public static final x10.core.Double DOUBLE_ZERO = x10.core.Double.$box(0.0);
+    public static final x10.core.UByte UBYTE_ZERO = x10.core.UByte.$box((byte)0);
+    public static final x10.core.UShort USHORT_ZERO = x10.core.UShort.$box((short)0);
+    public static final x10.core.UInt UINT_ZERO = x10.core.UInt.$box(0);
+    public static final x10.core.ULong ULONG_ZERO = x10.core.ULong.$box((long)0);
 
-    public static final RuntimeType<String> STRING = new RuntimeType<String>(
-        String.class,
-        new Type[] {
-            new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
-            new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
-        }
-    ) {
-        @Override
-        public String typeName() {
-            return "x10.lang.String";
-        }
-    };
+    public static final RuntimeType<String> STRING = new StringType();
 
-    public static Class<?> UBYTE_CLASS;
-    public static Class<?> USHORT_CLASS;
-    public static Class<?> UINT_CLASS;
-    public static Class<?> ULONG_CLASS;
-    public static RuntimeType<?> UBYTE;
-    public static RuntimeType<?> USHORT;
-    public static RuntimeType<?> UINT;
-    public static RuntimeType<?> ULONG;
-    public static Object UBYTE_ZERO;
-    public static Object USHORT_ZERO;
-    public static Object UINT_ZERO;
-    public static Object ULONG_ZERO;
-    static {
-        try {
-            Class<?> c;
-            java.lang.reflect.Field f;
-            UBYTE_CLASS = c = Class.forName("x10.lang.UByte");
-            f = c.getDeclaredField("$RTT");
-            UBYTE = (RuntimeType<?>) f.get(null);
-            UBYTE_ZERO = c.getConstructor(new Class[]{byte.class}).newInstance(new Object[]{(byte)0});
-            USHORT_CLASS = c = Class.forName("x10.lang.UShort");
-            f = c.getDeclaredField("$RTT");
-            USHORT = (RuntimeType<?>) f.get(null);
-            USHORT_ZERO = c.getConstructor(new Class[]{short.class}).newInstance(new Object[]{(short)0});
-            UINT_CLASS = c = Class.forName("x10.lang.UInt");
-            f = c.getDeclaredField("$RTT");
-            UINT = (RuntimeType<?>) f.get(null);
-            UINT_ZERO = c.getConstructor(new Class[]{int.class}).newInstance(new Object[]{0});
-            ULONG_CLASS = c = Class.forName("x10.lang.ULong");
-            f = c.getDeclaredField("$RTT");
-            ULONG = (RuntimeType<?>) f.get(null);
-            ULONG_ZERO = c.getConstructor(new Class[]{long.class}).newInstance(new Object[]{0L});
-        } catch (Exception e) {}
-    }
-
-    public static RuntimeType<?> getNativeRepRTT(Object o) {
-        if (o instanceof Byte) return BYTE;
-        if (o instanceof Short) return SHORT;
-        if (o instanceof Integer) return INT;
-        if (o instanceof Long) return LONG;
-        if (o instanceof Float) return FLOAT;
-        if (o instanceof Double) return DOUBLE;
-        if (o instanceof Character) return CHAR;
-        if (o instanceof Boolean) return BOOLEAN;
-        if (o instanceof String) return STRING;
-        return null;
-    }
-
-    // TODO haszero
-    /*
-    private static boolean isPrimitiveStructType(Type<?> rtt) {
-        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
-            rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||
-            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
+    static boolean isNumericType(Type<?> rtt) {
+        if (rtt == BYTE  || rtt == SHORT  || rtt == INT  || rtt == LONG  ||
+            rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||
+            rtt == FLOAT || rtt == DOUBLE) {
             return true;
         }
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-        return rtt.isSubtype(STRUCT) || isPrimitiveStructType(rtt);
-    }
-    */
-    static boolean isStructType(Type<?> rtt) {
-        if (rtt == BYTE  || rtt == SHORT  || rtt == INT   || rtt == LONG ||
-            /*rtt == UBYTE  || rtt == USHORT  || rtt == UINT || rtt == ULONG ||*/
-            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) {
-            return true;
-        }
-        else if (rtt.isSubtype(STRUCT)) {
-            return true;
-        }
-        return false;
+    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isSubtype(STRUCT);
     }
 
-    @Deprecated
-    public static boolean instanceofObject(Object o) {
-        return o != null && !isStruct(o);
-    }
-
-    @Deprecated
-    public static boolean isStruct(Object o) {
-        return STRUCT.instanceof$(o) ||
-        BYTE.instanceof$(o) || SHORT.instanceof$(o) || INT.instanceof$(o) || LONG.instanceof$(o) ||
-        FLOAT.instanceof$(o) || DOUBLE.instanceof$(o) || CHAR.instanceof$(o) || BOOLEAN.instanceof$(o);
-    }
-
-    public static boolean asboolean(Object typeParamOrAny) {
+    
+    public static boolean asboolean(Object typeParamOrAny, Type<?> origRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
         if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Boolean");
     }
     
-    public static byte asbyte(Object typeParamOrAny){
+    public static char aschar(Object typeParamOrAny, Type<?> origRTT) {
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
+        if (typeParamOrAny instanceof x10.core.Char) return x10.core.Char.$unbox((x10.core.Char)typeParamOrAny);
+        else if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
+        throw new ClassCastException("x10.lang.Char");
+    }
+
+    public static byte asbyte(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Byte");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).byteValue();}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).byteValue();
+        } else {
+        	if (typeParamOrAny instanceof x10.core.Byte) return x10.core.Byte.$unbox((x10.core.Byte)typeParamOrAny);
+        	else if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Byte");
     }
     
-    public static short asshort(Object typeParamOrAny){
+    public static short asshort(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Short");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).shortValue();}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).shortValue();        	
+        } else {
+        	if (typeParamOrAny instanceof x10.core.Short) return x10.core.Short.$unbox((x10.core.Short)typeParamOrAny);
+        	else if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Short");
     }
     
-    public static int asint(Object typeParamOrAny){
+    public static int asint(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Int");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).intValue();}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).intValue();
+        } else {
+            if (typeParamOrAny instanceof x10.core.Int) return x10.core.Int.$unbox((x10.core.Int) typeParamOrAny);
+            else if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Int");
     }
 
-    public static long aslong(Object typeParamOrAny){
+    public static long aslong(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Long");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).longValue();}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).longValue();
+        } else {
+        	if (typeParamOrAny instanceof x10.core.Long) {return x10.core.Long.$unbox((x10.core.Long)typeParamOrAny);}
+        	else if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Long");
     }
 
-    public static float asfloat(Object typeParamOrAny){
+    public static float asfloat(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Float");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).floatValue();}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).floatValue();
+        } else {
+        	if (typeParamOrAny instanceof x10.core.Float) {return x10.core.Float.$unbox((x10.core.Float)typeParamOrAny);}
+        	else if (typeParamOrAny instanceof java.lang.Float) {return (java.lang.Float) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Float");
     }
 
-    public static double asdouble(Object typeParamOrAny){
+    public static double asdouble(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Double");}
-        if (typeParamOrAny instanceof java.lang.Number) {return((java.lang.Number) typeParamOrAny).doubleValue();}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).doubleValue();
+        } else {
+        	if (typeParamOrAny instanceof x10.core.Double) {return x10.core.Double.$unbox((x10.core.Double)typeParamOrAny);}
+        	else if (typeParamOrAny instanceof java.lang.Double) {return (java.lang.Double) typeParamOrAny;}
+        }
         throw new ClassCastException("x10.lang.Double");
     }
 
-    public static char aschar(Object typeParamOrAny) {
-        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
-        if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
-        throw new ClassCastException("x10.lang.Char");
+    public static byte asUByte(Object typeParamOrAny, Type<?> origRTT){
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UByte");}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).byteValue();
+        } else {
+            if (typeParamOrAny instanceof x10.core.UByte) {return x10.core.UByte.$unbox((x10.core.UByte)typeParamOrAny);}
+        }
+        throw new ClassCastException("x10.lang.UByte");
+    }
+    public static Object asBoxedUByte(Object typeParamOrAny, Type<?> origRTT){
+    	return x10.core.UByte.$box(asUByte(typeParamOrAny, origRTT));
+    }
+
+    public static short asUShort(Object typeParamOrAny, Type<?> origRTT){
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UShort");}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).shortValue();
+        } else {
+            if (typeParamOrAny instanceof x10.core.UShort) {return x10.core.UShort.$unbox((x10.core.UShort)typeParamOrAny);}
+        }
+        throw new ClassCastException("x10.lang.UShort");
+    }
+    public static Object asBoxedUShort(Object typeParamOrAny, Type<?> origRTT){
+    	return x10.core.UShort.$box(asUShort(typeParamOrAny, origRTT));
+    }
+
+    public static int asUInt(Object typeParamOrAny, Type<?> origRTT){
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UInt");}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).intValue();
+        } else {
+        	if (typeParamOrAny instanceof x10.core.UInt) {return x10.core.UInt.$unbox((x10.core.Byte)typeParamOrAny);}
+        	else if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer)typeParamOrAny;}
+        }
+        throw new ClassCastException("x10.lang.UInt");
+    }
+    public static Object asBoxedUInt(Object typeParamOrAny, Type<?> origRTT){
+    	return x10.core.UInt.$box(asUInt(typeParamOrAny, origRTT));
+    }
+
+    public static long asULong(Object typeParamOrAny, Type<?> origRTT){
+        if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.ULong");}
+        if (isNumericType(origRTT)) {
+        	return ((java.lang.Number) typeParamOrAny).longValue();
+        } else {
+            if (typeParamOrAny instanceof x10.core.ULong) {return x10.core.ULong.$unbox((x10.core.ULong)typeParamOrAny);}
+        }
+        throw new ClassCastException("x10.lang.ULong");
+    }
+    public static Object asBoxedULong(Object typeParamOrAny, Type<?> origRTT){
+    	return x10.core.ULong.$box(asULong(typeParamOrAny, origRTT));
     }
 
     public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
         if (typeParamOrAny == null) {nullIsCastToStruct(rtt);}
-
-        if (rtt == UBYTE) {
-            if (UBYTE_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-//            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
-//            if (UINT_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
-//            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return (UByte)...;}
-        }
-        else if (rtt == USHORT) {
-            if (USHORT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-        }
-        else if (rtt == UINT) {
-            if (UINT_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-        }
-        else if (rtt == ULONG) {
-            if (ULONG_CLASS.isInstance(typeParamOrAny)) { return typeParamOrAny;}
-        }
-        else {
-            return typeParamOrAny;
-        }
-        throw new ClassCastException(rtt.typeName());
+        // N.B. ClassCastException is not explicitly checked here since it will be checked by a Java cast of the return value
+        return typeParamOrAny;
     }
     
     // FIXME this should be replaced by virtual method for user defined conversion
-    public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
+    private static Object conversion(Type<?> rtt, Object primOrTypeParam, boolean convert) {
         if (primOrTypeParam == null) {
             if (isStructType(rtt)) {
                 nullIsCastToStruct(rtt);
@@ -407,68 +558,51 @@ public class Types {
             }
         }
         
-        if (rtt == BYTE) {
-            if (primOrTypeParam instanceof java.lang.Byte) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).byteValue();
-            return primOrTypeParam;
-        }
-        if (rtt == SHORT) {
-            if (primOrTypeParam instanceof java.lang.Short) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).shortValue();
-            return primOrTypeParam;
-        }
-        if (rtt == INT) {
-            if (primOrTypeParam instanceof java.lang.Integer) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).intValue();
-            return primOrTypeParam;
-        }
-        if (rtt == LONG) {
-            if (primOrTypeParam instanceof java.lang.Long) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).longValue();
-            return primOrTypeParam;
-        }
-        if (rtt == FLOAT) {
-            if (primOrTypeParam instanceof java.lang.Float) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).floatValue();
-            return primOrTypeParam;
-        }
-        if (rtt == DOUBLE) {
-            if (primOrTypeParam instanceof java.lang.Double) return primOrTypeParam;
-            if (primOrTypeParam instanceof java.lang.Number) return ((java.lang.Number) primOrTypeParam).doubleValue();
-            return primOrTypeParam;
-        }
+        if (rtt == BOOLEAN) {return asboolean(primOrTypeParam, convert ? BOOLEAN : null);}
+        if (rtt == CHAR) {return x10.core.Char.$box(aschar(primOrTypeParam, convert ? CHAR : null));}
+        if (rtt == BYTE) {return x10.core.Byte.$box(asbyte(primOrTypeParam, convert ? BYTE : null));}
+        if (rtt == SHORT) {return x10.core.Short.$box(asshort(primOrTypeParam, convert ? SHORT : null));}
+        if (rtt == INT) {return x10.core.Int.$box(asint(primOrTypeParam, convert ? INT : null));}
+        if (rtt == LONG) {return x10.core.Long.$box(aslong(primOrTypeParam, convert ? LONG : null));}
+        if (rtt == FLOAT) {return x10.core.Float.$box(asfloat(primOrTypeParam, convert ? FLOAT : null));}
+        if (rtt == DOUBLE) {return x10.core.Double.$box(asdouble(primOrTypeParam, convert ? DOUBLE : null));}
+        if (rtt == UBYTE) {return asBoxedUByte(primOrTypeParam, convert ? UBYTE : null);}
+        if (rtt == USHORT) {return asBoxedUShort(primOrTypeParam, convert ? USHORT : null);}
+        if (rtt == UINT) {return asBoxedUInt(primOrTypeParam, convert ? UINT : null);}
+        if (rtt == ULONG) {return asBoxedULong(primOrTypeParam, convert ? ULONG : null);}
+        
         if (rtt == STRING) {
-            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.unbox(primOrTypeParam);
+            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.$unbox((x10.core.String) primOrTypeParam);
             return primOrTypeParam;
         }
         else if (primOrTypeParam instanceof java.lang.String) { // i.e. rtt==Any|Object|Fun
-            return x10.core.String.box((java.lang.String) primOrTypeParam);
+            return x10.core.String.$box((java.lang.String) primOrTypeParam);
         }
         
         return primOrTypeParam;
+    }
+
+    public static Object conversion(Type<?> rtt, Object primOrTypeParam) {
+    	return conversion(rtt, primOrTypeParam, false);
     }
 
     private static void nullIsCastToStruct(Type<?> rtt) {throw new java.lang.ClassCastException(rtt.typeName());}
     private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     public static boolean hasNaturalZero(Type<?> rtt) {
-        if (rtt.isSubtype(OBJECT) ||
-            rtt == BYTE || rtt == SHORT || rtt == INT || rtt == LONG ||
-            /*rtt == UBYTE || rtt == USHORT || rtt == UINT || rtt == ULONG ||*/
-            rtt == FLOAT || rtt == DOUBLE || rtt == CHAR || rtt == BOOLEAN) return true;
-        return false;
+    	return rtt.isSubtype(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
     }
 
     public static <T> T cast(final java.lang.Object self, x10.rtt.Type<?> rtt) {
         if (self == null) return null;
-        if (rtt != null && !rtt.instanceof$(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.instanceOf(self)) throw new x10.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
     public static <T> T castConversion(final java.lang.Object self, x10.rtt.Type<?> rtt) {
         if (self == null) return null;
-        T ret = (T) conversion(rtt, self);
-        if (rtt != null && !rtt.instanceof$(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
+        T ret = (T) conversion(rtt, self, true);
+        if (rtt != null && !rtt.instanceOf(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
         return ret;
     }
 
@@ -512,9 +646,10 @@ public class Types {
             if (rtt == DOUBLE) return DOUBLE_ZERO;
             if (rtt == CHAR) return CHAR_ZERO;
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
-            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(typeParams[0], (java.lang.System) null);
-            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(typeParams[0], (java.lang.System) null);
-            //            if (isPrimitiveStructType(rtt)) return zeroValue(rtt.getJavaClass());
+            // N.B. to enable following special paths, make corresponding $RTTs singleton
+            // N.B. since GlobalRef and IndexedMemoryChunk have their own zero value constructor, special paths are no longer needed
+//            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(typeParams[0], (java.lang.System) null);
+//            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(typeParams[0], (java.lang.System) null);
             // for user-defined structs, call zero value constructor
             try {
                 Class<?> impl = rtt.getImpl();
@@ -522,7 +657,7 @@ public class Types {
                 Class<?>[] paramTypes = null;
                 for (java.lang.reflect.Constructor<?> ctor0 : impl.getConstructors()) {
                     paramTypes = ctor0.getParameterTypes();
-                    if (paramTypes[paramTypes.length-1].equals(java.lang.System.class)) {
+                    if (paramTypes.length >= 1 && paramTypes[paramTypes.length-1].equals(java.lang.System.class)) {
                         ctor = ctor0;
                         break;
                     }
@@ -543,7 +678,7 @@ public class Types {
                     params[i] = zeroValue(paramTypes[i]);
                 }
                 */
-                assert typeParams == null ? paramTypes.length == 1 : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.String[])null*/;
+                assert typeParams == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
                 int i = 0;
                 if (typeParams != null) {
                     for ( ; i < typeParams.length; ++i) {

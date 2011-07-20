@@ -358,6 +358,13 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return (X10ClassDecl) ClassDecl(pos, flags, name, Collections.<TypeParamNode>emptyList(), Collections.<PropertyDecl>emptyList(), superClass, interfaces, body, tci);
 	}
 
+	public X10Call X10ConversionCall(Position pos, Receiver target, Id name, TypeNode conversionType, List<TypeNode> typeArguments, List<Expr> args) {
+		X10Call n = new X10ConversionCall_c(pos, target, name, conversionType, typeArguments, args);
+		n = (X10Call) n.ext(extFactory().extExpr());
+		n = (X10Call) n.del(delFactory().delExpr());
+		return n;
+	}
+	
 	public X10Call X10Call(Position pos, Receiver target, Id name, List<TypeNode> typeArguments, List<Expr> args) {
 		X10Call n = new X10Call_c(pos, target, name, typeArguments, args);
 		n = (X10Call) n.ext(extFactory().extExpr());
@@ -525,7 +532,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	public X10Formal X10Formal(Position pos, FlagsNode flags, TypeNode type, Id name,
 						 List<Formal> vars, boolean unnamed)
 	{
-		X10Formal n = new X10Formal_c(pos, flags, type, name, vars, unnamed);
+		X10Formal n = new X10Formal_c(unnamed?pos.markCompilerGenerated():pos, flags, type, name, vars, unnamed);
 		n = (X10Formal) n.ext(extFactory().extFormal());
 		n = (X10Formal) n.del(delFactory().delFormal());
 		return n;
@@ -805,10 +812,10 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return n;
 	}
 
-	public CUDAKernel CUDAKernel(Position position, List<Stmt> statements) {
-        CUDAKernel n = new CUDAKernel(position, CollectionUtil.nonNullList(statements));
-        n = (CUDAKernel)n.ext(extFactory().extBlock());
-        n = (CUDAKernel)n.del(delFactory().delBlock());
-        return n;
+	public CUDAKernel CUDAKernel(Position position, List<Stmt> statements, Block body) {
+		CUDAKernel n = new CUDAKernel(position, CollectionUtil.nonNullList(statements), body);
+		n = (CUDAKernel)n.ext(extFactory().extBlock());
+		n = (CUDAKernel)n.del(delFactory().delBlock());
+		return n;
 	}
 }

@@ -18,7 +18,8 @@ import harness.x10Test;
 
 class XTENLANG_1565_MustFailCompile extends x10Test {
 
-	val m:Int, n:Int;
+	val m:Int;
+	val n:Int;
 	val q:Int;
 	val z:Int;
 	def this() { // ERR: Final field "q" might not have been initialized
@@ -26,7 +27,9 @@ class XTENLANG_1565_MustFailCompile extends x10Test {
 			async { z = 0; }
 		}
 		
-		var i:Int, j:Int, k:Int;
+		var i:Int;
+		var j:Int;
+		var k:Int;
 
 		i=1;
 		// i:[1,1,1,1]

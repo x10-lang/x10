@@ -118,7 +118,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
 		    Flags oldFlags = cd.flags().flags();
 		    Flags flags = context.inStaticContext() ? oldFlags.Private().Static() : oldFlags.Private();
-		    Id name = nf.Id(cd.name().position(), UniqueID.newID(cd.name().toString()));
+		    Id name = nf.Id(cd.name().position(), cd.name().toString()+"$"+cd.position().offset());
 		    cd = cd.name(name);
 		    cd = cd.flags(cd.flags().flags(flags));
 		    cd.classDef().flags(flags);
@@ -163,31 +163,10 @@ public abstract class LocalClassRemover extends ContextVisitor {
             super(LocalClassRemover.this.job, LocalClassRemover.this.ts, LocalClassRemover.this.nf);
         }
 
-        private boolean inConstructorCall;
-
-        public NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
-            LocalBoxer v = (LocalBoxer) super.enterCall(parent, n);
-            if (n instanceof ConstructorCall) {
-                if (! inConstructorCall) {
-                    v = (LocalBoxer) v.shallowCopy();
-                    v.inConstructorCall = true;
-                    return v;
-                }
-            }
-            if (n instanceof ClassBody || n instanceof CodeNode) {
-                if (v.inConstructorCall) {
-                    v = (LocalBoxer) v.shallowCopy();
-                    v.inConstructorCall = false;
-                    return v;
-                }
-            }
-            return v;
-        }
-
         protected Node leaveCall(Node old, Node n, NodeVisitor v) {
             Context context = this.context();
             Position pos = n.position();
-            if (n instanceof Local && ! inConstructorCall) {
+            if (n instanceof Local) {
                 Local l = (Local) n;
                 if (!isLocal(context, l.name().id())) {
                     FieldDef fi = boxLocal(l.localInstance().def());
@@ -301,7 +280,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
 	    Flags oldFlags = neu.anonType().flags();
 	    Flags flags = context.inStaticContext() ? oldFlags.Private().Static() : oldFlags.Private();
-	    Id name = nf.Id(pos, UniqueID.newID("Anonymous"));
+	    Id name = nf.Id(pos, "Anonymous"+"$"+neu.position().offset());
 	    ClassDecl cd = nf.ClassDecl(pos, nf.FlagsNode(pos, flags), name, superClass, interfaces, body);
 
 	    X10ClassDef type = neu.anonType();
@@ -381,7 +360,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
     Node rewriteConstructorCalls(Node s, final ClassDef ct, final List<FieldDef> fields);
 
     // Create a new constructor for an anonymous class.
-    ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {
+    protected ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {
 	// Build the list of formal parameters and list of arguments for the super call.
 	List<Formal> formals = new ArrayList<Formal>();
 	List<Expr> args = new ArrayList<Expr>();
@@ -406,7 +385,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 	    argTypes.add(li.type());
 	}
 
-	Position pos = cd.position();
+	Position pos = cd.position().markCompilerGenerated();
 
 	// Create the super call.
 	ConstructorCall cc = nf.SuperCall(pos, args);

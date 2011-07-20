@@ -94,8 +94,6 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	    return n;
 	}
 
-	XConstrainedTerm placeTerm;
-
 	@Override
 	public Node buildTypesOverride(TypeBuilder tb) {
 	    TypeSystem ts = (TypeSystem) tb.typeSystem();
@@ -138,31 +136,34 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 
 	@Override
 	public Context enterChildScope(Node child, Context c) {
-		Context oldC=c;
+		Context oldC = c;
 		if (child == this.body) {
 		    c = c.pushAt(atDef);
-		   c.x10Kind = Context.X10Kind.At; // this is an at, not an async
+		    c.x10Kind = Context.X10Kind.At; // this is an at, not an async
 		}
 
-		try {
-			// FIXME: this creates a new place term; ideally, it should be the place associated with each
-			// point in the ateach distribution 
-			if (placeTerm == null) {
-				CConstraint d = new CConstraint();
-				XTerm term = PlaceChecker.makePlace();
-				placeTerm = XConstrainedTerm.instantiate(d, term);
-			}
-
-			if (child == body) {
-				if (oldC==c)
-					c=c.pushBlock();
-			    c.setPlace(placeTerm);
-			}
-		} 
-		catch (XFailure z) {
-			throw new InternalCompilerError("Cannot construct placeTerm from  term  and constraint.");
+		if (child == this.body) {
+		    if (c == oldC)
+		        c = c.pushBlock();
+		    c.setPlace(atDef.placeTerm());
 		}
+
 		return c;
+	}
+
+	@Override
+	public Node typeCheckOverride(Node parent, ContextVisitor tc) {
+	    Context c = tc.context();
+	    AtDef def = this.atDef();
+	    if (def.placeTerm() == null) {
+	        // FIXME: this creates a new place term; ideally, it should be the place associated with each
+	        // point in the ateach distribution
+	        XConstrainedTerm placeTerm = XConstrainedTerm.make(PlaceChecker.makePlace());
+	        XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
+	        def.setPlaceTerm(placeTerm);
+	        def.setFinishPlaceTerm(finishPlaceTerm);
+	    }
+	    return super.typeCheckOverride(parent, tc);
 	}
 
 	@Override
@@ -180,13 +181,13 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	}
 
 	public String toString() {
-		return "ateach (" + formal + ":" + domain + ")" + (clocks != null ? " clocked(" + clocks + ")" : "") + body;
+		return "ateach (" + formal + " in " + domain + ")" + (clocks != null ? " clocked(" + clocks + ")" : "") + body;
 	}
 
 	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
 		w.write("ateach(");
 		printBlock(formal, w, tr);
-		w.write(" : ");
+		w.write(" in ");
 		printBlock(domain, w, tr);
 		w.write(") ");
 		if (clocks != null) {

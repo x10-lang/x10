@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import harness.x10Test;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
@@ -22,14 +24,14 @@ import x10.util.*;
  * is interpreted as
  * public def this(ii:int, jj:int) <: EntailsPositive_MustFailCompile = { property(ii,jj);}
  *
- *So it is necessary to hide the 1 behind a method call to get this test to check the behavior we want.
+ * So it is necessary to hide the 1 behind a method call to get this test to check the behavior we want.
  * @author vj
  */
 public class EntailsPositive_MustFailCompile(i:int, j:int) extends x10Test {
 
 	public def this(ii:int, jj:int) { property(ii,jj);}
 	public def run():boolean  {
-	    @ShouldBeErr val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);
+	    @ERR val x:EntailsPositive_MustFailCompile{self.i==1}  =  new EntailsPositive_MustFailCompile(one(),2);
 	    return true;
 	}
 	def one():Int = 1;

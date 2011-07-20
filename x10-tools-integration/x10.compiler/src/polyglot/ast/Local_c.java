@@ -14,6 +14,7 @@ import polyglot.types.*;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.constants.ConstantValue;
 
 /** 
  * A local variable expression.
@@ -131,7 +132,7 @@ public abstract class Local_c extends Expr_c implements Local
     return li != null && li.isConstant();
   }
 
-  public Object constantValue() {
+  public ConstantValue constantValue() {
     if (! isConstant()) return null;
     return li.constantValue();
   }

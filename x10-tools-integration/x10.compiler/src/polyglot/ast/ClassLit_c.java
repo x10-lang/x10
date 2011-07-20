@@ -14,6 +14,7 @@ import polyglot.types.SemanticException;
 import polyglot.util.CodeWriter;
 import polyglot.util.Position;
 import polyglot.visit.*;
+import x10.types.constants.ConstantValue;
 
 /**
  * A <code>ClassLit</code> represents a class literal expression. 
@@ -92,7 +93,7 @@ public class ClassLit_c extends Lit_c implements ClassLit
     return false;
   }
 
-  public Object constantValue() {
+  public ConstantValue constantValue() {
     return null;
   }
 

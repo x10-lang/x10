@@ -204,6 +204,7 @@ public class For_c extends Loop_c implements For
 	sb.append("; ");
 	if (cond() != null)
 	    sb.append(cond());
+	sb.append("; ");
 	sep = "";
 	for (ForUpdate s : iters()) {
 	    sb.append(sep);

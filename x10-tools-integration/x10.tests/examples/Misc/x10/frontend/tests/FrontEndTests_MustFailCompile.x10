@@ -355,7 +355,8 @@ class TestUncountedAsync1 {
 	//so the statement in S might or might not get executed.
 	//Therefore even after a "finish" we still can't use anything assigned in S.                
 	def test1() {
-		val q:Int,q2:Int;
+		val q:Int;
+		val q2:Int;
 		finish {
 			q2=2;
 			use(q2);
@@ -829,8 +830,14 @@ class TestAsync {
 	static def use(a:Int) {}
 	
 	public static def main(Array[String]) {
-	     var i:Int, j:Int, k:Int, x:Int, y:Int;
-         val m:Int, n:Int, q:Int;
+	     var i:Int;
+	     var j:Int;
+	     var k:Int;
+	     var x:Int;
+	     var y:Int;
+         val m:Int;
+         val n:Int;
+         val q:Int;
 
          x=1;
 		 finish async { use(x); x=4; use(x); }
@@ -885,8 +892,14 @@ class TestAsync {
 	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new RuntimeException("ERROR! loc="+loc+" expected="+expected+" a="+a); }
 	
 	public static def main2(Array[String]) {
-	     var i:Int, j:Int, k:Int, x:Int, y:Int;
-         val m:Int, n:Int, q:Int;
+	     var i:Int;
+	     var j:Int;
+	     var k:Int;
+	     var x:Int;
+	     var y:Int;
+         val m:Int;
+         val n:Int;
+         val q:Int;
 
          x=1;
 		 finish async { use2(101,1,x); x=4; use2(102,4,x); }
@@ -1095,7 +1108,8 @@ class TestAnonymousClass {
 
 
 class C57 {
- var m: Int{self!=0}, n:Int{self!=0};
+ var m: Int{self!=0};
+ var n: Int{self!=0};
  @NonEscaping private final def ctorLike() {
   n = m; 
  }
@@ -2103,17 +2117,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 
 		at (r.home()) {
 			use(r()); 
-			use(r2()); // ShouldNotBeERR
-			use(r3()); // ShouldNotBeERR
+			use(r2());
+			use(r3());
 		}
 		at (r2.home()) {
-			use(r()); // ShouldNotBeERR
+			use(r());
 			use(r2()); 
-			use(r3());// ShouldNotBeERR
+			use(r3());
 		}
 		at (r3.home()) {
-			use(r()); // ShouldNotBeERR
-			use(r2()); // ShouldNotBeERR
+			use(r());
+			use(r2());
 			use(r3());
 		}
 		at (here.next()) {
@@ -2123,17 +2137,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 			
 			at (r.home()) {
 				use(r()); 
-				use(r2()); // ShouldNotBeERR
-				use(r3()); // ShouldNotBeERR
+				use(r2());
+				use(r3());
 			}
 			at (r2.home()) {
-				use(r()); // ShouldNotBeERR
+				use(r());
 				use(r2()); 
-				use(r3());// ShouldNotBeERR
+				use(r3());
 			}
 			at (r3.home()) {
-				use(r()); // ShouldNotBeERR
-				use(r2()); // ShouldNotBeERR
+				use(r());
+				use(r2());
 				use(r3());
 			}
 		}
@@ -2144,7 +2158,7 @@ class TestGlobalRefHomeAt2 {
 	 private val root = GlobalRef(this); 
 	 def test1() {
 		 val x = (new TestGlobalRefHomeAt2()).root; 
-		 return @ShouldNotBeERR x();
+		 return x();
 	 }
 	 def test2() {
 		 val x = (at (here.next()) new TestGlobalRefHomeAt2()).root; 
@@ -2156,7 +2170,7 @@ class TestGlobalRefHomeAt2 {
 	 }
 	 def test4() {
 		 val x = this.root; 
-		 return @ShouldBeErr x();
+		 return @ERR x();
 	 }
 	 def test5(y:TestGlobalRefHomeAt2) {
 		 val x = y.root; 
@@ -2278,7 +2292,7 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 	val r = new R();
 	at (here.next()) {
 	  val r2:R = r; // This is the only "hole" in my proof: you can say that the type of "r" changed when it crossed the "at" boundary. But that will puzzle programmers...
-	  foo(r2.x); // we didn't cross any "at", so from claim 3, the type of "r2.x" didn't change.
+	  foo(r2.x); // ERR: we didn't cross any "at", so from claim 3, the type of "r2.x" didn't change.
 	}
   }
 
@@ -2310,7 +2324,7 @@ class TestHereInGenericTypes { // see also XTENLANG-1922
 	static def test2(p:Place) {p==here} {
 		m(p); // OK
 		at (here.next()) {
-			m(p); // ShouldBeErr (XTENLANG-1929)
+			m(p); // ERR (XTENLANG-1929)
 		}
 	}
 }
@@ -2326,7 +2340,7 @@ class TestInterfaceInvariants { // see XTENLANG-1930
 		}
 	}
 	@ERR interface I2 extends I{self.p()==2} {}
-	@ERR interface I3 {this.p()==3} extends I2 {}
+	@ERR @ERR interface I3 {this.p()==3} extends I2 {}
 	static def test(i:I) {
 		@ERR @ERR var i1:I{self.p()==5} = i;
 		var i2:I{self.p()==1} = i;
@@ -2341,7 +2355,7 @@ class OuterThisConstraint(i:Int) { // see XTENLANG-1932
 	static def test(a:OuterThisConstraint{i==3}) {
 		val inner:OuterThisConstraint{self.i==3}.Inner = a.new Inner();
 		val x1:OuterThisConstraint{i==3} = a.m1();
-		@ShouldNotBeERR val x2:OuterThisConstraint{i==3} = inner.m2();
+		val x2:OuterThisConstraint{i==3} = inner.m2();
 		@ERR val x3:OuterThisConstraint{i==4} = inner.m2();
 	}
 }
@@ -3496,8 +3510,8 @@ class XTENLANG_686(a:Int) {
 }
 
 class CastToTypeParam[T] { 
-	val f1:T = 0 as T;
-	val f2:T = 1 as T;
+	val f1:T = 0 as T; // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+	val f2:T = 1 as T; // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 	def test(a:CastToTypeParam[String]) {
 		val f:String = a.f1;
 		val s = 0 as String; // ERR: Cannot cast expression to type
@@ -3536,7 +3550,7 @@ class hasZeroTests {
 		var t:T; // ERR
 	}
 	class Q0[T] {T haszero} {
-	  var t:T; // ShouldNotBeERR
+	  var t:T;
 	}
 	class Q1[T] {T haszero} {
 	  val t:T; // ERR
@@ -3574,7 +3588,7 @@ class hasZeroTests {
 	  }
 	}
 	class haszeroExamples0[T] {T haszero} {
-		var t:T; // ShouldNotBeERR
+		var t:T;
 
 	  def m0() {
 		  m1(); // ok
@@ -3657,7 +3671,7 @@ class RuntimeTestsOfHaszero {
 	def foo(Double)=4;
 
 	static class A[T] {T haszero} {
-		var t:T; // ShouldNotBeERR
+		var t:T;
 	}
 }
 
@@ -3696,7 +3710,9 @@ class XTENLANG_1149_2 {
 		@ERR val c6:B{self==null} = f ? b1 : b1;
 
 		val arr1 = [b1 as B{self!=null},b2 as B{self!=null}];
-		val arr2:Array[B{self!=null}] = [b1,b2]; 
+		  // the type inferred for [b1,b2] is 
+        // x10.array.Array[XTENLANG_1149_2.B{XTENLANG_1149_2.self==XTENLANG_1149_2#this, self!=null}]
+        @ERR val arr2:Array[B{self!=null}] = [b1,b2]; 
 		@ERR val arr3:Array[B] = [b1,b2]; 
 	}
 }
@@ -3785,25 +3801,27 @@ class TestComparableAndArithmetic {
   def add[T](x:T,y:T) { T <: Arithmetic[T] } = x+y;
   def test() {
 	  {
-		  var x:Int=2, y:Int=3;
+		  var x:Int=2;
+		  var y:Int=3;
 		  use(compare(x,y));
 		  use(compare(x,x));
 		  use(compare(y,y));
-		  use(add(x,y)); // ShouldNotBeERR
-		  use(add(x,x)); // ShouldNotBeERR
-		  use(add(y,y)); // ShouldNotBeERR
+		  use(add(x,y));
+		  use(add(x,x));
+		  use(add(y,y));
 	  }
 	  {
-		  var x:Double=2.0, y:Double=3.0;
+		  var x:Double=2.0;
+		  var y:Double=3.0;
 		  use(compare(x,y));
 		  use(compare(x,x));
 		  use(compare(y,y));
-		  use(add(x,y)); // ShouldNotBeERR
-		  use(add(x,x)); // ShouldNotBeERR
-		  use(add(y,y)); // ShouldNotBeERR
+		  use(add(x,y));
+		  use(add(x,x));
+		  use(add(y,y));
 	  }
   }
-  def use(i:Int) {}
+  def use[T](i:T) {}
 }
 
 interface Ann42 //extends MethodAnnotation, ClassAnnotation, FieldAnnotation, ImportAnnotation, PackageAnnotation, TypeAnnotation, ExpressionAnnotation, StatementAnnotation 
@@ -4690,7 +4708,7 @@ class XTENLANG_2379 {
        		}
        		def test3(a1:A, b2:B{self.bar()==a1}) {}
        		def test4(a:A, b:B{A.this==a}) {
-       			@ShouldBeErr { test3(a,b); }
+       			@ERR { test3(a,b); }
        		}
        	}
 }
@@ -4923,7 +4941,7 @@ class TestInterfaceInvariants_1930 { // XTENLANG-1930
 	interface I2a extends I{self.p()==1} {}
 	interface I3a {this.p()==1} extends I {}
 	interface I2 extends I{self.p()==2} {} // ERR [Invalid type; the real clause of x10.frontend.tests.TestInterfaceInvariants_1930.I{self.x10.frontend.tests.TestInterfaceInvariants_1930.I#p()==2} is inconsistent.]
-	interface I3 {this.p()==3} extends I {} // ShouldBeErr
+	interface I3 {this.p()==3} extends I {} // ERR Semantic Error: Class invariant is inconsistent.
 	static def test(i:I) {
 		var i2:I{self.p()==1} = i;
 		var i3:I{self.p()==4} = i; // ERR ERR
@@ -6657,17 +6675,17 @@ class XTENLANG_1448 {
 			property(here);
 		}
 		def test(y:X) {
-			val py:Place{self==here} = y.p; // this is wrong!
+			val py:Place{self==here} = y.p; // ERR: Cannot assign expression to target; constraints not satisfied
 			val x = new X();
 			val px:Place{self==here} = x.p;
 		}
 	}
 	class X2(p:Place{self==here}) { // ERR: Cannot use "here" in this context
 		def this() {
-			property(here); // ERR
+			property(here);
 		}
 		def test(y:X2) {
-			val py:Place{self==here} = y.p; // this is wrong!
+			val py:Place{self==here} = y.p; // ERR: Cannot assign expression to target; constraints not satisfied
 			val x = new X2();
 			val px:Place{self==here} = x.p;
 		}
@@ -6683,7 +6701,7 @@ class XTENLANG_1448 {
 	interface Test[T] {
 		def add(t:T):void;
 	}
-	class Impl(p:Place) implements Test[Impl{self.p==here}] { // ERR: Cannot use "here" in this context
+	class Impl(p:Place) implements Test[Impl{self.p==here}] { // ERR: Cannot use "here" in this context ERR ERR
 		public def add(t:Impl{self.p==here}):void {}
 	}
 }
@@ -6848,5 +6866,25 @@ class XTENLANG_1851 {
 			throw new RuntimeException();
 		} catch (e:Error) {}
 		if (b) throw new Exception();
+	}
+}
+
+class XTENLANG_2745 {
+	class Exn extends Throwable{}
+	static def example() {
+		try {
+		}
+		catch (e : Throwable) {}
+		catch (e : Exn) {}// ERR
+	}
+}
+class TestResolutionOfNull {
+	def m(Any):Int = 1;
+	def m(String):String = "1";
+	def m2(String):String = "1";
+	def m2(Any):Int = 1;
+	def test() {
+		val x:String = m(null);
+		val y:String = m2(null);
 	}
 }

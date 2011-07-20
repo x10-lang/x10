@@ -78,6 +78,7 @@ import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
 import x10.ast.Closure_c;
 import x10.ast.DepParameterExpr;
+import x10.ast.OperatorNames;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
 import x10.ast.SettableAssign;
@@ -103,12 +104,15 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
+import x10.types.constants.StringValue;
 
 import x10.types.X10MethodDef;
 import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
 import x10.visit.ChangePositionVisitor;
+import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10Translator;
 import x10c.types.BackingArrayType;
@@ -117,13 +121,19 @@ import x10c.visit.StaticInitializer;
 
 public class Emitter {
 
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
     private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
     private static final String RETURN_SPECIAL_TYPE_SUFFIX = "$O";
     
     // XTENLANG-2463
     private static final boolean mangleTypeVariable = true;
     private static final String PARAMETER_TYPE_PREFIX = "$";
+    
+    // N.B. Introduction of Java.int as a different type from x10.lang.Int requires method name mangling.
+    // WIP for Emitter.mangleSignedNumeric
+//    private static final boolean mangleSignedNumeric = true;
+    private static final boolean mangleSignedNumeric = false;
+    private static final String SIGNED_NUMERIC_TYPE_PREFIX = "$s";
+    private static final String UNSIGNED_NUMERIC_TYPE_PREFIX = "$u";
     
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
@@ -157,18 +167,10 @@ public class Emitter {
 
 	CodeWriter w;
 	Translator tr;
-	private final Type imcType;
-	private final Type nativeClassType;
 
 	public Emitter(CodeWriter w, Translator tr) {
 		this.w=w;
 		this.tr=tr;
-		try {
-		    imcType = tr.typeSystem().forName(QName.make("x10.util.IndexedMemoryChunk"));
-            nativeClassType = tr.typeSystem().systemResolver().findOne(NATIVE_CLASS_ANNOTATION);
-		} catch (SemanticException e1) {
-		    throw new InternalCompilerError("Something is terribly wrong");
-		}
 	}
 
 	private static final String[] NON_PRINTABLE = {
@@ -314,63 +316,81 @@ public class Emitter {
 	    return ""+c;
 	}
 
-	private static Name mangleIdentifier(Name n) {
-	    // TODO is a new hashmap really needed at every call?
-		Map<Name,Name> map = CollectionFactory.newHashMap();
-		map.put(Converter.operator_as, Name.make("$convert"));
-		map.put(Converter.implicit_operator_as, Name.make("$implicit_convert"));
-		map.put(SettableAssign.SET, Name.make("$set"));
-		map.put(ClosureCall.APPLY, Name.make("$apply"));
-		map.put(Name.make("operator+"), Name.make("$plus"));
-		map.put(Name.make("operator-"), Name.make("$minus"));
-		map.put(Name.make("operator*"), Name.make("$times"));
-		map.put(Name.make("operator/"), Name.make("$over"));
-		map.put(Name.make("operator%"), Name.make("$percent"));
-		map.put(Name.make("operator<"), Name.make("$lt"));
-		map.put(Name.make("operator>"), Name.make("$gt"));
-		map.put(Name.make("operator<="), Name.make("$le"));
-		map.put(Name.make("operator>="), Name.make("$ge"));
-		map.put(Name.make("operator<<"), Name.make("$left"));
-		map.put(Name.make("operator>>"), Name.make("$right"));
-		map.put(Name.make("operator>>>"), Name.make("$unsigned_right"));
-		map.put(Name.make("operator&"), Name.make("$ampersand"));
-		map.put(Name.make("operator|"), Name.make("$bar"));
-		map.put(Name.make("operator^"), Name.make("$caret"));
-		map.put(Name.make("operator~"), Name.make("$tilde"));
-		map.put(Name.make("operator&&"), Name.make("$and"));
-		map.put(Name.make("operator||"), Name.make("$or"));
-		map.put(Name.make("operator!"), Name.make("$not"));
-		map.put(Name.make("operator=="), Name.make("$equalsequals"));
-		map.put(Name.make("operator!="), Name.make("$ne"));
-		map.put(Name.makeUnchecked("operator.."), Name.make("$range"));
-		map.put(Name.makeUnchecked("operator->"), Name.make("$arrow"));
-		map.put(Name.makeUnchecked("operator in"), Name.make("$in"));
-		map.put(Name.make("inverse_operator+"), Name.make("$inv_plus"));
-		map.put(Name.make("inverse_operator-"), Name.make("$inv_minus"));
-		map.put(Name.make("inverse_operator*"), Name.make("$inv_times"));
-		map.put(Name.make("inverse_operator/"), Name.make("$inv_over"));
-		map.put(Name.make("inverse_operator%"), Name.make("$inv_percent"));
-		map.put(Name.make("inverse_operator<"), Name.make("$inv_lt"));
-		map.put(Name.make("inverse_operator>"), Name.make("$inv_gt"));
-		map.put(Name.make("inverse_operator<="), Name.make("$inv_le"));
-		map.put(Name.make("inverse_operator>="), Name.make("$inv_ge"));
-		map.put(Name.make("inverse_operator<<"), Name.make("$inv_left"));
-		map.put(Name.make("inverse_operator>>"), Name.make("$inv_right"));
-		map.put(Name.make("inverse_operator>>>"), Name.make("$inv_unsigned_right"));
-		map.put(Name.make("inverse_operator&"), Name.make("$inv_ampersand"));
-		map.put(Name.make("inverse_operator|"), Name.make("$inv_bar"));
-		map.put(Name.make("inverse_operator^"), Name.make("$inv_caret"));
-		map.put(Name.make("inverse_operator~"), Name.make("$inv_tilde"));
-		map.put(Name.make("inverse_operator&&"), Name.make("$inv_and"));
-		map.put(Name.make("inverse_operator||"), Name.make("$inv_or"));
-		map.put(Name.make("inverse_operator!"), Name.make("$inv_not"));
-		map.put(Name.make("inverse_operator=="), Name.make("$inv_equalsequals"));
-		map.put(Name.make("inverse_operator!="), Name.make("$inv_ne"));
-		map.put(Name.makeUnchecked("inverse_operator.."), Name.make("$inv_range"));
-		map.put(Name.makeUnchecked("inverse_operator->"), Name.make("$inv_arrow"));
-		map.put(Name.makeUnchecked("inverse_operator in"), Name.make("$inv_in"));
+	private static final Map<Name,Name> MANGLED_OPERATORS = CollectionFactory.newHashMap();
+	static {
+		Map<Name,Name> map = MANGLED_OPERATORS;
+		map.put(OperatorNames.AS, Name.make("$convert"));
+		map.put(OperatorNames.IMPLICIT_AS, Name.make("$implicit_convert"));
+		map.put(OperatorNames.SET, Name.make("$set"));
+		map.put(OperatorNames.APPLY, Name.make("$apply"));
+		map.put(OperatorNames.PLUS, Name.make("$plus"));
+		map.put(OperatorNames.MINUS, Name.make("$minus"));
+		map.put(OperatorNames.STAR, Name.make("$times"));
+		map.put(OperatorNames.SLASH, Name.make("$over"));
+		map.put(OperatorNames.PERCENT, Name.make("$percent"));
+		map.put(OperatorNames.LT, Name.make("$lt"));
+		map.put(OperatorNames.GT, Name.make("$gt"));
+		map.put(OperatorNames.LE, Name.make("$le"));
+		map.put(OperatorNames.GE, Name.make("$ge"));
+		map.put(OperatorNames.LEFT, Name.make("$left"));
+		map.put(OperatorNames.RIGHT, Name.make("$right"));
+		map.put(OperatorNames.RRIGHT, Name.make("$unsigned_right"));
+		map.put(OperatorNames.AMPERSAND, Name.make("$ampersand"));
+		map.put(OperatorNames.BAR, Name.make("$bar"));
+		map.put(OperatorNames.CARET, Name.make("$caret"));
+		map.put(OperatorNames.TILDE, Name.make("$tilde"));
+		map.put(OperatorNames.NTILDE, Name.make("$ntilde"));
+		map.put(OperatorNames.AND, Name.make("$and"));
+		map.put(OperatorNames.OR, Name.make("$or"));
+		map.put(OperatorNames.BANG, Name.make("$not"));
+		map.put(OperatorNames.EQ, Name.make("$equalsequals"));
+		map.put(OperatorNames.NE, Name.make("$ne"));
+		map.put(OperatorNames.RANGE, Name.make("$range"));
+		map.put(OperatorNames.ARROW, Name.make("$arrow"));
+		map.put(OperatorNames.LARROW, Name.make("$larrow"));
+		map.put(OperatorNames.FUNNEL, Name.make("$funnel"));
+		map.put(OperatorNames.LFUNNEL, Name.make("$lfunnel"));
+		map.put(OperatorNames.DIAMOND, Name.make("$diamond"));
+		map.put(OperatorNames.BOWTIE, Name.make("$bowtie"));
+		map.put(OperatorNames.STARSTAR, Name.make("$starstar"));
+		map.put(OperatorNames.inverse(OperatorNames.PLUS), Name.make("$inv_plus"));
+		map.put(OperatorNames.inverse(OperatorNames.MINUS), Name.make("$inv_minus"));
+		map.put(OperatorNames.inverse(OperatorNames.STAR), Name.make("$inv_times"));
+		map.put(OperatorNames.inverse(OperatorNames.SLASH), Name.make("$inv_over"));
+		map.put(OperatorNames.inverse(OperatorNames.PERCENT), Name.make("$inv_percent"));
+		map.put(OperatorNames.inverse(OperatorNames.LT), Name.make("$inv_lt"));
+		map.put(OperatorNames.inverse(OperatorNames.GT), Name.make("$inv_gt"));
+		map.put(OperatorNames.inverse(OperatorNames.LE), Name.make("$inv_le"));
+		map.put(OperatorNames.inverse(OperatorNames.GE), Name.make("$inv_ge"));
+		map.put(OperatorNames.inverse(OperatorNames.LEFT), Name.make("$inv_left"));
+		map.put(OperatorNames.inverse(OperatorNames.RIGHT), Name.make("$inv_right"));
+		map.put(OperatorNames.inverse(OperatorNames.RRIGHT), Name.make("$inv_unsigned_right"));
+		map.put(OperatorNames.inverse(OperatorNames.AMPERSAND), Name.make("$inv_ampersand"));
+		map.put(OperatorNames.inverse(OperatorNames.BAR), Name.make("$inv_bar"));
+		map.put(OperatorNames.inverse(OperatorNames.CARET), Name.make("$inv_caret"));
+		map.put(OperatorNames.inverse(OperatorNames.TILDE), Name.make("$inv_tilde"));
+		map.put(OperatorNames.inverse(OperatorNames.NTILDE), Name.make("$inv_ntilde"));
+		map.put(OperatorNames.inverse(OperatorNames.AND), Name.make("$inv_and"));
+		map.put(OperatorNames.inverse(OperatorNames.OR), Name.make("$inv_or"));
+		map.put(OperatorNames.inverse(OperatorNames.BANG), Name.make("$inv_not"));
+		map.put(OperatorNames.inverse(OperatorNames.EQ), Name.make("$inv_equalsequals"));
+		map.put(OperatorNames.inverse(OperatorNames.NE), Name.make("$inv_ne"));
+		map.put(OperatorNames.inverse(OperatorNames.RANGE), Name.make("$inv_range"));
+		map.put(OperatorNames.inverse(OperatorNames.ARROW), Name.make("$inv_arrow"));
+		map.put(OperatorNames.inverse(OperatorNames.LARROW), Name.make("$inv_larrow"));
+		map.put(OperatorNames.inverse(OperatorNames.FUNNEL), Name.make("$inv_funnel"));
+		map.put(OperatorNames.inverse(OperatorNames.LFUNNEL), Name.make("$inv_lfunnel"));
+		map.put(OperatorNames.inverse(OperatorNames.STARSTAR), Name.make("$inv_starstar"));
+	}
 
-		Name o = map.get(n);
+    public static final String SERIALIZE_ID_METHOD = "$_get_serialization_id";
+    public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";
+    public static final String SERIALIZE_METHOD = "$_serialize";
+    public static final String DESERIALIZE_BODY_METHOD = "$_deserialize_body";
+    public static final String DESERIALIZER_METHOD = "$_deserializer";
+
+	private static Name mangleIdentifier(Name n) {
+		Name o = MANGLED_OPERATORS.get(n);
 		if (o != null)
 			return o;
 
@@ -436,18 +456,6 @@ public class Emitter {
     public static String mangleParameterType(TypeParamNode tpn) {
     	return mangleParameterType(tpn.name().id());
     }
-
-    // not used
-//	/**
-//	 * Support "inline" .xcd so that you dont have to create a separate xcd file
-//	 * for a short code fragment.
-//	 * 
-//	 * @param components
-//	 * @param regex
-//	 */
-//	public void dumpCodeString(String regex, Object... components) {
-//		dumpRegex("internal", components, tr, regex);
-//	}
 
     public void dumpRegex(String id, Map<String,Object> components, Translator tr, String regex) {
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
@@ -557,42 +565,35 @@ public class Emitter {
 		return null;
 	}
 	
-	// not used
-	/*
-	private static boolean isPrimitiveJavaRep(X10ClassDef def) {
-		String pat = getJavaRep(def);
-		if (pat == null) {
-			return false;
-		}
-		String[] s = new String[] { "boolean", "byte", "char",
-				"short", "int", "long", "float", "double" };
-		for (int i = 0; i < s.length; i++) {
-			if (pat.equals(s[i])) {
-				return true;
-			}
-		}
-		return false;
+	// return all X10 types that are mapped to Java primitives and require explicit boxing
+	public static boolean needExplicitBoxing(Type t) {
+	    return t.isNumeric() || t.isChar() || t.isBoolean();
 	}
-	*/
-
-	private static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
-		String pat = getJavaRep(def);
-		if (pat != null && boxPrimitives) {
-			String[] s = new String[] { "boolean", "byte", "char",
-					"short", "int", "long", "float", "double" };
-			String[] w = new String[] { "java.lang.Boolean",
-					"java.lang.Byte", "java.lang.Character",
-					"java.lang.Short", "java.lang.Integer",
-					"java.lang.Long", "java.lang.Float",
-					"java.lang.Double" };
-			for (int i = 0; i < s.length; i++) {
-				if (pat.equals(s[i])) {
-					pat = w[i];
-					break;
-				}
-			}
-		}
-		return pat;
+	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
+	static {
+		boxedPrimitives.put("x10.lang.Boolean", "x10.core.Boolean");
+                boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
+		boxedPrimitives.put("x10.lang.Byte", "x10.core.Byte");
+		boxedPrimitives.put("x10.lang.Short", "x10.core.Short");
+		boxedPrimitives.put("x10.lang.Int", "x10.core.Int");
+		boxedPrimitives.put("x10.lang.Long", "x10.core.Long");
+		boxedPrimitives.put("x10.lang.Float", "x10.core.Float");
+		boxedPrimitives.put("x10.lang.Double", "x10.core.Double");
+		boxedPrimitives.put("x10.lang.UByte", "x10.core.UByte");
+		boxedPrimitives.put("x10.lang.UShort", "x10.core.UShort");
+		boxedPrimitives.put("x10.lang.UInt", "x10.core.UInt");
+		boxedPrimitives.put("x10.lang.ULong", "x10.core.ULong");
+	}
+	public static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
+	    String pat = getJavaRep(def);
+	    if (pat != null && boxPrimitives) {
+	        String orig = def.fullName().toString();
+	        String boxed = boxedPrimitives.get(orig);
+	        if (boxed != null) {
+	        	pat = boxedPrimitives.get(orig);
+	        }
+	    }
+	    return pat;
 	}
 	
 	public static String getJavaRep(X10ClassDef def) {
@@ -633,7 +634,7 @@ public class Emitter {
 	}
 
 	private String getNativeClassJavaRepParam(X10ClassDef def, int i) {
-        List<Type> as = def.annotationsMatching(nativeClassType);
+        List<Type> as = def.annotationsMatching(def.typeSystem().NativeClass());
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
             if (lang != null && lang.equals("java")) {
@@ -662,9 +663,9 @@ public class Emitter {
 			if (index < act.propertyInitializers().size()) {
 				Expr e = act.propertyInitializer(index);
 				if (e != null && e.isConstant()) {
-					Object v = e.constantValue();
-					if (v instanceof String) {
-						return (String) v;
+					ConstantValue v = e.constantValue();
+					if (v instanceof StringValue) {
+						return ((StringValue) v).value();
 					}
 				}
 			}
@@ -732,6 +733,55 @@ public class Emitter {
 		}
 
 		return false;
+	}
+	
+	public void printBoxConversion(Type type) {
+	    // treat unsigned types specially
+	    if (needExplicitBoxing(type)) {
+	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
+	        // it requires parentheses to be printed after
+	    }
+	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
+	        // it requires parentheses to be printed after
+	    }
+	    else {
+	        // FIXME: maybe this is not needed at all? -- boxing of non-boxable types
+	        w.write("(");
+	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write(")");
+	    }
+	}
+	
+	/**
+	 * @param type - a type to print
+	 * @return Returns true if an additional closing parenthesis needs to be printed after expression
+	 */
+	public boolean printUnboxConversion(Type type) {
+            if (needExplicitBoxing(type)) {
+	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
+	        /*
+	        w.write("(");
+	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write(")");
+	        */
+	        return true;
+	    }
+	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
+	        return true;
+	    }
+	    else {
+	        // FIXME: maybe this is not needed at all? -- unboxing of non-boxable types
+	        w.write("(");
+	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        w.write(")");
+	        return false;
+	    }
 	}
 
 	public void printType(Type type, int flags) {
@@ -858,21 +908,8 @@ public class Emitter {
 
 	public boolean isIMC(Type type) {
         Type tbase = Types.baseType(type);
-        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(imcType, tr.context());
+        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(type.typeSystem().IndexedMemoryChunk(), tr.context());
     }
-
-	// not used
-    public static boolean isAbstract(MemberInstance<?> mi) {
-		if (mi.flags().isAbstract())
-			return true;
-		Type t = Types.baseType(mi.container());
-		if (t instanceof ClassType) {
-			ClassType ct = (ClassType) t;
-			if (ct.flags().isInterface())
-				return true;
-		}
-		return false;
-	}
 
     // See comments in Native.x10
     /**
@@ -1007,6 +1044,9 @@ public class Emitter {
 
         w.allowBreak(2, 2, " ", 1);
 
+        // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+        boolean canMangleMethodName = canMangleMethodName(n.methodDef());
+        
         // decl
         // print the method name
 		printMethodName(n.methodDef(), isInterface, isDispatcher);
@@ -1034,6 +1074,18 @@ public class Emitter {
 		}
 		int formalNum = 1;
 		for (int i = 0; i < n.formals().size(); i++) {
+		    boolean forceBoxing = false;
+		    if (!canMangleMethodName) {
+		        // for methods, for which we cannot mangle name, a different boxing rule applies:
+		        // we force boxing of an argument if the method implements a method
+		        // with a boxed (generic) argument type in corresponding position
+		        for (MethodInstance supermeth : n.methodDef().asInstance().implemented(tr.context())) {
+		            if (isBoxedType(supermeth.def().formalTypes().get(i).get())) {
+		                forceBoxing = true;
+		                break;
+		            }
+		        }
+		    }
 			if (!first) {
 				w.write(",");
 				w.allowBreak(0, " ");
@@ -1064,7 +1116,8 @@ public class Emitter {
 			    printType(
 			              type,
 			              (n.flags().flags().isStatic() ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS : 0) |
-			              (boxPrimitives ? X10PrettyPrinterVisitor.BOX_PRIMITIVES: 0)
+			              // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+                                      (boxPrimitives || forceBoxing ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0)
 			    );
 			    w.write(" ");
 			    Name name = f.name().id();
@@ -1124,18 +1177,25 @@ public class Emitter {
         return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type, tr.context());
     }
 
-    private final boolean doMangleSpecialReturnMethod(Name methodName, ContainerType containerType) {
-    	String methodNameString = methodName.toString();
-    	return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
+    public final boolean canMangleMethodName(MethodDef def) {
+        ContainerType containerType = def.container().get();
+        String methodName = def.name().toString();
+        List<Ref<? extends Type>> formalTypes = def.formalTypes();
+        int numFormals = formalTypes.size();
+        boolean nonStatic = !def.flags().isStatic();
+        return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
         && !isNativeClassToJava(containerType)
         && !isNativeRepedToJava(containerType)
-        && !(methodNameString.equals("equals") || methodNameString.equals("toString") || methodNameString.equals("hashCode"))/*Any*/
-        && !(methodNameString.equals("compareTo"))/*Comparable*/
-        && !(methodNameString.startsWith(StaticInitializer.initializerPrefix) || methodNameString.startsWith(StaticInitializer.deserializerPrefix));
+        && !(nonStatic && ((methodName.equals("equals") && numFormals == 1) || (methodName.equals("toString") && numFormals == 0) || (methodName.equals("hashCode") && numFormals == 0)))/*Any*/
+        && !(nonStatic && ((methodName.equals("compareTo") && numFormals == 1)))/*Comparable*/
+        && !(methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix));
     }
     
     public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
-        if (X10PrettyPrinterVisitor.isGenericOverloading) {
+        // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+        // WIP XTENLANG-2680 (ComparableTest.x10)
+        // enable it after enhancing canMangleMethodName with parameter list
+        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def)) {
             w.write(getMangledMethodName(def, !isInterface));
         }
         else {
@@ -1143,7 +1203,7 @@ public class Emitter {
         }
         if (!isDispatcher) {
             if (isSpecialReturnType) {
-                if (doMangleSpecialReturnMethod(def.name(), def.container().get())) {
+                if (canMangleMethodName(def)) {
                     w.write(RETURN_SPECIAL_TYPE_SUFFIX);
                 }
             }
@@ -1161,7 +1221,7 @@ public class Emitter {
             w.write(mangleToJava(mi.name()));
         }
         if (isSpecialType(mi.returnType())) {
-            if (doMangleSpecialReturnMethod(mi.name(), mi.container())) {
+            if (canMangleMethodName(mi.def())) {
                 w.write(RETURN_SPECIAL_TYPE_SUFFIX);
             }
         }
@@ -1188,7 +1248,17 @@ public class Emitter {
         }
     }
 
-    private static boolean isDispatcher(X10MethodDecl_c n) {
+    public static boolean isDispatcher(MethodInstance mi) {
+        for (Ref<? extends Type> ref: mi.def().formalTypes()) {
+            Type type = ref.get();
+            if (containsTypeParam(type)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    
+    public static boolean isDispatcher(X10MethodDecl_c n) {
         for (int i = 0; i < n.formals().size(); i++) {
             Type type = n.formals().get(i).type().type();
             if (containsTypeParam(type)) {
@@ -1336,6 +1406,13 @@ public class Emitter {
     }
 
     private static void buildMangledMethodName(ClassType ct, StringBuilder sb, int i, Type type, boolean printIncludingGeneric) {
+        if (type.isUnsignedNumeric()) {
+            sb.append(UNSIGNED_NUMERIC_TYPE_PREFIX + i);
+        }
+        // for Emitter.mangleSignedNumeric
+        if (mangleSignedNumeric && type.isSignedNumeric()) {
+            sb.append(SIGNED_NUMERIC_TYPE_PREFIX + i);
+        }
         Type t = Types.baseType(type);
         if (t instanceof X10ClassType && (printIncludingGeneric || (!printIncludingGeneric && !containsTypeParam(t)))) {
             X10ClassType x10t = (X10ClassType) t;
@@ -1702,7 +1779,7 @@ public class Emitter {
 	    }
 	    
 	    // e.g int m() overrides or implements T m()
-	    boolean instantiateReturnType = Types.baseType(def.returnType().get()) instanceof ParameterType;
+	    boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
 	    if (boxReturnValue) {
 	        if (X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
 	            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
@@ -1787,11 +1864,13 @@ public class Emitter {
 	        w.write("return ");
 	    }
 
-	    boolean boxString = boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context());
-	    if (boxString) {
-            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
-            w.write(".box(");
-	    }
+        boolean closeParen = false;
+        if ((boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context()))
+                || (instantiateReturnType && !isBoxedType(impl.returnType()))) {
+        	printBoxConversion(impl.returnType());
+        	w.write("(");
+            closeParen = true;
+        }
 
 	    TypeSystem xts = tr.typeSystem();
 	    boolean isInterface2 = false;
@@ -1828,19 +1907,17 @@ public class Emitter {
 	            w.write(",");
 	            w.allowBreak(0, " ");
 	        }
-	        if (isPrimitive(f)) {
-	            w.write("(");
-	            printType(f, 0);
-	            w.write(")");
-	        }
-	        w.write(" ");
-
 	        Name name = Name.make("a" + (i + 1));
+	        boolean closeParenArg = false;
+	        if (isPrimitive(f) && isBoxedType(def.formalTypes().get(i).get())) {
+	            closeParenArg = printUnboxConversion(f);
+	        }
 	        w.write(name.toString());
+	        if (closeParenArg) w.write(")");
 	    }
 	    w.write(")");
 
-	    if (boxString) {
+	    if (closeParen) {
 	        w.write(")");
 	    }
 	    w.write(";");
@@ -1904,6 +1981,12 @@ public class Emitter {
     	    if (!mi.returnType().isVoid()) {
     	        w.write("return ");
     	    }
+    	    
+    	    boolean closeParen = false;
+    	    if (!isBoxedType(mi.returnType()) && isBoxedType(mi.def().returnType().get())) {
+    	        // handle unboxing of the UInt values
+    	        closeParen = printUnboxConversion(mi.returnType());
+    	    }
     
     	    w.write("super.");
     	    
@@ -1919,16 +2002,15 @@ public class Emitter {
     	            w.allowBreak(0, " ");
     	        }
     	        if (isPrimitive(f) && isInstantiated(def.formalTypes().get(i).get(), f)) {
-    	            w.write("(");
-    	            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-    	            w.write(")");
+    	            printBoxConversion(f);
     	        }
-    	        w.write(" ");
-    
+    	        w.write("("); // required by printBoxConversion()
     	        Name name = Name.make("a" + (i + 1));
     	        w.write(name.toString());
+    	        w.write(")");
     	    }
     	    w.write(")");
+    	    if (closeParen) w.write(")");
     
     	    w.write(";");
     	    w.write("}");
@@ -2111,6 +2193,10 @@ public class Emitter {
                     if (!((X10ClassType) st).flags().isInterface()) {
                         continue;
                     }
+                    // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+                    if (isNativeRepedToJava(st)) {
+                    	continue;
+                    }
                 }
                 
                 boolean isContainsTypeParams = false;
@@ -2217,6 +2303,7 @@ public class Emitter {
     private static void getAllInterfaces(List<Type> interfaces, List<Type> allInterfaces) {
         allInterfaces.addAll(interfaces);
         for (Type type : interfaces) {
+        	type = Types.baseType(type);
             if (type instanceof X10ClassType) {
                 List<Type> interfaces1 = ((X10ClassType) type).interfaces();
                 getAllInterfaces(interfaces1, allInterfaces);
@@ -2366,6 +2453,14 @@ public class Emitter {
                 if (!mi.returnType().isVoid()) {
                     w.write("return ");
                 }
+                
+                boolean needParen = false;
+                // this dispatch methods returns Object, so box if the underlying type is not boxed
+                if (!isBoxedType(mi.returnType()) && !mi.returnType().isVoid()) {
+                	printBoxConversion(mi.returnType());
+                	w.write("(");
+                	needParen = true;
+                }
 
                 // call
                 printMethodName(mi.def(), false, false);
@@ -2391,16 +2486,11 @@ public class Emitter {
                         w.write(",");
                         w.allowBreak(0, " ");
                     }
-                    if (def.formalTypes().get(i).get() instanceof ParameterType) {
+                    boolean closeParen = false;
+                    if (isBoxedType(def.formalTypes().get(i).get())) {
                         Type bf = Types.baseType(f);
-                        if (f.isBoolean() || f.isNumeric()) {
-                            // TODO:CAST
-                            w.write("(");
-                            printType(f, 0);
-                            w.write(")");
-                            w.write("(");
-                            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                            w.write(")");
+                        if (!isBoxedType(f)) {
+                            closeParen = printUnboxConversion(f);
                         } else if (!isMethodParameter(bf, mi, tr.context())) {
                             // TODO:CAST
                             w.write("(");
@@ -2411,8 +2501,13 @@ public class Emitter {
                     
                     Name name = Name.make("a" + (i + 1));
                     w.write(name.toString());
+                    if (closeParen)
+                        w.write(")");
                 }
                 w.write(")");
+                if (needParen) {
+                    w.write(")");
+                }
                 w.write(";");
                 if (mi.returnType().isVoid()) {
                     w.write("return null;");
@@ -2527,14 +2622,15 @@ public class Emitter {
 	        actual = ((ConstrainedType) actual).baseType().get();
 	    }
 	    CastExpander expander = new CastExpander(w, this, e);
-	    if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
+	    if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)
+	            && (!isBoxedType(expectedBase))) {
 	        prettyPrint(e, tr);
 	    }
 	    // for primitive
-	    else if (actual.isBoolean() || actual.isNumeric() || actual.isByte()) {
+	    else if (actual.isBoolean() || needExplicitBoxing(actual)) {
 	        if (actual.typeEquals(expectedBase, tr.context())) {
-	            if (e instanceof X10Call && Types.baseType(((X10Call) e).methodInstance().def().returnType().get()) instanceof ParameterType) {
-	                expander = expander.castTo(expectedBase);
+	            if (e instanceof X10Call && isBoxedType(Types.baseType(((X10Call) e).methodInstance().def().returnType().get()))) {
+	                expander = expander.unboxTo(expectedBase);
 	                expander.expand(tr);
 	            }
 	            else {
@@ -2542,10 +2638,9 @@ public class Emitter {
 	            }
 	        } else {
 
-	            //when the type of e has parameters, cast to actual boxed primitive. 
-	            if (!isNoArgumentType(e) || expected instanceof ConstrainedType) {
-	                expander = expander.castTo(actual, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	                expander = expander.castTo(actual).castTo(expectedBase).castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            if (isBoxedType(expectedBase)) {
+	                // when expected type is T or Any, include an explicit boxing transformation
+	                expander = expander.boxTo(actual).castTo(expectedBase);
 	                expander.expand(tr);
 	            }
 	            else {
@@ -2559,9 +2654,17 @@ public class Emitter {
 	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
 	            prettyPrint(e, tr);
 	        }
+	        else if (!(actual instanceof ParameterType) && X10PrettyPrinterVisitor.isString(actual, tr.context()) &&
+	        		!(expectedBase instanceof ParameterType) && !X10PrettyPrinterVisitor.isString(expectedBase, tr.context())) {
+	        	expander = expander.boxTo(actual).castTo(expectedBase);
+	        	expander.expand(tr);
+	        }
 	        else {
 	            //cast eagerly
-	            expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            if (isBoxedType(actual) && !isBoxedType(expectedBase))
+    	            expander = expander.unboxTo(expectedBase);
+	            else 
+    	            expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	            expander.expand(tr);
 	        }
 	    }
@@ -2854,7 +2957,7 @@ public class Emitter {
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
                         component = "x10.rtt.UnresolvedType.THIS";
                     } else if (Types.baseType(at) instanceof ParameterType) {
-                        component = "x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
+                        component = "x10.rtt.UnresolvedType.PARAM(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
                     } else {
                         component = new Expander(this) {
                             public void expand(Translator tr) {
@@ -2900,7 +3003,7 @@ public class Emitter {
                     if (ta.typeEquals(def.asType(), tr.context())) {
                         w.write("x10.rtt.UnresolvedType.THIS");
                     } else if (ta instanceof ParameterType) {
-                        w.write("x10.rtt.UnresolvedType.getParam(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
+                        w.write("x10.rtt.UnresolvedType.PARAM(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
                     } else {
                         printRTT(def, ta);
                     }
@@ -3021,13 +3124,13 @@ public class Emitter {
         w.write("private transient x10.io.SerialData " + fieldName + ";");
         w.newline();
         w.write("private Object writeReplace() { ");
-        if (!opts.x10_config.NO_TRACES) {
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" calling\"); ");
             w.write("} ");
         }
         w.write(fieldName + " = serialize(); ");
-        if (!opts.x10_config.NO_TRACES) {
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" returned \" + " + fieldName + "); ");
             w.write("} ");
@@ -3139,9 +3242,124 @@ public class Emitter {
             w.newline();
         }
 
+        //_deserialize_body method
+        w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+        w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+        w.newline(4);
+        w.begin(0);
+
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+            w.writeln("} ");
+        }
+
+        String params = "";
+        w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
+        for (ParameterType at : def.typeParameters()) {
+            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
+            printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+            w.write(" = ( " + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ) ");
+            w.writeln("$deserializer.readRef();");
+            params = params + mangleParameterType(at) + ", ";
+        }
+
+        w.write("$_obj = (");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write(") ");
+        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        w.write(".");
+        w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+        w.writeln("(" + params + fieldName + ");");
+        w.writeln("return $_obj;");
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
+
+        // _deserializer  method
+        w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+        w.newline(4);
+        w.begin(0);
+        w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(");
+        if (X10PrettyPrinterVisitor.supportConstructorSplitting
+            // XTENLANG-2830
+            /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
+            && !def.flags().isInterface()) {
+            w.writeln("(" + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + "[]) null); ");
+        } else {
+            for (int i = 0; i < def.typeParameters().size(); i++) {
+                w.write("null, ");
+            }
+            w.writeln("(x10.io.SerialData) null);");
+        }
+        w.writeln("$deserializer.record_reference($_obj);");
+        w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
+
+        // _serialize_id()
+        w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
+        w.newline(4);
+        w.begin(0);
+        w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
+
+        // _serialize()
+        w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
+        w.newline(4);
+        w.begin(0);
+        if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
+            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
+            w.writeln("} ");
+        }
+
+        w.writeln(fieldName + " = serialize(); ");
+        w.writeln("$serializer.write(" + fieldName + ");");
+        for (ParameterType at : def.typeParameters()) {
+            w.writeln("$serializer.write(" + mangleParameterType(at) + ");");
+        }
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
 	}
 
-	// TODO haszero
+    // Emits the code to serialize the super class
+    public void serializeSuperClass(TypeNode superClassNode) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+        // Check whether need to serialize super class
+        if (superClassNode != null && superClassNode.type().isClass()) {
+            if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
+                    superClassNode.type().toString().equals("x10.lang.Object") ||
+                    superClassNode.type().toString().equals("x10.lang.Any"))) {
+                w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
+                w.newline();
+            }
+        }
+    }
+
+    // Emits the code to deserialize the super class
+    public void deserializeSuperClass(TypeNode superClassNode) {
+        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
+        // Check whether we need to deserialize the super class
+        if (superClassNode != null && superClassNode.type().isClass()) {
+            if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
+                    superClassNode.type().toString().equals("x10.lang.Object") ||
+                    superClassNode.type().toString().equals("x10.lang.Any"))) {
+                printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+            }
+        }
+    }
+
+    // TODO haszero
 	public void generateZeroValueConstructor(X10ClassDef def, X10ClassDecl_c n) {
         w.write("// zero value constructor");
         w.newline();
@@ -3149,7 +3367,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
         	w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
         }
-        w.write("final java.lang.System $dummy) { ");
+        w.write("final " + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + " $dummy) { ");
 
         /* struct does not have super type
         // call super zero value constructor
@@ -3157,8 +3375,8 @@ public class Emitter {
         if (superType0Ref != null) {
             Type superType0 = superType0Ref.get();
             X10ClassType superType;
-            if (superType0 instanceof ConstrainedType_c) {
-                superType = (X10ClassType) ((ConstrainedType_c) superType0).baseType().get();
+            if (superType0 instanceof ConstrainedType) {
+                superType = (X10ClassType) ((ConstrainedType) superType0).baseType().get();
             } else {
                 superType = (X10ClassType) superType0;
             }
@@ -3170,7 +3388,7 @@ public class Emitter {
                     w.write(", ");
                 }
             }
-            w.write("(java.lang.System) null); ");
+            w.write("$dummy); ");
         }
         */
         
@@ -3195,13 +3413,13 @@ public class Emitter {
 //            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
-                    zero = "(x10.lang.UByte) x10.rtt.Types.UBYTE_ZERO";
+                    zero = "(x10.core.UByte) x10.rtt.Types.UBYTE_ZERO";
                 } else if (xts.isUShort(type)) {
-                    zero = "(x10.lang.UShort) x10.rtt.Types.USHORT_ZERO";
+                    zero = "(x10.core.UShort) x10.rtt.Types.USHORT_ZERO";
                 } else if (xts.isUInt(type)) {
-                    zero = "(x10.lang.UInt) x10.rtt.Types.UINT_ZERO";
+                    zero = "(x10.core.UInt) x10.rtt.Types.UINT_ZERO";
                 } else if (xts.isULong(type)) {
-                    zero = "(x10.lang.ULong) x10.rtt.Types.ULONG_ZERO";
+                    zero = "(x10.core.ULong) x10.rtt.Types.ULONG_ZERO";
                 } else if (xts.isByte(type)) {
                     zero = "(byte) 0";
                 } else if (xts.isShort(type)) {
@@ -3233,7 +3451,7 @@ public class Emitter {
                             w.write(", ");
                         }
                     }
-                    w.write("(java.lang.System) null); ");
+                    w.write("$dummy); ");
                 }
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
@@ -3248,6 +3466,15 @@ public class Emitter {
 
         w.write("}");
         w.newline();
+	}
+	
+	// N.B. these conditions are cut&pasted from printInlinedCode()
+	public boolean isInlinedCall(X10Call c) {
+	    TypeSystem xts = tr.typeSystem();
+	    if (!isMethodInlineTarget(xts, Types.baseType(c.target().type()))) return false;
+	    MethodInstance mi = c.methodInstance();
+	    if (mi.name() == SettableAssign.SET || mi.name() == ClosureCall.APPLY) return true;
+	    return false;
 	}
 
     public boolean printInlinedCode(X10Call_c c) {
@@ -3325,6 +3552,9 @@ public class Emitter {
     		CastExpander targetArg = new CastExpander(w, this, target);
     		if (cast) {
     		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+    		    // in native methods of numerics (Int etc), the #this argument is expected to be unboxed
+    		    if (needExplicitBoxing(mi.container()))
+    		        targetArg = targetArg.unboxTo(mi.container());
     		}
     		
 	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
@@ -3345,7 +3575,7 @@ public class Emitter {
     		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
     		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
-    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+    		        args.add(new CastExpander(w, this, arguments.get(i)).boxTo(at));
     		    }
     		    else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
@@ -3455,7 +3685,8 @@ public class Emitter {
     		}
     		
     		w.write("{");
-    		//@@@ahoaho
+    		w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native method
+    		// always same?
     		if (!n.returnType().type().isVoid()) {
 //    		if (!mi.returnType().isVoid()) {
     			w.write("return ");
@@ -3464,6 +3695,7 @@ public class Emitter {
     		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		
     		w.write(";}");
+    		w.write("catch (java.lang.Throwable $exc$) { throw x10.core.ThrowableUtilities.convertJavaThrowable($exc$); } }"); // XTENLANG-2686
     		w.newline();
     		
     		return true;
@@ -3517,5 +3749,8 @@ public class Emitter {
         }
         return false;
     }
-
+    
+    public static boolean isBoxedType(Type t) {
+        return X10PrettyPrinterVisitor.isBoxedType(t);
+    }
 }

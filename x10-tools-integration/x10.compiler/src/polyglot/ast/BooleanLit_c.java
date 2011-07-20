@@ -21,6 +21,7 @@ import x10.constraint.XTerm;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
 import x10.types.XTypeTranslator;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 
 /**
@@ -82,8 +83,8 @@ public class BooleanLit_c extends Lit_c implements BooleanLit
     w.end();
   }
 
-  public Object constantValue() {
-    return Boolean.valueOf(value);
+  public ConstantValue constantValue() {
+      return ConstantValue.makeBoolean(value);
   }
 
 }

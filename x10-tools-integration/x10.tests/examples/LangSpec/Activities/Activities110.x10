@@ -26,7 +26,7 @@ public class Activities110 extends x10Test {
     }
 
 
-// file Activities line 505
+// file Activities line 508
  static  class CASSizer{
 var target:Object = null;
 public atomic def CAS(old1: Object, y: Object):Boolean {

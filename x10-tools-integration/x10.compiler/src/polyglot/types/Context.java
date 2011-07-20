@@ -63,6 +63,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -203,6 +204,8 @@ public class Context implements Resolver, Cloneable
     protected Type switchType=null;
     protected Stack<Ref<CConstraint>> cStack=null;
     
+    protected boolean specialAsQualifiedVar=false;
+    
     public Context(TypeSystem ts) {
         this.ts = ts;
         this.outer = null;
@@ -291,6 +294,10 @@ public class Context implements Resolver, Cloneable
      * invocation statement. (Java Language Spec, 2nd Edition, 8.1.2)
      */
     public boolean inStaticContext() { return skipDepType().staticContext; }
+    
+    public boolean specialAsQualifiedVar() {
+        return specialAsQualifiedVar || inDepType();
+    }
 
     /**
      * Returns whether the particular symbol is defined locally.  If it isn't
@@ -354,7 +361,7 @@ public class Context implements Resolver, Cloneable
             return false;
         }
 
-        return outer.isLocal(name);
+        return outer.isLocalExcludingAsyncAt(name);
     }
     public boolean isValInScopeInClass(Name name) {
         if (isClass()) {
@@ -424,6 +431,21 @@ public class Context implements Resolver, Cloneable
     /**
      * Gets current class scope
      */ 
+    
+
+    CConstraint outerThisEquivalences() {
+        CConstraint result = new CConstraint();
+        Type curr = currentClass();
+        List<X10ClassDef> outers = Types.outerTypes(curr); 
+        for (int i=0; i < outers.size(); i++) {
+            XVar base = outers.get(i).thisVar();
+            for (int j=i+1; j < outers.size(); j++ ) {
+                X10ClassDef y = outers.get(j);
+                result.addBinding(y.thisVar(), new QualifiedVar(y.asType(), base));
+        }
+        }
+        return result;
+    }
     public X10ClassDef currentClassDef() { return skipDepType().scope; }
     public XConstrainedTerm currentFinishPlaceTerm() { return currentFinishPlaceTerm;}
     public XConstrainedTerm currentPlaceTerm() { return currentPlaceTerm; }
@@ -433,6 +455,8 @@ public class Context implements Resolver, Cloneable
             result = new CConstraint();
             if (! inStaticContext()) {
                 result.setThisVar(thisVar());
+                CConstraint d = outerThisEquivalences();
+               result.addIn(d);
             }
         }
         if (! cStackUsedUp) {
@@ -659,7 +683,7 @@ public class Context implements Resolver, Cloneable
     }
 
     /**
-     * Gets a field of a particular name. The lookupComtext is the context in 
+     * Gets a field of a particular name. The lookupContext is the context in 
      * which the field is being looked up, this is typically a lower context 
      * than the class context in which the field is defined. This lower context
      * may have additional constraints, such as the type bounds for the 
@@ -985,9 +1009,13 @@ public class Context implements Resolver, Cloneable
         assert (depType == null);
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push static");
-        Context v = push();
+        Context v;
+        if (isCode() || isAsync() || isAt()) {
+            v = pushBlock();
+        } else {
+            v = push();
+        }
         v.staticContext = true;
-        
         return v;
     }
 
@@ -1067,6 +1095,18 @@ public class Context implements Resolver, Cloneable
         return v;
     }
     
+    /**
+     * In a context marked as SpecialAsQualifiedVar a qualified this, 
+     * A.this is returned as a 
+     * QualifiedVar instead of the this var in the appropriate outer 
+     * context.
+     */
+    
+    public Context pushSpecialAsQualifiedVar() {
+        Context c = pushBlock();
+        c.specialAsQualifiedVar=true;
+        return c;
+    }
     public Context pushFinishScope(boolean isClocked) {
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push finish scope");
@@ -1082,7 +1122,7 @@ public class Context implements Resolver, Cloneable
     public Context pushDepType(polyglot.types.Ref<? extends polyglot.types.Type> ref) {
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push dep type");
-        Context v =  push();
+        Context v = pushBlock();
         v.depType = ref;
         v.inCode = false;
         return v;
@@ -1124,7 +1164,7 @@ public class Context implements Resolver, Cloneable
     public Context pushSuperTypeDeclaration(X10ClassDef type) {
         if (reporter.should_report(TOPICS, 4))
             reporter.report(4, "push super type");
-        Context v = push();
+        Context v = pushBlock();
         v.inSuperOf = type;
         v.inCode = false;
         

@@ -29,6 +29,13 @@ public interface IntLit extends NumLit
             if (this==UBYTE) return BYTE;
             return this;
         }
+        public boolean isSigned() {
+            return this == LONG || this == INT || this == SHORT || this == BYTE;
+        }
+        public boolean isUnsigned() {
+            return this == ULONG || this == UINT || this == USHORT || this == UBYTE;
+        }
+
     }
 
     public static final Kind INT   = Kind.INT;

@@ -71,6 +71,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
         membersSynth = new ArrayList<IClassMemberSynth>();
 
         classDef = (X10ClassDef) xts.createClassDef();
+        classDef.setThisDef(xts.thisDef(pos, Types.ref(classDef.asType())));
         classDef.superType(Types.ref(superType)); // And the super Type
 
         List<Ref<? extends Type>> interfacesRef = new ArrayList<Ref<? extends Type>>();
@@ -92,12 +93,8 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
      * @param superType
      * @param className
      */
-    public ClassSynth(Job job, NodeFactory xnf, Context xct, Type superType, String className) {
-        this(job, xnf, xct, compilerPos, superType, className);
-    }
-
     public ClassSynth(Job job, NodeFactory xnf, Context xct, Position pos, Type superType, String className) {
-        this(job, xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.TOP_LEVEL);
+        this(job, xnf, xct, pos, superType, Name.make(className), new ArrayList<Type>(), Flags.NONE, ClassDef.MEMBER);
     }
 
     public X10ClassDef getClassDef() {

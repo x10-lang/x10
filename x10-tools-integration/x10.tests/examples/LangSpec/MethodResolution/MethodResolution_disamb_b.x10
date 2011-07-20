@@ -26,7 +26,7 @@ public class MethodResolution_disamb_b extends x10Test {
     }
 
 
-// file MethodResolution line 439
+// file MethodResolution line 461
 
  static class Ambig {
   public val f : (Int)=>Int =  (x:Int) => x*x;

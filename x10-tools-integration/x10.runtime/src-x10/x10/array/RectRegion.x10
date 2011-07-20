@@ -11,8 +11,6 @@
 
 package x10.array;
 
-import x10.compiler.TempNoInline_0;
-import x10.compiler.TempNoInline_1;
 import x10.compiler.CompilerFlags;
 import x10.compiler.Inline;
 
@@ -226,8 +224,8 @@ final class RectRegion extends Region{rect} {
 
     protected def computeBoundingBox():Region(rank)=this; 
     
-    public @TempNoInline_1 def min():(int)=>int = (i:int)=> min(i);
-    public @TempNoInline_1 def max():(int)=>int = (i:int)=> max(i);
+    public def min():(int)=>int = (i:int)=> min(i);
+    public def max():(int)=>int = (i:int)=> max(i);
 
     public def contains(that:Region(rank)): boolean {
        if (that instanceof RectRegion) {
@@ -311,15 +309,15 @@ final class RectRegion extends Region{rect} {
      * Return a PolyRegion with the same set of points as this region. This permits
      * general algorithms for intersection, restriction etc to be applied to RectRegion's.
      */
-    public @TempNoInline_1 def toPolyRegion() {
+    public def toPolyRegion() {
     	if (polyRep==null) {
-            polyRep = @TempNoInline_1 Region.makeRectangularPoly(new Array[int](rank, min()), new Array[int](rank, max()));
+            polyRep = Region.makeRectangularPoly(new Array[int](rank, min()), new Array[int](rank, max()));
     	}
     	return polyRep;
     }
     
     
-    public @TempNoInline_0 def intersection(that:Region(rank)):Region(rank) {
+    public def intersection(that:Region(rank)):Region(rank) {
         if (that.isEmpty()) {
 	       return that;
         } else if (that instanceof FullRegion) {
@@ -346,7 +344,7 @@ final class RectRegion extends Region{rect} {
     
 
     
-    public @TempNoInline_0 def product(that:Region):Region{self != null} /*self.rank==this.rank+that.rank*/{
+    public def product(that:Region):Region{self != null} /*self.rank==this.rank+that.rank*/{
         if (that.isEmpty()) {
             return Region.makeEmpty(rank + that.rank);
         } else if (that instanceof RectRegion) {
@@ -383,7 +381,7 @@ final class RectRegion extends Region{rect} {
         return new RectRegion(min(axis), max(axis));
     }
 
-    public @TempNoInline_0 def eliminate(axis:int):Region{self.rect} /*(rank-1)*/ {
+    public def eliminate(axis:int):Region{self.rect} /*(rank-1)*/ {
     	val k = rank-1;
         val newMin = new Array[int](k, (i:int)=>i<axis?min(i):min(i+i));
         val newMax = new Array[int](k, (i:int)=>i<axis?max(i):max(i+i));

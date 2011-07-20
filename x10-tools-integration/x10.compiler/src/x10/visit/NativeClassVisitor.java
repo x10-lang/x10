@@ -57,6 +57,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
+import x10.ast.TypeParamNode;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl;
@@ -70,6 +71,7 @@ import x10.types.X10Def;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
 import x10.util.FileUtils;
+import x10.types.constants.StringValue;
 
 /**
  * Visitor that expands @NativeClass and @NativeDef annotations.
@@ -101,7 +103,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassName(X10ClassDef def) throws SemanticException {
-        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.NativeClass();
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -113,7 +115,7 @@ public class NativeClassVisitor extends ContextVisitor {
     }
 
     protected String getNativeClassPackage(X10ClassDef def) throws SemanticException {
-        Type t = xts.systemResolver().findOne(QName.make("x10.compiler.NativeClass"));
+        Type t = xts.NativeClass();
         List<Type> as = def.annotationsMatching(t);
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -130,8 +132,8 @@ public class NativeClassVisitor extends ContextVisitor {
             X10ClassType act = (X10ClassType) at;
             if (index < act.propertyInitializers().size()) {
                 Expr e = act.propertyInitializer(index);
-                if (e.isConstant() && e.constantValue() instanceof String) {
-                    return (String) e.constantValue();
+                if (e.isConstant() && e.constantValue() instanceof StringValue) {
+                    return ((StringValue) e.constantValue()).value();
                 } else {
                     throw new SemanticException("Property initializer for @" + at + " must be a string literal.");
                 }
@@ -233,8 +235,8 @@ public class NativeClassVisitor extends ContextVisitor {
                     cdecl.name(),
                     Collections.<Formal>singletonList(f),
                     xnf.Block(p,ctorBlock));
-            xd.typeParameters(cdecl.typeParameters());
-            xd.returnType(ftnode);
+            xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
+            xd = xd.returnType(ftnode);
 
             ConstructorDef xdef = xts.constructorDef(p,
                     Types.ref(cdef.asType()),

@@ -128,8 +128,10 @@ import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
+import x10.types.MethodInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10cpp.X10CPPCompilerOptions;
@@ -147,6 +149,8 @@ import x10cuda.types.SharedMem;
 import x10cuda.types.X10CUDAContext_c;
 import polyglot.main.Options;
 import polyglot.main.Report;
+import polyglot.types.Context;
+import polyglot.types.Flags;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -178,7 +182,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	protected String[] getCurrentNativeStrings() {
-		if (!generatingKernel())
+		if (!generatingCUDACode())
 			return new String[] { CPP_NATIVE_STRING };
 		return new String[] { CUDA_NATIVE_STRING, CPP_NATIVE_STRING };
 	}
@@ -192,22 +196,48 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	// defer to CUDAContext.cudaStream()
-	private ClassifiedStream cudaStream() {
-		return context().cudaStream(sw, tr.job());
+	private ClassifiedStream cudaKernelStream() {
+		return context().cudaKernelStream(sw, tr.job());
 	}
 
-	private boolean generatingKernel() {
-		return context().generatingKernel();
+	private ClassifiedStream cudaClassBodyStream() {
+		return context().cudaClassBodyStream(sw, tr.job());
 	}
 
-	private void generatingKernel(boolean v) {
-		context().generatingKernel(v);
+	private boolean generatingCUDACode() {
+		return context().generatingCUDACode();
+	}
+
+	private void generatingCUDACode(boolean v) {
+		context().generatingCUDACode(v);
 	}
 
 	// does the block have the annotation that denotes that it should be
 	// split-compiled to cuda?
 	private boolean blockIsKernel(Node n) {
 		return n instanceof CUDAKernel;
+	}
+
+	// type from name
+	private Type getType(String name) throws SemanticException {
+		return xts().systemResolver().findOne(QName.make(name));
+	}
+
+	// does the block have the given annotation
+	private boolean nodeHasAnnotation(Node n, String ann) {
+		X10Ext ext = (X10Ext) n.ext();
+		try {
+			return !ext.annotationMatching(getType(ann)).isEmpty();
+		} catch (SemanticException e) {
+			assert false : e;
+			return false; // in case asserts are off
+		}
+	}
+
+	// does the block have the annotation that denotes that it should be
+	// split-compiled to cuda?
+	private boolean nodeHasCUDAAnnotation(Node n) {
+		return nodeHasAnnotation(n, ANN_KERNEL);
 	}
 	
 	private String env = "__env";
@@ -290,7 +320,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		String kernel_name = context().wrappingClosure();
 		sw.write("/* block split-compiled to cuda as " + kernel_name + " */ ");
 
-		ClassifiedStream out = cudaStream();
+		ClassifiedStream out = cudaKernelStream();
 
 		// environment (passed into kernel via pointer)
 		generateStruct(kernel_name, out, context().kernelParams());
@@ -358,6 +388,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		// body
 		sw.pushCurrentStream(out);
         try {
+        	Context context = tr.context();
+        	cuda_kernel.blocksVar.addDecls(context);
+        	cuda_kernel.threadsVar.addDecls(context);
+        	if (cuda_kernel.autoBlocks != null)  cuda_kernel.autoBlocks.addDecls(context);
+        	if (cuda_kernel.autoThreads != null) cuda_kernel.autoThreads.addDecls(context);
+        	cuda_kernel.cmem.addDecls(context);
+        	cuda_kernel.shm.addDecls(context);
         	super.visitAppropriate(b);
         } finally {
         	sw.popCurrentStream();
@@ -401,39 +438,30 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 			if (blockIsKernel(b)) {
 				final CUDAKernel cuda_kernel = (CUDAKernel)b;
 
-				complainIfNot2(!generatingKernel(), "@CUDA kernels may not be nested.", b);
+				complainIfNot2(!generatingCUDACode(), "@CUDA kernels may not be nested.", b);
 				
-				final Block_c[] cell = new Block_c[1];
-				cuda_kernel.visit(new NodeVisitor() {
-					boolean found = false;
-					public Node override(Node parent, Node child) {
-						if (child instanceof Block_c) {
-							Block_c child_block = (Block_c) child;
-							if (child_block.cudaTag() == cuda_kernel.innerStatementTag) {
-								cell[0] = child_block;
-								found = true;
-							}
-						}
-						if (found) {
-							return child;
-						}
-						return null;
-					}
-				});
-
 				context().cudaKernel(cuda_kernel);
 				context().initKernelParams();
 				context().established().cudaKernel(cuda_kernel);
 				context().established().initKernelParams();
 				
-				generatingKernel(true);
+				generatingCUDACode(true);
 				try {
-					handleKernel(cell[0]);
+					handleKernel(cuda_kernel.body());
 				} finally {
-					generatingKernel(false);
+					generatingCUDACode(false);
 				}
 
 				
+			} else if (context().inCUDAFunction() && !generatingCUDACode()){
+				generatingCUDACode(true);
+				sw.pushCurrentStream(cudaClassBodyStream());
+		        try {
+		        	super.visitAppropriate(b);
+		        } finally {
+		        	sw.popCurrentStream();
+					generatingCUDACode(false);
+		        }
 			}
 		} catch (Complaint e) {
 			// don't bother doing anything more with this kernel,
@@ -445,17 +473,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	public void visit(Closure_c n) {
 		context().establishClosure();
 		String last = context().wrappingClosure();
-		String lastHostClassName = context().wrappingClass();
 		X10ClassType hostClassType = (X10ClassType) n.closureDef().typeContainer().get();
 		String nextHostClassName = Emitter.translate_mangled_FQN(hostClassType.fullName().toString(), "_");
 		String next = getClosureName(nextHostClassName, context().closureId() + 1);
 		context().wrappingClosure(next);
-		context().wrappingClass(nextHostClassName);
 		try {
 			super.visit(n);
 		} finally {
 			context().wrappingClosure(last);
-			context().wrappingClass(lastHostClassName);
 		}
 	}
 
@@ -688,13 +713,13 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	}
 
 	public void visit(New_c n) {
-		complainIfNot2(!generatingKernel(), "New not allowed in @CUDA code.", n, false);
+		complainIfNot2(!generatingCUDACode(), "New not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
 	@Override
 	public void visit(Assert_c n) {
-		complainIfNot2(!generatingKernel(),
+		complainIfNot2(!generatingCUDACode(),
 				"Throwing exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
@@ -703,14 +728,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Catch_c n) {
-		complainIfNot2(!generatingKernel(),
+		complainIfNot2(!generatingCUDACode(),
 				"Catching exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
 	@Override
 	public void visit(ClosureCall_c n) {
-		complainIfNot2(!generatingKernel(),
+		complainIfNot2(!generatingCUDACode(),
 				"Closure calls not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
@@ -718,14 +743,15 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	@Override
 	public void visit(Local_c n) {
 		CUDAKernel cuda_kernel = context().cudaKernel();
-		if (generatingKernel()) {
-			ClassifiedStream out = cudaStream();
+		if (generatingCUDACode() && !inCUDAFunction()) {
+			ClassifiedStream out = cudaKernelStream();
 			Name ln = n.name().id();
-			if (ln == cuda_kernel.blocksVar.name().id()) {
+			// HACK: Use localDef().name(), rather than name().id(), because the vars will have been renamed
+			if (ln == cuda_kernel.blocksVar.localDef().name()) {
 				out.write("blockIdx.x");
-			} else if (ln == cuda_kernel.threadsVar.name().id()) {
+			} else if (ln == cuda_kernel.threadsVar.localDef().name()) {
 				out.write("threadIdx.x");
-			} else if (context().shmIterationVar()!=null && ln == context().shmIterationVar().name().id()) {
+			} else if (context().shmIterationVar()!=null && ln == context().shmIterationVar().localDef().name()) {
 				out.write("__i");
 			} else if (cuda_kernel.shm.has(ln)) {
 				out.write(ln.toString());
@@ -769,6 +795,11 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		}
 	}
 
+	private boolean inCUDAFunction() {
+		// TODO Auto-generated method stub
+		return context().inCUDAFunction();
+	}
+
 	private String constrainedToLiteral(Local_c n) {
 		//if (true) return null;
 		if (!n.localInstance().def().flags().isFinal()) return null;
@@ -791,14 +822,14 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 
 	@Override
 	public void visit(Throw_c n) {
-		complainIfNot2(!generatingKernel(),
+		complainIfNot2(!generatingCUDACode(),
 				"Throwing exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
 
 	@Override
 	public void visit(Try_c n) {
-		complainIfNot2(!generatingKernel(),
+		complainIfNot2(!generatingCUDACode(),
 				"Catching exceptions not allowed in @CUDA code.", n, false);
 		super.visit(n);
 	}
@@ -807,16 +838,43 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 	public void visit(X10ClassDecl_c n) {
 		boolean v = context().firstKernel();
 		context().firstKernel(true);
+
+		X10ClassDef lastHostClass = context().wrappingClass();
+		context().wrappingClass(n.classDef());
+		
 		try {
 			super.visit(n);
 		} finally {
-			context().firstKernel(v);
+			context().wrappingClass(lastHostClass);
 		}
 	}
 
 	@Override
+	public void visit(X10MethodDecl_c n) {
+		if (nodeHasCUDAAnnotation(n)) {
+			ClassifiedStream b = cudaClassBodyStream();
+			Flags flags = n.flags().flags();
+	        X10MethodDef def = n.methodDef();
+	        MethodInstance mi = def.asInstance();
+
+        	complainIfNot2(flags.isStatic(), "Currently we only support static @CUDA functions.", n);
+        	complainIfNot2(context().wrappingClass().typeParameters().size() == 0, "Currently @CUDA functions cannot be in generic classes.", n);
+			b.writeln("// "+n.toString());
+			b.write("__device__ ");
+	        sw.pushCurrentStream(b);
+	        try {
+	        	emitter.printHeader(n, sw, tr, mi.name().toString(), mi.returnType(), false, false);
+	        } finally {
+	        	sw.popCurrentStream();
+	        }
+		    context().inCUDAFunction(true);
+		}
+		super.visit(n);
+	}
+
+	@Override
 	public void visit(X10Instanceof_c n) {
-		complainIfNot2(!generatingKernel(),
+		complainIfNot2(!generatingCUDACode(),
 				"Runtime types not available in @CUDA code.", n, false);
 		super.visit(n);
 	}

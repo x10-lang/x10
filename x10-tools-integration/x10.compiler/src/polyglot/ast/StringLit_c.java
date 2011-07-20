@@ -14,6 +14,7 @@ import polyglot.types.SemanticException;
 import polyglot.util.*;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.PrettyPrinter;
+import x10.types.constants.ConstantValue;
 
 /** 
  * A <code>StringLit</code> represents an immutable instance of a 
@@ -124,8 +125,8 @@ public abstract class StringLit_c extends Lit_c implements StringLit
         return result;
     }
     
-    public Object constantValue() {
-	return value;
+    public ConstantValue constantValue() {
+        return ConstantValue.makeString(value);
     }
     
 

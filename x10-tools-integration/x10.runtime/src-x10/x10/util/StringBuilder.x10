@@ -58,7 +58,7 @@ public class StringBuilder implements Builder[Any,String] {
     public def add(x:Long) = addString(x.toString());
     public def add(x:Float) = addString(x.toString());
     public def add(x:Double) = addString(x.toString());
-    public def add(x:String) = addString(x);
+    public def add(x:String) = x == null ? addString("null") : addString(x);
 
     public def insert(p:Int, x:Boolean) = insertString(p, x.toString());
     public def insert(p:Int, x:Byte) = insertString(p, x.toString());
@@ -68,9 +68,9 @@ public class StringBuilder implements Builder[Any,String] {
     public def insert(p:Int, x:Long) = insertString(p, x.toString());
     public def insert(p:Int, x:Float) = insertString(p, x.toString());
     public def insert(p:Int, x:Double) = insertString(p, x.toString());
-    public def insert(p:Int, x:String) = insertString(p, x);
+    public def insert(p:Int, x:String) = x == null ? insertString(p, "null") : insertString(p, x);
 
-    public def addString(s: String): StringBuilder {
+    public def addString(s:String/*{self!=null}*/): StringBuilder {
         for (var i: int = 0; i < s.length(); i++) {
             val ch = s(i);
             buf.add(ch);
@@ -78,7 +78,7 @@ public class StringBuilder implements Builder[Any,String] {
         return this;
     }
 
-    public def insertString(pos:Int, s: String): StringBuilder {
+    public def insertString(pos:Int, s: String/*{self!=null}*/): StringBuilder {
         var loc:Int = pos;
         if (s.length() == 0)
             return this;

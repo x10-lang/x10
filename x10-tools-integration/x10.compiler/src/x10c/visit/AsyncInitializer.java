@@ -274,7 +274,7 @@ public class AsyncInitializer extends ContextVisitor {
                     Id id = getBoxId(initVal);
                     BackingArrayType arrayType = xts.createBackingArray(n.position(), Types.ref(type));
                     LocalDef ldef = getBoxLocalDef(n, arrayType, initVal, id);
-                    IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
+                    IntLit idx0 = (IntLit) xnf.IntLit(n.position(), IntLit.INT, 0).type(xts.Int());
                     
                     for (LocalDef localDefVar : localDeclList) {
                         if (isLocalInstanceEquals(localDefVar.asInstance(), local.localInstance()))
@@ -298,7 +298,7 @@ public class AsyncInitializer extends ContextVisitor {
                     Id id = getBoxId(initVal);
                     BackingArrayType arrayType = xts.createBackingArray(n.position(), Types.ref(type));
                     LocalDef ldef = getBoxLocalDef(n, arrayType, initVal, id);
-                    IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
+                    IntLit idx0 = (IntLit) xnf.IntLit(n.position(), IntLit.INT, 0).type(xts.Int());
                     
                     for (LocalDef localDefVar : localDeclList) {
                         if (isLocalInstanceEquals(localDefVar.asInstance(), local.localInstance()))
@@ -627,7 +627,7 @@ public class AsyncInitializer extends ContextVisitor {
 
         // right-hand side (array creation)
         List<Expr> dims = new ArrayList<Expr>();
-        dims.add(xnf.IntLit(n.position(), IntLit.INT, 1));
+        dims.add(xnf.IntLit(n.position(), IntLit.INT, 1).type(xts.Int()));
         BackingArrayNewArray ba = xnf.BackingArrayNewArray(n.position(), tnArray, dims, 0, arrayType);
 
         // creation of declaration node
@@ -645,7 +645,7 @@ public class AsyncInitializer extends ContextVisitor {
         Name name = ((LocalDef_c)initVal).name();
         Local right = (Local) xnf.Local(n.position(), xnf.Id(n.position(), name)).localInstance(ldef.asInstance()).type(type);
 
-        IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
+        IntLit idx0 = (IntLit) xnf.IntLit(n.position(), IntLit.INT, 0).type(xts.Int());
         Expr baa = xnf.BackingArrayAccessAssign(n.position(), xnf.Local(n.position(), id).localInstance(ldef.asInstance()).type(arrayType),
                                                 idx0, Assign.ASSIGN, right).type(type);
         // returning a pair of statements
@@ -662,7 +662,7 @@ public class AsyncInitializer extends ContextVisitor {
         // right-hand side (boxed var)
         Id id = getBoxId(initVal);
         LocalDef rdef = xts.localDef(n.position(), xts.Final(), Types.ref(type), id.id());
-        IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
+        IntLit idx0 = (IntLit) xnf.IntLit(n.position(), IntLit.INT, 0).type(xts.Int());
         BackingArrayAccess right = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()).type(type),
                                                           idx0, type);
         // left-hand side (original final var)
@@ -727,7 +727,7 @@ public class AsyncInitializer extends ContextVisitor {
     private BackingArrayAccess getBoxReference(VarDef initVal, Type type, Node n) {
         Id id = getBoxId(initVal);
         LocalDef rdef = xts.localDef(n.position(), xts.NoFlags(), Types.ref(type), id.id());
-        IntLit idx0 = xnf.IntLit(n.position(), IntLit.INT, 0);
+        IntLit idx0 = (IntLit) xnf.IntLit(n.position(), IntLit.INT, 0).type(xts.Int());
         BackingArrayAccess baa = xnf.BackingArrayAccess(n.position(), xnf.Local(n.position(), id).localInstance(rdef.asInstance()),
                                                         idx0, type);
         return baa;

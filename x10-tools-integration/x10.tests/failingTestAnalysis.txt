@@ -1,0 +1,26 @@
+Issues/XTENLANG_2384.x10:
+	Java: Broken catch blocks (XTENLANG-2384); C++: fail at runtime.
+
+Samples/CUDABlackScholesTest.x10:
+Samples/CUDA3DFDTest.x10:
+Samples/CUDAMatMulTest.x10:
+	Java OOM.
+	Dave G: I thing the test parameters are too big for the size of machines we are running on.
+
+LangSpec/Classes/Classes4d5e.x10:
+	C++ overloading error (XTENLANG-2764).
+
+Constructs/Instanceof/ConstrainedTypeTests.x10:
+Issues/XTENLANG_2388.x10:
+	Limitation - constraint erasure.
+Issues/XTENLANG_2301.x10:
+	C++ limitation - generic virtual methods.
+Constructs/IndexedMemoryChunk/Congruent.x10:
+	Java limitation - x10rt remote ops not implemented for Managed X10.
+
+Constructs/Call/ConConstructor2Arg_2_DYNAMIC_CHECKS.x10:
+Constructs/Call/ConConstructor2Arg_DYNAMIC_CHECKS.x10:
+	Fixed in r22171.
+
+Constructs/DepType/DepTypeVariableVisibility_MustFailCompile.x10:
+	Fixed in r22175 (renamed test).

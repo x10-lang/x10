@@ -54,8 +54,6 @@ import x10.util.AltSynthesizer;
 public class ConstructorSplitterVisitor extends ContextVisitor {
 
     private static final boolean DEBUG = false;
-    private static final QName NATIVE_CLASS_ANNOTATION = QName.make("x10.compiler.NativeClass");
-    private static final QName NATIVE_REP_ANNOTATION   = QName.make("x10.compiler.NativeRep");
     
     private void debug (Job job, String msg, Position pos) {
         if (!DEBUG) return;
@@ -106,7 +104,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return n;
             Type type          = n.type();
-            Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
+            Allocation a       = syn.createAllocation(pos, n.objectType(), n.typeArguments());
             a                  = (Allocation) copyAnnotations(n, a);
             LocalDecl ld       = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
             ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld), n);
@@ -124,7 +122,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return ld;
             Type type          = n.type();
-            Allocation a       = syn.createAllocation(pos, type, n.typeArguments());
+            Allocation a       = syn.createAllocation(pos, n.objectType(), n.typeArguments());
             a                  = (Allocation) copyAnnotations(n, a);
             // We're in a statement context, so we can avoid a stmt expr.
             List<Stmt> stmts   = new ArrayList<Stmt>();
@@ -139,7 +137,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
                 // This happens when the type of the local decl is a supertype of the type of the new
                 // Introduce additional localdecl so that the constructor call can be made
                 // on a variable of the correct type. 
-                LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
+                LocalDecl ld2      = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("a"), a);
                 ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld2), n);
                 cc                 = (ConstructorCall) copyAnnotations(n, cc);
                 ld                 = ld.init(syn.createLocal(pos, ld2));
@@ -177,7 +175,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
         assert null != ts;
         if (ts.typeEquals(type, ts.Object(), ts.emptyContext()))
             return false;
-        if (hasNaiveAnnotation(type))
+        if (hasNativeAnnotation(type))
             return true;
         if (type instanceof ObjectType) {
             return inheritsUnsplittability(((ObjectType) type).superClass(), ts);
@@ -195,7 +193,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             return false; // some non-Native ObjectClass's (x10.array.RectLayout for one) don't have a superClass ????
         if (ts.typeEquals(type, ts.Object(), ts.emptyContext()))
             return false;  // inheriting from x10.lang.object is ok
-        if (hasNaiveAnnotation(type)) 
+        if (hasNativeAnnotation(type)) 
             return true;   // inheriting from any other native class is not
         return inheritsUnsplittability(((ObjectType) type).superClass(), ts);
     }
@@ -204,13 +202,14 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
      * @param type
      * @return
      */
-    private static boolean hasNaiveAnnotation(Type type) {
+    private static boolean hasNativeAnnotation(Type type) {
         List<Type> annotations = type.annotations();
         if (null == annotations || annotations.isEmpty()) 
             return false;
-        if (!X10TypeObjectMixin.annotationsNamed(annotations, NATIVE_CLASS_ANNOTATION).isEmpty())
+        TypeSystem ts = type.typeSystem();
+        if (!X10TypeObjectMixin.annotationsMatching(annotations, ts.NativeClass()).isEmpty())
             return true;
-        if (!X10TypeObjectMixin.annotationsNamed(annotations, NATIVE_REP_ANNOTATION).isEmpty())
+        if (!X10TypeObjectMixin.annotationsMatching(annotations, ts.NativeRep()).isEmpty())
             return true;
         return false;
     }

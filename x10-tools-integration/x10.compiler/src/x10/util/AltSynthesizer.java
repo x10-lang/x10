@@ -75,6 +75,7 @@ import x10.types.MethodInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.checker.Converter;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.visit.ConstantPropagator;
 import x10.visit.Desugarer;
@@ -514,6 +515,18 @@ public class AltSynthesizer {
         return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, type), expr, Converter.ConversionType.UNCHECKED).type(type);
     }
 
+    /**
+     * @param pos
+     * @param expr
+     * @param type
+     * @param context
+     * @return
+     */
+    public Expr createUncheckedCast(Position pos, Expr expr, Type type, Context context) {
+        if (ts.typeDeepBaseEquals(expr.type(), type, context))
+            return expr;
+        return nf.X10Cast(pos, nf.CanonicalTypeNode(pos, type), expr, Converter.ConversionType.UNCHECKED).type(type);
+    }
     /**
      * Create a coercion (implicit conversion) expression.
      * 
@@ -1000,7 +1013,7 @@ public class AltSynthesizer {
         if (null == propertyFI) return null;
         Expr propertyExpr = createFieldRef(expr.position(), expr, propertyFI);
         if (null == propertyExpr) return null;
-        return ConstantPropagator.constantValue(propertyExpr);
+        return ConstantValue.toJavaObject(ConstantPropagator.constantValue(propertyExpr));
     }
 
 
@@ -1156,8 +1169,8 @@ public class AltSynthesizer {
      * @return a synthesized Allocation node.
      * TODO: move to Synthesizer
      */
-    public Allocation createAllocation(Position pos, Type type, List<TypeNode> typeArgs) {
-        return (Allocation) ((Allocation) ((X10NodeFactory_c) nf).Allocation(pos).type(type)).typeArguments(typeArgs);
+    public Allocation createAllocation(Position pos, TypeNode objType, List<TypeNode> typeArgs) {
+        return (Allocation) ((Allocation) ((X10NodeFactory_c) nf).Allocation(pos, objType, typeArgs).type(objType.type()));
     }
 
     

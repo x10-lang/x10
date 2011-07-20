@@ -21,7 +21,8 @@ public class IntArrayMaxAbs extends x10Test {
         val ia  = new Array[int]((1..10)*(1..10), (p:Point)=>-p(0));
 
 	    val absMax = ia.reduce((a:Int, b:Int):Int => {
-            val ma = Math.abs(a), mb =Math.abs(b);
+            val ma = Math.abs(a);
+            val mb = Math.abs(b);
             ma <= mb? mb : ma
         }, 0);
 

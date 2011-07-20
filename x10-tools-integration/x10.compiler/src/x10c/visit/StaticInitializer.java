@@ -105,6 +105,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XTermKind;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
+import x10.types.checker.Converter;
 import x10.types.constraints.CConstraint;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
@@ -714,20 +715,16 @@ public class StaticInitializer extends ContextVisitor {
             return xnf.IntLit(pos, IntLit.INT, 0).type(type);
         else if (type.isLong())
             return xnf.IntLit(pos, IntLit.LONG, 0).type(type);
+        else if (type.isUByte() || type.isUShort() || type.isUInt())
+            return xnf.IntLit(pos, IntLit.UINT, 0).type(type);
+        else if (type.isULong())
+            return xnf.IntLit(pos, IntLit.ULONG, 0).type(type);
         else if (type.isFloat())
             return xnf.FloatLit(pos, FloatLit.FLOAT, 0.0).type(type);
         else if (type.isDouble())
             return xnf.FloatLit(pos, FloatLit.DOUBLE, 0.0).type(type);
         else if (type == xts.String())
             return xnf.NullLit(pos).type(type);
-        else if (xts.isSubtype(type, xts.UByte()) || xts.isSubtype(type, xts.UShort()) ||
-                 xts.isSubtype(type, xts.UInt()) || xts.isSubtype(type, xts.ULong())) {
-            ConstructorDef cd = xts.defaultConstructor(pos, Types.ref((ClassType)type)); 
-            ConstructorInstance ci = xts.createConstructorInstance(pos, Types.ref(cd));
-            List<Expr> args = new ArrayList<Expr>();
-            args.add(xnf.IntLit(pos, IntLit.INT, 0).type(type));
-            return xnf.New(pos, xnf.X10CanonicalTypeNode(pos, type), args).constructorInstance(ci).type(type);
-        }
         else
             return null;
     }
@@ -769,7 +766,7 @@ public class StaticInitializer extends ContextVisitor {
         TypeNode receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
 
         FieldInstance fi = initInfo.fieldDef.asInstance();
-        Expr right = genDeserializeField(pos, ba, baName);
+        Expr right = (Expr)xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fi.type()), genDeserializeField(pos, ba, baName), Converter.ConversionType.PRIMITIVE).type(fi.type());
         Name name = initInfo.fieldDef.name();
         Expr left = xnf.Field(pos, receiver, xnf.Id(pos, name)).fieldInstance(fi).type(right.type());
 
@@ -811,7 +808,7 @@ public class StaticInitializer extends ContextVisitor {
                                       FieldDef fdCond, FieldDef fdId, FieldDecl fdPLH, X10ClassDef classDef) {
         // get MethodDef
         Name name = Name.make(initializerPrefix+fName);
-        Type type = fieldInfo.right.type();
+        Type type = fieldInfo.fieldDef.type().get();
         MethodDef md = fieldInfo.methodDef;
         if (md == null) {
             md = makeMethodDef(pos, classDef.asType(), name, type);
@@ -1208,6 +1205,10 @@ public class StaticInitializer extends ContextVisitor {
                     return false;
             }
             return isConstantExpression(cc.target());
+        }
+        if (e instanceof Call) {
+            Call c = (Call) e;
+            return c.isConstant();
         }
         return false;
     }

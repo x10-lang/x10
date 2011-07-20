@@ -26,7 +26,7 @@ public class Classes80 extends x10Test {
     }
 
 
-// file Classes line 571
+// file Classes line 560
 
  static class Example {
    var f : String = "";

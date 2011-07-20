@@ -60,6 +60,7 @@ import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.errors.Errors.IllegalConstraint;
+import x10.optimizations.inlining.Inliner;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -68,6 +69,7 @@ import x10.types.X10FieldInstance;
 
 import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
+import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
 import x10.types.X10Use;
 import polyglot.types.TypeSystem;
@@ -78,6 +80,7 @@ import polyglot.types.ErrorRef_c;
 import polyglot.types.ContainerType;
 import x10.types.checker.Checker;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.ConstantValue;
 import x10.visit.X10TypeChecker;
 import x10.X10CompilerOptions;
 import x10.ExtensionInfo;
@@ -458,9 +461,6 @@ public class X10Call_c extends Call_c implements X10Call {
         try {
             if (mi.flags().isStatic() || c.inStaticContext()) {
                 Type container = findContainer(xts, mi);
-                XVar thisVar = getThis(container);
-                if (thisVar != null)
-                    container = Types.setSelfVar(container, thisVar);
                 return nf.CanonicalTypeNode(prefixPos, container).typeRef(Types.ref(container));
             } else {
                 // The method is non-static, so we must prepend with "this", but we
@@ -721,7 +721,8 @@ public class X10Call_c extends Call_c implements X10Call {
 			// check if this is a property call, and if so adjust the return type
 			if (mi.flags().isProperty()) {
 				if (c.inDepType()) {
-					rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
+				    // vj TODO: Why is this being repeated? 
+					// rt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
 				} else {
 					try {
 						rt =  Checker.expandCall(mi.rightType(), methodCall, c);
@@ -747,15 +748,23 @@ public class X10Call_c extends Call_c implements X10Call {
 		    Errors.issue(tc.job(), e, this);
 		}
 		Warnings.checkErrorAndGuard(tc, mi, methodCall);
+		List<Type> ctcAnnotations = ((X10MethodDef) mi.def()).annotationsMatching(xts.CompileTimeConstant());
+		if (!ctcAnnotations.isEmpty()) {
+		    X10CompilerOptions opts = (X10CompilerOptions) tc.job().extensionInfo().getOptions();
+		    ConstantValue cv = Inliner.extractCompileTimeConstant(rt, ctcAnnotations, opts, c);
+		    if (cv != null) {
+		        methodCall = methodCall.constantValue(cv);
+		    }
+		}
 		return methodCall;
 	}
 
 
-	Object constantValue;
-	public Object constantValue() { return constantValue; }
+	ConstantValue constantValue;
+	public ConstantValue constantValue() { return constantValue; }
 	public boolean isConstant() { return constantValue != null; }
 
-	public X10Call_c constantValue(Object value) {
+	public X10Call_c constantValue(ConstantValue value) {
 		X10Call_c n = (X10Call_c) copy();
 		n.constantValue = value;
 		return n;
@@ -803,6 +812,9 @@ public class X10Call_c extends Call_c implements X10Call {
 	          print(target, w, tr);
 	        }
 	    w.write(".");
+	    if (nonVirtual()) {
+	        w.write("/"+"*"+"non-virtual"+"*"+"/");
+	    }
 	    w.allowBreak(2, 3, "", 0);
 	    }
 
@@ -859,7 +871,7 @@ public class X10Call_c extends Call_c implements X10Call {
      * @see polyglot.ast.Call#markNonVirtual()
      */
     public X10Call nonVirtual(boolean nv) {
-        if (nonVirtual != nv) return this;
+        if (nonVirtual == nv) return this;
         X10Call_c c = (X10Call_c) copy();
         c.nonVirtual = nv;
         return c;

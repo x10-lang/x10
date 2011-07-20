@@ -14,6 +14,9 @@ package x10.types;
 import java.util.List;
 
 import polyglot.types.CodeDef;
+import x10.types.constraints.XConstrainedTerm;
 
 public interface X10CodeDef extends CodeDef {
+    XConstrainedTerm placeTerm();
+    void setPlaceTerm(XConstrainedTerm xt);
 }

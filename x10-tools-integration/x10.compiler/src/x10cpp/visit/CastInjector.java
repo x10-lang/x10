@@ -8,12 +8,17 @@ import java.util.List;
 
 import polyglot.ast.Assign_c;
 import polyglot.ast.Block;
+import polyglot.ast.BooleanLit_c;
 import polyglot.ast.Call_c;
+import polyglot.ast.CharLit_c;
 import polyglot.ast.Conditional_c;
 import polyglot.ast.ConstructorCall_c;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldDecl_c;
+import polyglot.ast.FloatLit_c;
 import polyglot.ast.Formal;
+import polyglot.ast.IntLit_c;
+import polyglot.ast.Lit_c;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl_c;
 import polyglot.ast.New_c;
@@ -158,6 +163,11 @@ public class CastInjector extends ContextVisitor {
                 }
             }
             return null == newInits ? tuple : tuple.arguments(newInits);
+        } else if (n instanceof BooleanLit_c || n instanceof IntLit_c || n instanceof FloatLit_c || n instanceof CharLit_c) {
+            Lit_c lit = (Lit_c) n;
+            if (Types.baseType(lit.type()).isAny()) {
+                return makeCast(n.position(), lit.type(lit.constantValue().getLitType(ts)), lit.type());
+            }
         }
         
         return n;

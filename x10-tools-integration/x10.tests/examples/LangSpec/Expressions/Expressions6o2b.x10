@@ -26,7 +26,7 @@ public class Expressions6o2b extends x10Test {
     }
 
 
-// file Expressions line 789
+// file Expressions line 793
  static  class Hook {
  static def example(ob:Object) =
 (ob == null) ? null : ob.toString();

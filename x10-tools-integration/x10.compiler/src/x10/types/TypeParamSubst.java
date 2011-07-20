@@ -38,12 +38,15 @@ import x10.types.constraints.TypeConstraint;
 
 
 /**
- * Comments by vj.
  * Implements a type substitution [ActualT1,..., ActualTn/FormalX1,..., FormalXn].
+ * A substitution is lazy by default (creating a reinstantiated wrapper object for
+ * constructor and method instances), but can also be eager (replacing the types
+ * right away).  Eager substitutions cannot be used until after typechecking, as
+ * that may introduce dependency cycles.  
  * @author nystrom
- *
  */
 public class TypeParamSubst {
+	public static final TypeParamSubst IDENTITY = new TypeParamSubst();
 	private final List<? extends Type> typeArguments;
 	private final List<ParameterType> typeParameters;
 	private final TypeSystem ts;
@@ -65,6 +68,10 @@ public class TypeParamSubst {
 		this.ts = ts;
 		this.typeArguments = tas == null ? Collections.<Type>emptyList() : tas;
 		this.typeParameters = tps == null ? Collections.<ParameterType>emptyList() : tps;
+	}
+
+	private TypeParamSubst() {
+	    this(null, null, null, false);
 	}
 
     public ArrayList<Type> copyTypeArguments() {
@@ -157,6 +164,10 @@ public class TypeParamSubst {
 	    return identityInstantiation;
 	}
 
+	public boolean isEager() {
+	    return eager;
+	}
+	
 	private static boolean isIdentityInstantiation(List<? extends Type> tas, List<ParameterType> tps) {
 	    if (tas == null) return true;
 	    int n = tps.size();
@@ -212,9 +223,9 @@ public class TypeParamSubst {
 	}
 
     private TypeParamSubst reinstantiateTPS(TypeParamSubst t) {
-        List<? extends Type> tas = reinstantiate(t.typeArguments);
+        //List<? extends Type> tas = reinstantiate(t.typeArguments);
         List<ParameterType> tps = reinstantiate(t.typeParameters);
-        return new TypeParamSubst(ts, tas, tps, eager);
+        return new TypeParamSubst(ts, t.typeArguments, tps, t.eager);
     }
 
 	private X10LocalInstance reinstantiateLI(X10LocalInstance t) {
@@ -231,7 +242,7 @@ public class TypeParamSubst {
 		return new ReinstantiatedLocalDef(this, ld.typeSystem(), ld.position(), Types.ref(ld.x10Def()), ld);
 	}
 	*/
-	public ClosureInstance reinstantiateClosure(ClosureInstance t) {
+	private ClosureInstance reinstantiateClosure(ClosureInstance t) {
 		if (eager) {
 		    final ClosureInstance fi = t;
 		    ClosureInstance res = new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def()));
@@ -371,6 +382,7 @@ public class TypeParamSubst {
 		    ci = (X10ConstructorInstance) ci.formalNames(reinstantiate(ci.formalNames()));
 		    ci = (X10ConstructorInstance) ci.formalTypes(reinstantiate(ci.formalTypes()));
 		    //ci = (X10ConstructorInstance) ci.throwTypes(reinstantiate(ci.throwTypes()));
+		    ci = (X10ConstructorInstance) ci.typeParameters(reinstantiate(ci.typeParameters()));
 		    ci = (X10ConstructorInstance) ci.container(reinstantiate(ci.container()));
 		    ci = (X10ConstructorInstance) ci.guard(reinstantiate(ci.guard()));
 		    ci = (X10ConstructorInstance) ci.typeGuard(reinstantiate(ci.typeGuard()));

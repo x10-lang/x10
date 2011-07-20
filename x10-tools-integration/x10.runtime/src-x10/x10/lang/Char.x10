@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2011.
  */
 
 package x10.lang;
@@ -24,7 +24,7 @@ import x10.util.Ordered;
  */
 @NativeRep("java", "char", null, "x10.rtt.Types.CHAR")
 @NativeRep("c++", "x10_char", "x10_char", null)
-public struct Char implements Comparable[Char] /*TODO implements Ordered[Char]*/ {
+public struct Char implements Comparable[Char], Ordered[Char] {
     /**
      * Convert a given Byte to a Char with that ordinal value.
      * @param x the given Byte

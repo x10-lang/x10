@@ -58,7 +58,6 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
     List<Formal> formals;
     X10MethodDef methodDef; //only be created once;
     X10MethodDecl methodDecl; //only be created once;
-    XTerm placeTerm;
     
     
     public MethodSynth(NodeFactory xnf, Context xct, Position pos, ClassDef classDef, Name methodName,
@@ -87,7 +86,6 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
                 formalTypeRefs 
                 );//this constructor will not set formal names
         methodDef.setThisDef(((X10ClassDef) classDef).thisDef());
-        placeTerm = PlaceChecker.methodPT(flags, classDef);
         methodDef.setFormalNames(formalNames);
         classDef.addMethod(methodDef);
         
@@ -99,10 +97,6 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
              Flags.NONE, new ArrayList<Formal>(), new ArrayList<Type>(), xct.typeSystem().Void());
     }
     
-    public MethodSynth(NodeFactory xnf, Context xct, ClassDef classDef, String methodName){
-        this(xnf, xct, compilerPos, classDef, methodName);
-    }
-     
     public void setFlag(Flags flags) {
         try {
             checkClose();
@@ -273,7 +267,6 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         	methodDecl = methodDecl.typeParameters(tpNodes);
         }
 
-        ((X10MethodDecl_c) methodDecl).placeTerm = placeTerm;
         methodDecl = (X10MethodDecl) methodDecl.methodDef(methodDef); //Need set the method def to the method instance
         
         return methodDecl;

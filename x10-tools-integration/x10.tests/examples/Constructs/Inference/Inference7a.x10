@@ -24,13 +24,15 @@ public class Inference7a extends x10Test {
         static class AA extends BB{}
         static class BB extends CC {}
         static class CC{}
-        def n[A1,B1,C1](x:A1,y:B1,z:C1){A1<: B1, B1 <:C1} =
-            m(x,y,z); // ShouldNotBeERR: Method m[A, B, C](x: A, y: B, z: C){}[A <: C]: A in Inference7a{self==Inference7a#this} cannot be called with arguments (A1{self==x}, B1{self==y}, C1{self==z}); Type guard [A1{self==x} <: C1{self==z}] cannot be established; inconsistent in calling context.
+        def n[A1,B1,C1](x:A1, y:B1, z:C1){A1<: B1, B1 <:C1} =
+            m(x as A1,y as B1,z as C1); 
+        // Need the casts, since the type of x is A1{self==x}, of z is C1{self==z}.
+        // Cannot establish A1{self==x} <: C1{self==z}.
         
 	public def run(): boolean = {
-                val x = n(new AA(), new BB(), new CC());  // ShouldNotBeERR
+                val x = n(new AA(), new BB(), new CC());   
                
-		return x instanceof AA; // ShouldNotBeERR
+		return x instanceof AA;  
 	}
 
 	public static def main(var args: Array[String](1)): void = {

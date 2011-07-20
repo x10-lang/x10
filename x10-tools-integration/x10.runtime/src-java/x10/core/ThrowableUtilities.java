@@ -11,14 +11,12 @@
 
 package x10.core;
 
-import java.io.OutputStream;
-import java.io.PrintWriter;
-//import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
 import x10.array.Array;
+import x10.runtime.impl.java.UnknownJavaThrowable;
 
 public abstract class ThrowableUtilities {
     
@@ -183,9 +181,11 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10RuntimeException;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable)e; // already wrapped
+            else return new UnknownJavaThrowable(e);
+            //x10Class = x10RuntimeException;
+            //message = e.getClass().getName() + ": " + message;
         }
         
         return createX10Throwable(x10Class, message, e);
@@ -196,9 +196,10 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10Exceptions.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10Exception;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            return new UnknownJavaThrowable(e);
+            //x10Class = x10Exception;
+            //message = e.getClass().getName() + ": " + message;
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -209,9 +210,10 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10Errors.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10Error;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            return new UnknownJavaThrowable(e);
+            //x10Class = x10Error;
+            //message = e.getClass().getName() + ": " + message;
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -222,9 +224,10 @@ public abstract class ThrowableUtilities {
         Class<? extends x10.core.Throwable> x10Class = x10Throwables.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
-            // TODO stop converting unknown java exception to x10 exception 
-            x10Class = x10Throwable;
-            message = e.getClass().getName() + ": " + message;
+            // XTENLANG-2686: wrap unknown Java exception with UnknownThrowable, which will be caught outside of main
+            return new UnknownJavaThrowable(e);
+            //x10Class = x10Throwable;
+            //message = e.getClass().getName() + ": " + message;
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -275,41 +278,24 @@ public abstract class ThrowableUtilities {
         return 0;
     }
 
-    public static Array<java.lang.String> getStackTrace(Throwable t) {
-        StackTraceElement[] elements = t.getStackTrace();
-        java.lang.String str[] = new java.lang.String[elements.length];
-        for (int i=0 ; i<elements.length ; ++i) {
-            str[i] = elements[i].toString();
-        }
-        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
-    }
+//    public static Array<java.lang.String> getStackTrace(Throwable t) {
+//        StackTraceElement[] elements = t.getStackTrace();
+//        java.lang.String str[] = new java.lang.String[elements.length];
+//        for (int i=0 ; i<elements.length ; ++i) {
+//            str[i] = elements[i].toString();
+//        }
+//        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+//    }
     
-    public static void printStackTrace(Throwable t, Object/*x10.io.Printer*/ p) {
-        Class<?> x10_io_Printer = null;
-        try {
-            x10_io_Printer = Class.forName("x10.io.Printer");
-        } catch (Exception e) {
-        }
-        Method printStackTrace = null;
-        if (x10_io_Printer != null) {
-            try {
-                printStackTrace = t.getClass().getMethod("printStackTrace", x10_io_Printer);
-            } catch (Exception e) {
-            }
-        }
-        if (printStackTrace != null) {
-            try {
-                printStackTrace.invoke(t, p);
-            } catch (Exception e) {
-            }
-        } else {
-            try {
-                Method getNativeOutputStream = x10_io_Printer.getMethod("getNativeOutputStream");
-                PrintWriter printWriter = new java.io.PrintWriter((OutputStream) getNativeOutputStream.invoke(p));
-                t.printStackTrace(printWriter);
-            } catch (Exception e) {
-            }
-        }
-    }
+//    public static void printStackTrace(Throwable t, x10.io.Printer p) {
+//        x10.core.io.OutputStream os = p.getNativeOutputStream();
+//        java.io.PrintStream ps = null;
+//        if (os.stream instanceof java.io.PrintStream) {
+//            ps = (java.io.PrintStream) os.stream;
+//        } else {
+//            ps = new java.io.PrintStream(os.stream);
+//        }
+//        t.printStackTrace(ps);
+//    }
     
 }
