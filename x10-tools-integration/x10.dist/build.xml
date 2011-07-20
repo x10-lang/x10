@@ -83,6 +83,7 @@
                 <include name="defs"/>
                 <include name="x10"/>
                 <include name="x10c"/>
+                <include name="x10j"/>
             </fileset>
         </delete>
     </target>
@@ -154,6 +155,7 @@
 
     <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
+    <target name="dist-x10rt" depends="runtime-x10rt"/>
     <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
     <target name="dist-java-cpp" depends="init,build,common-jar,constraints-jar,compiler-jar">
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-par" inheritAll="false" dir="${x10.runtime.location}"/>
@@ -333,6 +335,10 @@
         <ant antfile="${x10.runtime.location}/build.xml" target="dist-cpp" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
+    <target name="runtime-x10rt" depends="init">
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-x10rt" inheritAll="false" dir="${x10.runtime.location}"/>
+    </target>
+
     <target name="bridge-jar" depends="init,compiler-jar">
         <ant antfile="${x10.bridge.location}/build.xml" target="jar" inheritAll="false" dir="${x10.bridge.location}"/>
         <mkdir dir="${lib}"/>
@@ -378,6 +384,7 @@
         <antcall target="apgas"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
+        <antcall target="x10j"/>
         <antcall target="precommit"/>
     </target>
 
@@ -408,6 +415,10 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10c.in"/>
         </uptodate>
+        <uptodate property="x10j.up-to-date" targetfile="${bin}/x10j">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/x10j.in"/>
+        </uptodate>
         <uptodate property="precommit.up-to-date" targetfile="${bin}/precommit">
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/precommit.in"/>
@@ -418,6 +429,7 @@
                 <isset property="precommit.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
+                <isset property="x10j.up-to-date"/>
             </and>
         </condition>
     </target>
@@ -528,6 +540,22 @@ CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
         <delete file="${bin}/defs"/>
     </target>
 
+    <target name="x10j" unless="x10j.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script x10j">
+        <echo message="Creating ${bin}/x10j"/>
+        <concat destfile="${bin}/x10j" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/x10j" append="yes">
+            <filelist dir="${bin}" files="x10j.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/x10j"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
     <target name="precommit" unless="precommit.up-to-date"
             depends="executable-defs"
             description="creates the executable script precommit">
@@ -617,7 +645,7 @@ CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
     <target name="tar" depends="set-version,set-tar-location,dist">
         <tar destfile="${tar.location}/x10-${tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,INSTALL"/>
-            <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c"/>
+            <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c,x10j"/>
             <tarfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
             <tarfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <tarfileset prefix="lib" dir="${lib}" includes="*.jar"/>
@@ -683,9 +711,10 @@ CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
 
     	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
-            <fileset dir="." includes="bin/x10c,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
+            <fileset dir="." includes="bin/x10c,bin/x10j,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
         </copy>
         <chmod file="${targetDir}/bin/x10c" perm="u+x"/>
+        <chmod file="${targetDir}/bin/x10j" perm="u+x"/>
         <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
 
