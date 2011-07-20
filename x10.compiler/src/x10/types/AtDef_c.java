@@ -35,7 +35,6 @@ public class AtDef_c extends X10MethodDef_c implements AtDef {
     // TODO: factor out common bits of code from here and AsyncDef_c
     protected Ref<? extends CodeInstance<?>> methodContainer;
     protected Ref<? extends ClassType> typeContainer;
-    protected XConstrainedTerm placeTerm;
     protected List<VarInstance<? extends VarDef>> capturedEnvironment;
 
     public AtDef_c(TypeSystem ts, Position pos,
@@ -69,11 +68,13 @@ public class AtDef_c extends X10MethodDef_c implements AtDef {
         return (AtInstance) asInstance;
     }
 
-    public void setPlaceTerm(XConstrainedTerm p) {
-        this.placeTerm = p;
+    protected XConstrainedTerm finishPlaceTerm;
+    public XConstrainedTerm finishPlaceTerm() { return finishPlaceTerm; }
+    public void setFinishPlaceTerm(XConstrainedTerm pt) {
+        if (finishPlaceTerm != null)
+            assert (finishPlaceTerm == null);
+        finishPlaceTerm = pt;
     }
-
-    public XConstrainedTerm placeTerm() { return placeTerm;}
 
     public Ref<? extends ClassType> typeContainer() {
         return typeContainer;

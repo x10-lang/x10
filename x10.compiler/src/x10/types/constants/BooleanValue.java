@@ -10,17 +10,64 @@
  */
 package x10.types.constants;
 
+import polyglot.ast.BooleanLit;
+import polyglot.ast.NodeFactory;
+import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
+import polyglot.util.Position;
+import x10.types.constraints.CTerms;
 
 /**
- * @author Bowen Alpern
- *
+ * A boolean constant value (true or false)
  */
 public final class BooleanValue extends ConstantValue {
+    private final boolean val;
     
-    BooleanValue(TypeSystem ts, boolean b) {
-        super(b, ts.Boolean());
+    BooleanValue(boolean b) {
+        val = b;
     }
-    
+
+	public boolean value() {
+		return val;
+	}
+
+	@Override
+	public Boolean toJavaObject() { return Boolean.valueOf(val); }
+
+	@Override
+	public BooleanLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
+	    type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
+	    return (BooleanLit)nf.BooleanLit(pos, val).type(type);
+	}
+
+    @Override
+    public Type getLitType(TypeSystem ts) {
+        return ts.Boolean();
+    }
+
+    @Override
+	public BooleanLit toUntypedLit(NodeFactory nf, Position pos) {
+	    return (BooleanLit) nf.BooleanLit(pos, val);
+	}
+
+	@Override
+	public boolean equals(Object that) {
+	    if (that instanceof BooleanValue) {
+	        return (((BooleanValue) that).val) == val;
+	    } else {
+	        return false;
+	    }
+	}
+	
+	@Override
+	public int hashCode() {
+	    return Boolean.valueOf(val).hashCode();
+	}
+	
+	@Override
+	public String toString() {
+	    return val ? "true" : "false";
+	}
 
 }

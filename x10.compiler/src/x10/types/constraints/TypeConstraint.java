@@ -282,13 +282,13 @@ public class TypeConstraint implements Copy, Serializable {
 	    }
 	
 	    // We'll subst selfVar for THIS.
-	    XVar xthis = null; // xts.xtypeTranslator().transThis(thisType);
+	    XVar xthis = null;  
 	
 	    if (me.def() instanceof X10ProcedureDef)
 	        xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
 	
 	    if (xthis == null)
-	        xthis = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+	        xthis = CTerms.makeThis();  
 	
 	    try {
 	        expandTypeConstraints(tenv, context);

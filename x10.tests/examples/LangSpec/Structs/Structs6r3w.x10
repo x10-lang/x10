@@ -26,7 +26,7 @@ public class Structs6r3w extends x10Test {
     }
 
 
-// file Structs line 372
+// file Structs line 376
 
  static class StructDefault {
   static  struct Example {

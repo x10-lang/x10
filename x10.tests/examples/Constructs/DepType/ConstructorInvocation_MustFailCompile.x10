@@ -9,14 +9,14 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/** Tests that a constructor invocation satisfies the parameter types and constraint
- * of the constructor declaration.
- *@author pvarma
- *
- */
+//OPTIONS: -STATIC_CHECKS
 
 import harness.x10Test;
 
+/**
+ * Tests that a constructor invocation satisfies the parameter types and constraint
+ * of the constructor declaration.
+ */
 public class ConstructorInvocation_MustFailCompile extends x10Test { 
 
 	class Test(i:int, j:int) {

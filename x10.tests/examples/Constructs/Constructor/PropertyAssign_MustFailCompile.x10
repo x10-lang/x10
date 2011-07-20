@@ -9,14 +9,16 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import harness.x10Test;
 
 /**
- * Check tht if the return type of a constructor is supplied explicitly,
- * then that is the return type. (The return type shold not be updated
+ * Check that, if the return type of a constructor is supplied explicitly,
+ * then that is the return type. (The return type should not be updated
  * with the computed return type.)
  *
- *See XTENLANG-2535.
+ * See XTENLANG-2535.
  * @author vj
  */
 public class PropertyAssign_MustFailCompile extends x10Test {

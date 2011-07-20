@@ -18,7 +18,11 @@ package x10.compiler;
  * 
  * @author Bowen Alpern
  */
-public class Finalization extends x10.lang.Throwable { 
+
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
+
+public class Finalization extends x10.lang.Throwable implements CustomSerialization {
     
     public var value: Any          = null;
     public var label: String       = null;
@@ -76,5 +80,23 @@ public class Finalization extends x10.lang.Throwable {
         if (x10.compiler.CompilerFlags.TRUE()) return;
         throw new Finalization();
     }
+
+    /**
+     * Serialization of Finalization objects is forbidden.
+     * @throws UnsupportedOperationException
+     */
+    public def serialize():SerialData {
+    	throw new UnsupportedOperationException("Cannot serialize "+typeName());
+    }
+
+    /**
+     * Serialization of Finalization objects is forbidden.
+     * @throws UnsupportedOperationException
+     */
+    public def this(SerialData) {
+    	throw new UnsupportedOperationException("Cannot deserialize "+typeName());
+    }
+
+    public def this(){}
 
 }

@@ -96,20 +96,22 @@ public class X10Field_c extends Field_c {
         Context c = (Context) tc.context();
         X10FieldInstance fi = null;
         try {
-            // vj: Hack to work around the design decision to represent "here" as this.home for
-            // instance methods. This decision creates a problem for non-final variables that are 
-            // located in the current place. "this" is going to get quantified out by the FieldMatcher.
-            // therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
-            // return from the matcher, substitute it back in.
-            XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
-            XVar currentPlace = XTerms.makeUQV("place");
-            Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
-            fi = (X10FieldInstance) ts.findField(targetType, tType2, name, c, receiverInContext);
+            //// vj: Hack to work around the design decision to represent "here" as this.home for
+            //// instance methods. This decision creates a problem for non-final variables that are 
+            //// located in the current place. "this" is going to get quantified out by the FieldMatcher.
+            //// therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
+            //// return from the matcher, substitute it back in.
+            //XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
+            //XVar currentPlace = XTerms.makeUQV("place");
+            //Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
+            //fi = (X10FieldInstance) ts.findField(targetType, tType2, name, c, receiverInContext);
+            // IP: we may still need the above hack because "here" is this.home in field initializers
+            fi = (X10FieldInstance) ts.findField(targetType, targetType, name, c, receiverInContext);
             if (isStatic && !fi.flags().isStatic())
                 throw new Errors.CannotAccessNonStaticFromStaticContext(fi, pos);
             assert (fi != null);
-            // substitute currentPlace back in.
-            fi = placeTerm == null ? fi : Subst.subst(fi, placeTerm, currentPlace);
+            //// substitute currentPlace back in.
+            //fi = placeTerm == null ? fi : Subst.subst(fi, placeTerm, currentPlace);
         } catch (SemanticException e) {
             fi = findAppropriateField(tc, targetType, name, isStatic, e);
         }
@@ -274,16 +276,17 @@ public class X10Field_c extends Field_c {
                 // Now try 0-ary property methods.
                 try {
                     MethodInstance mi = ts.findMethod(target.type(), 
-                                                      ts.MethodMatcher(target.type(), name.id(), Collections.<Type>emptyList(), c));
+                           ts.MethodMatcher(target.type(), name.id(), 
+                                            Collections.<Type>emptyList(), c));
                     if (mi.flags().isProperty()) {
                         Call call = nf.Call(pos, target, this.name);
                         call = call.methodInstance(mi);
                         Type nt = mi.rightType();
                         if (c.inDepType()) {
-                                nt = Checker.rightType(mi.rightType(), mi.x10Def(), target, c);
+                                nt = Checker.rightType(nt, mi.x10Def(), target, c);
                         } else {
                         	try {
-                             nt =  Checker.expandCall(mi.rightType(), call, c);
+                             nt =  Checker.expandCall(nt, call, c);
                         	} catch (IllegalConstraint z) {
                         		// ignore, we will go with mi.rightType.
                         	}
@@ -304,7 +307,7 @@ public class X10Field_c extends Field_c {
             fi = fi.error(error);
         }
 
-        if (target() instanceof X10Special) {
+        if (isFieldOfThis(this)) {
             c.recordCapturedVariable(fi);
         }
 
@@ -337,13 +340,19 @@ public class X10Field_c extends Field_c {
 		    } catch (SemanticException e) {
 		        Errors.issue(tc.job(), e);
 		    }
-        }
+		}
 
 		// Not needed in the orthogonal locality proposal.
 		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
 
 		//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
 		return result;
+	}
+
+	public static boolean isFieldOfThis(Field f) {
+	    Receiver target = f.target();
+	    if (target == null && !f.flags().isStatic()) return true;
+	    return target instanceof X10Special && ((X10Special) target).qualifier() == null;
 	}
 
 	/**

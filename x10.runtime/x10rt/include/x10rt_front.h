@@ -394,6 +394,10 @@ X10RT_C void x10rt_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
  */
 X10RT_C void x10rt_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len);
 
+X10RT_C void x10rt_get_stats (x10rt_stats *s);
+X10RT_C void x10rt_set_stats (x10rt_stats *s);
+X10RT_C void x10rt_zero_stats (x10rt_stats *s);
+
 /** Asynchronously allocate memory at a remote place.
  *
  * \param place The location where memory will be allocated.

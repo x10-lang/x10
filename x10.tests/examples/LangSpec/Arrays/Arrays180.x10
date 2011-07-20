@@ -29,7 +29,7 @@ public class Arrays180 extends x10Test {
 // file Arrays line 335
 
  static class Arrays31TestExp{
-  def check(A:Array[Int])  = A.size;  }
+  def check(a:Array[Int])  = a.size;  }
 
  static class Hook {
    def run():Boolean = true;

@@ -31,7 +31,7 @@ import x10.util.ArrayList;
  */
 @NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
-public final class String implements (Int) => Char, /*TODO Ordered[String],*/ Comparable[String] {
+public final class String implements (Int) => Char, Ordered[String], Comparable[String] {
 
     /**
      * Default constructor.
@@ -386,7 +386,7 @@ public final class String implements (Int) => Char, /*TODO Ordered[String],*/ Co
      * @param args the arguments referenced by the format specifiers in the format string.
      * @return a formatted string.
      */
-    @Native("java", "java.lang.String.format(#fmt,(Object[]) (#args).raw().value)")
+    @Native("java", "x10.core.String.format(#fmt,(Object[]) (#args).raw().value)")
     @Native("c++", "x10::lang::String::format(#fmt,#args)")
     public native static def format(fmt: String, args:Array[Any]): String;
 

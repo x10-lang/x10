@@ -27,10 +27,12 @@ public abstract class XVar extends XTerm  {
 
 	public XTermKind kind() { return XTermKind.LOCAL;}
 	  
+	@Override
 	public XTerm subst(XTerm y, XVar x, boolean propagate) {
 		return equals(x) ? y : super.subst(y, x, propagate);
 	}
 
+	@Override
 	public boolean isAtomicFormula() {
 	    return false;
 	}

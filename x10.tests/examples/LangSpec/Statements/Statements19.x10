@@ -26,7 +26,7 @@ public class Statements19 extends x10Test {
     }
 
 
-// file Statements.tex,  line 978
+// file Statements.tex,  line 989
 
  static class Statements19TestStmt{
   def check(B:Boolean)  {

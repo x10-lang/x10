@@ -47,6 +47,7 @@ import polyglot.ast.Return;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.Term;
+import polyglot.ast.TypeNode;
 import polyglot.ast.While;
 import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
@@ -302,11 +303,11 @@ public class WSCodePreprocessor extends ContextVisitor {
         
         Desugarer desugarer = ((x10.ExtensionInfo) job.extensionInfo()).makeDesugarer(job);
         desugarer.begin();
-        desugarer.context(context()); //copy current context
+        desugarer = (Desugarer) desugarer.context(context()); //copy current context
         
         X10InnerClassRemover innerclassRemover = new X10InnerClassRemover(job, ts, nf);
         innerclassRemover.begin();
-        innerclassRemover.context(context()); //copy current context
+        innerclassRemover = (X10InnerClassRemover) innerclassRemover.context(context()); //copy current context
         
         cDecl = (X10ClassDecl) cDecl.visit(desugarer);
         cDecl = (X10ClassDecl) cDecl.visit(innerclassRemover);
@@ -536,27 +537,34 @@ public class WSCodePreprocessor extends ContextVisitor {
      * @throws SemanticException 
      */
     private Node visitForLoop(ForLoop n) throws SemanticException {
+        //Only process concurrent for
+        if(! WSUtil.isComplexCodeNode(n, wts)){
+            return n; 
+        }
+        
         //Step 1: translate the forloop by forloopoptimizer
         ForLoopOptimizer flo = new ForLoopOptimizer(job, ts, nf);
         flo.begin();
+        flo.context(context());
         Node floOut = n.visit(flo); //floOut could be a block or a for statement
         // there are two cases from ForLoopOptimizer
         // 1. only for; 2. some local declarations and for
         // for cases 2, we need add these local declarations into for's init
 
         For forStmt = null;
-        if (floOut instanceof Block) { // case 2
-            List<ForInit> forInits = new ArrayList<ForInit>();
-            for (Stmt s : ((Block) floOut).statements()) {
+        List<Stmt> forBlockStmts = new ArrayList<Stmt>();
+        int forStmtLoc = -1; //the place the for stmt in the block
+        if (floOut instanceof Block) { // case 2, re-wrap it into a stmtseq
+            forBlockStmts.addAll(((Block)floOut).statements());
+            for (int i = 0; i < forBlockStmts.size(); i++) {
+                Stmt s = forBlockStmts.get(i);
                 if (s instanceof For) {
                     forStmt = (For) s;
-                } else {
-                    assert (s instanceof ForInit);// otherwise the ForLoopOptimizer is wrong
-                    forInits.add((ForInit) s);
+                    forStmtLoc = i;
+                    break;
                 }
             }
-            forInits.addAll(forStmt.inits());
-            forStmt = forStmt.inits(forInits); // replace inits
+            assert(forStmtLoc >= 0);
         } else {
             forStmt = (For) floOut;
         }
@@ -582,7 +590,13 @@ public class WSCodePreprocessor extends ContextVisitor {
             forStmt = forStmt.body(nf.Block(forStmt.position(), stmts));
         }
         //Final step: still need check the for loop
-        return visitFor(forStmt);
+        Stmt newStmt = (Stmt) visitFor(forStmt);
+        if(forStmtLoc >= 0){
+            forBlockStmts.set(forStmtLoc, newStmt);
+            newStmt = nf.StmtSeq(n.position(), forBlockStmts);
+        }
+        
+        return newStmt;
     }
 
     /**
@@ -593,6 +607,11 @@ public class WSCodePreprocessor extends ContextVisitor {
      * @throws SemanticException 
      */
     public Node visitFor(For n) throws SemanticException {
+        //Only process concurrent for
+        if(! WSUtil.isComplexCodeNode(n, wts)){
+            return n; 
+        }
+        
         //Detect the init/iterator/condition
         List<Term> condTerms = new ArrayList<Term>();
         condTerms.addAll(n.inits());
@@ -640,7 +659,7 @@ public class WSCodePreprocessor extends ContextVisitor {
         String mName = WSUtil.getDividableForMethodName(n) + genMethodDecls.size();
         X10MethodDecl mDecl = synthDividableForMethod(n, mName, context, df, locals);
         
-        MethodDef mDef = mDecl.methodDef();
+        X10MethodDef mDef = mDecl.methodDef();
         
         //now generate the in-place call
         Call call = synthDividableForMethodCall(n.position(), context, mDef,
@@ -745,13 +764,19 @@ public class WSCodePreprocessor extends ContextVisitor {
         return mSynth.close();
     }
     
-    private Call synthDividableForMethodCall(Position pos, Context ct, MethodDef mDef, 
+    private Call synthDividableForMethodCall(Position pos, Context ct, X10MethodDef mDef, 
                                              Expr lowerRef, Expr upperRef, Expr sliceNumRef,
-                                             DividableFor df,  List<Local> locals){
+                                             DividableFor df, List<Local> locals){
 
         Id callId = nf.Id(pos, mDef.name());
         ArrayList<Expr> paras = new ArrayList<Expr>();
         ArrayList<Type> formalTypes = new ArrayList<Type>();
+        ArrayList<TypeNode> typeArgs = new ArrayList<TypeNode>();
+        ArrayList<Type> typeActuals = new ArrayList<Type>();
+        for (ParameterType pt : mDef.typeParameters()) {
+            typeActuals.add(pt);
+            typeArgs.add(nf.CanonicalTypeNode(pos, pt));
+        }
         paras.add(lowerRef); formalTypes.add(df.boundType);
         paras.add(upperRef); formalTypes.add(df.boundType);
         paras.add(sliceNumRef); formalTypes.add(ts.Int());
@@ -762,18 +787,19 @@ public class WSCodePreprocessor extends ContextVisitor {
         Receiver r; 
         //decide the right method: instance of static
         
-        if(mDef.flags().isStatic()){
+        if (mDef.flags().isStatic()) {
             r = nf.CanonicalTypeNode(compilerPos, ct.currentClass());
         }
-        else{
+        else {
             r = synth.thisRef(ct.currentClass(), compilerPos);
         }
-        Call call = (Call) nf.Call(pos, r, callId, paras).type(ts.Void());
+        Call call = (Call) nf.X10Call(pos, r, callId, typeArgs, paras).type(ts.Void());
         MethodInstance mi = mDef.asInstance();
         mi = (MethodInstance) mi.flags(mDef.flags());
         mi = mi.name(mDef.name());
         mi = mi.returnType( mDef.returnType().get());
         mi = mi.formalTypes(formalTypes);
+        mi = (MethodInstance) mi.typeParameters(typeActuals);
         
         return call.methodInstance(mi);
     }

@@ -21,29 +21,29 @@ public abstract class Floats {
 	 */
     public static byte toByte(float a) {
         int ia = (int)a;
-        if (ia > Byte.MAX_VALUE) return Byte.MAX_VALUE;
-        else if (ia < Byte.MIN_VALUE) return Byte.MIN_VALUE;
+        if (ia > java.lang.Byte.MAX_VALUE) return java.lang.Byte.MAX_VALUE;
+        else if (ia < java.lang.Byte.MIN_VALUE) return java.lang.Byte.MIN_VALUE;
         else return (byte)ia;
     }
     
     public static byte toByte(double a) {
       int ia = (int)a;
-      if (ia > Byte.MAX_VALUE) return Byte.MAX_VALUE;
-      else if (ia < Byte.MIN_VALUE) return Byte.MIN_VALUE;
+      if (ia > java.lang.Byte.MAX_VALUE) return java.lang.Byte.MAX_VALUE;
+      else if (ia < java.lang.Byte.MIN_VALUE) return java.lang.Byte.MIN_VALUE;
       else return (byte)ia;
   }
   
     public static short toShort(float a) {
         int ia = (int)a;
-        if (ia > Short.MAX_VALUE) return Short.MAX_VALUE;
-        else if (ia < Short.MIN_VALUE) return Short.MIN_VALUE;
+        if (ia > java.lang.Short.MAX_VALUE) return java.lang.Short.MAX_VALUE;
+        else if (ia < java.lang.Short.MIN_VALUE) return java.lang.Short.MIN_VALUE;
         else return (short)ia;
     }
     
     public static short toShort(double a) {
         int ia = (int)a;
-        if (ia > Short.MAX_VALUE) return Short.MAX_VALUE;
-        else if (ia < Short.MIN_VALUE) return Short.MIN_VALUE;
+        if (ia > java.lang.Short.MAX_VALUE) return java.lang.Short.MAX_VALUE;
+        else if (ia < java.lang.Short.MIN_VALUE) return java.lang.Short.MIN_VALUE;
         else return (short)ia;
     }
     

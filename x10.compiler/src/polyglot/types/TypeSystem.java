@@ -770,6 +770,7 @@ public interface TypeSystem {
     public Flags Abstract();
 
     boolean isNumeric(Type t);
+    boolean isSignedNumeric(Type t);
     boolean isUnsignedNumeric(Type t);
     boolean isIntOrLess(Type t);
     boolean isLongOrLess(Type t);
@@ -919,6 +920,8 @@ public interface TypeSystem {
      */
     X10ClassType FailedDynamicCheckException();
 
+    X10ClassType IndexedMemoryChunk();
+
     // types used in WS codegen
     X10ClassType Frame();
     X10ClassType FinishFrame();
@@ -935,7 +938,9 @@ public interface TypeSystem {
     
     // annotation types used in codegen
     X10ClassType StackAllocate();
+    X10ClassType Inline();
     X10ClassType InlineOnly();
+    X10ClassType NoInline();
     X10ClassType Ephemeral();
     X10ClassType Header();
     X10ClassType Uninitialized();
@@ -949,6 +954,8 @@ public interface TypeSystem {
 
     X10ClassType NativeType();
     X10ClassType NativeRep();
+    X10ClassType NativeClass();
+    X10ClassType CompileTimeConstant();
 
     XLit FALSE();
 
@@ -978,6 +985,14 @@ public interface TypeSystem {
             Ref<? extends ClassType> typeContainer, boolean isStatic);
 
     ThisDef thisDef(Position pos, Ref<? extends ClassType> type);
+    /**
+     * To be called to generate qType.this, where this:baseType.
+     * @param pos
+     * @param qType
+     * @param baseType
+     * @return
+     */
+    ThisDef thisDef(Position pos, Ref<? extends ClassType> qType, Ref<? extends ClassType> baseType);
 
     /**
      * Create a closure instance.
@@ -1239,7 +1254,7 @@ public interface TypeSystem {
                                     SemanticException error);
     List<LocalDef> dummyLocalDefs(List<Ref<? extends Type>> types);
     List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, 
-                                 XVar thisVar, Context context);
+                                 XVar thisVar, XVar placeTerm, Context context);
     boolean equalsStruct(Type a, Type b);
     X10ClassType AtomicInteger();
     boolean isRemoteArray(Type t);

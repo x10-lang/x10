@@ -39,7 +39,8 @@ public class CompilerFlags {
     /**
      * Should bounds checking operations be optimized by using unsigned compares
      */
-    @Native("java", "false")
+    // @Native("java", "false")
+    @Native("java", "true")
     @Native("c++", "true")
     public static native def useUnsigned():boolean;
 

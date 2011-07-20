@@ -3,6 +3,7 @@
  */
 package x10.types;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import polyglot.types.Ref;
@@ -32,7 +33,12 @@ public final class ReinstantiatedConstructorInstance extends X10ConstructorInsta
         if (ct != null && ct.isClass()) {
             TypeParamSubst dsubst = ct.toClass().def().subst();
             if (dsubst != null) {
-                return dsubst.reinstantiate(typeParamSubst);
+                TypeParamSubst newtps = dsubst.reinstantiate(typeParamSubst);
+                List<Type> tas = new ArrayList<Type>(typeParamSubst.copyTypeArguments());
+                tas.addAll(newtps.copyTypeArguments());
+                List<ParameterType> tps = new ArrayList<ParameterType>(typeParamSubst.copyTypeParameters());
+                tps.addAll(newtps.copyTypeParameters());
+                return new TypeParamSubst(ts, tas, tps, typeParamSubst.isEager());
             }
         }
         return typeParamSubst;

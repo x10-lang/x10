@@ -69,6 +69,7 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10MethodDecl_c;
@@ -145,9 +146,10 @@ public class Emitter {
     }
     private static String mangle_to_cpp(String str) {
         str = x10.emitter.Emitter.mangleIdentifier(str);
+        str = StringUtil.escape(str, true);
         if (isCPPKeyword(str))
             str = "_kwd__" + str;
-        return str.replace("$", "__");
+        return str.replace("$", "__").replace("\\", "__");
     }
     public static String mangled_method_name(String str) {
         return mangle_to_cpp(str);
@@ -278,6 +280,7 @@ public class Emitter {
 			// [DC] I believe that since we are only looking at constraints of the form self.f,
 			// there is no need to check the type of the class which this field is attached to as it will
 			// always be the type we are translating.
+			if (!(xvarf.field() instanceof X10FieldDef)) continue; // only support # within @Native on property fields, not methods
 			String property_name = ((X10FieldDef)xvarf.field()).name().toString();
 			// resolve to another variable, keep going
 			XVar closed_xvar = projected.bindingForVar(xvar);
@@ -484,12 +487,12 @@ public class Emitter {
 		return b.toString();
 	}
 
-	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType localClass, 
-	                                             MethodInstance mi, Context context) {
+	static MethodInstance getOverridingMethod(TypeSystem xts, ClassType thisClass, ClassType localClass, 
+            MethodInstance mi, Context context) {
 	    try {
 	        List<Type> params = ((MethodInstance) mi).typeParameters();
 	        List<MethodInstance> overrides = xts.findAcceptableMethods(localClass, 
-	        		xts.MethodMatcher(localClass, mi.name(), 
+	        		xts.MethodMatcher(thisClass, mi.name(), 
 	        				((MethodInstance) mi).typeParameters(), mi.formalTypes(), context));
 	        for (MethodInstance smi : overrides) {
 	            if (CollectionUtil.allElementwise(mi.formalTypes(), smi.formalTypes(), new BaseTypeEquals(context))) {
@@ -544,7 +547,7 @@ public class Emitter {
 		Type returnType = null;
 
 		if (superClass != null) {
-			MethodInstance superMeth = getOverridingMethod(xts,superClass,from,context);
+			MethodInstance superMeth = getOverridingMethod(xts,classType,superClass, from,context);
 			if (superMeth != null) {
 				//System.out.println(from+" overrides "+superMeth);
 				returnType = findRootMethodReturnType(n, pos, superMeth);
@@ -554,7 +557,7 @@ public class Emitter {
 		for (Type itf : interfaces) {
 			X10ClassType itf_ = (X10ClassType) Types.baseType(itf);
 			// same thing again for interfaces
-			MethodInstance superMeth = getOverridingMethod(xts,itf_,from,context);
+			MethodInstance superMeth = getOverridingMethod(xts,itf_, itf_,from,context);
 			if (superMeth != null) {
 				//System.out.println(from+" implements "+superMeth);
 				Type newReturnType = findRootMethodReturnType(n, pos, superMeth);
@@ -578,7 +581,7 @@ public class Emitter {
 	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean inlineDirective) {
 		printHeader(n, h, tr, n.name().id().toString(), n.returnType().type(), qualify, inlineDirective);
 	}
-	void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
+	public void printHeader(X10MethodDecl_c n, CodeWriter h, Translator tr, String name, Type ret, 
 	                 boolean qualify, boolean inlineDirective) {
 		Flags flags = n.flags().flags();
 		X10MethodDef def = (X10MethodDef) n.methodDef();
@@ -794,6 +797,8 @@ public class Emitter {
     private boolean isPointerless(X10ClassType ct) {
         assert ct.isX10Struct() : "Only structs should be checked to see if they are pointerless";
         
+        if (ASTQuery.getCppRep(ct.x10Def()) != null) return false; // be conservative on @NativeRep
+
         for (FieldInstance fi : ct.fields()) {
             if (fi.flags().isStatic()) continue; // ignore static fields; only care about instance fields
             if (!fi.type().isNumeric()) {

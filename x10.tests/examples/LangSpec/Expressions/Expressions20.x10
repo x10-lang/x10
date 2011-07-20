@@ -26,7 +26,7 @@ public class Expressions20 extends x10Test {
     }
 
 
-// file Expressions line 108
+// file Expressions line 106
  static  class Example {
  def example() {
 val n = 22;

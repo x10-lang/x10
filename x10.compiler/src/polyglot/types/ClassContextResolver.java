@@ -11,6 +11,8 @@ import java.util.*;
 
 import polyglot.main.Reporter;
 import polyglot.util.*;
+import x10.types.ConstrainedType;
+import x10.types.constraints.CConstraint;
 import x10.util.CollectionFactory;
 
 /**
@@ -118,9 +120,12 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         }
         
         // If we found something, make sure it's accessible.
-        if (m instanceof ClassType) {
-            ClassType mt = (ClassType) m;
-
+        Type baseM = m;
+        if (Types.isConstrainedType(m)) {
+            baseM = Types.baseType(m);
+        }
+        if (Types.isClass(baseM)) {
+            ClassType mt = baseM.toClass();
             if (! mt.isMember()) {
         	throw new SemanticException("Class " + mt +
         	                            " is not a member class, " +
@@ -132,8 +137,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         	                            " is not a member class " +
         	                            " of " + type + ".");
             }
-
-            return CollectionUtil.<Type>list(mt.container(type));
+            return CollectionUtil.<Type>list(Types.container(m, type));
         }
 
         if (m instanceof MemberInstance<?>) {
@@ -227,6 +231,8 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
     }
 
     protected boolean canAccess(Type n, ClassDef accessor, Context context) {
+        if (n instanceof ConstrainedType) 
+            n = Types.baseType(n);
         if (n instanceof MemberInstance<?>) {
             return accessor == null || ts.isAccessible((MemberInstance<?>) n, context);
         }

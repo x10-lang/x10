@@ -123,12 +123,12 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeBarrierImpl(JNIEnv *env,
                                                                     jint id, jint role, jobject finishState) {
     jobject globalFinishState = env->NewGlobalRef(finishState);
     if (NULL == globalFinishState) {
-        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeDelImpl\n");
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeBarrierImpl\n");
         abort();
     }
     barrierImplStruct *callbackArg = (barrierImplStruct*)malloc(sizeof(barrierImplStruct));
     if (NULL == callbackArg) {
-        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeBarrierImpl\n");
         abort();
     }
     callbackArg->globalFinishState = globalFinishState;
@@ -232,7 +232,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
     jobject globalDst = env->NewGlobalRef(dst);
     jobject globalFinishState = env->NewGlobalRef(finishState);
     if (NULL == globalDst || NULL == globalFinishState) {
-        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeMakeImpl\n");
+        fprintf(stderr, "OOM while attempting to create GlobalRef in nativeAllReduceImpl\n");
         abort();
     }
 
@@ -244,7 +244,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
         srcData = malloc(count*sizeof(jbyte));
         dstData = malloc(count*sizeof(jbyte));
         if (NULL == srcData || NULL == dstData) {
-            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
             abort();
         }
         env->GetByteArrayRegion((jbyteArray)src, src_off, count, (jbyte*)srcData);
@@ -254,7 +254,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
         srcData = malloc(count*sizeof(jshort));
         dstData = malloc(count*sizeof(jshort));
         if (NULL == srcData || NULL == dstData) {
-            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
             abort();
         }
         env->GetShortArrayRegion((jshortArray)src, src_off, count, (jshort*)srcData);
@@ -264,7 +264,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
         srcData = malloc(count*sizeof(jint));
         dstData = malloc(count*sizeof(jint));
         if (NULL == srcData || NULL == dstData) {
-            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
             abort();
         }
         env->GetIntArrayRegion((jintArray)src, src_off, count, (jint*)srcData);
@@ -274,7 +274,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
         srcData = malloc(count*sizeof(jlong));
         dstData = malloc(count*sizeof(jlong));
         if (NULL == srcData || NULL == dstData) {
-            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
             abort();
         }
         env->GetLongArrayRegion((jlongArray)src, src_off, count, (jlong*)srcData);
@@ -284,7 +284,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
         srcData = malloc(count*sizeof(jdouble));
         dstData = malloc(count*sizeof(jdouble));
         if (NULL == srcData || NULL == dstData) {
-            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
             abort();
         }
         env->GetDoubleArrayRegion((jdoubleArray)src, src_off, count, (jdouble*)srcData);
@@ -294,13 +294,13 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeAllReduceImpl(JNIEnv *en
         srcData = malloc(count*sizeof(jfloat));
         dstData = malloc(count*sizeof(jfloat));
         if (NULL == srcData || NULL == dstData) {
-            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+            fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeAllReduceImpl\n");
             abort();
         }
         env->GetFloatArrayRegion((jfloatArray)src, src_off, count, (jfloat*)srcData);
         break;
     default:
-        fprintf(stderr, "Unsupported typecode %d in allReduceImpl\n", typecode);
+        fprintf(stderr, "Unsupported typecode %d in nativeAllReduceImpl\n", typecode);
         abort();
     }        
 
@@ -356,7 +356,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_TeamSupport_nativeDelImpl(JNIEnv *env, jcl
 
     delImplStruct *callbackArg = (delImplStruct*)malloc(sizeof(delImplStruct));
     if (NULL == callbackArg) {
-        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeMakeImpl\n");
+        fprintf(stderr, "OOM while attempting to allocate malloced storage in nativeDelImpl\n");
         abort();
     }
     callbackArg->globalFinishState = globalFinishState;

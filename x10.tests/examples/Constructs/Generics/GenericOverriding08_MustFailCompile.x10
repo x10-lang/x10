@@ -28,7 +28,7 @@ public class GenericOverriding08_MustFailCompile extends GenericTest {
     }
         
     class B[T] extends A[T] {
-        def m(T){T<:String}: int = 1;
+        def m(T){T<:String}: int = 1; // ERR (type constraint in a guard not entailed)
     }
 
     public def run() = true;

@@ -340,7 +340,13 @@
         -->
     </target>
 
-    <target name="jni-headers" depends="init,build-x10-x10rt">
+    <target name="init-x10rt" depends="init">
+        <mkdir dir="x10rt/bin"/>
+        <mkdir dir="x10rt/etc"/>
+        <mkdir dir="x10rt/lib"/>
+    </target>
+
+    <target name="jni-headers" depends="init,init-x10rt,build-x10-x10rt">
         <javah destdir="x10rt/include">
             <classpath>
               <path refid="project.classpath"/>
@@ -354,7 +360,7 @@
         </javah>
     </target>
 
-    <target name="build-x10rt" depends="init,jni-headers">
+    <target name="build-x10rt" depends="init,init-x10rt,jni-headers">
         <exec executable="${make.exe}" failonerror="true" dir="${basedir}/x10rt">
             <env key="ANT_JAVA_HOME" value="${java.home}" />
             <arg value="-j1" />

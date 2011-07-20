@@ -18,8 +18,8 @@ import harness.x10Test;
 class XTENLANG_305 extends x10Test {
 
     class A[T] implements (int,int,int)=>T {
-        public operator this(i:int, j:int, k:int)=(v:T): T = 0 as T;
-        public operator this(i:int, j:int, k:int): T = 0 as T;
+        public operator this(i:int, j:int, k:int)=(v:T): T = 0 as T; // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+        public operator this(i:int, j:int, k:int): T = 0 as T; // ERR: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
     def foo(a:A[double]) {

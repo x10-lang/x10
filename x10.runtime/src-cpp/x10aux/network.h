@@ -32,6 +32,7 @@ namespace x10aux {
     typedef x10rt_msg_type msg_type;
     typedef x10rt_copy_sz copy_sz;
     typedef x10_int place; // FIXME: should be x10rt_place, but place ids are signed everywhere
+    typedef x10rt_endpoint endpoint;
 
     // a message type used for putting serialised kernel data on a gpu 
     extern msg_type kernel_put;
@@ -113,6 +114,25 @@ namespace x10aux {
     extern volatile x10_long serialized_bytes;
     extern volatile x10_long deserialized_bytes;
 
+    // use templates to avoid including Runtime__X10RTStats.h and friends from x10aux
+    template<class U> U get_X10RTMessageStats (x10rt_msg_stats &m)
+    {
+        return U::_make(m.bytes_sent, m.messages_sent, m.bytes_received, m.messages_received);
+    }
+
+    template<class T, class U> T get_X10RTStats (void)
+    {
+        x10rt_stats s;
+        x10rt_get_stats(&s);
+        return T::_make(x10aux::get_X10RTMessageStats<U>(s.msg),
+                        x10aux::get_X10RTMessageStats<U>(s.put),
+                        s.put_copied_bytes_sent,
+                        s.put_copied_bytes_received,
+                        x10aux::get_X10RTMessageStats<U>(s.get),
+                        s.get_copied_bytes_sent,
+                        s.get_copied_bytes_received);
+    }
+
     extern x10_int platform_max_threads;
     extern x10_boolean default_static_threads;
 
@@ -130,16 +150,16 @@ namespace x10aux {
 
     x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > loadenv();
 
-    void run_closure_at (place p, x10aux::ref<x10::lang::Reference> body);
-    void run_async_at (place p, x10aux::ref<x10::lang::Reference> body, x10aux::ref<x10::lang::Reference> fs);
+    void run_closure_at (place p, x10aux::ref<x10::lang::Reference> body, endpoint e=0);
+    void run_async_at (place p, x10aux::ref<x10::lang::Reference> body, x10aux::ref<x10::lang::Reference> fs, endpoint e=0);
 
     class serialization_buffer;
 
     void send_get (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, x10aux::copy_sz len);
+                   serialization_buffer &buf, void *data, x10aux::copy_sz len, endpoint e=0);
    
     void send_put (place p, serialization_id_t id,
-                   serialization_buffer &buf, void *data, x10aux::copy_sz len);
+                   serialization_buffer &buf, void *data, x10aux::copy_sz len, endpoint e=0);
 
     void cuda_put (place gpu, x10_ulong addr, void *var, size_t sz);
 

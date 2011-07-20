@@ -90,6 +90,7 @@ import polyglot.visit.Translator;
 import x10.ast.Closure;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorDecl;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
@@ -223,7 +224,7 @@ public class X10CPPTranslator extends Translator {
 		                final int adjustedStartLine = adjustSLNForNode(startLine, n);
 		                final int adjustedEndLine = adjustELNForNode(endLine, n);
 		                final int fixedEndLine = adjustedEndLine < adjustedStartLine ? adjustedStartLine : adjustedEndLine;
-		                final boolean generated = n.position().isCompilerGenerated(); // || ((parent instanceof Closure) && (!(n instanceof ProcedureDecl) || (n instanceof ProcedureDecl && ((ProcedureDecl)n).reachable())));
+		                //final boolean generated = n.position().isCompilerGenerated(); // || ((parent instanceof Closure) && (!(n instanceof ProcedureDecl) || (n instanceof ProcedureDecl && ((ProcedureDecl)n).reachable())));
 		                final boolean addLastLine = ((n instanceof ConstructorDecl) || (n instanceof Block && !((Block)n).statements().isEmpty() && 
 		                		((Block)n).position().endLine() != ((Block)n).statements().get(((Block)n).statements().size()-1).position().endLine()));
 		                w.currentStream().registerCommitListener(new ClassifiedStream.CommitListener() {
@@ -237,7 +238,7 @@ public class X10CPPTranslator extends Translator {
 		                            if (addLastLine)
 		                        		lineNumberMap.put(cppFile, cppEndLine, cppEndLine, file, lastX10Line, column);
 		                        }
-		                        else if (!generated)
+		                        else //if (!generated)
 		                        {
 		                        	lineNumberMap.put(cppFile, cppStartLine, cppEndLine, file, line, column);
 		                        	if (addLastLine)
@@ -253,7 +254,7 @@ public class X10CPPTranslator extends Translator {
 		            		lineNumberMap.rememberLoopVariable(((LocalDecl)t).name().toString(), ((LocalDecl)n).name().toString(), line, lastX10Line);
 		            }
 		            if (n instanceof FieldDecl && !c.inTemplate() && !((FieldDecl)n).flags().flags().isStatic() && !n.position().isCompilerGenerated()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
-		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct());
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct(), false);
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false, -1, false);
 		            else if (def != null)
@@ -261,19 +262,35 @@ public class X10CPPTranslator extends Translator {
 		            	// include method arguments in the local variable tables
 		            	ProcedureDecl defSource;
 		            	if (n instanceof ConstructorDecl)
+		            	{
 		            		defSource = (ProcedureDecl)n;
+		            		
+		            		// add the hack reference to the outer class
+		            		if (n instanceof X10ConstructorDecl && ((X10ConstructorDecl)n).returnType().toString().contains("$"))
+		            		{
+		            			String thisClass = ((X10ConstructorDecl)n).returnType().toString();
+		            			String parentClass = thisClass.substring(0, thisClass.lastIndexOf('$'));
+		            			List<Formal> args = defSource.formals();
+				            	if (args.size() == 1)
+				            	{
+				            		Formal arg = args.get(0);
+				            		if (arg.type().toString().equals(parentClass))
+				            			lineNumberMap.addClassMemberVariable(arg.name().toString(), parentClass, Emitter.mangled_non_method_name(thisClass), false, true);
+				            	}
+		            		}		            		
+		            	}
 		            	else
 		            		defSource = (ProcedureDecl)parent;
 		            	List<Formal> args = defSource.formals();
 		            	for (int i=0; i<args.size(); i++)
 		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false, -1, false);
-		            	// include "this" for non-static methods		            	
-		            	if (!def.flags().isStatic() && defSource.reachable() && !c.inTemplate())
+		            	// include "this" for non-static methods
+		            	if (!def.flags().isStatic() && defSource.reachable() != null && defSource.reachable() && !c.inTemplate())
 		            	{
 		            		boolean isStruct = context.currentClass().isX10Struct();
 		            		if (!defSource.position().isCompilerGenerated())
 		            			lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true, -1, isStruct);
-		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct);
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct, false);
 		            	}
 		            }
 		        }
@@ -294,6 +311,11 @@ public class X10CPPTranslator extends Translator {
     	File dest_path = new File(dest_path_);
     	// don't copy if the two dirs are the same...
     	if (src_path.equals(dest_path)) return;
+        // don't copy if the file path is absolute...
+    	if (new File(file).isAbsolute()) return;
+    	// TODO: fix issue with NativeCPPInclude
+        // TODO: disambiguate #include <header.h> vs #include "header.h"
+        // TODO: system header with relative path should not be copied
     	if (!dest_path.exists()) dest_path.mkdir();
     	assert src_path.isDirectory() : src_path_+" is not a directory";
     	assert dest_path.isDirectory() : dest_path_+" is not a directory";
@@ -448,7 +470,7 @@ public class X10CPPTranslator extends Translator {
 //	            if (map.isEmpty())
 //	                return;
 	            s.forceNewline();
-	            LineNumberMap.exportForCPPDebugger(s, map);
+	            map.exportForCPPDebugger(s, map);
 	        }
 	    });
 	}
@@ -640,6 +662,9 @@ public class X10CPPTranslator extends Translator {
 	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
 	    X10CPPJobExt jobext = (X10CPPJobExt) job.ext();
 	    if (opts.x10_config.MAIN_CLASS != null) {
+	        if (opts.x10_config.MAIN_CLASS.length() == 0) {
+	            return Collections.<MethodDef>emptyList();
+	        }
 	        QName mainClass = QName.make(opts.x10_config.MAIN_CLASS);
 	        try {
 	            ClassType mct = (ClassType) job.extensionInfo().typeSystem().forName(mainClass);

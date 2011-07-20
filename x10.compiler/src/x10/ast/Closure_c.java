@@ -64,6 +64,10 @@ import x10.types.X10MemberDef;
 import polyglot.types.LazyRef_c;
 import x10.types.checker.PlaceChecker;
 import x10.types.checker.VarChecker;
+import x10.types.constants.ConstantValue;
+import x10.types.constraints.CConstraint;
+import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 import x10.util.ClosureSynthesizer;
 
 /**
@@ -277,6 +281,7 @@ public class Closure_c extends Expr_c implements Closure {
 				
 				offerType == null ? null : offerType.typeRef());
 		mi.setStaticContext(code.staticContext());
+		mi.setPlaceTerm(PlaceChecker.closurePlaceTerm(mi));
 		
 		if (returnType() instanceof UnknownTypeNode) {
 			mi.inferReturnType(true);
@@ -330,6 +335,9 @@ public class Closure_c extends Expr_c implements Closure {
 	    Reporter reporter = c.typeSystem().extensionInfo().getOptions().reporter;
 		if (reporter.should_report(TOPICS, 5))
 			reporter.report(5, "enter scope of closure at " + position());
+		while (c.inDepType()) { // could happen if the closure appears in a constraint -- error already reported
+		    c = c.pop();
+		}
 		// TODO maybe we want a new type of "code context thingy" that is not a type system object, but can live on the Context stack.
 		c = c.pushCode(closureDef);
 		return c;
@@ -353,9 +361,43 @@ public class Closure_c extends Expr_c implements Closure {
             }
 		}
 
+		// Ensure that the place constraint is set appropriately when
+		// entering the appropriate children
+		if (child == body || child == returnType || child == hasType || child == offerType || child == guard
+		        || (formals != null && formals.contains(child))) {
+		    ClosureDef cd = closureDef();
+		    XConstrainedTerm placeTerm = cd == null ? null : cd.placeTerm();
+		    if (placeTerm == null) {
+		        placeTerm = PlaceChecker.closurePlaceTerm(cd);
+		    }
+		    if (c == oldC)
+		        c = c.pushBlock();
+		    c.setPlace(placeTerm);
+		}
+
+		if (child == guard) {
+		    TypeSystem ts = c.typeSystem();
+		    c = c.pushDepType(Types.<Type>ref(ts.unknownType(this.position)));
+		}
+
+		// Add the closure guard into the environment.
+		if (guard != null) {
+		    if (child == body || child == returnType || child == hasType) {
+		        Ref<CConstraint> vc = guard.valueConstraint();
+		        Ref<TypeConstraint> tc = guard.typeConstraint();
+
+		        if (oldC==c && (vc != null || tc != null)) {
+		            c = c.pushBlock();
+		        }
+		        if (vc != null)
+		            c.addConstraint(vc);
+		        if (tc != null)
+		            c.setTypeConstraintWithContextTerms(tc);
+		    }
+		}
 		if (child == body && offerType != null && offerType.typeRef().known()) {
-			if (oldC==c)
-				c=c.pushBlock();
+		    if (oldC == c)
+		        c = c.pushBlock();
 		    c.setCollectingFinishScope(offerType.type());
 		}
 
@@ -448,12 +490,14 @@ public class Closure_c extends Expr_c implements Closure {
 
 	// Propagate the captured variables to the parent closure (if any)
 	public static void propagateCapturedEnvironment(Context c, EnvironmentCapture def) {
-		for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
-		    Context o = c;
-		    while (o.currentCode() == def)
-		        o = o.pop().popToCode();
-		    o.recordCapturedVariable(vi);
-		}
+	    Context o = c;
+	    while (o != null && o.currentCode() == def)
+	        o = o.pop().popToCode();
+	    if (o == null)
+	        return;
+	    for (VarInstance<? extends VarDef> vi : def.capturedEnvironment()) {
+	        o.recordCapturedVariable(vi);
+	    }
 	}
 
 	@Override
@@ -522,7 +566,7 @@ public class Closure_c extends Expr_c implements Closure {
 		return false;
 	}
 
-	public Object constantValue() {
+	public ConstantValue constantValue() {
 		return null;
 	}
 

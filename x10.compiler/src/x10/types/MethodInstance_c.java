@@ -395,6 +395,13 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
 
     Type rightType;
 
+    /**
+     * Iff this is a zero-ary property method invocation, add the clause
+     * self=term to the return type, where term is body if the method def has 
+     * a body, else, term is this.m().
+     * 
+     * Thus the resulting type may have occurrences of this.
+     */
     public Type rightType() {
         TypeSystem xts = (TypeSystem) ts;
 

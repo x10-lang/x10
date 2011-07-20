@@ -3,8 +3,13 @@ import x10.util.*;
 import harness.x10Test;
 
 public class Congruent extends x10Test { 
-    public def run () = run(1024);
-    public def run (probsize:Int) {
+    val probsize:int;
+
+    public def this(ps:int) {
+        probsize = ps;
+    }
+
+    public def run () {
         val elements = probsize * 1024/8;
         val imcplh = PlaceLocalHandle.make(Dist.makeUnique(), ()=>new Box(IndexedMemoryChunk.allocateZeroed[Long](elements, 8, true)));
         Console.OUT.println("Construction complete.");
@@ -54,6 +59,10 @@ public class Congruent extends x10Test {
         return true;
     }
     public static def main(args:Array[String]{rank==1}) {
-        new Congruent().run((1024*1024)/Place.MAX_PLACES);
+        var kBytes:int = 4;
+        if (args.size>0) {
+            kBytes = Int.parseInt(args(0));
+        } 
+        new Congruent(kBytes*1024/Place.MAX_PLACES).execute();
     }
 }

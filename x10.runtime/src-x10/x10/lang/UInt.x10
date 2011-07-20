@@ -23,17 +23,18 @@ import x10.util.Ordered;
  * that define conversions from other data types, including String,
  * as well as some UInt constants.
  */
-// @NativeRep("java", "int", null, "x10.rtt.Types.UINT")
+@NativeRep("java", "int", null, "x10.rtt.Types.UINT")
 //                 v-- when used
 @NativeRep("c++", "x10_uint", "x10_uint", null)
 //                             ^ when constructed
-public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt], Bitwise[UInt], Ordered[UInt]*/ {
+public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt], Ordered[UInt] {
 
     /** The actual number with Int representation */
+    /* boxed representation disabled
     public val intVal:Int;
     public def this(value:Int) {
         this.intVal = value;
-    }
+    } */
 
     /**
      * A less-than operator.
@@ -42,11 +43,11 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return true if this UInt is strictly less than the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.lt(#this, #x)")
+    @Native("java", "x10.core.Unsigned.lt(#this, #x)")
     @Native("c++",  "((#0) < (#1))")
-    public operator this < (x:UInt): Boolean {
+    public native operator this < (x:UInt): Boolean; /*  {
          return (intVal + Int.MIN_VALUE) < (x.intVal + Int.MIN_VALUE);
-     }
+     } */
 
     /**
      * A greater-than operator.
@@ -55,11 +56,11 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return true if this UInt is strictly greater than the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.gt(#this, #x)")
+    @Native("java", "x10.core.Unsigned.gt(#this, #x)")
     @Native("c++",  "((#0) > (#1))")
-    public operator this > (x:UInt): Boolean {
+    public native operator this > (x:UInt): Boolean; /*  {
         return (intVal + Int.MIN_VALUE) > (x.intVal + Int.MIN_VALUE);
-    }
+    } */
 
     /**
      * A less-than-or-equal-to operator.
@@ -68,11 +69,11 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return true if this UInt is less than or equal to the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.le(#this, #x)")
+    @Native("java", "x10.core.Unsigned.le(#this, #x)")
     @Native("c++",  "((#0) <= (#1))")
-    public operator this <= (x:UInt): Boolean {
+    public native operator this <= (x:UInt): Boolean; /*  {
          return (intVal + Int.MIN_VALUE) <= (x.intVal + Int.MIN_VALUE);
-     }
+     } */
 
     /**
      * A greater-than-or-equal-to operator.
@@ -81,11 +82,11 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return true if this UInt is greater than or equal to the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.ge(#this, #x)")
+    @Native("java", "x10.core.Unsigned.ge(#this, #x)")
     @Native("c++",  "((#0) >= (#1))")
-    public operator this >= (x:UInt): Boolean {
+    public native operator this >= (x:UInt): Boolean; /*  {
         return (intVal + Int.MIN_VALUE) >= (x.intVal + Int.MIN_VALUE);
-    }
+    } */
 
 
     /**
@@ -95,9 +96,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the sum of this UInt and the other UInt.
      */
-    // @Native("java", "((#this) + (#x))")
+    @Native("java", "((#this) + (#x))")
     @Native("c++",  "((x10_uint) ((#0) + (#1)))")
-    public operator this + (x:UInt): UInt = UInt(intVal + x.intVal);
+    public native operator this + (x:UInt): UInt; /*  = UInt(intVal + x.intVal); */
 
     /**
      * A binary minus operator.
@@ -106,9 +107,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the difference of this UInt and the other UInt.
      */
-    // @Native("java", "((#this) - (#x))")
+    @Native("java", "((#this) - (#x))")
     @Native("c++",  "((x10_uint) ((#0) - (#1)))")
-    public operator this - (x:UInt): UInt = UInt(intVal - x.intVal);
+    public native operator this - (x:UInt): UInt; /*  = UInt(intVal - x.intVal); */
 
     /**
      * A binary multiply operator.
@@ -117,9 +118,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the product of this UInt and the other UInt.
      */
-    // @Native("java", "((#this) * (#x))")
+    @Native("java", "((#this) * (#x))")
     @Native("c++",  "((x10_uint) ((#0) * (#1)))")
-    public operator this * (x:UInt): UInt = UInt(intVal * x.intVal);
+    public native operator this * (x:UInt): UInt; /*  = UInt(intVal * x.intVal); */
 
     /**
      * A binary divide operator.
@@ -127,11 +128,11 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the quotient of this UInt and the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.div(#this, #x)")
+    @Native("java", "x10.core.Unsigned.div(#this, #x)")
     @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
-    public operator this / (x:UInt): UInt {
+    public native operator this / (x:UInt): UInt; /*  {
         return UInt(((intVal as Long) / (x.intVal as Long)) as Int);
-    }
+    } */
 
     /**
      * A binary remainder operator.
@@ -139,20 +140,20 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the remainder from dividing this UInt by the other UInt.
      */
-    // @Native("java", "x10.core.Unsigned.rem(#this, #x)")
+    @Native("java", "x10.core.Unsigned.rem(#this, #x)")
     @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
-    public operator this % (x:UInt): UInt {
+    public native operator this % (x:UInt): UInt; /*  {
         return UInt(((intVal as Long) % (x.intVal as Long)) as Int);
-    }
+    } */
 
     /**
      * A unary plus operator.
      * A no-op.
      * @return the value of this UInt.
      */
-    // @Native("java", "((int) +(#this))")
+    @Native("java", "((int) +(#this))")
     @Native("c++",  "((x10_uint) +(#0))")
-    public operator + this: UInt = this;
+    public native operator + this: UInt; /*  = this; */
 
     /**
      * A unary minus operator.
@@ -160,9 +161,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * Overflows result in truncating the high bits.
      * @return the two's complement of this UInt.
      */
-    // @Native("java", "((int) -(#this))")
-    @Native("c++",  "((x10_int) -(#0))")
-    public operator - this: UInt = UInt(-(intVal));
+    @Native("java", "((int) -(#this))")
+    @Native("c++",  "((x10_uint) -(#0))")
+    public native operator - this: UInt; /*  = UInt(-(intVal)); */
 
 
     /**
@@ -171,23 +172,23 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the bitwise AND of this UInt and the other UInt.
      */
-    // @Native("java", "((#this) & (#x))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_uint) ((#0) & (#1)))")
-    public operator this & (x:UInt): UInt = UInt(intVal & x.intVal);
+    public native operator this & (x:UInt): UInt; /*  = UInt(intVal & x.intVal); */
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UInt)&(UInt)
      */
-    // @Native("java", "((#this) & (#x))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_uint) ((#0) & (#1)))")
-    public operator (x:Int) & this: UInt = UInt(x & intVal);
+    public native operator (x:Int) & this: UInt; /*  = UInt(x & intVal); */
     /**
      * A bitwise and operator (unsigned disambiguation).
      * @see #operator(UInt)&(UInt)
      */
-    // @Native("java", "((#this) & (#x))")
+    @Native("java", "((#this) & (#x))")
     @Native("c++",  "((x10_uint) ((#0) & (#1)))")
-    public operator this & (x:Int): UInt = UInt(intVal & x);
+    public native operator this & (x:Int): UInt; /*  = UInt(intVal & x); */
 
     /**
      * A bitwise or operator.
@@ -195,23 +196,23 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the bitwise OR of this UInt and the other UInt.
      */
-    // @Native("java", "((#this) | (#x))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_uint) ((#0) | (#1)))")
-    public operator this | (x:UInt): UInt = UInt(intVal | x.intVal);
+    public native operator this | (x:UInt): UInt; /*  = UInt(intVal | x.intVal); */
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UInt)|(UInt)
      */
-    // @Native("java", "((#this) | (#x))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_uint) ((#0) | (#1)))")
-    public operator (x:Int) | this: UInt = UInt(x | intVal);
+    public native operator (x:Int) | this: UInt; /*  = UInt(x | intVal); */
     /**
      * A bitwise or operator (unsigned disambiguation).
      * @see #operator(UInt)|(UInt)
      */
-    // @Native("java", "((#this) | (#x))")
+    @Native("java", "((#this) | (#x))")
     @Native("c++",  "((x10_uint) ((#0) | (#1)))")
-    public operator this | (x:Int): UInt = UInt(intVal | x);
+    public native operator this | (x:Int): UInt; /*  = UInt(intVal | x); */
 
     /**
      * A bitwise xor operator.
@@ -219,23 +220,23 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the other UInt
      * @return the bitwise XOR of this UInt and the other UInt.
      */
-    // @Native("java", "((#this) ^ (#x))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_uint) ((#0) ^ (#1)))")
-    public operator this ^ (x:UInt): UInt = UInt(intVal ^ x.intVal);
+    public native operator this ^ (x:UInt): UInt; /*  = UInt(intVal ^ x.intVal); */
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UInt)^(UInt)
      */
-    // @Native("java", "((#this) ^ (#x))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_uint) ((#0) ^ (#1)))")
-    public operator (x:Int) ^ this: UInt = UInt(x ^ intVal);
+    public native operator (x:Int) ^ this: UInt; /*  = UInt(x ^ intVal); */
     /**
      * A bitwise xor operator (unsigned disambiguation).
      * @see #operator(UInt)^(UInt)
      */
-    // @Native("java", "((#this) ^ (#x))")
+    @Native("java", "((#this) ^ (#x))")
     @Native("c++",  "((x10_uint) ((#0) ^ (#1)))")
-    public operator this ^ (x:Int): UInt = UInt(intVal ^ x);
+    public native operator this ^ (x:Int): UInt; /*  = UInt(intVal ^ x); */
 
     /**
      * A bitwise left shift operator.
@@ -244,9 +245,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param count the shift count
      * @return this UInt shifted left by count.
      */
-    // @Native("java", "((#this) << (#count))")  // no mask. Java defines shift as masked.
+    @Native("java", "((#this) << (#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_uint) ((#0) << (0x1f & (#1))))")
-    public operator this << (count:Int): UInt = UInt(intVal << count);
+    public native operator this << (count:Int): UInt; /*  = UInt(intVal << count); */
 
     /**
      * A bitwise right shift operator.
@@ -256,9 +257,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param count the shift count
      * @return this UInt shifted right by count.
      */
-    // @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
+    @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_uint) ((#0) >> (0x1f & (#1))))")
-    public operator this >> (count:Int): UInt = UInt(intVal >>> count);
+    public native operator this >> (count:Int): UInt; /*  = UInt(intVal >>> count); */
 
     /**
      * A bitwise logical right shift operator (zero-fill).
@@ -269,18 +270,18 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param count the shift count
      * @return this UInt shifted right by count with high bits zero-filled.
      */
-    // @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
+    @Native("java", "((#this) >>> (#count))")  // no mask. Java defines shift as masked.
     @Native("c++",  "((x10_uint) ((#0) >> (0x1f & (#1))))")
-    public operator this >>> (count:Int): UInt = UInt(intVal >>> count);
+    public native operator this >>> (count:Int): UInt; /*  = UInt(intVal >>> count); */
 
     /**
      * A bitwise complement operator.
      * Computes a bitwise complement (NOT) of the operand.
      * @return the bitwise complement of this UInt.
      */
-    // @Native("java", "((int) ~(#this))")
+    @Native("java", "((int) ~(#this))")
     @Native("c++",  "((x10_uint) ~(#0))")
-    public operator ~ this: UInt = UInt(~(intVal));
+    public native operator ~ this: UInt; /*  = UInt(~(intVal)); */
 
 
     /**
@@ -288,27 +289,30 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the given UByte
      * @return the given UByte converted to a UInt.
      */
-    // @Native("java", "((int) (((byte)(#x)) & 0xff))")
+    //@Native("java", "((int) (#x.byteVal & 0xff))")	// boxed
+    @Native("java", "((int) (((byte)(#x)) & 0xff))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:UByte): UInt = UInt(x.byteVal & 0xff);
+    public static native operator (x:UByte): UInt; /*  = UInt(x.byteVal & 0xff); */
 
     /**
      * Coerce a given UShort to a UInt.
      * @param x the given UShort
      * @return the given UShort converted to a UInt.
      */
-    // @Native("java", "((int) (((short)(#x)) & 0xffff))")
+    //@Native("java", "((int) (#x.shortVal & 0xffff))") // boxed
+    @Native("java", "((int) (((short)(#x)) & 0xffff))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:UShort): UInt = UInt(x.shortVal & 0xffff);
+    public static native operator (x:UShort): UInt; /*  = UInt(x.shortVal & 0xffff); */
 
     /**
      * Convert a given ULong to a UInt.
      * @param x the given ULong
      * @return the given ULong converted to a UInt.
      */
-    // @Native("java", "((int)(long)(#x))")
+    //@Native("java", "((int)#x.longVal)") // boxed
+    @Native("java", "((int)(long)(#x))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:ULong) as UInt = UInt(x.longVal as Int);
+    public static native operator (x:ULong) as UInt; /*  = UInt(x.longVal as Int); */
 
 
     /**
@@ -316,72 +320,72 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the given Byte
      * @return the given Byte converted to a UInt.
      */
-    // @Native("java", "((int)(byte)(#x))")
+    @Native("java", "((int)(byte)(#x))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:Byte): UInt = UInt(x);
+    public static native operator (x:Byte): UInt; /*  = UInt(x); */
 
     /**
      * Coerce a given Short to a UInt.
      * @param x the given Short
      * @return the given Short converted to a UInt.
      */
-    // @Native("java", "((int)(short)(#x))")
+    @Native("java", "((int)(short)(#x))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:Short): UInt = UInt(x);
+    public static native operator (x:Short): UInt; /*  = UInt(x); */
 
     /**
      * Convert a given Long to a UInt.
      * @param x the given Long
      * @return the given Long converted to a UInt.
      */
-    // @Native("java", "((int)(long)(#x))")
+    @Native("java", "((int)(long)(#x))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:Long) as UInt = UInt(x as Int);
+    public static native operator (x:Long) as UInt; /*  = UInt(x as Int); */
 
     /**
      * Convert a given Float to a UInt.
      * @param x the given Float
      * @return the given Float converted to a UInt.
      */
-    // @Native("java", "((int)(float)(#x))")
+    @Native("java", "((int)(float)(#x))")
     @Native("c++",  "x10aux::float_utils::toUInt(#1)")
-    public static operator (x:Float) as UInt = UInt(x as Int);
+    public static native operator (x:Float) as UInt; /*  = UInt(x as Int); */
 
     /**
      * Convert a given Double to a UInt.
      * @param x the given Double
      * @return the given Double converted to a UInt.
      */
-    // @Native("java", "((int)(double)(#x))")
+    @Native("java", "((int)(double)(#x))")
     @Native("c++",  "x10aux::double_utils::toUInt(#1)")
-    public static operator (x:Double) as UInt {
+    public static native operator (x:Double) as UInt; /*  {
         val temp : Long = x as Long;
         if (temp > 0xffffffff) return UInt(0xffffffff as Int);
         else if (temp < 0) return UInt(0);
         else return UInt(temp as Int);
-    }
+    } */
 
     /**
      * Coerce a given Int to a UInt.
      * @param x the given Int
      * @return the given Int converted to a UInt.
      */
-    // @Native("java", "((int)(int)(#x))")
+    @Native("java", "((int)(#x))")
     @Native("c++",  "((x10_uint) (#1))")
-    public static operator (x:Int) as UInt = UInt(x);
+    public static native operator (x:Int) as UInt; /*  = UInt(x); */
 
 
     /**
      * A constant holding the minimum value a UInt can have, 0.
      */
-    // @Native("java", "0")
+    @Native("java", "0")
     @Native("c++", "((x10_uint)0U)")
     public static MIN_VALUE: UInt{self==0U} = 0U;
 
     /**
      * A constant holding the maximum value a UInt can have, 2<sup>32</sup>-1.
      */
-    // @Native("java", "0xffffffff")
+    @Native("java", "0xffffffff")
     @Native("c++", "((x10_uint)0xffffffffU)")
     public static MAX_VALUE: UInt{self==0xffffffffU} = 0xffffffffU;
 
@@ -391,64 +395,64 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param radix the radix to use in the String representation
      * @return a String representation of this UInt in the specified radix.
      */
-    // @Native("java", "java.lang.Long.toString((#this) & 0xffffffffL, #radix)")
+    @Native("java", "java.lang.Long.toString((#this) & 0xffffffffL, #radix)")
     @Native("c++", "x10aux::int_utils::toString(#0, #1)")
-    public def toString(radix:Int): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString(radix);
+    public native def toString(radix:Int): String; /*  = ((this.intVal & 0xFFFFFFFFL) as Long).toString(radix); */
 
     /**
      * Returns a String representation of this UInt as a hexadecimal number.
      * @return a String representation of this UInt as a hexadecimal number.
      */
     // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
-    @Native("java", "java.lang.Integer.toHexString((#this).intVal)")
+    @Native("java", "java.lang.Integer.toHexString(#this)")
     @Native("c++", "x10aux::int_utils::toHexString(#0)")
-    public def toHexString(): String = this.intVal.toHexString();
+    public native def toHexString(): String; /*  = this.intVal.toHexString(); */
 
     /**
      * Returns a String representation of this UInt as an octal number.
      * @return a String representation of this UInt as an octal number.
      */
     // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
-    @Native("java", "java.lang.Integer.toOctalString((#this).intVal)")
+    @Native("java", "java.lang.Integer.toOctalString(#this)")
     @Native("c++", "x10aux::int_utils::toOctalString(#0)")
-    public def toOctalString(): String = this.intVal.toOctalString();
+    public native def toOctalString(): String; /*  = this.intVal.toOctalString(); */
 
     /**
      * Returns a String representation of this UInt as a binary number.
      * @return a String representation of this UInt as a binary number.
      */
     // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
-    @Native("java", "java.lang.Integer.toBinaryString((#this).intVal)")
+    @Native("java", "java.lang.Integer.toBinaryString(#this)")
     @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
-    public def toBinaryString(): String = this.intVal.toBinaryString();
+    public native def toBinaryString(): String; /*  = this.intVal.toBinaryString(); */
 
     /**
      * Returns a String representation of this UInt as a decimal number.
      * @return a String representation of this UInt as a decimal number.
      */
-    // @Native("java", "java.lang.Long.toString((#this) & 0xffffffffL)")
+    @Native("java", "java.lang.Long.toString((#this) & 0xffffffffL)")
     @Native("c++", "x10aux::to_string(#0)")
-    public def toString(): String = ((this.intVal & 0xFFFFFFFFL) as Long).toString();
+    public native def toString(): String; /*  = ((this.intVal & 0xFFFFFFFFL) as Long).toString(); */
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    // @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
+    @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
     @Native("c++", "(x10aux::int_utils::parseUInt(#1, #2))")
-    public static def parseUInt(s:String, radix:Int): UInt //throwsNumberFormatException 
+    public static native def parseUInt(s:String, radix:Int): UInt; /*  //throwsNumberFormatException 
     {
         return parse(s, radix);
-    }
+    } */
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    // @Native("java", "java.lang.Integer.parseInt(#s)")
+    @Native("java", "java.lang.Integer.parseInt(#s)")
     @Native("c++", "(x10aux::int_utils::parseUInt(#1))")
-    public static def parseUInt(s:String): UInt //throwsNumberFormatException 
+    public static native def parseUInt(s:String): UInt; /*  //throwsNumberFormatException 
     {
         return parse(s);
-    }
+    } */
 
     /**
      * Parses the String argument as a UInt in the radix specified by the second argument.
@@ -457,16 +461,16 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the UInt represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable UInt.
      */
-    // @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
+    @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
     @Native("c++", "(x10aux::int_utils::parseUInt(#1, #2))")
-    public static def parse(s:String, radix:Int): UInt //throwsNumberFormatException 
+    public static native def parse(s:String, radix:Int): UInt; /*  //throwsNumberFormatException 
     {
     	val l = Long.parse(s, radix);
     	if (l < 0 || l > 0xffffffffL) {
     		throw new NumberFormatException("Value out of range. Value:\"" + s + "\" Radix:" + radix);
     	}
     	return l as UInt;
-    }
+    } */
 
     /**
      * Parses the String argument as a decimal UInt.
@@ -474,12 +478,12 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the UInt represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable UInt.
      */
-    // @Native("java", "java.lang.Integer.parseInt(#s)")
+    @Native("java", "java.lang.Integer.parseInt(#s)")
     @Native("c++", "(x10aux::int_utils::parseUInt(#1))")
-    public static def parse(s:String): UInt //throwsNumberFormatException 
+    public static native def parse(s:String): UInt; /*  //throwsNumberFormatException 
     {
         return parse(s, 10);
-    }
+    } */
 
 
     /**
@@ -489,9 +493,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * binary representation, that is, if it is equal to zero.
      * @return a UInt value with a single one-bit, in the position of the highest-order one-bit in this UInt, or zero if this UInt is itself equal to zero.
      */
-    // @Native("java", "java.lang.Integer.highestOneBit(#this)")
+    @Native("java", "java.lang.Integer.highestOneBit(#this)")
     @Native("c++", "((x10_uint) x10aux::int_utils::highestOneBit(#0))")
-    public def highestOneBit(): UInt = UInt(this.intVal.highestOneBit());
+    public native def highestOneBit(): UInt; /*  = UInt(this.intVal.highestOneBit()); */
 
     /**
      * Returns a UInt value with at most a single one-bit, in the position
@@ -500,9 +504,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * binary representation, that is, if it is equal to zero.
      * @return a UInt value with a single one-bit, in the position of the lowest-order one-bit in this UInt, or zero if this UInt is itself equal to zero.
      */
-    // @Native("java", "java.lang.Integer.lowestOneBit(#this)")
+    @Native("java", "java.lang.Integer.lowestOneBit(#this)")
     @Native("c++", "((x10_uint) x10aux::int_utils::lowestOneBit(#0))")
-    public def lowestOneBit(): UInt = UInt(this.intVal.lowestOneBit());
+    public native def lowestOneBit(): UInt; /*  = UInt(this.intVal.lowestOneBit()); */
 
     /**
      * Returns the number of zero bits preceding the highest-order ("leftmost")
@@ -511,9 +515,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * in other words if it is equal to zero.
      * @return the number of zero bits preceding the highest-order one-bit in the binary representation of this UInt, or 32 if this UInt is equal to zero.
      */
-    // @Native("java", "java.lang.Integer.numberOfLeadingZeros(#this)")
+    @Native("java", "java.lang.Integer.numberOfLeadingZeros(#this)")
     @Native("c++", "x10aux::int_utils::numberOfLeadingZeros(#0)")
-    public def numberOfLeadingZeros(): Int = this.intVal.numberOfLeadingZeros();
+    public native def numberOfLeadingZeros(): Int; /*  = this.intVal.numberOfLeadingZeros(); */
 
     /**
      * Returns the number of zero bits following the lowest-order ("rightmost")
@@ -522,9 +526,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * in other words if it is equal to zero.
      * @return the number of zero bits following the lowest-order one-bit in the binary representation of this UInt, or 32 if this UInt is equal to zero.
      */
-    // @Native("java", "java.lang.Integer.numberOfTrailingZeros(#this)")
+    @Native("java", "java.lang.Integer.numberOfTrailingZeros(#this)")
     @Native("c++", "x10aux::int_utils::numberOfTrailingZeros(#0)")
-    public def numberOfTrailingZeros(): Int = this.intVal.numberOfTrailingZeros();
+    public native def numberOfTrailingZeros(): Int; /*  = this.intVal.numberOfTrailingZeros(); */
 
     /**
      * Returns the number of one-bits in the binary representation
@@ -532,9 +536,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * to as the <i>population count</i>.
      * @return the number of one-bits in the binary representation of this UInt.
      */
-    // @Native("java", "java.lang.Integer.bitCount(#this)")
+    @Native("java", "java.lang.Integer.bitCount(#this)")
     @Native("c++", "x10aux::int_utils::bitCount(#0)")
-    public def bitCount(): Int = this.intVal.bitCount();
+    public native def bitCount(): Int; /*  = this.intVal.bitCount(); */
 
     /**
      * Returns the value obtained by rotating the binary representation
@@ -552,9 +556,9 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the value obtained by rotating the binary representation of this UInt left by the specified number of bits.
      * @see #rotateRight(Int)
      */
-    // @Native("java", "java.lang.Integer.rotateLeft(#this, #distance)")
+    @Native("java", "java.lang.Integer.rotateLeft(#this, #distance)")
     @Native("c++", "x10aux::int_utils::rotateLeft(#0, #1)")
-    public def rotateLeft(distance:Int): UInt = UInt(this.intVal.rotateLeft(distance));
+    public native def rotateLeft(distance:Int): UInt; /*  = UInt(this.intVal.rotateLeft(distance)); */
 
     /**
      * Returns the value obtained by rotating the binary representation
@@ -572,36 +576,36 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @return the value obtained by rotating the binary representation of this UInt right by the specified number of bits.
      * @see #rotateLeft(Int)
      */
-    // @Native("java", "java.lang.Integer.rotateRight(#this, #distance)")
+    @Native("java", "java.lang.Integer.rotateRight(#this, #distance)")
     @Native("c++", "x10aux::int_utils::rotateRight(#0, #1)")
-    public def rotateRight(distance:Int): UInt = UInt(this.intVal.rotateRight(distance));
+    public native def rotateRight(distance:Int): UInt; /*  = UInt(this.intVal.rotateRight(distance)); */
 
     /**
      * Returns the value obtained by reversing the order of the bits in the
      * binary representation of this UInt.
      * @return the value obtained by reversing order of the bits in this UInt.
      */
-    // @Native("java", "java.lang.Integer.reverse(#this)")
+    @Native("java", "java.lang.Integer.reverse(#this)")
     @Native("c++", "x10aux::int_utils::reverse(#0)")
-    public def reverse(): UInt = UInt(this.intVal.reverse());
+    public native def reverse(): UInt; /*  = UInt(this.intVal.reverse()); */
 
     /**
      * Returns the signum function of this UInt.  The return value is 0 if
      * this UInt is zero and 1 if this UInt is non-zero.
      * @return the signum function of this UInt.
      */
-    // @Native("java", "(((#this)==0) ? 0 : 1)")
+    @Native("java", "(((#this)==0) ? 0 : 1)")
     @Native("c++",  "(((#0)==0U) ? 0 : 1)")
-    public def signum(): Int = (this.intVal == 0) ? 0 : 1;
+    public native def signum(): Int; /*  = (this.intVal == 0) ? 0 : 1; */
 
     /**
      * Returns the value obtained by reversing the order of the bytes in the
      * representation of this UInt.
      * @return the value obtained by reversing the bytes in this UInt.
      */
-    // @Native("java", "java.lang.Integer.reverseBytes(#this)")
+    @Native("java", "java.lang.Integer.reverseBytes(#this)")
     @Native("c++", "((x10_uint) x10aux::int_utils::reverseBytes((x10_int) #0))")
-    public def reverseBytes(): UInt = UInt(this.intVal.reverseBytes());
+    public native def reverseBytes(): UInt; /*  = UInt(this.intVal.reverseBytes()); */
 
 
     /**
@@ -610,18 +614,18 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
      * @param x the given entity
      * @return true if this UInt is equal to the given entity.
      */
-    // @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:Any):Boolean = x instanceof UInt && (x as UInt).intVal == this.intVal;
+    public native def equals(x:Any):Boolean;
 
     /**
      * Returns true if this UInt is equal to the given UInt.
      * @param x the given UInt
      * @return true if this UInt is equal to the given UInt.
      */
-    // @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
+    @Native("java", "x10.rtt.Equality.equalsequals(#this, #x)")
     @Native("c++", "x10aux::equals(#0,#1)")
-    public def equals(x:UInt):Boolean = this.intVal == x.intVal;
+    public native def equals(x:UInt):Boolean;
 
     /**
     * Returns a negative Int, zero, or a positive Int if this UInt is less than, equal
@@ -630,7 +634,11 @@ public struct UInt implements Comparable[UInt] /*TODO implements Arithmetic[UInt
     * @return a negative Int, zero, or a positive Int if this UInt is less than, equal
     * to, or greater than the given UInt.
     */
-    // @Native("java", "x10.rtt.Equality.compareTo(#this.intVal + java.lang.Integer.MIN_VALUE, #x.intVal + java.lang.Integer.MIN_VALUE)")
+    @Native("java", "x10.rtt.Equality.compareTo(#this + java.lang.Integer.MIN_VALUE, #x + java.lang.Integer.MIN_VALUE)")
     @Native("c++", "x10aux::int_utils::compareTo(#0, #1)")
-    public def compareTo(x:UInt): Int = (this.intVal + Int.MIN_VALUE).compareTo(x.intVal + Int.MIN_VALUE);
+    public native def compareTo(x:UInt): Int; /*  = (this.intVal + Int.MIN_VALUE).compareTo(x.intVal + Int.MIN_VALUE); */
+    
+    @Native("java", "x10.rtt.Types.UINT.typeName()")
+    @Native("c++", "x10aux::type_name(#this)")
+    public native def typeName():String; /*  = "x10.lang.UInt"; */
 }

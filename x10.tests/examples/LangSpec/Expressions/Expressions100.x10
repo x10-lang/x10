@@ -26,10 +26,10 @@ public class Expressions100 extends x10Test {
     }
 
 
-// file Expressions line 657
+// file Expressions line 665
 
  static class Expressions13TestExp{
-  def check()  = "one " + 2 + here;  }
+  def check()  = "one " + 2 + true;  }
 
  static class Hook {
    def run():Boolean = true;

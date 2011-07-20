@@ -22,7 +22,7 @@ import harness.x10Test;
 public class TypedefOverloading10_MustFailCompile extends TypedefTest {
 
     static interface A {}
-    static type A = String;
+    static type A = String; // ERR
 
     public def run(): boolean = {
         return result;

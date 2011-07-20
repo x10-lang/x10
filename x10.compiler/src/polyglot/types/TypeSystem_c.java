@@ -406,14 +406,6 @@ public class TypeSystem_c implements TypeSystem
     {
         assert_(container);
         assert_(argTypes);
-
-        Type t = (Type) Types.get(returnType);
-        assert t != null : "Cannot set return type of constructor to " + t;
-        if (t==null)
-            throw new InternalCompilerError("Cannot set return type of constructor to " + t);
-        //t = (X10ClassType) t.setFlags(X10Flags.ROOTED);
-        ((Ref<Type>)returnType).update(t);
-        //returnType = new Ref_c<X10ClassType>(t);
         return new X10ConstructorDef_c(this, pos, container, flags, returnType, argTypes, thisDef, formalNames, guard, typeGuard,  offerType);
     }
     
@@ -733,6 +725,10 @@ public class TypeSystem_c implements TypeSystem
         if (isChar(t))
             return false;
         return t.isLongOrLess() || t.isFloat() || t.isDouble() || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
+    }
+
+    public boolean isSignedNumeric(Type t) {
+        return  isByte(t) || isShort(t) || isInt(t) || isLong(t);
     }
 
     public boolean isUnsignedNumeric(Type t) {
@@ -1069,9 +1065,8 @@ public class TypeSystem_c implements TypeSystem
 		return container;
 	}
 
-	public static String ConstructorName= "this";
 	public Name name() {
-	    return Name.make("this");
+	    return Name.make(CONSTRUCTOR_NAME);
 	}
 
 	public String signature() {
@@ -1319,7 +1314,7 @@ public class TypeSystem_c implements TypeSystem
         }
 
         public String signature() {
-            return container.fullName() + "." + name;
+            return container/*.fullName()*/ + "." + name;
         }
 
         public Object key() {
@@ -1377,7 +1372,8 @@ public class TypeSystem_c implements TypeSystem
 		}
 	    }
 
-	    throw new Errors.MultipleMethodDefsMatch(maximal, matcher.toString(), Position.COMPILER_GENERATED);
+	    throw Errors.MultipleMethodDefsMatch.make(maximal, matcher.toString(),
+	                                              Position.COMPILER_GENERATED);
 	}
 
 	MethodInstance mi = maximal.iterator().next();
@@ -1436,11 +1432,11 @@ public class TypeSystem_c implements TypeSystem
 	while (i.hasNext()) {
 	    T p = i.next();
 
-	    if (msc.compare(first, p) == 0) {
-		maximal.add(p);
+	    if (msc.compare(first, p) == X10MostSpecificComparator.NEITHER_MORE_SPECIFIC) {
+	        maximal.add(p);
 	    }
-	    if (msc.compare(p,first) == -1) {
-	    	maximal.add(p);
+	    if (msc.compare(p,first) == X10MostSpecificComparator.FIRST_MOST_SPECIFIC) {
+	        maximal.add(p);
 	    }
 	}
 
@@ -1553,12 +1549,16 @@ public class TypeSystem_c implements TypeSystem
             this.container=container;
         }
 
+        public static int FIRST_MOST_SPECIFIC=-1;
+        public static int SECOND_MOST_SPECIFIC=1;
+        public static int NEITHER_MORE_SPECIFIC=0;
+        
         public int compare(T p1, T p2) {
             if (p1.moreSpecific(container, p2, context))
-            return -1;
+            return FIRST_MOST_SPECIFIC;
             if (p2.moreSpecific(container, p1, context))
-            return 1;
-            return 0;
+            return SECOND_MOST_SPECIFIC;
+            return NEITHER_MORE_SPECIFIC;
         }
 
         public Type container() {
@@ -2169,8 +2169,8 @@ public class TypeSystem_c implements TypeSystem
     protected NullType createNull() {
         return new NullType(this);
     }
-    protected X10ClassType Boolean_;
 
+    protected X10ClassType Boolean_;
     public X10ClassType Boolean() {
         if (Boolean_ == null)
             Boolean_ = load("x10.lang.Boolean");
@@ -2178,7 +2178,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType Byte_;
-
     public X10ClassType Byte() {
         if (Byte_ == null)
             Byte_ = load("x10.lang.Byte");
@@ -2186,7 +2185,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType Short_;
-
     public X10ClassType Short() {
         if (Short_ == null)
             Short_ = load("x10.lang.Short");
@@ -2194,7 +2192,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType Char_;
-
     public X10ClassType Char() {
         if (Char_ == null)
             Char_ = load("x10.lang.Char");
@@ -2202,7 +2199,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType Int_;
-
     public X10ClassType Int() {
         if (Int_ == null)
             Int_ = load("x10.lang.Int");
@@ -2210,7 +2206,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType Long_;
-
     public X10ClassType Long() {
         if (Long_ == null)
             Long_ = load("x10.lang.Long");
@@ -2218,7 +2213,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType Float_;
-
     public X10ClassType Float() {
         if (Float_ == null)
             Float_ = load("x10.lang.Float");
@@ -2226,7 +2220,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType Double_;
-
     public X10ClassType Double() {
         if (Double_ == null)
             Double_ = load("x10.lang.Double");
@@ -2235,7 +2228,6 @@ public class TypeSystem_c implements TypeSystem
 
     // Unsigned integers
     protected X10ClassType UByte_;
-
     public X10ClassType UByte() {
         if (UByte_ == null)
             UByte_ = load("x10.lang.UByte");
@@ -2243,7 +2235,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType UShort_;
-
     public X10ClassType UShort() {
         if (UShort_ == null)
             UShort_ = load("x10.lang.UShort");
@@ -2251,7 +2242,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType UInt_;
-
     public X10ClassType UInt() {
         if (UInt_ == null)
             UInt_ = load("x10.lang.UInt");
@@ -2259,7 +2249,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType ULong_;
-
     public X10ClassType ULong() {
         if (ULong_ == null)
             ULong_ = load("x10.lang.ULong");
@@ -2268,7 +2257,6 @@ public class TypeSystem_c implements TypeSystem
 
     // Atomic
     protected X10ClassType AtomicBoolean_;
-
     public X10ClassType AtomicBoolean() {
         if (AtomicBoolean_ == null)
             AtomicBoolean_ = load("x10.util.concurrent.AtomicBoolean");
@@ -2276,19 +2264,18 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType AtomicInteger_;
-
     public X10ClassType AtomicInteger() {
         if (AtomicInteger_ == null)
             AtomicInteger_ = load("x10.util.concurrent.AtomicInteger");
         return AtomicInteger_;
     }
 
-    // protected X10ClassType XOBJECT_;
-    // public X10ClassType X10Object() {
-    // if (XOBJECT_ == null)
-    // XOBJECT_ = load("x10.lang.Object");
-    // return XOBJECT_;
-    // }
+    protected X10ClassType IndexedMemoryChunk_;
+    public X10ClassType IndexedMemoryChunk() {
+        if (IndexedMemoryChunk_ == null)
+            IndexedMemoryChunk_ = load("x10.util.IndexedMemoryChunk");
+        return IndexedMemoryChunk_;
+    }
 
     protected X10ClassType GLOBAL_REF_;
     public X10ClassType GlobalRef() {
@@ -2325,6 +2312,7 @@ public class TypeSystem_c implements TypeSystem
         });
         return ANY;
     }
+
     public X10ClassType String() {
         if (STRING_ != null)
             return (X10ClassType) STRING_;
@@ -2378,7 +2366,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType comparableType_;
-
     public X10ClassType Comparable() {
         if (comparableType_ == null)
             comparableType_ = load("x10.lang.Comparable"); // java file
@@ -2386,7 +2373,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType iterableType_;
-
     public X10ClassType Iterable() {
         if (iterableType_ == null)
             iterableType_ = load("x10.lang.Iterable"); // java file
@@ -2394,7 +2380,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType customSerializationType_;
-
     public X10ClassType CustomSerialization() {
         if (customSerializationType_ == null)
             customSerializationType_ = load("x10.io.CustomSerialization"); // java file
@@ -2402,7 +2387,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType serialDataType_;
-
     public X10ClassType SerialData() {
         if (serialDataType_ == null)
             serialDataType_ = load("x10.io.SerialData"); // java file
@@ -2410,7 +2394,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType reducibleType_;
-
     public X10ClassType Reducible() {
         if (reducibleType_ == null)
             reducibleType_ = load("x10.lang.Reducible"); // java file
@@ -2423,12 +2406,28 @@ public class TypeSystem_c implements TypeSystem
             nativeRepType_ = load("x10.compiler.NativeRep");
         return nativeRepType_;
     }
+
     protected X10ClassType nativeType_;
     public X10ClassType NativeType() {
         if (nativeType_ == null)
             nativeType_ = load("x10.compiler.Native");
         return nativeType_;
     }
+
+    protected X10ClassType nativeClassType_;
+    public X10ClassType NativeClass() {
+        if (nativeClassType_ == null)
+            nativeClassType_ = load("x10.compiler.NativeClass");
+        return nativeClassType_;
+    }
+
+    protected X10ClassType compileTimeConstantType_;
+    public X10ClassType CompileTimeConstant() {
+        if (compileTimeConstantType_ == null)
+            compileTimeConstantType_ = load("x10.compiler.CompileTimeConstant");
+        return compileTimeConstantType_;
+    }
+
     public X10ClassType Iterable(Type index) {
         return Types.instantiate(Iterable(), index);
     }
@@ -2439,7 +2438,6 @@ public class TypeSystem_c implements TypeSystem
 
 
     protected X10ClassType iteratorType_;
-
     public X10ClassType Iterator() {
         if (iteratorType_ == null)
             iteratorType_ = load("x10.lang.Iterator"); // java file
@@ -2447,7 +2445,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType containsType_;
-
     public X10ClassType Contains() {
         if (containsType_ == null)
             containsType_ = load("x10.lang.Contains"); // java file
@@ -2455,7 +2452,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType settableType_;
-
     public X10ClassType Settable() {
         if (settableType_ == null)
             settableType_ = load("x10.lang.Settable"); // java file
@@ -2463,7 +2459,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType containsAllType_;
-
     public X10ClassType ContainsAll() {
         if (containsAllType_ == null)
             containsAllType_ = load("x10.lang.ContainsAll"); // java file
@@ -2471,7 +2466,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType placeType_;
-
     public X10ClassType Place() {
         if (placeType_ == null)
             placeType_ = load("x10.lang.Place"); // java file
@@ -2479,7 +2473,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType regionType_;
-
     public X10ClassType Region() {
         if (regionType_ == null)
             regionType_ = load("x10.array.Region"); // java file
@@ -2487,7 +2480,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType pointType_;
-
     public X10ClassType Point() {
         if (pointType_ == null)
             pointType_ = load("x10.array.Point");
@@ -2495,7 +2487,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType distributionType_;
-
     public X10ClassType Dist() {
         if (distributionType_ == null)
             distributionType_ = load("x10.array.Dist"); // java file
@@ -2503,7 +2494,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType clockType_;
-
     public X10ClassType Clock() {
         if (clockType_ == null)
             clockType_ = load("x10.lang.Clock"); // java file
@@ -2511,7 +2501,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType finishStateType_;
-
     public X10ClassType FinishState() {
         if (finishStateType_ == null)
             finishStateType_ = load("x10.lang.FinishState"); // java file
@@ -2519,7 +2508,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType runtimeType_;
-
     public X10ClassType Runtime() {
         if (runtimeType_ == null)
             runtimeType_ = load("x10.lang.Runtime"); // java file
@@ -2527,7 +2515,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType embedType_;
-
     public X10ClassType Embed() {
         if (embedType_ == null)
             embedType_ = load("x10.compiler.Embed");
@@ -2535,7 +2522,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType arrayType_ = null;
-
     public X10ClassType Array() {
         if (arrayType_ == null)
             arrayType_ = load("x10.array.Array");
@@ -2543,7 +2529,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType remoteArrayType_ = null;
-
     public X10ClassType RemoteArray() {
         if (remoteArrayType_ == null)
             remoteArrayType_ = load("x10.array.RemoteArray");
@@ -2551,7 +2536,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType distArrayType_ = null;
-
     public X10ClassType DistArray() {
         if (distArrayType_ == null)
             distArrayType_ = load("x10.array.DistArray");
@@ -2575,7 +2559,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType mortalType_ = null;
-
     public X10ClassType Mortal() {
         if (mortalType_ == null)
             mortalType_ = load("x10.lang.Runtime.Mortal");
@@ -2583,7 +2566,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType frameType_;
-
     public X10ClassType Frame() {
         if (frameType_ == null)
             frameType_ = load("x10.compiler.ws.Frame");
@@ -2591,7 +2573,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType finishFrameType_;
-
     public X10ClassType FinishFrame() {
         if (finishFrameType_ == null)
             finishFrameType_ = load("x10.compiler.ws.FinishFrame");
@@ -2599,7 +2580,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType asyncFrameType_;
-
     public X10ClassType AsyncFrame() {
         if (asyncFrameType_ == null)
             asyncFrameType_ = load("x10.compiler.ws.AsyncFrame");
@@ -2607,7 +2587,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType collectingFinishType_;
-
     public X10ClassType CollectingFinish() {
         if (collectingFinishType_ == null)
             collectingFinishType_ = load("x10.compiler.ws.CollectingFinish");
@@ -2615,7 +2594,6 @@ public class TypeSystem_c implements TypeSystem
     }
     
     protected X10ClassType throwFrameType_;
-
     public X10ClassType ThrowFrame() {
         if (throwFrameType_ == null)
             throwFrameType_ = load("x10.compiler.ws.ThrowFrame");
@@ -2623,7 +2601,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType tryFrameType_;
-
     public X10ClassType TryFrame() {
         if (tryFrameType_ == null)
             tryFrameType_ = load("x10.compiler.ws.TryFrame");
@@ -2631,7 +2608,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType atFrameType_;
-
     public X10ClassType AtFrame() {
         if (atFrameType_ == null)
             atFrameType_ = load("x10.compiler.ws.AtFrame");
@@ -2639,7 +2615,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType regularFrameType_;
-
     public X10ClassType RegularFrame() {
         if (regularFrameType_ == null)
             regularFrameType_ = load("x10.compiler.ws.RegularFrame");
@@ -2647,7 +2622,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType mainFrameType_;
-
     public X10ClassType MainFrame() {
         if (mainFrameType_ == null)
             mainFrameType_ = load("x10.compiler.ws.MainFrame");
@@ -2655,7 +2629,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType workerType_;
-
     public X10ClassType Worker() {
         if (workerType_ == null)
             workerType_ = load("x10.compiler.ws.Worker");
@@ -2663,7 +2636,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType remoteFinishType_;
-
     public X10ClassType RemoteFinish() {
         if (remoteFinishType_ == null)
             remoteFinishType_ = load("x10.compiler.ws.RemoteFinish");
@@ -2671,7 +2643,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType rootFinishType_;
-
     public X10ClassType RootFinish() {
         if (rootFinishType_ == null)
             rootFinishType_ = load("x10.compiler.ws.RootFinish");
@@ -2679,7 +2650,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType abortType_;
-
     public X10ClassType Abort() {
         if (abortType_ == null)
             abortType_ = load("x10.compiler.Abort");
@@ -2687,7 +2657,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType stackAllocateType_;
-
     public X10ClassType StackAllocate() {
         if (stackAllocateType_ == null)
             stackAllocateType_ = load("x10.compiler.StackAllocate");
@@ -2695,15 +2664,27 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType inlineOnlyType_;
-
     public X10ClassType InlineOnly() {
         if (inlineOnlyType_ == null)
             inlineOnlyType_ = load("x10.compiler.InlineOnly");
         return inlineOnlyType_;
     }
 
+    protected X10ClassType inlineType_;
+    public X10ClassType Inline() {
+        if (inlineType_ == null)
+            inlineType_ = load("x10.compiler.Inline");
+        return inlineType_;
+    }
+    
+    protected X10ClassType noInlineType_;
+    public X10ClassType NoInline() {
+        if (noInlineType_ == null)
+            noInlineType_ = load("x10.compiler.NoInline");
+        return noInlineType_;
+    }
+    
     protected X10ClassType headerType_;
-
     public X10ClassType Header() {
         if (headerType_ == null)
             headerType_ = load("x10.compiler.Header");
@@ -2711,7 +2692,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType ephemeralType_;
-
     public X10ClassType Ephemeral() {
         if (ephemeralType_ == null)
             ephemeralType_ = load("x10.compiler.Ephemeral");
@@ -2719,7 +2699,6 @@ public class TypeSystem_c implements TypeSystem
     }
 
     protected X10ClassType uninitializedType_;
-
     public X10ClassType Uninitialized() {
         if (uninitializedType_ == null)
             uninitializedType_ = load("x10.compiler.Uninitialized");
@@ -3037,9 +3016,14 @@ public class TypeSystem_c implements TypeSystem
         return new ThisInstance_c(this, pos, def);
     }
 
-    public ThisDef thisDef(Position pos, Ref<? extends ClassType> type) {
-        assert_(type);
-        return new ThisDef_c(this, pos, type);
+    public ThisDef thisDef(Position pos, Ref<? extends ClassType> baseType) {
+        assert_(baseType);
+        return new ThisDef_c(this, pos, null, baseType);
+    }
+    public ThisDef thisDef(Position pos, Ref<? extends ClassType> qType, 
+                           Ref<? extends ClassType> baseType) {
+        assert_(baseType);
+        return new ThisDef_c(this, pos, qType, baseType);
     }
     
     public InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def) {
@@ -3428,11 +3412,14 @@ public class TypeSystem_c implements TypeSystem
 					newFields.add(fi);
 				}
 
-
+				
 			}
 			fields = newFields;
 		}
 		if (fields.size() == 0) {
+		    if (matcher.name().toString().equals("rank")) {
+		        int q =1;
+		    }
 		    throw new NoMemberException(NoMemberException.FIELD,
 		                                "Field " + matcher.signature() +
 		                                " not found in type \"" +
@@ -3500,8 +3487,8 @@ public class TypeSystem_c implements TypeSystem
             return ts.typeEquals(Types.baseType(o), Types.baseType(p), context);
         }
     }
-    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar thisVar, Context context) {
-        XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames));
+    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar thisVar, XVar placeTerm, Context context) {
+        XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames), placeTerm);
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (MethodInstance mi : t.methodsNamed(name)) {
             List<XVar> ys = new ArrayList<XVar>(2);
@@ -3539,7 +3526,8 @@ public class TypeSystem_c implements TypeSystem
                 formalTypes.add(li.type());
             }
             try {
-                XVar[] yvars = Types.toVarArray(Types.toLocalDefList(mi.formalNames()));
+                XVar pt = Types.getPlaceTerm(mi);
+                XVar[] yvars = Types.toVarArray(Types.toLocalDefList(mi.formalNames()), pt);
                 formalTypes = Subst.subst(formalTypes, yvars, xvars);
             } catch (SemanticException e) {
                 throw new InternalCompilerError("Unexpected exception while translating a method instance", e);
@@ -3563,15 +3551,16 @@ public class TypeSystem_c implements TypeSystem
         final XVar[] y = ys.toArray(new XVar[ys.size()]);
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
-        
         mi = new X10TypeEnv_c(context).fixThis( mi, y, x);
+        XVar placeTerm = Types.getPlaceTerm(mi);
+
         context = context.pushBlock();
         CConstraint cc = context.currentConstraint();
         cc.addIn(thisVar, Types.realX(ct));
         context.setCurrentConstraint(cc);
         ContainerType curr = ct;
         while (curr != null) {
-            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context);
+            List<MethodInstance> possible = methods(curr, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, placeTerm, context);
             for (MethodInstance mj : possible) {
                 if ((includeAbstract || !mj.flags().isAbstract()) 
                         && ((isAccessible(mi, context) && isAccessible(mj, context)) 
@@ -3700,7 +3689,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit FALSE() {
         if (FALSE == null)
-            FALSE = XTypeTranslator.translate(false);
+            FALSE = XTypeTranslator.translate(false, this);
         return FALSE;
     }
 
@@ -3708,7 +3697,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit TRUE() {
         if (TRUE == null)
-            TRUE = XTypeTranslator.translate(true);
+            TRUE = XTypeTranslator.translate(true, this);
         return TRUE;
     }
 
@@ -3716,7 +3705,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit NEG_ONE() {
         if (NEG_ONE == null)
-            NEG_ONE = XTypeTranslator.translate(-1);
+            NEG_ONE = XTypeTranslator.translate(-1, this);
         return NEG_ONE;
     }
 
@@ -3724,7 +3713,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit ZERO() {
         if (ZERO == null)
-            ZERO = XTypeTranslator.translate(0);
+            ZERO = XTypeTranslator.translate(0, this);
         return ZERO;
     }
 
@@ -3732,7 +3721,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit ONE() {
         if (ONE == null)
-            ONE = XTypeTranslator.translate(1);
+            ONE = XTypeTranslator.translate(1, this);
         return ONE;
     }
 
@@ -3740,7 +3729,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit TWO() {
         if (TWO == null)
-            TWO = XTypeTranslator.translate(2);
+            TWO = XTypeTranslator.translate(2, this);
         return TWO;
     }
 
@@ -3748,7 +3737,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit THREE() {
         if (THREE == null)
-            THREE = XTypeTranslator.translate(3);
+            THREE = XTypeTranslator.translate(3, this);
         return THREE;
     }
 
@@ -3756,7 +3745,7 @@ public class TypeSystem_c implements TypeSystem
 
     public XLit NULL() {
         if (NULL == null)
-            NULL = XTypeTranslator.transNull();
+            NULL = XTypeTranslator.transNull(this);
         return NULL;
     }
    /* public boolean entails(final CConstraint c1, final CConstraint c2, final Context context, Type selfType) {

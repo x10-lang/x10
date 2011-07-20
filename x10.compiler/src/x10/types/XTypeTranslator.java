@@ -25,6 +25,7 @@ import polyglot.ast.Local;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Typed;
 import polyglot.ast.Unary;
 import polyglot.ast.Variable;
 import polyglot.ast.Binary.Operator;
@@ -62,15 +63,15 @@ import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
-import x10.constraint.XVar;
 import x10.constraint.XField;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
 import x10.types.checker.PlaceChecker;
-import x10.types.constraints.CConstraint;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CTerms;
+import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -114,18 +115,18 @@ public class XTypeTranslator {
      * @return null if the translation is not possible. Caller must always check.
      * FIX: Remove the need for the constraint to be passed into translate.
      * 
-     * If tolevel is true, then boolean connectives, && are permitted.
+     * If toplevel is true, then boolean connectives, && are permitted.
      */
     public XTerm translate(CConstraint c, Receiver term, Context xc)  throws IllegalConstraint {
     	return translate(c, term, xc, false);
     }
-   public XTerm translate(CConstraint c, Receiver term, Context xc, boolean tl)  throws IllegalConstraint {
+    public XTerm translate(CConstraint c, Receiver term, Context xc, boolean tl) throws IllegalConstraint {
         if (term == null)
             return null;
         if (term instanceof Lit)
             return translate((Lit) term);
         if (term instanceof Here)
-            return transHere();
+            return trans(c, (Here) term, xc, tl);
         if (term instanceof Variable)
             return trans(c, (Variable) term, xc, tl);
         if (term instanceof X10Special)
@@ -135,7 +136,7 @@ public class XTypeTranslator {
         if (term instanceof Expr) {
             Expr e = (Expr) term;
             if (e.isConstant())
-                return XTerms.makeLit(e.constantValue());
+                return CTerms.makeLit(ConstantValue.toJavaObject(e.constantValue()), e.type());
         }
         if (term instanceof X10Cast) {
             X10Cast cast = ((X10Cast) term);
@@ -196,7 +197,7 @@ public class XTypeTranslator {
                 Type container = Types.get(fi.def().container());
                 container = Types.baseType(container);
                 if (container instanceof X10ClassType) {
-                    target  = XTerms.makeLit(((X10ClassType) container).fullName());
+                    target = XTerms.makeLit(((X10ClassType) container).fullName());
                 }
                 else {
                     throw new Errors.CannotTranslateStaticField(container, fi.position());
@@ -335,7 +336,7 @@ public class XTypeTranslator {
       * @return
       */
     public XLit translate(Lit t) {
-        return XTerms.makeLit(t.constantValue());
+        return CTerms.makeLit(ConstantValue.toJavaObject(t.constantValue()), t.type());
     }
     
     /**
@@ -368,27 +369,30 @@ public class XTypeTranslator {
     /**
      * Translate into the literal t.
      * @param t
+     * @param ts TODO
      * @return
      */
-    public static XLit translate(int t) {
-        return XTerms.makeLit(t);
+    public static XLit translate(int t, TypeSystem ts) {
+        return CTerms.makeLit(t, ts.Int());
     }
 
     /**
      * Translate into the literal t.
      * @param t
+     * @param ts TODO
      * @return
      */
-    public static XLit translate(boolean t) {
-        return XTerms.makeLit(t);
+    public static XLit translate(boolean t, TypeSystem ts) {
+        return CTerms.makeLit(t, ts.Boolean());
     }
 
     /**
      * Return the XLit representing null.
+     * @param ts TODO
      * @return
      */
-    public static XLit transNull() {
-        return XTerms.makeLit(null);
+    public static XLit transNull(TypeSystem ts) {
+        return CTerms.makeLit(null, ts.Null());
     }
 
     /**
@@ -539,8 +543,12 @@ public class XTypeTranslator {
     
     // *********************************************************************************************
     // *********************************** private help routines for translation********************
-    private XTerm transHere() {
-        return PlaceChecker.here();
+    private XTerm trans(CConstraint c, Here h, Context xc, boolean tl) {
+        XConstrainedTerm placeTerm = xc.currentPlaceTerm();
+        //XConstrainedTerm placeTerm = h.placeTerm();
+        if (placeTerm == null) return XTerms.makeEQV();
+        return placeTerm.term();
+        //return PlaceChecker.here();
     }
     private XLocal trans(Local t) {
         return translate(t.localInstance());
@@ -749,7 +757,13 @@ public class XTypeTranslator {
         return null;
     }
 
-    private XTerm trans(CConstraint c, X10Special t, Context xc0, boolean tl) {
+    private XTerm trans(CConstraint c, X10Special term, Context xc, boolean tl) {
+        return trans(c, term, xc);
+    }
+    public XTerm trans(CConstraint c, X10Special t, Context xc0) {
+        if (true || xc0.specialAsQualifiedVar()) {
+            return translateSpecialAsQualified(c,t,xc0);
+        }
         Context xc = xc0;
         if (t.kind() == X10Special.SELF) {
             if (c == null) {
@@ -757,6 +771,12 @@ public class XTypeTranslator {
                 return null;
             }
             XVar v = (XVar) c.self().clone();
+         // Need to deal with qualified guy as well.
+            TypeNode tn = t.qualifier();
+            if (tn != null) {
+                Type q = Types.baseType(tn.type());
+                v = CTerms.makeQualifiedVar(q, v);
+            }
             return v;
         }
         else {
@@ -777,7 +797,6 @@ public class XTypeTranslator {
                     }
                 }
             }
-            // why is this code not in X10Context_c.thisVar()?
             XVar thisVar = null;
             for (Context outer = xc; outer != null && thisVar == null; outer = outer.pop()) {
                 thisVar = outer.thisVar();
@@ -786,10 +805,61 @@ public class XTypeTranslator {
                 SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
                 return null;
             }
-            // vj: Need to set the thisVar for the constraint.
             if (c != null)
                 c.setThisVar(thisVar);
             return thisVar;
+        }
+    }
+    public XTerm translateSpecialAsQualified(CConstraint c, X10Special t, Context xc0) {
+        Context xc = xc0;
+        if (t.kind() == X10Special.SELF) {
+            if (c == null) {
+                //throw new SemanticException("Cannot refer to self outside a dependent clause.");
+                return null;
+            }
+            XVar v = (XVar) c.self().clone();
+            // Need to deal with qualified guy as well.
+            TypeNode tn = t.qualifier();
+            if (tn != null) {
+                Type q = Types.baseType(tn.type());
+                v = CTerms.makeQualifiedVar(q, v);
+            }
+            return v;
+        }
+        // this. why are we doing nothing about super..?
+        XVar baseThisVar = null;
+        for (Context outer = xc; outer != null && baseThisVar == null; outer = outer.pop()) {
+            baseThisVar = outer.thisVar();
+        }
+        if (baseThisVar == null) {
+            SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
+            return null;
+        }
+        if (baseThisVar instanceof QualifiedVar) {
+            QualifiedVar qVar = (QualifiedVar) baseThisVar;
+            if (qVar.type() == ((Typed) qVar.receiver()).type())
+                baseThisVar = qVar.receiver();
+        }
+        assert (baseThisVar instanceof CThis);
+        XVar thisVar = baseThisVar;
+        try {
+            TypeNode tn = t.qualifier();
+            if (tn == null) {
+                return thisVar;
+            }
+            Type q = Types.baseType(tn.type());
+            // So we need to translate A.this in a deptype.
+            // The result should not be the this-associated-with-
+            // the-outer-A in the context.
+            // Rather it needs to be a QualifiedVar capturing
+            // A as a qualifier. 
+            // Return the qualified version of the base this.
+            thisVar = (((CThis)baseThisVar).type()==q)
+            ? baseThisVar : CTerms.makeQualifiedVar(q, baseThisVar);
+            return thisVar;
+        } finally {
+            if (c != null)
+                c.setThisVar(baseThisVar);
         }
     }
     private XTerm trans(CConstraint c, Field t, Context xc, boolean tl)  throws IllegalConstraint {

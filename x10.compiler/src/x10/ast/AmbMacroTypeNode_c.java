@@ -117,10 +117,6 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     public List<Expr> args() {
         return this.args;
     }
-    Flags flags;
-    public void addFlags(Flags f) {
-  	  this.flags = f;
-    }
     public AmbMacroTypeNode args(List<Expr> args) {
 	    AmbMacroTypeNode_c n = (AmbMacroTypeNode_c) copy();
 	    n.args = TypedList.copyAndCheck(args, Expr.class, true);
@@ -335,9 +331,18 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         return sb.toString();
     }
     
+    public Context enterChildScope(Node child, Context c) {
+        if (child != this.prefix) {
+            TypeSystem ts = c.typeSystem();
+            c = c.pushDepType(Types.<Type>ref(ts.unknownType(this.position)));
+        }
+        Context cc = super.enterChildScope(child, c);
+        return cc;
+    }
+    
     public Node typeCheckOverride(Node parent, ContextVisitor tc) {
-        TypeSystem ts =  tc.typeSystem();
-        NodeFactory nf = (NodeFactory) tc.nodeFactory();
+        TypeSystem ts = tc.typeSystem();
+        NodeFactory nf = tc.nodeFactory();
         
         AmbMacroTypeNode_c n = this;
         
@@ -380,7 +385,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         	IllegalConstraint error;
         	@Override
         	public Node override(Node n) {
-        		if (n instanceof Binary ) {
+        		if (n instanceof Binary) {
         			Binary b = (Binary) n;
         			Binary.Operator bop = b.operator();
         			if (b.type().isBoolean() && bop.equals(Binary.COND_AND) 
@@ -398,13 +403,27 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         		return null;
         	}
         }
-        CheckMacroCallArgsVisitor v = new CheckMacroCallArgsVisitor();
         for (Expr arg : args) {
-        	arg = (Expr) arg.visit(v);
-        	if (v.error !=null) {
-        		Errors.issue(tc.job(), v.error);
-        	}
+            CheckMacroCallArgsVisitor v = new CheckMacroCallArgsVisitor();
+            arg.visit(v);
+            if (v.error != null) {
+                Errors.issue(tc.job(), v.error, arg);
+            }
         }
+
+        for (Expr arg : args) {
+            VarChecker ac = (VarChecker) new VarChecker(childtc.job()).context(childtc.context());
+            try {
+                arg.visit(ac);
+            } catch (InternalCompilerError e) {
+                Errors.issue(childtc.job(),
+                        new Errors.GeneralError(e.getMessage(), e.position()), arg);
+            }
+            if (ac.error != null) {
+                Errors.issue(childtc.job(), ac.error, arg);
+            }
+        }
+
         try {
             tn = n.disambiguateBase(tc);
         }
@@ -482,19 +501,6 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     	result = (X10CanonicalTypeNode) ((X10Del) result.del()).annotations(((X10Del) n.del()).annotations());
     	result = (X10CanonicalTypeNode) ((X10Del) result.del()).setComment(((X10Del) n.del()).comment());
     	result = (X10CanonicalTypeNode) result.typeCheck(childtc);
-    	{
-    	    VarChecker ac = (VarChecker) new VarChecker(childtc.job()).context(childtc.context());
-    	    try {
-    	        result.visit(ac);
-    	    } catch (InternalCompilerError e) {
-    	        Errors.issue(childtc.job(),
-    	                new Errors.GeneralError(e.getMessage(), e.position()), result);
-    	    }
-    	    
-    	    if (ac.error != null) {
-    	        Errors.issue(childtc.job(), ac.error, result);
-    	    }
-    	}
     	return result;
     }
     

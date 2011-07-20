@@ -39,7 +39,7 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
     jint numElems = reader.readJInt();
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
-        fprintf(stderr, "OOM from NewArray (num elements = %d)\n", (int)numElems);
+        fprintf(stderr, "OOM from NewByteArray (num elements = %d)\n", (int)numElems);
         abort();
     }
 
@@ -79,7 +79,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
     env->GetByteArrayRegion(array, 0, arrayLen, (jbyte*)writer.cursor);
     // Byte array, so no need to endian swap
 
-    x10rt_msg_params msg = {place, runClosureAt_HandlerID, writer.buffer, numBytes};
+    x10rt_msg_params msg = {place, runClosureAt_HandlerID, writer.buffer, numBytes, 0};
     x10rt_send_msg(&msg);
 
     //fclose(fp);
@@ -108,7 +108,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
 JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_initialize(JNIEnv *env, jclass klazz) {
 
 #if DEBUG
-	printf("jni_message.cc: MessageHandlers_initializeMessageHandlers\n");
+	printf("jni_message.cc: MessageHandlers_initialize\n");
 #endif
 
     /* Get a hold of MessageHandlers.runClosureAtReceive and stash away its invoke information */

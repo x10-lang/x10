@@ -141,4 +141,8 @@ public class ContextVisitor extends ErrorHandlingVisitor
         this.addDecls(m);
         return m;
     }
+
+    public final Node leave(Node old, Node n, NodeVisitor v) {
+        throw new InternalCompilerError("ContextVisitor.leave(Node, Node, NodeVisitor) should not be called");
+    }
 }

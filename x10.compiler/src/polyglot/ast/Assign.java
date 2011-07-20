@@ -27,7 +27,16 @@ public interface Assign extends Expr
         BIT_XOR_ASSIGN ("^=", Binary.BIT_XOR),
         SHL_ASSIGN     ("<<=", Binary.SHL),
         SHR_ASSIGN     (">>=", Binary.SHR),
-        USHR_ASSIGN    (">>>=", Binary.USHR);
+        USHR_ASSIGN    (">>>=", Binary.USHR),
+        DOT_DOT_ASSIGN ("..=", Binary.DOT_DOT),
+        ARROW_ASSIGN   ("->=", Binary.ARROW),
+        LARROW_ASSIGN  ("<-=", Binary.LARROW),
+        FUNNEL_ASSIGN  ("-<=", Binary.FUNNEL),
+        LFUNNEL_ASSIGN (">-=", Binary.LFUNNEL),
+        DIAMOND_ASSIGN ("<>=", Binary.DIAMOND),
+        BOWTIE_ASSIGN  ("><=", Binary.BOWTIE),
+        STARSTAR_ASSIGN("**=", Binary.STARSTAR),
+        TWIDDLE_ASSIGN ("~=", Binary.TWIDDLE);
 
         private final Binary.Operator binOp;
         public final String name;
@@ -43,18 +52,27 @@ public interface Assign extends Expr
         }
     }
 
-    public static final Operator ASSIGN         = Operator.ASSIGN;
-    public static final Operator ADD_ASSIGN     = Operator.ADD_ASSIGN;
-    public static final Operator SUB_ASSIGN     = Operator.SUB_ASSIGN;
-    public static final Operator MUL_ASSIGN     = Operator.MUL_ASSIGN;
-    public static final Operator DIV_ASSIGN     = Operator.DIV_ASSIGN;
-    public static final Operator MOD_ASSIGN     = Operator.MOD_ASSIGN;
-    public static final Operator BIT_AND_ASSIGN = Operator.BIT_AND_ASSIGN;
-    public static final Operator BIT_OR_ASSIGN  = Operator.BIT_OR_ASSIGN;
-    public static final Operator BIT_XOR_ASSIGN = Operator.BIT_XOR_ASSIGN;
-    public static final Operator SHL_ASSIGN     = Operator.SHL_ASSIGN;
-    public static final Operator SHR_ASSIGN     = Operator.SHR_ASSIGN;
-    public static final Operator USHR_ASSIGN    = Operator.USHR_ASSIGN;
+    public static final Operator ASSIGN          = Operator.ASSIGN;
+    public static final Operator ADD_ASSIGN      = Operator.ADD_ASSIGN;
+    public static final Operator SUB_ASSIGN      = Operator.SUB_ASSIGN;
+    public static final Operator MUL_ASSIGN      = Operator.MUL_ASSIGN;
+    public static final Operator DIV_ASSIGN      = Operator.DIV_ASSIGN;
+    public static final Operator MOD_ASSIGN      = Operator.MOD_ASSIGN;
+    public static final Operator BIT_AND_ASSIGN  = Operator.BIT_AND_ASSIGN;
+    public static final Operator BIT_OR_ASSIGN   = Operator.BIT_OR_ASSIGN;
+    public static final Operator BIT_XOR_ASSIGN  = Operator.BIT_XOR_ASSIGN;
+    public static final Operator SHL_ASSIGN      = Operator.SHL_ASSIGN;
+    public static final Operator SHR_ASSIGN      = Operator.SHR_ASSIGN;
+    public static final Operator USHR_ASSIGN     = Operator.USHR_ASSIGN;
+    public static final Operator DOT_DOT_ASSIGN  = Operator.DOT_DOT_ASSIGN;
+    public static final Operator ARROW_ASSIGN    = Operator.ARROW_ASSIGN;
+    public static final Operator LARROW_ASSIGN   = Operator.LARROW_ASSIGN;
+    public static final Operator FUNNEL_ASSIGN   = Operator.FUNNEL_ASSIGN;
+    public static final Operator LFUNNEL_ASSIGN  = Operator.LFUNNEL_ASSIGN;
+    public static final Operator DIAMOND_ASSIGN  = Operator.DIAMOND_ASSIGN;
+    public static final Operator BOWTIE_ASSIGN   = Operator.BOWTIE_ASSIGN;
+    public static final Operator STARSTAR_ASSIGN = Operator.STARSTAR_ASSIGN;
+    public static final Operator TWIDDLE_ASSIGN  = Operator.TWIDDLE_ASSIGN;
 
     /**
      * Left child (target) of the assignment.

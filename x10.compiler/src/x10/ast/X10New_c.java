@@ -54,6 +54,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
 import polyglot.visit.TypeChecker;
 import x10.constraint.XTerms;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.extension.X10Del;
@@ -79,6 +80,7 @@ import polyglot.types.NoMemberException;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.TypeConstraint;
 import x10.visit.X10TypeChecker;
 
@@ -504,18 +506,26 @@ public class X10New_c extends New_c implements X10New {
                 ci = ci.error(e);
             }
         }
+        boolean doCoercion = false;
         if (!ts.hasUnknown(tp) && !ts.isSubtype(tp1, t1, context)) {
-            SemanticException e = Errors.NewIncompatibleType.make(result.type(tp1),  t1, tc, pos);
-            Errors.issue(tc.job(), e, this);
-            if (ci.error() == null) {
-                ci = ci.error(e);
+            Expr newNewExpr = Converter.attemptCoercion(tc, result.type(tp1), t1);
+            if (newNewExpr != null) {
+                // I cann't keep newNewExpr, because result is still going to be modified (and I cannot do this check later because ci might be modified and it is stored in result)
+                // so, sadly, I have to call attemptCoercion twice.
+                doCoercion = true;
+            } else {
+                SemanticException e = Errors.NewIncompatibleType.make(result.type(tp1),  t1, tc, pos);
+                Errors.issue(tc.job(), e, this);
+                if (ci.error() == null) {
+                    ci = ci.error(e);
+                }
             }
         }
 
         // Copy the method instance so we can modify it.
         //tp = ((X10Type) tp).setFlags(X10Flags.ROOTED);
         ci = ci.returnType(tp);
-        ci = result.adjustCI(ci, tc);
+        ci = result.adjustCI(ci, tc, qualifier());
 
         try {
             checkWhereClause(ci, pos, context);
@@ -549,7 +559,9 @@ public class X10New_c extends New_c implements X10New {
         }
 
         result = (X10New_c) result.type(type);
-        return result;
+        return doCoercion ?
+                Converter.attemptCoercion(tc, result, t1) :
+                result;
     }
 
     /**
@@ -685,19 +697,41 @@ public class X10New_c extends New_c implements X10New {
      * variables whose types are determined by the static type of the receiver
      * and the actual arguments to the call.
      * 
-     * Also add the self.home==here clause.
+     * Also self.$$here==here.
+     * Add self!=null.
      */
-    private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc) {
+    private X10ConstructorInstance adjustCI(X10ConstructorInstance xci, ContextVisitor tc, Expr outer) {
         if (xci == null)
             return (X10ConstructorInstance) this.ci;
         Type type = xci.returnType();
+        if (outer != null) {
+            type = Types.addInOuterClauses(type, outer.type());
+        } else {
+            // this could still be a local class, and the outer this has to be captured.
+            Type baseType = Types.baseType(type);
+            if (baseType instanceof X10ClassType) {
+                X10ClassType ct = (X10ClassType) baseType;
+                if (ct.isLocal()) {
+                    Type outerT = ct.outer();
+                    CConstraint c = new CConstraint();
+                    Type outerTB = Types.baseType(outerT);
+                    if (outerTB instanceof X10ClassType) {
+                        X10ClassType outerct = (X10ClassType) outerTB;
+                        c.addSelfBinding(outerct.def().thisVar());
+                        outerT = Types.xclause(outerT, c);
+                        type = Types.addInOuterClauses(type, outerT);
+                    }
+                }
+            }
+        }
+        
         TypeSystem ts = (TypeSystem) tc.typeSystem();
 
         if (ts.isStructType(type)) 
             return xci;
         // Add self.home == here to the return type.
         // Add this even in 2.1 -- the place where this object is created
-        // is tracked in the type through a fake field "here".
+        // is tracked in the type through a fake field "$$here".
         // This field does not exist at runtime in the object -- but that does not
         // prevent the compiler from imagining that it exists.
         ConstrainedType type1 = Types.toConstrainedType(type);

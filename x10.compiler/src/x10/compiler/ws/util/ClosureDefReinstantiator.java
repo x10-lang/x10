@@ -15,18 +15,24 @@ package x10.compiler.ws.util;
 import polyglot.ast.Field;
 import polyglot.ast.Local;
 import polyglot.ast.Node;
+import polyglot.ast.NodeFactory;
+import polyglot.frontend.Job;
 import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
+import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
 import x10.ast.X10Special;
 import x10.types.ClosureDef;
+import x10.types.ClosureDef_c;
 import x10.types.EnvironmentCapture;
 import x10.types.ThisDef;
+import x10.types.X10ClassType;
 import x10.types.X10MemberDef;
 import x10.visit.Desugarer;
 import x10.visit.Desugarer.ClosureCaptureVisitor;
@@ -34,7 +40,6 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 
 /**
- * @author Haichuan
  * 
  * In a ws code transformation, each code path will be transformed into fast and 
  * slow path.
@@ -46,81 +51,46 @@ import polyglot.util.InternalCompilerError;
  * This code visitor will create a new closure def for all closure in the AST tree.
  * 
  * It should be added as one job in synthesizing the slow path
+ * 
+ * @author Haichuan
  */
-public class ClosureDefReinstantiator extends NodeVisitor {
+public class ClosureDefReinstantiator extends ContextVisitor {
 
 	
-	Context context;
-    TypeSystem xts;
-    ClassDef containerClassDef;
-    MethodDef containerMethodDef;
-    
-    public ClosureDefReinstantiator(TypeSystem xts, Context context, ClassDef containerClassDef, MethodDef containerMethodDef){
-        this.xts = xts;
-        this.context = context;
-        this.containerClassDef = containerClassDef;
-        this.containerMethodDef = containerMethodDef;
-            
+	public ClosureDefReinstantiator(Job job, TypeSystem ts, NodeFactory nf) {
+        super(job, ts, nf);
     }
-    
-    public Node leave(Node old, Node n, NodeVisitor v) {
 
-        
+
+    public Node leaveCall(Node old, Node n, NodeVisitor v) {
         if(n instanceof Closure){
-            Closure c = (Closure)n;
             
+            Context ct = context();
+            Closure c = (Closure)n;
+            //WSUtil.debug("Found closure", c);
             ClosureDef cd = c.closureDef();
             
-            ClosureDef ncd = (ClosureDef) cd.copy();
-            ncd.setTypeContainer(Types.ref(containerClassDef.asType()));
-            ncd.setMethodContainer(Types.ref(containerMethodDef.asInstance()));
+            cd.setStaticContext(ct.inStaticContext());
+            cd.setTypeContainer(Types.ref(ct.currentClassDef().asType()));
+            cd.setMethodContainer(Types.ref(ct.currentCode().asInstance()));
             
-//            ClosureDef ncd = xts.closureDef(c.position(),
-//                                            Types.ref(containerClassDef.asType()), 
-//                                            Types.ref(containerMethodDef.asInstance()), 
-//                                            cd.returnType(), 
-//                                            cd.formalTypes(), 
-//                                            cd.thisDef(), 
-//                                            cd.formalNames(),
-//                                            cd.guard(), 
-//                                            //cd.throwTypes(),
-//                                            cd.offerType());
+            c = c.closureDef(cd);
+//            //Now show current vars
+//            ClosureDef_c cdc = (ClosureDef_c)cd;
+//            for(VarInstance<? extends VarDef> vi : cdc.capturedEnvironment()){
+//                WSUtil.debug("as-is var:"+ vi.toString());
+//            }
             
-            c = c.closureDef(ncd);
-            //need set the ncd's captured environment variables
-
-            //NodeVisitor captureEnvVisitor = new SimpleClosureCaptureVisitor(c.closureDef());
-            //FIXME: after the WS context is correct, use the following visitor
-            //NodeVisitor captureEnvVisitor = new Desugarer.ClosureCaptureVisitor(context, c.closureDef());
-            //c.visit(captureEnvVisitor);
-            n = c;
-            //Use a simple closure capture visitor
-            
-
+            //Now set the CapturedEnvironment
+            NodeVisitor captureEnvVisitor = new Desugarer.ClosureCaptureVisitor(context, c.closureDef());
+            c.visit(captureEnvVisitor);
+//            for(VarInstance<? extends VarDef> vi : cdc.capturedEnvironment()){
+//                WSUtil.debug("afer-process var:"+ vi.toString());
+//            }
+            return c;
         }
         return n;
     }
-    
-    
-    public static class SimpleClosureCaptureVisitor extends NodeVisitor {
-        private final EnvironmentCapture cd;
-        public SimpleClosureCaptureVisitor(EnvironmentCapture cd) {
-            this.cd = cd;
-        }
-        @Override
-        public Node leave(Node old, Node n, NodeVisitor v) {
-            if (n instanceof Local) {
-                LocalInstance li = ((Local) n).localInstance();
-                cd.addCapturedVariable(li);
-            } else if (n instanceof Field) {
-                if (((Field) n).target() instanceof X10Special) {
-                    cd.addCapturedVariable(((Field) n).fieldInstance());
-                }
-            } else if (n instanceof X10Special) {
-            }
-            return n;
-        }
-    }
-    
+
     
 }

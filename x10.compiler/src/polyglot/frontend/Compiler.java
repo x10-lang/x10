@@ -19,9 +19,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import polyglot.ast.NodeFactory;
 import polyglot.ast.PackageNode;
 import polyglot.ast.SourceFile;
 import polyglot.types.QName;
+import polyglot.types.TypeSystem;
 import polyglot.types.reflect.ClassFileLoader;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
@@ -31,7 +33,8 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.OptimalCodeWriter;
 import polyglot.util.SimpleCodeWriter;
 import polyglot.util.StdErrorQueue;
-import x10.optimizations.inlining.InlinerCache;
+import x10.optimizations.inlining.DeclStore;
+import x10.optimizations.inlining.Inliner;
 import x10.util.CollectionFactory;
 
 /**
@@ -51,24 +54,31 @@ public class Compiler
     /** The error queue handles outputting error messages. */
     private ErrorQueue eq;
 
-    /** A cache to be used by the Inliner */
-    private SoftReference<InlinerCache>  inlinerCacheReference;
-
-    public InlinerCache getInlinerCache() {
-        InlinerCache cache = (null == inlinerCacheReference) ? null : inlinerCacheReference.get();
-        if (null == cache) {
-            cache = new InlinerCache();
-            inlinerCacheReference = new SoftReference<InlinerCache>(cache);
-        }
-        return inlinerCacheReference.get();
+    /** AST information retained for use by the Inliner.
+     *
+     *  This needs to be preserved until all Job's have been inlined.
+     *  It may be blown away after the code-gen barrier.
+     *
+     */
+    private DeclStore inlinerData;
+    
+    public DeclStore getInlinerData(Job job, TypeSystem ts, NodeFactory nf) {
+        if (null == inlinerData) 
+            inlinerData = new DeclStore(ts, nf);
+        inlinerData.startJob(job);
+        return inlinerData;
     }
 
-    public void invalidateInlinerCache() {
-        inlinerCacheReference = null;
+    /**
+     * Do this only after all inlining is over (i.e. after the code-gen barrier)!
+     */
+    public void purgeInlinerData() {
+        inlinerData = null;
     }
 
     /** FIXME: TEMPRORARY Inliner hack: Errors in speculative compilation for inlining should not be fatal
      * @depricated DO NOT USE
+     * TODO remove this, if inlining results in an error, compilation should fail!
      */
     public ErrorQueue swapErrorQueue (ErrorQueue newEq) {
         ErrorQueue oldEq = eq;

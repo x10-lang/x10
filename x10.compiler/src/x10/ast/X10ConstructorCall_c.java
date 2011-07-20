@@ -30,6 +30,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Pair;
 import polyglot.util.Position;
@@ -127,6 +128,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    return (X10ConstructorCall) super.constructorInstance(ci);
 	}
 
+        @Override
 	public Node typeCheck(ContextVisitor tc) {
 
 	    X10ConstructorInstance ci;
@@ -255,13 +257,9 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        }
 	    }
 
-        if (ci.checkConstraintsAtRuntime()) {
-            // currently we can't do runtime code generation for a ctor call that needs to check a ctor guard,
-            // see XTENLANG-2375 and XTENLANG-2376
-            Errors.issue(tc.job(), new Errors.ConstructorGuardNotSatisfied(n.position()), n);
-        } else {
-            Warnings.checkErrorAndGuard(tc, ci, n);
-        }
+	    if (!ci.checkConstraintsAtRuntime()) {
+	        Warnings.checkErrorAndGuard(tc, ci, n);
+	    }
 
 	    n = (X10ConstructorCall_c) n.constructorInstance(ci);
 	    n = (X10ConstructorCall_c) n.arguments(args);
@@ -299,13 +297,28 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
         }
     }
 
+    @Override
     public String toString() {
-	    return (qualifier != null ? qualifier + "." : "") + kind + arguments;
-	}
+        StringBuffer sb = new StringBuffer();
+        sb.append(qualifier != null ? qualifier + "." : "");
+        sb.append(kind);
+        /*
+        if (typeArguments != null && typeArguments.size() > 0) {
+            sb.append("[");
+            sb.append(CollectionUtil.listToString(typeArguments));
+            sb.append("]");
+        }
+        */
+        sb.append("(");
+        sb.append(CollectionUtil.listToString(arguments));
+        sb.append(")");
+        return sb.toString();
+    }
 
     /* (non-Javadoc)
      * @see polyglot.ast.ConstructorCall#target(polyglot.ast.Expr)
      */
+    @Override
     public X10ConstructorCall target(Expr target) {
         return (X10ConstructorCall) super.target(target);
     }

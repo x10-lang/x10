@@ -9,6 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+//OPTIONS: -STATIC_CHECKS
+
 import harness.x10Test;
 import x10.compiler.*; // @Uncounted @NonEscaping @NoThisAccess
 import x10.compiler.tests.*; // err markers
@@ -30,7 +32,7 @@ public class CheckDescendEntails_MustFailCompile extends x10Test {
 	val p = new Prop(1,2);
 		
 	var t: Test{self.a == self.b} = new Test(p,p);
-	@ShouldBeErr var u: Test{self.a.i == self.b.j} = t; // this should fail type check.
+	@ERR var u: Test{self.a.i == self.b.j} = t; // this should fail type check.
 	return true;
     }
     public static def main(var args: Array[String](1)): void = {

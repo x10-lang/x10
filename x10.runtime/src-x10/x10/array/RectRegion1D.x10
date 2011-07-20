@@ -11,7 +11,6 @@
 
 package x10.array;
 
-import x10.compiler.TempNoInline_1;
 import x10.compiler.CompilerFlags;
 
 /**
@@ -97,8 +96,8 @@ final class RectRegion1D extends Region{rect,rank==1} {
 
     def toRectRegion() = new RectRegion(min, max);
     
-    public @TempNoInline_1 def min():(int)=>int = (i:int)=> min(i);
-    public @TempNoInline_1 def max():(int)=>int = (i:int)=> max(i);
+    public def min():(int)=>int = (i:int)=> min(i);
+    public def max():(int)=>int = (i:int)=> max(i);
 
     public def contains(that:Region(rank)): boolean {
        return toRectRegion().contains(that);
@@ -114,11 +113,10 @@ final class RectRegion1D extends Region{rect,rank==1} {
         return i0>=min && i0<=max;
     }
 
-    public @TempNoInline_1 def toPolyRegion() {
+    public def toPolyRegion() {
         return toRectRegion().toPolyRegion();
     }
-    
-    
+
     public def intersection(that:Region(rank)):Region(rank) {
         return toRectRegion().intersection(that);
     }

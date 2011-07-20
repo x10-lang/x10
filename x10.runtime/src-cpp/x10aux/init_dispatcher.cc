@@ -80,6 +80,7 @@ x10aux::itable_entry InitClosure::_itables[2] = {
 
 void
 InitDispatcher::runInitializers_() {
+    _S_("There are "<<initc<<" initializers to run");
     for (int i=0 ; i<initc ; ++i) {
         x10aux::ref<x10::lang::VoidFun_0_0> init_closure =
             x10aux::ref<InitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(InitClosure)))

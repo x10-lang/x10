@@ -1,7 +1,11 @@
 package x10.rtt;
 
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class UnresolvedType implements Type {
+
+public final class UnresolvedType implements Type, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
 
@@ -21,7 +25,11 @@ public final class UnresolvedType implements Type {
 
     private final int index;
     
+    @Deprecated
     public static UnresolvedType getParam(int index) {
+    	return PARAM(index);
+    }
+    public static UnresolvedType PARAM(int index) {
         assert index >= 0;
         if (index < params.length) {
             return params[index];
@@ -33,6 +41,23 @@ public final class UnresolvedType implements Type {
         this.index = index;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof UnresolvedType) {
+            UnresolvedType ut = (UnresolvedType) o;
+            if (index != ut.index) {
+                return false;
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    @Override
+    public int hashCode() {
+        return index;
+    }
+    
     public String toString() {
         return "UnresolvedType(" + index + ")";
     }
@@ -53,7 +78,7 @@ public final class UnresolvedType implements Type {
         throw new UnsupportedOperationException();
     }
 
-    public final boolean instanceof$(Object o) {
+    public final boolean instanceOf(Object o) {
         throw new UnsupportedOperationException();
     }
 
@@ -78,6 +103,23 @@ public final class UnresolvedType implements Type {
 
     public final String typeName() {
         return toString();
+    }
+
+	public void $_serialize(X10JavaSerializer serializer) {
+		throw new UnsupportedOperationException();
+		
+	}
+
+	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) {
+		throw new UnsupportedOperationException();
+	}
+
+	public int $_get_serialization_id() {
+		throw new UnsupportedOperationException();
+	}
+
+    public static X10JavaSerializable $_deserialize_body(UnresolvedType ut, X10JavaDeserializer deserializer) {
+        throw new UnsupportedOperationException();
     }
 
 }

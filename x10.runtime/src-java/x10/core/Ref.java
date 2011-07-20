@@ -15,19 +15,24 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
+
+import java.io.IOException;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
 public class Ref implements RefI {
     
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-	// N.B. this is called implicitly by all subclasses of Ref
+    // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
 
-	public Ref(java.lang.System[] $dummy) {}
+    // constructor just for allocation
+    public Ref(java.lang.System[] $dummy) {}
 
-	public Ref $init(){return this;}
+    public Ref $init(){return this;}
 	
     public static Ref $make() { return new Ref(); }
 
@@ -47,4 +52,7 @@ public class Ref implements RefI {
         return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
     }
 
+    public void $_serialize(X10JavaSerializer serializer) throws IOException { }
+
+    public int $_get_serialization_id() { return 0; }
 }

@@ -26,7 +26,7 @@ public class Expressions90 extends x10Test {
     }
 
 
-// file Expressions line 548
+// file Expressions line 556
  static  class ExampleOfConversionAndStuff {
  def example() {
 val n : Byte = 123 as Byte; // explicit

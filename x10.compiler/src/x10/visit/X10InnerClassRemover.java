@@ -438,7 +438,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
         X10ClassDecl cd = (X10ClassDecl) n;
         Flags flags = cd.flags().flags();
         X10ClassDef def = cd.classDef();
-        if (isInner(def)) {
+        if (def.isMember() && !cd.flags().flags().isStatic()) {
             def.flags(def.flags().clearStatic()); // temporarily turn off the "static" flag
             // The def should already have all of the necessary type parameters
             List<ParameterType> typeParameters = def.typeParameters();
@@ -513,7 +513,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
             def.flags(def.flags().Static()); // set the "static" flag back on
         }
         cd = (X10ClassDecl) super.fixClassDecl(cd);
-        if (isInner(def)) {
+        if (def.isMember() && !cd.flags().flags().isStatic()) {
             cd = cd.flags(cd.flags().flags(flags.Static()));
         }
         return cd;
@@ -533,6 +533,34 @@ public class X10InnerClassRemover extends InnerClassRemover {
         return constraint;
     }
 
+    protected Type fixTypeArguments(Type t) {
+        if (t instanceof ConstrainedType) {
+            ConstrainedType ct = (ConstrainedType) t;
+            Type bt = Types.get(ct.baseType());
+            Type ibt = fixType(bt);
+            if (ibt != bt)
+                ct = ct.baseType(Types.ref(ibt));
+            return ct;
+        } else
+        if (t instanceof X10ParsedClassType) {
+            X10ParsedClassType pct = (X10ParsedClassType) t;
+            List<Type> typeArguments = pct.typeArguments();
+            List<Type> newTypeArguments = typeArguments;
+            if (typeArguments != null) {
+                List<Type> res = new ArrayList<Type>();
+                for (Type a : typeArguments) {
+                    Type ia = fixType(a);
+                    if (ia != a)
+                        newTypeArguments = res;
+                    res.add(ia);
+                }
+            }
+            pct = pct.typeArguments(newTypeArguments);
+            return pct;
+        } else {
+            return t;
+        }
+    }
     protected Type fixType(Type t) {
         if (t == null)
             return null;
@@ -554,8 +582,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             def.flags(def.flags().Static());
         }
         t = Types.instantiateTypeParametersExplicitly(t);
+        t = fixTypeArguments(t);
         t = propagateTypeArgumentsToInnermostType(t);
-        // FIXME: also fix the type arguments; TODO: test this
         CConstraint constraint = t instanceof ConstrainedType ? ((ConstrainedType) t).getRealXClause() : null;
         if (constraint != null) {
             CConstraint newConstraint = fixConstraint(constraint);

@@ -30,7 +30,7 @@ public class Clocks30 extends x10Test {
  static class Qlocked{
 static def S():void{}
 static def flock() {
- val c1 = Clock.make(), c2 = Clock.make(), c3 = Clock.make();
+ val c1 = Clock.make(); val c2 = Clock.make(); val c3 = Clock.make();
   async clocked (c1, c2, c3) S
 ();
 }}

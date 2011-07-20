@@ -25,6 +25,11 @@ public class VectorTest extends x10Test {
         var vec_sized1 : Vec[T]{size==20} = Vec.make[T](20);
         var vec_unsized1 : Vec[T] = Vec.make[T](20);
 
+        my_assert(vec_sized1, vec_sized1, "doing self equality 1");
+        my_assert(vec_unsized1, vec_unsized1, "doing self equality 2");
+        my_assert(vec_sized1, vec_unsized1, "doing equality 1");
+        my_assert(vec_unsized1, vec_sized1, "doing equality 2");
+
         vec_sized1(15) = a;
         vec_unsized1(15) = b;
 
@@ -33,6 +38,9 @@ public class VectorTest extends x10Test {
 
         var vec_sized2 : Vec[T]{size==20} = vec_sized1;
         var vec_unsized2 : Vec[T] = vec_unsized1;
+
+        my_assert(vec_sized1, vec_sized2, "doing equality 3");
+        my_assert(vec_unsized1, vec_unsized2, "doing equality 4");
 
         counter += my_assert(vec_sized1(15), a, "checking init");
         counter += my_assert(vec_unsized1(15), b, "checking init");
@@ -78,6 +86,11 @@ public class VectorTest extends x10Test {
         tmp2(15) = imposter;
         counter += my_assert(vec_sized1(15), a, "checking no alias on init");
         counter += my_assert(vec_unsized1(15), b, "checking no alias on init");
+
+        Console.OUT.println("vec_sized1.typeName():"+vec_sized1.typeName());
+        Console.OUT.println("vec_sized1:"+vec_sized1);
+        Console.OUT.println("vec_unsized1.typeName():"+vec_unsized1.typeName());
+        Console.OUT.println("vec_unsized1:"+vec_unsized1);
 
         return counter;
     }

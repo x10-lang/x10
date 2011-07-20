@@ -1556,7 +1556,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     
             // Check if adding self==value makes the constraint on t inconsistent.
             
-            XLit val = XTerms.makeLit(value);
+            XLit val = CTerms.makeLit(value, base);
 
             CConstraint c = new CConstraint();
             c.addSelfBinding(val);
@@ -1916,7 +1916,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = CTerms.makeThis(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+            thisVar = CTerms.makeThis();  
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -1927,9 +1927,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         mi = fixThis(mi, y, x);
 
+        XVar placeTerm = Types.getPlaceTerm(mi);
+
         while (rt != null) {
             // add any method with the same name and formalTypes from rt
-            l.addAll(ts.methods(rt, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context));
+            l.addAll(ts.methods(rt, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, placeTerm, context));
 
             ContainerType sup = null;
 
@@ -1951,7 +1953,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         MethodInstance mi = (MethodInstance) jmi;
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = CTerms.makeThis(); //XTerms.makeLocal(XTerms.makeFreshName("this"));
+            thisVar = CTerms.makeThis();  
         return implemented(mi, mi.container(), thisVar);
     }
 
@@ -1970,9 +1972,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         mi = fixThis((MethodInstance) mi, y, x);
 
+        XVar placeTerm = Types.getPlaceTerm(mi);
 
         List<MethodInstance> l = new LinkedList<MethodInstance>();
-        l.addAll(ts.methods(st, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, context));
+        l.addAll(ts.methods(st, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, placeTerm, context));
 
         if (st instanceof ObjectType) {
             ObjectType rt = (ObjectType) st;
@@ -2026,12 +2029,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                         + "; different number of type parameters",mi.position());
         }
 
-        List<LocalInstance> miFormals = mi.formalNames();
-        
-        XVar[] newSymbols = genSymbolicVars(mj.formalNames().size());
+        XVar[] newSymbols = genSymbolicVars(mj.formalNames().size()+1);
         TypeSystem xts = (TypeSystem) mi.typeSystem();
-        XVar[] miSymbols = Matcher.getSymbolicNames(mi.formalNames(),xts);
-        XVar[] mjSymbols = Matcher.getSymbolicNames(mj.formalNames(),xts);
+        XVar[] miFormals = Matcher.getSymbolicNames(mi.formalNames(),xts);
+        XVar mipt = Types.getPlaceTerm(mi);
+        XVar[] mjFormals = Matcher.getSymbolicNames(mj.formalNames(),xts);
+        XVar mjpt = Types.getPlaceTerm(mj);
+        XVar[] miSymbols = new XVar[miFormals.length+1];
+        miSymbols[0] = mipt;
+        System.arraycopy(miFormals, 0, miSymbols, 1, miFormals.length);
+        XVar[] mjSymbols = new XVar[mjFormals.length+1];
+        mjSymbols[0] = mjpt;
+        System.arraycopy(mjFormals, 0, mjSymbols, 1, mjFormals.length);
         
         TypeParamSubst tps = new TypeParamSubst(xts, mi.typeParameters(), mj.x10Def().typeParameters());
         assert (mi.typeParameters().size() == mj.typeParameters().size() &&
@@ -2065,18 +2074,28 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         // FIXME: is this the same as entails(CConstraint, CConstraint)?
         boolean entails = true;
+
         final CConstraint mig = Subst.subst(mi.guard(), newSymbols, miSymbols);
         final CConstraint mjg = Subst.subst(mj.guard(), newSymbols, mjSymbols);
         if (mjg == null) {
-            entails = mig == null || mig.valid();
+            entails &= mig == null || mig.valid();
         }
         else {
-            entails = mig == null 
+            entails &= mig == null 
             || mjg.entails(mig, new ConstraintMaker() {
                 public CConstraint make() throws XFailure {
-                    return  context.constraintProjection(mjg, mig);
+                    return context.constraintProjection(mjg, mig);
                 }
             });          
+        }
+
+        final TypeConstraint mitg = Subst.subst(mi.typeGuard(), newSymbols, miSymbols);
+        final TypeConstraint mjtg = Subst.subst(mj.typeGuard(), newSymbols, mjSymbols);
+        if (mjtg == null) {
+            entails &= mitg == null;
+        }
+        else {
+            entails &= mitg == null || mjtg.entails(mitg, context);          
         }
 
         if (! entails) {
@@ -2303,20 +2322,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	        public void run() {
 	            try {
 	                Type newRetType = Subst.subst(zmj.returnType(), y, x, new Type[] { }, new ParameterType[] { });
-	              newRetType = PlaceChecker.ReplaceHereByPlaceTerm(newRetType, (Context) context);
+	                newRetType = PlaceChecker.ReplaceHereByPlaceTerm(newRetType, (Context) context);
 	                final boolean isStatic =  zmj.flags().isStatic();
 	                // add in this.home=here clause.
 	                if (! isStatic  && ! Types.isX10Struct(mi.container())) {
-	                	try {
-	                		if ( y.length > 0 && y[0] instanceof XEQV)
-	                		newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
-
-	                	} catch (XFailure z) {
-	                		throw new InternalCompilerError("Unexpectedly inconsistent place constraint.");
-	                	}
+	                    if (y.length > 0 && y[0] instanceof XEQV)
+	                        newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
 	                }
-	                if ( y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
-	                	newRetType = Subst.project(newRetType, (XVar) y[0]);  			
+	                if (y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
+	                    newRetType = Subst.project(newRetType, (XVar) y[0]);  			
 	                tref.update(newRetType);
 	            }
 	            catch (SemanticException e) {

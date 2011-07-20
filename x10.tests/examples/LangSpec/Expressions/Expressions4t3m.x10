@@ -26,7 +26,7 @@ public class Expressions4t3m extends x10Test {
     }
 
 
-// file Expressions line 771
+// file Expressions line 775
  static  class Hook {
  static def example(num:Int, den:Int ) =
 (den == 0) ? 0 : num/den

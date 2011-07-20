@@ -12,19 +12,32 @@
 package x10.rtt;
 
 
-public class DoubleType extends RuntimeType<Double> {
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-	private static final long serialVersionUID = 1L;
+import java.io.IOException;
+
+public class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaSerializable{
+
+    private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DoubleType.class.getName());
+
+    // make sure deserialized RTT object is not duplicated
+    private Object readResolve() throws java.io.ObjectStreamException {
+        return Types.DOUBLE;
+    }
 
     public DoubleType() {
-//        super(double.class,
-        super(Double.class,
+        super(x10.core.Double.class,
               new Type[] {
                   new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
+                  new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }
-    
+
     @Override
     public String typeName() {
         return "x10.lang.Double";
@@ -32,8 +45,8 @@ public class DoubleType extends RuntimeType<Double> {
 
     // for shortcut 
     @Override
-    public boolean instanceof$(Object o) {
-        return o instanceof java.lang.Double;
+    public boolean instanceOf(Object o) {
+        return o instanceof x10.core.Double;
     }
 
     @Override
@@ -51,25 +64,37 @@ public class DoubleType extends RuntimeType<Double> {
     }
     
     @Override
-    public Double getArray(Object array, int i) {
-        return ((double[]) array)[i];
+    public x10.core.Double getArray(Object array, int i) {
+        return x10.core.Double.$box(((double[]) array)[i]);
     }
     
-//    @Override
-//    public Double setArray(Object array, int i, Double v) {
-//        // avoid boxing again
-////        return ((double[]) array)[i] = v;
-//        ((double[]) array)[i] = v;
-//        return v;
-//    }
     @Override
-    public void setArray(Object array, int i, Double v) {
-        ((double[]) array)[i] = v;
+    public void setArray(Object array, int i, x10.core.Double v) {
+        ((double[]) array)[i] = x10.core.Double.$unbox(v);
     }
     
     @Override
     public int arrayLength(Object array) {
     	return ((double[]) array).length;
+    }
+
+    @Override
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+    }
+
+    @Override
+    public int $_get_serialization_id() {
+        return _serialization_id;
+    }
+
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+		return $_deserialize_body(null, deserializer);
+	}
+
+    public static X10JavaSerializable $_deserialize_body(DoubleType t, X10JavaDeserializer deserializer) throws IOException {
+        DoubleType doubleType = (DoubleType) Types.DOUBLE;
+        deserializer.record_reference(doubleType);
+        return doubleType;
     }
     
 }

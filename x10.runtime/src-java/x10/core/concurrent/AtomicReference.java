@@ -16,16 +16,23 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
-public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI {
+import java.io.IOException;
 
-	private static final long serialVersionUID = 1L;
+public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI, X10JavaSerializable {
 
-	public AtomicReference(java.lang.System[] $dummy) {
-	    super();
-	}
+    private static final long serialVersionUID = 1L;
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicReference.class.getName());
+
+    // constructor just for allocation
+    public AtomicReference(java.lang.System[] $dummy) {
+        super();
+    }
 	
-	public AtomicReference $init(Type<T> T) {
+    public AtomicReference $init(Type<T> T) {
         this.T = T;
         return this;
     }
@@ -60,5 +67,28 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     public Type<?> $getParam(int i) {
         return i == 0 ? T : null;
     }
-    private Type<T> T;
+    public Type<T> T;
+
+	public void $_serialize(X10JavaSerializer serializer) throws IOException {
+		serializer.write(this.T);
+		serializer.write(get());
+	}
+
+	public int $_get_serialization_id() {
+		return _serialization_id;
+	}
+
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+        AtomicReference ar = new AtomicReference((System[])null);
+        deserializer.record_reference(ar);
+		return $_deserialize_body(ar, deserializer);
+	}
+
+	public static X10JavaSerializable $_deserialize_body(AtomicReference ar, X10JavaDeserializer deserializer) throws IOException {
+        Type T = (Type) deserializer.readRef();
+        ar.T = T;
+        Object value = deserializer.readRef();
+        ar.set(value);
+        return ar;
+	}
 }

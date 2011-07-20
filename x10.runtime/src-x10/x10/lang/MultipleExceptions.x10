@@ -26,6 +26,10 @@ public class MultipleExceptions(exceptions:Rail[Throwable]) extends Exception {
         property(stack.toArray());
     }
 
+    public def this() {
+        property(null);
+    }
+
     public def this(t:Throwable) {
         property(new Array[Throwable](1, t));
     }

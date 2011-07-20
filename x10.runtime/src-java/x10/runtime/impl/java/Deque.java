@@ -22,7 +22,7 @@ import x10.rtt.Type;
 // Fix for XTENLANG-1916 (map x10.lang.Object to x10.core.RefI)
 public class Deque extends Ref {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     /**
      * Capacity of work-stealing queue array upon initialization.
@@ -59,6 +59,7 @@ public class Deque extends Ref {
      */
     private volatile int base;
 
+    // constructor just for allocation
     public Deque(java.lang.System[] $dummy) {super($dummy);}
 
     public Deque $init() {
