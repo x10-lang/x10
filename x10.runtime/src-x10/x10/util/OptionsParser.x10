@@ -28,6 +28,8 @@ public final class OptionsParser {
 
     private val map : HashMap[String,String];
     private val set : HashMap[String,Boolean];
+    private val flags : Array[Option](1);
+    private val specs : Array[Option](1);
     private val filteredArgs : GrowableIndexedMemoryChunk[String];
 
     public def this (args:Array[String](1), flags:Array[Option](1), specs:Array[Option](1)) { //throws Err {
@@ -68,10 +70,24 @@ public final class OptionsParser {
         }
         this.map = map;
         this.set = set;
+        this.flags = flags;
+        this.specs = specs;
         this.filteredArgs = filteredArgs;
     }
 
     public def filteredArgs() = filteredArgs.toArray();
+
+    public def usage() {
+        var r:String = new String();
+        r += "Usage:";
+        for (opt in flags.values()) {
+            r += "\n    "+opt.short_+" ("+opt.long_+") "+opt.description;
+        }
+        for (opt in specs.values()) {
+            r += "\n    "+opt.short_+" ("+opt.long_+") "+opt.description;
+        }
+        return r;
+    }
 
     public operator this (key:String):Boolean = set.containsKey(key) || map.containsKey(key);
 
