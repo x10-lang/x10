@@ -38,7 +38,7 @@ class GCSpheres {
 
         public def sub (other:Vector3) = add(other.neg());
 
-        public def length () = Math.sqrt(length2());
+        public def length () = Math.sqrtf(length2());
 
         public def length2 () = x*x + y*y + z*z;
     }

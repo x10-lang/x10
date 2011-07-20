@@ -40,7 +40,8 @@ public class CUDA3DFD {
     {
         val dimxy = dimx*dimy;
 
-        var output_off:Int=0, input_off:Int=0;
+        var output_off:Int=0;
+        var input_off:Int=0;
         for(var iz:Int=0; iz<dimz; iz++)
         {
             for(var iy:Int=0; iy<dimy; iy++)
@@ -78,7 +79,8 @@ public class CUDA3DFD {
     {
         var retval:Boolean = true;
 
-        var output_off:Int=0, ref_off:Int=0;
+        var output_off:Int=0;
+        var ref_off:Int=0;
         for(var iz:Int=0; iz<dimz; iz++)
         {
             for(var iy:Int=0; iy<dimy; iy++)
@@ -151,7 +153,7 @@ public class CUDA3DFD {
             nreps = Int.parse(args(3));
         if( args.size >= 5)
             check_correctness = Boolean.parse(args(4));
-        val dimx=dimx_, dimy=dimy_, dimz=dimz_;
+        val dimx=dimx_; val dimy=dimy_; val dimz=dimz_;
         val nelements = dimx*dimy*dimz;
 
         Console.OUT.println(String.format("%dx%dx%d", [dimx as Any, dimy, dimz]));
@@ -188,7 +190,9 @@ public class CUDA3DFD {
         for(var i:Int=0; i<nreps; i++) {
             val BLOCK_DIMX = 16;
             val BLOCK_DIMY = BLOCK_DIMX;
-            val THREADS = BLOCK_DIMX*BLOCK_DIMY, BLOCKS_X=dimx/BLOCK_DIMX, BLOCKS_Y=dimy/BLOCK_DIMY;
+            val THREADS = BLOCK_DIMX*BLOCK_DIMY;
+            val BLOCKS_X = dimx/BLOCK_DIMX;
+            val BLOCKS_Y = dimy/BLOCK_DIMY;
             val S_DATA_STRIDE = BLOCK_DIMX+2*RADIUS;
             finish async at (gpu) @CUDA @CUDADirectParams {
                 val c_coeff = h_coeff_symmetric.sequence();
@@ -205,8 +209,8 @@ public class CUDA3DFD {
                         var out_idx:Int = 0;
                         val stride  = dimx*dimy;
 
-                        var infront1:Float, infront2:Float, infront3:Float, infront4:Float;
-                        var behind1:Float, behind2:Float, behind3:Float, behind4:Float;
+                        var infront1:Float; var infront2:Float; var infront3:Float; var infront4:Float;
+                        var behind1:Float; var behind2:Float; var behind3:Float; var behind4:Float;
                         var current:Float;
 
                         val tx = threadidx + RADIUS;
