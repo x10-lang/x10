@@ -1946,7 +1946,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             er.printMethodParams(methodTypeParams);
         }
 
-        if (isMainMethod(mi)) {
+        if (isMainMethod(mi) || mi.container().toClass().isJavaType()) {
             w.write(Emitter.mangleToJava(c.name().id()));
         } else {
             boolean invokeInterface = false;

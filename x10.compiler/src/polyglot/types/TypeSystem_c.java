@@ -14,6 +14,8 @@ import polyglot.ast.Binary;
 import polyglot.frontend.*;
 import polyglot.main.Report;
 import polyglot.main.Reporter;
+import polyglot.types.reflect.ClassFile;
+import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
@@ -225,6 +227,10 @@ public class TypeSystem_c implements TypeSystem
 
     public TopLevelResolver loadedResolver() {
 	return loadedResolver;
+    }
+
+    public ClassFileLazyClassInitializer classFileLazyClassInitializer(ClassFile clazz) {
+        return new ClassFileLazyClassInitializer(clazz, this);
     }
 
     public ImportTable importTable(String sourceName, Ref<? extends Package> pkg) {
@@ -4430,5 +4436,4 @@ public class TypeSystem_c implements TypeSystem
     public boolean consistent(Type t, Context context) {
         return env(context).consistent(t);
     }
-
 }
