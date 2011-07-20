@@ -1261,4 +1261,9 @@ public interface TypeSystem {
     Boolean structHaszero(X10ClassDef z);
     Map<X10ClassDef_c, Boolean> structHaszero();
     X10ClassType AtomicBoolean();
+
+    /**
+     * Constructs a new ClassFileLazyClassInitializer for the given class file.
+     */
+    ClassFileLazyClassInitializer classFileLazyClassInitializer(ClassFile clazz);
 }

@@ -33,6 +33,8 @@ import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.reflect.ClassFile;
+import polyglot.types.reflect.ClassFileLoader;
 import polyglot.util.CollectionUtil;
 import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
@@ -84,11 +86,13 @@ public class X10SourceClassResolver implements TopLevelResolver {
     ClassPathResourceLoader loader;
     
     /**
-     * Load a class file for class <code>name</code>.
+     * Load an X10-compiled class file for X10 class <code>name</code>.
      */
-    protected Resource loadFile(QName name) {
+    protected Resource loadX10CompiledFile(QName name) {
         // DISABLE due to XTENLANG-2326.  See comment in X10CPPSourceClassResolver.loadFile(QName).
         if (true) return null;
+
+        // TODO: if enabled, check that it's an X10-generated class file.
 
         if (nocache.contains(name)) {
             return null;
@@ -128,6 +132,50 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return null;
     }
 
+    ClassFileLoader classLoader;
+
+    /**
+     * Load an Java class file for Java class <code>name</code>.
+     */
+    protected ClassFile loadJavaClassFile(QName name) {
+    	if (nocache.contains(name)) {
+    		return null;
+    	}
+    	
+    	if (loader == null)
+    		loader = new ClassPathResourceLoader(classpath, reporter);
+    	
+    	if (classLoader == null)
+    		classLoader = new ClassFileLoader(ext);
+    	
+    	try {
+    		String fileName = name.toString().replace('.', '/');
+    		fileName += ".class";
+    		Resource r = loader.loadResource(fileName);
+    		ClassFile clazz = classLoader.loadClass(r);
+    		
+    		if (clazz == null) {
+    			if (reporter.should_report(report_topics, 4)) {
+    				reporter.report(4, "Java class " + name + " not found in classpath " + loader.classpath());
+    			}
+    		}
+    		else {
+    			if (reporter.should_report(report_topics, 4)) {
+    				reporter.report(4, "Java class " + name + " found in classpath " + loader.classpath());
+    			}
+    			return clazz;
+    		}
+    	}
+    	catch (ClassFormatError e) {
+    		if (reporter.should_report(report_topics, 4))
+    			reporter.report(4, "Class " + name + " format error");
+    	}
+    	
+    	nocache.add(name);
+    	
+    	return null;
+    }
+    
     /**
      * Manifest support.
      * @param name
@@ -160,7 +208,7 @@ public class X10SourceClassResolver implements TopLevelResolver {
         FileSource source = null;
 
         // First try the class file.
-        clazz = loadFile(name);
+        clazz = loadX10CompiledFile(name);
         
         // Now, try to find the source file.
         source = ext.sourceLoader().classSource(name);
@@ -171,10 +219,6 @@ public class X10SourceClassResolver implements TopLevelResolver {
             return getTypesFromSource(source, name, shouldCompile(name));
         }
         
-        if (source == null) {
-            throw new NoClassException(name.toString());
-        }
-
         // Check if the .class file exists; if so we don't need to compile the source completely.
         // We decide which to use based on modification times.
         if (clazz != null) {
@@ -216,6 +260,12 @@ public class X10SourceClassResolver implements TopLevelResolver {
         // for example, requesting a type through its mangled (class file) name.
         if (result != null) {
             return result;
+        }
+
+        // XTENLANG-2118: Load the type from a Java class file
+        ClassFile jClazz = loadJavaClassFile(name);
+        if (jClazz != null) {
+        	return CollectionUtil.<Type>list(ts.classFileLazyClassInitializer(jClazz).type().asType());
         }
 
         throw new NoClassException(name.toString());

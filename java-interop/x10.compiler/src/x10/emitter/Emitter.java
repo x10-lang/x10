@@ -717,6 +717,9 @@ public class Emitter {
                     } else {
                         name = null;
                     }
+                    component = new TypeExpander(this, at, flags);
+                    components.put(String.valueOf(i++), component);
+                    if (name != null) { components.put(name, component); }
 					component = new TypeExpander(this, at, flags | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 					components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
