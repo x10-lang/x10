@@ -233,6 +233,19 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static Boolean isCustomSerialization() {
         String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION");
         if (property == null) {
+            if (System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION") == null) {
+                return false;
+            } else {
+                return false;
+            }
+        }
+        return Boolean.valueOf(property);
+    }
+
+    // For the moment make this the default so that the test can run against it
+    public static Boolean isCustomSerializationUsingReflection() {
+        String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION");
+        if (property == null) {
             return true;
         }
         return Boolean.valueOf(property);
@@ -264,11 +277,45 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Starting deserialization for deepCopy of " + body.getClass());
                 }
-                body = (T) deserializer.deSerialize();
+                body = (T) deserializer.readRef();
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Done with deserialization for deepCopy of " + body.getClass());
                 }
             } catch (java.io.IOException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            }
+            return body;
+        } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+            try {
+                byte[] ba = serializeUsingReflection(body);
+                DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
+                X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting deserialization for deepCopy of " + body.getClass());
+                }
+                body = (T) deserializer.readRefUsingReflection();
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with deserialization for deepCopy of " + body.getClass());
+                }
+            } catch (java.io.IOException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (IllegalAccessException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (NoSuchMethodException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (InvocationTargetException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (NoSuchFieldException e) {
                 x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
                 xe.printStackTrace();
                 throw xe;
@@ -329,6 +376,25 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return ba;
     }
 
+    public static <T> byte[] serializeUsingReflection(T body) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        long startTime = 0L;
+        if (TRACE_SER) {
+            startTime = System.nanoTime();
+        }
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
+        serializer.writeObjectUsingReflection(body);
+        oos.close();
+        byte[] ba = baos.toByteArray();
+        if (TRACE_SER) {
+            long endTime = System.nanoTime();
+            System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
+                    + " microsecs.");
+        }
+        return ba;
+    }
+
     // @MultiVM, add this method
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
@@ -338,6 +404,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                     System.out.println("Starting serialization for runAt  " + body.getClass());
                 }
                 msg = serialize(body);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAt " + body.getClass());
+                }
+            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAt  " + body.getClass());
+                }
+                msg = serializeUsingReflection(body);
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Done with serialization for runAt " + body.getClass());
                 }
@@ -352,6 +426,22 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new x10.runtime.impl.java.WrappedThrowable(e);
+        } catch (IllegalAccessException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (NoSuchMethodException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (InvocationTargetException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (NoSuchFieldException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
         } finally {
             if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
         }
@@ -367,6 +457,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                     System.out.println("Starting serialization for runAtAll  " + body.getClass());
                 }
                 msg = serialize(body);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAtAll " + body.getClass());
+                }
+            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAtAll  " + body.getClass());
+                }
+                msg = serializeUsingReflection(body);
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Done with serialization for runAtAll " + body.getClass());
                 }
@@ -386,6 +484,22 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new x10.runtime.impl.java.WrappedThrowable(e);
+        } catch (IllegalAccessException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (NoSuchMethodException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (InvocationTargetException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (NoSuchFieldException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
         }
     }
 

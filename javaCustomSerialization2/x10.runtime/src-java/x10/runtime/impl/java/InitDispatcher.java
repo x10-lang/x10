@@ -459,7 +459,7 @@ public abstract class InitDispatcher {
             if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
                 java.io.DataInputStream in = new java.io.DataInputStream(bais);
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
-                Object o = deserializer.deSerialize();
+                Object o = deserializer.readRef();
                 in.close();
                 return o;
             }

@@ -197,7 +197,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 	}
 
     public static X10JavaSerializable $_deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {
-		RuntimeType rt = (RuntimeType) deserializer.deSerialize();
+		RuntimeType rt = (RuntimeType) deserializer.readRef();
         pt.rtt = rt;
         int length = deserializer.readInt();
         Type[] ps = new Type[length];
