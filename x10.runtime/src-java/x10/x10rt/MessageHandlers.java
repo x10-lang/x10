@@ -52,7 +52,18 @@ public class MessageHandlers {
                 if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
                     System.out.println("Starting deserialization ");
                 }
-                actObj = (x10.core.fun.VoidFun_0_0) deserializer.deSerialize();
+                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Ending deserialization ");
+                }
+            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+                objStream = new DataInputStream(byteStream);
+    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
+                X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
+                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+                    System.out.println("Starting deserialization ");
+                }
+                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRefUsingReflection();
                 if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
                     System.out.println("Ending deserialization ");
                 }

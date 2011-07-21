@@ -82,41 +82,7 @@ public class DeserializationDispatcher {
             }
             return null;
         } else if (i <=8) {
-            if (Runtime.TRACE_SER) {
-                System.out.println("Deserializing non-null value with id " + i);
-            }
-            Object obj = null;
-            switch(i) {
-                case STRING_ID:
-                     obj =  deserializer.readStringValue();
-                    break;
-                case FLOAT_ID:
-                     obj = deserializer.readFloat();
-                    break;
-                case DOUBLE_ID:
-                     obj = deserializer.readDouble();
-                    break;
-                case INTEGER_ID:
-                      obj = deserializer.readInt();
-                    break;
-                case BOOLEAN_ID:
-                     obj = deserializer.readBoolean();
-                    break;
-                case BYTE_ID:
-                      obj = deserializer.readByte();
-                    break;
-                case SHORT_ID:
-                    obj = deserializer.readShort();
-                    break;
-                case  CHARACTER_ID:
-                     obj = deserializer.readChar();
-                    break;
-                case LONG_ID:
-                     obj = deserializer.readLong();
-                    break;
-            }
-            deserializer.record_reference(obj);
-            return obj;
+            return deserializePrimitive(i, deserializer);
         }
 
         if (Runtime.TRACE_SER) {
@@ -144,6 +110,44 @@ public class DeserializationDispatcher {
             // This should never happen
             throw new RuntimeException(e);
         }
+    }
+
+    public static Object deserializePrimitive(int i, X10JavaDeserializer deserializer) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing non-null value with id " + i);
+        }
+        Object obj = null;
+        switch(i) {
+            case STRING_ID:
+                 obj =  deserializer.readStringValue();
+                break;
+            case FLOAT_ID:
+                 obj = deserializer.readFloat();
+                break;
+            case DOUBLE_ID:
+                 obj = deserializer.readDouble();
+                break;
+            case INTEGER_ID:
+                  obj = deserializer.readInt();
+                break;
+            case BOOLEAN_ID:
+                 obj = deserializer.readBoolean();
+                break;
+            case BYTE_ID:
+                  obj = deserializer.readByte();
+                break;
+            case SHORT_ID:
+                obj = deserializer.readShort();
+                break;
+            case  CHARACTER_ID:
+                 obj = deserializer.readChar();
+                break;
+            case LONG_ID:
+                 obj = deserializer.readLong();
+                break;
+        }
+        deserializer.record_reference(obj);
+        return obj;
     }
 
     public static String getClassNameForID(int id) {
