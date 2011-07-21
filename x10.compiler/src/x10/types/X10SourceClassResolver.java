@@ -195,6 +195,9 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return !compileCommandLineOnly && isOutput(name);
     }
 
+    public static final QName JAVA_LANG_OBJECT = QName.make("java.lang.Object");
+    public static final QName JAVA_LANG_STRING = QName.make("java.lang.String");
+
     public List<Type> find(QName name) throws SemanticException {
         TypeSystem ts = (TypeSystem) this.ts;
 
@@ -261,6 +264,10 @@ public class X10SourceClassResolver implements TopLevelResolver {
         if (result != null) {
             return result;
         }
+
+        // XTENLANG-2118: Intercept some known Java types
+        if (name.equals(JAVA_LANG_OBJECT)) return CollectionUtil.<Type>list(ts.Any());
+        if (name.equals(JAVA_LANG_STRING)) return CollectionUtil.<Type>list(ts.String());
 
         // XTENLANG-2118: Load the type from a Java class file
         ClassFile jClazz = loadJavaClassFile(name);
