@@ -997,23 +997,8 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 	#ifdef DEBUG
-		fprintf(stderr, "Preparing to send a message from place %u to %u\n", state.myPlaceId, p->dest_place);
+		fprintf(stderr, "Preparing to send a message from place %u to %u, endpoint %u\n", state.myPlaceId, p->dest_place, p->dest_endpoint);
 	#endif
-
-	// this block is just a temporary way to test if endpoints are working
-	// TODO: remove this when endpoints are fully supported
-	if (state.numEndpoints > 1 && p->dest_endpoint == 0)
-	{
-		pami_context_t c = getConcurrentContext();
-		for (int i=0; i<state.numParallelContexts; i++)
-		{
-			if (c == state.context[i])
-			{
-				p->dest_endpoint = i;
-				break;
-			}
-		}
-	}
 
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
@@ -1134,21 +1119,6 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 
-	// this block is just a temporary way to test if endpoints are working
-	// TODO: remove this when endpoints are fully supported
-	if (state.numEndpoints > 1 && p->dest_endpoint == 0)
-	{
-		pami_context_t c = getConcurrentContext();
-		for (int i=0; i<state.numParallelContexts; i++)
-		{
-			if (c == state.context[i])
-			{
-				p->dest_endpoint = i;
-				break;
-			}
-		}
-	}
-
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a PUT message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
@@ -1172,7 +1142,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		memset(&parameters.hints, 0, sizeof(pami_send_hint_t));
 
 		#ifdef DEBUG
-			fprintf(stderr, "Preparing to send an immediate PUT message from place %u to %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->type, p->len, len, buf);
+			fprintf(stderr, "Preparing to send an immediate PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, p->type, p->len, len, buf);
 		#endif
 
 		if (state.numParallelContexts)
@@ -1220,7 +1190,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		parameters.events.remote_fn     = NULL;
 
 		#ifdef DEBUG
-			fprintf(stderr, "Preparing to send a PUT message from place %u to %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_place, p->type, p->len, len, buf);
+			fprintf(stderr, "Preparing to send a PUT message from place %u to %u, endpoint %u, type=%i, msglen=%u, len=%u, buf=%p\n", state.myPlaceId, p->dest_endpoint, p->dest_place, p->type, p->len, len, buf);
 		#endif
 
 		if (state.numParallelContexts)
@@ -1250,21 +1220,6 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	pami_endpoint_t target;
 	pami_result_t   status = PAMI_ERROR;
 
-	// this block is just a temporary way to test if endpoints are working
-	// TODO: remove this when endpoints are fully supported
-	if (state.numEndpoints > 1 && p->dest_endpoint == 0)
-	{
-		pami_context_t c = getConcurrentContext();
-		for (int i=0; i<state.numParallelContexts; i++)
-		{
-			if (c == state.context[i])
-			{
-				p->dest_endpoint = i;
-				break;
-			}
-		}
-	}
-
 	if ((status = PAMI_Endpoint_create(state.client, p->dest_place, p->dest_endpoint, &target)) != PAMI_SUCCESS)
 		error("Unable to create a target endpoint for sending a GET message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
@@ -1289,7 +1244,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	header->callbackPtr = header; // sending this along with the data
 
 	#ifdef DEBUG
-		fprintf(stderr, "Preparing to send a GET message from place %u to %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, len, buf, (void*)header);
+		fprintf(stderr, "Preparing to send a GET message from place %u to %u endpoint %u, len=%u, buf=%p, cookie=%p\n", state.myPlaceId, p->dest_place, p->dest_endpoint, len, buf, (void*)header);
 	#endif
 
 	pami_send_t parameters;
