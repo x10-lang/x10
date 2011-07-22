@@ -1191,6 +1191,8 @@ public class Emitter {
         && !isNativeRepedToJava(containerType)
         && !(nonStatic && ((methodName.equals("equals") && numFormals == 1) || (methodName.equals("toString") && numFormals == 0) || (methodName.equals("hashCode") && numFormals == 0)))/*Any*/
         && !(nonStatic && ((methodName.equals("compareTo") && numFormals == 1)))/*Comparable*/
+        // TODO check and stop mangling method name if it implements/overrides method of Java type
+        && !(nonStatic && ((methodName.equals("charAt") && numFormals == 1) || (methodName.equals("length") && numFormals == 0)))/*CharSequence*/
         && !(methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix));
     }
     
@@ -2934,6 +2936,7 @@ public class Emitter {
             	w.write("x10.rtt.Types.getRTT(");
             	printType(x10Type, 0);
             	w.write(".class)");
+                return;
             }
             X10ClassDef cd = x10Type.x10Def();
             String pat = getJavaRTTRep(cd);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep)
