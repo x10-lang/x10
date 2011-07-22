@@ -813,11 +813,8 @@ public class X10Call_c extends Call_c implements X10Call {
 	        }
 	    w.write(".");
 	    if (nonVirtual()) {
-	        w.write("#non-virtual#");
+	        w.write("/"+"*"+"non-virtual"+"*"+"/");
 	    }
-//	    else {
-//                w.write("#virtual#");
-//	    }
 	    w.allowBreak(2, 3, "", 0);
 	    }
 

@@ -28,6 +28,8 @@ public final class OptionsParser {
 
     private val map : HashMap[String,String];
     private val set : HashMap[String,Boolean];
+    private val flags : Array[Option](1);
+    private val specs : Array[Option](1);
     private val filteredArgs : GrowableIndexedMemoryChunk[String];
 
     public def this (args:Array[String](1), flags:Array[Option](1), specs:Array[Option](1)) { //throws Err {
@@ -68,10 +70,53 @@ public final class OptionsParser {
         }
         this.map = map;
         this.set = set;
+        this.flags = flags;
+        this.specs = specs;
         this.filteredArgs = filteredArgs;
     }
 
     public def filteredArgs() = filteredArgs.toArray();
+
+    static def padding (p:Int) {
+        // need a more efficient way of doing this:
+        var r:String = new String();
+        for ([i] in 1..p) r += " ";
+        return r;
+    }
+        
+
+    public def usage() {
+        var r:String = new String();
+        r += "Usage:";
+        var shortWidth:Int = 0;
+        for (opt in flags.values()) {
+            shortWidth = Math.max(shortWidth, opt.short_.length());
+        }
+        for (opt in specs.values()) {
+            shortWidth = Math.max(shortWidth, opt.short_.length());
+        }
+        var longWidth:Int = 0;
+        for (opt in flags.values()) {
+            longWidth = Math.max(longWidth, opt.long_.length());
+        }
+        for (opt in specs.values()) {
+            longWidth = Math.max(longWidth, opt.long_.length());
+        }
+        for (opt in flags.values()) {
+            // the 8 is to match the " <param>"
+            val shortPadding = 8+shortWidth - opt.short_.length();
+            val longPadding = longWidth - opt.long_.length();
+            r += "\n    "+opt.short_+padding(shortPadding)
+               + " ("+opt.long_+") "+padding(longPadding)+opt.description;
+        }
+        for (opt in specs.values()) {
+            val shortPadding = shortWidth - opt.short_.length();
+            val longPadding = longWidth - opt.long_.length();
+            r += "\n    "+opt.short_+" <param>"+padding(shortPadding)
+               + " ("+opt.long_+") "+padding(longPadding)+opt.description;
+        }
+        return r;
+    }
 
     public operator this (key:String):Boolean = set.containsKey(key) || map.containsKey(key);
 
