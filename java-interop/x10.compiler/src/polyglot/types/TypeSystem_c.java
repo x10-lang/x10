@@ -2427,6 +2427,13 @@ public class TypeSystem_c implements TypeSystem
         return nativeClassType_;
     }
 
+    protected X10ClassType EndpointType_;
+    public X10ClassType Endpoint() {
+        if (EndpointType_ == null)
+            EndpointType_ = load("x10.compiler.Endpoint");
+        return EndpointType_;
+    }
+
     protected X10ClassType compileTimeConstantType_;
     public X10ClassType CompileTimeConstant() {
         if (compileTimeConstantType_ == null)

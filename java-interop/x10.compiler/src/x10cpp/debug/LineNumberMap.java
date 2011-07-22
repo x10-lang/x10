@@ -413,6 +413,8 @@ public class LineNumberMap extends StringTable {
 	
 	public int addReferenceMap(String name, String type, int startline, int endline, int refType)
 	{
+		if (type.contains("$Anonymous$") || type.equals("x10.lang.PlaceLocalHandle[T]")) // can't properly account for these types
+			return -1;
 		if (referenceMembers == null)
 			referenceMembers = new LinkedHashMap<Integer, ClassMapInfo>();
 				
@@ -426,7 +428,7 @@ public class LineNumberMap extends StringTable {
 				cm._type = 203; // special case
 			else
 				cm._type = refType;
-			cm._sizeOfArg = type.replace(".", "::").replace('[', '<').replace("]", " >");
+			cm._sizeOfArg = type.replace(".", "::").replace('[', '<').replace("]", " >").replace("$", "__");
 			int properties = cm._sizeOfArg.indexOf('{');
 			if (properties > -1)
 			{
@@ -454,6 +456,20 @@ public class LineNumberMap extends StringTable {
 				}
 				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), TPMGL(").replaceFirst(">", ")>");
 				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("TPMGL(").concat(temp);
+			}
+			else
+			{
+				int argstart = cm._sizeOfArg.lastIndexOf('<');
+				if (argstart > 0)					
+				{					
+					int argend = cm._sizeOfArg.indexOf('>');
+					if (cm._sizeOfArg.substring(argstart, argend).indexOf(':') == -1)
+					{
+						String temp = cm._sizeOfArg.substring(0, argstart+1) + "class TPMGL(";
+						temp = temp + cm._sizeOfArg.substring(argstart+1, argend) + ")";
+						cm._sizeOfArg = temp + cm._sizeOfArg.substring(argend);
+					}
+				}
 			}
 			referenceMembers.put(id, cm);
 			int returnValue = referenceMembers.size()-1;
@@ -624,6 +640,9 @@ public class LineNumberMap extends StringTable {
 	
 	public void addClassMemberVariable(String name, String type, String containingClass, boolean isStruct, boolean isConstructorArg)
 	{
+		if (containingClass.indexOf('{') != -1) // skip these
+			return;
+
 		if (memberVariables == null)
 			memberVariables = new LinkedHashMap<Integer, ClassMapInfo>();
 		ClassMapInfo cm = memberVariables.get(stringId(containingClass));
@@ -676,7 +695,7 @@ public class LineNumberMap extends StringTable {
 			addLocalVariableMapping("this", containingClass, startLine, endLine, file, true, closureMembers.size(), false);
 			cm = new ClassMapInfo();			
 			cm._members = new ArrayList<LineNumberMap.MemberVariableMapInfo>();
-			cm._sizeOfArg = containerWithTemplateArgs.replace("TPMGL(", "class TPMGL(");
+			cm._sizeOfArg = containerWithTemplateArgs.replace("TPMGL(", " class TPMGL(");
 			cm._type = 100; // all closures are type 100
 			cm._file = file;
 			closureMembers.put(stringId(containingClass), cm);
@@ -1389,7 +1408,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B070B0F, // 2011-07-11, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B071510, // 2011-07-21, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
@@ -1409,7 +1428,7 @@ public class LineNumberMap extends StringTable {
         	w.writeln("sizeof(_X10variableNameList),");
         else
         	w.writeln("0,  // no local variable mappings");
-        if (memberVariables != null)
+        if (!m.isEmpty() && memberVariables != null)
         	w.writeln("sizeof(_X10ClassMapList),");
         else
         	w.writeln("0, // no class mappings");
@@ -1454,7 +1473,7 @@ public class LineNumberMap extends StringTable {
         }
         else
         	w.writeln("NULL,");
-        if (memberVariables != null)
+        if (!m.isEmpty() && memberVariables != null)
         {
         	w.writeln("_X10ClassMapList,");
         	memberVariables.clear();

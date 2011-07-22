@@ -957,6 +957,8 @@ public interface TypeSystem {
     X10ClassType NativeClass();
     X10ClassType CompileTimeConstant();
 
+    X10ClassType Endpoint();
+
     XLit FALSE();
 
     XLit TRUE();

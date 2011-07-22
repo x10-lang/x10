@@ -890,6 +890,11 @@ import x10.util.concurrent.SimpleLatch;
      * Run at statement
      */
     public static def runAt(place:Place, body:()=>void):void {
+        runAt(place, body, 0);
+    }
+
+    public static def runAt(place:Place, body:()=>void, endpoint:Int):void {
+        // for now the endpoint parameter is ignored
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
