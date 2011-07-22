@@ -527,9 +527,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             }
         } else if (type instanceof ByteType) {
             byte[] castValue = (byte[]) value;
-            for (byte v : castValue) {
-                serializer.write(v);
-            }
+            serializer._write(castValue);
         } else if (type instanceof DoubleType) {
             double[] castValue = (double[]) value;
             for (double v : castValue) {
@@ -627,9 +625,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             imc.value = values;
         } else if (imc.type instanceof ByteType) {
             byte[] values = (byte[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readByte();
-            }
+            deserializer._readByteArray(length, values);
             imc.value = values;
         } else if (imc.type instanceof StringType) {
             java.lang.String[] values = (java.lang.String[]) imc.type.makeArray(length);
