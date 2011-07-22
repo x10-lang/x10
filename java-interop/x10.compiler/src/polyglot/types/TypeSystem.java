@@ -57,7 +57,7 @@ import x10.types.constraints.TypeConstraint;
  */
 public interface TypeSystem {
     public static final boolean SERIALIZE_MEMBERS_WITH_CONTAINER = false;
-    public static final String CONSTRUCTOR_NAME="this";
+    public static final String CONSTRUCTOR_NAME = "this";
 
     /**
      * Initialize the type system with the compiler.  This method must be
@@ -1266,4 +1266,8 @@ public interface TypeSystem {
      * Constructs a new ClassFileLazyClassInitializer for the given class file.
      */
     ClassFileLazyClassInitializer classFileLazyClassInitializer(ClassFile clazz);
+
+    X10ClassType JavaInterop();
+    X10ClassType JavaArray();
+    boolean isJavaArray(Type me);
 }

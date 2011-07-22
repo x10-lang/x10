@@ -131,6 +131,7 @@ public class CachingResolver implements TopLevelResolver {
                 addNamed(name, t);
                 addNamed(QName.make(t.fullName()), t);
             }
+            cache.put(name, q);
 
             if (shouldReport(3))
                 reporter.report(3, "CachingResolver: loaded: " + name);

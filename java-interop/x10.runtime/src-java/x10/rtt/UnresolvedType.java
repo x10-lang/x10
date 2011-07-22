@@ -86,10 +86,22 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
         throw new UnsupportedOperationException();
     }
 
-    public final Object makeArray(int length) {
+    public final Object makeArray(int dim0) {
         throw new UnsupportedOperationException();
     }
 
+    public final Object makeArray(int dim0, int dim1) {
+    	throw new UnsupportedOperationException();
+    }
+    
+    public final Object makeArray(int dim0, int dim1, int dim2) {
+    	throw new UnsupportedOperationException();
+    }
+    
+    public final Object makeArray(int dim0, int dim1, int dim2, int dim3) {
+    	throw new UnsupportedOperationException();
+    }
+    
     public Object makeArray(Object... elems) {
         throw new UnsupportedOperationException();
     }

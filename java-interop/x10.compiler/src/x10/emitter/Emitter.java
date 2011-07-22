@@ -2930,6 +2930,11 @@ public class Emitter {
         type = Types.baseType(type);
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
+            if (x10Type.isJavaType()) {
+            	w.write("x10.rtt.Types.getRTT(");
+            	printType(x10Type, 0);
+            	w.write(".class)");
+            }
             X10ClassDef cd = x10Type.x10Def();
             String pat = getJavaRTTRep(cd);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep)
             if (pat != null) {

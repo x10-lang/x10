@@ -2492,7 +2492,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("_" + ft.typeParameters().size());
                 w.write("_" + args.size());
                 w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
-            } else if (pat == null && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible()
+            } else if (pat == null && !ct.isJavaType() && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible()
                     && cd.typeParameters().size() != 0) {
             	String rttString = RuntimeTypeExpander.getRTT(Emitter.mangleQName(cd.fullName()).toString(), RuntimeTypeExpander.hasConflictingField(ct, tr));
             	w.write(rttString);
@@ -4138,7 +4138,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static boolean hasParams(Type t) {
         Type bt = Types.baseType(t);
-        return (bt instanceof X10ClassType && ((X10ClassType) bt).hasParams());
+        TypeSystem ts = bt.typeSystem();
+        return (bt instanceof X10ClassType && !ts.isJavaArray(bt) && ((X10ClassType) bt).hasParams());
     }
 
     public static boolean containsTypeParam(List<Ref<? extends Type>> list) {

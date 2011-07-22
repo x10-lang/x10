@@ -147,7 +147,11 @@ final public class RuntimeTypeExpander extends Expander {
             List<Type> classTypeArgs = ct.typeArguments();
             if (classTypeArgs == null) classTypeArgs = Collections.<Type>emptyList();
             if (pat == null) {
-            	String rttString = getRTT(Emitter.mangleQName(cd.fullName()).toString(), hasConflictingField(ct, tr));
+                String rttString = getRTT(Emitter.mangleQName(cd.fullName()).toString(), hasConflictingField(ct, tr));
+                // XTENLANG-2118 hack: RTTs for Java types should be looked up using getRTT
+                if (ct.isJavaType()) {
+                    rttString = X10PrettyPrinterVisitor.X10_RTT_TYPES + ".getRTT("+Emitter.mangleQName(cd.fullName()).toString()+".class)";
+                }
                 // XTENLANG-1102
                 if (ct.isGloballyAccessible() && classTypeArgs.size() == 0) {
                     er.w.write(rttString);

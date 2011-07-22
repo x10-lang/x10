@@ -2809,7 +2809,7 @@ public class TypeSystem_c implements TypeSystem
 
     public Type arrayOf(Position pos, Ref<? extends Type> type) {
         // Should be called only by the Java class file loader.
-        Type r = Array();
+        Type r = JavaArray();
         return Types.instantiate(r, type);
     }
     /**
@@ -2858,6 +2858,60 @@ public class TypeSystem_c implements TypeSystem
 	return new JavaArrayType_c(this, pos, type);
     }
 
+    protected X10ClassType javaInteropType_ = null;
+    public X10ClassType JavaInterop() {
+        if (javaInteropType_ == null)
+            javaInteropType_ = load("x10.interop.Java");
+        return javaInteropType_;
+    }
+
+    private static final class JavaArrayClassWrapper extends X10ParsedClassType_c {
+        private static final long serialVersionUID = 815224489372855897L;
+        private JavaArrayType arrType = null;
+        private JavaArrayClassWrapper(TypeSystem ts, Position pos, Ref<? extends X10ClassDef> def) {
+            super(ts, pos, def);
+            ts.systemResolver().install(def.get().fullName(), this);
+        }
+        @Override
+        public X10ParsedClassType typeArguments(List<Type> typeArgs) {
+            JavaArrayClassWrapper n = (JavaArrayClassWrapper) super.typeArguments(typeArgs);
+            if (n == this) return n;
+            assert (typeArgs != null && typeArgs.size() == 1);
+            n.arrType = ((TypeSystem_c) typeSystem()).arrayType(position(), Types.ref(typeArgs.get(0)));
+            return n;
+        }
+    }
+
+    protected X10ClassType javaArrayType_ = null;
+    public X10ClassType JavaArray() {
+        if (javaArrayType_ == null) {
+            X10ClassDef cd = new X10ClassDef_c(this, null) {
+                private static final long serialVersionUID = -1118624958040369022L;
+                @Override
+                public X10ClassType asType() {
+                    if (asType == null) {
+                        asType = new JavaArrayClassWrapper(ts, position(), Types.ref(this));
+                    }
+                    return (X10ClassType) asType;
+                }
+            };
+            cd.name(Name.make("array"));
+            X10ClassDef xiJdef = JavaInterop().def();
+            cd.setPackage(xiJdef.package_());
+            cd.position(Position.COMPILER_GENERATED);
+            cd.outer(Types.ref(xiJdef));
+            cd.kind(ClassDef.MEMBER);
+            cd.flags(Flags.PUBLIC.Static());
+            cd.superType(null);
+            javaArrayType_ = cd.asType();
+        }
+        return javaArrayType_;
+    }
+    
+    public boolean isJavaArray(Type me) {
+        return me.isClass() && me.toClass().def() == JavaArray().def();
+    }
+    
     public Type arrayOf(Ref<? extends Type> type, int dims) {
 	return arrayOf(null, type, dims);
     }

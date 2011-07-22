@@ -195,13 +195,14 @@ public class X10SourceClassResolver implements TopLevelResolver {
         return !compileCommandLineOnly && isOutput(name);
     }
 
+    public static final QName VOID = QName.make("void");
     public static final QName JAVA_LANG_OBJECT = QName.make("java.lang.Object");
     public static final QName JAVA_LANG_STRING = QName.make("java.lang.String");
 
     public List<Type> find(QName name) throws SemanticException {
         TypeSystem ts = (TypeSystem) this.ts;
 
-        if (name.equals(QName.make("void")))
+        if (name.equals(VOID))
             return CollectionUtil.<Type>list(ts.Void());
 
         if (reporter.should_report(report_topics, 3))
