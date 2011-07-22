@@ -1039,6 +1039,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					return false;
     				if (ct2.typeArguments().size() != numParams)
     					return false;
+        			// XTENLANG-2118 Java array hack
+        			if (ts.isJavaArray(ct1)) {
+        				assert (numParams == 1);
+        				Type a1 = ct1.typeArguments().get(0);
+        				Type a2 = ct2.typeArguments().get(0);
+        				if (a1.isNumeric() || a1.isChar() || a2.isNumeric() || a2.isChar()) {
+        					// The equality case should have been caught by the typeEquals() call above
+        					return false;
+        				}
+        				// For non-numeric types, Java arrays are covariant
+        				return isSubtype(a1, a2);
+        			}
     				if (def.variances().size() != numParams)
     					return false; // FIXME: throw an InternalCompilerError
     				for (int i = 0; i < numParams; i++) {

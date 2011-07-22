@@ -11,6 +11,7 @@ package polyglot.types.reflect;
 import polyglot.types.*;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Modifier;
 
 /**
  * Method represents a method in a Java classfile.  A method's name and
@@ -54,8 +55,16 @@ public class Method
     this.in = in;
   }
 
+  private static final int SYNTHETIC = 0x00001000;
+  public static boolean isSynthetic(int bits) {
+	return (bits & Modifier.VOLATILE) != 0 || (bits & SYNTHETIC) != 0;
+  }
+
   public void initialize() throws IOException {
     modifiers = in.readUnsignedShort();
+    if (isSynthetic(modifiers)) {
+      synthetic = true;
+    }
 
     name = in.readUnsignedShort();
     type = in.readUnsignedShort();
@@ -112,5 +121,11 @@ public class Method
   }
   public String name() {
     return (String) clazz.getConstants()[this.name].value();
+  }
+  public String signature() {
+	  return (String) clazz.getConstants()[this.type].value();
+  }
+  public String toString() {
+	return Modifier.toString(modifiers)+"("+Integer.toHexString(modifiers)+") "+name()+signature();
   }
 }

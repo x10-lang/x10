@@ -97,10 +97,22 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         return rtt.getImpl();
     }
 
-    public final Object makeArray(int length) {
-        return rtt.makeArray(length);
+    public final Object makeArray(int dim0) {
+        return rtt.makeArray(dim0);
     }
 
+    public final Object makeArray(int dim0, int dim1) {
+    	return rtt.makeArray(dim0, dim1);
+    }
+
+    public final Object makeArray(int dim0, int dim1, int dim2) {
+    	return rtt.makeArray(dim0, dim1, dim2);
+    }
+    
+    public final Object makeArray(int dim0, int dim1, int dim2, int dim3) {
+    	return rtt.makeArray(dim0, dim1, dim2, dim3);
+    }
+    
     public final Object makeArray(Object... elems) {
         return rtt.makeArray(elems);
     }
