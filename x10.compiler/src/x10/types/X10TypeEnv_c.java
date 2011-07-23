@@ -1834,6 +1834,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	if (Types.isX10Struct(type1) || Types.isX10Struct(type2)) {
     		return ts.Any();
     	}
+    	// XTENLANG-2118: Since they are not equal, and one is not a subtype of another
+    	// and one of them is not a subtype of Object, the lub has to be Any.
+    	if (!ts.isSubtype(type1, ts.Object()) || !ts.isSubtype(type2, ts.Object())) {
+    		return ts.Any();
+    	}
     	// Now neither is a struct. Neither is null.
     	if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
     		// Walk up the hierarchy
