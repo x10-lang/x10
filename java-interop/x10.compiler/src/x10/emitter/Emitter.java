@@ -656,6 +656,20 @@ public class Emitter {
         return false;
 	}
 	
+	public static boolean isJavaType(Type ct) {
+        Type bt = Types.baseType(ct);
+        if (bt instanceof X10ClassType) {
+        	X10ClassType xct = (X10ClassType) bt;
+        	if (xct.isJavaType()) return true;
+        	Type superClass = xct.superClass();
+        	if (superClass != null && isJavaType(superClass)) return true;
+        	for (Type intf : xct.interfaces()) {
+        		if (isJavaType(intf)) return true;
+        	}
+        }
+        return false;
+	}
+
 	private static String getPropertyInit(Type at, int index) {
 		at = Types.baseType(at);
 		if (at instanceof X10ClassType) {
@@ -1191,8 +1205,8 @@ public class Emitter {
         && !isNativeRepedToJava(containerType)
         && !(nonStatic && ((methodName.equals("equals") && numFormals == 1) || (methodName.equals("toString") && numFormals == 0) || (methodName.equals("hashCode") && numFormals == 0)))/*Any*/
         && !(nonStatic && ((methodName.equals("compareTo") && numFormals == 1)))/*Comparable*/
-        // TODO check and stop mangling method name if it implements/overrides method of Java type
-        && !(nonStatic && ((methodName.equals("charAt") && numFormals == 1) || (methodName.equals("length") && numFormals == 0)))/*CharSequence*/
+        // TODO For X10 method that implements/overrides Java method, we always generate unmangled version and additionally generate mangled version as needed. 
+        && !isJavaType(containerType)/*CharSequence etc.*/
         && !(methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix));
     }
     
