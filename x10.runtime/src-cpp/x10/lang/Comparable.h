@@ -27,6 +27,14 @@ namespace x10 {
               x10aux::ref<x10::lang::String> (I::*typeName) ();
           };
     
+          static x10_int compareTo(FMGL(T) recv, FMGL(T) arg0) {
+              return recv->compareTo(arg0);
+          }
+          // [DC] I am throwing everything at the wall here to see what sticks
+          static x10_int compareTo(x10aux::ref<Comparable<FMGL(T)> > recv_, FMGL(T) arg0) {
+              x10aux::ref<x10::lang::Reference> recv = recv;
+              return (recv.operator->()->*(x10aux::findITable<x10::lang::Comparable<FMGL(T)> >(recv->_getITables())->compareTo))(arg0);
+          }
           static x10_int compareTo(x10aux::ref<x10::lang::Reference> recv, FMGL(T) arg0) {
               return (recv.operator->()->*(x10aux::findITable<x10::lang::Comparable<FMGL(T)> >(recv->_getITables())->compareTo))(arg0);
           }
