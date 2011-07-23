@@ -39,7 +39,8 @@ public class X10JavaDeserializer {
     public static final int ref = Integer.parseInt("FFFFFFF", 16);
     private DataInputStream in;
     private int counter = 0;
-    private Unsafe unsafe = getUnsafe();
+    private static Unsafe unsafe = getUnsafe();
+    private static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
 
     public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
@@ -278,22 +279,6 @@ public class X10JavaDeserializer {
         final String className = DeserializationDispatcher.getClassNameForID(serializationID);
         try {
             Class<?> clazz = Class.forName(className);
-            Class[] interfaces = clazz.getInterfaces();
-            boolean isCustomSerializable = false;
-            for (Class aInterface : interfaces) {
-                if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
-                    isCustomSerializable = true;
-                    break;
-                }
-            }
-            if (isCustomSerializable) {
-                Object o = unsafe.allocateInstance(SerialData.class);
-                int i = record_reference(o);
-                SerialData serialData = (SerialData) deserializeClassUsingReflection(SerialData.class, o, i);
-                Method makeMethod = clazz.getMethod("$make", SerialData.class);
-                makeMethod.setAccessible(true);
-                return makeMethod.invoke(null, serialData);
-            }
             Object o = unsafe.allocateInstance(clazz);
             int i = record_reference(o);
             Class<?> superclass = clazz.getSuperclass();
@@ -321,18 +306,18 @@ public class X10JavaDeserializer {
         } catch (SecurityException e) {
             // This should never happen
             throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException, IllegalAccessException {
+    private <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
@@ -360,8 +345,17 @@ public class X10JavaDeserializer {
             return (T) X10Throwable.$_deserialize_body((X10Throwable)obj, this);
         }
 
+        Class[] interfaces = clazz.getInterfaces();
+        boolean isCustomSerializable = false;
+        for (Class aInterface : interfaces) {
+            if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
+                isCustomSerializable = true;
+                break;
+            }
+        }
+
         Class<?> superclass = clazz.getSuperclass();
-        if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
+        if (!isCustomSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
             // We need to deserialize the super class first
             obj = deserializeClassUsingReflection(superclass, obj, i);
         }
@@ -389,9 +383,19 @@ public class X10JavaDeserializer {
             } else if ("java.lang.String".equals(type.getName())) {
                 field.set(obj, readStringUsingReflection());
             } else {
-                field.set(obj, readRefUsingReflection());
+                Object value = readRefUsingReflection();
+                field.set(obj, value);
             }
         }
+
+        if (isCustomSerializable) {
+                SerialData serialData = (SerialData) readRefUsingReflection();
+
+               // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
+                Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
+                makeMethod.setAccessible(true);
+                makeMethod.invoke(obj, serialData);
+            }
         return obj;
     }
 

@@ -330,12 +330,6 @@ public class X10JavaSerializer {
     }
 
     private <T> void serializeClassUsingReflection(T body, Class<? extends Object> bodyClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, NoSuchFieldException {
-        if (body instanceof CustomSerialization) {
-            CustomSerialization cs = (CustomSerialization)body;
-            SerialData serialData = cs.serialize();
-            serializeClassUsingReflection(serialData, SerialData.class);
-            return;
-        }
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
@@ -369,8 +363,17 @@ public class X10JavaSerializer {
             return;
         }
 
+        Class[] interfaces = bodyClass.getInterfaces();
+        boolean isCustomSerializable = false;
+        for (Class aInterface : interfaces) {
+            if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
+                isCustomSerializable = true;
+                break;
+            }
+        }
+
         Class<?> superclass = bodyClass.getSuperclass();
-        if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
+        if (!isCustomSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
             // We need to serialize the super class first
             serializeClassUsingReflection(body, superclass);
         }
@@ -400,6 +403,12 @@ public class X10JavaSerializer {
             } else {
                 writeObjectUsingReflection(field.get(body));
             }
+        }
+
+        if (isCustomSerializable) {
+            CustomSerialization cs = (CustomSerialization)body;
+            SerialData serialData = cs.serialize();
+            writeObjectUsingReflection(serialData);
         }
     }
 
