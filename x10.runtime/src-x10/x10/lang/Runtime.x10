@@ -151,6 +151,13 @@ import x10.util.concurrent.SimpleLatch;
     @Native("c++","x10aux::deserialized_bytes = #v")
     static def setDeserializedBytes(v:Long):void { }
 
+    public static def serializedSize[T](v:T) {
+        var r:Long;
+        @Native("c++", "x10aux::serialization_buffer buf; buf.write(v); r = buf.length();")
+        { r = -1L; }
+        return r;
+    }
+
     public static struct X10RTMessageStats {
         public def this () {
             this.bytesSent = 0;
