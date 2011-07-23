@@ -486,6 +486,9 @@ public class TypeSystem_c implements TypeSystem
      * from or equals ancestor.
      **/
     public boolean descendsFrom(ClassDef child, ClassDef ancestor) {
+        if (child == ancestor)
+            return true;
+
         ClassDef a = classDefOf(Any());
 
         if (ancestor == a)
@@ -494,16 +497,14 @@ public class TypeSystem_c implements TypeSystem
         if (child == a)
             return false;
 
-        if (child == ancestor)
-            return true;
-
-        ClassDef o = classDefOf(Object());
-
-        if (ancestor == o)
-            return true;
-
-        if (child == o)
-            return false;
+        // XTENLANG-2118: this short-circuit is no longer valid for classes that don't extend x10.lang.Object
+        //ClassDef o = classDefOf(Object());
+        //
+        //if (ancestor == o)
+        //    return true;
+        //
+        //if (child == o)
+        //    return false;
 
         Type sup = Types.get(child.superType());
 
@@ -4353,9 +4354,9 @@ public class TypeSystem_c implements TypeSystem
 
     private void allImplementedInterfaces(X10ClassType c, boolean checkSuperClasses, List<X10ClassType> l) {
         Context context = createContext();
-        if (c.typeEquals(Object(), context)) {
-            return;
-        }
+        //if (c.typeEquals(Object(), context)) {
+        //    return;
+        //}
 
         for (Type old : l) {
             if (c.typeEquals(old, context)) {
