@@ -750,13 +750,15 @@ import x10.util.concurrent.SimpleLatch;
                 // (happens when main activity terminates)
                 pool(NTHREADS);
 
-                // root finish has terminated, kill remote processes if any
-                for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                    runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {pool.latch.release();});
-                }
-
                 // we need to call waitForFinish here to see the exceptions thrown by main if any
-                rootFinish.waitForFinish();
+                try {
+                    rootFinish.waitForFinish();
+                } finally {
+                    // root finish has terminated, kill remote processes if any
+                    for (var i:Int=1; i<Place.MAX_PLACES; i++) {
+                        runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {pool.latch.release();});
+                    }
+                }
             } else {
                 // wait for thread pool to die
                 // (happens when a kill signal is received from place 0)
