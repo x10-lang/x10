@@ -36,6 +36,8 @@ public class Java {
     public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int):array[array[array[T]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "(#T[][][][])#T$rtt.makeArray(#d0,#d1,#d2,#d3)")
     public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int, d3:Java.int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
+    @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getImpl()")
+    public static native def javaClass[T]():java.lang.Class;
     // Java conversions (primitive)
     public static def convert(b:x10.lang.Boolean):Java.boolean = b; // no-op
     //public static def convert(b:Java.boolean):x10.lang.Boolean = b; // no-op
@@ -60,7 +62,7 @@ public class Java {
     //public static native def convert(s:java.lang.String):x10.lang.String; // no-op
     // Java conversions (array)
     @Native("java", "(#T[])#a.raw.getBackingArray()")
-    public static native def convert[T](a:x10.array.Array[T]):Java.array[T];
-    //@Native("java", "x10.core.interop.Java.toX10Array(#T$rtt, #a);")
-    //public static native def convert[T](a:Java.array[T]):x10.array.Array[T];
+    public static native def convert[T](a:x10.array.Array[T](1)):Java.array[T];
+    @Native("java", "x10.array.Array.$make(#T$rtt, new x10.core.IndexedMemoryChunk(#T$rtt, #a.length, #a), (Class[][][])null)")
+    public static native def convert[T](a:Java.array[T]):x10.array.Array[T](1);
 }
