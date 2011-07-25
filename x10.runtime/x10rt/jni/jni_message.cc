@@ -36,7 +36,7 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
     JNIEnv *env = jniHelper_getEnv();
     MessageReader reader(msg);
 
-    jint numElems = reader.readJInt();
+    jint numElems = msg->len;
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
         fprintf(stderr, "OOM from NewByteArray (num elements = %d)\n", (int)numElems);
@@ -73,9 +73,8 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
     fprintf(stdout, "jni_message:cc: messagewriter: placeId=%d, arraylen=%d\n", place, arrayLen);
 #endif
     
-    unsigned long numBytes = sizeof(jint) + arrayLen * sizeof(jbyte);
+    unsigned long numBytes = arrayLen * sizeof(jbyte);
     MessageWriter writer(numBytes);
-    writer.writeJInt(arrayLen);
     env->GetByteArrayRegion(array, 0, arrayLen, (jbyte*)writer.cursor);
     // Byte array, so no need to endian swap
 
