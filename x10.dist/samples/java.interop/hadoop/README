@@ -1,0 +1,15 @@
+
+An work-in-progress example of using Java interoperability to run very small Hadoop computation (WordCount).
+
+Building
+========
+
+Assuming you already have built the X10 workspace, run the following:
+
+    ant prepare		# to download Hadoop jars
+    make		# to compile 
+
+Running (not tested yet, as post-compilation fails)
+=======
+
+    make run		# to run
