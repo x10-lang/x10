@@ -30,7 +30,7 @@ import x10.x10rt.X10JavaSerializer;
 public final class GlobalRef<T> extends x10.core.Struct implements
         Externalizable, X10JavaSerializable {
 	
-	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(GlobalRef.class.getName(), "x10.lang.GlobalRef");
+	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(GlobalRef.class, "x10.lang.GlobalRef");
 
     public static final x10.rtt.RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.NamedType<GlobalRef<?>>(
         "x10.lang.GlobalRef",
@@ -356,7 +356,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     public static class LocalEval extends x10.core.Ref {
 
 	private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(LocalEval.class.getName());
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(LocalEval.class);
 	public static final x10.rtt.RuntimeType<LocalEval> $RTT = new x10.rtt.NamedType<LocalEval>("x10.lang.GlobalRef.LocalEval", LocalEval.class, new x10.rtt.Type[] {x10.rtt.Types.OBJECT});
 	public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
     
@@ -404,7 +404,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
 	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
-        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$Eval.class.getName());
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$Eval.class);
 	    public static final x10.rtt.RuntimeType<$Closure$Eval> $RTT =
 		new x10.rtt.StaticFunType<$Closure$Eval>($Closure$Eval.class, 
 							 new x10.rtt.RuntimeType.Variance[] {x10.rtt.RuntimeType.Variance.INVARIANT, x10.rtt.RuntimeType.Variance.INVARIANT},
@@ -468,7 +468,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
             
 	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
-        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$Apply.class.getName());
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$Apply.class);
 	    public static final x10.rtt.RuntimeType<$Closure$Apply> $RTT =
 		new x10.rtt.StaticFunType<$Closure$Apply>($Closure$Apply.class, 
 							  new x10.rtt.RuntimeType.Variance[] {x10.rtt.RuntimeType.Variance.INVARIANT},

@@ -41,34 +41,40 @@ public class DeserializationDispatcher {
     // We first increment i before issuing the id hence initialize to NULL_ID
     private static int i = NULL_ID;
 
-    private static List<String> idToClassName = new ArrayList<String>();
+    private static List<Class> idToClassName = new ArrayList<Class>();
     private static Map<String, Integer> classNameToId = new HashMap<String, Integer> ();
 
-    public static int addDispatcher(String className) {
+    public static int addDispatcher(Class clazz) {
         if (i == NULL_ID) {
-            add(NULL_VALUE);
-            add("java.lang.String");
-            add("java.lang.Float");
-            add("java.lang.Double");
-            add("java.lang.Integer");
-            add("java.lang.Boolean");
-            add("java.lang.Byte");
-            add("java.lang.Short");
-            add("java.lang.Character");
+            classNameToId.put(null, i);
+            idToClassName.add(i, null);
+            i++;
+            try {
+                add(Class.forName("java.lang.String"));
+                add(Class.forName("java.lang.Float"));
+                add(Class.forName("java.lang.Double"));
+                add(Class.forName("java.lang.Integer"));
+                add(Class.forName("java.lang.Boolean"));
+                add(Class.forName("java.lang.Byte"));
+                add(Class.forName("java.lang.Short"));
+                add(Class.forName("java.lang.Character"));
+            } catch (ClassNotFoundException e) {
+                // This will never happen
+            }
         }
-        add(className);
+        add(clazz);
         return i-1;
     }
 
-    public static int addDispatcher(String className, String alternate) {
-        int i = addDispatcher(className);
+    public static int addDispatcher(Class clazz, String alternate) {
+        int i = addDispatcher(clazz);
         classNameToId.put(alternate,  i);
         return i;
     }
 
-    private static void add(String str) {
-        classNameToId.put(str, i);
-        idToClassName.add(i, str);
+    private static void add(Class clazz) {
+        classNameToId.put(clazz.getName(), i);
+        idToClassName.add(i, clazz);
         i++;
     }
 
@@ -88,15 +94,11 @@ public class DeserializationDispatcher {
         if (Runtime.TRACE_SER) {
             System.out.println("Deserializing non-null value with id " + i);
         }
-        final String className = idToClassName.get(i);
         try {
-            Class<?> clazz = Class.forName(className);
+            Class<?> clazz = idToClassName.get(i);
             Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
             method.setAccessible(true);
             return method.invoke(null, deserializer);
-        } catch (ClassNotFoundException e) {
-            // This should never happen
-            throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -151,7 +153,7 @@ public class DeserializationDispatcher {
     }
 
     public static String getClassNameForID(int id) {
-        return idToClassName.get(id);
+        return idToClassName.get(id).getName();
     }
 
     public static int getIDForClassName(String str) {

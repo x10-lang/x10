@@ -122,7 +122,7 @@ public abstract class InitDispatcher {
     public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
     	public int fieldId;
     	public byte[] buf;
-        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(InitDispatcher.$Closure$Deserialize.class.getName());
+        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(InitDispatcher.$Closure$Deserialize.class);
 
         public void $apply() {
             // execute deserializer for fieldValue

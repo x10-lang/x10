@@ -530,7 +530,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class.getName());");
+            w.writeln(".class);");
             w.newline();
         }
 

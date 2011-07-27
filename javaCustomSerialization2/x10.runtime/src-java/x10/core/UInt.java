@@ -27,7 +27,7 @@ final public class UInt extends Number implements StructI, java.lang.Comparable<
     x10.lang.Arithmetic<UInt>, x10.lang.Bitwise<UInt>, x10.util.Ordered<UInt>
 {
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UInt.class.getName());
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UInt.class);
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.UINT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
