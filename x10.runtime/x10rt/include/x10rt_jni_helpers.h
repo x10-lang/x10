@@ -25,6 +25,8 @@ typedef struct methodDesciption {
 extern JNIEnv* jniHelper_getEnv();
 
 extern void initCachedJVM(JNIEnv*);
+
+const char * X10_PAUSE_GC_ON_SEND = getenv("X10_PAUSE_GC_ON_SEND");
     
 
 
