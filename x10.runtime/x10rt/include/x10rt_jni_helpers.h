@@ -1,4 +1,3 @@
-
 #ifndef X10RT_JNI_HELPERS_H
 #define X10RT_JNI_HELPERS_H
 
@@ -26,7 +25,7 @@ extern JNIEnv* jniHelper_getEnv();
 
 extern void initCachedJVM(JNIEnv*);
 
-const char * X10_PAUSE_GC_ON_SEND = getenv("X10_PAUSE_GC_ON_SEND");
+extern const char* X10_PAUSE_GC_ON_SEND;
     
 
 
@@ -176,3 +175,4 @@ public:
 };
     
 #endif /* X10RT_JNI_HELPERS_H */
+
