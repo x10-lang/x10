@@ -2904,15 +2904,16 @@ public class TypeSystem_c implements TypeSystem
                 }
             };
             cd.name(Name.make("array"));
-            X10ClassDef xiJdef = JavaInterop().def();
-            cd.setPackage(xiJdef.package_());
             cd.position(Position.COMPILER_GENERATED);
-            cd.outer(Types.ref(xiJdef));
-            cd.kind(ClassDef.MEMBER);
             cd.flags(Flags.PUBLIC.Static());
             cd.superType(null);
+            javaArrayType_ = cd.asType(); // Careful here -- JavaInterop will refer back to array
+            X10ClassDef xiJdef = JavaInterop().def();
+            cd.setPackage(xiJdef.package_());
+            cd.outer(Types.ref(xiJdef));
+            cd.kind(ClassDef.MEMBER);
+            xiJdef.addMemberClass(Types.ref(javaArrayType_));
             //cd.setFromJavaClassFile(); // pretend it's a Java class
-            javaArrayType_ = cd.asType();
         }
         return javaArrayType_;
     }

@@ -8,9 +8,9 @@ CLASSPATH = $(shell cat .download/classpath)
 	ant prepare
 
 compile:
-	$(X10C) -classpath "$(CLASSPATH)" *.x10
+	$(X10C) -classpath "$(CLASSPATH)" x10/hadoop/*.x10
 
 run:
-	$(X10) -classpath "$(CLASSPATH)" x10.hadoop.WordCount WordCount.x10 output
+	$(X10) -classpath "$(CLASSPATH)" x10.hadoop.WordCount x10/hadoop/WordCount.x10 output
 	
 

@@ -134,9 +134,6 @@ public class ClassFileLazyClassInitializer {
 
         if (innerClassInfo != null) {
             outerName = clazz.classNameCP(innerClassInfo.outerClassIndex);
-            if (!packageName.equals("")) {
-                outerName = packageName+"."+outerName;
-            }
             innerName = clazz.className(innerClassInfo.nameIndex);
             // Lazily load the outer class.
             ct.outer(defForName(outerName));
@@ -303,14 +300,23 @@ public class ClassFileLazyClassInitializer {
                 break;
             }
             case 'L': {
-                int start = ++i;
                 Ref<? extends Type> t = null;
+                String parent = null;
+                do {
+                int start = ++i;
                 while (i < str.length()) {
                     char c = str.charAt(i);
                     if (c == ';' || c == '<') {
                         String s = str.substring(start, i);
                         s = s.replace('/', '.');
-                        t = typeForName(s);
+                        if (t == null) {
+                            t = typeForName(s);
+                            parent = s;
+                        } else {
+                            String fullName = parent + "$" + s;
+                            parent = fullName;
+                            t = typeForName(fullName); // FIXME: forgets generic info on container -- should look up member class instead
+                        }
                         break;
                     }
                     i++;
@@ -322,7 +328,6 @@ public class ClassFileLazyClassInitializer {
                     i = updateTypeListFromString(targs, str, i, bounds);
                     assert (i < str.length() && str.charAt(i) == '>');
                     i++;
-                    assert (i < str.length() && str.charAt(i) == ';');
                     X10ClassType cType = t.get().toClass();
                     List<Type> typeArgs = new ArrayList<Type>(targs.size());
                     for (Ref<? extends Type> a : targs) {
@@ -330,6 +335,8 @@ public class ClassFileLazyClassInitializer {
                     }
                     t = Types.ref(cType.typeArguments(typeArgs));
                 }
+                } while (str.charAt(i) == '.'); // Some signatures have generic info for containers
+                assert (i < str.length() && str.charAt(i) == ';');
                 types.add(arrayOf(t, dims));
                 break;
             }
@@ -429,7 +436,8 @@ public class ClassFileLazyClassInitializer {
             name = unboxed;
         }
         name = name.replace('$', '.');
-        return Types.<Type>ref(ts.createClassType(position(), defForName(name, flags)));
+        Name shortName = Name.make(name.substring(name.lastIndexOf('.')+1));
+        return Types.<Type>ref(ts.createClassType(position(), defForName(name, flags)).name(shortName));
     }
 
     public void initTypeObject() {
@@ -618,14 +626,15 @@ public class ClassFileLazyClassInitializer {
         if (str.charAt(0) != '<') return 0;
         int i = 1;
         while (i < str.length()) {
+            if (str.charAt(i) == '>') return i+1;
             int start = i;
             int colon = str.indexOf(':', start);
             String name = str.substring(start, colon);
+            while (str.charAt(colon+1) == ':') colon++; // Sometimes the separator is two colons
             List<Ref<? extends Type>> types = new ArrayList<Ref<? extends Type>>(1);
-            i = updateTypeListFromString(types, str, colon+1, bounds);
+            i = updateTypeFromString(types, str, colon+1, bounds);
             assert (types.size() == 1);
             bounds.put(name, types.get(0));
-            if (str.charAt(i) == '>') return i+1;
             i++;
         }
         assert (str.charAt(i) == '>');
