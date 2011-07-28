@@ -11,6 +11,7 @@ package polyglot.types.reflect;
 import polyglot.types.*;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Modifier;
 
 /**
  * Field models a field (member variable) in a class.  The Field class
@@ -32,6 +33,7 @@ public class Field {
     protected int type;
     protected Attribute[] attrs;
     protected ConstantValueAttr constantValue;
+    protected Signature signature;
     protected boolean synthetic;
 
     /**
@@ -74,6 +76,10 @@ public class Field {
                 }
                 if ("Synthetic".equals(name.value())) {
                     synthetic = true;
+                }
+                if ("Signature".equals(name.value())) {
+                    signature = new Signature(clazz, in, nameIndex, length);
+                    attrs[i] = signature;
                 }
             }
             
@@ -197,7 +203,19 @@ public class Field {
     public int getType() {
         return type;
     }
+    public Signature getSignature() {
+      return signature;
+    }
     public String name() {
       return (String) clazz.getConstants()[this.name].value();
+    }
+    public String signature() {
+      if (this.signature != null) {
+        return (String) clazz.getConstants()[this.signature.getSignature()].value();
+      }
+      return (String) clazz.getConstants()[this.type].value();
+    }
+    public String toString() {
+      return Modifier.toString(modifiers)+"("+Integer.toHexString(modifiers)+") "+name()+signature();
     }
 }
