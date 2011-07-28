@@ -134,6 +134,14 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
         shrink(length+1);
     }
 
+    /** 
+     * Remove all elements.
+     */
+    public def clear():void {
+        imc.clear(0,length-1);
+        length = 0;
+    }
+
     /**
      * Transfer elements between i and j (inclusive) into a new IMC,
      * in the order in which they appear in this rail.  The elements
@@ -174,7 +182,7 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
       return new Array[T](toIndexedMemoryChunk());
     }
 
-    private def grow(var newCapacity:int):void {
+    public def grow(var newCapacity:int):void {
         var oldCapacity:int = capacity();
         if (newCapacity < oldCapacity*2) {
             newCapacity = oldCapacity*2;
@@ -190,7 +198,7 @@ public final class GrowableIndexedMemoryChunk[T] implements CustomSerialization 
         imc = tmp;
     }
 
-    private def shrink(var newCapacity:int):void {
+    public def shrink(var newCapacity:int):void {
         if (newCapacity > capacity()/4 || newCapacity < 8)
             return;
         newCapacity = x10.lang.Math.max(newCapacity, length);

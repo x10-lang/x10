@@ -508,7 +508,12 @@ implements X10ParsedClassType
 		return !(def instanceof ErrorRef_c<?>);
 	}
 
-	public X10ParsedClassType instantiateTypeParametersExplicitly() {
+    @Override
+    public boolean isReference() {
+        return !isX10Struct();
+    }
+
+    public X10ParsedClassType instantiateTypeParametersExplicitly() {
 	    X10ParsedClassType pct = this;
 	    List<ParameterType> typeParameters = pct.x10Def().typeParameters();
 	    List<Type> typeArguments = pct.typeArguments();

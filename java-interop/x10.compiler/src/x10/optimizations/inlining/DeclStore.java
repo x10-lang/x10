@@ -105,6 +105,7 @@ public class DeclStore {
 //        nonVirtual |= call instanceof Call && ((Call) call).nonVirtual(); // is this really used // TODO rewrite non-virtual call with super bridge call
 //        nonVirtual |= call.target() instanceof Special && ((Special) call.target()).kind() == Special.SUPER; // TODO rewrite non-virtual call with super bridge call
 //        nonVirtual |= call instanceof ConstructorCall && ((ConstructorCall) call).kind() == ConstructorCall.SUPER; // TODO rewrite non-virtual call with super bridge call
+        if (pkg==null) return null;
         if (!nonVirtual && !pkg.inlinable) return null;
         boolean required = utils.inliningRequired(call) || utils.inliningRequired(def);
         ProcedureDecl decl = pkg.getDecl(required ? Integer.MAX_VALUE : implicitMax, !nonVirtual);

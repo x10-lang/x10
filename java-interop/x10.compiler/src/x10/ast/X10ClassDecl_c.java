@@ -795,6 +795,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+
+    	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
+
     	n = (X10ClassDecl_c) n.typeCheckBody(parent, tc, childtc);
     	
     	n = (X10ClassDecl_c) X10Del_c.visitAnnotations(n, childtc);
@@ -876,8 +879,6 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 //            map.put(ct.x10Def(), ct);
 //        }
         
-    	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
-    	
     	Flags flags = n.flags().flags();
     	if (flags.isStruct()) {
     		if (n.classDef().isInnerClass() && ! flags.isStatic()) {

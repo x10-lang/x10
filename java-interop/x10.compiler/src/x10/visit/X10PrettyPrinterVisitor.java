@@ -1861,14 +1861,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         // XTENLANG-2680 invoke final methods as non-virtual call for optimization
-        MethodInstance mi = c.methodInstance();
-        Receiver target = c.target();
-        ContainerType containerType = mi.container();
+        final MethodInstance mi = c.methodInstance();
+        final Receiver target = c.target();
+        final Type targetType = target.type();
+        final ContainerType containerType = mi.container();
     	assert containerType.isClass();
+    	final X10ClassType containerClass = containerType.toClass();
     	// N.B. structs are implicitly final. all methods of final classes are final. invoke final methods as non-virtual call.
     	boolean invokeNativeAsNonVirtual = !Emitter.supportNativeMethodDecl || mi.flags().isStatic() || mi.flags().isFinal()
-    	|| canBeNonVirtual(((X10ClassType) containerType.toClass()).x10Def())
-    	|| (target.type().isClass() && canBeNonVirtual(((X10ClassType) target.type().toClass()).x10Def()))
+    	|| canBeNonVirtual(containerClass.x10Def())
+    	|| (targetType.isClass() && canBeNonVirtual(targetType.toClass().x10Def()))
     	;
         if (invokeNativeAsNonVirtual && er.printNativeMethodCall(c)) {
             return;
@@ -1895,7 +1897,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         TypeSystem xts = tr.typeSystem();
-        Type targetType = target.type();
 
         // When the target class is a generics , print a cast operation
         // explicitly.
@@ -1943,11 +1944,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write(".");
 
+        // print type parameters
         List<Type> methodTypeParams = mi.typeParameters();
         if (methodTypeParams.size() > 0) {
             er.printMethodParams(methodTypeParams);
         }
 
+        // print method name
         if (isMainMethod(mi) || mi.container().toClass().isJavaType()) {
             w.write(Emitter.mangleToJava(c.name().id()));
         } else {
@@ -1995,7 +1998,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             if (c.nonVirtual()) {
                 Name name = InlineHelper.makeSuperBridgeName(mi.container().toClass().def(), mi.name());
-                List<MethodInstance> bridges = target.type().toClass().methodsNamed(name);
+                List<MethodInstance> bridges = targetType.toClass().methodsNamed(name);
                 assert (bridges.size()==1);
                 md = bridges.get(0).def();
                 isParamReturnType = false;
@@ -2126,13 +2129,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else if (isSelfDispatch && xts.isParameterType(targetType)) {
                 ct = (X10ClassType) Types.baseType(containerType);
             }
-        	// XTENLANG-2723 (revert r21635)
-//            // N.B. stop passing rtt to java raw class's methods
-//            if (ct != null
-//                    && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))
-//            		&& !Emitter.isNativeRepedToJava(ct)) {
-            if (ct != null
-            		&& ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))) {
+            boolean passRTT = 
+//            	// XTENLANG-2723 stop passing rtt to java raw class's methods (reverted in r21635)
+//            	ct != null && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType)) && !Emitter.isNativeRepedToJava(ct);
+            	ct != null && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType));
+            if (passRTT) {
                 w.write(",");
                 new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
             }

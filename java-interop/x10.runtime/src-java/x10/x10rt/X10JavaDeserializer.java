@@ -127,10 +127,15 @@ public class X10JavaDeserializer {
     public byte[] readByteArray() throws IOException {
         int length = in.readInt();
         byte[] v = new byte[length];
-        for (int i = 0; i < length; i++) {
-            v[i] = in.readByte();
-        }
+        _readByteArray(length, v);
         return v;
+    }
+
+    public void _readByteArray(int length, byte[] v) throws IOException {
+        int read = 0;
+        while (read < length) {
+                read += in.read(v, read, length-read);
+        }
     }
 
     public short readShort() throws IOException {
@@ -222,10 +227,7 @@ public class X10JavaDeserializer {
     public String readStringValue() throws IOException {
         int length = readInt();
         byte[] bytes = new byte[length];
-        int read = 0;
-        while (read < length) {
-                read += in.read(bytes, read, length-read);
-        }
+        _readByteArray(length, bytes);
         return new String(bytes);
     }
 

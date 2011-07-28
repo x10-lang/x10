@@ -815,7 +815,7 @@ void x10rt_net_probe ()
 		state.linkAtStartup = false;
 	}
 	else 
-		while (probe(false));
+		while (probe(false)) { }
 }
 
 // return T if data was processed, F if not
