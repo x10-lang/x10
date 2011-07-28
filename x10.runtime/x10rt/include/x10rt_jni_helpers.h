@@ -1,4 +1,3 @@
-
 #ifndef X10RT_JNI_HELPERS_H
 #define X10RT_JNI_HELPERS_H
 
@@ -25,6 +24,8 @@ typedef struct methodDesciption {
 extern JNIEnv* jniHelper_getEnv();
 
 extern void initCachedJVM(JNIEnv*);
+
+extern const char* X10_PAUSE_GC_ON_SEND;
     
 
 
@@ -174,3 +175,4 @@ public:
 };
     
 #endif /* X10RT_JNI_HELPERS_H */
+

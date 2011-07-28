@@ -1269,6 +1269,8 @@ public class LineNumberMap extends StringTable {
 				            	}
 				            	index++;
 				            }
+				            if (index >= memberVariables.size())
+				            	v._x10typeIndex = offsets[v._x10typeIndex] * -1;
 			        	}
 			        	if (!skip)
 			        	{
@@ -1408,7 +1410,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B071510, // 2011-07-21, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B071B10, // 2011-07-27, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");

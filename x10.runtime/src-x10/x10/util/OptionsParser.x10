@@ -45,24 +45,75 @@ public final class OptionsParser {
                 ended = true;
                 continue;
             }
+            if (s.length() <= 1 || s(0) != '-') { // too short or doesn't start with -
+                filteredArgs.add(s);
+                continue;
+            }
             if (!ended) {
-                if (flags!=null) for (flag in flags.values()) {
-                    if (recognised) break;
-                    if (s.equals(flag.short_) || s.equals(flag.long_)) {
-                        if (flag.short_!=null) set.put(flag.short_, true);
-                        if (flag.long_!=null) set.put(flag.long_, true);
-                        recognised = true;
+                if (s(1)!='-') {
+                    // of the form -stuff
+
+                    recognised = true; // set it to false if any of the letters aren't valid options
+                    for ([index] in 1..(s.length()-1)) {
+                        val char = s(index);
+                        var char_recognised:Boolean = false;
+                        if (flags!=null) for (flag in flags.values()) {
+                            if (char.equals(flag.short_(0))) {
+                                char_recognised = true;
+                            }
+                        }
+                        if (specs!=null && index==s.length()-1) for (spec in specs.values()) {
+                            if (char.equals(spec.short_(0))) {
+                                char_recognised = true;
+                            }
+                        }
+                        if (!char_recognised) {
+                            recognised = false;
+                            break;
+                        }
                     }
-                }
-                if (specs!=null) for (spec in specs.values()) {
-                    if (recognised) break;
-                    if (s.equals(spec.short_) || s.equals(spec.long_)) {
-                        recognised = true;
-                        ++i;
-                        if (i>=args.size) throw new Err("Expected another arg after: \""+s+"\"");
-                        val s2 = (args(i));
-                        if (spec.short_!=null) map.put(spec.short_, s2);
-                        if (spec.long_!=null) map.put(spec.long_, s2);
+
+                    if (recognised) {
+                        for ([index] in 1..(s.length()-1)) {
+                            val char = s(index);
+                            if (flags!=null) for (flag in flags.values()) {
+                                if (flag.short_!=null && char.equals(flag.short_(0))) {
+                                    set.put("-"+flag.short_, true);
+                                    if (flag.long_!=null) set.put(flag.long_, true);
+                                }
+                            }
+                            if (specs!=null && index==s.length()-1) for (spec in specs.values()) {
+                                if (spec.short_!=null && char.equals(spec.short_(0))) {
+                                    ++i;
+                                    if (i>=args.size) throw new Err("Expected another arg after: \""+s+"\"");
+                                    val s2 = (args(i));
+                                    map.put("-"+spec.short_, s2);
+                                    if (spec.long_!=null) map.put(spec.long_, s2);
+                                }
+                            }
+                        }
+                    }
+
+                } else {
+                    // of the form --stuff, just compare with all the long_ fields in the options
+                    if (flags!=null) for (flag in flags.values()) {
+                        if (recognised) break;
+                        if (s.equals(flag.long_)) {
+                            if (flag.short_!=null) set.put("-"+flag.short_, true);
+                            set.put(flag.long_, true);
+                            recognised = true;
+                        }
+                    }
+                    if (specs!=null) for (spec in specs.values()) {
+                        if (recognised) break;
+                        if (s.equals(spec.long_)) {
+                            recognised = true;
+                            ++i;
+                            if (i>=args.size) throw new Err("Expected another arg after: \""+s+"\"");
+                            val s2 = (args(i));
+                            if (spec.short_!=null) map.put("-"+spec.short_, s2);
+                            map.put(spec.long_, s2);
+                        }
                     }
                 }
             }

@@ -2719,7 +2719,14 @@ public class TypeSystem_c implements TypeSystem
         return uninitializedType_;
     }
 
+    protected X10ClassType suppressTransientErrorType_;
+    public X10ClassType SuppressTransientError() {
+        if (suppressTransientErrorType_ == null)
+            suppressTransientErrorType_ = load("x10.compiler.SuppressTransientError");
+        return suppressTransientErrorType_;
+    }
 
+    
     public Object placeHolder(TypeObject o) {
 	return placeHolder(o, Collections.<TypeObject>emptySet());
     }

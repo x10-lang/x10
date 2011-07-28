@@ -151,6 +151,14 @@ import x10.util.concurrent.SimpleLatch;
     @Native("c++","x10aux::deserialized_bytes = #v")
     static def setDeserializedBytes(v:Long):void { }
 
+    public static def serializedSize[T](v:T) {
+        var r:Long;
+        @Native("java", "r = x10.runtime.impl.java.Runtime.serialize(v).length;")
+        @Native("c++", "x10aux::serialization_buffer buf; buf.write(v); r = buf.length();")
+        { r = -1L; }
+        return r;
+    }
+
     public static struct X10RTMessageStats {
         public def this () {
             this.bytesSent = 0;
@@ -743,13 +751,15 @@ import x10.util.concurrent.SimpleLatch;
                 // (happens when main activity terminates)
                 pool(NTHREADS);
 
-                // root finish has terminated, kill remote processes if any
-                for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                    runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {pool.latch.release();});
-                }
-
                 // we need to call waitForFinish here to see the exceptions thrown by main if any
-                rootFinish.waitForFinish();
+                try {
+                    rootFinish.waitForFinish();
+                } finally {
+                    // root finish has terminated, kill remote processes if any
+                    for (var i:Int=1; i<Place.MAX_PLACES; i++) {
+                        runClosureAt(i, ()=> @x10.compiler.RemoteInvocation {pool.latch.release();});
+                    }
+                }
             } else {
                 // wait for thread pool to die
                 // (happens when a kill signal is received from place 0)

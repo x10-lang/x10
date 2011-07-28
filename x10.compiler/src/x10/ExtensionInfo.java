@@ -329,7 +329,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                                                         opts.ignore_mod_times);
 
         for (PrecompiledLibrary pco : opts.x10libs) {
-            pco.updateManifset(manifest, this);
+            pco.updateManifest(manifest, this);
         }
 
         // Resolver to handle lookups of member classes.

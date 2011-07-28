@@ -20,7 +20,14 @@ public struct Option {
     public long_:String;
     public description:String;
     public def this(s:String, l:String, d:String) {
-        short_ = "-"+s; long_="--"+l; description=d;
+        this.short_ = s;
+        if (s!=null) {
+            if (s.length()!=1) {
+                throw new IllegalArgumentException("short options must be one letter only (or null)");
+            }
+        }
+        this.long_ = (l==null) ? null : "--"+l;
+        this.description=d;
     }
     public def toString() = description;
 }
