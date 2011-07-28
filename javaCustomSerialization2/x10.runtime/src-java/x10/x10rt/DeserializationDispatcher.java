@@ -14,6 +14,7 @@ package x10.x10rt;
 import x10.runtime.impl.java.Runtime;
 
 import java.io.IOException;
+import java.lang.RuntimeException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -36,6 +37,9 @@ public class DeserializationDispatcher {
     public static final String NULL_VALUE = "__NULL__";
 
     private static final int INCREMENT_SIZE = 10;
+
+    public static final int refValue = Integer.parseInt("FFFFFFF", 16);
+    public static final int javaClassID = refValue - 1;
 
     // Should start issuing id's from 1 cause the id 0 is used to indicate a null value.
     // We first increment i before issuing the id hence initialize to NULL_ID
@@ -68,7 +72,7 @@ public class DeserializationDispatcher {
 
     public static int addDispatcher(Class clazz, String alternate) {
         int i = addDispatcher(clazz);
-        classNameToId.put(alternate,  i);
+        classNameToId.put(alternate, i);
         return i;
     }
 
@@ -80,7 +84,7 @@ public class DeserializationDispatcher {
 
     public static Object getInstanceForId(int i, X10JavaDeserializer deserializer) throws IOException {
 
-        if (i == X10JavaDeserializer.ref) {
+        if (i == refValue) {
             return deserializer.getObjectAtPosition(deserializer.readInt());
         } else if (i == NULL_ID) {
             if (Runtime.TRACE_SER) {
@@ -95,7 +99,7 @@ public class DeserializationDispatcher {
             System.out.println("Deserializing non-null value with id " + i);
         }
         try {
-            Class<?> clazz = idToClassName.get(i);
+            Class<?> clazz = getClassForID(i, deserializer);
             Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
             method.setAccessible(true);
             return method.invoke(null, deserializer);
@@ -152,8 +156,29 @@ public class DeserializationDispatcher {
         return obj;
     }
 
-    public static String getClassNameForID(int id) {
-        return idToClassName.get(id).getName();
+    public static String getClassNameForID(int id, X10JavaDeserializer deserializer) {
+         if (id == javaClassID) {
+            try {
+                return deserializer.readStringValue();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return getClassForID(id, deserializer).getName();
+    }
+
+    public static Class getClassForID(int id, X10JavaDeserializer deserializer) {
+        if (id == javaClassID) {
+            try {
+                String className = deserializer.readStringValue();
+                return Class.forName(className);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return idToClassName.get(id);
     }
 
     public static int getIDForClassName(String str) {
@@ -169,6 +194,9 @@ public class DeserializationDispatcher {
         while (integer == null && ((i = s.lastIndexOf(".")) > 0)) {
             s = s.substring(0, i) + "$" + s.substring(i + 1);
             integer = classNameToId.get(s);
+        }
+        if (integer == null) {
+            return -1;
         }
         return integer;
     }

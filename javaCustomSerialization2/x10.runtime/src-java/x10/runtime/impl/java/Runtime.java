@@ -233,11 +233,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static Boolean isCustomSerialization() {
         String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION");
         if (property == null) {
-            if (System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION") == null) {
-                return false;
-            } else {
-                return false;
-            }
+            return System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION") == null;
         }
         return Boolean.valueOf(property);
     }
@@ -246,7 +242,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static Boolean isCustomSerializationUsingReflection() {
         String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION");
         if (property == null) {
-            return true;
+            return false;
         }
         return Boolean.valueOf(property);
     }

@@ -36,7 +36,6 @@ public class X10JavaDeserializer {
 
     // When a Object is deserialized record its position
     private List<Object> objectList;
-    public static final int ref = Integer.parseInt("FFFFFFF", 16);
     private DataInputStream in;
     private int counter = 0;
     private static Unsafe unsafe = getUnsafe();
@@ -71,8 +70,11 @@ public class X10JavaDeserializer {
 
     public Object readRef() throws IOException {
         int serializationID = readInt();
-        if (serializationID == ref) {
+        if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
+        }
+        if (serializationID == DeserializationDispatcher.javaClassID) {
+            return deserializeRefUsingReflection(serializationID);
         }
         return DeserializationDispatcher.getInstanceForId(serializationID, this);
     }
@@ -222,7 +224,7 @@ public class X10JavaDeserializer {
 
     public String readString() throws IOException {
         int classID = in.readInt();
-        if (classID == ref) {
+        if (classID == DeserializationDispatcher.refValue) {
             return (String) getObjectAtPosition(readInt());
         } else if (classID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
@@ -259,10 +261,10 @@ public class X10JavaDeserializer {
 
     public Object readRefUsingReflection() throws IOException {
         int serializationID = readInt();
-        if (serializationID == ref) {
+        if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         }
-        if (serializationID == X10JavaDeserializer.ref) {
+        if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         } else if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
@@ -276,9 +278,12 @@ public class X10JavaDeserializer {
         if (Runtime.TRACE_SER) {
             System.out.println("Deserializing non-null value with id " + serializationID);
         }
-        final String className = DeserializationDispatcher.getClassNameForID(serializationID);
+        return deserializeRefUsingReflection(serializationID);
+    }
+
+    private Object deserializeRefUsingReflection(int serializationID) throws IOException {
         try {
-            Class<?> clazz = Class.forName(className);
+            Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
             Object o = unsafe.allocateInstance(clazz);
             int i = record_reference(o);
             Class<?> superclass = clazz.getSuperclass();
@@ -287,6 +292,7 @@ public class X10JavaDeserializer {
                     || "x10.rtt.DoubleType".equals(clazz.getName())
                     || "x10.rtt.LongType".equals(clazz.getName())
                     || "x10.rtt.BooleanType".equals(clazz.getName())
+                    || "x10.rtt.StringType".equals(clazz.getName())
                     || "x10.rtt.CharType".equals(clazz.getName())
                     || "x10.rtt.ByteType".equals(clazz.getName())
                     || "x10.rtt.ShortType".equals(clazz.getName())
@@ -300,9 +306,6 @@ public class X10JavaDeserializer {
                 return deserializeClassUsingReflection(superclass, o, i);
             }
             return deserializeClassUsingReflection(clazz, o, i);
-        } catch (ClassNotFoundException e) {
-            // This should never happen
-            throw new RuntimeException(e);
         } catch (SecurityException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -321,7 +324,10 @@ public class X10JavaDeserializer {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
-        if ("x10.rtt.NamedType".equals(clazz.getName())) {
+        if ("java.lang.String".equals(clazz.getName())) {
+            obj = (T) readStringValue();
+            return obj;
+        } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
             NamedType.$_deserialize_body((NamedType) obj, this);
             return obj;
         } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
