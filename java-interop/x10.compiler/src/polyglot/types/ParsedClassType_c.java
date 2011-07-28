@@ -86,7 +86,7 @@ public abstract class ParsedClassType_c extends ClassType_c implements ParsedCla
 
     private Name name;
     public Name name() {
-        if (name == null) {
+        if (name == null || def.known()) {
             name = def().name();
         }
         return name;
