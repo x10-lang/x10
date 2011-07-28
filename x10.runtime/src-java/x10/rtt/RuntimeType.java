@@ -531,8 +531,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
         String name = impl.getName();
-        int classId = DeserializationDispatcher.getIDForClassName(name);
-        serializer.write(classId);
+        serializer.writeClassID(name);
 	}
 
 	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
@@ -551,7 +550,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     public static X10JavaSerializable $_deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
         int classId = deserializer.readInt();
-        String className = DeserializationDispatcher.getClassNameForID(classId);
+        String className = DeserializationDispatcher.getClassNameForID(classId, deserializer);
         if (className == null) {
             return null;
         } else if ("x10.core.Boolean".equals(className)) {
