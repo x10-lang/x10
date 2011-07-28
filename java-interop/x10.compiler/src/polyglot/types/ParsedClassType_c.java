@@ -84,10 +84,20 @@ public abstract class ParsedClassType_c extends ClassType_c implements ParsedCla
         return outer.asType();
     }
 
+    private Name name;
     public Name name() {
-        return def().name();
+        if (name == null) {
+            name = def().name();
+        }
+        return name;
     }
 
+    public ClassType name(Name name) {
+        ParsedClassType_c t = (ParsedClassType_c) copy();
+        t.name = name;
+        return t;
+    }
+    
     /** Get the class's super type. */
     public Type superClass() {
         return Types.get(def().superType());
