@@ -769,7 +769,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
             w.write("public " + Emitter.mangleToJava(def.name()) + "(");
             w.write("final " + JAVA_LANG_SYSTEM + "[] $dummy) { ");
-            if (!(superClassNode != null && Emitter.isNativeRepedToJava(superClassNode.type()))) {
+            if (!(superClassNode != null && (Emitter.isNativeRepedToJava(superClassNode.type()) || superClassNode.type().toClass().isJavaType()))) {
                 w.write("super($dummy);");
             }
             w.write("}");
