@@ -572,7 +572,7 @@ public class Emitter {
 	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
 	static {
 		boxedPrimitives.put("x10.lang.Boolean", "x10.core.Boolean");
-                boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
+		boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
 		boxedPrimitives.put("x10.lang.Byte", "x10.core.Byte");
 		boxedPrimitives.put("x10.lang.Short", "x10.core.Short");
 		boxedPrimitives.put("x10.lang.Int", "x10.core.Int");

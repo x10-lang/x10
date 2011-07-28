@@ -9,10 +9,12 @@
 package polyglot.types.reflect;
 
 import java.io.*;
+import java.lang.reflect.Modifier;
 import java.util.*;
 import polyglot.frontend.*;
 
 import polyglot.types.*;
+import polyglot.types.reflect.InnerClasses.Info;
 import polyglot.util.*;
 import x10.util.CollectionFactory;
 
@@ -39,6 +41,8 @@ public class ClassFile {
     protected Method[] methods;
     protected Attribute[] attrs;
     protected InnerClasses innerClasses;
+    protected InnerClasses.Info innerClassInfo;
+    protected Signature signature;
     protected File classFileSource;
     protected ExtensionInfo extensionInfo;
     
@@ -176,14 +180,20 @@ public class ClassFile {
     if (c != null && c.tag() == Constant.CLASS) {
       Integer nameIndex = (Integer) c.value();
       if (nameIndex != null) {
-	c = constants[nameIndex.intValue()];
-	if (c.tag() == Constant.UTF8) {
-	  String s = (String) c.value();
-          return s.replace('/', '.');
-	}
+	return className(nameIndex.intValue());
       }
     }
 
+    return null;
+  }
+
+  public String className(int idx) {
+    Constant c;
+    c = constants[idx];
+    if (c.tag() == Constant.UTF8) {
+      String s = (String) c.value();
+      return s.replace('/', '.');
+    }
     return null;
   }
 
@@ -450,7 +460,17 @@ public class ClassFile {
                                     throws IOException {
       if (name.equals("InnerClasses")) {
         innerClasses = new InnerClasses(in, nameIndex, length);
+        Info[] allInnerInfos = innerClasses.getClasses();
+        for (int i = 0; i < allInnerInfos.length; i++) {
+          if (allInnerInfos[i].classIndex == getThisClass()) {
+            innerClassInfo = allInnerInfos[i];
+          }
+        }
         return innerClasses;
+      }
+      if (name.equals("Signature")) {
+        signature = new Signature(this, in, nameIndex, length);
+        return signature;
       }
       return null;
     }
@@ -467,6 +487,9 @@ public class ClassFile {
     public InnerClasses getInnerClasses() {
         return innerClasses;
     }
+    public InnerClasses.Info getInnerClassInfo() {
+        return innerClassInfo;
+    }
     public int[] getInterfaces() {
         return interfaces;
     }
@@ -474,6 +497,8 @@ public class ClassFile {
         return methods;
     }
     public int getModifiers() {
+        if (innerClassInfo != null)
+            return innerClassInfo.modifiers;
         return modifiers;
     }
     public int getSuperClass() {
@@ -482,8 +507,17 @@ public class ClassFile {
     public int getThisClass() {
         return thisClass;
     }
+    public Signature getSignature() {
+        return signature;
+    }
     
+    public String signature() {
+        if (this.signature != null) {
+            return (String) constants[this.signature.getSignature()].value();
+        }
+        return "";
+    }
     public String toString() {
-        return name();
+        return Modifier.toString(modifiers)+"("+Integer.toHexString(modifiers)+") "+name()+signature();
     }
 }

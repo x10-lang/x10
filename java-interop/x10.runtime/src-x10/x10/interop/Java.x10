@@ -2,6 +2,7 @@ package x10.interop;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
+import x10.compiler.NoReturn;
 
 @NativeRep("c++", "#error Undefined Java", "#error Undefined Java", null)
 public class Java {
@@ -38,6 +39,8 @@ public class Java {
     public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int, d3:Java.int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getImpl()")
     public static native def javaClass[T]():java.lang.Class;
+    @Native("java", "do { throw #e; } while (false)")
+    public static native @NoReturn def throwException(e:java.lang.Throwable):void;
     // Java conversions (primitive)
     public static def convert(b:x10.lang.Boolean):Java.boolean = b; // no-op
     //public static def convert(b:Java.boolean):x10.lang.Boolean = b; // no-op

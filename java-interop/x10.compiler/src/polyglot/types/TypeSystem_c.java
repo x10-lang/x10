@@ -2911,6 +2911,7 @@ public class TypeSystem_c implements TypeSystem
             cd.kind(ClassDef.MEMBER);
             cd.flags(Flags.PUBLIC.Static());
             cd.superType(null);
+            //cd.setFromJavaClassFile(); // pretend it's a Java class
             javaArrayType_ = cd.asType();
         }
         return javaArrayType_;
