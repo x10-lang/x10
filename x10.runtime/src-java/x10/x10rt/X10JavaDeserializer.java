@@ -265,9 +265,6 @@ public class X10JavaDeserializer {
         int serializationID = readInt();
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
-        }
-        if (serializationID == DeserializationDispatcher.refValue) {
-            return getObjectAtPosition(readInt());
         } else if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
                 System.out.println("Deserialized a null reference");
