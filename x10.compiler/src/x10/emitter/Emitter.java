@@ -3372,6 +3372,11 @@ public class Emitter {
 
     // Emits the code to deserialize the super class
     public void deserializeSuperClass(TypeNode superClassNode) {
+
+        // If the super class
+        if (superClassNode.type().toClass().isJavaType()) {
+            return;
+        }
         X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether we need to deserialize the super class
         if (superClassNode != null && superClassNode.type().isClass()) {
