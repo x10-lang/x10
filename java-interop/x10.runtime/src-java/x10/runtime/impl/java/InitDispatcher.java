@@ -92,7 +92,6 @@ public abstract class InitDispatcher {
     }
 
     public static int addInitializer(String className, String fieldName) {
-        System.out.println("Adding initializer " + className + "." + fieldName);
         if (fieldId < 0) {
             System.err.println("Adding initializer too late! : " + className + "." + fieldName);
             System.exit(-1);
