@@ -454,6 +454,12 @@ public abstract class InitDispatcher {
                 Object o = deserializer.readRef();
                 in.close();
                 return o;
+            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+                java.io.DataInputStream in = new java.io.DataInputStream(bais);
+                X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
+                Object o = deserializer.readRefUsingReflection();
+                in.close();
+                return o;
             }
             java.io.ObjectInputStream in = new java.io.ObjectInputStream(bais);
             Object val = in.readObject();
