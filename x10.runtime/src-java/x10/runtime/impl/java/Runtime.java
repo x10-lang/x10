@@ -343,25 +343,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             if (TRACE_SER_DETAIL) {
                 System.out.println("Starting serialization for runAt  " + body.getClass());
             }
-            try {
-                ba =  serializeUsingReflection(body);
-            } catch (IllegalAccessException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (NoSuchMethodException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (InvocationTargetException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (NoSuchFieldException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            }
+            ba =  serializeUsingReflection(body);
             if (TRACE_SER_DETAIL) {
                 System.out.println("Done with serialization for runAt " + body.getClass());
             }
@@ -373,7 +355,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
     }
 
-    public static <T> byte[] serializeUsingReflection(T body) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+    public static <T> byte[] serializeUsingReflection(T body) throws IOException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream oos = new DataOutputStream(baos);
         X10JavaSerializer serializer = new X10JavaSerializer(oos);

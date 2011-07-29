@@ -13,6 +13,7 @@ package x10.x10rt;
 
 import x10.core.GlobalRef;
 import x10.core.IndexedMemoryChunk;
+import x10.core.ThrowableUtilities;
 import x10.core.X10Throwable;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
@@ -335,17 +336,7 @@ public class X10JavaSerializer {
     }
 
     public void write(Object v) throws IOException {
-        try {
-            writeObjectUsingReflection(v);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
+        writeObjectUsingReflection(v);
     }
 
     public void write(String str) throws IOException {
@@ -400,7 +391,7 @@ public class X10JavaSerializer {
         return pos;
     }
 
-    public <T> void writeObjectUsingReflection(T body) throws IllegalAccessException, IOException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+    public <T> void writeObjectUsingReflection(T body) throws IOException {
         if (body == null) {
             writeNull();
             return;
@@ -443,87 +434,105 @@ public class X10JavaSerializer {
         }
     }
 
-    private <T> void serializeClassUsingReflection(T body, Class<? extends Object> bodyClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, NoSuchFieldException {
+    public <T> void serializeClassUsingReflection(T body, Class<? extends Object> bodyClass) throws IOException {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
-        if ("java.lang.String".equals(bodyClass.getName())) {
-            writeStringValue((String) body);
-            return;
-        } else if ("x10.rtt.NamedType".equals(bodyClass.getName())) {
-            serializeClassUsingReflection(body, bodyClass.getSuperclass());
-            Field typeNameField = bodyClass.getDeclaredField("typeName");
-            String typeName = (String) typeNameField.get(body);
-            writeClassID(typeName);
-            return;
-        } else if ("x10.rtt.RuntimeType".equals(bodyClass.getName())) {
-            Field implField = bodyClass.getDeclaredField("impl");
-            Class<?> impl = (Class<?>) implField.get(body);
-            writeClassID(impl.getName());
-            return;
-        } else if ("x10.core.IndexedMemoryChunk".equals(bodyClass.getName())) {
-            ((IndexedMemoryChunk) body).$_serialize(this);
-            return;
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(bodyClass.getName())) {
-            ((IndexedMemoryChunk.$Closure$0) body).$_serialize(this);
-            return;
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(bodyClass.getName())) {
-            ((IndexedMemoryChunk.$Closure$1) body).$_serialize(this);
-            return;
-        } else if (GlobalRef.class.getName().equals(bodyClass.getName())) {
-            ((GlobalRef) body).$_serialize(this);
-            return;
-        } else if (X10Throwable.class.getName().equals(bodyClass.getName())) {
-            ((X10Throwable) body).$_serialize(this);
-            return;
-        }
-
-        Class[] interfaces = bodyClass.getInterfaces();
-        boolean isCustomSerializable = false;
-        for (Class aInterface : interfaces) {
-            if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
-                isCustomSerializable = true;
-                break;
+        try {
+            if ("java.lang.String".equals(bodyClass.getName())) {
+                writeStringValue((String) body);
+                return;
+            } else if ("x10.rtt.NamedType".equals(bodyClass.getName())) {
+                serializeClassUsingReflection(body, bodyClass.getSuperclass());
+                Field typeNameField = bodyClass.getDeclaredField("typeName");
+                String typeName = (String) typeNameField.get(body);
+                writeClassID(typeName);
+                return;
+            } else if ("x10.rtt.RuntimeType".equals(bodyClass.getName())) {
+                Field implField = bodyClass.getDeclaredField("impl");
+                Class<?> impl = (Class<?>) implField.get(body);
+                writeClassID(impl.getName());
+                return;
+            } else if ("x10.core.IndexedMemoryChunk".equals(bodyClass.getName())) {
+                ((IndexedMemoryChunk) body).$_serialize(this);
+                return;
+            } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(bodyClass.getName())) {
+                ((IndexedMemoryChunk.$Closure$0) body).$_serialize(this);
+                return;
+            } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(bodyClass.getName())) {
+                ((IndexedMemoryChunk.$Closure$1) body).$_serialize(this);
+                return;
+            } else if (GlobalRef.class.getName().equals(bodyClass.getName())) {
+                ((GlobalRef) body).$_serialize(this);
+                return;
+            } else if (X10Throwable.class.getName().equals(bodyClass.getName())) {
+                ((X10Throwable) body).$_serialize(this);
+                return;
             }
-        }
 
-        Class<?> superclass = bodyClass.getSuperclass();
-        if (!isCustomSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-            // We need to serialize the super class first
-            serializeClassUsingReflection(body, superclass);
-        }
-
-        // We need to sort the fields first. Cause the order here could depend on the JVM.
-        Field[] declaredFields = bodyClass.getDeclaredFields();
-        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
-        for (Field field : declaredFields) {
-            if (field.isSynthetic())
-                continue;
-            int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
-                continue;
+            Class[] interfaces = bodyClass.getInterfaces();
+            boolean isCustomSerializable = false;
+            for (Class aInterface : interfaces) {
+                if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
+                    isCustomSerializable = true;
+                    break;
+                }
             }
-            fields.add(field);
-        }
 
-        for (Field field: fields) {
-            field.setAccessible(true);
-            Class<?> type = field.getType();
-            if (type.isPrimitive()) {
-                writePrimitiveUsingReflection(field, body);
-            } else if (type.isArray()) {
-                writeArrayUsingReflection(field.get(body));
-            } else if ("java.lang.String".equals(type.getName())) {
-                writeStringUsingReflection(field, body);
-            } else {
-                writeObjectUsingReflection(field.get(body));
+            Class<?> superclass = bodyClass.getSuperclass();
+            if (!isCustomSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
+                // We need to serialize the super class first
+                serializeClassUsingReflection(body, superclass);
             }
-        }
 
-        if (isCustomSerializable) {
-            CustomSerialization cs = (CustomSerialization)body;
-            SerialData serialData = cs.serialize();
-            writeObjectUsingReflection(serialData);
+            // We need to sort the fields first. Cause the order here could depend on the JVM.
+            Field[] declaredFields = bodyClass.getDeclaredFields();
+            Set<Field> fields = new TreeSet<Field>(new FieldComparator());
+            for (Field field : declaredFields) {
+                if (field.isSynthetic())
+                    continue;
+                int modifiers = field.getModifiers();
+                if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+                    continue;
+                }
+                fields.add(field);
+            }
+
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Class<?> type = field.getType();
+                if (type.isPrimitive()) {
+                    writePrimitiveUsingReflection(field, body);
+                } else if (type.isArray()) {
+                    writeArrayUsingReflection(field.get(body));
+                } else if ("java.lang.String".equals(type.getName())) {
+                    writeStringUsingReflection(field, body);
+                } else {
+                    writeObjectUsingReflection(field.get(body));
+                }
+            }
+
+            if (isCustomSerializable) {
+                CustomSerialization cs = (CustomSerialization) body;
+                SerialData serialData = cs.serialize();
+                writeObjectUsingReflection(serialData);
+            }
+        } catch (IllegalAccessException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (NoSuchMethodException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (InvocationTargetException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (NoSuchFieldException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
         }
     }
 
