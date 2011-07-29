@@ -15,7 +15,6 @@ public class PBO {
     val pboFront = new Array[Int](1);
     val pboBack = new Array[Int](1);
     val tex = new Array[Int](1);
-    var h:Int = 0;
     val mappedBuffer = new Array[Byte](DATA_SIZE);
 
     def this (args: Array[String]{rank==1, zeroBased, rect, rail}) {
@@ -51,60 +50,60 @@ public class PBO {
 
 
     class FrameEventHandler extends GL.FrameEventHandler {
+        var counter:Int = 0;
         public def display () {
 
-            try {
+            //val before = System.nanoTime();
 
-                val before = System.nanoTime();
-
-                GL.glBindTexture(GL.GL_TEXTURE_2D, tex(0));
-        
-                // background dma
-                GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pboBack(0));
-                GL.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, 0);
-        
-        
-                // update other pbo
-                GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pboFront(0));
-                GL.glBufferData[Byte](GL.GL_PIXEL_UNPACK_BUFFER, DATA_SIZE, null, 0, GL.GL_STREAM_DRAW); // discard
-                GL.glMapBuffer(GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_WRITE_ONLY, mappedBuffer);
-                for ([y] in 0..(IMAGE_HEIGHT-1)) {
-                    for ([x] in 0..(IMAGE_WIDTH-1)) {
-                        mappedBuffer(y*IMAGE_WIDTH*3 + x*3 + 0) = ((x * x) / 256 + 3 * y + h) as Byte;
-                        mappedBuffer(y*IMAGE_WIDTH*3 + x*3 + 1) = ((y * y) / 256 + x + h) as Byte;
-                        mappedBuffer(y*IMAGE_WIDTH*3 + x*3 + 2) = h as Byte;
-                    }   
+            GL.glBindTexture(GL.GL_TEXTURE_2D, tex(0));
+    
+            // background dma
+            GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pboBack(0));
+            GL.glTexSubImage2D(GL.GL_TEXTURE_2D, 0, 0, 0, IMAGE_WIDTH, IMAGE_HEIGHT, GL.GL_RGB, GL.GL_UNSIGNED_BYTE, 0);
+    
+    
+            // update other pbo
+            GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pboFront(0));
+            GL.glBufferData[Byte](GL.GL_PIXEL_UNPACK_BUFFER, DATA_SIZE, null, 0, GL.GL_STREAM_DRAW); // discard
+            GL.glMapBuffer(GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_WRITE_ONLY, mappedBuffer);
+            val raw = mappedBuffer.raw();
+            val h = counter;
+            val width = IMAGE_WIDTH;
+            val height = IMAGE_HEIGHT;
+            for (var y:Int=0 ; y<height ; ++y) {
+                for (var x:Int=0 ; x<width ; ++x) {
+                    raw(y*width*3 + x*3 + 0) = ((x * x) / 256 + 3 * y + h) as Byte;
+                    raw(y*width*3 + x*3 + 1) = ((y * y) / 256 + x + h) as Byte;
+                    raw(y*width*3 + x*3 + 2) = h as Byte;
                 }
-                h += 10;
-                GL.glUnmapBuffer(GL.GL_PIXEL_UNPACK_BUFFER);
-                GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, 0);
-
-                // swap pbos
-                val tmp = pboFront(0);
-                pboFront(0) = pboBack(0);
-                pboBack(0) = pboFront(0);
-
-                GL.glEnable(GL.GL_TEXTURE_2D);
-                GL.glBegin(GL.GL_QUADS);
-                GL.glTexCoord2f(0.0f, 1.0f);   GL.glVertex3f(-1.0f, -1.0f, 0.0f);
-                GL.glTexCoord2f(1.0f, 1.0f);   GL.glVertex3f( 1.0f, -1.0f, 0.0f);
-                GL.glTexCoord2f(1.0f, 0.0f);   GL.glVertex3f( 1.0f,  1.0f, 0.0f);
-                GL.glTexCoord2f(0.0f, 0.0f);   GL.glVertex3f(-1.0f,  1.0f, 0.0f);
-                GL.glEnd();
-                GL.glDisable(GL.GL_TEXTURE_2D);
-
-                GL.glBindTexture(GL.GL_TEXTURE_2D, 0);
-
-                GL.glutSwapBuffers();
-
-
-                val after = System.nanoTime();
-                val seconds = (after-before)/1E9;
-                Console.OUT.println("Frame time: " + seconds + "s " + 1/seconds + " FPS.");
-
-            } catch (e : Throwable) {
-                e.printStackTrace(Console.ERR);
             }
+            counter += 10;
+            GL.glUnmapBuffer(GL.GL_PIXEL_UNPACK_BUFFER);
+            GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, 0);
+
+            // swap pbos
+            val tmp = pboFront(0);
+            pboFront(0) = pboBack(0);
+            pboBack(0) = tmp;
+
+            GL.glEnable(GL.GL_TEXTURE_2D);
+            GL.glBegin(GL.GL_QUADS);
+            GL.glTexCoord2f(0.0f, 1.0f);   GL.glVertex3f(-1.0f, -1.0f, 0.0f);
+            GL.glTexCoord2f(1.0f, 1.0f);   GL.glVertex3f( 1.0f, -1.0f, 0.0f);
+            GL.glTexCoord2f(1.0f, 0.0f);   GL.glVertex3f( 1.0f,  1.0f, 0.0f);
+            GL.glTexCoord2f(0.0f, 0.0f);   GL.glVertex3f(-1.0f,  1.0f, 0.0f);
+            GL.glEnd();
+            GL.glDisable(GL.GL_TEXTURE_2D);
+
+            GL.glBindTexture(GL.GL_TEXTURE_2D, 0);
+
+            GL.glutSwapBuffers();
+
+
+            //val after = System.nanoTime();
+            //val seconds = (after-before)/1E9;
+            //Console.OUT.println("Frame time: " + seconds + "s " + 1/seconds + " FPS.");
+
 
         }
 
