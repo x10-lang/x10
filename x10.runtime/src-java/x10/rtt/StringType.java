@@ -19,10 +19,11 @@ import x10.x10rt.X10JavaSerializer;
 import java.io.IOException;
 
 
-public class StringType extends RuntimeType<String> implements X10JavaSerializable {
+public class StringType extends RuntimeType<String> {
+//public class StringType extends RuntimeType<String> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(StringType.class.getName());
+//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(StringType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
@@ -50,22 +51,20 @@ public class StringType extends RuntimeType<String> implements X10JavaSerializab
         return "x10.lang.String";
     }
 
-    @Override
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-    }
-
-    @Override
-    public int $_get_serialization_id() {
-        return _serialization_id;
-    }
-
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return $_deserialize_body(null, deserializer);
-	}
-
-    public static X10JavaSerializable $_deserialize_body(StringType s, X10JavaDeserializer deserializer) throws IOException {
-        StringType stringType = (StringType) Types.STRING;
-        deserializer.record_reference(stringType);
-        return stringType;
-    }
+//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+//    }
+//
+//    public int $_get_serialization_id() {
+//        return _serialization_id;
+//    }
+//
+//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+//		return $_deserialize_body(null, deserializer);
+//	}
+//
+//    public static X10JavaSerializable $_deserialize_body(StringType s, X10JavaDeserializer deserializer) throws IOException {
+//        StringType stringType = (StringType) Types.STRING;
+//        deserializer.record_reference(stringType);
+//        return stringType;
+//    }
 }

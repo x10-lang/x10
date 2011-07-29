@@ -28,7 +28,7 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Int.class.getName());
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Int.class);
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.INT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}

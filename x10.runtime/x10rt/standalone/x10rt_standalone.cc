@@ -796,7 +796,7 @@ void x10rt_net_probe (void)
                 x10rt_lgl_stats.get.messages_received++;
                 x10rt_lgl_stats.get.bytes_received += mp.len;
 				void* src = fcb(&mp, entry->payloadLen);
-                x10rt_lgl_stats.get_copied_bytes_sent += entry->payloadLen;
+                x10rt_lgl_stats.get_copied_bytes_received += entry->payloadLen;
 
 				// send the data to the other side
 				mp.dest_place = entry->from;
@@ -814,7 +814,7 @@ void x10rt_net_probe (void)
 
 				notifierCallback ncb = state.callBackTable[mp.type].notifier;
 				ncb(&mp, entry->payloadLen);
-                x10rt_lgl_stats.get_copied_bytes_received += entry->payloadLen;
+                x10rt_lgl_stats.get_copied_bytes_sent += entry->payloadLen;
 			}
 			break;
 			default: // this should never happen

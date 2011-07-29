@@ -981,7 +981,7 @@ bool probe (bool onlyProcessAccept)
                         x10rt_lgl_stats.get.messages_received++;
                         x10rt_lgl_stats.get.bytes_received += mp.len;
 						void* src = fcb(&mp, dataLen);
-                        x10rt_lgl_stats.get_copied_bytes_sent += dataLen;
+                        x10rt_lgl_stats.get_copied_bytes_received += dataLen;
 
 						// send the data to the other side (the link is good, because we just read from it)
 						pthread_mutex_lock(&state.writeLocks[whichPlaceToHandle]);
@@ -1029,7 +1029,7 @@ bool probe (bool onlyProcessAccept)
 						mp.dest_place = whichPlaceToHandle;
 						notifierCallback ncb = state.callBackTable[mp.type].notifier;
 						ncb(&mp, dataLen);
-                        x10rt_lgl_stats.get_copied_bytes_received += dataLen;
+                        x10rt_lgl_stats.get_copied_bytes_sent += dataLen;
 					}
 					break;
 					default: // this should never happen

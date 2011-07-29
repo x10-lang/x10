@@ -14,6 +14,7 @@ package x10.x10rt;
 import x10.runtime.impl.java.Runtime;
 
 import java.io.IOException;
+import java.lang.RuntimeException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -37,44 +38,53 @@ public class DeserializationDispatcher {
 
     private static final int INCREMENT_SIZE = 10;
 
+    public static final int refValue = Integer.parseInt("FFFFFFF", 16);
+    public static final int javaClassID = refValue - 1;
+
     // Should start issuing id's from 1 cause the id 0 is used to indicate a null value.
     // We first increment i before issuing the id hence initialize to NULL_ID
     private static int i = NULL_ID;
 
-    private static List<String> idToClassName = new ArrayList<String>();
+    private static List<Class> idToClassName = new ArrayList<Class>();
     private static Map<String, Integer> classNameToId = new HashMap<String, Integer> ();
 
-    public static int addDispatcher(String className) {
+    public static int addDispatcher(Class clazz) {
         if (i == NULL_ID) {
-            add(NULL_VALUE);
-            add("java.lang.String");
-            add("java.lang.Float");
-            add("java.lang.Double");
-            add("java.lang.Integer");
-            add("java.lang.Boolean");
-            add("java.lang.Byte");
-            add("java.lang.Short");
-            add("java.lang.Character");
+            classNameToId.put(null, i);
+            idToClassName.add(i, null);
+            i++;
+            try {
+                add(Class.forName("java.lang.String"));
+                add(Class.forName("java.lang.Float"));
+                add(Class.forName("java.lang.Double"));
+                add(Class.forName("java.lang.Integer"));
+                add(Class.forName("java.lang.Boolean"));
+                add(Class.forName("java.lang.Byte"));
+                add(Class.forName("java.lang.Short"));
+                add(Class.forName("java.lang.Character"));
+            } catch (ClassNotFoundException e) {
+                // This will never happen
+            }
         }
-        add(className);
+        add(clazz);
         return i-1;
     }
 
-    public static int addDispatcher(String className, String alternate) {
-        int i = addDispatcher(className);
-        classNameToId.put(alternate,  i);
+    public static int addDispatcher(Class clazz, String alternate) {
+        int i = addDispatcher(clazz);
+        classNameToId.put(alternate, i);
         return i;
     }
 
-    private static void add(String str) {
-        classNameToId.put(str, i);
-        idToClassName.add(i, str);
+    private static void add(Class clazz) {
+        classNameToId.put(clazz.getName(), i);
+        idToClassName.add(i, clazz);
         i++;
     }
 
     public static Object getInstanceForId(int i, X10JavaDeserializer deserializer) throws IOException {
 
-        if (i == X10JavaDeserializer.ref) {
+        if (i == refValue) {
             return deserializer.getObjectAtPosition(deserializer.readInt());
         } else if (i == NULL_ID) {
             if (Runtime.TRACE_SER) {
@@ -82,55 +92,17 @@ public class DeserializationDispatcher {
             }
             return null;
         } else if (i <=8) {
-            if (Runtime.TRACE_SER) {
-                System.out.println("Deserializing non-null value with id " + i);
-            }
-            Object obj = null;
-            switch(i) {
-                case STRING_ID:
-                     obj =  deserializer.readStringValue();
-                    break;
-                case FLOAT_ID:
-                     obj = deserializer.readFloat();
-                    break;
-                case DOUBLE_ID:
-                     obj = deserializer.readDouble();
-                    break;
-                case INTEGER_ID:
-                      obj = deserializer.readInt();
-                    break;
-                case BOOLEAN_ID:
-                     obj = deserializer.readBoolean();
-                    break;
-                case BYTE_ID:
-                      obj = deserializer.readByte();
-                    break;
-                case SHORT_ID:
-                    obj = deserializer.readShort();
-                    break;
-                case  CHARACTER_ID:
-                     obj = deserializer.readChar();
-                    break;
-                case LONG_ID:
-                     obj = deserializer.readLong();
-                    break;
-            }
-            deserializer.record_reference(obj);
-            return obj;
+            return deserializePrimitive(i, deserializer);
         }
 
         if (Runtime.TRACE_SER) {
             System.out.println("Deserializing non-null value with id " + i);
         }
-        final String className = idToClassName.get(i);
         try {
-            Class<?> clazz = Class.forName(className);
+            Class<?> clazz = getClassForID(i, deserializer);
             Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
             method.setAccessible(true);
             return method.invoke(null, deserializer);
-        } catch (ClassNotFoundException e) {
-            // This should never happen
-            throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -146,7 +118,66 @@ public class DeserializationDispatcher {
         }
     }
 
-    public static String getClassNameForID(int id) {
+    public static Object deserializePrimitive(int i, X10JavaDeserializer deserializer) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing non-null value with id " + i);
+        }
+        Object obj = null;
+        switch(i) {
+            case STRING_ID:
+                 obj =  deserializer.readStringValue();
+                break;
+            case FLOAT_ID:
+                 obj = deserializer.readFloat();
+                break;
+            case DOUBLE_ID:
+                 obj = deserializer.readDouble();
+                break;
+            case INTEGER_ID:
+                  obj = deserializer.readInt();
+                break;
+            case BOOLEAN_ID:
+                 obj = deserializer.readBoolean();
+                break;
+            case BYTE_ID:
+                  obj = deserializer.readByte();
+                break;
+            case SHORT_ID:
+                obj = deserializer.readShort();
+                break;
+            case  CHARACTER_ID:
+                 obj = deserializer.readChar();
+                break;
+            case LONG_ID:
+                 obj = deserializer.readLong();
+                break;
+        }
+        deserializer.record_reference(obj);
+        return obj;
+    }
+
+    public static String getClassNameForID(int id, X10JavaDeserializer deserializer) {
+         if (id == javaClassID) {
+            try {
+                return deserializer.readStringValue();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return getClassForID(id, deserializer).getName();
+    }
+
+    public static Class getClassForID(int id, X10JavaDeserializer deserializer) {
+        if (id == javaClassID) {
+            try {
+                String className = deserializer.readStringValue();
+                return Class.forName(className);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return idToClassName.get(id);
     }
 
@@ -163,6 +194,9 @@ public class DeserializationDispatcher {
         while (integer == null && ((i = s.lastIndexOf(".")) > 0)) {
             s = s.substring(0, i) + "$" + s.substring(i + 1);
             integer = classNameToId.get(s);
+        }
+        if (integer == null) {
+            return -1;
         }
         return integer;
     }
