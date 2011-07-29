@@ -3364,22 +3364,34 @@ public class Emitter {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
-                w.newline();
+                if (superClassNode.type().toClass().isJavaType()) {
+                    w.write("$serializer.serializeClassUsingReflection(this, ");
+                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.writeln(".class);");
+                } else {
+                    w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
+                    w.newline();
+                }
             }
         }
     }
 
     // Emits the code to deserialize the super class
     public void deserializeSuperClass(TypeNode superClassNode) {
-        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether we need to deserialize the super class
         if (superClassNode != null && superClassNode.type().isClass()) {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+                // If the super class is a pure java class we need to deserialize it using reflection
+                if (superClassNode.type().toClass().isJavaType()) {
+                    w.write("$deserializer.deserializeClassUsingReflection(");
+                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.writeln(".class, $_obj, 0);");
+                } else {
+                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+                }
             }
         }
     }

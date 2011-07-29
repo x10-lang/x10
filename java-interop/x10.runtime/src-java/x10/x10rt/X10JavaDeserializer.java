@@ -22,6 +22,7 @@ import x10.runtime.impl.java.Runtime;
 
 import java.io.DataInputStream;
 import java.io.IOException;
+import java.lang.RuntimeException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -313,16 +314,10 @@ public class X10JavaDeserializer {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
         }
     }
 
-    private <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    public <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
@@ -381,29 +376,37 @@ public class X10JavaDeserializer {
             fields.add(field);
         }
 
-        for (Field field : fields) {
-            field.setAccessible(true);
-            Class<?> type = field.getType();
-            if (type.isPrimitive()) {
-                readPrimitiveUsingReflection(field, obj);
-            } else if (type.isArray()) {
-                field.set(obj, readArrayUsingReflection(type.getComponentType()));
-            } else if ("java.lang.String".equals(type.getName())) {
-                field.set(obj, readStringUsingReflection());
-            } else {
-                Object value = readRefUsingReflection();
-                field.set(obj, value);
+        try {
+            for (Field field : fields) {
+                field.setAccessible(true);
+                Class<?> type = field.getType();
+                if (type.isPrimitive()) {
+                    readPrimitiveUsingReflection(field, obj);
+                } else if (type.isArray()) {
+                    field.set(obj, readArrayUsingReflection(type.getComponentType()));
+                } else if ("java.lang.String".equals(type.getName())) {
+                    field.set(obj, readStringUsingReflection());
+                } else {
+                    Object value = readRefUsingReflection();
+                    field.set(obj, value);
+                }
             }
-        }
 
-        if (isCustomSerializable) {
+            if (isCustomSerializable) {
                 SerialData serialData = (SerialData) readRefUsingReflection();
 
-               // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
+                // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
                 Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
                 makeMethod.setAccessible(true);
                 makeMethod.invoke(obj, serialData);
             }
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
         return obj;
     }
 

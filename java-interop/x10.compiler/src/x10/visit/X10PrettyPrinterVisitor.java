@@ -635,6 +635,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
                             w.write("java.lang.Object[] " + Emitter.mangleToJava(f.name()) + " = (java.lang.Object[]) $deserializer.readRef();");
                             w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                        } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
+                            // deserialize the variable using reflection and cast it back to the correct type
+                            er.printType(f.type(), BOX_PRIMITIVES);
+                            w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
+                            er.printType(f.type(), BOX_PRIMITIVES);
+                            w.writeln(") $deserializer.readRefUsingReflection();");
+                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         } else {
                             // deserialize the variable and cast it back to the correct type
                             er.printType(f.type(), BOX_PRIMITIVES);
@@ -656,7 +663,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline(4);
                 w.begin(0);
 
-                if (def.constructors().size() == 0) {
+                if (def.constructors().size() == 0 || def.flags().isAbstract()) {
                     w.writeln("return null;");
                 } else {
                     if (def.isStruct()) {
@@ -739,6 +746,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     } else {
                         if (isPrimitiveRepedJava(f.type()) || isString(f.type(), context)) {
                             w.writeln("$serializer.write(this." + fieldName + ");");
+                        } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
+                            w.writeln("$serializer.writeObjectUsingReflection(this." + fieldName + ");");
                         } else {
                             w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
                             w.writeln("$serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
