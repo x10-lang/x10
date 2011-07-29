@@ -203,6 +203,10 @@ public class X10JavaSerializer {
 
     public void write(byte[] b) throws IOException {
         out.writeInt(b.length);
+        _write(b);
+    }
+
+    public void _write(byte[] b) throws IOException {
         out.write(b);
     }
 

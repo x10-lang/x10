@@ -36,20 +36,33 @@ public class KMeansSPMD {
         }
     }
 
-    public static def main (args:Array[String](1)) {
+    public static def main (args:Array[String](1)) {here == Place.FIRST_PLACE } {
 
         try {
 
             val opts = new OptionsParser(args, [
                 Option("q","quiet","just print time taken"),
-                Option("v","verbose","print out each iteration")
+                Option("v","verbose","print out each iteration"),
+                Option("h","help","this information")
             ], [
                 Option("p","points","location of data file"),
                 Option("i","iterations","quit after this many iterations"),
                 Option("c","clusters","number of clusters to find"),
                 Option("d","dim","number of dimensions"),
                 Option("s","slices","factor by which to oversubscribe computational resources"),
-                Option("n","num","quantity of points")]);
+                Option("n","num","quantity of points")
+            ]);
+            if (opts.filteredArgs().size!=0) {
+                Console.ERR.println("Unexpected arguments: "+opts.filteredArgs());
+                Console.ERR.println("Use -h or --help.");
+                System.setExitCode(1);
+                return;
+            }
+            if (opts("-h")) {
+                Console.OUT.println(opts.usage());
+                return;
+            }
+
             val fname = opts("-p", "points.dat");
             val num_clusters=opts("-c",4);
             val num_slices=opts("-s",1);

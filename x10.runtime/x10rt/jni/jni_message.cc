@@ -36,7 +36,7 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
     JNIEnv *env = jniHelper_getEnv();
     MessageReader reader(msg);
 
-    jint numElems = reader.readJInt();
+    jint numElems = msg->len;
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
         fprintf(stderr, "OOM from NewByteArray (num elements = %d)\n", (int)numElems);
@@ -73,19 +73,35 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
     fprintf(stdout, "jni_message:cc: messagewriter: placeId=%d, arraylen=%d\n", place, arrayLen);
 #endif
     
-    unsigned long numBytes = sizeof(jint) + arrayLen * sizeof(jbyte);
-    MessageWriter writer(numBytes);
-    writer.writeJInt(arrayLen);
-    env->GetByteArrayRegion(array, 0, arrayLen, (jbyte*)writer.cursor);
+    unsigned long numBytes = arrayLen * sizeof(jbyte);
+    void *buffer;
+
+    // GetPrimitiveArrayCritical pauses the GC if its possible and returns a pointer to
+    // the actual byte array while GetByteArrayElements will return a pointer to the
+    // actual array if the underlying GC supports pinning, if it does not it creates a
+    // copy and returns it. On both hotspot and J9 GetByteArrayElements returns a copy
+     // of the array while GetPrimitiveArrayCritical returns the pointer to the actual array.
+     // The caveat is that GetPrimitiveArrayCritical pauses the GC and x10rt_send_msg
+     // blocks until the message is written out  thus if there are more threads running
+     // and doing allocation the user could run in to a memory issue. Thus making this
+      // configurable via a environment variable.
+
+    if (X10_PAUSE_GC_ON_SEND) {
+        buffer = (void *) env->GetPrimitiveArrayCritical(array, 0);
+    } else {
+        buffer = (void *) env->GetByteArrayElements(array, 0);
+    }
     // Byte array, so no need to endian swap
 
-    x10rt_msg_params msg = {place, runClosureAt_HandlerID, writer.buffer, numBytes, 0};
+    x10rt_msg_params msg = {place, runClosureAt_HandlerID, buffer, numBytes, 0};
     x10rt_send_msg(&msg);
+    if (X10_PAUSE_GC_ON_SEND) {
+        env->ReleasePrimitiveArrayCritical(array, (jbyte*)buffer, JNI_ABORT);;
+    } else {
+        env->ReleaseByteArrayElements(array, (jbyte*)buffer, JNI_ABORT);
+    }
 
     //fclose(fp);
-
-    free(msg.msg);
-
 }
 
 

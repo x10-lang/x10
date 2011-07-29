@@ -322,6 +322,8 @@ public class WSSynthesizer {
         Name fieldName = ld.name().id();
         FieldSynth localFieldSynth = classSynth.createField(ld.position(), fieldName.toString(), ld.type().type());
         localFieldSynth.addAnnotation(genUninitializedAnnotation());
+        localFieldSynth.addAnnotation(genSuppressTransientErrorAnnotation());
+        localFieldSynth.setFlags(Flags.TRANSIENT);
         return fieldName;
     }
     
@@ -782,6 +784,9 @@ public class WSSynthesizer {
         return genAnnotationNode(ts.Uninitialized());
     }
     
+    AnnotationNode genSuppressTransientErrorAnnotation(){
+        return genAnnotationNode(ts.SuppressTransientError());
+    }
     
     public Stmt genPCAssign(ClassSynth classSynth, int pc) throws SemanticException{
         Context ct = classSynth.getContext();

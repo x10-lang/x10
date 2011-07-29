@@ -84,6 +84,7 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
     public def isEmpty(): Boolean = size() == 0;
 
     public def toArray() = a.toArray();
+    public def toIndexedMemoryChunk() = a.toIndexedMemoryChunk();
 
     public def this() {
         a = new GrowableIndexedMemoryChunk[T]();

@@ -145,14 +145,16 @@ public final class Worker {
     public static def main(frame:MainFrame) {
         val worker = start();
         val ff = frame.ff;
+        var finalize:Boolean = true; // FinallyEliminator
         try {
             frame.fast(worker); // run main activity
         } catch (t:Abort) {
+            finalize = false;
             worker.run(); // join the pool
         } catch (t:Throwable) {
             ff.caught(t); // main terminated abnormally
         } finally {
-            stop();
+            if (finalize) stop();
         }
         ff.check();
     }

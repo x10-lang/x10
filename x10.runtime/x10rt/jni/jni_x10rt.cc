@@ -35,7 +35,7 @@ JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jin
         strcpy(exe, "java");
     }
 #else
-    char *exe = "java";
+    char *exe = const_cast<char*>("java");
 #endif
     char *argv_0[] = { exe, NULL };
     int argc = 1;

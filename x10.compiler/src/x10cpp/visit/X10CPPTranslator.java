@@ -283,9 +283,13 @@ public class X10CPPTranslator extends Translator {
 		            		defSource = (ProcedureDecl)parent;
 		            	List<Formal> args = defSource.formals();
 		            	for (int i=0; i<args.size(); i++)
-		            		lineNumberMap.addLocalVariableMapping(args.get(i).name().toString(), args.get(i).type().toString(), line, lastX10Line, file, false, -1, false);
-		            	// include "this" for non-static methods		            	
-		            	if (!def.flags().isStatic() && defSource.reachable() && !c.inTemplate())
+		            	{
+		            		Formal arg = args.get(i);
+		            		if (!arg.position().isCompilerGenerated())
+		            			lineNumberMap.addLocalVariableMapping(arg.name().toString(), arg.type().toString(), line, lastX10Line, file, false, -1, false);
+		            	}
+		            	// include "this" for non-static methods
+		            	if (!def.flags().isStatic() && defSource.reachable() != null && defSource.reachable() && !c.inTemplate())
 		            	{
 		            		boolean isStruct = context.currentClass().isX10Struct();
 		            		if (!defSource.position().isCompilerGenerated())

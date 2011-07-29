@@ -8,6 +8,8 @@
 
 static JavaVM* theJVM;
 
+const char* X10_PAUSE_GC_ON_SEND = getenv("X10_PAUSE_GC_ON_SEND");
+
 /*
  * Use theJVM pointer we cached during initialization to acquire the JNIEnv* for the current thread
  */

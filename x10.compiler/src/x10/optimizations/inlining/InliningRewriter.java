@@ -310,6 +310,8 @@ public class InliningRewriter extends ContextVisitor {
 
     // m(...) -> ths.m(...)
     private Call visitCall(Call old, Call n) {
+        if (old.target() instanceof Special && ((Special) old.target()).kind() == X10Special.SUPER)
+            n = n.nonVirtual(true); // make calls to "super.foo()" non-virtual
         if (!n.isTargetImplicit()) return n;
         MethodInstance mi = n.methodInstance();
         assert ((ths == null) == (mi.flags().isStatic()));
@@ -317,9 +319,6 @@ public class InliningRewriter extends ContextVisitor {
         if (mi.flags().isStatic()) {
             return n.target(nf.CanonicalTypeNode(pos, mi.container())).targetImplicit(false);
         }
-        if (old.target() instanceof Special && ((Special) old.target()).kind() == X10Special.SUPER)
-            n = n.nonVirtual(true); // make calls to "super.foo()" non-virtual
-    
         return n.target(getThis(pos)).targetImplicit(false);
     }
 

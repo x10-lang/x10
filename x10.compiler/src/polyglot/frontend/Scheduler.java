@@ -88,6 +88,18 @@ public abstract class Scheduler {
     /** True if any pass has failed. */
     protected boolean failed;
 
+    /** True if the client requested that this scheduler be canceled */
+    private boolean canceled = false;
+
+    /** Return true if this scheduler has been canceled (so any compilation will fail). */
+    public boolean canceled() { return canceled; }
+    /** Cancel the current compilation. */
+    public void cancel() { canceled = true; }
+
+    private static class CompilationAbortedException extends RuntimeException {
+        private static final long serialVersionUID = -5353770769730560033L;
+    }
+
     protected static final Option<Job> COMPLETED_JOB = Option.<Job>None();
 
     /** The currently running pass, or null if no pass is running. */
@@ -193,6 +205,8 @@ public abstract class Scheduler {
     		okay = attempt(endGoal);
     	}
     	catch (CyclicDependencyException e) {
+    	}
+    	catch (CompilationAbortedException e) {
     	}
 
     	Reporter reporter = extInfo.getOptions().reporter;
@@ -310,6 +324,14 @@ public abstract class Scheduler {
                 
         Options options = extInfo.getOptions();
         Reporter reporter = options.reporter;
+        if (canceled) {
+            if (reporter.should_report(Reporter.frontend, 1))
+                reporter.report(1, "Compilation canceled; skipping pass " + goal);
+            
+            goal.update(Goal.Status.FAIL);
+            throw new CompilationAbortedException();
+        }
+        
         if (options.disable_passes.contains(goal.name())) {
             if (reporter.should_report(Reporter.frontend, 1))
                 reporter.report(1, "Skipping pass " + goal);

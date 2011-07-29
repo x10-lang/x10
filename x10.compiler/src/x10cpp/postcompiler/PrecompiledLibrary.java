@@ -32,7 +32,7 @@ public class PrecompiledLibrary extends PostCompileProperties {
         sourceJar = p.getProperty("X10LIB_SRC_JAR");
     }
 
-    public void updateManifset(Set<String> manifest, ExtensionInfo ext) {
+    public void updateManifest(Set<String> manifest, ExtensionInfo ext) {
         manifest.add(sourceJar);
         File f = new File(absolutePathToRoot, sourceJar);
         try {
