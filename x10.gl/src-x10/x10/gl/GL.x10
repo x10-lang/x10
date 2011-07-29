@@ -206,5 +206,7 @@ public final class GL {
     public static GL_TEXTURE_MAG_FILTER : Int = 0;
     @Native("c++", "GL_NEAREST")
     public static GL_NEAREST : Int = 0;
+    @Native("c++", "GL_LINEAR")
+    public static GL_LINEAR : Int = 0;
 
 }
