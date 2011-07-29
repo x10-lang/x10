@@ -16,10 +16,11 @@ import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
-public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSerializable{
+public class UByteType extends RuntimeType<x10.core.UByte> {
+//public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UByteType.class.getName());
+//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UByteType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
@@ -83,23 +84,21 @@ public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSer
     	return ((byte[]) array).length;
     }
 
-    @Override
-    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
-    }
-
-    @Override
-    public int $_get_serialization_id() {
-        return _serialization_id;
-    }
-
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
-		return $_deserialize_body(null, deserializer);
-	}
-
-    public static X10JavaSerializable $_deserialize_body(UByteType t, X10JavaDeserializer deserializer) throws java.io.IOException {
-        UByteType uByteType = (UByteType) Types.UBYTE;
-        deserializer.record_reference(uByteType);
-        return uByteType;
-    }
+//    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
+//    }
+//
+//    public int $_get_serialization_id() {
+//        return _serialization_id;
+//    }
+//
+//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws java.io.IOException {
+//		return $_deserialize_body(null, deserializer);
+//	}
+//
+//    public static X10JavaSerializable $_deserialize_body(UByteType t, X10JavaDeserializer deserializer) throws java.io.IOException {
+//        UByteType uByteType = (UByteType) Types.UBYTE;
+//        deserializer.record_reference(uByteType);
+//        return uByteType;
+//    }
     
 }

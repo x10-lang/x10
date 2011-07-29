@@ -28,7 +28,7 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UShort.class.getName());
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UShort.class);
 
     public static final x10.rtt.RuntimeType<?> $RTT = Types.USHORT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}

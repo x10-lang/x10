@@ -28,7 +28,7 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Byte.class.getName());
+    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Byte.class);
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.BYTE;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}

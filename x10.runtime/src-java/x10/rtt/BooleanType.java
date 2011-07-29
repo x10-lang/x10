@@ -18,10 +18,11 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class BooleanType extends RuntimeType<x10.core.Boolean> implements X10JavaSerializable{
+public class BooleanType extends RuntimeType<x10.core.Boolean>{
+//public class BooleanType extends RuntimeType<x10.core.Boolean> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(BooleanType.class.getName());
+//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(BooleanType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
@@ -81,23 +82,20 @@ public class BooleanType extends RuntimeType<x10.core.Boolean> implements X10Jav
     	return ((boolean[]) array).length;
     }
 
-    @Override
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-    }
-
-    @Override
-    public int $_get_serialization_id() {
-        return _serialization_id;
-    }
-
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-		return $_deserialize_body(null, deserializer);
-	}
-
-    public static X10JavaSerializable $_deserialize_body(BooleanType t, X10JavaDeserializer deserializer) throws IOException {
-        BooleanType booleanType = (BooleanType) Types.BOOLEAN;
-        deserializer.record_reference(booleanType);
-        return booleanType;
-    }
-    
+//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+//    }
+//
+//    public int $_get_serialization_id() {
+//        return _serialization_id;
+//    }
+//
+//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+//		return $_deserialize_body(null, deserializer);
+//	}
+//
+//    public static X10JavaSerializable $_deserialize_body(BooleanType t, X10JavaDeserializer deserializer) throws IOException {
+//        BooleanType booleanType = (BooleanType) Types.BOOLEAN;
+//        deserializer.record_reference(booleanType);
+//        return booleanType;
+//    }
 }

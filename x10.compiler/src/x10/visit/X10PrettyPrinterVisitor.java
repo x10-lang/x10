@@ -218,6 +218,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String GETRTT_NAME = "$getRTT";
     public static final String GETPARAM_NAME = "$getParam";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
+    public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
     public static final String CREATION_METHOD_NAME = "$make";
     public static final String BOX_METHOD_NAME = "$box";
     public static final String UNBOX_METHOD_NAME = "$unbox";
@@ -530,7 +531,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class.getName());");
+            w.writeln(".class);");
             w.newline();
         } else {
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
@@ -538,7 +539,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("public static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class.getName());");
+            w.writeln(".class);");
             w.newline();
         }
 
@@ -823,7 +824,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline(0);
     }
 
-    private String needsCasting(Type type) {
+    public static String needsCasting(Type type) {
 
         // is this a java primitive
         if(type.isInt() || type.isDouble() || type.isFloat() || type.isByte() || type.isChar() || type.isShort() || type.isLong() || type.isBoolean()) {
@@ -858,6 +859,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
+    private static final String SERIAL_DATA = "x10.io.SerialData";
 
     private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         for (Ref<? extends Type> ref : def.interfaces()) {
@@ -1099,6 +1101,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(X10ConstructorDecl_c n) {
 
+        // Checks whether this is the constructor corresponding to CustomSerialization
+        boolean isCustomSerializable = false;
+        if (n.formals().size() == 1 && SERIAL_DATA.equals(n.formals().get(0).type().toString())) {
+             isCustomSerializable = true;
+        }
         printCreationMethodDecl(n);
 
         X10ClassType type = (X10ClassType) Types.get(n.constructorDef().container());
@@ -1106,7 +1113,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.isUnsplittable(type)) {
 
-            printConstructorMethodDecl(n);
+            printConstructorMethodDecl(n, isCustomSerializable);
             return;
         }
 
@@ -1236,7 +1243,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return firstStmt;
     }
 
-    private void printConstructorMethodDecl(X10ConstructorDecl_c n) {
+    private void printConstructorMethodDecl(X10ConstructorDecl_c n, boolean isCustomSerializable) {
+
+        String methodName = null;
 
         tr.print(n,
                  tr.nodeFactory().FlagsNode(n.flags().position(),
@@ -1278,17 +1287,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(s);
                 w.allowBreak(0, " ");
             }
-            if (body.statements().size() > 0) {
-                if (body.statements().get(0) instanceof X10ConstructorCall_c)
-                    n.printSubStmt(body.statements(body.statements()
-                    /* .subList(1, body.statements().size()) */), w, tr);
-                // vj: the main body was not being written. Added next
-                // two lines.
-                else
-                    n.printSubStmt(body, w, tr);
-            } else
-                n.printSubStmt(body, w, tr);
-            
+
+            // If this is the custom serialization constructor we refractor it out into a new method and call it here
+            if (isCustomSerializable) {
+
+                // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
+                methodName = n.returnType().type().fullName().toString().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION;
+                w.writeln(methodName + "(" + n.formals().get(0).name() + ");");
+            } else {
+                printConstructorBody(n, body);
+            }
+
             w.newline();
             if (body.reachable()) {
                 w.writeln("return this;");
@@ -1302,6 +1311,29 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             w.write(";");
         }
+
+        // Refractored  method that can be called by reflection
+        if (isCustomSerializable) {
+            w.newline();
+            w.begin(4);
+            w.writeln("public void  " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
+            n.printSubStmt(body, w, tr);
+            w.writeln("}");
+            w.end();
+        }
+    }
+
+    private void printConstructorBody(X10ConstructorDecl_c n, Block body) {
+        if (body.statements().size() > 0) {
+            if (body.statements().get(0) instanceof X10ConstructorCall_c)
+                n.printSubStmt(body.statements(body.statements()
+                /* .subList(1, body.statements().size()) */), w, tr);
+            // vj: the main body was not being written. Added next
+            // two lines.
+            else
+                n.printSubStmt(body, w, tr);
+        } else
+            n.printSubStmt(body, w, tr);
     }
 
     private List<String> printConstuctorFormals(X10ConstructorDecl_c n) {
