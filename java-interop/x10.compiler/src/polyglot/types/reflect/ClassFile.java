@@ -219,6 +219,16 @@ public class ClassFile {
   }
   
   /**
+   * Get the source of the class.
+   *
+   * @return
+   *        The source of the class.
+   */
+  public File classFileSource() {
+	return this.classFileSource;
+  }
+  
+  /**
    * Read a constant from the constant pool.
    *
    * @param in

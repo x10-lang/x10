@@ -3018,9 +3018,11 @@ public class TypeSystem_c implements TypeSystem
 
 	assert ct.asType().isGloballyAccessible();
 
-	if (sb.length() > 0)
-	    return QName.make(ct.fullName(), Name.make(sb.toString()));
-	else
+	if (sb.length() > 0) {
+	    QName fullName = ct.fullName();
+	    sb.insert(0, fullName.name());
+		return QName.make(fullName.qualifier(), Name.make(sb.toString()));
+	} else
 	    return QName.make(ct.fullName());
     }
 

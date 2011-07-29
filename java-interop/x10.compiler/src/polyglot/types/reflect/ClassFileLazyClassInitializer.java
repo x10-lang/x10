@@ -78,7 +78,11 @@ public class ClassFileLazyClassInitializer {
      * Create a position for the class file.
      */
     public Position position() {
-        return new Position(null, clazz.name() + ".class");
+    	String path = clazz.classFileSource().getAbsolutePath();
+    	if (path.endsWith(".jar")){
+    		path += ":" + clazz.name() + ".class";
+    	}
+        return new Position(null, path);
     }
 
     /**
@@ -435,7 +439,7 @@ public class ClassFileLazyClassInitializer {
         if (unboxed != null) {
             name = unboxed;
         }
-        name = name.replace('$', '.');
+        //name = name.replace('$', '.'); // keep the name with the '$' to make sure the system finds the class
         Name shortName = Name.make(name.substring(name.lastIndexOf('.')+1));
         return Types.<Type>ref(ts.createClassType(position(), defForName(name, flags)).name(shortName));
     }
