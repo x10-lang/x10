@@ -285,7 +285,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             return body;
         } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
             try {
-                byte[] ba = serializeUsingReflection(body);
+                byte[] ba = serialize(body);
                 DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
                 if (TRACE_SER_DETAIL) {
@@ -299,6 +299,52 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
                 xe.printStackTrace();
                 throw xe;
+            }
+            return body;
+        } else {
+            try {
+                byte[] ba = serialize(body);
+                java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba));
+                body = (T) ois.readObject();
+                ois.close();
+            } catch (java.io.IOException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+                throw new java.lang.Error(e);
+            }
+            return body;
+        }
+    }
+
+    public static <T> byte[] serialize(T body) throws IOException {
+        byte[] ba;
+        if (CUSTOM_JAVA_SERIALIZATION) {
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Starting serialization for runAtAll  " + body.getClass());
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream oos = new DataOutputStream(baos);
+            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            if (body instanceof X10JavaSerializable) {
+                serializer.write((X10JavaSerializable) body);
+            } else {
+                serializer.write(body);
+            }
+            oos.close();
+            ba = baos.toByteArray();
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Done with serialization for runAtAll " + body.getClass());
+            }
+            return ba;
+        } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Starting serialization for runAt  " + body.getClass());
+            }
+            try {
+                ba =  serializeUsingReflection(body);
             } catch (IllegalAccessException e) {
                 x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
                 xe.printStackTrace();
@@ -316,78 +362,24 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 xe.printStackTrace();
                 throw xe;
             }
-            return body;
-        } else {
-            try {
-                // copy body
-                long startTime = 0L;
-                if (TRACE_SER) {
-                    startTime = System.nanoTime();
-                }
-                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
-                oos.writeObject(body);
-                oos.close();
-                byte[] ba = baos.toByteArray();
-                if (TRACE_SER) {
-                    long endTime = System.nanoTime();
-                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
-                            + " microsecs.");
-                }
-                java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba));
-                body = (T) ois.readObject();
-                ois.close();
-            } catch (java.io.IOException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                throw new java.lang.Error(e);
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Done with serialization for runAt " + body.getClass());
             }
-            return body;
-        }
-    }
-
-    public static <T> byte[] serialize(T body) throws IOException {
-        long startTime = 0L;
-        if (TRACE_SER) {
-            startTime = System.nanoTime();
-        }
-        ByteArrayOutputStream baos = new ByteArrayOutputStream();
-        DataOutputStream oos = new DataOutputStream(baos);
-        X10JavaSerializer serializer = new X10JavaSerializer(oos);
-        if (body instanceof X10JavaSerializable) {
-            serializer.write((X10JavaSerializable) body);
+            return ba;
         } else {
-            serializer.write(body);
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            (new java.io.ObjectOutputStream(baos)).writeObject(body);
+            return baos.toByteArray();
         }
-        oos.close();
-        byte[] ba = baos.toByteArray();
-        if (TRACE_SER) {
-            long endTime = System.nanoTime();
-            System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
-                    + " microsecs.");
-        }
-        return ba;
     }
 
     public static <T> byte[] serializeUsingReflection(T body) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
-        long startTime = 0L;
-        if (TRACE_SER) {
-            startTime = System.nanoTime();
-        }
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream oos = new DataOutputStream(baos);
         X10JavaSerializer serializer = new X10JavaSerializer(oos);
         serializer.writeObjectUsingReflection(body);
         oos.close();
         byte[] ba = baos.toByteArray();
-        if (TRACE_SER) {
-            long endTime = System.nanoTime();
-            System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
-                    + " microsecs.");
-        }
         return ba;
     }
 
@@ -395,49 +387,13 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
-            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Starting serialization for runAt  " + body.getClass());
-                }
-                msg = serialize(body);
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Done with serialization for runAt " + body.getClass());
-                }
-            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Starting serialization for runAt  " + body.getClass());
-                }
-                msg = serializeUsingReflection(body);
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Done with serialization for runAt " + body.getClass());
-                }
-            } else {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                (new java.io.ObjectOutputStream(baos)).writeObject(body);
-                msg = baos.toByteArray();
-            }
+            msg = serialize(body);
             int msgLen = msg.length;
             if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
             x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new x10.runtime.impl.java.WrappedThrowable(e);
-        } catch (IllegalAccessException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (NoSuchMethodException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (InvocationTargetException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (NoSuchFieldException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
         } finally {
             if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
         }
@@ -448,27 +404,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static void runAtAll(boolean includeHere, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
-            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Starting serialization for runAtAll  " + body.getClass());
-                }
-                msg = serialize(body);
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Done with serialization for runAtAll " + body.getClass());
-                }
-            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Starting serialization for runAtAll  " + body.getClass());
-                }
-                msg = serializeUsingReflection(body);
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Done with serialization for runAtAll " + body.getClass());
-                }
-            } else {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                (new java.io.ObjectOutputStream(baos)).writeObject(body);
-                msg = baos.toByteArray();
-            }
+            msg = serialize(body);
             int hereId = X10RT.here();
             for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
                 x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
@@ -480,22 +416,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new x10.runtime.impl.java.WrappedThrowable(e);
-        } catch (IllegalAccessException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (NoSuchMethodException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (InvocationTargetException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (NoSuchFieldException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
         }
     }
 

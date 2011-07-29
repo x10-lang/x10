@@ -404,6 +404,11 @@ public class ClosureRemover extends ContextVisitor {
                         if (vi instanceof ThisInstance || (vi instanceof FieldInstance && !vi.flags().isFinal())) { // the latter means the receiver fo vi should be this
                             Name name = OUTER_NAME;
                             
+                            X10FieldDef fi = nameToLocalDef.get(name);
+                            if (fi == null) { // "this" or a field of "this" is "captured", but never accessed -- skip
+                                continue;
+                            }
+                            
                             X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vi.type()), name);
                             X10Formal formal = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.FINAL), xnf.X10CanonicalTypeNode(pos, Types.baseType(vi.type())), xnf.Id(pos, name)).localDef(li);
                             formals.add(formal);
@@ -411,8 +416,6 @@ public class ClosureRemover extends ContextVisitor {
                             argTypes.add(vi.def().type());
                             args.add(createExpr(pos, vi));
                             
-                            X10FieldDef fi = nameToLocalDef.get(name);
-                            assert (fi != null);
                             staticNestedClassDef.addField(fi);
                             
                             FieldDecl fdcl = xnf.FieldDecl(pos, xnf.FlagsNode(pos, Flags.FINAL.Private()), xnf.X10CanonicalTypeNode(pos, vi.type()), xnf.Id(pos, name));

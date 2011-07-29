@@ -71,58 +71,70 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         return t;
     }
 
-    private static class WeakGlobalRefEntry extends WeakReference {
-        long id;
-        final int hashCode;
+//    private static class WeakGlobalRefEntry extends WeakReference {
+//        //TODO: Make WeakGlobalRefEntry as a variation of GlobalRefEntry
+//        long id;
+//        final int hashCode;
+//
+//        public WeakGlobalRefEntry(long id, Object referent,
+//                ReferenceQueue<WeakGlobalRefEntry> referenceQueue) {
+//            super(referent, referenceQueue);
+//            this.id = id;
+//            hashCode = System.identityHashCode(referent);
+//        }
+//
+//        @Override
+//        public int hashCode() {
+//            return hashCode;
+//        }
+//    }
 
-        public WeakGlobalRefEntry(long id, Object referent,
-                ReferenceQueue<WeakGlobalRefEntry> referenceQueue) {
-            super(referent, referenceQueue);
-            hashCode = System.identityHashCode(referent);
+    private static class GlobalRefEntry extends WeakReference<Object> {
+        final long id;
+        private final Object strongRef; // strong reference, used for non-Mortal object
+        private final int hashCode;
+
+        GlobalRefEntry(long id, Object obj, ReferenceQueue<Object> refQ, boolean isStrong) {
+            super(obj, refQ);
+            //System.out.println("GlobalRefEntry: id=" + id + " obj=" + obj + " isStrong=" + isStrong);
+            assert(obj != null); // null should be replaced in the caller
+                                 // if null is allowed for obj, we cannot distinguish 
+                                 // the situation that weak reference is removed
+            strongRef = isStrong ? obj : null; // prohibit the collection of the obj
+            this.id = id;
+            hashCode = System.identityHashCode(obj);
         }
-
+        
         @Override
         public int hashCode() {
             return hashCode;
         }
-    }
-
-    private static class GlobalRefEntry {
-        private final Object t;
-
-        GlobalRefEntry(Object t) {
-            this.t = t;
-        }
-
-        @Override
-        public int hashCode() {
-            return System.identityHashCode(t);
-        }
-
         @Override
         public boolean equals(Object obj) {
-            if (this == obj)
-                return true;
-            if (!(obj instanceof GlobalRefEntry))
-                return false;
-            return ((GlobalRefEntry) obj).t == t;
+            if (this == obj) return true;
+            if (!(obj instanceof GlobalRefEntry)) return false;
+            GlobalRefEntry ge = (GlobalRefEntry)obj;
+            if (hashCode != ge.hashCode) return false;
+            Object t = get();
+            if (t == null) return false; // weak reference is removed
+            return t == ge.get();
         }
     }
 
-    private static final ReferenceQueue<WeakGlobalRefEntry> referenceQueue = new ReferenceQueue<WeakGlobalRefEntry>();
+    private static final ReferenceQueue<Object> referenceQueue = new ReferenceQueue<Object>();
 
-    private static final GlobalRefEntry $nullEntry = new GlobalRefEntry($null);
-
-    private static final GlobalRefEntry wrapObject(Object t) {
-        if (t == $null)
-            return $nullEntry;
-        return new GlobalRefEntry(t);
-    }
+//    private static final GlobalRefEntry $nullEntry = new GlobalRefEntry($null);
+//
+//    private static final GlobalRefEntry wrapObject(Object t) {
+//        if (t == $null)
+//            return $nullEntry;
+//        return new GlobalRefEntry(t);
+//    }
 
     private static AtomicLong lastId = new AtomicLong(0L);
-    private static ConcurrentHashMap<java.lang.Long, Object> id2Object = new ConcurrentHashMap<java.lang.Long, Object>();
+    private static ConcurrentHashMap<java.lang.Long, GlobalRefEntry> id2Object = new ConcurrentHashMap<java.lang.Long, GlobalRefEntry>();
     private static ConcurrentHashMap<GlobalRefEntry, java.lang.Long> object2Id = new ConcurrentHashMap<GlobalRefEntry, java.lang.Long>();
-    private static WeakHashMap<GlobalRefEntry, java.lang.Long> mortal2Id = new WeakHashMap<GlobalRefEntry, java.lang.Long>();
+//    private static WeakHashMap<GlobalRefEntry, java.lang.Long> mortal2Id = new WeakHashMap<GlobalRefEntry, java.lang.Long>();
 
     private x10.rtt.Type<?> T;
     public x10.lang.Place home;
@@ -168,50 +180,34 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     	this(T, null, (java.lang.Class<?>) null);
     }
 
-    private static void poll() {
-        WeakGlobalRefEntry weakRef = null;
-        while ((weakRef = (WeakGlobalRefEntry) referenceQueue.poll()) != null) {
-            id2Object.remove(weakRef.id);
+    private static void removeUnusedGlobalRefEntries() {
+        GlobalRefEntry ge = null;
+        while ((ge = (GlobalRefEntry)referenceQueue.poll()) != null) {
+            assert(ge.strongRef==null && ge.id!=0L && ge.get()==null);
+            id2Object.remove(ge.id);
+            object2Id.remove(ge);
+            // ge will be collected by the next GC
         }
     }
 
     private void globalize() {
-        if (isGlobalized())
-            return;//allready allocated
-
+        if (isGlobalized()) return; // allready allocated
+        removeUnusedGlobalRefEntries(); // clean up garbage entries
+        
         assert (T != null);
         assert (home != null);
-
-        t = encodeNull(t);
-
-        java.lang.Long tmpId = lastId.incrementAndGet();
-
-        if (t instanceof Mortal) {
-            WeakGlobalRefEntry weakEntry = new WeakGlobalRefEntry(tmpId, t,
-                    referenceQueue);
-            id2Object.put(tmpId, weakEntry);
-            synchronized (referenceQueue) {
-                GlobalRefEntry entry = wrapObject(t);
-                java.lang.Long existingId = mortal2Id.get(entry);
-                if (existingId != null) {
-                    this.id = existingId;
-                    mortal2Id.remove(tmpId);
-                } else {
-                    this.id = tmpId;
-                    mortal2Id.put(entry, tmpId);
-                }
-                poll();
-            }
+        
+        Object obj = encodeNull(t); // null cannot be passed to GlobalRefEntry
+        java.lang.Long tmpId = lastId.incrementAndGet(); //TODO: check wraparound
+        GlobalRefEntry ge = new GlobalRefEntry(tmpId, obj, referenceQueue, !(obj instanceof Mortal));
+        id2Object.put(tmpId, ge); // set id first
+        java.lang.Long existingId = object2Id.putIfAbsent(ge, tmpId);
+        if (existingId != null) {
+            this.id = existingId;
+            id2Object.remove(tmpId);
+            // ge will be collected by the next GC
         } else {
-            id2Object.put(tmpId, t);//set id first.
-
-            java.lang.Long existingId = object2Id.putIfAbsent(wrapObject(t), tmpId);//set object second.
-            if (existingId != null) {
-                this.id = existingId;
-                id2Object.remove(tmpId);
-            } else {
-                this.id = tmpId;
-            }
+            this.id = tmpId;
         }
     }
 
@@ -221,7 +217,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
     final public T $apply$G() {
         return (T) t;
-        //return decodeNull((T) t);
     }
 
     final public x10.lang.Place home() {
@@ -230,13 +225,13 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 
     @Override
     final public java.lang.String toString() {
-        globalize();
+        globalize(); // necessary to decide the id for this object
         return "GlobalRef(" + this.home + "," + this.id + ")";
     }
 
     @Override
     final public int hashCode() {
-        globalize();
+        globalize(); // necessary to decide the id for this object
         return (this.home.hashCode() << 18) + (int) this.id;
     }
 
@@ -262,14 +257,15 @@ public final class GlobalRef<T> extends x10.core.Struct implements
     }
 
     final public boolean _struct_equals(x10.core.GlobalRef<T> other) {
-        if (!other.isGlobalized() && !isGlobalized())
-            return (t == null && ((GlobalRef<?>) other).t == null)
-                    || ((GlobalRef<?>) other).t.equals(t);
-
-        globalize();
-
-        return x10.rtt.Equality.equalsequals(this.home, other.home)
-                && x10.rtt.Equality.equalsequals(this.id, other.id);
+        // if both GlobalRefs are local (home should be here)
+        if (!other.isGlobalized() && !isGlobalized()) 
+            return (t == other.t); // use "==" rather than "equals"
+        // if homes are different
+        if (!x10.rtt.Equality.equalsequals(this.home, other.home))
+            return false;
+        // if homes are same
+        globalize(); other.globalize(); // ensure both GlobalRefs have ids
+        return x10.rtt.Equality.equalsequals(this.id, other.id);
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -287,19 +283,13 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         id = in.readLong();
 
         if (home.id == x10.lang.Runtime.home().id) {
-            t = id2Object.get(id);
-            if (t instanceof WeakGlobalRefEntry) {
-                t = ((WeakGlobalRefEntry) t).get();
-            }
-            if (t == null) {
-                throw new IllegalStateException(
-                        "referenced object doesn't exist. id=" + id
-                                + ", mortal="
-                                + (t instanceof WeakGlobalRefEntry));
-            }
-
-            t = decodeNull(t);
-
+            GlobalRefEntry ge = id2Object.get(id);
+            if (ge == null)
+                throw new IllegalStateException("No GlobalRefEntry for id=" + id);
+            Object obj = ge.get();
+            if (obj == null)
+                throw new IllegalStateException("No GlobalRef'ed object for id=" + id);
+            t = decodeNull(obj);
         } else {
             t = null;
         }
@@ -334,19 +324,13 @@ public final class GlobalRef<T> extends x10.core.Struct implements
         gr.id = id;
         gr.T = T;
         if (gr.home.id == x10.lang.Runtime.home().id) {
-            gr.t = GlobalRef.id2Object.get(id);
-            if (gr.t instanceof WeakGlobalRefEntry) {
-                gr.t = ((WeakGlobalRefEntry) gr.t).get();
-            }
-            if (gr.t == null) {
-                throw new IllegalStateException(
-                        "referenced object doesn't exist. id=" + gr.id
-                                + ", mortal="
-                                + (gr.t instanceof WeakGlobalRefEntry));
-            }
-
-            gr.t = decodeNull(gr.t);
-
+            GlobalRefEntry ge = GlobalRef.id2Object.get(id);
+            if (ge == null)
+                throw new IllegalStateException("No GlobalRefEntry for id=" + id);
+            Object obj = ge.get();
+            if (obj == null)
+                throw new IllegalStateException("No GlobalRef'ed object for id=" + id);
+            gr.t = decodeNull(obj);
         } else {
             gr.t = null;
         }

@@ -51,6 +51,8 @@ import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
+import x10.extension.X10Del;
+import x10.extension.X10Del_c;
 import x10.types.AtDef;
 import x10.types.ClosureDef;
 import x10.types.ParameterType;
@@ -194,11 +196,22 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
 
         AtDef mi = (AtDef) createDummyAsync(position(), ts, ct.asType(), code, code.staticContext(), false);
 
+        AtStmt_c n = (AtStmt_c) X10Del_c.visitAnnotations(this, tb);
+
+        List<AnnotationNode> as = ((X10Del) n.del()).annotations();
+        if (as != null) {
+            List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
+            for (AnnotationNode an : as) {
+                ats.add(an.annotationType().typeRef());
+            }
+            mi.setDefAnnotations(ats);
+        }
+
         // Unlike methods and constructors, do not create new goals for resolving the signature and body separately;
         // since closures don't have names, we'll never have to resolve the signature.  Just push the code context.
         TypeBuilder tb2 = tb.pushCode(mi);
 
-        AtStmt_c n = (AtStmt_c) this.del().visitChildren(tb2);
+        n = (AtStmt_c) n.del().visitChildren(tb2);
 
         if (code instanceof X10MemberDef) {
             assert mi.thisDef() == ((X10MemberDef) code).thisDef();

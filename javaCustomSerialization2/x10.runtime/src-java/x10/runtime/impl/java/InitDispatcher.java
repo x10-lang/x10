@@ -438,14 +438,7 @@ public abstract class InitDispatcher {
 
     private static byte[] serializeField(Object object) {
         try {
-            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
-                return Runtime.serialize(object);
-            }
-            java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-            java.io.ObjectOutputStream out = new java.io.ObjectOutputStream(baos);
-            out.writeObject(object);
-            out.close();
-            return baos.toByteArray();
+            return Runtime.serialize(object);
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();

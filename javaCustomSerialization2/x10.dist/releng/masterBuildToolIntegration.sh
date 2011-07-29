@@ -167,6 +167,11 @@ echo "Using user ID $userID"
 
 ssh ${userID}@orquesta.watson.ibm.com "mkdir -p $tarballDest/$rev; chmod go+rx $tarballDest/$rev"
 
+if [[ $? != 0 ]]; then
+    echo "Unable to create destination directory on orquesta for platform tarballs; aborting."
+    exit 1
+fi
+
 for host in $hosts
 do
     logFile=/tmp/x10-tib-$host.log

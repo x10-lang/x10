@@ -779,7 +779,7 @@ static void get_incoming_data_completion(x10rt_req_queue * q,
                            0
                          };
     q->remove(req);
-    x10rt_lgl_stats.get_copied_bytes_received += get_req->len;
+    x10rt_lgl_stats.get_copied_bytes_sent += get_req->len;
 
     release_lock(&global_state.lock);
     cb(&p, get_req->len);
@@ -818,7 +818,7 @@ static void get_incoming_req_completion(int dest_place,
     release_lock(&global_state.lock);
     void * local = cb(&p, len);
     get_lock(&global_state.lock);
-    x10rt_lgl_stats.get_copied_bytes_sent += len;
+    x10rt_lgl_stats.get_copied_bytes_received += len;
 
     free(req->getBuf());
 

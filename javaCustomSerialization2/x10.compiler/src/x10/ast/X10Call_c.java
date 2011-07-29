@@ -813,11 +813,8 @@ public class X10Call_c extends Call_c implements X10Call {
 	        }
 	    w.write(".");
 	    if (nonVirtual()) {
-	        w.write("#non-virtual#");
+	        w.write("/"+"*"+"non-virtual"+"*"+"/");
 	    }
-//	    else {
-//                w.write("#virtual#");
-//	    }
 	    w.allowBreak(2, 3, "", 0);
 	    }
 
@@ -874,7 +871,7 @@ public class X10Call_c extends Call_c implements X10Call {
      * @see polyglot.ast.Call#markNonVirtual()
      */
     public X10Call nonVirtual(boolean nv) {
-        if (nonVirtual != nv) return this;
+        if (nonVirtual == nv) return this;
         X10Call_c c = (X10Call_c) copy();
         c.nonVirtual = nv;
         return c;
