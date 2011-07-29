@@ -21,9 +21,14 @@ public interface X10JavaSerializable {
     /**
      * Force use of custom java serialization. Default is to use default java serialization
     */
-    public static final boolean CUSTOM_JAVA_SERIALIZATION = Runtime.isCustomSerialization();
+/*    public static final boolean CUSTOM_JAVA_SERIALIZATION = Runtime.isCustomSerialization();
 
     public static final boolean CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION = Runtime.isCustomSerializationUsingReflection();
+*/
+
+    public static final boolean CUSTOM_JAVA_SERIALIZATION = false;
+
+    public static final boolean CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION = true;
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException;
 	public int $_get_serialization_id();
