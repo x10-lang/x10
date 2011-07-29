@@ -655,6 +655,7 @@ public class ClassFileLazyClassInitializer {
         Map<String,Ref<? extends Type>> bounds = CollectionFactory.<String,Ref<? extends Type>>newHashMap();
         if (clazz.getSignature() != null) {
             parseBounds((String) constants[clazz.getSignature().getSignature()].value(), bounds);
+            // TODO: [IP] also find and process bounds of the outer classes
         }
         String name = (String) constants[method.getName()].value();
         int sig = method.getSignature() != null ? method.getSignature().getSignature() : method.getType();
@@ -723,6 +724,7 @@ public class ClassFileLazyClassInitializer {
       Map<String,Ref<? extends Type>> bounds = CollectionFactory.<String,Ref<? extends Type>>newHashMap();
       if (clazz.getSignature() != null) {
         parseBounds((String) constants[clazz.getSignature().getSignature()].value(), bounds);
+        // TODO: [IP] also find and process bounds of the outer classes
       }
       String name = (String) constants[field.getName()].value();
       int sig = field.getSignature() != null ? field.getSignature().getSignature() : field.getType();
