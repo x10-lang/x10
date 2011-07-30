@@ -54,7 +54,7 @@ public class X10JavaSerializer {
         if (pos !=null) {
             return;
         }
-        int i = obj.$_get_serialization_id();
+        short i = obj.$_get_serialization_id();
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing id " + i  + " of type " + obj.getClass());
         }
@@ -66,7 +66,7 @@ public class X10JavaSerializer {
     }
 
     private void writeNull() throws IOException {
-        out.writeInt(DeserializationDispatcher.NULL_ID);
+        write(DeserializationDispatcher.NULL_ID);
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a null reference");
         }
@@ -100,11 +100,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a integer: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.INTEGER_ID);
         out.writeInt(p.intValue());
     }
 
@@ -131,11 +130,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Boolean: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.BOOLEAN_ID);
         out.writeBoolean(p.booleanValue());
     }
 
@@ -162,11 +160,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Character: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.CHARACTER_ID);
         out.writeChar(p.charValue());
     }
 
@@ -193,11 +190,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Byte: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.BYTE_ID);
         out.writeByte(p.byteValue());
     }
 
@@ -226,11 +222,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Short: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.SHORT_ID);
         out.writeShort(p.shortValue());
     }
 
@@ -257,11 +252,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Long: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.LONG_ID);
         out.writeLong(p.longValue());
     }
 
@@ -288,11 +282,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Double: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.DOUBLE_ID);
         out.writeDouble(p.doubleValue());
     }
 
@@ -319,11 +312,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Float: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.FLOAT_ID);
         out.writeFloat(p.floatValue());
     }
 
@@ -362,7 +354,7 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        out.writeInt(DeserializationDispatcher.STRING_ID);
+        write(DeserializationDispatcher.STRING_ID);
         writeStringValue(str);
     }
 
@@ -372,7 +364,7 @@ public class X10JavaSerializer {
     }
 
     public void write(String[] v) throws IOException {
-        out.writeInt(DeserializationDispatcher.STRING_ID);
+        write(DeserializationDispatcher.STRING_ID);
         out.writeInt(v.length);
         for (String str : v) {
             write(str);
@@ -388,7 +380,7 @@ public class X10JavaSerializer {
             // We have serialized this object beofre hence no need to do it again
             // In the C++ backend the value used is 0xFFFFFFFF
             // TODO keith Make this compliant with C++ value also make the position relative
-            out.writeInt(DeserializationDispatcher.refValue);
+            write(DeserializationDispatcher.refValue);
             out.writeInt(pos);
         } else {
             objectMap.put(obj, counter);
@@ -434,7 +426,7 @@ public class X10JavaSerializer {
     }
 
     public void writeClassID(String className) throws IOException {
-        int id = DeserializationDispatcher.getIDForClassName(className);
+        short id = DeserializationDispatcher.getIDForClassName(className);
         if (id < 0) {
             write(DeserializationDispatcher.javaClassID);
             writeStringValue(className);

@@ -39,7 +39,7 @@ import x10.x10rt.X10JavaSerializer;
 public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-	private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(IndexedMemoryChunk.class, "x10.util.IndexedMemoryChunk");
+	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(IndexedMemoryChunk.class, "x10.util.IndexedMemoryChunk");
 
     public int length;
     public Object value;
@@ -193,7 +193,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     // static nested class version of copyBody
     public static class $Closure$0 extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
-        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$0.class);
+        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$0.class);
         public Object srcData;
         public int dstId;
         public int dstIndex;
@@ -265,7 +265,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             Object srcData = null;
             int numElems = deserializer.readInt();
             if (numElems > 0) {
-                int type = deserializer.readInt();
+                short type = deserializer.readShort();
                 if (type == DeserializationDispatcher.INTEGER_ID) {
                     srcData = deserializer.readIntArray();
                 } else if (type == DeserializationDispatcher.DOUBLE_ID) {
@@ -297,7 +297,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return (X10JavaSerializable) closure$0;
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             return _serialization_id;
         }
     }
@@ -367,7 +367,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     // static nested class version of copyBody1
     public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
-        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$1.class);
+        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher($Closure$1.class);
         public int srcId;
         public int srcLength;
         public Type<T> srcType;
@@ -453,7 +453,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return (X10JavaSerializable) closure$1;
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             return _serialization_id;
         }
     }
@@ -572,7 +572,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         return _deSerialize_body(imc, deserializer);
 	}
 
-	public int $_get_serialization_id() {
+	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
 

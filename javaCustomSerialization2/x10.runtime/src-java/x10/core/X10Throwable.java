@@ -29,7 +29,7 @@ import java.lang.String;
 public class X10Throwable extends x10.core.Throwable implements RefI {
 
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(X10Throwable.class, "x10.lang.Throwable");
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(X10Throwable.class, "x10.lang.Throwable");
 
     // constructor just for allocation
     public X10Throwable(java.lang.System[] $dummy) {
@@ -82,7 +82,7 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
         serializer.write($getStackTrace());
     }
 
-    public int $_get_serialization_id() {
+    public short $_get_serialization_id() {
         return _serialization_id;
     }
 
