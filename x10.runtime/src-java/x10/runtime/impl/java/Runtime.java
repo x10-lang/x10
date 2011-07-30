@@ -114,7 +114,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
@@ -156,7 +156,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
@@ -485,7 +485,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
     }
 
-    public int $_get_serialization_id() {
+    public short $_get_serialization_id() {
 		throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 

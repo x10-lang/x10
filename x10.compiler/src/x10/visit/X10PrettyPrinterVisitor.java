@@ -528,7 +528,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
 
             // _serialization_id
-            w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
@@ -536,7 +536,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
             // _serialization_id
-            w.write("public static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
@@ -688,7 +688,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialize_id()
-                w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
+                w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
                 w.newline(4);
                 w.begin(0);
                 w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
