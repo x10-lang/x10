@@ -2535,6 +2535,13 @@ public class TypeSystem_c implements TypeSystem
         return embedType_;
     }
 
+    protected X10ClassType throwsType_;
+    public X10ClassType Throws() {
+        if (throwsType_ == null)
+        	throwsType_ = load("x10.interop.java.Throws");
+        return throwsType_;
+    }
+
     protected X10ClassType arrayType_ = null;
     public X10ClassType Array() {
         if (arrayType_ == null)

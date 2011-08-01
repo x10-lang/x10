@@ -12,6 +12,7 @@ import org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;
 import org.apache.hadoop.util.GenericOptionsParser;
 
 import x10.interop.Java;
+import x10.interop.java.Throws;
 
 //import x10.hadoop.Job;
 import x10.hadoop.Mapper;
@@ -25,6 +26,7 @@ public class WordCount {
     private static val one : IntWritable = new IntWritable(1);
     private val word = new Text();
       
+    @Throws("java.io.IOException") @Throws("java.lang.InterruptedException") 
     public def map(key:Object, value:Text, context:Context[Text,IntWritable]) {
       val itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
@@ -39,6 +41,7 @@ public class WordCount {
 
     private val result = new IntWritable();
 
+    @Throws("java.io.IOException") @Throws("java.lang.InterruptedException") 
     public def reduce(key : Text, values : Iterable[IntWritable], context:Context[Text,IntWritable]) {
       var sum : Int = 0;
       for (v:IntWritable in values) {
@@ -49,6 +52,7 @@ public class WordCount {
     }
   }
 
+  @Throws("java.lang.Exception") 
   public static def main(args:Array[String]) {
     val conf = new Configuration();
     val otherArgs = new GenericOptionsParser(conf, Java.convert(args)).getRemainingArgs();

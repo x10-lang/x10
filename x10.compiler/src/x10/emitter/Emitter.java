@@ -1024,6 +1024,24 @@ public class Emitter {
       this.dumpRegex("Native", components, tr, pat);
 	}
 
+	// def is X10MethodDef or X10ConstructorDef
+	public static String printThrowsClause(X10Def def) {
+	    Type throwsType = def.typeSystem().Throws();
+	    List<Type> _throwss = def.annotationsMatching(throwsType);	    
+    	StringBuilder sb = new StringBuilder();
+		boolean isFirst = true;
+		for (Type _throws : _throwss) {
+			if (isFirst) {
+				sb.append(" throws ");
+				isFirst = false;
+			} else {
+				sb.append(", ");				
+			}
+			sb.append(getPropertyInit(_throws, 0));
+		}
+		return sb.toString();
+    }
+	
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 
 		Flags flags = n.flags().flags();
@@ -1168,6 +1186,9 @@ public class Emitter {
 			}
 		}
 */
+
+		w.write(printThrowsClause(n.methodDef()));
+
 		w.end();
 
 	    // XTENLANG-2680
@@ -3751,23 +3772,31 @@ public class Emitter {
                 throwsClause = new Join(er, "", "throws ", new Join(er, ", ", l));
             }*/
 
-            // SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass 
+    		String throwsClause = printThrowsClause(n.methodDef());
+
+    		// SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass 
             String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
                 "private static final long serialVersionUID = 1L;\n" +
-                "public static void main(java.lang.String[] args) {\n" +
+                "public static void main(java.lang.String[] args)" +
+                throwsClause +
+                " {\n" +
                     "// start native runtime\n" +
                     "new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().start(args);\n" +
                 "}\n" +
                 "\n" +
                 "// called by native runtime inside main x10 thread\n" +
-                "public void runtimeCallback(final x10.array.Array<java.lang.String> args) {\n" +
+                "public void runtimeCallback(final x10.array.Array<java.lang.String> args)" +
+                throwsClause +
+                " {\n" +
                     "// call the original app-main method\n" +
                     "#mainclass.main(args);\n" +
                 "}\n" +
             "}\n" +
             "\n" +
             "// the original app-main method\n" +
-            "public static void main(#args) #body";
+            "public static void main(#args)" +
+            throwsClause +
+            " #body";
             Map<String,Object> components = new HashMap<String,Object>();
             Object component;
             int i = 0;
