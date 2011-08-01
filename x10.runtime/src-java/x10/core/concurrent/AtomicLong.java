@@ -24,7 +24,7 @@ import java.io.IOException;
 public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements RefI, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicLong.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicLong.class);
 
     // constructor just for allocation
     public AtomicLong(java.lang.System[] $dummy) {
@@ -68,7 +68,7 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
         return $_deserialize_body(null, deserializer);
     }
 
-	public int $_get_serialization_id() {
+	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
 

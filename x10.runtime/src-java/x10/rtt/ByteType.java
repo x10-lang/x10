@@ -25,7 +25,7 @@ public class ByteType extends RuntimeType<x10.core.Byte> {
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.BYTE;
     }
-//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ByteType.class.getName());
+//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ByteType.class.getName());
 
     public ByteType() {
         super(x10.core.Byte.class,
@@ -81,7 +81,7 @@ public class ByteType extends RuntimeType<x10.core.Byte> {
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 //    }
 //
-//    public int $_get_serialization_id() {
+//    public short $_get_serialization_id() {
 //        return _serialization_id;
 //    }
 //

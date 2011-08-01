@@ -23,7 +23,7 @@ import x10.x10rt.X10JavaSerializer;
 public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RuntimeType.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RuntimeType.class);
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     
@@ -544,12 +544,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return x10JavaSerializable;
 	}
 
-	public int $_get_serialization_id() {
+	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
 
     public static X10JavaSerializable $_deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
-        int classId = deserializer.readInt();
+        short classId = deserializer.readShort();
         String className = DeserializationDispatcher.getClassNameForID(classId, deserializer);
         if (className == null) {
             return null;

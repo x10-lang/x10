@@ -69,7 +69,7 @@ public class X10JavaDeserializer {
     }
 
     public Object readRef() throws IOException {
-        int serializationID = readInt();
+        short serializationID = readShort();
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         }
@@ -228,7 +228,7 @@ public class X10JavaDeserializer {
     }
 
     public String readString() throws IOException {
-        int classID = in.readInt();
+        short classID = in.readShort();
         if (classID == DeserializationDispatcher.refValue) {
             return (String) getObjectAtPosition(readInt());
         } else if (classID == DeserializationDispatcher.NULL_ID) {
@@ -262,7 +262,7 @@ public class X10JavaDeserializer {
     }
 
     public Object readRefUsingReflection() throws IOException {
-        int serializationID = readInt();
+        short serializationID = readShort();
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         } else if (serializationID == DeserializationDispatcher.NULL_ID) {
@@ -280,7 +280,7 @@ public class X10JavaDeserializer {
         return deserializeRefUsingReflection(serializationID);
     }
 
-    private Object deserializeRefUsingReflection(int serializationID) throws IOException {
+    private Object deserializeRefUsingReflection(short serializationID) throws IOException {
         try {
             Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
             Object o = unsafe.allocateInstance(clazz);
@@ -300,7 +300,7 @@ public class X10JavaDeserializer {
                     || "x10.rtt.UIntType".equals(clazz.getName())
                     || "x10.rtt.ULongType".equals(clazz.getName())
                     || "x10.rtt.UShortType".equals(clazz.getName())) {
-                readInt();
+                readShort();
                 // These classes dont implement the serialization/deserialization routines, hence we deserialize the superclass
                 return deserializeClassUsingReflection(superclass, o, i);
             }

@@ -69,7 +69,7 @@ public abstract class InitDispatcher {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
     }
@@ -121,7 +121,7 @@ public abstract class InitDispatcher {
     public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
     	public int fieldId;
     	public byte[] buf;
-        private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(InitDispatcher.$Closure$Deserialize.class);
+        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(InitDispatcher.$Closure$Deserialize.class);
 
         public void $apply() {
             // execute deserializer for fieldValue
@@ -155,7 +155,7 @@ public abstract class InitDispatcher {
             serializer.write(buf);
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             return _serialization_id;
         }
 

@@ -25,7 +25,7 @@ import java.util.HashMap;
 public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(PlaceLocalHandle.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(PlaceLocalHandle.class);
 
     private static final HashMap<Integer,Object> data = new HashMap<Integer,Object>();
     
@@ -109,7 +109,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
         return placeLocalHandle;
 	}
 
-	public int $_get_serialization_id() {
+	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
 
