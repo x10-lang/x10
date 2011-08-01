@@ -5,8 +5,8 @@ import java.io.*;
 
 public class Basic {
 
-    private static final int _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RunnableWithBuf.class.getName());
-    private static final int _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Handler.class.getName());
+    private static final int _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RunnableWithBuf.class);
+    private static final int _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Handler.class);
 
     private static class RunnableWithBuf implements Serializable, x10.x10rt.X10JavaSerializable {
         public static final int Ping = 1;
