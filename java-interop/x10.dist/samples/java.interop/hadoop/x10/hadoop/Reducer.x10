@@ -1,5 +1,7 @@
 package x10.hadoop;
 
+import x10.interop.java.Throws;
+
 public abstract class Reducer[KEYIN, VALUEIN, KEYOUT, VALUEOUT] extends org.apache.hadoop.mapreduce.Reducer {
 
     public static class Context[KEY, VALUE] {
@@ -8,6 +10,7 @@ public abstract class Reducer[KEYIN, VALUEIN, KEYOUT, VALUEOUT] extends org.apac
 	    this.context = context;
 	}
 
+	@Throws("java.io.IOException") @Throws("java.lang.InterruptedException")
 	public def write(key:KEY, value:VALUE) {
 	    context.write(key,value);
 	}
@@ -29,11 +32,12 @@ public abstract class Reducer[KEYIN, VALUEIN, KEYOUT, VALUEOUT] extends org.apac
 	public def iterator() = new IteratorWrapper[T](what.iterator());
     }
 
+    @Throws("java.io.IOException") @Throws("java.lang.InterruptedException")
     abstract public def reduce(KEYIN, Iterable[VALUEIN], Context[KEYOUT, VALUEOUT]) : void;
 
     /** this method overrides the required java method */
-    public def reduce(keyin:Any, valuein:java.lang.Iterable,
-	    context:org.apache.hadoop.mapreduce.Reducer.Context) { // type erasure
+    @Throws("java.io.IOException") @Throws("java.lang.InterruptedException")
+    public def reduce(keyin:Any, valuein:java.lang.Iterable, context:org.apache.hadoop.mapreduce.Reducer.Context) { // type erasure
 	reduce(keyin as KEYIN, new IterableWrapper[VALUEIN](valuein), new Context[KEYOUT, VALUEOUT](context));
     }
 }

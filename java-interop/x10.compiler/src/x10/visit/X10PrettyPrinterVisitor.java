@@ -1203,6 +1203,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         List<String> typeAssignments = printConstuctorFormals(n);
 
+        w.write(Emitter.printThrowsClause(n.constructorDef()));
+
         w.write("{");
         w.begin(4);
 
@@ -1267,6 +1269,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(CONSTRUCTOR_METHOD_NAME);
 
         List<String> typeAssignments = printConstuctorFormals(n);
+
+        w.write(Emitter.printThrowsClause(n.constructorDef()));
 
         Block body = n.body();
         if (body != null) {
