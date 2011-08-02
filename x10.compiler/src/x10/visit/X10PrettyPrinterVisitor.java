@@ -2085,7 +2085,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             else {
                 if (isPrimitiveRepedJava(e.type())) {
                     boolean forceBoxing = false;
-                    if (!er.canMangleMethodName(def)) {
+                    if (!Emitter.canMangleMethodName(def)) {
                         // for methods with non-manglable names, we box argument
                         // if any of the implemented methods has argument of generic type
                         // in corresponding position
@@ -3665,7 +3665,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Expr target = c.target();
             if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
-                    if (isObject || Emitter.isNativeRepedToJava(ct) || er.isNativeClassToJava(ct)) {
+                    if (isObject || Emitter.isNativeRepedToJava(ct) || Emitter.isNativeClassToJava(ct)) {
                         return;
                     }
                     w.write("super");

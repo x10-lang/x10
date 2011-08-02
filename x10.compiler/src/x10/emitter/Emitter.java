@@ -633,7 +633,7 @@ public class Emitter {
 	    return false;
 	}
 
-	private String getNativeClassJavaRepParam(X10ClassDef def, int i) {
+	private static String getNativeClassJavaRepParam(X10ClassDef def, int i) {
         List<Type> as = def.annotationsMatching(def.typeSystem().NativeClass());
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -644,7 +644,7 @@ public class Emitter {
         return null;
     }
 	
-	public boolean isNativeClassToJava(Type ct) {
+	public static boolean isNativeClassToJava(Type ct) {
         Type bt = Types.baseType(ct);
         if (bt instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) bt).x10Def();
@@ -1215,7 +1215,7 @@ public class Emitter {
         return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type, tr.context());
     }
 
-    public final boolean canMangleMethodName(MethodDef def) {
+    public static final boolean canMangleMethodName(MethodDef def) {
         ContainerType containerType = def.container().get();
         String methodName = def.name().toString();
         List<Ref<? extends Type>> formalTypes = def.formalTypes();
