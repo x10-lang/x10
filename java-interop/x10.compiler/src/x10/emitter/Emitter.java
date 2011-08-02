@@ -1224,10 +1224,13 @@ public class Emitter {
         return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
         && !isNativeClassToJava(containerType)
         && !isNativeRepedToJava(containerType)
-        && !(nonStatic && ((methodName.equals("equals") && numFormals == 1) || (methodName.equals("toString") && numFormals == 0) || (methodName.equals("hashCode") && numFormals == 0)))/*Any*/
-        && !(nonStatic && ((methodName.equals("compareTo") && numFormals == 1)))/*Comparable*/
-        // TODO For X10 method that implements/overrides Java method, we always generate unmangled version and additionally generate mangled version as needed. 
-        && !isJavaType(containerType)/*CharSequence etc.*/
+        && !(nonStatic &&
+        		(
+        				((methodName.equals("equals") && numFormals == 1) || (methodName.equals("toString") && numFormals == 0) || (methodName.equals("hashCode") && numFormals == 0))/*Any*/
+        				|| (methodName.equals("compareTo") && numFormals == 1)/*Comparable*/
+        				|| isJavaType(containerType)/*CharSequence etc.*/ //FIXME we should allow mangling of X10 method that doesn't implement/override Java method
+        		)
+        )
         && !(methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix));
     }
     
