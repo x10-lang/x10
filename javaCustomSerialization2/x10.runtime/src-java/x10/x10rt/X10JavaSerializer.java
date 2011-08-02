@@ -24,6 +24,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -485,9 +486,23 @@ public class X10JavaSerializer {
             serializeClassUsingReflection(body, superclass);
         }
 
+        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
+
+        if (isCustomSerializable) {
+            TypeVariable<? extends Class<? extends Object>>[] typeParameters = bodyClass.getTypeParameters();
+            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+                Field field = bodyClass.getDeclaredField(typeParameter.getName());
+                fields.add(field);
+            }
+            processFields(body, fields);
+            CustomSerialization cs = (CustomSerialization)body;
+            SerialData serialData = cs.serialize();
+            writeObjectUsingReflection(serialData);
+            return;
+        }
+
         // We need to sort the fields first. Cause the order here could depend on the JVM.
         Field[] declaredFields = bodyClass.getDeclaredFields();
-        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
         for (Field field : declaredFields) {
             if (field.isSynthetic())
                 continue;
@@ -498,6 +513,10 @@ public class X10JavaSerializer {
             fields.add(field);
         }
 
+        processFields(body, fields);
+    }
+
+    private <T> void processFields(T body, Set<Field> fields) throws IllegalAccessException, IOException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         for (Field field: fields) {
             field.setAccessible(true);
             Class<?> type = field.getType();
@@ -510,12 +529,6 @@ public class X10JavaSerializer {
             } else {
                 writeObjectUsingReflection(field.get(body));
             }
-        }
-
-        if (isCustomSerializable) {
-            CustomSerialization cs = (CustomSerialization)body;
-            SerialData serialData = cs.serialize();
-            writeObjectUsingReflection(serialData);
         }
     }
 
