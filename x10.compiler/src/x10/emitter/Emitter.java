@@ -1793,6 +1793,9 @@ public class Emitter {
     }
 
     private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean boxReturnValue) {
+    	// bridge method should not be needed for unmangled method
+    	if (!canMangleMethodName(def)) return;
+    	
 	    w.write("// bridge for " + def);
 	    w.newline();
 
