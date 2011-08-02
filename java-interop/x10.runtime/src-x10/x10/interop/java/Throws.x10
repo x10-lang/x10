@@ -15,6 +15,6 @@ import x10.lang.annotations.MethodAnnotation;
 
 /**
  * This annotation is used to declare that the attached method/constructor throws the specified checked exception.
- * throwable is the class name of the checked excetion.
+ * throwable is the class name of the checked exception.
  */
 public interface Throws(throwable: String) extends MethodAnnotation { }
