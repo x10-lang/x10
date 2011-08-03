@@ -21,13 +21,13 @@ import x10.hadoop.Reducer;
 public class WordCount {
 
   public static class TokenizerMapper 
-       extends Mapper[Object, Text, Text, IntWritable] {
+       extends Mapper[Any, Text, Text, IntWritable] {
     
     private static val one : IntWritable = new IntWritable(1);
     private val word = new Text();
       
     @Throws("java.io.IOException") @Throws("java.lang.InterruptedException") 
-    public def map(key:Object, value:Text, context:Context[Text,IntWritable]) {
+    public def map(key:Any, value:Text, context:Context[Text,IntWritable]) {
       val itr = new StringTokenizer(value.toString());
       while (itr.hasMoreTokens()) {
         word.set(itr.nextToken());
