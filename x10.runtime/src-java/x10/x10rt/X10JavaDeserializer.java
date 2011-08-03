@@ -27,6 +27,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -316,10 +317,12 @@ public class X10JavaDeserializer {
             throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
         }
     }
 
-    private <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+    private <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
@@ -365,9 +368,26 @@ public class X10JavaDeserializer {
             obj = deserializeClassUsingReflection(superclass, obj, i);
         }
 
+        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
+
+        if (isCustomSerializable) {
+            TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
+            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+                Field field = clazz.getDeclaredField(typeParameter.getName());
+                fields.add(field);
+            }
+            processFields(obj, fields);
+            SerialData serialData = (SerialData) readRefUsingReflection();
+
+           // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
+            Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
+            makeMethod.setAccessible(true);
+            makeMethod.invoke(obj, serialData);
+            return obj;
+        }
+
         // We need to sort the fields first. Cause the order here could depend on the JVM.
         Field[] declaredFields = clazz.getDeclaredFields();
-        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
         for (Field field : declaredFields) {
             if (field.isSynthetic())
                 continue;
@@ -378,6 +398,12 @@ public class X10JavaDeserializer {
             fields.add(field);
         }
 
+        processFields(obj, fields);
+
+        return obj;
+    }
+
+    private <T> void processFields(T obj, Set<Field> fields) throws IOException, IllegalAccessException {
         for (Field field : fields) {
             field.setAccessible(true);
             Class<?> type = field.getType();
@@ -392,16 +418,6 @@ public class X10JavaDeserializer {
                 field.set(obj, value);
             }
         }
-
-        if (isCustomSerializable) {
-                SerialData serialData = (SerialData) readRefUsingReflection();
-
-               // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
-                Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
-                makeMethod.setAccessible(true);
-                makeMethod.invoke(obj, serialData);
-            }
-        return obj;
     }
 
     private <T> void readPrimitiveUsingReflection(Field field, T obj) throws IOException, IllegalAccessException {
