@@ -11,6 +11,5 @@ compile:
 	$(X10C) -classpath "$(CLASSPATH)" x10/hadoop/*.x10
 
 run:
+	rm -rf output
 	$(X10) -classpath "$(CLASSPATH)" x10.hadoop.WordCount x10/hadoop/WordCount.x10 output
-	
-
