@@ -1310,6 +1310,8 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private boolean checkFieldRefReplacementRequired(X10Field_c f) {
+    	if (f.target().type().toClass().isJavaType()) return false;
+
         if (f.target().type().isNumeric())
             // @NativeRep class should be excluded
             return false;
