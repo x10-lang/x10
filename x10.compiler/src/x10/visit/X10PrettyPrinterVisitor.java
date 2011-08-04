@@ -2136,7 +2136,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                             w.write(",");
                         } else {
-                        	er.printBoxConversion(e.type());
+                            // box only if converting to function type
+                            if (xts.isFunctionType(castType)) {
+                                er.printBoxConversion(e.type());
+                            }
                         }
                     }
 
