@@ -89,7 +89,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) getOptions();
 	    // Inline from superclass, replacing SourceClassResolver
 	    for (PrecompiledLibrary pco : opts.x10libs) {
-	        pco.updateManifset(manifest, this);
+	        pco.updateManifest(manifest, this);
 	    }
 
 	    TopLevelResolver r =

@@ -177,6 +177,13 @@ namespace {
         send_finish(from, counter_addr);
     }
 
+    void blocking_barrier (void)
+    {
+            int finished = 0;
+            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
+            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
+    }
+
     void x10rt_lgl_internal_init (x10rt_lgl_cfg_accel *cfgv, x10rt_place cfgc, x10rt_msg_type *counter)
     {
         x10rt_emu_init(counter);
@@ -254,11 +261,7 @@ namespace {
         x10rt_net_register_msg_receiver(send_cat_id, recv_cat);
         x10rt_net_register_msg_receiver(send_finish_id, recv_finish);
 
-        {
-            int finished = 0;
-            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
-            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
-        }
+        blocking_barrier();
 
         // Spread the knowledge of accelerators around
         
@@ -271,11 +274,7 @@ namespace {
         }
         while (finish_counter!=0) x10rt_net_probe();
 
-        {
-            int finished = 0;
-            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
-            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
-        }
+        blocking_barrier();
 
         // Now we can calculate the total number of places
         g.nplaces = x10rt_lgl_nhosts();
@@ -321,11 +320,7 @@ namespace {
             g.type[g.child[x10rt_lgl_here()][j]] = cfgv[j].cat;
         }
 
-        {
-            int finished = 0;
-            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
-            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
-        }
+        blocking_barrier();
 
         for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
             if (i==x10rt_lgl_here()) continue;
@@ -336,11 +331,7 @@ namespace {
 
         while (finish_counter!=0) x10rt_net_probe();
 
-        {
-            int finished = 0;
-            x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
-            while (!finished) { x10rt_emu_coll_probe(); x10rt_net_probe(); }
-        }
+        blocking_barrier();
 
     }
 
@@ -504,11 +495,7 @@ void x10rt_lgl_register_put_receiver_cuda (x10rt_msg_type msg_type,
 
 void x10rt_lgl_registration_complete (void)
 {
-    {
-        int finished = 0;
-        x10rt_lgl_barrier(0, x10rt_lgl_here(), one_setter, &finished);
-        while (!finished) x10rt_lgl_probe();
-    }
+    blocking_barrier();
 
     // accelerators
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
@@ -809,32 +796,37 @@ void x10rt_lgl_probe (void)
 
 void x10rt_lgl_finalize (void)
 {
-    x10rt_emu_coll_finalize();
     if (getenv("X10RT_RXTX")) {
-        fprintf(stderr, "Place: %lu   msg_rx: %llu/%llu   msg_tx: %llu/%llu\n",
-                (unsigned long)x10rt_lgl_here(), 
-                (unsigned long long)x10rt_lgl_stats.msg.bytes_received,
-                (unsigned long long)x10rt_lgl_stats.msg.messages_received,
-                (unsigned long long)x10rt_lgl_stats.msg.bytes_sent,
-                (unsigned long long)x10rt_lgl_stats.msg.messages_sent);
+        for (x10rt_place i=0 ; i<x10rt_net_nhosts() ; ++i) {
+            blocking_barrier();
+            if (x10rt_net_here() != i) continue;
+            fprintf(stderr, "Place: %lu   msg_rx: %llu/%llu   msg_tx: %llu/%llu\n",
+                    (unsigned long)x10rt_lgl_here(), 
+                    (unsigned long long)x10rt_lgl_stats.msg.bytes_received,
+                    (unsigned long long)x10rt_lgl_stats.msg.messages_received,
+                    (unsigned long long)x10rt_lgl_stats.msg.bytes_sent,
+                    (unsigned long long)x10rt_lgl_stats.msg.messages_sent);
 
-        fprintf(stderr, "Place: %lu   put_rx: %llu(&%llu)/%llu   put_tx: %llu(&%llu)/%llu\n",
-                (unsigned long)x10rt_lgl_here(), 
-                (unsigned long long)x10rt_lgl_stats.put.bytes_received,
-                (unsigned long long)x10rt_lgl_stats.put_copied_bytes_received,
-                (unsigned long long)x10rt_lgl_stats.put.messages_received,
-                (unsigned long long)x10rt_lgl_stats.put.bytes_sent,
-                (unsigned long long)x10rt_lgl_stats.put_copied_bytes_sent,
-                (unsigned long long)x10rt_lgl_stats.put.messages_sent);
-        fprintf(stderr, "Place: %lu   get_rx: %llu(&%llu)/%llu   get_tx: %llu(&%llu)/%llu\n",
-                (unsigned long)x10rt_lgl_here(), 
-                (unsigned long long)x10rt_lgl_stats.get.bytes_received,
-                (unsigned long long)x10rt_lgl_stats.get_copied_bytes_received,
-                (unsigned long long)x10rt_lgl_stats.get.messages_received,
-                (unsigned long long)x10rt_lgl_stats.get.bytes_sent,
-                (unsigned long long)x10rt_lgl_stats.get_copied_bytes_sent,
-                (unsigned long long)x10rt_lgl_stats.get.messages_sent);
+            fprintf(stderr, "Place: %lu   put_rx: %llu(&%llu)/%llu   put_tx: %llu(&%llu)/%llu\n",
+                    (unsigned long)x10rt_lgl_here(), 
+                    (unsigned long long)x10rt_lgl_stats.put.bytes_received,
+                    (unsigned long long)x10rt_lgl_stats.put_copied_bytes_received,
+                    (unsigned long long)x10rt_lgl_stats.put.messages_received,
+                    (unsigned long long)x10rt_lgl_stats.put.bytes_sent,
+                    (unsigned long long)x10rt_lgl_stats.put_copied_bytes_sent,
+                    (unsigned long long)x10rt_lgl_stats.put.messages_sent);
+            fprintf(stderr, "Place: %lu   get_rx: %llu(&%llu)/%llu   get_tx: %llu(&%llu)/%llu\n",
+                    (unsigned long)x10rt_lgl_here(), 
+                    (unsigned long long)x10rt_lgl_stats.get.bytes_received,
+                    (unsigned long long)x10rt_lgl_stats.get_copied_bytes_received,
+                    (unsigned long long)x10rt_lgl_stats.get.messages_received,
+                    (unsigned long long)x10rt_lgl_stats.get.bytes_sent,
+                    (unsigned long long)x10rt_lgl_stats.get_copied_bytes_sent,
+                    (unsigned long long)x10rt_lgl_stats.get.messages_sent);
+        }
     }
+    blocking_barrier();
+    x10rt_emu_coll_finalize();
     for (x10rt_place i=0 ; i<g.naccels[x10rt_lgl_here()] ; ++i) {
         switch (g.type[g.child[x10rt_lgl_here()][i]]) {
             case X10RT_LGL_CUDA:

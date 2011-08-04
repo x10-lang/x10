@@ -206,16 +206,16 @@ typedef struct {
 
     /** Statistics related to the preliminary byte buffer part of x10rt_send_put calls (not the actual copy) */
     x10rt_msg_stats put;
-    /** The total number of bytes copied from this place to other places via put operations */
+    /** The total number of bytes copied as a result of put operations sent by this place */
     uint64_t put_copied_bytes_sent;
-    /** The total number of bytes copied to this place from other places via remote put operations */
+    /** The total number of bytes copied as a result of put operations received at this place */
     uint64_t put_copied_bytes_received;
 
     /** Statistics related to the preliminary byte buffer part of x10rt_send_get calls (not the actual copy) */
     x10rt_msg_stats get;
-    /** The total number of bytes copied from this place to other places via remote get operations */
+    /** The total number of bytes copied as a result of get operations sent by this place */
     uint64_t get_copied_bytes_sent;
-    /** The total number of bytes copied to this place from other places via get operations */
+    /** The total number of bytes copied as a result of get operations received by this place  */
     uint64_t get_copied_bytes_received;
 } x10rt_stats;
 

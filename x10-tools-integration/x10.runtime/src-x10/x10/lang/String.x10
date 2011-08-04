@@ -136,7 +136,7 @@ public final class String implements (Int) => Char, Ordered[String], Comparable[
      *         whose contents are initialized to contain the Chars in this String.
      * @see #bytes()
      */
-    @Native("java", "x10.core.ArrayFactory.<java.lang.Character>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
+    @Native("java", "x10.core.ArrayFactory.<x10.core.Char>makeArrayFromJavaArray(x10.rtt.Types.CHAR, (#this).toCharArray())")
     @Native("c++", "(#this)->chars()")
     public native def chars():Rail[Char];
 

@@ -240,7 +240,10 @@ void Launcher::startChildren()
 							#ifdef DEBUG
 								fprintf(stderr, "Runtime %u forked with gdb in an xterm.  Running exec.\n", _myproc);
 							#endif
-							newargv = (char**)alloca(8*sizeof(char*));
+							int numArgs = 0;
+							while (_argv[numArgs] != NULL)
+								numArgs++;
+							newargv = (char**)alloca((numArgs+8)*sizeof(char*));
 							if (newargv == NULL)
 								DIE("Allocating space for exec-ing gdb runtime %d\n", _myproc);
 							char* title = (char*)alloca(32);
@@ -251,7 +254,10 @@ void Launcher::startChildren()
 							newargv[3] = (char*)"-e";
 							newargv[4] = (char*)"gdb";
 							newargv[5] = _argv[0];
-							newargv[6] = (char*)NULL;
+							newargv[6] = (char*)"--args";
+							for (int i=0; i<numArgs; i++)
+								newargv[i+7] = _argv[i];
+							newargv[numArgs+7] = (char*)NULL;
 						}
 						else
 						{

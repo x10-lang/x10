@@ -14,6 +14,8 @@ package x10.x10rt;
 import x10.runtime.impl.java.Runtime;
 
 import java.io.IOException;
+import java.lang.RuntimeException;
+import java.lang.Short;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
@@ -23,58 +25,65 @@ import java.util.Map;
 
 public class DeserializationDispatcher {
 
-    public static final int NULL_ID = 0;
-    public static final int STRING_ID = 1;
-    public static final int FLOAT_ID = 2;
-    public static final int DOUBLE_ID = 3;
-    public static final int INTEGER_ID = 4;
-    public static final int BOOLEAN_ID = 5;
-    public static final int BYTE_ID = 6;
-    public static final int SHORT_ID = 7;
-    public static final int LONG_ID = 8;
-    public static final int CHARACTER_ID = 9;
+    public static final short NULL_ID = 0;
+    public static final short STRING_ID = 1;
+    public static final short FLOAT_ID = 2;
+    public static final short DOUBLE_ID = 3;
+    public static final short INTEGER_ID = 4;
+    public static final short BOOLEAN_ID = 5;
+    public static final short BYTE_ID = 6;
+    public static final short SHORT_ID = 7;
+    public static final short LONG_ID = 8;
+    public static final short CHARACTER_ID = 9;
     public static final String NULL_VALUE = "__NULL__";
 
-    private static final int INCREMENT_SIZE = 10;
+    public static final short refValue = Short.MAX_VALUE;
+    public static final short javaClassID = refValue - 1;
 
     // Should start issuing id's from 1 cause the id 0 is used to indicate a null value.
     // We first increment i before issuing the id hence initialize to NULL_ID
-    private static int i = NULL_ID;
+    private static short i = NULL_ID;
 
-    private static List<String> idToClassName = new ArrayList<String>();
-    private static Map<String, Integer> classNameToId = new HashMap<String, Integer> ();
+    private static List<Class> idToClassName = new ArrayList<Class>();
+    private static Map<String, Short> classNameToId = new HashMap<String, Short> ();
 
-    public static int addDispatcher(String className) {
+    public static short addDispatcher(Class clazz) {
         if (i == NULL_ID) {
-            add(NULL_VALUE);
-            add("java.lang.String");
-            add("java.lang.Float");
-            add("java.lang.Double");
-            add("java.lang.Integer");
-            add("java.lang.Boolean");
-            add("java.lang.Byte");
-            add("java.lang.Short");
-            add("java.lang.Character");
+            classNameToId.put(null, i);
+            idToClassName.add(i, null);
+            i++;
+            try {
+                add(Class.forName("java.lang.String"));
+                add(Class.forName("java.lang.Float"));
+                add(Class.forName("java.lang.Double"));
+                add(Class.forName("java.lang.Integer"));
+                add(Class.forName("java.lang.Boolean"));
+                add(Class.forName("java.lang.Byte"));
+                add(Class.forName("java.lang.Short"));
+                add(Class.forName("java.lang.Character"));
+            } catch (ClassNotFoundException e) {
+                // This will never happen
+            }
         }
-        add(className);
-        return i-1;
+        add(clazz);
+        return (short) (i-1);
     }
 
-    public static int addDispatcher(String className, String alternate) {
-        int i = addDispatcher(className);
-        classNameToId.put(alternate,  i);
+    public static short addDispatcher(Class clazz, String alternate) {
+        short i = addDispatcher(clazz);
+        classNameToId.put(alternate, i);
         return i;
     }
 
-    private static void add(String str) {
-        classNameToId.put(str, i);
-        idToClassName.add(i, str);
+    private static void add(Class clazz) {
+        classNameToId.put(clazz.getName(), i);
+        idToClassName.add(i, clazz);
         i++;
     }
 
-    public static Object getInstanceForId(int i, X10JavaDeserializer deserializer) throws IOException {
+    public static Object getInstanceForId(short i, X10JavaDeserializer deserializer) throws IOException {
 
-        if (i == X10JavaDeserializer.ref) {
+        if (i == refValue) {
             return deserializer.getObjectAtPosition(deserializer.readInt());
         } else if (i == NULL_ID) {
             if (Runtime.TRACE_SER) {
@@ -82,55 +91,17 @@ public class DeserializationDispatcher {
             }
             return null;
         } else if (i <=8) {
-            if (Runtime.TRACE_SER) {
-                System.out.println("Deserializing non-null value with id " + i);
-            }
-            Object obj = null;
-            switch(i) {
-                case STRING_ID:
-                     obj =  deserializer.readStringValue();
-                    break;
-                case FLOAT_ID:
-                     obj = deserializer.readFloat();
-                    break;
-                case DOUBLE_ID:
-                     obj = deserializer.readDouble();
-                    break;
-                case INTEGER_ID:
-                      obj = deserializer.readInt();
-                    break;
-                case BOOLEAN_ID:
-                     obj = deserializer.readBoolean();
-                    break;
-                case BYTE_ID:
-                      obj = deserializer.readByte();
-                    break;
-                case SHORT_ID:
-                    obj = deserializer.readShort();
-                    break;
-                case  CHARACTER_ID:
-                     obj = deserializer.readChar();
-                    break;
-                case LONG_ID:
-                     obj = deserializer.readLong();
-                    break;
-            }
-            deserializer.record_reference(obj);
-            return obj;
+            return deserializePrimitive(i, deserializer);
         }
 
         if (Runtime.TRACE_SER) {
             System.out.println("Deserializing non-null value with id " + i);
         }
-        final String className = idToClassName.get(i);
         try {
-            Class<?> clazz = Class.forName(className);
+            Class<?> clazz = getClassForID(i, deserializer);
             Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
             method.setAccessible(true);
             return method.invoke(null, deserializer);
-        } catch (ClassNotFoundException e) {
-            // This should never happen
-            throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -146,12 +117,71 @@ public class DeserializationDispatcher {
         }
     }
 
-    public static String getClassNameForID(int id) {
+    public static Object deserializePrimitive(short i, X10JavaDeserializer deserializer) throws IOException {
+        if (Runtime.TRACE_SER) {
+            System.out.println("Deserializing non-null value with id " + i);
+        }
+        Object obj = null;
+        switch(i) {
+            case STRING_ID:
+                 obj =  deserializer.readStringValue();
+                break;
+            case FLOAT_ID:
+                 obj = deserializer.readFloat();
+                break;
+            case DOUBLE_ID:
+                 obj = deserializer.readDouble();
+                break;
+            case INTEGER_ID:
+                  obj = deserializer.readInt();
+                break;
+            case BOOLEAN_ID:
+                 obj = deserializer.readBoolean();
+                break;
+            case BYTE_ID:
+                  obj = deserializer.readByte();
+                break;
+            case SHORT_ID:
+                obj = deserializer.readShort();
+                break;
+            case  CHARACTER_ID:
+                 obj = deserializer.readChar();
+                break;
+            case LONG_ID:
+                 obj = deserializer.readLong();
+                break;
+        }
+        deserializer.record_reference(obj);
+        return obj;
+    }
+
+    public static String getClassNameForID(short id, X10JavaDeserializer deserializer) {
+         if (id == javaClassID) {
+            try {
+                return deserializer.readStringValue();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        return getClassForID(id, deserializer).getName();
+    }
+
+    public static Class getClassForID(short id, X10JavaDeserializer deserializer) {
+        if (id == javaClassID) {
+            try {
+                String className = deserializer.readStringValue();
+                return Class.forName(className);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
         return idToClassName.get(id);
     }
 
-    public static int getIDForClassName(String str) {
-        Integer integer = classNameToId.get(str);
+    public static short getIDForClassName(String str) {
+        Short val = classNameToId.get(str);
 
         // When there are inner classes the type name is of the form A.B.C where
         // C is an inner class of B. But classNameToId uses class.getName() to store
@@ -160,10 +190,13 @@ public class DeserializationDispatcher {
         // but the typenames are stored at A.B.C so this disconnect is inevitable
         int i;
         String s = str;
-        while (integer == null && ((i = s.lastIndexOf(".")) > 0)) {
+        while (val == null && ((i = s.lastIndexOf(".")) > 0)) {
             s = s.substring(0, i) + "$" + s.substring(i + 1);
-            integer = classNameToId.get(s);
+            val = classNameToId.get(s);
         }
-        return integer;
+        if (val == null) {
+            return -1;
+        }
+        return val;
     }
 }

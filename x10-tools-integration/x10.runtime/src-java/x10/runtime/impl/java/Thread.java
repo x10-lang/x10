@@ -138,7 +138,7 @@ public class Thread extends java.lang.Thread implements x10.core.RefI {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
 
