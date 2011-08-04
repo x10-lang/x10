@@ -3737,8 +3737,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
                 } else if (isSelfDispatch && !castType.typeEquals(e.type(), tr.context())) {
                     w.write("(");
-                    if (Emitter.needExplicitBoxing(castType) && defType.isParameterType()) {
-                        er.printBoxConversion(castType);
+                    if (Emitter.needExplicitBoxing(e.type()) && isBoxedType(defType)) {
+                        er.printBoxConversion(e.type());
                     } else {
                         // TODO:CAST
                         w.write("(");
