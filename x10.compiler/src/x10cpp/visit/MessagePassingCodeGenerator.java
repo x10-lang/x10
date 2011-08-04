@@ -3478,7 +3478,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
         }
         
-		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG)
+		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG && !in_template_closure)
 		{
 			String key = ((StreamWrapper)sw).getStreamName(StreamWrapper.CC);
 			Map<String, LineNumberMap> fileToLineNumberMap = c.<Map<String, LineNumberMap>>findData(X10CPPTranslator.FILE_TO_LINE_NUMBER_MAP);

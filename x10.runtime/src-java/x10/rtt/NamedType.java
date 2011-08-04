@@ -21,7 +21,7 @@ import java.io.IOException;
 public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(NamedType.class.getName());
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(NamedType.class);
     
     public String typeName;
 
@@ -58,12 +58,11 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         super.$_serialize(serializer);
-        int classId = DeserializationDispatcher.getIDForClassName(typeName);
-        serializer.write(classId);
+        serializer.writeClassID(typeName);
     }
 
     @Override
-    public int $_get_serialization_id() {
+    public short $_get_serialization_id() {
         return _serialization_id;
     }
 
@@ -75,8 +74,8 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
 
     public static X10JavaSerializable $_deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
         RuntimeType.$_deserialize_body(nt, deserializer);
-        int classId = deserializer.readInt();
-        nt.typeName = DeserializationDispatcher.getClassNameForID(classId);
+        short classId = deserializer.readShort();
+        nt.typeName = DeserializationDispatcher.getClassNameForID(classId, deserializer);
         return nt;
     }
 }

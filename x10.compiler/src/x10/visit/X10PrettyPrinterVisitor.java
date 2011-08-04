@@ -11,6 +11,16 @@
 
 package x10.visit;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import polyglot.ast.Allocation_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign;
@@ -163,16 +173,6 @@ import x10c.visit.ClosureRemover;
 import x10c.visit.InlineHelper;
 import x10cpp.visit.ASTQuery;
 
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template based
  * dumping mechanism (and for all others just defaults to the normal pretty
@@ -218,6 +218,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String GETRTT_NAME = "$getRTT";
     public static final String GETPARAM_NAME = "$getParam";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
+    public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
     public static final String CREATION_METHOD_NAME = "$make";
     public static final String BOX_METHOD_NAME = "$box";
     public static final String UNBOX_METHOD_NAME = "$unbox";
@@ -527,18 +528,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
 
             // _serialization_id
-            w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class.getName());");
+            w.writeln(".class);");
             w.newline();
         } else {
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
             // _serialization_id
-            w.write("public static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class.getName());");
+            w.writeln(".class);");
             w.newline();
         }
 
@@ -687,7 +688,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialize_id()
-                w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
+                w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
                 w.newline(4);
                 w.begin(0);
                 w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
@@ -823,7 +824,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline(0);
     }
 
-    private String needsCasting(Type type) {
+    public static String needsCasting(Type type) {
 
         // is this a java primitive
         if(type.isInt() || type.isDouble() || type.isFloat() || type.isByte() || type.isChar() || type.isShort() || type.isLong() || type.isBoolean()) {
@@ -858,6 +859,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
+    private static final String SERIAL_DATA = "x10.io.SerialData";
 
     private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         for (Ref<? extends Type> ref : def.interfaces()) {
@@ -1099,6 +1101,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(X10ConstructorDecl_c n) {
 
+        // Checks whether this is the constructor corresponding to CustomSerialization
+        boolean isCustomSerializable = false;
+        if (n.formals().size() == 1 && SERIAL_DATA.equals(n.formals().get(0).type().toString())) {
+             isCustomSerializable = true;
+        }
         printCreationMethodDecl(n);
 
         X10ClassType type = (X10ClassType) Types.get(n.constructorDef().container());
@@ -1106,7 +1113,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.isUnsplittable(type)) {
 
-            printConstructorMethodDecl(n);
+            printConstructorMethodDecl(n, isCustomSerializable);
             return;
         }
 
@@ -1236,7 +1243,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return firstStmt;
     }
 
-    private void printConstructorMethodDecl(X10ConstructorDecl_c n) {
+    private void printConstructorMethodDecl(X10ConstructorDecl_c n, boolean isCustomSerializable) {
+
+        String methodName = null;
 
         tr.print(n,
                  tr.nodeFactory().FlagsNode(n.flags().position(),
@@ -1278,17 +1287,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(s);
                 w.allowBreak(0, " ");
             }
-            if (body.statements().size() > 0) {
-                if (body.statements().get(0) instanceof X10ConstructorCall_c)
-                    n.printSubStmt(body.statements(body.statements()
-                    /* .subList(1, body.statements().size()) */), w, tr);
-                // vj: the main body was not being written. Added next
-                // two lines.
-                else
-                    n.printSubStmt(body, w, tr);
-            } else
-                n.printSubStmt(body, w, tr);
-            
+
+            // If this is the custom serialization constructor we refractor it out into a new method and call it here
+            if (isCustomSerializable) {
+
+                // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
+                methodName = n.returnType().type().fullName().toString().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION;
+                w.writeln(methodName + "(" + n.formals().get(0).name() + ");");
+            } else {
+                printConstructorBody(n, body);
+            }
+
             w.newline();
             if (body.reachable()) {
                 w.writeln("return this;");
@@ -1302,6 +1311,29 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             w.write(";");
         }
+
+        // Refractored  method that can be called by reflection
+        if (isCustomSerializable) {
+            w.newline();
+            w.begin(4);
+            w.writeln("public void  " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
+            n.printSubStmt(body, w, tr);
+            w.writeln("}");
+            w.end();
+        }
+    }
+
+    private void printConstructorBody(X10ConstructorDecl_c n, Block body) {
+        if (body.statements().size() > 0) {
+            if (body.statements().get(0) instanceof X10ConstructorCall_c)
+                n.printSubStmt(body.statements(body.statements()
+                /* .subList(1, body.statements().size()) */), w, tr);
+            // vj: the main body was not being written. Added next
+            // two lines.
+            else
+                n.printSubStmt(body, w, tr);
+        } else
+            n.printSubStmt(body, w, tr);
     }
 
     private List<String> printConstuctorFormals(X10ConstructorDecl_c n) {
@@ -1859,14 +1891,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         // XTENLANG-2680 invoke final methods as non-virtual call for optimization
-        MethodInstance mi = c.methodInstance();
-        Receiver target = c.target();
-        ContainerType containerType = mi.container();
+        final MethodInstance mi = c.methodInstance();
+        final Receiver target = c.target();
+        final Type targetType = target.type();
+        final ContainerType containerType = mi.container();
     	assert containerType.isClass();
+    	final X10ClassType containerClass = containerType.toClass();
     	// N.B. structs are implicitly final. all methods of final classes are final. invoke final methods as non-virtual call.
     	boolean invokeNativeAsNonVirtual = !Emitter.supportNativeMethodDecl || mi.flags().isStatic() || mi.flags().isFinal()
-    	|| canBeNonVirtual(((X10ClassType) containerType.toClass()).x10Def())
-    	|| (target.type().isClass() && canBeNonVirtual(((X10ClassType) target.type().toClass()).x10Def()))
+    	|| canBeNonVirtual(containerClass.x10Def())
+    	|| (targetType.isClass() && canBeNonVirtual(targetType.toClass().x10Def()))
     	;
         if (invokeNativeAsNonVirtual && er.printNativeMethodCall(c)) {
             return;
@@ -1893,7 +1927,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         TypeSystem xts = tr.typeSystem();
-        Type targetType = target.type();
 
         // When the target class is a generics , print a cast operation
         // explicitly.
@@ -1941,11 +1974,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write(".");
 
+        // print type parameters
         List<Type> methodTypeParams = mi.typeParameters();
         if (methodTypeParams.size() > 0) {
             er.printMethodParams(methodTypeParams);
         }
 
+        // print method name
         if (isMainMethod(mi)) {
             w.write(Emitter.mangleToJava(c.name().id()));
         } else {
@@ -1993,7 +2028,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             if (c.nonVirtual()) {
                 Name name = InlineHelper.makeSuperBridgeName(mi.container().toClass().def(), mi.name());
-                List<MethodInstance> bridges = target.type().toClass().methodsNamed(name);
+                List<MethodInstance> bridges = targetType.toClass().methodsNamed(name);
                 assert (bridges.size()==1);
                 md = bridges.get(0).def();
                 isParamReturnType = false;
@@ -2101,7 +2136,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                             w.write(",");
                         } else {
-                        	er.printBoxConversion(e.type());
+                            // box only if converting to function type
+                            if (xts.isFunctionType(castType)) {
+                                er.printBoxConversion(e.type());
+                            }
                         }
                     }
 
@@ -2124,13 +2162,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             } else if (isSelfDispatch && xts.isParameterType(targetType)) {
                 ct = (X10ClassType) Types.baseType(containerType);
             }
-        	// XTENLANG-2723 (revert r21635)
-//            // N.B. stop passing rtt to java raw class's methods
-//            if (ct != null
-//                    && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))
-//            		&& !Emitter.isNativeRepedToJava(ct)) {
-            if (ct != null
-            		&& ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType))) {
+            boolean passRTT = 
+//            	// XTENLANG-2723 stop passing rtt to java raw class's methods (reverted in r21635)
+//            	ct != null && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType)) && !Emitter.isNativeRepedToJava(ct);
+            	ct != null && ((ct.flags().isInterface() || (xts.isFunctionType(ct) && ct.isAnonymous())) && Emitter.containsTypeParam(defType));
+            if (passRTT) {
                 w.write(",");
                 new RuntimeTypeExpander(er, c.methodInstance().formalTypes().get(i)).expand();
             }
@@ -3318,11 +3354,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(".conversion(");
                     new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                     w.write(",");
+                    closeParen = true;
                 } else {
-                	er.printBoxConversion(e.type());
-                    w.write("(");
+                    // need to box string only if it is cast to function type
+                    if (xts.isFunctionType(castType)) {
+                        er.printBoxConversion(e.type());
+                        w.write("(");
+                        closeParen = true;
+                    }
                 }
-                closeParen = true;
             } if (!isBoxedType(e.type()) && isBoxedType(defType)) {
                 er.printBoxConversion(e.type());
                 w.write("(");
@@ -3697,8 +3737,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
                 } else if (isSelfDispatch && !castType.typeEquals(e.type(), tr.context())) {
                     w.write("(");
-                    if (Emitter.needExplicitBoxing(castType) && defType.isParameterType()) {
-                        er.printBoxConversion(castType);
+                    if (Emitter.needExplicitBoxing(e.type()) && isBoxedType(defType)) {
+                        er.printBoxConversion(e.type());
                     } else {
                         // TODO:CAST
                         w.write("(");

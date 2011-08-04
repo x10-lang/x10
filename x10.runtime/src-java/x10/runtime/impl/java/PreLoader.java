@@ -12,7 +12,11 @@
 package x10.runtime.impl.java;
 
 import java.io.*;
+import java.lang.*;
+import java.net.URL;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 /**
  * A utility for pre-loading a given class and all non-system classes that
@@ -93,6 +97,8 @@ public class PreLoader {
 	 */
 	public static void preLoad(Class<?> c, boolean intern) {
 		if (isSystemClass(c)) return;
+        // We need to load all X10 classes so that all statics can be initialized at boot time
+        loadX10Classes();
 		preLoad(getClassFile(c), c, intern);
 	}
 	private static void preLoad(String name, Class<?> c) {
@@ -125,6 +131,61 @@ public class PreLoader {
 			}
 		} catch (IOException e) { e.printStackTrace(System.err); assert false; }
 	}
+
+    private static void loadX10Classes() {
+        try {
+            ClassLoader cl = java.lang.Thread.currentThread().getContextClassLoader();
+            Enumeration<URL> resources = cl.getResources("x10");
+            List<File> dirs = new ArrayList<File>();
+            List<JarFile> jars = new ArrayList<JarFile>();
+            while (resources.hasMoreElements()) {
+                URL resource = resources.nextElement();
+                if ("jar".equals(resource.getProtocol())) {
+                    String path = resource.getPath();
+                    int i = path.indexOf("!");
+                    int j = path.indexOf(":");
+                    String jarFileName = path.substring(j + 1, i);
+                    jars.add(new JarFile(jarFileName));
+                } else {
+                    dirs.add(new File(resource.getFile()));
+                }
+            }
+            for (File directory : dirs) {
+                findClasses(directory, "x10");
+            }
+            for (JarFile jarFile: jars) {
+                findClasses(jarFile, "x10");
+            }
+        } catch (IOException e) {
+        } catch (ClassNotFoundException e) {
+        }
+    }
+
+    private static void findClasses(File directory, String packageName) throws ClassNotFoundException {
+        if (directory.exists()) {
+            File[] files = directory.listFiles();
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    findClasses(file, packageName + "." + file.getName());
+                } else if (file.getName().endsWith(".class")) {
+                    Class.forName(packageName + '.' + file.getName().substring(0, file.getName().length() - 6));
+                }
+            }
+        }
+    }
+
+	private static void findClasses(JarFile jarFile, String packageName) throws ClassNotFoundException {
+        Enumeration<JarEntry> entries = jarFile.entries();
+        while (entries.hasMoreElements()) {
+            JarEntry entry = entries.nextElement();
+            String name = entry.getName();
+            if (name.startsWith(packageName) && name.endsWith(".class")) {
+                String className = name.replaceAll("/", ".");
+                Class.forName(className.substring(0, className.length() - 6));
+            }
+        }
+    }
+
 	private static InputStream getClassAsStream(Class<?> c) throws IOException {
 		return getClassAsStream(getClassFile(c), c);
 	}

@@ -944,6 +944,7 @@ public interface TypeSystem {
     X10ClassType Ephemeral();
     X10ClassType Header();
     X10ClassType Uninitialized();
+    X10ClassType SuppressTransientError();
     X10ClassType Embed();
 
     //Type Value();
@@ -956,6 +957,8 @@ public interface TypeSystem {
     X10ClassType NativeRep();
     X10ClassType NativeClass();
     X10ClassType CompileTimeConstant();
+
+    X10ClassType Endpoint();
 
     XLit FALSE();
 

@@ -114,7 +114,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
@@ -156,7 +156,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
-        public int $_get_serialization_id() {
+        public short $_get_serialization_id() {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
@@ -230,15 +230,19 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static final boolean TRACE_SER_DETAIL = Boolean.getBoolean("x10.TRACE_SER_DETAIL");
 
-    /**
-     * Force use of custom java serialization. Default is to use default java serialization
-     */
-    public static final boolean CUSTOM_JAVA_SERIALIZATION = isCustomSerialization();
-
-    private static boolean isCustomSerialization() {
+    public static Boolean isCustomSerialization() {
         String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION");
         if (property == null) {
-            return true;
+            return System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION") == null;
+        }
+        return Boolean.valueOf(property);
+    }
+
+    // For the moment make this the default so that the test can run against it
+    public static Boolean isCustomSerializationUsingReflection() {
+        String property = System.getProperty("x10.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION");
+        if (property == null) {
+            return false;
         }
         return Boolean.valueOf(property);
     }
@@ -261,7 +265,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Copy body (same place)
      */
     public static <T> T deepCopy(T body) {
-        if (CUSTOM_JAVA_SERIALIZATION) {
+        if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
             try {
                 byte[] ba = serialize(body);
                 DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
@@ -269,7 +273,25 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Starting deserialization for deepCopy of " + body.getClass());
                 }
-                body = (T) deserializer.deSerialize();
+                body = (T) deserializer.readRef();
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with deserialization for deepCopy of " + body.getClass());
+                }
+            } catch (java.io.IOException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            }
+            return body;
+        } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+            try {
+                byte[] ba = serialize(body);
+                DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
+                X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting deserialization for deepCopy of " + body.getClass());
+                }
+                body = (T) deserializer.readRefUsingReflection();
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Done with deserialization for deepCopy of " + body.getClass());
                 }
@@ -281,21 +303,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             return body;
         } else {
             try {
-                // copy body
-                long startTime = 0L;
-                if (TRACE_SER) {
-                    startTime = System.nanoTime();
-                }
-                java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
-                java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos);
-                oos.writeObject(body);
-                oos.close();
-                byte[] ba = baos.toByteArray();
-                if (TRACE_SER) {
-                    long endTime = System.nanoTime();
-                    System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
-                            + " microsecs.");
-                }
+                byte[] ba = serialize(body);
                 java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba));
                 body = (T) ois.readObject();
                 ois.close();
@@ -312,25 +320,66 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public static <T> byte[] serialize(T body) throws IOException {
-        long startTime = 0L;
-        if (TRACE_SER) {
-            startTime = System.nanoTime();
+        byte[] ba;
+        if (CUSTOM_JAVA_SERIALIZATION) {
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Starting serialization for runAtAll  " + body.getClass());
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream oos = new DataOutputStream(baos);
+            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            if (body instanceof X10JavaSerializable) {
+                serializer.write((X10JavaSerializable) body);
+            } else {
+                serializer.write(body);
+            }
+            oos.close();
+            ba = baos.toByteArray();
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Done with serialization for runAtAll " + body.getClass());
+            }
+            return ba;
+        } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Starting serialization for runAt  " + body.getClass());
+            }
+            try {
+                ba =  serializeUsingReflection(body);
+            } catch (IllegalAccessException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (NoSuchMethodException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (InvocationTargetException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            } catch (NoSuchFieldException e) {
+                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+                xe.printStackTrace();
+                throw xe;
+            }
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Done with serialization for runAt " + body.getClass());
+            }
+            return ba;
+        } else {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            (new java.io.ObjectOutputStream(baos)).writeObject(body);
+            return baos.toByteArray();
         }
+    }
+
+    public static <T> byte[] serializeUsingReflection(T body) throws IOException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         DataOutputStream oos = new DataOutputStream(baos);
         X10JavaSerializer serializer = new X10JavaSerializer(oos);
-        if (body instanceof X10JavaSerializable) {
-            serializer.write((X10JavaSerializable) body);
-        } else {
-            serializer.write(body);
-        }
+        serializer.writeObjectUsingReflection(body);
         oos.close();
         byte[] ba = baos.toByteArray();
-        if (TRACE_SER) {
-            long endTime = System.nanoTime();
-            System.out.println("Serializer: serialized " + ba.length + " bytes in " + (endTime - startTime) / 1000
-                    + " microsecs.");
-        }
         return ba;
     }
 
@@ -338,19 +387,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
-            if (CUSTOM_JAVA_SERIALIZATION) {
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Starting serialization for runAt  " + body.getClass());
-                }
-                msg = serialize(body);
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Done with serialization for runAt " + body.getClass());
-                }
-            } else {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                (new java.io.ObjectOutputStream(baos)).writeObject(body);
-                msg = baos.toByteArray();
-            }
+            msg = serialize(body);
             int msgLen = msg.length;
             if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
             x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
@@ -367,19 +404,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static void runAtAll(boolean includeHere, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
-            if (CUSTOM_JAVA_SERIALIZATION) {
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Starting serialization for runAtAll  " + body.getClass());
-                }
-                msg = serialize(body);
-                if (TRACE_SER_DETAIL) {
-                    System.out.println("Done with serialization for runAtAll " + body.getClass());
-                }
-            } else {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                (new java.io.ObjectOutputStream(baos)).writeObject(body);
-                msg = baos.toByteArray();
-            }
+            msg = serialize(body);
             int hereId = X10RT.here();
             for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
                 x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
@@ -460,7 +485,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
     }
 
-    public int $_get_serialization_id() {
+    public short $_get_serialization_id() {
 		throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
