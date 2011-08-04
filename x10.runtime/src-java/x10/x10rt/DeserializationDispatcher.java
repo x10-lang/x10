@@ -18,6 +18,7 @@ import java.lang.RuntimeException;
 import java.lang.Short;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -45,27 +46,29 @@ public class DeserializationDispatcher {
     private static short i = NULL_ID;
 
     private static List<Class> idToClassName = new ArrayList<Class>();
+    private static List<Method> idToDeserializermethod = new ArrayList<Method>();
     private static Map<String, Short> classNameToId = new HashMap<String, Short> ();
 
     public static short addDispatcher(Class clazz) {
         if (i == NULL_ID) {
             classNameToId.put(null, i);
             idToClassName.add(i, null);
+            idToDeserializermethod.add(i, null);
             i++;
             try {
-                add(Class.forName("java.lang.String"));
-                add(Class.forName("java.lang.Float"));
-                add(Class.forName("java.lang.Double"));
-                add(Class.forName("java.lang.Integer"));
-                add(Class.forName("java.lang.Boolean"));
-                add(Class.forName("java.lang.Byte"));
-                add(Class.forName("java.lang.Short"));
-                add(Class.forName("java.lang.Character"));
+                add(Class.forName("java.lang.String"), false);
+                add(Class.forName("java.lang.Float"), false);
+                add(Class.forName("java.lang.Double"), false);
+                add(Class.forName("java.lang.Integer"), false);
+                add(Class.forName("java.lang.Boolean"), false);
+                add(Class.forName("java.lang.Byte"), false);
+                add(Class.forName("java.lang.Short"), false);
+                add(Class.forName("java.lang.Character"), false);
             } catch (ClassNotFoundException e) {
                 // This will never happen
             }
         }
-        add(clazz);
+        add(clazz, true);
         return (short) (i-1);
     }
 
@@ -75,9 +78,14 @@ public class DeserializationDispatcher {
         return i;
     }
 
-    private static void add(Class clazz) {
+    private static void add(Class clazz, boolean addDeserializerMethod) {
         classNameToId.put(clazz.getName(), i);
         idToClassName.add(i, clazz);
+        if (addDeserializerMethod && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
+            idToDeserializermethod.add(i, getDeserializerMethod(clazz));
+        } else {
+            idToDeserializermethod.add(i, null);
+        }
         i++;
     }
 
@@ -98,13 +106,8 @@ public class DeserializationDispatcher {
             System.out.println("Deserializing non-null value with id " + i);
         }
         try {
-            Class<?> clazz = getClassForID(i, deserializer);
-            Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
-            method.setAccessible(true);
+            Method method = idToDeserializermethod.get(i);
             return method.invoke(null, deserializer);
-        } catch (NoSuchMethodException e) {
-            // This should never happen
-            throw new RuntimeException(e);
         } catch (InvocationTargetException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -112,6 +115,17 @@ public class DeserializationDispatcher {
             // This should never happen
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Method getDeserializerMethod(Class<?> clazz) {
+        try {
+            Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
+            method.setAccessible(true);
+            return method;
+        } catch (NoSuchMethodException e) {
             // This should never happen
             throw new RuntimeException(e);
         }
