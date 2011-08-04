@@ -11,6 +11,16 @@
 
 package x10.visit;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import polyglot.ast.Allocation_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign;
@@ -162,16 +172,6 @@ import x10c.types.X10CContext_c;
 import x10c.visit.ClosureRemover;
 import x10c.visit.InlineHelper;
 import x10cpp.visit.ASTQuery;
-
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template based
@@ -3351,11 +3351,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(".conversion(");
                     new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                     w.write(",");
+                    closeParen = true;
                 } else {
-                	er.printBoxConversion(e.type());
-                    w.write("(");
+                    // need to box string only if it is cast to function type
+                    if (xts.isFunctionType(castType)) {
+                        er.printBoxConversion(e.type());
+                        w.write("(");
+                        closeParen = true;
+                    }
                 }
-                closeParen = true;
             } if (!isBoxedType(e.type()) && isBoxedType(defType)) {
                 er.printBoxConversion(e.type());
                 w.write("(");
