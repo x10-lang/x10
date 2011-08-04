@@ -521,14 +521,6 @@ public class X10JavaSerializer {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
             throw xe;
-        } catch (NoSuchMethodException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        } catch (InvocationTargetException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
         } catch (NoSuchFieldException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
@@ -537,7 +529,7 @@ public class X10JavaSerializer {
     }
 
 
-    private void writeArrayUsingReflection(Object obj) throws IllegalAccessException, IOException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+    public void writeArrayUsingReflection(Object obj) throws IOException {
         Class<?> componentType = obj.getClass().getComponentType();
         int length = Array.getLength(obj);
         write(length);
