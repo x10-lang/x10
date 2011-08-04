@@ -619,6 +619,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 // Deserialize the public variables of this class , we do not serialize transient or static variables
                 String str;
+                QName fullName;
                     for (int i = 0; i < ct.fields().size(); i++) {
                         FieldInstance f = ct.fields().get(i);
                         if (f instanceof X10FieldInstance && !query.ifdef(((X10FieldInstance) f).x10Def())) continue;
@@ -631,6 +632,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         } else if ((str = needsCasting(f.type())) != null) {
                             // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling soecial methods
                             w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.read" + str + "();");
+                        } else if (f.type().toClass() != null && (fullName = f.type().toClass().def().asType().fullName()) != null && "x10.interop.Java.array".equals(fullName.toString())) {
+
+                            //   XTENLANG-2864 not sure whether this is the best way to check whether this is a java array
+                            er.printType(f.type(), BOX_PRIMITIVES);
+                            w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
+                            er.printType(f.type(), BOX_PRIMITIVES);
+                            w.writeln(") $deserializer.readArrayUsingReflection(" + f.type().toClass().typeArguments().get(0).toString() +".class);");
+                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
                         } else if(f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                             // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
                             w.write("java.lang.Object[] " + Emitter.mangleToJava(f.name()) + " = (java.lang.Object[]) $deserializer.readRef();");
@@ -732,9 +741,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         continue;
                     String fieldName = Emitter.mangleToJava(f.name());
                     if (f.type().isArray()) {
-
-                        // If this is an array and not a java primitive we need to cast it into an array
                         if (f.type() instanceof JavaArrayType_c && isPrimitiveRepedJava(((JavaArrayType_c)f.type()).base())) {
+                            // If this is an array and not a java primitive we need to cast it into an array
                             w.writeln("$serializer.write(this." + fieldName + ");");
                         } else {
                             w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable []) {");
@@ -748,6 +756,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.writeln("$serializer.write(this." + fieldName + ");");
                         } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
                             w.writeln("$serializer.writeObjectUsingReflection(this." + fieldName + ");");
+                        } else if (f.type().toClass() != null && (fullName = f.type().toClass().def().asType().fullName()) != null && "x10.interop.Java.array".equals(fullName.toString())) {
+
+                            //   XTENLANG-2864 not sure whether this is the best way to check whether this is a java array
+                            w.writeln("$serializer.writeArrayUsingReflection(this." + fieldName + ");");
                         } else {
                             w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
                             w.writeln("$serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");

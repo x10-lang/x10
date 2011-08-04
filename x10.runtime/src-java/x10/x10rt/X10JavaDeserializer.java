@@ -431,7 +431,7 @@ public class X10JavaDeserializer {
         }
     }
 
-    private Object readArrayUsingReflection(Class<?> componentType) throws IOException, IllegalAccessException {
+    public Object readArrayUsingReflection(Class<?> componentType) throws IOException {
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
                 return readIntArray();
