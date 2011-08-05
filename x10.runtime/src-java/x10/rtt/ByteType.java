@@ -50,12 +50,27 @@ public class ByteType extends RuntimeType<x10.core.Byte> {
     }
     
     @Override
-    public Object makeArray(int length) {
+    public byte[] makeArray(int length) {
         return new byte[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public byte[][] makeArray(int dim0, int dim1) {
+        return new byte[dim0][dim1];
+	}
+
+	@Override
+	public byte[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new byte[dim0][dim1][dim2];
+	}
+
+	@Override
+	public byte[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new byte[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public byte[] makeArray(Object... elem) {
         byte[] arr = new byte[elem.length];
         for (int i = 0; i < elem.length; i++) {
             arr[i] = x10.core.Byte.$unbox(elem[i]);
