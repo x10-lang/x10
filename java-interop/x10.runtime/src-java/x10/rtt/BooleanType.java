@@ -49,12 +49,27 @@ public class BooleanType extends RuntimeType<x10.core.Boolean>{
     }
 
     @Override
-    public Object makeArray(int length) {
+    public boolean[] makeArray(int length) {
         return new boolean[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public boolean[][] makeArray(int dim0, int dim1) {
+        return new boolean[dim0][dim1];
+	}
+
+	@Override
+	public boolean[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new boolean[dim0][dim1][dim2];
+	}
+
+	@Override
+	public boolean[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new boolean[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public boolean[] makeArray(Object... elem) {
         boolean[] arr = new boolean[elem.length];
         for (int i = 0; i < elem.length; i++) {
             arr[i] = ((Boolean)elem[i]).booleanValue();

@@ -51,12 +51,27 @@ public class LongType extends RuntimeType<x10.core.Long> {
     }
     
     @Override
-    public Object makeArray(int length) {
+    public long[] makeArray(int length) {
         return new long[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public long[][] makeArray(int dim0, int dim1) {
+        return new long[dim0][dim1];
+	}
+
+	@Override
+	public long[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new long[dim0][dim1][dim2];
+	}
+
+	@Override
+	public long[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new long[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public long[] makeArray(Object... elem) {
         long[] arr = new long[elem.length];
         for (int i = 0; i < elem.length; i++) {
             arr[i] = x10.core.Long.$unbox(elem[i]);

@@ -52,12 +52,27 @@ public class UIntType extends RuntimeType<x10.core.UInt> {
     }
     
     @Override
-    public Object makeArray(int length) {
+    public int[] makeArray(int length) {
         return new int[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public int[][] makeArray(int dim0, int dim1) {
+        return new int[dim0][dim1];
+	}
+
+	@Override
+	public int[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new int[dim0][dim1][dim2];
+	}
+
+	@Override
+	public int[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new int[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public int[] makeArray(Object... elem) {
         int[] arr = new int[elem.length];
         for (int i = 0; i < elem.length; i++) {
             arr[i] = ((Number)elem[i]).intValue();

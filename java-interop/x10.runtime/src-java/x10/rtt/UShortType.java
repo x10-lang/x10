@@ -50,12 +50,27 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
     }
     
     @Override
-    public Object makeArray(int length) {
+    public short[] makeArray(int length) {
         return new short[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public short[][] makeArray(int dim0, int dim1) {
+        return new short[dim0][dim1];
+	}
+
+	@Override
+	public short[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new short[dim0][dim1][dim2];
+	}
+
+	@Override
+	public short[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new short[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public short[] makeArray(Object... elem) {
         short[] arr = new short[elem.length];
         for (int i = 0; i < elem.length; i++) {
             arr[i] = ((Number)elem[i]).shortValue();
