@@ -73,7 +73,7 @@ public class UByteType extends RuntimeType<x10.core.UByte> {
     public byte[] makeArray(Object... elem) {
         byte[] arr = new byte[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).byteValue();
+            arr[i] = x10.core.UByte.$unbox(elem[i]);
         }
         return arr;
     }

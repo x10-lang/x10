@@ -75,7 +75,7 @@ public class UIntType extends RuntimeType<x10.core.UInt> {
     public int[] makeArray(Object... elem) {
         int[] arr = new int[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).intValue();
+            arr[i] = x10.core.UInt.$unbox(elem[i]);
         }
         return arr;
     }

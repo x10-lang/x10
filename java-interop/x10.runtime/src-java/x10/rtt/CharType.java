@@ -74,7 +74,7 @@ public class CharType extends RuntimeType<x10.core.Char> {
     public char[] makeArray(Object... elem) {
         char[] arr = new char[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Character)elem[i]).charValue();
+            arr[i] = x10.core.Char.$unbox(elem[i]);
         }
         return arr;
     }

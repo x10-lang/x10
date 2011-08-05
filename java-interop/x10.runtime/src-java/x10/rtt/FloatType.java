@@ -74,7 +74,7 @@ public class FloatType extends RuntimeType<x10.core.Float> {
     public float[] makeArray(Object... elem) {
         float[] arr = new float[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).floatValue();
+            arr[i] = x10.core.Float.$unbox(elem[i]);
         }
         return arr;
     }
