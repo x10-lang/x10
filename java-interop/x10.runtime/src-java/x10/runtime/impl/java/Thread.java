@@ -35,7 +35,12 @@ public class Thread extends java.lang.Thread implements x10.core.RefI {
     public Type<?> $getParam(int i) { return null; }
 
     public static Thread currentThread() {
-        return (Thread) java.lang.Thread.currentThread();
+    	java.lang.Thread jthread = java.lang.Thread.currentThread();
+    	if (!(jthread instanceof Thread)) {
+    		System.out.println("X10 thread is required to run X10 method.");
+    		System.out.flush();
+    	}
+        return (Thread) jthread;
     }
 
     private Place home;    // the current place
