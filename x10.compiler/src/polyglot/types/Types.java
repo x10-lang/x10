@@ -572,11 +572,11 @@ public class Types {
 		return disEntails(t, Types.self(t), XTerms.NULL);
 	}
 
-	public static boolean isNoThisAccess(X10ProcedureDef def,TypeSystem ts) {
+	public static boolean isNoThisAccess(X10Def def,TypeSystem ts) {
 	    return isDefAnnotated(def,ts,"x10.compiler.NoThisAccess");
 	}
 
-	public static boolean isNonEscaping(X10ProcedureDef def,TypeSystem ts) {
+	public static boolean isNonEscaping(X10Def def,TypeSystem ts) {
 	    return isDefAnnotated(def,ts,"x10.compiler.NonEscaping");
 	}
 
