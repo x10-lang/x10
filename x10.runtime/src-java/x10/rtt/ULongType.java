@@ -75,7 +75,7 @@ public class ULongType extends RuntimeType<x10.core.ULong> {
     public long[] makeArray(Object... elem) {
         long[] arr = new long[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).longValue();
+            arr[i] = x10.core.ULong.$unbox(elem[i]);
         }
         return arr;
     }

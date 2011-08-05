@@ -74,7 +74,7 @@ public class DoubleType extends RuntimeType<x10.core.Double> {
     public double[] makeArray(Object... elem) {
         double[] arr = new double[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).doubleValue();
+            arr[i] = x10.core.Double.$unbox(elem[i]);
         }
         return arr;
     }

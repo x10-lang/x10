@@ -81,7 +81,7 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     
     public static int $unbox(Object obj) {
         if (obj instanceof Int) return ((Int)obj).$value;
-        else return ((Integer)obj).intValue();
+        else return ((java.lang.Integer)obj).intValue();
     }
     
     // make $box/$unbox idempotent

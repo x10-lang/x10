@@ -73,7 +73,7 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
     public short[] makeArray(Object... elem) {
         short[] arr = new short[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).shortValue();
+            arr[i] = x10.core.UShort.$unbox(elem[i]);
         }
         return arr;
     }

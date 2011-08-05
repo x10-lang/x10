@@ -72,7 +72,7 @@ public class BooleanType extends RuntimeType<x10.core.Boolean>{
     public boolean[] makeArray(Object... elem) {
         boolean[] arr = new boolean[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Boolean)elem[i]).booleanValue();
+            arr[i] = x10.core.Boolean.$unbox(elem[i]);
         }
         return arr;
     }

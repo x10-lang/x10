@@ -79,7 +79,8 @@ final public class UInt extends Number implements StructI, java.lang.Comparable<
     }
     
     public static int $unbox(Object obj) {
-        return ((UInt)obj).$value;
+        if (obj instanceof UInt) return ((UInt)obj).$value;
+        else return ((java.lang.Integer)obj).intValue();
     }
     
     // make $box/$unbox idempotent
