@@ -287,7 +287,13 @@ public class X10JavaDeserializer {
     private Object deserializeRefUsingReflection(int serializationID) throws IOException {
         try {
             Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
-            Object o = unsafe.allocateInstance(clazz);
+
+            Object o = null;
+
+            // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
+            if (!"java.lang.Class".equals(clazz.getName())) {
+                o = unsafe.allocateInstance(clazz);
+            }
             int i = record_reference(o);
             Class<?> superclass = clazz.getSuperclass();
 
@@ -346,6 +352,15 @@ public class X10JavaDeserializer {
             return (T) GlobalRef.$_deserialize_body((GlobalRef)obj, this);
         } else if (X10Throwable.class.getName().equals(clazz.getName())) {
             return (T) X10Throwable.$_deserialize_body((X10Throwable)obj, this);
+        } else if ("java.lang.Class".equals(clazz.getName())) {
+            String className = readString();
+            try {
+                T t = (T) Class.forName(className);
+                update_reference(i, t);
+                return t;
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         Class[] interfaces = clazz.getInterfaces();
