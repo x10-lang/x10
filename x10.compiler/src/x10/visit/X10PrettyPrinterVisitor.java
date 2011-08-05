@@ -2136,8 +2136,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                             w.write(",");
                         } else {
-                            // box only if converting to function type
-                            if (xts.isFunctionType(castType)) {
+                            // box only if converting to function type or to x10.lang.Object
+                            if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
                                 er.printBoxConversion(e.type());
                             }
                         }
@@ -2343,7 +2343,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             castRE.expand();
                             w.write(",");
                         } else {
-                        	er.printBoxConversion(exprType);
+                            // box only if converting to function type or to x10.lang.Object
+                            if (xts.isFunctionType(castType) || isObject(castType,tr.context())) {
+                            	er.printBoxConversion(exprType);
+                            }
                             w.write("(");
                         }
                         closeParen = true;
@@ -3356,8 +3359,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(",");
                     closeParen = true;
                 } else {
-                    // need to box string only if it is cast to function type
-                    if (xts.isFunctionType(castType)) {
+                    // need to box string only if it is cast to function type or to x10.lang.Object
+                    if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
                         er.printBoxConversion(e.type());
                         w.write("(");
                         closeParen = true;
@@ -3730,7 +3733,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                         w.write(",");
                     } else {
-                    	er.printBoxConversion(e.type());
+                        // need to box string only if it is cast to function type or to x10.lang.Object
+                        if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
+                        	er.printBoxConversion(e.type());
+                        }
                         w.write("(");
                     }
                     c.print(e, w, tr);
@@ -4170,6 +4176,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static boolean isString(Type type, Context context) {
         return Types.baseType(type).typeEquals(type.typeSystem().String(), context);
+    }
+    
+    public static boolean isObject(Type type, Context context) {
+        return Types.baseType(type).typeEquals(type.typeSystem().Object(), context);
     }
 
     public static boolean isPrimitiveRepedJava(Type t) {
