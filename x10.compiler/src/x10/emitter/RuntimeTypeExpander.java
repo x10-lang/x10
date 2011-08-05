@@ -186,6 +186,9 @@ final public class RuntimeTypeExpander extends Expander {
                     } else {
                         name = null;
                     }
+            		component = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//                	components.put(String.valueOf(i++), component); // N.B. don't use number index to avoid breaking existing code
+                    if (name != null) { components.put(name, component); }
             		component = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                 	components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+Emitter.NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
