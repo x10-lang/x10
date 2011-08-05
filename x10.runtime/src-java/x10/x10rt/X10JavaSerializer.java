@@ -468,6 +468,9 @@ public class X10JavaSerializer {
             } else if (X10Throwable.class.getName().equals(bodyClass.getName())) {
                 ((X10Throwable) body).$_serialize(this);
                 return;
+            } else if ("java.lang.Class".equals(bodyClass.getName())) {
+                write(((Class)body).getName());
+                return;
             }
 
             Class[] interfaces = bodyClass.getInterfaces();
