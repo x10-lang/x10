@@ -57,7 +57,9 @@ import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.UniqueID;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import x10.ast.AnnotationNode;
+import x10.extension.X10Ext_c;
+import x10.util.CollectionFactory;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Closure;
@@ -329,7 +331,7 @@ public class ClosureRemover extends ContextVisitor {
                     staticNestedClassDef.flags(privateStatic);
                     staticNestedClassDef.setInterfaces(cld.classDef().interfaces());
                     staticNestedClassDef.setThisDef(ts.thisDef(pos, Types.ref(staticNestedClassDef.asType())));
-                    
+
                     // TODO set method bounds?
                     if (context.currentCode().staticContext()) {
                         staticNestedClassDef.setTypeBounds(Types.ref(new TypeConstraint()));
@@ -369,7 +371,12 @@ public class ClosureRemover extends ContextVisitor {
                         interfaces.add(xnf.X10CanonicalTypeNode(pos, it));
                     }
                     X10ClassDecl staticNestedClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticNestedClassName, xnf.X10CanonicalTypeNode(pos, xts.Object()), interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
-                    
+
+                    // Copy over the annotations from the closure. These annotations are needed for dealing with GENERAL asyncs and SIMPLE asyncs
+                    X10Ext_c ext = (X10Ext_c) cl.ext();
+                    List<AnnotationNode> annotations = ext.annotations();
+                    staticNestedClassDecl = (X10ClassDecl) ((X10Ext_c) staticNestedClassDecl.ext()).annotations(annotations);
+
                     List<TypeParamNode> tpns = new ArrayList<TypeParamNode>();
                     for (ParameterType pt : staticNestedClassDef.typeParameters()) {
                         tpns.add(xnf.TypeParamNode(pos, xnf.Id(pos, pt.name()), pt.getVariance()).type(pt));
