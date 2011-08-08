@@ -13,14 +13,11 @@ package x10.emitter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -47,33 +44,27 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Flags;
-import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
-
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.NullType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
-import x10.util.CollectionFactory;
-import x10.util.HierarchyUtils;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
-import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
 import x10.ast.Closure_c;
@@ -92,29 +83,26 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
-import x10.ast.X10Return_c;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MacroType;
+import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
-import x10.types.constants.StringValue;
-
 import x10.types.X10MethodDef;
-import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import x10.types.checker.Converter;
 import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
+import x10.util.CollectionFactory;
+import x10.util.HierarchyUtils;
 import x10.visit.ChangePositionVisitor;
-import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
-import x10.visit.X10Translator;
 import x10c.types.BackingArrayType;
 import x10c.visit.ClosureRemover;
 import x10c.visit.StaticInitializer;
@@ -2709,8 +2697,11 @@ public class Emitter {
 	            //cast eagerly
 	            if (isBoxedType(actual) && !isBoxedType(expectedBase))
     	            expander = expander.unboxTo(expectedBase);
-	            else 
-    	            expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            else {
+	            	// java primitive arrays do not use boxed types 
+	            	final boolean isJavaArray = expectedBase.fullName().equals(QName.make("x10.interop.Java.array"));
+    	            expander = expander.castTo(expectedBase, isJavaArray ? 0 : X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            }
 	            expander.expand(tr);
 	        }
 	    }
