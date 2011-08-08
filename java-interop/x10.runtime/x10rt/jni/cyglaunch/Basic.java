@@ -5,8 +5,8 @@ import java.io.*;
 
 public class Basic {
 
-    private static final int _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RunnableWithBuf.class.getName());
-    private static final int _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Handler.class.getName());
+    private static final short _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RunnableWithBuf.class);
+    private static final short _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Handler.class);
 
     private static class RunnableWithBuf implements Serializable, x10.x10rt.X10JavaSerializable {
         public static final int Ping = 1;
@@ -33,7 +33,7 @@ public class Basic {
             deserializer.record_reference(_obj);
             return $_deserialize_body(_obj, deserializer);
         }
-        public int $_get_serialization_id() { return _RunnableWithBuf_id; }
+        public short $_get_serialization_id() { return _RunnableWithBuf_id; }
         public void $_serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write(this.id);
         }
@@ -261,7 +261,7 @@ public class Basic {
             deserializer.record_reference(_obj);
             return $_deserialize_body(_obj, deserializer);
         }
-        public int $_get_serialization_id() { return _Handler_id; }
+        public short $_get_serialization_id() { return _Handler_id; }
         public void $_serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write((x10.x10rt.X10JavaSerializable) this.id);
             if (this.buf == null) {

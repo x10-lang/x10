@@ -28,6 +28,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -70,7 +71,7 @@ public class X10JavaDeserializer {
     }
 
     public Object readRef() throws IOException {
-        int serializationID = readInt();
+        short serializationID = readShort();
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         }
@@ -229,7 +230,7 @@ public class X10JavaDeserializer {
     }
 
     public String readString() throws IOException {
-        int classID = in.readInt();
+        short classID = in.readShort();
         if (classID == DeserializationDispatcher.refValue) {
             return (String) getObjectAtPosition(readInt());
         } else if (classID == DeserializationDispatcher.NULL_ID) {
@@ -263,10 +264,7 @@ public class X10JavaDeserializer {
     }
 
     public Object readRefUsingReflection() throws IOException {
-        int serializationID = readInt();
-        if (serializationID == DeserializationDispatcher.refValue) {
-            return getObjectAtPosition(readInt());
-        }
+        short serializationID = readShort();
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         } else if (serializationID == DeserializationDispatcher.NULL_ID) {
@@ -284,7 +282,7 @@ public class X10JavaDeserializer {
         return deserializeRefUsingReflection(serializationID);
     }
 
-    private Object deserializeRefUsingReflection(int serializationID) throws IOException {
+    private Object deserializeRefUsingReflection(short serializationID) throws IOException {
         try {
             Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
 
@@ -310,7 +308,7 @@ public class X10JavaDeserializer {
                     || "x10.rtt.UIntType".equals(clazz.getName())
                     || "x10.rtt.ULongType".equals(clazz.getName())
                     || "x10.rtt.UShortType".equals(clazz.getName())) {
-                readInt();
+                readShort();
                 // These classes dont implement the serialization/deserialization routines, hence we deserialize the superclass
                 return deserializeClassUsingReflection(superclass, o, i);
             }
@@ -341,7 +339,7 @@ public class X10JavaDeserializer {
             }
             return obj;
         } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-            IndexedMemoryChunk imc = (IndexedMemoryChunk)obj;
+            IndexedMemoryChunk imc = (IndexedMemoryChunk) obj;
             ((IndexedMemoryChunk) obj)._deSerialize_body(imc, this);
             return (T) imc;
         } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
@@ -349,9 +347,9 @@ public class X10JavaDeserializer {
         } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
             return (T) IndexedMemoryChunk.$Closure$1.$_deserialize_body((IndexedMemoryChunk.$Closure$1) obj, this);
         } else if (GlobalRef.class.getName().equals(clazz.getName())) {
-            return (T) GlobalRef.$_deserialize_body((GlobalRef)obj, this);
+            return (T) GlobalRef.$_deserialize_body((GlobalRef) obj, this);
         } else if (X10Throwable.class.getName().equals(clazz.getName())) {
-            return (T) X10Throwable.$_deserialize_body((X10Throwable)obj, this);
+            return (T) X10Throwable.$_deserialize_body((X10Throwable) obj, this);
         } else if ("java.lang.Class".equals(clazz.getName())) {
             String className = readString();
             try {
@@ -378,51 +376,67 @@ public class X10JavaDeserializer {
             obj = deserializeClassUsingReflection(superclass, obj, i);
         }
 
-        // We need to sort the fields first. Cause the order here could depend on the JVM.
-        Field[] declaredFields = clazz.getDeclaredFields();
         Set<Field> fields = new TreeSet<Field>(new FieldComparator());
-        for (Field field : declaredFields) {
-            if (field.isSynthetic())
-                continue;
-            int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
-                continue;
-            }
-            fields.add(field);
-        }
 
         try {
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Class<?> type = field.getType();
-                if (type.isPrimitive()) {
-                    readPrimitiveUsingReflection(field, obj);
-                } else if (type.isArray()) {
-                    field.set(obj, readArrayUsingReflection(type.getComponentType()));
-                } else if ("java.lang.String".equals(type.getName())) {
-                    field.set(obj, readStringUsingReflection());
-                } else {
-                    Object value = readRefUsingReflection();
-                    field.set(obj, value);
-                }
-            }
 
             if (isCustomSerializable) {
+                TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
+                for (TypeVariable<? extends Class<? extends Object>> typeParameter : typeParameters) {
+                    Field field = clazz.getDeclaredField(typeParameter.getName());
+                    fields.add(field);
+                }
+                processFields(obj, fields);
                 SerialData serialData = (SerialData) readRefUsingReflection();
 
                 // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
                 Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
                 makeMethod.setAccessible(true);
                 makeMethod.invoke(obj, serialData);
+                return obj;
             }
+
+            // We need to sort the fields first. Cause the order here could depend on the JVM.
+            Field[] declaredFields = clazz.getDeclaredFields();
+            for (Field field : declaredFields) {
+                if (field.isSynthetic())
+                    continue;
+                int modifiers = field.getModifiers();
+                if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+                    continue;
+                }
+                fields.add(field);
+            }
+
+            processFields(obj, fields);
+
+            return obj;
         } catch (InvocationTargetException e) {
             throw new RuntimeException(e);
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
         }
-        return obj;
+    }
+
+    private <T> void processFields(T obj, Set<Field> fields) throws IOException, IllegalAccessException {
+        for (Field field : fields) {
+            field.setAccessible(true);
+            Class<?> type = field.getType();
+            if (type.isPrimitive()) {
+                readPrimitiveUsingReflection(field, obj);
+            } else if (type.isArray()) {
+                field.set(obj, readArrayUsingReflection(type.getComponentType()));
+            } else if ("java.lang.String".equals(type.getName())) {
+                field.set(obj, readStringUsingReflection());
+            } else {
+                Object value = readRefUsingReflection();
+                field.set(obj, value);
+            }
+        }
     }
 
     private <T> void readPrimitiveUsingReflection(Field field, T obj) throws IOException, IllegalAccessException {

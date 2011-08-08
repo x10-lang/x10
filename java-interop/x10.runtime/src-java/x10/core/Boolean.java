@@ -26,7 +26,7 @@ import java.io.IOException;
 final public class Boolean extends Struct implements java.lang.Comparable<Boolean>
 {
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Boolean.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Boolean.class);
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.BOOLEAN;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -98,7 +98,7 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
         serializer.write($value);
     }
 
-    public int $_get_serialization_id() {
+    public short $_get_serialization_id() {
         return _serialization_id;
     }
 

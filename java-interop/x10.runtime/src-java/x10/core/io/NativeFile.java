@@ -113,7 +113,7 @@ public class NativeFile extends java.io.File implements RefI {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
-    public int $_get_serialization_id() {
+    public short $_get_serialization_id() {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 

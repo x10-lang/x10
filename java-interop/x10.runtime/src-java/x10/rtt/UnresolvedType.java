@@ -126,7 +126,7 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
 		throw new UnsupportedOperationException();
 	}
 
-	public int $_get_serialization_id() {
+	public short $_get_serialization_id() {
 		throw new UnsupportedOperationException();
 	}
 

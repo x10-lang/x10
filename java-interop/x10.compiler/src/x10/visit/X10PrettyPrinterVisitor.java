@@ -11,6 +11,16 @@
 
 package x10.visit;
 
+import java.util.AbstractList;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import polyglot.ast.Allocation_c;
 import polyglot.ast.Assert_c;
 import polyglot.ast.Assign;
@@ -162,16 +172,6 @@ import x10c.types.X10CContext_c;
 import x10c.visit.ClosureRemover;
 import x10c.visit.InlineHelper;
 import x10cpp.visit.ASTQuery;
-
-import java.util.AbstractList;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Visitor on the AST nodes that for some X10 nodes triggers the template based
@@ -530,7 +530,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
 
             // _serialization_id
-            w.write("private static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
@@ -538,7 +538,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
             // _serialization_id
-            w.write("public static final int " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
@@ -705,7 +705,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialize_id()
-                w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
+                w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
                 w.newline(4);
                 w.begin(0);
                 w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
@@ -2162,7 +2162,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                             w.write(",");
                         } else {
-                        	er.printBoxConversion(e.type());
+                            // box only if converting to function type or to x10.lang.Object
+                            if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
+                                er.printBoxConversion(e.type());
+                            }
                         }
                     }
 
@@ -2366,7 +2369,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             castRE.expand();
                             w.write(",");
                         } else {
-                        	er.printBoxConversion(exprType);
+                            // box only if converting to function type or to x10.lang.Object
+                            if (xts.isFunctionType(castType) || isObject(castType,tr.context())) {
+                            	er.printBoxConversion(exprType);
+                            }
                             w.write("(");
                         }
                         closeParen = true;
@@ -3377,11 +3383,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(".conversion(");
                     new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                     w.write(",");
+                    closeParen = true;
                 } else {
-                	er.printBoxConversion(e.type());
-                    w.write("(");
+                    // need to box string only if it is cast to function type or to x10.lang.Object
+                    if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
+                        er.printBoxConversion(e.type());
+                        w.write("(");
+                        closeParen = true;
+                    }
                 }
-                closeParen = true;
             } if (!isBoxedType(e.type()) && isBoxedType(defType)) {
                 er.printBoxConversion(e.type());
                 w.write("(");
@@ -3749,15 +3759,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                         w.write(",");
                     } else {
-                    	er.printBoxConversion(e.type());
+                        // need to box string only if it is cast to function type or to x10.lang.Object
+                        if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
+                        	er.printBoxConversion(e.type());
+                        }
                         w.write("(");
                     }
                     c.print(e, w, tr);
                     w.write(")");
                 } else if (isSelfDispatch && !castType.typeEquals(e.type(), tr.context())) {
                     w.write("(");
-                    if (Emitter.needExplicitBoxing(castType) && defType.isParameterType()) {
-                        er.printBoxConversion(castType);
+                    if (Emitter.needExplicitBoxing(e.type()) && isBoxedType(defType)) {
+                        er.printBoxConversion(e.type());
                     } else {
                         // TODO:CAST
                         w.write("(");
@@ -4189,6 +4202,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static boolean isString(Type type, Context context) {
         return Types.baseType(type).typeEquals(type.typeSystem().String(), context);
+    }
+    
+    public static boolean isObject(Type type, Context context) {
+        return Types.baseType(type).typeEquals(type.typeSystem().Object(), context);
     }
 
     public static boolean isPrimitiveRepedJava(Type t) {
