@@ -632,8 +632,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         } else if ((str = needsCasting(f.type())) != null) {
                             // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling soecial methods
                             w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.read" + str + "();");
-                        } else if (f.type().toClass() != null && (fullName = f.type().toClass().def().asType().fullName()) != null && "x10.interop.Java.array".equals(fullName.toString())) {
-
+                        } else if (f.type().toClass() != null && xts.isJavaArray(f.type().toClass().def().asType())) {
                             //   XTENLANG-2864 not sure whether this is the best way to check whether this is a java array
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
