@@ -2698,8 +2698,8 @@ public class Emitter {
 	            if (isBoxedType(actual) && !isBoxedType(expectedBase))
     	            expander = expander.unboxTo(expectedBase);
 	            else {
-	            	// java primitive arrays do not use boxed types 
-	            	final boolean isJavaArray = expectedBase.fullName().equals(QName.make("x10.interop.Java.array"));
+	            	// java primitive arrays do not use boxed types
+	            	final boolean isJavaArray = tr.typeSystem().isJavaArray(expectedBase);
     	            expander = expander.castTo(expectedBase, isJavaArray ? 0 : X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 	            }
 	            expander.expand(tr);
