@@ -47,6 +47,7 @@ typedef void *(*finderCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void (*notifierCallback)(const x10rt_msg_params *, x10rt_copy_sz);
 
 enum MSGTYPE {STANDARD, PUT, GET, GET_COMPLETED};
+#define COPY_PUT_GET_BUFFER false // if the network is full, and a message needs to be sent in chunks, should the put/get buffer arg be copied, or reused?
 //#define DEBUG 1
 //#define DEBUG_MESSAGING 1
 
@@ -63,6 +64,7 @@ struct x10SocketDataToWrite
 	unsigned size;
 	unsigned remainingToWrite;
 	unsigned place;
+	bool deleteBufferWhenComplete;
 	struct x10SocketDataToWrite* next;
 };
 
@@ -195,7 +197,8 @@ bool flushPendingData()
 				ableToFlush = false;
 			else
 			{
-				free(state.pendingWrites->data);
+				if (state.pendingWrites->deleteBufferWhenComplete)
+					free(state.pendingWrites->data);
 				void* deleteme = state.pendingWrites;
 				state.pendingWrites = state.pendingWrites->next;
 				free(deleteme);
@@ -219,7 +222,7 @@ bool flushPendingData()
  * network buffer is full, a new buffer will be created to hold the outgoing data, so the application can continue.
  * This may lead to large swings in memory usage.
  */
-int nonBlockingWrite(int dest, void * p, unsigned cnt)
+int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 {
 	if (!state.useNonblockingLinks)
 		return TCP::write(state.socketLinks[dest].fd, p, cnt);
@@ -255,9 +258,15 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt)
 		// save the remaining data for later writing
 		struct x10SocketDataToWrite* pendingData = (struct x10SocketDataToWrite *)malloc(sizeof(struct x10SocketDataToWrite));
 		if (pendingData == NULL) error("Allocating memory for a pending write");
-		pendingData->data = (char *)malloc(bytesleft);
-		if (pendingData->data == NULL) error("Allocating memory for pending write data");
-		memcpy(pendingData->data, src, bytesleft);
+		pendingData->deleteBufferWhenComplete = copyBuffer;
+		if (copyBuffer)
+		{
+			pendingData->data = (char *)malloc(bytesleft);
+			if (pendingData->data == NULL) error("Allocating memory for pending write data");
+			memcpy(pendingData->data, src, bytesleft);
+		}
+		else
+			pendingData->data = src;
 		pendingData->remainingToWrite = bytesleft;
 		pendingData->size = bytesleft;
 		pendingData->next = NULL;
@@ -763,7 +772,7 @@ void x10rt_net_send_get (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		error("sending GET bufferLen");
 	if (bufferLen > 0)
-		if (nonBlockingWrite(parameters->dest_place, &buffer, sizeof(void*)) < (int)sizeof(void*))
+		if (nonBlockingWrite(parameters->dest_place, &buffer, sizeof(void*), COPY_PUT_GET_BUFFER) < (int)sizeof(void*))
 			error("sending GET buffer pointer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }
@@ -796,7 +805,7 @@ void x10rt_net_send_put (x10rt_msg_params *parameters, void *buffer, x10rt_copy_
 	if (nonBlockingWrite(parameters->dest_place, &bufferLen, sizeof(x10rt_copy_sz)) < (int)sizeof(x10rt_copy_sz))
 		error("sending PUT bufferLen");
 	if (bufferLen > 0)
-		if (nonBlockingWrite(parameters->dest_place, buffer, bufferLen) < (int)bufferLen)
+		if (nonBlockingWrite(parameters->dest_place, buffer, bufferLen, COPY_PUT_GET_BUFFER) < (int)bufferLen)
 			error("sending PUT buffer");
 	pthread_mutex_unlock(&state.writeLocks[parameters->dest_place]);
 }

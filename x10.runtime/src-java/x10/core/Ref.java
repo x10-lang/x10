@@ -54,5 +54,5 @@ public class Ref implements RefI {
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException { }
 
-    public int $_get_serialization_id() { return 0; }
+    public short $_get_serialization_id() { return 0; }
 }

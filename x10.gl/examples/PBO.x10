@@ -15,7 +15,6 @@ public class PBO {
     val pboFront = new Array[Int](1);
     val pboBack = new Array[Int](1);
     val tex = new Array[Int](1);
-    val mappedBuffer = new Array[Byte](DATA_SIZE);
 
     def this (args: Array[String]{rank==1, zeroBased, rect, rail}) {
 
@@ -65,8 +64,7 @@ public class PBO {
             // update other pbo
             GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pboFront(0));
             GL.glBufferData[Byte](GL.GL_PIXEL_UNPACK_BUFFER, DATA_SIZE, null, 0, GL.GL_STREAM_DRAW); // discard
-            GL.glMapBuffer(GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_WRITE_ONLY, mappedBuffer);
-            val raw = mappedBuffer.raw();
+            val raw = GL.glMapBuffer[Byte](GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_WRITE_ONLY, DATA_SIZE);
             val h = counter;
             val width = IMAGE_WIDTH;
             val height = IMAGE_HEIGHT;

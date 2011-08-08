@@ -318,6 +318,15 @@ import x10.util.concurrent.SimpleLatch;
         return DEFAULT_STATIC_THREADS;
     }
 
+    private static def x10_warn_on_thread_creation():Boolean {
+        try {
+            val v = env.getOrThrow("X10_WARN_ON_THREAD_CREATION");
+            return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
+        } catch (NoSuchElementException) {
+        }
+        return DEFAULT_STATIC_THREADS;
+    }
+
     /**
      * The number of logical processors available on the host.
      */
@@ -332,6 +341,7 @@ import x10.util.concurrent.SimpleLatch;
     @PerProcess public static NTHREADS = x10_nthreads();
     @PerProcess public static MAX_THREADS = x10_max_threads();
     @PerProcess public static STATIC_THREADS = x10_static_threads();
+    @PerProcess public static WARN_ON_THREAD_CREATION = x10_warn_on_thread_creation();
 
     //Work-Stealing Runtime Related Interface
     
@@ -635,8 +645,11 @@ import x10.util.concurrent.SimpleLatch;
                 val i = size++;
                 lock.unlock();
                 if (i >= MAX_THREADS) {
-                    println("TOO MANY THREADS... ABORTING");
+                    println(here+": TOO MANY THREADS... ABORTING");
                     System.exit(1);
+                }
+                if (WARN_ON_THREAD_CREATION) {
+                    println(here+": WARNING: A new OS-level thread was created (there are now "+size+" threads).");
                 }
                 val worker = new Worker(i);
                 workers(i) = worker;

@@ -3344,7 +3344,7 @@ public class Emitter {
         w.newline();
 
         // _serialize_id()
-        w.writeln("public int " + Emitter.SERIALIZE_ID_METHOD + "() {");
+        w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
         w.newline(4);
         w.begin(0);
         w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");

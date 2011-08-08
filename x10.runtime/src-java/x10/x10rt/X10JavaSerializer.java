@@ -13,7 +13,6 @@ package x10.x10rt;
 
 import x10.core.GlobalRef;
 import x10.core.IndexedMemoryChunk;
-import x10.core.ThrowableUtilities;
 import x10.core.X10Throwable;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
@@ -21,10 +20,12 @@ import x10.runtime.impl.java.Runtime;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.RuntimeException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.TypeVariable;
 import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.TreeSet;
@@ -55,7 +56,7 @@ public class X10JavaSerializer {
         if (pos !=null) {
             return;
         }
-        int i = obj.$_get_serialization_id();
+        short i = obj.$_get_serialization_id();
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing id " + i  + " of type " + obj.getClass());
         }
@@ -67,7 +68,7 @@ public class X10JavaSerializer {
     }
 
     private void writeNull() throws IOException {
-        out.writeInt(DeserializationDispatcher.NULL_ID);
+        write(DeserializationDispatcher.NULL_ID);
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a null reference");
         }
@@ -101,11 +102,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a integer: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.INTEGER_ID);
         out.writeInt(p.intValue());
     }
 
@@ -132,11 +132,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Boolean: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.BOOLEAN_ID);
         out.writeBoolean(p.booleanValue());
     }
 
@@ -163,11 +162,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Character: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.CHARACTER_ID);
         out.writeChar(p.charValue());
     }
 
@@ -194,11 +192,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Byte: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.BYTE_ID);
         out.writeByte(p.byteValue());
     }
 
@@ -227,11 +224,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Short: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.SHORT_ID);
         out.writeShort(p.shortValue());
     }
 
@@ -258,11 +254,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Long: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.LONG_ID);
         out.writeLong(p.longValue());
     }
 
@@ -289,11 +284,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Double: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.DOUBLE_ID);
         out.writeDouble(p.doubleValue());
     }
 
@@ -320,11 +314,10 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        int id = DeserializationDispatcher.getIDForClassName(p.getClass().getName());
         if (Runtime.TRACE_SER) {
             System.out.println("Serializing a Float: " + p);
         }
-        out.writeInt(id);
+        out.writeShort(DeserializationDispatcher.FLOAT_ID);
         out.writeFloat(p.floatValue());
     }
 
@@ -353,7 +346,7 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        out.writeInt(DeserializationDispatcher.STRING_ID);
+        write(DeserializationDispatcher.STRING_ID);
         writeStringValue(str);
     }
 
@@ -363,7 +356,7 @@ public class X10JavaSerializer {
     }
 
     public void write(String[] v) throws IOException {
-        out.writeInt(DeserializationDispatcher.STRING_ID);
+        write(DeserializationDispatcher.STRING_ID);
         out.writeInt(v.length);
         for (String str : v) {
             write(str);
@@ -379,7 +372,7 @@ public class X10JavaSerializer {
             // We have serialized this object beofre hence no need to do it again
             // In the C++ backend the value used is 0xFFFFFFFF
             // TODO keith Make this compliant with C++ value also make the position relative
-            out.writeInt(DeserializationDispatcher.refValue);
+            write(DeserializationDispatcher.refValue);
             out.writeInt(pos);
         } else {
             objectMap.put(obj, counter);
@@ -425,7 +418,7 @@ public class X10JavaSerializer {
     }
 
     public void writeClassID(String className) throws IOException {
-        int id = DeserializationDispatcher.getIDForClassName(className);
+        short id = DeserializationDispatcher.getIDForClassName(className);
         if (id < 0) {
             write(DeserializationDispatcher.javaClassID);
             writeStringValue(className);
@@ -487,47 +480,57 @@ public class X10JavaSerializer {
                 // We need to serialize the super class first
                 serializeClassUsingReflection(body, superclass);
             }
+        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
 
-            // We need to sort the fields first. Cause the order here could depend on the JVM.
-            Field[] declaredFields = bodyClass.getDeclaredFields();
-            Set<Field> fields = new TreeSet<Field>(new FieldComparator());
-            for (Field field : declaredFields) {
-                if (field.isSynthetic())
-                    continue;
-                int modifiers = field.getModifiers();
-                if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
-                    continue;
-                }
+        if (isCustomSerializable) {
+            TypeVariable<? extends Class<? extends Object>>[] typeParameters = bodyClass.getTypeParameters();
+            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+                Field field = bodyClass.getDeclaredField(typeParameter.getName());
                 fields.add(field);
             }
+            processFields(body, fields);
+            CustomSerialization cs = (CustomSerialization)body;
+            SerialData serialData = cs.serialize();
+            writeObjectUsingReflection(serialData);
+            return;
+        }
 
-            for (Field field : fields) {
-                field.setAccessible(true);
-                Class<?> type = field.getType();
-                if (type.isPrimitive()) {
-                    writePrimitiveUsingReflection(field, body);
-                } else if (type.isArray()) {
-                    writeArrayUsingReflection(field.get(body));
-                } else if ("java.lang.String".equals(type.getName())) {
-                    writeStringUsingReflection(field, body);
-                } else {
-                    writeObjectUsingReflection(field.get(body));
-                }
+        // We need to sort the fields first. Cause the order here could depend on the JVM.
+        Field[] declaredFields = bodyClass.getDeclaredFields();
+        for (Field field : declaredFields) {
+            if (field.isSynthetic())
+                continue;
+            int modifiers = field.getModifiers();
+            if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+                continue;
             }
 
-            if (isCustomSerializable) {
-                CustomSerialization cs = (CustomSerialization) body;
-                SerialData serialData = cs.serialize();
-                writeObjectUsingReflection(serialData);
-            }
+        processFields(body, fields);
+    }
         } catch (IllegalAccessException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
         } catch (NoSuchFieldException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            throw new RuntimeException(e);
+        }
+    }
+
+    private <T> void processFields(T body, Set<Field> fields) throws IllegalAccessException, IOException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        for (Field field: fields) {
+            field.setAccessible(true);
+            Class<?> type = field.getType();
+            if (type.isPrimitive()) {
+                writePrimitiveUsingReflection(field, body);
+            } else if (type.isArray()) {
+                writeArrayUsingReflection(field.get(body));
+            } else if ("java.lang.String".equals(type.getName())) {
+                writeStringUsingReflection(field, body);
+            } else {
+                writeObjectUsingReflection(field.get(body));
+            }
         }
     }
 

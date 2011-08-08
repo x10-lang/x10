@@ -55,7 +55,7 @@
  *
  * There is an additional complication of breaking cyclic object graphs by indicating
  * that we are about to read an object that has already been read.  This is indicated
- * by the serialization id 0xFFFFFFFF followed by an offset (in objects) to the
+ * by the serialization id 0xFFFF followed by an offset (in objects) to the
  * object which has been repeatedly serialized.
  *
  * Serialization ids are generated at runtime in a place-independent fashion.  Classes obtain their id by
@@ -299,7 +299,7 @@ namespace x10aux {
             int pos = buf.map.previous_position(val);
             if (pos != 0) {
                 _S_("\tRepeated ("<<pos<<") serialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
-                buf.write((x10_uint) 0xFFFFFFFF);
+                buf.write((x10aux::serialization_id_t) 0xFFFF);
                 buf.write((x10_int) pos);
                 return;
             }
@@ -459,9 +459,9 @@ namespace x10aux {
     };
     template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf) {
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
-        x10_uint code = buf.peek<x10_uint>();
-        if (code == (x10_uint) 0xFFFFFFFF) {
-            buf.read<x10_uint>();
+        x10aux::serialization_id_t code = buf.peek<x10aux::serialization_id_t>();
+        if (code == (x10aux::serialization_id_t) 0xFFFF) {
+            buf.read<x10aux::serialization_id_t>();
             int pos = (int) buf.read<x10_int>();
             _S_("\tRepeated ("<<pos<<") deserialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
             return buf.map.get_at_position<T>(pos);

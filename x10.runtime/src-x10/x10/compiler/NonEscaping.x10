@@ -12,6 +12,7 @@
 package x10.compiler;
 
 import x10.lang.annotations.MethodAnnotation;
+import x10.lang.annotations.FieldAnnotation;
 
 /**
  * NonEscaping is an annotation that can be used on methods to mark the fact the method
@@ -36,4 +37,4 @@ import x10.lang.annotations.MethodAnnotation;
  *
  * <p>@NonEscaping is not checked on native methods because they do not have a body.
  */
-public interface NonEscaping extends MethodAnnotation { }
+public interface NonEscaping extends MethodAnnotation,FieldAnnotation { }

@@ -1186,7 +1186,7 @@ class TestGlobalRefRestriction {
 		var w:GlobalRef[TestGlobalRefRestriction] = GlobalRef[TestGlobalRefRestriction](TestGlobalRefRestriction.this); 
 		val z3 = w; // ok, because the outer class is already cooked.
 		def this() {
-			k1 = GlobalRef[Inner](this); // ERR
+			k1 = GlobalRef[Inner](this); // now ok
 			w = GlobalRef[TestGlobalRefRestriction](TestGlobalRefRestriction.this);
 		}
 	}
@@ -6888,3 +6888,44 @@ class TestResolutionOfNull {
 		val y:String = m2(null);
 	}
 }
+
+
+  // GlobalRef and costume serialization
+  class GlobalRefAndSerialize implements CustomSerialization {
+      @NonEscaping private val root:GlobalRef[GlobalRefAndSerialize];
+  	private transient var arr:Array[Int];
+
+  	public def this() {
+  		this.root = new GlobalRef[GlobalRefAndSerialize](this);
+  		this.arr = new Array[Int](10);
+  	}
+      private def this(data:SerialData) {
+  		this.root = data.data as GlobalRef[GlobalRefAndSerialize]; // ERR (Warning: unsound cast)
+  		this.arr = new Array[Int](10);
+      }
+      public def serialize():SerialData = new SerialData(root, null);
+  }
+  class GlobalRefAndSerialize2 {
+      private val root:GlobalRef[GlobalRefAndSerialize2];
+  	public def this() {
+  		this.root = new GlobalRef[GlobalRefAndSerialize2](this); // ERR
+  		val x = new GlobalRef[GlobalRefAndSerialize2](this); // ERR
+      }
+  }
+  class GlobalRefAndSerialize3 {
+      @NonEscaping private val root:GlobalRef[GlobalRefAndSerialize3];
+  	public def this() {
+  		this.root = new GlobalRef[GlobalRefAndSerialize3](this);
+  		val x = this.root; // ERR
+      }
+  }
+  class GlobalRefAndSerialize4 {
+      @NonEscaping val root = new GlobalRef[GlobalRefAndSerialize4](this); // ERR
+  }
+  class GlobalRefAndSerialize5 {
+      @NonEscaping private val root = new GlobalRef[GlobalRefAndSerialize5](this);
+  }
+  final class GlobalRefAndSerialize6 {
+      @NonEscaping val root = new GlobalRef[GlobalRefAndSerialize6](this);
+  }
+

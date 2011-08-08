@@ -28,7 +28,7 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
-    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UShort.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UShort.class);
 
     public static final x10.rtt.RuntimeType<?> $RTT = Types.USHORT;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
@@ -148,7 +148,7 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
         serializer.write($value);
     }
 
-    public int $_get_serialization_id() {
+    public short $_get_serialization_id() {
         return _serialization_id;
     }
 

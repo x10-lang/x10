@@ -99,7 +99,7 @@ public class DeclStore {
                 throw new InternalCompilerError("If A ->* B, A is at Harvester & ? -> A would break any cycle", call.position(), e);
             }
             pkg = getDeclPackage(def);
-            assert null != pkg; // FIXME this assertion may fail if a class overrides a final method of its super class.
+            assert null != pkg : "def="+def+" call="+call; // FIXME this assertion may fail if a class overrides a final method of its super class.
         }
         boolean nonVirtual = false;
 //        nonVirtual |= call instanceof Call && ((Call) call).nonVirtual(); // is this really used // TODO rewrite non-virtual call with super bridge call

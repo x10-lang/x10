@@ -542,30 +542,41 @@ public class CheckEscapingThis extends NodeVisitor
             currClass = superType.get().toClass().def();
         }
     }
+    private boolean isGlobalRefNewExpr(X10New_c new_c) {
+        final TypeNode typeNode = new_c.objectType();
+        final List<Expr> args = new_c.arguments();
+        if (args.size()==1 && isThis(args.get(0)) && // the first and only argument is "this"
+            typeNode instanceof X10CanonicalTypeNode_c) { // now checking the ctor is of GlobalRef
+            X10CanonicalTypeNode_c tn = (X10CanonicalTypeNode_c) typeNode;
+            final Type type = Types.baseType(tn.type());
+            if (type instanceof X10ParsedClassType_c) {
+                X10ParsedClassType_c classType_c = (X10ParsedClassType_c) type;
+                final QName qName = classType_c.def().fullName();
+                if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
+                    // found the pattern!
+                    return true;
+                }
+            }
+        }
+        return false;        
+    }
     private void calcGlobalRefs(ArrayList<X10FieldDecl_c> nonStaticFields) {
         for (X10FieldDecl_c field : nonStaticFields) {
+            boolean isGlobalRef = false;
+            X10FieldDef fieldDef = field.fieldDef();
+            if (Types.isNonEscaping(fieldDef,ts))
+                isGlobalRef = true;
             final Expr init = field.init();
             // check for the pattern: val/var someField = GlobalRef[...](this)
             if (init instanceof X10New_c) {
                 X10New_c new_c = (X10New_c) init;
-                final TypeNode typeNode = new_c.objectType();
-                final List<Expr> args = new_c.arguments();
-                if (args.size()==1 && isThis(args.get(0)) && // the first and only argument is "this"
-                    typeNode instanceof X10CanonicalTypeNode_c) { // now checking the ctor is of GlobalRef
-                    X10CanonicalTypeNode_c tn = (X10CanonicalTypeNode_c) typeNode;
-                    final Type type = Types.baseType(tn.type());
-                    if (type instanceof X10ParsedClassType_c) {
-                        X10ParsedClassType_c classType_c = (X10ParsedClassType_c) type;
-                        final QName qName = classType_c.def().fullName();
-                        if (qName.equals(QName.make("x10.lang","GlobalRef"))) {
-                            // found the pattern!
-                            // must be private
-                            if (!isXlassFinal && !field.flags().flags().isPrivate())
-                                reportError("In order to use the pattern GlobalRef[...](this) the field must be private.",field.position());
-                            globalRef.add(field.fieldDef());
-                        }
-                    }
-                }
+                if (isGlobalRefNewExpr(new_c)) isGlobalRef=true;
+            }
+            if (isGlobalRef) {
+                // must be private
+                if (!isXlassFinal && !field.flags().flags().isPrivate())
+                    reportError("In order to use the pattern GlobalRef[...](this) the field must be private.",field.position());
+                globalRef.add(fieldDef);
             }
         }
     }
@@ -760,7 +771,10 @@ public class CheckEscapingThis extends NodeVisitor
         if (n instanceof FieldAssign) {
             FieldAssign f = (FieldAssign) n;
             if (isThis(f.target())) {
-                f.right().visit(this);
+                Expr right = f.right();
+                if (right instanceof X10New_c && globalRef.contains(f.fieldInstance().def()) && isGlobalRefNewExpr((X10New_c)right))
+                    return n;
+                right.visit(this);
                 return n;
             }
         }

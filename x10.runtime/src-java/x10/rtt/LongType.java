@@ -21,7 +21,7 @@ public class LongType extends RuntimeType<x10.core.Long> {
 //public class LongType extends RuntimeType<x10.core.Long> implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-//    private static final int _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(LongType.class.getName());
+//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(LongType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
@@ -97,7 +97,7 @@ public class LongType extends RuntimeType<x10.core.Long> {
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 //    }
 //
-//    public int $_get_serialization_id() {
+//    public short $_get_serialization_id() {
 //        return _serialization_id;
 //    }
 //

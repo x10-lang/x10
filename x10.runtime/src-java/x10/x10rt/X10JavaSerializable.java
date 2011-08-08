@@ -26,5 +26,5 @@ public interface X10JavaSerializable {
     public static final boolean CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION = Runtime.isCustomSerializationUsingReflection();
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException;
-	public int $_get_serialization_id();
+	public short $_get_serialization_id();
 }
