@@ -60,7 +60,7 @@ import x10.visit.X10DelegatingVisitor;
 class DeclPackage extends NodeVisitor {
     
     static final boolean XTENLANG_2818_METHOD = false; // FIXME: Java back-end does not support non-virtual instance calls
-    static final boolean XTENLANG_2818_CTOR = true; // FIXME: Java back-end does not support non-virtual constructor calls
+    static final boolean XTENLANG_2818_CTOR = false; // FIXME: Java back-end does not support non-virtual constructor calls
     static final boolean XTENLANG_2819 = true; // FIXME: C++  back-end generates incorrect code for embedded fields
 
     boolean inlinable;

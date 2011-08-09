@@ -315,10 +315,6 @@ public class InlineHelper extends ContextVisitor {
                         nmembers.add(nmdcl);
                         cd.addMethod(nmd);
                     }
-                    // WIP XTENLANG-2818
-//                    else if (cm instanceof X10ConstructorDecl) {
-//                        // TODO check super constructor call
-//                    }
                     else {
                         nmembers.add(cm);
                     }
