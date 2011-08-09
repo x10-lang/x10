@@ -20,6 +20,7 @@ import x10.runtime.impl.java.Runtime;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -613,5 +614,11 @@ public class X10JavaSerializer {
         } else if ("char".equals(type.getName())) {
             write(field.getChar(obj));
         }
+    }
+
+    // Write the object using java serialization. This is used by IMC to write primitive arrays
+    public void writeObject(Object obj) throws IOException {
+        ObjectOutputStream oos = new ObjectOutputStream(this.out);
+        oos.writeObject(obj);
     }
 }
