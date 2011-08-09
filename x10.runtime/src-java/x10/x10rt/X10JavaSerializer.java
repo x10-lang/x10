@@ -32,8 +32,6 @@ import java.util.TreeSet;
 
 public class X10JavaSerializer {
 
-    //TODO Keith check what the C++ side do on arrays
-
     // When a Object is serialized record its position
     IdentityHashMap<Object, Integer> objectMap = new IdentityHashMap<Object, Integer>();
     DataOutputStream out;
@@ -380,8 +378,6 @@ public class X10JavaSerializer {
                 System.out.println("\t\tFound repeated reference of type " + obj.getClass() + " at " + pos + " (absolute) in map");
             }
             // We have serialized this object beofre hence no need to do it again
-            // In the C++ backend the value used is 0xFFFFFFFF
-            // TODO keith Make this compliant with C++ value also make the position relative
             write(DeserializationDispatcher.refValue);
             out.writeInt(pos);
         } else {
