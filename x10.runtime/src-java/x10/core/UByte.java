@@ -27,7 +27,7 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(UByte.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UByte.class);
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.UBYTE;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}

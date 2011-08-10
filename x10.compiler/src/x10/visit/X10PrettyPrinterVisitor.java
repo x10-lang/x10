@@ -149,6 +149,7 @@ import x10.emitter.Join;
 import x10.emitter.RuntimeTypeExpander;
 import x10.emitter.TryCatchExpander;
 import x10.emitter.TypeExpander;
+import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MethodInstance;
@@ -224,6 +225,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String CREATION_METHOD_NAME = "$make";
     public static final String BOX_METHOD_NAME = "$box";
     public static final String UNBOX_METHOD_NAME = "$unbox";
+
+    private static final QName ASYNC_CLOSURE = QName.make("x10.compiler.AsyncClosure");
+    private static final QName REMOTE_INVOCATION = QName.make("x10.compiler.RemoteInvocation");
 
     private static int nextId_;
 
@@ -496,7 +500,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
 
-            //TODO Keith, This is a ugly hack, should rather get this into the AST at some point
             if (!subtypeOfCustomSerializer(def)) {
                 if (alreadyPrintedTypes.size() != 0) {
                     w.write(",");
@@ -522,6 +525,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline(4);
         w.begin(0);
 
+        // Determine which closure kind this class belongs to and register it accordingly
+        String closureKind = "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ";
+        try {
+            if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(ASYNC_CLOSURE)).isEmpty()) {
+                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
+            } else if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(ASYNC_CLOSURE)).isEmpty()) {
+                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
+            }
+
+            if (!((X10Ext) (n.body()).ext()).annotationMatching(xts.systemResolver().findOne(REMOTE_INVOCATION)).isEmpty()) {
+                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
+            } else if (!((X10Ext) (n).ext()).annotationMatching(xts.systemResolver().findOne(REMOTE_INVOCATION)).isEmpty()) {
+                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
+            }
+        } catch (SemanticException e) {
+        }
+
         // print the serialVersionUID
         if (!flags.isInterface()) {
             // TODO compute serialVersionUID with the same logic as javac
@@ -531,7 +551,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             // _serialization_id
             w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
+            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(" + closureKind);
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
             w.newline();
@@ -539,7 +559,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
             // _serialization_id
             w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(");
+            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(" + closureKind);
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
             w.newline();

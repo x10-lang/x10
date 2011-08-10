@@ -25,7 +25,7 @@ import java.io.IOException;
 public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RemoteIndexedMemoryChunk.class);
+	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RemoteIndexedMemoryChunk.class);
 
     private static final java.util.ArrayList<Object> objects = new java.util.ArrayList<Object>(); // all referenced objects in this place
 

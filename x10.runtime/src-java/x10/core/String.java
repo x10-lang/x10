@@ -24,7 +24,7 @@ final public class String extends x10.core.Ref implements
 {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(String.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, String.class);
 
     public static final x10.rtt.RuntimeType<java.lang.String> $RTT = Types.STRING;
     

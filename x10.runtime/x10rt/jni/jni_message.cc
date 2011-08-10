@@ -20,8 +20,6 @@
  * 
  *************************************************************************/
 
-static x10rt_msg_type runClosureAt_HandlerID;
-
 static methodDescription runClosureAt;
 
 #define DEBUG 0
@@ -37,6 +35,8 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
     MessageReader reader(msg);
 
     jint numElems = msg->len;
+    int type = msg->type;
+    jint jtype = type;
     jbyteArray arg = env->NewByteArray(numElems);
     if (NULL == arg) {
         fprintf(stderr, "OOM from NewByteArray (num elements = %d)\n", (int)numElems);
@@ -45,7 +45,7 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
 
     env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
 
-    env->CallStaticVoidMethod(runClosureAt.targetClass, runClosureAt.targetMethod, arg);
+    env->CallStaticVoidMethod(runClosureAt.targetClass, runClosureAt.targetMethod, arg, jtype);
 }
 
 /*************************************************************************
@@ -62,7 +62,7 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
  */
 JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEnv *env, jclass klazz,
                                                                            jint place,
-                                                                           jint arrayLen, jbyteArray array) {
+                                                                           jint arrayLen, jbyteArray array, jint msg_id) {
 
 
 #if DEBUG
@@ -93,7 +93,7 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
     }
     // Byte array, so no need to endian swap
 
-    x10rt_msg_params msg = {place, runClosureAt_HandlerID, buffer, numBytes, 0};
+    x10rt_msg_params msg = {place, msg_id, buffer, numBytes, 0};
     x10rt_send_msg(&msg);
     if (X10_PAUSE_GC_ON_SEND) {
         env->ReleasePrimitiveArrayCritical(array, (jbyte*)buffer, JNI_ABORT);;
@@ -114,34 +114,59 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
 
 /*
  * Class:     x10_x10rt_MessageHandlers
- * Method:    initialize
+ * Method:    registerHandlers
  * Signature: ()V
  *
  * NOTE: At the Java level this is a synchronized method,
  *       therefore we can freely update the backing C data
  *       structures without additional locking in the native level.
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_initialize(JNIEnv *env, jclass klazz) {
+JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *env, jclass klazz,
+                                                                           jint arrayLen) {
 
-#if DEBUG
-	printf("jni_message.cc: MessageHandlers_initialize\n");
-#endif
-
-    /* Get a hold of MessageHandlers.runClosureAtReceive and stash away its invoke information */
-    jmethodID receiveId1 = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
+    /* Get a hold of MessageHandlers.receiveAsync and stash away its invoke information */
+    jmethodID receiveId1 = env->GetStaticMethodID(klazz, "receiveAsync", "([BI)V");
     if (NULL == receiveId1) {
-        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.runClosureAtReceive");
+        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.receiveAsync");
         abort();
     }
     jclass globalClass = (jclass)env->NewGlobalRef(klazz);
     if (NULL == globalClass) {
         fprintf(stderr, "OOM while attempting to allocate global reference for MessageHandlers class\n");
         abort();
-    }        
+    }
     runClosureAt.targetClass  = globalClass;
     runClosureAt.targetMethod = receiveId1;
 
-    /* Register message receiver functions with X10RT native layer*/
-    runClosureAt_HandlerID    = x10rt_register_msg_receiver(&jni_messageReceiver_runClosureAt, NULL, NULL, NULL, NULL);
+    int i;
+    int len = arrayLen;
+    jint * jids = new jint[len];
+    for (i = 0; i < arrayLen; i++) {
+        // Register each async  and obtain a message ID
+        x10rt_msg_type msg_id =  x10rt_register_msg_receiver(&jni_messageReceiver_runClosureAt, NULL, NULL, NULL, NULL);
+        int id = msg_id;
+        jids[i] = id;
+    }
+
+    jmethodID callback = env->GetStaticMethodID(klazz, "registerHandlersCallback", "([I)V");
+    if (NULL == callback) {
+        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.registerHandlersCallback");
+        abort();
+    }
+
+    jintArray arg = env->NewIntArray(arrayLen);
+    if (NULL == arg) {
+        fprintf(stderr, "OOM from NewIntArray (num elements = %d)\n", (int)arrayLen);
+        abort();
+    }
+
+    env->SetIntArrayRegion(arg, 0, arrayLen, jids);
+
+    delete [] jids;
+
+    // Pass the obtained message ID's to Java
+    env->CallStaticVoidMethod(klazz, callback, arg);
+
+    // We are done with registering message handlers
     x10rt_registration_complete();
 }
