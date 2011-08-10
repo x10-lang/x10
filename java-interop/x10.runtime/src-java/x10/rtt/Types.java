@@ -18,15 +18,16 @@ import x10.core.StructI;
 
 public class Types {
     
-    // WIP Java interop
-//    public static final boolean supportJavaInterop = true;
-    public static final boolean supportJavaInterop = false;
+    // WIP type parameter of Java type
+    // N.B. type parameter of Java type is not required at runtime with current design since Java types are represented as erased ones in X10
+//    public static final boolean supportTypeParameterOfJavaType = true;
+    public static final boolean supportTypeParameterOfJavaType = false;
     
     public static RuntimeType<?> getRTT(Class<?> impl) {
         java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
         Class<?>[] interfaces = impl.getInterfaces();
         Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
-        if (supportJavaInterop && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
+        if (supportTypeParameterOfJavaType && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
             // type parameters for unknown raw Java classes are Any
             x10.rtt.RuntimeType.Variance[] variances = new x10.rtt.RuntimeType.Variance[typeVariables.length];
             java.util.Arrays.fill(variances, x10.rtt.RuntimeType.Variance.INVARIANT);
@@ -75,41 +76,13 @@ public class Types {
         }
         return rtt;
     }
-//    // WIP Java interop
-//    public static RuntimeType<?> getRTT(byte obj) {
-//        return BYTE;
-//    }
-//    public static RuntimeType<?> getRTT(short obj) {
-//        return SHORT;
-//    }
-//    public static RuntimeType<?> getRTT(int obj) {
-//        return INT;
-//    }
-//    public static RuntimeType<?> getRTT(long obj) {
-//        return LONG;
-//    }
-//    public static RuntimeType<?> getRTT(float obj) {
-//        return FLOAT;
-//    }
-//    public static RuntimeType<?> getRTT(double obj) {
-//        return DOUBLE;
-//    }
-//    public static RuntimeType<?> getRTT(char obj) {
-//        return CHAR;
-//    }
-//    public static RuntimeType<?> getRTT(boolean obj) {
-//        return BOOLEAN;
-//    }
-//    public static RuntimeType<?> getRTT(java.lang.String obj) {
-//        return STRING;
-//    }
     
     public static Type<?> getParam(Object obj, int i) {
         if (obj instanceof x10.core.Any) {
             return ((Any) obj).$getParam(i);
         }
         // type parameters for unknown raw Java classes are Any
-        if (supportJavaInterop) {
+        if (supportTypeParameterOfJavaType) {
             // TODO bounds
             return ANY;
         }

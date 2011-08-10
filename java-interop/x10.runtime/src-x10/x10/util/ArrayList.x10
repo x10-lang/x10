@@ -242,4 +242,22 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         a(i) = a(j);
         a(j) = temp;
     }
+
+    /**
+     * Return the string representation of this ArrayList.
+     * 
+     * @return the string representation of this ArrayList.
+     */
+    public def toString(): String {
+        val sb = new x10.util.StringBuilder();
+        sb.add("[");
+        val sz = Math.min(size(), 10);
+        for (var i:Int = 0; i < sz; ++i) {
+            if (i > 0) sb.add(",");
+            sb.add("" + this(i));
+        }
+        if (sz < size()) sb.add("...(omitted " + (size() - sz) + " elements)");
+        sb.add("]");
+        return sb.toString();
+    }
 }

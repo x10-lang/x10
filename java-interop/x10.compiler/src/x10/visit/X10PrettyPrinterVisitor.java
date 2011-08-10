@@ -202,6 +202,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean isSelfDispatch = true;
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
+    public static final boolean supportConstructorInlining = true;
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -1269,15 +1270,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private void printConstructorMethodDecl(X10ConstructorDecl_c n, boolean isCustomSerializable) {
 
+        w.newline();
+        if (supportConstructorInlining) {
+            w.writeln("// constructor for non-virtual call");
+        } else {
+            w.writeln("// constructor");
+        }
+
         String methodName = null;
 
-        tr.print(n,
-                 tr.nodeFactory().FlagsNode(n.flags().position(),
-                                            n.flags().flags().clearPrivate().clearProtected().Public()), w);
+        Flags ctorFlags = n.flags().flags().clearPrivate().clearProtected().Public();
+        if (supportConstructorInlining) {
+            ctorFlags = ctorFlags.Final();
+        }
+        tr.print(n, tr.nodeFactory().FlagsNode(n.flags().position(), ctorFlags), w);
 
         er.printType(n.constructorDef().container().get(), PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write(" ");
-        w.write(CONSTRUCTOR_METHOD_NAME);
+        String ctorName = supportConstructorInlining ? InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString() : CONSTRUCTOR_METHOD_NAME; 
+        w.write(ctorName);
 
         List<String> typeAssignments = printConstuctorFormals(n);
 
@@ -1337,15 +1348,37 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             w.write(";");
         }
+        w.newline();
 
         // Refractored  method that can be called by reflection
         if (isCustomSerializable) {
-            w.newline();
             w.begin(4);
             w.writeln("public void  " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
             n.printSubStmt(body, w, tr);
             w.writeln("}");
             w.end();
+        }
+
+        if (supportConstructorInlining) {
+            w.newline();
+            w.writeln("// constructor");
+
+            tr.print(n, tr.nodeFactory().FlagsNode(n.flags().position(), n.flags().flags().clearPrivate().clearProtected().Public()), w);
+
+            er.printType(n.constructorDef().container().get(), PRINT_TYPE_PARAMS | NO_VARIANCE);
+            w.write(" ");
+            w.write(CONSTRUCTOR_METHOD_NAME);
+
+            printConstuctorFormals(n);
+       
+            w.write("{");
+            
+            w.write("return ");
+            w.write(InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
+            printConstuctorParams(n);
+            w.write(";");
+            
+            w.writeln("}");
         }
     }
 
@@ -1432,6 +1465,72 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(JAVA_LANG_CLASS + "<?>");
                 } else {
                     w.write("[]");
+                }
+            }
+            w.write(" " + dummy + narg);
+        }
+    }
+
+    private void printConstuctorParams(X10ConstructorDecl_c n) {
+        w.write("(");
+
+        w.begin(0);
+
+        X10ConstructorDef ci = n.constructorDef();
+        X10ClassType ct = (X10ClassType) Types.get(ci.container());
+
+        for (Iterator<ParameterType> i = ct.x10Def().typeParameters().iterator(); i.hasNext();) {
+            ParameterType p = i.next();
+            String name = Emitter.mangleParameterType(p);
+            
+            w.write(name);
+
+            if (i.hasNext() || n.formals().size() > 0) {
+                w.write(",");
+//                w.allowBreak(0, " ");
+            }
+        }
+
+        for (Iterator<Formal> i = n.formals().iterator(); i.hasNext();) {
+            Formal f = i.next();
+//            n.print(f, w, tr);
+            w.write(f.name().toString());   // TODO mangle?
+            
+            if (i.hasNext()) {
+                w.write(",");
+//                w.allowBreak(0, " ");
+            }
+        }
+
+        printExtraParams(n);
+
+        w.end();
+        w.write(")");
+
+        /*
+         * if (! n.throwTypes().isEmpty()) { w.allowBreak(6);
+         * w.write("throws ");
+         * 
+         * for (Iterator<TypeNode> i = n.throwTypes().iterator(); i.hasNext(); )
+         * { TypeNode tn = (TypeNode) i.next(); er.printType(tn.type(),
+         * PRINT_TYPE_PARAMS);
+         * 
+         * if (i.hasNext()) { w.write(","); w.allowBreak(4, " "); } } }
+         */
+    }
+
+    private void printExtraParams(X10ConstructorDecl_c n) {
+        String dummy = "$dummy";
+        int cid = getConstructorId(n.constructorDef());
+        if (cid != -1) {
+            w.write(",");
+            int narg = 0;
+            for (int i = 0; i < cid + 1; i++) {
+                if (i % 256 == 0) {
+                    if (i != 0) {
+                        w.write(" " + dummy + narg++);
+                        w.write(",");
+                    }
                 }
             }
             w.write(" " + dummy + narg);
@@ -3679,10 +3778,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(X10ConstructorCall_c c) {
         ContainerType ct = c.constructorInstance().container();
-        if (supportConstructorSplitting
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
-        	TypeSystem ts = tr.typeSystem();
-        	boolean isObject = Types.baseType(ct).typeEquals(ts.Object(), tr.context());
+        if (supportConstructorSplitting && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
+            TypeSystem ts = tr.typeSystem();
+            boolean isObject = Types.baseType(ct).typeEquals(ts.Object(), tr.context());
+//            if (isObject) return;  // TODO stop calling constructor of x10.lang.Object for optimization (it should be safe)
             Expr target = c.target();
             if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
@@ -3694,16 +3793,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write("this");
                 }
             } else {
-                // WIP XTENLANG-2818
-//                if (c.kind() == ConstructorCall.SUPER) {
-//                    target.translate(w, tr);
-//                    w.write(".");
-//                    // TODO support super constructor call
-//                    w.write(CONSTRUCTOR_METHOD_NAME);
-//                    printConstructorArgumentList(c, c, c.constructorInstance(), null);
-//                    w.write(";");
-//                    return;
-//                }
+                if (supportConstructorInlining && c.kind() == ConstructorCall.SUPER) {
+                    target.translate(w, tr);
+                    w.write(".");
+                    // invoke constructor for non-virtual call directly
+                    String ctorName = InlineHelper.makeSuperBridgeName(ct.toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString(); 
+                    w.write(ctorName);
+                    printConstructorArgumentList(c, c, c.constructorInstance(), null);
+                    w.write(";");
+                    return;
+                }
                 // N.B. HACK! to initialize x10.lang.Object, call ((x10.core.Ref) target).$init() since x10.lang.Object is @NativeRep'ed to x10.core.RefI!
             	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);

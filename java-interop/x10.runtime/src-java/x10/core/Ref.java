@@ -32,7 +32,10 @@ public class Ref implements RefI {
     // constructor just for allocation
     public Ref(java.lang.System[] $dummy) {}
 
-    public Ref $init(){return this;}
+    // constructor for non-virtual call
+    public final Ref x10$lang$Object$$init$S() {return this;}
+    
+    public Ref $init(){return x10$lang$Object$$init$S();}
 	
     public static Ref $make() { return new Ref(); }
 
