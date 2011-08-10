@@ -22,7 +22,8 @@ import x10.runtime.impl.java.Runtime;
 
 import java.io.DataInputStream;
 import java.io.IOException;
-import java.lang.RuntimeException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
@@ -518,6 +519,16 @@ public class X10JavaDeserializer {
         } catch (Exception ignore) {
         }
         return unsafe;
+    }
+
+    // Read the object using java serialization. This is used by IMC to read primitive arrays
+    public Object readObject() throws IOException {
+        ObjectInputStream ois = new ObjectInputStream(this.in);
+        try {
+            return ois.readObject();
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

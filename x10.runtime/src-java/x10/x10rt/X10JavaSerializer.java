@@ -20,7 +20,7 @@ import x10.runtime.impl.java.Runtime;
 
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.lang.RuntimeException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
@@ -31,8 +31,6 @@ import java.util.Set;
 import java.util.TreeSet;
 
 public class X10JavaSerializer {
-
-    //TODO Keith check what the C++ side do on arrays
 
     // When a Object is serialized record its position
     IdentityHashMap<Object, Integer> objectMap = new IdentityHashMap<Object, Integer>();
@@ -370,8 +368,6 @@ public class X10JavaSerializer {
                 System.out.println("\t\tFound repeated reference of type " + obj.getClass() + " at " + pos + " (absolute) in map");
             }
             // We have serialized this object beofre hence no need to do it again
-            // In the C++ backend the value used is 0xFFFFFFFF
-            // TODO keith Make this compliant with C++ value also make the position relative
             write(DeserializationDispatcher.refValue);
             out.writeInt(pos);
         } else {
@@ -615,5 +611,11 @@ public class X10JavaSerializer {
         } else if ("char".equals(type.getName())) {
             write(field.getChar(obj));
         }
+    }
+
+    // Write the object using java serialization. This is used by IMC to write primitive arrays
+    public void writeObject(Object obj) throws IOException {
+        ObjectOutputStream oos = new ObjectOutputStream(this.out);
+        oos.writeObject(obj);
     }
 }

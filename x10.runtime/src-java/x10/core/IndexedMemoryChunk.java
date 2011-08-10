@@ -220,33 +220,19 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
             serializer.write(this.numElems);
             if (this.numElems > 0) {
-                if (this.srcData instanceof int[]) {
-                    serializer.write(DeserializationDispatcher.INTEGER_ID);
-                    serializer.write((int[]) this.srcData);
-                } else if (this.srcData instanceof double[]) {
-                    serializer.write(DeserializationDispatcher.DOUBLE_ID);
-                    serializer.write((double[]) this.srcData);
-                } else if (this.srcData instanceof float[]) {
-                    serializer.write(DeserializationDispatcher.FLOAT_ID);
-                    serializer.write((float[]) this.srcData);
-                } else if (this.srcData instanceof short[]) {
-                    serializer.write(DeserializationDispatcher.SHORT_ID);
-                    serializer.write((short[]) this.srcData);
-                } else if (this.srcData instanceof char[]) {
-                    serializer.write(DeserializationDispatcher.CHARACTER_ID);
-                    serializer.write((char[]) this.srcData);
-                } else if (this.srcData instanceof byte[]) {
-                    serializer.write(DeserializationDispatcher.BYTE_ID);
-                    serializer.write((byte[]) this.srcData);
+                if (this.srcData instanceof int[] ||
+                        this.srcData instanceof double[] ||
+                        this.srcData instanceof float[] ||
+                        this.srcData instanceof short[] ||
+                        this.srcData instanceof char[] ||
+                        this.srcData instanceof byte[] ||
+                        this.srcData instanceof long[] ||
+                        this.srcData instanceof boolean[]) {
+                    serializer.write(DeserializationDispatcher.javaClassID);
+                    serializer.writeObject(this.srcData);
                 } else if (this.srcData instanceof String[]) {
                     serializer.write(DeserializationDispatcher.STRING_ID);
                     serializer.write((String[]) this.srcData);
-                } else if (this.srcData instanceof long[]) {
-                    serializer.write(DeserializationDispatcher.LONG_ID);
-                    serializer.write((long[]) this.srcData);
-                } else if (this.srcData instanceof boolean[]) {
-                    serializer.write(DeserializationDispatcher.BOOLEAN_ID);
-                    serializer.write((boolean[]) this.srcData);
                 } else {
                     serializer.write((X10JavaSerializable[]) this.srcData);
                 }
@@ -266,24 +252,10 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             int numElems = deserializer.readInt();
             if (numElems > 0) {
                 short type = deserializer.readShort();
-                if (type == DeserializationDispatcher.INTEGER_ID) {
-                    srcData = deserializer.readIntArray();
-                } else if (type == DeserializationDispatcher.DOUBLE_ID) {
-                    srcData = deserializer.readDoubleArray();
-                } else if (type == DeserializationDispatcher.FLOAT_ID) {
-                    srcData = deserializer.readFloatArray();
-                } else if (type == DeserializationDispatcher.SHORT_ID) {
-                    srcData = deserializer.readShortArray();
-                } else if (type == DeserializationDispatcher.CHARACTER_ID) {
-                    srcData = deserializer.readCharArray();
-                } else if (type == DeserializationDispatcher.BYTE_ID) {
-                    srcData = deserializer.readByteArray();
+                if (type == DeserializationDispatcher.javaClassID) {
+                    srcData = deserializer.readObject();
                 } else if (type == DeserializationDispatcher.STRING_ID) {
                     srcData = deserializer.readStringArray();
-                } else if (type == DeserializationDispatcher.LONG_ID) {
-                    srcData = deserializer.readLongArray();
-                } else if (type == DeserializationDispatcher.BOOLEAN_ID) {
-                    srcData = deserializer.readBooleanArray();
                 } else  {
                     srcData = deserializer.readRef();
                 }
@@ -515,44 +487,18 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(length);
         serializer.write(type);
-        if (type instanceof FloatType) {
-            float[] castValue = (float[]) value;
-            for (float v : castValue) {
-                serializer.write(v);
-            }
-        } else if (type instanceof IntType) {
-            int[] castValue = (int[]) value;
-            for (int v : castValue) {
-                serializer.write(v);
-            }
-        } else if (type instanceof ByteType) {
-            byte[] castValue = (byte[]) value;
-            serializer._write(castValue);
-        } else if (type instanceof DoubleType) {
-            double[] castValue = (double[]) value;
-            for (double v : castValue) {
-                serializer.write(v);
-            }
-        } else if (type instanceof LongType) {
-            long[] castValue = (long[]) value;
-            for (long v : castValue) {
-                serializer.write(v);
-            }
-        } else if (type instanceof CharType) {
-            char[] castValue = (char[]) value;
-            for (char v : castValue) {
-                serializer.write(v);
-            }
-        } else if (type instanceof ShortType) {
-            short[] castValue = (short[]) value;
-            for (short v : castValue) {
-                serializer.write(v);
-            }
-        } else if (type instanceof BooleanType) {
-            boolean [] castValue = (boolean[]) value;
-            for (boolean v : castValue) {
-                serializer.write(v);
-            }
+
+        // If the type is a primitive java type we use default java serialization here
+        // cause its much faster than writing a single element at a time
+        if (type instanceof FloatType ||
+                type instanceof IntType ||
+                type instanceof ByteType ||
+                type instanceof DoubleType||
+                type instanceof LongType ||
+                type instanceof CharType ||
+                type instanceof ShortType||
+                type instanceof BooleanType) {
+                serializer.writeObject(value);
         } else if (type instanceof StringType) {
             java.lang.String [] castValue = (java.lang.String[]) value;
             for (java.lang.String v : castValue) {
@@ -581,52 +527,17 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         imc.length = length;
         imc.type = (Type) deserializer.readRef();
 
-        if (imc.type instanceof FloatType) {
-            float[] values = (float[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readFloat();
-            }
-            imc.value = values;
-        } else if (imc.type instanceof IntType) {
-            int[] values = (int[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readInt();
-            }
-            imc.value = values;
-        } else if (imc.type instanceof BooleanType) {
-            boolean[] values = (boolean[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readBoolean();
-            }
-            imc.value = values;
-        } else if (imc.type instanceof CharType) {
-            char[] values = (char[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readChar();
-            }
-            imc.value = values;
-        } else if (imc.type instanceof DoubleType) {
-            double[] values = (double[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readDouble();
-            }
-            imc.value = values;
-        }  else if (imc.type instanceof ShortType) {
-            short[] values = (short[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readShort();
-            }
-            imc.value = values;
-        } else if (imc.type instanceof LongType) {
-            long[] values = (long[]) imc.type.makeArray(length);
-            for (int i = 0; i < length; i++) {
-                   values[i] = deserializer.readLong();
-            }
-            imc.value = values;
-        } else if (imc.type instanceof ByteType) {
-            byte[] values = (byte[]) imc.type.makeArray(length);
-            deserializer._readByteArray(length, values);
-            imc.value = values;
+        // If the type is a primitive java type we use default java serialization here
+        // cause its much faster than reading a single element at a time
+        if (imc.type instanceof FloatType ||
+                imc.type instanceof IntType ||
+                imc.type instanceof ByteType ||
+                imc.type instanceof DoubleType||
+                imc.type instanceof LongType ||
+                imc.type instanceof CharType ||
+                imc.type instanceof ShortType||
+                imc.type instanceof BooleanType) {
+                imc.value = deserializer.readObject();
         } else if (imc.type instanceof StringType) {
             java.lang.String[] values = (java.lang.String[]) imc.type.makeArray(length);
             for (int i = 0; i < length; i++) {

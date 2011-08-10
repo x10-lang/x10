@@ -27,7 +27,6 @@ namespace x10 {
               x10aux::ref<x10::lang::String> (I::*typeName) ();
           };
     
-          // [DC] Borrowed from code generated from a similar interface
           template <class R> static x10_boolean compareTo(x10aux::ref<R> _recv, FMGL(T) arg0) {
               x10aux::ref<x10::lang::Reference> _refRecv(_recv);
               return (_refRecv.operator->()->*(x10aux::findITable<Comparable<FMGL(T)> >(_refRecv->_getITables())->compareTo))(arg0);
