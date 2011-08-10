@@ -21,9 +21,9 @@ public class SeqGenMatMultAdd1[T]{T<:Arithmetic[T]} extends Benchmark {
 
     val r = 0..(N-1)*0..(N-1);
 
-    val a:Array[T](2){rect};
-    val b:Array[T](2){rect};
-    val c:Array[T](2){rect};
+    val a:Array[T](2){rect,self!=null};
+    val b:Array[T](2){rect,self!=null};
+    val c:Array[T](2){rect,self!=null};
 
     def this(a_init:(Point(2))=>T,
              b_init:(Point(2))=>T,
