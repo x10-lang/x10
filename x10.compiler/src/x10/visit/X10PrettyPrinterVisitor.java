@@ -1246,6 +1246,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private void printConstructorMethodDecl(X10ConstructorDecl_c n, boolean isCustomSerializable) {
 
+        w.newline();
+        if (supportConstructorInlining) {
+            w.writeln("// constructor for non-virtual call");
+        } else {
+            w.writeln("// constructor");
+        }
+
         String methodName = null;
 
         Flags ctorFlags = n.flags().flags().clearPrivate().clearProtected().Public();
@@ -1315,10 +1322,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             w.write(";");
         }
+        w.newline();
 
         // Refractored  method that can be called by reflection
         if (isCustomSerializable) {
-            w.newline();
             w.begin(4);
             w.writeln("public void  " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
             n.printSubStmt(body, w, tr);
@@ -1327,6 +1334,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         if (supportConstructorInlining) {
+            w.newline();
+            w.writeln("// constructor");
+
             tr.print(n, tr.nodeFactory().FlagsNode(n.flags().position(), n.flags().flags().clearPrivate().clearProtected().Public()), w);
 
             er.printType(n.constructorDef().container().get(), PRINT_TYPE_PARAMS | NO_VARIANCE);
@@ -1342,7 +1352,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             printConstuctorParams(n);
             w.write(";");
             
-            w.write("}");
+            w.writeln("}");
         }
     }
 
