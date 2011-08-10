@@ -218,6 +218,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String RTT_NAME = "$RTT";
     public static final String GETRTT_NAME = "$getRTT";
     public static final String GETPARAM_NAME = "$getParam";
+    public static final String INITPARAMS_NAME = "$initParams";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
     public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
     public static final String CREATION_METHOD_NAME = "$make";
@@ -797,6 +798,46 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(";");
                     w.newline();
                 }
+
+                w.write("// initializer of type parameters");
+                w.newline();
+                w.write("public static void ");
+                w.write(INITPARAMS_NAME);
+                w.write("(");
+                tr.print(n, n.name(), w);
+                /*
+                w.write("<");
+                boolean first = true;
+                for (TypeParamNode tp : typeParameters) {
+                    if (first) {
+                        first = false;
+                    } else {
+                        w.write(",");
+                    }
+                    w.write("?");
+                }
+                w.write(">");
+                */
+                w.write(" $this");
+                for (TypeParamNode tp : typeParameters) {
+                    w.write(", ");
+                    w.write(X10_RUNTIME_TYPE_CLASS);
+                    // w.write("<"); n.print(tp, w, tr); w.write(">"); // TODO
+                    w.write(" ");
+                    w.write(Emitter.mangleParameterType(tp));
+                }
+                w.write(") {");
+                w.newline();
+                for (TypeParamNode tp : typeParameters) {
+                    w.write("$this.");
+                    w.write(Emitter.mangleParameterType(tp));
+                    w.write(" = ");
+                    w.write(Emitter.mangleParameterType(tp));
+                    w.write(";");
+                    w.newline();
+                }
+                w.write("}");
+                w.newline();
             }
             w.end();
         }
@@ -1141,10 +1182,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (cc.kind() == ConstructorCall.THIS) typeAssignments.clear();
                 }
             }
-            for (String s : typeAssignments) {
-                w.write(s);
-                w.allowBreak(0, " ");
-            }
+            printTypeAssignments(type, typeAssignments);
             if (n.body().statements().size() > 0) {
                 Stmt firstStmt = getFirstStatement(n);
                 if (firstStmt instanceof X10ConstructorCall_c)
@@ -1191,7 +1229,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(" ");
         w.write(CREATION_METHOD_NAME);
 
-        List<String> typeAssignments = printConstuctorFormals(n);
+        printConstuctorFormals(n);
 
         w.write("{");
         w.begin(4);
@@ -1244,6 +1282,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return firstStmt;
     }
 
+    private void printTypeAssignments(Type type, List<String> typeAssignments) {
+        if (typeAssignments.size() > 0) {
+            er.printType(type, 0);
+            w.write(".");
+            w.write(INITPARAMS_NAME);
+            w.write("(this");
+            for (String param : typeAssignments) {
+                w.write(", ");
+                w.write(param);
+            }
+            w.write(");");
+        }
+    }
+
     private void printConstructorMethodDecl(X10ConstructorDecl_c n, boolean isCustomSerializable) {
 
         w.newline();
@@ -1294,10 +1346,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // if (cc.kind() == ConstructorCall.THIS) typeAssignments.clear();
             // }
             // }
-            for (String s : typeAssignments) {
-                w.write(s);
-                w.allowBreak(0, " ");
-            }
+            printTypeAssignments(Types.get(n.constructorDef().container()), typeAssignments);
 
             // If this is the custom serialization constructor we refractor it out into a new method and call it here
             if (isCustomSerializable) {
@@ -1392,7 +1441,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.allowBreak(0, " ");
             }
 
-            typeAssignments.add("this." + name + " = " + name + ";");
+            typeAssignments.add(name);
         }
 
         for (Iterator<Formal> i = n.formals().iterator(); i.hasNext();) {
