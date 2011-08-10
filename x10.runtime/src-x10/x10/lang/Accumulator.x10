@@ -18,7 +18,7 @@ import x10.compiler.NonEscaping;
  * The naive implementation of an accumulator (without any piggybacking on finish or clocks).
  */
 public class Accumulator[T] extends Acc implements CustomSerialization {
-    val owner:Activity;
+    //val owner:Activity;
     @NonEscaping private val root:GlobalRef[Acc];
 	protected var curr:T;
 	protected val red:Reducible[T];
@@ -28,13 +28,13 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
 	}
 
     public def this(red:Reducible[T]) {
-        owner = Runtime.activity();
+        //owner = Runtime.activity();
         this.red = red;
         this.root = new GlobalRef[Acc](this);
         this.curr = red.zero();
     }
     public def this(data:SerialData) {
-        owner = null;
+        //owner = null;
         val arr:Array[Any](1) = data.data as Array[Any](1);
         this.red = arr(0) as Reducible[T];
         this.root = arr(1) as GlobalRef[Acc];
@@ -42,6 +42,7 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
     }
     public def serialize():SerialData = new SerialData([red as Any, root as Any], null);
 
+    /*
     private def isSync():Boolean {
         return Runtime.activity()==owner;
     }
@@ -53,6 +54,7 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
         }
         return false;
     }
+    */
 
 	public def me():Accumulator[T] = (root as GlobalRef[Acc]{self.home==here})() as Accumulator[T];
     /**
@@ -61,7 +63,7 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
 	public operator this <- (t:T):void {
 	    at (root.home) {
 	        val me = this.me();
-	        if (!me.isAsync()) throw new IllegalAccAccess();
+	        //if (!me.isAsync()) throw new IllegalAccAccess();
 	        atomic {
 	            me.curr = me.red(me.curr,t);
 	        }
@@ -73,7 +75,7 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
 	public operator this()=(t:T):void {
 	    at (root.home) {
 	        val me = this.me();
-	        if (!me.isSync()) throw new IllegalAccAccess();
+	        //if (!me.isSync()) throw new IllegalAccAccess();
 	        atomic {
 	            me.curr = t;
 	        }
@@ -81,7 +83,7 @@ public class Accumulator[T] extends Acc implements CustomSerialization {
 	}
 
 	private def localGetResult():T {
-		if (!isSync()) throw new IllegalAccAccess();
+		//if (!isSync()) throw new IllegalAccAccess();
 		return curr;
 	}
 	public operator this():T {

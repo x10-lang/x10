@@ -62,7 +62,7 @@ class Activity {
         }
     }
 
-    val parentActivity:Activity = Runtime.activity();
+    //val parentActivity:Activity = Runtime.activity();
 
     /**
      * the finish state governing the execution of this activity (may be remote)
