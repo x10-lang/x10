@@ -11,7 +11,17 @@
 
 package x10.lang;
 
+/**
+ * Base calss for Accumulator[T] that has all the methods but without the type parameter T.
+ * Instead we perform casts at runtime.
+ * We use this class because we do not have existentials in X10 (e.g., when we do not know T such as in ArrayList[Acc].
+ */
 public abstract class Acc {
+    public abstract def supply(t:Any):void;
+    public abstract def reset(t:Any):void;
+    public abstract def result():Any;
+
+    // These methods are called by the Runtime. Do not use them.
     public abstract def calcResult():Any;
     public abstract def acceptResult(a:Any):void;
     public abstract def getRoot():GlobalRef[Acc];
