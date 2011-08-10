@@ -1166,7 +1166,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             n.flags().flags().clearPrivate().clearProtected().Public()), w);
         tr.print(n, n.name(), w);
 
-        List<String> typeAssignments = printConstuctorFormals(n);
+        List<String> params = printConstuctorFormals(n);
 
         if (n.body() != null) {
             // if (typeAssignments.size() > 0) {
@@ -1179,10 +1179,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     // n.printSubStmt(cc, w, tr);
                     printConstructorCallForJavaCtor(cc);
                     w.allowBreak(0, " ");
-                    if (cc.kind() == ConstructorCall.THIS) typeAssignments.clear();
+                    if (cc.kind() == ConstructorCall.THIS) params.clear();
                 }
             }
-            printTypeAssignments(type, typeAssignments);
+            printInitParams(type, params);
             if (n.body().statements().size() > 0) {
                 Stmt firstStmt = getFirstStatement(n);
                 if (firstStmt instanceof X10ConstructorCall_c)
@@ -1282,13 +1282,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return firstStmt;
     }
 
-    private void printTypeAssignments(Type type, List<String> typeAssignments) {
-        if (typeAssignments.size() > 0) {
+    private void printInitParams(Type type, List<String> params) {
+        if (params.size() > 0) {
             er.printType(type, 0);
             w.write(".");
             w.write(INITPARAMS_NAME);
             w.write("(this");
-            for (String param : typeAssignments) {
+            for (String param : params) {
                 w.write(", ");
                 w.write(param);
             }
@@ -1318,7 +1318,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String ctorName = supportConstructorInlining ? InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString() : CONSTRUCTOR_METHOD_NAME; 
         w.write(ctorName);
 
-        List<String> typeAssignments = printConstuctorFormals(n);
+        List<String> params = printConstuctorFormals(n);
 
         Block body = n.body();
         if (body != null) {
@@ -1346,7 +1346,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // if (cc.kind() == ConstructorCall.THIS) typeAssignments.clear();
             // }
             // }
-            printTypeAssignments(Types.get(n.constructorDef().container()), typeAssignments);
+            printInitParams(Types.get(n.constructorDef().container()), params);
 
             // If this is the custom serialization constructor we refractor it out into a new method and call it here
             if (isCustomSerializable) {
@@ -1425,7 +1425,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         X10ConstructorDef ci = n.constructorDef();
         X10ClassType ct = (X10ClassType) Types.get(ci.container());
-        List<String> typeAssignments = new ArrayList<String>();
+        List<String> params = new ArrayList<String>();
 
         for (Iterator<ParameterType> i = ct.x10Def().typeParameters().iterator(); i.hasNext();) {
             ParameterType p = i.next();
@@ -1441,7 +1441,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.allowBreak(0, " ");
             }
 
-            typeAssignments.add(name);
+            params.add(name);
         }
 
         for (Iterator<Formal> i = n.formals().iterator(); i.hasNext();) {
@@ -1470,7 +1470,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
          * if (i.hasNext()) { w.write(","); w.allowBreak(4, " "); } } }
          */
 
-        return typeAssignments;
+        return params;
     }
 
     private void printExtraFormals(X10ConstructorDecl_c n) {
