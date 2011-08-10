@@ -184,7 +184,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             }
             return instantiateCheck(params, rtt, any);
         }
-        else if (Types.supportJavaInterop) {
+        else if (Types.supportTypeParameterOfJavaType) {
             RuntimeType<?> rtt = Types.getRTT(o);
             return instantiateCheck(params, rtt, o);
         }
@@ -363,7 +363,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     protected final String typeNameForOthers(Object o) {
         String str = typeName();
         if (variances != null && variances.length > 0) {
-            if (o instanceof Any || Types.supportJavaInterop) {
+            if (o instanceof Any || Types.supportTypeParameterOfJavaType) {
                 str += "[";
                 for (int i = 0; i < variances.length; i ++) {
                     if (i != 0) str += ",";
