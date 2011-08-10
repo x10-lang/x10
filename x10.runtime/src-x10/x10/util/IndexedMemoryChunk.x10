@@ -210,7 +210,7 @@ public struct IndexedMemoryChunk[T] {
      * If the destination place is not the same as the current place, then
      * the copy happens asynchronously and the created remote activity will be 
      * registered with the dynamically enclosing finish of the activity that invoked 
-     * asyncCopyTo.</p>
+     * asyncCopy.</p>
      *
      * Note: This copy is a "raw" copy of the bytes from one indexed memory chunk
      *       to another. If elements of type T contain references to class instances,
@@ -243,7 +243,7 @@ public struct IndexedMemoryChunk[T] {
      * If the source place is not the same as the current place, then
      * the copy happens asynchronously and the created remote activity will be 
      * registered with the dynamically enclosing finish of the activity that invoked 
-     * asyncCopyFrom.<p>
+     * asyncCopy.<p>
      *
      * Note: This copy is a "raw" copy of the bytes from one indexed memory chunk
      *       to another. If elements of type T contain references to class instances,

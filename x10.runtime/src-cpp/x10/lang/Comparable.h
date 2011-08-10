@@ -73,8 +73,8 @@ namespace x10 {
                 x10aux::ref<x10::lang::String> (I::*toString) ();       \
                 x10aux::ref<x10::lang::String> (I::*typeName) ();       \
             };                                                          \
-            static x10_int compareTo(PRIM recv, PRIM arg0) {      \
-                return x10aux::UTILS::compareTo(recv, arg0);        \
+            static inline x10_int compareTo(PRIM recv, PRIM arg0) {     \
+                return x10aux::UTILS::compareTo(recv, arg0);            \
             }                                                           \
             static x10_int compareTo(x10aux::ref<x10::lang::Reference> recv, PRIM arg0) { \
                 return (recv.operator->()->*(x10aux::findITable<x10::lang::Comparable<PRIM> >(recv->_getITables())->compareTo))(arg0); \
