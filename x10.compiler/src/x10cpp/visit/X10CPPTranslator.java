@@ -289,7 +289,8 @@ public class X10CPPTranslator extends Translator {
 			            			if (s instanceof X10ConstructorCall && ((X10ConstructorCall)s).kind().equals(Kind.SUPER))
 			            			{
 			            				String superClass = ((X10ConstructorCall)s).constructorInstance().returnType().toString();
-			            				lineNumberMap.addClassMemberVariable(superClass, superClass, thisClass, false, true);
+			            				if (!"x10.lang.Object".equals(superClass)) // don't bother pointing out an extension of x10.lang.Object in the debug maps
+			            					lineNumberMap.addClassMemberVariable(superClass, superClass, Emitter.mangled_non_method_name(thisClass), false, true);
 			            			}
 		            			}
 		            		}
