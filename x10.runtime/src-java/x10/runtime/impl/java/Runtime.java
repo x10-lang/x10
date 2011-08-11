@@ -176,7 +176,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
 
         // Obtain message ID's for each async
-        DeserializationDispatcher.registerHandlers();
+        if (X10RT.numPlaces() > 1) {
+            DeserializationDispatcher.registerHandlers();
+        }
 
         // build up Array[String] for args
         final x10.array.Array<String> aargs = x10.array.Array.<String> $make(x10.rtt.Types.STRING, args.length);
