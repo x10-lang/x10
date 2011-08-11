@@ -63,6 +63,12 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
         //super($dummy);
     }
     
+    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+    // constructor just for allocation
+    public PlaceLocalHandle(java.lang.System[] $dummy, x10.rtt.Type<T> T) {
+        this(T);
+    }
+    
     public PlaceLocalHandle $init(x10.rtt.Type<T> T) {
         id = nextId();
         return this;

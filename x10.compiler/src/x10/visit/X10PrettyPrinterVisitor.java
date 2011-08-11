@@ -203,6 +203,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
+    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+//    public static final boolean initParamsInAllocator = true;
+    public static final boolean initParamsInAllocator = false;
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -682,7 +685,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + JAVA_LANG_SYSTEM + "[]) null);");
+                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + JAVA_LANG_SYSTEM + "[]) null");
+                            if (initParamsInAllocator) {
+                                // N.B. in custom deserializer, initialize type params with null
+                                for (ParameterType typeParam : def.typeParameters()) {
+                                    w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
+                                }
+                            }
+                            w.write(");");
+                            w.newline();
                         } else {
                             w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + JAVA_LANG_SYSTEM + ") null);");
                         }
@@ -695,7 +706,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 // XTENLANG-2830
                                 /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
                                 && !def.flags().isInterface()) {
-                                w.writeln("(" + JAVA_LANG_SYSTEM + "[]) null); ");
+                                w.write("(" + JAVA_LANG_SYSTEM + "[]) null");
+                                if (initParamsInAllocator) {
+                                    // N.B. in custom deserializer, initialize type params with null
+                                    for (ParameterType typeParam : def.typeParameters()) {
+                                        w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
+                                    }
+                                }
+                                w.write(");");
+                                w.newline();
                             } else {
                                 w.writeln(");");
                             }
@@ -788,10 +807,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
-            w.write("public " + Emitter.mangleToJava(def.name()) + "(");
-            w.write("final " + JAVA_LANG_SYSTEM + "[] $dummy) { ");
+            w.write("public " + Emitter.mangleToJava(def.name()) + "(final " + JAVA_LANG_SYSTEM + "[] $dummy");
+            List<String> params = null;
+            if (initParamsInAllocator) {
+                params = new ArrayList<String>();
+                for (ParameterType p : def.typeParameters()) {
+                    String param = Emitter.mangleParameterType(p);
+                    w.write(", final " + X10_RUNTIME_TYPE_CLASS + " " + param);
+                    params.add(param);
+                }
+            }
+            w.write(") { ");
+            w.newline();
             if (!(superClassNode != null && Emitter.isNativeRepedToJava(superClassNode.type()))) {
-                w.write("super($dummy);");
+                w.write("super($dummy");
+                if (initParamsInAllocator && def.superType() != null) {
+                    printArgumentsForTypeParamsPreComma(def.superType().get().toClass().typeArguments(), false);
+                }
+                w.write(");");
+                w.newline();
+            }
+            if (initParamsInAllocator) {
+                printInitParams(def.asType(), params);
             }
             w.write("}");
             w.newline();
@@ -1186,7 +1223,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             n.flags().flags().clearPrivate().clearProtected().Public()), w);
         tr.print(n, n.name(), w);
 
-        List<String> params = printConstuctorFormals(n);
+        List<String> params = printConstructorFormals(n);
 
         if (n.body() != null) {
             // if (typeAssignments.size() > 0) {
@@ -1249,7 +1286,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(" ");
         w.write(CREATION_METHOD_NAME);
 
-        printConstuctorFormals(n);
+        printConstructorFormals(n);
 
         w.write("{");
         w.begin(4);
@@ -1259,7 +1296,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (supportConstructorSplitting
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
-            printAllocationCall(type);
+//            printAllocationCall(type);
+            printAllocationCallWithTypes(type, typeParameters);                
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
         } else {
@@ -1338,7 +1376,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String ctorName = supportConstructorInlining ? InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString() : CONSTRUCTOR_METHOD_NAME; 
         w.write(ctorName);
 
-        List<String> params = printConstuctorFormals(n);
+        List<String> params = printConstructorFormals(n);
 
         Block body = n.body();
         if (body != null) {
@@ -1412,13 +1450,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(" ");
             w.write(CONSTRUCTOR_METHOD_NAME);
 
-            printConstuctorFormals(n);
+            printConstructorFormals(n);
        
             w.write("{");
             
             w.write("return ");
             w.write(InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
-            printConstuctorParams(n);
+            printConstructorParams(n);
             w.write(";");
             
             w.writeln("}");
@@ -1438,7 +1476,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             n.printSubStmt(body, w, tr);
     }
 
-    private List<String> printConstuctorFormals(X10ConstructorDecl_c n) {
+    private List<String> printConstructorFormals(X10ConstructorDecl_c n) {
         w.write("(");
 
         w.begin(0);
@@ -1514,7 +1552,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     }
 
-    private void printConstuctorParams(X10ConstructorDecl_c n) {
+    private void printConstructorParams(X10ConstructorDecl_c n) {
         w.write("(");
 
         w.begin(0);
@@ -1586,18 +1624,53 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(Allocation_c n) {
         Type type = n.type();
-        printAllocationCall(type);
+//        printAllocationCall(type);            
+        printAllocationCallWithTypeNodes(type, n.typeArguments());
     }
 
+    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+    private void printAllocationCallWithTypeNodes(Type type, List<TypeNode> typeNodes) {
+        w.write("new ");
+        TypeSystem ts = tr.typeSystem();
+        // N.B. HACK! for x10.lang.Object, allocate x10.core.Ref instead of x10.core.RefI
+        if (ts.typeEquals(Types.baseType(type), ts.Object(), tr.context()))
+                w.write(X10_CORE_REF);
+        else
+                er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
+        w.write("((" + JAVA_LANG_SYSTEM + "[]) null");
+        if (initParamsInAllocator) {
+            printArgumentsForTypeNodesPreComma(typeNodes, false);
+        }
+        w.write(")");
+    }
+
+    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+    private void printAllocationCallWithTypes(Type type, List<? extends Type> typeParams) {
+        w.write("new ");
+        TypeSystem ts = tr.typeSystem();
+        // N.B. HACK! for x10.lang.Object, allocate x10.core.Ref instead of x10.core.RefI
+        if (ts.typeEquals(Types.baseType(type), ts.Object(), tr.context()))
+                w.write(X10_CORE_REF);
+        else
+                er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
+        w.write("((" + JAVA_LANG_SYSTEM + "[]) null");
+        if (initParamsInAllocator) {
+            printArgumentsForTypeParamsPreComma(typeParams, false);
+        }
+        w.write(")");
+    }
+
+    @Deprecated
     private void printAllocationCall(Type type) {
         w.write("new ");
         TypeSystem ts = tr.typeSystem();
         // N.B. HACK! for x10.lang.Object, allocate x10.core.Ref instead of x10.core.RefI
         if (ts.typeEquals(Types.baseType(type), ts.Object(), tr.context()))
-        	w.write(X10_CORE_REF);
+                w.write(X10_CORE_REF);
         else
-        	er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
-        w.write("((" + JAVA_LANG_SYSTEM + "[])null)");
+                er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
+        w.write("((" + JAVA_LANG_SYSTEM + "[]) null");
+        w.write(")");
     }
 
     @Override
@@ -2358,6 +2431,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     }
 
+    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+    private void printArgumentsForTypeParamsPreComma(List<? extends Type> typeParameters, boolean isFirst) {
+        if (typeParameters == null) return;
+        for (Type at : typeParameters) {
+            if (isFirst) {
+                isFirst = false;
+            } else {
+                w.write(", ");
+            }
+            new RuntimeTypeExpander(er, at).expand(tr);            
+        }
+    }
+
+    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+    private void printArgumentsForTypeNodesPreComma(List<TypeNode> typeNodes, boolean isFirst) {
+//        if (typeNodes == null) return;
+        for (TypeNode tn : typeNodes) {
+            if (isFirst) {
+                isFirst = false;
+            } else {
+                w.write(", ");
+            }
+            new RuntimeTypeExpander(er, tn.type()).expand(tr);            
+        }
+    }
+
     private boolean isMainMethod(MethodInstance mi) {
         return HierarchyUtils.isMainMethod(mi, tr.context());
     }
@@ -2822,7 +2921,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))
                 && !type.fullName().toString().startsWith("java.")) {
 
-            printAllocationCall(type);
+//            printAllocationCall(type);
+            printAllocationCallWithTypes(type, mi.container().toClass().typeArguments());
 
             w.write(".");
 
