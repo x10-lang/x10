@@ -383,8 +383,8 @@ final class RectRegion extends Region{rect} {
 
     public def eliminate(axis:int):Region{self.rect} /*(rank-1)*/ {
     	val k = rank-1;
-        val newMin = new Array[int](k, (i:int)=>i<axis?min(i):min(i+i));
-        val newMax = new Array[int](k, (i:int)=>i<axis?max(i):max(i+i));
+        val newMin = new Array[int](k, (i:int)=>i<axis?min(i):min(i+1));
+        val newMax = new Array[int](k, (i:int)=>i<axis?max(i):max(i+1));
         return new RectRegion(newMin, newMax);
     }    
 
