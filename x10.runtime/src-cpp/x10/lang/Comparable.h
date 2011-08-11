@@ -27,11 +27,11 @@ namespace x10 {
               x10aux::ref<x10::lang::String> (I::*typeName) ();
           };
     
-          template <class R> static x10_boolean compareTo(x10aux::ref<R> _recv, FMGL(T) arg0) {
+          template <class R> static x10_int compareTo(x10aux::ref<R> _recv, FMGL(T) arg0) {
               x10aux::ref<x10::lang::Reference> _refRecv(_recv);
               return (_refRecv.operator->()->*(x10aux::findITable<Comparable<FMGL(T)> >(_refRecv->_getITables())->compareTo))(arg0);
           }     
-          template <class R> static x10_boolean compareTo(R _recv, FMGL(T) arg0) {
+          template <class R> static x10_int compareTo(R _recv, FMGL(T) arg0) {
               return _recv->compareTo(arg0);
           }     
 
