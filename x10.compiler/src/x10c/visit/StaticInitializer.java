@@ -1032,7 +1032,7 @@ public class StaticInitializer extends ContextVisitor {
                 argTypes.add(Types.ref(fieldVar.type()));
 
             } else {
-                  argTypes.add(Types.ref(X10JavaSerializable()));
+                  argTypes.add(Types.ref(xts.Any()));
             }
         } else {
             argTypes.add(Types.ref(xts.Any()));
