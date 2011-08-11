@@ -823,7 +823,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
                 w.write("public static void ");
                 w.write(INITPARAMS_NAME);
-                w.write("(");
+                w.write("(final ");
                 tr.print(n, n.name(), w);
                 /*
                 w.write("<");
@@ -840,7 +840,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 */
                 w.write(" $this");
                 for (TypeParamNode tp : typeParameters) {
-                    w.write(", ");
+                    w.write(", final ");
                     w.write(X10_RUNTIME_TYPE_CLASS);
                     // w.write("<"); n.print(tp, w, tr); w.write(">"); // TODO
                     w.write(" ");
