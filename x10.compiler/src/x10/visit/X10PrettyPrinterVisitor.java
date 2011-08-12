@@ -1223,7 +1223,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                             n.flags().flags().clearPrivate().clearProtected().Public()), w);
         tr.print(n, n.name(), w);
 
-        List<String> params = printConstructorFormals(n);
+        List<String> params = printConstructorFormals(n, true);
 
         if (n.body() != null) {
             // if (typeAssignments.size() > 0) {
@@ -1286,13 +1286,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(" ");
         w.write(CREATION_METHOD_NAME);
 
-        printConstructorFormals(n);
+        printConstructorFormals(n, true);
 
         w.write("{");
         w.begin(4);
 
         w.write("return ");
 
+        boolean passParamsToConstructor = !initParamsInAllocator;
         if (supportConstructorSplitting
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
@@ -1302,13 +1303,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         } else {
             w.write("new ");
             w.write(n.name().toString());
+            passParamsToConstructor = true;
         }
         w.write("(");
 
-        int size = n.formals().size();
-        printArgumentsForTypeParams(typeParameters, size);
-
         List<Formal> formals = n.formals();
+
+        if (passParamsToConstructor) {
+            printArgumentsForTypeParams(typeParameters, formals.size());
+        }
+
         for (int i = 0; i < formals.size(); i++) {
             Formal formal = formals.get(i);
             if (i != 0) {
@@ -1375,7 +1379,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String ctorName = supportConstructorInlining ? InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString() : CONSTRUCTOR_METHOD_NAME; 
         w.write(ctorName);
 
-        List<String> params = printConstructorFormals(n);
+        List<String> params = printConstructorFormals(n, false);
 
         Block body = n.body();
         if (body != null) {
@@ -1403,10 +1407,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // if (cc.kind() == ConstructorCall.THIS) typeAssignments.clear();
             // }
             // }
-            // WIP XTENLANG-2818 TODO uncomment this guard
-//            if (!initParamsInAllocator) {
-            printInitParams(Types.get(n.constructorDef().container()), params);
-//            }
+            if (!initParamsInAllocator) {
+                printInitParams(Types.get(n.constructorDef().container()), params);
+            }
 
             // If this is the custom serialization constructor we refractor it out into a new method and call it here
             if (isCustomSerializable) {
@@ -1452,7 +1455,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(" ");
             w.write(CONSTRUCTOR_METHOD_NAME);
 
-            printConstructorFormals(n);
+            printConstructorFormals(n, false);
        
             w.write("{");
             
@@ -1478,7 +1481,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             n.printSubStmt(body, w, tr);
     }
 
-    private List<String> printConstructorFormals(X10ConstructorDecl_c n) {
+    private List<String> printConstructorFormals(X10ConstructorDecl_c n, boolean forceParams) {
         w.write("(");
 
         w.begin(0);
@@ -1487,21 +1490,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         X10ClassType ct = (X10ClassType) Types.get(ci.container());
         List<String> params = new ArrayList<String>();
 
+        if (!initParamsInAllocator || forceParams) {
         for (Iterator<ParameterType> i = ct.x10Def().typeParameters().iterator(); i.hasNext();) {
             ParameterType p = i.next();
             w.write("final ");
             w.write(X10_RUNTIME_TYPE_CLASS);
             w.write(" ");
             String name = Emitter.mangleParameterType(p);
-            
             w.write(name);
-
             if (i.hasNext() || n.formals().size() > 0) {
                 w.write(",");
                 w.allowBreak(0, " ");
             }
-
             params.add(name);
+        }
         }
 
         for (Iterator<Formal> i = n.formals().iterator(); i.hasNext();) {
@@ -1562,26 +1564,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         X10ConstructorDef ci = n.constructorDef();
         X10ClassType ct = (X10ClassType) Types.get(ci.container());
 
+        if (!initParamsInAllocator) {
         for (Iterator<ParameterType> i = ct.x10Def().typeParameters().iterator(); i.hasNext();) {
             ParameterType p = i.next();
             String name = Emitter.mangleParameterType(p);
-            
             w.write(name);
-
             if (i.hasNext() || n.formals().size() > 0) {
                 w.write(",");
-//                w.allowBreak(0, " ");
             }
+        }
         }
 
         for (Iterator<Formal> i = n.formals().iterator(); i.hasNext();) {
             Formal f = i.next();
-//            n.print(f, w, tr);
             w.write(f.name().toString());   // TODO mangle?
-            
             if (i.hasNext()) {
                 w.write(",");
-//                w.allowBreak(0, " ");
             }
         }
 
@@ -2884,7 +2882,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(".");
 
             w.write(CONSTRUCTOR_METHOD_NAME);
-            printConstructorArgumentList(c, c, c.constructorInstance(), null);
+            printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
 
             return;
         }
@@ -2902,7 +2900,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE | NO_QUALIFIER);
         }
 
-        printConstructorArgumentList(c, c, mi, type);
+        printConstructorArgumentList(c, c, mi, type, true);
 
         if (c.body() != null) {
             w.write("{");
@@ -3899,7 +3897,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     // invoke constructor for non-virtual call directly
                     String ctorName = InlineHelper.makeSuperBridgeName(ct.toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString(); 
                     w.write(ctorName);
-                    printConstructorArgumentList(c, c, c.constructorInstance(), null);
+                    printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
                     w.write(";");
                     return;
                 }
@@ -3910,7 +3908,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
-            printConstructorArgumentList(c, c, c.constructorInstance(), null);
+            printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
             w.write(";");
             return;
         }
@@ -3923,20 +3921,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write(".");
         }
         w.write(c.kind() == ConstructorCall.THIS ? "this" : "super");
-        printConstructorArgumentList(c, c, c.constructorInstance(), null);
+        printConstructorArgumentList(c, c, c.constructorInstance(), null, true);
         w.write(";");
     }
 
-    private void printConstructorArgumentList(Node_c c, X10ProcedureCall p, X10ConstructorInstance mi, Type type) {
+    private void printConstructorArgumentList(Node_c c, X10ProcedureCall p, X10ConstructorInstance mi, Type type, boolean forceParams) {
         w.write("(");
         w.begin(0);
 
+        if (!initParamsInAllocator || forceParams) {
         X10ClassType ct = (X10ClassType) mi.container();
-
         List<Type> ta = ct.typeArguments();
         boolean isJavaNative = type != null ? Emitter.isNativeRepedToJava(type) : false;
         if (ta != null && ta.size() > 0 && !isJavaNative) {
             printArgumentsForTypeParams(ta, p.arguments().size());
+        }
         }
 
         List<Expr> l = p.arguments();
