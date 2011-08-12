@@ -203,9 +203,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
-    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
-//    public static final boolean initParamsInAllocator = true;
-    public static final boolean initParamsInAllocator = false;
+    public static final boolean initParamsInAllocator = true; // true is prereq to make DeclPackage.XTENLANG_2818_CTOR to false
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -1310,7 +1308,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         List<Formal> formals = n.formals();
 
         if (passParamsToConstructor) {
-            printArgumentsForTypeParams(typeParameters, formals.size());
+            printArgumentsForTypeParams(typeParameters, formals.size() == 0);
         }
 
         for (int i = 0; i < formals.size(); i++) {
@@ -2255,7 +2253,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         List<Type> typeParameters = mi.typeParameters();
         int argumentSize = c.arguments().size();
-        printArgumentsForTypeParams(typeParameters, argumentSize);
+        printArgumentsForTypeParams(typeParameters, argumentSize == 0);
 
         boolean runAsync = false;
         if (containerType.isClass()
@@ -2389,18 +2387,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(")");
     }
 
-    private void printArgumentsForTypeParams(List<? extends Type> typeParameters, int argumentSize) {
+    private void printArgumentsForTypeParams(List<? extends Type> typeParameters, boolean isLast) {
         for (Iterator<? extends Type> i = typeParameters.iterator(); i.hasNext();) {
             final Type at = i.next();
             new RuntimeTypeExpander(er, at).expand(tr);
-            if (i.hasNext() || argumentSize > 0) {
-                w.write(",");
-                w.allowBreak(0, " ");
+            if (i.hasNext() || !isLast) {
+                w.write(", ");
+//                w.allowBreak(0, " ");
             }
         }
     }
 
-    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
     private void printArgumentsForTypeParamsPreComma(List<? extends Type> typeParameters, boolean isFirst) {
         if (typeParameters == null) return;
         for (Type at : typeParameters) {
@@ -3934,7 +3931,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         List<Type> ta = ct.typeArguments();
         boolean isJavaNative = type != null ? Emitter.isNativeRepedToJava(type) : false;
         if (ta != null && ta.size() > 0 && !isJavaNative) {
-            printArgumentsForTypeParams(ta, p.arguments().size());
+            printArgumentsForTypeParams(ta, p.arguments().size() == 0);
         }
         }
 

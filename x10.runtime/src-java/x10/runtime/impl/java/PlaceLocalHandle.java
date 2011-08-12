@@ -58,36 +58,37 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     	return this;
     }
 
-    // constructor just for allocation
-    public PlaceLocalHandle(java.lang.System[] $dummy) {
-        //super($dummy);
-    }
-    
-    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+    // For X10PrettyPrinterVisitor.initParamsInAllocator
     // constructor just for allocation
     public PlaceLocalHandle(java.lang.System[] $dummy, x10.rtt.Type<T> T) {
-        this(T);
     }
     
-    public PlaceLocalHandle $init(x10.rtt.Type<T> T) {
-        id = nextId();
-        return this;
-    }
-    
-    // WIP XTENLANG-2818: move $initParams call from $init to constructor to guarantee type params are initialized even when $init is inlined.
+    // For X10PrettyPrinterVisitor.initParamsInAllocator
     public PlaceLocalHandle $init() {
         id = nextId();
         return this;
     }
 
-    public PlaceLocalHandle(x10.rtt.Type<T> T) {
-        id = nextId();
+    // For !X10PrettyPrinterVisitor.initParamsInAllocator
+    // constructor just for allocation
+    public PlaceLocalHandle(java.lang.System[] $dummy) {
     }
+    
+    // For !X10PrettyPrinterVisitor.initParamsInAllocator
+    public PlaceLocalHandle $init(x10.rtt.Type<T> T) {
+        id = nextId();
+        return this;
+    }
+
+    // not used
+//    public PlaceLocalHandle(x10.rtt.Type<T> T) {
+//        id = nextId();
+//    }
 
     // TODO haszero
     // zero value constructor
     public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System $dummy) {
-        this(T);
+        id = nextId();
     }
 
     public T $apply$G() {
