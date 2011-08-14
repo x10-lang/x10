@@ -90,6 +90,15 @@ public final class DistArray[T] (
         return cachedRaw;
     }
 
+    /**
+     * @return the portion of the DistArray that is stored 
+     *    locally at the current place, as an Array
+     */
+    public def getLocalPortion():Array[T](dist.rank) {
+        val regionForHere = dist.get(here);
+        if (!regionForHere.rect) throw new UnsupportedOperationException(this.typeName() +".getLocalPortion(): local portion is not rectangular!");
+        return new Array[T](regionForHere, raw());
+    }
 
     /**
      * Create a zero-initialized distributed array over the argument distribution.
