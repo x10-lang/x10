@@ -121,6 +121,8 @@ public class Random {
  * Based on the public domain implementation by Michael Brundage at:
  *
  * http://www.qbrundage.com/michaelb/pubs/essays/random_number_generation.html
+ * (Note: this implementation does not include tempering, which is critical if
+ * initializing the buffer with a LCG.)
  *
  * and the implementation described in the original paper:
  *
@@ -161,7 +163,12 @@ public class Random {
             index = 0;
             twist(MT);
         }
-        return MT(index++);
+        var y:Int = MT(index++);
+        y ^= (y >> 11);
+        y ^= (y <<  7) & 0x9D2C5680;
+        y ^= (y << 15) & 0xEFC60000;
+        y ^= (y >> 18);
+        return y;
     }
 
     private static def twist(MT:Rail[int]): void {
