@@ -56,7 +56,7 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
         for ([t] in 1..100) {
             // iterate and update each element of the distributed array
             finish for (place in a.dist.places()) async at (place) {
-                val aLocal = a.getLocalPortion() as Rail[Int];
+                val aLocal = a.getLocalPortion() as Array[Int]{rank==1,rect};
                 for ([i] in aLocal) {
                     aLocal(i) = i;
                 }
@@ -64,7 +64,24 @@ public class BenchmarkIterateDistArray(elementsPerPlace : Int) extends x10Test {
         }
         stop = System.nanoTime();
 
-        Console.OUT.printf("iterate DistArray with getLocalPortion Rail avg: %g ms\n", ((stop-start) as Double) / 1e08);
+        Console.OUT.printf("iterate DistArray with getLocalPortion Rect avg: %g ms\n", ((stop-start) as Double) / 1e08);
+
+	if (Place.MAX_PLACES == 1) {
+            start = System.nanoTime();
+            for ([t] in 1..100) {
+                // iterate and update each element of the distributed array
+                finish for (place in a.dist.places()) async at (place) {
+                    val aLocal = a.getLocalPortion() as Rail[Int];
+                    for ([i] in aLocal) {
+                        aLocal(i) = i;
+                    }
+                }
+            }
+            stop = System.nanoTime();
+
+            Console.OUT.printf("iterate DistArray with getLocalPortion Rail avg: %g ms\n", ((stop-start) as Double) / 1e08);
+        }
+
 
         return true;
 	}
