@@ -27,11 +27,11 @@ namespace x10 {
               x10aux::ref<x10::lang::String> (I::*typeName) ();
           };
     
-          template <class R> static x10_boolean compareTo(x10aux::ref<R> _recv, FMGL(T) arg0) {
+          template <class R> static x10_int compareTo(x10aux::ref<R> _recv, FMGL(T) arg0) {
               x10aux::ref<x10::lang::Reference> _refRecv(_recv);
               return (_refRecv.operator->()->*(x10aux::findITable<Comparable<FMGL(T)> >(_refRecv->_getITables())->compareTo))(arg0);
           }     
-          template <class R> static x10_boolean compareTo(R _recv, FMGL(T) arg0) {
+          template <class R> static x10_int compareTo(R _recv, FMGL(T) arg0) {
               return _recv->compareTo(arg0);
           }     
 
@@ -73,8 +73,8 @@ namespace x10 {
                 x10aux::ref<x10::lang::String> (I::*toString) ();       \
                 x10aux::ref<x10::lang::String> (I::*typeName) ();       \
             };                                                          \
-            static x10_int compareTo(PRIM recv, PRIM arg0) {      \
-                return x10aux::UTILS::compareTo(recv, arg0);        \
+            static inline x10_int compareTo(PRIM recv, PRIM arg0) {     \
+                return x10aux::UTILS::compareTo(recv, arg0);            \
             }                                                           \
             static x10_int compareTo(x10aux::ref<x10::lang::Reference> recv, PRIM arg0) { \
                 return (recv.operator->()->*(x10aux::findITable<x10::lang::Comparable<PRIM> >(recv->_getITables())->compareTo))(arg0); \

@@ -72,17 +72,17 @@ namespace x10 {
         template <class T> inline x10aux::itable_entry* getITablesForIBox(T value) { return value->_getIBoxITables(); } 
 
         extern x10aux::itable_entry itable_Boolean[3];
-        extern x10aux::itable_entry itable_Byte[3];
-        extern x10aux::itable_entry itable_UByte[3];
-        extern x10aux::itable_entry itable_Char[3];
-        extern x10aux::itable_entry itable_Short[3];
-        extern x10aux::itable_entry itable_UShort[3];
-        extern x10aux::itable_entry itable_Int[3];
-        extern x10aux::itable_entry itable_UInt[3];
-        extern x10aux::itable_entry itable_Long[3];
-        extern x10aux::itable_entry itable_ULong[3];
-        extern x10aux::itable_entry itable_Float[3];
-        extern x10aux::itable_entry itable_Double[3];
+        extern x10aux::itable_entry itable_Byte[6];
+        extern x10aux::itable_entry itable_UByte[6];
+        extern x10aux::itable_entry itable_Char[4];
+        extern x10aux::itable_entry itable_Short[6];
+        extern x10aux::itable_entry itable_UShort[6];
+        extern x10aux::itable_entry itable_Int[6];
+        extern x10aux::itable_entry itable_UInt[6];
+        extern x10aux::itable_entry itable_Long[6];
+        extern x10aux::itable_entry itable_ULong[6];
+        extern x10aux::itable_entry itable_Float[5];
+        extern x10aux::itable_entry itable_Double[5];
         
         inline x10aux::itable_entry *getITablesForIBox(x10_boolean) { return itable_Boolean; }
         inline x10aux::itable_entry *getITablesForIBox(x10_byte) { return itable_Byte; }

@@ -28,7 +28,7 @@ final public class Double extends Number implements StructI,
 	java.lang.Comparable<Double>, x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Double.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Double.class);
     
     public static final x10.rtt.RuntimeType<?> $RTT = Types.DOUBLE;
     public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}

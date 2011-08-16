@@ -511,7 +511,15 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
 }
 
 template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::toString() {
-    char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>(%llx of %llx elements)", x10aux::getRTT<T>()->name(), data, (unsigned long long)len);
+    char* tmp = x10aux::alloc_printf("IndexedMemoryChunk(");
+    int sz = length() > 10 ? 10 : length();
+    for (int i = 0; i < sz; i++) {
+        if (i > 0)
+            tmp = x10aux::realloc_printf(tmp, ",");
+        tmp = x10aux::realloc_printf(tmp,"%s",x10aux::to_string(__apply(i))->c_str());
+    }
+    if (sz < length()) tmp = x10aux::realloc_printf(tmp, "...(omitted %d elements", length() - sz);
+    tmp = x10aux::realloc_printf(tmp, ")");
     return x10::lang::String::Steal(tmp);
 }
 

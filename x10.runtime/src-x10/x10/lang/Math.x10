@@ -18,13 +18,18 @@ public final class Math {
    public static E = 2.718281828459045D;
    public static PI = 3.141592653589793D;
 
-   public static def abs(a:Double):Double = a<=0.0 ? 0.0-a : a;
+   @Native("c++", "::abs(#a)") // @Native for performance
    public static def abs(a:Int):Int = a<0 ? -a : a;
 
+   @Native("c++", "::abs(#a)") // @Native for performance
+   public static def abs(a:Long):Long = a<0l ? -a : a;
+
    @Native("cuda", "fabsf(#a)")
+   @Native("c++", "::fabs(#a)") // @Native for performance
    public static def abs(a:Float):Float = a<=0.0f ? 0.0f-a : a;
 
-   public static def abs(a:Long):Long = a<0l ? -a : a;
+   @Native("c++", "::fabs(#a)") // @Native for performance
+   public static def abs(a:Double):Double = a<=0.0 ? 0.0-a : a;
 
    @Native("java", "java.lang.Math.ceil(#a)")
    @Native("c++", "x10aux::math_utils::ceil(#a)")

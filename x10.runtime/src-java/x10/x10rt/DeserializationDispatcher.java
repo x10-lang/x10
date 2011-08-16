@@ -45,42 +45,57 @@ public class DeserializationDispatcher {
     // We first increment i before issuing the id hence initialize to NULL_ID
     private static short i = NULL_ID;
 
-    private static List<Class> idToClassName = new ArrayList<Class>();
+    private static List<DeserializationInfo> idToDeserializationInfo = new ArrayList<DeserializationInfo>();
     private static List<Method> idToDeserializermethod = new ArrayList<Method>();
     private static Map<String, Short> classNameToId = new HashMap<String, Short> ();
 
-    public static short addDispatcher(Class clazz) {
+    // Keep track of the asyncs that need to be registered with the X10 RT implementation
+    private static List<DeserializationInfo> asyncs = new ArrayList<DeserializationInfo>();
+    private static Map<Integer, Short> messageIdToSID = new HashMap<Integer, Short> ();
+
+    public static enum ClosureKind {
+        CLOSURE_KIND_NOT_ASYNC,    // is not a closure, or is a closure that is not created in place of an async by the desugarer
+        CLOSURE_KIND_SIMPLE_ASYNC, // is an async with just finish state
+        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with generial XRX closure
+    };
+
+    public static short addDispatcher(ClosureKind closureKind, Class clazz) {
         if (i == NULL_ID) {
             classNameToId.put(null, i);
-            idToClassName.add(i, null);
+            idToDeserializationInfo.add(i, null);
             idToDeserializermethod.add(i, null);
             i++;
             try {
-                add(Class.forName("java.lang.String"), false);
-                add(Class.forName("java.lang.Float"), false);
-                add(Class.forName("java.lang.Double"), false);
-                add(Class.forName("java.lang.Integer"), false);
-                add(Class.forName("java.lang.Boolean"), false);
-                add(Class.forName("java.lang.Byte"), false);
-                add(Class.forName("java.lang.Short"), false);
-                add(Class.forName("java.lang.Character"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.String"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Float"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Double"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Integer"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Boolean"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Byte"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Short"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Character"), false);
             } catch (ClassNotFoundException e) {
                 // This will never happen
             }
         }
-        add(clazz, true);
+        add(closureKind, clazz, true);
         return (short) (i-1);
     }
 
-    public static short addDispatcher(Class clazz, String alternate) {
-        short i = addDispatcher(clazz);
+    public static short addDispatcher(ClosureKind closureKind, Class clazz, String alternate) {
+        short i = addDispatcher(closureKind, clazz);
         classNameToId.put(alternate, i);
         return i;
     }
 
-    private static void add(Class clazz, boolean addDeserializerMethod) {
+    private static void add(ClosureKind closureKind, Class clazz, boolean addDeserializerMethod) {
         classNameToId.put(clazz.getName(), i);
-        idToClassName.add(i, clazz);
+        DeserializationInfo deserializationInfo = new DeserializationInfo(closureKind, clazz, i);
+        idToDeserializationInfo.add(i, deserializationInfo);
+        if (deserializationInfo.closureKind != ClosureKind.CLOSURE_KIND_NOT_ASYNC) {
+            // This class needs a message ID
+            asyncs.add(deserializationInfo);
+        }
         if (addDeserializerMethod && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             idToDeserializermethod.add(i, getDeserializerMethod(clazz));
         } else {
@@ -191,7 +206,7 @@ public class DeserializationDispatcher {
                 throw new RuntimeException(e);
             }
         }
-        return idToClassName.get(id);
+        return idToDeserializationInfo.get(id).clazz;
     }
 
     public static short getIDForClassName(String str) {
@@ -212,5 +227,45 @@ public class DeserializationDispatcher {
             return -1;
         }
         return val;
+    }
+
+    public static void registerHandlers() {
+        x10.x10rt.MessageHandlers.registerHandlers(asyncs.size());
+    }
+
+    public static void registerHandlersCallback(int[] ids) {
+        int j = 0;
+       for (DeserializationInfo deserializationInfo : asyncs) {
+           deserializationInfo.msgType = ids[j];
+           messageIdToSID.put(deserializationInfo.msgType, deserializationInfo.sid);
+           j++;
+       }
+       // We no longer need this data structure
+        asyncs = null;
+    }
+
+    public static int getMessageID(short sid) {
+        return idToDeserializationInfo.get(sid).msgType;
+    }
+
+    public static short getSerializationID(int msg_id) {
+        return messageIdToSID.get(msg_id);
+    }
+
+    public static ClosureKind getClosureKind(short sid) {
+        return idToDeserializationInfo.get(sid).closureKind;
+    }
+
+    private static class DeserializationInfo {
+        public ClosureKind closureKind;
+        public Class clazz;
+        public int msgType;
+        public short sid;
+
+        private DeserializationInfo(ClosureKind closureKind, Class clazz, short sid) {
+            this.closureKind = closureKind;
+            this.clazz = clazz;
+            this.sid = sid;
+        }
     }
 }

@@ -25,7 +25,7 @@ import java.util.HashMap;
 public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(PlaceLocalHandle.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, PlaceLocalHandle.class);
 
     private static final HashMap<Integer,Object> data = new HashMap<Integer,Object>();
     
@@ -58,24 +58,37 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     	return this;
     }
 
+    // For X10PrettyPrinterVisitor.initParamsInAllocator
     // constructor just for allocation
-    public PlaceLocalHandle(java.lang.System[] $dummy) {
-        //super($dummy);
+    public PlaceLocalHandle(java.lang.System[] $dummy, x10.rtt.Type<T> T) {
     }
     
+    // For X10PrettyPrinterVisitor.initParamsInAllocator
+    public PlaceLocalHandle $init() {
+        id = nextId();
+        return this;
+    }
+
+    // For !X10PrettyPrinterVisitor.initParamsInAllocator
+    // constructor just for allocation
+    public PlaceLocalHandle(java.lang.System[] $dummy) {
+    }
+    
+    // For !X10PrettyPrinterVisitor.initParamsInAllocator
     public PlaceLocalHandle $init(x10.rtt.Type<T> T) {
         id = nextId();
         return this;
     }
-    
-    public PlaceLocalHandle(x10.rtt.Type<T> T) {
-        id = nextId();
-    }
+
+    // not used
+//    public PlaceLocalHandle(x10.rtt.Type<T> T) {
+//        id = nextId();
+//    }
 
     // TODO haszero
     // zero value constructor
     public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System $dummy) {
-        this(T);
+        id = nextId();
     }
 
     public T $apply$G() {

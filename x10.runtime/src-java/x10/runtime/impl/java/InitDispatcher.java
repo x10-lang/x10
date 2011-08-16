@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import x10.core.ThrowableUtilities;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -121,7 +122,7 @@ public abstract class InitDispatcher {
     public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
     	public int fieldId;
     	public byte[] buf;
-        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(InitDispatcher.$Closure$Deserialize.class);
+        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, InitDispatcher.$Closure$Deserialize.class);
 
         public void $apply() {
             // execute deserializer for fieldValue
