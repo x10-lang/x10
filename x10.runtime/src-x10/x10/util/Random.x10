@@ -164,10 +164,10 @@ public class Random {
             twist(MT);
         }
         var y:Int = MT(index++);
-        y ^= (y >> 11);
+        y ^= (y >>> 11);
         y ^= (y <<  7) & 0x9D2C5680;
         y ^= (y << 15) & 0xEFC60000;
-        y ^= (y >> 18);
+        y ^= (y >>> 18);
         return y;
     }
 
@@ -176,14 +176,14 @@ public class Random {
         var s: int;
         for (; i < N - M; i++) {
             s = (MT(i) & 0x80000000) | (MT(i+1) & 0x7FFFFFFF);
-            MT(i) = MT(i+M) ^ (s >> 1) ^ ((s & 1) * 0x9908B0DF);
+            MT(i) = MT(i+M) ^ (s >>> 1) ^ ((s & 1) * 0x9908B0DF);
         }
         for (; i < N-1; i++) {
             s = (MT(i) & 0x80000000) | (MT(i+1) & 0x7FFFFFFF);
-            MT(i) = MT(i-(N-M)) ^ (s >> 1) ^ ((s & 1) * 0x9908B0DF);
+            MT(i) = MT(i-(N-M)) ^ (s >>> 1) ^ ((s & 1) * 0x9908B0DF);
         }
     
         s = (MT(N-1) & 0x80000000) | (MT(0) & 0x7FFFFFFF);
-        MT(N-1) = MT(M-1) ^ (s >> 1) ^ ((s & 1) * 0x9908B0DF);
+        MT(N-1) = MT(M-1) ^ (s >>> 1) ^ ((s & 1) * 0x9908B0DF);
     }
 }
