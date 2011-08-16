@@ -24,7 +24,7 @@ import java.io.IOException;
 public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteger implements RefI, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(AtomicInteger.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, AtomicInteger.class);
 
     // constructor just for allocation
     public AtomicInteger(java.lang.System[] $dummy) {

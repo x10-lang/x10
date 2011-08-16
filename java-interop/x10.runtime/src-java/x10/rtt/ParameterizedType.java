@@ -11,7 +11,7 @@ import java.io.IOException;
 public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(ParameterizedType.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ParameterizedType.class);
 
     public RuntimeType<T> rtt;
     public Type<?>[] params;

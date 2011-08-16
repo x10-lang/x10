@@ -39,6 +39,7 @@ import polyglot.ast.Catch;
 import polyglot.ast.ClassDecl;
 import polyglot.ast.ClassMember;
 import polyglot.ast.CompoundStmt;
+import polyglot.ast.ConstructorCall.Kind;
 import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.FieldDecl;
@@ -90,6 +91,7 @@ import polyglot.visit.Translator;
 import x10.ast.Closure;
 import x10.ast.ForLoop;
 import x10.ast.X10ClassDecl;
+import x10.ast.X10ConstructorCall;
 import x10.ast.X10ConstructorDecl;
 import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
@@ -266,18 +268,32 @@ public class X10CPPTranslator extends Translator {
 		            		defSource = (ProcedureDecl)n;
 		            		
 		            		// add the hack reference to the outer class
-		            		if (n instanceof X10ConstructorDecl && ((X10ConstructorDecl)n).returnType().toString().contains("$"))
+		            		if (n instanceof X10ConstructorDecl)
 		            		{
-		            			String thisClass = ((X10ConstructorDecl)n).returnType().toString();
-		            			String parentClass = thisClass.substring(0, thisClass.lastIndexOf('$'));
-		            			List<Formal> args = defSource.formals();
-				            	if (args.size() == 1)
-				            	{
-				            		Formal arg = args.get(0);
-				            		if (arg.type().toString().equals(parentClass))
-				            			lineNumberMap.addClassMemberVariable(arg.name().toString(), parentClass, Emitter.mangled_non_method_name(thisClass), false, true);
-				            	}
-		            		}		            		
+		            			X10ConstructorDecl cd = (X10ConstructorDecl)n;
+		            			String thisClass = cd.returnType().toString();
+		            			if (cd.returnType().toString().contains("$"))
+			            		{
+			            			String parentClass = thisClass.substring(0, thisClass.lastIndexOf('$'));
+			            			List<Formal> args = defSource.formals();
+					            	if (args.size() == 1)
+					            	{
+					            		Formal arg = args.get(0);
+					            		if (arg.type().toString().equals(parentClass))
+					            			lineNumberMap.addClassMemberVariable(arg.name().toString(), parentClass, Emitter.mangled_non_method_name(thisClass), false, true);
+					            	}
+			            		}
+		            			if (cd.body().statements().size() > 0)
+		            			{
+			            			Stmt s = cd.body().statements().get(0);
+			            			if (s instanceof X10ConstructorCall && ((X10ConstructorCall)s).kind().equals(Kind.SUPER))
+			            			{
+			            				String superClass = ((X10ConstructorCall)s).constructorInstance().returnType().toString();
+			            				if (!"x10.lang.Object".equals(superClass)) // don't bother pointing out an extension of x10.lang.Object in the debug maps
+			            					lineNumberMap.addClassMemberVariable(superClass, superClass, Emitter.mangled_non_method_name(thisClass), false, true);
+			            			}
+		            			}
+		            		}
 		            	}
 		            	else
 		            		defSource = (ProcedureDecl)parent;

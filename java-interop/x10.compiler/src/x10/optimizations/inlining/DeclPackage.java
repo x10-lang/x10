@@ -60,8 +60,7 @@ import x10.visit.X10DelegatingVisitor;
 class DeclPackage extends NodeVisitor {
     
     static final boolean XTENLANG_2818_METHOD = false; // FIXME: Java back-end does not support non-virtual instance calls
-    // WIP XTENLANG-2818 (disable again until NPE in SPEC is fixed)
-    static final boolean XTENLANG_2818_CTOR = true; // FIXME: Java back-end does not support non-virtual constructor calls
+    static final boolean XTENLANG_2818_CTOR = false; // FIXME: Java back-end does not support non-virtual constructor calls
     static final boolean XTENLANG_2819 = true; // FIXME: C++  back-end generates incorrect code for embedded fields
 
     boolean inlinable;
@@ -133,7 +132,7 @@ class DeclPackage extends NodeVisitor {
         } else if (XTENLANG_2818_CTOR && n instanceof ConstructorCall && ((ConstructorCall) n).kind() == ConstructorCall.SUPER && ExpressionFlattener.javaBackend(job)) {
             cannotInline("Java back-end cannot handle inlined super calls either");
         } else if (XTENLANG_2819 && utils.hasEmbedAnnotation(n) && !ExpressionFlattener.javaBackend(job)) {
-            cannotInline("C++  back-end cannot handle embedded fields");
+            cannotInline("C++ back-end cannot handle embedded fields");
         } else if (utils.isNativeCode(n)) {
             cannotInline("Procedure body contains native code");
         } else {

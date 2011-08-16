@@ -73,6 +73,10 @@ public class X10JavaDeserializer {
 
     public Object readRef() throws IOException {
         short serializationID = readShort();
+        return readRef(serializationID);
+    }
+
+    public Object readRef(short serializationID) throws IOException {
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         }

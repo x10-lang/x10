@@ -21,7 +21,7 @@ import java.io.IOException;
 public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(NamedType.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, NamedType.class);
     
     public String typeName;
 

@@ -5,8 +5,8 @@ import java.io.*;
 
 public class Basic {
 
-    private static final short _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher(RunnableWithBuf.class);
-    private static final short _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Handler.class);
+    private static final short _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher( x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RunnableWithBuf.class);
+    private static final short _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher( x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, Handler.class);
 
     private static class RunnableWithBuf implements Serializable, x10.x10rt.X10JavaSerializable {
         public static final int Ping = 1;
@@ -286,7 +286,7 @@ public class Basic {
             byte[] msg = baos.toByteArray();
             int msgLen = baos.size();
             //System.err.println(X10RT.here()+": About to send a message to place "+place);
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, x10.x10rt.DeserializationDispatcher.getMessageID(_Handler_id));
             //System.err.println(X10RT.here()+": Sent a message to place "+place);
         } catch (java.io.IOException e){
             e.printStackTrace();

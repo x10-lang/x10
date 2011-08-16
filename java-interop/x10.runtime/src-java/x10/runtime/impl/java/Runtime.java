@@ -12,8 +12,10 @@
 package x10.runtime.impl.java;
 
 import x10.core.ThrowableUtilities;
+import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -24,6 +26,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -172,6 +175,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             x10.runtime.impl.java.PreLoader.preLoad(userMain, Boolean.getBoolean("x10.PRELOAD_STRINGS"));
         }
 
+        // Obtain message ID's for each async
+        if (X10RT.numPlaces() > 1) {
+            DeserializationDispatcher.registerHandlers();
+        }
+
         // build up Array[String] for args
         final x10.array.Array<String> aargs = x10.array.Array.<String> $make(x10.rtt.Types.STRING, args.length);
         for (int i = 0; i < args.length; i++) {
@@ -245,6 +253,23 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             return false;
         }
         return Boolean.valueOf(property);
+    }
+
+    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, int endpoint) {
+         runAsyncAt(place, body, finishState);
+    }
+
+    public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState) {
+        short sid = body.$_get_serialization_id();
+        int messageID = DeserializationDispatcher.getMessageID(sid);
+        try {
+            byte[] bytes = serialize(body, finishState);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
+        } catch (IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        }
     }
 
     /**
@@ -365,14 +390,59 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return ba;
     }
 
+    private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState) throws IOException {
+        byte[] ba;
+        if (CUSTOM_JAVA_SERIALIZATION) {
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Starting serialization for runAtAll  " + body.getClass());
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream oos = new DataOutputStream(baos);
+            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(finishState);
+            serializer.recordReference(body);
+            body.$_serialize(serializer);
+            oos.close();
+            ba = baos.toByteArray();
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Done with serialization for runAtAll " + body.getClass());
+            }
+            return ba;
+        } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Starting serialization for runAt  " + body.getClass());
+            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream oos = new DataOutputStream(baos);
+            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.writeObjectUsingReflection(finishState);
+            serializer.writeObjectUsingReflection(body);
+            oos.close();
+            ba = baos.toByteArray();
+            if (TRACE_SER_DETAIL) {
+                System.out.println("Done with serialization for runAt " + body.getClass());
+            }
+            return ba;
+        } else {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            ObjectOutputStream oos = new ObjectOutputStream(baos);
+            oos.writeObject(finishState);
+            oos.writeObject(body);
+            return baos.toByteArray();
+        }
+    }
+    
     // @MultiVM, add this method
+
+    //TODO Keith
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
             msg = serialize(body);
+            int msg_id = DeserializationDispatcher.getMessageID(body.$_get_serialization_id());
             int msgLen = msg.length;
             if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
         } catch (java.io.IOException e) {
             e.printStackTrace();
             throw new x10.runtime.impl.java.WrappedThrowable(e);
@@ -387,13 +457,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         byte[] msg;
         try {
             msg = serialize(body);
+            int msg_id = DeserializationDispatcher.getMessageID(body.$_get_serialization_id());
             int hereId = X10RT.here();
             for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
-                x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
+                x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
             }
             int endPlace = includeHere ? hereId : hereId - 1;
             for (int place = 0; place <= endPlace; ++place) {
-                x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
+                x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
             }
         } catch (java.io.IOException e) {
             e.printStackTrace();

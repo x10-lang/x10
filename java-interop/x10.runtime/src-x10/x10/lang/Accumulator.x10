@@ -15,66 +15,95 @@ import x10.io.SerialData;
 import x10.compiler.NonEscaping;
 
 /**
- * Accumulator object used for accumulating a result during a reduction.
+ * The naive implementation of an accumulator (without any piggybacking on finish or clocks).
  */
-public final class Accumulator[T] extends Acc implements CustomSerialization {
+public class Accumulator[T] extends Acc implements CustomSerialization {
+    //val owner:Activity;
     @NonEscaping private val root:GlobalRef[Acc];
-	private var curr:T;
-	private var sr:FinishState.StatefulReducer[T];
-	private val red:Reducible[T];
+	protected var curr:T;
+	protected val red:Reducible[T];
 
 	public static def MYPRINT(msg:String):void {
 	    Runtime.println("Worker="+Runtime.workerId()+" "+msg);
 	}
 
-	public def this(red:Reducible[T]) {
-		this.red = red;
-		this.root = new GlobalRef[Acc](this);
-		this.curr = red.zero();
-		this.sr = new FinishState.StatefulReducer[T](red);
-	}
-
-    private def this(data:SerialData) {
+    public def this(red:Reducible[T]) {
+        //owner = Runtime.activity();
+        this.red = red;
+        this.root = new GlobalRef[Acc](this);
+        this.curr = red.zero();
+    }
+    public def this(data:SerialData) {
+        //owner = null;
         val arr:Array[Any](1) = data.data as Array[Any](1);
         this.red = arr(0) as Reducible[T];
-		this.root = arr(1) as GlobalRef[Acc];
-		this.curr = red.zero();
-        this.sr = new FinishState.StatefulReducer[T](red);
+        this.root = arr(1) as GlobalRef[Acc];
+        this.curr = red.zero();
     }
     public def serialize():SerialData = new SerialData([red as Any, root as Any], null);
 
-	public def supply(t:T) {
-	    if (root.home==here) {
-	        val _root = root as GlobalRef[Acc]{self.home==here};
-	        val other = _root();
-	        if (other!=this) {
-	            //MYPRINT("passing to root: t="+t);
-	            (other as Accumulator[T]).supply(t);
-	            return;
+    /*
+    private def isSync():Boolean {
+        return Runtime.activity()==owner;
+    }
+    private def isAsync():Boolean {
+        var curr:Activity = Runtime.activity();
+        while (curr!=null) {
+            if (curr==owner) return true;
+            curr = curr.parentActivity;
+        }
+        return false;
+    }
+    */
+
+	public def me():Accumulator[T] = (root as GlobalRef[Acc]{self.home==here})() as Accumulator[T];
+    /**
+     * This method supplies/offers a value to the accumulator.
+     */
+	public operator this <- (t:T):void {
+	    at (root.home) {
+	        val me = this.me();
+	        //if (!me.isAsync()) throw new IllegalAccAccess();
+	        atomic {
+	            me.curr = me.red(me.curr,t);
 	        }
 	    }
-        //MYPRINT("supply: t="+t);
-        val id = Runtime.workerId();
-        if (!sr.workerFlag(id))
-	        Runtime.activity().finishState().registerAcc(this);
-	    sr.accept(t,id);
 	}
-	public def result():T {
-		return curr;
+    /**
+     * This method resets the accumulator.
+     */
+	public operator this()=(t:T):void {
+	    at (root.home) {
+	        val me = this.me();
+	        //if (!me.isSync()) throw new IllegalAccAccess();
+	        atomic {
+	            me.curr = t;
+	        }
+	    }
 	}
 
-    public def acceptResult(a:Any):void {
-        curr = red(curr,a as T);
-        //MYPRINT("acceptResult: a="+a+" curr="+curr);
-    }        
-    public def calcResult():Any {
-        if (sr==null) throw new RuntimeException("Error in Runtime for accumulators!");
-        sr.placeMerge();
-        val res = sr.result();
-        //MYPRINT("calcResult res="+res);
-        sr = new FinishState.StatefulReducer[T](red);
-        return res;
+	private def localGetResult():T {
+		//if (!isSync()) throw new IllegalAccAccess();
+		return curr;
+	}
+	public operator this():T {
+		return at (root.home) this.me().localGetResult();
+	}
+
+
+    public def supply(t:Any):void {
+        this <- (t as T);
     }
+    public def reset(t:Any):void {
+        this()=(t as T);
+    }
+    public def result():Any {
+        return this();
+    }
+
+    // These methods are called by the Runtime. Do not use them.
+    public def calcResult():Any { throw new IllegalOperationException(); }
+    public def acceptResult(a:Any):void { throw new IllegalOperationException(); }
     public def getRoot():GlobalRef[Acc] = root;
     public def home():Place = root.home;
 }

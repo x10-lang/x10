@@ -395,6 +395,11 @@ public class ClosureRemover extends ContextVisitor {
                     mdcl = (MethodDecl) mdcl.typeCheck(this);
 
                     ClassBody body = xnf.ClassBody(pos, Collections.<ClassMember>singletonList(mdcl));
+
+                    // Copy over the annotations from the closure body. These annotations are needed for dealing with GENERAL asyncs and SIMPLE asyncs
+                    ext = (X10Ext_c) cl.body().ext();
+                    annotations = ext.annotations();
+                    body = (ClassBody) ((X10Ext_c)body.ext()).annotations(annotations);
                     
                     staticNestedClassDecl = staticNestedClassDecl.body(body);
                     

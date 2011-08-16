@@ -88,19 +88,13 @@ import x10.util.concurrent.SimpleLatch;
     @Native("c++", "x10aux::run_closure_at(#id, #body, #endpoint)")
     static def runClosureCopyAt(id:Int, body:()=>void, endpoint:Int):void { body(); }
 
+    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt(#id, #body, #finishState)")
     @Native("c++", "x10aux::run_async_at(#id, #body, #finishState)")
-    static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void {
-        val closure = ()=> @x10.compiler.RemoteInvocation {execute(body, finishState);};
-        runClosureCopyAt(id, closure);
-        dealloc(closure);
-    }
-    
+    static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState):void { body(); }
+
+    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt(#id, #body, #finishState, #endpoint)")
     @Native("c++", "x10aux::run_async_at(#id, #body, #finishState, #endpoint)")
-    static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState, endpoint:Int):void {
-        val closure = ()=> @x10.compiler.RemoteInvocation {execute(body, finishState);};
-        runClosureCopyAt(id, closure, endpoint);
-        dealloc(closure);
-    }
+    static def runAsyncAt(id:Int, body:()=>void, finishState:FinishState, endpoint:Int):void { body(); }
 
     /**
      * Must be called once XRX is initialized prior to sending messages.

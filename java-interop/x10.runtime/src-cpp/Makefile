@@ -167,6 +167,8 @@ ALL_XRCPP_OBJECTS = \
 	x10/io/InputStreamReader__InputStream.o \
 	x10/io/OutputStreamWriter__OutputStream.o \
 	x10/lang/Any.o \
+	x10/lang/Arithmetic.o \
+	x10/lang/Bitwise.o \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \
 	x10/lang/Fun.o \
@@ -181,6 +183,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/PlaceLocalHandle_Impl.o \
 	x10/lang/Thread.o \
 	x10/util/IndexedMemoryChunk.o \
+	x10/util/Ordered.o \
 	x10/util/RemoteIndexedMemoryChunk.o \
 	x10/util/Vec.o \
 	x10/util/concurrent/AtomicReference.o 

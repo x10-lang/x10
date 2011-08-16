@@ -29,7 +29,7 @@ import java.lang.String;
 public class X10Throwable extends x10.core.Throwable implements RefI {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(X10Throwable.class, "x10.lang.Throwable");
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, X10Throwable.class, "x10.lang.Throwable");
 
     // constructor just for allocation
     public X10Throwable(java.lang.System[] $dummy) {

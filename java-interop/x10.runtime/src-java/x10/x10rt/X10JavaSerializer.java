@@ -50,7 +50,7 @@ public class X10JavaSerializer {
         if (obj.getClass().toString().equals("java.lang.Object")) {
             return;
         }
-        Integer pos = previous_position(obj);
+        Integer pos = previous_position(obj, true);
         if (pos !=null) {
             return;
         }
@@ -96,7 +96,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -126,7 +126,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -156,7 +156,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -186,7 +186,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -218,7 +218,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -248,7 +248,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -278,7 +278,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -308,7 +308,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(p);
+        Integer pos = previous_position(p, true);
         if (pos != null) {
             return;
         }
@@ -340,7 +340,7 @@ public class X10JavaSerializer {
             System.out.println("Serializing a String: " + str);
         }
 
-        Integer pos = previous_position(str);
+        Integer pos = previous_position(str, true);
         if (pos != null) {
             return;
         }
@@ -361,15 +361,21 @@ public class X10JavaSerializer {
         }
     }
 
-    private Integer previous_position(Object obj) throws IOException {
+    public void recordReference(Object obj) throws IOException {
+        previous_position(obj, false);
+    }
+
+    private Integer previous_position(Object obj, boolean writeRef) throws IOException {
         Integer pos = objectMap.get(obj);
         if (pos != null) {
             if (Runtime.TRACE_SER) {
                 System.out.println("\t\tFound repeated reference of type " + obj.getClass() + " at " + pos + " (absolute) in map");
             }
             // We have serialized this object beofre hence no need to do it again
-            write(DeserializationDispatcher.refValue);
-            out.writeInt(pos);
+            if (writeRef) {
+                write(DeserializationDispatcher.refValue);
+                out.writeInt(pos);
+            }
         } else {
             objectMap.put(obj, counter);
             if (Runtime.TRACE_SER) {
@@ -385,7 +391,7 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
-        Integer pos = previous_position(body);
+        Integer pos = previous_position(body, true);
         if (pos != null) {
             return;
         }
