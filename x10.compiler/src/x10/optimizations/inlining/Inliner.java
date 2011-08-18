@@ -153,7 +153,9 @@ public class Inliner extends ContextVisitor {
      */
     @Override
     public NodeVisitor begin() {
-        repository        = job.compiler().getInlinerData(job, ts, nf);
+        if (!closuresOnly) {
+            repository        = job.compiler().getInlinerData(job, ts, nf);
+        }
         utils             = new InlineUtils(job);
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
         timer();
