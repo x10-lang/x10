@@ -83,6 +83,13 @@ public class X10JavaSerializer {
             write(o);
         }
     }
+    
+    public void write(Object obj[]) throws IOException {
+        write(obj.length);
+        for (Object o : obj) {
+            write(o);
+        }
+    }
 
     public void write(int i) throws IOException {
         if (Runtime.TRACE_SER) {
@@ -387,140 +394,161 @@ public class X10JavaSerializer {
     }
 
     public <T> void writeObjectUsingReflection(T body) throws IOException {
-        try {
-            if (body == null) {
-                writeNull();
-                return;
-            }
-            Integer pos = previous_position(body, true);
-            if (pos != null) {
-                return;
-            }
-            Class<? extends Object> bodyClass = body.getClass();
-            Class<?> superclass = bodyClass.getSuperclass();
-            if ("x10.rtt.FloatType".equals(bodyClass.getName()) || "x10.rtt.IntType".equals(bodyClass.getName())
-                || "x10.rtt.DoubleType".equals(bodyClass.getName())
-                || "x10.rtt.LongType".equals(bodyClass.getName())
-                || "x10.rtt.BooleanType".equals(bodyClass.getName())
-                || "x10.rtt.StringType".equals(bodyClass.getName())
-                || "x10.rtt.CharType".equals(bodyClass.getName())
-                || "x10.rtt.ByteType".equals(bodyClass.getName())
-                || "x10.rtt.ShortType".equals(bodyClass.getName())
-                || "x10.rtt.ObjectType".equals(bodyClass.getName())
-                || "x10.rtt.UByteType".equals(bodyClass.getName())
-                || "x10.rtt.UIntType".equals(bodyClass.getName())
-                || "x10.rtt.ULongType".equals(bodyClass.getName())
-                || "x10.rtt.UShortType".equals(bodyClass.getName())) {
-                writeClassID(superclass.getName());
-                // These classes dont implement the serialization/deserialization routines, hence we serialize the superclass
-                serializeClassUsingReflection(body, superclass);
-                return;
-            }
-            writeClassID(bodyClass.getName());
-            serializeClassUsingReflection(body, bodyClass);
+    	if (body == null) {
+    		writeNull();
+    		return;
+    	}
+    	Integer pos = previous_position(body, true);
+    	if (pos != null) {
+    		return;
+    	}
+    	Class<? extends Object> bodyClass = body.getClass();
+    	Class<?> superclass = bodyClass.getSuperclass();
+    	if ("x10.rtt.FloatType".equals(bodyClass.getName()) || "x10.rtt.IntType".equals(bodyClass.getName())
+    			|| "x10.rtt.DoubleType".equals(bodyClass.getName())
+    			|| "x10.rtt.LongType".equals(bodyClass.getName())
+    			|| "x10.rtt.BooleanType".equals(bodyClass.getName())
+    			|| "x10.rtt.StringType".equals(bodyClass.getName())
+    			|| "x10.rtt.CharType".equals(bodyClass.getName())
+    			|| "x10.rtt.ByteType".equals(bodyClass.getName())
+    			|| "x10.rtt.ShortType".equals(bodyClass.getName())
+    			|| "x10.rtt.ObjectType".equals(bodyClass.getName())
+    			|| "x10.rtt.UByteType".equals(bodyClass.getName())
+    			|| "x10.rtt.UIntType".equals(bodyClass.getName())
+    			|| "x10.rtt.ULongType".equals(bodyClass.getName())
+    			|| "x10.rtt.UShortType".equals(bodyClass.getName())) {
+    		writeClassID(superclass.getName());
+    		// These classes dont implement the serialization/deserialization routines, hence we serialize the superclass
+    		serializeClassUsingReflection(body, superclass);
+    		return;
+    	}
+    	writeClassID(bodyClass.getName());
+    	serializeClassUsingReflection(body, bodyClass);
 
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public void writeClassID(String className) throws IOException {
-        short id = DeserializationDispatcher.getIDForClassName(className);
-        if (id < 0) {
-            write(DeserializationDispatcher.javaClassID);
-            writeStringValue(className);
-        } else {
-            write(id);
-        }
+    	short id = DeserializationDispatcher.getIDForClassName(className);
+    	if (id < 0) {
+    		write(DeserializationDispatcher.javaClassID);
+    		writeStringValue(className);
+    	} else {
+    		write(id);
+    	}
     }
 
-    private <T> void serializeClassUsingReflection(T body, Class<? extends Object> bodyClass) throws NoSuchMethodException, IllegalAccessException, InvocationTargetException, IOException, NoSuchFieldException {
+    public <T> void serializeClassUsingReflection(T body, Class<? extends Object> bodyClass) throws IOException {
 
-        // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
-        // not straight forward. Hence we just call into the custom serialization of these classes.
-        if ("java.lang.String".equals(bodyClass.getName())) {
-            writeStringValue((String) body);
-            return;
-        } else if ("x10.rtt.NamedType".equals(bodyClass.getName())) {
-            serializeClassUsingReflection(body, bodyClass.getSuperclass());
-            Field typeNameField = bodyClass.getDeclaredField("typeName");
-            String typeName = (String) typeNameField.get(body);
-            writeClassID(typeName);
-            return;
-        } else if ("x10.rtt.RuntimeType".equals(bodyClass.getName())) {
-            Field implField = bodyClass.getDeclaredField("impl");
-            Class<?> impl = (Class<?>) implField.get(body);
-            writeClassID(impl.getName());
-            return;
-        } else if ("x10.core.IndexedMemoryChunk".equals(bodyClass.getName())) {
-            ((IndexedMemoryChunk) body).$_serialize(this);
-            return;
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(bodyClass.getName())) {
-            ((IndexedMemoryChunk.$Closure$0) body).$_serialize(this);
-            return;
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(bodyClass.getName())) {
-            ((IndexedMemoryChunk.$Closure$1) body).$_serialize(this);
-            return;
-        } else if (GlobalRef.class.getName().equals(bodyClass.getName())) {
-            ((GlobalRef) body).$_serialize(this);
-            return;
-        } else if (X10Throwable.class.getName().equals(bodyClass.getName())) {
-            ((X10Throwable) body).$_serialize(this);
-            return;
-        } else if ("java.lang.Class".equals(bodyClass.getName())) {
-            write(((Class)body).getName());
-            return;
-        }
+    	// We need to handle these classes in a special way cause there implementation of serialization/deserialization is
+    	// not straight forward. Hence we just call into the custom serialization of these classes.
+    	try {
+    		if ("java.lang.String".equals(bodyClass.getName())) {
 
-        Class[] interfaces = bodyClass.getInterfaces();
-        boolean isCustomSerializable = false;
-        for (Class aInterface : interfaces) {
-            if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
-                isCustomSerializable = true;
-                break;
-            }
-        }
+    			writeStringValue((String) body);
+    			return;
+    		} else if ("x10.rtt.NamedType".equals(bodyClass.getName())) {
+    			serializeClassUsingReflection(body, bodyClass.getSuperclass());
+    			Field typeNameField = bodyClass.getDeclaredField("typeName");
+    			String typeName = (String) typeNameField.get(body);
+    			writeClassID(typeName);
+    			return;
+    		} else if ("x10.rtt.RuntimeType".equals(bodyClass.getName())) {
+    			Field implField = bodyClass.getDeclaredField("impl");
+    			Class<?> impl = (Class<?>) implField.get(body);
+    			writeClassID(impl.getName());
+    			return;
+    		} else if ("x10.core.IndexedMemoryChunk".equals(bodyClass.getName())) {
+    			((IndexedMemoryChunk) body).$_serialize(this);
+    			return;
+    		} else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(bodyClass.getName())) {
+    			((IndexedMemoryChunk.$Closure$0) body).$_serialize(this);
+    			return;
+    		} else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(bodyClass.getName())) {
+    			((IndexedMemoryChunk.$Closure$1) body).$_serialize(this);
+    			return;
+    		} else if (GlobalRef.class.getName().equals(bodyClass.getName())) {
+    			((GlobalRef) body).$_serialize(this);
+    			return;
+    		} else if (X10Throwable.class.getName().equals(bodyClass.getName())) {
+    			((X10Throwable) body).$_serialize(this);
+    			return;
+    		} else if ("java.lang.Class".equals(bodyClass.getName())) {
+    			write(((Class)body).getName());
+    			return;
+    		}
 
-        Class<?> superclass = bodyClass.getSuperclass();
-        if (!isCustomSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-            // We need to serialize the super class first
-            serializeClassUsingReflection(body, superclass);
-        }
+    		Class[] interfaces = bodyClass.getInterfaces();
+    		boolean isCustomSerializable = false;
+    		boolean isHadoopSerializable = false;
+    		for (Class aInterface : interfaces) {
+    			if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
+    				isCustomSerializable = true;
+    				break;
+    			}
+    		}
+    		
+			if (Class.forName("org.apache.hadoop.io.Writable").isAssignableFrom(bodyClass)) {
+				isHadoopSerializable = true;
+			}
+			if(isCustomSerializable && isHadoopSerializable) {
+    			throw new RuntimeException("serializer: " + bodyClass + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
+			}
+			
 
-        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
+    		Class<?> superclass = bodyClass.getSuperclass();
+    		if (!isCustomSerializable && !isHadoopSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
+    			// We need to serialize the super class first
+    			serializeClassUsingReflection(body, superclass);
+    		}
 
-        if (isCustomSerializable) {
-            TypeVariable<? extends Class<? extends Object>>[] typeParameters = bodyClass.getTypeParameters();
-            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                Field field = bodyClass.getDeclaredField(typeParameter.getName());
-                fields.add(field);
-            }
-            processFields(body, fields);
-            CustomSerialization cs = (CustomSerialization)body;
-            SerialData serialData = cs.serialize();
-            writeObjectUsingReflection(serialData);
-            return;
-        }
+    		Set<Field> fields = new TreeSet<Field>(new FieldComparator());
 
-        // We need to sort the fields first. Cause the order here could depend on the JVM.
-        Field[] declaredFields = bodyClass.getDeclaredFields();
-        for (Field field : declaredFields) {
-            if (field.isSynthetic())
-                continue;
-            int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
-                continue;
-            }
-            fields.add(field);
-        }
+    		if (isCustomSerializable) {
+    			TypeVariable<? extends Class<? extends Object>>[] typeParameters = bodyClass.getTypeParameters();
+    			for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+    				Field field = bodyClass.getDeclaredField(typeParameter.getName());
+    				fields.add(field);
+    			}
+    			processFields(body, fields);
+    			CustomSerialization cs = (CustomSerialization)body;
+    			SerialData serialData = cs.serialize();
+    			writeObjectUsingReflection(serialData);
+    			return;
+    		}
+    		if(isHadoopSerializable) {
+    			if (Runtime.TRACE_SER) {
+    				System.out.println("Calling hadoop serializer with object of type " + bodyClass);
+    			}
+    			java.lang.reflect.Method writeMethod = bodyClass.getMethod("write", java.io.DataOutput.class);
+    			writeMethod.setAccessible(true);
+    			writeMethod.invoke(body, this.out);
+    			return;
+    		}
 
-        processFields(body, fields);
+    		// We need to sort the fields first. Cause the order here could depend on the JVM.
+    		Field[] declaredFields = bodyClass.getDeclaredFields();
+    		for (Field field : declaredFields) {
+    			if (field.isSynthetic())
+    				continue;
+    			int modifiers = field.getModifiers();
+    			if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+    				continue;
+    			}
+    			fields.add(field);
+    		}
+
+    		processFields(body, fields);
+    	} catch (IllegalAccessException e) {
+    		throw new RuntimeException(e);
+    	} catch (NoSuchMethodException e) {
+    		throw new RuntimeException(e);
+    	} catch (InvocationTargetException e) {
+    		throw new RuntimeException(e);
+    	} catch (NoSuchFieldException e) {
+    		throw new RuntimeException(e);
+    	} catch (ClassNotFoundException e) {
+    		throw new RuntimeException(e);
+		}
     }
 
     private <T> void processFields(T body, Set<Field> fields) throws IllegalAccessException, IOException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
