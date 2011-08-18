@@ -233,8 +233,10 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
                 } else if (this.srcData instanceof String[]) {
                     serializer.write(DeserializationDispatcher.STRING_ID);
                     serializer.write((String[]) this.srcData);
+                } else if (this.srcData instanceof X10JavaSerializable[]) {
+                	serializer.write((X10JavaSerializable[]) this.srcData);
                 } else {
-                    serializer.write((X10JavaSerializable[]) this.srcData);
+                	serializer.write((Object[]) this.srcData);
                 }
             }
             serializer.write(this.dstId);
@@ -504,10 +506,15 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             for (java.lang.String v : castValue) {
                 serializer.write(v);
             }
-        } else {
+        } else if (value instanceof X10JavaSerializable[]) {
             Object [] castValue = (Object[]) value;
             for (Object v : castValue) {
                 serializer.write((X10JavaSerializable)v);
+            }
+        } else {
+        	Object [] castValue = (Object[]) value;
+            for (Object v : castValue) {
+                serializer.write(v);
             }
         }
 	}
@@ -544,7 +551,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
                 values[i] = deserializer.readString();
             }
             imc.value = values;
-        } else  {
+        } else {
             Object[] values = (Object[]) imc.type.makeArray(length);
             for (int i = 0; i < length; i++) {
                    values[i] = deserializer.readRef();
