@@ -276,15 +276,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
     }
 
-    public void visit(ConstructorCall_c s) {
-        Expr target = s.target();
-        Type type   = target.type();
-        ConstructorCall call = (ConstructorCall)s;
-        boolean noArgsYet = true;
+    public void visit(ConstructorCall_c call) {
+        String targetClass = Emitter.translateType(call.constructorInstance().container());
+        Expr target = call.target();
         sw.write("(");
-        s.print(target, sw, tr);
-        String container = Emitter.translateType(call.constructorInstance().container());
-        sw.write(")->::" +container+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
+        if (target == null) {
+            sw.write("this");
+        } else {
+            call.print(target, sw, tr);
+        }
+        sw.write(")->::" +targetClass+ "::" +SharedVarsMethods.CONSTRUCTOR+ "(");
+        boolean noArgsYet = true;
         List<Expr> args = call.arguments();
         for (int i=0; i<args.size(); i++) {
             if (noArgsYet) {
@@ -296,7 +298,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 sw.allowBreak(0, " ");
             }
             Expr e = args.get(i);
-            s.print(e, sw, tr);
+            call.print(e, sw, tr);
         }
         if (!noArgsYet)
             sw.end();
@@ -1603,36 +1605,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 
 	    for (Stmt s : body.statements()) {
-	        // FIXME: constructor calls won't get line number information
-	        if ( s instanceof ConstructorCall && ( // ignore split New constructor calls here
-	               ((ConstructorCall) s).kind() == ConstructorCall.SUPER ||
-	               ((ConstructorCall) s).target() == null ||
-	               ((ConstructorCall) s).target().type().typeEquals(container, context)
-	           ) ) {
-	            ConstructorCall call = (ConstructorCall)s;
-	            if (call.kind() == ConstructorCall.SUPER) {
-	                String superClass = Emitter.translateType(container.superClass());
-	                sw.write("this->::"+superClass+"::"+CONSTRUCTOR+"(");
-	            } else if (call.kind() == ConstructorCall.THIS) {
-	                sw.write("this->"+CONSTRUCTOR+"(");
-	            }
-	            if (call.arguments().size() > 0) {
-	                sw.allowBreak(2, 2, "", 0); // miser mode
-	                sw.begin(0);
-	                boolean first = true;
-	                for (Expr e : (List<Expr>) call.arguments() ) {
-	                    if (!first) {
-	                        sw.write(",");
-	                        sw.allowBreak(0, " ");
-	                    }
-	                    dec.print(e, sw, tr);
-	                    first = false;
-	                }
-	                sw.end();
-	            }
-	            sw.write(");");
-	            sw.newline();
-	        } else if (query.isSyntheticOuterAccessor(s)) {
+	        if (query.isSyntheticOuterAccessor(s)) {
 	            // we did synthetic field initialisation earlier
 	        } else {
 	            dec.printBlock(s, sw, tr);
