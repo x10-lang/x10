@@ -54,7 +54,7 @@ namespace x10 {
             static x10aux::ref<Throwable> _make(x10aux::ref<Throwable> cause);
             static x10aux::ref<Throwable> _make(x10aux::ref<String> message,
                                                 x10aux::ref<Throwable> cause);
-        protected:
+
             x10aux::ref<Throwable> _constructor() {
                 return _constructor(X10_NULL, X10_NULL);
             }
@@ -70,7 +70,6 @@ namespace x10 {
             x10aux::ref<Throwable> _constructor(x10aux::ref<String> message,
                                                 x10aux::ref<Throwable> cause);
 
-        public:
             virtual x10aux::ref<String> getMessage() { return FMGL(message); }
             virtual x10aux::ref<Throwable> getCause() { return FMGL(cause); }
             virtual x10aux::ref<String> toString();
