@@ -45,7 +45,7 @@ public struct precision {
     }
 
     public static def is_equal (a:Complex, b:Complex):Boolean {
-        return precision.is_equal (a, b, double_tolerance);
+        return precision.is_equal (a, b, single_tolerance); // default to lower precision
     }
 
     public static def is_equal_or_zero (a:Double, b:Double):Boolean {

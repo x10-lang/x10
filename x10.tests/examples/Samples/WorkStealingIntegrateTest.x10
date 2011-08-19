@@ -15,8 +15,7 @@ import harness.x10Test;
 public class WorkStealingIntegrateTest extends x10Test {
     public def run():boolean {
         val res = Integrate.computeArea(0, 64);
-        //return (res > 4196352.000 && res < 4196352.001);
-        return nearEnough(res, 4196352.000021513551474);
+        return precision.is_equal(res, 4196352.000021513551474);
     }
 
     public static def main(args:Array[String](1)) {

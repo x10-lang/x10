@@ -19,30 +19,30 @@ import harness.x10Test;
 class TestComplex extends x10Test {
     public def run(): boolean {
         val a = Complex(2.0, 2.0);
-        chk (nearEnough((-(-a)), a));
-        chk (nearEnough(a.abs(), Math.sqrt(8.0)));
+        chk (precision.is_equal((-(-a)), a));
+        chk (precision.is_equal(a.abs(), Math.sqrt(8.0)));
 
         val b = a.conjugate();
-        chk (nearEnough(b.conjugate(), a));
+        chk (precision.is_equal(b.conjugate(), a));
         chk (Complex.NaN.conjugate().isNaN());
 
         val c = Complex(1.0, 4.0);
-        chk (nearEnough(a + c - c, a), "a + c - c = a");
+        chk (precision.is_equal(a + c - c, a), "a + c - c = a");
         /* Note: this identity does not always hold, given peculiarities of Smith's algorithm for division */
-        chk (nearEnough((a * c) / c, a), "a * c / c = a");
+        chk (precision.is_equal((a * c) / c, a), "a * c / c = a");
         
 
         val d = Complex(4.0, -1.0);
-        chk (nearEnough(a + d - d, a), "a + d - d = a");
+        chk (precision.is_equal(a + d - d, a), "a + d - d = a");
         
-        chk (nearEnough((a * d) / d, a), "a * d / d = a");
+        chk (precision.is_equal((a * d) / d, a), "a * d / d = a");
 
         val e = a / Complex(0.0, 0.0);
         chk (e.isNaN());
 
         val f = Complex(3.0, 4.0);
         val fAbs = f.abs();
-        chk (nearEnough(fAbs, 5.0)); // abs(3 + 4i) = 5 by Pythagoras' theorem
+        chk (precision.is_equal(fAbs, 5.0)); // abs(3 + 4i) = 5 by Pythagoras' theorem
 
         return true;
     }
