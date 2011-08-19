@@ -1,7 +1,0 @@
-// SYNOPSIS: atomic #0
-x10.runtime.Runtime.lock();
-try {
-	#0
-} finally {
-	x10.runtime.Runtime.release(); // unlock and notify
-}

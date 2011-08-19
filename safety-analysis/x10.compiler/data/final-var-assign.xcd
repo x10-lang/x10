@@ -1,4 +1,0 @@
-// SYNOPSIS: #0=type #1=final_var #2=value_var
-
-final #0 #1 = #2;
-

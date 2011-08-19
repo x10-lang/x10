@@ -1,5 +1,0 @@
-# statements out of order
-0.1 R b 0
-0.0 W a 1 # backwards
-1.0 W b 1
-1.1 R a 0

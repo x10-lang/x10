@@ -1,7 +1,0 @@
-No expression in a switch/while/for loop/if predicates would require an
-SPMD context.
-
-A variable is declared "final", iff it is to be shared between multiple
-places.
-
-

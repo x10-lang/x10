@@ -1,9 +1,0 @@
-epl-v10.html
-INSTALL.txt
-README.txt
-RELEASE.NOTES.txt
-bin/x10
-bin/x10c
-lib/*.jar
-samples/*.x10
-samples/*.dat

@@ -1,9 +1,0 @@
-// SYNOPSIS: await (#0)    #1=unique_id
-x10.runtime.Runtime.lock();
-try {
-	while (!(#0)) {
-		x10.runtime.Runtime.await();
-	}
-} finally {
-	x10.runtime.Runtime.release(); // unlock and notify
-}
