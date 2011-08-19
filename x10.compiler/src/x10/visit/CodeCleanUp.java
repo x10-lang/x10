@@ -10,6 +10,7 @@
  */
 package x10.visit;
 
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -19,9 +20,12 @@ import java.util.Stack;
 
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
+import polyglot.ast.For;
+import polyglot.ast.Id;
 import polyglot.ast.Labeled;
 import polyglot.ast.Local;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Loop;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
@@ -56,6 +60,7 @@ public class CodeCleanUp extends ContextVisitor {
     static protected long blockCount;
     static protected long unreachableCount;
     protected X10AlphaRenamer alphaRenamer;
+    protected Map<Name, Boolean> labelInfo;
 
     /**
      * Creates a visitor for cleaning code.
@@ -69,49 +74,42 @@ public class CodeCleanUp extends ContextVisitor {
         this.report = reporter.should_report("CodeCleanUp", 1);
         this.reportStats = reporter.should_report("CodeCleanUpStats", 1);
         this.alphaRenamer = new X10AlphaRenamer(this, true);
+        this.labelInfo = CollectionFactory.newHashMap();
     }
 
     @Override
     public Object shallowCopy() {
         CodeCleanUp copy = (CodeCleanUp) super.shallowCopy();
-//        copy.alphaRenamer = new X10AlphaRenamer(this, false);
         return copy;
     }
 
     @Override
+    protected NodeVisitor enterCall(Node parent, Node child) {
+        if (child instanceof Labeled) {
+            Name labelName = ((Labeled) child).labelNode().id();
+            assert !labelInfo.containsKey(labelName) : "CodeCleanup: "+labelName+" already in map! Shadowed labels?";
+            labelInfo.put(labelName, Boolean.FALSE);
+        } else if (child instanceof Branch) {
+            Id labelNode = ((Branch) child).labelNode();
+            if (labelNode != null) {
+                labelInfo.put(labelNode.id(), Boolean.TRUE);
+            }
+        }
+
+        return this;        
+    }
+
+    @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
+        if (n instanceof Labeled) {
+            Boolean used = labelInfo.remove(((Labeled) n).labelNode().id());
+            // If the label was never used, then eliminate the Labeled node and just return the statement itself.
+            return used.booleanValue() ? n : ((Labeled)n).statement();
+        }
+        
         if (!(n instanceof Block) || n instanceof StmtExpr || n instanceof SwitchBlock) {
             return n;
         }
-        
-        // We can flatten labeled blocks when there is no reference to the label
-        // within the block. If we have a labeled block consisting of just one
-        // statement and there is a reference to the label, then we might be
-        // tempted
-        // to flatten the block and label the statement instead. But that would
-        // be
-        // wrong as the CPP backend needs the surrounding block structure to
-        // trigger
-        // the placement of an "end" label use for the goto
-
-        /*
-         * Leave this code out for the moment ... if (n instanceof Labeled) {
-         * Labeled l = (Labeled) n; if (!(l.statement() instanceof Block )||
-         * l.statement() instanceof StmtExpr || l.statement() instanceof
-         * SwitchBlock) { return n; }
-         * 
-         * Block b = (Block) l.statement(); if (!((X10Ext)
-         * b.ext()).annotations().isEmpty()) { return n; } if
-         * (!labelRefs(b).contains(l.labelNode().id())) { // There's no
-         * reference to the label within the block, so // flatten and clean up
-         * unreachable code. Node returnNode; if (b instanceof StmtSeq) {
-         * returnNode = nf.StmtSeq(b.position(), clean(flattenBlock(b))); } else
-         * { returnNode = nf.Block(b.position(), clean(flattenBlock(b))); }
-         * return returnNode; } else { // Can't flatten the block, but we can
-         * clean up // unreachable code. return n; }
-         * 
-         * }
-         */
 
         // Flatten any blocks that may be contained in this one, and clean up
         // unreachable code.
