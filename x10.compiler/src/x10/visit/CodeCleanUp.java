@@ -20,6 +20,7 @@ import java.util.Stack;
 
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
+import polyglot.ast.Eval;
 import polyglot.ast.For;
 import polyglot.ast.Id;
 import polyglot.ast.Labeled;
@@ -105,14 +106,24 @@ public class CodeCleanUp extends ContextVisitor {
             Boolean used = labelInfo.remove(((Labeled) n).labelNode().id());
             // If the label was never used, then eliminate the Labeled node and just return the statement itself.
             return used.booleanValue() ? n : ((Labeled)n).statement();
+        } 
+        
+        if (false && n instanceof Eval && ((Eval)n).expr() instanceof StmtExpr  && !(parent instanceof For)) {
+            // Eval(StmtExpr(Block(S), e) ===> B(S, Eval(e))
+            StmtExpr stexp = ((StmtExpr)((Eval)n).expr());
+            Block b = nf.Block(n.position(), stexp.statements());
+            if (stexp.result() != null) {
+                b.append(nf.Eval(stexp.result().position(), stexp.result()));
+            }
+            return clean(flattenBlock(b));
         }
         
-        if (!(n instanceof Block) || n instanceof StmtExpr || n instanceof SwitchBlock) {
+        if (!(n instanceof Block) || n instanceof SwitchBlock) {
             return n;
         }
 
-        // Flatten any blocks that may be contained in this one, and clean up
-        // unreachable code.
+        // Flatten any blocks that may be contained in this one
+        // and eliminate unreachable code.
         Block b = (Block) n;
         if (!((X10Ext) b.ext()).annotations().isEmpty()) {
             return n;

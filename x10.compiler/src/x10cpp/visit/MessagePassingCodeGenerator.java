@@ -1691,11 +1691,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         TypeSystem xts = context.typeSystem();
         
         boolean embed = false;
-            Type annotation = xts.Embed();
-            if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
-                embed = true;
-//                System.err.println("@StackAllocate " + dec);
-            }
+        Type annotation = xts.Embed();
+        if (!((X10Ext) dec.ext()).annotationMatching(annotation).isEmpty()) {
+            embed = true;
+            //                System.err.println("@StackAllocate " + dec);
+        }
         
         if (embed) {
             String tmpName = embeddedName(dec.name().id());
@@ -1761,13 +1761,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // declare the actual field initializer
 	    h.write("static void ");
 	    h.write(init_nb);
-	    h.write("();");
-	    h.newline();
+	    h.writeln("();");
 	    // declare the on-demand field initializer
 	    h.write("static void ");
 	    h.write(init);
-	    h.write("();");
-	    h.newline();
+	    h.writeln("();");
 	    sw.popCurrentStream();
 	    // define the actual field initializer
 	    sw.write("void ");
@@ -1776,8 +1774,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.newline(4); sw.begin(0);
 	    // set the status (ok to do here because either we are in single-threaded
 	    // mode, or we will have already set the status to INITIALIZING atomically)
-	    sw.write(status + " = " + STATIC_FIELD_INITIALIZING + ";");
-	    sw.newline();
+	    sw.writeln(status + " = " + STATIC_FIELD_INITIALIZING + ";");
 	    // initialize the field
 	    sw.write("_SI_(\"Doing static initialisation for field: "+container+"."+name+"\");"); sw.newline();
 	    String val = getId();
@@ -1786,16 +1783,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(val + " =");
 	    sw.allowBreak(2, 2, " ", 1);
 	    dec.print(dec.init(), sw, tr);
-	    sw.write(";");
-	    sw.newline();
+	    sw.writeln(";");
 	    // copy into the field
-	    sw.write(fname + " = " + val + ";");
-	    sw.newline();
+	    sw.writeln(fname + " = " + val + ";");
 	    // update the status
 	    sw.write(status + " = " + STATIC_FIELD_INITIALIZED + ";");
 	    sw.end(); sw.newline();
-	    sw.write("}");
-	    sw.newline();
+	    sw.writeln("}");
 	    // define the on-demand field initializer
 	    sw.write("void ");
 	    sw.write(container + "::" + init);
@@ -1808,15 +1802,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String tmp = getId();
 	    sw.write("x10aux::status " + tmp + " =");
 	    sw.allowBreak(2, 2, " ", 1);
-	    sw.write("(x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)&" +
-	            status + ", (x10_int)" + STATIC_FIELD_UNINITIALIZED +
-	            ", (x10_int)" + STATIC_FIELD_INITIALIZING + ");");
-	    sw.newline();
-	    sw.write("if (" + tmp + " != " + STATIC_FIELD_UNINITIALIZED + ") goto WAIT;");
-	    sw.newline();
+	    sw.writeln("(x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)&" +
+	               status + ", (x10_int)" + STATIC_FIELD_UNINITIALIZED +
+	               ", (x10_int)" + STATIC_FIELD_INITIALIZING + ");");
+	    sw.writeln("if (" + tmp + " != " + STATIC_FIELD_UNINITIALIZED + ") goto WAIT;");
 	    // invoke the initializer
-	    sw.write(init_nb + "();");
-	    sw.newline();
+	    sw.writeln(init_nb + "();");
 	    // broadcast the new value
 	    sw.write("x10aux::StaticInitBroadcastDispatcher::broadcastStaticField(");
 	    sw.begin(0);
@@ -1825,27 +1816,22 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.allowBreak(0, 2, " ", 1);
 	    sw.write(id);
 	    sw.end();
-	    sw.write(");");
-	    sw.newline();
-	    sw.write("// Notify all waiting threads");
-	    sw.newline();
-        sw.write(STATIC_INIT_LOCK + "();");
-        sw.newline();
+	    sw.writeln(");");
+	    sw.writeln("// Notify all waiting threads");
+        sw.writeln(STATIC_INIT_LOCK + "();");;
 	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
 	    sw.end(); sw.newline();
-	    sw.write("}"); sw.newline();
-	    sw.write("WAIT:"); sw.newline();
-	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.begin(4); sw.newline();
-        sw.write(STATIC_INIT_LOCK + "();"); sw.newline();
-	    sw.write("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");"); sw.newline();
-	    sw.write("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();"); sw.newline();
-	    sw.write("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
-	    sw.newline();
+	    sw.writeln("}");
+	    sw.writeln("WAIT:");
+	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.newline(4); sw.begin(0); 
+        sw.writeln(STATIC_INIT_LOCK + "();");
+	    sw.writeln("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");");
+	    sw.writeln("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();");
+	    sw.writeln("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
         sw.write(STATIC_INIT_UNLOCK + "();"); sw.end(); sw.newline();
 	    sw.write("}");
 	    sw.end(); sw.newline();
-	    sw.write("}");
-	    sw.newline();
+	    sw.writeln("}");
 	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() + " " + UNUSED + " = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
 	    sw.newline(); sw.forceNewline(0);
 	}
@@ -2584,8 +2570,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static boolean needsNullCheck(Receiver e) {
 	    if (e instanceof X10CanonicalTypeNode_c)
 	        return false;
-	    if (e instanceof X10Special_c)
-	        return ((X10Special_c) e).qualifier() != null;
+	    if (e instanceof X10Special_c) {
+	        if (((X10Special_c) e).qualifier() == null) return false;
+	        return !Types.isNonNull(e.type());
+	    }
 	    if (e instanceof X10Cast_c)
 	        return needsNullCheck(((X10Cast_c) e).expr());
 	    return !Types.isNonNull(e.type());

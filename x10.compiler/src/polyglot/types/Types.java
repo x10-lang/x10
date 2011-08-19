@@ -569,6 +569,7 @@ public class Types {
 	 * Does t imply {self!=null}?
 	 */
 	public static boolean isNonNull(Type t) {
+	    if (isX10Struct(t)) return true;
 		return disEntails(t, Types.self(t), XTerms.NULL);
 	}
 
