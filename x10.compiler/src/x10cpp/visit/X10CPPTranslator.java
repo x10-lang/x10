@@ -177,8 +177,9 @@ public class X10CPPTranslator extends Translator {
 				 (n instanceof ConstructorDecl) ||
 				 (n instanceof ClassDecl)))
 		{
+		    Node rn = n instanceof Eval ? ((Eval)n).expr() : n;
 			w.forceNewline(0);
-			w.write("//#line " + line + " \"" + file + "\": "+n.getClass().getName());
+			w.write("//#line " + line + " \"" + file + "\": "+rn.getClass().getName());
 			w.newline();
 		}
 		
