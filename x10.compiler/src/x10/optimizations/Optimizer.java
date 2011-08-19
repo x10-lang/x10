@@ -95,7 +95,7 @@ public class Optimizer {
         if (INLINING(extInfo)) {
             goals.add(Packager());
             goals.add(Inliner(false));
-        } else {
+        } else if (!config.WORK_STEALING){
             // Even when inlining is not enabled, we're still going to inline
             // closure calls on closure literals.
             goals.add(Inliner(true));
