@@ -17,7 +17,6 @@ import harness.x10Test;
  * @author igor 1/2006
  * @author vj 09/2008 -- Apparently the compiler cant deal with a(i)(j) = e.
  */
-
 public class MultiDimensionalJavaArray extends x10Test {
 
     static PI = Math.PI;
@@ -33,7 +32,7 @@ public class MultiDimensionalJavaArray extends x10Test {
 	val i = MIN.max/2;
         val d = a(i);
         for (val j in MAJ) {
-            chk(precision.is_equal((d(j), i * j / PI)));
+            chk(precision.is_equal(d(j), i * j / PI));
         }
 
         return true;
