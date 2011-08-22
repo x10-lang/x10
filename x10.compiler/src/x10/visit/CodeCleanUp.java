@@ -21,6 +21,7 @@ import java.util.Stack;
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
 import polyglot.ast.Eval;
+import polyglot.ast.Expr;
 import polyglot.ast.For;
 import polyglot.ast.Id;
 import polyglot.ast.Labeled;
@@ -40,6 +41,7 @@ import polyglot.types.Name;
 import polyglot.types.TypeSystem;
 import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AtStmt;
@@ -108,14 +110,8 @@ public class CodeCleanUp extends ContextVisitor {
             return used.booleanValue() ? n : ((Labeled)n).statement();
         } 
         
-        if (false && n instanceof Eval && ((Eval)n).expr() instanceof StmtExpr  && !(parent instanceof For)) {
-            // Eval(StmtExpr(Block(S), e) ===> B(S, Eval(e))
-            StmtExpr stexp = ((StmtExpr)((Eval)n).expr());
-            Block b = nf.Block(n.position(), stexp.statements());
-            if (stexp.result() != null) {
-                b.append(nf.Eval(stexp.result().position(), stexp.result()));
-            }
-            return clean(flattenBlock(b));
+        if (n instanceof Eval && ((Eval)n).expr() instanceof StmtExpr  && !(parent instanceof For)) {
+            return sinkEval((StmtExpr)((Eval)n).expr(), n.position());
         }
         
         if (!(n instanceof Block) || n instanceof SwitchBlock) {
@@ -131,6 +127,25 @@ public class CodeCleanUp extends ContextVisitor {
         b = clean(flattenBlock(b));
 
         return b;
+    }
+
+    // Eval(StmtExpr(Block(S), e) ===> B(S, Eval(e))
+    private Block sinkEval(StmtExpr stexp, Position pos) {
+        Block b = nf.Block(pos, stexp.statements());
+        if (!((X10Ext)stexp.ext()).annotations().isEmpty()) {
+            b = (Block)((X10Ext)b.ext()).annotations(((X10Ext)stexp.ext()).annotations());
+        }
+        
+        Expr result = stexp.result();
+        if (result != null) {
+            if (result instanceof StmtExpr) {
+                b = b.append(sinkEval((StmtExpr)result, result.position()));
+            } else {
+                b = b.append(nf.Eval(result.position(), result));
+            }
+        }
+        
+        return clean(flattenBlock(b));
     }
 
     /**
