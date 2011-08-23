@@ -100,7 +100,9 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
         String cc = X10CPPTranslator.outputFileName(packageName, name.name().toString(), StreamWrapper.CC);
         String h = X10CPPTranslator.outputFileName(packageName, name.name().toString(), StreamWrapper.Header);
 
-        System.out.println("Not recompiling: "+name);
+        if (reporter.should_report(report_topics, 4)) {
+            reporter.report(4, "Not recompiling: "+name);
+        }
 
         ((X10CPPCompilerOptions)ext.getOptions()).compilationUnits().add(cc);
         ext.compiler().addOutputFile(name, cc);
