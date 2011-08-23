@@ -98,5 +98,5 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
         VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.type = type;
         return v;
-    }
+    }   
 }

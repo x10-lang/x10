@@ -27,6 +27,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Prefix;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
+import polyglot.ast.Special.Kind;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Precedence;
 import polyglot.ast.Call;
@@ -67,10 +68,12 @@ import x10.types.X10ConstructorInstance;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
+import x10.types.ConstrainedType;
 import x10.types.X10LocalInstance;
 import x10.types.MethodInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10Use;
 import polyglot.types.TypeSystem;
 import polyglot.types.ProcedureDef;
@@ -496,6 +499,163 @@ public class X10Call_c extends Call_c implements X10Call {
 	    }
 	    return null;
 	}
+	
+	/**
+	 * A utility method for fetching receiver type of a method call.
+	 * This method is used for supporting data-centric synchronization.
+	 * */
+	private X10ParsedClassType_c fetchReceiverType(ContextVisitor tc) {
+		//use this dereference
+		if(this.target instanceof X10Special_c) {
+			X10Special_c special = (X10Special_c)this.target;
+			if(special.kind() == Kind.THIS) {
+				//special.
+				Type t = special.type();
+				if(t instanceof X10ParsedClassType_c) {
+					X10ParsedClassType_c thisClass = (X10ParsedClassType_c)t;
+					//TODO bug here? not return null?
+					return null;
+				} else if (t instanceof ConstrainedType){
+					ConstrainedType constType = (ConstrainedType)t;
+					if(constType.baseType().get() instanceof X10ParsedClassType_c) {
+						X10ParsedClassType_c clazzTypeConst = (X10ParsedClassType_c)constType.baseType().get();
+						X10ParsedClassType_c copiedClassType = clazzTypeConst.copy();
+						copiedClassType.setAtomicContext(copiedClassType);
+						return copiedClassType;
+					}
+				}
+			}
+		}
+		//expr.call();
+		Type targetType = this.target().type();
+		if(targetType instanceof X10ParsedClassType_c) {
+			return (X10ParsedClassType_c)this.target.type();
+		} else if (targetType instanceof ConstrainedType) {
+			ConstrainedType constType = (ConstrainedType)this.target.type();
+			if(constType.baseType().get() instanceof X10ParsedClassType_c) {
+				X10ParsedClassType_c classType = (X10ParsedClassType_c)constType.baseType().get();
+				return classType;
+			} else {
+			    return null;
+			}
+		} else {
+			Errors.issue(tc.job(), new SemanticException("Unsupported receiver type: "
+					+ targetType.getClass(), position()));
+			return null;
+		}
+	}
+	
+	@Override
+	public Node checkAtomicity(ContextVisitor tc) {
+		//take a look at the type signature of the method
+		//TODO need to check the method signature first for safety reason
+		MethodDef callMethod = this.methodInstance().def();
+		X10ParsedClassType_c receiverClassType = fetchReceiverType(tc);
+		//this must be hold
+		assert callMethod.formalTypes().size() == this.arguments.size();
+		int length = callMethod.formalTypes().size();
+		//check each parameter one by one
+		for(int i = 0; i < length; i++) {
+			//get the defined arguments
+			polyglot.types.Ref<? extends Type> ref = callMethod.formalTypes().get(i);
+			Type t = ref.get();
+			X10ParsedClassType_c defined = null;
+			if(t instanceof X10ParsedClassType_c) {
+				X10ParsedClassType_c clazzType = (X10ParsedClassType_c)t;
+				defined = clazzType;
+			} else {
+				continue;
+			}
+			//get the provided argument
+			X10ParsedClassType_c providedArgType = null;
+			Expr argExpr = this.arguments.get(i);
+			Type argType = argExpr.type();
+			if(argType instanceof X10ParsedClassType_c) {
+				X10ParsedClassType_c clazzArgType = (X10ParsedClassType_c)argType;
+				providedArgType = clazzArgType;
+			} else if (argType instanceof ConstrainedType) {
+				ConstrainedType consType = (ConstrainedType)argType;
+				Type baseType = consType.baseType().get();
+				if(baseType instanceof X10ParsedClassType_c) {
+					X10ParsedClassType_c baseClassType = (X10ParsedClassType_c)baseType;
+					providedArgType = baseClassType;
+				}
+			}
+			//check it one by one
+			if( defined != null && receiverClassType != null) {
+			    X10ParsedClassType_c adaptedType = Types.adapt(defined, receiverClassType, tc);
+			    if(adaptedType == null) {
+			    	SemanticException e = new Errors.AtomicContextNotEqual(defined, (X10ParsedClassType_c)defined.getAtomicContext(),
+			    			receiverClassType, (X10ParsedClassType_c)receiverClassType.getAtomicContext(), argExpr.position());
+			    	Errors.issue(tc.job(), e);
+			    }
+			    //check the provided
+			    if(providedArgType == null) {
+			    	Errors.issue(tc.job(), new SemanticException("Unsupported argument type for expr: " + argExpr, argExpr.position()));
+			    } else if(adaptedType != null) {
+			    	if(adaptedType.hasAtomicContext() && providedArgType.hasAtomicContext()) {
+			    		if(!tc.typeSystem().typeEquals(providedArgType, adaptedType, tc.context())) {
+			    			Errors.issue(tc.job(), new SemanticException("The atomic context is not equal",
+			    					argExpr.position()));
+			    		}
+			    	} else if(!(!adaptedType.hasAtomicContext() && !providedArgType.hasAtomicContext())) {
+			    		Errors.issue(tc.job(), new SemanticException("The argument expression"  + argExpr
+			    				+ " has inconsistent atomic context. "
+			    				+ "\n\t It should have atomic context: "	+ adaptedType.hasAtomicContext()
+			    				+ "\n\t but the provided type has atmic context: " + providedArgType.hasAtomicContext(),
+			    				argExpr.position()));
+			    	}
+			    }
+			}
+		}
+		
+		//check the return type
+		if(this.type() instanceof X10ParsedClassType_c) {
+			//the declared return type
+			//need to compute the real return type here:
+			//    adapt(t1 t2)
+			//        t1 is the declared return type
+			//        t2 is the receiver type
+			if(((X10ParsedClassType_c)this.type()).hasAtomicContext()) {
+				Type aContext = ((X10ParsedClassType_c)this.type()).getAtomicContext(); 
+				if(receiverClassType != null) { //fetched from target
+					if(aContext != null && !receiverClassType.hasAtomicContext()) {
+						SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(receiverClassType, this.position);
+						Errors.issue(tc.job(), e);
+					} else {
+						//guranteed, already checked
+						X10ParsedClassType_c declReturnType = null; //(X10ParsedClassType_c)this.type();// A(A)
+						
+						Type methodReturnType = this.mi.def().returnType().get();
+						X10ParsedClassType_c methodReturnClassType = Types.fetchX10ClassType(methodReturnType);
+						declReturnType = methodReturnClassType;
+						
+						X10ParsedClassType_c declRetContext = (X10ParsedClassType_c) aContext;
+						//the given receiver, must be true
+						X10ParsedClassType_c receiverType = receiverClassType;  //A(Atom)
+						X10ParsedClassType_c receiverContext = (X10ParsedClassType_c) receiverClassType.getAtomicContext();
+						
+						X10ParsedClassType_c adaptedType = Types.adapt(declReturnType, receiverType, tc);
+						
+						if(adaptedType == null) {
+							SemanticException e = new Errors.AtomicContextNotEqual(declReturnType, declRetContext,
+									receiverType, receiverContext, this, this.position());
+							Errors.issue(tc.job(), e);
+						} else {
+							//we brutely change the return type
+							if(adaptedType != declReturnType) {
+							    X10Call_c newCall = (X10Call_c) this.type(adaptedType);
+							    return newCall;
+							}
+						}
+					}
+				}
+			}
+		}
+		
+		
+		return super.checkAtomicity(tc);
+	}
 
 	public Node typeCheck(ContextVisitor tc) {
 		NodeFactory xnf = (NodeFactory) tc.nodeFactory();
@@ -756,6 +916,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		        methodCall = methodCall.constantValue(cv);
 		    }
 		}
+		
 		return methodCall;
 	}
 

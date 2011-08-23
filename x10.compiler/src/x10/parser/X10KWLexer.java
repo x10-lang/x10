@@ -26,7 +26,7 @@ import java.util.*;
 public class X10KWLexer extends X10KWLexerprs
 {
     private char[] inputChars;
-    private final int keywordKind[] = new int[61 + 1];
+    private final int keywordKind[] = new int[63 + 1];
 
     public int[] getKeywordKinds() { return keywordKind; }
 
@@ -554,6 +554,20 @@ public class X10KWLexer extends X10KWLexerprs
         //
         
             keywordKind[61] = (X10Parsersym.TK_haszero);
+      
+    
+        //
+        // Rule 62:  KeyWord ::= u n i t f o r
+        //
+        
+            keywordKind[62] = (X10Parsersym.TK_unitfor);
+      
+    
+        //
+        // Rule 63:  KeyWord ::= a t o m i c p l u s
+        //
+        
+            keywordKind[63] = (X10Parsersym.TK_atomicplus);
       
     
     //#line 111 "KeywordTemplateF.gi

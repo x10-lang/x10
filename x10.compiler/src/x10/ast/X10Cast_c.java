@@ -28,6 +28,7 @@ import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
 import polyglot.types.Context;
 import polyglot.types.ErrorRef_c;
+import polyglot.types.Flags;
 import polyglot.types.ObjectType;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
@@ -47,6 +48,7 @@ import x10.errors.Warnings;
 import x10.types.ParameterType;
 import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.TypeSystem;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
@@ -143,8 +145,39 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
             return Precedence.UNKNOWN;
         }
     }
+    
+    @Override
+    public Node checkAtomicity(ContextVisitor tc) {
+    	//gets the expression type
+    	X10ParsedClassType_c exprClassType = Types.fetchX10ClassType(this.expr().type());
+    	
+    	X10ParsedClassType_c exprContext = null;
+    	if(exprClassType != null) {
+    		//get the atomic context, if using the cast like:
+    		//a' =  expr as (atomicplus A);
+    		exprContext = (X10ParsedClassType_c) exprClassType.getAtomicContext();
+    	}
+    	//if the cast type is decorated with atomicplus annotation
+    	if(castType() != null && castType().getFlagsNode() != null) {
+    		if(castType().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+    			if(exprContext == null) {
+    				//if the expression does not have atomicplus info
+    				//it does not make sense to add new atomicplus by casting
+    			    Errors.issue(tc.job(),
+    			    		new Errors.TypeCastCannotHaveAtomicplus(castType().type(), position()));
+    			} else {
+    				//we must change the return type by adding the atomic context
+    				X10ParsedClassType_c retType = exprClassType.copy();
+    				retType.setAtomicContext(exprContext);
+    				return this.type(retType);
+    			}
+    		}
+    	} 
+    	return super.checkAtomicity(tc);
+    }
 
     public Node typeCheck(ContextVisitor tc) {
+    	
         if (castType() != null) {
             try {
                 Types.checkMissingParameters(castType());

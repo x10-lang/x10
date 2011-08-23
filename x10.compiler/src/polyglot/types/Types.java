@@ -3,9 +3,11 @@ package polyglot.types;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 import polyglot.ast.Binary;
@@ -1959,4 +1961,75 @@ public class Types {
         }
         return result;
     }
+    
+    /**
+     * Implements the adapt mechansim for data-centric synchronizations.
+     * It computes a new type as the result adapt(t1, t2) as follows:
+     * (1) if t1 is a raw type without any atomic context, returns t1
+     * (2) if t1 is not a raw type
+     *        if t1.getAtomicContext() == t2, return t1 and replaces
+     *           its atomic context with t2's atomic context.
+     *        else returns null, as no type can be computed.
+     * 
+     * @param defined the declared type
+     * @param receiver the receiver's type
+     * @return  a new type after adaptation. It can be <code>null</code>
+     *        if the adapted type can not be computed.
+     * */
+    public static X10ParsedClassType_c adapt(X10ParsedClassType_c defined,
+    		X10ParsedClassType_c receiver, ContextVisitor tc) {
+    	assert defined != null;
+    	assert receiver != null;
+    	
+    	if(!defined.hasAtomicContext()) {
+    		return defined;     //return the raw type directly
+    	} else {
+    		if(!receiver.hasAtomicContext()) {
+    			return null;   //can not apply if receiver do not have atomic context
+    		} else {
+    			//check if t1.getAtomicContext == t2?
+    			if(!tc.typeSystem().typeEquals(defined.getAtomicContext(),
+    					receiver, tc.context())) {
+    				return null;
+    			}
+    			//the atomic context of receiver can not be null
+    			if(receiver.getAtomicContext() == null) {
+    				return null;
+    			}
+    			//creates a new copy, and substitute it with t2's atomic context
+    			X10ParsedClassType_c result = defined.copy();
+    			result.setAtomicContext(receiver.getAtomicContext());
+    			return result;
+    		}
+    	}
+    }
+    
+    /**
+     * Implements a widely-used utility method for data-centric synchronization.
+     * It fetches a X10ParsedClassType_c type object from the given <code>type</code>.
+     * If the given type is already an instance of X10ParsedClassType_c, returns it.
+     * else if, the type is a ConstrainedType, then check its <code>baseType()</code>.
+     *    if the baseType is  X10ParsedClassType_c, then return the baseType.
+     *    else, returns null.
+     * else returns null.
+     * @param type  The given type to fetch an X10ParsedClassType_c type
+     * @return the fetched X10ParsedClassType_c type, it can be <code>null</code>.
+     * */
+    public static X10ParsedClassType_c fetchX10ClassType (Type type) {
+    	X10ParsedClassType_c retType = null;
+    	if(type instanceof ConstrainedType) {
+    		//check the base type is a classType of not
+    		Type baseType = ((ConstrainedType)type).baseType().get();
+    		if(baseType instanceof X10ParsedClassType_c) {
+    			retType = (X10ParsedClassType_c)baseType;
+    		}
+    	} else if(type instanceof X10ParsedClassType_c) {
+    		//returns directly
+    		retType = (X10ParsedClassType_c)type;
+    	} else {
+    		return null;
+    	}
+    	return retType;
+    }
+        
 }

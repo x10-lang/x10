@@ -88,6 +88,7 @@ import x10.ast.X10Binary_c;
 import x10.ast.X10Call;
 import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10Cast;
+import x10.ast.X10ClassDecl_c;
 import x10.ast.X10Formal;
 import x10.ast.X10Instanceof;
 import x10.ast.X10New;
@@ -319,6 +320,12 @@ public class Lowerer extends ContextVisitor {
     }
 
     public Node leaveCall(Node old, Node n, NodeVisitor v) throws SemanticException {
+    	
+    	if(n instanceof X10ClassDecl_c) {
+    		X10ClassDecl_c x10clz = (X10ClassDecl_c)n;
+    		return n;
+    	}
+    	
         if (n instanceof Async)
             return visitAsync(old, (Async) n);
         if (n instanceof AtStmt)
@@ -716,7 +723,17 @@ public class Lowerer extends ContextVisitor {
 
     // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }
     private Stmt visitAtomic(Atomic a) throws SemanticException {
+    	System.out.println("process atomic in lowerer, pos: " + a.position());
         Position pos = a.position();
+
+        final Name varName = Context.makeFreshName("dummyLock");
+        final Type type = ts.String();
+        final LocalDef li = ts.localDef(pos, ts.Final(), Types.ref(type), varName);
+        final Id varId = nf.Id(pos, varName);
+        final LocalDecl ld = nf.LocalDecl(pos, nf.FlagsNode(pos, ts.Final()),
+        		nf.CanonicalTypeNode(pos, type), varId, nf.NullLit(pos).type(ts.Null())).
+        		localDef(li);
+        
         Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
         Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
         return nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);

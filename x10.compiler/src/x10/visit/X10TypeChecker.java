@@ -79,7 +79,6 @@ public class X10TypeChecker extends TypeChecker {
 //	        memo.put(n, m);
 //	        memo.put(m, m);
 	    }
-
 	    return m;
 	}
 
@@ -88,12 +87,15 @@ public class X10TypeChecker extends TypeChecker {
 	}
 	    
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) {
+    	//System.out.println("X10TypeChecker#leaveCall");
+
 	    final TypeChecker tc = (TypeChecker) v;
 	    // Inline the super call without checking for expressions with unknown type
 	    Node m = n;
 	    m = m.del().disambiguate(tc);
 	    m = m.del().typeCheck(tc);
 	    m = m.del().checkConstants(tc);
+	    
 	    // Record the new node in the memo table.
 //	    memo.put(old, m);
 //	    memo.put(n, m);

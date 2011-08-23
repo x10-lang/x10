@@ -30,6 +30,7 @@ import polyglot.types.LazyRef;
 import polyglot.types.LazyRef_c;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.NoMemberException;
@@ -2182,6 +2183,76 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                         + " in " + mj.container() 
                                         +"; attempting to assign weaker behavioral annotations",
                                         mi.position());
+        }
+    }
+    
+    /**
+     * Checks the conformance of atomicplus declration in parameter and return type
+     * This is for data-centric synchronization
+     * */
+    public void checkAtomicOverride(MethodInstance r, MethodInstance other) throws SemanticException {
+    	MethodInstance mi = (MethodInstance) r;
+        MethodInstance mj = (MethodInstance) other;
+        XVar thisVar = mi.x10Def().thisVar(); 
+
+        List<XVar> ys = new ArrayList<XVar>(2);
+        List<XVar> xs = new ArrayList<XVar>(2);
+
+        MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
+        MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
+        final XVar[] y = ys.toArray(new XVar[ys.size()]);
+        final XVar[] x = xs.toArray(new XVar[ys.size()]);
+
+        mi = fixThis(mi, y, x);
+        mj = fixThis(mj, y, x);
+
+        // Force evaluation to help debugging.
+        mi.returnType();
+        mj.returnType();
+        
+        //check the argument
+        MethodDef mdi = mi.def();
+        MethodDef mdj = mj.def();
+        
+        if(mdi instanceof X10MethodDef_c && mdj instanceof X10MethodDef_c) {
+        	X10MethodDef_c x10mi = (X10MethodDef_c)mdi;
+        	X10MethodDef_c x10mj = (X10MethodDef_c)mdj;
+        	assert x10mi.formalTypes().size() == x10mj.formalTypes().size();
+        	//check the parameter override
+        	for(int i = 0; i < x10mi.formalTypes().size(); i++) {
+        		Name argName = x10mi.formalNames.get(i).name();
+        		Type iType = x10mi.formalTypes().get(i).get();
+        		Type jType = x10mj.formalTypes().get(i).get();
+        		if(iType instanceof X10ParsedClassType_c && jType instanceof X10ParsedClassType_c) {
+        			X10ParsedClassType_c iClassType = (X10ParsedClassType_c)iType;
+        			X10ParsedClassType_c jClassType = (X10ParsedClassType_c)jType;
+        			if(iClassType.hasAtomicContext() && !jClassType.hasAtomicContext()) {
+        				throw new SemanticException("The argument: " + argName + " in method: "
+        						+ x10mi + "\n\t can not be declared with atomicplus to override method "
+        						+ x10mj + " in class: " + x10mj.container().get());
+        			}
+        			if(!iClassType.hasAtomicContext() && jClassType.hasAtomicContext()) {
+        				throw new SemanticException("The argument: " + argName + " in method: "
+        						+ x10mi + "\n\t must be declared with atomicplus to override method "
+        						+ x10mj + " in class: " + x10mj.container().get());
+        			}
+        		}
+        	}
+        	//check the return type override, should be exactly the same
+        	Type miRet = x10mi.returnType().get();
+        	Type mjRet = x10mj.returnType().get();
+        	if(miRet instanceof X10ParsedClassType_c && mjRet instanceof X10ParsedClassType_c) {
+        		X10ParsedClassType_c miRetClazz = (X10ParsedClassType_c)miRet;
+        		X10ParsedClassType_c mjRetClazz = (X10ParsedClassType_c)mjRet;
+        		if(miRetClazz.hasAtomicContext() && !mjRetClazz.hasAtomicContext()) {
+        			throw new SemanticException("The return type of method: " + x10mj
+        					+ "\n\t should not be declared with atomicplus to override method: " + x10mj);
+        		}
+        		if(!miRetClazz.hasAtomicContext() && mjRetClazz.hasAtomicContext()) {
+        			throw new SemanticException("The return type of method: " + x10mj
+        					+ "\n\t must be declared with atomicplus to override method: " + x10mj);
+        		}
+        	}
         }
     }
 

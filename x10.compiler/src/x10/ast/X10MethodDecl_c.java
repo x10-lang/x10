@@ -508,6 +508,107 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			        new Errors.PropertyMethodCannotBeStatic(position()));
 		}
 	}
+	
+	/**
+	 * Have not implemented yet
+	 * TODO the method overriding issues, should the arguments or return types be invariants
+	 *      co-variant or contra-variants? The same is for the X10ConstructorDecl class.
+	 *
+	 * for example, the following code should not type check, since the the parameter types
+	 * become "wider"
+	 * 
+	 * public class A {
+	 *    public def method(b:(atomicplus B)) {...}
+	 * }
+	 * 
+	 * public class B extends A {
+	 *    public def method(b:B) {}   //it should not type check
+	 * }
+	 * 
+	 * Since it would violate the typing rule  a:A = new B();   a.method((atomicplus B));
+	 * 
+	 * So the parameter should have the exactly the same signature. 
+	 * 
+	 * Similarly, for the return type. The following code should not type check too:
+	 * 
+	 * public class A {
+	 *     public def method(b:B) : (atomicplus B) { ... }
+	 * }
+	 * 
+	 * public class B extends A {
+	 *     public def method(b:B) : B {... }
+	 * }
+	 * 
+	 * It may violate the rule:  a:A = new B();   b:(atomicplus B) = a.method(new B());
+	 * */
+	@Override
+    public Node checkAtomicity(ContextVisitor tc) {
+		//check the method parameters
+		for(Formal f : this.formals) {
+			Type ft = f.type().type();
+			//if the parameter is annotated with atomicplus
+			if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+				//it must be a class type.
+				assert ft instanceof X10ParsedClassType_c;
+				//for safety, if the atomic context has not been set, set it here
+				X10ParsedClassType_c clazzType = (X10ParsedClassType_c)ft;
+				if(!clazzType.hasAtomicContext()) {
+					clazzType.setAtomicContext(this.methodDef().container().get());
+				}
+			}
+			//check if the container class and the parameter type class both have
+			//atomic fields declared
+			if(ft instanceof X10ParsedClassType_c) {
+				//for safety, accumulate the atomic fields
+				X10ParsedClassType_c clazzType = (X10ParsedClassType_c)ft;
+				X10ClassDecl_c.accumulateAtomicFields(clazzType.def());
+				
+				//if the parameter declaration has atomicplus
+				if(clazzType.getAtomicContext() != null) {
+					//if the parameter class does not contain atomic fields, issue an error
+					if(!clazzType.def().hasAtomicFields()) {
+						Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(clazzType, f.position()));
+					}
+					//get the container, and accumulate its atomic fields
+					X10ParsedClassType_c container = (X10ParsedClassType_c)clazzType.getAtomicContext();
+					X10ClassDecl_c.accumulateAtomicFields(container.def());
+					//issue an error, if the container does not have atomic fields
+					if(!container.def().hasAtomicFields()) {
+						Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(container, this.position()));
+					}
+				}
+			}
+		}
+		//check the method return type
+		TypeNode retNode = this.returnType;
+		Type retType = retNode.type();
+		//if it returns a class type
+		if(retType instanceof X10ParsedClassType_c) {
+			//accumualte atomic fields of its return type class
+			X10ParsedClassType_c retClazzType = (X10ParsedClassType_c)retType;
+			X10ClassDecl_c.accumulateAtomicFields(retClazzType.def());
+			if(retClazzType.hasAtomicContext() && !retClazzType.def().hasAtomicFields()) {
+				Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(retClazzType, this.returnType().position()));
+			}
+		}
+		
+		//finally check the atomic override conformance
+		TypeSystem ts = tc.typeSystem();
+		MethodInstance mi = this.mi.asInstance();
+		for (MethodInstance mj : mi.implemented(tc.context()) ){
+            if (! ts.isAccessible(mj, tc.context())) {
+                continue;
+            }
+            mj = X10ClassDecl_c.expandMacros(tc, ts, mi, mj);
+            try {
+            	ts.checkAtomicOverride(mi, mj, tc.context());
+            } catch (SemanticException e) {
+                Errors.issue(tc.job(), e, this);
+            }
+        }
+		
+		return super.checkAtomicity(tc);
+	}
 
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
@@ -521,6 +622,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 
 		Flags xf = mi.flags();
+		
 
 		//if (xf.isProperty() && body == null) {
 		//    Errors.issue(tc.job(),
@@ -571,6 +673,44 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		}
 
 		n = (X10MethodDecl_c) n.superTypeCheck(tc);
+		
+		//checks the parameters and return type of a method, to see whether the type
+		//is decorated with atomic, or atomicplus. This is for data-centric synchronization.
+		for(Formal f : this.formals) {
+			Type ft = f.type().type();
+			if(f.type().getFlagsNode() != null) {
+				if(!(ft instanceof X10ParsedClassType_c)) {
+					SemanticException e = new Errors.TypeCannotHaveAtomicplus(ft, f.position());
+					Errors.issue(tc.job(), e);
+				} else {
+					//set the container class as the atomic context
+				    X10ParsedClassType_c formalClazzType = (X10ParsedClassType_c)ft;
+			        Type container = this.methodDef().container().get();
+			        formalClazzType.setAtomicContext(container);
+				}
+			}
+			if(f.flags().flags().contains(Flags.ATOMIC)) {
+				SemanticException e = new Errors.FormalParameterCannotHaveAtomic(f.type().type(), position());
+				Errors.issue(tc.job(), e);
+			}
+		}
+		if(this.returnType != null) {
+			//if the return type has been declared with atomicplus
+			if(this.returnType.getFlagsNode() != null) {
+				Type rettype = this.returnType.type();
+				if(!(rettype instanceof X10ParsedClassType_c)) {
+					SemanticException e = new Errors.TypeCannotHaveAtomicplus(rettype, rettype.position());
+					Errors.issue(tc.job(), e);
+				} else {
+					//set the container as the atomic context
+					X10ParsedClassType_c retClassType = (X10ParsedClassType_c)rettype;
+					if(this.returnType().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+						Type container = this.memberDef().container().get();
+						retClassType.setAtomicContext(container);
+					}
+				}
+			}
+		}//end of data-centric synchronization
 
 		try {
 		    dupFormalCheck(typeParameters, formals);
@@ -593,7 +733,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
             }
             Types.checkVariance(n.returnType, ParameterType.Variance.COVARIANT,tc.job());
         }
-
         // check subtype restriction on implicit and explicit operator as:
         // the return type must be a subtype of the container type
         final Name nameId = n.name.id();

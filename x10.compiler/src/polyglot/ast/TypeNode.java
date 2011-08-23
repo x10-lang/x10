@@ -25,4 +25,14 @@ public interface TypeNode extends Receiver, QualifierNode, Term
     String nameString();
 
     TypeNode typeRef(Ref<? extends Type> ref);
+    
+    /**Sets the flag for data-centric synchronization, annotating whether
+     * the atomic sets of this type should be associated with other atomic
+     * sets. **/
+    void setFlagsNode(FlagsNode flags);
+    
+    /**
+     * Gets the flag for data-centric synchronization.
+     * */
+    FlagsNode getFlagsNode();
 }

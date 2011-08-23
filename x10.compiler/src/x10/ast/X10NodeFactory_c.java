@@ -22,7 +22,9 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.ExtensionInfo;
+import x10.errors.Errors;
 import x10.types.ParameterType;
+import x10.types.X10ParsedClassType_c;
 import x10.types.checker.Converter;
 import x10cuda.ast.CUDAKernel;
 
@@ -85,6 +87,18 @@ public class X10NodeFactory_c extends NodeFactory_c {
 
 	public X10AmbTypeNode AmbTypeNode(Position pos, Prefix p, Id name) {
 	    X10AmbTypeNode_c n = new X10AmbTypeNode_c(pos, p, name);
+	    n = (X10AmbTypeNode_c) n.ext(extFactory().extAmbTypeNode());
+	    n = (X10AmbTypeNode_c) n.del(delFactory().delAmbTypeNode());
+	    return n;
+	}
+	
+	/**
+	 * Creates an AmbTypeNode-typed node with atomic plus annotation.
+	 * This is for data-centric synchronization.
+	 * */
+	public AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Prefix p, Id name) {
+		//create a new type here
+		X10AmbTypeNode_c n = new X10AmbTypeNodeAtomicplus_c(pos, p, name);
 	    n = (X10AmbTypeNode_c) n.ext(extFactory().extAmbTypeNode());
 	    n = (X10AmbTypeNode_c) n.del(delFactory().delAmbTypeNode());
 	    return n;

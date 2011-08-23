@@ -122,9 +122,16 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       NodeFactory nf = (NodeFactory) tc.nodeFactory();
     
       try {
-	  TypeNode tn = disambiguateAnnotation(tc);
-	  if (tn != null)
+	      TypeNode tn = disambiguateAnnotation(tc);
+	  if (tn != null) {
+		   //in data-centric synchronization, we can not use atomicplus
+		   //to decorate annotation types
+		  if(this.getFlagsNode() != null) {
+		     Errors.issue(tc.job(), new SemanticException("Can not use atomicplus to decorate annotation: "
+				   + tn, pos));
+		  }
 	      return tn;
+	    }
       }
       catch (SemanticException e) {
           LazyRef<Type> sym = (LazyRef<Type>) type;
@@ -132,7 +139,9 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
           ut.def().position(pos);
           sym.update(ut);
           Errors.issue(tc.job(), e, this);
-          return nf.CanonicalTypeNode(pos, sym);
+          X10CanonicalTypeNode retNode = nf.CanonicalTypeNode(pos, sym);
+          
+          return retNode;
       }
 
       Prefix prefix = this.prefix;
@@ -152,8 +161,10 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
           }
           else if (prefix instanceof TypeNode) {
               TypeNode tn = (TypeNode) prefix;
-              
               Type bt = tn.type();
+              
+              //note this is for inner class, like Class.InnerClass
+              
               if (Types.isConstrainedType(bt)) 
                   bt = Types.baseType(tn.type());
               if (bt instanceof X10ParsedClassType) {
@@ -176,8 +187,11 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               Goal resolver = tc.job().extensionInfo().scheduler().LookupGlobalType(sym);
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
-
-              return postprocess(nf.CanonicalTypeNode(pos, sym), this, ar);   
+              /*set the node flag after disambiguing the node in data-centric
+               * synchronization */
+              TypeNode node = postprocess(nf.CanonicalTypeNode(pos, sym), this, ar);
+              node.setFlagsNode(this.getFlagsNode());
+              return node;
           }
       }
       catch (SemanticException e) {
@@ -204,7 +218,11 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               Goal resolver = tc.job().extensionInfo().scheduler().LookupGlobalType(sym);
               resolver.update(Goal.Status.SUCCESS);
               sym.setResolver(resolver);
-              return postprocess((X10CanonicalTypeNode) tn, this, ar);   
+              /*set the node flag after disambiguing the node in data-centric
+               * synchronization */
+              TypeNode node =  postprocess((X10CanonicalTypeNode) tn, this, ar);
+              node.setFlagsNode(this.getFlagsNode());
+              return node;
           }
     
           ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +"\".", pos);
@@ -219,7 +237,11 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       ut.def().position(position());
       sym.update(ut);
       Errors.issue(tc.job(), ex, this);
-      return nf.CanonicalTypeNode(position(), sym);
+      /*set the node flag after disambiguing the node in data-centric
+       * synchronization */
+      X10CanonicalTypeNode retNode = nf.CanonicalTypeNode(position(), sym);
+      retNode.setFlagsNode(this.getFlagsNode());
+      return retNode;
   }
   
   public static QName fullName(Prefix prefix) {

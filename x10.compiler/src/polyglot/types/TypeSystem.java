@@ -632,6 +632,12 @@ public interface TypeSystem {
      * @param context TODO
      */
     void checkOverride(MethodInstance mi, MethodInstance mj, Context context) throws SemanticException;
+    
+    /**
+     * Throw a SemanticException if <code>mi</code> cannot override <code>mj</code>
+     * due to incorrectly declaring data-centric synchronization constructs
+     * */
+    void checkAtomicOverride(MethodInstance mi, MethodInstance mj, Context context) throws SemanticException;
 
     /**
      * Get the list of methods <code>mi</code> implements, in no

@@ -340,6 +340,14 @@
         /.$BeginJava
 			r.rule_Modifier10();
         $EndJava./
+                   | unitfor
+        /.$BeginJava
+			r.rule_Modifier11();
+        $EndJava./
+                   | atomicplus
+        /.$BeginJava
+			r.rule_Modifier12();
+        $EndJava./
 
     MethodModifiersopt ::= Modifiersopt
                          | MethodModifiersopt property$property
@@ -1156,7 +1164,11 @@
         /.$BeginJava
 			r.rule_TypeName2(TypeName,Identifier);
         $EndJava./
-
+               | ( Modifiersopt TypeName )
+        /.$BeginJava
+			r.rule_TypeName3(Modifiersopt,TypeName);
+		$EndJava./
+		
     ClassName ::= TypeName
 
     TypeArguments ::= '[' TypeArgumentList ']'

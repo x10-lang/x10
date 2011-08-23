@@ -30,6 +30,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.StringLit;
 import polyglot.ast.TypeNode;
 import polyglot.ast.CanonicalTypeNode;
+import polyglot.ast.TypeNode_c;
 import polyglot.frontend.AbstractGoal_c;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Goal;
@@ -39,9 +40,11 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.InitializerDef;
 import polyglot.types.LazyRef;
+import polyglot.types.LazyRef_c;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
@@ -72,15 +75,18 @@ import x10.types.X10FieldDef;
 import x10.types.X10InitializerDef;
 
 
+import x10.types.ConstrainedType;
 import x10.types.X10FieldDef_c;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10ClassDef_c;
 import polyglot.types.TypeSystem;
 import polyglot.types.FieldInstance;
+import sun.security.timestamp.TSRequest;
 import x10.types.checker.Checker;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
+import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -220,6 +226,8 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 
     public Node conformanceCheck(ContextVisitor tc) {
         Node result = super.conformanceCheck(tc);
+        
+        //System.out.println("conformance checking: field " + this.fieldDef());
 
         // Any occurrence of a non-final static field in X10
         // should be reported as an error.
@@ -453,6 +461,62 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	        }
 	        return n;
 	    }
+	    
+	    @Override
+	    public Node checkAtomicity(ContextVisitor tc) {
+	    	Type type = this.type().type();
+	    	Type declType = this.fieldDef().type().get();
+	    	if(declType instanceof X10ParsedClassType_c) {
+	    	    //it is a class type
+	    	    X10ParsedClassType_c clazztype = (X10ParsedClassType_c)declType;
+	    	    ClassDef cdef = tc.typeSystem().classDefOf(clazztype);
+	    	    X10ClassDef_c x10cdef = (X10ClassDef_c)cdef;
+	    	    //for safety, we accumulate atomic fields for the class
+	    	    X10ClassDecl_c.accumulateAtomicFields(x10cdef);
+	    	    
+	    	    //if the field is declared with atomicplus, the field class and
+	    	    //the container class must have atomic fields
+	    	    if(clazztype.hasAtomicContext()) {
+	    	    	//check the cotnainer class
+	    	    	Type containerType = fieldDef().container().get();
+	    	    	if(!(containerType instanceof X10ParsedClassType_c)) {
+	    	    		SemanticException e = new Errors.TypeCannotHaveAtomicplus(containerType, this.position());
+	    	    		Errors.issue(tc.job(), e);
+	    	    	}
+	    	    	//this must hold
+		    	    assert containerType instanceof X10ParsedClassType_c;
+		    	    X10ClassDef_c containerClass = (X10ClassDef_c) ((X10ParsedClassType_c)containerType).def();
+		    	    
+		    	    //accumulate atomic fields for the container class
+		    	    X10ClassDecl_c.accumulateAtomicFields(containerClass);
+		    	    
+		    	    if(!containerClass.hasAtomicFields()) {
+		    	    	Errors.issue(tc.job(), new Errors.ThisClassDoesnotHaveAtomicset(containerType, position()));
+		    	    }
+	    	    	
+	    	    	if(!x10cdef.hasAtomicFields()) {
+	    	    		Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(clazztype, this.position()));
+	    	    	}
+	    	    	//check the init part, should also be declared using atomicplus
+	    	    	Type initType = this.init().type();
+	    	    	X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
+	    	    	if(initClassType != null && !initClassType.hasAtomicContext()) {
+	    	    		Errors.issue(tc.job(), new Errors.InitializerMustHaveAtomicplus(initClassType, this.position()));
+	    	    	}
+	    	    } else {
+	    	    	//if no atomicplus, the init part should be evaluted as a raw object
+	    	    	if(this.init() != null) {
+	    	    	  Type initType = this.init().type();
+	    	    	  X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
+	    	    	  if(initClassType != null && initClassType.hasAtomicContext()) {
+	    	    		Errors.issue(tc.job(), new Errors.InitializerNeedCastOffAtomicplus(initClassType, this.position()));
+	    	    	  }
+	    	    	}
+	    	    }
+	    	    
+	    	}
+	    	return super.checkAtomicity(tc);
+	    }
 
 	    @Override
 	    public Node typeCheck(ContextVisitor tc) {
@@ -461,7 +525,28 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	Type oldType = (Type)type.copy();
 	    	Context xc = (Context) enterChildScope(type(), tc.context());
 	    	Flags f = flags.flags();
-	    	
+            
+	    	//check the field declaration, and set atomic context for it.
+	    	//it is for data-centric synchronization
+	    	if(typeNode.getFlagsNode() != null) {
+	    		//get the container type
+	    	    Type containerType = fieldDef().container().get();
+	    	    if(!(typeNode.type() instanceof X10ParsedClassType_c)) {
+	    	    	SemanticException e = new Errors.TypeCannotHaveAtomicplus(type, typeNode.position());
+	    	    	Errors.issue(tc.job(), e);
+	    	    } else {
+	    	        //the container and the field type must be class type
+	    	        assert typeNode.type() instanceof X10ParsedClassType_c;
+	    	        assert containerType instanceof X10ParsedClassType_c;
+	    	        ((X10ParsedClassType_c)typeNode.type()).setAtomicContext(containerType);
+	    	    }
+	    	}
+	    	//if the field is an atomic field, we add it to its class declaration
+	    	if(this.flags().flags().contains(Flags.ATOMIC)) {
+	            X10ParsedClassType_c x10type = (X10ParsedClassType_c)fieldDef().container().get();
+	            x10type.def().addAtomicFields(this.fieldDef());
+	    	} //end of data-centric synchronization
+	        
 	    	try {
                 Types.checkMissingParameters(typeNode);
 	    	} catch (SemanticException e) {

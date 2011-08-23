@@ -120,6 +120,8 @@ import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.TypeParamAlphaRenamer;
+import x10.visit.X10AtomicityChecker;
+import x10.visit.X10AtomicityTranslator;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10MLVerifier;
@@ -474,7 +476,14 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   addTypecheckSourceGoals(job, goals);
 
            goals.add(ConformanceChecked(job));
-
+           
+           /*data-centric synchronization*/
+           X10CompilerOptions opts = extensionInfo().getOptions();
+           if(opts.x10_config.DATA_CENTRIC) {
+        	   Goal atomicityCheckedGoal = AtomicityChecked(job);
+               goals.add(atomicityCheckedGoal);
+           }
+           
            // Data-flow analyses
            goals.add(ReachabilityChecked(job)); // This must be the first dataflow analysis (see DataFlow.reportCFG_Errors)
            //goals.add(ExceptionsChecked(job));
@@ -585,15 +594,32 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
                final Goal typeCheckBarrierGoal = addPreOptimizationGoals(job, goals);
-
+               
+               //support data-centric synchronization
+               final Goal atomicTranslatorGoal = AtomicityTranslator(job);
+               if(opts.x10_config.DATA_CENTRIC) {
+            	   goals.add(atomicTranslatorGoal);
+               }
+               
                goals.add(Preoptimization(job));
                goals.addAll(Optimizer.goals(this, job));
                goals.add(Postoptimization(job));
 
                final Goal lowererGoal = Lowerer(job);
                goals.add(lowererGoal);
+
+               //add data-centric synchronization goal before lower
+               if(opts.x10_config.DATA_CENTRIC) {
+            	   lowererGoal.addPrereq(atomicTranslatorGoal);
+               }
+               
                final Goal codeGeneratedGoal = CodeGenerated(job);
                goals.add(codeGeneratedGoal);
+               
+             //add data-centric synchronization goal before lower
+               if(opts.x10_config.DATA_CENTRIC) {
+            	   codeGeneratedGoal.addPrereq(atomicTranslatorGoal);
+               }
 
                // the barrier will handle prereqs on its own
                codeGeneratedGoal.addPrereq(CodeGenBarrier());
@@ -602,6 +628,10 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                List<Goal> optimizations = Optimizer.goals(this, job);
                for (Goal goal : optimizations) {
                    goal.addPrereq(typeCheckBarrierGoal);
+                   //data-centric
+//                   if(atomicTranslatorGoal != null) {
+//                       goal.addPrereq(atomicTranslatorGoal);
+//                   }//end
                    codeGeneratedGoal.addPrereq(goal);
                }
 
@@ -937,6 +967,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = job.extensionInfo().nodeFactory();
            return new ForgivingVisitorGoal("ConformanceChecked", job, new ConformanceChecker(job, ts, nf)).intern(this);
        }
+       
+       // The goal for checking typing rules of data-centric synchronization
+       public Goal AtomicityChecked(Job job) {
+    	   TypeSystem ts = job.extensionInfo().typeSystem();
+    	   NodeFactory nf = job.extensionInfo().nodeFactory();
+    	   return new ForgivingVisitorGoal("AtomicityChecked", job, new X10AtomicityChecker(job, ts, nf)).intern(this);
+       }
 
        public Goal ReachabilityChecked(Job job) {
            TypeSystem ts = job.extensionInfo().typeSystem();
@@ -1066,6 +1103,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ValidatingVisitorGoal("Desugarer", job, new Desugarer(job, ts, nf)).intern(this);
+       }
+       
+       /*translate data-centric synchronization constructs to X10 code*/
+       public Goal AtomicityTranslator(Job job) {
+    	   TypeSystem ts = extInfo.typeSystem();
+    	   NodeFactory nf = extInfo.nodeFactory();
+    	   return new ValidatingVisitorGoal("AtomicityTranslator", job, new X10AtomicityTranslator(job, ts, nf)).intern(this);
        }
        
        public Goal Lowerer(Job job) {

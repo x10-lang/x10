@@ -31,8 +31,11 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.errors.Errors;
 import x10.types.ClosureDef;
+import x10.types.ConstrainedType;
 import x10.types.TypeDef;
 import x10.types.X10ClassType;
+import x10.types.X10MethodDef_c;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
@@ -47,6 +50,65 @@ public class X10Return_c extends Return_c {
 	public X10Return_c(Position pos, Expr expr, boolean implicit) {
 		super(pos, expr);
 		this.implicit = implicit;
+	}
+	
+	@Override
+	public Node checkAtomicity(ContextVisitor tc) {
+		CodeDef ci = tc.context().currentCode();
+		FunctionDef fi = (FunctionDef) ci;
+		
+		if(!(fi instanceof X10MethodDef_c)) {
+			return super.checkAtomicity(tc);
+		}
+		
+		//check if the return expression matches the context
+		Type atomicContext = null;
+		if(this.expr() != null) {
+			Type t = this.expr().type();
+			if(t instanceof X10ParsedClassType_c) {
+				atomicContext = ((X10ParsedClassType_c)t).getAtomicContext();
+			} else if (t instanceof ConstrainedType) {
+				ConstrainedType ct = (ConstrainedType)t;
+				Type baseType = ct.baseType().get();
+				if(baseType instanceof X10ParsedClassType_c) {
+					atomicContext = ((X10ParsedClassType_c)baseType).getAtomicContext();
+				}
+			}
+		}
+		
+		//get the return type
+		X10MethodDef_c x10defc = (X10MethodDef_c)fi;
+		Type retType = x10defc.returnType().get();
+		
+		X10ParsedClassType_c retClassType = null;
+		if(retType instanceof X10ParsedClassType_c) {
+			retClassType = (X10ParsedClassType_c)retType;
+		} else if (retType instanceof ConstrainedType) {
+			Type baseType = ((ConstrainedType)retType).baseType().get();
+			if(baseType instanceof X10ParsedClassType_c) {
+				retClassType = (X10ParsedClassType_c)baseType;
+			}
+				
+		}
+		if(retClassType != null) {
+		  Type retTypeAtomicContext = retClassType.getAtomicContext();
+		  //check if the declared return type matches the expression in terms of atomic context
+		  if(atomicContext != null && retTypeAtomicContext == null) {
+			  Errors.issue(tc.job(), new SemanticException("Return statement: " + this.expr()
+					+ " should not have atomic context: " + atomicContext, position));
+		  } else if (atomicContext == null && retTypeAtomicContext != null){
+			  Errors.issue(tc.job(), new SemanticException("Return statement: " + this.expr()
+					+ " misses the atomic context: " + retTypeAtomicContext, position));
+		  } else if (atomicContext != null && retTypeAtomicContext != null) {
+			  if(!tc.typeSystem().typeEquals(atomicContext, retTypeAtomicContext, tc.context())) {
+				Errors.issue(tc.job(), new SemanticException("Return statement: " + this.expr()
+						+ " has different atomic context: " + atomicContext
+						+ ", that is is expected: " + retTypeAtomicContext, position));
+			  }
+		  }
+		}
+		
+		return super.checkAtomicity(tc);
 	}
 	
 	@Override
@@ -185,6 +247,7 @@ public class X10Return_c extends Return_c {
 //		                return n.superTypeCheck(tc);
 //		            }
 //		        }
+		        
 		        Expr e = Converter.attemptCoercion(tc, n.expr(), returnType);
 		        if (e != null) {
 		            n = (X10Return_c) n.expr(e);

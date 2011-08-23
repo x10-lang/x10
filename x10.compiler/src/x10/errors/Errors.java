@@ -81,6 +81,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10FieldInstance;
 import x10.types.MethodInstance;
 import x10.types.X10MethodDef;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureInstance;
 import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
@@ -1549,6 +1550,190 @@ public class Errors {
 					"\n\t Actual type: " + type, p);
 		}
 	}
+
+	//data-centric synchronization
+	public static class LocalVariableCannotHaveUnitfor extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -739563293165249006L;
+		public LocalVariableCannotHaveUnitfor(Type type, Position p) {
+			super("Local variable cannot be declared using unitfor." +
+					"\n\t Actual type: " + type, p);
+		}
+		
+	}
+	
+	//data-centric synchronization
+	public static class FormalParameterCannotHaveAtomic extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = 3892869966048199459L;
+
+		public FormalParameterCannotHaveAtomic(Type type, Position p) {
+			super("Method argument cannot be declared using atomic." +
+					"\n\t Actual type: " + type, p);
+		}
+		
+	}
+	
+	//data-centric synchronization
+	public static class TypeCannotHaveAtomicplus extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 8377107491483890240L;
+
+		public TypeCannotHaveAtomicplus(Type type, Position p) {
+			super("Type: " + type + ", of class: " + type.getClass() +
+					"\n\t can not be annotated with: " + Flags.ATOMICPLUS, p);
+		}
+		
+	}
+	
+	//data-centric synchronization
+	public static class AtomicContextNotEqual extends SemanticException {
+		
+		private static final long serialVersionUID = -8846983547774891210L;
+		
+		public AtomicContextNotEqual(X10ParsedClassType_c t1, X10ParsedClassType_c c1, X10ParsedClassType_c t2,
+				X10ParsedClassType_c c2, Position p) {
+			super("The atomic context is not equal:"
+					+ "\n\t t1: " + t1
+					+ "\n\t t1.atomicContext: " + c1
+					+ "\n\t t2: " + t2
+					+ "\n\t t2.atomicContext: " + c2
+					+ "\n\t particulary: t1.atomicContext != t2", p);
+		}
+		
+		public AtomicContextNotEqual(Expr e1, X10ParsedClassType_c t1, X10ParsedClassType_c c1,
+				Expr e2, X10ParsedClassType_c t2, X10ParsedClassType_c c2, Position p) {
+			super("The atomic context is not equal:"
+					+ "\n\t expression e1: " + e1 + ", with type"
+					+ "\n\t t1: " + t1
+					+ "\n\t t1.atomicContext: " + c1
+					+ "\n\t expression e2: " + e2 + ", with type"
+					+ "\n\t t2: " + t2
+					+ "\n\t t2.atomicContext: " + c2
+					+ "\n\t particulary: t1.atomicContext != t2", p);
+		}
+		
+		public AtomicContextNotEqual(X10ParsedClassType_c t1, X10ParsedClassType_c c1, X10ParsedClassType_c t2,
+				X10ParsedClassType_c c2, Expr expr, Position p) {
+			super("The atomic context is not equal:"
+					+ "\n\t t1: " + t1
+					+ "\n\t t1.atomicContext: " + c1
+					+ "\n\t t2: " + t2
+					+ "\n\t t2.atomicContext: " + c2
+					+ "\n\t particulary: t1.atomicContext != t2"
+					+ "\n\t in expression: " + expr, p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class TypeDoesnotHaveAtomicContext extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -8805347034432920288L;
+
+		public TypeDoesnotHaveAtomicContext(Type type, Position p) {
+			super("Type: " + type + " does not have atomic context.", p);
+		}
+		
+		public TypeDoesnotHaveAtomicContext(Expr expr, Type type, Position p) {
+			super("Expr : " + expr + " with type: " + type + "\n\t  does not have atomic context.", p);
+		}
+		
+		public TypeDoesnotHaveAtomicContext(Expr expr, Type type, Type context, Position p) {
+			super("Expr : " + expr + " with type: " + type + "\n\t  does not have atomic context: " + context, p);
+		}
+		
+	}
+	
+	//data-centric synchronization
+	public static class TypeCanNotHaveAtomicContext extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 5248059512622293996L;
+
+		public TypeCanNotHaveAtomicContext(Type type, Type context, Position p) {
+			super("Type: " + type + " can not have atomic context: " + context, p);
+		}
+		
+		public TypeCanNotHaveAtomicContext(Expr expr, Type type, Type context, Position p) {
+			super("Expr : " + expr + " with type: " + type + "\n\t can not have atomic context: " + context, p);
+		}
+		
+	}
+	
+	//data-centric synchronization
+	public static class AtomicPlusClassDonotHaveAtomicFields extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -6718740113711210443L;
+
+		public AtomicPlusClassDonotHaveAtomicFields(Type type, Position p) {
+			super("Class: " + type + " does not declare or inherit atomic fields." +
+					"\n\t can not be annotated with: " + Flags.ATOMICPLUS, p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class InitializerMustHaveAtomicplus extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 3053446371890467466L;
+
+		public InitializerMustHaveAtomicplus(Type type, Position p) {
+			super("The initializer with type: " + type + " is not declared with: " + Flags.ATOMICPLUS, p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class InitializerNeedCastOffAtomicplus extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 8300338845518714365L;
+
+		public InitializerNeedCastOffAtomicplus(Type type, Position p) {
+			super("The initializer with type: " + type + " must explicitly cast off " + Flags.ATOMICPLUS, p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class ThisClassDoesnotHaveAtomicset extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = 5039331867962007559L;
+
+		public ThisClassDoesnotHaveAtomicset(Type type, Position p) {
+			super("This class: " + type + " does not include or inheirt atomic fields ", p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class AssignNeedCastOffAtomicplus extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -3129560186898033985L;
+
+		public AssignNeedCastOffAtomicplus(Type type, Position p) {
+			super("The field assignment with type: " + type + " must explicitly cast off " + Flags.ATOMICPLUS, p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class AssignMustHaveAtomicplus extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = -2025376627408568160L;
+
+		public AssignMustHaveAtomicplus(Type type, Position p) {
+			super("The field assignment with type: " + type + " must have flag: " + Flags.ATOMICPLUS, p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class FieldRefNotInThisClass extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -2262637920492447215L;
+
+		public FieldRefNotInThisClass(Type type, Position p) {
+			super("Can not refer field with type: " + type + " in other class.", p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class TypeCastCannotHaveAtomicplus extends EqualByTypeAndPosException {
+		
+		private static final long serialVersionUID = 6895934866487409047L;
+
+		public TypeCastCannotHaveAtomicplus(Type type, Position p) {
+			super("Can not explicitly add atomicplus for raw type: \n\t" + type + " by cast.", p);
+		}
+	}
+	
 	public static class LoopDomainIsNotOfExpectedType extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = -5004964287663095964L;

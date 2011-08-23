@@ -179,6 +179,15 @@ public interface NodeOps
      */
     Node checkConstants(ContextVisitor tc);
     
+    /** Check the typing rules for data-centric synchronization.
+     * 
+     *  This method is called by the <code>leave()</code> method of the
+     *  visitor. The method should perform work that should be done
+     *  after visiting the children of the node. The method may return
+     *  <code>this</code> or a new copy of the node which will be
+     *  installed as a child of the node's parent */
+    Node checkAtomicity(ContextVisitor tc);
+    
     /**
      * Check that exceptions are properly propagated throughout the AST.
      *

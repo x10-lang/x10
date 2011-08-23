@@ -27,10 +27,13 @@ import polyglot.types.FieldInstance;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
+import x10.types.ConstrainedType;
 import x10.types.X10ClassType;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.Context;
 import polyglot.types.Flags;
 import polyglot.types.ConstructorDef;
@@ -59,10 +62,68 @@ public class X10FieldAssign_c extends FieldAssign_c {
         Assign res = super.typeCheckLeft(tc);
         return res;
     }
+    
+    @Override
+    public Node checkAtomicity(ContextVisitor tc) {
+    	//TODO why the following two calls are must!
+    	Node leftNode = this.left().checkAtomicity(tc);
+    	Node rightNode = this.right().checkAtomicity(tc);
+    	
+    	X10ParsedClassType_c leftFieldClassType = null;
+    	if(leftNode instanceof X10Field_c) {
+    		X10Field_c leftField = (X10Field_c)leftNode;
+    		Type leftFieldType = leftField.type();
+    		leftFieldClassType = Types.fetchX10ClassType(leftFieldType);
+    	}
+    	
+    	X10ParsedClassType_c rightFieldClassType = null;
+    	if(rightNode instanceof X10Field_c) {
+    		X10Field_c rightField = (X10Field_c)rightNode;
+    		Type rightFieldType = rightField.type();
+    		rightFieldClassType = Types.fetchX10ClassType(rightFieldType);
+    	}
+    	
+    	//check whether the left/right side all have atomicity context or not
+    	X10ParsedClassType_c clazztype = Types.fetchX10ClassType(this.left().type());
+    	if(leftFieldClassType != null) {
+    		clazztype = leftFieldClassType;
+    	}
+    	if(clazztype != null) {
+    		//check the right side
+    		Type rightType = this.right().type();
+    		//to see if the right side is still a class type
+    		X10ParsedClassType_c rightClassType = Types.fetchX10ClassType(rightType);
+    		if(rightFieldClassType != null) {
+    			rightClassType = rightFieldClassType;
+    		}
+    		//check if the right side is not null, excluding the case like: field = null;
+    		if(rightClassType != null){
+    		  if(clazztype.getAtomicContext() != null) {
+    			if(!rightClassType.hasAtomicContext()) {
+    				SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(this.right, rightClassType, position());
+    				Errors.issue(tc.job(), e);
+    			}
+    			if(!tc.typeSystem().typeEquals(clazztype.getAtomicContext(), rightClassType.getAtomicContext(),
+    					tc.context())) {
+    				SemanticException e = new Errors.AtomicContextNotEqual(this.left(), clazztype,
+    						(X10ParsedClassType_c)clazztype.getAtomicContext(),
+    						this.right, rightClassType,
+    						(X10ParsedClassType_c)rightClassType.getAtomicContext(), position());
+    				Errors.issue(tc.job(), e);
+    			}
+    		  } else {
+    			if(rightClassType.hasAtomicContext()) {
+    				Errors.issue(tc.job(), new Errors.AssignNeedCastOffAtomicplus(rightClassType, position()));
+    			}
+    		  }
+    		}
+    	}
+    	
+    	return super.checkAtomicity(tc);
+    }
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {
-    
     	TypeSystem ts = tc.typeSystem();
         X10FieldAssign_c n = (X10FieldAssign_c) typeCheckLeft(tc);
         Type t =  n.leftType();

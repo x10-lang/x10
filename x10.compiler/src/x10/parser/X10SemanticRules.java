@@ -296,7 +296,9 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         public static int CLOCKED     = 14;
         public static int STATIC      = 15;
         public static int TRANSIENT   = 16;
-        public static int NUM_FLAGS   = TRANSIENT + 1;
+        public static int UNITFOR     = 17; /*data-centric synchronization*/
+        public static int ATOMICPLUS     = 18; /*data-centric synchronization*/
+        public static int NUM_FLAGS   = ATOMICPLUS + 1;
 
         private JPGPosition pos;
         private int flag;
@@ -321,6 +323,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (flag == CLOCKED)       return Flags.CLOCKED;
             if (flag == TRANSIENT)    return Flags.TRANSIENT;
             if (flag == STATIC)       return Flags.STATIC;
+            if (flag == UNITFOR)      return Flags.UNITFOR;
+            if (flag == ATOMICPLUS)   return Flags.ATOMICPLUS; /*data-centric*/
             assert(false);
             return null;
         }
@@ -343,6 +347,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (flag == CLOCKED)       return "clocked";
             if (flag == STATIC)       return "static";
             if (flag == TRANSIENT)    return "transient";
+            if (flag == UNITFOR)      return "unitfor";
+            if (flag == ATOMICPLUS)   return "atomicplus"; /*data-centric*/
             assert(false);
             return "?";
         }
@@ -387,6 +393,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             fieldModifiers[PROPERTY] = true;
             fieldModifiers[PUBLIC] = true;
             fieldModifiers[STATIC] = true;
+            /*support data-centric synchronization*/
+            fieldModifiers[ATOMIC] = true;
         }
         public boolean isFieldModifier(int flag) {
             return fieldModifiers[flag];
@@ -395,6 +403,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         public static boolean variableModifiers[] = new boolean[NUM_FLAGS];
         static {
             variableModifiers[CLOCKED] = true;
+            variableModifiers[UNITFOR] = true; /*method parameter decoration*/
+            variableModifiers[ATOMIC] = true; /*data-centric synchronization*/
         }
         public boolean isVariableModifier(int flag) {
             return variableModifiers[flag];
@@ -448,6 +458,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             return interfaceModifiers[flag];
         }
 
+        /*data-centric synchronization*/
+        public static boolean typeModifiers[] = new boolean[NUM_FLAGS];
+        static {
+        	typeModifiers[ATOMICPLUS] = true;
+        }
+        
         public FlagModifier(JPGPosition pos, int flag) {
             this.pos = pos;
             this.flag = flag;
@@ -539,6 +555,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         return (modifiers.size() == 0
                 ? Collections.<Node>emptyList()
                 : checkModifiers("interface", modifiers, FlagModifier.interfaceModifiers));
+    }
+    
+    /*data-centric synchronization*/
+    private List<Node> checkTypeModifiers(List<Modifier> modifiers) {
+    	return (modifiers.size() == 0
+    			? Collections.<Node>emptyList()
+    			: checkModifiers("declared type", modifiers, FlagModifier.typeModifiers));
     }
 
     // RMF 11/7/2005 - N.B. This class has to be serializable, since it shows up inside Type objects,
@@ -2339,6 +2362,22 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
                 TypeName,
                 Identifier));
     }
+    //data-centric synchronization
+    // new added production: TypeName :: = Modifiersopt TypeName
+    void rule_TypeName3(Object _Modifiersopt, Object _TypeName) {
+    	
+    	List<Modifier> Modifiersopt = (List<Modifier>) _Modifiersopt;
+    	List<Node> modifiers = checkTypeModifiers(Modifiersopt);
+    	//get the type name
+    	ParsedName TypeName = (ParsedName) _TypeName;
+    	FlagsNode fn = extractFlags(modifiers, Flags.ATOMICPLUS);
+    	
+    	//save the flag information
+    	TypeName.setFlagsNode(fn);
+    	
+    	setResult(TypeName);
+    }
+    
     // Production: OBSOLETE_Offers ::= offers Type
     void rule_OBSOLETE_Offers0(Object _Type) {
         TypeNode Type = (TypeNode) _Type;
@@ -3007,6 +3046,16 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_Modifier10() {
         setResult(new FlagModifier(pos(), FlagModifier.CLOCKED));
     }
+    // Production: Modifier ::= unitfor  data-centric synchronizations
+    void rule_Modifier11() {
+        setResult(new FlagModifier(pos(), FlagModifier.UNITFOR));
+    }
+    
+    // Production: Modifier ::= atomicplus  data-centric synchronizations
+    void rule_Modifier12() {
+        setResult(new FlagModifier(pos(), FlagModifier.ATOMICPLUS));
+    }
+    
     // Production: ExpressionName ::= FullyQualifiedName '.' ErrorId
     void rule_ExpressionName0(Object _FullyQualifiedName) {
         ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;

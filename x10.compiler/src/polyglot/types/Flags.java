@@ -41,6 +41,10 @@ public class Flags implements Serializable
     public static final Flags PROPERTY = createFlag("property", null);
     public static final Flags STRUCT = createFlag("struct", null);
     public static final Flags CLOCKED = createFlag("clocked", null);
+    
+    /** Flags for data-centric synchronization */
+    public static final Flags UNITFOR = createFlag("unitfor", null);
+    public static final Flags ATOMICPLUS = createFlag("atomicplus", null);
 
     /** All access flags. */
     protected static final Flags ACCESS_FLAGS = PUBLIC.set(PRIVATE).set(PROTECTED);
@@ -465,6 +469,55 @@ public class Flags implements Serializable
      */
     public boolean isClocked() {
         return contains(CLOCKED);
+    }
+    
+    //The following 6 methods are for data-centric synchronizations
+    /**
+     * Return a copy of this <code>this</code> with the <code>unitfor</code>
+     * flag set.
+     */
+    public Flags Unitfor() {
+    	return set(UNITFOR);
+    }
+    
+    /**
+     * Return a copy of this <code>this</code> with the <code>unitfor</code>
+     * flag clear.
+     */
+    public Flags clearUnitfor() {
+    	return clear(UNITFOR);
+    }
+    
+    /**
+     * Return true if <code>this</code> has the <code>unitfor</code> flag
+     * set.
+     */
+    public boolean isUnitfor() {
+    	return contains(UNITFOR);
+    }
+    
+    /**
+     * Return a copy of this <code>this</code> with the <code>atomicplus</code>
+     * flag set.
+     */
+    public Flags Atomicplus() {
+    	return set(ATOMICPLUS);
+    }
+    
+    /**
+     * Return a copy of this <code>this</code> with the <code>atomicplus</code>
+     * flag clear.
+     */
+    public Flags clearAtomicplus() {
+    	return clear(ATOMICPLUS);
+    }
+    
+    /**
+     * Return true if <code>this</code> has the <code>atomicplus</code> flag
+     * set.
+     */
+    public boolean isAtomicplus() {
+    	return contains(ATOMICPLUS);
     }
 
 

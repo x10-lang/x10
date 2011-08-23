@@ -904,7 +904,52 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (((X10ClassDef_c)classDef()).hasCircularProperty())
             Errors.issue(tc.job(), new SemanticException("A class can only have properties of a 'simpler' type, i.e., there must be an ordering for all types such that if A has a property of type B then B is 'simpler' than A, and if A extends B then B is 'simpler' than A.",position));            
 
+        
+        //accumulate all atomic fields after being type checked.
+        //This is for data-centric synchronization.
+        accumulateAtomicFields(type);
+        
     	return n;
+    }
+    
+    /**
+     * Implements an important method for data-centric synchronization. It fetches
+     * all atomic field declarations in its own class and all its super classes.
+     * As a small optimization, it keeps a flag to check whether this class has
+     * already been processed.
+     * */
+    public static void accumulateAtomicFields(X10ClassDef type) {
+    	//first checks whether the atomic fields have already been accumulated
+    	if(type.hasAccumulated()) {
+    		return;
+    	}
+    	
+    	//fetch atomic fields declared in its own class.
+    	for(FieldDef fi : type.fields()) {
+    		if(fi.flags().contains(Flags.ATOMIC)) {
+    			type.addAtomicFields(fi);
+    		}
+    	}
+    	
+    	//goes to the super type to get atomic fields
+    	Ref<? extends Type> superRef = type.superType();
+    	while(superRef != null) {
+    		X10ClassDef superClass = superRef.get().toClass().def();
+    		if(!superClass.hasAtomicFields()) {
+    			List<FieldDef> fieldDefs = superClass.fields();
+    			for(FieldDef fi : fieldDefs) {
+    				if(fi.flags().contains(Flags.ATOMIC)) {
+    					superClass.addAtomicFields(fi);
+    				}
+    			}
+    		}
+    		for(FieldDef f : superClass.getAtomicFields()) {
+    			type.addAtomicFields(f);
+    		}
+    		superRef = superClass.superType();
+    	}
+    	
+    	type.setAccumulated();
     }
     
     // TODO

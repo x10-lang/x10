@@ -113,6 +113,12 @@ public interface TypeEnv  {
     public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException;
 
     /**
+     * Checks the conformance of atomicplus declration in parameter and return type
+     * This is for data-centric synchronization
+     * */
+    public abstract void checkAtomicOverride(MethodInstance r, MethodInstance other) throws SemanticException;
+    
+    /**
      * Returns true iff <m1> is the same method as <m2>
      */
     public boolean isSameMethod(MethodInstance m1, MethodInstance m2);

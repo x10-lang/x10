@@ -1908,6 +1908,14 @@ public class TypeSystem_c implements TypeSystem
     public void checkOverride(MethodInstance mi, MethodInstance mj, Context context) throws SemanticException {
 	env(context).checkOverride(mi, mj);
     }
+    
+    /**
+     * Throw a SemanticException if <code>mi</code> cannot override <code>mj</code>
+     * due to incorrectly declaring data-centric synchronization constructs
+     * */
+    public void checkAtomicOverride(MethodInstance mi, MethodInstance mj, Context context) throws SemanticException {
+    	env(context).checkAtomicOverride(mi, mj);
+    }
 
    // public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn, Context context) throws SemanticException {
 	//env(context).checkOverride(mi, mj, allowCovariantReturn);
@@ -3115,15 +3123,18 @@ public class TypeSystem_c implements TypeSystem
     protected final Flags LOCAL_CLASS_FLAGS = legalLocalClassFlags();
     protected final Flags X10_LOCAL_CLASS_FLAGS =  legalLocalClassFlags();
 
+    /**Add <code>unitfor</code> and <code>atomic</code> as
+     * two legal local modifiers for data-centric synchronizations.*/
     public Flags legalLocalFlags() {
-        return Final().Clocked();
+        return Final().Clocked().Atomic().Unitfor();
     }
     protected final Flags LOCAL_FLAGS = legalLocalFlags();
     protected final Flags X10_LOCAL_VARIABLE_FLAGS =  legalLocalFlags();
 
-
+    /**Add <code>atomic</code> as a legal field modifier for
+     * data-centric synchronizations.*/
     public Flags legalFieldFlags() {
-        return legalAccessFlags().Static().Final().Transient().Property().Clocked();
+        return legalAccessFlags().Static().Final().Transient().Property().Clocked().Atomic();
     }
     protected final Flags FIELD_FLAGS = legalFieldFlags();
     protected final Flags X10_FIELD_VARIABLE_FLAGS = legalFieldFlags();
@@ -3156,6 +3167,23 @@ public class TypeSystem_c implements TypeSystem
         }
 
         checkAccessFlags(f);
+    }
+    
+    /** Checks that a method argument can not be annotated with an
+     * <code>atomic</code> modifier. This is for checking rules in
+     * data-centric synchronization. */
+    public void checkMethodArgFlags(Flags f) throws SemanticException {
+    	if(f.contains(Flags.ATOMIC)) {
+    		throw new SemanticException("Cannot declare method argument with flags " +
+    				                 Flags.ATOMIC);
+    	}
+    }
+    
+    public void checkLocalVarDeclFlags(Flags f) throws SemanticException {
+    	if(f.contains(Flags.UNITFOR)) {
+    		throw new SemanticException("Cannot declare a local variable with flags " +
+    				                 Flags.UNITFOR);
+    	}
     }
     
     public void checkLocalFlags(Flags f) throws SemanticException {

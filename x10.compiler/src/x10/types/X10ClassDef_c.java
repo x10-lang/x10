@@ -12,6 +12,7 @@
 package x10.types;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
@@ -67,6 +68,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected Ref<X10ClassDef> outer;
     protected List<Ref<? extends ClassType>> memberClasses;
     protected transient ClassType asType;
+    
+    /** Associate each class a set of atomic fields declared within it.
+     * This is used to support data-centric synchronization. */
+    protected java.util.Set<FieldDef> atomicfields = new java.util.LinkedHashSet<FieldDef>();
+    /** A caching flag, to indicate whether the atomic fields in that class
+     *  have been collected. */
+    protected boolean accumulated = false;
     
 	private static final long serialVersionUID = -4644427081636650171L;
 
@@ -632,6 +640,52 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
     public void addField(FieldDef fi) {
 	fields.add(fi);
+    }
+    
+    //the following 5 methods are for data-centric synchronization
+    /**
+     * Adds an atomic field def to this class def.
+     * */
+    public void addAtomicFields(FieldDef fi) {
+    	this.atomicfields.add(fi);
+    }
+    /**
+     * Adds a collection of atomic fields to this class def.
+     * */
+    public void addAllAtomicFields(Collection<FieldDef> fs) {
+    	assert fs != null;
+    	this.atomicfields.addAll(fs);
+    }
+    /**
+     * Checks whether this class def has atomic fields or not.
+     * */
+    public boolean hasAtomicFields() {
+    	if(!this.atomicfields.isEmpty()) {
+    		return true;
+    	}
+    	return false;
+    }
+    /**
+     * Checks whether the atomic fields in this class have already
+     * been accumulated. If so, it makes no sense to accumulate it again.
+     * */
+    public boolean hasAccumulated() {
+    	return this.accumulated;
+    }
+    /**
+     * Sets the accumulated flag after fetching all atomic fields.
+     * */
+    public void setAccumulated() {
+    	this.accumulated = true;
+    }
+    
+    /**
+     * Returns all atomic fields declared in this class and inherited
+     * from super classes (transitively). It can be empty before being
+     * accumulated.
+     * */
+    public java.util.Set<FieldDef> getAtomicFields() {
+    	return this.atomicfields;
     }
 
     public void addMemberClass(Ref<? extends ClassType> t) {

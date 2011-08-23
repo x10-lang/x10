@@ -47,6 +47,7 @@ import x10.errors.Errors;
 import x10.extension.X10Del;
 import x10.types.ClosureDef;
 import x10.types.X10ClassType;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
@@ -73,6 +74,13 @@ public class X10Disamb_c extends Disamb_c {
 	    TypeSystem ts = (TypeSystem) this.ts;
 	    
 	    if (c.inDepType()) {
+	    	// if it is an ambiguitity node with dependent types,
+	    	// throw an semantic error, since the current data-centric synchronization
+	    	//does not support dependent types
+	    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
+	    		throw new SemanticException("Does not support atomic dependent type.", pos);
+	    	}
+	    	
 	    	Type t = c.currentDepType();
 	    	
 	    	if (exprOK()) {
@@ -160,6 +168,12 @@ public class X10Disamb_c extends Disamb_c {
 	    }
 
 	    if (exprOK()) {
+	    	//in data-centric synchronization. atomicplus can only
+	    	//be used to decorate types, and can not be used for
+	    	//local vars and fields.
+	    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
+	    		throw new SemanticException("Does not support atomicplus on local variables/fields", pos);
+	    	}
 	        // First try local variables and fields.
 	        VarInstance<?> vi = c.findVariableSilent(name.id());
 
@@ -198,12 +212,31 @@ public class X10Disamb_c extends Disamb_c {
 	    // no variable found. try types.
 	    if (typeOK()) {
 	        try {
+	        	//original code here
 	            List<Type> n = c.find(ts.TypeMatcher(name.id()));
+	            //rebuild a list of types with atomic plus information to support
+	            //data-centric synchronization. Note that every type object needs
+	            //to be first copied, to avoid sharing the same object.
+		    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
+		    		//fill the code here
+		    		List<Type> copies = new java.util.LinkedList<Type>();
+		    		for(Type t : n) {
+		    			if(!(t instanceof X10ParsedClassType_c)) {
+		    				throw new SemanticException("Can not use atomicplus to annotation" +
+		    						" non-class type: " + t, pos);
+		    			}
+		    			Type copiedType = (Type)t.copy();
+		    			copies.add(copiedType);
+		    		}
+		    		n = copies;
+		    	}
+		    	//check only 1 match, and there is no ambiguity
 	            if (n.size() > 1) {
-	                throw new SemanticException("Ambiguous type "+name.id()+"\nPossible matches: "+n, pos);
+	                throw new SemanticException("Ambiguous type "+name.id()+"\n\t Possible matches: "+n, pos);
 	            }
 	            for (Type type : n) {
-	                return makeTypeNode(type);
+	                Node retNode= makeTypeNode(type);
+	                return retNode;
 	            }
 	        } catch (NoClassException e1) {
 	            if (!name.id().toString().equals(e1.getClassName())) {
@@ -219,6 +252,10 @@ public class X10Disamb_c extends Disamb_c {
 
 	    // Must be a package then...
 	    if (packageOK()) {
+	    	//data-centric
+	    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
+	    		throw new SemanticException("Does not support atomicplus on package name", pos);
+	    	}
 	        try {
 	            Package p = ts.packageForName(QName.make(null, name.id()));
 	            return nf.PackageNode(pos, Types.ref(p));

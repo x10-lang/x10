@@ -17,6 +17,7 @@ import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
 import polyglot.types.LazyRef_c;
+import polyglot.types.Ref_c;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -34,9 +35,11 @@ import x10.types.X10ConstructorDef;
 import polyglot.types.Context;
 import x10.types.ThisDef;
 
+import x10.types.X10ClassDef;
 import x10.types.X10MemberDef;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType;
+import x10.types.X10ParsedClassType_c;
 import x10.types.X10ProcedureDef;
 
 import polyglot.types.TypeSystem;
@@ -61,6 +64,39 @@ public class X10Special_c extends Special_c implements X10Special {
     }
 
     public boolean isSelf() { return kind == SELF; }
+    
+    /**
+     * In data-centric synchronization, the type of this is:
+     * 1. if the container class does not have atomic field, the same
+     * 2. else, become atomicplus ContainerClass, with contex: ContainerClass
+     * 
+     * The purpose of this method is to change the type of this.
+     * */
+    public Node checkAtomicity(ContextVisitor tc) {
+    	if(this.qualifier == null && this.kind == THIS) {
+    		X10ParsedClassType_c thisClassType = Types.fetchX10ClassType(type);
+    		if(thisClassType != null) {
+    			X10ClassDef thisClazzDef = thisClassType.def();
+    			//for safety, accumulate it first
+    			X10ClassDecl_c.accumulateAtomicFields(thisClazzDef);
+    			if(thisClazzDef.hasAtomicFields()) {
+    				//we changed the type here
+    				//FIXME can be wrong
+    				assert type instanceof ConstrainedType;
+    				ConstrainedType cType = (ConstrainedType)type;
+    				X10ParsedClassType_c baseType = (X10ParsedClassType_c)cType.baseType().get();
+    				X10ParsedClassType_c copiedBaseType = baseType.copy();
+    				copiedBaseType.setAtomicContext(copiedBaseType);
+    				//create a copied type node here
+    				ConstrainedType copiedCType = cType.baseType(new Ref_c<X10ParsedClassType_c>(copiedBaseType));
+    				//return a new node
+    				return this.type(copiedCType);
+    			}
+    		}
+    	}
+    	
+    	return super.checkAtomicity(tc);
+    }
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {

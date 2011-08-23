@@ -66,6 +66,7 @@ import x10.extension.X10Ext;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.Context;
 import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
@@ -644,6 +645,44 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         return nn;
     }
     
+    /**
+     * Primarily checks if a constructor parameter is decorated with
+     * an atomicplus annotation. The class itself should have atomic fields.
+     * */
+    @Override
+    public Node checkAtomicity(ContextVisitor tc) {
+    	for(Formal f : this.formals) {
+    		Type ft = f.type().type();
+    		if(ft instanceof X10ParsedClassType_c) {
+    			X10ParsedClassType_c fieldClazzType = (X10ParsedClassType_c)ft;
+    			//for safety, accumualte the atomic fields of the class
+    			X10ClassDecl_c.accumulateAtomicFields(fieldClazzType.def());
+    			//if the field has atomic context.
+    			if(fieldClazzType.getAtomicContext() != null) {
+    				//check the field class, as well as the class should have atomic fields
+    				if(!fieldClazzType.def().hasAtomicFields()) {
+						Errors.issue(tc.job(),
+								new Errors.AtomicPlusClassDonotHaveAtomicFields(fieldClazzType, f.position()));
+					}
+    				//then check the container class
+    				X10ParsedClassType_c container = (X10ParsedClassType_c)fieldClazzType.getAtomicContext();
+    				//accumulate atomic fields in the container class
+					X10ClassDecl_c.accumulateAtomicFields(container.def());
+					//issue an error if the container do not have atomic fields
+					if(!container.def().hasAtomicFields()) {
+						Errors.issue(tc.job(),
+								new Errors.AtomicPlusClassDonotHaveAtomicFields(container, this.position()));
+					}
+    			}
+    		}
+    	}
+    	
+    	//check if the constructor conform with atomic override
+    	
+    	
+    	return super.checkAtomicity(tc);
+    }
+    
     @Override
     public Node typeCheck(ContextVisitor tc) {
         X10ConstructorDecl_c n = this;
@@ -666,6 +705,32 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
 
         n = (X10ConstructorDecl_c) super.typeCheck(tc);
+        
+        //check each constructor parameter, to see whether it has been
+        //annotated with atomicplus or atomic modifiers. Issues an error
+        //if it has an atomic modifier. Or else, adding the current container
+        //class as its atomic context. This is for supproting data-centric
+        //synchronization.
+        for(Formal f : this.formals) {
+        	Type ft = f.type().type();
+        	if(f.type().getFlagsNode() != null) {
+        		//it can only have the atomicplus flag
+        		assert f.type().getFlagsNode().flags().contains(Flags.ATOMICPLUS);
+        		//if the parameter is a class type
+        		if(ft instanceof X10ParsedClassType_c) {
+        			X10ParsedClassType_c fieldClazzType = (X10ParsedClassType_c)ft;
+        			Type container = this.ci.container().get();
+        			//the container must be a class type
+        			assert container instanceof X10ParsedClassType_c;
+        			fieldClazzType.setAtomicContext(container);
+        		}
+        	}
+        	if(f.flags().flags().contains(Flags.ATOMIC)) {
+				SemanticException e = new Errors.FormalParameterCannotHaveAtomic(f.type().type(), position());
+				Errors.issue(tc.job(), e);
+			}
+        }
+        
         return n;
     }
 

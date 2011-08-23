@@ -45,9 +45,11 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
 import x10.constraint.XVar;
+import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType_c;
 import x10.types.X10ClassType;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.Context;
 import x10.types.X10FieldInstance;
 
@@ -197,12 +199,72 @@ public class X10Field_c extends Field_c {
     }
 	
     @Override
+    public Node checkAtomicity(ContextVisitor tc) {
+    	//get the context, type, of the referred field, adapted from the existing
+    	//<code>typeCheck</code> method below.
+    	final Context c = (Context) tc.context(); 
+    	Type tType = target != null ? target.type() : c.currentClass();
+    	X10FieldInstance fi = findAppropriateField(tc, tType, name.id(),
+		        target instanceof TypeNode, Types.contextKnowsType(target), position());
+    	Type type = c.inDepType()? Checker.rightType(fi.rightType(), fi.x10Def(), target, c) :
+			Checker.fieldRightType(fi.rightType(), fi.x10Def(), target, c);
+		Type retType = type;
+    	
+		X10Field_c result = (X10Field_c)fieldInstance(fi).type(retType);
+		//Get the correct atomic context for field access is a bit tricky.
+		//The type of a field access like:  expr.field, is computed using
+		//the adapt method:
+		//   return_type =  adapt( type_of_field,   type_of_expr)
+		//In this class, the expr is also called target
+		//The field type is called retClassType
+		X10ParsedClassType_c retClassType = Types.fetchX10ClassType(retType);
+		//get the evaluated type, that is the field type above
+		if(retClassType != null) {
+			if(retClassType.hasAtomicContext()) {
+			    X10ParsedClassType_c retTypeContext = (X10ParsedClassType_c) retClassType.getAtomicContext();
+			    //get the target type which must be not null
+		        X10ParsedClassType_c targetType = Types.fetchX10ClassType(this.target.type());
+		        if(targetType != null && targetType.hasAtomicContext()) {
+		        	//the context of target
+			        X10ParsedClassType_c targetContext = (X10ParsedClassType_c)targetType.getAtomicContext();
+			        if(targetContext == null) {
+			        	SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(targetType, position());
+			        	Errors.issue(tc.job(), e);
+			        } else {
+			        	if(!tc.typeSystem().typeEquals(retTypeContext, targetType, tc.context())) {
+			        		SemanticException e = new Errors.AtomicContextNotEqual(retClassType, retTypeContext, targetType,
+			        				(X10ParsedClassType_c)targetType.getAtomicContext(), position());
+			        		Errors.issue(tc.job(), e);
+			        	} else {
+			        		//change it
+			        		if(!targetType.hasAtomicContext()) {
+			        			SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(targetType, position());
+			        			Errors.issue(tc.job(), e);
+			        		} else {
+			        			//reset the atomic context of the return type by first making a copy
+			        			X10ParsedClassType_c copied = retClassType.copy();
+			        			copied.setAtomicContext(targetType.getAtomicContext());
+			        			//reassign the result
+			        		    result = (X10Field_c)fieldInstance(fi).type(copied);
+			        		}
+			        	}
+			        }
+		        }
+			}
+
+		}
+    	
+		//note this method returns the changed no, instead of the original node.
+		return result;
+    }
+    
+    @Override
     public Node typeCheck(ContextVisitor tc) {
 		final TypeSystem ts = (TypeSystem) tc.typeSystem();
 		final NodeFactory nf = (NodeFactory) tc.nodeFactory();
 		final Context c = (Context) tc.context(); 
 		Type tType = target != null ? target.type() : c.currentClass();
-
+		
 		SemanticException error = null;
 
 		Position pos = position();
@@ -341,11 +403,7 @@ public class X10Field_c extends Field_c {
 		        Errors.issue(tc.job(), e);
 		    }
 		}
-
-		// Not needed in the orthogonal locality proposal.
-		// result = PlaceChecker.makeFieldAccessLocalIfNecessary(result, tc);
-
-		//System.err.println("X10Field_c: typeCheck " + result+ " has type " + result.type());
+		
 		return result;
 	}
 

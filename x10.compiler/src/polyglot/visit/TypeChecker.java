@@ -79,7 +79,6 @@ public class TypeChecker extends ContextVisitor
         m = m.del().disambiguate(tc);
         m = m.del().typeCheck(tc);
         m = m.del().checkConstants(tc);
-
         // Record the new node in the memo table.
 //        memo.put(old, m);
 //        memo.put(n, m);

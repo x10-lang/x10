@@ -43,6 +43,7 @@ import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ConstructorDef_c;
+import x10.types.X10ParsedClassType_c;
 
 import x10.types.constraints.CConstraint;
 
@@ -126,6 +127,67 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	@Override
 	public X10ConstructorCall constructorInstance(ConstructorInstance ci) {
 	    return (X10ConstructorCall) super.constructorInstance(ci);
+	}
+	
+	@Override
+	public Node checkAtomicity(ContextVisitor tc) {
+		
+		//check the constructor call parameter meets the type system or not
+		//for example the following code should not type check:
+		//   class A {
+		//      ...
+		//      public def this(b:B) {...}
+		//   }
+		//
+		//   class B extends A {
+		//       ...
+		//      public def this(b:(atomicplus B)) {
+		//          super(b);   //should not type check
+		//      }
+		//
+		//Note: unlike typechecking a method call, there is no receiver
+		ConstructorDef cdef = this.ci.def();
+		
+		//get the argument definition and the provided argument list
+		assert cdef.formalTypes().size() == this.arguments.size();
+		int length = cdef.formalTypes().size();
+		
+		for(int i = 0; i < length; i++) {
+			Type definedArgType = cdef.formalTypes().get(i).get();
+			if(!(definedArgType instanceof X10ParsedClassType_c)) {
+				continue;
+			}
+			X10ParsedClassType_c definedClazzType = (X10ParsedClassType_c)definedArgType;
+			//then get the provided argument type
+			Expr providedArgExpr = this.arguments.get(i);
+			Type providedArgType = this.arguments.get(i).type();
+			X10ParsedClassType_c providedArgClazz = Types.fetchX10ClassType(providedArgType);
+			if(providedArgClazz != null) {
+				//check whether the atomic context matches
+				if(definedClazzType.hasAtomicContext() && !providedArgClazz.hasAtomicContext()) {
+					SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(providedArgExpr,
+							providedArgClazz, definedClazzType.getAtomicContext(), providedArgExpr.position());
+					Errors.issue(tc.job(), e);
+				}
+				if(!definedClazzType.hasAtomicContext() && providedArgClazz.hasAtomicContext()) {
+					SemanticException e = new Errors.TypeCanNotHaveAtomicContext(providedArgExpr,
+							providedArgClazz, providedArgClazz.getAtomicContext(), providedArgExpr.position());
+					Errors.issue(tc.job(), e);
+				}
+				if(definedClazzType.hasAtomicContext() && providedArgClazz.hasAtomicContext()) {
+					if(tc.typeSystem().typeEquals(definedClazzType.getAtomicContext(), providedArgClazz.getAtomicContext(),
+							tc.context())) {
+						SemanticException e = new Errors.AtomicContextNotEqual(providedArgExpr,
+								definedClazzType, (X10ParsedClassType_c)definedClazzType.getAtomicContext(),
+								providedArgExpr, providedArgClazz, (X10ParsedClassType_c)providedArgClazz.getAtomicContext(),
+								providedArgExpr.position());
+						Errors.issue(tc.job(), e);
+					}
+				}
+			}
+		}
+		
+		return super.checkAtomicity(tc);
 	}
 
         @Override

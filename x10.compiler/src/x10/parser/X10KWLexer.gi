@@ -166,6 +166,8 @@
     void
     when
     while
+    unitfor
+    atomicplus
 %End
 
 %Rules
@@ -473,6 +475,16 @@
               | h a s z e r o
         /.$BeginAction
                 $setResult($_haszero);
+          $EndAction
+        ./
+             | u n i t f o r
+        /.$BeginAction
+                $setResult($_unitfor);
+          $EndAction
+        ./
+             | a t o m i c p l u s
+        /.$BeginAction
+                $setResult($_atomicplus);
           $EndAction
         ./
 %End

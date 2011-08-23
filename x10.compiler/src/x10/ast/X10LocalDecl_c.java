@@ -26,6 +26,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
 import polyglot.frontend.Globals;
+import polyglot.types.ClassDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.Flags;
@@ -54,6 +55,7 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
 
+import x10.types.X10ClassDef_c;
 import x10.types.X10LocalDef;
 import x10.types.X10ParsedClassType_c;
 import polyglot.types.TypeSystem;
@@ -215,6 +217,52 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         }
         return null;
     }
+    
+    @Override
+    public Node checkAtomicity(ContextVisitor tc) {
+    	Type type = this.type().type();
+    	//only check when the local is a class type
+    	if(type instanceof X10ParsedClassType_c) {
+    		X10ParsedClassType_c clazzType = (X10ParsedClassType_c)type;
+    		//get the classdef, and accumulate the atomic sets again
+    		ClassDef cdef = tc.typeSystem().classDefOf(clazzType);
+    		X10ClassDef_c x10cdef = (X10ClassDef_c)cdef;
+    		X10ClassDecl_c.accumulateAtomicFields(x10cdef);
+    		//check if the class has atomic sets or not
+    		if(clazzType.hasAtomicContext()) {
+    			//get the container class and accumulate atomic fields
+    			X10ClassType containerType = tc.context().currentClass();
+	    	    assert containerType instanceof X10ParsedClassType_c;
+	    	    X10ClassDef_c thisClazz = (X10ClassDef_c) ((X10ParsedClassType_c)containerType).def();
+	    	    X10ClassDecl_c.accumulateAtomicFields(thisClazz);
+	    	    //check whether this class has atomic sets
+	    	    if(!thisClazz.hasAtomicFields()) {
+	    	    	Errors.issue(tc.job(), new Errors.ThisClassDoesnotHaveAtomicset(containerType, position()));
+	    	    }
+    			//check the class
+	    	    if(!x10cdef.hasAtomicFields()) {
+    	    		Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(clazzType, this.position()));
+    	    	}
+	    	    //check the init part
+	    	    Type initType = this.init().type();
+	    	    X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
+    	    	if(initClassType != null && !initClassType.hasAtomicContext()) {
+    	    		Errors.issue(tc.job(), new Errors.InitializerMustHaveAtomicplus(initClassType, this.position()));
+    	    	}
+    		} else {
+    			//check the init part, the init part must NOT have atomic context info
+    			if(this.init() != null) {
+    			  Type initType = this.init().type();
+    	    	  X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
+    	    	  if(initClassType != null && initClassType.hasAtomicContext()) {
+    	    		  Errors.issue(tc.job(), new Errors.InitializerNeedCastOffAtomicplus(initClassType, this.position()));
+    	    	  }
+    			}
+    		}
+    	}
+    	
+    	return super.checkAtomicity(tc);
+    }
 
     /**
      * At this point, the type of the declaration should be known. If the type was not specified
@@ -230,6 +278,33 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         } catch (SemanticException e) {
             Errors.issue(tc.job(), e, typeNode);
         }
+        
+        //Check the flags for the local field declaration. This is
+        //for data-centric synchronization.
+        if(typeNode.getFlagsNode() != null) {
+        	if(!(type instanceof X10ParsedClassType_c)) {
+        		//only class type can be annotated with atomicplus
+        		SemanticException e = new Errors.TypeCannotHaveAtomicplus(type, typeNode.position());
+        		Errors.issue(tc.job(), e);
+        	} else {
+        	   TypeSystem xtc = tc.typeSystem();
+        	   //get the container class
+        	   Context context = tc.context();
+        	   Type container = context.currentClass();
+        	   //get the class type of the local field
+        	   X10ParsedClassType_c localType = (X10ParsedClassType_c)type;
+        	   //for safety, accumulate atomic fields in the class type
+        	   X10ClassDecl_c.accumulateAtomicFields(localType.def());
+        	   //set the atomic context
+        	   localType.setAtomicContext(container);
+        	}
+        }
+        //check the local field can not use unitfor as an annotation.
+        if(this.flags.flags().contains(Flags.UNITFOR)) {
+        	SemanticException e = new Errors.LocalVariableCannotHaveUnitfor(this.type().type(), position());
+        	Errors.issue(tc.job(), e);
+        }
+        
         // Replace here by PlaceTerm because this local variable may be referenced
         // later by code that has been place-shifted, and will have a different 
         // interpretation of here. 

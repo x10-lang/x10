@@ -113,6 +113,10 @@ public final class Configuration extends x10.config.Configuration {
     public boolean STATICS_PER_PLACE_ANALYSIS = false;
     private static final String STATICS_PER_PLACE_ANALYSIS_desc = "Enable deep analysis for converting place-0 static initializers to per-place initializers";
 
+    //add a new configuration item to control data-centric synchronization
+    public boolean DATA_CENTRIC = true;
+    private static final String DATA_CENTRIC_desc = "Enable data-centric concurrency control";
+    
 //    public final boolean MULTI_NODE = true;
 //    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
 

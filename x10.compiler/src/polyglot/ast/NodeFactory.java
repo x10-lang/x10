@@ -64,6 +64,10 @@ public interface NodeFactory
     AmbTypeNode AmbTypeNode(Position pos, Id name);
     AmbTypeNode AmbTypeNode(Position pos, Prefix qualifier, Id name);
     
+    /*data centric*/
+    AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Id name);
+    AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Prefix qualifier, Id name);
+    
     ArrayTypeNode ArrayTypeNode(Position pos, TypeNode base);
     CanonicalTypeNode CanonicalTypeNode(Position pos, Type type);
 

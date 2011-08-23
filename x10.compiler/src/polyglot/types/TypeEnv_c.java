@@ -800,6 +800,12 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is final", mi.position());
 	}
     }
+    
+    /**
+     * Checks the conformance of atomicplus declration in parameter and return type
+     * This is for data-centric synchronization
+     * */
+    public abstract void checkAtomicOverride(MethodInstance r, MethodInstance other) throws SemanticException;
 
     /**
      * Returns true iff <m1> is the same method as <m2>

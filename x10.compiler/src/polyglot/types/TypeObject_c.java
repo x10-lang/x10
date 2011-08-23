@@ -36,6 +36,9 @@ public abstract class TypeObject_c implements TypeObject
 	this.position = pos;
     }
 
+    /**
+     * Adds a copy method for data-centric synchronization.
+     * */
     public Object copy() {
         try {
             return (TypeObject_c) super.clone();
@@ -101,4 +104,5 @@ public abstract class TypeObject_c implements TypeObject
     public final void equalsImpl(Object o) { assert false; }
     public final void typeEqualsImpl(Object o) { assert false; }
     public final void typeEqualsImpl(TypeObject o) { assert false; }
+    
 }

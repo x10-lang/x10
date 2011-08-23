@@ -68,6 +68,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10MemberDef;
+import x10.types.X10ParsedClassType_c;
 import polyglot.types.Context;
 
 import x10.types.X10ParsedClassType;
@@ -428,6 +429,52 @@ public class X10New_c extends New_c implements X10New {
             }
         });
     }
+    
+    public Node checkAtomicity(ContextVisitor tc) {
+    	//get the called constructor
+    	ConstructorDef cdef = this.ci.def();
+    	
+    	//get the argument definition and the provided argument list
+		assert cdef.formalTypes().size() == this.arguments.size();
+		int length = cdef.formalTypes().size();
+		
+		for(int i = 0; i < length; i++) {
+			Type definedArgType = cdef.formalTypes().get(i).get();
+			if(!(definedArgType instanceof X10ParsedClassType_c)) {
+				continue;
+			}
+			X10ParsedClassType_c definedClazzType = (X10ParsedClassType_c)definedArgType;
+			//then get the provided argument type
+			Expr providedArgExpr = this.arguments.get(i);
+			Type providedArgType = this.arguments.get(i).type();
+			X10ParsedClassType_c providedArgClazz = Types.fetchX10ClassType(providedArgType);
+			if(providedArgClazz != null) {
+				//check whether the atomic context matches
+				if(definedClazzType.hasAtomicContext() && !providedArgClazz.hasAtomicContext()) {
+					SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(providedArgExpr,
+							providedArgClazz, definedClazzType.getAtomicContext(), providedArgExpr.position());
+					Errors.issue(tc.job(), e);
+				}
+				if(!definedClazzType.hasAtomicContext() && providedArgClazz.hasAtomicContext()) {
+					SemanticException e = new Errors.TypeCanNotHaveAtomicContext(providedArgExpr,
+							providedArgClazz, providedArgClazz.getAtomicContext(), providedArgExpr.position());
+					Errors.issue(tc.job(), e);
+				}
+				if(definedClazzType.hasAtomicContext() && providedArgClazz.hasAtomicContext()) {
+					if(tc.typeSystem().typeEquals(definedClazzType.getAtomicContext(), providedArgClazz.getAtomicContext(),
+							tc.context())) {
+						SemanticException e = new Errors.AtomicContextNotEqual(providedArgExpr,
+								definedClazzType, (X10ParsedClassType_c)definedClazzType.getAtomicContext(),
+								providedArgExpr, providedArgClazz, (X10ParsedClassType_c)providedArgClazz.getAtomicContext(),
+								providedArgExpr.position());
+						Errors.issue(tc.job(), e);
+					}
+				}
+			}
+		}
+    	
+    	return super.checkAtomicity(tc);
+    }
 
     public Node typeCheck(ContextVisitor tc) {
         final TypeSystem xts = (TypeSystem) tc.typeSystem();
@@ -558,6 +605,26 @@ public class X10New_c extends New_c implements X10New {
             }
         }
 
+        //let the atomic context propage through the new statement
+        //this is for data-centric synchronization
+        if(this.objectType().getFlagsNode() != null) {
+        	//TODO may miss certain cases
+        	assert this.objectType().getFlagsNode().flags().contains(Flags.ATOMICPLUS);
+        	assert type instanceof ConstrainedType;
+        	Type baseType = ((ConstrainedType)type).baseType().get();
+        	//must make a copy here
+        	type = ((ConstrainedType)type).baseType((Ref<? extends Type>)Types.ref(baseType.copy()));
+        	baseType = ((ConstrainedType)type).baseType().get();
+        	
+        	Type currentClass = null;
+        	currentClass = tc.context().currentClass();
+        	assert currentClass instanceof X10ParsedClassType_c;
+        	
+        	assert baseType instanceof X10ParsedClassType_c;
+        	((X10ParsedClassType_c)baseType).setAtomicContext(currentClass);
+        	
+        }
+        
         result = (X10New_c) result.type(type);
         return doCoercion ?
                 Converter.attemptCoercion(tc, result, t1) :

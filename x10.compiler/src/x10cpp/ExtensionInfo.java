@@ -169,6 +169,10 @@ public class ExtensionInfo extends x10.ExtensionInfo {
                 }
                 goals.add(g);
             }
+            //add data-centric synchronization goal
+            if(this.extensionInfo().getOptions().x10_config.DATA_CENTRIC) {
+            	FinallyEliminator(job).addPrereq(AtomicityTranslator(job));
+            }
 		    FinallyEliminator(job).addPrereq(Lowerer(job));
 		    for (Goal g: Optimizer.goals(this, job)) {
 		        FinallyEliminator(job).addPrereq(g);

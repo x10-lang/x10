@@ -12,6 +12,7 @@
 package x10.types;
 
 import java.util.List;
+import java.util.Set;
 
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -26,4 +27,11 @@ import x10.types.constraints.TypeConstraint;
 public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
     TypeParamSubst subst();
     void setSubst(TypeParamSubst subst);
+    
+    // five methods for data-centric synchronizations
+    void addAtomicFields(FieldDef fi);
+    boolean hasAtomicFields();
+    boolean hasAccumulated();
+    void setAccumulated();
+    Set<FieldDef> getAtomicFields();
 }

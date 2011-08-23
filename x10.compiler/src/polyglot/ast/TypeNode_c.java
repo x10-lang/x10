@@ -12,6 +12,7 @@ import java.util.List;
 import polyglot.frontend.SetResolverGoal;
 import polyglot.types.*;
 import polyglot.util.CodeWriter;
+import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.*;
 
@@ -29,6 +30,12 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
      * reference created.
      */
     protected Ref<? extends Type> type;
+    
+    /** A flag to keep the data-centric synchronization information.
+     *  The field can only have a flag <code>Flags.ATOMICPLUS</code>,
+     *  representing the atomic sets of the declared objects is
+     *  merged with the atomic sets of its container class.*/
+    private FlagsNode flags = null;
 
     public TypeNode_c(Position pos) {
     	super(pos);
@@ -99,5 +106,20 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
     public String nameString() {
         Type t = type();
         return t.name().toString();
+    }
+    
+    /**
+     * Sets the flags for data-centric synchronization. The
+     * <code>flags</code> to set can be <code>null</code>.
+     * */
+    public void setFlagsNode(FlagsNode flags) {
+    	this.flags = flags;
+    }
+    
+    /**
+     * Gets the flags for data-centric synchronization.
+     * */
+    public FlagsNode getFlagsNode() {
+    	return flags;
     }
 }

@@ -101,7 +101,6 @@ public class ClosureRemover extends ContextVisitor {
     
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-
         if (n instanceof ClassDecl) {
             ClassDecl cd = (ClassDecl) n;
             final X10ClassDef def = (X10ClassDef) cd.classDef();

@@ -72,6 +72,9 @@ implements X10ParsedClassType
     private Set<X10ParsedClassType_c> cacheDirectSupertypes = null;
     private Set<X10ParsedClassType_c> cacheAllSupertypes = null;
     private ArrayList<MethodInstance> cacheAllMethods = null;
+    
+    //The atomic context of each class type. It is for data-centric synchronization.
+    protected Type atomicContext = null;
 
     private void clearCache() {
         cacheSubst = null;
@@ -450,7 +453,7 @@ implements X10ParsedClassType
 
 		String sup = super.typeToString();
 		sb.append(sup);
-
+		
 		if (propertyInitializers != null) {
 			String s = propertyInitializers.toString();
 			sb.append("(").append(s.substring(1, s.length()-1)).append(")");
@@ -537,5 +540,27 @@ implements X10ParsedClassType
 	    }
 	    return pct;
 	}
+	
+    //the following 3 methods are for data-centric synchronizations
+	/**
+	 * Returns the atomic context of this class type.
+	 * */
+    public Type getAtomicContext() {	
+    	return atomicContext;
+    }
+    
+    /**
+     * Checks if this class type has atomic context or not.
+     * */
+    public boolean hasAtomicContext() {
+    	return atomicContext != null;
+    }
+ 
+    /**
+     * Sets the atomic context for this class type.
+     * */
+    public void setAtomicContext(Type t) {
+    	assert t != null;
+    	atomicContext = t;
+    }
 }
-
