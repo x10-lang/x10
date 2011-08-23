@@ -42,7 +42,7 @@ public class Optimizer {
     public static boolean FLATTENING(ExtensionInfo extInfo) {
         Configuration config = extInfo.getOptions().x10_config;
         if (config.FLATTEN_EXPRESSIONS) return true;
-        if (extInfo instanceof x10c.ExtensionInfo && INLINING(extInfo)) return true;
+        if (extInfo instanceof x10c.ExtensionInfo) return true;
         if (!config.ALLOW_STATEMENT_EXPRESSIONS) return true; // don't let StmtExpr's reach the back end
         return false;
     }
@@ -94,7 +94,11 @@ public class Optimizer {
         List<Goal> goals = preInlinerGoals();
         if (INLINING(extInfo)) {
             goals.add(Packager());
-            goals.add(Inliner());
+            goals.add(Inliner(false));
+        } else if (!config.WORK_STEALING){
+            // Even when inlining is not enabled, we're still going to inline
+            // closure calls on closure literals.
+            goals.add(Inliner(true));
         }
         if (FLATTENING(extInfo)) {
             goals.add(ExpressionFlattener());
@@ -132,8 +136,8 @@ public class Optimizer {
         return goal.intern(scheduler);
     }
 
-    public Goal Inliner() {
-        NodeVisitor visitor = new Inliner(job, ts, nf);
+    public Goal Inliner(boolean closuresOnly) {
+        NodeVisitor visitor = new Inliner(job, ts, nf, closuresOnly);
         Goal goal = new ValidatingVisitorGoal("Inlined", job, visitor);
         return goal.intern(scheduler);
     }

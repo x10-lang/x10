@@ -127,6 +127,7 @@ public class Inliner extends ContextVisitor {
     private final AltSynthesizer syn;
     private DeclStore repository;
     private InlineUtils utils;
+    private final boolean closuresOnly;
 
     /**
      * Create a new Inliner.
@@ -134,12 +135,14 @@ public class Inliner extends ContextVisitor {
      * @param job the Job whose procedures (methods, constructors, and closures) are to have their procedure calls inlined
      * @param ts the current TypeSystem
      * @param nf the current NodeFactory
+     * @param closuresOnly are we running a restricted inliner that is just cleaning up apply on literal closures?
      */
-    public Inliner(Job job, TypeSystem ts, NodeFactory nf) {
+    public Inliner(Job job, TypeSystem ts, NodeFactory nf, boolean closuresOnly) {
         super(job, ts, nf);
         syn                   = new AltSynthesizer(ts, nf);
         ExtensionInfo extInfo = (ExtensionInfo) job.extensionInfo();
         Configuration config  = ((X10CompilerOptions) extInfo.getOptions()).x10_config;
+        this.closuresOnly = closuresOnly;
     }
 
     /**
@@ -150,7 +153,9 @@ public class Inliner extends ContextVisitor {
      */
     @Override
     public NodeVisitor begin() {
-        repository        = job.compiler().getInlinerData(job, ts, nf);
+        if (!closuresOnly) {
+            repository        = job.compiler().getInlinerData(job, ts, nf);
+        }
         utils             = new InlineUtils(job);
         recursionDepth[0] = INITIAL_RECURSION_DEPTH;
         timer();
@@ -213,14 +218,14 @@ public class Inliner extends ContextVisitor {
             if (4 <= VERBOSITY)
                 Warnings.issue(job, "? inline level " +inlineInstances.size()+ " closure " +n, pos);
             result = inlineClosureCall((ClosureCall) n);
-        } else if (n instanceof InlinableCall) {
+        } else if (!closuresOnly && n instanceof InlinableCall) {
             result = inlineConstant((InlinableCall) n);
             if (null != result) 
                 return result;
             if (4 <= VERBOSITY)
                 Warnings.issue(job, "? inline level " +inlineInstances.size()+ " call " +n, pos);
             result = inlineCall((InlinableCall) n);
-        } else { // this shouldn't happen
+        } else {
             return n;
         }
         if (null == result) { // cannot inline this call

@@ -3612,7 +3612,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         closeParen = true;
                     }
                 }
-            } if (!isBoxedType(e.type()) && isBoxedType(defType)) {
+            } if (!isBoxedType(e.type()) /*&& isBoxedType(defType)*/) {
+                // primitives need to be boxed 
                 er.printBoxConversion(e.type());
                 w.write("(");
                 closeParen = true;

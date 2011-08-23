@@ -48,7 +48,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 				Node n = (Node) jl();
 				X10Ext ext = (X10Ext) n.ext();
 				if (ext != null && ext.comment() != null)
-					w.write(ext.comment());
+					w.writeln(ext.comment());
 			}
 			makeCodeGenerator(w, tr).visitAppropriate(jl());
 		}

@@ -20,7 +20,7 @@ class TestDoubleMath extends x10Test {
     public def run(): boolean {
         // error function
         val a = 0.6;
-        chk (nearEnough(Math.erf(a), 1.0 - Math.erfc(a)));
+        chk (precision.is_equal(Math.erf(a), 1.0 - Math.erfc(a)));
 
         chk (Math.erf(0) == 0.0);
         chk (Math.erfc(0) == 1.0);
