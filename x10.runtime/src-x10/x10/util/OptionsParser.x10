@@ -58,12 +58,12 @@ public final class OptionsParser {
                         val char = s(index);
                         var char_recognised:Boolean = false;
                         if (flags!=null) for (flag in flags.values()) {
-                            if (char.equals(flag.short_(0))) {
+                            if (flag.short_ != null && char.equals(flag.short_(0))) {
                                 char_recognised = true;
                             }
                         }
                         if (specs!=null && index==s.length()-1) for (spec in specs.values()) {
-                            if (char.equals(spec.short_(0))) {
+                            if (spec.short_ != null && char.equals(spec.short_(0))) {
                                 char_recognised = true;
                             }
                         }
@@ -141,17 +141,25 @@ public final class OptionsParser {
         r += "Usage:";
         var shortWidth:Int = 0;
         for (opt in flags.values()) {
-            shortWidth = Math.max(shortWidth, opt.short_.length());
+	    if (opt.short_ != null) {
+                shortWidth = Math.max(shortWidth, opt.short_.length());
+            }
         }
         for (opt in specs.values()) {
-            shortWidth = Math.max(shortWidth, opt.short_.length());
+	    if (opt.short_ != null) {
+                shortWidth = Math.max(shortWidth, opt.short_.length());
+            }
         }
         var longWidth:Int = 0;
         for (opt in flags.values()) {
-            longWidth = Math.max(longWidth, opt.long_.length());
+	    if (opt.long_ != null) {
+                longWidth = Math.max(longWidth, opt.long_.length());
+            }
         }
         for (opt in specs.values()) {
-            longWidth = Math.max(longWidth, opt.long_.length());
+	    if (opt.long_ != null) {
+                longWidth = Math.max(longWidth, opt.long_.length());
+            }
         }
         for (opt in flags.values()) {
             // the 8 is to match the " <param>"
