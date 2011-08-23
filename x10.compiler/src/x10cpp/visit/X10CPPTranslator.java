@@ -257,7 +257,7 @@ public class X10CPPTranslator extends Translator {
 		            		lineNumberMap.rememberLoopVariable(((LocalDecl)t).name().toString(), ((LocalDecl)n).name().toString(), line, lastX10Line);
 		            }
 		            if (n instanceof FieldDecl && !c.inTemplate() && !((FieldDecl)n).flags().flags().isStatic() && !n.position().isCompilerGenerated()) // the c.inTemplate() skips mappings for templates, which don't have a fixed size.
-		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct(), false);
+		            	lineNumberMap.addClassMemberVariable(((FieldDecl)n).name().toString(), ((FieldDecl)n).type().toString(), Emitter.mangled_non_method_name(context.currentClass().toString()), context.currentClass().isX10Struct(), false, false);
 		            else if (n instanceof LocalDecl && !((LocalDecl)n).position().isCompilerGenerated())
 		            	lineNumberMap.addLocalVariableMapping(((LocalDecl)n).name().toString(), ((LocalDecl)n).type().toString(), line, lastX10Line, file, false, -1, false);
 		            else if (def != null)
@@ -281,7 +281,7 @@ public class X10CPPTranslator extends Translator {
 					            	{
 					            		Formal arg = args.get(0);
 					            		if (arg.type().toString().equals(parentClass))
-					            			lineNumberMap.addClassMemberVariable(arg.name().toString(), parentClass, Emitter.mangled_non_method_name(thisClass), false, true);
+					            			lineNumberMap.addClassMemberVariable(arg.name().toString(), parentClass, Emitter.mangled_non_method_name(thisClass), false, true, false);
 					            	}
 			            		}
 		            			if (cd.body().statements().size() > 0)
@@ -291,7 +291,7 @@ public class X10CPPTranslator extends Translator {
 			            			{
 			            				String superClass = ((X10ConstructorCall)s).constructorInstance().returnType().toString();
 			            				if (!"x10.lang.Object".equals(superClass)) // don't bother pointing out an extension of x10.lang.Object in the debug maps
-			            					lineNumberMap.addClassMemberVariable(superClass, superClass, Emitter.mangled_non_method_name(thisClass), false, true);
+			            					lineNumberMap.addClassMemberVariable(superClass, superClass, Emitter.mangled_non_method_name(thisClass), false, false, true);
 			            			}
 		            			}
 		            		}
@@ -311,7 +311,7 @@ public class X10CPPTranslator extends Translator {
 		            		boolean isStruct = context.currentClass().isX10Struct();
 		            		if (!defSource.position().isCompilerGenerated())
 		            			lineNumberMap.addLocalVariableMapping("this", Emitter.mangled_non_method_name(context.currentClass().toString()), line, lastX10Line, file, true, -1, isStruct);
-		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct, false);
+		            		lineNumberMap.addClassMemberVariable(null, null, Emitter.mangled_non_method_name(context.currentClass().toString()), isStruct, false, false);
 		            	}
 		            }
 		        }
