@@ -171,6 +171,12 @@ public class Matcher {
 
 		final List<Type> actuals = Types.expandTypes(actualsIn, xts);
 
+        // actuals cannot be of void type
+        for (Type actual : actuals)
+            if (xts.isVoid(actual))
+                throw new SemanticException("An actual cannot have a 'void' type.", me.position());
+
+
 		Type thisType = thisTypeArray[0];
 
 		final XVar ythiseqv =  ys[0] = getSymbolVar(thisType);
