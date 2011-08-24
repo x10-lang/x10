@@ -283,6 +283,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, int srcIndex, 
                                      RemoteIndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
+        // synchronous version for the same place
+        if (dst.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.value, srcIndex, dst.$apply$G().value, dstIndex, numElems);
+            notifier.$apply();
+            return;
+        }
+
         throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
         // notifier.$apply();
     }
@@ -445,6 +452,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static <T> void asyncCopy(RemoteIndexedMemoryChunk<T> src, int srcIndex, 
                                      IndexedMemoryChunk<T> dst, int dstIndex,
                                      int numElems, VoidFun_0_0 notifier) {
+        // synchronous version for the same place
+        if (src.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.$apply$G().value, srcIndex, dst.value, dstIndex, numElems);
+            notifier.$apply();
+            return;
+        }
+
         throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
         // notifier.$apply();
     }
