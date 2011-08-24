@@ -3287,11 +3287,9 @@ public class Emitter {
             /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
             && !def.flags().isInterface()) {
             w.write("(" + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + "[]) null");
-            if (X10PrettyPrinterVisitor.initParamsInAllocator) {
-                // N.B. in custom deserializer, initialize type params with null
-                for (ParameterType typeParam : def.typeParameters()) {
-                    w.write(", (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") null");
-                }
+            // N.B. in custom deserializer, initialize type params with null
+            for (ParameterType typeParam : def.typeParameters()) {
+                w.write(", (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") null");
             }
             w.write(");");
             w.newline();
