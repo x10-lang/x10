@@ -204,7 +204,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
-    public static final boolean initParamsInAllocator = true; // true is prereq to make DeclPackage.XTENLANG_2818_CTOR to false
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -701,11 +700,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
                             w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + JAVA_LANG_SYSTEM + "[]) null");
-                            if (initParamsInAllocator) {
-                                // N.B. in custom deserializer, initialize type params with null
-                                for (ParameterType typeParam : def.typeParameters()) {
-                                    w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
-                                }
+                            // N.B. in custom deserializer, initialize type params with null
+                            for (ParameterType typeParam : def.typeParameters()) {
+                                w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
                             }
                             w.write(");");
                             w.newline();
@@ -722,11 +719,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
                                 && !def.flags().isInterface()) {
                                 w.write("(" + JAVA_LANG_SYSTEM + "[]) null");
-                                if (initParamsInAllocator) {
-                                    // N.B. in custom deserializer, initialize type params with null
-                                    for (ParameterType typeParam : def.typeParameters()) {
-                                        w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
-                                    }
+                                // N.B. in custom deserializer, initialize type params with null
+                                for (ParameterType typeParam : def.typeParameters()) {
+                                    w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
                                 }
                                 w.write(");");
                                 w.newline();
@@ -828,28 +823,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("// constructor just for allocation");
             w.newline();
             w.write("public " + Emitter.mangleToJava(def.name()) + "(final " + JAVA_LANG_SYSTEM + "[] $dummy");
-            List<String> params = null;
-            if (initParamsInAllocator) {
-                params = new ArrayList<String>();
-                for (ParameterType p : def.typeParameters()) {
-                    String param = Emitter.mangleParameterType(p);
-                    w.write(", final " + X10_RUNTIME_TYPE_CLASS + " " + param);
-                    params.add(param);
-                }
+            List<String> params = new ArrayList<String>();
+            for (ParameterType p : def.typeParameters()) {
+                String param = Emitter.mangleParameterType(p);
+                w.write(", final " + X10_RUNTIME_TYPE_CLASS + " " + param);
+                params.add(param);
             }
             w.write(") { ");
             w.newline();
             if (!(superClassNode != null && (Emitter.isNativeRepedToJava(superClassNode.type()) || superClassNode.type().toClass().isJavaType()))) {
                 w.write("super($dummy");
-                if (initParamsInAllocator && def.superType() != null) {
+                if (def.superType() != null) {
                     printArgumentsForTypeParamsPreComma(def.superType().get().toClass().typeArguments(), false);
                 }
                 w.write(");");
                 w.newline();
             }
-            if (initParamsInAllocator) {
-                printInitParams(def.asType(), params);
-            }
+            printInitParams(def.asType(), params);
             w.write("}");
             w.newline();
         }
@@ -1315,7 +1305,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write("return ");
 
-        boolean passParamsToConstructor = !initParamsInAllocator;
+        boolean passParamsToConstructor = false;
         if (supportConstructorSplitting
                 && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
                 && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
@@ -1431,9 +1421,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // if (cc.kind() == ConstructorCall.THIS) typeAssignments.clear();
             // }
             // }
-            if (!initParamsInAllocator) {
-                printInitParams(Types.get(n.constructorDef().container()), params);
-            }
 
             // If this is the custom serialization constructor we refractor it out into a new method and call it here
             if (isCustomSerializable) {
@@ -1514,7 +1501,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         X10ClassType ct = (X10ClassType) Types.get(ci.container());
         List<String> params = new ArrayList<String>();
 
-        if (!initParamsInAllocator || forceParams) {
+        if (forceParams) {
         for (Iterator<ParameterType> i = ct.x10Def().typeParameters().iterator(); i.hasNext();) {
             ParameterType p = i.next();
             w.write("final ");
@@ -1588,17 +1575,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         X10ConstructorDef ci = n.constructorDef();
         X10ClassType ct = (X10ClassType) Types.get(ci.container());
 
-        if (!initParamsInAllocator) {
-        for (Iterator<ParameterType> i = ct.x10Def().typeParameters().iterator(); i.hasNext();) {
-            ParameterType p = i.next();
-            String name = Emitter.mangleParameterType(p);
-            w.write(name);
-            if (i.hasNext() || n.formals().size() > 0) {
-                w.write(",");
-            }
-        }
-        }
-
         for (Iterator<Formal> i = n.formals().iterator(); i.hasNext();) {
             Formal f = i.next();
             w.write(f.name().toString());   // TODO mangle?
@@ -1660,9 +1636,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         else
                 er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write("((" + JAVA_LANG_SYSTEM + "[]) null");
-        if (initParamsInAllocator) {
-            printArgumentsForTypeParamsPreComma(typeParams, false);
-        }
+        printArgumentsForTypeParamsPreComma(typeParams, false);
         w.write(")");
     }
 
@@ -3953,7 +3927,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write("(");
         w.begin(0);
 
-        if (!initParamsInAllocator || forceParams) {
+        if (forceParams) {
         X10ClassType ct = (X10ClassType) mi.container();
         List<Type> ta = ct.typeArguments();
         boolean isJavaNative = type != null ? Emitter.isNativeRepedToJava(type) : false;

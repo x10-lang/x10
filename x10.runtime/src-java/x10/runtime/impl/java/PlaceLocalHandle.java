@@ -58,24 +58,11 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     	return this;
     }
 
-    // For X10PrettyPrinterVisitor.initParamsInAllocator
     // constructor just for allocation
     public PlaceLocalHandle(java.lang.System[] $dummy, x10.rtt.Type<T> T) {
     }
     
-    // For X10PrettyPrinterVisitor.initParamsInAllocator
     public PlaceLocalHandle $init() {
-        id = nextId();
-        return this;
-    }
-
-    // For !X10PrettyPrinterVisitor.initParamsInAllocator
-    // constructor just for allocation
-    public PlaceLocalHandle(java.lang.System[] $dummy) {
-    }
-    
-    // For !X10PrettyPrinterVisitor.initParamsInAllocator
-    public PlaceLocalHandle $init(x10.rtt.Type<T> T) {
         id = nextId();
         return this;
     }
@@ -127,7 +114,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 	}
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null);
+        PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null, (x10.rtt.Type<?>) null);
         deserializer.record_reference(placeLocalHandle);
 		return $_deserialize_body(placeLocalHandle, deserializer);
 	}
