@@ -158,6 +158,12 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static <T> void asyncCopy(IndexedMemoryChunk<T> src, final int srcIndex, 
                                      final RemoteIndexedMemoryChunk<T> dst, final int dstIndex,
                                      final int numElems) {
+        // synchronous version for the same place
+        if (dst.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.value, srcIndex, dst.$apply$G().value, dstIndex, numElems);
+            return;
+        }
+        
         // extra copy here simplifies logic and allows us to do this entirely at the Java level.
         // We'll eventually need to optimize this by writing custom native/JNI code instead of treating
         // it as just another async to execute remotely.
@@ -284,6 +290,12 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static <T> void asyncCopy(final RemoteIndexedMemoryChunk<T> src, final int srcIndex, 
                                      IndexedMemoryChunk<T> dst, final int dstIndex,
                                      final int numElems) {
+        // synchronous version for the same place
+        if (src.home.id == x10.lang.Runtime.home().id) {
+            System.arraycopy(src.$apply$G().value, srcIndex, dst.value, dstIndex, numElems);
+            return;
+        }
+
         // A really bad implementation!  Leaks dst!!  Non-optimized copies! Extra distributed async/finish traffic!
         final RemoteIndexedMemoryChunk<T> dstWrapper = RemoteIndexedMemoryChunk.wrap(dst);
         
