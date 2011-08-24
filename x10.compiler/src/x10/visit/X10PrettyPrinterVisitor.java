@@ -3970,7 +3970,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     } else {
                         // TODO:CAST
                         w.write("(");
-                        er.printType(castType, PRINT_TYPE_PARAMS);
+                        // XTENLANG-2895 use erasure to implement co/contra-variance of function type
+                        er.printType(castType, xts.isFunctionType(castType) ? 0 : PRINT_TYPE_PARAMS);
                         w.write(")");
                     }
                     w.write("(");       // printBoxConvesion assumes parentheses around expression
