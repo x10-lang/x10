@@ -117,6 +117,10 @@ public final class Configuration extends x10.config.Configuration {
     public boolean DATA_CENTRIC = true;
     private static final String DATA_CENTRIC_desc = "Enable data-centric concurrency control";
     
+    //add a new configuration item to control the unit of work
+    public boolean MIXED_ATOMICITY = true;
+    private static final String MIXED_ATOMICITY_desc = "Enable atomic section as a unit of work";
+    
 //    public final boolean MULTI_NODE = true;
 //    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
 

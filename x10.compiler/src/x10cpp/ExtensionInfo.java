@@ -171,7 +171,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             }
             //add data-centric synchronization goal
             if(this.extensionInfo().getOptions().x10_config.DATA_CENTRIC) {
-            	FinallyEliminator(job).addPrereq(AtomicityTranslator(job));
+            	if(this.extensionInfo().getOptions().x10_config.MIXED_ATOMICITY) {
+            		FinallyEliminator(job).addPrereq(MixedAtomicityTranslator(job));
+            	} else {
+            	    FinallyEliminator(job).addPrereq(DataCentricAtomicityTranslator(job));
+            	}
             }
 		    FinallyEliminator(job).addPrereq(Lowerer(job));
 		    for (Goal g: Optimizer.goals(this, job)) {
