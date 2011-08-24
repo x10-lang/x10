@@ -30,7 +30,7 @@ public class Types9j6e extends x10Test {
  static class Generic {
   public static def inst[T](x:Any):Boolean = x instanceof T;
   // With -VERBOSE, the following line gets a warning
-  public static def cast[T](x:Any):T       = x as T;
+  public static def cast[T](x:Any):T       = x as T; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 }
  static class Pea(p:Int) {}
  static class Example{

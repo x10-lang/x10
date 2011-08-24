@@ -19,11 +19,11 @@ import harness.x10Test;
 public class StringBoxing2 extends x10Test {
 
     static def makefun[X](): (Any)=>X = {
-	(x:Any) => x as X
+	(x:Any) => x as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
     static def makefun2[X](): ((Int)=>Char)=>X = {
-	(a:(Int)=>Char) => a as X
+	(a:(Int)=>Char) => a as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
   

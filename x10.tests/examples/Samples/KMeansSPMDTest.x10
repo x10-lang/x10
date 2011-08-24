@@ -15,7 +15,7 @@ public class KMeansSPMDTest extends x10Test {
     public def run():boolean {
          val args = new Array[String](2);
          args(0) = "-p"; args(1) = "../../x10.dist/samples/points.dat";
-         KMeansSPMD.main(args);
+         KMeansSPMD.main(args); // ERR: Warning: Generated a dynamic check for the method call.
          return true;
     }
 
