@@ -1593,27 +1593,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	                                 Types.ref(container), Name.make(THIS)).asInstance();
 	    context.addVariable(ti);
 
-	    sw.allowBreak(0, " "); sw.write("{"); sw.newline(4); sw.begin(0);
+        dec.printSubStmt(dec.body(), sw, tr);
 
-	    Block_c body = (Block_c) dec.body();
-
-	    // Synthetic fields must be initialized before everything else
-	    for (Stmt s : body.statements()) {
-	        if (query.isSyntheticOuterAccessor(s)) {
-	            dec.print(s, sw, tr); sw.newline();
-	        }
-	    }
-
-	    for (Stmt s : body.statements()) {
-	        if (query.isSyntheticOuterAccessor(s)) {
-	            // we did synthetic field initialisation earlier
-	        } else {
-	            dec.printBlock(s, sw, tr);
-	            sw.newline();
-	        }
-	    }
-	    sw.end(); sw.newline();
-	    sw.write("}");
 	    sw.newline();
 	    if (inlineInClassDecl) {
 	        sw.popCurrentStream();
