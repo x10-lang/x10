@@ -140,12 +140,13 @@ public class CodeCleanUp extends ContextVisitor {
         if (result != null) {
             if (result instanceof StmtExpr) {
                 b = b.append(sinkEval((StmtExpr)result, result.position()));
+                b = clean(flattenBlock(b));
             } else {
                 b = b.append(nf.Eval(result.position(), result));
             }
         }
         
-        return clean(flattenBlock(b));
+        return b;
     }
 
     /**
@@ -214,23 +215,5 @@ public class CodeCleanUp extends ContextVisitor {
             System.out.println("CodeCleanUp: Blocks removed " + blockCount);
             System.out.println("CodeCleanUp: Unreachable code removed " + unreachableCount);
         }
-    }
-
-    /**
-     * Traverses a Block and determines the set of label references.
-     **/
-    protected Set<Name> labelRefs(Block b) {
-        final Set<Name> result = CollectionFactory.newHashSet();
-        b.visit(new NodeVisitor() {
-            public Node leave(Node old, Node n, NodeVisitor v) {
-                if (n instanceof Branch) {
-                    result.add(((Branch) n).labelNode().id());
-                }
-
-                return n;
-            }
-        });
-
-        return result;
     }
 }
