@@ -2948,8 +2948,8 @@ class PrivateWithinInnerClass {
 		private def priv() {}
 	}
 	class Child78 extends Parent78 {
-		private def priv() { // IS overriding 
-			super.priv(); 
+		private def priv() { // IS overriding  (Yoav: Wrong. test in java)
+			super.priv(); // ERR: Method priv() in x10.frontend.tests.PrivateWithinInnerClass.Parent78{self==this(:x10.frontend.tests.PrivateWithinInnerClass.Child78)} is inaccessible.
 		}
 	}
 }
@@ -6930,4 +6930,16 @@ class XTENLANG_2863 {
 	m(foo()); // ERR: Semantic Error: An actual cannot have a 'void' type.
 	m[void](foo()); // ERR: Semantic Error: An actual cannot have a 'void' type.
   }
+}
+class XTENLANG_2894 {
+	private def m1() {}
+	class A {
+		private def m2() {}
+	}
+	class B extends A {
+		def p() {
+			m1(); // not an error because an inner class can access private methods.
+			m2(); // ERR
+		}
+	}
 }
