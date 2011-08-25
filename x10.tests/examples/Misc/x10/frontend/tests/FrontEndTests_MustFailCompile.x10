@@ -2194,12 +2194,6 @@ class ReturnStatementTest {
 		at (here.next()) return here;// ShouldNotBeERR (Semantic Error: Cannot return value from void method or closure.)// ShouldNotBeERR (Semantic Error: Cannot return a value from method public x10.lang.Runtime.$dummyAsync(): void.)
 		val x = 3; // ERR (unreachable statement)
 	  }
-	  def test() {
-			val x1 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
-			val x2 = m();// ShouldNotBeERR (Semantic Error: Local variable cannot have type void.)
-			testSameType(x1,x2,[x1,x2]);
-	  }
-	  def testSameType[T](x:T,y:T,arr:Array[T]) {}
 	}
 	
 	static def ok(b:Boolean):Int {
@@ -6929,3 +6923,11 @@ class TestResolutionOfNull {
       @NonEscaping val root = new GlobalRef[GlobalRefAndSerialize6](this);
   }
 
+class XTENLANG_2863 {
+  static def m[T](x:T):void {}
+  static def foo():void {}
+  static def c() {
+	m(foo()); // ERR: Semantic Error: An actual cannot have a 'void' type.
+	m[void](foo()); // ERR: Semantic Error: An actual cannot have a 'void' type.
+  }
+}

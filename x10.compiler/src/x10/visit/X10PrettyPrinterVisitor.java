@@ -2078,7 +2078,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     
     public static boolean isBoxedType(Type t) {
         // void is included here, because synthetic methods have no definition and are reported as having type (void)
-        if (t.isBoolean() || t.isChar() || t.isNumeric() || t.isVoid())
+        if (isPrimitiveRepedJava(t) || t.isVoid())
             return false;
         else
             return true;
@@ -2092,7 +2092,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (c.isConstant()) {
             Type t = Types.baseType(c.type());
-            if (t.isNumeric() || t.isBoolean() || t.isChar() || t.isNull() || isString(t, tr.context())) {
+            if (isPrimitiveRepedJava(t) || t.isNull() || isString(t, tr.context())) {
                 er.prettyPrint(c.constantValue().toLit(tr.nodeFactory(), tr.typeSystem(), t, Position.COMPILER_GENERATED), tr);
                 return;
             }
@@ -2473,7 +2473,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(")");
                         w.write(")");
                     }
-                } else if (castType.isBoolean() || castType.isNumeric() || castType.isChar()) {
+                } else if (isPrimitiveRepedJava(castType)) {
                     w.begin(0);
                     // for the case the method is a dispatch method and that
                     // returns Object.
@@ -2498,7 +2498,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         castTE.expand(tr);
                         w.write(")");
                         // e.g. d as Int (d:Double) -> (int)(double)(Double) d
-                        if (exprType.isBoolean() || exprType.isNumeric() || exprType.isChar()) {
+                        if (isPrimitiveRepedJava(exprType)) {
                             w.write(" ");
                             w.write("(");
                             er.printType(exprType, 0);
@@ -2570,7 +2570,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write("(");
                         }
                         closeParen = true;
-                    } else if (exprType.isNumeric() && isBoxedType(castType)) {
+                    } else if (Emitter.needExplicitBoxing(exprType) && isBoxedType(castType)) {
                     	er.printBoxConversion(exprType);
                     	w.write("(");
                         closeParen = true;
@@ -4405,6 +4405,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return Types.baseType(type).typeEquals(type.typeSystem().Object(), context);
     }
 
+    // TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
     public static boolean isPrimitiveRepedJava(Type t) {
         return t.isBoolean() || t.isChar()  || t.isNumeric();
     }

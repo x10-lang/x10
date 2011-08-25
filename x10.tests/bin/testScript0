@@ -728,7 +728,7 @@ doTest() {
   let "x10test_timeout = (( $timeLimit + 30 ))"
   if [ -z "$USE_X10CPP" ]
   then
-      runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10 -t -v -mx 128M -classpath \"$testDir\" $classpath -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
+      runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10 -t -v -mx 256M -classpath \"$testDir\" $classpath -Dx10test.timeout=$x10test_timeout $X10_EXTRA_OPTS $className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   else
       runWithTimeLimit "$tdir" "$className" "$testDir/$className" "Test succeeded" "AssertionError|	at .+\(.+\)"
   fi 

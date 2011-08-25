@@ -17,7 +17,9 @@ import x10.compiler.NonEscaping;
 /**
  * FinishAccumulator can be used only when you can safely piggyback on an existing Finish
  */
-public final class FinishAccumulator[T] extends Accumulator[T] {
+public final class FinishAccumulator[T] {}
+
+/*extends Accumulator[T] {
 	protected var sr:FinishState.StatefulReducer[T];
 
 	public def this(red:Reducible[T]) {
@@ -30,9 +32,7 @@ public final class FinishAccumulator[T] extends Accumulator[T] {
     }
     public def serialize():SerialData = super.serialize();
 
-    /**
-     * This method supplies/offers a value to the accumulator.
-     */
+    // This method supplies/offers a value to the accumulator.
 	public operator this <- (t:T):void {
 	    if (getRoot().home==here) {
 	        val _root = getRoot() as GlobalRef[Acc]{self.home==here};
@@ -49,9 +49,7 @@ public final class FinishAccumulator[T] extends Accumulator[T] {
 	        Runtime.activity().finishState().registerAcc(this);
 	    sr.accept(t,id);
 	}
-    /**
-     * This method resets the accumulator.
-     */
+    // This method resets the accumulator.
 	public operator this()=(t:T):void {
 	    curr = t;
 	}
@@ -73,3 +71,4 @@ public final class FinishAccumulator[T] extends Accumulator[T] {
         return res;
     }
 }
+*/

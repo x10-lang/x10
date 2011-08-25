@@ -17,7 +17,6 @@ import x10.util.HashMap;
 import x10.util.IndexedMemoryChunk;
 import x10.util.Pair;
 import x10.util.Stack;
-import x10.util.ArrayList;
 
 import x10.util.concurrent.AtomicInteger;
 import x10.util.concurrent.Lock;
@@ -34,23 +33,6 @@ abstract class FinishState {
     abstract def waitForFinish():void;
     abstract def simpleLatch():SimpleLatch;
 
-	public static def MYPRINT(msg:String):void {
-	    Runtime.println("Worker="+Runtime.workerId()+" "+msg);
-	}
-
-    private var accs:ArrayList[Acc] = null;
-    @Embed private transient var accsLock:Lock = @Embed new Lock(); // cannot use simpleLatch() because it is null for RemoteFinish.
-    //abstract def ref():GlobalRef[FinishState]; // ref() is not implemented by all subclasses...
-    public def registerAcc(acc:Acc) {
-        //if (this.ref().home.id != acc.home().id)
-        //    throw new IllegalOperationException();
-        accsLock.lock();
-        if (accs==null) accs = new ArrayList[Acc]();
-        if (!accs.contains(acc)) accs.add(acc);
-	    //MYPRINT("registerAcc: #accs="+accs.size() + " typeName="+this.typeName());
-        accsLock.unlock();
-    }
-    
     static def deref[T](root:GlobalRef[FinishState]) = (root as GlobalRef[FinishState]{home==here})() as T;
 
     // a finish with local asyncs only
@@ -327,14 +309,12 @@ abstract class FinishState {
         public def pushException(t:Throwable) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
         public def simpleLatch() = me.simpleLatch();
-        public def registerAcc(acc:Acc) { me.registerAcc(acc); }
     }
 
     // the default finish implementation
     static class Finish extends FinishSkeleton implements CustomSerialization {
         protected def this(root:RootFinish) {
             super(root);
-	        //MYPRINT("0 created Finish");
         }
         def this(latch:SimpleLatch) {
             this(new RootFinish(latch));
@@ -344,7 +324,6 @@ abstract class FinishState {
         }
         protected def this(ref:GlobalRef[FinishState]) {
             super(ref);
-	        //MYPRINT("1 created Finish");
         }
         private def this(data:SerialData) { 
             super(data.data as GlobalRef[FinishState]);
@@ -384,16 +363,6 @@ abstract class FinishState {
             counts(p.id)++;
             latch.unlock();
         }
-        private def allCompleted():void {
-            if (accs!=null) {
-	            //MYPRINT("RootFinish.notifyActivityTermination 2: #accs="+accs.size());
-                for (i in 0..(accs.size()-1)) {
-                    val acc = accs(i);
-                    acc.acceptResult(acc.calcResult());
-                }
-            }
-            latch.release();
-        }
         public def notifyActivityTermination():void {
             latch.lock();
             if (--count != 0) {
@@ -409,8 +378,7 @@ abstract class FinishState {
                 }
             }
             latch.unlock();
-	        //MYPRINT("RootFinish.notifyActivityTermination");
-	        allCompleted();
+            latch.release();
         }
         public def process(t:Throwable):void {
             if (null == exceptions) exceptions = new Stack[Throwable]();
@@ -447,23 +415,11 @@ abstract class FinishState {
                 seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
             }
-            if (b) {
-                //MYPRINT("RootFinish.process(IndexedMemoryChunk[Int])");
-                allCompleted();
-            }
+            if (b) latch.release();
         }
-        def handleAcc(accMessage:IndexedMemoryChunk[Pair[GlobalRef[Acc],Any]]) {
-	        //MYPRINT("RootFinish.handleAcc: accMessage.length()="+accMessage.length());
-            for (i in 0..(accMessage.length()-1)) {
-                val pair = accMessage(i);
-                val acc = (pair.first as GlobalRef[Acc]{self.home==here})();
-                val res = pair.second;
-                acc.acceptResult(res);
-            }
-        }
-        def notify(rail:IndexedMemoryChunk[Int], accMessage:IndexedMemoryChunk[Pair[GlobalRef[Acc],Any]]):void {
+
+        def notify(rail:IndexedMemoryChunk[Int]):void {
             latch.lock();
-            handleAcc(accMessage);
             process(rail);
             latch.unlock();
         }
@@ -479,13 +435,11 @@ abstract class FinishState {
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 if (counts(i) != 0) return;
             }
-            //MYPRINT("RootFinish.process(IndexedMemoryChunk[Pair[Int,Int]])");
-            allCompleted();
+            latch.release();
         }
 
-        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]], accMessage:IndexedMemoryChunk[Pair[GlobalRef[Acc],Any]]):void {
+        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]]):void {
             latch.lock();
-            handleAcc(accMessage);
             process(rail);
             latch.unlock();
         }
@@ -554,21 +508,6 @@ abstract class FinishState {
                 lock.unlock();
                 return;
             }
-
-            val accMessage:IndexedMemoryChunk[Pair[GlobalRef[Acc],Any]];
-            if (accs==null) {
-                accMessage = IndexedMemoryChunk.allocateUninitialized[Pair[GlobalRef[Acc],Any]](0);
-            } else {
-                val size = accs.size();
-                accMessage = IndexedMemoryChunk.allocateUninitialized[Pair[GlobalRef[Acc],Any]](size);
-                for (i in 0..(size-1)) {
-                    val acc = accs.get(i);
-                    accMessage(i) = new Pair[GlobalRef[Acc],Any](acc.getRoot(), acc.calcResult());
-                }
-                accs = null;
-            }
-	        //MYPRINT("RemoteFinish.notifyActivityTermination: accMessage.length()="+accMessage.length());
-
             val t = MultipleExceptions.make(exceptions);
             val ref = this.ref();
             val closure:()=>void;
@@ -580,7 +519,7 @@ abstract class FinishState {
                     if (null != t) {
                         closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message,accMessage); };
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
                     }
                 } else {
                     val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
@@ -590,7 +529,7 @@ abstract class FinishState {
                     if (null != t) {
                         closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
                     } else {
-                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message,accMessage); };
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
                     }
                 }
                 counts.clear(0, counts.length());
@@ -601,7 +540,7 @@ abstract class FinishState {
                 if (null != t) {
                     closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
                 } else {
-                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message,accMessage); };
+                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
                 }
             }
             count = 0;

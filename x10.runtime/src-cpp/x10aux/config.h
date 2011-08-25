@@ -12,8 +12,8 @@
 #ifndef X10AUX_CONFIG_H
 #define X10AUX_CONFIG_H
 
-#ifdef __CYGWIN__
-#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#if defined(__CYGWIN__) || defined(__FreeBSD__)
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin and FreeBSD
 #endif
 
 /*

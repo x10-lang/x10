@@ -72,7 +72,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	    TypeSystem ts = tb.typeSystem();
 
 	    // Remove super() calls for java.lang.Object.
-	    if (kind == SUPER && tb.currentClass().fullName().equals(QName.make("x10.lang.Object"))) {
+	    if (kind == SUPER && tb.currentClass()!=null && tb.currentClass().fullName().equals(QName.make("x10.lang.Object"))) {
 	        return tb.nodeFactory().Empty(position());
 	    }
 

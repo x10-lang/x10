@@ -19,7 +19,7 @@ public class CovariantOverride extends x10Test {
     static class A[T] {
 	def f() : Any = 1;
 	def g() : Any = "abc";
-	def h() : T = 1 as T;
+	def h() : T = 1 as T; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
     static class B extends A[UInt] {

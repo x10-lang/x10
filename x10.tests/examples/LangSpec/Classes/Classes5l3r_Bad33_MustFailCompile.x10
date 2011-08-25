@@ -32,7 +32,7 @@ public class Classes5l3r_Bad33_MustFailCompile extends x10Test {
 }
  static class Sub extends Super{
  def recip(n:Int){n != 0, n != 3} = 1.0/(n * (n-3)); // ERR
-  def recip(n:Int){true} = 1.0/n;
+  def recip(n:Int){true} = 1.0/n; // ERR
 }
  static class Example{
   static def example() {

@@ -32,7 +32,7 @@ public class Expressions6y9i extends x10Test {
   static def asPerson(f:Fop) = new Person();
   public static def example() {
      val f = new Fop();
-     val cast = f as Person; // WARNING on this line
+     val cast = f as Person; // ERR WARNING on this line
      assert cast == f;
      val meth = asPerson(f);
      assert meth != f;

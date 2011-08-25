@@ -174,6 +174,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
             // Therefore we do not produce warnings in compiler-generated code (too confusing for the programmer).
             // In addition, I also don't report the 3 warnings we have in XRX (or else every client of HashMap will have a warning)
             if (!position.isCompilerGenerated() &&
+                    !position.file().contains("Accumulator.x10")&&
                     !position.file().contains("Array.x10")&&
                     !position.file().contains("Box.x10")&&
                     !position.file().contains("HashMap.x10")&&
