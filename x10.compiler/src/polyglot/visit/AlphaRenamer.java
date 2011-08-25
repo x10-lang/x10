@@ -25,218 +25,232 @@ import x10.util.CollectionFactory;
  **/
 public class AlphaRenamer extends NodeVisitor {
 
-  // Each set in this stack tracks the set of local decls in a block that
-  // we're traversing.
-  protected Stack<Set<Name>> setStack;
+    // Each set in this stack tracks the set of local decls in a block that
+    // we're traversing.
+    protected Stack<Set<Name>> setStack;
 
-  protected Map<Name,Name> renamingMap;
+    protected Map<Name, Name> renamingMap;
 
-  protected Map<LocalDef, Name> oldNamesMap;
-  
-  // Tracks the set of variables known to be fresh.
-  protected Set<Name> freshVars;
+    protected Map<LocalDef, Name> oldNamesMap;
 
-  protected Map<Name,Name> labelMap;
+    // Tracks the set of variables known to be fresh.
+    protected Set<Name> freshVars;
 
-  protected boolean clearMaps;
+    protected Map<Name, Name> labelMap;
 
-  /**
-   * Creates a visitor for alpha-renaming locals.
-   */
-  public AlphaRenamer() {
-    this(true);
-  }
+    protected boolean clearMaps;
 
-  public AlphaRenamer(boolean clearOutOfScopeMaps) {
-    this.setStack = new Stack<Set<Name>>();
-    this.setStack.push( CollectionFactory.<Name>newHashSet() );
-
-    this.oldNamesMap = CollectionFactory.newHashMap();
-    this.renamingMap = CollectionFactory.newHashMap();
-    this.labelMap = CollectionFactory.newHashMap();
-    this.freshVars = CollectionFactory.newHashSet();
-    this.clearMaps = clearOutOfScopeMaps;
-  }
-
-  /** Map from local def to old names. */
-  public Map<LocalDef, Name> getMap() {
-      return oldNamesMap;
-  }
-
-  public static final String LABEL_PREFIX = "label ";
-
-  public NodeVisitor enter( Node n ) {
-    if ( isNewScope(n) ) {
-      // Push a new, empty set onto the stack.
-      setStack.push( CollectionFactory.<Name>newHashSet() );
+    /**
+     * Creates a visitor for alpha-renaming locals.
+     */
+    public AlphaRenamer() {
+        this(true);
     }
 
-    if ( n instanceof LocalDecl ) {
-      LocalDecl l = (LocalDecl)n;
-      Name name = l.name().id();
+    public AlphaRenamer(boolean clearOutOfScopeMaps) {
+        this.setStack = new Stack<Set<Name>>();
+        this.setStack.push(CollectionFactory.<Name> newHashSet());
 
-      if ( !freshVars.contains(name) ) {
-	// Add a new entry to the current renaming map.
-	Name name_ = Name.makeFresh(name);
-
-	freshVars.add(name_);
-	
-	setStack.peek().add( name );
-	renamingMap.put( name, name_ );
-      }
+        this.oldNamesMap = CollectionFactory.newHashMap();
+        this.renamingMap = CollectionFactory.newHashMap();
+        this.labelMap = CollectionFactory.newHashMap();
+        this.freshVars = CollectionFactory.newHashSet();
+        this.clearMaps = clearOutOfScopeMaps;
     }
 
-    if ( n instanceof Formal ) {
-      Formal f = (Formal)n;
-      Name name = f.name().id();
-
-      if ( !freshVars.contains(name) ) {
-	// Add a new entry to the current renaming map.
-	Name name_ = Name.makeFresh(name);
-
-	freshVars.add(name_);
-	
-	setStack.peek().add( name );
-	renamingMap.put( name, name_ );
-      }
+    /** Map from local def to old names. */
+    public Map<LocalDef, Name> getMap() {
+        return oldNamesMap;
     }
 
-    if ( n instanceof Labeled ) {
-      Labeled l = (Labeled) n;
-      Name name = l.labelNode().id();
-      Name key = Name.make(LABEL_PREFIX+name.toString());
-      if ( !freshVars.contains(key) ) {
-        Name name_ = Name.makeFresh(name);
-        Name key_ = Name.make(LABEL_PREFIX+name_.toString());
+    public static final String LABEL_PREFIX = "label ";
 
-        freshVars.add(key_);
+    public NodeVisitor enter(Node n) {
+        if (isNewScope(n)) {
+            // Push a new, empty set onto the stack.
+            setStack.push(CollectionFactory.<Name> newHashSet());
+        }
 
-        setStack.peek().add(key);
-        labelMap.put(key, name_);
-      }
+        if (n instanceof LocalDecl) {
+            LocalDecl l = (LocalDecl) n;
+            Name name = l.name().id();
+
+            if (!freshVars.contains(name)) {
+                // Add a new entry to the current renaming map.
+                Name name_ = Name.makeFresh(alphaPrefixHeuristic(name));
+
+                freshVars.add(name_);
+
+                setStack.peek().add(name);
+                renamingMap.put(name, name_);
+            }
+        }
+
+        if (n instanceof Formal) {
+            Formal f = (Formal) n;
+            Name name = f.name().id();
+
+            if (!freshVars.contains(name)) {
+                // Add a new entry to the current renaming map.
+                Name name_ = Name.makeFresh(alphaPrefixHeuristic(name));
+
+                freshVars.add(name_);
+
+                setStack.peek().add(name);
+                renamingMap.put(name, name_);
+            }
+        }
+
+        if (n instanceof Labeled) {
+            Labeled l = (Labeled) n;
+            Name name = l.labelNode().id();
+            Name key = Name.make(LABEL_PREFIX + name.toString());
+            if (!freshVars.contains(key)) {
+                Name name_ = Name.makeFresh(alphaPrefixHeuristic(name));
+                Name key_ = Name.make(LABEL_PREFIX + name_.toString());
+
+                freshVars.add(key_);
+
+                setStack.peek().add(key);
+                labelMap.put(key, name_);
+            }
+        }
+        return this;
     }
-    return this;
-  }
-
-  public Node leave( Node old, Node n, NodeVisitor v ) {
-    if ( isNewScope(n) ) {
-      // Pop the current name set off the stack and remove the corresponding
-      // entries from the renaming map.
-      Set<Name> s = setStack.pop();
-      if (clearMaps) {
-        renamingMap.keySet().removeAll(s);
-        labelMap.keySet().removeAll(s);
-      }
-      return n;
-    }
-
-    if ( n instanceof Local ) {
-      // Rename the local if its name is in the renaming map.
-      Local l = (Local)n;
-      Name name = l.name().id();
-
-      if ( !renamingMap.containsKey(name) ) {
-	return n;
-      }
-      
-      // Update the local instance as necessary.
-      Name newName = renamingMap.get(name);
-//      LocalType li = l.localInstance();
-//      if (li != null) li.setName(newName);
-
-      return l.name(l.name().id(newName));
-    }
-
-    if ( n instanceof LocalDecl ) {
-      // Rename the local decl.
-      LocalDecl l = (LocalDecl)n;
-      Name name = l.name().id();
-
-      if ( freshVars.contains(name) ) {
-	return n;
-      }
-
-      if ( !renamingMap.containsKey(name) ) {
-	throw new InternalCompilerError( "Unexpected error encountered while alpha-renaming." );
-      }
-
-      // Update the local instance as necessary.
-      Name newName = renamingMap.get(name);
-      LocalDef li = l.localDef();
-      if (li != null) {
-	  oldNamesMap.put(li, li.name());
-	  li.setName(newName);
-      }
-      return l.name(l.name().id(newName));
-    }
-
-    if ( n instanceof Formal ) {
-      // Rename the local decl.
-      Formal f = (Formal)n;
-      Name name = f.name().id();
-
-      if ( freshVars.contains(name) ) {
-	return n;
-      }
-
-      if ( !renamingMap.containsKey(name) ) {
-	throw new InternalCompilerError( "Unexpected error encountered while alpha-renaming." );
-      }
-
-      // Update the local instance as necessary.
-      Name newName = renamingMap.get(name);
-      LocalDef li = f.localDef();
-      if (li != null) {
-	  oldNamesMap.put(li, li.name());
-	  li.setName(newName);
-      }
-      return f.name(f.name().id(newName));
+    
+    // Try to avoid really ugly variable names by hueristically ignoring trailing
+    // digits in names that are often (but not always) a symptom of the Name 
+    // having previously been generated by makeFresh.
+    private static String alphaPrefixHeuristic(Name n) {
+        String prefix = n.toString();
+        boolean chopped = false;
+        int tail = prefix.length();
+        while (tail > 0 && Character.isDigit(prefix.charAt(tail-1))) {
+            tail = tail-1;
+            chopped = true;
+        }
+        return tail == prefix.length() ? prefix : prefix.substring(0, tail);
     }
 
-    if ( n instanceof Branch ) {
-      // Rename the label if its name is in the renaming map.
-      Branch b = (Branch)n;
+    public Node leave(Node old, Node n, NodeVisitor v) {
+        if (isNewScope(n)) {
+            // Pop the current name set off the stack and remove the
+            // corresponding entries from the renaming map.
+            Set<Name> s = setStack.pop();
+            if (clearMaps) {
+                renamingMap.keySet().removeAll(s);
+                labelMap.keySet().removeAll(s);
+            }
+            return n;
+        }
 
-      if (b.labelNode() == null) {
+        if (n instanceof Local) {
+            // Rename the local if its name is in the renaming map.
+            Local l = (Local) n;
+            Name name = l.name().id();
+
+            if (!renamingMap.containsKey(name)) {
+                return n;
+            }
+
+            // Update the local instance as necessary.
+            Name newName = renamingMap.get(name);
+            // LocalType li = l.localInstance();
+            // if (li != null) li.setName(newName);
+
+            return l.name(l.name().id(newName));
+        }
+
+        if (n instanceof LocalDecl) {
+            // Rename the local decl.
+            LocalDecl l = (LocalDecl) n;
+            Name name = l.name().id();
+
+            if (freshVars.contains(name)) {
+                return n;
+            }
+
+            if (!renamingMap.containsKey(name)) {
+                throw new InternalCompilerError("Unexpected error encountered while alpha-renaming.");
+            }
+
+            // Update the local instance as necessary.
+            Name newName = renamingMap.get(name);
+            LocalDef li = l.localDef();
+            if (li != null) {
+                oldNamesMap.put(li, li.name());
+                li.setName(newName);
+            }
+            return l.name(l.name().id(newName));
+        }
+
+        if (n instanceof Formal) {
+            // Rename the local decl.
+            Formal f = (Formal) n;
+            Name name = f.name().id();
+
+            if (freshVars.contains(name)) {
+                return n;
+            }
+
+            if (!renamingMap.containsKey(name)) {
+                throw new InternalCompilerError("Unexpected error encountered while alpha-renaming.");
+            }
+
+            // Update the local instance as necessary.
+            Name newName = renamingMap.get(name);
+            LocalDef li = f.localDef();
+            if (li != null) {
+                oldNamesMap.put(li, li.name());
+                li.setName(newName);
+            }
+            return f.name(f.name().id(newName));
+        }
+
+        if (n instanceof Branch) {
+            // Rename the label if its name is in the renaming map.
+            Branch b = (Branch) n;
+
+            if (b.labelNode() == null) {
+                return n;
+            }
+
+            Name name = b.labelNode().id();
+            Name key = Name.make(LABEL_PREFIX + name.toString());
+
+            if (!labelMap.containsKey(key)) {
+                return n;
+            }
+
+            Name newName = labelMap.get(key);
+
+            return b.labelNode(b.labelNode().id(newName));
+        }
+
+        if (n instanceof Labeled) {
+            Labeled l = (Labeled) n;
+            Name name = l.labelNode().id();
+            Name key = Name.make(LABEL_PREFIX + name.toString());
+
+            if (freshVars.contains(key)) {
+                return n;
+            }
+
+            if (!labelMap.containsKey(key)) {
+                throw new InternalCompilerError("Unexpected error encountered while alpha-renaming.");
+            }
+
+            Name newName = labelMap.get(key);
+            return l.labelNode(l.labelNode().id(newName));
+        }
+
         return n;
-      }
-
-      Name name = b.labelNode().id();
-      Name key = Name.make(LABEL_PREFIX+name.toString());
-
-      if ( !labelMap.containsKey(key) ) {
-        return n;
-      }
-        
-      Name newName = labelMap.get(key);
-
-      return b.labelNode(b.labelNode().id(newName));
     }
 
-    if ( n instanceof Labeled ) {
-      Labeled l = (Labeled) n;
-      Name name = l.labelNode().id();
-      Name key = Name.make(LABEL_PREFIX+name.toString());
-
-      if ( freshVars.contains(key) ) {
-        return n;
-      }
-
-      if ( !labelMap.containsKey(key) ) {
-        throw new InternalCompilerError( "Unexpected error encountered while alpha-renaming." );
-      }
-
-      Name newName = labelMap.get(key);
-      return l.labelNode(l.labelNode().id(newName));
+    /**
+     * Does this node define a new scope with its own locals?
+     */
+    protected static boolean isNewScope(Node n) {
+        return (n instanceof Block && !(n instanceof StmtSeq)) || n instanceof For || n instanceof ForLoop;
     }
-
-    return n;
-  }
-
-  /**
-   * Does this node define a new scope with its own locals?
-   */
-  protected static boolean isNewScope(Node n) {
-    return (n instanceof Block && !(n instanceof StmtSeq)) || n instanceof For || n instanceof ForLoop;
-  }
 }
