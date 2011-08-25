@@ -22,6 +22,8 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 	public final Set<FieldDef> atomicFieldDefs = new LinkedHashSet<FieldDef>();
 	public final Set<FieldDef> atomicFieldDecls = new LinkedHashSet<FieldDef>();
 	
+	public final Set<X10Field_c> allAtomicFields = new LinkedHashSet<X10Field_c>();
+	
 	@Override
 	public Node leave(Node old, Node n, NodeVisitor v) {
 		if(n instanceof X10Local_c) {
@@ -47,6 +49,8 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
     		  FieldDef def = x10field.fieldInstance().def();
 			  if(def.flags() != null && def.flags().contains(Flags.ATOMIC)) {
 				atomicFieldDefs.add(def);
+				//also save the field
+				allAtomicFields.add(x10field);
 			  }
 			}
 		}
@@ -74,5 +78,28 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 	}
 	public boolean hasEscaped() {
 		return !this.escapedFieldDefs().isEmpty() || !this.escapedLocalDefs().isEmpty();
+	}
+	
+	public Set<X10Field_c> getAllX10FieldsForEscapedFieldDefs() {
+		Set<X10Field_c> x10fieldset = new LinkedHashSet<X10Field_c>();
+		Set<FieldDef> allEscapedFields = this.escapedFieldDefs();
+		for(FieldDef def : allEscapedFields) {
+			X10Field_c f = this.getDefinedField(def);
+			assert f != null;
+			x10fieldset.add(f);
+		}
+		assert x10fieldset.size() == allEscapedFields.size();
+		return x10fieldset;
+	}
+	
+	public X10Field_c getDefinedField(FieldDef def) {
+		for(X10Field_c x10field : allAtomicFields) {
+			if(x10field.fieldInstance().def().equals(def)) {
+				return x10field;
+			}
+		}
+		//if contains, it must be defined
+		assert !this.escapedFieldDefs().contains(def);
+		return null;
 	}
 }
