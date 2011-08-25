@@ -30,9 +30,12 @@
 #include <unistd.h> // for close() and sleep()
 #include <errno.h> // for the strerror function
 #include <sys/socket.h> // for sockets
+#include <sys/param.h>
 #include <pthread.h> // for locks on the sockets
 #include <poll.h> // for poll()
+#ifndef BSD
 #include <alloca.h> // for alloca()
+#endif
 #include <fcntl.h>
 
 #include <x10rt_net.h>
