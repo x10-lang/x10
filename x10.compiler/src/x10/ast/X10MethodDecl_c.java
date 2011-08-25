@@ -540,12 +540,19 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	 * }
 	 * 
 	 * It may violate the rule:  a:A = new B();   b:(atomicplus B) = a.method(new B());
+	 * 
+	 * It also checks for each argument. If the arg is decorated with unitfor, the arg
+	 * type must declare atomic sets.
 	 * */
 	@Override
     public Node checkAtomicity(ContextVisitor tc) {
 		//check the method parameters
 		for(Formal f : this.formals) {
 			Type ft = f.type().type();
+			//if f is decorated with unitfor
+			boolean hasUnitFor = (f.flags() != null && f.flags().flags() != null && f.flags().flags().contains(Flags.UNITFOR)) ?
+					              true : false;
+			
 			//if the parameter is annotated with atomicplus
 			if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
 				//it must be a class type.
@@ -577,6 +584,18 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 						Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(container, this.position()));
 					}
 				}
+				
+				if(hasUnitFor) {
+					if(!clazzType.def().hasAtomicFields()) {
+						Errors.issue(tc.job(), new Errors.UnitforDonotHaveAtomicFields(clazzType, f.position()));
+					}
+				}
+			}
+			//can not use unitfor to decorate non-class type parameter
+			if(hasUnitFor) {
+				if(!(ft instanceof X10ParsedClassType_c)) {
+					Errors.issue(tc.job(), new Errors.UnitForCannotDecorateNonclassType(ft, f.position()));
+				} 
 			}
 		}
 		//check the method return type

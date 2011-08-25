@@ -1668,6 +1668,27 @@ public class Errors {
 	}
 	
 	//data-centric synchronization
+	public static class UnitforDonotHaveAtomicFields extends EqualByTypeAndPosException {
+
+		private static final long serialVersionUID = -6158094410764953799L;
+
+		public UnitforDonotHaveAtomicFields(Type type, Position p) {
+			super("Class: " + type + " does not declare or inherit atomic fields." +
+					"\n\t can not be annotated with: " + Flags.UNITFOR + " in parameter.", p);
+		}
+	}
+	
+	//data-centric synchronization
+	public static class UnitForCannotDecorateNonclassType extends EqualByTypeAndPosException {
+		private static final long serialVersionUID = -5753464279551924716L;
+
+		public UnitForCannotDecorateNonclassType(Type type, Position p) {
+			super("Keyword unitfor can not be used to decorate non-class type such as: " +
+					"\n\t " + type, p);
+		}
+	}
+	
+	//data-centric synchronization
 	public static class InitializerMustHaveAtomicplus extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 3053446371890467466L;
