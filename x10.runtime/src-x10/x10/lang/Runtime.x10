@@ -1032,6 +1032,13 @@ import x10.util.concurrent.SimpleLatch;
         if (a != null)
            a.pushAtomic();
     }
+    
+    //push atomic for current method, for data-centric synchronization
+    public static def pushAtomic() {
+    	val a = activity();
+    	if (a != null)
+    		a.pushAtomic();
+    }
 
     public static def ensureNotInAtomic() {
         val a = activity();
@@ -1046,7 +1053,15 @@ import x10.util.concurrent.SimpleLatch;
         if (null != pool.wsBlockedContinuations) wsUnblock();
         atomicMonitor.release();
     }
-
+    
+    //pop atomic for current method, for data-centric synchronization
+    public static def popAtomic() {
+    	val a = activity();
+    	if (a != null)
+    		a.popAtomic();
+    	if (null != pool.wsBlockedContinuations) wsUnblock();
+    }
+    
     public static def exitWSWhen(b:Boolean) {
         val a = activity();
         if (a != null)
