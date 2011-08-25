@@ -565,6 +565,7 @@ public class Emitter {
 		return null;
 	}
 	
+	// TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
 	// return all X10 types that are mapped to Java primitives and require explicit boxing
 	public static boolean needExplicitBoxing(Type t) {
 	    return t.isNumeric() || t.isChar() || t.isBoolean();
@@ -1717,6 +1718,7 @@ public class Emitter {
 	    return false;
 	}
 
+    // TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
 	private static boolean isPrimitive(Type type) {
 	    return X10PrettyPrinterVisitor.isPrimitiveRepedJava(type);
 //	    return type.isBoolean() || type.isNumeric() || type.isChar();
