@@ -19,6 +19,7 @@ import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
+import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.Name;
@@ -29,9 +30,11 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import x10.ast.X10ClassDecl_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl;
 import x10.types.MethodInstance;
+import x10.types.X10ClassDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
@@ -116,6 +119,24 @@ public class X10TypeUtils {
 		} catch (SemanticException e) {
 			throw new RuntimeException(e);
 		}
+    }
+    
+    public static boolean hasStaticAtomicField(X10ClassDef clazzDef) {
+    	for(FieldDef fdef : clazzDef.getAtomicFields()) {
+    		if(fdef.flags().contains(Flags.STATIC)) {
+    			return true;
+    		}
+    	}
+    	return false;
+    }
+    
+    public static boolean hasNonStaticAtomicField(X10ClassDef clazzDef) {
+    	for(FieldDef fdef : clazzDef.getAtomicFields()) {
+    		if(!fdef.flags().contains(Flags.STATIC)) {
+    			return true;
+    		}
+    	}
+    	return false;
     }
     
     public static List<Ref<? extends Type>> typesToTypeRefs(List<Type> types) {

@@ -104,6 +104,12 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     private static final Name RELEASE_LOCKS = Name.make("releaseLocks");
     private static final Name PARAM_LOCK_NAME = Name.make(CONST_FORMAL_NAME);
     
+    private static final Name PUSH_ATOMIC = Name.make("pushAtomic");
+    private static final Name POP_ATOMIC = Name.make("popAtomic");
+    
+    private static final Name ENTER_ATOMIC = Name.make("enterAtomic");
+    private static final Name EXIT_ATOMIC = Name.make("exitAtomic");
+    
     @Override
     public Node override(Node parent, Node n) { 
     	return super.override(parent, n);
@@ -188,6 +194,9 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 		//add a lock field with type OrderedLock for each class
 		List<ClassMember> members = n.body().members();
 		X10ClassType containerClass = n.classDef().asType();
+		
+		//create a list to store new class members
+		List<ClassMember> newMembers = new LinkedList<ClassMember>();
 
 		//get the lock type
 		Type lockType =  X10TypeUtils.lookUpType(ts, ORDERED_LOCK);
@@ -203,29 +212,28 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 		Stmt lockRetStmt = nf.Return(pos, lockField);
 		X10MethodDecl getLockMethodDecl = X10TypeUtils.createX10MethodDecl(nf, ts, pos, ts.Public(), containerClass,
 				lockType, GET_ORDERED_LOCK, Collections.<Stmt>singletonList(lockRetStmt));
+		//add the lock field and get lock method
+		newMembers.add(lockFieldDecl);
+		newMembers.add(getLockMethodDecl);
 		
-		//create the static lock field  private static OrderedLock lock = new OrderedLock();
-		Name staticLockName = Context.makeFreshName(STATIC_LOCK_NAME);
-		Expr newStaticLock = X10TypeUtils.createNewObjectByDefaultConstructor(nf, ts, this.context, pos, lockType);
-		FieldDecl staticLockFieldDecl = X10TypeUtils.createFieldDecl(nf, ts, pos, ts.Private().Static(), lockType,
+		if(X10TypeUtils.hasStaticAtomicField(n.classDef())) {
+		  //create the static lock field  private static OrderedLock lock = new OrderedLock();
+		  Name staticLockName = Context.makeFreshName(STATIC_LOCK_NAME);
+		  Expr newStaticLock = X10TypeUtils.createNewObjectByDefaultConstructor(nf, ts, this.context, pos, lockType);
+		  FieldDecl staticLockFieldDecl = X10TypeUtils.createFieldDecl(nf, ts, pos, ts.Private().Static(), lockType,
 				staticLockName, containerClass, newStaticLock);
 		
-		//create a static method getStaticOrderedLock
-		Receiver thizClass = nf.CanonicalTypeNode(pos, containerClass);
-    	Expr staticField = nf.Field(pos, thizClass, staticLockFieldDecl.name()).fieldInstance(staticLockFieldDecl.fieldDef().asInstance()).type(lockType);    
-    	Stmt staticLockRetStmt = nf.Return(pos, staticField);
-    	X10MethodDecl staticGetLockMethodDecl = X10TypeUtils.createX10MethodDecl(nf, ts, pos, ts.Public().Static(), containerClass,
+		  //create a static method getStaticOrderedLock
+		  Receiver thizClass = nf.CanonicalTypeNode(pos, containerClass);
+    	  Expr staticField = nf.Field(pos, thizClass, staticLockFieldDecl.name()).fieldInstance(staticLockFieldDecl.fieldDef().asInstance()).type(lockType);    
+    	  Stmt staticLockRetStmt = nf.Return(pos, staticField);
+    	  X10MethodDecl staticGetLockMethodDecl = X10TypeUtils.createX10MethodDecl(nf, ts, pos, ts.Public().Static(), containerClass,
     			lockType, GET_STATIC_ORDERED_LOCK, Collections.<Stmt>singletonList(staticLockRetStmt));
+		  newMembers.add(staticLockFieldDecl);
+		  newMembers.add(staticGetLockMethodDecl);
+		}
 		
-		//create a list to store new class members
-		List<ClassMember> newMembers = new LinkedList<ClassMember>();
-		
-		//add the previously-created field / method declarations
-		newMembers.add(lockFieldDecl);
-		newMembers.add(staticLockFieldDecl);
-		newMembers.add(getLockMethodDecl);
-		newMembers.add(staticGetLockMethodDecl);
-		
+		//add existing method
 		FieldDef fd = lockFieldDecl.fieldDef();
 		for(ClassMember member : members) {
 			newMembers.add(member);
@@ -584,7 +592,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	return n;
     }
     
-    private Node visitAtomic_c(Atomic_c atomic) {
+    private Node visitAtomic_c(Atomic_c atomic) throws SemanticException {
     	X10CodeDef codeDef = this.context.currentCode();
     	boolean isInConstructor = false;
     	boolean isInStaticMethod = false;
@@ -623,14 +631,18 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 		Stmt lockAcquireStmt = this.lockAcquireStatement(pos, lockType, emptyLockList, emptyLockList.name());
 		Stmt lockReleaseStmt = this.lockReleaseStatement(pos, lockType, emptyLockList, emptyLockList.name());
     	
+		//push and pop atomic
+		Stmt pushAtomic = nf.Eval(pos, call(pos, PUSH_ATOMIC, ts.Void()));
+		Stmt popAtomic = nf.Eval(pos, call(pos, POP_ATOMIC, ts.Void()));
+		
 		//assembly the code block
-		//assemble
     	List<Stmt> tryStatements = new LinkedList<Stmt>();
     	tryStatements.add(lockAcquireStmt);
+    	tryStatements.add(pushAtomic);
     	tryStatements.add(atomic.body());
     	
     	Block tryBlock = nf.Block(pos, tryStatements);
-    	Block finallyBlock = nf.Block(pos, lockReleaseStmt);
+    	Block finallyBlock = nf.Block(pos, popAtomic, lockReleaseStmt);
     	
     	Try tryStmt = nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
     	
@@ -764,5 +776,9 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	Stmt releaseLockStatement = nf.Eval(pos, releaseCall);
     	
     	return releaseLockStatement;
+    }
+    
+    protected Expr call(Position pos, Name name, Type returnType) throws SemanticException {
+    	return synth.makeStaticCall(pos, ts.Runtime(), name, returnType, context());
     }
 }
