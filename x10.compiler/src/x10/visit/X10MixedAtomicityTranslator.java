@@ -151,10 +151,11 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	//3. acquire the static lock for it, if decorated with atomic
     	//   (add a type checking rule, that no atomicplus is allowed inside)
     	// XXX do not need it, since atomic method will be translated into an atomic section
-    	if(n instanceof X10MethodDecl_c) {
-    		X10MethodDecl_c x10method = (X10MethodDecl_c)n;
-    		//return this.visitX10Method(x10method);
-    	}
+    	// visiting atomic sections is suffcient
+//    	if(n instanceof X10MethodDecl_c) {
+//    		X10MethodDecl_c x10method = (X10MethodDecl_c)n;
+//    		//return this.visitX10Method(x10method);
+//    	}
     	
     	//1. allocate locals for atomic local vars that may be accessed in an atomic section
     	//2. do not allocate locks for vars that have the class type containing
@@ -628,6 +629,8 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	//1. all atomic local variables -> acquire their allocated locks
     	//2. all non-static atomic fields  -> acqurie their locks through: field.getOrderedLock();
     	//3. static atomic fields -> acquire theirlocks through Class.getStaticOrderedLock()
+    	//4. acquire locks for paraemter which is decorated with unitfor and atomicplus
+    	//5. for constructors, do not acquire this.getLock
     	
     	//(actually, no need for the following, if a field is accessed through this, just acquire this.getOrderedLock())
     	//4. if in constructor, add no more locks
@@ -637,9 +640,18 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	//XXX FIXME potential improvement space when accessing different fields
     	//XXX canbe wrong on constructor, the
     	Set<LocalDef> localDefs = visitor.escapedLocalDefs();
+    	System.out.println("visiting the atomic section");
+    	atomic.prettyPrint(System.out);
+//    	atomic.dump(System.out);
+    	System.out.println("in code def: " + codeDef);
     	System.out.println(" --- local defs: " + localDefs);
+    	System.out.println("  inside the visitor local decl:: " + visitor.atomicLocalDecls);
+    	System.out.println("  inside the visitor local vars:: " + visitor.atomicLocalRefs);
     	Set<FieldDef> fieldDefs = visitor.escapedFieldDefs();
     	System.out.println("   ---- field defs: " + fieldDefs);
+    	System.out.println("  inside the visitor field decl:: " + visitor.atomicFieldDecls);
+    	System.out.println("  inside the visitor field vars:: " + visitor.atomicFieldDefs);
+    	System.out.println();
     	
     	//XXX no idea of which locks to grab here, just grab local locks first
     	Position pos = atomic.position();
@@ -652,7 +664,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 		List<Stmt> addFieldsToLockStmts = 
 //			this.addFieldDefToList(pos, lockType, fieldDefs, emptyLockList.name(), emptyLockList);
 			//including both static or non-static fields
-			this.addAtomicSetLockbyFieldToList(pos, lockType, visitor.getAllX10FieldsForEscapedFieldDefs(), emptyLockList.name(), emptyLockList);
+			this.addAtomicSetLockbyFieldToList(pos, lockType, visitor.getAllX10FieldsForEscapedFieldDefs(), emptyLockList.name(), emptyLockList, isInConstructor);
 		
 		
 		//do not forget
@@ -824,7 +836,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     }
     
     private List<Stmt> addAtomicSetLockbyFieldToList(Position pos, Type lockType, Set<X10Field_c> fields,
-    		Id listID, LocalDecl emptyList) {
+    		Id listID, LocalDecl emptyList, boolean isInConstructor) {
     	List<Stmt> stmts = new LinkedList<Stmt>();
     	X10ParsedClassType_c listType = (X10ParsedClassType_c)X10TypeUtils.lookUpType(ts, X10_LIST);
     	listType = (X10ParsedClassType_c) listType.typeArguments(Collections.<Type>singletonList(lockType));
@@ -832,6 +844,11 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 				Collections.<Type>singletonList(nf.X10CanonicalTypeNode(pos, lockType).type()));
     	for(X10Field_c field : fields) {
     		FieldDef fieldDef = field.fieldInstance().def();
+    		//skip all non-static fields in constructor
+    		if(!fieldDef.flags().contains(Flags.STATIC)) {
+    			continue;
+    		}
+    		
     		pos = field.position();
     		ContainerType clazzType = fieldDef.container().get();
     		X10Call getLockCall = null;

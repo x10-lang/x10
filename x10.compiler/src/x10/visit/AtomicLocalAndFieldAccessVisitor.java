@@ -8,6 +8,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.visit.NodeVisitor;
+import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl_c;
 import x10.ast.X10Field_c;
 import x10.ast.X10LocalDecl_c;
@@ -61,6 +62,16 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 				atomicFieldDecls.add(def);
 			}
 		}
+		if(n instanceof X10FieldAssign_c) {
+			X10FieldAssign_c fieldAssign = (X10FieldAssign_c)n;
+			FieldDef def = fieldAssign.fieldInstance().def();
+			if(def.flags() != null && def.flags().contains(Flags.ATOMIC)) {
+				atomicFieldDefs.add(def);
+				//also save the field
+				assert fieldAssign.left() instanceof X10Field_c;
+				allAtomicFields.add((X10Field_c)fieldAssign.left());
+			}
+		}
         return super.leave(old, n, v);
     }
 	
@@ -99,7 +110,7 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 			}
 		}
 		//if contains, it must be defined
-		assert !this.escapedFieldDefs().contains(def);
+		assert !this.escapedFieldDefs().contains(def) : "Def: " + def + " not found.";
 		return null;
 	}
 }
