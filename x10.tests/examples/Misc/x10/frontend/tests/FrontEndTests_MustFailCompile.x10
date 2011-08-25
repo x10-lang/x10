@@ -6943,3 +6943,8 @@ class XTENLANG_2894 {
 		}
 	}
 }
+class XTENLANG_2891 {
+  public static def say(s:String) {
+    x10.lang._.Console.OUT.println(s); // ERR ERR ERR
+  }
+}
