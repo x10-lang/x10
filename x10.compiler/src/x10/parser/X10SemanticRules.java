@@ -1131,10 +1131,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_HomeVariable1() {
         setResult(nf.This(pos()));
     }
-    // Production: OBSOLETE_OperatorFunction ::= TypeName '.' '+'
-    void rule_OBSOLETE_OperatorFunction0(Object _TypeName, Object _BinOp) {
-        noMethodSelection();
-    }
     // Production: FullyQualifiedName ::= FullyQualifiedName '.' ErrorId
     void rule_FullyQualifiedName0(Object _FullyQualifiedName) {
         ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
@@ -1731,25 +1727,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_Block0(Object _BlockStatementsopt) {
         List<Stmt> BlockStatementsopt = (List<Stmt>) _BlockStatementsopt;
         setResult(nf.Block(pos(), BlockStatementsopt));
-    }
-    // Production: OBSOLETE_MethodSelection ::= MethodName '.' '(' FormalParameterListopt ')'
-    void rule_OBSOLETE_MethodSelection0(Object _MethodName, Object _FormalParameterListopt) {
-        noMethodSelection();
-    }
-    // Production: OBSOLETE_MethodSelection ::= Primary '.' Identifier '.' '(' FormalParameterListopt ')'
-    void rule_OBSOLETE_MethodSelection1(Object _Primary, Object _Identifier, Object _FormalParameterListopt) {
-        noMethodSelection();
-    }
-    // Production: OBSOLETE_MethodSelection ::= super '.' Identifier '.' '(' FormalParameterListopt ')'
-    void rule_OBSOLETE_MethodSelection2(Object _Identifier, Object _FormalParameterListopt) {
-        noMethodSelection();
-    }
-    // Production: OBSOLETE_MethodSelection ::= ClassName '.' super '.' Identifier '.' '(' FormalParameterListopt ')'
-    void rule_OBSOLETE_MethodSelection3(Object _ClassName, Object _Identifier, Object _FormalParameterListopt) {
-        noMethodSelection();
-    }
-    private void noMethodSelection() {
-        syntaxError("Method selection syntax is no longer supported. Use closure syntax instead.",pos()); // see XTENLANG-2512
     }
     // Production: FunctionType ::= TypeParametersopt '(' FormalParameterListopt ')' WhereClauseopt OBSOLETE_Offersopt '=>' Type
     void rule_FunctionType0(Object _TypeParametersopt, Object _FormalParameterListopt, Object _WhereClauseopt, Object _OBSOLETE_Offersopt, Object _Type) {

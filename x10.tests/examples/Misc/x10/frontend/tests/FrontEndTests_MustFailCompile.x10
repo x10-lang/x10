@@ -6948,3 +6948,10 @@ class XTENLANG_2891 {
     x10.lang._.Console.OUT.println(s); // ERR ERR ERR
   }
 }
+
+class XTENLANG_2860 {
+	def m() {
+		var a:String = "a";
+		a++; // ERR: Semantic Error: Operator ++ and -- can only be used on built in numerical types.
+	}
+}
