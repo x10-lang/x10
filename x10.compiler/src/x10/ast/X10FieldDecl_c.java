@@ -53,6 +53,7 @@ import polyglot.types.Types;
 import polyglot.types.VarDef_c.ConstantValue;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import x10.util.X10TypeUtils;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -469,11 +470,27 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	if(declType instanceof X10ParsedClassType_c) {
 	    	    //it is a class type
 	    	    X10ParsedClassType_c clazztype = (X10ParsedClassType_c)declType;
+	    	    
+	    	    //check if it is an array type
+//	    	    if(X10TypeUtils.isX10ArrayClass(clazztype)) {
+//	    	    	System.out.println("array field: " + this.toString());
+//	    	    	System.out.println("    array types: " + clazztype.typeArguments());
+//	    	    	System.out.println("    type node: " + this.type().getClass());
+//	    	    	System.out.println("    is the array has atomic context: " + clazztype.getAtomicContext());
+//	    	    	System.out.println("     what about type node: " + this.type().getFlagsNode());
+//	    	    	for(Type ta : clazztype.typeArguments()) {
+//	    	    		System.out.print("     - type: " + ta + ", ");
+//	    	    		if(ta instanceof X10ParsedClassType_c) {
+//	    	    			System.out.print(((X10ParsedClassType_c)ta).hasAtomicContext());
+//	    	    		}
+//	    	    		System.out.println();
+//	    	    	}
+//	    	    }
+	    	    
 	    	    ClassDef cdef = tc.typeSystem().classDefOf(clazztype);
 	    	    X10ClassDef_c x10cdef = (X10ClassDef_c)cdef;
 	    	    //for safety, we accumulate atomic fields for the class
 	    	    X10ClassDecl_c.accumulateAtomicFields(x10cdef);
-	    	    
 	    	    //if the field is declared with atomicplus, the field class and
 	    	    //the container class must have atomic fields
 	    	    if(clazztype.hasAtomicContext()) {
@@ -525,7 +542,6 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	Type oldType = (Type)type.copy();
 	    	Context xc = (Context) enterChildScope(type(), tc.context());
 	    	Flags f = flags.flags();
-            
 	    	//check the field declaration, and set atomic context for it.
 	    	//it is for data-centric synchronization
 	    	if(typeNode.getFlagsNode() != null) {

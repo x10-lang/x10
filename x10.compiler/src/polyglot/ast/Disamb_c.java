@@ -243,7 +243,6 @@ public abstract class Disamb_c implements Disamb
                 Goal resolver = v.job().extensionInfo().scheduler().LookupGlobalType(sym);
                 resolver.update(Goal.Status.SUCCESS);
                 sym.setResolver(resolver);
-
                 res = nf.CanonicalTypeNode(pos, sym);
 	        }
         }

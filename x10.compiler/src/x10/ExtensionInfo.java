@@ -590,22 +590,37 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            addSemanticCheckSourceGoals(job, goals);
 
-
            X10CompilerOptions opts = extensionInfo().getOptions();
+           
+         //support data-centric synchronization
+           final Goal atomicTranslatorGoal = DataCentricAtomicityTranslator(job);
+           final Goal mixedAtomicTranslatorGoal = MixedAtomicityTranslator(job);
+           if(opts.x10_config.DATA_CENTRIC) {
+        	   if(opts.x10_config.MIXED_ATOMICITY) {
+        		   goals.add(mixedAtomicTranslatorGoal);
+        		   //Desugarer(job).addPrereq(mixedAtomicTranslatorGoal);
+        	   } else {
+        		   goals.add(atomicTranslatorGoal);
+        		   //Desugarer(job).addPrereq(atomicTranslatorGoal);
+        	   }
+           }
+           
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
                final Goal typeCheckBarrierGoal = addPreOptimizationGoals(job, goals);
                
-               //support data-centric synchronization
-               final Goal atomicTranslatorGoal = DataCentricAtomicityTranslator(job);
-               final Goal mixedAtomicTranslatorGoal = MixedAtomicityTranslator(job);
-               if(opts.x10_config.DATA_CENTRIC) {
-            	   if(opts.x10_config.MIXED_ATOMICITY) {
-            		   goals.add(mixedAtomicTranslatorGoal);
-            	   } else {
-            		   goals.add(atomicTranslatorGoal);
-            	   }
-               }
+//               //support data-centric synchronization
+//               final Goal atomicTranslatorGoal = DataCentricAtomicityTranslator(job);
+//               final Goal mixedAtomicTranslatorGoal = MixedAtomicityTranslator(job);
+//               if(opts.x10_config.DATA_CENTRIC) {
+//            	   if(opts.x10_config.MIXED_ATOMICITY) {
+//            		   goals.add(mixedAtomicTranslatorGoal);
+//            		   //Desugarer(job).addPrereq(mixedAtomicTranslatorGoal);
+//            	   } else {
+//            		   goals.add(atomicTranslatorGoal);
+//            		   //Desugarer(job).addPrereq(atomicTranslatorGoal);
+//            	   }
+//               }
                
                goals.add(Preoptimization(job));
                goals.addAll(Optimizer.goals(this, job));

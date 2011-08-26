@@ -73,6 +73,11 @@ public class ArrayAccessAssign_c extends Assign_c implements ArrayAccessAssign
 	          this);
       return this;
   }
+  
+  @Override
+  public Node checkAtomicity(ContextVisitor tc) {
+	  return super.checkAtomicity(tc);
+  }
 
   /** Type check the expression. */
   public Node typeCheck(ContextVisitor tc) {

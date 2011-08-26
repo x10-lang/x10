@@ -83,6 +83,11 @@ public class ArrayAccess_c extends Expr_c implements ArrayAccess
 	Expr index = (Expr) visitChild(this.index, v);
 	return reconstruct(array, index);
     }
+    
+    @Override
+    public Node checkAtomicity(ContextVisitor tc) {
+    	return super.checkAtomicity(tc);
+    }
 
     /** Type check the expression. */
     public Node typeCheck(ContextVisitor tc) {

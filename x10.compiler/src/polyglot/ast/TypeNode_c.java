@@ -122,4 +122,15 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
     public FlagsNode getFlagsNode() {
     	return flags;
     }
+    
+    /**
+     * Set for data-centric synchronization.
+     * */
+    @Override
+    public Object copy() {
+    	Object o = super.copy();
+    	TypeNode t = (TypeNode)o;
+    	t.setFlagsNode((FlagsNode)this.flags);
+    	return t;
+    }
 }

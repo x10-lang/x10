@@ -12,6 +12,7 @@ import polyglot.ast.Call;
 import polyglot.ast.Catch;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassMember;
+import polyglot.ast.ConstructorDecl;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.FieldAssign;
@@ -50,6 +51,7 @@ import x10.ast.Atomic_c;
 import x10.ast.X10Call;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl_c;
+import x10.ast.X10FieldDecl_c;
 import x10.ast.X10Field_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl;
@@ -174,6 +176,10 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     		return this.visitAtomic_c(atomic);
     	}
     	
+    	if(n instanceof X10FieldDecl_c) {
+    		
+    	}
+    	
     	return n;
     }
     
@@ -182,6 +188,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	if(!hasAtomicFields) {
     		return n;
     	}
+    	
     	//copy the original interface, and add a new one
     	//note that n.interfaces() returns an immutable list
     	List<TypeNode> interfaces = new LinkedList<TypeNode>();
@@ -239,6 +246,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 		
 		//add existing method
 		FieldDef fd = lockFieldDecl.fieldDef();
+		List<X10ConstructorDef> ciDefs = new LinkedList<X10ConstructorDef>();
 		for(ClassMember member : members) {
 			newMembers.add(member);
 			Position mpos = member.position();
@@ -261,8 +269,11 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 				newFormals.add(lockFormal);
 				//create the new constructor def
 				ConstructorDef x10ci = x10const.constructorDef();
+				List<Ref<? extends Type>> newFormalTypes = new LinkedList<Ref<? extends Type>>();
+				newFormalTypes.addAll(x10ci.formalTypes());
+				newFormalTypes.add(Types.ref(lockType));
 				ConstructorDef ci = ts.constructorDef(mpos, Types.ref(x10ci.container().get().toClass()),
-						x10ci.flags(), x10ci.formalTypes(), x10ci.offerType());
+						x10ci.flags(), newFormalTypes, x10ci.offerType());
 				//modifiy the body, and add statement this.$lock = param_lock;	
 				Block newBody = x10const.body();
 				Expr local = nf.Local(mpos, paramId).localInstance(li.asInstance()).type(lockType);
@@ -279,11 +290,14 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 								x10const.flags(), x10const.name(), newFormals, newBody).constructorDef(ci);
 				//add the new constructor the memeber list
 				newMembers.add(newConstructor);
+				//add new constructors
+				ciDefs.add(newConstructor.constructorDef());
 			}
 		}
 		//set the class body
 		ClassBody newBody = n.body().members(newMembers);
 		n = (X10ClassDecl_c) n.body(newBody);
+		
 		
 		return n;
     }
@@ -642,7 +656,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	//XXX FIXME potential improvement space when accessing different fields
     	//Fix the constructor problem, no atomicset lock is needed.
     	Set<LocalDef> localDefs = visitor.escapedLocalDefs();
-    	Set<FieldDef> fieldDefs = visitor.escapedFieldDefs();
+    	Set<X10Field_c> x10fields = visitor.getAllX10FieldsForEscapedFieldDefs();
 //    	System.out.println("visiting the atomic section");
 //    	atomic.prettyPrint(System.out);
 //    	atomic.dump(System.out);
@@ -670,8 +684,15 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 		List<Stmt> addFieldsToLockStmts = 
 //			this.addFieldDefToList(pos, lockType, fieldDefs, emptyLockList.name(), emptyLockList);
 			//including both static or non-static fields
-			this.addAtomicSetLockbyFieldToList(pos, lockType, visitor.getAllX10FieldsForEscapedFieldDefs(), emptyLockList.name(), emptyLockList, isInConstructor);
+			this.addAtomicSetLockbyFieldToList(pos, lockType, x10fields,
+					emptyLockList.name(), emptyLockList, isInConstructor);
 		
+		atomic.prettyPrint(System.out);
+		System.out.println("locks acquired: ");
+		System.out.println("   localDefs: " + localDefs);
+		System.out.println("   params: " + paramNeedToLock);
+		System.out.println("   field: " + x10fields);
+		System.out.println();
 		
 		//do not forget
 		Stmt lockAcquireStmt = this.lockAcquireStatement(pos, lockType, emptyLockList, emptyLockList.name());

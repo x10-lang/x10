@@ -38,6 +38,7 @@ import x10.types.X10ClassDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldDef;
 import x10.types.X10MethodDef;
+import x10.types.X10ParsedClassType_c;
 
 public class X10TypeUtils {
 	
@@ -157,5 +158,10 @@ public class X10TypeUtils {
     
     public static boolean isAtomicLocalDecl(X10LocalDecl_c localDecl) {
     	return hasAtomic(localDecl.flags()); // localDecl.flags() != null && localDecl.flags().flags().contains(Flags.ATOMIC);
+    }
+    
+    //XXX an ugly hack here
+    public static boolean isX10ArrayClass(Type c) {
+    	return c.toString().startsWith("x10.array.Array");
     }
 }
