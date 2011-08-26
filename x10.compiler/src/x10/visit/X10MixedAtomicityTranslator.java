@@ -595,6 +595,8 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	return n;
     }
     
+    //FIXME this implementation may not be compatible with existing atomics
+    // the atomic keyword will be removed, if there is no atomic fields accessed inside
     private Node visitAtomic_c(Atomic_c atomic) throws SemanticException {
     	X10CodeDef codeDef = this.context.currentCode();
 //    	if(codeDef.position().isCompilerGenerated()) {
@@ -643,6 +645,8 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	Set<FieldDef> fieldDefs = visitor.escapedFieldDefs();
 //    	System.out.println("visiting the atomic section");
 //    	atomic.prettyPrint(System.out);
+//    	atomic.dump(System.out);
+//    	System.out.println();
 //    	atomic.dump(System.out);
 //    	System.out.println("in code def: " + codeDef);
 //    	System.out.println(" --- local defs: " + localDefs);
@@ -847,7 +851,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	for(X10Field_c field : fields) {
     		FieldDef fieldDef = field.fieldInstance().def();
     		//skip all non-static fields in constructor
-    		if(!fieldDef.flags().contains(Flags.STATIC)) {
+    		if(!fieldDef.flags().contains(Flags.STATIC) && isInConstructor) {
     			continue;
     		}
     		
