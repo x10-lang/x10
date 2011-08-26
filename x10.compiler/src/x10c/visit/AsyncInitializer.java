@@ -204,6 +204,20 @@ public class AsyncInitializer extends ContextVisitor {
                         // should not visit subtree of inner finish block further (already done)
                         return n;
                 }
+                if (n instanceof BackingArrayAccess) {
+                    BackingArrayAccess ba = (BackingArrayAccess) n;
+                    if (checkInitValList((Local)ba.array()) != null) {
+                        // should not visit backing array which is created by myself (already done)
+                        return n;
+                    }
+                }
+                if (n instanceof BackingArrayAccessAssign) {                    
+                    BackingArrayAccessAssign ba = (BackingArrayAccessAssign) n;
+                    if (checkInitValList((Local)((ArrayAccess_c)ba.left()).array()) != null) {
+                        // should not visit backing array which is created by myself (already done)
+                        return n;
+                    }
+                }
                 return null;
             }
             @Override
