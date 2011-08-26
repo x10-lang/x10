@@ -108,6 +108,10 @@ public class X10Unary_c extends Unary_c {
         Type t = expr.type();
 
         if (op == POST_INC || op == POST_DEC || op == PRE_INC || op == PRE_DEC) {
+            if (!ts.isNumeric(t)) {
+                Errors.issue(tc.job(), new SemanticException("Operator ++ and -- can only be used on built in numerical types.",position()));
+                return this.type(t);
+            }
             // Compute the type and the expected type
             Type et = t;
             if (expr instanceof Variable) {
