@@ -151,7 +151,7 @@ public class ClassContextResolver extends AbstractAccessControlResolver {
         }
 
         if (m != null) {
-            if (! canAccess(m, context.currentClassDef(), context)) {
+            if (context!=null && ! canAccess(m, context.currentClassDef(), context)) { // "x10.lang._.Console" result in a null context. See AbstractAccessControlResolver.find(matcher, null);
         	throw new SemanticException("Cannot access member type \"" + m + "\".");
             }
             return CollectionUtil.<Type>list(m);
