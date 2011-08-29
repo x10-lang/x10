@@ -27,14 +27,14 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 	private static final long serialVersionUID = 1L;
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, PlaceLocalHandle.class);
 
-    private static final HashMap<Integer,Object> data = new HashMap<Integer,Object>();
+    private static final HashMap<Long,Object> data = new HashMap<Long,Object>();
     
-	private static final int placeShift = 20;
-	private static int nextLocalId = 1;
+	private static final int placeShift = 48;
+	private static long nextLocalId = 1;
 
 	transient private boolean initialized = false;
 	transient private Object myData = null;
-	private int id;
+	private long id;
     
 	// TODO: The X10 code currently ensures that PlaceLocalHandle's are only
 	//       created at Place 0 by doing an at.  We've contemplated moving to
@@ -45,10 +45,10 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 	//       Since we are thinking about making this change, I went ahead and did a poor-man's
 	//       version of it here instead of asserting nextId is only called at place 0 
 	//       (which would have been true currently).
-	private static synchronized int nextId() {
-	    int here = Thread.currentThread().home().id;
-	    int newId  = nextLocalId++;
-	    assert newId < (1<< placeShift);
+	private static synchronized long nextId() {
+	    long here = Thread.currentThread().home().id;
+	    long newId  = nextLocalId++;
+	    assert newId < (1L << placeShift);
 	    newId |= (here << placeShift);
 	    return newId;
 	}
@@ -105,7 +105,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 	}
 
 	public static X10JavaSerializable $_deserialize_body(PlaceLocalHandle placeLocalHandle, X10JavaDeserializer deserializer) throws IOException {
-        placeLocalHandle.id = deserializer.readInt();
+        placeLocalHandle.id = deserializer.readLong();
         return placeLocalHandle;
 	}
 
