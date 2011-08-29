@@ -155,10 +155,10 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	
     	// We do not need to visit the method, since atomic method will be translated into an atomic section
     	// visiting atomic sections is suffcient
-//    	if(n instanceof X10MethodDecl_c) {
-//    		X10MethodDecl_c x10method = (X10MethodDecl_c)n;
-//    		//return this.visitX10Method(x10method);
-//    	}
+    	if(n instanceof X10MethodDecl_c) {
+    		X10MethodDecl_c x10method = (X10MethodDecl_c)n;
+    		return this.visitX10Method(x10method);
+    	}
     	
     	//1. allocate locals for atomic local vars that may be accessed in an atomic section
     	//2. do not allocate locks for vars that have the class type containing
@@ -302,30 +302,89 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 		return n;
     }
     
-//    private Node visitX10Method(X10MethodDecl_c n) {
-//    	Position pos = n.position();
-//    	X10ParsedClassType_c clazzType = Types.fetchX10ClassType(n.methodDef().container().get());
-//    	// not a class type? is that true in x10?
-//    	//skip this method if it is automatically generated or not in a class, or is an abstract method
-//    	if(pos.isCompilerGenerated() || clazzType == null || n.body() == null) {
-//    		return n;
-//    	}
-//    	
-//    	if(!X10TypeUtils.hasAtomic(n.flags())) {
-//    		return n;
-//    	}
-//    	
-//    	//acquire lock for atomic methods
-//    	//of course, there is plenty of optimization opportunities
-//    	int lockNeeded = this.getNeededLockNum(n, clazzType.def());
-//    	//acquire locks for the method
-//    	if(lockNeeded > 0) {
-//    		//also get rid of the atomic block inside the following method
-//    		n = this.acquireLocksForAtomicMethod(n, lockNeeded, clazzType);
-//    	}
-//    	
-//    	return n;
-//    }
+    private Node visitX10Method(X10MethodDecl_c n) throws SemanticException {
+    	Position pos = n.position();
+    	X10ParsedClassType_c clazzType = Types.fetchX10ClassType(n.methodDef().container().get());
+    	// not a class type? is that true in x10?
+    	//skip this method if it is automatically generated or not in a class, or is an abstract method
+    	if(pos.isCompilerGenerated() || clazzType == null || n.body() == null) {
+    		return n;
+    	}
+    	
+    	if(!X10TypeUtils.hasAtomic(n.flags())) {
+    		return n;
+    	}
+    	
+    	//do the same thing as the atomic block
+    	X10MethodDef_c x10method = (X10MethodDef_c)n.methodDef();
+    	List<LocalDef> paramNeedToLock = this.getFormalsThatNeedLocks(x10method.formalNames(), x10method.formalTypes());
+    	//get all accessed atomic fields
+    	AtomicLocalAndFieldAccessVisitor visitor = new AtomicLocalAndFieldAccessVisitor();
+    	n.body().visit(visitor);
+    	//only need to know the accessed fields
+    	Set<X10Field_c> x10fields = visitor.getAllX10FieldsForEscapedFieldDefs();
+
+		System.out.println("Atomic method: " + n.name());
+		System.out.println("locks acquired: ");
+		System.out.println("   params: " + paramNeedToLock);
+		System.out.println("   field: " + x10fields);
+		
+		if(x10fields.isEmpty() && paramNeedToLock.isEmpty()) {
+			//just return
+			System.out.println("- no lock needed for method: " + n.name());
+			System.out.println();
+			Flags noAtomic = n.flags().flags().clearAtomic();
+	    	FlagsNode fn = nf.FlagsNode(pos, noAtomic);
+	    	
+	    	return n.flags(fn); 
+		}
+		
+    	Type lockType = X10TypeUtils.lookUpType(ts, ORDERED_LOCK);
+		LocalDecl emptyLockList = this.createEmptyLockListDeclaration(pos);
+		
+		//grab locks from formals
+		List<Stmt> addMethodFormalsToLockStmts = this.addLocksForFormals(pos, lockType, paramNeedToLock,
+				emptyLockList.name(), emptyLockList);
+		//grab locks from fields (both static and non-static fields)
+		List<Stmt> addFieldsToLockStmts = this.addAtomicSetLockbyFieldToList(pos, lockType, x10fields,
+					emptyLockList.name(), emptyLockList, false);
+		
+		//do not forget
+		Stmt lockAcquireStmt = this.lockAcquireStatement(pos, lockType, emptyLockList, emptyLockList.name());
+		Stmt lockReleaseStmt = this.lockReleaseStatement(pos, lockType, emptyLockList, emptyLockList.name());
+    	
+		//push and pop atomic
+		Stmt pushAtomic = nf.Eval(pos, call(pos, PUSH_ATOMIC, ts.Void()));
+		Stmt popAtomic = nf.Eval(pos, call(pos, POP_ATOMIC, ts.Void()));
+		
+		//assembly the code block
+    	List<Stmt> tryStatements = new LinkedList<Stmt>();
+    	tryStatements.add(lockAcquireStmt);
+    	tryStatements.add(pushAtomic);
+    	tryStatements.add(n.body());
+    	
+    	Block tryBlock = nf.Block(pos, tryStatements);
+    	Block finallyBlock = nf.Block(pos, popAtomic, lockReleaseStmt);
+    	
+    	Try tryStmt = nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+    	
+    	List<Stmt> statements = new LinkedList<Stmt>();
+    	statements.add(emptyLockList);
+    	statements.addAll(addMethodFormalsToLockStmts);
+    	statements.addAll(addFieldsToLockStmts);
+    	statements.add(tryStmt);
+    	
+    	Block newBlock = nf.Block(pos, statements);
+    	
+    	//get rid of the atomic keyword in method declaration
+    	X10MethodDecl_c methodDecl = (X10MethodDecl_c) n.body(newBlock);
+    	Flags noAtomic = methodDecl.flags().flags().clearAtomic();
+    	FlagsNode fn = nf.FlagsNode(pos, noAtomic);
+    	
+    	System.out.println("  after process, the flags is: " + fn);
+    	
+    	return methodDecl.flags(fn);
+    }
     
     private Node visitX10New(X10New_c n) {
     	X10ParsedClassType_c clazzType = Types.fetchX10ClassType(n.constructorInstance().returnType());
@@ -657,19 +716,18 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	//Fix the constructor problem, no atomicset lock is needed.
     	Set<LocalDef> localDefs = visitor.escapedLocalDefs();
     	Set<X10Field_c> x10fields = visitor.getAllX10FieldsForEscapedFieldDefs();
-//    	System.out.println("visiting the atomic section");
-//    	atomic.prettyPrint(System.out);
-//    	atomic.dump(System.out);
-//    	System.out.println();
-//    	atomic.dump(System.out);
-//    	System.out.println("in code def: " + codeDef);
-//    	System.out.println(" --- local defs: " + localDefs);
-//    	System.out.println("  inside the visitor local decl:: " + visitor.atomicLocalDecls);
-//    	System.out.println("  inside the visitor local vars:: " + visitor.atomicLocalRefs);
-//    	System.out.println("   ---- field defs: " + fieldDefs);
-//    	System.out.println("  inside the visitor field decl:: " + visitor.atomicFieldDecls);
-//    	System.out.println("  inside the visitor field vars:: " + visitor.atomicFieldDefs);
-//    	System.out.println();
+
+		atomic.prettyPrint(System.out);
+		System.out.println("locks acquired: ");
+		System.out.println("   localDefs: " + localDefs);
+		System.out.println("   params: " + paramNeedToLock);
+		System.out.println("   field: " + x10fields);
+		
+		if(localDefs.isEmpty() && paramNeedToLock.isEmpty() && x10fields.isEmpty()) {
+			System.out.println(" - not lock is needed for this atomic section");
+			System.out.println();
+			return atomic.body;
+		}
     	
     	Position pos = atomic.position();
     	Type lockType = X10TypeUtils.lookUpType(ts, ORDERED_LOCK);
@@ -686,13 +744,6 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
 			//including both static or non-static fields
 			this.addAtomicSetLockbyFieldToList(pos, lockType, x10fields,
 					emptyLockList.name(), emptyLockList, isInConstructor);
-		
-		atomic.prettyPrint(System.out);
-		System.out.println("locks acquired: ");
-		System.out.println("   localDefs: " + localDefs);
-		System.out.println("   params: " + paramNeedToLock);
-		System.out.println("   field: " + x10fields);
-		System.out.println();
 		
 		//do not forget
 		Stmt lockAcquireStmt = this.lockAcquireStatement(pos, lockType, emptyLockList, emptyLockList.name());
