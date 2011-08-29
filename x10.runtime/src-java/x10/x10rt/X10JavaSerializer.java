@@ -568,60 +568,61 @@ public class X10JavaSerializer {
     }
 
 
-    private void writeArrayUsingReflection(Object obj) throws IllegalAccessException, IOException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
-        Class<?> componentType = obj.getClass().getComponentType();
-        int length = Array.getLength(obj);
-        write(length);
-        if (componentType.isPrimitive()) {
-            if ("int".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getInt(obj, i));
-                }
-            } else if ("double".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getDouble(obj, i));
-                }
-            } else if ("float".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getFloat(obj, i));
-                }
-            } else if ("boolean".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getBoolean(obj, i));
-                }
-            } else if ("byte".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getByte(obj, i));
-                }
-            } else if ("short".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getShort(obj, i));
-                }
-            } else if ("long".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getLong(obj, i));
-                }
-            } else if ("char".equals(componentType.getName())) {
-                for (int i = 0; i < length; i++) {
-                    write(Array.getChar(obj, i));
-                }
-            }
-        } else if ("java.lang.String".equals(componentType.getName())) {
-            for (int i = 0; i < length; i++) {
-                String str = (String) Array.get(obj, i);
-                write(str);
-            }
-        } else if (componentType.isArray()) {
-            for (int i = 0; i < length; i++) {
-                Object o = Array.get(obj, i);
-                writeArrayUsingReflection(o);
-            }
-        } else {
-            for (int i = 0; i < length; i++) {
-                Object o = Array.get(obj, i);
-                writeObjectUsingReflection(o);
-            }
-        }
+    public void writeArrayUsingReflection(Object obj) throws IOException {
+
+    	Class<?> componentType = obj.getClass().getComponentType();
+    	int length = Array.getLength(obj);
+    	write(length);
+    	if (componentType.isPrimitive()) {
+    		if ("int".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getInt(obj, i));
+    			}
+    		} else if ("double".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getDouble(obj, i));
+    			}
+    		} else if ("float".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getFloat(obj, i));
+    			}
+    		} else if ("boolean".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getBoolean(obj, i));
+    			}
+    		} else if ("byte".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getByte(obj, i));
+    			}
+    		} else if ("short".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getShort(obj, i));
+    			}
+    		} else if ("long".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getLong(obj, i));
+    			}
+    		} else if ("char".equals(componentType.getName())) {
+    			for (int i = 0; i < length; i++) {
+    				write(Array.getChar(obj, i));
+    			}
+    		}
+    	} else if ("java.lang.String".equals(componentType.getName())) {
+    		for (int i = 0; i < length; i++) {
+    			String str = (String) Array.get(obj, i);
+    			write(str);
+    		}
+    	} else if (componentType.isArray()) {
+    		for (int i = 0; i < length; i++) {
+    			Object o = Array.get(obj, i);
+    			writeArrayUsingReflection(o);
+    		}
+    	} else {
+    		for (int i = 0; i < length; i++) {
+    			Object o = Array.get(obj, i);
+    			writeObjectUsingReflection(o);
+    		}
+    	}
     }
 
     private <T> void writeStringUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
