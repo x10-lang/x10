@@ -102,11 +102,11 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     }
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
-		serializer.write(id.longValue());
+		serializer.write((long) id);
 	}
 
 	public static X10JavaSerializable $_deserialize_body(PlaceLocalHandle placeLocalHandle, X10JavaDeserializer deserializer) throws IOException {
-        placeLocalHandle.id = deserializer.readLong();
+        placeLocalHandle.id = (Long) deserializer.readLong();
         return placeLocalHandle;
 	}
 
