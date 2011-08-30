@@ -183,9 +183,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         // build up Array[String] for args
         final x10.array.Array<String> aargs = x10.array.Array.<String> $make(x10.rtt.Types.STRING, args.length);
         for (int i = 0; i < args.length; i++) {
-            // WIP for Emitter.mangleSignedNumeric
             aargs.$set_1_$$x10$array$Array_T$G(i, args[i]);
-//            aargs.$set$s0_1_$$x10$array$Array_T$G(i, args[i]);
         }
 
         // execute root x10 activity

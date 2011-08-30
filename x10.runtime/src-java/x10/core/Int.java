@@ -141,11 +141,7 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     public Int $caret(Int b, Type t) { return Int.$box($value ^ b.$value); }
     public Int $left$G(final int count) { return Int.$box($value << count); }
     public Int $right$G(final int count) { return Int.$box($value >> count); }
-    public Int $unsigned_right$G(final int count) { return Int.$box($value >>> count); }        
-    // for Emitter.mangleSignedNumeric
-    public Int $left$s0$G(final int count) { return Int.$box($value << count); }
-    public Int $right$s0$G(final int count) { return Int.$box($value >> count); }
-    public Int $unsigned_right$s0$G(final int count) { return Int.$box($value >>> count); }        
+    public Int $unsigned_right$G(final int count) { return Int.$box($value >>> count); }
     
     // implements Ordered<Int>. Rely on autoboxing of booleans
     public Object $lt(Int b, Type t) { return ($value < b.$value); }

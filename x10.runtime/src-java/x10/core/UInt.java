@@ -158,11 +158,7 @@ final public class UInt extends Number implements StructI, java.lang.Comparable<
     public UInt $caret(UInt a, Type t) { return UInt.$box($value ^ a.$value); }
     public UInt $left$G(final int count) { return UInt.$box($value << count); }
     public UInt $right$G(final int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
-    public UInt $unsigned_right$G(final int count) { return UInt.$box($value >>> count); }        
-    // for Emitter.mangleSignedNumeric
-    public UInt $left$s0$G(final int count) { return UInt.$box($value << count); }
-    public UInt $right$s0$G(final int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
-    public UInt $unsigned_right$s0$G(final int count) { return UInt.$box($value >>> count); }        
+    public UInt $unsigned_right$G(final int count) { return UInt.$box($value >>> count); }
     
     // implements Ordered<UInt>. Rely on autoboxing of booleans
     public Object $lt(UInt a, Type t) { return Unsigned.lt($value,a.$value); }
