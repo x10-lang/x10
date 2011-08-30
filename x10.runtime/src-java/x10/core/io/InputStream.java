@@ -93,20 +93,8 @@ public class InputStream extends Ref {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
-    // for Emitter.mangleSignedNumeric
-    public void skip$s0(int n) {
-        try {
-            stream.skip(n);
-        } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
     
     public void mark(int readlimit) {
-        stream.mark(readlimit);
-    }
-    // for Emitter.mangleSignedNumeric
-    public void mark$s0(int readlimit) {
         stream.mark(readlimit);
     }
     

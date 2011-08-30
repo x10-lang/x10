@@ -193,50 +193,6 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, body);
     }
 
-    public static void broadcastStaticFieldUsingReflection(Object fieldValue, final int fieldId) {
-    	// no need for broadcast while running on a single place
-    	if (Runtime.MAX_PLACES <= 1) {
-    		return;
-    	}
-
-        // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
-
-        // serialize to bytearray
-
-        final byte[] buf;
-        try {
-            buf = Runtime.serializeUsingReflection(fieldValue);
-        } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        }
-
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
-
-        // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
-    }
-    // for Emitter.mangleSignedNumeric
-    public static void broadcastStaticField$s1(final Object fieldValue, final int fieldId) {
-        // no need for broadcast while running on a single place
-        if (Runtime.MAX_PLACES <= 1) {
-                return;
-        }
-        
-        // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
-
-        // serialize to bytearray
-        final byte[] buf = serializeField(fieldValue);
-        
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
-        
-        // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
-    }
-
     public static void broadcastStaticField(int fieldValue, final int fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
@@ -500,21 +456,6 @@ public abstract class InitDispatcher {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
             throw xe;            
-        }
-    }
-
-    public static Object deserializeFieldUsingReflection(byte[] buf) {
-        try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            java.io.DataInputStream in = new java.io.DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
-            Object o = deserializer.readRefUsingReflection();
-            in.close();
-            return o;
-        } catch (java.io.IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
         }
     }
 

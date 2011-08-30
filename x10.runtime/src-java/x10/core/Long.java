@@ -127,11 +127,7 @@ final public class Long extends Number implements StructI, java.lang.Comparable<
     public Long $caret(Long b, Type t) { return Long.$box($value ^ b.$value); }
     public Long $left$G(final int count) { return Long.$box($value << count); }
     public Long $right$G(final int count) { return Long.$box($value >> count); }
-    public Long $unsigned_right$G(final int count) { return Long.$box($value >>> count); }        
-    // for Emitter.mangleSignedNumeric
-    public Long $left$s0$G(final int count) { return Long.$box($value << count); }
-    public Long $right$s0$G(final int count) { return Long.$box($value >> count); }
-    public Long $unsigned_right$s0$G(final int count) { return Long.$box($value >>> count); }        
+    public Long $unsigned_right$G(final int count) { return Long.$box($value >>> count); }
     
     // implements Ordered<Long>. Rely on autoboxing of booleans
     public Object $lt(Long b, Type t) { return ($value < b.$value); }

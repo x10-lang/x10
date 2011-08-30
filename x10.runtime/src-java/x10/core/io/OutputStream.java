@@ -60,14 +60,6 @@ public class OutputStream extends Ref {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
-    // for Emitter.mangleSignedNumeric
-    public void write$s0(int b) {
-        try {
-            stream.write(b);
-        } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
     
     public void write(byte[] b) {
         try {
@@ -96,14 +88,6 @@ public class OutputStream extends Ref {
     
     // XTENLANG-2680
     public void write_0_$_x10$lang$Byte_$(x10.array.Array buf, int off, int len) {
-        try {
-            stream.write(buf.raw().getByteArray(), off, len);
-        } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
-        }
-    }
-    // for Emitter.mangleSignedNumeric
-    public void write_0_$_x10$lang$Byte_$$s1$s2(x10.array.Array buf, int off, int len) {
         try {
             stream.write(buf.raw().getByteArray(), off, len);
         } catch (java.io.IOException e) {
@@ -175,9 +159,7 @@ public class OutputStream extends Ref {
 
         @Override
         public void write(int x) {
-            // WIP for Emitter.mangleSignedNumeric
             w.write((byte) x);
-//            w.write$s0((byte) x);
         }
         @Override
         public void close() {
