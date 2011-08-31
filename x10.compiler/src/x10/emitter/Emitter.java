@@ -619,6 +619,18 @@ public class Emitter {
 	    return false;
 	}
 
+        public static boolean isNativeReped(Type ct) {
+            Type bt = Types.baseType(ct);
+            if (bt instanceof X10ClassType) {
+                X10ClassDef def = ((X10ClassType) bt).x10Def();
+                String pat = getJavaRep(def);
+                if (pat != null) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
 	private static String getNativeClassJavaRepParam(X10ClassDef def, int i) {
         List<Type> as = def.annotationsMatching(def.typeSystem().NativeClass());
         for (Type at : as) {
@@ -1204,20 +1216,36 @@ public class Emitter {
     public static final boolean canMangleMethodName(MethodDef def) {
         ContainerType containerType = def.container().get();
         String methodName = def.name().toString();
-        List<Ref<? extends Type>> formalTypes = def.formalTypes();
-        int numFormals = formalTypes.size();
-        boolean nonStatic = !def.flags().isStatic();
-        return !containerType.fullName().toString().startsWith("x10.util.concurrent.")
-        && !isNativeClassToJava(containerType)
-        && !isNativeRepedToJava(containerType)
-        && !(nonStatic &&
-        		(
-        				((methodName.equals("equals") && numFormals == 1) || (methodName.equals("toString") && numFormals == 0) || (methodName.equals("hashCode") && numFormals == 0))/*Any*/
-        				|| (methodName.equals("compareTo") && numFormals == 1)/*Comparable*/
-        				|| isJavaType(containerType)/*CharSequence etc.*/ //FIXME we should allow mangling of X10 method that doesn't implement/override Java method
-        		)
-        )
-        && !(methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix));
+        
+        if (isNativeClassToJava(containerType)) return false;
+        if (isNativeRepedToJava(containerType)) return false;
+        if (isNativeReped(containerType)) {
+            // exclude classes that are @NativeRep'ed to non-java classes that extend java class
+            // since some instance methods of the class may match its super class's java method (therefore cannot mangle) 
+            String containerName = containerType.fullName().toString();
+            // N.B. currently following four class are such classes. but for safety, we exclude all Atomic classes.
+//            if (containerName.equals("x10.util.concurrent.AtomicInteger")) return false;
+//            if (containerName.equals("x10.util.concurrent.AtomicLong")) return false;
+//            if (containerName.equals("x10.util.concurrent.AtomicReference")) return false;
+//            if (containerName.equals("x10.util.concurrent.AtomicBoolean")) return false;
+            if (containerName.startsWith("x10.util.concurrent.Atomic")) return false;
+            // TODO looks like there is no reason to implement AtomicInteger as XRJ.
+            // we may directly map it to j.u.c.a.AtomicInteger later and remove special handling here.  
+        }
+        if (methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix)) return false;/*intrinsic*/
+        if (!def.flags().isStatic()) {
+            // instance methods
+            List<Ref<? extends Type>> formalTypes = def.formalTypes();
+            int numFormals = formalTypes.size();
+            if (methodName.equals("toString") && numFormals == 0) return false;/*Any=j.l.Object*/
+            if (methodName.equals("hashCode") && numFormals == 0) return false;/*Any=j.l.Object*/
+            if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return false;/*Any=j.l.Object*/
+            if (methodName.equals("compareTo") && numFormals == 1) return false;/*Comparable=j.l.Comparable*/
+            // TODO want to check with the fact that x.l.Comparable is @NativeRep'ed to j.l.Comparable
+	    if (isJavaType(containerType)) return false;/*CharSequence etc.*/
+        }
+        
+        return true;
     }
     
     public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
