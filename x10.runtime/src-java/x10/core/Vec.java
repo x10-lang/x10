@@ -84,7 +84,7 @@ public class Vec<T> extends x10.core.Struct {
         this.size = other.size;
         this.backing = x10.array.Array.<T> $make(T, other.size);
         for (int i = 0; i < this.size; ++i) {
-            this.backing.$set_1_$$x10$array$Array_T$G(i, other.backing.$apply$G(i));
+            this.backing.$set_1x10$array$Array$$T$G(i, other.backing.$apply$G(i));
         }
         return this;
     }
@@ -94,7 +94,7 @@ public class Vec<T> extends x10.core.Struct {
         this.size = other.size;
         this.backing = x10.array.Array.<T> $make(T, other.size);
         for (int i = 0; i < this.size; ++i) {
-            this.backing.$set_1_$$x10$array$Array_T$G(i, other.backing.$apply$G(i));
+            this.backing.$set_1x10$array$Array$$T$G(i, other.backing.$apply$G(i));
         }
     }
 
@@ -114,7 +114,7 @@ public class Vec<T> extends x10.core.Struct {
     }
 
     final public T set(final int i, final T v) {
-        return backing.$set_1_$$x10$array$Array_T$G(i, v);
+        return backing.$set_1x10$array$Array$$T$G(i, v);
     }
 
     final public int size() {
