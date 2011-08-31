@@ -52,6 +52,7 @@ import x10.types.checker.Converter;
 import x10.types.checker.Converter.ConversionType;
 import x10.types.constants.BooleanValue;
 import x10.types.constants.CharValue;
+import x10.types.constants.ClosureValue;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.DoubleValue;
 import x10.types.constants.FloatValue;
@@ -289,11 +290,14 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
         if (ctIntrinsic && etIntrinsic) return true;
         
         TypeSystem ts = expr.type().typeSystem();
-        if (expr.constantValue() instanceof NullValue && ts.isObjectOrInterfaceType(castType.type(), ts.emptyContext())) return true;
+        ConstantValue exprCV = expr.constantValue();
+        if (exprCV instanceof NullValue && ts.isObjectOrInterfaceType(castType.type(), ts.emptyContext())) return true;
         
-        if (expr.constantValue() instanceof StringValue && ts.String().isSubtype(castType.type(), ts.emptyContext())) return true;
+        if (exprCV instanceof StringValue && ts.String().isSubtype(castType.type(), ts.emptyContext())) return true;
 
-        if (expr.constantValue() instanceof BooleanValue && ts.Boolean().isSubtype(castType.type(), ts.emptyContext())) return true;
+        if (exprCV instanceof BooleanValue && ts.Boolean().isSubtype(castType.type(), ts.emptyContext())) return true;
+        
+        if (exprCV instanceof ClosureValue) return true;
 
         // NOTE: The cast might still be statically removable, but that is different than having a constant value.
         return false;
@@ -337,6 +341,10 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
                 
         if (v instanceof NullValue) {
             if (ts.isObjectOrInterfaceType(cType, emptyContext)) return v;
+        }
+        
+        if (v instanceof ClosureValue) {
+            return v;
         }
     	
     	return null;

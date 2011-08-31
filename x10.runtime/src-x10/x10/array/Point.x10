@@ -12,6 +12,7 @@
 package x10.array;
 
 import x10.util.Ordered;
+import x10.compiler.NoInline;
 
 /**
  * The type <code>Point(rank)</code> represents a point in a
@@ -103,7 +104,7 @@ public final class Point(rank:Int) implements (Int) => Int,
             case 2: return new Point(r(0), r(1)) as Point(r.size);
             case 3: return new Point(r(0), r(1), r(2)) as Point(r.size);
             case 4: return new Point(r(0), r(1), r(2), r(3)) as Point(r.size);
-            default: return new Point(new Array[int](r.size, (i:int)=>r(i)));
+            default: return new Point(@NoInline new Array[int](r.size, (i:int)=>r(i)));
         }
     }
 

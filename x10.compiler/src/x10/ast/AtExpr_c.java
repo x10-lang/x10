@@ -38,6 +38,7 @@ import polyglot.visit.TypeBuilder;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 import x10.types.ClosureDef;
+import x10.types.constants.ConstantValue;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.CConstraint;
 import polyglot.types.Context;
@@ -245,5 +246,12 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     }
 
   
+    public boolean isConstant() {
+        return false;
+    }
+
+    public ConstantValue constantValue() {
+        return null;
+    }
         
 }

@@ -94,6 +94,7 @@ public class Optimizer {
         List<Goal> goals = preInlinerGoals();
         if (INLINING(extInfo)) {
             goals.add(Packager());
+            goals.add(PreInlineConstantProp());
             goals.add(Inliner(false));
         } else if (!config.WORK_STEALING){
             // Even when inlining is not enabled, we're still going to inline
@@ -106,7 +107,6 @@ public class Optimizer {
         if (config.CODE_CLEAN_UP && !config.DEBUG) {
             goals.add(CodeCleanUp());
         }
-        // workaround for XTENLANG-2705
         if (config.OPTIMIZE) {
             goals.add(ConstantProp());
         }
@@ -166,8 +166,14 @@ public class Optimizer {
         return goal.intern(scheduler);
     }
     
+    public Goal PreInlineConstantProp() {
+        NodeVisitor visitor = new ConstantPropagator(job, ts, nf, true);
+        Goal goal = new ValidatingVisitorGoal("Pre-inlining ConstantPropagation", job, visitor);
+        return goal.intern(scheduler);
+    }
+    
     public Goal ConstantProp() {
-        NodeVisitor visitor = new ConstantPropagator(job, ts, nf);
+        NodeVisitor visitor = new ConstantPropagator(job, ts, nf, false);
         Goal goal = new ValidatingVisitorGoal("ConstantPropagation", job, visitor);
         return goal.intern(scheduler);
     }
