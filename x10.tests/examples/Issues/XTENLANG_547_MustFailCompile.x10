@@ -74,7 +74,7 @@ class TestInaccessible547 {
     class A {
         private def m(Int):void {}
     }
-    class B extends A { // (in an inner class, even private is accessible! Yoav: wrong! test it in Java.
+    class B extends A { // ERR (in an inner class, even private is accessible)
         private def m(Int{self==1}):void {}
     }
 }

@@ -353,26 +353,12 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	if (ts.isEnclosed(contextClass, targetClass.def()) || ts.isEnclosed(targetClass.def(), contextClass))
 	    return true;
 
-
-	// This is just wrong (test in Java). E.g.,
-    //class XTENLANG_2894 {
-    //	private def m1() {}
-    //	class A {
-    //		private def m2() {}
-    //	}
-    //	class B extends A {
-    //		def p() {
-    //			m1(); // not an error because an inner class can access private methods.
-    //			m2(); // ERR
-    //		}
-    //	}
-    //}
-//	ClassDef cd = contextClass;
-//	while (!cd.isTopLevel()) {
-//	    cd = cd.outer().get();
-//	    if (ts.isEnclosed(targetClass.def(), cd))
-//		return true;
-//	}
+	ClassDef cd = contextClass;
+	while (!cd.isTopLevel()) {
+	    cd = cd.outer().get();
+	    if (ts.isEnclosed(targetClass.def(), cd))
+		return true;
+	}
 
 	// protected
 	if (flags.isProtected()) {
