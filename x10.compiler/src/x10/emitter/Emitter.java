@@ -115,8 +115,10 @@ public class Emitter {
     // XTENLANG-2463
     private static final boolean mangleTypeVariable = true;
     private static final String PARAMETER_TYPE_PREFIX = "$";
-    
-    private static final String UNSIGNED_NUMERIC_TYPE_PREFIX = "$u";
+    private static final String UNSIGNED_NUMERIC_TYPE_SUFFIX = "$u";
+    private static String FORMAL_MARKER(int i) {
+      return "_" + i;
+    }
     
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
@@ -1434,13 +1436,16 @@ public class Emitter {
 
     private static void buildMangledMethodName(ClassType ct, StringBuilder sb, int i, Type type, boolean printIncludingGeneric) {
         if (type.isUnsignedNumeric()) {
-            sb.append(UNSIGNED_NUMERIC_TYPE_PREFIX + i);
+            sb.append(FORMAL_MARKER(i));
+            sb.append(UNSIGNED_NUMERIC_TYPE_SUFFIX);
         }
         Type t = Types.baseType(type);
-        if (t instanceof X10ClassType && (printIncludingGeneric || (!printIncludingGeneric && !containsTypeParam(t)))) {
+        if (t instanceof X10ClassType && (printIncludingGeneric || !containsTypeParam(t))) {
+            // def g(l:x10.util.List[x10.lang.Int]) {...}
+            //  -> g_0$1x10$lang$Int$2(x10.util.List l) {...}  ("$1" and "$2" mean "[" and "]", respectively)
             X10ClassType x10t = (X10ClassType) t;
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
-                sb.append("_").append(i).append("_");
+                sb.append(FORMAL_MARKER(i));
                 List<Type> ts = x10t.typeArguments();
                 String delim = null;
                 for (Type t1 : ts) {
@@ -1451,16 +1456,15 @@ public class Emitter {
             }
         }
         else if (printIncludingGeneric && t instanceof ParameterType) {
-            sb.append("_").append(i).append("_");
-            sb.append("$$");
-            // TODO mangle parameter type
-            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
-//            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
+            // class I[T] { def foo(t:T) {...} }
+            //  -> class I<T> { foo_0I$$T(T t) {...} }   ("I$$T" means T of I)
+            sb.append(FORMAL_MARKER(i));
+            appendParameterType(ct, sb, (ParameterType) t);
         }
     }
 
     private static void appendParameterizedType(StringBuilder sb, ClassType ct, Type t) {
-        sb.append("$_");
+        sb.append("$1"); // this means "["
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
             sb.append(mangleAndFlattenQName(x10t.fullName()));
@@ -1472,14 +1476,18 @@ public class Emitter {
             }
         }
         else if (t instanceof ParameterType) {
-            // TODO mangle parameter type
-            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleIdentifier(((ParameterType) t).name()));
-//            sb.append(mangleAndFlattenQName(ct.fullName())).append("_").append(mangleParameterType((ParameterType) t));
+            appendParameterType(ct, sb, (ParameterType) t);
         }
         else {
             sb.append(mangleAndFlattenQName(t.fullName()));
         }
-        sb.append("_$");
+        sb.append("$2"); // this means "]"
+    }
+
+    private static void appendParameterType(ClassType ct, StringBuilder sb, ParameterType t) {
+        sb.append(mangleAndFlattenQName(ct.fullName()));
+        sb.append("$$");
+        sb.append(mangleIdentifier(t.name()));
     }
 
 	public static boolean containsTypeParam(Type type) {
