@@ -142,8 +142,8 @@ public final class PeriodicDist extends Dist {
     public operator this(p:Place):Region(rank) = get(p);
 
     public @Inline operator this(pt:Point(rank)):Place {
-        val actualPt = Point.make(new Array[Int](rank, (i : Int) => getPeriodicIndex(pt(i), i)));
-	    return baseDist(actualPt);
+        val actualPt = Point.make(rank, (i : Int) => getPeriodicIndex(pt(i), i));
+        return baseDist(actualPt);
     }
     public @Inline operator this(i0:Int){rank==1}:Place {
         var a0 : Int = i0;
@@ -189,7 +189,7 @@ public final class PeriodicDist extends Dist {
     }
 
     public @Inline def offset(pt:Point(rank)):Int {
-        val actualPt = Point.make(new Array[Int](rank, (i : Int) => getPeriodicIndex(pt(i), i)));
+        val actualPt = Point.make(rank, (i : Int) => getPeriodicIndex(pt(i), i));
         return baseDist.offset(actualPt);
     }
     public @Inline def offset(i0:Int){rank==1}:Int {
