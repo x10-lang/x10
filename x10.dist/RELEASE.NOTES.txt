@@ -6,6 +6,17 @@ No major changes have been made to the language specification
 in this release.  The following major changes have been made to the
 implementation and the class libraries.
 
+  The + and - operators were removed from the IntRange class and
+  replaced by a translate method.  The motivation for this API change
+  was to avoid a common programming mistake:
+    for (i in 0..n-1) { ... }
+  In the loop above, i actually ranges from -1 to n-1 because .. has higher
+  precedence than - (to support concise region products like 0..n*0..n).
+  In 2.2.1 this loop will be flagged as a compile time error; write it as:
+    for (i in 0..(n-1)) { ... }
+  
+
+
 Please consult the language specification for the details of
 any minor language changes and specification clarifications made in
 this release.
