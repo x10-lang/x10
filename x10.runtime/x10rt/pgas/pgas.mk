@@ -9,8 +9,8 @@
 #  (C) Copyright IBM Corporation 2006-2010.
 #
 
-X10_VERSION=svn head
-#X10_VERSION=2.1.2
+#X10_VERSION=svn head
+X10_VERSION=2.2.1
 VERSION=20110513
 
 #WPLATFORM is the string used to identify the platform in the web tarballs
