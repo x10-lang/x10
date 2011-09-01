@@ -33,7 +33,11 @@ public abstract class ConstantValue {
     public abstract Object toJavaObject();
     
     public static Object toJavaObject(ConstantValue v) {
-        return v == null ? v : v.toJavaObject();
+        if (v == null || v instanceof ClosureValue) {
+            return null;
+        } else {
+            return v.toJavaObject();
+        }
     }
 
     public static NullValue makeNull() {
