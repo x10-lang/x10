@@ -610,9 +610,9 @@ public final class Array[T] (
      * @param v the value with which to fill the array
      */
     public def fill(v:T) {
-        if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
-            // is included in the points of region, therefore we can simply fill
+        if (rect) {
+            // In a rect array, every element in the backing raw IndexedMemoryChunk[T]
+            // is included in the array, therefore we can simply fill
             // the IndexedMemoryChunk itself.
             for (i in 0..(raw.length()-1)) {
                 raw(i) = v;
@@ -666,9 +666,9 @@ public final class Array[T] (
      */
     public @Inline def map[U](dst:Array[U](this.rank), op:(T)=>U):Array[U](this.rank){self==dst} {
         // TODO: parallelize these loops.
-        if (region.rect) {
+        if (rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
-            // is included in the points of region, therfore we can optimize
+            // is included in the array, therefore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
             for (i in 0..(raw.length()-1)) {
                 dst.raw(i) = op(raw(i));
@@ -737,9 +737,9 @@ public final class Array[T] (
      */
     public @Inline def map[S,U](dst:Array[S](this.rank), src:Array[U](this.rank), op:(T,U)=>S):Array[S](this.rank){self==dst} {
         // TODO: parallelize these loops.
-        if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk
-            // is included in the points of region, therfore we can optimize
+        if (rect) {
+            // In a rect array, every element in the backing raw IndexedMemoryChunk
+            // is included in the array, therefore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
             for (i in 0..(raw.length()-1)) {
                 dst.raw(i) = op(raw(i), src.raw(i));
@@ -793,9 +793,9 @@ public final class Array[T] (
         // TODO: once collecting finish is available,
         //       use it to efficiently parallelize these loops.
         var accum:U = unit;
-        if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
-            // is included in the points of region, therfore we can optimize
+        if (rect) {
+            // In a rect array, every element in the backing raw IndexedMemoryChunk[T]
+            // is included in the array, therefore we can optimize
             // the traversal and simply reduce on the IndexedMemoryChunk itself.
             for (i in 0..(raw.length()-1)) {
                 accum = op(accum, raw(i));
