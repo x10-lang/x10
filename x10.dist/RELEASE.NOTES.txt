@@ -14,8 +14,19 @@ implementation and the class libraries.
   precedence than - (to support concise region products like 0..n*0..n).
   In 2.2.1 this loop will be flagged as a compile time error; write it as:
     for (i in 0..(n-1)) { ... }
-  
 
+  Managed X10 now uses Java built-in primitives to implement unsigned
+  X10 structs (UInt, ULong, etc).  This significantly improves the 
+  performance of unsigned types with Managed X10.
+
+  We have implemented a new custom serialization protocol for Managed X10,
+  resulting in significant performance improvements for multi-place programs
+  on Managed X10.
+
+  The built-in numeric structs (Int, ULong, Double, etc) now implement
+  the interfaces, Arithmetic, Bitwise and Ordered (as appropriate).  
+  This enables writing generic code over types that implement common operations
+  such as +, *, <=, etc.
 
 Please consult the language specification for the details of
 any minor language changes and specification clarifications made in
