@@ -129,7 +129,7 @@ public class Emitter {
     private static final String PARAMETER_TYPE_PREFIX = "$";
     private static final String UNSIGNED_NUMERIC_TYPE_SUFFIX = "$u";
     private static String FORMAL_MARKER(int i) {
-      return "_" + i;
+      return "__" + i;
     }
     
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
@@ -1442,37 +1442,45 @@ public class Emitter {
         }
         Type t = Types.baseType(type);
         if (t instanceof X10ClassType && (printIncludingGeneric || !containsTypeParam(t))) {
-            // def g(l:x10.util.List[x10.lang.Int]) {...}
-            //  -> g_0$1x10$lang$Int$2(x10.util.List l) {...}  ("$1" and "$2" mean "[" and "]", respectively)
+            // def g(l:x10.util.Map[x10.lang.Int,x10.lang.Float]) {...}
+            //  -> g__0$1x10$lang$Int$3x10$lang$Float$2(x10.util.Map l) {...}  ("$1", "$2" and "$3" means "[", "]" and ",", respectively)
             X10ClassType x10t = (X10ClassType) t;
-            if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
+            List<Type> ts = x10t.typeArguments();
+            if (ts != null && ts.size() > 0) {
                 sb.append(FORMAL_MARKER(i));
-                List<Type> ts = x10t.typeArguments();
+                sb.append("$1"); // "$1" means "["
                 String delim = null;
                 for (Type t1 : ts) {
                     if (delim != null) sb.append(delim);
-                    delim = "_";
+                    delim = "$3"; // "$3" means ","
                     appendParameterizedType(sb, ct, Types.baseType(t1));
                 }
+                sb.append("$2"); // "$2" means "]"
             }
         }
         else if (printIncludingGeneric && t instanceof ParameterType) {
             // class I[T] { def foo(t:T) {...} }
-            //  -> class I<T> { foo_0I$$T(T t) {...} }   ("I$$T" means T of I)
+            //  -> class I<T> { foo__0I$$T(T t) {...} }   ("I$$T" means T of I)
             sb.append(FORMAL_MARKER(i));
             appendParameterType(ct, sb, (ParameterType) t);
         }
     }
 
     private static void appendParameterizedType(StringBuilder sb, ClassType ct, Type t) {
-        sb.append("$1"); // this means "["
         if (t instanceof X10ClassType) {
             X10ClassType x10t = (X10ClassType) t;
             sb.append(mangleAndFlattenQName(x10t.fullName()));
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
-                for (Type t1 : ts) {
-                    appendParameterizedType(sb, ct, Types.baseType(t1));
+                if (ts.size() > 0) {
+                    sb.append("$1"); // "$1" means "["
+                    String delim = null;
+                    for (Type t1 : ts) {
+                        if (delim != null) sb.append(delim);
+                        delim = "$3"; // "$3" means ","
+                        appendParameterizedType(sb, ct, Types.baseType(t1));
+                    }
+                    sb.append("$2"); // "$2" means "]"
                 }
             }
         }
@@ -1482,7 +1490,6 @@ public class Emitter {
         else {
             sb.append(mangleAndFlattenQName(t.fullName()));
         }
-        sb.append("$2"); // this means "]"
     }
 
     private static void appendParameterType(ClassType ct, StringBuilder sb, ParameterType t) {

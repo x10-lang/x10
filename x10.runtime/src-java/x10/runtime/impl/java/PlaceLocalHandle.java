@@ -89,7 +89,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
         return (T) myData;
     }
 
-    public void set_0x10$lang$PlaceLocalHandle$$T(T value) {
+    public void set__0x10$lang$PlaceLocalHandle$$T(T value) {
         synchronized(data) {
             Object old = data.put(id, value);
             assert old == null : "Set called on already initialized local object";

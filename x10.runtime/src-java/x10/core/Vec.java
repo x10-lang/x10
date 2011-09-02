@@ -25,6 +25,7 @@ import java.io.IOException;
 
 public final class Vec<T> extends x10.core.Struct {
 
+    private static final long serialVersionUID = 1L;
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Vec.class);
 
     public int size;
@@ -118,7 +119,7 @@ public final class Vec<T> extends x10.core.Struct {
     }
 
     final public T set(final int i, final T v) {
-        return backing.$set_1x10$array$Array$$T$G(i, v);
+        return backing.$set__1x10$array$Array$$T$G(i, v);
     }
 
     final public int size() {

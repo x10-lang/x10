@@ -183,7 +183,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         // build up Array[String] for args
         final x10.array.Array<String> aargs = x10.array.Array.<String> $make(x10.rtt.Types.STRING, args.length);
         for (int i = 0; i < args.length; i++) {
-            aargs.$set_1x10$array$Array$$T$G(i, args[i]);
+            aargs.$set__1x10$array$Array$$T$G(i, args[i]);
         }
 
         // execute root x10 activity
@@ -521,10 +521,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static x10.util.HashMap<String, String> loadenv() {
         Map<String, String> env = System.getenv();
-        x10.util.HashMap<String, String> map = x10.util.HashMap.<String, String> $make(x10.rtt.Types.STRING,
-                                                                                    x10.rtt.Types.STRING);
+        x10.util.HashMap<String, String> map = x10.util.HashMap.<String, String> $make(x10.rtt.Types.STRING, x10.rtt.Types.STRING);
         for (Map.Entry<String, String> e : env.entrySet()) {
-            map.put_0x10$util$HashMap$$K_1x10$util$HashMap$$V(e.getKey(), e.getValue());
+            map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V(e.getKey(), e.getValue());
         }
         return map;
     }
