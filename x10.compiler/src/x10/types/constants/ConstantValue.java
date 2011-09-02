@@ -169,6 +169,9 @@ public abstract class ConstantValue {
         if (type.isUShort()) return ConstantValue.makeUShort((short) ((Number)v).longValue());
         if (type.isByte()) return ConstantValue.makeByte((byte) ((Number)v).longValue());
         if (type.isUByte()) return ConstantValue.makeUByte((byte) ((Number)v).longValue());
+        if (type.isSubtype(type.typeSystem().String(), type.typeSystem().emptyContext())) {
+            return ConstantValue.makeString((String)v);
+        }
 
         throw new InternalCompilerError("Unexpected type "+type+" v = "+v+" (of type "+v.getClass()+")");
     }
