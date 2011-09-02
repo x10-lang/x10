@@ -2380,14 +2380,11 @@ public class Emitter {
             Flags flags = dispatch.flags();
     
             w.begin(0);
-            w.write(flags.clearAbstract()
-                .clear(Flags.NATIVE)
-                .translateJava()
-            );
+            w.write(flags.clearAbstract().clear(Flags.NATIVE).translateJava());
             
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
             
-            w.allowBreak(2, 2, " ", 1);
+            w.write(" ");
 
             // decl
             // print the method name
@@ -2399,8 +2396,7 @@ public class Emitter {
             X10MethodDef x10def = (X10MethodDef) def;
             for (ParameterType p : x10def.typeParameters()) {
                 if (!first) {
-                    w.write(",");
-                    w.allowBreak(0, " ");
+                    w.write(", ");
                 } else {
                     first = false;
                 }
@@ -2414,8 +2410,7 @@ public class Emitter {
             for (int i = 0; i < def.formalTypes().size(); i++) {
                 Type f = dispatch.formalTypes().get(i);
                 if (!first || i != 0) {
-                    w.write(",");
-                    w.allowBreak(0, " ");
+                    w.write(", ");
                 }
                 Type type = def.formalTypes().get(i).get();
                 if (containsTypeParam(type)) {
@@ -2431,7 +2426,7 @@ public class Emitter {
                     Name name = Name.make("a" + (i + 1));
                     w.write(name.toString());
                     
-                    w.write(",");
+                    w.write(", ");
                     w.write("final ");
                     w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
                     w.write(" ");
@@ -2466,7 +2461,8 @@ public class Emitter {
                 }
             }
     */
-            w.write("{");
+            w.write(" {");
+            w.newline();
             
             for (MethodInstance mi : mis) {
                 if (mis.size() != 1) {
@@ -2513,8 +2509,7 @@ public class Emitter {
                 assert (x10mi.typeParameters().size() == x10def.typeParameters().size());
                 for (Type t : x10def.typeParameters()) {
                     if (!first2) {
-                        w.write(",");
-                        w.allowBreak(0, " ");
+                        w.write(", ");
                     }
                     first2 = false;
                     new RuntimeTypeExpander(this, t).expand(tr);
@@ -2523,8 +2518,7 @@ public class Emitter {
                 for (int i = 0; i < mi.formalTypes().size(); i++) {
                     Type f = mi.formalTypes().get(i);
                     if (!first2 || i != 0) {
-                        w.write(",");
-                        w.allowBreak(0, " ");
+                        w.write(", ");
                     }
                     boolean closeParen = false;
                     if (isBoxedType(def.formalTypes().get(i).get())) {
@@ -2555,6 +2549,7 @@ public class Emitter {
                 if (mis.size() != 1) {
                     w.write("}");
                 }
+                w.newline();
             }
     
             if (mis.size() != 1) {
