@@ -333,7 +333,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write(n.operator().toString());
 
+        boolean closeParen = false;
+        if (Emitter.isPrimitive(n.type()) && Emitter.isBoxedType(n.right().type())) {
+            closeParen = er.printUnboxConversion(n.type());
+        }
         er.prettyPrint(n.right(), tr);
+        if (closeParen) w.write(")");
     }
 
     public void visit(X10CBackingArrayNewArray_c n) {

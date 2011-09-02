@@ -12,7 +12,6 @@
 package x10.array;
 
 import x10.compiler.Inline;
-import x10.compiler.NoInline;
 
 /**
  * A Region(rank) represents a set of points of class Point(rank). The
@@ -129,8 +128,8 @@ public abstract class Region(
         	// To remove the cast, the constraint solver should be able to handle arithmetic.
             return new RectRegion1D(minArg(0), maxArg(0)) as Region(minArg.size){rect}; 
         } else {
-            val minArray = @NoInline new Array[int](minArg.size, (i:int)=>minArg(i));
-            val maxArray = @NoInline new Array[int](maxArg.size, (i:int)=>maxArg(i));
+            val minArray = new Array[int](minArg.size, (i:int)=>minArg(i));
+            val maxArray = new Array[int](maxArg.size, (i:int)=>maxArg(i));
             return new RectRegion(minArray, maxArray);
         }
     }

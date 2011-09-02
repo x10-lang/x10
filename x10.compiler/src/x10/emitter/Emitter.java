@@ -1750,7 +1750,7 @@ public class Emitter {
 	}
 
     // TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
-	private static boolean isPrimitive(Type type) {
+	public static boolean isPrimitive(Type type) {
 	    return X10PrettyPrinterVisitor.isPrimitiveRepedJava(type);
 //	    return type.isBoolean() || type.isNumeric() || type.isChar();
 	}
