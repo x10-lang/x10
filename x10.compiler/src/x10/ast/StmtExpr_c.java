@@ -205,11 +205,12 @@ public class StmtExpr_c extends Expr_c implements StmtExpr {
 	}
 
     public ConstantValue constantValue() {
-        return result == null ? null : result.constantValue();
+        return null;
     }
 
     public boolean isConstant() {
-        return result != null && result.isConstant();
+        // StmtExprs are never constants, because we can't eliminate the Stmts because they may have side-effects!
+        return false;
     }
 
     public Precedence precedence() {

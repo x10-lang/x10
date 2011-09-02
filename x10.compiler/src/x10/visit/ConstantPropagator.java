@@ -39,23 +39,29 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.Closure_c;
 import x10.ast.StmtExpr;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.optimizations.ForLoopOptimizer;
+import x10.types.TypeParamSubst;
 import x10.types.checker.Converter;
 import x10.types.constants.BooleanValue;
+import x10.types.constants.ClosureValue;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
 import x10.types.constraints.CConstraint;
 import x10.util.AltSynthesizer;
+import x10.visit.Desugarer.ClosureCaptureVisitor;
 
 /**
  * Very simple constant propagation pass. 
@@ -63,11 +69,7 @@ import x10.util.AltSynthesizer;
  * 
  * <p> Replace branches on constants with the consequent or alternative as appropriate. 
  * 
- * <p> TODO: Handle constant rails and conversions.
- * <p> TODO: Propagate through rails A(0) = v; ... A(0) --> v. 
  * <p> TODO: Dead code elimination. visitor.
- * 
- * FIXME: [IP] propagate closure literals
  * 
  * @author nystrom
  */
@@ -76,12 +78,14 @@ public class ConstantPropagator extends ContextVisitor {
     private static AltSynthesizer syn;
     private final Job         job;
     private final TypeSystem  xts;
+    private final boolean propClosures;
     
-    public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf) {
+    public ConstantPropagator(Job job, TypeSystem ts, NodeFactory nf, boolean propagateClosures) {
         super(job, ts, nf);
         syn = new AltSynthesizer(ts, nf);
         this.job = job;
         this.xts = ts;
+        this.propClosures = propagateClosures;
     }
     
     @Override
@@ -89,6 +93,7 @@ public class ConstantPropagator extends ContextVisitor {
         Position pos = n.position();
 
         if (!(n instanceof Expr || n instanceof Stmt)) return n;
+        if (n instanceof StmtExpr) return n;
         if (n instanceof Lit) return n;
         
         if (n instanceof LocalDecl) {
@@ -96,9 +101,12 @@ public class ConstantPropagator extends ContextVisitor {
             if (d.flags().flags().isFinal()) {
                 Expr init = d.init();
                 if (init != null && init.isConstant()) {
-                    d.localDef().setConstantValue(constantValue(init));
-                    if (isConstant(init)) {
-                        return nf.Empty(d.position());
+                    ConstantValue cv = constantValue(init);
+                    if (propClosures || !(cv instanceof ClosureValue)) {
+                        d.localDef().setConstantValue(constantValue(init));
+                        if (isConstant(init)) {
+                            return nf.Empty(d.position());
+                        }
                     }
                 }
             }
@@ -109,7 +117,15 @@ public class ConstantPropagator extends ContextVisitor {
             if (l.localInstance().def().isConstant()) {
                 ConstantValue o = l.localInstance().def().constantValue();
                 if (null != o && !(o instanceof StringValue)) {
-                    return o.toLit(nf, xts, l.type(), n.position());      
+                    if (o instanceof ClosureValue) {
+                        if (propClosures) {
+                            return makeClosureLiteral((ClosureValue)o);
+                        } else {
+                            return n;
+                        }
+                    } else {
+                        return o.toLit(nf, xts, l.type(), n.position());  
+                    }
                 }
             }
         }
@@ -119,7 +135,15 @@ public class ConstantPropagator extends ContextVisitor {
             if (isConstant(e)) {
                 ConstantValue o = constantValue(e);
                 if (null != o) {
-                    return o.toLit(nf, xts, e.type(), e.position());
+                    if (o instanceof ClosureValue) {
+                        if (propClosures) {
+                            return makeClosureLiteral((ClosureValue)o);
+                        } else {
+                            return n;
+                        }
+                    } else {
+                        return o.toLit(nf, xts, e.type(), e.position());
+                    }
                 }
             }
         }
@@ -169,13 +193,21 @@ public class ConstantPropagator extends ContextVisitor {
 
         return n;
     }
+    
+    private Closure_c makeClosureLiteral(ClosureValue cv) {
+        Reinstantiator reinstantiator= new Reinstantiator(TypeParamSubst.IDENTITY);
+        ContextVisitor visitor= new NodeTransformingVisitor(job, ts, nf, reinstantiator).context(context());
+        Closure_c cls = (Closure_c)cv.getClosure().visit(visitor); // reinstantiate locals in the body
+        cls.visit(new ClosureCaptureVisitor(this.context(), cls.closureDef()));
+        return cls;
+    }
 
     public static ConstantValue constantValue(Expr e) {
         if (e.isConstant())
             return e.constantValue();
         
         if (e.type().isNull())
-            return null;
+            return ConstantValue.makeNull();
 
         if (e instanceof Field) {
         	Field f = (Field) e;
@@ -217,13 +249,13 @@ public class ConstantPropagator extends ContextVisitor {
 
         if (type.isNull())
             return true;
-        
-        if (type.isReference())
-            return false; // Non-null exprs with reference type are not constants for the purpose of constant propagation
-        
-        if (e.isConstant())
-            return true;
-        
+                
+        if (e.isConstant()) {
+            ConstantValue cv = e.constantValue();
+            if (!type.isReference()) return true;
+            return (cv instanceof ClosureValue);  // ClosureLiterals are the only non-null reference type that we allow ourselves to constant propagate.
+        }
+
         if (e instanceof Field) {
             Field f = (Field) e;
             if (f.target() instanceof Expr) {

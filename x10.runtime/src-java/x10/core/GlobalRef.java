@@ -356,7 +356,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 	    if (x10.rtt.Equality.equalsequals(x10.lang.Runtime.home(),ref.home)) {
 		return eval.$apply(ref.$apply$G(),$T);
 	    } else {
-                return x10.lang.Runtime.<$U>evalAt_1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (java.lang.Class<?>) null));
+                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (java.lang.Class<?>) null));
 	    }
 	}
         
@@ -365,7 +365,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements
 	    if (x10.rtt.Equality.equalsequals(x10.lang.Runtime.home(),ref.home)) {
 		return ref.$apply$G();
 	    } else {
-                return x10.lang.Runtime.<$T>evalAt_1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (java.lang.Class<?>) null));
+                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (java.lang.Class<?>) null));
 	    }
 	}
 

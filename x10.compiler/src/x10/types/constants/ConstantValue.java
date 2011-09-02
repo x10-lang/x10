@@ -17,6 +17,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.ast.Closure_c;
 
 /**
  * Simple class hierarchy to represent constant values.
@@ -32,7 +33,11 @@ public abstract class ConstantValue {
     public abstract Object toJavaObject();
     
     public static Object toJavaObject(ConstantValue v) {
-        return v == null ? v : v.toJavaObject();
+        if (v == null || v instanceof ClosureValue) {
+            return null;
+        } else {
+            return v.toJavaObject();
+        }
     }
 
     public static NullValue makeNull() {
@@ -93,6 +98,10 @@ public abstract class ConstantValue {
     
     public static StringValue makeString(String v) {
         return new StringValue(v);
+    }
+    
+    public static ClosureValue makeClosure(Closure_c cls) {
+        return new ClosureValue(cls);
     }
     
     public static ConstantValue make(Type type, double v) {

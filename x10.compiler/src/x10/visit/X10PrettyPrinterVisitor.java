@@ -334,7 +334,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write(n.operator().toString());
 
+        boolean closeParen = false;
+        if (Emitter.isPrimitive(n.type()) && Emitter.isBoxedType(n.right().type())) {
+            closeParen = er.printUnboxConversion(n.type());
+        }
         er.prettyPrint(n.right(), tr);
+        if (closeParen) w.write(")");
     }
 
     public void visit(X10CBackingArrayNewArray_c n) {
@@ -445,8 +450,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         final TypeNode superClassNode = n.superClass();
         if (superClassNode != null || flags.isStruct()) {
-            w.allowBreak(0);
-            w.write("extends ");
+            w.write(" extends ");
             if (flags.isStruct()) {
                 assert superClassNode == null : superClassNode;
                 w.write(X10_CORE_STRUCT);
@@ -478,22 +482,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
          * interfaces.add(tr.nodeFactory().CanonicalTypeNode(n.position(),
          * ts.Any())); }
          */
-        List<Type> alreadyPrintedTypes = new ArrayList<Type>();
         if (!interfaces.isEmpty()) {
-            w.allowBreak(2);
             if (flags.isInterface()) {
-                w.write("extends ");
+                w.write(" extends ");
             } else {
-                w.write("implements ");
+                w.write(" implements ");
             }
 
-            w.begin(0);
+            List<Type> alreadyPrintedTypes = new ArrayList<Type>();
             for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext();) {
                 TypeNode tn = i.next();
                 if (!isSelfDispatch || (isSelfDispatch && !er.alreadyPrinted(alreadyPrintedTypes, tn.type()))) {
                     if (alreadyPrintedTypes.size() != 0) {
-                        w.write(",");
-                        w.allowBreak(0);
+                        w.write(", ");
                     }
                     alreadyPrintedTypes.add(tn.type());
                     boolean isJavaNative = Emitter.isNativeRepedToJava(tn.type());
@@ -504,21 +505,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             if (!subtypeOfCustomSerializer(def)) {
                 if (alreadyPrintedTypes.size() != 0) {
-                    w.write(",");
-                    w.allowBreak(0);
+                    w.write(", ");
                 }
-                w.write(" x10.x10rt.X10JavaSerializable ");
+                w.write("x10.x10rt.X10JavaSerializable");
             }
 
-            w.end();
         } else if (!def.flags().isInterface() && !(def.asType().toString().equals(CUSTOM_SERIALIZATION))) {
-            w.write(" implements x10.x10rt.X10JavaSerializable ");
+            w.write(" implements x10.x10rt.X10JavaSerializable");
         } else {
         	// make all interfaces extend x10.core.Any
         	// N.B. We cannot represent it with Type node since x10.core.Any is @NativeRep'ed to java.lang.Object instead of to x10.core.Any
         	if (flags.isInterface() && !xts.isAny(def.asType())) {
-        		w.allowBreak(0);
-        		w.write("extends " + X10_CORE_ANY);
+        	    w.write(" extends " + X10_CORE_ANY);
         	}
         }
         w.unifiedBreak(0);
@@ -1365,7 +1363,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(", ");
                 w.write(param);
             }
-            w.write(");");
+            w.writeln(");");
         }
     }
 
@@ -3778,12 +3776,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(f.translateJava());
         er.printType(javaNode.type().type(), PRINT_TYPE_PARAMS);
         // tr.print(javaNode, javaNode.type(), w);
-        w.allowBreak(2, 2, " ", 1);
+        w.write(" ");
         tr.print(javaNode, javaNode.name(), w);
 
         if (javaNode.init() != null) {
-            w.write(" =");
-            w.allowBreak(2, " ");
+            w.write(" = ");
 
             // X10 unique
             er.coerce(javaNode, javaNode.init(), javaNode.type().type());

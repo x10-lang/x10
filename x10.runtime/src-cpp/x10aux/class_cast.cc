@@ -27,8 +27,13 @@ void x10aux::throwClassCastException(const char *msg_) {
 }
 
 void x10aux::throwClassCastException(const RuntimeType *from, const RuntimeType *to) {
-    (void) from; // must match java which does not have 'from' to put in the message
-    x10aux::ref<String> msg = String::Steal(x10aux::alloc_printf("%s", to->name()));
+    x10aux::ref<String> msg;
+    if (x10_native_debug_messages) {
+        msg = String::Steal(x10aux::alloc_printf("tried to cast an instance of %s to a %s ", from->name(), to->name()));
+    } else {
+        (void) from; // match Managed X10 message format, which does not have 'from' to put in the message
+        msg = String::Steal(x10aux::alloc_printf("%s", to->name()));
+    }
     throwException(x10::lang::ClassCastException::_make(msg));
 }
 

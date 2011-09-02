@@ -159,7 +159,8 @@ namespace x10aux {
     extern const bool trace_rxtx;
     extern const bool disable_dealloc;
     extern const bool x10__assertions_enabled;
-
+    extern const bool x10_native_debug_messages;
+    
     char *get_congruent_base();
     char *get_congruent_size();
     bool get_congruent_huge();

@@ -104,7 +104,6 @@ import x10cuda.ast.CUDAKernel;
 public class Inliner extends ContextVisitor {
     
     static final boolean DEBUG = false;
-//  static final boolean DEBUG = true;
     
     private static final int VERBOSITY = 0;
     
@@ -284,7 +283,6 @@ public class Inliner extends ContextVisitor {
             return null;
         }
         result = (Expr) result.visit(this);
-        result = (Expr) propagateConstants(result);
         return result;
     }
 
@@ -293,11 +291,6 @@ public class Inliner extends ContextVisitor {
             return (Closure) target;
         if (target instanceof ParExpr)
             return getClosure(((ParExpr) target).expr());
-        // TODO Inline Locals (and field instances?) that have literal closure values
-        // that is, recognize the value final Closure Variables as constants
-        if (target instanceof Variable && ((Variable) target).isConstant()) {
-            return (Closure) ((Variable) target).constantValue();
-        }
         return null;
     }
 
@@ -376,9 +369,7 @@ public class Inliner extends ContextVisitor {
             }
             recursionDepth[0]--;
         }
-        if (0 == inlineInstances.size()) { // don't propagate constants too early
-            result = (Expr) propagateConstants(result);
-        }
+
         // TODO: tell context that the place of result is the same as that of its surrounding context
         return result;
     }
@@ -443,7 +434,7 @@ public class Inliner extends ContextVisitor {
     private Node propagateConstants(Node n) {
         x10.ExtensionInfo x10Info = (x10.ExtensionInfo) job().extensionInfo();
         x10Info.stats.startTiming("ConstantPropagator.context", "ConstantPropagator.context");
-        Node retNode = n.visit(new ConstantPropagator(job, ts, nf).context(context()));
+        Node retNode = n.visit(new ConstantPropagator(job, ts, nf, true).context(context()));
         x10Info.stats.stopTiming();
         return retNode;
     }
@@ -491,7 +482,6 @@ public class Inliner extends ContextVisitor {
             TypeParamSubst typeMap = makeTypeMap(call.procedureInstance(), call.typeArguments());
             InliningTypeTransformer transformer =
                 new InliningTypeTransformer(typeMap, context().currentCode(), (X10CodeDef) code.codeDef(), call.position());
-       //   Reinstantiator transformer = new Reinstantiator(typeMap);
             ContextVisitor visitor = new NodeTransformingVisitor(job, ts, nf, transformer).context(context());
             CodeBlock visitedCode = (CodeBlock) code.visit(visitor);
             return visitedCode;
@@ -546,7 +536,6 @@ public class Inliner extends ContextVisitor {
         throw new InternalCompilerError(instance.position(), msg);
     }
 
-    // TODO: generate a closure call instead of a statement expression // is this still necessary?
     private Expr rewriteInlinedBody(Position pos, Type retType, List<Formal> formals, Block body, LocalDecl thisDecl, List<Expr> args) {
         List<Stmt> statements = new ArrayList<Stmt>();
 
@@ -561,7 +550,7 @@ public class Inliner extends ContextVisitor {
             X10LocalDef localDef = formal.localDef();
             Expr expr = syn.createUncheckedCast(arg.position(), arg, formal.type().type(), context());
             localDef.setType(Types.ref(expr.type()));
-            LocalDecl ld = syn.createLocalDecl(formal, expr);
+            LocalDecl ld = syn.createLocalDecl(formal, expr);           
             tieLocalDefToItself(ld.localDef());
             statements.add(ld);
         }
@@ -587,8 +576,10 @@ public class Inliner extends ContextVisitor {
             expr = syn.createUncheckedCast(expr.position(), expr, retType, context());
         }
         StmtExpr result = syn.createStmtExpr(pos, statements, expr);
-
-        return result;
+        
+        Expr result2 = (Expr)propagateConstants(result);
+        
+        return result2;
     }
 
     /**

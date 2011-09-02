@@ -46,6 +46,7 @@ import polyglot.types.Ref;
 import polyglot.types.ClassType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import x10.ast.Closure_c;
 import x10.ast.Here;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
@@ -67,6 +68,7 @@ import x10.constraint.XField;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
 import x10.types.checker.PlaceChecker;
+import x10.types.constants.ClosureValue;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
@@ -135,8 +137,12 @@ public class XTypeTranslator {
             return null;
         if (term instanceof Expr) {
             Expr e = (Expr) term;
-            if (e.isConstant())
-                return CTerms.makeLit(ConstantValue.toJavaObject(e.constantValue()), e.type());
+            if (e.isConstant()) {
+                ConstantValue cv = e.constantValue();
+                if (!(cv instanceof ClosureValue)) {
+                    return CTerms.makeLit(ConstantValue.toJavaObject(e.constantValue()), e.type());
+                }
+            }
         }
         if (term instanceof X10Cast) {
             X10Cast cast = ((X10Cast) term);

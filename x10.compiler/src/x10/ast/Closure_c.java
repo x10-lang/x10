@@ -558,16 +558,12 @@ public class Closure_c extends Expr_c implements Closure {
 		return Precedence.LITERAL;
 	}
 
-	public boolean constantValueSet() {
-		return false;
-	}
-
 	public boolean isConstant() {
-		return false;
+		return true;
 	}
 
 	public ConstantValue constantValue() {
-		return null;
+		return ConstantValue.makeClosure(this);
 	}
 
 	public String toString() {

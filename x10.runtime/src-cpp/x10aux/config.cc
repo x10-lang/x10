@@ -29,6 +29,8 @@ const bool x10aux::disable_dealloc = getBoolEnvVar("X10_DISABLE_DEALLOC");
 
 const bool x10aux::x10__assertions_enabled = !getBoolEnvVar("X10_DISABLE_ASSERTIONS");
 
+const bool x10aux::x10_native_debug_messages = getBoolEnvVar("X10_NATIVE_DEBUG_MESSAGES");
+
 bool x10aux::get_congruent_huge() {
     return getBoolEnvVar(ENV_CONGRUENT_HUGE);
 }

@@ -250,8 +250,7 @@ public class X10Binary_c extends Binary_c {
         }
 
         if (lv == null || rv == null) {
-            System.out.println("AJA "+this+" ::: "+lv+" ::: "+rv);
-            System.out.println(left+" "+left.getClass());
+            return null;
         }
 
         if (op == ADD && (lv instanceof StringValue || rv instanceof StringValue)) {

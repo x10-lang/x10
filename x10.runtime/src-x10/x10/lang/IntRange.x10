@@ -48,14 +48,18 @@ public struct IntRange(
     public operator this * (that:IntRange):Region(2){rect} {
         return Region.makeRectangular([min, that.min], [max, that.max]);
     }
-    
-    public operator this + (i:int) = new IntRange(min+i, max+i);
-    public operator this + (p:Point(1)) = new IntRange(min+p(0), max+p(0));
-    public operator (i:int) + this = new IntRange(min+i, max+i);
-    public operator (p:Point(1)) + this = new IntRange(min+p(0), max+p(0));
 
-    public operator this - (i:int) = new IntRange(min-i, max-i);
-    public operator this - (p:Point(1)) = new IntRange(min-p(0), max-p(0));
+    /**
+     * Return a new IntRange of the same size of this, but
+     * with min/max shifted by i.
+     */    
+    public def translate(i:int) = new IntRange(min+i, max+i);
+
+    /**
+     * Return a new IntRange of the same size of this, but
+     * with min/max shifted by p(0).
+     */    
+    public def translate(p:Point(1)) = new IntRange(min+p(0), max+p(0));
     
     public operator this && (that:Region(1)): Region(1) = (this as Region(1)) && that;
 

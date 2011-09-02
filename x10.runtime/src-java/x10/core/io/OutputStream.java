@@ -70,7 +70,7 @@ public class OutputStream extends Ref {
     }
     
     // XTENLANG-2680
-    public void write_0$1x10$lang$Byte$2(x10.array.Array buf) {
+    public void write__0$1x10$lang$Byte$2(x10.array.Array buf) {
         try {
             stream.write(buf.raw().getByteArray());
         } catch (java.io.IOException e) {
@@ -87,7 +87,7 @@ public class OutputStream extends Ref {
     }
     
     // XTENLANG-2680
-    public void write_0$1x10$lang$Byte$2(x10.array.Array buf, int off, int len) {
+    public void write__0$1x10$lang$Byte$2(x10.array.Array buf, int off, int len) {
         try {
             stream.write(buf.raw().getByteArray(), off, len);
         } catch (java.io.IOException e) {

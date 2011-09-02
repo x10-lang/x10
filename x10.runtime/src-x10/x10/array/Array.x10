@@ -13,7 +13,6 @@ package x10.array;
 
 import x10.compiler.CompilerFlags;
 import x10.compiler.SuppressTransientError;
-import x10.compiler.Header;
 import x10.compiler.Inline;
 import x10.compiler.Native;
 import x10.compiler.NoInline;
@@ -118,7 +117,7 @@ public final class Array[T] (
      * 
      * @return the IndexedMemoryChunk[T] that is the backing storage for the Array object.
      */
-    public @Header @Inline def raw() = raw;
+    public @Inline def raw() = raw;
     
 
     /**
@@ -407,7 +406,7 @@ public final class Array[T] (
      * @see #set(T, Int)
      */
     @Native("cuda", "(#this).raw[#i0]")
-    public @Header @Inline operator this(i0:int){rank==1}:T {
+    public @Inline operator this(i0:int){rank==1}:T {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient
             return raw(i0);
@@ -430,7 +429,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, Int, Int)
      */
-    public @Header @Inline operator this(i0:int, i1:int){rank==2}:T {
+    public @Inline operator this(i0:int, i1:int){rank==2}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -449,7 +448,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, Int, Int, Int)
      */
-    public @Header @Inline operator this(i0:int, i1:int, i2:int){rank==3}:T {
+    public @Inline operator this(i0:int, i1:int, i2:int){rank==3}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -469,7 +468,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, Int, Int, Int, Int)
      */
-    public @Header @Inline operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
+    public @Inline operator this(i0:int, i1:int, i2:int, i3:int){rank==4}:T {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -485,7 +484,7 @@ public final class Array[T] (
      * @see #operator(Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline operator this(pt:Point{self.rank==this.rank}):T {
+    public @Inline operator this(pt:Point{self.rank==this.rank}):T {
         if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
@@ -506,7 +505,7 @@ public final class Array[T] (
      * @see #set(T, Point)
      */
     @Native("cuda", "(#this).raw[#i0] = (#v)")
-    public @Header @Inline operator this(i0:int)=(v:T){rank==1}:T{self==v} {
+    public @Inline operator this(i0:int)=(v:T){rank==1}:T{self==v} {
         if (rail) {
             // Bounds checking by backing IndexedMemoryChunk is sufficient
             raw(i0) = v;
@@ -532,7 +531,7 @@ public final class Array[T] (
      * @see #operator(Int, Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline operator this(i0:int,i1:int)=(v:T){rank==2}:T{self==v} {
+    public @Inline operator this(i0:int,i1:int)=(v:T){rank==2}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
@@ -554,7 +553,7 @@ public final class Array[T] (
      * @see #operator(Int, Int, Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline operator this(i0:int, i1:int, i2:int)=(v:T){rank==3}:T{self==v} {
+    public @Inline operator this(i0:int, i1:int, i2:int)=(v:T){rank==3}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
@@ -577,7 +576,7 @@ public final class Array[T] (
      * @see #operator(Int, Int, Int, Int)
      * @see #set(T, Point)
      */
-    public @Header @Inline operator this( i0:int, i1:int, i2:int, i3:int)=(v:T){rank==4}:T{self==v} {
+    public @Inline operator this( i0:int, i1:int, i2:int, i3:int)=(v:T){rank==4}:T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
@@ -596,7 +595,7 @@ public final class Array[T] (
      * @see #operator(Point)
      * @see #set(T, Int)
      */
-    public @Header @Inline operator this(p:Point{self.rank==this.rank})=(v:T):T{self==v} {
+    public @Inline operator this(p:Point{self.rank==this.rank})=(v:T):T{self==v} {
         if (CompilerFlags.checkBounds() && !region.contains(p)) {
             raiseBoundsError(p);
         }
@@ -611,11 +610,11 @@ public final class Array[T] (
      * @param v the value with which to fill the array
      */
     public def fill(v:T) {
-        if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
-            // is included in the points of region, therefore we can simply fill
+        if (rect) {
+            // In a rect array, every element in the backing raw IndexedMemoryChunk[T]
+            // is included in the array, therefore we can simply fill
             // the IndexedMemoryChunk itself.
-            for (var i:int =0; i<raw.length(); i++) {
+            for (i in 0..(raw.length()-1)) {
                 raw(i) = v;
             }   
         } else {
@@ -647,7 +646,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[U](op:(T)=>U):Array[U](region) {
+    public @Inline def map[U](op:(T)=>U):Array[U](region) {
         return new Array[U](region, (p:Point(this.rank))=>op(this(p)));
     }
     
@@ -665,13 +664,13 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[U](dst:Array[U](this.rank), op:(T)=>U):Array[U](this.rank){self==dst} {
+    public @Inline def map[U](dst:Array[U](this.rank), op:(T)=>U):Array[U](this.rank){self==dst} {
         // TODO: parallelize these loops.
-        if (region.rect) {
+        if (rect) {
             // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
-            // is included in the points of region, therfore we can optimize
+            // is included in the array, therefore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
-            for (var i:int =0; i<raw.length(); i++) {
+            for (i in 0..(raw.length()-1)) {
                 dst.raw(i) = op(raw(i));
             }   
         } else {
@@ -697,7 +696,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[U](dst:Array[U](this.rank), filter:Region(this.rank), op:(T)=>U):Array[U](this.rank){self==dst} {
+    public @Inline def map[U](dst:Array[U](this.rank), filter:Region(this.rank), op:(T)=>U):Array[U](this.rank){self==dst} {
         val fregion = region && filter;
         for (p in fregion) {
             dst(p) = op(this(p));
@@ -718,7 +717,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[S,U](src:Array[U](this.rank), op:(T,U)=>S):Array[S](this.region) {
+    public @Inline def map[S,U](src:Array[U](this.rank), op:(T,U)=>S):Array[S](this.region) {
         return new Array[S](region, (p:Point(this.rank))=>op(this(p), src(p)));
     }
     
@@ -736,13 +735,13 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[S,U](dst:Array[S](this.rank), src:Array[U](this.rank), op:(T,U)=>S):Array[S](this.rank){self==dst} {
+    public @Inline def map[S,U](dst:Array[S](this.rank), src:Array[U](this.rank), op:(T,U)=>S):Array[S](this.rank){self==dst} {
         // TODO: parallelize these loops.
-        if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk
-            // is included in the points of region, therfore we can optimize
+        if (rect) {
+            // In a rect array, every element in the backing raw IndexedMemoryChunk
+            // is included in the array, therefore we can optimize
             // the traversal and simply map on the IndexedMemoryChunk itself.
-            for (var i:int =0; i<raw.length(); i++) {
+            for (i in 0..(raw.length()-1)) {
                 dst.raw(i) = op(raw(i), src.raw(i));
             }   
         } else {
@@ -769,7 +768,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      * @see #scan((U,T)=>U,U)
      */
-    public def map[S,U](dst:Array[S](this.rank), src:Array[U](this.rank), filter:Region(rank), op:(T,U)=>S):Array[S](rank){self==dst} {
+    public @Inline def map[S,U](dst:Array[S](this.rank), src:Array[U](this.rank), filter:Region(rank), op:(T,U)=>S):Array[S](rank){self==dst} {
         val fregion = region && filter;
         for (p in fregion) {
             dst(p) = op(this(p), src(p));
@@ -790,15 +789,15 @@ public final class Array[T] (
      * @see #map((T)=>S)
      * @see #scan((U,T)=>U,U)
      */
-    public def reduce[U](op:(U,T)=>U, unit:U):U {
+    public @Inline def reduce[U](op:(U,T)=>U, unit:U):U {
         // TODO: once collecting finish is available,
         //       use it to efficiently parallelize these loops.
         var accum:U = unit;
-        if (region.rect) {
-            // In a rect region, every element in the backing raw IndexedMemoryChunk[T]
-            // is included in the points of region, therfore we can optimize
+        if (rect) {
+            // In a rect array, every element in the backing raw IndexedMemoryChunk[T]
+            // is included in the array, therefore we can optimize
             // the traversal and simply reduce on the IndexedMemoryChunk itself.
-            for (var i:int=0; i<raw.length(); i++) {
+            for (i in 0..(raw.length()-1)) {
                 accum = op(accum, raw(i));
             }          
         } else {
@@ -823,7 +822,7 @@ public final class Array[T] (
      * @see #map((T)=>U)
      * @see #reduce((U,T)=>U,U)
      */
-    public def scan[U](op:(U,T)=>U, unit:U) {U haszero}
+    public @Inline def scan[U](op:(U,T)=>U, unit:U) {U haszero}
     = scan(new Array[U](region), op, unit); // TODO: private constructor to avoid useless zeroing
     
     
@@ -841,7 +840,7 @@ public final class Array[T] (
      * @see #map((T)=>U)
      * @see #reduce((U,T)=>U,U)
      */
-    public def scan[U](dst:Array[U](region), op:(U,T)=>U, unit:U): Array[U](region) {
+    public @Inline def scan[U](dst:Array[U](region), op:(U,T)=>U, unit:U): Array[U](region) {
         var accum:U = unit;
         for (p in region) {
             accum = op(accum, this(p));
