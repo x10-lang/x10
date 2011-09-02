@@ -236,9 +236,20 @@ public abstract class FieldDecl_c extends Term_c implements FieldDecl {
     public Node checkConstants(ContextVisitor tc) {
         if (init == null || ! init.isConstant() || ! fi.flags().isFinal()) {
             fi.setNotConstant();
-        }
-        else {
-            fi.setConstantValue(init.constantValue());
+        } else {
+            x10.types.constants.ConstantValue cv = init.constantValue();
+            if (cv instanceof x10.types.constants.ClosureValue) {
+                // Hacky workaround.  
+                // The issue is that the code is structured to cache the ConstantValue
+                // (which contains a Closure_c AST) in the FieldInstance.  This AST
+                // is not properly visited by various Jobs, and therefore when we pull
+                // the Closure_c out of the ConstantValue and attempt to inline it 
+                // later in compilation, we end up with a closure body that isn't legal
+                // because various transformations haven't been performaed on it.
+                fi.setNotConstant();
+            } else {
+                fi.setConstantValue(init.constantValue());
+            }
         }
 
         return this;
