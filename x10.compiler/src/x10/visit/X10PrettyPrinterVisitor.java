@@ -3847,7 +3847,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         ContainerType ct = c.constructorInstance().container();
         if (supportConstructorSplitting && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
             TypeSystem ts = tr.typeSystem();
-            boolean isObject = Types.baseType(ct).typeEquals(ts.Object(), tr.context());
+            boolean isObject = isObject(ct, tr.context());
 //            if (isObject) return;  // TODO stop calling constructor of x10.lang.Object for optimization (it should be safe)
             Expr target = c.target();
             if (target == null || target instanceof Special) {
