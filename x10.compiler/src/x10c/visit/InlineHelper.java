@@ -126,7 +126,7 @@ public class InlineHelper extends ContextVisitor {
                                                     formalTypes.add(Types.ref(ft));
                                                 }
                                                 X10MethodDef nmd = xts.methodDef(smi.position(), Types.ref(cd.asType()),
-                                                        Flags.PUBLIC.Final(), Types.ref(smi.returnType()),
+                                                        Flags.PUBLIC, Types.ref(smi.returnType()),
                                                         makeSuperBridgeName(ct.def(), smi.name()), md.typeParameters(),
                                                         formalTypes, cd.thisDef(), Types.toLocalDefList(smi.formalNames()), Types.ref(smi.guard()),
                                                         Types.ref(smi.typeGuard()), smi.offerType(), null);
