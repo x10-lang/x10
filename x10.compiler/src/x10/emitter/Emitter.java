@@ -1493,6 +1493,8 @@ public class Emitter {
     }
 
     private static void appendParameterType(ClassType ct, StringBuilder sb, ParameterType t) {
+        // N.B. As of September 2011, type parameters are alpha-renamed so that each type parameter has a unique name at every location.
+        // Therefore the full name of the type which the type parameter belongs to is not necessarily needed.
         sb.append(mangleAndFlattenQName(ct.fullName()));
         sb.append("$$");
         sb.append(mangleIdentifier(t.name()));
