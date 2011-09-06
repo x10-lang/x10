@@ -380,7 +380,7 @@ public class X10JavaDeserializer {
         }
         try {
 
-        	if (Class.forName("org.apache.hadoop.io.Writable").isAssignableFrom(clazz)) {
+        	if (Runtime.implementsHadoopWritable(clazz)) {
         		isHadoopSerializable = true;
         	}
         	if(isCustomSerializable && isHadoopSerializable) {
@@ -448,9 +448,7 @@ public class X10JavaDeserializer {
             throw new RuntimeException(e);
         } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
-            throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
 		} catch (InstantiationException e) {
             throw new RuntimeException(e);

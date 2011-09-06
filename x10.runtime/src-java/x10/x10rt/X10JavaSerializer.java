@@ -486,10 +486,12 @@ public class X10JavaSerializer {
     				break;
     			}
     		}
+    
     		
-			if (Class.forName("org.apache.hadoop.io.Writable").isAssignableFrom(bodyClass)) {
+			if (Runtime.implementsHadoopWritable(bodyClass)) {
 				isHadoopSerializable = true;
 			}
+			
 			if(isCustomSerializable && isHadoopSerializable) {
     			throw new RuntimeException("serializer: " + bodyClass + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
 			}
@@ -546,9 +548,7 @@ public class X10JavaSerializer {
     		throw new RuntimeException(e);
     	} catch (NoSuchFieldException e) {
     		throw new RuntimeException(e);
-    	} catch (ClassNotFoundException e) {
-    		throw new RuntimeException(e);
-		}
+    	}
     }
 
     private <T> void processFields(T body, Set<Field> fields) throws IllegalAccessException, IOException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {

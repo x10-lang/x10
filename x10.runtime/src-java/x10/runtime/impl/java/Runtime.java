@@ -388,6 +388,23 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return ba;
     }
 
+
+	private static Class<? extends Object> hadoopWritableClass = getHadoopClass();
+	private static Class<? extends Object> getHadoopClass() {
+		try {
+			return Class.forName("org.apache.hadoop.io.Writable");
+		} catch (ClassNotFoundException e) {
+			return null;
+		}    			
+	}
+	
+	public static boolean implementsHadoopWritable(Class<? extends Object> clazz) {
+		if(hadoopWritableClass == null) {
+			return false;
+		}
+		return hadoopWritableClass.isAssignableFrom(clazz);
+	}
+	
     private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState) throws IOException {
         byte[] ba;
         if (CUSTOM_JAVA_SERIALIZATION) {
