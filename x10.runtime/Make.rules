@@ -54,6 +54,7 @@ endif
 
 ifdef DEBUG
   CXXFLAGS += -g
+  X10CPPFLAGS += -DEBUG
 endif
 
 ifndef JAVA_HOME
