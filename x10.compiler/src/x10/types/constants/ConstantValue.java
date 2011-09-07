@@ -157,6 +157,10 @@ public abstract class ConstantValue {
             return (ConstantValue)v;
         }
         
+        if (null == v && type.isReference()) {
+            return ConstantValue.makeNull();
+        }
+        
         if (type.isBoolean()) return ConstantValue.makeBoolean(((Boolean)v).booleanValue());
         if (type.isDouble()) return ConstantValue.makeDouble(((Number)v).doubleValue());
         if (type.isFloat()) return ConstantValue.makeFloat(((Number)v).floatValue());
