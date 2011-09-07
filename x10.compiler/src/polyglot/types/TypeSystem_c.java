@@ -2936,6 +2936,22 @@ public class TypeSystem_c implements TypeSystem
         return me.isClass() && me.toClass().def() == JavaArray().def();
     }
     
+    public boolean isPrimitiveJavaArray(Type me) {
+        if (!isJavaArray(me)) {
+            return false;
+        }
+        String arrayType = me.toClass().typeArguments().get(0).toString();
+        return "x10.lang.Boolean".equals(arrayType) ||
+                "x10.lang.String".equals(arrayType) ||
+                "x10.lang.Int".equals(arrayType) ||
+                "x10.lang.Byte".equals(arrayType) ||
+                "x10.lang.Char".equals(arrayType) ||
+                "x10.lang.Short".equals(arrayType) ||
+                "x10.lang.Double".equals(arrayType) ||
+                "x10.lang.Float".equals(arrayType) ||
+                "x10.lang.Long".equals(arrayType);
+    }
+
     public Type arrayOf(Ref<? extends Type> type, int dims) {
 	return arrayOf(null, type, dims);
     }

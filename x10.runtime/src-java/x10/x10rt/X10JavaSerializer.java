@@ -361,7 +361,6 @@ public class X10JavaSerializer {
     }
 
     public void write(String[] v) throws IOException {
-        write(DeserializationDispatcher.STRING_ID);
         out.writeInt(v.length);
         for (String str : v) {
             write(str);
