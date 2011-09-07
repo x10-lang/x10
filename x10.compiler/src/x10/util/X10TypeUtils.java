@@ -1,5 +1,6 @@
 package x10.util;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
@@ -17,6 +18,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.types.ClassDef;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
@@ -30,6 +32,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10MethodDecl;
@@ -37,6 +40,8 @@ import x10.types.MethodInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldDef;
+import x10.types.X10LocalDef;
+import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType_c;
 
@@ -50,6 +55,27 @@ public class X10TypeUtils {
 			throw new RuntimeException(e);
 		}
     }
+	
+	public static X10LocalDef  findLocalDef(ContextVisitor tc, Name id) {
+		try {
+			X10LocalInstance local = tc.context().findLocal(id);
+			return local.x10Def();
+		} catch (SemanticException e) {
+			return null;
+		}
+	}
+	
+	public static X10FieldDef findFieldDef(ContextVisitor tc, Name id) {
+		ClassDef type = tc.context().currentClassDef();
+        ArrayList<FieldDef> l = new ArrayList<FieldDef>(type.fields());
+        for (int i = 0; i < l.size(); i++) {
+            FieldDef fi = (FieldDef) l.get(i);
+            if(fi.name().equals(id)) {
+            	return (X10FieldDef) fi;
+            }
+        }
+        return null;
+	}
     
     public static FieldDecl createFieldDecl(NodeFactory nf, TypeSystem ts, Position pos,
     		Flags flags, Type fieldType, Name fieldName,
