@@ -103,6 +103,14 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	    n = (X10AmbTypeNode_c) n.del(delFactory().delAmbTypeNode());
 	    return n;
 	}
+	
+	public AmbTypeNode AmbTypeNodeLinked(Position pos, Prefix p, Id name) {
+		//create a new type here
+		X10AmbTypeNode_c n = new X10AmbTypeNodeLinked_c(pos, p, name);
+	    n = (X10AmbTypeNode_c) n.ext(extFactory().extAmbTypeNode());
+	    n = (X10AmbTypeNode_c) n.del(delFactory().delAmbTypeNode());
+	    return n;
+	}
 
 	public AmbReceiver AmbReceiver(Position pos, Prefix prefix, Id name) {
 	    AmbReceiver n = new X10AmbReceiver_c(pos, prefix, name);
@@ -269,6 +277,17 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		a = (Atomic) a.del(delFactory().delExpr());
 		return a;
 	}
+	
+	//for data-centric synchronization, need to set identifiers here
+    public Atomic Atomic(Position pos, Expr place, List<Id> vars, Stmt body) {
+    	Atomic a = new Atomic_c(pos, place, asBlock(body));
+		a = (Atomic) a.ext(extFactory().extExpr());
+		a = (Atomic) a.del(delFactory().delExpr());
+		//set the var list
+		a = a.identifierList(vars);
+		return a;
+    }
+
 	
 	public AtExpr AtExpr(Position pos, Expr place, Block body) {
 		AtExpr f = new AtExpr_c(this, pos, place, body);
