@@ -642,7 +642,7 @@ public class LineNumberMap extends StringTable {
 	
 	public void addClassMemberVariable(String name, String type, String containingClass, boolean isStruct, boolean isConstructorArg, boolean isSuper)
 	{
-		if (containingClass.indexOf('{') != -1) // skip these
+		if (containingClass.indexOf('{') != -1 || containingClass.indexOf("[") != -1) // skip these - the compiler didn't flag them properly
 			return;
 
 		if (memberVariables == null)
@@ -1278,7 +1278,7 @@ public class LineNumberMap extends StringTable {
 				            	}
 				            	index++;
 				            }
-				            if (index >= memberVariables.size())
+				            if (index >= memberVariables.size() && v._x10typeIndex > 0)
 				            	v._x10typeIndex = offsets[v._x10typeIndex] * -1;
 			        	}
 			        	if (!skip)

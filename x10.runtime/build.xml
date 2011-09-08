@@ -574,6 +574,8 @@
                    dir="${bdwgc.dir}/src" strip="0" />
             <patch patchfile="${basedir}/src-cpp/bdwgc-patches/bluegeneStackHeuristic.patch.txt"
                    dir="${bdwgc.dir}/src" strip="0" />
+            <patch patchfile="${basedir}/src-cpp/bdwgc-patches/unsigned_char.patch.txt"
+                   dir="${bdwgc.dir}/src" strip="0" />
         </sequential>
     </target>
 
