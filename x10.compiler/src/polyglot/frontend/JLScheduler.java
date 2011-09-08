@@ -218,7 +218,7 @@ public class JLScheduler extends Scheduler {
     @Override
     public Goal LookupGlobalTypeDefAndSetFlags(LazyRef<X10ClassDef> sym,
 	    QName className, Flags flags) {
-        return new LookupGlobalTypeDefAndSetFlags(sym, className, flags).intern(this);
+        return new LookupGlobalTypeDefAndSetFlags(extInfo.typeSystem(), sym, className, flags).intern(this);
     }
     
     public Goal EnsureNoErrors(Job job) {
@@ -252,11 +252,13 @@ public class JLScheduler extends Scheduler {
     protected class LookupGlobalTypeDefAndSetFlags extends TypeObjectGoal_c<X10ClassDef> {
         private static final long serialVersionUID = -1038006362196297872L;
 
+        protected TypeSystem ts;
         protected QName className;
         protected Flags flags;
 
-        private LookupGlobalTypeDefAndSetFlags(Ref<X10ClassDef> v, QName className, Flags flags) {
+        private LookupGlobalTypeDefAndSetFlags(TypeSystem ts, Ref<X10ClassDef> v, QName className, Flags flags) {
             super(v);
+            this.ts = ts;
             this.className = className;
             this.flags = flags;
         }
@@ -271,7 +273,6 @@ public class JLScheduler extends Scheduler {
         public boolean runTask() {
         	LazyRef<X10ClassDef> ref = (LazyRef<X10ClassDef>) typeRef();
         	try {
-        		TypeSystem ts = ref.get().typeSystem();
         		List<Type> tl = ts.systemResolver().find(QName.make(className));
         		for (Type n : tl) {
         		    if (n instanceof ClassType) {

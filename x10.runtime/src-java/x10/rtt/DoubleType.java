@@ -51,15 +51,30 @@ public class DoubleType extends RuntimeType<x10.core.Double> {
     }
 
     @Override
-    public Object makeArray(int length) {
+    public double[] makeArray(int length) {
         return new double[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public double[][] makeArray(int dim0, int dim1) {
+        return new double[dim0][dim1];
+	}
+
+	@Override
+	public double[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new double[dim0][dim1][dim2];
+	}
+
+	@Override
+	public double[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new double[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public double[] makeArray(Object... elem) {
         double[] arr = new double[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).doubleValue();
+            arr[i] = x10.core.Double.$unbox(elem[i]);
         }
         return arr;
     }

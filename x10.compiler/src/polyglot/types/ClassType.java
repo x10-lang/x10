@@ -20,6 +20,7 @@ public interface ClassType extends Importable, ObjectType, MemberInstance<X10Cla
 {
     ClassType flags(Flags flags);
     ClassType container(ContainerType container);
+    ClassType name(Name name);
     
     /**
      * A resolver to access member classes of the class.

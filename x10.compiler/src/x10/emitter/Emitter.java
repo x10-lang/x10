@@ -13,14 +13,11 @@ package x10.emitter;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.ListIterator;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
@@ -47,33 +44,27 @@ import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
 import polyglot.ast.Unary;
-import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.Def;
 import polyglot.types.Flags;
-import polyglot.types.MemberInstance;
 import polyglot.types.MethodDef;
-
 import polyglot.types.Name;
 import polyglot.types.NoClassException;
 import polyglot.types.NullType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil;
-import x10.util.CollectionFactory;
-import x10.util.HierarchyUtils;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
-import x10.Configuration;
 import x10.X10CompilerOptions;
 import x10.ast.ClosureCall;
 import x10.ast.Closure_c;
@@ -92,29 +83,26 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
-import x10.ast.X10Return_c;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MacroType;
+import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
-import x10.types.constants.StringValue;
-
 import x10.types.X10MethodDef;
-import x10.types.MethodInstance;
 import x10.types.X10ParsedClassType_c;
-import x10.types.checker.Converter;
 import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
+import x10.util.CollectionFactory;
+import x10.util.HierarchyUtils;
 import x10.visit.ChangePositionVisitor;
-import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
-import x10.visit.X10Translator;
 import x10c.types.BackingArrayType;
 import x10c.visit.ClosureRemover;
 import x10c.visit.StaticInitializer;
@@ -570,7 +558,7 @@ public class Emitter {
 	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
 	static {
 		boxedPrimitives.put("x10.lang.Boolean", "x10.core.Boolean");
-                boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
+		boxedPrimitives.put("x10.lang.Char", "x10.core.Char");
 		boxedPrimitives.put("x10.lang.Byte", "x10.core.Byte");
 		boxedPrimitives.put("x10.lang.Short", "x10.core.Short");
 		boxedPrimitives.put("x10.lang.Int", "x10.core.Int");
@@ -643,7 +631,7 @@ public class Emitter {
             return false;
         }
 
-	private String getNativeClassJavaRepParam(X10ClassDef def, int i) {
+	private static String getNativeClassJavaRepParam(X10ClassDef def, int i) {
         List<Type> as = def.annotationsMatching(def.typeSystem().NativeClass());
         for (Type at : as) {
             String lang = getPropertyInit(at, 0);
@@ -654,7 +642,7 @@ public class Emitter {
         return null;
     }
 	
-	public boolean isNativeClassToJava(Type ct) {
+	public static boolean isNativeClassToJava(Type ct) {
         Type bt = Types.baseType(ct);
         if (bt instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) bt).x10Def();
@@ -666,6 +654,20 @@ public class Emitter {
         return false;
 	}
 	
+	public static boolean isJavaType(Type ct) {
+        Type bt = Types.baseType(ct);
+        if (bt instanceof X10ClassType) {
+        	X10ClassType xct = (X10ClassType) bt;
+        	if (xct.isJavaType()) return true;
+        	Type superClass = xct.superClass();
+        	if (superClass != null && isJavaType(superClass)) return true;
+        	for (Type intf : xct.interfaces()) {
+        		if (isJavaType(intf)) return true;
+        	}
+        }
+        return false;
+	}
+
 	private static String getPropertyInit(Type at, int index) {
 		at = Types.baseType(at);
 		if (at instanceof X10ClassType) {
@@ -727,6 +729,9 @@ public class Emitter {
                     } else {
                         name = null;
                     }
+                    component = new TypeExpander(this, at, flags);
+                    components.put(String.valueOf(i++), component);
+                    if (name != null) { components.put(name, component); }
 					component = new TypeExpander(this, at, flags | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
 					components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
@@ -1017,6 +1022,24 @@ public class Emitter {
       this.dumpRegex("Native", components, tr, pat);
 	}
 
+	// def is X10MethodDef or X10ConstructorDef
+	public static String printThrowsClause(X10Def def) {
+	    Type throwsType = def.typeSystem().Throws();
+	    List<Type> _throwss = def.annotationsMatching(throwsType);	    
+    	StringBuilder sb = new StringBuilder();
+		boolean isFirst = true;
+		for (Type _throws : _throwss) {
+			if (isFirst) {
+				sb.append(" throws ");
+				isFirst = false;
+			} else {
+				sb.append(", ");				
+			}
+			sb.append(getPropertyInit(_throws, 0));
+		}
+		return sb.toString();
+    }
+	
 	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 
 		Flags flags = n.flags().flags();
@@ -1161,6 +1184,9 @@ public class Emitter {
 			}
 		}
 */
+
+		w.write(printThrowsClause(n.methodDef()));
+
 		w.end();
 
 	    // XTENLANG-2680
@@ -1187,7 +1213,7 @@ public class Emitter {
         return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type, tr.context());
     }
 
-    public final boolean canMangleMethodName(MethodDef def) {
+    public static final boolean canMangleMethodName(MethodDef def) {
         ContainerType containerType = def.container().get();
         String methodName = def.name().toString();
         
@@ -1216,6 +1242,7 @@ public class Emitter {
             if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return false;/*Any=j.l.Object*/
             if (methodName.equals("compareTo") && numFormals == 1) return false;/*Comparable=j.l.Comparable*/
             // TODO want to check with the fact that x.l.Comparable is @NativeRep'ed to j.l.Comparable
+	    if (isJavaType(containerType)) return false;/*CharSequence etc.*/
         }
         
         return true;
@@ -1792,6 +1819,9 @@ public class Emitter {
     }
 
     private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean boxReturnValue) {
+    	// bridge method should not be needed for unmangled method
+    	if (!canMangleMethodName(def)) return;
+    	
 	    w.write("// bridge for " + def);
 	    w.newline();
 
@@ -2700,8 +2730,11 @@ public class Emitter {
 	            //cast eagerly
 	            if (isBoxedType(actual) && !isBoxedType(expectedBase))
     	            expander = expander.unboxTo(expectedBase);
-	            else 
-    	            expander = expander.castTo(expectedBase, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            else {
+	            	// java primitive arrays do not use boxed types
+	            	final boolean isJavaArray = tr.typeSystem().isJavaArray(expectedBase);
+    	            expander = expander.castTo(expectedBase, isJavaArray ? 0 : X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            }
 	            expander.expand(tr);
 	        }
 	    }
@@ -2964,6 +2997,12 @@ public class Emitter {
         type = Types.baseType(type);
         if (type instanceof X10ClassType) {
             X10ClassType x10Type = (X10ClassType) type;
+            if (x10Type.isJavaType()) {
+            	w.write("x10.rtt.Types.getRTT(");
+            	printType(x10Type, 0);
+            	w.write(".class)");
+                return;
+            }
             X10ClassDef cd = x10Type.x10Def();
             String pat = getJavaRTTRep(cd);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep)
             if (pat != null) {
@@ -3382,22 +3421,34 @@ public class Emitter {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
-                w.newline();
+                if (superClassNode.type().toClass().isJavaType()) {
+                    w.write("$serializer.serializeClassUsingReflection(this, ");
+                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.writeln(".class);");
+                } else {
+                    w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
+                    w.newline();
+                }
             }
         }
     }
 
     // Emits the code to deserialize the super class
     public void deserializeSuperClass(TypeNode superClassNode) {
-        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether we need to deserialize the super class
         if (superClassNode != null && superClassNode.type().isClass()) {
             if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
                     superClassNode.type().toString().equals("x10.lang.Object") ||
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
-                printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+                // If the super class is a pure java class we need to deserialize it using reflection
+                if (superClassNode.type().toClass().isJavaType()) {
+                    w.write("$deserializer.deserializeClassUsingReflection(");
+                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.writeln(".class, $_obj, 0);");
+                } else {
+                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+                }
             }
         }
     }
@@ -3757,23 +3808,31 @@ public class Emitter {
                 throwsClause = new Join(er, "", "throws ", new Join(er, ", ", l));
             }*/
 
-            // SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass 
+    		String throwsClause = printThrowsClause(n.methodDef());
+
+    		// SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass 
             String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
                 "private static final long serialVersionUID = 1L;\n" +
-                "public static void main(java.lang.String[] args) {\n" +
+                "public static void main(java.lang.String[] args)" +
+                throwsClause +
+                " {\n" +
                     "// start native runtime\n" +
                     "new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().start(args);\n" +
                 "}\n" +
                 "\n" +
                 "// called by native runtime inside main x10 thread\n" +
-                "public void runtimeCallback(final x10.array.Array<java.lang.String> args) {\n" +
+                "public void runtimeCallback(final x10.array.Array<java.lang.String> args)" +
+                throwsClause +
+                " {\n" +
                     "// call the original app-main method\n" +
                     "#mainclass.main(args);\n" +
                 "}\n" +
             "}\n" +
             "\n" +
             "// the original app-main method\n" +
-            "public static void main(#args) #body";
+            "public static void main(#args)" +
+            throwsClause +
+            " #body";
             Map<String,Object> components = new HashMap<String,Object>();
             Object component;
             int i = 0;

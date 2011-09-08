@@ -70,7 +70,8 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
     }
 
     public static long $unbox(Object obj) {
-        return ((x10.core.ULong)obj).$value;
+    	if (obj instanceof ULong) return ((ULong)obj).$value;
+    	else return ((java.lang.Long)obj).longValue();
     }
     
     public static long $unbox(long value) {

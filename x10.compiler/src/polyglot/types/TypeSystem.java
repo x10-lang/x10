@@ -57,7 +57,7 @@ import x10.types.constraints.TypeConstraint;
  */
 public interface TypeSystem {
     public static final boolean SERIALIZE_MEMBERS_WITH_CONTAINER = false;
-    public static final String CONSTRUCTOR_NAME="this";
+    public static final String CONSTRUCTOR_NAME = "this";
 
     /**
      * Initialize the type system with the compiler.  This method must be
@@ -946,6 +946,7 @@ public interface TypeSystem {
     X10ClassType Uninitialized();
     X10ClassType SuppressTransientError();
     X10ClassType Embed();
+    X10ClassType Throws();
 
     //Type Value();
 
@@ -1264,4 +1265,14 @@ public interface TypeSystem {
     Boolean structHaszero(X10ClassDef z);
     Map<X10ClassDef_c, Boolean> structHaszero();
     X10ClassType AtomicBoolean();
+
+    /**
+     * Constructs a new ClassFileLazyClassInitializer for the given class file.
+     */
+    ClassFileLazyClassInitializer classFileLazyClassInitializer(ClassFile clazz);
+
+    X10ClassType JavaInterop();
+    X10ClassType JavaArray();
+    boolean isJavaArray(Type me);
+    boolean isPrimitiveJavaArray(Type type);
 }

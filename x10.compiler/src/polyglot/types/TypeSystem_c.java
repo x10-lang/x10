@@ -14,6 +14,8 @@ import polyglot.ast.Binary;
 import polyglot.frontend.*;
 import polyglot.main.Report;
 import polyglot.main.Reporter;
+import polyglot.types.reflect.ClassFile;
+import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
@@ -225,6 +227,10 @@ public class TypeSystem_c implements TypeSystem
 
     public TopLevelResolver loadedResolver() {
 	return loadedResolver;
+    }
+
+    public ClassFileLazyClassInitializer classFileLazyClassInitializer(ClassFile clazz) {
+        return new ClassFileLazyClassInitializer(clazz, this);
     }
 
     public ImportTable importTable(String sourceName, Ref<? extends Package> pkg) {
@@ -480,6 +486,9 @@ public class TypeSystem_c implements TypeSystem
      * from or equals ancestor.
      **/
     public boolean descendsFrom(ClassDef child, ClassDef ancestor) {
+        if (child == ancestor)
+            return true;
+
         ClassDef a = classDefOf(Any());
 
         if (ancestor == a)
@@ -488,16 +497,14 @@ public class TypeSystem_c implements TypeSystem
         if (child == a)
             return false;
 
-        if (child == ancestor)
-            return true;
-
-        ClassDef o = classDefOf(Object());
-
-        if (ancestor == o)
-            return true;
-
-        if (child == o)
-            return false;
+        // XTENLANG-2118: this short-circuit is no longer valid for classes that don't extend x10.lang.Object
+        //ClassDef o = classDefOf(Object());
+        //
+        //if (ancestor == o)
+        //    return true;
+        //
+        //if (child == o)
+        //    return false;
 
         Type sup = Types.get(child.superType());
 
@@ -2528,6 +2535,13 @@ public class TypeSystem_c implements TypeSystem
         return embedType_;
     }
 
+    protected X10ClassType throwsType_;
+    public X10ClassType Throws() {
+        if (throwsType_ == null)
+        	throwsType_ = load("x10.interop.java.Throws");
+        return throwsType_;
+    }
+
     protected X10ClassType arrayType_ = null;
     public X10ClassType Array() {
         if (arrayType_ == null)
@@ -2817,7 +2831,7 @@ public class TypeSystem_c implements TypeSystem
 
     public Type arrayOf(Position pos, Ref<? extends Type> type) {
         // Should be called only by the Java class file loader.
-        Type r = Array();
+        Type r = JavaArray();
         return Types.instantiate(r, type);
     }
     /**
@@ -2864,6 +2878,78 @@ public class TypeSystem_c implements TypeSystem
 
     protected JavaArrayType createArrayType(Position pos, Ref<? extends Type> type) {
 	return new JavaArrayType_c(this, pos, type);
+    }
+
+    protected X10ClassType javaInteropType_ = null;
+    public X10ClassType JavaInterop() {
+        if (javaInteropType_ == null)
+            javaInteropType_ = load("x10.interop.Java");
+        return javaInteropType_;
+    }
+
+    private static final class JavaArrayClassWrapper extends X10ParsedClassType_c {
+        private static final long serialVersionUID = 815224489372855897L;
+        private JavaArrayType arrType = null;
+        private JavaArrayClassWrapper(TypeSystem ts, Position pos, Ref<? extends X10ClassDef> def) {
+            super(ts, pos, def);
+            ts.systemResolver().install(def.get().fullName(), this);
+        }
+        @Override
+        public X10ParsedClassType typeArguments(List<Type> typeArgs) {
+            JavaArrayClassWrapper n = (JavaArrayClassWrapper) super.typeArguments(typeArgs);
+            if (n == this) return n;
+            assert (typeArgs != null && typeArgs.size() == 1);
+            n.arrType = ((TypeSystem_c) typeSystem()).arrayType(position(), Types.ref(typeArgs.get(0)));
+            return n;
+        }
+    }
+
+    protected X10ClassType javaArrayType_ = null;
+    public X10ClassType JavaArray() {
+        if (javaArrayType_ == null) {
+            X10ClassDef cd = new X10ClassDef_c(this, null) {
+                private static final long serialVersionUID = -1118624958040369022L;
+                @Override
+                public X10ClassType asType() {
+                    if (asType == null) {
+                        asType = new JavaArrayClassWrapper(ts, position(), Types.ref(this));
+                    }
+                    return (X10ClassType) asType;
+                }
+            };
+            cd.name(Name.make("array"));
+            cd.position(Position.COMPILER_GENERATED);
+            cd.flags(Flags.PUBLIC.Static());
+            cd.superType(null);
+            javaArrayType_ = cd.asType(); // Careful here -- JavaInterop will refer back to array
+            X10ClassDef xiJdef = JavaInterop().def();
+            cd.setPackage(xiJdef.package_());
+            cd.outer(Types.ref(xiJdef));
+            cd.kind(ClassDef.MEMBER);
+            xiJdef.addMemberClass(Types.ref(javaArrayType_));
+            //cd.setFromJavaClassFile(); // pretend it's a Java class
+        }
+        return javaArrayType_;
+    }
+    
+    public boolean isJavaArray(Type me) {
+        return me.isClass() && me.toClass().def() == JavaArray().def();
+    }
+    
+    public boolean isPrimitiveJavaArray(Type me) {
+        if (!isJavaArray(me)) {
+            return false;
+        }
+        String arrayType = me.toClass().typeArguments().get(0).toString();
+        return "x10.lang.Boolean".equals(arrayType) ||
+                "x10.lang.String".equals(arrayType) ||
+                "x10.lang.Int".equals(arrayType) ||
+                "x10.lang.Byte".equals(arrayType) ||
+                "x10.lang.Char".equals(arrayType) ||
+                "x10.lang.Short".equals(arrayType) ||
+                "x10.lang.Double".equals(arrayType) ||
+                "x10.lang.Float".equals(arrayType) ||
+                "x10.lang.Long".equals(arrayType);
     }
 
     public Type arrayOf(Ref<? extends Type> type, int dims) {
@@ -2955,9 +3041,11 @@ public class TypeSystem_c implements TypeSystem
 
 	assert ct.asType().isGloballyAccessible();
 
-	if (sb.length() > 0)
-	    return QName.make(ct.fullName(), Name.make(sb.toString()));
-	else
+	if (sb.length() > 0) {
+	    QName fullName = ct.fullName();
+	    sb.insert(0, fullName.name());
+		return QName.make(fullName.qualifier(), Name.make(sb.toString()));
+	} else
 	    return QName.make(ct.fullName());
     }
 
@@ -4300,9 +4388,9 @@ public class TypeSystem_c implements TypeSystem
 
     private void allImplementedInterfaces(X10ClassType c, boolean checkSuperClasses, List<X10ClassType> l) {
         Context context = createContext();
-        if (c.typeEquals(Object(), context)) {
-            return;
-        }
+        //if (c.typeEquals(Object(), context)) {
+        //    return;
+        //}
 
         for (Type old : l) {
             if (c.typeEquals(old, context)) {
@@ -4444,5 +4532,4 @@ public class TypeSystem_c implements TypeSystem
     public boolean consistent(Type t, Context context) {
         return env(context).consistent(t);
     }
-
 }

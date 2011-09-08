@@ -51,15 +51,30 @@ public class CharType extends RuntimeType<x10.core.Char> {
     }
 
     @Override
-    public Object makeArray(int length) {
+    public char[] makeArray(int length) {
         return new char[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public char[][] makeArray(int dim0, int dim1) {
+        return new char[dim0][dim1];
+	}
+
+	@Override
+	public char[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new char[dim0][dim1][dim2];
+	}
+
+	@Override
+	public char[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new char[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public char[] makeArray(Object... elem) {
         char[] arr = new char[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Character)elem[i]).charValue();
+            arr[i] = x10.core.Char.$unbox(elem[i]);
         }
         return arr;
     }

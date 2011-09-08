@@ -51,15 +51,30 @@ public class FloatType extends RuntimeType<x10.core.Float> {
     }
 
     @Override
-    public Object makeArray(int length) {
+    public float[] makeArray(int length) {
         return new float[length];
     }
     
     @Override
-    public Object makeArray(Object... elem) {
+	public float[][] makeArray(int dim0, int dim1) {
+        return new float[dim0][dim1];
+	}
+
+	@Override
+	public float[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new float[dim0][dim1][dim2];
+	}
+
+	@Override
+	public float[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new float[dim0][dim1][dim2][dim3];
+	}
+
+	@Override
+    public float[] makeArray(Object... elem) {
         float[] arr = new float[elem.length];
         for (int i = 0; i < elem.length; i++) {
-            arr[i] = ((Number)elem[i]).floatValue();
+            arr[i] = x10.core.Float.$unbox(elem[i]);
         }
         return arr;
     }

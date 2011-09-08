@@ -796,7 +796,9 @@ public class StaticInitializer extends ContextVisitor {
     private Expr genDeserializeField(Position pos, BackingArray ba, Name baName, Type type, boolean customSerialization) {
         String str;
         Id id;
-        if (customSerialization && (str = X10PrettyPrinterVisitor.needsCasting(type)) != null) {
+        if (customSerialization && type.toClass().isJavaType()) {
+            id = xnf.Id(pos, Name.make("deserializeFieldUsingReflection"));
+        } else if (customSerialization && (str = X10PrettyPrinterVisitor.needsCasting(type)) != null) {
             id = xnf.Id(pos, Name.make("deserialize" + str));
         } else {
             id = xnf.Id(pos, Name.make("deserializeField"));
@@ -885,6 +887,9 @@ public class StaticInitializer extends ContextVisitor {
         List<Stmt> stmts = new ArrayList<Stmt>();
         stmts.add(xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, 
                                                 right).fieldInstance(fi).type(right.type())));
+
+        // If the type is a java type we can do plain java serialization
+
         stmts.add(xnf.If(pos, customSerializationCheck, broadcastCustomSerializationBlock, broadcastBlock));
 
         stmts.add(xnf.Eval(pos, genStatusSet(pos, receiver, fdCond)));
@@ -1009,14 +1014,26 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private Expr genBroadcastField(Position pos, Expr fieldVar, Expr fieldId, FieldDecl fdPLH, boolean customSerialization) {
-        Id id = xnf.Id(pos, Name.make((fdPLH == null) ?
+        Id id;
+        boolean usingReflection = false;
+        if (customSerialization && fieldVar.type().toClass().isJavaType()) {
+            usingReflection = true;
+            id = xnf.Id(pos, Name.make("broadcastStaticFieldUsingReflection"));
+        } else {
+            id = xnf.Id(pos, Name.make((fdPLH == null) ?
                 "broadcastStaticField" : "broadcastStaticFieldSingleVM"));
+        }
 
         // create MethodDef
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 
-        if (customSerialization && (X10PrettyPrinterVisitor.isPrimitiveRepedJava(fieldVar.type()) || X10PrettyPrinterVisitor.isString(fieldVar.type(), context))) {
-            argTypes.add(Types.ref(fieldVar.type()));
+        if (customSerialization && !usingReflection) {
+            if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(fieldVar.type()) || X10PrettyPrinterVisitor.isString(fieldVar.type(), context)) {
+                argTypes.add(Types.ref(fieldVar.type()));
+
+            } else {
+                  argTypes.add(Types.ref(xts.Any()));
+            }
         } else {
             argTypes.add(Types.ref(xts.Any()));
         }
@@ -1293,6 +1310,8 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private boolean checkFieldRefReplacementRequired(X10Field_c f) {
+    	if (f.target().type().toClass().isJavaType()) return false;
+
         if (f.target().type().isNumeric())
             // @NativeRep class should be excluded
             return false;

@@ -25,6 +25,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -290,7 +291,13 @@ public class X10JavaDeserializer {
     private Object deserializeRefUsingReflection(short serializationID) throws IOException {
         try {
             Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
-            Object o = unsafe.allocateInstance(clazz);
+
+            Object o = null;
+
+            // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
+            if (!"java.lang.Class".equals(clazz.getName())) {
+                o = unsafe.allocateInstance(clazz);
+            }
             int i = record_reference(o);
             Class<?> superclass = clazz.getSuperclass();
 
@@ -317,18 +324,12 @@ public class X10JavaDeserializer {
             throw new RuntimeException(e);
         } catch (InstantiationException e) {
             throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchMethodException e) {
-            throw new RuntimeException(e);
-        } catch (InvocationTargetException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
         }
     }
+    
+    private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
 
-    private <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+    public <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
@@ -346,7 +347,7 @@ public class X10JavaDeserializer {
             }
             return obj;
         } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-            IndexedMemoryChunk imc = (IndexedMemoryChunk)obj;
+            IndexedMemoryChunk imc = (IndexedMemoryChunk) obj;
             ((IndexedMemoryChunk) obj)._deSerialize_body(imc, this);
             return (T) imc;
         } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
@@ -354,59 +355,104 @@ public class X10JavaDeserializer {
         } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
             return (T) IndexedMemoryChunk.$Closure$1.$_deserialize_body((IndexedMemoryChunk.$Closure$1) obj, this);
         } else if (GlobalRef.class.getName().equals(clazz.getName())) {
-            return (T) GlobalRef.$_deserialize_body((GlobalRef)obj, this);
+            return (T) GlobalRef.$_deserialize_body((GlobalRef) obj, this);
         } else if (X10Throwable.class.getName().equals(clazz.getName())) {
-            return (T) X10Throwable.$_deserialize_body((X10Throwable)obj, this);
+            return (T) X10Throwable.$_deserialize_body((X10Throwable) obj, this);
+        } else if ("java.lang.Class".equals(clazz.getName())) {
+            String className = readString();
+            try {
+                T t = (T) Class.forName(className);
+                update_reference(i, t);
+                return t;
+            } catch (ClassNotFoundException e) {
+                throw new RuntimeException(e);
+            }
         }
 
         Class[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
+        boolean isHadoopSerializable = false;
         for (Class aInterface : interfaces) {
             if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
                 isCustomSerializable = true;
                 break;
             }
         }
+        try {
 
-        Class<?> superclass = clazz.getSuperclass();
-        if (!isCustomSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-            // We need to deserialize the super class first
-            obj = deserializeClassUsingReflection(superclass, obj, i);
-        }
+        	if (Runtime.implementsHadoopWritable(clazz)) {
+        		isHadoopSerializable = true;
+        	}
+        	if(isCustomSerializable && isHadoopSerializable) {
+        		throw new RuntimeException("deserializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
+        	}
 
-        Set<Field> fields = new TreeSet<Field>(new FieldComparator());
+        	Class<?> superclass = clazz.getSuperclass();
+        	if (!isCustomSerializable && !isHadoopSerializable && !("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
+        		// We need to deserialize the super class first
+        		obj = deserializeClassUsingReflection(superclass, obj, i);
+        	}
 
-        if (isCustomSerializable) {
-            TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                Field field = clazz.getDeclaredField(typeParameter.getName());
+        	Set<Field> fields = new TreeSet<Field>(new FieldComparator());
+
+
+            if (isCustomSerializable) {
+                TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
+                for (TypeVariable<? extends Class<? extends Object>> typeParameter : typeParameters) {
+                    Field field = clazz.getDeclaredField(typeParameter.getName());
+                    fields.add(field);
+                }
+                processFields(obj, fields);
+                SerialData serialData = (SerialData) readRefUsingReflection();
+
+                // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
+                Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
+                makeMethod.setAccessible(true);
+                makeMethod.invoke(obj, serialData);
+                return obj;
+            } 
+            if(isHadoopSerializable) {
+            	if (Runtime.TRACE_SER) {
+                    System.out.println("Calling hadoop deserializer with object of type " + clazz);
+                }
+            	
+            	Constructor<?> meth = clazz.getDeclaredConstructor(EMPTY_ARRAY);
+                meth.setAccessible(true);
+                obj = (T)meth.newInstance();
+        		java.lang.reflect.Method readMethod = clazz.getMethod("readFields", java.io.DataInput.class);
+        		readMethod.setAccessible(true);
+        		readMethod.invoke(obj, this.in);
+        		return obj;
+            }
+
+            // We need to sort the fields first. Cause the order here could depend on the JVM.
+            Field[] declaredFields = clazz.getDeclaredFields();
+            for (Field field : declaredFields) {
+                if (field.isSynthetic())
+                    continue;
+                int modifiers = field.getModifiers();
+                if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+                    continue;
+                }
                 fields.add(field);
             }
+
             processFields(obj, fields);
-            SerialData serialData = (SerialData) readRefUsingReflection();
 
-           // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
-            Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
-            makeMethod.setAccessible(true);
-            makeMethod.invoke(obj, serialData);
             return obj;
-        }
-
-        // We need to sort the fields first. Cause the order here could depend on the JVM.
-        Field[] declaredFields = clazz.getDeclaredFields();
-        for (Field field : declaredFields) {
-            if (field.isSynthetic())
-                continue;
-            int modifiers = field.getModifiers();
-            if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
-                continue;
-            }
-            fields.add(field);
-        }
-
-        processFields(obj, fields);
-
-        return obj;
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+		} catch (InstantiationException e) {
+            throw new RuntimeException(e);
+		}
     }
 
     private <T> void processFields(T obj, Set<Field> fields) throws IOException, IllegalAccessException {
@@ -447,7 +493,7 @@ public class X10JavaDeserializer {
         }
     }
 
-    private Object readArrayUsingReflection(Class<?> componentType) throws IOException, IllegalAccessException {
+    public Object readArrayUsingReflection(Class<?> componentType) throws IOException {
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
                 return readIntArray();

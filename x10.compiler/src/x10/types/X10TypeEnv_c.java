@@ -1039,6 +1039,18 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     					return false;
     				if (ct2.typeArguments().size() != numParams)
     					return false;
+        			// XTENLANG-2118 Java array hack
+        			if (ts.isJavaArray(ct1)) {
+        				assert (numParams == 1);
+        				Type a1 = ct1.typeArguments().get(0);
+        				Type a2 = ct2.typeArguments().get(0);
+        				if (a1.isNumeric() || a1.isChar() || a2.isNumeric() || a2.isChar()) {
+        					// The equality case should have been caught by the typeEquals() call above
+        					return false;
+        				}
+        				// For non-numeric types, Java arrays are covariant
+        				return isSubtype(a1, a2);
+        			}
     				if (def.variances().size() != numParams)
     					return false; // FIXME: throw an InternalCompilerError
     				for (int i = 0; i < numParams; i++) {
@@ -1820,6 +1832,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	// Since they are not equal, and one is not a subtype of another
     	// and one of them is a struct, the lub has to be Any.
     	if (Types.isX10Struct(type1) || Types.isX10Struct(type2)) {
+    		return ts.Any();
+    	}
+    	// XTENLANG-2118: Since they are not equal, and one is not a subtype of another
+    	// and one of them is not a subtype of Object, the lub has to be Any.
+    	if (!ts.isSubtype(type1, ts.Object()) || !ts.isSubtype(type2, ts.Object())) {
     		return ts.Any();
     	}
     	// Now neither is a struct. Neither is null.

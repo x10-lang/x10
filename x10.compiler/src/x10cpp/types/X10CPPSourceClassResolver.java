@@ -49,7 +49,7 @@ public class X10CPPSourceClassResolver extends X10SourceClassResolver {
     /**
      * Load a class file for class <code>name</code>.
      */
-    protected Resource loadFile(QName name) {
+    protected Resource loadX10CompiledFile(QName name) {
         if (nocache.contains(name)) {
             return null;
         }

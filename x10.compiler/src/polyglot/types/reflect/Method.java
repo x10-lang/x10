@@ -11,6 +11,7 @@ package polyglot.types.reflect;
 import polyglot.types.*;
 import java.util.*;
 import java.io.*;
+import java.lang.reflect.Modifier;
 
 /**
  * Method represents a method in a Java classfile.  A method's name and
@@ -36,6 +37,7 @@ public class Method
   protected int type;
   protected Attribute[] attrs;
   protected Exceptions exceptions;
+  protected Signature signature;
   protected boolean synthetic;
 
   /**
@@ -54,8 +56,16 @@ public class Method
     this.in = in;
   }
 
+  private static final int SYNTHETIC = 0x00001000;
+  public static boolean isSynthetic(int bits) {
+    return (bits & Modifier.VOLATILE) != 0 || (bits & SYNTHETIC) != 0;
+  }
+
   public void initialize() throws IOException {
     modifiers = in.readUnsignedShort();
+    if (isSynthetic(modifiers)) {
+      synthetic = true;
+    }
 
     name = in.readUnsignedShort();
     type = in.readUnsignedShort();
@@ -77,6 +87,10 @@ public class Method
         }
         if ("Synthetic".equals(name.value())) {
           synthetic = true;
+        }
+        if ("Signature".equals(name.value())) {
+          signature = new Signature(clazz, in, nameIndex, length);
+          attrs[i] = signature;
         }
       }
 
@@ -110,7 +124,19 @@ public class Method
   public int getType() {
       return type;
   }
+  public Signature getSignature() {
+    return signature;
+  }
   public String name() {
     return (String) clazz.getConstants()[this.name].value();
+  }
+  public String signature() {
+    if (this.signature != null) {
+      return (String) clazz.getConstants()[this.signature.getSignature()].value();
+    }
+    return (String) clazz.getConstants()[this.type].value();
+  }
+  public String toString() {
+    return Modifier.toString(modifiers)+"("+Integer.toHexString(modifiers)+") "+name()+signature();
   }
 }

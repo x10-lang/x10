@@ -206,7 +206,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * User code provided by Main template - start xrx runtime - run main
      * activity
      */
-    public abstract void runtimeCallback(x10.array.Array<java.lang.String> args);
+    public abstract void runtimeCallback(x10.array.Array<java.lang.String> args) throws java.lang.Throwable;
 
     /**
      * Application exit code
@@ -366,30 +366,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             if (TRACE_SER_DETAIL) {
                 System.out.println("Starting serialization for runAt  " + body.getClass());
             }
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                DataOutputStream oos = new DataOutputStream(baos);
-                X10JavaSerializer serializer = new X10JavaSerializer(oos);
-                serializer.writeObjectUsingReflection(body);
-                oos.close();
-                ba = baos.toByteArray();
-            } catch (IllegalAccessException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (NoSuchMethodException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (InvocationTargetException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (NoSuchFieldException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            }
+            ba =  serializeUsingReflection(body);
             if (TRACE_SER_DETAIL) {
                 System.out.println("Done with serialization for runAt " + body.getClass());
             }
@@ -401,6 +378,33 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
     }
 
+    public static <T> byte[] serializeUsingReflection(T body) throws IOException {
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
+        serializer.writeObjectUsingReflection(body);
+        oos.close();
+        byte[] ba = baos.toByteArray();
+        return ba;
+    }
+
+
+	private static Class<? extends Object> hadoopWritableClass = getHadoopClass();
+	private static Class<? extends Object> getHadoopClass() {
+		try {
+			return Class.forName("org.apache.hadoop.io.Writable");
+		} catch (ClassNotFoundException e) {
+			return null;
+		}    			
+	}
+	
+	public static boolean implementsHadoopWritable(Class<? extends Object> clazz) {
+		if(hadoopWritableClass == null) {
+			return false;
+		}
+		return hadoopWritableClass.isAssignableFrom(clazz);
+	}
+	
     private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState) throws IOException {
         byte[] ba;
         if (CUSTOM_JAVA_SERIALIZATION) {
@@ -423,31 +427,13 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             if (TRACE_SER_DETAIL) {
                 System.out.println("Starting serialization for runAt  " + body.getClass());
             }
-            try {
-                ByteArrayOutputStream baos = new ByteArrayOutputStream();
-                DataOutputStream oos = new DataOutputStream(baos);
-                X10JavaSerializer serializer = new X10JavaSerializer(oos);
-                serializer.writeObjectUsingReflection(finishState);
-                serializer.writeObjectUsingReflection(body);
-                oos.close();
-                ba = baos.toByteArray();
-            } catch (IllegalAccessException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (NoSuchMethodException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (InvocationTargetException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (NoSuchFieldException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            }
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream oos = new DataOutputStream(baos);
+            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.writeObjectUsingReflection(finishState);
+            serializer.writeObjectUsingReflection(body);
+            oos.close();
+            ba = baos.toByteArray();
             if (TRACE_SER_DETAIL) {
                 System.out.println("Done with serialization for runAt " + body.getClass());
             }
@@ -460,7 +446,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             return baos.toByteArray();
         }
     }
-
+    
     // @MultiVM, add this method
 
     //TODO Keith

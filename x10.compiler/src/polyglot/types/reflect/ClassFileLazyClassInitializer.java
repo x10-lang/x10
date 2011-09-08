@@ -7,15 +7,35 @@
 
 package polyglot.types.reflect;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 
-import polyglot.frontend.Globals;
 import polyglot.main.Reporter;
-import polyglot.types.*;
+import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
+import polyglot.types.ConstructorDef;
+import polyglot.types.FieldDef;
+import polyglot.types.Flags;
+import polyglot.types.LazyRef;
+import polyglot.types.MethodDef;
+import polyglot.types.Name;
+import polyglot.types.QName;
+import polyglot.types.Ref;
+import polyglot.types.SemanticException;
+import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.Types;
 import polyglot.types.reflect.InnerClasses.Info;
-import polyglot.util.*;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
+import polyglot.util.StringUtil;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassType;
 import x10.types.constants.ConstantValue;
+import x10.util.CollectionFactory;
 
 /**
  * A lazy initializer for classes loaded from a .class file.
@@ -58,7 +78,11 @@ public class ClassFileLazyClassInitializer {
      * Create a position for the class file.
      */
     public Position position() {
-        return new Position(null, clazz.name() + ".class");
+    	String path = clazz.classFileSource().getAbsolutePath();
+    	if (path.endsWith(".jar")){
+    		path += ":" + clazz.name() + ".class";
+    	}
+        return new Position(null, path);
     }
 
     /**
@@ -91,24 +115,32 @@ public class ClassFileLazyClassInitializer {
         // This is the "C$I$J" part.
         String className = StringUtil.getShortNameComponent(name);
 
+        InnerClasses.Info innerClassInfo = clazz.getInnerClassInfo();
         String outerName; // This will be "p.q.C$I"
         String innerName; // This will be "J"
 
         outerName = name;
         innerName = null;
 
-        int dollar = outerName.lastIndexOf('$');
+        //int dollar = outerName.lastIndexOf('$');
+        //
+        //if (dollar >= 0) {
+        //    outerName = name.substring(0, dollar);
+        //    innerName = name.substring(dollar + 1);
+        //
+        //    // Lazily load the outer class.
+        //    ct.outer(defForName(outerName));
+        //}
+        //else {
+        //    outerName = name;
+        //    innerName = null;
+        //}
 
-        if (dollar >= 0) {
-            outerName = name.substring(0, dollar);
-            innerName = name.substring(dollar + 1);
-
+        if (innerClassInfo != null) {
+            outerName = clazz.classNameCP(innerClassInfo.outerClassIndex);
+            innerName = clazz.className(innerClassInfo.nameIndex);
             // Lazily load the outer class.
             ct.outer(defForName(outerName));
-        }
-        else {
-            outerName = name;
-            innerName = null;
         }
 
         ClassDef.Kind kind = ClassDef.TOP_LEVEL;
@@ -197,76 +229,153 @@ public class ClassFileLazyClassInitializer {
     /**
      * Return a list of types based on a JVM type descriptor string.
      * @param str The type descriptor.
+     * @param bounds Generic type bounds in scope (may be null).
      * @return The corresponding list of types.
      */
-    protected List<Ref<? extends Type>> typeListForString(String str) {
-        List<Ref<? extends Type>> types = new ArrayList<Ref<? extends Type>>();
+    protected List<Ref<? extends Type>> typeListForString(String str, Map<String,Ref<? extends Type>> bounds) {
+        List<Ref<? extends Type>> types = new ArrayList<Ref<? extends Type>>(1);
 
-        for (int i = 0; i < str.length(); i++) {
-            int dims = 0;
-
-            while (str.charAt(i) == '[') {
-                dims++;
-                i++;
-            }
-
-            switch (str.charAt(i)) {
-                case 'Z':
-                    types.add(arrayOf(ts.Boolean(), dims));
-                    break;
-                case 'B':
-                    types.add(arrayOf(ts.Byte(), dims));
-                    break;
-                case 'S':
-                    types.add(arrayOf(ts.Short(), dims));
-                    break;
-                case 'C':
-                    types.add(arrayOf(ts.Char(), dims));
-                    break;
-                case 'I':
-                    types.add(arrayOf(ts.Int(), dims));
-                    break;
-                case 'J':
-                    types.add(arrayOf(ts.Long(), dims));
-                    break;
-                case 'F':
-                    types.add(arrayOf(ts.Float(), dims));
-                    break;
-                case 'D':
-                    types.add(arrayOf(ts.Double(), dims));
-                    break;
-                case 'V':
-                    types.add(arrayOf(ts.Void(), dims));
-                    break;
-                case 'L': {
-                    int start = ++i;
-                    while (i < str.length()) {
-                        if (str.charAt(i) == ';') {
-                            String s = str.substring(start, i);
-                            s = s.replace('/', '.');
-                            types.add(arrayOf(this.typeForName(s), dims));
-                            break;
-                        }
-
-                        i++;
-                    }
-                }
-            }
-        }
+        updateTypeListFromString(types, str, 0, bounds);
 
         if (reporter.should_report(Reporter.loader, 4))
             reporter.report(4, "parsed \"" + str + "\" -> " + types);
 
         return types;
     }
+    private int updateTypeListFromString(List<Ref<? extends Type>> types, String str, int begin, Map<String,Ref<? extends Type>> bounds) {
+        int i = begin;
+        while (i < str.length()) {
+            if (str.charAt(i) == '>') return i;
+            i = updateTypeFromString(types, str, i, bounds);
+            i++;
+        }
+        return i;
+    }
+    private int updateTypeFromString(List<Ref<? extends Type>> types, String str, int begin, Map<String,Ref<? extends Type>> bounds) {
+        int i = begin;
+
+        int dims = 0;
+        while (str.charAt(i) == '[') {
+            dims++;
+            i++;
+        }
+
+        switch (str.charAt(i)) {
+            case 'Z':
+                types.add(arrayOf(ts.Boolean(), dims));
+                break;
+            case 'B':
+                types.add(arrayOf(ts.Byte(), dims));
+                break;
+            case 'S':
+                types.add(arrayOf(ts.Short(), dims));
+                break;
+            case 'C':
+                types.add(arrayOf(ts.Char(), dims));
+                break;
+            case 'I':
+                types.add(arrayOf(ts.Int(), dims));
+                break;
+            case 'J':
+                types.add(arrayOf(ts.Long(), dims));
+                break;
+            case 'F':
+                types.add(arrayOf(ts.Float(), dims));
+                break;
+            case 'D':
+                types.add(arrayOf(ts.Double(), dims));
+                break;
+            case 'V':
+                types.add(arrayOf(ts.Void(), dims));
+                break;
+            case 'T': { // Type parameter - use the erased bound
+                int start = ++i;
+                while (i < str.length()) {
+                    if (str.charAt(i) == ';') {
+                        break;
+                    }
+                    i++;
+                }
+                Ref<? extends Type> t = bounds.get(str.substring(start, i));
+                if (t == null) {
+                    t = typeForName("x10.lang.Any");
+                }
+                types.add(arrayOf(t, dims));
+                break;
+            }
+            case 'L': {
+                Ref<? extends Type> t = null;
+                String parent = null;
+                do {
+                int start = ++i;
+                while (i < str.length()) {
+                    char c = str.charAt(i);
+                    if (c == ';' || c == '<') {
+                        String s = str.substring(start, i);
+                        s = s.replace('/', '.');
+                        if (t == null) {
+                            t = typeForName(s);
+                            parent = s;
+                        } else {
+                            String fullName = parent + "$" + s;
+                            parent = fullName;
+                            t = typeForName(fullName); // FIXME: forgets generic info on container -- should look up member class instead
+                        }
+                        break;
+                    }
+                    i++;
+                }
+                if (str.charAt(i) == '<') {
+                    ++i;
+                    assert (t != null);
+                    List<Ref<? extends Type>> targs = new ArrayList<Ref<? extends Type>>();
+                    i = updateTypeListFromString(targs, str, i, bounds);
+                    assert (i < str.length() && str.charAt(i) == '>');
+                    i++;
+                    X10ClassType cType = t.get().toClass();
+                    List<Type> typeArgs = new ArrayList<Type>(targs.size());
+                    for (Ref<? extends Type> a : targs) {
+                        typeArgs.add(a.get());
+                    }
+                    t = Types.ref(cType.typeArguments(typeArgs));
+                }
+                } while (str.charAt(i) == '.'); // Some signatures have generic info for containers
+                assert (i < str.length() && str.charAt(i) == ';');
+                types.add(arrayOf(t, dims));
+                break;
+            }
+            case '*': { // wildcard
+                types.add(arrayOf(Types.ref(ts.Any()), dims));
+                break;
+            }
+            case '+': { // wildcard extends
+                List<Ref<? extends Type>> t = new ArrayList<Ref<? extends Type>>();
+                i = updateTypeFromString(t, str, i+1, bounds);
+                assert (t.size() == 1);
+                types.add(arrayOf(t.get(0), dims));
+                break;
+            }
+            case '-': { // wildcard super
+                List<Ref<? extends Type>> t = new ArrayList<Ref<? extends Type>>();
+                i = updateTypeFromString(t, str, i+1, bounds);
+                assert (t.size() == 1);
+                types.add(arrayOf(Types.ref(ts.Any()), dims));
+                break;
+            }
+            default:
+                return i;
+        }
+        return i;
+    }
 
     /**
      * Return a type based on a JVM type descriptor string. 
      * @param str The type descriptor.
+     * @param bounds Generic type bounds in scope (may be null).
      * @return The corresponding type.
      */
-    protected Ref<? extends Type> typeForString(String str) {
-        List<Ref<? extends Type>> l = typeListForString(str);
+    protected Ref<? extends Type> typeForString(String str, Map<String,Ref<? extends Type>> bounds) {
+        List<Ref<? extends Type>> l = typeListForString(str, bounds);
 
         if (l.size() == 1) {
             return l.get(0);
@@ -309,8 +418,30 @@ public class ClassFileLazyClassInitializer {
         return typeForName(name, null);
     }
 
+    private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
+    static {
+        boxedPrimitives.put("x10.core.Boolean", "x10.lang.Boolean");
+        boxedPrimitives.put("x10.core.Char", "x10.lang.Char");
+        boxedPrimitives.put("x10.core.Byte", "x10.lang.Byte");
+        boxedPrimitives.put("x10.core.Short", "x10.lang.Short");
+        boxedPrimitives.put("x10.core.Int", "x10.lang.Int");
+        boxedPrimitives.put("x10.core.Long", "x10.lang.Long");
+        boxedPrimitives.put("x10.core.Float", "x10.lang.Float");
+        boxedPrimitives.put("x10.core.Double", "x10.lang.Double");
+        boxedPrimitives.put("x10.core.UByte", "x10.lang.UByte");
+        boxedPrimitives.put("x10.core.UShort", "x10.lang.UShort");
+        boxedPrimitives.put("x10.core.UInt", "x10.lang.UInt");
+        boxedPrimitives.put("x10.core.ULong", "x10.lang.ULong");
+        boxedPrimitives.put("x10.core.RefI", "x10.lang.Object");
+    }
     protected Ref<? extends Type> typeForName(String name, Flags flags) {
-        return Types.<Type>ref(ts.createClassType(position(), defForName(name, flags)));
+        String unboxed = boxedPrimitives.get(name);
+        if (unboxed != null) {
+            name = unboxed;
+        }
+        //name = name.replace('$', '.'); // keep the name with the '$' to make sure the system finds the class
+        Name shortName = Name.make(name.substring(name.lastIndexOf('.')+1));
+        return Types.<Type>ref(ts.createClassType(position(), defForName(name, flags)).name(shortName));
     }
 
     public void initTypeObject() {
@@ -495,6 +626,25 @@ public class ClassFileLazyClassInitializer {
                 && fieldsInitialized && constructorsInitialized;
     }
 
+    private int parseBounds(String str, Map<String,Ref<? extends Type>> bounds) {
+        if (str.charAt(0) != '<') return 0;
+        int i = 1;
+        while (i < str.length()) {
+            if (str.charAt(i) == '>') return i+1;
+            int start = i;
+            int colon = str.indexOf(':', start);
+            String name = str.substring(start, colon);
+            while (str.charAt(colon+1) == ':') colon++; // Sometimes the separator is two colons
+            List<Ref<? extends Type>> types = new ArrayList<Ref<? extends Type>>(1);
+            i = updateTypeFromString(types, str, colon+1, bounds);
+            assert (types.size() == 1);
+            bounds.put(name, types.get(0));
+            i++;
+        }
+        assert (str.charAt(i) == '>');
+        return i;
+    }
+
     /**
      * Create a MethodInstance.
      * @param method The JVM Method data structure.
@@ -502,23 +652,30 @@ public class ClassFileLazyClassInitializer {
      */
     protected MethodDef methodInstance(Method method, ClassDef ct) {
         Constant[] constants = clazz.getConstants();
+        Map<String,Ref<? extends Type>> bounds = CollectionFactory.<String,Ref<? extends Type>>newHashMap();
+        if (clazz.getSignature() != null) {
+            parseBounds((String) constants[clazz.getSignature().getSignature()].value(), bounds);
+            // TODO: [IP] also find and process bounds of the outer classes
+        }
         String name = (String) constants[method.getName()].value();
-        String type = (String) constants[method.getType()].value();
-    
-        if (type.charAt(0) != '(') {
+        int sig = method.getSignature() != null ? method.getSignature().getSignature() : method.getType();
+        String type = (String) constants[sig].value();
+        int start = parseBounds(type, bounds);
+
+        if (type.charAt(start) != '(') {
             throw new ClassFormatError("Bad method type descriptor.");
         }
     
-        int index = type.indexOf(')', 1);
-        List<Ref<? extends Type>> argTypes = typeListForString(type.substring(1, index));
-        Ref<? extends Type> returnType = typeForString(type.substring(index+1));
+        int index = type.indexOf(')', start+1);
+        List<Ref<? extends Type>> argTypes = typeListForString(type.substring(start+1, index), bounds);
+        Ref<? extends Type> returnType = typeForString(type.substring(index+1), bounds);
     
         List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
     
         return ts.methodDef(ct.position(), Types.ref(ct.asType()),
                                  ts.flagsForBits(method.getModifiers()),
                                  returnType, Name.make(name), argTypes);
-      }
+    }
 
     /**
      * Create a ConstructorInstance.
@@ -564,12 +721,19 @@ public class ClassFileLazyClassInitializer {
      */
     protected FieldDef fieldInstance(Field field, ClassDef ct) {
       Constant[] constants = clazz.getConstants();
+      Map<String,Ref<? extends Type>> bounds = CollectionFactory.<String,Ref<? extends Type>>newHashMap();
+      if (clazz.getSignature() != null) {
+        parseBounds((String) constants[clazz.getSignature().getSignature()].value(), bounds);
+        // TODO: [IP] also find and process bounds of the outer classes
+      }
       String name = (String) constants[field.getName()].value();
-      String type = (String) constants[field.getType()].value();
+      int sig = field.getSignature() != null ? field.getSignature().getSignature() : field.getType();
+      String type = (String) constants[sig].value();
+      int start = parseBounds(type, bounds);
     
       FieldDef fi = ts.fieldDef(ct.position(), Types.ref(ct.asType()),
                                           ts.flagsForBits(field.getModifiers()),
-                                          typeForString(type), Name.make(name));
+                                          typeForString(type.substring(start), bounds), Name.make(name));
     
       if (field.isConstant()) {
         Constant c = field.constantValue();

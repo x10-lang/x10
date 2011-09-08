@@ -71,7 +71,8 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     }
     
     public static short $unbox(Object obj) {
-        return ((UShort)obj).$value;
+        if (obj instanceof UShort) return ((UShort)obj).$value;
+        else return ((java.lang.Short)obj).shortValue();
     }
     
     // make $box/$unbox idempotent

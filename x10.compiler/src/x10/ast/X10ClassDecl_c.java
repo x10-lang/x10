@@ -535,8 +535,15 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         return n;
     }
 
+    public static final QName X10_INTEROP_JAVA = QName.make("x10.interop.Java");
+    public static final Name JAVA_ARRAY = Name.make("array");
+
     private X10ClassDecl_c superPreBuildTypes(TypeBuilder tb) {
-        tb = tb.pushClass(position(), flags.flags(), name.id(), errorInAST);
+        // XTENLANG-2118: Intercept some known Java types
+        if (name.id().equals(JAVA_ARRAY) && tb.currentClass() != null && tb.currentClass().fullName().equals(X10_INTEROP_JAVA))
+        	tb = tb.pushClass(tb.typeSystem().JavaArray().def());
+        else
+        	tb = tb.pushClass(position(), flags.flags(), name.id(), errorInAST);
 
         X10ClassDef type = tb.currentClass();
 

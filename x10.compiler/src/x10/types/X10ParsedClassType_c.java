@@ -385,6 +385,9 @@ implements X10ParsedClassType
 	List<Type> typeArguments;
 	
 	public List<Type> typeArguments() {
+	    if (isJavaType()) {
+	        return Collections.<Type>emptyList(); // Java generic classes are "raw" (erased)
+	    }
 	    return typeArguments;
 	}
 	
