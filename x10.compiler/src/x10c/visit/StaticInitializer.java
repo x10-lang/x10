@@ -1028,7 +1028,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 
         if (customSerialization && !usingReflection) {
-            if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(fieldVar.type()) || X10PrettyPrinterVisitor.isString(fieldVar.type(), context)) {
+            if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(fieldVar.type()) || X10PrettyPrinterVisitor.isString(fieldVar.type())) {
                 argTypes.add(Types.ref(fieldVar.type()));
 
             } else {

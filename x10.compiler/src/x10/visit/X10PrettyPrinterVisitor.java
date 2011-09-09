@@ -787,7 +787,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.writeln("}");
                         }
                     } else {
-                        if (isPrimitiveRepedJava(f.type()) || isString(f.type(), context) || xts.isPrimitiveJavaArray(f.type())) {
+                        if (isPrimitiveRepedJava(f.type()) || isString(f.type()) || xts.isPrimitiveJavaArray(f.type())) {
                             w.writeln("$serializer.write(this." + fieldName + ");");
                         } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
                             w.writeln("$serializer.writeObjectUsingReflection(this." + fieldName + ");");
@@ -2092,7 +2092,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (c.isConstant()) {
             Type t = Types.baseType(c.type());
-            if (isPrimitiveRepedJava(t) || t.isNull() || isString(t, tr.context())) {
+            if (isPrimitiveRepedJava(t) || t.isNull() || isString(t)) {
                 er.prettyPrint(c.constantValue().toLit(tr.nodeFactory(), tr.typeSystem(), t, Position.COMPILER_GENERATED), tr);
                 return;
             }
@@ -2337,7 +2337,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     er.printType(castType, 0);
                     w.write(")");
 
-                    if (isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
+                    if (isString(e.type()) && !isString(castType)) {
                         if (xts.isParameterType(castType)) {
                             w.write(X10_RTT_TYPES);
                             w.write(".conversion(");
@@ -2345,7 +2345,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(",");
                         } else {
                             // box only if converting to function type or to x10.lang.Object
-                            if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
+                            if (xts.isFunctionType(castType) || isObject(castType)) {
                                 er.printBoxConversion(e.type());
                             }
                         }
@@ -2556,7 +2556,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.allowBreak(2, " ");
 
                     boolean closeParen = false; // provide extra closing parenthesis
-                    if (isString(exprType, tr.context()) && !isString(castType, tr.context())) {
+                    if (isString(exprType) && !isString(castType)) {
                         if (xts.isParameterType(castType)) {
                             w.write(X10_RTT_TYPES);
                             w.write(".conversion(");
@@ -2564,7 +2564,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(",");
                         } else {
                             // box only if converting to function type or to x10.lang.Object
-                            if (xts.isFunctionType(castType) || isObject(castType,tr.context())) {
+                            if (xts.isFunctionType(castType) || isObject(castType)) {
                             	er.printBoxConversion(exprType);
                             }
                             w.write("(");
@@ -2594,7 +2594,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     //  -> Types.<#0>castConversion(#1,#2)   #0=type #1=expr #2=runtime type
                     w.write(X10_RTT_TYPES + ".<");
                     er.prettyPrint(castTE, tr);
-                    boolean convert = xts.isParameterType(exprType) || !xts.isAny(Types.baseType(exprType)) && xts.isParameterType(castType) || isString(castType, tr.context());
+                    boolean convert = xts.isParameterType(exprType) || !xts.isAny(Types.baseType(exprType)) && xts.isParameterType(castType) || isString(castType);
                     w.write("> cast" + (convert ? "Conversion" : "") + "(");
                     boolean closeParen = false;
                     if (Emitter.needExplicitBoxing(exprType) && isBoxedType(castType)) {
@@ -3566,7 +3566,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Type defType = mi.def().formalTypes().get(i).get();
 
             boolean closeParen = false;
-            if (isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
+            if (isString(e.type()) && !isString(castType)) {
 
                 w.write("(");
                 er.printType(castType, 0);
@@ -3580,7 +3580,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     closeParen = true;
                 } else {
                     // need to box string only if it is cast to function type or to x10.lang.Object
-                    if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
+                    if (xts.isFunctionType(castType) || isObject(castType)) {
                         er.printBoxConversion(e.type());
                         w.write("(");
                         closeParen = true;
@@ -3875,7 +3875,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         ContainerType ct = c.constructorInstance().container();
         if (supportConstructorSplitting && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
             TypeSystem ts = tr.typeSystem();
-            boolean isObject = isObject(ct, tr.context());
+            boolean isObject = isObject(ct);
 //            if (isObject) return;  // TODO stop calling constructor of x10.lang.Object for optimization (it should be safe)
             Expr target = c.target();
             if (target == null || target instanceof Special) {
@@ -3942,7 +3942,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 Type castType = mi.formalTypes().get(i);
                 Type defType = mi.def().formalTypes().get(i).get();
                 TypeSystem xts = tr.typeSystem();
-                if (isString(e.type(), tr.context()) && !isString(castType, tr.context())) {
+                if (isString(e.type()) && !isString(castType)) {
 
                     w.write("(");
                     er.printType(castType, 0);
@@ -3955,7 +3955,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(",");
                     } else {
                         // need to box string only if it is cast to function type or to x10.lang.Object
-                        if (xts.isFunctionType(castType) || isObject(castType, tr.context())) {
+                        if (xts.isFunctionType(castType) || isObject(castType)) {
                         	er.printBoxConversion(e.type());
                         }
                         w.write("(");
@@ -4396,12 +4396,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write(Emitter.mangleToJava(n.id()));
     }
 
-    public static boolean isString(Type type, Context context) {
-        return Types.baseType(type).typeEquals(type.typeSystem().String(), context);
+    public static boolean isString(Type type) {
+        return Types.baseType(type).isString();
     }
     
-    public static boolean isObject(Type type, Context context) {
-        return Types.baseType(type).typeEquals(type.typeSystem().Object(), context);
+    public static boolean isObject(Type type) {
+        return Types.baseType(type).isObject();
     }
 
     // TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).

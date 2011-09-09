@@ -757,7 +757,7 @@ public class Emitter {
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
 	    }
-	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type)) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
@@ -785,7 +785,7 @@ public class Emitter {
 	        */
 	        return true;
 	    }
-	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type, tr.context())) {
+	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type)) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        return true;
@@ -1210,7 +1210,7 @@ public class Emitter {
     }
 
     public boolean isSpecialType(Type type) {
-        return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type, tr.context());
+        return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type);
     }
 
     public static final boolean canMangleMethodName(MethodDef def) {
@@ -1853,7 +1853,7 @@ public class Emitter {
 	    // e.g int m() overrides or implements T m()
 	    boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
 	    if (boxReturnValue) {
-	        if (X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context())) {
+	        if (X10PrettyPrinterVisitor.isString(impl.returnType())) {
 	            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        } else {
                 printType(impl.returnType(), (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
@@ -1937,7 +1937,7 @@ public class Emitter {
 	    }
 
         boolean closeParen = false;
-        if ((boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType(), tr.context()))
+        if ((boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType()))
                 || (instantiateReturnType && !isBoxedType(impl.returnType()))) {
         	printBoxConversion(impl.returnType());
         	w.write("(");
@@ -2721,8 +2721,8 @@ public class Emitter {
 	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
 	            prettyPrint(e, tr);
 	        }
-	        else if (!(actual instanceof ParameterType) && X10PrettyPrinterVisitor.isString(actual, tr.context()) &&
-	        		!(expectedBase instanceof ParameterType) && !X10PrettyPrinterVisitor.isString(expectedBase, tr.context())) {
+	        else if (!(actual instanceof ParameterType) && X10PrettyPrinterVisitor.isString(actual) &&
+	        		!(expectedBase instanceof ParameterType) && !X10PrettyPrinterVisitor.isString(expectedBase)) {
 	        	expander = expander.boxTo(actual).castTo(expectedBase);
 	        	expander.expand(tr);
 	        }
