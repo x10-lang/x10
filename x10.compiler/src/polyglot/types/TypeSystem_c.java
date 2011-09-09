@@ -729,9 +729,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isNumeric(Type t) {
-        if (isChar(t))
-            return false;
-        return t.isLongOrLess() || t.isFloat() || t.isDouble() || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
+        return isSignedNumeric(t) || isUnsignedNumeric(t) || isFloat(t) || isDouble(t);
     }
 
     public boolean isSignedNumeric(Type t) {
@@ -743,16 +741,11 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public boolean isIntOrLess(Type t) {
-        if (isChar(t))
-            return false;
-        return t.isByte() || t.isShort() || t.isChar() || t.isInt() || isUByte(t) || isUShort(t);
+        return isByte(t) || isShort(t) || isInt(t) || isUByte(t) || isUShort(t);
     }
 
     public boolean isLongOrLess(Type t) {
-        if (isChar(t))
-            return false;
-        return t.isByte() || t.isShort() || t.isChar() || t.isInt() || t.isLong()
-        || isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
+        return isSignedNumeric(t) || isUnsignedNumeric(t);
     }
 
     public boolean isBoolean(Type t) {
@@ -3871,13 +3864,6 @@ public class TypeSystem_c implements TypeSystem
         return true;
     }
     */
-    public boolean isSigned(Type t) {
-        return isByte(t) || isShort(t) || isInt(t) || isLong(t);
-    }
-
-    public boolean isUnsigned(Type t) {
-        return isUByte(t) || isUShort(t) || isUInt(t) || isULong(t);
-    }
 
     public Type promote2(Type t1, Type t2) throws SemanticException {
         if (isDouble(t1) || isDouble(t2))
@@ -4096,6 +4082,14 @@ public class TypeSystem_c implements TypeSystem
     public boolean isStruct(Type me) {
         return Types.isX10Struct(me);
             //typeEquals(me, Struct(), emptyContext());
+    }
+
+    public boolean isObject(Type me) {
+        return typeEquals(me, Object(), emptyContext());
+    }
+
+    public boolean isString(Type me) {
+        return finalSubtype(me,String());
     }
 
     public boolean isClock(Type me) {

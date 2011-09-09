@@ -232,16 +232,16 @@ final public class RuntimeTypeExpander extends Expander {
             return "x10.rtt.Types.CHAR";
         if (t.isNumeric()) {
             TypeSystem ts = (TypeSystem) er.tr.typeSystem();
-            if (ts.isUnsigned(t)) {
-                if (ts.isUByte(t))
+            if (t.isUnsignedNumeric()) {
+                if (t.isUByte())
                     return "x10.rtt.Types.UBYTE";
-                if (ts.isUShort(t))
+                if (t.isUShort())
                     return "x10.rtt.Types.USHORT";
-                if (ts.isUInt(t))
+                if (t.isUInt())
                     return "x10.rtt.Types.UINT";
-                if (ts.isULong(t))
+                if (t.isULong())
                     return "x10.rtt.Types.ULONG";
-            } else {
+            } else if (t.isSignedNumeric()) {
                 if (t.isByte())
                     return "x10.rtt.Types.BYTE";
                 if (t.isShort())
@@ -250,6 +250,7 @@ final public class RuntimeTypeExpander extends Expander {
                     return "x10.rtt.Types.INT";
                 if (t.isLong())
                     return "x10.rtt.Types.LONG";
+            } else {
                 if (t.isFloat())
                     return "x10.rtt.Types.FLOAT";
                 if (t.isDouble())

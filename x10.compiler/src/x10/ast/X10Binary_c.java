@@ -581,7 +581,7 @@ public class X10Binary_c extends Binary_c {
             //// If comparing signed vs. unsigned, check if one operand is a constant convertible to the other (base) type.
             //// If so, insert the conversion and check again.
             //
-            //if ((xts.isSigned(lbase) && xts.isUnsigned(rbase)) || (xts.isUnsigned(lbase) && xts.isSigned(rbase))) {
+            //if ((xts.isSignedNumeric(lbase) && xts.isUnsignedNumeric(rbase)) || (xts.isUnsignedNumeric(lbase) && xts.isSignedNumeric(rbase))) {
             //    try {
             //        if (lv != null && xts.numericConversionValid(rbase, lbase, lv, context)) {
             //            Expr e = Converter.attemptCoercion(tc, left, rbase);
@@ -600,11 +600,11 @@ public class X10Binary_c extends Binary_c {
             //    } catch (SemanticException e) { } // FIXME
             //}
             
-            if (xts.isUnsigned(lbase) && xts.isSigned(rbase))
+            if (xts.isUnsignedNumeric(lbase) && xts.isSignedNumeric(rbase))
                 Errors.issue(tc.job(),
                         new Errors.CannotCompareUnsignedVersusSignedValues(position()));
 
-            if (xts.isSigned(lbase) && xts.isUnsigned(rbase))
+            if (xts.isSignedNumeric(lbase) && xts.isUnsignedNumeric(rbase))
                 Errors.issue(tc.job(),
                         new Errors.CannotCompareSignedVersusUnsignedValues(position()));
         }

@@ -1488,8 +1488,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             
             boolean fits = false;
             
-            boolean signedFrom = ts.isSigned(fromType);
-            boolean unsignedFrom = ts.isUnsigned(fromType);
+            boolean signedFrom = ts.isSignedNumeric(fromType);
+            boolean unsignedFrom = ts.isUnsignedNumeric(fromType);
 
             if (signedFrom) {
                 if (ts.isUByte(toType)) {

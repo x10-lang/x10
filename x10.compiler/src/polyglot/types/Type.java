@@ -244,6 +244,16 @@ public interface Type extends Qualifier, Annotated, Named
      */
     boolean isParameterType();
     
+    /**
+     * Return true if the type is Object
+     */
+    boolean isObject();
+    
+    /**
+     * Return true if the type is String
+     */
+    boolean isString();
+    
 
     /**
      * Yields a string representing this type.  The string

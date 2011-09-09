@@ -1083,6 +1083,10 @@ public interface TypeSystem {
 
     boolean isStruct(Type me);
 
+    boolean isObject(Type me);
+
+    boolean isString(Type me);
+
     boolean isClock(Type me);
 
     boolean isPoint(Type me);
@@ -1201,10 +1205,6 @@ public interface TypeSystem {
     X10ClassType IntRange();
 
     X10ClassType Iterator(Type formalType);
-
-    boolean isUnsigned(Type r);
-
-    boolean isSigned(Type l);
 
     boolean numericConversionValid(Type toType, Type fromType, Object constantValue, Context context);
 
