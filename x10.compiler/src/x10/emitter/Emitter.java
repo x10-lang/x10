@@ -609,8 +609,8 @@ public class Emitter {
 
 	public static boolean isNativeRepedToJava(Type ct) {
 	    Type bt = Types.baseType(ct);
-	    if (bt instanceof X10ClassType) {
-	        X10ClassDef def = ((X10ClassType) bt).x10Def();
+	    if (bt.isClass()) {
+	        X10ClassDef def = bt.toClass().x10Def();
 	        String pat = getJavaRep(def);
 	        if (pat != null && pat.startsWith("java.")) {
 	            return true;
@@ -621,8 +621,8 @@ public class Emitter {
 
         public static boolean isNativeReped(Type ct) {
             Type bt = Types.baseType(ct);
-            if (bt instanceof X10ClassType) {
-                X10ClassDef def = ((X10ClassType) bt).x10Def();
+            if (bt.isClass()) {
+                X10ClassDef def = bt.toClass().x10Def();
                 String pat = getJavaRep(def);
                 if (pat != null) {
                     return true;
@@ -644,8 +644,8 @@ public class Emitter {
 	
 	public static boolean isNativeClassToJava(Type ct) {
         Type bt = Types.baseType(ct);
-        if (bt instanceof X10ClassType) {
-            X10ClassDef cd = ((X10ClassType) bt).x10Def();
+        if (bt.isClass()) {
+            X10ClassDef cd = bt.toClass().x10Def();
             String pat = getNativeClassJavaRepParam(cd, 1);
             if (pat != null && pat.startsWith("java.")) {
                 return true;
@@ -656,8 +656,8 @@ public class Emitter {
 	
 	public static boolean isJavaType(Type ct) {
         Type bt = Types.baseType(ct);
-        if (bt instanceof X10ClassType) {
-        	X10ClassType xct = (X10ClassType) bt;
+        if (bt.isClass()) {
+        	X10ClassType xct = bt.toClass();
         	if (xct.isJavaType()) return true;
         	Type superClass = xct.superClass();
         	if (superClass != null && isJavaType(superClass)) return true;
@@ -670,8 +670,8 @@ public class Emitter {
 
 	private static String getPropertyInit(Type at, int index) {
 		at = Types.baseType(at);
-		if (at instanceof X10ClassType) {
-			X10ClassType act = (X10ClassType) at;
+		if (at.isClass()) {
+			X10ClassType act = at.toClass();
 			if (index < act.propertyInitializers().size()) {
 				Expr e = act.propertyInitializer(index);
 				if (e != null && e.isConstant()) {
@@ -687,8 +687,8 @@ public class Emitter {
 
 	private static void assertNumberOfInitializers(Type at, int len) {
 		at = Types.baseType(at);
-		if (at instanceof X10ClassType) {
-			X10ClassType act = (X10ClassType) at;
+		if (at.isClass()) {
+			X10ClassType act = at.toClass();
 			assert len == act.propertyInitializers().size();
 		}
 	}
@@ -704,8 +704,8 @@ public class Emitter {
 		}
 
 		// If the type has a native representation, use that.
-		if (type instanceof X10ClassType) {
-			X10ClassDef cd = ((X10ClassType) type).x10Def();
+		if (type.isClass()) {
+			X10ClassDef cd = type.toClass().x10Def();
 			String pat = getJavaRep(cd, boxPrimitives);	// @NativeRep("java", JavaRep, n/a, JavaRTTRep) 
 			if (pat != null) {
                 List<ParameterType> classTypeParams  = cd.typeParameters();
@@ -714,7 +714,7 @@ public class Emitter {
                 if (classTypeParams != null) {
                     classTypeParamsIter = classTypeParams.iterator();
                 }
-				List<Type> classTypeArgs = ((X10ClassType) type).typeArguments();
+				List<Type> classTypeArgs = type.toClass().typeArguments();
 				if (classTypeArgs == null) classTypeArgs = Collections.<Type>emptyList();
 				Map<String,Object> components = new HashMap<String,Object>();
 				int i = 0;
@@ -807,8 +807,8 @@ public class Emitter {
 
 		type = Types.baseType(type);
 
-		if (type instanceof X10ClassType) {
-			X10ClassType ct = (X10ClassType) type;
+		if (type.isClass()) {
+			X10ClassType ct = type.toClass();
 			if (ct.isAnonymous()) {
 				if (ct.interfaces().size() > 0) {
 					printType(ct.interfaces().get(0), flags);
@@ -876,8 +876,8 @@ public class Emitter {
 
 		// Print the class name
 		if (ignoreQual) {
-			if (type instanceof X10ClassType) {
-				w.write(mangleToJava(((X10ClassType) type).name()));
+			if (type.isClass()) {
+				w.write(mangleToJava(type.toClass().name()));
 			} else {
 				type.print(w);
 			}
@@ -888,8 +888,8 @@ public class Emitter {
 		}
 
 		if (printTypeParams) {
-			if (type instanceof X10ClassType) {
-				X10ClassType ct = (X10ClassType) type;
+			if (type.isClass()) {
+				X10ClassType ct = type.toClass();
 				List<Type> typeArgs = ct.typeArguments();
 				if (typeArgs == null) typeArgs = new ArrayList<Type>(ct.x10Def().typeParameters());
 				String sep = "<";
@@ -1341,12 +1341,12 @@ public class Emitter {
                 if (type instanceof ParameterType) {
                     it.remove();
                 }
-                if (type instanceof X10ClassType) {
+                if (type.isClass()) {
                     TypeSystem ts = context.typeSystem();
                     if (ts.isAny(type) || ts.isObjectType(type, context)) {
                         it.remove();
                     }
-                    else if (!((X10ClassType) type).flags().isInterface()) {
+                    else if (!type.toClass().flags().isInterface()) {
                         if (supClassType != null ) {
                             if (type.isSubtype(supClassType, context)) {
                                 supClassType = type;
@@ -1426,12 +1426,12 @@ public class Emitter {
                 }
             }
         }
-        else if (type instanceof X10ClassType) {
-            X10ClassType ct = (X10ClassType) type;
+        else if (type.isClass()) {
+            X10ClassType ct = type.toClass();
             if (ct.typeArguments() != null && ct.typeArguments().size() > 0) {
                 for (Type apt : alreadyPrintedTypes) {
-                    if (apt instanceof X10ClassType && !(apt instanceof FunctionType)) {
-                        if (((X10ClassType) apt).name().toString().equals(((X10ClassType) type).name().toString())) {
+                    if (apt.isClass() && !(apt instanceof FunctionType)) {
+                        if (apt.toClass().name().toString().equals(type.toClass().name().toString())) {
                             alreadyPrinted = true;
                             break;
                         }
@@ -1468,10 +1468,10 @@ public class Emitter {
             sb.append(UNSIGNED_NUMERIC_TYPE_SUFFIX);
         }
         Type t = Types.baseType(type);
-        if (t instanceof X10ClassType && (printIncludingGeneric || !containsTypeParam(t))) {
+        if (t.isClass() && (printIncludingGeneric || !containsTypeParam(t))) {
             // def g(l:x10.util.Map[x10.lang.Int,x10.lang.Float]) {...}
             //  -> g__0$1x10$lang$Int$3x10$lang$Float$2(x10.util.Map l) {...}  ("$1", "$2" and "$3" means "[", "]" and ",", respectively)
-            X10ClassType x10t = (X10ClassType) t;
+            X10ClassType x10t = t.toClass();
             List<Type> ts = x10t.typeArguments();
             if (ts != null && ts.size() > 0) {
                 sb.append(FORMAL_MARKER(i));
@@ -1494,8 +1494,8 @@ public class Emitter {
     }
 
     private static void appendParameterizedType(StringBuilder sb, ClassType ct, Type t) {
-        if (t instanceof X10ClassType) {
-            X10ClassType x10t = (X10ClassType) t;
+        if (t.isClass()) {
+            X10ClassType x10t = t.toClass();
             sb.append(mangleAndFlattenQName(x10t.fullName()));
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
@@ -1531,8 +1531,8 @@ public class Emitter {
 	    if (type instanceof ParameterType) {
 	        return true;
 	    }
-	    else if (type instanceof X10ClassType) {
-	        List<Type> tas = ((X10ClassType) type).typeArguments();
+	    else if (type.isClass()) {
+	        List<Type> tas = type.toClass().typeArguments();
 	        if (tas != null) {
 	            for (Type type1 : tas) {
 	                if (containsTypeParam(type1)) {
@@ -1595,8 +1595,8 @@ public class Emitter {
             }
         }
         Type sup = ct.superClass();
-        if (sup instanceof X10ClassType) {
-            for (MethodInstance mi : ((X10ClassType)(sup)).methods()) {
+        if (sup != null && sup.isClass()) {
+            for (MethodInstance mi : sup.toClass().methods()) {
                 if (!mi.flags().isStatic() && !mi.flags().isPrivate()) {
                     boolean contains = false;
                     for (MethodInstance mi2 : overrides) {
@@ -1610,14 +1610,14 @@ public class Emitter {
                     }
                 }
             }
-            getInheritedMethods((X10ClassType) sup, results, overrides);
+            getInheritedMethods(sup.toClass(), results, overrides);
         }       
     }
 
     private void getImplMethods(MethodInstance mi, List<MethodInstance> implMethods, List<Type> interfaces) {
         for (Type type : interfaces) {
-            if (type instanceof X10ClassType) {
-                List<MethodInstance> imis = ((X10ClassType) type).methods();
+            if (type.isClass()) {
+                List<MethodInstance> imis = type.toClass().methods();
                 for (MethodInstance imi : imis) {
                     if (!(imi.name().equals(mi.name()) && imi.formalTypes().size() == mi.formalTypes().size())) continue;
 
@@ -1666,7 +1666,7 @@ public class Emitter {
                         }
                     }
                 }
-                getImplMethods(mi, implMethods, ((X10ClassType) type).interfaces());
+                getImplMethods(mi, implMethods, type.toClass().interfaces());
             }
         }
     }
@@ -1693,7 +1693,7 @@ public class Emitter {
             Type ti = impled.container();
             ti = Types.baseType(ti);
 
-            if (ti instanceof X10ClassType && !((X10ClassType) ti).flags().isInterface()) {
+            if (ti.isClass() && !ti.toClass().flags().isInterface()) {
                 if (
                         X10PrettyPrinterVisitor.isGenericOverloading
                         || (ti.typeEquals(ct.superClass(), tr.context()) || (ct.isMember() && ti.typeEquals(ct.container(), tr.context())))
@@ -1775,8 +1775,8 @@ public class Emitter {
 	        }
 	    }
 	    t = Types.baseType(t);
-	    if (t instanceof X10ClassType) {
-	        for (Type ti : ((X10ClassType) t).interfaces()) {
+	    if (t.isClass()) {
+	        for (Type ti : t.toClass().interfaces()) {
 	            if (existMethodInterfaces(ti, type, mi, mdi)) {
 	                return true;
 	            }
@@ -1867,7 +1867,7 @@ public class Emitter {
 	        }
 	    }
 
-	    boolean isInterface = st instanceof X10ClassType && ((X10ClassType) st).flags().isInterface();
+	    boolean isInterface = st.isClass() && st.toClass().flags().isInterface();
 	    
 	    w.allowBreak(2, 2, " ", 1);
 
@@ -1948,8 +1948,8 @@ public class Emitter {
 	    boolean isInterface2 = false;
 	    ContainerType st2 = impl.container();
 	    Type bst = Types.baseType(st2);
-        if (st2 instanceof X10ClassType) {
-	        if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && ((X10ClassType) bst).isAnonymous())) {
+        if (st2.isClass()) {
+	        if (xts.isInterfaceType(bst) || (xts.isFunctionType(bst) && bst.toClass().isAnonymous())) {
 	            isInterface2 = true;
 	        }
 	    }
@@ -2148,7 +2148,7 @@ public class Emitter {
             Type ti = impled.container();
             ti = Types.baseType(ti);
             
-            if (ti instanceof X10ClassType && !((X10ClassType) ti).flags().isInterface()) {
+            if (ti.isClass() && !ti.toClass().flags().isInterface()) {
                 if (
                         X10PrettyPrinterVisitor.isGenericOverloading
                         || (ti.typeEquals(ct.superClass(), tr.context()) || (ct.isMember() && ti.typeEquals(ct.container(), tr.context())))
@@ -2193,8 +2193,8 @@ public class Emitter {
             }
         }
         t = Types.baseType(t);
-        if (t instanceof X10ClassType) {
-            for (Type ti : ((X10ClassType) t).interfaces()) {
+        if (t.isClass()) {
+            for (Type ti : t.toClass().interfaces()) {
                 if (existMethodInterfaces2(ti, type, mi, mdi)) {
                     return true;
                 }
@@ -2205,8 +2205,8 @@ public class Emitter {
 
     private void getImplMethods2(MethodInstance mi, List<MethodInstance> implMethods, List<Type> interfaces) {
         for (Type type : interfaces) {
-            if (type instanceof X10ClassType) {
-                List<MethodInstance> imis = ((X10ClassType) type).methods();
+            if (type.isClass()) {
+                List<MethodInstance> imis = type.toClass().methods();
                 for (MethodInstance imi : imis) {
                     if (!(imi.name().equals(mi.name()) && imi.formalTypes().size() == mi.formalTypes().size())) continue;
 
@@ -2238,7 +2238,7 @@ public class Emitter {
                         }
                     }
                 }
-                getImplMethods2(mi, implMethods, ((X10ClassType) type).interfaces());
+                getImplMethods2(mi, implMethods, type.toClass().interfaces());
             }
         }
     }    
@@ -2261,8 +2261,8 @@ public class Emitter {
                 
                 // only interface
                 ContainerType st = implemented.def().container().get();
-                if (st instanceof X10ClassType) {
-                    if (!((X10ClassType) st).flags().isInterface()) {
+                if (st.isClass()) {
+                    if (!st.toClass().flags().isInterface()) {
                         continue;
                     }
                     // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
@@ -2333,7 +2333,7 @@ public class Emitter {
                         Type ft = formalTypes.get(i).get();
                         Type tt = td.formalTypes().get(i).get();
                         if ((ft instanceof ParameterType && td.formalTypes().get(i).get() instanceof ParameterType)) {}
-                        else if (ft instanceof X10ClassType && tt instanceof X10ClassType && ((X10ClassType) ft).name().toString().equals(((X10ClassType) tt).name().toString())) {}
+                        else if (ft.isClass() && tt.isClass() && ft.toClass().name().toString().equals(tt.toClass().name().toString())) {}
                         else {
                             isContainsSameSignature = false;
                             break;
@@ -2354,8 +2354,8 @@ public class Emitter {
 
     private void getImplMethodsForDispatch(MethodInstance mi, List<MethodInstance> implMethods, List<Type> interfaces) {
         for (Type type : interfaces) {
-            if (type instanceof X10ClassType) {
-                List<MethodInstance> imis = ((X10ClassType) type).methods();
+            if (type.isClass()) {
+                List<MethodInstance> imis = type.toClass().methods();
                 for (MethodInstance imi : imis) {
                     if (!(imi.name().equals(mi.name()) && imi.formalTypes().size() == mi.formalTypes().size())) continue;
                     if (isContainSameSignature(implMethods, imi)) continue;
@@ -2367,7 +2367,7 @@ public class Emitter {
                         }
                     }
                 }
-                getImplMethodsForDispatch(mi, implMethods, ((X10ClassType) type).interfaces());
+                getImplMethodsForDispatch(mi, implMethods, type.toClass().interfaces());
             }
         }
     }
@@ -2376,8 +2376,8 @@ public class Emitter {
         allInterfaces.addAll(interfaces);
         for (Type type : interfaces) {
         	type = Types.baseType(type);
-            if (type instanceof X10ClassType) {
-                List<Type> interfaces1 = ((X10ClassType) type).interfaces();
+            if (type.isClass()) {
+                List<Type> interfaces1 = type.toClass().interfaces();
                 getAllInterfaces(interfaces1, allInterfaces);
             }
         }
@@ -2995,8 +2995,8 @@ public class Emitter {
 
     private void printRTT(final X10ClassDef def, Type type) {
         type = Types.baseType(type);
-        if (type instanceof X10ClassType) {
-            X10ClassType x10Type = (X10ClassType) type;
+        if (type.isClass()) {
+            X10ClassType x10Type = type.toClass();
             if (x10Type.isJavaType()) {
             	w.write("x10.rtt.Types.getRTT(");
             	printType(x10Type, 0);
@@ -3265,9 +3265,9 @@ public class Emitter {
                 Type superType0 = superType0Ref.get();
                 X10ClassType superType;
                 if (superType0 instanceof ConstrainedType) {
-                    superType = (X10ClassType) ((ConstrainedType) superType0).baseType().get();
+                    superType = ((ConstrainedType) superType0).baseType().get().toClass();
                 } else {
-                    superType = (X10ClassType) superType0;
+                    superType = superType0.toClass();
                 }
                 w.write("super(");
                 if (superType.typeArguments() != null) {
@@ -3470,9 +3470,9 @@ public class Emitter {
             Type superType0 = superType0Ref.get();
             X10ClassType superType;
             if (superType0 instanceof ConstrainedType) {
-                superType = (X10ClassType) ((ConstrainedType) superType0).baseType().get();
+                superType = ((ConstrainedType) superType0).baseType().get().toClass();
             } else {
-                superType = (X10ClassType) superType0;
+                superType = superType0.toClass();
             }
             w.write("super(");
             if (superType.typeArguments() != null) {
@@ -3502,8 +3502,8 @@ public class Emitter {
             String lhs = "this." + field.name().toString() + " = ";
             String zero = null;
 //            // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
-//            if (type instanceof X10ClassType && getJavaZeroValueRep(((X10ClassType) type).x10Def()) != null) {
-//                zero = getJavaZeroValueRep(((X10ClassType) type).x10Def());
+//            if (type.isClass() && getJavaZeroValueRep(type.toClass().x10Def()) != null) {
+//                zero = getJavaZeroValueRep(type.toClass().x10Def());
 //            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
@@ -3576,7 +3576,7 @@ public class Emitter {
         Type ttype = Types.baseType(c.target().type());
         
         if (isMethodInlineTarget(xts, ttype)) {
-            Type ptype = ((X10ClassType) ttype).typeArguments().get(0);
+            Type ptype = ttype.toClass().typeArguments().get(0);
             Name methodName = c.methodInstance().name();
             // e.g. rail.set(a,i) -> ((Object[]) rail.value)[i] = a or ((int[]/* primitive array */)rail.value)[i] = a
             if (methodName==SettableAssign.SET) {
@@ -3628,7 +3628,7 @@ public class Emitter {
         if (!X10PrettyPrinterVisitor.hasParams(ttype)) {
             return true;
         }
-        List<Type> ta = ((X10ClassType) ttype).typeArguments();
+        List<Type> ta = ttype.toClass().typeArguments();
         if (ta != null && !ta.isEmpty() && !xts.isParameterType(ta.get(0))) {
             return true;
         }
@@ -3654,7 +3654,7 @@ public class Emitter {
 	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
     		List<Type> classTypeArguments  = Collections.<Type>emptyList();
     		if (mi.container().isClass() && !mi.flags().isStatic()) {
-    		    X10ClassType ct = (X10ClassType) mi.container().toClass();
+    		    X10ClassType ct = mi.container().toClass();
 	            classTypeParams = ct.x10Def().typeParameters();
     		    classTypeArguments = ct.typeArguments();
 	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
@@ -3691,7 +3691,7 @@ public class Emitter {
 	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
             List<Type> classTypeArguments  = Collections.<Type>emptyList();
             if (mi.container().isClass() && !mi.flags().isStatic()) {
-                X10ClassType ct = (X10ClassType) mi.container().toClass();
+                X10ClassType ct = mi.container().toClass();
 	            classTypeParams = ct.x10Def().typeParameters();
                 classTypeArguments = ct.typeArguments();
 	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
@@ -3748,7 +3748,7 @@ public class Emitter {
 	        List<ParameterType> classTypeParams  = Collections.<ParameterType>emptyList();
     		List<Type> classTypeArguments  = Collections.<Type>emptyList();
     		if (mi.container().isClass() && !mi.flags().isStatic()) {
-    		    X10ClassType ct = (X10ClassType) mi.container().toClass();
+    		    X10ClassType ct = mi.container().toClass();
 	            classTypeParams = ct.x10Def().typeParameters();
     		    classTypeArguments = ct.typeArguments();
 	            if (classTypeParams == null) classTypeParams = Collections.<ParameterType>emptyList();
