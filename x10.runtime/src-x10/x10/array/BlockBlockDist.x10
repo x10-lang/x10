@@ -70,53 +70,58 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val sizeFirst = (axis1 > axis0) ? size0 : size1;
-        val sizeSecond = (axis1 > axis0) ? size1 : size0;
-        val P = Math.min(pg.numPlaces(), size0 * size1);
-        val divisions0 = Math.min(size0, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
+        val size0Even = size0 % 2 == 0 ? size0 : size0-1;
+        val P = Math.min(pg.numPlaces(), size0Even * size1);
+        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Int);
-        val divisionsFirst = (axis1 > axis0) ? divisions0 : divisions1;
-        val divisionsSecond = (axis1 > axis0) ? divisions1 : divisions0;
-        val numElems = size0 * size1;
         val leftOver = divisions0*divisions1 - P;
-        val minFirst = (axis1 > axis0) ? min0 : min1;
-        val maxFirst = (axis1 > axis0) ? max0 : max1;
-        val minSecond = (axis1 > axis0) ? min1 : min0;
-        val maxSecond = (axis1 > axis0) ? max1 : max0;
 
         val i = pg.indexOf(place);
+        if (i >= P) return Region.makeEmpty(rank);
 
         val leftOverOddOffset = (divisions0 % 2 == 0) ? 0 : i*2/(divisions0+1);
-        val lowFirst = Math.min(minFirst + (i < leftOver+leftOverOddOffset ? ((i*2-leftOverOddOffset) % divisions0) : ((i+leftOver) % divisions0)) * sizeFirst / divisionsFirst, maxFirst);
-        val hiFirst = Math.min(lowFirst + sizeFirst / divisionsFirst - 1 + (i < leftOver+leftOverOddOffset ? sizeFirst / divisionsFirst : 0), maxFirst);
 
-        val rawLowSecond = (minSecond + ((i < leftOver ? (i*2) / divisions0 : ((i+leftOver)/divisions0)) * sizeSecond / divisionsSecond));
-        val lowSecond = maxSecond - Math.round(maxSecond - rawLowSecond);
-        val hiSecond = Math.min(maxSecond - (Math.round(maxSecond - (rawLowSecond + sizeSecond / divisionsSecond)) + 1.0), maxSecond);
+        val blockIndex0 = i < leftOver ? (i*2-leftOverOddOffset) % divisions0 : (i+leftOver) % divisions0;
+        val blockIndex1 = i < leftOver ? (i*2) / divisions0 : (i+leftOver) / divisions0;
+
+        val low0 = Math.ceil(blockIndex0 * size0 / divisions0 as Double) as Int;
+        val blockHi0 = blockIndex0 + (i < leftOver ? 2 : 1);
+        val hi0 = Math.ceil(blockHi0 * size0 / divisions0 as Double) as Int - 1;
+
+        val low1 = Math.ceil(blockIndex1 * size1 / divisions1 as Double) as Int;
+        val hi1 = Math.ceil((blockIndex1+1) * size1 / divisions1 as Double) as Int - 1;
 
         if (region instanceof RectRegion) {
             // Optimize common case.
             val newMin = new Array[Int](rank, (i : Int) => region.min(i));
             val newMax = new Array[Int](rank, (i : Int) => region.max(i));
-            if (axis0 < axis1) {
-                newMin(axis0) = (Math.round(lowFirst) as Int);
-                newMin(axis1) = (Math.round(lowSecond) as Int);
-                newMax(axis0) = (Math.round(hiFirst) as Int);
-                newMax(axis1) = (Math.round(hiSecond) as Int);
-            } else {
-                newMin(axis1) = (Math.round(lowFirst) as Int);
-                newMin(axis0) = (Math.round(lowSecond) as Int);
-                newMax(axis1) = (Math.round(hiFirst) as Int);
-                newMax(axis0) = (Math.round(hiSecond) as Int);
-            }
+            newMin(axis0) = low0;
+            newMin(axis1) = low1;
+            newMax(axis0) = hi0;
+            newMax(axis1) = hi1;
             return new RectRegion(newMin, newMax) as Region(rank);
         } else {
             // General case handled via region algebra
             val beforeAxes = (axis1 > axis0) ? Region.makeFull(axis0) : Region.makeFull(axis1);
             val betweenAxes = (axis1 > axis0) ? Region.makeFull(axis1-axis0-1) : Region.makeFull(axis0-axis1-1);
             val afterAxes = (axis1 > axis0) ? Region.makeFull(region.rank-axis1-1) : Region.makeFull(region.rank-axis0-1);
-            val rFirst = (Math.round(lowFirst) as Int)..(Math.round(hiFirst) as Int);
-            val rSecond = (lowSecond as Int)..(hiSecond as Int);
+            var lowFirst:Int;
+            val hiFirst:Int;
+            val lowSecond:Int;
+            val hiSecond:Int;
+            if (axis1 > axis0) {
+                lowFirst = low0;
+                lowSecond = low1;
+                hiFirst = hi0;
+                hiSecond = hi1;
+            } else {
+                lowFirst = low1;
+                lowSecond = low0;
+                hiFirst = hi1;
+                hiSecond = hi0;
+            }
+            val rFirst = lowFirst..hiFirst;
+            val rSecond = lowSecond..hiSecond;
             
             return (beforeAxes.product(rFirst).product(betweenAxes).product(rSecond).product(afterAxes) as Region(region.rank)).intersection(region);
         }
@@ -136,19 +141,16 @@ final class BlockBlockDist extends Dist {
         val max1 = b.max(axis1);
         val size0 = (max0 - min0 + 1);
         val size1 = (max1 - min1 + 1);
-        val P = Math.min(pg.numPlaces(), size0 * size1);
-        val divisions0 = Math.min(size0, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
+        val size0Even = size0 % 2 == 0 ? size0 : size0-1;
+        val P = Math.min(pg.numPlaces(), size0Even * size1);
+        val divisions0 = Math.min(size0Even, Math.pow2(Math.ceil((Math.log(P as Double) / Math.log(2.0)) / 2.0) as Int));
         val divisions1 = Math.min(size1, Math.ceil((P as Double) / divisions0) as Int);
         val numBlocks = divisions0 * divisions1;
         val leftOver = numBlocks - P;
 
-        val blockIndex0 = ((index0 - min0) * divisions0 / size0) as Int;
-        val blockIndex1 = ((index1 - min1) * divisions1 / size1) as Int;
+        val blockIndex0 = divisions0 == 1 ? 0 : ((index0 - min0) * divisions0) / size0;
+        val blockIndex1 = divisions1 == 1 ? 0 : ((index1 - min1) * divisions1) / size1;
         val blockIndex = (blockIndex1 * divisions0) + blockIndex0;
-
-        //Console.OUT.println("divisions0 = " + divisions0);
-        //Console.OUT.println("divisions1 = " + divisions1);
-        //Console.OUT.println("blockIndex = " + blockIndex);
 
         if (blockIndex <= leftOver * 2) {
             return pg((blockIndex / 2) as Int);
@@ -156,7 +158,6 @@ final class BlockBlockDist extends Dist {
             return pg(blockIndex - leftOver);
         }
     }
-
 
     public def places():PlaceGroup = pg;
 
