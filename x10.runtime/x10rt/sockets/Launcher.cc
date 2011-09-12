@@ -460,7 +460,9 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 /*     prepare FD sets to listen to in main loop                           */
 /* *********************************************************************** */
 
+#ifndef MAX
 #define MAX(a,b) (((a)<(b))?(b):(a))
+#endif
 int Launcher::makeFDSets(fd_set * infds, fd_set * outfds, fd_set * efds)
 {
 	int fd_max = 0;
