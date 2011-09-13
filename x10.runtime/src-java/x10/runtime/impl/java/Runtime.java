@@ -253,6 +253,20 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return Boolean.valueOf(property);
     }
 
+    public static final boolean X10_TRACE_ANSI_COLORS = Boolean.getBoolean("X10_TRACE_ANSI_COLORS");
+
+    public static final String ANSI_RESET = X10_TRACE_ANSI_COLORS? "\u001b[1;0m" :"";
+    public static final String ANSI_BOLD = X10_TRACE_ANSI_COLORS? "\u001b[1;1m" :"";
+    public static final String ANSI_CYAN = X10_TRACE_ANSI_COLORS? "\u001b[1;36m" :"";
+
+    public static void printTraceMessage(String message) {
+        print(ANSI_CYAN, message);
+    }
+
+    private static void print(String col, String message) {
+        System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + "SS: " + ANSI_RESET + message);
+    }
+
     public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, int endpoint) {
          runAsyncAt(place, body, finishState);
     }

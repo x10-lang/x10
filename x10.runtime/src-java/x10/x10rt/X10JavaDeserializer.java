@@ -52,7 +52,7 @@ public class X10JavaDeserializer {
 
     public int record_reference(Object obj) {
         if (Runtime.TRACE_SER) {
-            System.out.println("\tRecording reference of type " + obj.getClass() + " at " + counter + "  (absolute) in map");
+            Runtime.printTraceMessage("\tRecorded new reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET + " at " + counter + "  (absolute) in map");
         }
         objectList.add(counter, obj);
         counter++;
@@ -67,7 +67,7 @@ public class X10JavaDeserializer {
     public Object getObjectAtPosition(int pos) {
         Object o = objectList.get(pos);
         if (Runtime.TRACE_SER) {
-            System.out.println("\t\tRetrieving repeated reference  of type " + o.getClass() + " at " + pos + "  (absolute) in map");
+            Runtime.printTraceMessage("\t\tRetrieving repeated reference  of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + o.getClass().getName() + Runtime.ANSI_RESET + " at " + pos + "  (absolute) in map");
         }
         return o;
     }
@@ -78,6 +78,9 @@ public class X10JavaDeserializer {
     }
 
     public Object readRef(short serializationID) throws IOException {
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Dispatching deserialisation using id " + serializationID);
+        }
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         }
@@ -97,7 +100,7 @@ public class X10JavaDeserializer {
     public int readInt() throws IOException {
         int v = in.readInt();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a int: " + v);
+            Runtime.printTraceMessage("Deserializing [****] a " + Runtime.ANSI_CYAN + "int" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -114,7 +117,7 @@ public class X10JavaDeserializer {
     public boolean readBoolean() throws IOException {
         boolean v = in.readBoolean();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a boolean: " + v);
+            Runtime.printTraceMessage("Deserializing [*] a " + Runtime.ANSI_CYAN + "boolean" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -131,7 +134,7 @@ public class X10JavaDeserializer {
     public char readChar() throws IOException {
         char v = in.readChar();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a char: " + v);
+            Runtime.printTraceMessage("Deserializing [**] a " + Runtime.ANSI_CYAN + "char" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -148,7 +151,7 @@ public class X10JavaDeserializer {
     public byte readByte() throws IOException {
         byte v = in.readByte();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a byte: " + v);
+            Runtime.printTraceMessage("Deserializing [****] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -170,7 +173,7 @@ public class X10JavaDeserializer {
     public short readShort() throws IOException {
         short v = in.readShort();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a short: " + v);
+            Runtime.printTraceMessage("Deserializing [**] a " + Runtime.ANSI_CYAN + "short" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -187,7 +190,7 @@ public class X10JavaDeserializer {
     public long readLong() throws IOException {
         long v = in.readLong();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a long: " + v);
+            Runtime.printTraceMessage("Deserializing [********] a " + Runtime.ANSI_CYAN + "long" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -204,7 +207,7 @@ public class X10JavaDeserializer {
     public double readDouble() throws IOException {
         double v = in.readDouble();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a double: " + v);
+            Runtime.printTraceMessage("Deserializing [********] a " + Runtime.ANSI_CYAN + "double" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -221,7 +224,7 @@ public class X10JavaDeserializer {
     public float readFloat() throws IOException {
         float v = in.readFloat();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a float: " + v);
+            Runtime.printTraceMessage("Deserializing [********] a " + Runtime.ANSI_CYAN + "float" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -241,13 +244,13 @@ public class X10JavaDeserializer {
             return (String) getObjectAtPosition(readInt());
         } else if (classID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
-                System.out.println("Deserializing a null reference");
+                Runtime.printTraceMessage("Deserializing a null reference");
             }
             return null;
         }
         String str = readStringValue();
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing a String: " + str);
+            Runtime.printTraceMessage("Deserializing a " + Runtime.ANSI_CYAN + "String" + Runtime.ANSI_RESET + ": " + str);
         }
         record_reference(str);
         return str;
@@ -275,7 +278,7 @@ public class X10JavaDeserializer {
             return getObjectAtPosition(readInt());
         } else if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
-                System.out.println("Deserialized a null reference");
+                Runtime.printTraceMessage("Deserialized a null reference");
             }
             return null;
         } else if (serializationID <= 8) {
@@ -283,7 +286,7 @@ public class X10JavaDeserializer {
         }
 
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing non-null value with id " + serializationID);
+            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
         }
         return deserializeRefUsingReflection(serializationID);
     }
@@ -413,7 +416,7 @@ public class X10JavaDeserializer {
             } 
             if(isHadoopSerializable) {
             	if (Runtime.TRACE_SER) {
-                    System.out.println("Calling hadoop deserializer with object of type " + clazz);
+                    Runtime.printTraceMessage("Calling hadoop deserializer with object of type " + clazz);
                 }
             	
             	Constructor<?> meth = clazz.getDeclaredConstructor(EMPTY_ARRAY);

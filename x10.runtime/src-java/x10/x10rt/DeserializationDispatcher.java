@@ -110,7 +110,7 @@ public class DeserializationDispatcher {
             return deserializer.getObjectAtPosition(deserializer.readInt());
         } else if (i == NULL_ID) {
             if (Runtime.TRACE_SER) {
-                System.out.println("Deserialized a null reference");
+                Runtime.printTraceMessage("Deserialized a null reference");
             }
             return null;
         } else if (i <=8) {
@@ -118,7 +118,7 @@ public class DeserializationDispatcher {
         }
 
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing non-null value with id " + i);
+            Runtime.printTraceMessage("Deserializing non-null value with id " + i);
         }
         try {
             Method method = idToDeserializermethod.get(i);
@@ -148,7 +148,7 @@ public class DeserializationDispatcher {
 
     public static Object deserializePrimitive(short i, X10JavaDeserializer deserializer) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Deserializing non-null value with id " + i);
+            Runtime.printTraceMessage("Deserializing non-null value with id " + i);
         }
         Object obj = null;
         switch(i) {

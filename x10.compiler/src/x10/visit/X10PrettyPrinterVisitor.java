@@ -620,7 +620,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 if (!config.NO_TRACES && !config.OPTIMIZE) {
                     w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                    w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                    w.write("x10.runtime.impl.java.Runtime.printTraceMessage(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
                     w.writeln("} ");
                 }
 

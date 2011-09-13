@@ -56,19 +56,19 @@ public class X10JavaSerializer {
         }
         short i = obj.$_get_serialization_id();
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing id " + i  + " of type " + obj.getClass());
+            Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "serialization_id_t" + Runtime.ANSI_RESET + ": " + i);
         }
-        write(i);
-        obj.$_serialize(this);
+        out.writeShort(i);
         if (Runtime.TRACE_SER) {
-            System.out.println("Completed serialization of type " + obj.getClass());
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET);
         }
+        obj.$_serialize(this);
     }
 
     private void writeNull() throws IOException {
         write(DeserializationDispatcher.NULL_ID);
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a null reference");
+            Runtime.printTraceMessage("Serializing a null reference");
         }
     }
 
@@ -93,7 +93,7 @@ public class X10JavaSerializer {
 
     public void write(int i) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a int: " + i);
+            Runtime.printTraceMessage("Serializing [****] a " + Runtime.ANSI_CYAN + " int" + Runtime.ANSI_RESET + ": " + i);
         }
         out.writeInt(i);
     }
@@ -108,7 +108,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a integer: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "integer" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.INTEGER_ID);
         out.writeInt(p.intValue());
@@ -123,7 +123,7 @@ public class X10JavaSerializer {
 
     public void write(boolean b) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a boolean: " + b);
+            Runtime.printTraceMessage("Serializing [*] a " + Runtime.ANSI_CYAN + "boolean" + Runtime.ANSI_RESET + ": " + b);
         }
         out.writeBoolean(b);
     }
@@ -138,7 +138,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a Boolean: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Boolean" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.BOOLEAN_ID);
         out.writeBoolean(p.booleanValue());
@@ -153,7 +153,7 @@ public class X10JavaSerializer {
 
     public void write(char c) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a char: " + c);
+            Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "char" + Runtime.ANSI_RESET + ": " + c);
         }
         out.writeChar(c);
     }
@@ -168,7 +168,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a Character: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Character" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.CHARACTER_ID);
         out.writeChar(p.charValue());
@@ -183,7 +183,7 @@ public class X10JavaSerializer {
 
     public void write(byte b) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a byte: " + b);
+            Runtime.printTraceMessage("Serializing [****] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + b);
         }
         out.writeByte(b);
     }
@@ -198,7 +198,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a Byte: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Byte" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.BYTE_ID);
         out.writeByte(p.byteValue());
@@ -215,7 +215,7 @@ public class X10JavaSerializer {
 
     public void write(short s) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a short: " + s);
+            Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "short" + Runtime.ANSI_RESET + ": " + s);
         }
         out.writeShort(s);
     }
@@ -230,7 +230,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a Short: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Short" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.SHORT_ID);
         out.writeShort(p.shortValue());
@@ -245,7 +245,7 @@ public class X10JavaSerializer {
 
     public void write(long l) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a long: " + l);
+            Runtime.printTraceMessage("Serializing [********] a " + Runtime.ANSI_CYAN + "long" + Runtime.ANSI_RESET + ": " + l);
         }
         out.writeLong(l);
     }
@@ -260,7 +260,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a Long: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Long" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.LONG_ID);
         out.writeLong(p.longValue());
@@ -275,7 +275,7 @@ public class X10JavaSerializer {
 
     public void write(double d) throws IOException {
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a double: " + d);
+            Runtime.printTraceMessage("Serializing [********] a " + Runtime.ANSI_CYAN + "double" + Runtime.ANSI_RESET + ": " + d);
         }
         out.writeDouble(d);
     }
@@ -290,7 +290,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a Double: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Double" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.DOUBLE_ID);
         out.writeDouble(p.doubleValue());
@@ -304,8 +304,8 @@ public class X10JavaSerializer {
     }
 
     public void write(float f) throws IOException {
-        if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a float: " + f);
+        if (Runtime.TRACE_SER) {           
+            Runtime.printTraceMessage("Serializing [********] a " + Runtime.ANSI_CYAN + "float" + Runtime.ANSI_RESET + ": " + f);
         }
         out.writeFloat(f);
     }
@@ -320,7 +320,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a Float: " + p);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Float" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.FLOAT_ID);
         out.writeFloat(p.floatValue());
@@ -344,7 +344,7 @@ public class X10JavaSerializer {
         }
 
         if (Runtime.TRACE_SER) {
-            System.out.println("Serializing a String: " + str);
+            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "String" + Runtime.ANSI_RESET + ": " + str);
         }
 
         Integer pos = previous_position(str, true);
@@ -375,7 +375,7 @@ public class X10JavaSerializer {
         Integer pos = objectMap.get(obj);
         if (pos != null) {
             if (Runtime.TRACE_SER) {
-                System.out.println("\t\tFound repeated reference of type " + obj.getClass() + " at " + pos + " (absolute) in map");
+                Runtime.printTraceMessage("\t\tFound repeated reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET+ " at " + pos + " (absolute) in map");
             }
             // We have serialized this object beofre hence no need to do it again
             if (writeRef) {
@@ -385,7 +385,7 @@ public class X10JavaSerializer {
         } else {
             objectMap.put(obj, counter);
             if (Runtime.TRACE_SER) {
-                System.out.println("\t\tRecorded new reference of type " + obj.getClass() + " at " + counter + " (absolute) in map");
+                Runtime.printTraceMessage("\t\tRecorded new reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET + " at " + counter + " (absolute) in map");
             }
             counter++;
         }
@@ -518,7 +518,7 @@ public class X10JavaSerializer {
     		}
     		if(isHadoopSerializable) {
     			if (Runtime.TRACE_SER) {
-    				System.out.println("Calling hadoop serializer with object of type " + bodyClass);
+    				Runtime.printTraceMessage("Calling hadoop serializer with object of type " + bodyClass);
     			}
     			java.lang.reflect.Method writeMethod = bodyClass.getMethod("write", java.io.DataOutput.class);
     			writeMethod.setAccessible(true);
