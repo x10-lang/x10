@@ -132,11 +132,11 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     public Byte $right$G(final int count) { return Byte.$box($value >> count); }
     public Byte $unsigned_right$G(final int count) { return Byte.$box($value >>> count); }
     
-    // implements Ordered<Byte>. Rely on autoboxing of booleans
-    public Object $lt(Byte b, Type t) { return ($value < b.$value); }
-    public Object $gt(Byte b, Type t) { return ($value > b.$value); }
-    public Object $le(Byte b, Type t) { return ($value <= b.$value); }
-    public Object $ge(Byte b, Type t) { return ($value >= b.$value); }
+    // implements Ordered<Byte>
+    public java.lang.Object $lt(Byte b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
+    public java.lang.Object $gt(Byte b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
+    public java.lang.Object $le(Byte b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
+    public java.lang.Object $ge(Byte b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
     
     // extends abstract class java.lang.Number
 //    @Override

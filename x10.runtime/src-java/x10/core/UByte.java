@@ -150,11 +150,11 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     public UByte $right$G(final int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
     public UByte $unsigned_right$G(final int count) { return UByte.$box((0xff & $value) >>> count); }
     
-    // implements Ordered<UByte>. Rely on autoboxing of booleans
-    public Object $lt(UByte a, Type t) { return Unsigned.lt($value,a.$value); }
-    public Object $gt(UByte a, Type t) { return Unsigned.gt($value,a.$value); }
-    public Object $le(UByte a, Type t) { return Unsigned.le($value,a.$value); }
-    public Object $ge(UByte a, Type t) { return Unsigned.ge($value,a.$value); }
+    // implements Ordered<UByte>
+    public java.lang.Object $lt(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,a.$value)); }
+    public java.lang.Object $gt(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
+    public java.lang.Object $le(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
+    public java.lang.Object $ge(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
     
     // extends abstract class java.lang.Number
     @Override

@@ -128,10 +128,10 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
         return c;
     }
     
-    // implements Ordered<Char>. Rely on autoboxing of booleans
-    public Object $lt(Char b, Type t) { return ($value < b.$value); }
-    public Object $gt(Char b, Type t) { return ($value > b.$value); }
-    public Object $le(Char b, Type t) { return ($value <= b.$value); }
-    public Object $ge(Char b, Type t) { return ($value >= b.$value); }
+    // implements Ordered<Char>
+    public java.lang.Object $lt(Char b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
+    public java.lang.Object $gt(Char b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
+    public java.lang.Object $le(Char b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
+    public java.lang.Object $ge(Char b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
     
 }

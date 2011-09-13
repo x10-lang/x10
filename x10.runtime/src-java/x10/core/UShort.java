@@ -134,11 +134,11 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public UShort $right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
     public UShort $unsigned_right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); }
     
-    // implements Ordered<UShort>. Rely on autoboxing of booleans
-    public Object $lt(UShort a, Type t) { return Unsigned.lt($value,a.$value); }
-    public Object $gt(UShort a, Type t) { return Unsigned.gt($value,a.$value); }
-    public Object $le(UShort a, Type t) { return Unsigned.le($value,a.$value); }
-    public Object $ge(UShort a, Type t) { return Unsigned.ge($value,a.$value); }
+    // implements Ordered<UShort>
+    public java.lang.Object $lt(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,a.$value)); }
+    public java.lang.Object $gt(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
+    public java.lang.Object $le(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
+    public java.lang.Object $ge(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write($value);

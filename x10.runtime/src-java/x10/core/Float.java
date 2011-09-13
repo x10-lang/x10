@@ -103,11 +103,11 @@ final public class Float extends Number implements StructI,
     public Float $times(Float b, Type t) { return Float.$box($value * b.$value); }
     public Float $over(Float b, Type t) { return Float.$box($value / b.$value); }
     
-    // implements Ordered<Float>. Rely on autoboxing of booleans
-    public Object $lt(Float b, Type t) { return ($value < b.$value); }
-    public Object $gt(Float b, Type t) { return ($value > b.$value); }
-    public Object $le(Float b, Type t) { return ($value <= b.$value); }
-    public Object $ge(Float b, Type t) { return ($value >= b.$value); }
+    // implements Ordered<Float>
+    public java.lang.Object $lt(Float b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
+    public java.lang.Object $gt(Float b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
+    public java.lang.Object $le(Float b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
+    public java.lang.Object $ge(Float b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
     
     // extends abstract class java.lang.Number
     @Override

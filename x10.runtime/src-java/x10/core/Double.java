@@ -103,11 +103,11 @@ final public class Double extends Number implements StructI,
     public Double $times(Double b, Type t) { return Double.$box($value * b.$value); }
     public Double $over(Double b, Type t) { return Double.$box($value / b.$value); }
     
-    // implements Ordered<Double>. Rely on autoboxing of booleans
-    public Object $lt(Double b, Type t) { return ($value < b.$value); }
-    public Object $gt(Double b, Type t) { return ($value > b.$value); }
-    public Object $le(Double b, Type t) { return ($value <= b.$value); }
-    public Object $ge(Double b, Type t) { return ($value >= b.$value); }
+    // implements Ordered<Double>
+    public java.lang.Object $lt(Double b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
+    public java.lang.Object $gt(Double b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
+    public java.lang.Object $le(Double b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
+    public java.lang.Object $ge(Double b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
     
     // extends abstract class java.lang.Number
     @Override

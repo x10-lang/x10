@@ -143,11 +143,11 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     public Int $right$G(final int count) { return Int.$box($value >> count); }
     public Int $unsigned_right$G(final int count) { return Int.$box($value >>> count); }
     
-    // implements Ordered<Int>. Rely on autoboxing of booleans
-    public Object $lt(Int b, Type t) { return ($value < b.$value); }
-    public Object $gt(Int b, Type t) { return ($value > b.$value); }
-    public Object $le(Int b, Type t) { return ($value <= b.$value); }
-    public Object $ge(Int b, Type t) { return ($value >= b.$value); }
+    // implements Ordered<Int>
+    public java.lang.Object $lt(Int b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
+    public java.lang.Object $gt(Int b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
+    public java.lang.Object $le(Int b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
+    public java.lang.Object $ge(Int b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
     
     // extends abstract class java.lang.Number
     @Override

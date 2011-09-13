@@ -129,11 +129,11 @@ final public class Long extends Number implements StructI, java.lang.Comparable<
     public Long $right$G(final int count) { return Long.$box($value >> count); }
     public Long $unsigned_right$G(final int count) { return Long.$box($value >>> count); }
     
-    // implements Ordered<Long>. Rely on autoboxing of booleans
-    public Object $lt(Long b, Type t) { return ($value < b.$value); }
-    public Object $gt(Long b, Type t) { return ($value > b.$value); }
-    public Object $le(Long b, Type t) { return ($value <= b.$value); }
-    public Object $ge(Long b, Type t) { return ($value >= b.$value); }
+    // implements Ordered<Long>
+    public java.lang.Object $lt(Long b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
+    public java.lang.Object $gt(Long b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
+    public java.lang.Object $le(Long b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
+    public java.lang.Object $ge(Long b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
     
     // extends abstract class java.lang.Number
     @Override

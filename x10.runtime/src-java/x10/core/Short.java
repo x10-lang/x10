@@ -134,11 +134,11 @@ final public class Short extends Number implements StructI, java.lang.Comparable
     public Short $right$G(final int count) { return Short.$box($value >> count); }
     public Short $unsigned_right$G(final int count) { return Short.$box($value >>> count); }
     
-    // implements Ordered<Short>. Rely on autoboxing of booleans
-    public Object $lt(Short b, Type t) { return ($value < b.$value); }
-    public Object $gt(Short b, Type t) { return ($value > b.$value); }
-    public Object $le(Short b, Type t) { return ($value <= b.$value); }
-    public Object $ge(Short b, Type t) { return ($value >= b.$value); }
+    // implements Ordered<Short>
+    public java.lang.Object $lt(Short b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
+    public java.lang.Object $gt(Short b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
+    public java.lang.Object $le(Short b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
+    public java.lang.Object $ge(Short b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
     
     // extends abstract class java.lang.Number
     @Override

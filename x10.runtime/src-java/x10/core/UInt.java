@@ -161,11 +161,11 @@ final public class UInt extends Number implements StructI, java.lang.Comparable<
     public UInt $right$G(final int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
     public UInt $unsigned_right$G(final int count) { return UInt.$box($value >>> count); }
     
-    // implements Ordered<UInt>. Rely on autoboxing of booleans
-    public Object $lt(UInt a, Type t) { return Unsigned.lt($value,a.$value); }
-    public Object $gt(UInt a, Type t) { return Unsigned.gt($value,a.$value); }
-    public Object $le(UInt a, Type t) { return Unsigned.le($value,a.$value); }
-    public Object $ge(UInt a, Type t) { return Unsigned.ge($value,a.$value); }
+    // implements Ordered<UInt>
+    public java.lang.Object $lt(UInt a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,a.$value)); }
+    public java.lang.Object $gt(UInt a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
+    public java.lang.Object $le(UInt a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
+    public java.lang.Object $ge(UInt a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
     
     // extends abstract class java.lang.Number
     @Override
