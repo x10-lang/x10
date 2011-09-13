@@ -11,6 +11,8 @@ dev=""
 java_args=""
 args=""
 
+PRINT_DIR=""
+
 while [ -n "$1" ]; do
     case "$1" in
         -h|-help|--help) help="1"; break;;
@@ -27,6 +29,9 @@ while [ -n "$1" ]; do
         -libpath) shift; extra_lib="$1";;
         -config) shift; config="$1.cfg";;
         -dev) dev="true";;
+	-pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1l ;;
+	-pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args="dummy argument" ;;
+	-pkg-conf) echo "Please use the -help option to get a list of valid options"; exit 1 ;;
         -J*) java_args="${java_args} '${1##-J}'";;
         -*=*) java_args="${java_args} -Dx10.${1##-}";;
         -*) java_args="${java_args} -Dx10.${1##-}=true";;
@@ -53,6 +58,8 @@ where [options] includes:
     -libpath <path>          search path for native libraries
     -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
     -dev                     developer mode (use unpackaged X10 libraries)
+    -pkg-conf=dir            Print absolute directory, where dir is one of
+                               [bin, etc, include, lib, stdlib]
     -J<arg>                  [USE WITH CAUTION] pass <arg> directly to java.
         e.g., use -J-verbose to make java execution verbose.
 EOF
@@ -62,6 +69,19 @@ fi
 CONFIG_DIR="${TOP}${FILE_SEP}etc"
 LIB_DIR="${TOP}${FILE_SEP}lib"
 STDLIB_DIR="${TOP}${FILE_SEP}stdlib"
+
+if [ "${PRINT_DIR}XX" != XX ] 
+then
+    case ${PRINT_DIR} in
+	bin) echo ${TOP}${FILE_SEP}bin ;;
+	etc) echo ${CONFIG_DIR} ;;
+	include) echo ${TOP}${FILE_SEP}include ;;
+	lib) echo ${LIB_DIR} ;;
+	stdlib) echo ${STDLIB_DIR} ;;
+	*) echo "pkg-conf: Unrecognized option (${PRINT_DIR})"; exit 1 ;;
+    esac
+    exit 0
+fi
 
 [ -n "$config" ] && config="-Dx10.configuration=\"${CONFIG_DIR}${FILE_SEP}${config}\""
 
