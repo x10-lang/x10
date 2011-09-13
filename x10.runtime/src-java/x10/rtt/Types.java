@@ -384,7 +384,8 @@ public class Types {
     
     public static boolean asboolean(Object typeParamOrAny, Type<?> origRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
-        if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
+        if (typeParamOrAny instanceof x10.core.Boolean) return x10.core.Boolean.$unbox((x10.core.Boolean)typeParamOrAny);
+        else if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
         throw new ClassCastException("x10.lang.Boolean");
     }
     
@@ -467,6 +468,7 @@ public class Types {
         	return ((java.lang.Number) typeParamOrAny).byteValue();
         } else {
             if (typeParamOrAny instanceof x10.core.UByte) {return x10.core.UByte.$unbox((x10.core.UByte)typeParamOrAny);}
+            else if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte)typeParamOrAny;}
         }
         throw new ClassCastException("x10.lang.UByte");
     }
@@ -480,6 +482,7 @@ public class Types {
         	return ((java.lang.Number) typeParamOrAny).shortValue();
         } else {
             if (typeParamOrAny instanceof x10.core.UShort) {return x10.core.UShort.$unbox((x10.core.UShort)typeParamOrAny);}
+            else if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short)typeParamOrAny;}
         }
         throw new ClassCastException("x10.lang.UShort");
     }
@@ -507,6 +510,7 @@ public class Types {
         	return ((java.lang.Number) typeParamOrAny).longValue();
         } else {
             if (typeParamOrAny instanceof x10.core.ULong) {return x10.core.ULong.$unbox((x10.core.ULong)typeParamOrAny);}
+            else if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long)typeParamOrAny;}
         }
         throw new ClassCastException("x10.lang.ULong");
     }
@@ -531,7 +535,7 @@ public class Types {
             }
         }
         
-        if (rtt == BOOLEAN) {return asboolean(primOrTypeParam, convert ? BOOLEAN : null);}
+        if (rtt == BOOLEAN) {return x10.core.Boolean.$box(asboolean(primOrTypeParam, convert ? BOOLEAN : null));}
         if (rtt == CHAR) {return x10.core.Char.$box(aschar(primOrTypeParam, convert ? CHAR : null));}
         if (rtt == BYTE) {return x10.core.Byte.$box(asbyte(primOrTypeParam, convert ? BYTE : null));}
         if (rtt == SHORT) {return x10.core.Short.$box(asshort(primOrTypeParam, convert ? SHORT : null));}
