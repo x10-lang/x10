@@ -417,6 +417,8 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		{
  			if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
  				exitcode = 128 + WTERMSIG(status);
+ 			else if (WIFSTOPPED(status))
+ 				exitcode = 128 + WSTOPSIG(status);
  			else
  				exitcode = WEXITSTATUS(status);
 			#ifdef DEBUG
@@ -916,6 +918,8 @@ void Launcher::cb_sighandler_cld(int signo)
 				#endif
 				if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
 					_singleton->_returncode = 128 + WTERMSIG(status);
+				else if (WIFSTOPPED(status))
+					_singleton->_returncode = 128 + WSTOPSIG(status);
 				else
 					_singleton->_returncode = WEXITSTATUS(status);
 				if (_singleton->_runtimePort[0] != '\0')
