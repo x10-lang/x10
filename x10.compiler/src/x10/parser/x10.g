@@ -287,7 +287,7 @@
 
 
 
-    Modifiersopt ::= %Empty
+   Modifiersopt ::= %Empty
         /.$BeginJava
 			r.rule_Modifiersopt0();
         $EndJava./
@@ -347,6 +347,10 @@
                    | atomicplus
         /.$BeginJava
 			r.rule_Modifier12();
+		$EndJava./
+			       | linked
+        /.$BeginJava
+			r.rule_Modifier13();
         $EndJava./
 
     MethodModifiersopt ::= Modifiersopt
@@ -976,6 +980,10 @@
         /.$BeginJava
 			r.rule_AtomicStatement0(Statement);
         $EndJava./
+                    | atomic ( IdentifierList ) Statement
+        /.$BeginJava
+			r.rule_AtomicStatement1(IdentifierList,Statement);
+        $EndJava./
 
 
     WhenStatement  ::= when ( Expression ) Statement
@@ -1167,6 +1175,10 @@
                | ( Modifiersopt TypeName )
         /.$BeginJava
 			r.rule_TypeName3(Modifiersopt,TypeName);
+		$EndJava./
+		       | Modifier TypeName
+        /.$BeginJava
+			r.rule_TypeName4(Modifier,TypeName);
 		$EndJava./
 		
     ClassName ::= TypeName

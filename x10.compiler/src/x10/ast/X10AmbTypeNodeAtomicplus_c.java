@@ -4,6 +4,7 @@ import java.util.Collections;
 
 import polyglot.ast.Disamb;
 import polyglot.ast.Expr;
+import polyglot.ast.FlagsNode;
 import polyglot.ast.Id;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
@@ -27,33 +28,33 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
 
 public class X10AmbTypeNodeAtomicplus_c extends X10AmbTypeNode_c {
-
-	//protected X10ParsedClassType_c atomicContext = null;
 	
 	public X10AmbTypeNodeAtomicplus_c(Position pos, Prefix qual, Id name) {
 		super(pos, qual, name);
 	}
 	
-//	public void setAtomicContext(X10ParsedClassType_c t) {
-//		assert t != null;
-//		this.atomicContext = t;
-//	}
-//	
-//	public X10ParsedClassType_c getAtomicContext() {
-//		return atomicContext;
-//	}
-//	
-//	public boolean hasAtomicContext() {
-//		return this.atomicContext != null;
-//	}
+	@Override
+    public Object copy() {
+        Object o = super.copy();
+        X10AmbTypeNodeAtomicplus_c ambNodeWithPlus = (X10AmbTypeNodeAtomicplus_c)o;
+        ambNodeWithPlus.setFlagsNode(this.getFlagsNode());
+        return ambNodeWithPlus;
+    }
+	
+	@Override
+	public Id name() {
+		System.out.println("flag: " + this.getFlagsNode() + " pos: " + this.position);
+		return super.name();
+	}
+	
 	
 	@Override
 	public Node disambiguate(ContextVisitor ar) {
+		  System.out.println("@X10AmbTypeNodeAtomicplus: " + this.getClass());
 	      SemanticException ex;
 	      
 	      Position pos = position();
 	      ContextVisitor tc = ar;
-	    
 	      TypeSystem ts =  tc.typeSystem();
 	      NodeFactory nf = (NodeFactory) tc.nodeFactory();
 	    

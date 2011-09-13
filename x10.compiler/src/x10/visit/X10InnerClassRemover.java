@@ -388,6 +388,10 @@ public class X10InnerClassRemover extends InnerClassRemover {
         List<Formal> formals = cd.formals();
         List<Ref<? extends Type>> formalTypes = def.formalTypes();
         List<LocalDef> formalNames = def.formalNames();
+//        System.out.println("@" + cd.position());
+//        System.out.println("Formal names: " + formalNames);
+//        System.out.println("Formal types: " + formalTypes);
+//        System.out.println("Formal: " + formals);
         assert formalNames.size() == formals.size();
         assert formalNames.size() == formalTypes.size();
         for (int i = 0; i < formalTypes.size(); i++) {

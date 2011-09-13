@@ -166,7 +166,7 @@ public class AsyncInitializer extends ContextVisitor {
                 asyncInitVal.add(initVal);
             }
         }
-        return asyncInitVal ;
+        return asyncInitVal;
     }
 
     private Set<LocalDef> collectLocalVarsToBox(Try tcfBlock) {

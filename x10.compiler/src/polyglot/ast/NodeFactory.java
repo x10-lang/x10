@@ -68,6 +68,9 @@ public interface NodeFactory
     AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Id name);
     AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Prefix qualifier, Id name);
     
+    AmbTypeNode AmbTypeNodeLinked(Position pos, Id name);
+    AmbTypeNode AmbTypeNodeLinked(Position pos, Prefix qualifier, Id name);
+    
     ArrayTypeNode ArrayTypeNode(Position pos, TypeNode base);
     CanonicalTypeNode CanonicalTypeNode(Position pos, Type type);
 
@@ -275,6 +278,8 @@ public interface NodeFactory
     Async Async(Position pos, List<Expr> clocks, Stmt body);
     Async Async(Position pos, Stmt body, boolean clocked);
     Atomic Atomic(Position pos, Expr place, Stmt body);
+    //for data-centric synchronization
+    Atomic Atomic(Position pos, Expr place, List<Id> vars, Stmt body);
     Here Here(Position pos);
 
     /**

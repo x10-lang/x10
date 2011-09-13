@@ -49,6 +49,7 @@ public class X10AtomicityChecker extends X10TypeChecker {
 	    //check the typing rules for data-centric synchronization
 	    if(this.extensionInfo.getOptions().x10_config.DATA_CENTRIC) {
 	    	m = m.del().checkAtomicity(tc);
+	    	m = m.del().checkLinkProperty(tc);
 	    }
 	    return m;
 	}

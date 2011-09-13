@@ -3934,7 +3934,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             printArgumentsForTypeParams(ta, p.arguments().size() == 0);
         }
         }
-
+//        System.out.println("@X10PrettyPrinter At pos: " + p.position());
+//        System.out.println("   call: " + p);
+//        System.out.println("   p's arguments: " + p.arguments());
+//        System.out.println("   mi's formal types: " + mi.formalTypes());
+//        System.out.println("   mi's defs formal types: " + mi.def().formalTypes());
         List<Expr> l = p.arguments();
         for (int i = 0; i < l.size(); i++) {
             Expr e = l.get(i);

@@ -229,6 +229,9 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
     		X10ClassDef_c x10cdef = (X10ClassDef_c)cdef;
     		X10ClassDecl_c.accumulateAtomicFields(x10cdef);
     		//check if the class has atomic sets or not
+//    		System.out.println("@Localdecl: " + this + ",  has atomic context: "
+//    				+ clazzType.hasAtomicContext()
+//    				+ ", clazz type id: " + System.identityHashCode(clazzType));
     		if(clazzType.hasAtomicContext()) {
     			//get the container class and accumulate atomic fields
     			X10ClassType containerType = tc.context().currentClass();
@@ -236,16 +239,18 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 	    	    X10ClassDef_c thisClazz = (X10ClassDef_c) ((X10ParsedClassType_c)containerType).def();
 	    	    X10ClassDecl_c.accumulateAtomicFields(thisClazz);
 	    	    //check whether this class has atomic sets
-	    	    if(!thisClazz.hasAtomicFields()) {
+	    	    if(!thisClazz.hasAtomicFields(false)) {
 	    	    	Errors.issue(tc.job(), new Errors.ThisClassDoesnotHaveAtomicset(containerType, position()));
 	    	    }
     			//check the class
-	    	    if(!x10cdef.hasAtomicFields()) {
+	    	    if(!x10cdef.hasAtomicFields(false)) {
     	    		Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(clazzType, this.position()));
     	    	}
 	    	    //check the init part
 	    	    Type initType = this.init().type();
 	    	    X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
+//	    	    System.out.println("@X10LocalDecl_c, init class type: " + this + ",  hastomic context: "
+//	    	    		+ initClassType.hasAtomicContext() + ",   code: " + System.identityHashCode(initClassType));
     	    	if(initClassType != null && !initClassType.hasAtomicContext()) {
     	    		Errors.issue(tc.job(), new Errors.InitializerMustHaveAtomicplus(initClassType, this.position()));
     	    	}
@@ -281,6 +286,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         
         //Check the flags for the local field declaration. This is
         //for data-centric synchronization.
+        //System.out.println("type node's falg node: " + typeNode.getFlagsNode() + ", in: " + this);
         if(typeNode.getFlagsNode() != null) {
         	if(!(type instanceof X10ParsedClassType_c)) {
         		//only class type can be annotated with atomicplus

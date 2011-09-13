@@ -11,8 +11,11 @@
 
 package x10.ast;
 
+import java.util.List;
+
 import polyglot.ast.CompoundStmt;
 import polyglot.ast.Expr;
+import polyglot.ast.Id;
 import polyglot.ast.Stmt;
 
 /** The node constructed for the X10 construct atomic(P) {S}.
@@ -23,6 +26,10 @@ public interface Atomic extends CompoundStmt {
     /** Set the Atomic's body */
     Atomic body(Stmt body);
 
+    /** Set the Atomic's identifier list */
+    //for data-centric synchronization
+    Atomic identifierList(List<Id> idlist);
+    
     /** Get the body of the Atomic. */
     Stmt body();
 }

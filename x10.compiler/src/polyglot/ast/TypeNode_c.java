@@ -130,7 +130,9 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
     public Object copy() {
     	Object o = super.copy();
     	TypeNode t = (TypeNode)o;
-    	t.setFlagsNode((FlagsNode)this.flags);
+    	if(this.flags != null) {
+    	    t.setFlagsNode((FlagsNode)this.flags.copy());
+    	}
     	return t;
     }
 }

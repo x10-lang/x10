@@ -168,6 +168,7 @@
     while
     unitfor
     atomicplus
+    linked
 %End
 
 %Rules
@@ -485,6 +486,11 @@
              | a t o m i c p l u s
         /.$BeginAction
                 $setResult($_atomicplus);
+          $EndAction
+        ./
+             | l i n k e d
+        /.$BeginAction
+                $setResult($_linked);
           $EndAction
         ./
 %End

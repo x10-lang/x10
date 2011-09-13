@@ -472,20 +472,28 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	    X10ParsedClassType_c clazztype = (X10ParsedClassType_c)declType;
 	    	    
 	    	    //check if it is an array type
-//	    	    if(X10TypeUtils.isX10ArrayClass(clazztype)) {
-//	    	    	System.out.println("array field: " + this.toString());
-//	    	    	System.out.println("    array types: " + clazztype.typeArguments());
-//	    	    	System.out.println("    type node: " + this.type().getClass());
-//	    	    	System.out.println("    is the array has atomic context: " + clazztype.getAtomicContext());
-//	    	    	System.out.println("     what about type node: " + this.type().getFlagsNode());
-//	    	    	for(Type ta : clazztype.typeArguments()) {
-//	    	    		System.out.print("     - type: " + ta + ", ");
-//	    	    		if(ta instanceof X10ParsedClassType_c) {
-//	    	    			System.out.print(((X10ParsedClassType_c)ta).hasAtomicContext());
-//	    	    		}
-//	    	    		System.out.println();
-//	    	    	}
-//	    	    }
+	    	    if(X10TypeUtils.isX10ArrayClass(clazztype)) {
+	    	    	System.out.println();
+	    	    	System.out.println("array field: " + this.toString());
+	    	    	System.out.println("    array type: " + clazztype);
+	    	    	System.out.println("    array types: " + clazztype.typeArguments());
+	    	    	System.out.println("    type node: " + this.fieldDef().getClass());
+	    	    	System.out.println("    type node: " + this.type().getClass());
+	    	    	System.out.println("    is the array has atomic context: " + clazztype.getAtomicContext());
+	    	    	System.out.println("    what about type node: " + this.type().getFlagsNode());
+	    	    	if(clazztype.typeArguments() != null) {
+	    	    	  for(Type ta : clazztype.typeArguments()) {
+	    	    		  System.out.print("     - type: " + ta + ", ");
+	    	    		  if(ta instanceof X10ParsedClassType_c) {
+	    	    			  System.out.print(((X10ParsedClassType_c)ta).hasAtomicContext());
+	    	    		  }
+	    	    		  System.out.println();
+	    	    	  }
+	    	    	}
+	    	    	System.out.println(this.position);
+	    	    	System.out.println();
+	    	    	System.out.println();
+	    	    }
 	    	    
 	    	    ClassDef cdef = tc.typeSystem().classDefOf(clazztype);
 	    	    X10ClassDef_c x10cdef = (X10ClassDef_c)cdef;
@@ -507,11 +515,11 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 		    	    //accumulate atomic fields for the container class
 		    	    X10ClassDecl_c.accumulateAtomicFields(containerClass);
 		    	    
-		    	    if(!containerClass.hasAtomicFields()) {
+		    	    if(!containerClass.hasAtomicFields(false)) {
 		    	    	Errors.issue(tc.job(), new Errors.ThisClassDoesnotHaveAtomicset(containerType, position()));
 		    	    }
 	    	    	
-	    	    	if(!x10cdef.hasAtomicFields()) {
+	    	    	if(!x10cdef.hasAtomicFields(false)) {
 	    	    		Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(clazztype, this.position()));
 	    	    	}
 	    	    	//check the init part, should also be declared using atomicplus

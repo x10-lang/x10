@@ -32,6 +32,7 @@ public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
     void addAtomicFields(FieldDef fi);
     boolean hasAtomicFields();
     boolean hasAccumulated();
+    boolean hasAtomicFields(boolean needCheck);
     void setAccumulated();
     Set<FieldDef> getAtomicFields();
 }

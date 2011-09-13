@@ -45,6 +45,9 @@ public class Flags implements Serializable
     /** Flags for data-centric synchronization */
     public static final Flags UNITFOR = createFlag("unitfor", null);
     public static final Flags ATOMICPLUS = createFlag("atomicplus", null);
+    public static final Flags LINKED = createFlag("linked", null);
+    
+    public static final Flags TYPE_FLAG = LINKED;
 
     /** All access flags. */
     protected static final Flags ACCESS_FLAGS = PUBLIC.set(PRIVATE).set(PROTECTED);
@@ -518,6 +521,30 @@ public class Flags implements Serializable
      */
     public boolean isAtomicplus() {
     	return contains(ATOMICPLUS);
+    }
+    
+    /**
+     * Return a copy of this <code>this</code> with the <code>linked</code>
+     * flag set.
+     * */
+    public Flags Linked() {
+    	return set(LINKED);
+    }
+    
+    /**
+     * Return a copy of this <code>this</code> with the <code>linked</code>
+     * flag clear.
+     * */
+    public Flags clearLinked() {
+    	return clear(LINKED);
+    }
+    
+    /**
+     * Return true if <code>this</code> has the <code>linked</code> flag
+     * set.
+     * */
+    public boolean isLinked() {
+    	return contains(LINKED);
     }
 
 

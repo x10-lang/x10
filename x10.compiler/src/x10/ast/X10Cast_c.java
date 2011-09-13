@@ -159,7 +159,7 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     	}
     	//if the cast type is decorated with atomicplus annotation
     	if(castType() != null && castType().getFlagsNode() != null) {
-    		if(castType().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+    		if(castType().getFlagsNode().flags().contains(Flags.TYPE_FLAG/*Flags.ATOMICPLUS*/)) {
     			if(exprContext == null) {
     				//if the expression does not have atomicplus info
     				//it does not make sense to add new atomicplus by casting

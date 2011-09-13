@@ -171,11 +171,21 @@ public class ExtensionInfo extends x10.ExtensionInfo {
             }
             //add data-centric synchronization goal
             if(this.extensionInfo().getOptions().x10_config.DATA_CENTRIC) {
+            	Goal dataCentricTranslator = null;
             	if(this.extensionInfo().getOptions().x10_config.MIXED_ATOMICITY) {
-            		FinallyEliminator(job).addPrereq(MixedAtomicityTranslator(job));
+//            		FinallyEliminator(job).addPrereq(MixedAtomicityTranslator(job));
+            		dataCentricTranslator = MixedAtomicityTranslator(job);
             	} else {
-            	    FinallyEliminator(job).addPrereq(DataCentricAtomicityTranslator(job));
+//            	    FinallyEliminator(job).addPrereq(DataCentricAtomicityTranslator(job));
+            	    dataCentricTranslator = DataCentricAtomicityTranslator(job);
             	}
+            	
+            	if(this.extensionInfo().getOptions().x10_config.LINKED_ATOMICITY) {
+            		dataCentricTranslator = LinkedAtomicityTranslator(job);
+            	}
+            	
+            	assert dataCentricTranslator != null;
+            	FinallyEliminator(job).addPrereq(dataCentricTranslator);
             }
 		    FinallyEliminator(job).addPrereq(Lowerer(job));
 		    for (Goal g: Optimizer.goals(this, job)) {

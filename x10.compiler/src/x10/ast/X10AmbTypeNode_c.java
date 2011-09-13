@@ -113,6 +113,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
   }
 
   public Node disambiguate(ContextVisitor ar) {
+	  //System.out.println("@X10AmbTypeNode_c#disambiguate: " + this);
       SemanticException ex;
       
       Position pos = position();

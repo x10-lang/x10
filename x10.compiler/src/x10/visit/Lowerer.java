@@ -476,6 +476,7 @@ public class Lowerer extends ContextVisitor {
         X10Ext ext = (X10Ext) a.ext();
         List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
         List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
+        //System.out.println("@Lowerer: " + env);
         if (a.clocked()) {
             env = new ArrayList<VarInstance<? extends VarDef>>(env);
             env.add(clockStack.peek().localInstance());

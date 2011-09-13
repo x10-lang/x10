@@ -80,6 +80,9 @@ public class X10Disamb_c extends Disamb_c {
 	    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
 	    		throw new SemanticException("Does not support atomic dependent type.", pos);
 	    	}
+	    	if(this.amb instanceof X10AmbTypeNodeLinked_c) {
+	    		throw new SemanticException("Does not support linked dependent type.", pos);
+	    	}
 	    	
 	    	Type t = c.currentDepType();
 	    	
@@ -174,6 +177,9 @@ public class X10Disamb_c extends Disamb_c {
 	    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
 	    		throw new SemanticException("Does not support atomicplus on local variables/fields", pos);
 	    	}
+	    	if(this.amb instanceof X10AmbTypeNodeLinked_c) {
+	    		throw new SemanticException("Does not support linked on local variables/fields", pos);
+	    	}
 	        // First try local variables and fields.
 	        VarInstance<?> vi = c.findVariableSilent(name.id());
 
@@ -217,7 +223,8 @@ public class X10Disamb_c extends Disamb_c {
 	            //rebuild a list of types with atomic plus information to support
 	            //data-centric synchronization. Note that every type object needs
 	            //to be first copied, to avoid sharing the same object.
-		    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
+		    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c
+		    			|| this.amb instanceof X10AmbTypeNodeLinked_c) {
 		    		//fill the code here
 		    		List<Type> copies = new java.util.LinkedList<Type>();
 		    		for(Type t : n) {
@@ -255,6 +262,9 @@ public class X10Disamb_c extends Disamb_c {
 	    	//data-centric
 	    	if(this.amb instanceof X10AmbTypeNodeAtomicplus_c) {
 	    		throw new SemanticException("Does not support atomicplus on package name", pos);
+	    	}
+	    	if(this.amb instanceof X10AmbTypeNodeLinked_c) {
+	    		throw new SemanticException("Does not support linked on package name", pos);
 	    	}
 	        try {
 	            Package p = ts.packageForName(QName.make(null, name.id()));

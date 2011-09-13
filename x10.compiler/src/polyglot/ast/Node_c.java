@@ -328,6 +328,12 @@ public abstract class Node_c implements Node
     public Node checkAtomicity(ContextVisitor tc) {
     	return this;
     }
+    
+    /** The default action for checking the typing rules
+     * of data-centric synchronization using proof technique. */
+    public Node checkLinkProperty(ContextVisitor tc) {
+    	return this;
+    }
 
     public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
 	return ec.push();

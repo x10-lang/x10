@@ -421,7 +421,7 @@ public class X10AtomicityTranslator extends ContextVisitor {
     	//  1. new (atomicplus C)(args)   ==> new (atomicplus C)(args,  container.getOrderedLock());
     	//  2. new C(args)  ==>  new C(args, new OrderedLock()); 
     	FlagsNode flagNode = n.objectType().getFlagsNode();
-    	if(flagNode != null && flagNode.flags().contains(Flags.ATOMICPLUS)) {
+    	if(flagNode != null && flagNode.flags().contains(Flags.TYPE_FLAG)) {
     		List<Expr> newArguments = new LinkedList<Expr>();
     		newArguments.addAll(n.arguments());
     		//change the newcall
@@ -503,7 +503,7 @@ public class X10AtomicityTranslator extends ContextVisitor {
     			locknum++;
     			continue;
     		}
-    		if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+    		if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(Flags.TYPE_FLAG)) {
     			locknum++;
     			continue;
     		}
@@ -554,7 +554,7 @@ public class X10AtomicityTranslator extends ContextVisitor {
     		if(f.flags() != null && f.flags().flags().contains(Flags.UNITFOR)) {
     			needLock = true;
     		}
-    		if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+    		if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(Flags.TYPE_FLAG)) {
     			needLock = true;
     		}
     		if(needLock) {
@@ -1188,21 +1188,5 @@ public class X10AtomicityTranslator extends ContextVisitor {
     		refs.add(Types.ref(t));
     	}
     	return refs;
-    }
-    
-    private boolean isPublic(Flags flags) {
-    	return flags.contains(Flags.PUBLIC);
-    }
-    
-    private boolean isAtomic(Flags flags) {
-    	return flags.contains(Flags.ATOMIC);
-    }
-    
-    private boolean isAtomicPlus(Flags flags) {
-    	return flags.contains(Flags.ATOMICPLUS);
-    }
-    
-    private boolean isCompilerGenerated(Node node) {
-    	return node.position().isCompilerGenerated();
     }
 }

@@ -103,15 +103,31 @@ public class ParsedName {
     public TypeNode toType() {
     	/*if there is atomicplus flag for data-centric synchronization*/
     	if(this.flags != null) {
+    		assert this.flags.flags().equals(Flags.TYPE_FLAG) : "The flags: " + this.flags.flags();
     		if (prefix == null) {
-            	AmbTypeNode amTypeNode = nf.AmbTypeNodeAtomicPlus(pos, name);
-            	amTypeNode.setFlagsNode(this.flags); //set the atomicplus flag
-                return amTypeNode;
+    			if(Flags.TYPE_FLAG.equals(Flags.ATOMICPLUS)) {
+            	  AmbTypeNode amTypeNode = nf.AmbTypeNodeAtomicPlus(pos, name);
+            	  amTypeNode.setFlagsNode(nf.FlagsNode(pos, Flags.TYPE_FLAG)); //set the atomicplus flag
+                  return amTypeNode;
+    			} else if(Flags.TYPE_FLAG.equals(Flags.LINKED)) {
+                  AmbTypeNode amTypeNode = nf.AmbTypeNodeLinked(pos, name);
+            	  amTypeNode.setFlagsNode(nf.FlagsNode(pos, Flags.TYPE_FLAG)); //set the linked flag
+                  return amTypeNode;
+    			} else {
+    				throw new Error("what is the type flag: " + Flags.TYPE_FLAG);
+    			}
             }
-
-            AmbTypeNode amTypeNode = nf.AmbTypeNodeAtomicPlus(pos, prefix.toPrefix(), name);
-            amTypeNode.setFlagsNode(this.flags);     //set the atomicplus flag
-            return amTypeNode;
+    		    if(Flags.TYPE_FLAG.equals(Flags.ATOMICPLUS)) {
+                  AmbTypeNode amTypeNode = nf.AmbTypeNodeAtomicPlus(pos, prefix.toPrefix(), name);
+                  amTypeNode.setFlagsNode(nf.FlagsNode(pos, Flags.TYPE_FLAG));     //set the atomicplus flag
+                  return amTypeNode;
+    		    } else if (Flags.TYPE_FLAG.equals(Flags.LINKED)) {
+    		      AmbTypeNode amTypeNode = nf.AmbTypeNodeLinked(pos, prefix.toPrefix(), name);
+                  amTypeNode.setFlagsNode(nf.FlagsNode(pos, Flags.TYPE_FLAG));     //set the linked flag
+                  return amTypeNode;
+    		    } else {
+    		    	throw new Error("what is the type flag: " + Flags.TYPE_FLAG);
+    		    }
     	}
     	//creates type node without data-centric synchronization info
     	assert this.flags == null;

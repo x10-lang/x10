@@ -935,7 +935,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	Ref<? extends Type> superRef = type.superType();
     	while(superRef != null) {
     		X10ClassDef superClass = superRef.get().toClass().def();
-    		if(!superClass.hasAtomicFields()) {
+    		if(!superClass.hasAtomicFields(false)) {
     			List<FieldDef> fieldDefs = superClass.fields();
     			for(FieldDef fi : fieldDefs) {
     				if(fi.flags().contains(Flags.ATOMIC)) {

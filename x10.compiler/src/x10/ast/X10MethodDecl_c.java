@@ -554,7 +554,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					              true : false;
 			
 			//if the parameter is annotated with atomicplus
-			if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+			if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(/*Flags.ATOMICPLUS*/ Flags.TYPE_FLAG)) {
 				//it must be a class type.
 				assert ft instanceof X10ParsedClassType_c;
 				//for safety, if the atomic context has not been set, set it here
@@ -573,20 +573,20 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				//if the parameter declaration has atomicplus
 				if(clazzType.getAtomicContext() != null) {
 					//if the parameter class does not contain atomic fields, issue an error
-					if(!clazzType.def().hasAtomicFields()) {
+					if(!clazzType.def().hasAtomicFields(false)) {
 						Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(clazzType, f.position()));
 					}
 					//get the container, and accumulate its atomic fields
 					X10ParsedClassType_c container = (X10ParsedClassType_c)clazzType.getAtomicContext();
 					X10ClassDecl_c.accumulateAtomicFields(container.def());
 					//issue an error, if the container does not have atomic fields
-					if(!container.def().hasAtomicFields()) {
+					if(!container.def().hasAtomicFields(false)) {
 						Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(container, this.position()));
 					}
 				}
 				
 				if(hasUnitFor) {
-					if(!clazzType.def().hasAtomicFields()) {
+					if(!clazzType.def().hasAtomicFields(false)) {
 						Errors.issue(tc.job(), new Errors.UnitforDonotHaveAtomicFields(clazzType, f.position()));
 					}
 				}
@@ -723,7 +723,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				} else {
 					//set the container as the atomic context
 					X10ParsedClassType_c retClassType = (X10ParsedClassType_c)rettype;
-					if(this.returnType().getFlagsNode().flags().contains(Flags.ATOMICPLUS)) {
+					if(this.returnType().getFlagsNode().flags().contains(Flags.TYPE_FLAG)) {
 						Type container = this.memberDef().container().get();
 						retClassType.setAtomicContext(container);
 					}

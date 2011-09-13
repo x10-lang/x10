@@ -660,7 +660,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     			//if the field has atomic context.
     			if(fieldClazzType.getAtomicContext() != null) {
     				//check the field class, as well as the class should have atomic fields
-    				if(!fieldClazzType.def().hasAtomicFields()) {
+    				if(!fieldClazzType.def().hasAtomicFields(false)) {
 						Errors.issue(tc.job(),
 								new Errors.AtomicPlusClassDonotHaveAtomicFields(fieldClazzType, f.position()));
 					}
@@ -669,7 +669,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     				//accumulate atomic fields in the container class
 					X10ClassDecl_c.accumulateAtomicFields(container.def());
 					//issue an error if the container do not have atomic fields
-					if(!container.def().hasAtomicFields()) {
+					if(!container.def().hasAtomicFields(false)) {
 						Errors.issue(tc.job(),
 								new Errors.AtomicPlusClassDonotHaveAtomicFields(container, this.position()));
 					}
@@ -715,7 +715,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         	Type ft = f.type().type();
         	if(f.type().getFlagsNode() != null) {
         		//it can only have the atomicplus flag
-        		assert f.type().getFlagsNode().flags().contains(Flags.ATOMICPLUS);
+        		assert f.type().getFlagsNode().flags().contains(/*Flags.ATOMICPLUS*/Flags.TYPE_FLAG);
         		//if the parameter is a class type
         		if(ft instanceof X10ParsedClassType_c) {
         			X10ParsedClassType_c fieldClazzType = (X10ParsedClassType_c)ft;

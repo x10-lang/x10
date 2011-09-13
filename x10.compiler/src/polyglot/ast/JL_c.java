@@ -194,6 +194,12 @@ public class JL_c extends Ext_c implements JL {
     	return jl().checkAtomicity(tc);
     }
     
+    /** Check that the program satisfies the type rules of
+     * data-centric synchronization using proof techniques.*/
+    public Node checkLinkProperty(ContextVisitor tc) {
+    	return jl().checkLinkProperty(tc);
+    }
+    
     /**
      * Check that exceptions are properly propagated throughout the AST.
      *

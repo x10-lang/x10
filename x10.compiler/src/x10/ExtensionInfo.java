@@ -124,6 +124,7 @@ import x10.visit.X10AtomicityChecker;
 import x10.visit.X10AtomicityTranslator;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
+import x10.visit.X10LinkedAtomicityTranslator;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10MixedAtomicityTranslator;
 import x10.visit.X10Translator;
@@ -595,32 +596,30 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
          //support data-centric synchronization
            final Goal atomicTranslatorGoal = DataCentricAtomicityTranslator(job);
            final Goal mixedAtomicTranslatorGoal = MixedAtomicityTranslator(job);
+           final Goal linkedAtomicTranslatorGoal = LinkedAtomicityTranslator(job);
+           Goal dataCentricTranslator = null;
            if(opts.x10_config.DATA_CENTRIC) {
         	   if(opts.x10_config.MIXED_ATOMICITY) {
-        		   goals.add(mixedAtomicTranslatorGoal);
+        		   //goals.add(mixedAtomicTranslatorGoal);
+        		   dataCentricTranslator = mixedAtomicTranslatorGoal;
         		   //Desugarer(job).addPrereq(mixedAtomicTranslatorGoal);
         	   } else {
-        		   goals.add(atomicTranslatorGoal);
+        		   //goals.add(atomicTranslatorGoal);
         		   //Desugarer(job).addPrereq(atomicTranslatorGoal);
+        		   dataCentricTranslator = atomicTranslatorGoal;
         	   }
+        	   if(opts.x10_config.LINKED_ATOMICITY) {
+        		   dataCentricTranslator = linkedAtomicTranslatorGoal;
+        	   }
+        	   //for debugging
+        	   //dataCentricTranslator = atomicTranslatorGoal;
+        	   assert dataCentricTranslator != null;
+        	   goals.add(dataCentricTranslator);
            }
            
            if (!opts.x10_config.ONLY_TYPE_CHECKING) {
 
                final Goal typeCheckBarrierGoal = addPreOptimizationGoals(job, goals);
-               
-//               //support data-centric synchronization
-//               final Goal atomicTranslatorGoal = DataCentricAtomicityTranslator(job);
-//               final Goal mixedAtomicTranslatorGoal = MixedAtomicityTranslator(job);
-//               if(opts.x10_config.DATA_CENTRIC) {
-//            	   if(opts.x10_config.MIXED_ATOMICITY) {
-//            		   goals.add(mixedAtomicTranslatorGoal);
-//            		   //Desugarer(job).addPrereq(mixedAtomicTranslatorGoal);
-//            	   } else {
-//            		   goals.add(atomicTranslatorGoal);
-//            		   //Desugarer(job).addPrereq(atomicTranslatorGoal);
-//            	   }
-//               }
                
                goals.add(Preoptimization(job));
                goals.addAll(Optimizer.goals(this, job));
@@ -631,11 +630,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
                //add data-centric synchronization goal before lower
                if(opts.x10_config.DATA_CENTRIC) {
-            	   if(opts.x10_config.MIXED_ATOMICITY) {
-            		   lowererGoal.addPrereq(mixedAtomicTranslatorGoal);
-            	   } else {
-            	       lowererGoal.addPrereq(atomicTranslatorGoal);
-            	   }
+            	   assert dataCentricTranslator != null;
+            	   lowererGoal.addPrereq(dataCentricTranslator);
+//            	   if(opts.x10_config.MIXED_ATOMICITY) {
+//            		   lowererGoal.addPrereq(mixedAtomicTranslatorGoal);
+//            	   } else {
+//            	       lowererGoal.addPrereq(atomicTranslatorGoal);
+//            	   }
                }
                
                final Goal codeGeneratedGoal = CodeGenerated(job);
@@ -643,11 +644,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                
              //add data-centric synchronization goal before lower
                if(opts.x10_config.DATA_CENTRIC) {
-            	   if(opts.x10_config.MIXED_ATOMICITY) {
-            		   codeGeneratedGoal.addPrereq(mixedAtomicTranslatorGoal);
-            	   } else {
-            	       codeGeneratedGoal.addPrereq(atomicTranslatorGoal);
-            	   }
+            	   assert dataCentricTranslator != null;
+            	   codeGeneratedGoal.addPrereq(dataCentricTranslator);
+//            	   if(opts.x10_config.MIXED_ATOMICITY) {
+//            		   codeGeneratedGoal.addPrereq(mixedAtomicTranslatorGoal);
+//            	   } else {
+//            	       codeGeneratedGoal.addPrereq(atomicTranslatorGoal);
+//            	   }
                }
 
                // the barrier will handle prereqs on its own
@@ -1146,6 +1149,13 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
     	   return new ValidatingVisitorGoal("MixedAtomicityTranslator", job, new X10MixedAtomicityTranslator(job, ts, nf)).intern(this);
+       }
+       
+       /*translate linked atomicity code to x10 code */
+       public Goal LinkedAtomicityTranslator(Job job) {
+    	   TypeSystem ts = extInfo.typeSystem();
+    	   NodeFactory nf = extInfo.nodeFactory();
+    	   return new ValidatingVisitorGoal("LinkedAtomicityTranslator", job, new X10LinkedAtomicityTranslator(job, ts, nf)).intern(this);
        }
        
        public Goal Lowerer(Job job) {

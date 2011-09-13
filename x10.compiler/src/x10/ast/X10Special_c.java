@@ -79,7 +79,7 @@ public class X10Special_c extends Special_c implements X10Special {
     			X10ClassDef thisClazzDef = thisClassType.def();
     			//for safety, accumulate it first
     			X10ClassDecl_c.accumulateAtomicFields(thisClazzDef);
-    			if(thisClazzDef.hasAtomicFields()) {
+    			if(thisClazzDef.hasAtomicFields(false)) {
     				//we changed the type here
     				//FIXME can be wrong
     				assert type instanceof ConstrainedType;

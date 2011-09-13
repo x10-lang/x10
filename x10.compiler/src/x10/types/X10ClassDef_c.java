@@ -665,6 +665,19 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     	}
     	return false;
     }
+    
+    /**
+     * Checks whether this class def has atomic fields or not.
+     * FIXME it needs to be removed in the final release
+     * */
+    public boolean hasAtomicFields(boolean needToCheck) {
+    	if(needToCheck) {
+    		return this.hasAtomicFields();
+    	} else {
+    		return true;
+    	}
+    }
+    
     /**
      * Checks whether the atomic fields in this class have already
      * been accumulated. If so, it makes no sense to accumulate it again.

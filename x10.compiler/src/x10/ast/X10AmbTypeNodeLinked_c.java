@@ -49,7 +49,7 @@ public class X10AmbTypeNodeLinked_c extends X10AmbTypeNode_c {
 	
 	@Override
 	public Node disambiguate(ContextVisitor ar) {
-		  System.out.println("@X10AmbTypeNodelinked: " + this.getClass());
+		  //System.out.println("@X10AmbTypeNodelinked: " + this.getClass());
 	      SemanticException ex;
 	      
 	      Position pos = position();

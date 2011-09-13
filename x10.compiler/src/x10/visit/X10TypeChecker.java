@@ -87,8 +87,10 @@ public class X10TypeChecker extends TypeChecker {
 	}
 	    
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) {
-    	//System.out.println("X10TypeChecker#leaveCall");
-
+//		if(n.toString().indexOf("Array") > -1) {
+//    	    System.out.println("X10TypeChecker#leaveCall, node: " + n
+//    	    		+ "\n,   n type: " + n.getClass() + ", pos: " + n.position());
+//		}
 	    final TypeChecker tc = (TypeChecker) v;
 	    // Inline the super call without checking for expressions with unknown type
 	    Node m = n;

@@ -72,8 +72,8 @@ public class X10LocalAssign_c extends LocalAssign_c {
     	    	      Errors.issue(tc.job(), new Errors.AssignNeedCastOffAtomicplus(clazzRight, position()));
     	          }
     	          if(clazzLeft.hasAtomicContext() && clazzRight.hasAtomicContext()) {
-    	    	      if(tc.typeSystem().typeEquals(clazzLeft.getAtomicContext(),
-    	    			  clazzRight, tc.context())) {
+    	    	      if(!tc.typeSystem().typeEquals(clazzLeft.getAtomicContext(),
+    	    			  clazzRight.getAtomicContext(), tc.context())) {
     	    	    	  SemanticException e = new SemanticException("Local assignment's atomic context does not match."
     	    	    			  + "\n\t left: " + this.left() + ", with type: " + clazzLeft
     	    	    			  + ", and atomic context: " + clazzLeft.getAtomicContext()

@@ -304,6 +304,9 @@ public class X10New_c extends New_c implements X10New {
         Context c = childtc.context();
 
         X10New_c n = this;
+        
+        //for data-centric synchronization
+        boolean hasTypeModifier = n.tn.getFlagsNode() != null ? true : false;
 
         // Override to associate the type args with the type rather than with
         // the constructor.
@@ -318,6 +321,7 @@ public class X10New_c extends New_c implements X10New {
         qualifier = (Expr) n.visitChild(qualifier, childtc);
 
         if (!(tn instanceof CanonicalTypeNode)) {
+        
         Name name = getName(tn);
 
         Type t;
@@ -408,6 +412,11 @@ public class X10New_c extends New_c implements X10New {
         // [IP] Should retain the type argument nodes, even if the type is resolved.
         //n = (X10New_c) n.typeArguments(Collections.EMPTY_LIST);
 
+        //data-centric synchronization
+        if(hasTypeModifier) {
+            //System.out.println("what about x10new_c flag? " + n.tn.getFlagsNode());
+            n.tn.setFlagsNode(nf.FlagsNode(this.position, /*Flags.ATOMICPLUS*/ Flags.TYPE_FLAG));
+        }
         return n;
     }
 
@@ -609,7 +618,7 @@ public class X10New_c extends New_c implements X10New {
         //this is for data-centric synchronization
         if(this.objectType().getFlagsNode() != null) {
         	//TODO may miss certain cases
-        	assert this.objectType().getFlagsNode().flags().contains(Flags.ATOMICPLUS);
+        	assert this.objectType().getFlagsNode().flags().contains(/*Flags.ATOMICPLUS*/ Flags.TYPE_FLAG);
         	assert type instanceof ConstrainedType;
         	Type baseType = ((ConstrainedType)type).baseType().get();
         	//must make a copy here
@@ -624,6 +633,8 @@ public class X10New_c extends New_c implements X10New {
         	((X10ParsedClassType_c)baseType).setAtomicContext(currentClass);
         	
         }
+//        System.out.println("@X10New_c, type: " + System.identityHashCode(type) + ", has node: " + this.objectType().getFlagsNode()
+//        		+ ",  has atomic context: " + ((X10ParsedClassType_c)(((ConstrainedType)type).baseType().get())).getAtomicContext());
         
         result = (X10New_c) result.type(type);
         return doCoercion ?

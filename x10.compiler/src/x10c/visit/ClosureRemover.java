@@ -141,7 +141,7 @@ public class ClosureRemover extends ContextVisitor {
                         
                         // DEBUG
 //                        System.out.println(n.position() + " " + name + " " + cl);
-//                        System.out.println(capturedEnv);
+//                        System.out.println("@ClosureRemover: " + capturedEnv);
                         
                         final List<NamedVariable> capturedVarsExThis = new ArrayList<NamedVariable>();
                         Map<String, X10LocalDef> nameToLocalDef = CollectionFactory.newHashMap();
@@ -317,7 +317,7 @@ public class ClosureRemover extends ContextVisitor {
                     
                     // DEBUG
 //                    System.out.println(n.position() + " " + staticNestedClassName + " " + cl);
-//                    System.out.println(capturedEnv);
+//                    System.out.println("@ClosureRemover, env: " + capturedEnv);
 
                     // create class def for static nested
                     final X10ClassDef staticNestedClassDef = (X10ClassDef) xts.createClassDef();
@@ -387,6 +387,10 @@ public class ClosureRemover extends ContextVisitor {
                     Map<Name, X10FieldDef> nameToLocalDef = CollectionFactory.newHashMap();
                     
                     // rewrite closure method body
+//                    if(capturedEnv.size() == 7) {
+//                    	System.out.println("*********");
+//                    	closureBody.prettyPrint(System.out);
+//                    }
                     closureBody = rewriteClosureBody(closureBody, staticNestedClassDef, capturedEnv, capturedVarsExThis, nameToLocalDef, cl.formals());
                     
                     MethodDecl mdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, Flags.PUBLIC), xnf.CanonicalTypeNode(pos, Types.baseType(cl.returnType().type())), xnf.Id(pos, ClosureCall.APPLY), cl.formals(), closureBody).methodDef(closureMethodDef);
@@ -411,6 +415,7 @@ public class ClosureRemover extends ContextVisitor {
                     List<Expr> args = new ArrayList<Expr>(capturedEnv.size());
                     Block body2 = xnf.Block(pos);
                     
+//                    System.out.println("@ClosureRemover, env: " + capturedEnv);
                     for (VarInstance<? extends VarDef> vi : capturedEnv) {
                         if (vi instanceof ThisInstance || (vi instanceof FieldInstance && !vi.flags().isFinal())) { // the latter means the receiver fo vi should be this
                             Name name = OUTER_NAME;
@@ -438,6 +443,8 @@ public class ClosureRemover extends ContextVisitor {
                         }
                     }
                     
+//                    System.out.println("  capturedVarsExThis: " + capturedVarsExThis);
+//                    System.out.println("  nameToLocalDef: " + nameToLocalDef);
                     for (NamedVariable vn : capturedVarsExThis) {
                         Name name = vn.name().id();
                         X10LocalDef li = xts.localDef(pos, Flags.FINAL, Types.ref(vn.type()), vn.name().id());
@@ -445,6 +452,8 @@ public class ClosureRemover extends ContextVisitor {
                         formals.add(formal);
                         argTypes.add(li.type());
                         args.add(vn);
+                        
+                        //System.out.println("what is vn: " + vn + ",  " + vn.position());
                         
                         X10FieldDef fd = nameToLocalDef.get(vn.name().id());
                         assert (fd != null);
@@ -497,6 +506,7 @@ public class ClosureRemover extends ContextVisitor {
                 final Position pos = Position.COMPILER_GENERATED;
                 return (Block) closureBody.visit(new ContextVisitor(job, ts, nf){
                     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
+                    	
                         if (n instanceof Field) {
                             Field field = (Field) n;
                             for (VarInstance<? extends VarDef> var : capturedEnv) {
@@ -532,7 +542,9 @@ public class ClosureRemover extends ContextVisitor {
                             return field.targetImplicit(false);
                         }
                         if (n instanceof Local) {
+//                        	System.out.println("   @ ClosureRemover,  local Node n: " + n + ",  type: " + n.getClass());
                             Local local = (Local) n;
+//                            System.out.println("         -- captured env: " + capturedEnv);
                             for (VarInstance<? extends VarDef> var : capturedEnv) {
                                 if (var.def().equals(local.localInstance().def())) {
                                     X10FieldDef fd;

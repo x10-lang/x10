@@ -1579,7 +1579,7 @@ public class Errors {
 
 		public TypeCannotHaveAtomicplus(Type type, Position p) {
 			super("Type: " + type + ", of class: " + type.getClass() +
-					"\n\t can not be annotated with: " + Flags.ATOMICPLUS, p);
+					"\n\t can not be annotated with: " + Flags.TYPE_FLAG, p);
 		}
 		
 	}
@@ -1663,7 +1663,7 @@ public class Errors {
 
 		public AtomicPlusClassDonotHaveAtomicFields(Type type, Position p) {
 			super("Class: " + type + " does not declare or inherit atomic fields." +
-					"\n\t can not be annotated with: " + Flags.ATOMICPLUS, p);
+					"\n\t can not be annotated with: " + Flags.TYPE_FLAG, p);
 		}
 	}
 	
@@ -1694,7 +1694,7 @@ public class Errors {
 		private static final long serialVersionUID = 3053446371890467466L;
 
 		public InitializerMustHaveAtomicplus(Type type, Position p) {
-			super("The initializer with type: " + type + " is not declared with: " + Flags.ATOMICPLUS, p);
+			super("The initializer with type: " + type + " is not declared with: " + Flags.TYPE_FLAG, p);
 		}
 	}
 	
@@ -1704,7 +1704,8 @@ public class Errors {
 		private static final long serialVersionUID = 8300338845518714365L;
 
 		public InitializerNeedCastOffAtomicplus(Type type, Position p) {
-			super("The initializer with type: " + type + " must explicitly cast off " + Flags.ATOMICPLUS, p);
+			super("The initializer with type: " + type + " must explicitly cast off "
+					+ Flags.TYPE_FLAG, p);
 		}
 	}
 	
@@ -1713,7 +1714,7 @@ public class Errors {
 		private static final long serialVersionUID = 5039331867962007559L;
 
 		public ThisClassDoesnotHaveAtomicset(Type type, Position p) {
-			super("This class: " + type + " does not include or inheirt atomic fields ", p);
+			super("Class: " + type + " does not include or inheirt atomic fields ", p);
 		}
 	}
 	
@@ -1722,7 +1723,8 @@ public class Errors {
 		private static final long serialVersionUID = -3129560186898033985L;
 
 		public AssignNeedCastOffAtomicplus(Type type, Position p) {
-			super("The field assignment with type: " + type + " must explicitly cast off " + Flags.ATOMICPLUS, p);
+			super("The field assignment with type: " + type + " must explicitly cast off "
+					+ Flags.TYPE_FLAG, p);
 		}
 	}
 	
@@ -1732,7 +1734,8 @@ public class Errors {
 		private static final long serialVersionUID = -2025376627408568160L;
 
 		public AssignMustHaveAtomicplus(Type type, Position p) {
-			super("The field assignment with type: " + type + " must have flag: " + Flags.ATOMICPLUS, p);
+			super("The field assignment with type: " + type + " must have flag: "
+					+ Flags.TYPE_FLAG, p);
 		}
 	}
 	
@@ -1751,7 +1754,7 @@ public class Errors {
 		private static final long serialVersionUID = 6895934866487409047L;
 
 		public TypeCastCannotHaveAtomicplus(Type type, Position p) {
-			super("Can not explicitly add atomicplus for raw type: \n\t" + type + " by cast.", p);
+			super("Can not explicitly add " + Flags.TYPE_FLAG + " for raw type: \n\t" + type + " by cast.", p);
 		}
 	}
 	

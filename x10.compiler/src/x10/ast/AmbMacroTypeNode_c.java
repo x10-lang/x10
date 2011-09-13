@@ -426,6 +426,11 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
 
         try {
             tn = n.disambiguateBase(tc);
+            if(n.getFlagsNode() != null) {
+                System.out.println("type of n: " + n + ", has flags: " + n.getFlagsNode());
+                tn.setFlagsNode(n.getFlagsNode());
+                System.out.println("   tn type: " + tn);
+            }
         }
         
         catch (SemanticException e) {
@@ -492,7 +497,14 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             throw new SemanticException("Could not find or instantiate type \"" + n + "\".", position());
          */   
         X10CanonicalTypeNode result = nf.CanonicalTypeNode(n.position(), sym);
-        return postprocess(result, n, childtc);   
+        //added for data-centric synchronization
+        X10CanonicalTypeNode afterPP = (X10CanonicalTypeNode) postprocess(result, n, childtc);
+        if(n.getFlagsNode() != null) {
+        	//should propagate to CanonicalTypeNode
+        	//for types like SimpleType[T]
+        	afterPP.setFlagsNode(n.getFlagsNode());
+        }
+        return afterPP;
     }
     
     public static Node postprocess(X10CanonicalTypeNode result, AmbMacroTypeNode_c n, ContextVisitor childtc) {

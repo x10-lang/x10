@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -158,6 +159,13 @@ public abstract class InnerClassRemover extends ContextVisitor {
         args.add(q);
         args.addAll(neu.arguments());
         neu = (New) neu.arguments(args);
+        //System.out.println("what is args@InnerClassRemover: " + args + " for: " + neu.position());
+        //data-centric synchronization fix the def, ugly hack
+        List<Ref<? extends Type>> formalTypes = new LinkedList<Ref<? extends Type>>();
+        formalTypes.add(Types.ref(neu.objectType().type()));
+        formalTypes.addAll(neu.constructorInstance().def().formalTypes());
+        neu.constructorInstance().def().setFormalTypes(formalTypes);
+        
         return neu;
     }
 
@@ -466,6 +474,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
             newFormalTypes.add(f.type().typeRef());
         }
         ci.setFormalTypes(newFormalTypes);
+        //System.out.println("ci's formal: " + ci.formalTypes() + ",@ " + ci.position());
     }
 
     // Add local variables to the argument list until it matches the declaration.

@@ -10,6 +10,7 @@ import polyglot.types.FieldDef;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.visit.NodeVisitor;
+import x10.ast.Atomic_c;
 import x10.ast.SettableAssign_c;
 import x10.ast.X10FieldAssign_c;
 import x10.ast.X10FieldDecl_c;
@@ -17,6 +18,7 @@ import x10.ast.X10Field_c;
 import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.types.X10FieldDef;
+import x10.types.X10LocalDef;
 
 class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 
@@ -27,9 +29,17 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 	public final Set<FieldDef> atomicFieldDecls = new LinkedHashSet<FieldDef>();
 
 	public final Set<X10Field_c> allAtomicFields = new LinkedHashSet<X10Field_c>();
+	
+	public final Set<X10FieldDef> fieldsInAtomic = new LinkedHashSet<X10FieldDef>();
+	public final Set<X10LocalDef> localsInAtomic = new LinkedHashSet<X10LocalDef>();
 
 	@Override
 	public Node leave(Node old, Node n, NodeVisitor v) {
+		if(n instanceof Atomic_c) {
+			Atomic_c atomic = (Atomic_c)n;
+			fieldsInAtomic.addAll(atomic.getFieldsInAtomic());
+			localsInAtomic.addAll(atomic.getLocalsInAtomic());
+		}
 		if(n instanceof X10Local_c) {
 			X10Local_c x10local = (X10Local_c)n;
 			if(x10local.localInstance() != null && x10local.localInstance().def() != null) {
