@@ -2,6 +2,8 @@ package x10.util.concurrent;
 
 import x10.util.List;
 import x10.util.ListIterator;
+import x10.util.Map;
+import x10.util.HashMap;
 
 public class OrderedLock implements Comparable[OrderedLock] {
 	
@@ -63,6 +65,16 @@ public class OrderedLock implements Comparable[OrderedLock] {
 			var l:OrderedLock = it.next();
 			l.unlock();
 		}
+	}
+	
+	static val lockMap:Map[Object, OrderedLock] = new HashMap[Object, OrderedLock]();
+	
+	public static def putLock(o:Object, l:OrderedLock) : void {
+		lockMap.put(o, l);
+	}
+	
+	public static def getLock(o:OrderedLock) : OrderedLock {
+		return lockMap.getOrThrow(o);
 	}
 }
 
