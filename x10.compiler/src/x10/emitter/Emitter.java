@@ -2171,7 +2171,7 @@ public class Emitter {
     }
 
     private boolean isOverriddenCovReturn(Type sup, Type returnType) {
-        return !sup.typeSystem().isParameterType(sup) && !Types.baseType(sup).typeEquals(Types.baseType(returnType), tr.context()) && isSpecialType(returnType);
+        return !sup.typeSystem().isParameterType(sup) && !Types.baseType(sup).typeEquals(Types.baseType(returnType), tr.context()) && isSpecialType(Types.baseType(returnType));
     }
 
     private boolean containsOverriddenMethod(List<MethodInstance> methods, MethodInstance impled) {

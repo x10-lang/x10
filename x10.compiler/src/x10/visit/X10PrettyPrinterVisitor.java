@@ -933,37 +933,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline(0);
     }
 
+    // used by custom serializer
     public static String needsCasting(Type type) {
-
-        // is this a java primitive
-        if(type.isInt() || type.isDouble() || type.isFloat() || type.isByte() || type.isChar() || type.isShort() || type.isLong() || type.isBoolean()) {
-            String str = type.name().toString();
-            return str.substring(str.lastIndexOf(".") + 1);
-        }
-        if (type.isClass()) {
-            X10ClassDef cd = type.toClass().x10Def();
-            String pat = Emitter.getJavaRep(cd, false);
-            if (pat !=null) {
-                if (pat.equals("int")) {
-                    return "Int";
-                } if (pat.equals("double")) {
-                    return "Double";
-                } if (pat.equals("float")) {
-                    return "Float";
-                } if (pat.equals("byte")) {
-                    return "Byte";
-                } if (pat.equals("char")) {
-                    return "Char";
-                } if (pat.equals("short")) {
-                    return "Short";
-                } if (pat.equals("long")) {
-                    return "Long";
-                } if (pat.equals("boolean")) {
-                    return "Boolean";
-                }
+        type = Types.baseType(type);
+        if (isPrimitive(type)) {
+            String name = type.name().toString();
+            if (type.isUnsignedNumeric()) {
+                return name.substring(name.lastIndexOf(".") + 1 + 1); // x10.lang.UInt -> Int
+            } else {
+                return name.substring(name.lastIndexOf(".") + 1); // x10.lang.Int -> Int
             }
         }
-
         return null;
     }
 
@@ -2248,7 +2228,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         printArgumentsForTypeParams(typeParameters, argumentSize == 0);
 
         boolean runAsync = false;
-        if (containerType.isClass() && containerType.toClass().fullName().toString().equals("x10.lang.Runtime")) {
+        if (Types.baseType(containerType).isRuntime()) {
             if (mi.signature().startsWith("runAsync")) {
                 runAsync = true;
             }

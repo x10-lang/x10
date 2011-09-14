@@ -255,9 +255,14 @@ public interface Type extends Qualifier, Annotated, Named
     boolean isString();
     
     /**
-     * Return true if an indexed memory chunk type.
+     * Return true if the type is IndexedMemoryChunk
      */
     boolean isIndexedMemoryChunk();
+    
+    /**
+     * Return true if the type is Runtime
+     */
+    boolean isRuntime();
 
 
     /**

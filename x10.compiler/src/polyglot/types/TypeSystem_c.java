@@ -4096,6 +4096,10 @@ public class TypeSystem_c implements TypeSystem
         return finalSubtype(me,IndexedMemoryChunk());
     }
 
+    public boolean isRuntime(Type me) {
+        return finalSubtype(me,Runtime());
+    }
+
     public boolean isClock(Type me) {
         return finalSubtype(me,Clock());
     }
