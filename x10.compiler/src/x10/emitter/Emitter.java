@@ -552,8 +552,8 @@ public class Emitter {
 	
 	// TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
 	// return all X10 types that are mapped to Java primitives and require explicit boxing
-	public static boolean needExplicitBoxing(Type t) {
-	    return t.isNumeric() || t.isChar() || t.isBoolean();
+	private static boolean needExplicitBoxing(Type t) {
+	    return X10PrettyPrinterVisitor.needExplicitBoxing(t);
 	}
 	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
 	static {
@@ -921,10 +921,9 @@ public class Emitter {
 		}
 	}
 
-	public boolean isIMC(Type type) {
-        Type tbase = Types.baseType(type);
-        return tbase instanceof X10ParsedClassType_c && ((X10ParsedClassType_c) tbase).def().asType().typeEquals(type.typeSystem().IndexedMemoryChunk(), tr.context());
-    }
+	private static boolean isIndexedMemoryChunk(Type type) {
+	    return X10PrettyPrinterVisitor.isIndexedMemoryChunk(type);
+        }
 
     // See comments in Native.x10
     /**
@@ -1206,11 +1205,11 @@ public class Emitter {
 	// decl and call
     private void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher) {
     	Type returnType = def.returnType().get();
-		printMethodName(def, isInterface, isDispatcher, isSpecialType(returnType), tr.typeSystem().isParameterType(returnType));
+    	printMethodName(def, isInterface, isDispatcher, isSpecialType(returnType), tr.typeSystem().isParameterType(returnType));
     }
 
-    public boolean isSpecialType(Type type) {
-        return X10PrettyPrinterVisitor.isPrimitive(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type);
+    private static boolean isSpecialType(Type type) {
+        return X10PrettyPrinterVisitor.isSpecialType(type);
     }
 
     public static final boolean canMangleMethodName(MethodDef def) {
@@ -1786,7 +1785,7 @@ public class Emitter {
 	}
 
     // TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
-	public static boolean isPrimitive(Type type) {
+    private static boolean isPrimitive(Type type) {
 	    return X10PrettyPrinterVisitor.isPrimitive(type);
 	}
 
@@ -2171,8 +2170,8 @@ public class Emitter {
         return methods;
     }
 
-    private boolean isOverriddenCovReturn(Type sup, Type t) {
-        return !sup.typeSystem().isParameterType(sup) && !Types.baseType(sup).typeEquals(Types.baseType(t), tr.context()) && isSpecialType(t);
+    private boolean isOverriddenCovReturn(Type sup, Type returnType) {
+        return !sup.typeSystem().isParameterType(sup) && !Types.baseType(sup).typeEquals(Types.baseType(returnType), tr.context()) && isSpecialType(returnType);
     }
 
     private boolean containsOverriddenMethod(List<MethodInstance> methods, MethodInstance impled) {
@@ -3621,7 +3620,7 @@ public class Emitter {
 
     public boolean isMethodInlineTarget(TypeSystem xts, Type ttype) {
         ttype = Types.baseType(ttype);
-        if (!isIMC(ttype)) {
+        if (!isIndexedMemoryChunk(ttype)) {
             return false;
         }
         if (!X10PrettyPrinterVisitor.hasParams(ttype)) {
@@ -3851,7 +3850,7 @@ public class Emitter {
         return false;
     }
     
-    public static boolean isBoxedType(Type t) {
+    private static boolean isBoxedType(Type t) {
         return X10PrettyPrinterVisitor.isBoxedType(t);
     }
 }

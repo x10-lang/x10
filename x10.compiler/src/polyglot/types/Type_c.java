@@ -67,6 +67,7 @@ public abstract class Type_c extends TypeObject_c implements Type
     public final boolean isParameterType() { return ts.isParameterType(this); }
     public final boolean isObject() { return ts.isObject(this); }
     public final boolean isString() { return ts.isString(this); }
+    public final boolean isIndexedMemoryChunk() { return ts.isIndexedMemoryChunk(this); }
     
     public final boolean isNumeric() { return ts.isNumeric(this); }
     public final boolean isSignedNumeric() { return ts.isSignedNumeric(this); }

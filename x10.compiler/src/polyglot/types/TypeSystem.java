@@ -1087,6 +1087,8 @@ public interface TypeSystem {
 
     boolean isString(Type me);
 
+    boolean isIndexedMemoryChunk(Type me);
+
     boolean isClock(Type me);
 
     boolean isPoint(Type me);
