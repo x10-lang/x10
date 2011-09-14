@@ -193,7 +193,7 @@ public class X10LinkedAtomicityTranslator extends ContextVisitor {
 		
 		//create the field OrderedLock:$lock = null; (init value)
 		Name lockName = Context.makeFreshName(ATOMICSET_LOCK_NAME);
-		FieldDecl lockFieldDecl = X10TypeUtils.createFieldDecl(nf, ts, pos, ts.Private(), lockType,
+		FieldDecl lockFieldDecl = X10TypeUtils.createFieldDecl(nf, ts, pos, ts.Private().Transient(), lockType,
 				lockName, containerClass, nf.NullLit(pos).type(ts.Null()));
 		
 		//create the method getLock() {return this.$lock; }
@@ -210,7 +210,7 @@ public class X10LinkedAtomicityTranslator extends ContextVisitor {
 		//create the static lock field  private static OrderedLock lock = new OrderedLock();
 		Name staticLockName = Context.makeFreshName(STATIC_LOCK_NAME);
 		Expr newStaticLock = X10TypeUtils.createNewObjectByDefaultConstructor(nf, ts, this.context, pos, lockType);
-		FieldDecl staticLockFieldDecl = X10TypeUtils.createFieldDecl(nf, ts, pos, ts.Private().Static(), lockType,
+		FieldDecl staticLockFieldDecl = X10TypeUtils.createFieldDecl(nf, ts, pos, ts.Private().Transient().Static(), lockType,
 		    staticLockName, containerClass, newStaticLock);
 		
 		//create a static method getStaticOrderedLock
@@ -569,7 +569,16 @@ public class X10LinkedAtomicityTranslator extends ContextVisitor {
 		//note: we do not need to grab the static lock, in X10 all static fields are by default final.
 		Stmt acquireThisLocal = null;
 		if(!x10nonStaticFields.isEmpty()) {
-			acquireThisLocal = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, false);
+			boolean hasSkippedClass = false;
+			for(X10FieldDef field : x10nonStaticFields) {
+				if(X10TypeUtils.isSkippedOrPrimitiveType(field.type().get())) {
+					hasSkippedClass = true;
+					break;
+				}
+			}
+			if(hasSkippedClass) {
+			    acquireThisLocal = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, false);
+			}
 		}
 
 		//grab locks for fields that have locks
