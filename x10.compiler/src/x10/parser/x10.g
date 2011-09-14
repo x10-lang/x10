@@ -980,9 +980,13 @@
         /.$BeginJava
 			r.rule_AtomicStatement0(Statement);
         $EndJava./
-                    | atomic ( IdentifierList ) Statement
+--                    | atomic ( IdentifierList ) Statement
+--        /.$BeginJava
+--			r.rule_AtomicStatement1(IdentifierList,Statement);
+--        $EndJava./
+                    | atomic ( HomeVariableList ) Statement
         /.$BeginJava
-			r.rule_AtomicStatement1(IdentifierList,Statement);
+			r.rule_AtomicStatement2(HomeVariableList,Statement);
         $EndJava./
 
 

@@ -26,6 +26,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ConstructorDef;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
+import polyglot.types.Flags;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.SemanticException;
@@ -62,6 +63,8 @@ implements Atomic {
 	//when doing the type checking, convert Id to local defs and field def
 	private List<X10LocalDef> locals = new LinkedList<X10LocalDef>();
 	private List<X10FieldDef> fields = new LinkedList<X10FieldDef>();
+	private boolean hasThis = false;
+	
 	private List<X10LocalDef> formals = new LinkedList<X10LocalDef>();
 	
 	public Atomic_c(Position p, Expr place, Stmt body) {
@@ -127,6 +130,18 @@ implements Atomic {
 			}
 			List<String> allFormalNames = X10TypeUtils.getAllFormalNames(currentCode);
 			for(Id id : this.identifiers) {
+				if(id.toString().equals("this")) {
+					this.hasThis = true;
+					if(currentCode instanceof MethodDef) {
+						MethodDef mdef = (MethodDef)currentCode;
+						if(mdef.flags().contains(Flags.STATIC)) {
+							Errors.issue(tc.job(), new SemanticException("Can not refer this inside a static method.",
+									this.position));
+						}
+					}
+					continue;
+				}
+				
 				//it includes local and parameters
 				X10LocalDef localDef = X10TypeUtils.findLocalDef(tc, id.id());
 				if(localDef != null) {
@@ -155,6 +170,10 @@ implements Atomic {
 		}	
 		
 		return this;
+	}
+	
+	public boolean hasThisInAtomic() {
+		return this.hasThis;
 	}
 	
 	public List<X10LocalDef> getLocalsInAtomic() {

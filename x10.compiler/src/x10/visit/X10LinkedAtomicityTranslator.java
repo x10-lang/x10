@@ -580,6 +580,9 @@ public class X10LinkedAtomicityTranslator extends ContextVisitor {
 			    acquireThisLocal = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, false);
 			}
 		}
+		if(atomic.hasThisInAtomic()) {
+			acquireThisLocal = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, false);
+		}
 
 		//grab locks for fields that have locks
 		List<Stmt> acquireLocksForEachField = this.addAtomicSetLockbyFieldToList(pos, lockType,

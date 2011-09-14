@@ -1540,6 +1540,24 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 		setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), IdentifierList,
 				Statement));
 	}
+	
+	//Production: AtomicStatement ::= atomic (HomeVariableList) Statement
+	void rule_AtomicStatement2(Object _HomeVariableList, Object _Statement) {
+//		 System.out.println("@Semanticrules see the home var list: "
+//		 + _HomeVariableList);
+		List<Node> HomeVariableList = (List<Node>) _HomeVariableList;
+//		for(Node n : HomeVariableList) {
+//			System.out.println("    node: " + n.toString() + ",  type: " + n.getClass());
+//		}
+		List<Id> idlist = new LinkedList<Id>();
+		for(Node n : HomeVariableList) {
+			Id id = this.nf.Id(n.position(), Name.make(n.toString()));
+			idlist.add(id);
+		}
+		Stmt Statement = (Stmt) _Statement;
+		setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), idlist,
+				Statement));
+	}
 
 	// Production: PackageName ::= PackageName '.' ErrorId
 	void rule_PackageName0(Object _PackageName) {
