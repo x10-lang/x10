@@ -416,15 +416,21 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
  		if (waitpid(_pidlst[_numchildren], &status, 0) == _pidlst[_numchildren])
 		{
  			if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
+ 			{
  				exitcode = 128 + WTERMSIG(status);
+ 				fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
+ 			}
  			else if (WIFSTOPPED(status))
+ 			{
  				exitcode = 128 + WSTOPSIG(status);
+ 				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
+ 			}
  			else
+ 			{
  				exitcode = WEXITSTATUS(status);
-			#ifdef DEBUG
-			if (exitcode != 0)
-				fprintf(stderr, "Launcher %d: Non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _myproc, _pidlst[_numchildren], exitcode, _returncode);
-			#endif
+				if (exitcode != 0)
+					fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
+ 			}
 			_pidlst[_numchildren] = -1;
 		}
 	}
@@ -917,11 +923,21 @@ void Launcher::cb_sighandler_cld(int signo)
 					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
 				#endif
 				if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
+				{
 					_singleton->_returncode = 128 + WTERMSIG(status);
+					fprintf(stdout, "Launcher %d: runtime exited with signal %i\n", _singleton->_myproc, WTERMSIG(status));
+				}
 				else if (WIFSTOPPED(status))
+				{
 					_singleton->_returncode = 128 + WSTOPSIG(status);
+					fprintf(stdout, "Launcher %d: runtime stopped with code %i\n", _singleton->_myproc, WSTOPSIG(status));
+				}
 				else
+				{
 					_singleton->_returncode = WEXITSTATUS(status);
+					if (_singleton->_returncode != 0)
+						fprintf(stdout, "Launcher %d: runtime exited with code %i\n", _singleton->_myproc, WEXITSTATUS(status));
+				}
 				if (_singleton->_runtimePort[0] != '\0')
 					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
 			}
