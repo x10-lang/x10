@@ -776,7 +776,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         continue;
                     String fieldName = Emitter.mangleToJava(f.name());
                     if (f.type().isArray()) {
-                        if (f.type() instanceof JavaArrayType_c && isPrimitiveRepedJava(((JavaArrayType_c)f.type()).base())) {
+                        if (f.type() instanceof JavaArrayType_c && isPrimitive(((JavaArrayType_c)f.type()).base())) {
                             // If this is an array and not a java primitive we need to cast it into an array
                             w.writeln("$serializer.write(this." + fieldName + ");");
                         } else {
@@ -787,7 +787,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.writeln("}");
                         }
                     } else {
-                        if (isPrimitiveRepedJava(f.type()) || isString(f.type()) || xts.isPrimitiveJavaArray(f.type())) {
+                        if (isPrimitive(f.type()) || isString(f.type()) || xts.isPrimitiveJavaArray(f.type())) {
                             w.writeln("$serializer.write(this." + fieldName + ");");
                         } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
                             w.writeln("$serializer.writeObjectUsingReflection(this." + fieldName + ");");
@@ -994,16 +994,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
      * ULong, UInt, Float, Double, Boolean, Char) user defined structs without a
      * constraint and without a class invariant where all fields haszero.
      */
-    private static boolean isPrimitiveStruct(Type type) {
-        return type.isNumeric() || type.isChar() || type.isBoolean();
-    }
-
     private static boolean needZeroValueConstructor(X10ClassDef def) {
         if (def.flags().isInterface()) return false;
         if (!def.flags().isStruct()) return false;
         // Note: we don't need zero value constructor for primitive structs
         // because they are cached in x10.rtt.Types class.
-        if (isPrimitiveStruct(def.asType())) return false;
+        if (isPrimitive(def.asType())) return false;
         // TODO stop generating useless zero value constructor for user-defined
         // struct that does not have zero value
         // user-defined struct does not have zero value if it have a field of
@@ -1029,7 +1025,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //        // if (!classType.flags().isStruct()) return false;
 //        // Note: we don't need zero value constructor for primitive structs
 //        // because they are cached in x10.rtt.Types class.
-//        if (isPrimitiveStruct(type)) return false;
+//        if (isPrimitive(type)) return false;
 //        
 //        X10ClassDef def = classType.x10Def();
 //
@@ -1641,7 +1637,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(LocalAssign_c n) {
         Local l = n.local();
         TypeSystem ts = tr.typeSystem();
-        if (n.operator() == Assign.ASSIGN || isPrimitiveStruct(l.type()) || l.type().isString()) {
+        if (n.operator() == Assign.ASSIGN || isPrimitive(l.type()) || l.type().isString()) {
             tr.print(n, l, w);
             w.write(" ");
             w.write(n.operator().toString());
@@ -1669,7 +1665,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Type t = n.fieldInstance().type();
 
         TypeSystem ts = tr.typeSystem();
-        if (n.operator() == Assign.ASSIGN || isPrimitiveStruct(t) || t.isString()) {
+        if (n.operator() == Assign.ASSIGN || isPrimitive(t) || t.isString()) {
             if (n.target() instanceof TypeNode)
                 er.printType(n.target().type(), 0);
             else
@@ -1754,7 +1750,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Type t = n.leftType();
 
         boolean nativeop = false;
-        if (isPrimitiveStruct(t) || t.isString()) {
+        if (isPrimitive(t) || t.isString()) {
             nativeop = true;
         }
 
@@ -1792,7 +1788,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitiveRepedJava(t) && (er.isIMC(array.type()))) {
+            if (isPrimitive(t) && (er.isIMC(array.type()))) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -1838,7 +1834,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Binary.Operator op = n.operator().binaryOperator();
             Name methodName = X10Binary_c.binaryMethodName(op);
             TypeSystem xts = ts;
-            if (isPrimitiveRepedJava(t) && (er.isIMC(array.type()))) {
+            if (isPrimitive(t) && (er.isIMC(array.type()))) {
                 w.write("(");
                 w.write("(");
                 er.printType(t, 0);
@@ -2074,7 +2070,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     
     public static boolean isBoxedType(Type t) {
         // void is included here, because synthetic methods have no definition and are reported as having type (void)
-        if (isPrimitiveRepedJava(t) || t.isVoid())
+        if (isPrimitive(t) || t.isVoid())
             return false;
         else
             return true;
@@ -2088,7 +2084,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (c.isConstant()) {
             Type t = Types.baseType(c.type());
-            if (isPrimitiveRepedJava(t) || t.isNull() || isString(t)) {
+            if (isPrimitive(t) || t.isNull() || isString(t)) {
                 er.prettyPrint(c.constantValue().toLit(tr.nodeFactory(), tr.typeSystem(), t, Position.COMPILER_GENERATED), tr);
                 return;
             }
@@ -2271,7 +2267,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // BOX_PRIMITIVES).expand();
             // }
             else {
-                if (isPrimitiveRepedJava(e.type())) {
+                if (isPrimitive(e.type())) {
                     boolean forceBoxing = false;
                     if (!Emitter.canMangleMethodName(def)) {
                         // for methods with non-manglable names, we box argument
@@ -2437,7 +2433,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 // e.g. any as Int (any:Any), t as Int (t:T)
                 if (isBoxedType(exprType) && xts.isStruct(castType)) {
-                	// N.B. castType.isUnsignedNumeric() must be before isPrimitiveRepedJava(castType)
+                	// N.B. castType.isUnsignedNumeric() must be before isPrimitive(castType)
                 	// since Int and UInt are @NativeRep'ed to the same Java primive int.
                 	if (castType.isUnsignedNumeric()) {
                         w.write(X10_RTT_TYPES + ".as" + castType.name().toString());
@@ -2447,7 +2443,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     	exprRE.expand();
                         w.write(")");
                     }
-                    else if (isPrimitiveRepedJava(castType)) {
+                    else if (isPrimitive(castType)) {
                         w.write(X10_RTT_TYPES + ".as");
                         er.printType(castType, NO_QUALIFIER);
                         w.write("(");
@@ -2468,7 +2464,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(")");
                         w.write(")");
                     }
-                } else if (isPrimitiveRepedJava(castType)) {
+                } else if (isPrimitive(castType)) {
                     w.begin(0);
                     // for the case the method is a dispatch method and that
                     // returns Object.
@@ -2493,7 +2489,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         castTE.expand(tr);
                         w.write(")");
                         // e.g. d as Int (d:Double) -> (int)(double)(Double) d
-                        if (isPrimitiveRepedJava(exprType)) {
+                        if (isPrimitive(exprType)) {
                             w.write(" ");
                             w.write("(");
                             er.printType(exprType, 0);
@@ -3216,7 +3212,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             for (Formal f : formals) {
                 w.write(delim);
                 delim = ",";
-                if (isPrimitiveRepedJava(f.type().type())) {
+                if (isPrimitive(f.type().type())) {
                     // TODO:CAST
                     w.write("(");
                     er.printType(f.type().type(), 0);
@@ -3469,12 +3465,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private boolean containsPrimitive(Closure_c n) {
         Type t = n.returnType().type();
-        if (isPrimitiveRepedJava(t)) {
+        if (isPrimitive(t)) {
             return true;
         }
         for (Formal f : n.formals()) {
             Type type = f.type().type();
-            if (isPrimitiveRepedJava(type)) {
+            if (isPrimitive(type)) {
                 return true;
             }
         }
@@ -4382,8 +4378,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return Types.baseType(type).isObject();
     }
 
-    // TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
-    public static boolean isPrimitiveRepedJava(Type t) {
+    // TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
+    public static boolean isPrimitive(Type t) {
         return t.isBoolean() || t.isChar()  || t.isNumeric();
     }
 

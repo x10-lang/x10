@@ -228,7 +228,7 @@ public class JavaCaster extends ContextVisitor {
                     // e.g) val str = rail(0) = "str";
                     //   -> val str = (String)(rail(0) = "str");
                     if (!(parent instanceof Eval)) {
-                        if (call.methodInstance().name() == SettableAssign.SET && !X10PrettyPrinterVisitor.isPrimitiveRepedJava(call.type())) {
+                        if (call.methodInstance().name() == SettableAssign.SET && !X10PrettyPrinterVisitor.isPrimitive(call.type())) {
                             return cast(call, call.type());
                         }
                     }

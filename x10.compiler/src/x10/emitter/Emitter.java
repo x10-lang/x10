@@ -550,7 +550,7 @@ public class Emitter {
 		return null;
 	}
 	
-	// TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
+	// TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
 	// return all X10 types that are mapped to Java primitives and require explicit boxing
 	public static boolean needExplicitBoxing(Type t) {
 	    return t.isNumeric() || t.isChar() || t.isBoolean();
@@ -1210,7 +1210,7 @@ public class Emitter {
     }
 
     public boolean isSpecialType(Type type) {
-        return X10PrettyPrinterVisitor.isPrimitiveRepedJava(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type);
+        return X10PrettyPrinterVisitor.isPrimitive(Types.baseType(type)) || X10PrettyPrinterVisitor.isString(type);
     }
 
     public static final boolean canMangleMethodName(MethodDef def) {
@@ -1785,10 +1785,9 @@ public class Emitter {
 	    return false;
 	}
 
-    // TODO consolidate X10PrettyPrinterVisitor.isPrimitiveRepedJava(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
+    // TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
 	public static boolean isPrimitive(Type type) {
-	    return X10PrettyPrinterVisitor.isPrimitiveRepedJava(type);
-//	    return type.isBoolean() || type.isNumeric() || type.isChar();
+	    return X10PrettyPrinterVisitor.isPrimitive(type);
 	}
 
 	private boolean containsInstantiatedMethod(List<MethodInstance> methods, MethodInstance impled) {
@@ -3668,10 +3667,10 @@ public class Emitter {
     		    params.add(mi.def().formalNames().get(i).name().toString());
     		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
-    		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
+    		    if (X10PrettyPrinterVisitor.isPrimitive(at) && xts.isParameterType(ft)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).boxTo(at));
     		    }
-    		    else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
+    		    else if (X10PrettyPrinterVisitor.isPrimitive(at)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
     		    }
     		    else {
@@ -3705,10 +3704,10 @@ public class Emitter {
     		    params.add(mi.def().formalNames().get(i).name().toString());
                 Type ft = c.constructorInstance().def().formalTypes().get(i).get();
                 Type at = arguments.get(i).type();
-                if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && Types.baseType(ft) instanceof ParameterType) {
+                if (X10PrettyPrinterVisitor.isPrimitive(at) && Types.baseType(ft) instanceof ParameterType) {
                     args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
                 }
-                else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
+                else if (X10PrettyPrinterVisitor.isPrimitive(at)) {
                     args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
                 }
                 else {
@@ -3765,10 +3764,10 @@ public class Emitter {
     		    /*
     		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
-    		    if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at) && xts.isParameterType(ft)) {
+    		    if (X10PrettyPrinterVisitor.isPrimitive(at) && xts.isParameterType(ft)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
     		    }
-    		    else if (X10PrettyPrinterVisitor.isPrimitiveRepedJava(at)) {
+    		    else if (X10PrettyPrinterVisitor.isPrimitive(at)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
     		    }
     		    else {
