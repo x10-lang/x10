@@ -17,6 +17,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.UniqueID;
 import polyglot.util.CollectionUtil;
+import x10.Configuration;
 import x10.util.CollectionFactory;
 
 // TODO:
@@ -161,11 +162,23 @@ public abstract class InnerClassRemover extends ContextVisitor {
         neu = (New) neu.arguments(args);
         //System.out.println("what is args@InnerClassRemover: " + args + " for: " + neu.position());
         //data-centric synchronization fix the def, ugly hack
-        List<Ref<? extends Type>> formalTypes = new LinkedList<Ref<? extends Type>>();
-        formalTypes.add(Types.ref(neu.objectType().type()));
-        formalTypes.addAll(neu.constructorInstance().def().formalTypes());
-        neu.constructorInstance().def().setFormalTypes(formalTypes);
-        
+        //the following linie must be commented out when compiling the code
+        boolean isDataCentric = false;
+        if(this.job.extensionInfo() instanceof x10.ExtensionInfo) {
+        	//System.out.println("is x10.extensioninfo");
+        	isDataCentric = ((x10.ExtensionInfo)this.job.extensionInfo()).getOptions().x10_config.DATA_CENTRIC;
+        } else {
+        	//System.out.println(this.job.extensionInfo().getClass());
+        	isDataCentric = !Configuration.compile;
+        }
+        if(isDataCentric) {
+          List<Ref<? extends Type>> formalTypes = new LinkedList<Ref<? extends Type>>();
+          formalTypes.add(Types.ref(neu.objectType().type()));
+          formalTypes.addAll(neu.constructorInstance().def().formalTypes());
+          //if(formalTypes.size() != neu.constructorInstance().def().formalTypes().size()) {
+              neu.constructorInstance().def().setFormalTypes(formalTypes);
+          //}
+        }
         return neu;
     }
 

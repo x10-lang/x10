@@ -125,6 +125,7 @@ import x10.visit.X10AtomicityTranslator;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
 import x10.visit.X10LinkedAtomicityTranslator;
+import x10.visit.X10LockMapAtomicityTranslator;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10MixedAtomicityTranslator;
 import x10.visit.X10Translator;
@@ -1155,7 +1156,8 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        public Goal LinkedAtomicityTranslator(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
-    	   return new ValidatingVisitorGoal("LinkedAtomicityTranslator", job, new X10LinkedAtomicityTranslator(job, ts, nf)).intern(this);
+//    	   return new ValidatingVisitorGoal("LinkedAtomicityTranslator", job, new X10LinkedAtomicityTranslator(job, ts, nf)).intern(this);
+    	   return new ValidatingVisitorGoal("LinkedLockMapAtomicityTranslator", job, new X10LockMapAtomicityTranslator(job, ts, nf)).intern(this);
        }
        
        public Goal Lowerer(Job job) {

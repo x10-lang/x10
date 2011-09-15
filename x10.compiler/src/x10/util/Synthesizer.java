@@ -654,7 +654,8 @@ public class Synthesizer {
         for (TypeNode t : typeArgsN) typeArgs.add(t.type());
         X10ClassType container = receiver.toClass();
         MethodInstance mi = xts.findMethod(receiver,
-                xts.MethodMatcher(receiver, name, typeArgs, argTypes, xc.pushClass(container.def(), container)));
+                xts.MethodMatcher(receiver, name, typeArgs, argTypes,
+                		xc.pushClass(container.def(), container)));
         Call result= (Call) xnf.X10Call(pos, 
         		xnf.CanonicalTypeNode(pos, receiver),
                 xnf.Id(pos, name), 
