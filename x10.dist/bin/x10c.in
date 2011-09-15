@@ -10,6 +10,8 @@ optimize=""
 
 if [ "$CROSS_COMPILE_BGP" = "true" ]; then
     x10rt_impl="pgas_bgp"
+    # hack around statement expression bugs in g++ 4.1
+    args="$args -FLATTEN_EXPRESSIONS=true"
 else
     x10rt_impl="sockets"
 fi
