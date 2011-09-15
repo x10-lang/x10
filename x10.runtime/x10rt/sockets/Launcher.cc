@@ -415,23 +415,32 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	    int status;
  		if (waitpid(_pidlst[_numchildren], &status, 0) == _pidlst[_numchildren])
 		{
- 			if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
+ 			if (WIFEXITED(status))
  			{
- 				exitcode = 128 + WTERMSIG(status);
- 				fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
+ 				exitcode = WEXITSTATUS(status);
+				if (exitcode != 0)
+					fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
+ 			}
+ 			else if (WIFSIGNALED(status))
+ 			{
+ 				if (WTERMSIG(status) == SIGPIPE) // normal at shutdown
+ 					exitcode = 0;
+ 				else
+ 				{
+					exitcode = 128 + WTERMSIG(status);
+					fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
+ 				}
  			}
  			else if (WIFSTOPPED(status))
  			{
  				exitcode = 128 + WSTOPSIG(status);
  				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
  			}
+ 			else if (WIFCONTINUED(status))
+ 				fprintf(stdout, "Launcher %d: local runtime continue signal detected\n", _myproc);
  			else
- 			{
- 				exitcode = WEXITSTATUS(status);
-				if (exitcode != 0)
-					fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
- 			}
-			_pidlst[_numchildren] = -1;
+ 				fprintf(stdout, "Launcher %d: local runtime exit status unknown\n", _myproc);
+ 			_pidlst[_numchildren] = -1;
 		}
 	}
 
@@ -922,22 +931,32 @@ void Launcher::cb_sighandler_cld(int signo)
 				if (WEXITSTATUS(status) != 0)
 					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
 				#endif
-				if (WIFSIGNALED(status) && WTERMSIG(status) != SIGPIPE)
+				if (WIFEXITED(status))
 				{
-					_singleton->_returncode = 128 + WTERMSIG(status);
-					fprintf(stdout, "Launcher %d: runtime exited with signal %i\n", _singleton->_myproc, WTERMSIG(status));
+					_singleton->_returncode = WEXITSTATUS(status);
+					if (_singleton->_returncode != 0)
+						fprintf(stdout, "Launcher %d: runtime exited with code %i\n", _singleton->_myproc, WEXITSTATUS(status));
+				}
+				else if (WIFSIGNALED(status))
+				{
+					if (WTERMSIG(status) == SIGPIPE) // normal at shutdown time
+						_singleton->_returncode = 0;
+					else
+					{
+						_singleton->_returncode = 128 + WTERMSIG(status);
+						fprintf(stdout, "Launcher %d: runtime exited with signal %i\n", _singleton->_myproc, WTERMSIG(status));
+					}
 				}
 				else if (WIFSTOPPED(status))
 				{
 					_singleton->_returncode = 128 + WSTOPSIG(status);
 					fprintf(stdout, "Launcher %d: runtime stopped with code %i\n", _singleton->_myproc, WSTOPSIG(status));
 				}
-				else
-				{
-					_singleton->_returncode = WEXITSTATUS(status);
-					if (_singleton->_returncode != 0)
-						fprintf(stdout, "Launcher %d: runtime exited with code %i\n", _singleton->_myproc, WEXITSTATUS(status));
-				}
+	 			else if (WIFCONTINUED(status))
+	 				fprintf(stdout, "Launcher %d: runtime continue signal detected\n", _singleton->_myproc);
+	 			else
+	 				fprintf(stdout, "Launcher %d: runtime exit status unknown\n", _singleton->_myproc);
+
 				if (_singleton->_runtimePort[0] != '\0')
 					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
 			}
