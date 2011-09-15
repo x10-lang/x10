@@ -18,14 +18,14 @@ public final class Math {
    public static E = 2.718281828459045D;
    public static PI = 3.141592653589793D;
 
-   @Native("c++", "::abs(#a)") // @Native for performance
+   @Native("c++", "((x10_int)::labs(#a))") // @Native for performance
    public static def abs(a:Int):Int = a<0 ? -a : a;
 
-   @Native("c++", "::abs(#a)") // @Native for performance
+   @Native("c++", "((x10_long)::llabs(#a))") // @Native for performance
    public static def abs(a:Long):Long = a<0l ? -a : a;
 
    @Native("cuda", "fabsf(#a)")
-   @Native("c++", "::fabs(#a)") // @Native for performance
+   @Native("c++", "::fabsf(#a)") // @Native for performance
    public static def abs(a:Float):Float = a<=0.0f ? 0.0f-a : a;
 
    @Native("c++", "::fabs(#a)") // @Native for performance
