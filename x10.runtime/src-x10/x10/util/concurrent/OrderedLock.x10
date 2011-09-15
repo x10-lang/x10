@@ -67,14 +67,45 @@ public class OrderedLock implements Comparable[OrderedLock] {
 		}
 	}
 	
-	static val lockMap:Map[Object, OrderedLock] = new HashMap[Object, OrderedLock]();
+	static val objectLockMap:Map[Int, OrderedLock] = new HashMap[Int, OrderedLock]();
+	static val classLockMap:Map[Int, OrderedLock] = new HashMap[Int, OrderedLock]();
 	
-	public static def putLock(o:Object, l:OrderedLock) : void {
-		lockMap.put(o, l);
+	public static def createAndStoreObjectLock() : OrderedLock {
+		var lock:OrderedLock = new OrderedLock();
+		objectLockMap.put(lock.getIndex(), lock);
+		return lock;
 	}
 	
-	public static def getLock(o:OrderedLock) : OrderedLock {
-		return lockMap.getOrThrow(o);
+	public static def createObjectLock() : Int {
+		var lock:OrderedLock = new OrderedLock();
+		objectLockMap.put(lock.getIndex(), lock);
+		return lock.getIndex();
+	}
+	
+	public static def hasObjectLock(lockId:Int) : boolean {
+		return objectLockMap.containsKey(lockId);
+	}
+	
+	public static def getObjectLock(lockId:Int) : OrderedLock {
+		if(!hasObjectLock(lockId)) {
+			Console.OUT.println("Can not find lock id: " + lockId);
+		}
+		return objectLockMap.getOrThrow(lockId);
+	}
+	
+	//for class lock
+	public static def createClassLock() : Int {
+		var lock:OrderedLock = new OrderedLock();
+		classLockMap.put(lock.getIndex(),lock);
+		return lock.getIndex();
+	}
+	
+	public static def hasClassLock(lockId:Int) : boolean {
+		return classLockMap.containsKey(lockId);
+	}
+	
+	public static def getClassLock(lockId:Int) : OrderedLock {
+		return classLockMap.getOrThrow(lockId);
 	}
 }
 
