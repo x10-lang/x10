@@ -10,6 +10,7 @@ optimize=""
 
 if [ "$CROSS_COMPILE_BGP" = "true" ]; then
     x10rt_impl="pgas_bgp"
+    args="$args -STATEMENT_EXPR_GCC_WORKAROUND=true"
 else
     x10rt_impl="sockets"
 fi
