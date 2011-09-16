@@ -52,6 +52,10 @@ import java.util.Map;
 import java.util.LinkedHashMap;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.TreeSet;
+import java.util.TreeMap;
+import java.util.Arrays;
+
 import static polyglot.visit.InitChecker.*;
 
 /**
@@ -68,6 +72,13 @@ import static polyglot.visit.InitChecker.*;
 
 public class CheckEscapingThis extends NodeVisitor
 {
+    private static boolean GATHER_STATS = false;  // Gather statistics for the initialization paper
+    private static HashSet<X10ProcedureDef> ALL_CTORS = new HashSet<X10ProcedureDef>();
+    private static HashSet<X10ProcedureDef> ALL_METHODS = new HashSet<X10ProcedureDef>();
+    private static HashSet<X10ProcedureDef> ALL_EXPLICIT_NON_ESCAPING_METHODS = new HashSet<X10ProcedureDef>();
+    private static HashSet<X10ProcedureDef> ALL_NON_ESCAPING_METHODS = new HashSet<X10ProcedureDef>();
+    private static HashSet<X10ProcedureDef> ALL_NO_THIS_ACCESS = new HashSet<X10ProcedureDef>();
+
     private static class DataFlowItem extends BaseDataFlowItem<FieldDef> {}
 
     class FieldChecker extends DataFlow {
@@ -623,6 +634,14 @@ public class CheckEscapingThis extends NodeVisitor
                     X10MethodDef x10def = (X10MethodDef) def;
                     boolean isNoThisAccess = Types.isNoThisAccess(x10def,ts);
                     boolean isNonEscaping = Types.isNonEscaping(x10def,ts);
+                    if (GATHER_STATS) {
+                        ALL_METHODS.add(x10def);
+                        if (isNoThisAccess) ALL_NO_THIS_ACCESS.add(x10def);
+                        if (isNonEscaping) {
+                            ALL_NON_ESCAPING_METHODS.add(x10def);
+                            ALL_EXPLICIT_NON_ESCAPING_METHODS.add(x10def);
+                        }
+                    }
 
                     // if we overrode a method with @NoThisAccess, then we must be annotated with @NoThisAccess
                     // (NonEscaping is private/final, so cannot be overriden)
@@ -663,6 +682,7 @@ public class CheckEscapingThis extends NodeVisitor
                     assert proc instanceof X10ConstructorDecl_c : proc;
                     final X10ConstructorDecl_c ctor = (X10ConstructorDecl_c) proc;
                     allCtors.add(ctor);
+                    if (GATHER_STATS) ALL_CTORS.add(ctor.constructorDef());
                     procBody.visit(this);
                 }
             }
@@ -708,6 +728,28 @@ public class CheckEscapingThis extends NodeVisitor
                 fieldChecker.dataflow(ctor);
                 fieldChecker.checkResult();
             }
+        }
+        if (GATHER_STATS) {
+            System.out.println("ALL_CTORS="+ALL_CTORS.size()+
+                " ALL_METHODS="+ALL_METHODS.size()+
+                " ALL_NON_ESCAPING_METHODS="+ALL_NON_ESCAPING_METHODS.size()+
+                " ALL_EXPLICIT_NON_ESCAPING_METHODS="+ALL_EXPLICIT_NON_ESCAPING_METHODS.size()+
+                " ALL_NO_THIS_ACCESS="+ALL_NO_THIS_ACCESS.size());
+            TreeMap<String,int[]> byFile = new TreeMap<String,int[]>();
+            HashSet[] ALL = {ALL_CTORS, ALL_METHODS, ALL_NON_ESCAPING_METHODS, ALL_EXPLICIT_NON_ESCAPING_METHODS, ALL_NO_THIS_ACCESS};
+            for (int i=0; i<ALL.length; i++)
+                for (Object defO : ALL[i]) {
+                    X10ProcedureDef def = (X10ProcedureDef) defO;
+                    Position defPos = def.position();
+                    if (defPos.isCompilerGenerated()) continue;
+                    String file = defPos.file();
+                    if (!byFile.containsKey(file)) byFile.put(file, new int[ALL.length] );
+                    byFile.get(file)[i]++;
+                }
+            for (String file : byFile.keySet()) {
+                System.out.println(file+": "+ Arrays.toString(byFile.get(file)));                
+            }
+            System.out.println();
         }
     }
     public static ConstructorCall getConstructorCall(X10ConstructorDecl_c ctor) {
@@ -816,6 +858,8 @@ public class CheckEscapingThis extends NodeVisitor
                             final Block body = method.body();
                             if (body!=null) {
                                 allMethods.put(pd,new MethodInfo()); // prevent infinite recursion
+                                if (GATHER_STATS)
+                                    ALL_NON_ESCAPING_METHODS.add(method.methodDef());
                                 body.visit(this);
                                 dfsMethods.add(method);
                             }
