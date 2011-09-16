@@ -26,7 +26,6 @@
     <property name="EXPERIMENTAL" value="false" />
     <property name="DISABLE_GC" value="false" />
     <property name="NO_CHECKS" value="false" />
-    <!-- <property name="MULTI_NODE" value="false" /> -->	<!--managed x10 only-->
     <property name="X10RT_MPI" value="false" />
     <property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PGAS" value="true" />
@@ -145,11 +144,6 @@
     <condition property="x10c.no_checks" value="-NO_CHECKS=true" else="">
         <istrue value="${NO_CHECKS}" />
     </condition>
-    <!--
-    <condition property="x10c.multi_node" value="-MULTI_NODE=true" else="">
-        <istrue value="${MULTI_NODE}" />
-    </condition>
-    -->
     <target name="available-procs" unless="available.procs">
         <property name="available.procs" value="2"/>
     </target>
@@ -317,11 +311,9 @@
         <pathconvert property="xrx.list" refid="changed.xrx.files" dirsep="/" pathsep=" ">
             <map from="${basedir}${file.separator}src-x10${file.separator}" to=""/>
         </pathconvert>
-        <!-- <echo message="x10c ${x10c.optimize} ${x10c.experimental} ${x10c.inline_optimizations} ${x10c.no_checks} ${x10c.multi_node} -c ${xrx.list}"/> -->
         <echo message="x10c ${x10c.optimize} ${x10c.experimental} ${x10c.inline_optimizations} ${x10c.no_checks} -c ${xrx.list}"/>
         <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src-x10">
             <arg value="-c" />
-            <!-- <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx512M ${x10c.optimize} ${x10c.experimental} ${x10c.inline_optimizations} ${x10c.no_checks} ${x10c.multi_node} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CHECKS -commandlineonly -c ${xrx.list}" /> -->
             <arg value="'${x10.dist.location}/bin/x10c' -J-Xmx512M ${x10c.optimize} ${x10c.experimental} ${x10c.inline_optimizations} ${x10c.no_checks} -d '${gen}' -J-ea -rtdev -sourcepath . -STATIC_CHECKS -commandlineonly -c ${xrx.list}" />
         </exec>
     </target>
