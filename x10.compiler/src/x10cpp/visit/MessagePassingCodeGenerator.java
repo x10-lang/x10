@@ -2298,7 +2298,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(StmtExpr_c n) {
 	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
         boolean oldSemiColon = tr.appendSemicolon(true);
-	    sw.write("(__extension__ ({");
+        Expr e = n.result();
+        boolean gccHack = e != null && opts.x10_config.STATEMENT_EXPR_GCC_WORKAROUND && e.type().isReference();
+        if (gccHack) {
+            sw.write("x10aux::ref"+chevrons(Emitter.translateType(e.type()))+"(__extension__ ({");
+        } else {
+            sw.write("(__extension__ ({");
+        }
 	    sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
 	    boolean oldPrintType = tr.printType(true);
@@ -2307,9 +2313,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	    }
 	    tr.printType(oldPrintType);
-	    Expr e = n.result();
 	    if (e != null) {
-	        boolean gccHack = opts.x10_config.STATEMENT_EXPR_GCC_WORKAROUND && e.type().isReference();
 	        if (gccHack) {
 	            sw.write("(");
 	        }
