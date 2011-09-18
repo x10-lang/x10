@@ -43,7 +43,6 @@ public class Optimizer {
         Configuration config = extInfo.getOptions().x10_config;
         if (config.FLATTEN_EXPRESSIONS) return true;
         if (extInfo instanceof x10c.ExtensionInfo) return true;
-        if (!config.ALLOW_STATEMENT_EXPRESSIONS) return true; // don't let StmtExpr's reach the back end
         return false;
     }
 

@@ -2297,12 +2297,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public void visit(StmtExpr_c n) {
 	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
-	    if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
-	        tr.job().compiler().errorQueue().enqueue(ErrorInfo.SEMANTIC_ERROR,
-	                "Statement expression node encountered, but statement expressions are disabled: ", n.position());
-	    }
         boolean oldSemiColon = tr.appendSemicolon(true);
-	    sw.write("(__extension__ ({");
+        Expr e = n.result();
+        boolean gccHack = e != null && opts.x10_config.STATEMENT_EXPR_GCC_WORKAROUND && e.type().isReference();
+        if (gccHack) {
+            sw.write("x10aux::ref"+chevrons(Emitter.translateType(e.type()))+"(__extension__ ({");
+        } else {
+            sw.write("(__extension__ ({");
+        }
 	    sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
 	    boolean oldPrintType = tr.printType(true);
@@ -2311,9 +2313,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	        sw.newline();
 	    }
 	    tr.printType(oldPrintType);
-	    Expr e = n.result();
 	    if (e != null) {
+	        if (gccHack) {
+	            sw.write("(");
+	        }
 	        n.print(e, sw, tr);
+	        if (gccHack) {
+	            sw.write(").operator->()");
+	        }
 	        sw.write(";");
 	    }
 	    sw.end(); sw.newline();
@@ -4053,8 +4060,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		sw.write(tmp);
 		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
-		if (!opts.x10_config.ALLOW_STATEMENT_EXPRESSIONS) {
-		    // FIXME: HACK around a compiler bug in GCC 4.1
+		if (opts.x10_config.STATEMENT_EXPR_GCC_WORKAROUND) {
 		    sw.write(".operator->()");
 		}
 		sw.write(";");

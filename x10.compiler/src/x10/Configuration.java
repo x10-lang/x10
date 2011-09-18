@@ -69,8 +69,8 @@ public final class Configuration extends x10.config.Configuration {
     public int INLINE_SIZE = 1;
     private static final String INLINE_SIZE_desc = "Maximum number of calls in a method to be implicitly inlined (-1 turns off implicit inlining)";
     
-    public boolean ALLOW_STATEMENT_EXPRESSIONS = true;
-    private static final String ALLOW_STATEMENT_EXPRESSIONS_desc = "Allow statement expressions in generated code";
+    public boolean STATEMENT_EXPR_GCC_WORKAROUND = false;
+    private static final String STATEMENT_EXPR_GCC_WORKAROUND_desc = "Modify codegeneration for statement expressions to attempt to avoid bug in gcc 4.1";
 
     public boolean FLATTEN_EXPRESSIONS = false;
     private static final String FLATTEN_EXPRESSIONS_desc = "Flatten all expressions";
