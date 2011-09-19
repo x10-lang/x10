@@ -72,7 +72,8 @@ import static polyglot.visit.InitChecker.*;
 
 public class CheckEscapingThis extends NodeVisitor
 {
-    private static boolean GATHER_STATS = false;  // Gather statistics for the initialization paper
+    public final static boolean GATHER_STATS = false;  // Gather statistics for the initialization paper
+    private static int ASYNC_INIT_COUNT = 0;
     private static HashSet<X10ProcedureDef> ALL_CTORS = new HashSet<X10ProcedureDef>();
     private static HashSet<X10ProcedureDef> ALL_METHODS = new HashSet<X10ProcedureDef>();
     private static HashSet<X10ProcedureDef> ALL_EXPLICIT_NON_ESCAPING_METHODS = new HashSet<X10ProcedureDef>();
@@ -236,7 +237,12 @@ public class CheckEscapingThis extends NodeVisitor
             } else if (n instanceof Finish) {
                 res = new DataFlowItem();
                 for (Map.Entry<FieldDef, MinMaxInitCount> pair : inItem.initStatus.entrySet()) {
-                    res.initStatus.put(pair.getKey(),pair.getValue().finish());
+                    MinMaxInitCount before = pair.getValue();
+                    res.initStatus.put(pair.getKey(), before.finish());
+                    if (GATHER_STATS && before.isAsynInit()) {
+                        System.out.println("Async field init="+pair.getKey().position());
+                        ASYNC_INIT_COUNT++;
+                    }
                 }
             }
             if (res!=inItem) {
@@ -730,7 +736,10 @@ public class CheckEscapingThis extends NodeVisitor
             }
         }
         if (GATHER_STATS) {
-            System.out.println("ALL_CTORS="+ALL_CTORS.size()+
+            System.out.println(
+                " ASYNC_LOCAL_INIT_COUNT="+InitChecker.ASYNC_INIT_COUNT+
+                " ASYNC_FIELD_INIT_COUNT="+ASYNC_INIT_COUNT +
+                " ALL_CTORS="+ALL_CTORS.size()+
                 " ALL_METHODS="+ALL_METHODS.size()+
                 " ALL_NON_ESCAPING_METHODS="+ALL_NON_ESCAPING_METHODS.size()+
                 " ALL_EXPLICIT_NON_ESCAPING_METHODS="+ALL_EXPLICIT_NON_ESCAPING_METHODS.size()+

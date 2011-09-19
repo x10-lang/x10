@@ -33,6 +33,7 @@ import x10.types.X10LocalDef_c;
 import x10.types.X10LocalInstance;
 import polyglot.types.TypeSystem;
 import x10.visit.Lowerer;
+import x10.visit.CheckEscapingThis;
 import x10.util.Synthesizer;
 
 /**
@@ -141,6 +142,8 @@ import x10.util.Synthesizer;
  */
 public final class InitChecker extends DataFlow
 {
+    public static int ASYNC_INIT_COUNT = 0;
+
     public InitChecker(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf,
               true /* forward analysis */,
@@ -250,6 +253,9 @@ public final class InitChecker extends DataFlow
                 return equals((MinMaxInitCount) o);
             }
             return false;
+        }
+        public boolean isAsynInit() {
+            return minSeq!=minAsync || maxSeq!=maxAsync;
         }
         public MinMaxInitCount finish() {
             return new MinMaxInitCount(minAsync,maxAsync,minAsync,maxAsync, wasRead);//[c,d,c,d]
@@ -537,6 +543,10 @@ public final class InitChecker extends DataFlow
                 final MinMaxInitCount after = before.finish();
                 final LocalDef v = e.getKey();
                 res.initStatus.put(v, after);
+                if (CheckEscapingThis.GATHER_STATS && before.isAsynInit() && v.flags().isFinal()) {
+                    System.out.println("Async local init="+v.position());
+                    ASYNC_INIT_COUNT++;
+                }
             }
             return itemToMap(res, succEdgeKeys);
         }
