@@ -25,6 +25,8 @@ import java.io.IOException;
 public class Ref implements RefI {
     
     private static final long serialVersionUID = 1L;
+    
+    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Ref.class);
 
     // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
@@ -54,8 +56,23 @@ public class Ref implements RefI {
     public java.lang.String toString() {
         return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
     }
-
-    public void $_serialize(X10JavaSerializer serializer) throws IOException { }
-
-    public short $_get_serialization_id() { return 0; }
+    
+    public static x10.x10rt.X10JavaSerializable $_deserialize_body(Ref $_obj, x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
+        return $_obj;
+    }
+    
+    public static x10.x10rt.X10JavaSerializable $_deserializer(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
+        Ref $_obj = new Ref((java.lang.System[]) null);
+        $deserializer.record_reference($_obj);
+        return $_deserialize_body($_obj, $deserializer);
+    }
+    
+    public short $_get_serialization_id() {
+         return $_serialization_id;
+    }
+    
+    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
+        
+    }
+    
 }
