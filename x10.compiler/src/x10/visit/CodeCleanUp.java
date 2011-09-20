@@ -10,13 +10,11 @@
  */
 package x10.visit;
 
-import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 
 import polyglot.ast.Block;
 import polyglot.ast.Branch;
@@ -25,9 +23,6 @@ import polyglot.ast.Expr;
 import polyglot.ast.For;
 import polyglot.ast.Id;
 import polyglot.ast.Labeled;
-import polyglot.ast.Local;
-import polyglot.ast.LocalDecl;
-import polyglot.ast.Loop;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
@@ -35,16 +30,11 @@ import polyglot.ast.Stmt;
 import polyglot.ast.SwitchBlock;
 import polyglot.ast.Throw;
 import polyglot.frontend.Job;
-import polyglot.main.Reporter;
-import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.TypeSystem;
-import polyglot.util.CollectionUtil;
-import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
-import x10.ast.AtStmt;
 import x10.ast.StmtExpr;
 import x10.ast.StmtSeq;
 import x10.extension.X10Ext;
@@ -58,12 +48,12 @@ public class CodeCleanUp extends ContextVisitor {
 
     private TypeSystem xts;
     private NodeFactory xnf;
-    protected boolean report;
-    protected boolean reportStats;
+    final protected boolean report;
+    final protected boolean reportStats;
     static protected long blockCount;
     static protected long unreachableCount;
     protected X10AlphaRenamer alphaRenamer;
-    protected Map<Name, Boolean> labelInfo;
+    protected Map<Name, Integer> labelInfo;
 
     /**
      * Creates a visitor for cleaning code.
@@ -91,11 +81,11 @@ public class CodeCleanUp extends ContextVisitor {
         if (child instanceof Labeled) {
             Name labelName = ((Labeled) child).labelNode().id();
             assert !labelInfo.containsKey(labelName) : "CodeCleanup: "+labelName+" already in map! Shadowed labels?";
-            labelInfo.put(labelName, Boolean.FALSE);
+            labelInfo.put(labelName, 0);
         } else if (child instanceof Branch) {
             Id labelNode = ((Branch) child).labelNode();
             if (labelNode != null) {
-                labelInfo.put(labelNode.id(), Boolean.TRUE);
+                labelInfo.put(labelNode.id(), labelInfo.get(labelNode.id()) + 1);
             }
         }
 
@@ -105,9 +95,11 @@ public class CodeCleanUp extends ContextVisitor {
     @Override
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
         if (n instanceof Labeled) {
-            Boolean used = labelInfo.remove(((Labeled) n).labelNode().id());
+            int uses = labelInfo.remove(((Labeled) n).labelNode().id());    // unboxing is safe as we always removing an element we put before
             // If the label was never used, then eliminate the Labeled node and just return the statement itself.
-            return used.booleanValue() ? n : ((Labeled)n).statement();
+            if (uses == 0) return ((Labeled)n).statement();
+            else if (uses == 1 && isBreakLast((Labeled)n)) return removeBreakLast((Labeled)n);
+            else return n;
         } 
         
         if (n instanceof Eval && ((Eval)n).expr() instanceof StmtExpr  && !(parent instanceof For)) {
@@ -208,6 +200,32 @@ public class CodeCleanUp extends ContextVisitor {
             b = b.statements(stmtList);
         }
         return b;
+    }
+    
+    /**
+     * Checks if `break label;` is the last statement in labeled block `label: { ... }`
+     */
+    private boolean isBreakLast(Labeled labeled) {
+        Name label = labeled.labelNode().id();
+        Stmt stmt = labeled.statement();
+        if (stmt instanceof Block) {
+            Block block = (Block) stmt;
+            List<Stmt> statements = block.statements();
+            Stmt last = statements.get(statements.size()-1);
+            if (last != null && last instanceof Branch) {
+                Branch branch = (Branch) last;
+                if (branch.kind() == Branch.BREAK && branch.labelNode() != null && branch.labelNode().id().equals(label))
+                    return true;
+            }
+        }
+        return false;
+    }
+    
+    private Block removeBreakLast(Labeled labeled) {
+        List<Stmt> osts = ((Block) labeled.statement()).statements();
+        List<Stmt> statements = new ArrayList<Stmt>(osts);
+        statements.remove(statements.size() - 1);
+        return xnf.Block(labeled.position(), statements);
     }
 
     public void finish() {
