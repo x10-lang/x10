@@ -30,6 +30,10 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
         return false;
     }
     
+    public def clear(): void {
+        a.clear();
+    }
+
     public def clone() {
         val a = new ArrayList[T]();
         a.addAll(this);
