@@ -31,9 +31,10 @@ import x10.visit.ConstantPropagator;
 import x10.visit.ConstructorSplitterVisitor;
 import x10.visit.DeadVariableEliminator;
 import x10.visit.ExpressionFlattener;
+import x10.visit.X10CopyPropagator;
 
 public class Optimizer {
-
+    
     public static boolean INLINING(ExtensionInfo extInfo) {
         Configuration config = extInfo.getOptions().x10_config;
         return config.OPTIMIZE && (config.INLINE || 0 < config.INLINE_SIZE);
@@ -109,6 +110,9 @@ public class Optimizer {
         if (config.OPTIMIZE) {
             goals.add(ConstantProp());
         }
+        if (config.COPY_PROPAGATION) {
+            goals.add(CopyPropagation());
+        }
         if (config.EXPERIMENTAL && config.ELIMINATE_DEAD_VARIABLES) {
             goals.add(DeadVariableEliminator());
         }
@@ -174,6 +178,12 @@ public class Optimizer {
     public Goal ConstantProp() {
         NodeVisitor visitor = new ConstantPropagator(job, ts, nf, false);
         Goal goal = new ValidatingVisitorGoal("ConstantPropagation", job, visitor);
+        return goal.intern(scheduler);
+    }
+    
+    public Goal CopyPropagation() {
+        NodeVisitor visitor = new X10CopyPropagator(job, ts, nf);
+        Goal goal = new ValidatingVisitorGoal("CopyPropagation", job, visitor);
         return goal.intern(scheduler);
     }
 

@@ -112,6 +112,9 @@ public final class Configuration extends x10.config.Configuration {
 
     public boolean STATICS_PER_PLACE_ANALYSIS = false;
     private static final String STATICS_PER_PLACE_ANALYSIS_desc = "Enable deep analysis for converting place-0 static initializers to per-place initializers";
+    
+    public boolean COPY_PROPAGATION = false;
+    private static final String COPY_PROPAGATION_desc = "Enable copy propagation pass after optimizer. Use together with -O -EXPERIMENTAL -ELIMINATE_DEAD_VARIABLES";
 
 //    public final boolean MULTI_NODE = true;
 //    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
