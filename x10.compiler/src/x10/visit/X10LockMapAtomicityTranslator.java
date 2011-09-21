@@ -84,49 +84,41 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
 		synth = new Synthesizer(nf, ts);
         altsynth = new AltSynthesizer(ts, nf);
 	}
-	
-	private static final String ATOMICSET_LOCK_NAME = "atomicset_lock";
-    private static final String STATIC_LOCK_NAME = "static_lock";
+
     private static final String LOCAL_VAR_LOCK = "_var_local_lock";
     private static final String CONST_FORMAL_NAME = "paramLock";
-    private static final String LOCK_LIST = "locklist";
-    private static final String ATOMIC_METHOD_LOCK = "atomic_method_lock_";
+    private static final Name PARAM_LOCK_NAME = Name.make(CONST_FORMAL_NAME);
     
 	private static final String OBJECT_LOCK_ID = "object_lock_id";
 	private static final String CLASS_LOCK_ID = "class_lock_id";
-    private static final String LOCAL_VAR_LOCK_ID = "_var_local_lock_id";
-    private static final String CONST_FORMAL_NAME_ID = "paramLock_id";
     
     private static final QName ORDERED_LOCK = QName.make("x10.util.concurrent.OrderedLock");
     private static final QName ORDERED_LOCK_ID = QName.make("Int");
-    private static final QName ATOMICS = QName.make("x10.util.concurrent.Atomic");
     private static final QName X10_LIST = QName.make("x10.util.List"); 
     private static final QName X10_ARRAYLIST = QName.make("x10.util.ArrayList");
     
     private static final Name LIST_ADD = Name.make("add");
     private static final Name GET_ORDERED_LOCK = Name.make("getOrderedLock");
-    private static final Name GET_ORDERED_LOCK_ID = Name.make("getOrderedLockId");
     private static final Name GET_STATIC_ORDERED_LOCK = Name.make("getStaticOrderedLock");
-    private static final Name GET_STATIC_ORDERED_LOCK_ID = Name.make("getStaticOrderedLockId");
     private static final Name CREATE_NEW_OBJ_LOCK = Name.make("createAndStoreObjectLock");
     private static final Name GET_INDEX = Name.make("getIndex");
+    
     private static final Name ACQUIRE_LOCKS = Name.make("acquireLocksInOrder");
     private static final Name RELEASE_LOCKS = Name.make("releaseLocks");
-    private static final Name PARAM_LOCK_NAME = Name.make(CONST_FORMAL_NAME);
-    private static final Name PARAM_LOCK_ID_NAME = Name.make(CONST_FORMAL_NAME_ID);
+    private static final Name ACQUIRE_1_LOCK = Name.make("acquireSingleLock");
+    private static final Name RELEASE_1_LOCK = Name.make("releaseSingleLock");
+    private static final Name ACQUIRE_2_LOCKS = Name.make("acquireTwoLocks");
+    private static final Name RELEASE_2_LOCKS = Name.make("releaseTwoLocks");
+    private static final Name ACQUIRE_3_LOCKS = Name.make("acquireThreeLocks");
+    private static final Name RELEASE_3_LOCKS = Name.make("releaseThreeLocks");
     
     private static final Name CREATE_OBJ_LOCK = Name.make("createObjectLock");
     private static final Name CREATE_CLASS_LOCK = Name.make("createClassLock");
     private static final Name GET_OBJ_LOCK = Name.make("getObjectLock");
     private static final Name GET_CLASS_LOCK = Name.make("getClassLock");
-    private static final Name HAS_OBJ_LOCK = Name.make("hasObjectLock");
-    private static final Name HAS_CLASS_LOCK = Name.make("hasClassLock");
     
     private static final Name PUSH_ATOMIC = Name.make("pushAtomic");
     private static final Name POP_ATOMIC = Name.make("popAtomic");
-    
-    private static final Name ENTER_ATOMIC = Name.make("enterAtomic");
-    private static final Name EXIT_ATOMIC = Name.make("exitAtomic");
     
     @Override
     public Node override(Node parent, Node n) { 
@@ -154,7 +146,7 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     		X10New_c x10newc = (X10New_c)n;
     		return this.visitX10New(x10newc);
     	}
-    	//add lock for formal parameters that are not associated with a lock id
+    	//add lock declarations for formal parameters that are not associated with a lock id
     	if(n instanceof X10MethodDecl_c) {
     		X10MethodDecl_c x10method = (X10MethodDecl_c)n;
     		return this.visitX10Method(x10method);
@@ -185,7 +177,7 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     		AtEach_c ateach = (AtEach_c)n;
     		return this.visitAtEach_c(ateach);
     	}
-    	
+    	//add referred lock id vars to its environment
     	if(n instanceof AtHomeStmt_c) {
     		AtHomeStmt_c athome = (AtHomeStmt_c)n;
     		return this.visitAtHomeStmt_c(athome);
@@ -197,7 +189,7 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     private Node visitX10ClassDecl(X10ClassDecl_c n) throws SemanticException {
     	X10ClassDef classDef = n.classDef();
     	if(X10TypeUtils.skipProcessingClass(classDef.asType())) {
-    		System.out.println("Skip x10 lib class: " + n.name());
+    		System.out.println("Skip x10 lib class: " + n.name() + " at: " + n.position());
     		return n;
     	}
     	Position pos = n.position();
@@ -432,9 +424,8 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     	newStatements.addAll(n.body().statements());
         Block newBlock = nf.Block(n.position(), newStatements);
         
-        //deal with atomic method
+        //acquiring and releasing locks for atomic methods
         if(n.flags().flags().contains(Flags.ATOMIC)) {
-        	
         	List<X10LocalDef> x10formalThatHaveLocks = new LinkedList<X10LocalDef>();
         	for(Formal formal : formals) {
         		LocalDef def = formal.localDef();
@@ -442,40 +433,66 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
         			x10formalThatHaveLocks.add((X10LocalDef)def);
         		}
         	}
-        	
         	boolean isStatic = n.flags().flags().contains(Flags.STATIC);
-        	//acquire class lock, and all parameters without an asociated lock
         	Position pos = n.position();
-        	LocalDecl emptyLockList = this.createEmptyLockListDeclaration(pos);
-        	Stmt acquireClassLock = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, isStatic);
-        	List<Stmt> addMethodFormalsToLockStmts = this.addLocksForFormals(pos, lockType, x10formalThatHaveLocks,
-    				emptyLockList.name(), emptyLockList);
-        	
-        	Stmt lockAcquireStmt = this.lockAcquireStatement(pos, lockType, emptyLockList, emptyLockList.name());
-    		Stmt lockReleaseStmt = this.lockReleaseStatement(pos, lockType, emptyLockList, emptyLockList.name());
-        	
+        	//see the lock number
+        	int lockNum = x10formalThatHaveLocks.size() + 1; //number of formal + this lock
         	//create the atomic section push/pop statements to avoid use async inside an atomic section
     		Stmt pushAtomic = nf.Eval(pos, call(pos, PUSH_ATOMIC, ts.Void()));
     		Stmt popAtomic = nf.Eval(pos, call(pos, POP_ATOMIC, ts.Void()));
-        	
-    		//assemble the code block
-        	List<Stmt> tryStatements = new LinkedList<Stmt>();
-        	tryStatements.add(lockAcquireStmt);
-        	tryStatements.add(pushAtomic);
-        	tryStatements.addAll(newBlock.statements());
-        	
-        	Block tryBlock = nf.Block(pos, tryStatements);
-        	Block finallyBlock = nf.Block(pos, popAtomic, lockReleaseStmt);
-        	Try tryStmt = nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
-        	
-        	List<Stmt> statements = new LinkedList<Stmt>();
-        	statements.add(emptyLockList);
-        	statements.add(acquireClassLock);
-        	statements.addAll(addMethodFormalsToLockStmts);
-        	statements.add(tryStmt);
-        	
-        	//create a new block here
-        	newBlock = nf.Block(pos, statements);
+    		
+        	if(lockNum <= 3) {
+        		//use the shortcut, just acquire the lock without creating a lock list
+        		Stmt lockAcquireStmt = this.acquireLocksAtOnce(pos, lockType, lockNum, x10formalThatHaveLocks, isStatic);
+        		//x10formalThatHaveLocks, and this //put the lock acquire statement here
+        		Stmt lockReleaseStmt = this.releaseLocksAtOnce(pos, lockType, lockNum, x10formalThatHaveLocks, isStatic);
+        		//put the lock acquire statement here
+        		
+        		List<Stmt> tryStatements = new LinkedList<Stmt>();
+        		tryStatements.add(lockAcquireStmt);
+        		tryStatements.add(pushAtomic);
+        		tryStatements.addAll(newBlock.statements());
+        		
+        		Block tryBlock = nf.Block(pos, tryStatements);
+            	Block finallyBlock = nf.Block(pos, popAtomic, lockReleaseStmt);
+            	Try tryStmt = nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+            	
+            	List<Stmt> statements = new LinkedList<Stmt>();
+            	statements.add(tryStmt);
+            	
+            	//create a new block here
+            	newBlock = nf.Block(pos, statements);
+        		
+        	} else {
+        		//acquire class lock, and all parameters without an asociated lock
+            	
+            	LocalDecl emptyLockList = this.createEmptyLockListDeclaration(pos);
+            	Stmt acquireClassLock = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, isStatic);
+            	List<Stmt> addMethodFormalsToLockStmts = this.addLocksForFormals(pos, lockType, x10formalThatHaveLocks,
+        				emptyLockList.name(), emptyLockList);
+            	
+            	Stmt lockAcquireStmt = this.lockAcquireStatement(pos, lockType, emptyLockList, emptyLockList.name());
+        		Stmt lockReleaseStmt = this.lockReleaseStatement(pos, lockType, emptyLockList, emptyLockList.name());
+            	
+        		//assemble the code block
+            	List<Stmt> tryStatements = new LinkedList<Stmt>();
+            	tryStatements.add(lockAcquireStmt);
+            	tryStatements.add(pushAtomic);
+            	tryStatements.addAll(newBlock.statements());
+            	
+            	Block tryBlock = nf.Block(pos, tryStatements);
+            	Block finallyBlock = nf.Block(pos, popAtomic, lockReleaseStmt);
+            	Try tryStmt = nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+            	
+            	List<Stmt> statements = new LinkedList<Stmt>();
+            	statements.add(emptyLockList);
+            	statements.add(acquireClassLock);
+            	statements.addAll(addMethodFormalsToLockStmts);
+            	statements.add(tryStmt);
+            	
+            	//create a new block here
+            	newBlock = nf.Block(pos, statements);
+        	}
         	
         	//remove the atomic flag in method
         	n = n.flags(nf.FlagsNode(pos, n.flags().flags().clearAtomic()));
@@ -565,12 +582,11 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     
     private Node visitAtomic_c(Atomic_c atomic) throws SemanticException {
     	Stmt body = atomic.body; //it is a block_c type for sure
-    	//return if using the old fashion atomic construct
+    	//return if there are no variables associated with this atomic section
     	if(atomic.identifiers == null || atomic.identifiers.isEmpty()) {
     		return atomic;
     	}
     	//get all formal declarations
-    	boolean isInConstructor = this.context.currentCode() instanceof X10ConstructorDef;
     	List<String> formalNames = X10TypeUtils.getAllFormalNames(this.context.currentCode());
     	
     	List<X10LocalDef> localdefs = atomic.getLocalsInAtomic();
@@ -588,15 +604,16 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     		}
     	}
     	//divide x10fields into 2 parts, static fields, and non-static fields
-    	List<X10FieldDef> x10staticFields = new LinkedList<X10FieldDef>();
-    	List<X10FieldDef> x10nonStaticFields = new LinkedList<X10FieldDef>();
+    	//List<X10FieldDef> x10staticFields = new LinkedList<X10FieldDef>();
+    	//List<X10FieldDef> x10nonStaticFields = new LinkedList<X10FieldDef>();
+    	boolean accessPrimitiveOrSkippedClass = false;
     	//also classify the fields that have locks to one group.
     	List<X10FieldDef> x10FieldsHaveLock = new LinkedList<X10FieldDef>();
     	for(X10FieldDef fieldDef : x10fields) {
     		if(fieldDef.flags().contains(Flags.STATIC)) {
-    			x10staticFields.add(fieldDef);
+    			//x10staticFields.add(fieldDef);
     		} else {
-    			x10nonStaticFields.add(fieldDef);
+    			//x10nonStaticFields.add(fieldDef);
     		}
     		//add to the fields that have lock
     		if(X10TypeUtils.isPrimitiveType(fieldDef.type().get())
@@ -605,6 +622,10 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     		} else {
     			x10FieldsHaveLock.add(fieldDef);
     		}
+    	}
+    	
+    	if(x10FieldsHaveLock.size() != x10fields.size()) {
+    		accessPrimitiveOrSkippedClass = true;
     	}
     	
     	Position pos = atomic.position();
@@ -623,19 +644,22 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
 		//FIXME first acquire this lock (is it needed?)
 		//note: we do not need to grab the static lock, in X10 all static fields are by default final.
 		Stmt acquireThisLocal = null;
-		if(!x10nonStaticFields.isEmpty()) {
-			boolean hasSkippedClass = false;
-			for(X10FieldDef field : x10nonStaticFields) {
-				if(X10TypeUtils.isSkippedOrPrimitiveType(field.type().get())) {
-					hasSkippedClass = true;
-					break;
-				}
-			}
-			if(hasSkippedClass) {
-			    acquireThisLocal = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, false);
-			}
-		}
-		if(atomic.hasThisInAtomic()) {
+		
+		//get it
+		
+//		if(!x10nonStaticFields.isEmpty()) {
+//			boolean hasSkippedClass = false;
+//			for(X10FieldDef field : x10nonStaticFields) {
+//				if(X10TypeUtils.isSkippedOrPrimitiveType(field.type().get())) {
+//					hasSkippedClass = true;
+//					break;
+//				}
+//			}
+//			if(hasSkippedClass) {
+//			    acquireThisLocal = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, false);
+//			}
+//		}
+		if(accessPrimitiveOrSkippedClass || atomic.hasThisInAtomic()) {
 			acquireThisLocal = this.acquireClassOrderedLock(pos, lockType, emptyLockList.name(), emptyLockList, false);
 		}
 
@@ -671,7 +695,7 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     	statements.addAll(acquireLocksForEachField);
     	statements.add(tryStmt);
     	
-    	System.out.println("process atomic in X10LinkedAtomicityTranslator, pos: " + pos);
+    	System.out.println("process atomic in X10LockMapAtomicityTranslator, pos: " + pos);
     	
     	Block newBlock = nf.Block(pos, statements);
     	return atomic.body(newBlock); //note, will get rid of this in visiting blocks, ugly hack!
@@ -719,7 +743,7 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     	return atStmt;
     }
     
-    //ugly repetition, need to remove
+    //ugly repetition, need to remove (but not easy)
     private Node visitAtEach_c(AtEach_c ateach) {
     	System.out.println("visting at each ....");
     	List<VarInstance<? extends VarDef>> vars = new LinkedList<VarInstance<? extends VarDef>>();
@@ -997,6 +1021,82 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
         return addLock;
     }
     
+    private Stmt acquireLocksAtOnce(Position pos, Type lockType, int lockNum, List<X10LocalDef> localWithLocks, boolean isStatic) {
+    	return acquireOrReleaseLocks(pos, lockType, lockNum, localWithLocks, isStatic, true);
+    }
+    
+    private Stmt releaseLocksAtOnce(Position pos, Type lockType, int lockNum, List<X10LocalDef> localWithLocks, boolean isStatic) {
+    	return acquireOrReleaseLocks(pos, lockType, lockNum, localWithLocks, isStatic, false);
+    }
+    
+    private Stmt acquireOrReleaseLocks(Position pos, Type lockType, int lockNum, List<X10LocalDef> localWithLocks, boolean isStatic, boolean isAcquiring) {
+    	assert lockNum <= 3;
+    	assert lockNum == localWithLocks.size() + 1;
+    	Name methodName = null;
+    	if(lockNum == 1) {
+    		methodName = isAcquiring ? ACQUIRE_1_LOCK : RELEASE_1_LOCK;
+    	} else if (lockNum == 2) {
+    		methodName = isAcquiring ? ACQUIRE_2_LOCKS : RELEASE_2_LOCKS;
+    	} else {
+    		methodName = isAcquiring ? ACQUIRE_3_LOCKS : RELEASE_3_LOCKS;
+    	}
+    	
+    	List<TypeNode> argTypeNode = new LinkedList<TypeNode>();
+    	List<Expr> locks = new LinkedList<Expr>();
+    	
+    	//first add the class lock
+    	Type containerClass = this.context.currentClass();
+    	assert containerClass instanceof ContainerType;
+    	ContainerType clazzType = (ContainerType)containerClass;
+    	Receiver thiz = null;
+    	X10Call getLockCall = null;
+    	X10MethodDef methodDef = null;
+    	if(isStatic) {
+    		thiz = nf.CanonicalTypeNode(pos, containerClass);
+    		getLockCall = nf.X10Call(pos, thiz, nf.Id(pos, GET_STATIC_ORDERED_LOCK),
+					Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList());
+			methodDef = ts.methodDef(pos, Types.ref(clazzType),
+  		           ts.Public(), Types.ref(lockType), GET_STATIC_ORDERED_LOCK,
+		            Collections.<Ref<? extends Type>>emptyList(),  null); 
+    	} else {
+    		thiz = nf.This(pos).type(containerClass);
+    	    getLockCall = nf.X10Call(pos, thiz,
+    			nf.Id(pos, GET_ORDERED_LOCK), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList());
+    	    methodDef = ts.methodDef(pos, Types.ref(clazzType),
+		          ts.Public(), Types.ref(lockType), GET_ORDERED_LOCK,
+		           Collections.<Ref<? extends Type>>emptyList(),  null);
+    	}
+		getLockCall = getLockCall.methodInstance(methodDef.asInstance());
+		getLockCall = (X10Call) getLockCall.type(lockType);
+		//add to the arg list
+		locks.add(getLockCall);
+		
+		for(X10LocalDef localWithLock : localWithLocks) {
+			Type localType = localWithLock.type().get();
+    		assert localType instanceof ContainerType;
+    		clazzType = (ContainerType)localType;
+    		Local l = nf.Local(pos, nf.Id(pos, localWithLock.name())).localInstance(localWithLock.asInstance());
+    		Receiver localreceiver = l.type(clazzType);
+    		getLockCall = nf.X10Call(pos, localreceiver,
+    				nf.Id(pos, GET_ORDERED_LOCK), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList());
+    		methodDef = ts.methodDef(pos, Types.ref(clazzType),
+		           ts.Public(), Types.ref(lockType), GET_ORDERED_LOCK,
+		            Collections.<Ref<? extends Type>>emptyList(),  null);
+		    getLockCall = (X10Call) getLockCall.type(lockType);
+		    getLockCall = getLockCall.methodInstance(methodDef.asInstance());
+		    //add to the arg list
+		    locks.add(getLockCall);
+		}
+		
+		//assert the length is equal
+		assert locks.size() == lockNum;
+    	
+    	Call acquireCall = this.staticCall(pos, lockType, methodName, argTypeNode, locks, ts.Void(), this.context());
+    	Stmt acquireLockStmt = nf.Eval(pos, acquireCall);
+    	
+    	return acquireLockStmt;
+    }
+    
     //create the lock acquiring statement
     private Stmt lockAcquireStatement(Position pos, Type lockType, LocalDecl emptyList, Id listID) {
     	X10ParsedClassType_c listType = (X10ParsedClassType_c)X10TypeUtils.lookUpType(ts, X10_LIST);
@@ -1051,9 +1151,5 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     		return methodDef.flags() != null && methodDef.flags().contains(Flags.STATIC);
     	}
     	return false;
-    }
-    
-    private boolean isAtomicSection(Stmt stmt) {
-    	return (stmt instanceof Atomic_c) && (((Atomic_c )stmt).identifiers != null);
     }
 }
