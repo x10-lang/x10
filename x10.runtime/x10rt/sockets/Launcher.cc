@@ -418,8 +418,8 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
  			if (WIFEXITED(status))
  			{
  				exitcode = WEXITSTATUS(status);
-				if (exitcode != 0)
-					fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
+//				if (exitcode != 0)
+//					fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
  			}
  			else if (WIFSIGNALED(status))
  			{
@@ -428,18 +428,18 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
  				else
  				{
 					exitcode = 128 + WTERMSIG(status);
-					fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
+//					fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
  				}
  			}
  			else if (WIFSTOPPED(status))
  			{
  				exitcode = 128 + WSTOPSIG(status);
- 				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
+// 				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
  			}
- 			else if (WIFCONTINUED(status))
- 				fprintf(stdout, "Launcher %d: local runtime continue signal detected\n", _myproc);
- 			else
- 				fprintf(stdout, "Launcher %d: local runtime exit status unknown\n", _myproc);
+// 			else if (WIFCONTINUED(status))
+// 				fprintf(stdout, "Launcher %d: local runtime continue signal detected\n", _myproc);
+// 			else
+// 				fprintf(stdout, "Launcher %d: local runtime exit status unknown\n", _myproc);
  			_pidlst[_numchildren] = -1;
 		}
 	}
@@ -934,8 +934,11 @@ void Launcher::cb_sighandler_cld(int signo)
 				if (WIFEXITED(status))
 				{
 					_singleton->_returncode = WEXITSTATUS(status);
+					// On RHEL 6, we sometimes get a 222 instead of 0.  I don't know why.  Masking for now.
+					//if (_singleton->_myproc==-1 && _singleton->_returncode==222)
+					//	_singleton->_returncode = 0;
 					if (_singleton->_returncode != 0)
-						fprintf(stdout, "Launcher %d: runtime exited with code %i\n", _singleton->_myproc, WEXITSTATUS(status));
+						fprintf(stdout, "Launcher %d: runtime exited with code %i, signal %i\n", _singleton->_myproc, WEXITSTATUS(status), signo);
 				}
 				else if (WIFSIGNALED(status))
 				{
@@ -944,18 +947,18 @@ void Launcher::cb_sighandler_cld(int signo)
 					else
 					{
 						_singleton->_returncode = 128 + WTERMSIG(status);
-						fprintf(stdout, "Launcher %d: runtime exited with signal %i\n", _singleton->_myproc, WTERMSIG(status));
+//						fprintf(stdout, "Launcher %d: runtime exited with signal %i\n", _singleton->_myproc, WTERMSIG(status));
 					}
 				}
 				else if (WIFSTOPPED(status))
 				{
 					_singleton->_returncode = 128 + WSTOPSIG(status);
-					fprintf(stdout, "Launcher %d: runtime stopped with code %i\n", _singleton->_myproc, WSTOPSIG(status));
+//					fprintf(stdout, "Launcher %d: runtime stopped with code %i\n", _singleton->_myproc, WSTOPSIG(status));
 				}
-	 			else if (WIFCONTINUED(status))
-	 				fprintf(stdout, "Launcher %d: runtime continue signal detected\n", _singleton->_myproc);
-	 			else
-	 				fprintf(stdout, "Launcher %d: runtime exit status unknown\n", _singleton->_myproc);
+//	 			else if (WIFCONTINUED(status))
+//	 				fprintf(stdout, "Launcher %d: runtime continue signal detected\n", _singleton->_myproc);
+//	 			else
+//	 				fprintf(stdout, "Launcher %d: runtime exit status unknown\n", _singleton->_myproc);
 
 				if (_singleton->_runtimePort[0] != '\0')
 					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
