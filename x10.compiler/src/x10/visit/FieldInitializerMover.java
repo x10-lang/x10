@@ -148,11 +148,11 @@ public class FieldInitializerMover extends ContextVisitor {
         }
         Stmt evalCall = nf.Block(p); // an empty statement
         if (assignments.size()>0) {
-            // create a private method that includes all the field initializers
+            // create a final method that includes all the field initializers
             TypeNode returnType = nf.CanonicalTypeNode(p,ts.Void());
             final Name name = Name.makeFresh("__fieldInitializers");
             final Id nameId = nf.Id(p, name);
-            final Flags flags = Flags.PRIVATE.Final();
+            final Flags flags = Flags.PUBLIC.Final();
             MethodDecl method = nf.MethodDecl(p,nf.FlagsNode(p, flags),returnType, nameId,
                     Collections.<Formal>emptyList(), nf.Block(p,assignments));
             method = (MethodDecl) method.visit( new LocalClassRemover.MarkReachable() );
