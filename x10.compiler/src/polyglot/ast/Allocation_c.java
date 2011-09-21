@@ -89,8 +89,7 @@ public class Allocation_c extends Expr_c implements Allocation {
      */
     @Override
     public <S> List<S> acceptCFG(CFGBuilder v, List<S> succs) {
-        // TODO Auto-generated method stub
-        return null;
+        return succs;
     }
 
     /* (non-Javadoc)
