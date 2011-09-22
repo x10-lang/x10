@@ -246,7 +246,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * It is equal to Double.fromLongBits(0x0010000000000000L).
      */
     // TODO: hexadecimal floating-point literal 0x1.0P-1022
-    @Native("java", "java.lang.Double.fromLongBits(0x0010000000000000L)")
+    @Native("java", "java.lang.Double.longBitsToDouble(0x0010000000000000L)")
     @Native("c++", "x10aux::double_utils::fromLongBits(0x0010000000000000LL)")
     public static MIN_NORMAL: Double = Double.fromLongBits(0x0010000000000000L);
 
