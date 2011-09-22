@@ -48,9 +48,44 @@ public class OrderedLock implements Comparable[OrderedLock] {
 		}
 	}
 	
+	//some shortcut to void use the list
+	//in most cases, there will be only 1 - 3 locks needed
+	public static def acquireSingleLock(that:OrderedLock) : void {
+		that.lock();
+	}
+	
+	public static def releaseSingleLock(that:OrderedLock) : void {
+		that.unlock();
+	}
+	
+	//2 locks
+	public static def acquireTwoLocks(that1:OrderedLock, that2:OrderedLock) : void {
+		that1.lock();
+		that2.lock();
+	}
+	
+	public static def releaseTwoLocks(that1:OrderedLock, that2:OrderedLock) : void {
+		that1.unlock();
+		that2.unlock();
+	}
+	
+	//3 locks
+	public static def acquireThreeLocks(that1:OrderedLock, that2:OrderedLock, that3:OrderedLock) : void {
+		that1.lock();
+		that2.lock();
+		that3.lock();
+	}
+	
+	public static def releaseThreeLocks(that1:OrderedLock, that2:OrderedLock, that3:OrderedLock) : void {
+		that1.unlock();
+		that2.unlock();
+		that3.unlock();
+	}
+	
+	//the operation for acquiring locks
 	public static def acquireLocksInOrder(locks:List[OrderedLock]):void {
 		//first sort the lock, then acquire in the order of index
-		locks.sort();
+		//locks.sort(); //no need to sort
 		//iterate through the locks
 		var it:ListIterator[OrderedLock] = locks.iterator();
 		while(it.hasNext()) {
@@ -66,46 +101,78 @@ public class OrderedLock implements Comparable[OrderedLock] {
 			l.unlock();
 		}
 	}
+
+	//the data structure to keep the lock map
+	static val lockMap:Map[Int, OrderedLock] = new HashMap[Int, OrderedLock]();
 	
-	static val objectLockMap:Map[Int, OrderedLock] = new HashMap[Int, OrderedLock]();
-	static val classLockMap:Map[Int, OrderedLock] = new HashMap[Int, OrderedLock]();
+	static val mlock:Lock = new Lock();
 	
+	//it returns a lock
 	public static def createAndStoreObjectLock() : OrderedLock {
-		var lock:OrderedLock = new OrderedLock();
-		objectLockMap.put(lock.getIndex(), lock);
-		return lock;
+		try {
+			mlock.lock();
+			var lock:OrderedLock = new OrderedLock();
+		    lockMap.put(lock.getIndex(), lock);
+		    //Console.OUT.println("Put object lock id: " + lock.getIndex());
+		    return lock;
+		} finally {
+			mlock.unlock();
+		}
 	}
 	
+	//it returns the lock id
 	public static def createObjectLock() : Int {
-		var lock:OrderedLock = new OrderedLock();
-		objectLockMap.put(lock.getIndex(), lock);
-		return lock.getIndex();
+		try {
+			mlock.lock();
+			var lock:OrderedLock = new OrderedLock();
+		    lockMap.put(lock.getIndex(), lock);
+		    //Console.OUT.println("Put object lock id: " + lock.getIndex());
+		    return lock.getIndex();
+		} finally {
+			mlock.unlock();
+		}
 	}
 	
 	public static def hasObjectLock(lockId:Int) : boolean {
-		return objectLockMap.containsKey(lockId);
+		try {
+			mlock.lock();
+		    return lockMap.containsKey(lockId);
+		} finally {
+			mlock.unlock();
+		}
 	}
 	
 	public static def getObjectLock(lockId:Int) : OrderedLock {
-		if(!hasObjectLock(lockId)) {
-			Console.OUT.println("Can not find lock id: " + lockId);
+		// if(!hasObjectLock(lockId)) {
+		// 	Console.OUT.println("Can not find obj lock id: " + lockId);
+		// }
+		try {
+			mlock.lock();
+		    return lockMap.getOrThrow(lockId);
+		} finally {
+			mlock.unlock();
 		}
-		return objectLockMap.getOrThrow(lockId);
 	}
 	
 	//for class lock
 	public static def createClassLock() : Int {
-		var lock:OrderedLock = new OrderedLock();
-		classLockMap.put(lock.getIndex(),lock);
-		return lock.getIndex();
+		try {
+		  mlock.lock();
+		  var lock:OrderedLock = new OrderedLock();
+		  lockMap.put(lock.getIndex(),lock);
+		  //Console.OUT.println("Put class lock id: " + lock.getIndex());
+		  return lock.getIndex();
+		} finally {
+			mlock.unlock();
+		}
 	}
 	
 	public static def hasClassLock(lockId:Int) : boolean {
-		return classLockMap.containsKey(lockId);
+		return lockMap.containsKey(lockId);
 	}
 	
 	public static def getClassLock(lockId:Int) : OrderedLock {
-		return classLockMap.getOrThrow(lockId);
+		return lockMap.getOrThrow(lockId);
 	}
 }
 
