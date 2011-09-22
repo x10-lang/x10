@@ -1585,6 +1585,22 @@ public class Errors {
 	}
 	
 	//data-centric synchronization
+	public static class LinkedClassNotEqual extends SemanticException {
+		
+		private static final long serialVersionUID = -8846983547774891210L;
+		
+		public LinkedClassNotEqual(X10ParsedClassType_c t1, Type c1, X10ParsedClassType_c t2,
+				Type c2, Position p) {
+			super("The linked classes are not equal:"
+					+ "\n\t t1: " + t1
+					+ "\n\t t1.atomicContext: " + c1
+					+ "\n\t t2: " + t2
+					+ "\n\t t2.atomicContext: " + c2
+					+ "\n\t particulary: t1.atomicContext != t2", p);
+		}
+	}
+	
+	//data-centric synchronization
 	public static class AtomicContextNotEqual extends SemanticException {
 		
 		private static final long serialVersionUID = -8846983547774891210L;
@@ -1629,7 +1645,7 @@ public class Errors {
 		private static final long serialVersionUID = -8805347034432920288L;
 
 		public TypeDoesnotHaveAtomicContext(Type type, Position p) {
-			super("Type: " + type + " does not have atomic context.", p);
+			super("Type: " + type + " should be linked.", p);
 		}
 		
 		public TypeDoesnotHaveAtomicContext(Expr expr, Type type, Position p) {

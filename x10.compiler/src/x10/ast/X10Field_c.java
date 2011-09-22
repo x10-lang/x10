@@ -26,6 +26,7 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
+import polyglot.ast.ConstructorCall.Kind;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
@@ -224,6 +225,12 @@ public class X10Field_c extends Field_c {
 			    X10ParsedClassType_c retTypeContext = (X10ParsedClassType_c) retClassType.getAtomicContext();
 			    //get the target type which must be not null
 		        X10ParsedClassType_c targetType = Types.fetchX10ClassType(this.target.type());
+		        if(this.target instanceof X10Special_c) {
+		        	if(((X10Special_c)this.target).kind().equals(Kind.THIS)) {
+		        		targetType = targetType.copy();
+		        		targetType.setAtomicContext(targetType);
+		        	}
+		        }
 		        if(targetType != null && targetType.hasAtomicContext()) {
 		        	//the context of target
 			        X10ParsedClassType_c targetContext = (X10ParsedClassType_c)targetType.getAtomicContext();

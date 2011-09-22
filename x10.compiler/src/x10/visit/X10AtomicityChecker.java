@@ -8,7 +8,9 @@ import polyglot.frontend.Job;
 import polyglot.types.TypeSystem;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.TypeChecker;
+import x10.types.X10ClassType;
 import x10.util.CollectionFactory;
+import x10.util.X10TypeUtils;
 
 /**
  * This class checks typing rules of data-centric synchronization.
@@ -45,9 +47,16 @@ public class X10AtomicityChecker extends X10TypeChecker {
 		//System.out.println("x10 atomicity checking");
 	    final TypeChecker tc = (TypeChecker) v;
 	    
+	    //get the current class, for compatibility, only checks the compiled classes
+	    X10ClassType clzType = this.context.currentClass();
+	    boolean isCompiled = true;
+	    if(clzType != null && clzType.fullName()!= null && X10TypeUtils.skipProcessingClass(clzType)) {
+	    	isCompiled = false;
+	    }
+	    
 	    Node m = n;
 	    //check the typing rules for data-centric synchronization
-	    if(this.extensionInfo.getOptions().x10_config.DATA_CENTRIC) {
+	    if(this.extensionInfo.getOptions().x10_config.DATA_CENTRIC && isCompiled) {
 	    	m = m.del().checkAtomicity(tc);
 	    	m = m.del().checkLinkProperty(tc);
 	    }

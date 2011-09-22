@@ -581,76 +581,200 @@ public class X10Call_c extends Call_c implements X10Call {
 					providedArgType = baseClassType;
 				}
 			}
-			//check it one by one
+			//check it one by one, if the defined type is a class type, and so is the
+			//receiver class type
 			if( defined != null && receiverClassType != null) {
-			    X10ParsedClassType_c adaptedType = Types.adapt(defined, receiverClassType, tc);
-			    if(adaptedType == null) {
-			    	SemanticException e = new Errors.AtomicContextNotEqual(defined, (X10ParsedClassType_c)defined.getAtomicContext(),
-			    			receiverClassType, (X10ParsedClassType_c)receiverClassType.getAtomicContext(), argExpr.position());
-			    	Errors.issue(tc.job(), e);
-			    }
-			    //check the provided
-			    if(providedArgType == null) {
-			    	Errors.issue(tc.job(), new SemanticException("Unsupported argument type for expr: " + argExpr, argExpr.position()));
-			    } else if(adaptedType != null) {
-			    	if(adaptedType.hasAtomicContext() && providedArgType.hasAtomicContext()) {
-			    		if(!tc.typeSystem().typeEquals(providedArgType, adaptedType, tc.context())) {
-			    			Errors.issue(tc.job(), new SemanticException("The atomic context is not equal",
-			    					argExpr.position()));
-			    		}
-			    	} else if(!(!adaptedType.hasAtomicContext() && !providedArgType.hasAtomicContext())) {
-			    		Errors.issue(tc.job(), new SemanticException("The argument expression"  + argExpr
-			    				+ " has inconsistent atomic context. "
-			    				+ "\n\t It should have atomic context: "	+ adaptedType.hasAtomicContext()
-			    				+ "\n\t but the provided type has atmic context: " + providedArgType.hasAtomicContext(),
-			    				argExpr.position()));
-			    	}
-			    }
+				//use the following way to check
+				//1. if the defined type is linked, then check if provided-ype.atomiccontext = receiver-type.atomiccontext
+				//   if the provided-type is this, its atomiccontext is this class!
+				//2. if the defined type is not linked, then check if the provided-type is also not linked (no atomiccontext)
+				//   also true for this?
+				if(defined.getAtomicContext() != null) {
+					//check the provided type is linked
+					//this is linked, and provided-type.atomiccontext = receiver-type.atomiccontext
+					if(providedArgType == null) {
+						//not supported for parameter types
+						Errors.issue(tc.job(), new SemanticException("We do not support type: " + argType + " as linked."
+								, defined.position()));
+					} else {
+						if(providedArgType.getAtomicContext() == null || receiverClassType.getAtomicContext() == null) {
+							//check if the provided type is this, that is fine, since its default form is this links to itself
+						    if(providedArgType.getAtomicContext() == null) {
+						    	//if the provide arg is this
+						    	boolean isThis = false;
+						    	if(argExpr instanceof X10Special_c) {
+						    		X10Special_c special = (X10Special_c)argExpr;
+						    		if(special.kind().equals(Kind.THIS)) {
+						    			isThis = true;
+						    		}
+						    	}
+						    	if(!isThis){
+							        Errors.issue(tc.job(), new SemanticException("The provided argument: "
+							    		+ argExpr + " should be declared as linked", argExpr.position()));
+						    	}
+						    }
+						    if(receiverClassType.getAtomicContext() == null) {
+						    	//if the receiver is this
+						    	boolean isThis = false;
+						    	if(this.target instanceof X10Special_c) {
+						    		X10Special_c special = (X10Special_c)this.target;
+						    		if(special.kind().equals(Kind.THIS)) {
+						    			isThis = true;
+						    		}
+						    	}
+						    	if(!isThis){
+						    	    Errors.issue(tc.job(), new SemanticException("The receiver type: "
+						    			+ receiverClassType + " should be declared as linked", this.target.position()));
+						    	}
+						    }
+						} else {
+							if(!tc.typeSystem().typeEquals(providedArgType.getAtomicContext(), receiverClassType.getAtomicContext(),
+									tc.context())) {
+								Errors.issue(tc.job(), new Errors.LinkedClassNotEqual(providedArgType, providedArgType.getAtomicContext(),
+										receiverClassType, receiverClassType.getAtomicContext(), defined.position()));
+							}
+						}
+					}
+				} else {
+					//check the provided type is also not linked
+					if(providedArgType.getAtomicContext() != null) {
+						Errors.issue(tc.job(), new SemanticException("The provided type: " + argExpr
+								+ " should not be linked", argExpr.position()));
+					}
+				}
+				
+				/**The commented out part is the old implementation*/
+//			    X10ParsedClassType_c adaptedType = Types.adapt(defined, receiverClassType, tc);
+//			    if(adaptedType == null) {
+//			    	SemanticException e = new Errors.AtomicContextNotEqual(defined, (X10ParsedClassType_c)defined.getAtomicContext(),
+//			    			receiverClassType, (X10ParsedClassType_c)receiverClassType.getAtomicContext(), argExpr.position());
+//			    	Errors.issue(tc.job(), e);
+//			    }
+//			    //check the provided
+//			    if(providedArgType == null) {
+//			    	//it is parameterized type like T t, we ignore that.
+//			    	System.out.println("Skip checking type: " + argExpr + ", " + argExpr.type());
+//			    	continue;
+//			    } else if(adaptedType != null) {
+//			    	if(adaptedType.hasAtomicContext() && providedArgType.hasAtomicContext()) {
+//			    		if(!tc.typeSystem().typeEquals(providedArgType, adaptedType, tc.context())) {
+//			    			Errors.issue(tc.job(), new SemanticException("The atomic context is not equal",
+//			    					argExpr.position()));
+//			    		}
+//			    	} else if(!(!adaptedType.hasAtomicContext() && !providedArgType.hasAtomicContext())) {
+//			    		Errors.issue(tc.job(), new SemanticException("The argument expression "  + argExpr
+//			    				+ " has inconsistent atomic context. "
+//			    				+ "\n\t It should have atomic context: "	+ adaptedType.hasAtomicContext()
+//			    				+ "\n\t but the provided type has atmic context: " + providedArgType.hasAtomicContext(),
+//			    				argExpr.position()));
+//			    	}
+//			    }
 			}
 		}
 		
 		//check the return type
 		if(this.type() instanceof X10ParsedClassType_c) {
+			//use the following rules:
+			//if the return value is linked, then set return-type.atomic context to receiver.atomiccontext
+			//   if the receiver is not linked (or this), issue an error!
+			//if the return value is not linked, then check receiver.atomiccontext must be null, or this. 
+			
+			if(((X10ParsedClassType_c)this.type()).hasAtomicContext()) {
+				Type aContext = ((X10ParsedClassType_c)this.type()).getAtomicContext(); 
+				//if the declared return type is linked
+				if(receiverClassType != null) {
+					if(aContext != null && !receiverClassType.hasAtomicContext()) {
+						boolean isThis = false;
+						if(this.target instanceof X10Special_c) {
+							X10Special_c special = (X10Special_c)this.target;
+							if(special.kind().equals(Kind.THIS)) {
+								isThis = true;
+							}
+						}
+						if(!isThis) {
+						  SemanticException e = new SemanticException("The caller: "
+								  + this.target + " should be linked to this.", this.position);
+						  Errors.issue(tc.job(), e);
+						}
+					}
+				} else {
+					//guranteed, already checked
+					X10ParsedClassType_c declReturnType = null; //(X10ParsedClassType_c)this.type();// A(A)
+					
+					Type methodReturnType = this.mi.def().returnType().get();
+					X10ParsedClassType_c methodReturnClassType = Types.fetchX10ClassType(methodReturnType);
+					declReturnType = methodReturnClassType;
+					
+					X10ParsedClassType_c declRetContext = (X10ParsedClassType_c) aContext;
+					//the given receiver, must be true
+					X10ParsedClassType_c receiverType = receiverClassType;  //A(Atom)
+					X10ParsedClassType_c receiverContext = (X10ParsedClassType_c) receiverClassType.getAtomicContext();
+					
+					if(this.target instanceof X10Special_c) {
+						if(((X10Special_c)this.target).kind().equals(Kind.THIS)) {
+							receiverType = receiverType.copy();
+							receiverType.setAtomicContext(receiverType);
+						}
+					}
+					X10ParsedClassType_c adaptedType = Types.adapt(declReturnType, receiverType, tc);
+					
+					if(adaptedType == null) {
+						SemanticException e = new Errors.AtomicContextNotEqual(declReturnType, declRetContext,
+								receiverType, receiverContext, this, this.position());
+						Errors.issue(tc.job(), e);
+					} else {
+						//we brutely change the return type
+						if(adaptedType != declReturnType) {
+						    X10Call_c newCall = (X10Call_c) this.type(adaptedType);
+						    return newCall;
+						}
+					}
+				}
+			} else {
+				//do nothing,
+			}
+			
+			/* The below implementation is for the old design*/
 			//the declared return type
 			//need to compute the real return type here:
 			//    adapt(t1 t2)
 			//        t1 is the declared return type
 			//        t2 is the receiver type
-			if(((X10ParsedClassType_c)this.type()).hasAtomicContext()) {
-				Type aContext = ((X10ParsedClassType_c)this.type()).getAtomicContext(); 
-				if(receiverClassType != null) { //fetched from target
-					if(aContext != null && !receiverClassType.hasAtomicContext()) {
-						SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(receiverClassType, this.position);
-						Errors.issue(tc.job(), e);
-					} else {
-						//guranteed, already checked
-						X10ParsedClassType_c declReturnType = null; //(X10ParsedClassType_c)this.type();// A(A)
-						
-						Type methodReturnType = this.mi.def().returnType().get();
-						X10ParsedClassType_c methodReturnClassType = Types.fetchX10ClassType(methodReturnType);
-						declReturnType = methodReturnClassType;
-						
-						X10ParsedClassType_c declRetContext = (X10ParsedClassType_c) aContext;
-						//the given receiver, must be true
-						X10ParsedClassType_c receiverType = receiverClassType;  //A(Atom)
-						X10ParsedClassType_c receiverContext = (X10ParsedClassType_c) receiverClassType.getAtomicContext();
-						
-						X10ParsedClassType_c adaptedType = Types.adapt(declReturnType, receiverType, tc);
-						
-						if(adaptedType == null) {
-							SemanticException e = new Errors.AtomicContextNotEqual(declReturnType, declRetContext,
-									receiverType, receiverContext, this, this.position());
-							Errors.issue(tc.job(), e);
-						} else {
-							//we brutely change the return type
-							if(adaptedType != declReturnType) {
-							    X10Call_c newCall = (X10Call_c) this.type(adaptedType);
-							    return newCall;
-							}
-						}
-					}
-				}
-			}
+//			if(((X10ParsedClassType_c)this.type()).hasAtomicContext()) {
+//				Type aContext = ((X10ParsedClassType_c)this.type()).getAtomicContext(); 
+//				if(receiverClassType != null) { //fetched from target
+//					if(aContext != null && !receiverClassType.hasAtomicContext()) {
+//						SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(receiverClassType, this.position);
+//						Errors.issue(tc.job(), e);
+//					} else {
+//						//guranteed, already checked
+//						X10ParsedClassType_c declReturnType = null; //(X10ParsedClassType_c)this.type();// A(A)
+//						
+//						Type methodReturnType = this.mi.def().returnType().get();
+//						X10ParsedClassType_c methodReturnClassType = Types.fetchX10ClassType(methodReturnType);
+//						declReturnType = methodReturnClassType;
+//						
+//						X10ParsedClassType_c declRetContext = (X10ParsedClassType_c) aContext;
+//						//the given receiver, must be true
+//						X10ParsedClassType_c receiverType = receiverClassType;  //A(Atom)
+//						X10ParsedClassType_c receiverContext = (X10ParsedClassType_c) receiverClassType.getAtomicContext();
+//						
+//						X10ParsedClassType_c adaptedType = Types.adapt(declReturnType, receiverType, tc);
+//						
+//						if(adaptedType == null) {
+//							SemanticException e = new Errors.AtomicContextNotEqual(declReturnType, declRetContext,
+//									receiverType, receiverContext, this, this.position());
+//							Errors.issue(tc.job(), e);
+//						} else {
+//							//we brutely change the return type
+//							if(adaptedType != declReturnType) {
+//							    X10Call_c newCall = (X10Call_c) this.type(adaptedType);
+//							    return newCall;
+//							}
+//						}
+//					}
+//				}
+//			}
 		}
 		
 		

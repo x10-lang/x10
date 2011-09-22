@@ -19,6 +19,7 @@ import polyglot.util.UniqueID;
 import polyglot.util.CollectionUtil;
 import x10.Configuration;
 import x10.util.CollectionFactory;
+import x10.util.X10TypeUtils;
 
 // TODO:
 //Convert closures to anon
@@ -171,13 +172,17 @@ public abstract class InnerClassRemover extends ContextVisitor {
         	//System.out.println(this.job.extensionInfo().getClass());
         	isDataCentric = !Configuration.compile;
         }
-        if(isDataCentric) {
+        if(isDataCentric &&
+        		neu.constructorInstance().def().formalTypes().size() != args.size()
+        		&& !X10TypeUtils.skipClassByName(neu.constructorInstance().def().container().get().toString())) {
+        	System.out.println("--- act on inner class removing, remove constructor. "
+        			+ neu);
           List<Ref<? extends Type>> formalTypes = new LinkedList<Ref<? extends Type>>();
           formalTypes.add(Types.ref(neu.objectType().type()));
           formalTypes.addAll(neu.constructorInstance().def().formalTypes());
-          //if(formalTypes.size() != neu.constructorInstance().def().formalTypes().size()) {
+          if(formalTypes.size() != neu.constructorInstance().def().formalTypes().size()) {
               neu.constructorInstance().def().setFormalTypes(formalTypes);
-          //}
+          }
         }
         return neu;
     }

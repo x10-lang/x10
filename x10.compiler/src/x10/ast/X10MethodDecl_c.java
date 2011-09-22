@@ -606,7 +606,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			//accumualte atomic fields of its return type class
 			X10ParsedClassType_c retClazzType = (X10ParsedClassType_c)retType;
 			X10ClassDecl_c.accumulateAtomicFields(retClazzType.def());
-			if(retClazzType.hasAtomicContext() && !retClazzType.def().hasAtomicFields()) {
+			if(retClazzType.hasAtomicContext() && !retClazzType.def().hasAtomicFields(false)) {
 				Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(retClazzType, this.returnType().position()));
 			}
 		}

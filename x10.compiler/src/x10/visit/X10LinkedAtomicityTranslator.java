@@ -169,7 +169,7 @@ public class X10LinkedAtomicityTranslator extends ContextVisitor {
     private Node visitX10ClassDecl(X10ClassDecl_c n) {
     	X10ClassDef classDef = n.classDef();
     	if(X10TypeUtils.skipProcessingClass(classDef.asType())) {
-    		System.out.println("Skip x10 lib class: " + n.name());
+    		System.out.println("Skip x10 lib class: " + n.name() + ", at: " + n.position());
     		return n;
     	}
     	Position pos = n.position();

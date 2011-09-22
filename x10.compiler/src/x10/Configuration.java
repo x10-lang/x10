@@ -125,9 +125,6 @@ public final class Configuration extends x10.config.Configuration {
     public boolean LINKED_ATOMICITY = true;
     private static final String LINKED_ATOMICITY_desc = "Enable linked atomicity code transformation";
     
-    public boolean USE_LOCK_MAP = false;
-    private static final String USE_LOCK_MAP_desc = "Enable using a lock map";
-    
     public static boolean compile = false;
     
 //    public final boolean MULTI_NODE = true;

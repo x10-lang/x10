@@ -50,6 +50,7 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CThis;
 import x10.types.constraints.QualifiedVar;
 import x10.types.constraints.XConstrainedTerm;
+import x10.util.X10TypeUtils;
 
 public class X10Special_c extends Special_c implements X10Special {
 
@@ -79,19 +80,25 @@ public class X10Special_c extends Special_c implements X10Special {
     			X10ClassDef thisClazzDef = thisClassType.def();
     			//for safety, accumulate it first
     			X10ClassDecl_c.accumulateAtomicFields(thisClazzDef);
-    			if(thisClazzDef.hasAtomicFields(false)) {
-    				//we changed the type here
-    				//FIXME can be wrong
-    				assert type instanceof ConstrainedType;
-    				ConstrainedType cType = (ConstrainedType)type;
-    				X10ParsedClassType_c baseType = (X10ParsedClassType_c)cType.baseType().get();
-    				X10ParsedClassType_c copiedBaseType = baseType.copy();
-    				copiedBaseType.setAtomicContext(copiedBaseType);
-    				//create a copied type node here
-    				ConstrainedType copiedCType = cType.baseType(new Ref_c<X10ParsedClassType_c>(copiedBaseType));
-    				//return a new node
-    				return this.type(copiedCType);
-    			}
+    			
+    			/*
+    			 * In the new design, this does not have a default type 
+    			 * */
+    			
+//    			if(thisClazzDef.hasAtomicFields(false)
+//    					&& !X10TypeUtils.skipProcessingClass(thisClassType)) {
+//    				//we changed the type here
+//    				//FIXME can be wrong
+//    				assert type instanceof ConstrainedType;
+//    				ConstrainedType cType = (ConstrainedType)type;
+//    				X10ParsedClassType_c baseType = (X10ParsedClassType_c)cType.baseType().get();
+//    				X10ParsedClassType_c copiedBaseType = baseType.copy();
+//    				copiedBaseType.setAtomicContext(copiedBaseType);
+//    				//create a copied type node here
+//    				ConstrainedType copiedCType = cType.baseType(new Ref_c<X10ParsedClassType_c>(copiedBaseType));
+//    				//return a new node
+//    				return this.type(copiedCType);
+//    			}
     		}
     	}
     	
