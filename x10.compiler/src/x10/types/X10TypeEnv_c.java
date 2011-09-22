@@ -150,7 +150,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                     + ", which is declared in "
                                     + rt.toClass().fullName(), ct.position());
                             Map<String, Object> map = CollectionFactory.newHashMap();
-                            map.put(CodedErrorInfo.ERROR_CODE_KEY, 1004);
+                            map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_METHOD_NOT_IMPLEMENTED);
                             Name name = ct.name();
                             if (name == null) {
                                 name = ANONYMOUS;
@@ -2316,7 +2316,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	    if (error == null) {
 	    	error = new NoMemberException(NoMemberException.CONSTRUCTOR, "No valid constructor found for " + matcher.signature() + ".");
 	    	Map<String, Object> map = CollectionFactory.newHashMap();
-            map.put(CodedErrorInfo.ERROR_CODE_KEY, 1003);
+            map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_CONSTRUCTOR_NOT_FOUND);
             map.put("CONSTRUCTOR", matcher.name().toString());
             map.put("ARGUMENTS", matcher.argumentString());
             error.setAttributes(map);

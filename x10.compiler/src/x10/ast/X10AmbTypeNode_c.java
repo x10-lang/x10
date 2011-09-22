@@ -12,6 +12,7 @@
 package x10.ast;
 
 import java.util.Collections;
+import java.util.Map;
 
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.AmbTypeNode_c;
@@ -35,6 +36,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
+import polyglot.util.CodedErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -51,6 +53,7 @@ import x10.types.X10ClassType;
 import polyglot.types.Context;
 
 import x10.types.X10ParsedClassType;
+import x10.util.CollectionFactory;
 import polyglot.types.TypeSystem;
 import x10.visit.X10TypeChecker;
 
@@ -103,7 +106,12 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
 	      throw new SemanticException("Annotation type must be an interface.", position());
 	  }
 
-	  ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +"\".", pos);
+	  String typeName = (prefix == null ? name.toString() : prefix.toString() + "." + name.toString());
+	  ex = new SemanticException("Could not find type \"" + typeName +"\".", pos);
+	  Map<String, Object> map = CollectionFactory.newHashMap();
+      map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_TYPE_NOT_FOUND);
+      map.put("TYPE", typeName);
+      ex.setAttributes(map);
       }
       catch (SemanticException e) {
 	  ex = e;
@@ -207,7 +215,12 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
               return postprocess((X10CanonicalTypeNode) tn, this, ar);   
           }
     
-          ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) +"\".", pos);
+          String typeName = (prefix == null ? name.toString() : prefix.toString() + "." + name.toString());
+          ex = new SemanticException("Could not find type \"" + typeName +"\".", pos);
+          Map<String, Object> map = CollectionFactory.newHashMap();
+          map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_TYPE_NOT_FOUND);
+          map.put("TYPE", typeName);
+          ex.setAttributes(map);
       }
       catch (SemanticException e) {
           ex = e;

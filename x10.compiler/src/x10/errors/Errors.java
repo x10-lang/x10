@@ -669,7 +669,7 @@ public class Errors {
 	              pos);
 	        
 	        Map<String, Object> map = CollectionFactory.newHashMap();
-		    map.put(CodedErrorInfo.ERROR_CODE_KEY, 1002);
+		    map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_METHOD_NOT_FOUND);
 		    map.put("METHOD", mm.name().toString());
 		    map.put("ARGUMENTS", mm.argumentString());
 		    setAttributes(map);
@@ -2097,6 +2097,7 @@ public class Errors {
  			"\n\t Expanded type: " + t, p);
         }
     }
+	
     public static class TypeGuardNotEntailed extends SemanticException {
         
 		private static final long serialVersionUID = 7217492191556883816L;
