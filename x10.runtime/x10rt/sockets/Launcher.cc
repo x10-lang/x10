@@ -934,11 +934,11 @@ void Launcher::cb_sighandler_cld(int signo)
 				if (WIFEXITED(status))
 				{
 					_singleton->_returncode = WEXITSTATUS(status);
-					// On RHEL 6, we sometimes get a 222 instead of 0.  I don't know why.  Masking for now.
-					//if (_singleton->_myproc==-1 && _singleton->_returncode==222)
-					//	_singleton->_returncode = 0;
-					if (_singleton->_returncode != 0)
-						fprintf(stdout, "Launcher %d: runtime exited with code %i, signal %i\n", _singleton->_myproc, WEXITSTATUS(status), signo);
+					// On RHEL 6, we sometimes get a 222 instead of 0.  It's a mystery why - seems to be a special feature of RHEL6.  Masking.
+					if (_singleton->_myproc==-1 && _singleton->_returncode==222)
+						_singleton->_returncode = 0;
+//					if (_singleton->_returncode != 0)
+//						fprintf(stdout, "Launcher %d: runtime exited with code %i, signal %i\n", _singleton->_myproc, WEXITSTATUS(status), signo);
 				}
 				else if (WIFSIGNALED(status))
 				{
