@@ -5,14 +5,15 @@ import x10.util.ListIterator;
 import x10.util.Map;
 import x10.util.HashMap;
 
+//The lock class used to transforming atomic sections to use
+//locking.
 public class OrderedLock implements Comparable[OrderedLock] {
-	
-	// //keep a global lock allocation count
-	// private static val array:Array[Int] = new Array[Int](1);
-	
+	//the real lock to acquire, each OrderedLock object is associated
+	//with a unique lock id (as ordering).
 	private var lock:Lock = null;
 	private var index:Int = -1;
 	
+	//create the lock and assign a unique id
 	public def this() {
 		lock = new Lock();
 		index = Counter.getIndex();
@@ -48,45 +49,38 @@ public class OrderedLock implements Comparable[OrderedLock] {
 		}
 	}
 	
-	//some shortcut to void use the list
-	//in most cases, there will be only 1 - 3 locks needed
+	//a few shortcut methods to acquire/release 1 -- 3 locks
+	//this is much faster for cases that few locks are need to
+	//acquire/release frequently than using a list to store all locks (below)
 	public static def acquireSingleLock(that:OrderedLock) : void {
 		that.lock();
 	}
-	
 	public static def releaseSingleLock(that:OrderedLock) : void {
 		that.unlock();
 	}
-	
-	//2 locks
 	public static def acquireTwoLocks(that1:OrderedLock, that2:OrderedLock) : void {
 		that1.lock();
 		that2.lock();
 	}
-	
 	public static def releaseTwoLocks(that1:OrderedLock, that2:OrderedLock) : void {
 		that1.unlock();
 		that2.unlock();
 	}
-	
-	//3 locks
 	public static def acquireThreeLocks(that1:OrderedLock, that2:OrderedLock, that3:OrderedLock) : void {
 		that1.lock();
 		that2.lock();
 		that3.lock();
 	}
-	
 	public static def releaseThreeLocks(that1:OrderedLock, that2:OrderedLock, that3:OrderedLock) : void {
 		that1.unlock();
 		that2.unlock();
 		that3.unlock();
 	}
 	
-	//the operation for acquiring locks
-	public static def acquireLocksInOrder(locks:List[OrderedLock]):void {
-		//first sort the lock, then acquire in the order of index
-		//locks.sort(); //no need to sort
-		//iterate through the locks
+	//Acquire a list of locks
+	public static def acquireLocks(locks:List[OrderedLock]):void {
+		//locks.sort(); //do not need sort, can not avoid deadlock anyway
+		//iterate through the locks, and acquire it one by one
 		var it:ListIterator[OrderedLock] = locks.iterator();
 		while(it.hasNext()) {
 			var l:OrderedLock = it.next();
@@ -94,6 +88,7 @@ public class OrderedLock implements Comparable[OrderedLock] {
 		}
 	}
 	
+	//Release a list of locks
 	public static def releaseLocks(locks:List[OrderedLock]):void {
 		var it:ListIterator[OrderedLock] = locks.iterator();
 		while(it.hasNext()) {
@@ -102,50 +97,37 @@ public class OrderedLock implements Comparable[OrderedLock] {
 		}
 	}
 
-	//the data structure to keep the lock map
+	//the global map to store locks
 	static val lockMap:Map[Int, OrderedLock] = new HashMap[Int, OrderedLock]();
-	
+	//the lock to protect accessing of the global lock map
 	static val mlock:Lock = new Lock();
 	
-	//it returns a lock
-	public static def createAndStoreObjectLock() : OrderedLock {
+	//create a new lock, put it into the global lock map, and return it
+	public static def createNewLock() : OrderedLock {
 		try {
 			mlock.lock();
 			var lock:OrderedLock = new OrderedLock();
 		    lockMap.put(lock.getIndex(), lock);
-		    //Console.OUT.println("Put object lock id: " + lock.getIndex());
 		    return lock;
 		} finally {
 			mlock.unlock();
 		}
 	}
 	
-	//it returns the lock id
-	public static def createObjectLock() : Int {
+	//create a new lock, put it into the global lock map, and return its id
+	public static def createNewLockID() : Int {
 		try {
 			mlock.lock();
 			var lock:OrderedLock = new OrderedLock();
 		    lockMap.put(lock.getIndex(), lock);
-		    //Console.OUT.println("Put object lock id: " + lock.getIndex());
 		    return lock.getIndex();
 		} finally {
 			mlock.unlock();
 		}
 	}
 	
-	public static def hasObjectLock(lockId:Int) : boolean {
-		try {
-			mlock.lock();
-		    return lockMap.containsKey(lockId);
-		} finally {
-			mlock.unlock();
-		}
-	}
-	
-	public static def getObjectLock(lockId:Int) : OrderedLock {
-		// if(!hasObjectLock(lockId)) {
-		// 	Console.OUT.println("Can not find obj lock id: " + lockId);
-		// }
+	//get the lock from the global lock map by id
+	public static def getLock(lockId:Int) : OrderedLock {
 		try {
 			mlock.lock();
 		    return lockMap.getOrThrow(lockId);
@@ -153,30 +135,11 @@ public class OrderedLock implements Comparable[OrderedLock] {
 			mlock.unlock();
 		}
 	}
-	
-	//for class lock
-	public static def createClassLock() : Int {
-		try {
-		  mlock.lock();
-		  var lock:OrderedLock = new OrderedLock();
-		  lockMap.put(lock.getIndex(),lock);
-		  //Console.OUT.println("Put class lock id: " + lock.getIndex());
-		  return lock.getIndex();
-		} finally {
-			mlock.unlock();
-		}
-	}
-	
-	public static def hasClassLock(lockId:Int) : boolean {
-		return lockMap.containsKey(lockId);
-	}
-	
-	public static def getClassLock(lockId:Int) : OrderedLock {
-		return lockMap.getOrThrow(lockId);
-	}
 }
 
-//ugly hack
+
+//FIXME ugly hack:
+//a unique id generator to return an increasing id everytime when called
 class Counter {
 	
 	private var num:Int = -1;
@@ -185,7 +148,7 @@ class Counter {
 		num = num + 1;
 		return num;
 	}
-	
+	//the singleton counter object
 	public static val counter:Counter = new Counter();
 	
 	public static def newInstance() : Counter {
