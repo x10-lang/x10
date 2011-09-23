@@ -688,20 +688,28 @@ CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
         <condition property="platform" value="win32"><os family="windows"/></condition>
         <condition property="platform" value="linux"><os name="Linux"/></condition>
         <condition property="platform" value="macosx"><os name="Mac OS X"/></condition>
-        <condition property="arch" value="x86" else="${os.arch}">
+	<condition property="hacked_arch" value="x86_64" else="${os.arch}"><os arch="amd64"/></condition>
+        <condition property="arch" value="x86" else="${hacked_arch}">
             <or>
                 <!-- Work around Mac OS's Java reporting x86 as i386 -->
                 <equals arg1="${os.arch}" arg2="i386"/>
-                <!-- Treat amd64 as x86 -->
-                <equals arg1="${os.arch}" arg2="amd64"/>
             	<and>
             		<os name="Mac OS X"/>
             		<os arch="x86_64"/>
+            	</and>
+            	<and>
+            		<os name="Mac OS X"/>
+            		<os arch="amd64"/>
             	</and>
             </or>
         </condition>
     	<property name="targetDir" value="../x10.dist.${platform}.${arch}.fragment"/>
 
+        <mkdir dir="${targetDir}/bin" />
+        <mkdir dir="${targetDir}/etc" />
+        <mkdir dir="${targetDir}/include" />
+        <mkdir dir="${targetDir}/lib" />
+        <mkdir dir="${targetDir}/stdlib" />
         <echo message="Cleaning out bin, etc, include, lib, and stdlib of old files from ${targetDir}..."/>
         <delete>
           <fileset dir="${targetDir}/bin"     includes="**"/>
