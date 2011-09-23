@@ -8,7 +8,6 @@ import java.util.Set;
 import polyglot.ast.ArrayAccess_c;
 import polyglot.ast.Assign;
 import polyglot.ast.Block;
-import polyglot.ast.Call;
 import polyglot.ast.Eval;
 import polyglot.ast.Expr;
 import polyglot.ast.Id;
@@ -47,6 +46,7 @@ import x10.extension.X10Ext_c;
 import x10.types.MethodInstance;
 import x10.types.X10ClassType;
 import x10.types.X10LocalDef;
+import x10.types.X10LocalDef_c;
 import x10.util.CollectionFactory;
 import x10c.ast.BackingArrayAccess;
 import x10c.ast.BackingArrayAccessAssign;
@@ -174,33 +174,6 @@ public class AsyncInitializer extends ContextVisitor {
         final Set<LocalDef> asyncVar = CollectionFactory.newHashSet();
         final List<LocalDef> localDeclList = new ArrayList<LocalDef>();
         tcfBlock.visit(new NodeVisitor() {
-            @Override
-            public Node override(Node parent, Node n) {
-                // do not collect local vars from nested try blocks,
-                // as it will be handled when visiting that try block.
-                if (n instanceof Try) {
-                    return n;
-                    // collectLocalVarsToBox() is called from leaveCall on any Try block,
-                    // should we need to check only for async-originated try block,
-                    // something like the below code may be used
-                    /*
-                    Stmt b = ((Try)n).tryBlock();
-                    while (b instanceof Block && ((Block)b).statements().size() > 0) b = ((Block)b).statements().get(0);
-                    if (b instanceof Eval) {
-                        Expr expr = ((Eval)b).expr();
-                        if (expr instanceof Call) {
-                            Call call = (Call) expr;
-                            if (call.name().id().equals(Name.make("runAsync"))) {
-                                return n;
-                            }
-                        }
-                    }
-                    return null;
-                    */
-                }
-                return null;
-            }
-            
             @Override
             public Node leave(Node parent, Node old, Node n, NodeVisitor v) {
                 if (n instanceof X10Call_c) {
