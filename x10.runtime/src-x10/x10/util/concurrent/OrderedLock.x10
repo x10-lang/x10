@@ -5,8 +5,11 @@ import x10.util.ListIterator;
 import x10.util.Map;
 import x10.util.HashMap;
 
-//The lock class used to transforming atomic sections to use
-//locking.
+/**
+ * The lock class used to transforming atomic sections to using
+  *locking.
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ */
 public class OrderedLock implements Comparable[OrderedLock] {
 	//the real lock to acquire, each OrderedLock object is associated
 	//with a unique lock id (as ordering).
