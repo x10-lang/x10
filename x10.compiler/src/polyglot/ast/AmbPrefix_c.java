@@ -8,6 +8,8 @@
 
 package polyglot.ast;
 
+import java.util.Map;
+
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
@@ -15,6 +17,7 @@ import polyglot.util.*;
 import polyglot.visit.*;
 import x10.errors.Errors;
 import x10.types.X10ClassType;
+import x10.util.CollectionFactory;
 
 /**
  * An <code>AmbPrefix</code> is an ambiguous AST node composed of dot-separated
@@ -95,7 +98,14 @@ public class AmbPrefix_c extends Node_c implements AmbPrefix
 	if (n instanceof Prefix) {
 	    return n;
 	}
-	throw new SemanticException("Could not find " + (prefix != null ? prefix + "." : "") + name, pos);
+	String typeName = (prefix != null ? prefix + "." : "") + name;
+	SemanticException ex = 	new SemanticException("Could not find " + typeName, pos);
+	Map<String, Object> map = CollectionFactory.newHashMap();
+	map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_TYPE_NOT_FOUND);
+	map.put("TYPE", typeName);
+	ex.setAttributes(map);
+	throw ex;
+
     }
 
     public Node typeCheck(ContextVisitor tc) {

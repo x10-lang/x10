@@ -14,6 +14,7 @@ package x10.ast;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.AmbExpr;
 import polyglot.ast.AmbTypeNode_c;
@@ -49,6 +50,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CodedErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
@@ -198,7 +200,12 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         	throw new SemanticException("Annotation type must be an interface.", position());
             }
 
-            ex = new SemanticException("Could not find type \"" +(prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) + "\".", pos);
+            String typeName = (prefix == null ? name.toString() : prefix.toString() + "." + name.toString());
+            ex = new SemanticException("Could not find type \"" + typeName + "\".", pos);
+            Map<String, Object> map = CollectionFactory.newHashMap();
+            map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_TYPE_NOT_FOUND);
+            map.put("TYPE", typeName);
+            ex.setAttributes(map);
         }
         catch (SemanticException e) {
             ex = e;
@@ -307,8 +314,14 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
             }
         }
 
-        if (ex == null)
-            ex = new SemanticException("Could not find type \"" + (prefix == null ? name.toString() : prefix.toString() + "." + name.toString()) + argsString() + "\".", pos);
+        if (ex == null) {
+        	String typeName =  (prefix == null ? name.toString() : prefix.toString() + "." + name.toString());
+            ex = new SemanticException("Could not find type \"" + typeName + argsString() + "\".", pos);
+            Map<String, Object> map = CollectionFactory.newHashMap();
+            map.put(CodedErrorInfo.ERROR_CODE_KEY, CodedErrorInfo.ERROR_CODE_TYPE_NOT_FOUND);
+            map.put("TYPE", typeName);
+            ex.setAttributes(map);
+        }
 
         throw ex;
     }
