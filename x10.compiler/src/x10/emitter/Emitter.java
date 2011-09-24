@@ -668,6 +668,19 @@ public class Emitter {
         return false;
 	}
 
+	// check if the specified method overrides or implements Java method (= a method whose container is a Java type)
+        public static boolean canOverrideOrImplementJavaMethod(MethodDef def) {
+            Context context = def.typeSystem().emptyContext();
+            MethodInstance mi = def.asInstance();
+            for (MethodInstance overridden : mi.overrides(context)) {
+                if (overridden.container().toClass().isJavaType()) return true;
+            }
+            for (MethodInstance implemented : mi.implemented(context)) {
+                if (implemented.container().toClass().isJavaType()) return true;
+            }
+            return false;
+        }
+
 	private static String getPropertyInit(Type at, int index) {
 		at = Types.baseType(at);
 		if (at.isClass()) {
@@ -1241,7 +1254,9 @@ public class Emitter {
             if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return false;/*Any=j.l.Object*/
             if (methodName.equals("compareTo") && numFormals == 1) return false;/*Comparable=j.l.Comparable*/
             // TODO want to check with the fact that x.l.Comparable is @NativeRep'ed to j.l.Comparable
-	    if (isJavaType(containerType)) return false;/*CharSequence etc.*/
+            // XTENLANG-2929
+//	    if (isJavaType(containerType)) return false;/*CharSequence etc.*/
+            if (canOverrideOrImplementJavaMethod(def)) return false;/*CharSequence etc.*/
         }
         
         return true;
@@ -1817,7 +1832,7 @@ public class Emitter {
     }
 
     private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean boxReturnValue) {
-    	// bridge method should not be needed for unmangled method
+        // bridge method should not be needed for unmangled method
     	if (!canMangleMethodName(def)) return;
     	
 	    w.write("// bridge for " + def);
