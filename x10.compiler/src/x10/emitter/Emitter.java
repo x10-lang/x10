@@ -619,17 +619,40 @@ public class Emitter {
 	    return false;
 	}
 
-        public static boolean isNativeReped(Type ct) {
-            Type bt = Types.baseType(ct);
-            if (bt.isClass()) {
-                X10ClassDef def = bt.toClass().x10Def();
-                String pat = getJavaRep(def);
-                if (pat != null) {
-                    return true;
-                }
-            }
+        public static boolean isNativeRepedToJavaRecursive(Type type) {
+            String typeName = type.fullName().toString();
+            // N.B. currently following four class are such classes. but for safety, we exclude all Atomic classes.
+//            if (typeName.equals("x10.util.concurrent.AtomicInteger")) return true;
+//            if (typeName.equals("x10.util.concurrent.AtomicLong")) return true;
+//            if (typeName.equals("x10.util.concurrent.AtomicReference")) return true;
+//            if (typeName.equals("x10.util.concurrent.AtomicBoolean")) return true;
+            if (typeName.startsWith("x10.util.concurrent.Atomic")) return true;
+            if (type.isObject()) return true; // x.l.Object is subtype of x.l.Any which is @NativeRep'ed to j.l.Object. since every method of x.l.Object implements the method of x.l.Any, we need to handle x.l.Object as x.l.Any.
             return false;
+            // TODO check if NativeRep'ed target (i.e. pat) recursively extends or implements Java type in Java implementation level. 
+//            Type bt = Types.baseType(type);
+//            if (bt.isClass()) {
+//                X10ClassDef def = bt.toClass().x10Def();
+//                String pat = getJavaRep(def);
+//                if (pat != null) {
+//                    return true;
+//                }
+//            }
+//            return false;
         }
+
+        // not used
+//        public static boolean isNativeReped(Type ct) {
+//            Type bt = Types.baseType(ct);
+//            if (bt.isClass()) {
+//                X10ClassDef def = bt.toClass().x10Def();
+//                String pat = getJavaRep(def);
+//                if (pat != null) {
+//                    return true;
+//                }
+//            }
+//            return false;
+//        }
 
 	private static String getNativeClassJavaRepParam(X10ClassDef def, int i) {
         List<Type> as = def.annotationsMatching(def.typeSystem().NativeClass());
@@ -654,29 +677,38 @@ public class Emitter {
         return false;
 	}
 	
-	public static boolean isJavaType(Type ct) {
-        Type bt = Types.baseType(ct);
-        if (bt.isClass()) {
-        	X10ClassType xct = bt.toClass();
-        	if (xct.isJavaType()) return true;
-        	Type superClass = xct.superClass();
-        	if (superClass != null && isJavaType(superClass)) return true;
-        	for (Type intf : xct.interfaces()) {
-        		if (isJavaType(intf)) return true;
-        	}
-        }
-        return false;
-	}
+	// not used
+//	public static boolean isJavaTypeRecursive(Type ct) {
+//        Type bt = Types.baseType(ct);
+//        if (bt.isClass()) {
+//        	X10ClassType xct = bt.toClass();
+//        	if (xct.isJavaType()) return true;
+//        	Type superClass = xct.superClass();
+//        	if (superClass != null && isJavaTypeRecursive(superClass)) return true;
+//        	for (Type intf : xct.interfaces()) {
+//        		if (isJavaTypeRecursive(intf)) return true;
+//        	}
+//        }
+//        return false;
+//	}
 
 	// check if the specified method overrides or implements Java method (= a method whose container is a Java type)
         public static boolean canOverrideOrImplementJavaMethod(MethodDef def) {
             Context context = def.typeSystem().emptyContext();
             MethodInstance mi = def.asInstance();
             for (MethodInstance overridden : mi.overrides(context)) {
-                if (overridden.container().toClass().isJavaType()) return true;
+                X10ClassType type = overridden.container().toClass();
+                if (type.isJavaType()) return true;
+                if (isNativeClassToJava(type)) return true;
+                if (isNativeRepedToJava(type)) return true;
+                if (isNativeRepedToJavaRecursive(type)) return true;
             }
             for (MethodInstance implemented : mi.implemented(context)) {
-                if (implemented.container().toClass().isJavaType()) return true;
+                X10ClassType type = implemented.container().toClass();
+                if (type.isJavaType()) return true;
+                if (isNativeClassToJava(type)) return true;
+                if (isNativeRepedToJava(type)) return true;
+                if (isNativeRepedToJavaRecursive(type)) return true;
             }
             return false;
         }
@@ -1226,38 +1258,47 @@ public class Emitter {
     }
 
     public static final boolean canMangleMethodName(MethodDef def) {
-        ContainerType containerType = def.container().get();
-        String methodName = def.name().toString();
-        
-        if (isNativeClassToJava(containerType)) return false;
-        if (isNativeRepedToJava(containerType)) return false;
-        if (isNativeReped(containerType)) {
-            // exclude classes that are @NativeRep'ed to non-java classes that extend java class
-            // since some instance methods of the class may match its super class's java method (therefore cannot mangle) 
-            String containerName = containerType.fullName().toString();
-            // N.B. currently following four class are such classes. but for safety, we exclude all Atomic classes.
-//            if (containerName.equals("x10.util.concurrent.AtomicInteger")) return false;
-//            if (containerName.equals("x10.util.concurrent.AtomicLong")) return false;
-//            if (containerName.equals("x10.util.concurrent.AtomicReference")) return false;
-//            if (containerName.equals("x10.util.concurrent.AtomicBoolean")) return false;
-            if (containerName.startsWith("x10.util.concurrent.Atomic")) return false;
-            // TODO looks like there is no reason to implement AtomicInteger as XRJ.
-            // we may directly map it to j.u.c.a.AtomicInteger later and remove special handling here.  
+
+        // static methods are basically safe to be mangled since they don't implement or override Java methods. 
+        if (def.flags().isStatic()) {            
+            // N.B. following methods are executed with Java reflection during static initialization phase, therefore their names are important  
+            String methodName = def.name().toString();
+            if (methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix)) return false;/*intrinsic*/
+            return true;
         }
-        if (methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix)) return false;/*intrinsic*/
-        if (!def.flags().isStatic()) {
+
+//        ContainerType containerType = def.container().get();
+
+//        if (isNativeClassToJava(containerType)) return false;
+//        if (isNativeRepedToJava(containerType)) return false; // included in canOverrideOrImplementJavaMethod(def)
+        
+//        if (isNativeReped(containerType)) {
+//            // exclude classes that are @NativeRep'ed to non-java classes that extend java class
+//            // since some instance methods of the class may match its super class's java method (therefore cannot mangle) 
+//            String containerName = containerType.fullName().toString();
+//            // N.B. currently following four class are such classes. but for safety, we exclude all Atomic classes.
+////            if (containerName.equals("x10.util.concurrent.AtomicInteger")) return false;
+////            if (containerName.equals("x10.util.concurrent.AtomicLong")) return false;
+////            if (containerName.equals("x10.util.concurrent.AtomicReference")) return false;
+////            if (containerName.equals("x10.util.concurrent.AtomicBoolean")) return false;
+//            if (containerName.startsWith("x10.util.concurrent.Atomic")) return false;
+//            // TODO looks like there is no reason to implement AtomicInteger as XRJ.
+//            // we may directly map it to j.u.c.a.AtomicInteger later and remove special handling here.  
+//        }
+        
+//        if (!def.flags().isStatic()) {
+//            String methodName = def.name().toString();
             // instance methods
-            List<Ref<? extends Type>> formalTypes = def.formalTypes();
-            int numFormals = formalTypes.size();
-            if (methodName.equals("toString") && numFormals == 0) return false;/*Any=j.l.Object*/
-            if (methodName.equals("hashCode") && numFormals == 0) return false;/*Any=j.l.Object*/
-            if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return false;/*Any=j.l.Object*/
-            if (methodName.equals("compareTo") && numFormals == 1) return false;/*Comparable=j.l.Comparable*/
+//            List<Ref<? extends Type>> formalTypes = def.formalTypes();
+//            int numFormals = formalTypes.size();
+//            if (methodName.equals("toString") && numFormals == 0) return false;/*Any=j.l.Object*/
+//            if (methodName.equals("hashCode") && numFormals == 0) return false;/*Any=j.l.Object*/
+//            if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return false;/*Any=j.l.Object*/
+//            if (methodName.equals("compareTo") && numFormals == 1) return false;/*Comparable=j.l.Comparable*/
             // TODO want to check with the fact that x.l.Comparable is @NativeRep'ed to j.l.Comparable
             // XTENLANG-2929
-//	    if (isJavaType(containerType)) return false;/*CharSequence etc.*/
             if (canOverrideOrImplementJavaMethod(def)) return false;/*CharSequence etc.*/
-        }
+//        }
         
         return true;
     }
