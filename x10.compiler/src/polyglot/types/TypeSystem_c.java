@@ -1572,11 +1572,16 @@ public class TypeSystem_c implements TypeSystem
         List<MethodInstance> candidates = new ArrayList<MethodInstance>();
 
         List<Type> types = env(matcher.context()).upperBounds(container, true);
+        SemanticException err = null;
         for (Type t : types) {
-            List<MethodInstance> ms = superFindAcceptableMethods(t, matcher);
-            candidates.addAll(ms);
+            try {
+                List<MethodInstance> ms = superFindAcceptableMethods(t, matcher);
+                candidates.addAll(ms);
+            } catch (SemanticException e) {
+                err = e;
+            }
         }
-
+        if (candidates.size()==0 && err!=null) throw err;
         return candidates;
     }
     /**

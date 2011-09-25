@@ -6943,3 +6943,22 @@ class XTENLANG_2860 {
 		a++; // ERR: Semantic Error: Operator ++ and -- can only be used on built in numerical types.
 	}
 }
+import x10.util.Ordered;
+class XTENLANG_2931 {
+	interface A {
+		def a():void;
+	}
+	interface B {
+		def b():void;
+	}
+	class Abs {
+		public def testAB[T](x:T){T<:A, T<:B} {
+			x.b();
+		}
+
+		public def abs1[T](x:T){T<:Arithmetic[T]} = x-x;
+		public def abs2[T](x:T){T<:Ordered[T]} = x<x;
+		public def abs3[T](x:T){T haszero} = Zero.get[T]();
+		public def abs[T](x:T){T<:Arithmetic[T],T<:Ordered[T], T haszero} = x < Zero.get[T]() ? Zero.get[T]() -x : x;
+	}
+}
