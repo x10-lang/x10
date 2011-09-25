@@ -142,6 +142,7 @@ import x10.util.Synthesizer;
  */
 public final class InitChecker extends DataFlow
 {
+    public static long TIME = 0;
     public static int ASYNC_INIT_COUNT = 0;
 
     public InitChecker(Job job, TypeSystem ts, NodeFactory nf) {
@@ -634,6 +635,7 @@ public final class InitChecker extends DataFlow
      */
     public void check(final FlowGraph graph, Term n, boolean entry, Item inItem,
             Map<EdgeKey, Item> outItems) {
+        long start = System.currentTimeMillis();
         DataFlowItem dfIn = (DataFlowItem)inItem;
         if (dfIn == null) {
             // There is no input data flow item. This can happen if we are
@@ -687,6 +689,8 @@ public final class InitChecker extends DataFlow
         }
 
         x10Info.stats.stopTiming();
+
+        TIME += Math.abs(System.currentTimeMillis()-start);
     }
 
 

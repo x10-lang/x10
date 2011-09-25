@@ -72,6 +72,7 @@ import static polyglot.visit.InitChecker.*;
 
 public class CheckEscapingThis extends NodeVisitor
 {
+    public static long TIME = 0;
     public final static boolean GATHER_STATS = false;  // Gather statistics for the initialization paper
     private static int ASYNC_INIT_COUNT = 0;
     private static HashSet<X10ProcedureDef> ALL_CTORS = new HashSet<X10ProcedureDef>();
@@ -512,6 +513,7 @@ public class CheckEscapingThis extends NodeVisitor
         }
     }
     public CheckEscapingThis(X10ClassDecl_c xlass, Job job, TypeSystem ts) {
+        long start = System.currentTimeMillis();
         this.job = job;
         this.ts = ts;
         nf = (NodeFactory)ts.extensionInfo().nodeFactory();
@@ -534,6 +536,7 @@ public class CheckEscapingThis extends NodeVisitor
             CTOR_INIT.initStatus.put(field, inited);
         }
         typeCheck();
+        TIME += Math.abs(System.currentTimeMillis()-start);
     }
     private static ArrayList<FieldDef> getInstanceFields(ClassDef currClass) {
         List<FieldDef> list = currClass.fields();

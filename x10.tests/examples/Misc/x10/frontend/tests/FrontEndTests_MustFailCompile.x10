@@ -6943,7 +6943,6 @@ class XTENLANG_2860 {
 		a++; // ERR: Semantic Error: Operator ++ and -- can only be used on built in numerical types.
 	}
 }
-import x10.util.Ordered;
 class XTENLANG_2931 {
 	interface A {
 		def a():void;

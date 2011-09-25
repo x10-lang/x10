@@ -7,6 +7,7 @@ import polyglot.util.Position;
 import polyglot.util.ErrorInfo;
 import x10.util.CollectionFactory;
 import polyglot.main.Main;
+import polyglot.visit.InitChecker;
 
 import java.io.File;
 import java.io.IOException;
@@ -21,6 +22,7 @@ import java.lang.StringBuilder;
 
 import x10.parser.AutoGenSentences;
 import x10.X10CompilerOptions;
+import x10.visit.CheckEscapingThis;
 
 /**
  * This program is intended to be used to determine if on a given test
@@ -318,7 +320,7 @@ public class RunTestSuite {
         }
         // report remaining errors that were not matched in any file
         printRemaining(null);
-        if (SHOW_RUNTIMES) println("Total running time to compile all files="+(System.currentTimeMillis()-start));
+        if (SHOW_RUNTIMES) println("Total running time to compile all files="+(System.currentTimeMillis()-start)+" CheckEscapingThis="+ CheckEscapingThis.TIME+" InitChecker="+ InitChecker.TIME);
         
         if (EXIT_CODE!=0) System.out.println("Summary of all errors:\n\n"+ALL_ERRORS);
         System.out.println("\n\n\n\n\n"+ (EXIT_CODE==0 ? "SUCCESS" : "FAILED") + "\n\n\n");
