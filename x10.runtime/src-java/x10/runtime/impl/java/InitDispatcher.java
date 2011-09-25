@@ -12,7 +12,6 @@
 package x10.runtime.impl.java;
 
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
@@ -38,6 +37,14 @@ public abstract class InitDispatcher {
 
     private static final String initializerPrefix = "getInitialized$";
     private static final String deserializerPrefix = "getDeserialized$";
+
+    static final short static_broadcast__serialization_id = init();
+
+    static short init() {
+        short id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, $Closure$Deserialize.class);
+        DeserializationDispatcher.setStaticInitializer(id);
+        return id;
+    }
 
     /**
      * Executed only in place 0
@@ -105,7 +112,7 @@ public abstract class InitDispatcher {
             Method initializer = clazz.getMethod(initializerPrefix+fieldName, (Class<?>[])null);
             initializeMethods.add(initializer);
 
-            Method deserializer = clazz.getMethod(deserializerPrefix+fieldName, byte[].class);
+            Method deserializer = clazz.getMethod(deserializerPrefix+fieldName, X10JavaDeserializer.class);
             deserializeMethods.add(deserializer);
 
             fieldId++;
@@ -121,13 +128,12 @@ public abstract class InitDispatcher {
 
     public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
     	public int fieldId;
-    	public byte[] buf;
-        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, InitDispatcher.$Closure$Deserialize.class);
+    	public X10JavaDeserializer x10JavaDeserializer;
 
         public void $apply() {
             // execute deserializer for fieldValue
             try {
-                deserializeMethods.get(fieldId).invoke(null, buf);
+                deserializeMethods.get(fieldId).invoke(null, x10JavaDeserializer);
             } catch (InvocationTargetException e) {
                 e.printStackTrace();
                 throw new java.lang.Error(e);
@@ -140,10 +146,7 @@ public abstract class InitDispatcher {
         // Just for allocation
         $Closure$Deserialize() {
         }
-        $Closure$Deserialize(int fieldId, byte[] buf) {
-            this.fieldId = fieldId;
-            this.buf = buf;
-        }
+
         public x10.rtt.RuntimeType<?> $getRTT() {
             return $RTT;
         }
@@ -151,26 +154,30 @@ public abstract class InitDispatcher {
             return null;
         }
 
+        // This is not meant to be serialized.
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            serializer.write(fieldId);
-            serializer.write(buf);
+            throw new UnsupportedOperationException("Cannot serialize " + getClass());
         }
 
         public short $_get_serialization_id() {
-            return _serialization_id;
+            return static_broadcast__serialization_id;
         }
 
         public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
             $Closure$Deserialize closure$Deserialize = new $Closure$Deserialize();
-            deserializer.record_reference(closure$Deserialize);
+
+            // We explicitly do not record the reference here cause this class is not serialized as is.
+            // It is serialized in a special way where only the contents of this class get serialized
             return $_deserialize_body(closure$Deserialize, deserializer);
         }
 
         public static X10JavaSerializable $_deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws IOException {
             int id = deserializer.readInt();
-            byte[] bytes = deserializer.readByteArray();
             closure$Deserialize.fieldId = id;
-            closure$Deserialize.buf = bytes;
+
+            // We do not serialize the actual field value here. It gets deserialized later on by invoking the
+            // corresponding deserialize method by the $apply method above.
+            closure$Deserialize.x10JavaDeserializer = deserializer;
             return (X10JavaSerializable) closure$Deserialize;
         }
     }
@@ -179,18 +186,26 @@ public abstract class InitDispatcher {
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
     	}
-    	
-        // if (X10RT.VERBOSE) System.out.println("@MultiVM: broadcastStaticField(id="+fieldId+"):"+fieldValue);
 
-        // serialize to bytearray
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
+        try {
+            serializer.write(fieldId);
+            if (fieldValue instanceof X10JavaSerializable) {
+                serializer.write((X10JavaSerializable) fieldValue);
+            } else {
+                serializer.write(fieldValue);
+            }
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new java.lang.Error(e);
+        }
+        byte [] ba = baos.toByteArray();
 
-        final byte[] buf = serializeField(fieldValue);
-        
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
-        
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(int fieldValue, final int fieldId) {
@@ -199,23 +214,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(double fieldValue, final int fieldId) {
@@ -224,23 +237,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(float fieldValue, final int fieldId) {
@@ -249,23 +260,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(long fieldValue, final int fieldId) {
@@ -274,23 +283,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(short fieldValue, final int fieldId) {
@@ -299,23 +306,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(byte fieldValue, final int fieldId) {
@@ -324,23 +329,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(char fieldValue, final int fieldId) {
@@ -349,23 +352,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(boolean fieldValue, final int fieldId) {
@@ -374,23 +375,21 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
+        byte [] ba = baos.toByteArray();
+
         // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static void broadcastStaticField(String fieldValue, final int fieldId) {
@@ -399,73 +398,51 @@ public abstract class InitDispatcher {
     		return;
     	}
 
-        final byte[] buf;
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
         try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream oos = new DataOutputStream(baos);
-            X10JavaSerializer serializer = new X10JavaSerializer(oos);
+            serializer.write(fieldId);
             serializer.write(fieldValue);
             oos.close();
-            buf = baos.toByteArray();
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
-        // create a deserialization closure
-        x10.core.fun.VoidFun_0_0 body = new $Closure$Deserialize(fieldId, buf);
-        // Invoke the closure at all places except here
-        Runtime.runAtAll(false, body);
-    }
+        byte [] ba = baos.toByteArray();
 
-    private static byte[] serializeField(Object object) {
-        try {
-            return Runtime.serialize(object);
-        } catch (java.io.IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;
-        }
+        // Invoke the closure at all places except here
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
     public static Object deserializeField(byte[] buf) {
         try {
             java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
-                java.io.DataInputStream in = new java.io.DataInputStream(bais);
-                X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
-                Object o = deserializer.readRef();
-                in.close();
-                return o;
-            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
-                java.io.DataInputStream in = new java.io.DataInputStream(bais);
-                X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
-                Object o = deserializer.readRefUsingReflection();
-                in.close();
-                return o;
-            }
-            java.io.ObjectInputStream in = new java.io.ObjectInputStream(bais);
-            Object val = in.readObject();
+            java.io.DataInputStream in = new java.io.DataInputStream(bais);
+            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
+            Object o = deserializer.readRef();
             in.close();
-            return val;
+            return o;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
             xe.printStackTrace();
             throw xe;
-        } catch (ClassNotFoundException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-            xe.printStackTrace();
-            throw xe;            
         }
     }
 
-    public static int deserializeInt(byte[] buf) {
+    public static Object deserializeField(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
+            return deserializer.readRef();
+        } catch (java.io.IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        }
+    }
+
+    public static int deserializeInt(X10JavaDeserializer deserializer) {
+        try {
             int i = deserializer.readInt();
-            in.close();
             return i;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -474,13 +451,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static double deserializeDouble(byte[] buf) {
+    public static double deserializeDouble(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             double v = deserializer.readDouble();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -489,13 +462,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static float deserializeFloat(byte[] buf) {
+    public static float deserializeFloat(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             float v = deserializer.readFloat();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -504,13 +473,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static long deserializeLong(byte[] buf) {
+    public static long deserializeLong(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             long v = deserializer.readLong();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -519,13 +484,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static short deserializeShort(byte[] buf) {
+    public static short deserializeShort(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             short v = deserializer.readShort();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -534,13 +495,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static byte deserializeByte(byte[] buf) {
+    public static byte deserializeByte(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             byte v = deserializer.readByte();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -549,13 +506,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static char deserializeChar(byte[] buf) {
+    public static char deserializeChar(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             char v = deserializer.readChar();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -564,13 +517,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static boolean deserializeBoolean(byte[] buf) {
+    public static boolean deserializeBoolean(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             boolean v = deserializer.readBoolean();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -579,13 +528,9 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static String deserializeString(byte[] buf) {
+    public static String deserializeString(X10JavaDeserializer deserializer) {
         try {
-            java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
-            DataInputStream in = new DataInputStream(bais);
-            X10JavaDeserializer deserializer = new X10JavaDeserializer(in);
             String v = deserializer.readString();
-            in.close();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
@@ -608,5 +553,9 @@ public abstract class InitDispatcher {
 
     public static void notifyInitialized() {
         x10.lang.Runtime.StaticInitBroadcastDispatcherNotify();
+    }
+
+    public static void printStaticInitMessage(String message) {
+        Runtime.printStaticInitMessage(message);
     }
 }

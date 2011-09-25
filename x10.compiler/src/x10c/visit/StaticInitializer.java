@@ -123,9 +123,7 @@ import x10.types.X10ProcedureDef;
 import x10.visit.Desugarer;
 import x10.visit.X10PrettyPrinterVisitor;
 import x10.visit.X10TypeChecker;
-import x10c.ast.BackingArray;
 import x10c.ast.X10CNodeFactory_c;
-import x10c.types.BackingArrayType;
 import x10c.types.X10CTypeSystem_c;
 
 public class StaticInitializer extends ContextVisitor {
@@ -736,27 +734,25 @@ public class StaticInitializer extends ContextVisitor {
                                              FieldDef fdCond, X10ClassDef classDef) {
         // get MethodDef
         Name name = Name.make(deserializerPrefix+fName);
-        BackingArrayType baType = xts.createBackingArray(pos, Types.ref(xts.Byte()));
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-        argTypes.add(Types.ref(baType));
+        argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, Types.ref(classDef.asType()), 
                                      Flags.STATIC, Types.ref(xts.Void()), name, argTypes);
         MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
 
-        // byte array argument definition
-        Name baName = Name.make("buf");
-        BackingArray ba = xnf.BackingArray(pos, xnf.Id(pos, baName), baType, null);
+        // X10JavaDeserializer argument definition
+        Name deserializerName = Name.make("deserializer");
 
         // create a method declaration node
         List<TypeParamNode> typeFormals = Collections.<TypeParamNode>emptyList();
         List<Formal> formals = new ArrayList<Formal>();
-        LocalDef argDef = xts.localDef(pos, Flags.NONE, Types.ref(baType), baName);
+        LocalDef argDef = xts.localDef(pos, Flags.NONE, Types.ref(X10JavaDeserializer()), deserializerName);
         Formal fArg = xnf.Formal(pos, xnf.FlagsNode(pos, Flags.NONE),
-                xnf.CanonicalTypeNode(pos, baType), xnf.Id(pos, baName)).localDef(argDef);
+                xnf.CanonicalTypeNode(pos, X10JavaDeserializer()), xnf.Id(pos, deserializerName)).localDef(argDef);
         formals.add(fArg);
 
         TypeNode returnType = xnf.X10CanonicalTypeNode(pos, xts.Void());
-        Block body = makeDeserializeMethodBody(pos, fieldInfo, fdCond, classDef, ba, baName);
+        Block body = makeDeserializeMethodBody(pos, fieldInfo, fdCond, classDef, deserializerName);
         MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name), 
                                               typeFormals, formals, null, null, body);
         // associate methodDef with methodDecl
@@ -765,18 +761,13 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private Block makeDeserializeMethodBody(Position pos, StaticFieldInfo initInfo, FieldDef fdCond, 
-                                            X10ClassDef classDef, BackingArray ba, Name baName) {
+                                            X10ClassDef classDef, Name deserializerName) {
         TypeNode receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
 
         FieldInstance fi = initInfo.fieldDef.asInstance();
         Name name = initInfo.fieldDef.name();
 
-        Expr customSerializationCheck = genCustomSerializationCheckGuard(pos);
-
-        Expr right = xnf.X10Cast(pos, xnf.CanonicalTypeNode(pos, fi.type()), genDeserializeField(pos, ba, baName, fi.type(), false), Converter.ConversionType.PRIMITIVE).type(fi.type());
-        Block deserializeFieldBlock = xnf.Block(pos, xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN,
-                                                right).fieldInstance(fi).type(right.type())));
-        Expr rightCustomSerialization = genDeserializeField(pos, ba, baName, fi.type(), true);
+        Expr rightCustomSerialization = genDeserializeField(pos, deserializerName, fi.type(), true);
         Block deserializeFieldCustomSerializationBlock = xnf.Block(pos, xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN,
                                                 rightCustomSerialization).fieldInstance(fi).type(rightCustomSerialization.type())));
 
@@ -784,7 +775,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // make statement block
         List<Stmt> stmts = new ArrayList<Stmt>();
-        stmts.add(xnf.If(pos, customSerializationCheck, deserializeFieldCustomSerializationBlock, deserializeFieldBlock));
+        stmts.add(deserializeFieldCustomSerializationBlock);
 
         stmts.add(xnf.Eval(pos, genStatusSet(pos, receiver, fdCond)));
         stmts.add(xnf.Eval(pos, genLock(pos)));
@@ -793,7 +784,7 @@ public class StaticInitializer extends ContextVisitor {
         return body;
     }
 
-    private Expr genDeserializeField(Position pos, BackingArray ba, Name baName, Type type, boolean customSerialization) {
+    private Expr genDeserializeField(Position pos, Name baName, Type type, boolean customSerialization) {
         String str;
         Id id;
         if (customSerialization && type.toClass().isJavaType()) {
@@ -806,19 +797,19 @@ public class StaticInitializer extends ContextVisitor {
 
         // create MethodDef
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-        argTypes.add(Types.ref(ba.type()));
+        argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
                                      Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes);
         MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
 
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
-        LocalDef ldef = xts.localDef(pos, Flags.NONE, Types.ref(ba.type()), baName);
-        Local arg = (Local)xnf.Local(pos, xnf.Id(pos, baName)).localInstance(ldef.asInstance()).type(ba.type());
+        LocalDef ldef = xts.localDef(pos, Flags.NONE, Types.ref(X10JavaDeserializer()), baName);
+        Local arg = (Local)xnf.Local(pos, xnf.Id(pos, baName)).localInstance(ldef.asInstance()).type(X10JavaDeserializer());
         args.add(arg);
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
-        typeParamNodes.add(xnf.CanonicalTypeNode(pos, ba.type()));
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, X10JavaDeserializer()));
         Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
         Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Object());
         return call;
@@ -863,21 +854,15 @@ public class StaticInitializer extends ContextVisitor {
         Expr fieldId = xnf.Field(pos, receiver, xnf.Id(pos, fdId.name())).fieldInstance(fdidi).type(fdidi.type());
         Expr bcastCall = genBroadcastField(pos, left, fieldId, fdPLH, false);
         Expr bcastCallCustomSerialization = genBroadcastField(pos, left, fieldId, fdPLH, true);
-        Expr customSerializationCheck = genCustomSerializationCheckGuard(pos);
 
         Block broadcastBlock;
         Block broadcastCustomSerializationBlock;
 
         if (fdPLH == null) {
             // no return value
-            broadcastBlock = xnf.Block(pos, xnf.Eval(pos, bcastCall));
             broadcastCustomSerializationBlock = xnf.Block(pos, xnf.Eval(pos, bcastCallCustomSerialization));
         } else {
             // assign return value from broadcast to PlaceLocalHandle
-            Expr plh = xnf.FieldAssign(pos, receiver, fdPLH.name(), Assign.ASSIGN,
-                                       bcastCall).fieldInstance(fdPLH.fieldDef().asInstance()).type(bcastCall.type());
-            broadcastBlock = xnf.Block(pos, xnf.Eval(pos, plh));
-
             Expr plhCustomSerialization = xnf.FieldAssign(pos, receiver, fdPLH.name(), Assign.ASSIGN,
                                        bcastCallCustomSerialization).fieldInstance(fdPLH.fieldDef().asInstance()).type(bcastCallCustomSerialization.type());
             broadcastCustomSerializationBlock = xnf.Block(pos, xnf.Eval(pos, plhCustomSerialization));
@@ -888,9 +873,11 @@ public class StaticInitializer extends ContextVisitor {
         stmts.add(xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, 
                                                 right).fieldInstance(fi).type(right.type())));
 
+        stmts.add(makePrintStmt(pos, name, classDef));
+
         // If the type is a java type we can do plain java serialization
 
-        stmts.add(xnf.If(pos, customSerializationCheck, broadcastCustomSerializationBlock, broadcastBlock));
+        stmts.add(broadcastCustomSerializationBlock);
 
         stmts.add(xnf.Eval(pos, genStatusSet(pos, receiver, fdCond)));
         stmts.add(xnf.Eval(pos, genLock(pos)));
@@ -960,16 +947,6 @@ public class StaticInitializer extends ContextVisitor {
                                 Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Int());
         Expr placeCheck = xnf.Binary(pos, here, Binary.EQ, xnf.IntLit(pos, IntLit.INT, 0).type(xts.Int())).type(xts.Boolean());
         return placeCheck;
-    }
-
-    private Expr genCustomSerializationCheckGuard(Position pos) {
-       Id name = xnf.Id(pos, Name.make("CUSTOM_JAVA_SERIALIZATION"));
-
-        FieldDef fieldDef = xts.fieldDef(pos, Types.ref(X10JavaSerializable()), Flags.STATIC, Types.ref(xts.Boolean()), name.id());
-        X10FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fieldDef));
-        Receiver receiver = xnf.CanonicalTypeNode(pos, X10JavaSerializable());
-        Expr left = xnf.Field(pos, receiver, name).fieldInstance(fi);
-        return xnf.Binary(pos, left.type(xts.Boolean()), Binary.EQ, xnf.BooleanLit(pos, true).type(xts.Boolean()));
     }
 
     private Expr genAtomicGuard(Position pos, TypeNode receiver, FieldDef fdCond) {
@@ -1156,6 +1133,13 @@ public class StaticInitializer extends ContextVisitor {
         return X10JavaSerializable_;
     }
 
+    private ClassType X10JavaDeserializer_;
+    private ClassType X10JavaDeserializer() {
+        if (X10JavaDeserializer_ == null)
+            X10JavaDeserializer_ = xts.load("x10.compiler.X10JavaDeserializer");
+        return X10JavaDeserializer_;
+    }
+
     private ClassType InitDispatcher_;
     private ClassType InitDispatcher() {
         if (InitDispatcher_ == null)
@@ -1200,6 +1184,32 @@ public class StaticInitializer extends ContextVisitor {
         receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
         return xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdId.name()),
                                              Assign.ASSIGN, call).fieldInstance(fdId.asInstance()).type(xts.Int()));
+    }
+
+    private Stmt makePrintStmt(Position pos, Name fieldName, X10ClassDef classDef) {
+        Id id = xnf.Id(pos, Name.make("printStaticInitMessage"));
+
+        // argument type
+        List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+        argTypes.add(Types.ref(xts.String()));
+
+        // create MethodDef
+        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()),
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+
+        // get fully qualified field name
+        String fullName = getPackageName(classDef) + getClassName(classDef) + "." + Emitter.mangleToJava(fieldName);
+
+        // actual arguments
+        List<Expr> args = new ArrayList<Expr>();
+        args.add(xnf.StringLit(pos, "Doing static initialisation for field: " + fullName).type(xts.String()));
+
+        List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.String()));
+        TypeNode receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
+
+        return xnf.Eval(pos, xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Void()));
     }
 
     private String getClassName(ClassDef classDef) {

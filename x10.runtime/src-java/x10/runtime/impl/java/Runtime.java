@@ -230,6 +230,13 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static final boolean TRACE_SER = Boolean.getBoolean("x10.TRACE_SER");
 
+    /**
+     * Trace static init
+     */
+    public static final boolean TRACE_STATIC_INIT = Boolean.getBoolean("X10_TRACE_STATIC_INIT");
+
+
+
     //TODO Keith Remove this later
     /**
      * Emit detail serialization traces for java serialization. Using for debugging in preliminary stage
@@ -258,13 +265,19 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     public static final String ANSI_RESET = X10_TRACE_ANSI_COLORS? "\u001b[1;0m" :"";
     public static final String ANSI_BOLD = X10_TRACE_ANSI_COLORS? "\u001b[1;1m" :"";
     public static final String ANSI_CYAN = X10_TRACE_ANSI_COLORS? "\u001b[1;36m" :"";
+    public static final String TRACE_MESSAGE = "SS";
+    public static final String STATIC_INIT_MESSAGE = "SI";
 
     public static void printTraceMessage(String message) {
-        print(ANSI_CYAN, message);
+        print(TRACE_MESSAGE, ANSI_CYAN, message);
     }
 
-    private static void print(String col, String message) {
-        System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + "SS: " + ANSI_RESET + message);
+    public static void printStaticInitMessage(String message) {
+        print(STATIC_INIT_MESSAGE, ANSI_CYAN, message);
+    }
+
+    private static void print(String type, String col, String message) {
+        System.out.println(ANSI_BOLD + X10RT.here() + ": " + col + type + ": " + ANSI_RESET + message);
     }
 
     public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, int endpoint) {
@@ -302,9 +315,11 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * Copy body (same place)
      */
     public static <T> T deepCopy(T body) {
-        if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
-            try {
-                byte[] ba = serialize(body);
+
+        try {
+            byte[] ba = serialize(body);
+
+            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
                 DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
                 if (TRACE_SER_DETAIL) {
@@ -314,15 +329,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Done with deserialization for deepCopy of " + body.getClass());
                 }
-            } catch (java.io.IOException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            }
-            return body;
-        } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
-            try {
-                byte[] ba = serialize(body);
+                return body;
+            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
                 DataInputStream ois = new DataInputStream(new ByteArrayInputStream(ba));
                 X10JavaDeserializer deserializer = new X10JavaDeserializer(ois);
                 if (TRACE_SER_DETAIL) {
@@ -332,27 +340,21 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 if (TRACE_SER_DETAIL) {
                     System.out.println("Done with deserialization for deepCopy of " + body.getClass());
                 }
-            } catch (java.io.IOException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            }
-            return body;
-        } else {
-            try {
-                byte[] ba = serialize(body);
+                return body;
+            } else {
                 java.io.ObjectInputStream ois = new java.io.ObjectInputStream(new java.io.ByteArrayInputStream(ba));
                 body = (T) ois.readObject();
                 ois.close();
-            } catch (java.io.IOException e) {
-                x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
-                xe.printStackTrace();
-                throw xe;
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-                throw new java.lang.Error(e);
+
+                return body;
             }
-            return body;
+        } catch (java.io.IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+            throw new java.lang.Error(e);
         }
     }
 
@@ -462,12 +464,37 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
     
     // @MultiVM, add this method
-
-    //TODO Keith
     public static void runAt(int place, x10.core.fun.VoidFun_0_0 body) {
         byte[] msg;
         try {
-            msg = serialize(body);
+            // Cannot use the serialize() method here cause we need to serialize the outer serialization ID too
+            // (This is not serialized by the serialize method as an optimization)
+            if (CUSTOM_JAVA_SERIALIZATION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAtAll  " + body.getClass());
+                }
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                DataOutputStream oos = new DataOutputStream(baos);
+                X10JavaSerializer serializer = new X10JavaSerializer(oos);
+                body.$_serialize(serializer);
+                oos.close();
+                msg = baos.toByteArray();
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAtAll " + body.getClass());
+                }
+            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Starting serialization for runAt  " + body.getClass());
+                }
+                msg = serializeUsingReflection(body);
+                if (TRACE_SER_DETAIL) {
+                    System.out.println("Done with serialization for runAt " + body.getClass());
+                }
+            } else {
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                (new java.io.ObjectOutputStream(baos)).writeObject(body);
+                msg = baos.toByteArray();
+            }
             int msg_id = DeserializationDispatcher.getMessageID(body.$_get_serialization_id());
             int msgLen = msg.length;
             if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
@@ -482,22 +509,16 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     // Special version of runAt for broadcast type communication
     // (Serialize once, run everywhere)
-    public static void runAtAll(boolean includeHere, x10.core.fun.VoidFun_0_0 body) {
-        byte[] msg;
-        try {
-            msg = serialize(body);
-            int msg_id = DeserializationDispatcher.getMessageID(body.$_get_serialization_id());
-            int hereId = X10RT.here();
-            for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
-                x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
-            }
-            int endPlace = includeHere ? hereId : hereId - 1;
-            for (int place = 0; place <= endPlace; ++place) {
-                x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
-            }
-        } catch (java.io.IOException e) {
-            e.printStackTrace();
-            throw new x10.runtime.impl.java.WrappedThrowable(e);
+
+    public static void runAtAll(boolean includeHere, byte[] msg, short serializationID) {
+        int msg_id = DeserializationDispatcher.getMessageID(serializationID);
+        int hereId = X10RT.here();
+        for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
+        }
+        int endPlace = includeHere ? hereId : hereId - 1;
+        for (int place = 0; place <= endPlace; ++place) {
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
         }
     }
 

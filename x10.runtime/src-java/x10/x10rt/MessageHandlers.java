@@ -54,7 +54,7 @@ public class MessageHandlers {
         short serializationID = DeserializationDispatcher.getSerializationID(type);
         DeserializationDispatcher.ClosureKind closureKind = DeserializationDispatcher.getClosureKind(serializationID);
         if (closureKind == DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC) {
-               runClosureAtReceive(args);
+               runClosureAtReceive(args, serializationID);
         } else if (closureKind == DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC) {
               runAsyncAtReceive(args, serializationID);
         } else {
@@ -65,7 +65,7 @@ public class MessageHandlers {
     /**
      * Receive a closure
      */
-    private static void runClosureAtReceive(byte[] args) {
+    private static void runClosureAtReceive(byte[] args , short sid) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("@MultiVM : runClosureAtReceive is called");
     		java.io.ByteArrayInputStream byteStream 
@@ -73,14 +73,17 @@ public class MessageHandlers {
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
             x10.core.fun.VoidFun_0_0 actObj;
             InputStream objStream;
-            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
+
+            // Static initialization follows the custom serialization protocol irrespective of the following flag hence
+            // if its a static initializer use custom serialization
+            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION || DeserializationDispatcher.isStaticInitializer(sid)) {
                 objStream = new DataInputStream(byteStream);
     		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
                 X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
                 if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
                     System.out.println("Starting deserialization ");
                 }
-                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef();
+                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef(sid);
                 if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
                     System.out.println("Ending deserialization ");
                 }

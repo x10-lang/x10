@@ -256,11 +256,23 @@ public class DeserializationDispatcher {
         return idToDeserializationInfo.get(sid).closureKind;
     }
 
+    public static void setStaticInitializer(short sid) {
+        idToDeserializationInfo.get(sid).isStaticInitializer = true;
+    }
+
+    public static boolean isStaticInitializer(short sid) {
+        return idToDeserializationInfo.get(sid).isStaticInitializer;
+    }
+
     private static class DeserializationInfo {
         public ClosureKind closureKind;
         public Class clazz;
         public int msgType;
         public short sid;
+
+        // We need to deserialize static initializers using custom serialization, this is a marker to know whether
+        // this is a static serialization
+        public boolean isStaticInitializer = false;
 
         private DeserializationInfo(ClosureKind closureKind, Class clazz, short sid) {
             this.closureKind = closureKind;
