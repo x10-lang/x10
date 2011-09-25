@@ -47,7 +47,7 @@ public struct RemoteIndexedMemoryChunk[T] {
      * created. Returns the encapsulated IndexedMemoryChunk.
      */
     @Native("java", "(#this).$apply$G()")
-    @Native("c++", "x10::util::IndexedMemoryChunk<#T >((#this)->raw(), (#this)->length())")
+    @Native("c++", "x10::util::IndexedMemoryChunk<#T >((#this)->raw(), (#this)->raw(), (#this)->length())")
     public native operator this(){here == this.home()}:IndexedMemoryChunk[T];
 
     /**
