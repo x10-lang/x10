@@ -61,14 +61,28 @@ namespace x10 {
     
             x10_ulong data; /* TODO: We would like this to be const */
             x10_int len; /* TODO: we would like this to be const */ /* TODO, this should be an x10_long */
+
+            /*
+             * Knowing the delta is required to support deallocation in the presence of alignment.
+             * We have to have the real pointer as returned from x10aux::alloc to pass back to x10aux::dealloc.
+             * There is nor real space cost for keeping this because C++ struct alignment constraints already
+             * force sizeof(IndexedMemoryChunk) to 16 even without this field.
+             * (8 for data + 4 for length == 12, which gets padded to 16).
+             */
+            x10_int deltaToAlloced;
+            
             x10_int length() { return len; } 
             T *raw (void) const { return (T*)(size_t)data; }
             T &operator[] (int index) { return raw()[index]; }
             const T &operator[] (int index) const { return raw()[index]; }
 
-            IndexedMemoryChunk(): data(0), len(0) {}
-            IndexedMemoryChunk(T* _data, x10_int _len): data((size_t)_data), len(_len) {}
-            IndexedMemoryChunk(x10_ulong _data, x10_int _len): data(_data), len(_len) {}
+            IndexedMemoryChunk(): data(0), len(0), deltaToAlloced(0) {}
+            IndexedMemoryChunk(T* rawMem, T* alignedMem, x10_int _len) : data((size_t)alignedMem),
+                len(_len),
+                deltaToAlloced((x10_int)((size_t)alignedMem - (size_t)rawMem)) {}
+            IndexedMemoryChunk(x10_ulong rawData, x10_ulong alignedData, x10_int _len): data(alignedData),
+                len(_len),
+                deltaToAlloced((x10_int)(alignedData-rawData)) {}
 
             inline T __apply(x10_int index) { 
                 checkBounds(index, len);
@@ -191,8 +205,8 @@ namespace x10 {
                                                                                         x10_int alignment,
                                                                                         x10_boolean congruent, 
                                                                                         x10_boolean zeroed) {
-	    if (0 == numElements) {
-                return IndexedMemoryChunk<T>((T*)NULL, (x10_int)numElements);
+            if (0 == numElements) {
+                return IndexedMemoryChunk<T>((T*)NULL, (T*)NULL, (x10_int)numElements);
             }
 
             assert((alignment & (alignment-1)) == 0);
@@ -218,7 +232,7 @@ namespace x10 {
             size_t alignDelta = alignment-1;
             size_t alignMask = ~alignDelta;
             size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
-            return IndexedMemoryChunk<T>((T*)alignedMem, (x10_int)numElements);
+            return IndexedMemoryChunk<T>(allocMem, (T*)alignedMem, (x10_int)numElements);
         }
 
     }
@@ -319,7 +333,9 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::clear(x10_long index, x
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::deallocate() {
     if (0 != data) {
-        x10aux::dealloc(raw());
+        x10_ulong basePtr = data - deltaToAlloced;
+        x10aux::dealloc((T*)basePtr);
+        fprintf(stderr, "Dealloc %p %p %d\n", (T*)basePtr, (T*)data, deltaToAlloced);
     }
     data = 0;
     len = 0;
@@ -427,7 +443,8 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::_deserialize_body(x10au
         size_t alignMask = ~alignDelta;
         size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
         data = (x10_ulong)alignedMem;
-
+        deltaToAlloced = (x10_int)(alignedMem - (size_t)allocMem);
+        
         for (int i=0; i<len; i++) {
             __set(i, buf.read<T>());
         }
@@ -452,7 +469,8 @@ template<> inline void x10::util::IndexedMemoryChunk<TYPE>::_deserialize_body(x1
         size_t alignMask = ~alignDelta;\
         size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;\
         data = (x10_ulong)alignedMem;\
-        buf.copyOut(buf, raw(), (x10_long)len, sizeof(TYPE));\
+        deltaToAlloced = (x10_int)(alignedMem - (size_t)allocMem);\
+        buf.copyOut(buf, raw(), (x10_long)len, sizeof(TYPE));   \
     }\
 }
 namespace x10 {
@@ -492,6 +510,7 @@ namespace x10 {
                 size_t alignMask = ~alignDelta;
                 size_t alignedMem = ((size_t)allocMem + alignDelta) & alignMask;
                 data = (x10_ulong)alignedMem;
+                deltaToAlloced = (x10_int)(alignedMem - (size_t)allocMem);
                 buf.copyOut(buf, raw(), (x10_long)(len*2), sizeof(x10_double));
             }
         }
