@@ -510,6 +510,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         t = xts.expandMacros(t);
 		if (!t.isClass())
 			return;
+		if (t instanceof X10ClassType && ((X10ClassType)t).isJavaType()) {
+		    // ignore Java types.  If they are actually needed in the generated code, 
+		    // it is a programming error that we will "report" via a post-compilation error.
+		    return; 
+		}
 		X10ClassType ct = (X10ClassType) t.toClass();
 		if (!dupes.contains(ct)) {
 		    dupes.add(ct);
