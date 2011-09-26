@@ -1066,25 +1066,26 @@ public class Emitter {
       this.dumpRegex("Native", components, tr, pat);
 	}
 
-	// def is X10MethodDef or X10ConstructorDef
-	public static String printThrowsClause(X10Def def) {
-	    Type throwsType = def.typeSystem().Throws();
-	    List<Type> _throwss = def.annotationsMatching(throwsType);	    
-    	StringBuilder sb = new StringBuilder();
-		boolean isFirst = true;
-		for (Type _throws : _throwss) {
-			if (isFirst) {
-				sb.append(" throws ");
-				isFirst = false;
-			} else {
-				sb.append(", ");				
-			}
-			sb.append(getPropertyInit(_throws, 0));
-		}
-		return sb.toString();
-    }
-	
-	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
+        // def is X10MethodDef or X10ConstructorDef
+        // @Throws[java.lang.Throwable] => throws java.lang.Throwable
+        public static String printThrowsClause(X10Def def) {
+            Type throwsType = def.typeSystem().Throws();
+            List<Type> _throwss = def.annotationsNamed(throwsType.fullName());
+            StringBuilder sb = new StringBuilder();
+            boolean isFirst = true;
+            for (Type _throws : _throwss) {
+                if (isFirst) {
+                    sb.append(" throws ");
+                    isFirst = false;
+                } else {
+                    sb.append(", ");
+                }
+                sb.append(_throws.toClass().typeArguments().get(0).fullName().toString());
+            }
+            return sb.toString();
+        }
+
+        public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 
 		Flags flags = n.flags().flags();
 

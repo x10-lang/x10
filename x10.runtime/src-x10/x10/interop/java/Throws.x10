@@ -14,7 +14,6 @@ package x10.interop.java;
 import x10.lang.annotations.MethodAnnotation;
 
 /**
- * This annotation is used to declare that the attached method/constructor throws the specified checked exception.
- * throwable is the class name of the checked exception.
+ * This annotation is used to declare a method or a constructor which throws java checked exception.
  */
-public interface Throws(throwable: String) extends MethodAnnotation { }
+public interface Throws[T]{T <: java.lang.Throwable} extends MethodAnnotation { }
