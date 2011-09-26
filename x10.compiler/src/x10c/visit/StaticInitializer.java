@@ -692,7 +692,7 @@ public class StaticInitializer extends ContextVisitor {
 
     private FieldDecl makeFieldVar4Id(Position pos, Name fName, X10ClassDef classDef) {
         // make FieldDef
-        Type type = xts.Int();
+        Type type = xts.Short();
         Name name = Name.make("fieldId$"+fName);
         Flags flags = Flags.PRIVATE.Static();
 
@@ -1014,7 +1014,7 @@ public class StaticInitializer extends ContextVisitor {
         } else {
             argTypes.add(Types.ref(xts.Any()));
         }
-        argTypes.add(Types.ref(xts.Int()));
+        argTypes.add(Types.ref(xts.Short()));
         Type returnType = (fdPLH == null) ? xts.Void() : PlaceLocalHandle();
         MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()),
                 Flags.NONE, Types.ref(returnType), id.id(), argTypes);
@@ -1027,11 +1027,11 @@ public class StaticInitializer extends ContextVisitor {
         } else {
             args.add(fieldVar.type(xts.Object()));
         }
-        args.add(fieldId.type(xts.Int()));
+        args.add(fieldId.type(xts.Short()));
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Object()));
-        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Int()));
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Short()));
         Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
         Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(returnType);
         return call;
@@ -1183,7 +1183,7 @@ public class StaticInitializer extends ContextVisitor {
 
         receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
         return xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdId.name()),
-                                             Assign.ASSIGN, call).fieldInstance(fdId.asInstance()).type(xts.Int()));
+                                             Assign.ASSIGN, call).fieldInstance(fdId.asInstance()).type(xts.Short()));
     }
 
     private Stmt makePrintStmt(Position pos, Name fieldName, X10ClassDef classDef) {

@@ -33,7 +33,7 @@ public abstract class InitDispatcher {
 
     private static List<Method> initializeMethods = new ArrayList<Method>();
     private static List<Method> deserializeMethods = new ArrayList<Method>();
-    private static int fieldId = 0;
+    private static short fieldId = 0;
 
     private static final String initializerPrefix = "getInitialized$";
     private static final String deserializerPrefix = "getDeserialized$";
@@ -99,7 +99,7 @@ public abstract class InitDispatcher {
         }
     }
 
-    public static int addInitializer(String className, String fieldName) {
+    public static short addInitializer(String className, String fieldName) {
         if (fieldId < 0) {
             System.err.println("Adding initializer too late! : " + className + "." + fieldName);
             System.exit(-1);
@@ -123,11 +123,11 @@ public abstract class InitDispatcher {
             e.printStackTrace();
             throw new java.lang.Error(e);
         }
-        return fieldId-1;
+        return (short) (fieldId-1);
     }
 
     public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
-    	public int fieldId;
+    	public short fieldId;
     	public X10JavaDeserializer x10JavaDeserializer;
 
         public void $apply() {
@@ -172,7 +172,7 @@ public abstract class InitDispatcher {
         }
 
         public static X10JavaSerializable $_deserialize_body($Closure$Deserialize closure$Deserialize, X10JavaDeserializer deserializer) throws IOException {
-            int id = deserializer.readInt();
+            short id = deserializer.readShort();
             closure$Deserialize.fieldId = id;
 
             // We do not serialize the actual field value here. It gets deserialized later on by invoking the
@@ -181,7 +181,7 @@ public abstract class InitDispatcher {
             return (X10JavaSerializable) closure$Deserialize;
         }
     }
-    public static <T> void broadcastStaticField(T fieldValue, final int fieldId) {
+    public static <T> void broadcastStaticField(T fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -208,7 +208,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(int fieldValue, final int fieldId) {
+    public static void broadcastStaticField(int fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -231,7 +231,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(double fieldValue, final int fieldId) {
+    public static void broadcastStaticField(double fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -254,7 +254,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(float fieldValue, final int fieldId) {
+    public static void broadcastStaticField(float fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -277,7 +277,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(long fieldValue, final int fieldId) {
+    public static void broadcastStaticField(long fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -300,7 +300,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(short fieldValue, final int fieldId) {
+    public static void broadcastStaticField(short fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -323,7 +323,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(byte fieldValue, final int fieldId) {
+    public static void broadcastStaticField(byte fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -346,7 +346,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(char fieldValue, final int fieldId) {
+    public static void broadcastStaticField(char fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -369,7 +369,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(boolean fieldValue, final int fieldId) {
+    public static void broadcastStaticField(boolean fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
@@ -392,7 +392,7 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
-    public static void broadcastStaticField(String fieldValue, final int fieldId) {
+    public static void broadcastStaticField(String fieldValue, final short fieldId) {
     	// no need for broadcast while running on a single place
     	if (Runtime.MAX_PLACES <= 1) {
     		return;
