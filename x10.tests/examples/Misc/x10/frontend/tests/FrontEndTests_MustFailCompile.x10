@@ -6971,3 +6971,14 @@ class XTENLANG_2925 {
 		val [i2] = p2; // ERR
 	}
 }
+
+class XTENLANG_2855 {
+	interface Throws2[T]{T <: java.lang.Throwable} extends x10.lang.annotations.MethodAnnotation { }
+	class AnnotationTest {
+		@Throws2[java.lang.Throwable]
+		@Throws2[x10.lang.Throwable]  // ERR
+		@Throws2[Any] // ERR
+		def test() {}
+	}
+}
+
