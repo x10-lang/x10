@@ -1034,6 +1034,7 @@ import x10.util.concurrent.SimpleLatch;
     }
     
     //push atomic for current method, for data-centric synchronization
+    //this method is used to ensure no async is executed inside an atomic block
     public static def pushAtomic() {
     	val a = activity();
     	if (a != null)
@@ -1055,6 +1056,7 @@ import x10.util.concurrent.SimpleLatch;
     }
     
     //pop atomic for current method, for data-centric synchronization
+    //this method is used to ensure no async is executed inside an atomic block
     public static def popAtomic() {
     	val a = activity();
     	if (a != null)
