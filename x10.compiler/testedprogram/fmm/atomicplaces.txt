@@ -1,0 +1,5 @@
+./src/au/edu/anu/mm/FmmLeafBox.x10:    public atomic def addAtom(/*atomic*/ atom : PointCharge) {
+./src/au/edu/anu/mm/Expansion.x10:    public atomic def add(/*atomic*/ e : Expansion) {
+./src/au/edu/anu/mm/MultipoleExpansion.x10:        atomic {
+./test/au/edu/anu/mm/TestSinglePlacePairwise.x10:            atomic { directEnergy += atomEnergyFinal; }
+./test/au/edu/anu/mm/TestPeriodicFmm3dWaterBox.x10:                    atomic { tempAtoms(p).add(atom); }

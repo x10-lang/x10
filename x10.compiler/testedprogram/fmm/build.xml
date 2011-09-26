@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE project [<!ENTITY buildfile SYSTEM "file:./build-user.xml">]>
+<project name="X10 application project" default="build" basedir=".">
+    &buildfile;
+	<property name="x10x.lib" location="../../x10x.lib"/>
+	<property name="xla.src" location="${x10x.lib}/xla/src"/>
+	<property name="xla.lib" location="${x10x.lib}/xla/lib/xla.jar"/>
+	<property name="x10.runtime.extensions" location="../../x10.runtime"/>
+	<property name="xre.src" location="${x10.runtime.extensions}/src"/>
+	<property name="xre.lib" location="${x10.runtime.extensions}/lib/x10re.jar"/>
+    <property name="anuchem" location="../../anu-chem"/>
+	<property name="anuchem.src" location="${anuchem}/src"/>
+	<property name="anuchem.lib" location="${anuchem}/lib/anu-chem.jar"/>
+    <property name="x10.testlib" location="${user.home}/x10-trunk/x10.tests/examples/x10lib"/>
+    <property environment="env"/>
+    <property name="bash.exe" value="bash"/>    
+    <property name="optimize" value="true"/>
+    <property name="nochecks" value="true"/>
+    <property name="profile"  value="false"/>
+    <property name="cpuprofile"  value="false"/> <!--change to false-->
+    <property name="perftoolsHome" location="/scratch/perftools"/>
+    <property name="mpiPprofile"  value="false"/>
+    <property name="mpiPHome" location="/scratch/mpiP"/>
+    <property name="binutilsHome" location="/scratch/binutils"/>
+    <property name="x10rt" value="sockets"/> <!--mpi-->
+	<property name="target" location="${basedir}/target"/>
+	<property name="target-src" location="${target}/classes"/>
+	<property name="target-test" location="${target}/test-classes"/>
+    <property name="bin" location="${basedir}/bin"/>
+	<property name="exe" value="periodicFmm3d"/>
+    <property name="testclass" value="test/au/edu/anu/mm/TestPeriodicFmm3d.x10"/>
+
+    <condition property="x10c.optimize" value="-O" else="">
+        <istrue value="${optimize}"/>
+    </condition>
+
+    <condition property="x10c.nochecks" value="-NO_CHECKS -VERBOSE_CHECKS=true"  else="-VERBOSE_CHECKS=true">
+        <istrue value="${nochecks}"/>
+    </condition>
+
+    <condition property="post.profile" value="-pg" else="">
+        <istrue value="${profile}"/>
+    </condition>
+
+    <condition property="post.cpuprofile" value="-L${perftoolsHome}/lib -lprofiler" else="">
+        <istrue value="${cpuprofile}"/>
+    </condition>
+
+    <condition property="link.mpiPprofile" value="-L${binutilsHome}/lib -L${mpiPHome}/lib -lmpiP -lbfd -liberty -lm" else="">
+        <istrue value="${mpiPprofile}"/>
+    </condition>
+
+	<target name="init">
+        <mkdir dir="${target}"/>
+	</target>
+
+    <target name="build" depends="exe"/>
+
+    <target name="exe" depends="build-src-cpp">
+        <mkdir dir="${bin}"/>
+        <copy file="${target}/classes/a.out" tofile="${bin}/${exe}"/>
+
+        <exec executable="chmod" failonerror="true" dir="${bin}">
+            <arg value="+x"/>
+            <arg value="${exe}"/>
+        </exec>
+    </target>
+
+    <target name="exe-java" depends="check-src-java" unless="src.uptodate.java">
+        <echo message="Building source tree"/>
+
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src">
+            <arg value="-c"/>
+            <arg value="'x10c' ${x10c.optimize} -sourcepath .${path.separator}${xre.src}${path.separator}${xla.src}${path.separator}${anuchem.src}  -classpath ${xre.lib}${path.separator}${xla.lib}${path.separator}${anuchem.lib} -d ${target-src} '${basedir}/${testclass}'"/>
+        </exec>
+    </target>
+
+    <target name="build-src-java" depends="check-src-java" unless="src.uptodate.java">
+        <echo message="Building source tree"/>
+
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src">
+            <arg value="-c"/>
+            <arg value="'x10c' ${x10c.optimize} -sourcepath .${path.separator}${xre.src}${path.separator}${xla.src}${path.separator}${anuchem.src} -classpath ${xre.lib}${path.separator}${xla.lib}${path.separator}${anuchem.lib} -d ${target-src} '${basedir}/${testclass}'"/>
+        </exec>
+    </target>
+
+    <target name="build-src-cpp" depends="check-src-cpp" unless="src.uptodate.cpp">
+        <echo message="Building source tree"/>
+
+        <echo message="x10c++ -x10rt ${x10rt} ${x10c.optimize} ${x10c.nochecks} -post '# -g ${post.profile} # ${link.mpiPprofile} ${post.cpuprofile}' -sourcepath '.${path.separator}${xre.src}${path.separator}${xla.src}${path.separator}${anuchem.src}' '${basedir}/${testclass}'"/>
+
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/src">
+            <arg value="-c"/>
+            <arg value="'x10c++' -x10rt ${x10rt} ${x10c.optimize} ${x10c.nochecks} -report postcompile=1 -post '# -g ${post.profile} # ${link.mpiPprofile} ${post.cpuprofile}' -sourcepath '.${path.separator}${xre.src}${path.separator}${xla.src}${path.separator}${anuchem.src}${path.separator}${x10.testlib}' -d '${target-src}' '${basedir}/${testclass}'"/>
+        </exec>
+    </target>
+
+	<target name="init-src" depends="init">
+        <mkdir dir="${target-src}"/>
+	</target>
+
+	<target name="check-src-java" depends="init-src">
+        <fileset id="src.files" dir="${basedir}/src" includes="**/*.x10"/>
+        <uptodate property="src.uptodate.java">
+            <srcfiles refid="src.files"/>
+            <globmapper from="*.x10" to="${target-src}/*.java" handledirsep="true"/>
+        </uptodate>
+        <pathconvert property="changed.src.files" refid="src.files" dirsep="/" pathsep=" ">
+            <map from="${basedir}${file.separator}src${file.separator}" to=""/>
+        </pathconvert>
+    </target>
+
+    <target name="check-src-cpp" depends="init-src">
+        <fileset id="src.files" dir="${basedir}/src" includes="**/*.x10"/>
+        <uptodate property="src.uptodate.cpp">
+            <srcfiles refid="src.files"/>
+            <globmapper from="*.x10" to="${target-src}/*.cc" handledirsep="true"/>
+        </uptodate>
+    </target>
+    
+    <target name="build-test" depends="check-test,build-harness,build-src-java" unless="test.uptodate">
+        <echo message="Building tests"/>
+
+        <fileset id="changed.test.files" dir="${basedir}/test" includes="**/*.x10">
+            <depend targetdir="${target}/test-classes">
+                <mapper type="glob" from="*.x10" to="*.java"/>
+            </depend>
+        </fileset>
+
+        <pathconvert property="test.list" refid="changed.test.files" dirsep="/" pathsep=" ">
+            <map from="${basedir}${file.separator}test${file.separator}" to=""/>
+        </pathconvert>
+        <echo message="x10c ${test.list}"/>
+
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/test">
+            <arg value="-c"/>
+            <arg value="'x10c' ${x10c.optimize} -sourcepath '.${path.separator}${basedir}/src${path.separator}${xre.src}${path.separator}${xla.src}${path.separator}${anuchem.src}${path.separator}${x10.testlib}' -classpath '${xre.lib}${path.separator}${xla.lib}${path.separator}${anuchem.lib}${path.separator}${target-src}' -commandlineonly -d '${target-test}' ${test.list}"/>
+        </exec>
+    </target>
+
+    <target name="test" depends="build-test">
+        <apply executable="x10" failonerror="true" dir="${target-test}" relative="true" addsourcefile="false">
+            <arg line="-t -v -mx 128M -classpath '${xre.lib}${path.separator}${xla.lib}${path.separator}${anuchem.lib}${path.separator}${target-src}${path.separator}${target-test}'"/>
+            <targetfile/>
+
+            <fileset dir="${target-test}" includes="**/Test*.java"/>
+            <mapper type="glob" from="*.java" to="*"/>
+        </apply>
+    </target>
+
+	<target name="init-test" depends="init">
+        <mkdir dir="${target-test}"/>
+	</target>
+
+	<target name="check-test" depends="init-test">
+        <fileset id="test.files" dir="${basedir}/test" includes="**/*.x10"/>
+        <uptodate property="test.uptodate">
+            <srcfiles refid="test.files"/>
+            <globmapper from="*.x10" to="${target-test}/*.java" handledirsep="true"/>
+        </uptodate>
+    </target>
+
+	<target name="build-harness" depends="init-test,check-harness" unless="harness.uptodate">
+        <echo message="Building test harness"/>
+		<echo message="x10c  ${x10.testlib}/harness/x10Test.x10"/>
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/test">
+            <arg value="-c"/>
+            <arg value="'x10c' ${x10c.optimize} -sourcepath . -commandlineonly -d ${target-test} ${x10.testlib}/harness/x10Test.x10"/>
+        </exec>
+    </target>
+
+	<target name="check-harness" >
+		<uptodate property="harness.uptodate">
+			<srcfiles dir="${x10.testlib}" includes="harness/*.x10"/>
+	 		<globmapper from="*.x10" to="${target-test}/*.java" handledirsep="true"/>
+		</uptodate>
+    </target>
+
+	<target name="clean">
+		<delete dir="target"/>
+        <delete dir="bin"/>
+	</target>
+
+</project>

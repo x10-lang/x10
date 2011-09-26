@@ -1,0 +1,12 @@
+TODOs for Fast Multipole method code
+
+- investigate performance when using real terms in expansions instead of complex
+- periodicity only in some dimensions
+- generalise for non-cubic box
+- generalise TriangularRegion and incorporate into X10 array library
+- distributed implementation of combineMacroscopicExpansions
+- adaptive tree to better handle non-uniform particle distribution
+- document performance results, including "crossover point" vs. direct and PME, weak and strong scaling
+- document error behaviour with regard to tree size and number of terms in expansions
+- remove hand-optimised iterators from LocalExpansion, MultipoleExpansion and review performance
+
