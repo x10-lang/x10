@@ -288,12 +288,13 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
                     return this.domain(newDomain).del().typeCheck(tc);
                 }
             }
-		}
-		
+		    Errors.issue(tc.job(), new SemanticException("The loop iterator is a Point whose rank is not the same as the rank of the loop domain.", position()));
+		} else {
 		// The expected type is Iterable[Foo].  The constraints on domainType do matter
 		// for this failure, so don't strip them.
 		Errors.issue(tc.job(),
 		        new Errors.LoopDomainIsNotOfExpectedType(formalType, domainType, iterableIndex, position()));
+        }
 		return this;
 	}
 

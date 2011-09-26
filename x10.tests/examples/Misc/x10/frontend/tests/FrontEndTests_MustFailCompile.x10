@@ -6961,3 +6961,13 @@ class XTENLANG_2931 {
 		public def abs[T](x:T){T<:Arithmetic[T],T<:Ordered[T], T haszero} = x < Zero.get[T]() ? Zero.get[T]() -x : x;
 	}
 }
+class XTENLANG_2925 {
+	def test2(arr:Array[Int]) {
+		for ([i] in arr) {} // ERR (Semantic Error: The loop iterator is a Point whose rank is not the same as the rank of the loop domain.)
+	}
+	def test(p:Point, p1:Point(1), p2:Point(2)) {
+		val [i] = p; // should be an error?
+		val [i1] = p1;
+		val [i2] = p2; // ERR
+	}
+}
