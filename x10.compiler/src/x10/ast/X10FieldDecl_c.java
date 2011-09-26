@@ -499,13 +499,13 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	    X10ClassDef_c x10cdef = (X10ClassDef_c)cdef;
 	    	    //for safety, we accumulate atomic fields for the class
 	    	    X10ClassDecl_c.accumulateAtomicFields(x10cdef);
-	    	    //if the field is declared with atomicplus, the field class and
+	    	    //if the field is declared with linked, the field class and
 	    	    //the container class must have atomic fields
 	    	    if(clazztype.hasAtomicContext()) {
 	    	    	//check the cotnainer class
 	    	    	Type containerType = fieldDef().container().get();
 	    	    	if(!(containerType instanceof X10ParsedClassType_c)) {
-	    	    		SemanticException e = new Errors.TypeCannotHaveAtomicplus(containerType, this.position());
+	    	    		SemanticException e = new Errors.TypeCannotHaveModifier(containerType, this.position());
 	    	    		Errors.issue(tc.job(), e);
 	    	    	}
 	    	    	//this must hold
@@ -522,19 +522,19 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    	    	if(!x10cdef.hasAtomicFields(false)) {
 	    	    		Errors.issue(tc.job(), new Errors.AtomicPlusClassDonotHaveAtomicFields(clazztype, this.position()));
 	    	    	}
-	    	    	//check the init part, should also be declared using atomicplus
+	    	    	//check the init part, should also be declared using linked
 	    	    	Type initType = this.init().type();
 	    	    	X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
 	    	    	if(initClassType != null && !initClassType.hasAtomicContext()) {
-	    	    		Errors.issue(tc.job(), new Errors.InitializerMustHaveAtomicplus(initClassType, this.position()));
+	    	    		Errors.issue(tc.job(), new Errors.InitializerMustHaveModifier(initClassType, this.position()));
 	    	    	}
 	    	    } else {
-	    	    	//if no atomicplus, the init part should be evaluted as a raw object
+	    	    	//if not linked, the init part should be evaluted as a raw object
 	    	    	if(this.init() != null) {
 	    	    	  Type initType = this.init().type();
 	    	    	  X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
 	    	    	  if(initClassType != null && initClassType.hasAtomicContext()) {
-	    	    		Errors.issue(tc.job(), new Errors.InitializerNeedCastOffAtomicplus(initClassType, this.position()));
+	    	    		Errors.issue(tc.job(), new Errors.InitializerNeedCastOffTypeModifier(initClassType, this.position()));
 	    	    	  }
 	    	    	}
 	    	    }
@@ -556,7 +556,7 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
 	    		//get the container type
 	    	    Type containerType = fieldDef().container().get();
 	    	    if(!(typeNode.type() instanceof X10ParsedClassType_c)) {
-	    	    	SemanticException e = new Errors.TypeCannotHaveAtomicplus(type, typeNode.position());
+	    	    	SemanticException e = new Errors.TypeCannotHaveModifier(type, typeNode.position());
 	    	    	Errors.issue(tc.job(), e);
 	    	    } else {
 	    	        //the container and the field type must be class type

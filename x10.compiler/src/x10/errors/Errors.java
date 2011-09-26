@@ -1573,11 +1573,11 @@ public class Errors {
 	}
 	
 	//data-centric synchronization
-	public static class TypeCannotHaveAtomicplus extends EqualByTypeAndPosException {
+	public static class TypeCannotHaveModifier extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 8377107491483890240L;
 
-		public TypeCannotHaveAtomicplus(Type type, Position p) {
+		public TypeCannotHaveModifier(Type type, Position p) {
 			super("Type: " + type + ", of class: " + type.getClass() +
 					"\n\t can not be annotated with: " + Flags.TYPE_FLAG, p);
 		}
@@ -1674,6 +1674,7 @@ public class Errors {
 	}
 	
 	//data-centric synchronization
+	@Deprecated
 	public static class AtomicPlusClassDonotHaveAtomicFields extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -6718740113711210443L;
 
@@ -1705,21 +1706,21 @@ public class Errors {
 	}
 	
 	//data-centric synchronization
-	public static class InitializerMustHaveAtomicplus extends EqualByTypeAndPosException {
+	public static class InitializerMustHaveModifier extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 3053446371890467466L;
 
-		public InitializerMustHaveAtomicplus(Type type, Position p) {
+		public InitializerMustHaveModifier(Type type, Position p) {
 			super("The initializer with type: " + type + " is not declared with: " + Flags.TYPE_FLAG, p);
 		}
 	}
 	
 	//data-centric synchronization
-	public static class InitializerNeedCastOffAtomicplus extends EqualByTypeAndPosException {
+	public static class InitializerNeedCastOffTypeModifier extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 8300338845518714365L;
 
-		public InitializerNeedCastOffAtomicplus(Type type, Position p) {
+		public InitializerNeedCastOffTypeModifier(Type type, Position p) {
 			super("The initializer with type: " + type + " must explicitly cast off "
 					+ Flags.TYPE_FLAG, p);
 		}
@@ -1735,21 +1736,21 @@ public class Errors {
 	}
 	
 	//data-centric synchronization
-	public static class AssignNeedCastOffAtomicplus extends EqualByTypeAndPosException {
+	public static class AssignNeedCastOffTypeModifier extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = -3129560186898033985L;
 
-		public AssignNeedCastOffAtomicplus(Type type, Position p) {
+		public AssignNeedCastOffTypeModifier(Type type, Position p) {
 			super("The field assignment with type: " + type + " must explicitly cast off "
 					+ Flags.TYPE_FLAG, p);
 		}
 	}
 	
 	//data-centric synchronization
-	public static class AssignMustHaveAtomicplus extends EqualByTypeAndPosException {
+	public static class AssignMustHaveTypeModifier extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = -2025376627408568160L;
 
-		public AssignMustHaveAtomicplus(Type type, Position p) {
+		public AssignMustHaveTypeModifier(Type type, Position p) {
 			super("The field assignment with type: " + type + " must have flag: "
 					+ Flags.TYPE_FLAG, p);
 		}
@@ -1765,11 +1766,11 @@ public class Errors {
 	}
 	
 	//data-centric synchronization
-	public static class TypeCastCannotHaveAtomicplus extends EqualByTypeAndPosException {
+	public static class TypeCastCannotHaveTypeModifier extends EqualByTypeAndPosException {
 		
 		private static final long serialVersionUID = 6895934866487409047L;
 
-		public TypeCastCannotHaveAtomicplus(Type type, Position p) {
+		public TypeCastCannotHaveTypeModifier(Type type, Position p) {
 			super("Can not explicitly add " + Flags.TYPE_FLAG + " for raw type: \n\t" + type + " by cast.", p);
 		}
 	}

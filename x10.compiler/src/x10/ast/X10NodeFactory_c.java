@@ -96,6 +96,7 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	 * Creates an AmbTypeNode-typed node with atomic plus annotation.
 	 * This is for data-centric synchronization.
 	 * */
+    @Deprecated
 	public AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Prefix p, Id name) {
 		//create a new type here
 		X10AmbTypeNode_c n = new X10AmbTypeNodeAtomicplus_c(pos, p, name);

@@ -647,7 +647,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     
     /**
      * Primarily checks if a constructor parameter is decorated with
-     * an atomicplus annotation. The class itself should have atomic fields.
+     * a linked annotation. The class itself should have atomic fields.
      * */
     @Override
     public Node checkAtomicity(ContextVisitor tc) {
@@ -707,14 +707,14 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         n = (X10ConstructorDecl_c) super.typeCheck(tc);
         
         //check each constructor parameter, to see whether it has been
-        //annotated with atomicplus or atomic modifiers. Issues an error
+        //annotated with linked or atomic modifiers. Issues an error
         //if it has an atomic modifier. Or else, adding the current container
         //class as its atomic context. This is for supproting data-centric
         //synchronization.
         for(Formal f : this.formals) {
         	Type ft = f.type().type();
         	if(f.type().getFlagsNode() != null) {
-        		//it can only have the atomicplus flag
+        		//it can only have the linked flag
         		assert f.type().getFlagsNode().flags().contains(/*Flags.ATOMICPLUS*/Flags.TYPE_FLAG);
         		//if the parameter is a class type
         		if(ft instanceof X10ParsedClassType_c) {

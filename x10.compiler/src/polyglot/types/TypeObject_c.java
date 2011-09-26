@@ -37,7 +37,8 @@ public abstract class TypeObject_c implements TypeObject
     }
 
     /**
-     * Adds a copy method for data-centric synchronization.
+     * Override the copy method for data-centric synchronization.
+     * Make sure it copies the new added field.
      * */
     public Object copy() {
         try {

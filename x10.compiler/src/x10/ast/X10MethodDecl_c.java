@@ -518,28 +518,28 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	 * become "wider"
 	 * 
 	 * public class A {
-	 *    public def method(b:(atomicplus B)) {...}
+	 *    public def method(b:(linked B)) {...}
 	 * }
 	 * 
 	 * public class B extends A {
 	 *    public def method(b:B) {}   //it should not type check
 	 * }
 	 * 
-	 * Since it would violate the typing rule  a:A = new B();   a.method((atomicplus B));
+	 * Since it would violate the typing rule  a:A = new B();   a.method((linked B));
 	 * 
 	 * So the parameter should have the exactly the same signature. 
 	 * 
 	 * Similarly, for the return type. The following code should not type check too:
 	 * 
 	 * public class A {
-	 *     public def method(b:B) : (atomicplus B) { ... }
+	 *     public def method(b:B) : (linked B) { ... }
 	 * }
 	 * 
 	 * public class B extends A {
 	 *     public def method(b:B) : B {... }
 	 * }
 	 * 
-	 * It may violate the rule:  a:A = new B();   b:(atomicplus B) = a.method(new B());
+	 * It may violate the rule:  a:A = new B();   b:(linked B) = a.method(new B());
 	 * 
 	 * It also checks for each argument. If the arg is decorated with unitfor, the arg
 	 * type must declare atomic sets.
@@ -553,7 +553,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			boolean hasUnitFor = (f.flags() != null && f.flags().flags() != null && f.flags().flags().contains(Flags.UNITFOR)) ?
 					              true : false;
 			
-			//if the parameter is annotated with atomicplus
+			//if the parameter is annotated with linked
 			if(f.type().getFlagsNode() != null && f.type().getFlagsNode().flags().contains(/*Flags.ATOMICPLUS*/ Flags.TYPE_FLAG)) {
 				//it must be a class type.
 				assert ft instanceof X10ParsedClassType_c;
@@ -570,7 +570,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				X10ParsedClassType_c clazzType = (X10ParsedClassType_c)ft;
 				X10ClassDecl_c.accumulateAtomicFields(clazzType.def());
 				
-				//if the parameter declaration has atomicplus
+				//if the parameter declaration has linked
 				if(clazzType.getAtomicContext() != null) {
 					//if the parameter class does not contain atomic fields, issue an error
 					if(!clazzType.def().hasAtomicFields(false)) {
@@ -699,7 +699,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			Type ft = f.type().type();
 			if(f.type().getFlagsNode() != null) {
 				if(!(ft instanceof X10ParsedClassType_c)) {
-					SemanticException e = new Errors.TypeCannotHaveAtomicplus(ft, f.position());
+					SemanticException e = new Errors.TypeCannotHaveModifier(ft, f.position());
 					Errors.issue(tc.job(), e);
 				} else {
 					//set the container class as the atomic context
@@ -718,7 +718,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			if(this.returnType.getFlagsNode() != null) {
 				Type rettype = this.returnType.type();
 				if(!(rettype instanceof X10ParsedClassType_c)) {
-					SemanticException e = new Errors.TypeCannotHaveAtomicplus(rettype, rettype.position());
+					SemanticException e = new Errors.TypeCannotHaveModifier(rettype, rettype.position());
 					Errors.issue(tc.job(), e);
 				} else {
 					//set the container as the atomic context

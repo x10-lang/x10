@@ -113,8 +113,8 @@ public interface TypeEnv  {
     public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn) throws SemanticException;
 
     /**
-     * Checks the conformance of atomicplus declration in parameter and return type
-     * This is for data-centric synchronization
+     * Checks the conformance of linked declration in parameter and return type
+     * This is for data-centric synchronization. More explanation, see <code>TypeEnv_c#checkAtomicOverride</code>
      * */
     public abstract void checkAtomicOverride(MethodInstance r, MethodInstance other) throws SemanticException;
     

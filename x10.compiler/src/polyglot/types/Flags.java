@@ -43,7 +43,9 @@ public class Flags implements Serializable
     public static final Flags CLOCKED = createFlag("clocked", null);
     
     /** Flags for data-centric synchronization */
+    @Deprecated
     public static final Flags UNITFOR = createFlag("unitfor", null);
+    @Deprecated
     public static final Flags ATOMICPLUS = createFlag("atomicplus", null);
     public static final Flags LINKED = createFlag("linked", null);
     
@@ -479,6 +481,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>unitfor</code>
      * flag set.
      */
+    @Deprecated
     public Flags Unitfor() {
     	return set(UNITFOR);
     }
@@ -487,6 +490,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>unitfor</code>
      * flag clear.
      */
+    @Deprecated
     public Flags clearUnitfor() {
     	return clear(UNITFOR);
     }
@@ -495,6 +499,7 @@ public class Flags implements Serializable
      * Return true if <code>this</code> has the <code>unitfor</code> flag
      * set.
      */
+    @Deprecated
     public boolean isUnitfor() {
     	return contains(UNITFOR);
     }
@@ -503,6 +508,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>atomicplus</code>
      * flag set.
      */
+    @Deprecated
     public Flags Atomicplus() {
     	return set(ATOMICPLUS);
     }
@@ -511,6 +517,7 @@ public class Flags implements Serializable
      * Return a copy of this <code>this</code> with the <code>atomicplus</code>
      * flag clear.
      */
+    @Deprecated
     public Flags clearAtomicplus() {
     	return clear(ATOMICPLUS);
     }
@@ -519,6 +526,7 @@ public class Flags implements Serializable
      * Return true if <code>this</code> has the <code>atomicplus</code> flag
      * set.
      */
+    @Deprecated
     public boolean isAtomicplus() {
     	return contains(ATOMICPLUS);
     }

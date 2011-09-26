@@ -118,13 +118,14 @@ public final class Configuration extends x10.config.Configuration {
     private static final String DATA_CENTRIC_desc = "Enable data-centric concurrency control";
     
     //add a new configuration item to control the unit of work
-    public boolean MIXED_ATOMICITY = true;
-    private static final String MIXED_ATOMICITY_desc = "Enable atomic section as a unit of work";
+//    public boolean MIXED_ATOMICITY = false;
+//    private static final String MIXED_ATOMICITY_desc = "Enable atomic section as a unit of work";
     
     //add a new configuration time to generate code for linked atomicity
-    public boolean LINKED_ATOMICITY = true;
-    private static final String LINKED_ATOMICITY_desc = "Enable linked atomicity code transformation";
+//    public boolean LINKED_ATOMICITY = true;
+//    private static final String LINKED_ATOMICITY_desc = "Enable linked atomicity code transformation";
     
+    @Deprecated
     public static boolean compile = false;
     
 //    public final boolean MULTI_NODE = true;

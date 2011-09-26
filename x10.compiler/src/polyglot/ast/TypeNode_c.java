@@ -32,7 +32,7 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
     protected Ref<? extends Type> type;
     
     /** A flag to keep the data-centric synchronization information.
-     *  The field can only have a flag <code>Flags.ATOMICPLUS</code>,
+     *  The field can only have a flag <code>linked</code>,
      *  representing the atomic sets of the declared objects is
      *  merged with the atomic sets of its container class.*/
     private FlagsNode flags = null;
@@ -125,6 +125,7 @@ public abstract class TypeNode_c extends Term_c implements TypeNode
     
     /**
      * Set for data-centric synchronization.
+     * It must copy the newly added flag
      * */
     @Override
     public Object copy() {

@@ -35,7 +35,7 @@ public class ParsedName {
         this.name = name;
     }
     
-    /**A field for keeping the atomicplus modifier for each type.
+    /**A field for keeping the linked modifier for each type.
      * This is for data-centric synchronization.*/
     public FlagsNode flags = null;
     
@@ -96,7 +96,7 @@ public class ParsedName {
     // type
     /**
      * When converting a type to TypeNode, this method first checks whether
-     * there is any associated atomicplus information in this <code>flags</code>
+     * there is any associated linked information in this <code>flags</code>
      * field. This is used for keep track of the data-centric synchronization
      * type info.
      * */
@@ -105,7 +105,7 @@ public class ParsedName {
     	if(this.flags != null) {
     		assert this.flags.flags().equals(Flags.TYPE_FLAG) : "The flags: " + this.flags.flags();
     		if (prefix == null) {
-    			if(Flags.TYPE_FLAG.equals(Flags.ATOMICPLUS)) {
+    			if(Flags.TYPE_FLAG.equals(Flags.ATOMICPLUS)) {//for old design, ignore this.
             	  AmbTypeNode amTypeNode = nf.AmbTypeNodeAtomicPlus(pos, name);
             	  amTypeNode.setFlagsNode(nf.FlagsNode(pos, Flags.TYPE_FLAG)); //set the atomicplus flag
                   return amTypeNode;
@@ -130,6 +130,7 @@ public class ParsedName {
     		    }
     	}
     	//creates type node without data-centric synchronization info
+    	//check that at this point, the flags should be null.
     	assert this.flags == null;
         if (prefix == null) {
         	AmbTypeNode amTypeNode = nf.AmbTypeNode(pos, name);

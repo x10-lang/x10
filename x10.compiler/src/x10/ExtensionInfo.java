@@ -594,26 +594,25 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
            X10CompilerOptions opts = extensionInfo().getOptions();
            
-         //support data-centric synchronization
+           //Goals for supporting data-centric synchronization
+           //The only used goal is <code>linkedAtomicTranslatorGoal</code>, the other
+           //two goals are only for experimental uses, the first goal treat all
+           //method + asyc as unit of work, and the second goal treat method + asyc + atomic
+           //as unit of work. They are not well tested, only for comparison experimental if needed.
+           //The linkedAtomicTranslatorGoal is well-tested.
            final Goal atomicTranslatorGoal = DataCentricAtomicityTranslator(job);
            final Goal mixedAtomicTranslatorGoal = MixedAtomicityTranslator(job);
            final Goal linkedAtomicTranslatorGoal = LinkedAtomicityTranslator(job);
            Goal dataCentricTranslator = null;
            if(opts.x10_config.DATA_CENTRIC) {
-        	   if(opts.x10_config.MIXED_ATOMICITY) {
-        		   //goals.add(mixedAtomicTranslatorGoal);
-        		   dataCentricTranslator = mixedAtomicTranslatorGoal;
-        		   //Desugarer(job).addPrereq(mixedAtomicTranslatorGoal);
-        	   } else {
-        		   //goals.add(atomicTranslatorGoal);
-        		   //Desugarer(job).addPrereq(atomicTranslatorGoal);
-        		   dataCentricTranslator = atomicTranslatorGoal;
-        	   }
-        	   if(opts.x10_config.LINKED_ATOMICITY) {
+//        	   if(opts.x10_config.MIXED_ATOMICITY) {
+//        		   dataCentricTranslator = mixedAtomicTranslatorGoal;
+//        	   } else {
+//        		   dataCentricTranslator = atomicTranslatorGoal;
+//        	   }
+        	   //if(opts.x10_config.LINKED_ATOMICITY) {
         		   dataCentricTranslator = linkedAtomicTranslatorGoal;
-        	   }
-        	   //for debugging
-        	   //dataCentricTranslator = atomicTranslatorGoal;
+        	   //}
         	   assert dataCentricTranslator != null;
         	   goals.add(dataCentricTranslator);
            }
@@ -629,29 +628,24 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                final Goal lowererGoal = Lowerer(job);
                goals.add(lowererGoal);
 
-               //add data-centric synchronization goal before lower
+               //add the data-centric synchronization goal before lower
+               //Note it MUST be added before the lowerer goal, since the lowerer
+               //will translate the code block (e.g., an atomic section) into
+               //lower instructions, which are not suitable for analysis at all.
                if(opts.x10_config.DATA_CENTRIC) {
             	   assert dataCentricTranslator != null;
             	   lowererGoal.addPrereq(dataCentricTranslator);
-//            	   if(opts.x10_config.MIXED_ATOMICITY) {
-//            		   lowererGoal.addPrereq(mixedAtomicTranslatorGoal);
-//            	   } else {
-//            	       lowererGoal.addPrereq(atomicTranslatorGoal);
-//            	   }
                }
                
                final Goal codeGeneratedGoal = CodeGenerated(job);
                goals.add(codeGeneratedGoal);
                
-             //add data-centric synchronization goal before lower
+               //add data-centric synchronization goal before lower
+               //Note, it must be added before the code generation goal, since all
+               //translation (x10 -> x10) must be finished before code generation.
                if(opts.x10_config.DATA_CENTRIC) {
             	   assert dataCentricTranslator != null;
             	   codeGeneratedGoal.addPrereq(dataCentricTranslator);
-//            	   if(opts.x10_config.MIXED_ATOMICITY) {
-//            		   codeGeneratedGoal.addPrereq(mixedAtomicTranslatorGoal);
-//            	   } else {
-//            	       codeGeneratedGoal.addPrereq(atomicTranslatorGoal);
-//            	   }
                }
 
                // the barrier will handle prereqs on its own
@@ -661,10 +655,6 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
                List<Goal> optimizations = Optimizer.goals(this, job);
                for (Goal goal : optimizations) {
                    goal.addPrereq(typeCheckBarrierGoal);
-                   //data-centric
-//                   if(atomicTranslatorGoal != null) {
-//                       goal.addPrereq(atomicTranslatorGoal);
-//                   }//end
                    codeGeneratedGoal.addPrereq(goal);
                }
 
@@ -1139,6 +1129,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        /*translate data-centric synchronization constructs to X10 code*/
+       @Deprecated
        public Goal DataCentricAtomicityTranslator(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();
@@ -1146,6 +1137,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        }
        
        /*translate mixture data-centric / code-centric synchronization to X10 code */
+       @Deprecated
        public Goal MixedAtomicityTranslator(Job job) {
     	   TypeSystem ts = extInfo.typeSystem();
     	   NodeFactory nf = extInfo.nodeFactory();

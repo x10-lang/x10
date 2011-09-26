@@ -71,8 +71,9 @@ public abstract class AbstractNodeFactory_c implements NodeFactory
         return AmbTypeNode(pos, null, name);
     }
 
-    /* creates an ambiguitous type node with atomicplus annotation
+    /** Creates an ambiguitous type node with atomicplus annotation
      * for data-centric synchronization*/
+    @Deprecated
     public final AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Id name) {
     	return AmbTypeNodeAtomicPlus(pos, null, name);
     }

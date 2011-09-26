@@ -77,6 +77,19 @@ import x10.util.AltSynthesizer;
 import x10.util.Synthesizer;
 import x10.util.X10TypeUtils;
 
+/**
+ * An experimental implementation. All functionalities implemented
+ * in this class is superseded by <code>X10LockMapAtomicityTranslator</code>.
+ * Please use <code>X10LockMapAtomicityTranslator</code> instead.
+ * 
+ * The only difference is this class directly inserting a lock field into
+ * every class, which is sometimes incorrect!
+ *
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ *
+ */
+
+@Deprecated
 public class X10LinkedAtomicityTranslator extends ContextVisitor {
 	private final Synthesizer synth;
     private final AltSynthesizer altsynth;
@@ -309,7 +322,7 @@ public class X10LinkedAtomicityTranslator extends ContextVisitor {
     	n = (X10New_c) n.constructorInstance(ci);
     	
     	//change the constructor in two different cases
-    	//  1. new (atomicplus C)(args)   ==> new (atomicplus C)(args,  container.getOrderedLock());
+    	//  1. new (linked C)(args)   ==> new (linked C)(args,  container.getOrderedLock());
     	//  2. new C(args)  ==>  new C(args, new OrderedLock()); 
     	FlagsNode flagNode = n.objectType().getFlagsNode();
     	if(flagNode != null && flagNode.flags().contains(/*Flags.ATOMICPLUS*/ Flags.TYPE_FLAG)) {

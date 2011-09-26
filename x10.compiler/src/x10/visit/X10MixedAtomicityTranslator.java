@@ -73,10 +73,19 @@ import x10.util.X10TypeUtils;
 
 
 /**
- * Translate X10 code to support mixed data-/code-centric synchronization.
- * It treats an atomic section as a unit of work, instead of a public method
- * by default (which is in pure data-centric sychronization) 
- * */
+ * An experimental implementation. All functionalities implemented
+ * in this class is superseded by <code>X10LockMapAtomicityTranslator</code>.
+ * Please use <code>X10LockMapAtomicityTranslator</code> instead.
+ * 
+ * The only difference is this class tries to infer every accessed
+ * field accessed in an atomic section as protected fields  or var.
+ * This is not really the programmers' intention.
+ *
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ *
+ */
+
+@Deprecated
 public class X10MixedAtomicityTranslator extends ContextVisitor {
 	
 	private final Synthesizer synth;
@@ -151,7 +160,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	//    accessed in atomic blocks (this is not needed, right?, only for atomic fields?)
     	//    #NOT implemented at all.
     	//3. acquire the static lock for it, if decorated with atomic
-    	//   (add a type checking rule, that no atomicplus is allowed inside)
+    	//   (add a type checking rule, that no linked is allowed inside)
     	
     	// We do not need to visit the method, since atomic method will be translated into an atomic section
     	// visiting atomic sections is suffcient
@@ -413,7 +422,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	n = (X10New_c) n.constructorInstance(ci);
     	
     	//change the constructor in two different cases
-    	//  1. new (atomicplus C)(args)   ==> new (atomicplus C)(args,  container.getOrderedLock());
+    	//  1. new (linked C)(args)   ==> new (liked C)(args,  container.getOrderedLock());
     	//  2. new C(args)  ==>  new C(args, new OrderedLock()); 
     	FlagsNode flagNode = n.objectType().getFlagsNode();
     	if(flagNode != null && flagNode.flags().contains(/*Flags.ATOMICPLUS*/ Flags.TYPE_FLAG)) {
@@ -707,7 +716,7 @@ public class X10MixedAtomicityTranslator extends ContextVisitor {
     	//1. all atomic local variables -> acquire their allocated locks
     	//2. all non-static atomic fields  -> acqurie their locks through: field.getOrderedLock();
     	//3. static atomic fields -> acquire theirlocks through Class.getStaticOrderedLock()
-    	//4. acquire locks for paraemter which is decorated with unitfor and atomicplus
+    	//4. acquire locks for paraemter which is decorated with unitfor and linked
     	//5. for constructors, do not acquire this.getLock
     	
     	//(actually, no need for the following, if a field is accessed through this, just acquire this.getOrderedLock())

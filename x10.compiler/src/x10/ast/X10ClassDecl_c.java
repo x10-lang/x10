@@ -918,6 +918,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
      * As a small optimization, it keeps a flag to check whether this class has
      * already been processed.
      * */
+    @Deprecated
     public static void accumulateAtomicFields(X10ClassDef type) {
     	//first checks whether the atomic fields have already been accumulated
     	if(type.hasAccumulated()) {

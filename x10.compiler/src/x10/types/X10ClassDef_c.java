@@ -70,10 +70,13 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected transient ClassType asType;
     
     /** Associate each class a set of atomic fields declared within it.
-     * This is used to support data-centric synchronization. */
+     * This is used to support data-centric synchronization. 
+     * In the new design, we do not need to declare atomic fields.*/
+    @Deprecated
     protected java.util.Set<FieldDef> atomicfields = new java.util.LinkedHashSet<FieldDef>();
     /** A caching flag, to indicate whether the atomic fields in that class
-     *  have been collected. */
+     *  have been collected. We do not need to declare atomic fields.*/
+    @Deprecated
     protected boolean accumulated = false;
     
 	private static final long serialVersionUID = -4644427081636650171L;
@@ -646,12 +649,14 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     /**
      * Adds an atomic field def to this class def.
      * */
+    @Deprecated
     public void addAtomicFields(FieldDef fi) {
     	this.atomicfields.add(fi);
     }
     /**
      * Adds a collection of atomic fields to this class def.
      * */
+    @Deprecated
     public void addAllAtomicFields(Collection<FieldDef> fs) {
     	assert fs != null;
     	this.atomicfields.addAll(fs);
@@ -659,6 +664,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     /**
      * Checks whether this class def has atomic fields or not.
      * */
+    @Deprecated
     public boolean hasAtomicFields() {
     	if(!this.atomicfields.isEmpty()) {
     		return true;

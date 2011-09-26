@@ -1911,7 +1911,7 @@ public class TypeSystem_c implements TypeSystem
     
     /**
      * Throw a SemanticException if <code>mi</code> cannot override <code>mj</code>
-     * due to incorrectly declaring data-centric synchronization constructs
+     * due to incorrectly declaring data-centric synchronization constructs.
      * */
     public void checkAtomicOverride(MethodInstance mi, MethodInstance mj, Context context) throws SemanticException {
     	env(context).checkAtomicOverride(mi, mj);
@@ -3172,6 +3172,7 @@ public class TypeSystem_c implements TypeSystem
     /** Checks that a method argument can not be annotated with an
      * <code>atomic</code> modifier. This is for checking rules in
      * data-centric synchronization. */
+    @Deprecated
     public void checkMethodArgFlags(Flags f) throws SemanticException {
     	if(f.contains(Flags.ATOMIC)) {
     		throw new SemanticException("Cannot declare method argument with flags " +

@@ -51,6 +51,11 @@ import x10.types.X10MethodDef;
 import x10.types.X10MethodDef_c;
 import x10.types.X10ParsedClassType_c;
 
+/**
+ * A utility class contains a few common useful methods.
+ * 
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ */
 public class X10TypeUtils {
 	
     public static Type lookUpType(TypeSystem ts, QName qname) {
@@ -229,7 +234,7 @@ public class X10TypeUtils {
     public static boolean isAtomic(Flags flags) {
     	return flags.contains(Flags.ATOMIC);
     }
-    
+    @Deprecated
     public static boolean isAtomicPlus(Flags flags) {
     	return flags.contains(Flags.ATOMICPLUS);
     }

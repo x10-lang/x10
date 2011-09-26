@@ -252,7 +252,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 //	    	    System.out.println("@X10LocalDecl_c, init class type: " + this + ",  hastomic context: "
 //	    	    		+ initClassType.hasAtomicContext() + ",   code: " + System.identityHashCode(initClassType));
     	    	if(initClassType != null && !initClassType.hasAtomicContext()) {
-    	    		Errors.issue(tc.job(), new Errors.InitializerMustHaveAtomicplus(initClassType, this.position()));
+    	    		Errors.issue(tc.job(), new Errors.InitializerMustHaveModifier(initClassType, this.position()));
     	    	}
     		} else {
     			//check the init part, the init part must NOT have atomic context info
@@ -260,7 +260,7 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
     			  Type initType = this.init().type();
     	    	  X10ParsedClassType_c initClassType = Types.fetchX10ClassType(initType);
     	    	  if(initClassType != null && initClassType.hasAtomicContext()) {
-    	    		  Errors.issue(tc.job(), new Errors.InitializerNeedCastOffAtomicplus(initClassType, this.position()));
+    	    		  Errors.issue(tc.job(), new Errors.InitializerNeedCastOffTypeModifier(initClassType, this.position()));
     	    	  }
     			}
     		}
@@ -289,8 +289,8 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
         //System.out.println("type node's falg node: " + typeNode.getFlagsNode() + ", in: " + this);
         if(typeNode.getFlagsNode() != null) {
         	if(!(type instanceof X10ParsedClassType_c)) {
-        		//only class type can be annotated with atomicplus
-        		SemanticException e = new Errors.TypeCannotHaveAtomicplus(type, typeNode.position());
+        		//only class type can be annotated with linked
+        		SemanticException e = new Errors.TypeCannotHaveModifier(type, typeNode.position());
         		Errors.issue(tc.job(), e);
         	} else {
         	   TypeSystem xtc = tc.typeSystem();

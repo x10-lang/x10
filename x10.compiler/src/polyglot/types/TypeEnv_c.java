@@ -802,8 +802,20 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
     }
     
     /**
-     * Checks the conformance of atomicplus declration in parameter and return type
-     * This is for data-centric synchronization
+     * Checks the conformance of linked declration in data-centric sychronizations for
+     * parameter and return type. More specifically, if a method is overriden by a
+     * sub-class, a linked parameter (or return type) must also be declared as linked.
+     * 
+     * Here is an example:
+     * 
+     * class A {
+     *     def foo(a:linked A) { ...}
+     * }
+     * 
+     * class B extends A {
+     *     def foo(a:A)  { ...}   //it does not type check, since the type of a must be linked.
+     * }
+     * 
      * */
     public abstract void checkAtomicOverride(MethodInstance r, MethodInstance other) throws SemanticException;
 

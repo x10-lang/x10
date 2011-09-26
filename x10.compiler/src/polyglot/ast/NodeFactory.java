@@ -64,8 +64,10 @@ public interface NodeFactory
     AmbTypeNode AmbTypeNode(Position pos, Id name);
     AmbTypeNode AmbTypeNode(Position pos, Prefix qualifier, Id name);
     
-    /*data centric*/
+    /*Creates new ambiguous AST nodes for data-centric sychronization*/
+    @Deprecated
     AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Id name);
+    @Deprecated
     AmbTypeNode AmbTypeNodeAtomicPlus(Position pos, Prefix qualifier, Id name);
     
     AmbTypeNode AmbTypeNodeLinked(Position pos, Id name);
@@ -278,7 +280,11 @@ public interface NodeFactory
     Async Async(Position pos, List<Expr> clocks, Stmt body);
     Async Async(Position pos, Stmt body, boolean clocked);
     Atomic Atomic(Position pos, Expr place, Stmt body);
-    //for data-centric synchronization
+    /**
+     * Creates an atomic block with associated variables, like:
+     * atomic(vars) { ... }. This is for data-centric synchronization. Vars
+     * can be either formal parameters, local variables, or this.
+     * */
     Atomic Atomic(Position pos, Expr place, List<Id> vars, Stmt body);
     Here Here(Position pos);
 

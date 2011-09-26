@@ -29,10 +29,18 @@ public interface X10ClassDef extends X10Def, ClassDef, X10MemberDef {
     void setSubst(TypeParamSubst subst);
     
     // five methods for data-centric synchronizations
+    //most of them are deprecaded, since we do not need to check
+    //whether a class has declared atomic sets or not
+    @Deprecated
     void addAtomicFields(FieldDef fi);
+    @Deprecated
     boolean hasAtomicFields();
+    @Deprecated
     boolean hasAccumulated();
+    //if needCheck if false, this method just returns true
     boolean hasAtomicFields(boolean needCheck);
+    @Deprecated
     void setAccumulated();
+    @Deprecated
     Set<FieldDef> getAtomicFields();
 }

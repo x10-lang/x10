@@ -141,7 +141,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 		//
 		//   class B extends A {
 		//       ...
-		//      public def this(b:(atomicplus B)) {
+		//      public def this(b:(linked B)) {
 		//          super(b);   //should not type check
 		//      }
 		//

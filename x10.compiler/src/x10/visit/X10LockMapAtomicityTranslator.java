@@ -76,6 +76,23 @@ import x10.util.AltSynthesizer;
 import x10.util.Synthesizer;
 import x10.util.X10TypeUtils;
 
+/**
+ * The visitor class to translate atomic sections to using locks.
+ * It only treats atomic section as a unit of work. The atomic section
+ * is the unit of work for user-specified atomic sets.
+ * 
+ * When associating a class with a lock, this visitor inserts a unique
+ * (integer) lock id into class instead of directly using a lock field,
+ * due to serialization reasons (a lock can not be serialized). The same
+ * is for allocating locks for local variables.
+ * 
+ * The runtime class (x10.util.concurrent.OrderedLock) maintains a global
+ * lock map to map each lock id to the lock object. When a lock is needed,
+ * an object is query this global lock map to fetch the lock by its id.
+ *
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ *
+ */
 public class X10LockMapAtomicityTranslator extends ContextVisitor {
 	private final Synthesizer synth;
     private final AltSynthesizer altsynth;
@@ -957,8 +974,13 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
     }
     
     //Create the name for a local lock variable
-    private String getLocalVarLockName(String localName) {
+    public static String getLocalVarLockName(String localName) {
     	return localName + LOCAL_VAR_LOCK;
+    }
+    
+    //Check if the given name is a local lock variable?
+    public static boolean isLocalLock(String name) {
+    	return name.indexOf(LOCAL_VAR_LOCK) != -1;
     }
     
     //To see if a set of LocalDefs contain a given variable

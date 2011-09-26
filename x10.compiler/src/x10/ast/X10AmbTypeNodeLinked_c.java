@@ -26,7 +26,9 @@ import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType;
 
 /**
- * Almost identical to X10AmbTypeNodeAtomicplus_c due to the change of keyword from atomicplus to linked
+ * The AST node for a linked type.
+ * 
+ * @author Sai Zhang (szhang@cs.washington.edu)
  * */
 public class X10AmbTypeNodeLinked_c extends X10AmbTypeNode_c {
 	public X10AmbTypeNodeLinked_c(Position pos, Prefix qual, Id name) {
@@ -49,7 +51,6 @@ public class X10AmbTypeNodeLinked_c extends X10AmbTypeNode_c {
 	
 	@Override
 	public Node disambiguate(ContextVisitor ar) {
-		  //System.out.println("@X10AmbTypeNodelinked: " + this.getClass());
 	      SemanticException ex;
 	      
 	      Position pos = position();
@@ -143,7 +144,7 @@ public class X10AmbTypeNodeLinked_c extends X10AmbTypeNode_c {
 	              Goal resolver = tc.job().extensionInfo().scheduler().LookupGlobalType(sym);
 	              resolver.update(Goal.Status.SUCCESS);
 	              sym.setResolver(resolver);
-	              /*data-centric synchronization*/
+	              //set the flag for a linked variable for data-centric sych
 	              TypeNode node =  postprocess((X10CanonicalTypeNode) tn, this, ar);
 	              node.setFlagsNode(this.getFlagsNode());
 	              return node;

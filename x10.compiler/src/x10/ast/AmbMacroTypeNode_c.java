@@ -501,7 +501,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
         X10CanonicalTypeNode afterPP = (X10CanonicalTypeNode) postprocess(result, n, childtc);
         if(n.getFlagsNode() != null) {
         	//should propagate to CanonicalTypeNode
-        	//for types like SimpleType[T]
+        	//for types like SimpleType[T].
         	afterPP.setFlagsNode(n.getFlagsNode());
         }
         return afterPP;

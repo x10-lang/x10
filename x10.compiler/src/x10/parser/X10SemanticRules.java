@@ -344,7 +344,9 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 		public static int CLOCKED = 14;
 		public static int STATIC = 15;
 		public static int TRANSIENT = 16;
+	    @Deprecated
 		public static int UNITFOR = 17; /* data-centric synchronization */
+	    @Deprecated
 		public static int ATOMICPLUS = 18; /* data-centric synchronization */
 		public static int LINKED = 19; /* data-centric synchronization */
 		public static int NUM_FLAGS = LINKED + 1;
@@ -1532,6 +1534,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 
 	// Production: AtomicStatement ::= atomic(IdentifierList) Statement
 	// for data-centric synchronization
+	@Deprecated
 	void rule_AtomicStatement1(Object _IdentifierList, Object _Statement) {
 		// System.out.println("@Semanticrules see the identifier list: "
 		// + _IdentifierList);
@@ -1540,17 +1543,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 		setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), IdentifierList,
 				Statement));
 	}
-	
-	//Production: AtomicStatement ::= atomic (HomeVariableList) Statement
+
+	// Production: AtomicStatement ::= atomic (HomeVariableList) Statement
 	void rule_AtomicStatement2(Object _HomeVariableList, Object _Statement) {
-//		 System.out.println("@Semanticrules see the home var list: "
-//		 + _HomeVariableList);
+		// System.out.println("@Semanticrules see the home var list: "
+		// + _HomeVariableList);
 		List<Node> HomeVariableList = (List<Node>) _HomeVariableList;
-//		for(Node n : HomeVariableList) {
-//			System.out.println("    node: " + n.toString() + ",  type: " + n.getClass());
-//		}
+		// for(Node n : HomeVariableList) {
+		// System.out.println("    node: " + n.toString() + ",  type: " +
+		// n.getClass());
+		// }
 		List<Id> idlist = new LinkedList<Id>();
-		for(Node n : HomeVariableList) {
+		for (Node n : HomeVariableList) {
 			Id id = this.nf.Id(n.position(), Name.make(n.toString()));
 			idlist.add(id);
 		}
@@ -2549,7 +2553,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 				SimpleNamedType.name(), new TypedList<TypeNode>(
 						new LinkedList<TypeNode>(), TypeNode.class, false),
 				Arguments);
-		// for data-centric synchronization
+		// for data-centric synchronization, for supporting arrays
 		type.setFlagsNode(SimpleNamedType.getFlagsNode());
 		setResult(type);
 	}
@@ -2582,7 +2586,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 		List<Expr> Arguments = (List<Expr>) _Arguments;
 		TypeNode type = nf.AmbMacroTypeNode(pos(), SimpleNamedType.prefix(),
 				SimpleNamedType.name(), TypeArguments, Arguments);
-		// for data-centric synchronization
+		// for data-centric synchronization for supporting arrays
 		type.setFlagsNode(SimpleNamedType.getFlagsNode());
 		setResult(type);
 	}
@@ -2938,6 +2942,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 	// data-centric synchronization
 	// it uses a more straightforward syntax: var a: atomicplus Type = new
 	// atomicplus Type();
+    @Deprecated
 	void rule_TypeName4(Object _linkedModifier, Object _TypeName) {
 		Modifier modifier = (Modifier) _linkedModifier;
 		FlagModifier fm = (FlagModifier) modifier;
@@ -2951,8 +2956,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 		fn = fn.flags(fn.flags().clearAtomic());
 		// save the flag information
 		TypeName.setFlagsNode(fn);
-		System.out.println("@X10SemanticRules: " + fn + ",  pos: "
-				+ TypeName + ", modifier: " + modifiers);
+		System.out.println("@X10SemanticRules: " + fn + ",  pos: " + TypeName
+				+ ", modifier: " + modifiers);
 		setResult(TypeName);
 	}
 
@@ -3855,11 +3860,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 	}
 
 	// Production: Modifier ::= unitfor data-centric synchronizations
+	@Deprecated
 	void rule_Modifier11() {
 		setResult(new FlagModifier(pos(), FlagModifier.UNITFOR));
 	}
 
 	// Production: Modifier ::= atomicplus data-centric synchronizations
+    @Deprecated
 	void rule_Modifier12() {
 		setResult(new FlagModifier(pos(), FlagModifier.ATOMICPLUS));
 	}

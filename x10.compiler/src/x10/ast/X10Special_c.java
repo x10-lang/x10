@@ -69,7 +69,7 @@ public class X10Special_c extends Special_c implements X10Special {
     /**
      * In data-centric synchronization, the type of this is:
      * 1. if the container class does not have atomic field, the same
-     * 2. else, become atomicplus ContainerClass, with contex: ContainerClass
+     * 2. else, become linked ContainerClass, with contex: ContainerClass
      * 
      * The purpose of this method is to change the type of this.
      * */
@@ -81,8 +81,11 @@ public class X10Special_c extends Special_c implements X10Special {
     			//for safety, accumulate it first
     			X10ClassDecl_c.accumulateAtomicFields(thisClazzDef);
     			
-    			/*
-    			 * In the new design, this does not have a default type 
+    			/**
+    			 * The following code alters the type of this. In the design of AJ, 
+    			 * this is linked to itself. In our later design, I removed this property,
+    			 * because doing so will make a large amount of code becoming un-compilable,
+    			 * such as:  a.method_foo(this). 
     			 * */
     			
 //    			if(thisClazzDef.hasAtomicFields(false)

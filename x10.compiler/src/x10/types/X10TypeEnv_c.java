@@ -2187,8 +2187,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
     
     /**
-     * Checks the conformance of atomicplus declration in parameter and return type
-     * This is for data-centric synchronization
+     * Checks the conformance of linked declration in parameter and return type
+     * This is for data-centric synchronization.
+     * 
+     * Specifically, if a method's parameter is declared as linked, its overriden method must
+     * also declare a linked parameter. Similar is for return type.
      * */
     public void checkAtomicOverride(MethodInstance r, MethodInstance other) throws SemanticException {
     	MethodInstance mi = (MethodInstance) r;
@@ -2228,12 +2231,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         			X10ParsedClassType_c jClassType = (X10ParsedClassType_c)jType;
         			if(iClassType.hasAtomicContext() && !jClassType.hasAtomicContext()) {
         				throw new SemanticException("The argument: " + argName + " in method: "
-        						+ x10mi + "\n\t can not be declared with atomicplus to override method "
+        						+ x10mi + "\n\t can not be declared with linked to override method "
         						+ x10mj + " in class: " + x10mj.container().get());
         			}
         			if(!iClassType.hasAtomicContext() && jClassType.hasAtomicContext()) {
         				throw new SemanticException("The argument: " + argName + " in method: "
-        						+ x10mi + "\n\t must be declared with atomicplus to override method "
+        						+ x10mi + "\n\t must be declared with linked to override method "
         						+ x10mj + " in class: " + x10mj.container().get());
         			}
         		}
@@ -2246,11 +2249,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         		X10ParsedClassType_c mjRetClazz = (X10ParsedClassType_c)mjRet;
         		if(miRetClazz.hasAtomicContext() && !mjRetClazz.hasAtomicContext()) {
         			throw new SemanticException("The return type of method: " + x10mj
-        					+ "\n\t should not be declared with atomicplus to override method: " + x10mj);
+        					+ "\n\t should not be declared with linked to override method: " + x10mj);
         		}
         		if(!miRetClazz.hasAtomicContext() && mjRetClazz.hasAtomicContext()) {
         			throw new SemanticException("The return type of method: " + x10mj
-        					+ "\n\t must be declared with atomicplus to override method: " + x10mj);
+        					+ "\n\t must be declared with linked to override method: " + x10mj);
         		}
         	}
         }

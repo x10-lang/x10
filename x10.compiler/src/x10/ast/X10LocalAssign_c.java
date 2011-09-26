@@ -66,10 +66,10 @@ public class X10LocalAssign_c extends LocalAssign_c {
     	    //assert clazzRight != null : "The right type is: " + rightType.getClass() + " : " + rightType;
     	      if(clazzRight != null) {
     	          if(clazzLeft.hasAtomicContext() && !clazzRight.hasAtomicContext()) {
-    	    	      Errors.issue(tc.job(), new Errors.AssignMustHaveAtomicplus(clazzRight, position()));
+    	    	      Errors.issue(tc.job(), new Errors.AssignMustHaveTypeModifier(clazzRight, position()));
     	          }
     	          if(!clazzLeft.hasAtomicContext() && clazzRight.hasAtomicContext()) {
-    	    	      Errors.issue(tc.job(), new Errors.AssignNeedCastOffAtomicplus(clazzRight, position()));
+    	    	      Errors.issue(tc.job(), new Errors.AssignNeedCastOffTypeModifier(clazzRight, position()));
     	          }
     	          if(clazzLeft.hasAtomicContext() && clazzRight.hasAtomicContext()) {
     	    	      if(!tc.typeSystem().typeEquals(clazzLeft.getAtomicContext(),

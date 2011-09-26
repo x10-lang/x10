@@ -19,6 +19,14 @@ import x10.ast.X10LocalDecl_c;
 import x10.ast.X10Local_c;
 import x10.types.X10FieldDef;
 
+/**
+ * Normally, you do not need to use this visitor. Only for experimental
+ * purpose to compare different techniques.
+ * 
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ * */
+
+@Deprecated
 class LocalAndFieldReassignVisitor extends NodeVisitor {
 	public final Set<LocalDef> atomicLocalReassigns = new LinkedHashSet<LocalDef>();
 	public final Set<LocalDef> atomicLocalDecls = new LinkedHashSet<LocalDef>();

@@ -13,9 +13,9 @@ import x10.util.CollectionFactory;
 import x10.util.X10TypeUtils;
 
 /**
- * This class checks typing rules of data-centric synchronization.
+ * The type checking visitor for data-centric sychronization.
  * 
- * @author Sai Zhang
+ * @author Sai Zhang (szhang@cs.washington.edu)
  */
 public class X10AtomicityChecker extends X10TypeChecker {
 	
@@ -44,10 +44,9 @@ public class X10AtomicityChecker extends X10TypeChecker {
 	}
 	
 	protected Node leaveCall(Node old, Node n, NodeVisitor v) {
-		//System.out.println("x10 atomicity checking");
 	    final TypeChecker tc = (TypeChecker) v;
 	    
-	    //get the current class, for compatibility, only checks the compiled classes
+	    //skip checking all library code and non-object-oriented code
 	    X10ClassType clzType = this.context.currentClass();
 	    boolean isCompiled = true;
 	    if(clzType != null && clzType.fullName()!= null && X10TypeUtils.skipProcessingClass(clzType)) {
@@ -57,8 +56,8 @@ public class X10AtomicityChecker extends X10TypeChecker {
 	    Node m = n;
 	    //check the typing rules for data-centric synchronization
 	    if(this.extensionInfo.getOptions().x10_config.DATA_CENTRIC && isCompiled) {
-	    	m = m.del().checkAtomicity(tc);
-	    	m = m.del().checkLinkProperty(tc);
+	    	m = m.del().checkAtomicity(tc);      //propagate the type information and do a part of the checkings
+	    	m = m.del().checkLinkProperty(tc);   //check if each variable is properly linked
 	    }
 	    return m;
 	}

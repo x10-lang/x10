@@ -113,7 +113,7 @@ public class X10FieldAssign_c extends FieldAssign_c {
     			}
     		  } else {
     			if(rightClassType.hasAtomicContext()) {
-    				Errors.issue(tc.job(), new Errors.AssignNeedCastOffAtomicplus(rightClassType, position()));
+    				Errors.issue(tc.job(), new Errors.AssignNeedCastOffTypeModifier(rightClassType, position()));
     			}
     		  }
     		}

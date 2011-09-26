@@ -20,18 +20,35 @@ import x10.ast.X10Local_c;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
 
+/**
+ * This visitor fetches all user-declared variables in an atomic section.
+ * 
+ * For an atomic section like:  atomic(var1, var2, var3) {....}
+ * 
+ * The visitor will fetch all local defs of var1, var2, var3 that are referred
+ * inside the atomic section {...}.
+ * 
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ * */
 class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 
-	public final Set<LocalDef> atomicLocalRefs = new LinkedHashSet<LocalDef>();
-	public final Set<LocalDef> atomicLocalDecls = new LinkedHashSet<LocalDef>();
-
-	public final Set<FieldDef> atomicFieldDefs = new LinkedHashSet<FieldDef>();
-	public final Set<FieldDef> atomicFieldDecls = new LinkedHashSet<FieldDef>();
-
-	public final Set<X10Field_c> allAtomicFields = new LinkedHashSet<X10Field_c>();
-	
-	public final Set<X10FieldDef> fieldsInAtomic = new LinkedHashSet<X10FieldDef>();
+	//only this field is not deprecated, a sample usage, see:
+	//X10LockMapAtomicityTranslator#visitX10Method
 	public final Set<X10LocalDef> localsInAtomic = new LinkedHashSet<X10LocalDef>();
+	
+	@Deprecated
+	public final Set<LocalDef> atomicLocalRefs = new LinkedHashSet<LocalDef>();
+	@Deprecated
+	public final Set<LocalDef> atomicLocalDecls = new LinkedHashSet<LocalDef>();
+	@Deprecated
+	public final Set<FieldDef> atomicFieldDefs = new LinkedHashSet<FieldDef>();
+	@Deprecated
+	public final Set<FieldDef> atomicFieldDecls = new LinkedHashSet<FieldDef>();
+	@Deprecated
+	public final Set<X10Field_c> allAtomicFields = new LinkedHashSet<X10Field_c>();
+	@Deprecated
+	public final Set<X10FieldDef> fieldsInAtomic = new LinkedHashSet<X10FieldDef>();
+	
 
 	@Override
 	public Node leave(Node old, Node n, NodeVisitor v) {
@@ -45,7 +62,6 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 			if(x10local.localInstance() != null && x10local.localInstance().def() != null) {
 			  if(x10local.localInstance().def().flags() != null
 					  && x10local.localInstance().def().flags().contains(Flags.ATOMIC)) {
-				//System.out.println("   --- Local def has flags: " + x10local);
 				atomicLocalRefs.add(x10local.localInstance().def());
 			  }
 			}
@@ -62,9 +78,7 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 			if(x10field.fieldInstance() != null && x10field.fieldInstance().def() != null) {
     		  FieldDef def = x10field.fieldInstance().def();
 			  if(def.flags() != null && def.flags().contains(Flags.ATOMIC)) {
-//				  System.out.println("add def: " + def + ",  and field: " + x10field);
 				atomicFieldDefs.add(def);
-				//also save the field
 				allAtomicFields.add(x10field);
 			  }
 			}
@@ -87,30 +101,6 @@ class AtomicLocalAndFieldAccessVisitor extends NodeVisitor {
 				allAtomicFields.add((X10Field_c)fieldAssign.left());
 			}
 		}
-		//FIXME not sure is it correct
-		//the case of array declaration and array access
-		//array declaration is included in local or field declaration
-//		if(n instanceof ArrayAccessAssign_c) {
-//			System.out.println("visiting array access: " + n);
-//			ArrayAccessAssign_c arrayAssign = (ArrayAccessAssign_c)n;
-//			Expr array_expr = arrayAssign.array();
-//			if(array_expr instanceof X10Local_c) {
-//				X10Local_c x10local = (X10Local_c)array_expr;
-//				LocalDef def = x10local.localInstance().def();
-//				if(def.flags() != null && def.flags().contains(Flags.ATOMIC)) {
-//					atomicLocalRefs.add(def);
-//				}
-//			}
-//			if(array_expr instanceof X10Field_c) {
-//				X10Field_c x10field = (X10Field_c)array_expr;
-//				FieldDef def = x10field.fieldInstance().def();
-//				if(def.flags() != null && def.flags().contains(Flags.ATOMIC)) {
-//					atomicFieldDefs.add(def);
-//					//add to the field decl list
-//					allAtomicFields.add(x10field);
-//				}
-//			}
-//		}
 		if(n instanceof SettableAssign_c) {
 			//Do we need to implement it
 		}

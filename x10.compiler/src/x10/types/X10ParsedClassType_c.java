@@ -74,6 +74,7 @@ implements X10ParsedClassType
     private ArrayList<MethodInstance> cacheAllMethods = null;
     
     //The atomic context of each class type. It is for data-centric synchronization.
+    //It records which class's this the var is linked to
     protected Type atomicContext = null;
 
     private void clearCache() {

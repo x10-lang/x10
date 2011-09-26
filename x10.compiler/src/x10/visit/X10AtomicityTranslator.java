@@ -89,6 +89,19 @@ import x10.util.AltSynthesizer;
 import x10.util.Synthesizer;
 
 /**
+ * An experimental implementation. All functionalities implemented
+ * in this class is superseded by <code>X10LockMapAtomicityTranslator</code>.
+ * Please use <code>X10LockMapAtomicityTranslator</code> instead.
+ * 
+ * The only difference is this class treats method + async
+ * as unit of work and lose a lot of concurrency. This class should never
+ * be used in production code, but only for comparison experiment.
+ *
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ *
+ */
+
+/**
  * This class translates X10 data-centric synchronization constructs into
  * corresponding X10 code, specially:
  * 1. all class that contains atomic fields implements an interface:
@@ -178,6 +191,8 @@ import x10.util.Synthesizer;
  *    8.2 may-parallel, if a method never execute parallelly with others, no lock is needed
  *    8.3 single read/write, no lock is needed
  * */
+
+@Deprecated
 public class X10AtomicityTranslator extends ContextVisitor {
 	private final Synthesizer synth;
     private final AltSynthesizer altsynth;

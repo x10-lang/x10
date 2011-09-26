@@ -161,6 +161,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
         args.add(q);
         args.addAll(neu.arguments());
         neu = (New) neu.arguments(args);
+        //FIXME
         //System.out.println("what is args@InnerClassRemover: " + args + " for: " + neu.position());
         //data-centric synchronization fix the def, ugly hack
         //the following linie must be commented out when compiling the code

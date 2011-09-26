@@ -125,10 +125,10 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       try {
 	      TypeNode tn = disambiguateAnnotation(tc);
 	  if (tn != null) {
-		   //in data-centric synchronization, we can not use atomicplus
+		   //in data-centric synchronization, we can not use linked
 		   //to decorate annotation types
 		  if(this.getFlagsNode() != null) {
-		     Errors.issue(tc.job(), new SemanticException("Can not use atomicplus to decorate annotation: "
+		     Errors.issue(tc.job(), new SemanticException("Can not use linked to decorate annotation: "
 				   + tn, pos));
 		  }
 	      return tn;

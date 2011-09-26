@@ -154,17 +154,17 @@ public class X10Cast_c extends Cast_c implements X10Cast, X10CastInfo {
     	X10ParsedClassType_c exprContext = null;
     	if(exprClassType != null) {
     		//get the atomic context, if using the cast like:
-    		//a' =  expr as (atomicplus A);
+    		//a' =  expr as (linked A);
     		exprContext = (X10ParsedClassType_c) exprClassType.getAtomicContext();
     	}
-    	//if the cast type is decorated with atomicplus annotation
+    	//if the cast type is decorated with linked annotation
     	if(castType() != null && castType().getFlagsNode() != null) {
     		if(castType().getFlagsNode().flags().contains(Flags.TYPE_FLAG/*Flags.ATOMICPLUS*/)) {
     			if(exprContext == null) {
-    				//if the expression does not have atomicplus info
-    				//it does not make sense to add new atomicplus by casting
+    				//if the expression does not have linked info
+    				//it does not make sense to add new linked by casting
     			    Errors.issue(tc.job(),
-    			    		new Errors.TypeCastCannotHaveAtomicplus(castType().type(), position()));
+    			    		new Errors.TypeCastCannotHaveTypeModifier(castType().type(), position()));
     			} else {
     				//we must change the return type by adding the atomic context
     				X10ParsedClassType_c retType = exprClassType.copy();

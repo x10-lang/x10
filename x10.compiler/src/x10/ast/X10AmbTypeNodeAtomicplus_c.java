@@ -27,6 +27,15 @@ import x10.types.X10ClassType;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
 
+/**
+ * The AST node for an atomicplus type in the old design.
+ * This class is replaced by <code>X10AmbTypeNodeLinked_c</code>
+ * in the new design.
+ * 
+ * @author Sai Zhang (szhang@cs.washington.edu)
+ * */
+
+@Deprecated
 public class X10AmbTypeNodeAtomicplus_c extends X10AmbTypeNode_c {
 	
 	public X10AmbTypeNodeAtomicplus_c(Position pos, Prefix qual, Id name) {
@@ -43,14 +52,14 @@ public class X10AmbTypeNodeAtomicplus_c extends X10AmbTypeNode_c {
 	
 	@Override
 	public Id name() {
-		System.out.println("flag: " + this.getFlagsNode() + " pos: " + this.position);
+		//System.out.println("flag: " + this.getFlagsNode() + " pos: " + this.position);
 		return super.name();
 	}
 	
 	
 	@Override
 	public Node disambiguate(ContextVisitor ar) {
-		  System.out.println("@X10AmbTypeNodeAtomicplus: " + this.getClass());
+		  //System.out.println("@X10AmbTypeNodeAtomicplus: " + this.getClass());
 	      SemanticException ex;
 	      
 	      Position pos = position();
@@ -99,7 +108,7 @@ public class X10AmbTypeNodeAtomicplus_c extends X10AmbTypeNode_c {
 	              //note this is for inner class, like Class.InnerClass
 	              //has not been implemented yet
 	              if (Types.isConstrainedType(bt)) {
-	            	  Errors.issue(tc.job(), new SemanticException("Have not implemented atomicplus for constrained types.", pos));
+	            	  Errors.issue(tc.job(), new SemanticException("Have not implemented linked for constrained types.", pos));
 	                  bt = Types.baseType(tn.type());
 	              }
 	              if (bt instanceof X10ParsedClassType) {
