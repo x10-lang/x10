@@ -476,6 +476,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
                 DataOutputStream oos = new DataOutputStream(baos);
                 X10JavaSerializer serializer = new X10JavaSerializer(oos);
+                serializer.recordReference(body);
                 body.$_serialize(serializer);
                 oos.close();
                 msg = baos.toByteArray();
