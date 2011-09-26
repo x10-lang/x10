@@ -873,8 +873,7 @@ public class StaticInitializer extends ContextVisitor {
         stmts.add(xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, 
                                                 right).fieldInstance(fi).type(right.type())));
 
-        stmts.add(makePrintStmt(pos, name, classDef));
-
+        stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmt(pos, name, classDef)));
         // If the type is a java type we can do plain java serialization
 
         stmts.add(broadcastCustomSerializationBlock);
@@ -1210,6 +1209,16 @@ public class StaticInitializer extends ContextVisitor {
         TypeNode receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
 
         return xnf.Eval(pos, xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Void()));
+    }
+
+    private Expr genPrintStmtCheckGuard(Position pos) {
+       Id name = xnf.Id(pos, Name.make("TRACE_STATIC_INIT"));
+
+        FieldDef fieldDef = xts.fieldDef(pos, Types.ref(InitDispatcher()), Flags.STATIC, Types.ref(xts.Boolean()), name.id());
+        X10FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fieldDef));
+        Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
+        Expr left = xnf.Field(pos, receiver, name).fieldInstance(fi);
+        return xnf.Binary(pos, left.type(xts.Boolean()), Binary.EQ, xnf.BooleanLit(pos, true).type(xts.Boolean()));
     }
 
     private String getClassName(ClassDef classDef) {

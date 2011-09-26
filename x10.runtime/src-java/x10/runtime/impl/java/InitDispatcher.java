@@ -558,4 +558,6 @@ public abstract class InitDispatcher {
     public static void printStaticInitMessage(String message) {
         Runtime.printStaticInitMessage(message);
     }
+
+    public static final boolean TRACE_STATIC_INIT = Runtime.TRACE_STATIC_INIT;
 }
