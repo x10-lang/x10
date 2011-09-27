@@ -335,7 +335,7 @@ template<class T> void x10::util::IndexedMemoryChunk<T>::deallocate() {
     if (0 != data) {
         x10_ulong basePtr = data - deltaToAlloced;
         x10aux::dealloc((T*)basePtr);
-        fprintf(stderr, "Dealloc %p %p %d\n", (T*)basePtr, (T*)data, deltaToAlloced);
+        // fprintf(stderr, "Dealloc %p %p %d\n", (T*)basePtr, (T*)data, deltaToAlloced);
     }
     data = 0;
     len = 0;
