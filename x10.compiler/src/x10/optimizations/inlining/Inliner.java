@@ -205,7 +205,7 @@ public class Inliner extends ContextVisitor {
      * @see polyglot.visit.ErrorHandlingVisitor#leaveCall(polyglot.ast.Node, polyglot.ast.Node, polyglot.ast.Node, polyglot.visit.NodeVisitor)
      */
     public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (n instanceof X10MethodDecl && AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), utils.InlineOnlyType))
+        if (!closuresOnly && n instanceof X10MethodDecl && AnnotationUtils.hasAnnotation(((X10MethodDecl) n).methodDef(), utils.InlineOnlyType))
             return null;
         if (!(n instanceof ProcedureCall))
             return n;
