@@ -73,8 +73,7 @@ public class ThisInstance_c extends VarInstance_c<ThisDef> implements ThisInstan
     }
 
     public String toString() {
-        String s = "this : " + safeType();
-        return s;
+        return "this: " + safeType();
     }
 
     public boolean isValid() {
