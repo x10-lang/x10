@@ -415,6 +415,29 @@ public abstract class InitDispatcher {
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }
 
+    public static void broadcastStaticFieldUsingReflection(Object fieldValue, final short fieldId) {
+    	// no need for broadcast while running on a single place
+    	if (Runtime.MAX_PLACES <= 1) {
+    		return;
+    	}
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream oos = new DataOutputStream(baos);
+        X10JavaSerializer serializer = new X10JavaSerializer(oos);
+        try {
+            serializer.write(fieldId);
+            serializer.writeObjectUsingReflection(fieldValue);
+            oos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new java.lang.Error(e);
+        }
+        byte [] ba = baos.toByteArray();
+
+        // Invoke the closure at all places except here
+        Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
+    }
+
     public static Object deserializeField(byte[] buf) {
         try {
             java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(buf);
@@ -531,6 +554,17 @@ public abstract class InitDispatcher {
     public static String deserializeString(X10JavaDeserializer deserializer) {
         try {
             String v = deserializer.readString();
+            return v;
+        } catch (java.io.IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            xe.printStackTrace();
+            throw xe;
+        }
+    }
+
+    public static Object deserializeFieldUsingReflection(X10JavaDeserializer deserializer) {
+        try {
+            Object v = deserializer.readRefUsingReflection();
             return v;
         } catch (java.io.IOException e) {
             x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
