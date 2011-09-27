@@ -48,7 +48,14 @@ fi
 UNAME=`uname -smp | sed -e 's/ /,/g'`
 case "$UNAME" in
   CYGWIN*,i*86,*) X10_PLATFORM='cygwin_x86';;
-  Linux,*86_64*,*) X10_PLATFORM='linux_x86_64';;
+  Linux,*86_64*,*) 
+      SHORT_HOSTNAME=`hostname -s`
+      if [[ "$SHORT_HOSTNAME" == "triloka4" ]]; then 
+          X10_PLATFORM='linux_rh6_x86_64'
+      else
+          X10_PLATFORM='linux_x86_64'
+      fi
+      ;;
   Linux,*86*,*) X10_PLATFORM='linux_x86';;
   Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
   AIX,*,powerpc) X10_PLATFORM='aix_ppc';;
