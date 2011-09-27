@@ -316,6 +316,14 @@ extractClassPath() {
     RESULT="`sed -ne 's|^\s*//\s*CLASSPATH*\:\s*\(.*\)|\1|p' "$f"`"
 }
 
+extractSourcePath() {
+# extract additional sourcepath from a *.x10 file f
+
+    chkArgs 1 "$@"
+    local f="$1"
+    RESULT="`sed -ne 's|^\s*//\s*SOURCEPATH*\:\s*\(.*\)|\1|p' "$f"`"
+}
+
 removeDotSlash() {
 # convert ./a/b/./c to a/b/c
 
@@ -404,13 +412,15 @@ genTest() {
       options="$RESULT"
       extractClassPath "$f"
       classpath="$RESULT"
-			extractDepends "$f"
-			depends="$RESULT"
-			extractExtends "$f"
-			extends="$RESULT"
+      extractSourcePath "$f"
+      sourcepath="$RESULT"
+      extractDepends "$f"
+      depends="$RESULT"
+      extractExtends "$f"
+      extends="$RESULT"
       # run an actual x10 test case
 			__cat_test_start_time=$(perl -e 'print time;')
-      doTest "$pkg" "$path" "${file%.x10}" "$options" "$classpath" "$depends" "$extends"
+      doTest "$pkg" "$path" "${file%.x10}" "$options" "$classpath" "$sourcepath" "$depends" "$extends"
       #echo 2>&1 "Done with $path/$pkg/$file"
     fi
   done < <(findTests "$topDir")
@@ -773,8 +783,9 @@ doTest() {
   local test="$3"
   local options="$4"
   local classpath="$5"
-	local depends="$6"
-	local extends="$7"
+  local extra_sourcepath="$6"
+  local depends="$7"
+  local extends="$8"
   local x10FileName="$testDir/$srcDir/$test.x10" #./Misc/./a/b/c.x10
 	local dependList=""
 	if [[ -n "$extends" && "$extends" != *x10Test* ]]
@@ -796,6 +807,7 @@ doTest() {
 	__cat_current_group="$tdir"
 
   [ -n "$classpath" ] && classpath="-classpath \"$classpath\""
+  [ -n "$extra_sourcepath" ] && extra_sourcepath="-sourcepath \"$extra_sourcepath\""
 
   echo ""                         >  logDetail.$tdir.$className
   echo "****** $tdir $className ******" >> logDetail.$tdir.$className
@@ -812,8 +824,8 @@ doTest() {
 	__cat_test_x10c_sourcepath="$x10lib:$testDir"
 	__cat_test_x10c_classpath="$extraClassPath"
 	__cat_test_x10c_directory="$testDir"
-  __cat_test_x10c_command="$(echo runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -CHECK_INVARIANTS=true -sourcepath $x10lib -sourcepath $testDir -sourcepath \"$X10_DIST\"/samples -sourcepath \"$X10_DIST\"/samples/tutorial -sourcepath \"$X10_DIST\"/samples/work-stealing -sourcepath \"$X10_DIST\"/samples/CUDA -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" "")"
-  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -CHECK_INVARIANTS=true -sourcepath $x10lib -sourcepath $testDir -sourcepath \"$X10DIST\"/samples -sourcepath \"$X10DIST\"/samples/tutorial -sourcepath \"$X10DIST\"/samples/work-stealing -sourcepath \"$X10DIST\"/samples/CUDA -classpath \"$extraClassPath\" $classpath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" ""
+  __cat_test_x10c_command="$(echo runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -CHECK_INVARIANTS=true -sourcepath $x10lib -sourcepath $testDir -sourcepath \"$X10_DIST\"/samples -sourcepath \"$X10_DIST\"/samples/tutorial -sourcepath \"$X10_DIST\"/samples/work-stealing -sourcepath \"$X10_DIST\"/samples/CUDA -classpath \"$extraClassPath\" $classpath $extra_sourcepath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" "")"
+  runWithTimeLimit "$tdir" "$className" "\"$X10DIST\"/bin/x10c -t -v -CHECK_INVARIANTS=true -sourcepath $x10lib -sourcepath $testDir -sourcepath \"$X10DIST\"/samples -sourcepath \"$X10DIST\"/samples/tutorial -sourcepath \"$X10DIST\"/samples/work-stealing -sourcepath \"$X10DIST\"/samples/CUDA -classpath \"$extraClassPath\" $classpath $extra_sourcepath -d $testDir $X10C_EXTRA_OPTS $options $x10FileName $dependList $extendList ./x10lib/harness/x10Test.x10" "" ""
 	local runRC=$?
   if [[ $runRC != 0 ]]; then
     echo ""                                        >> logDetail.$tdir.$className
