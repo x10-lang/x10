@@ -12,7 +12,7 @@
 \maketitle
 
 \begin{abstract}
-This document describes the design and implementation details of supporting data-centric sychronization for the X10 programming language. It includes: (1) a detailed description of the current design and implementation, and (2) tricks, tips and commons pitfalls in modifying the X10 compiler infrastracture for future extensions.
+This document describes the design and implementation details of supporting data-centric sychronization for the X10 programming language. It includes: (1) a detailed description of the current design and implementation, and (2) tricks, tips and common pitfalls in modifying the X10 compiler infrastracture for future extensions.
 \end{abstract}
 
 \section{Current Status}
@@ -24,7 +24,7 @@ The source code and tested programs can be found at the following svn repository
 
 %I will do my best to assist you to comprehend the code, fix existing bugs, and perform evaluations.
 
-The following sections will illustrate the implemented data-centric sychronization features (Section~\ref{sec:design}),  all major implementation details (Section~\ref{sec:details}), and a few summarized tricks, tips and common pitfalls in modifying the compiler for future extensions (Section~\ref{sec:tips}).
+Sections below will illustrate the implemented data-centric sychronization features (Section~\ref{sec:design}),  all major implementation details (Section~\ref{sec:details}), and a few summarized tricks, tips, and common pitfalls in modifying the compiler for future extensions (Section~\ref{sec:tips}).
 
 \section{Data-centric Sychronization for X10}
 \label{sec:design}
@@ -45,7 +45,7 @@ So far atomic sections look very much like Java's synchronized block. What diffe
 \subsection{High-level implementation}
 
 
-We add to each class, an additional field that holds the lock for the data groups of instances of that class.
+The compiler adds to each class, an additional field that holds the lock for the data groups of instances of that class.
  Each class is equipped with a getter method for the lock.
 
 Constructors are modified to take an additional lock. When the \CodeIn{linked} keyword is used for a constructor call, the lock for \CodeIn{this} is passed to the newly created object.
@@ -56,33 +56,33 @@ If $var_i$ is a primitive value, a local lock is declared after the declaration 
 \section{Implementation Details}
 \label{sec:details}
 
-This sections describes the most important implementation details. Section~\ref{sec:code} gives an overview of the X10 compiler workflow and which parts  have been modified to implement data-centric synchronization. Section~\ref{sec:keyword} shows how is the new syntax added to the existing compiler framework (lexer and parser parts). Section~\ref{sec:typechecking} illustrates how to perform type checking in the presence of the  data-centric features, and Section~\ref{sec:codegen} presents how the X10 compiler performs code generation. Changes to the runtime library are described in Section~\ref{sec:runtime}, and limitations and possible improvement space is summarized in Section~\ref{sec:limitation}.
+This sections describes the most important implementation details. Section~\ref{sec:code} gives an overview of the X10 compiler workflow and which parts  have been modified to implement data-centric synchronization. Section~\ref{sec:keyword} shows how is the new syntax added to the existing compiler framework (lexer and parser parts). Section~\ref{sec:typechecking} illustrates how to perform type-checking in the presence of data-centric sychronization. Section~\ref{sec:codegen} presents how the X10 compiler performs code generation. Changes to the runtime library are described in Section~\ref{sec:runtime}. Limitations and possible improvement space is summarized in Section~\ref{sec:limitation}.
 
 \subsection{Code structure and Compiler workflow}
 \label{sec:code}
 
 All code changes reside in two sub-projects \CodeIn{x10.compiler} and
-\CodeIn{x10.runtime}. The project \CodeIn{x10.compiler} also contains a modified version of polyglot, which is under the package \CodeIn{polyglot}.
+\CodeIn{x10.runtime}. Project \CodeIn{x10.compiler} uses a modified version of polyglot, which is under the package \CodeIn{polyglot}.
 
 In \CodeIn{x10.compiler},  code for adding new syntax  is in the \CodeIn{x10.parser} package. Code for type-checking is in the \CodeIn{x10.ast} and \CodeIn{polygloat.ast} packages. More specifically, class \CodeIn{x10.visit.X10AtomicityChecker} is the entry class for type-checking , and class \CodeIn{x10.visit.X10LockMapAtomicityTranslator} performs  code generation. All changes to the runtime library are in the package \CodeIn{x10.util.concurrent}. 
 
-\textbf{Configuration option: } the only new configuration option is \CodeIn{DATA\_CENTRIC} (with default value \CodeIn{true}) in class \CodeIn{x10.Configuration}. Setting this value to \CodeIn{false} will turn off the data-centric sychronization features. \textbf{Note:} when compiling the x10 runtime lib using command \CodeIn{ant dist}, this flag \textbf{must} be turned off; since the current data-centric implementation lacks the lack of C++ backend support.
+\textbf{Configuration option: } the only new configuration option is \CodeIn{DATA\_CENTRIC} (with default value \CodeIn{true}) in class \CodeIn{x10.Configuration}. Setting this value to \CodeIn{false} will turn off the data-centric sychronization features. \textbf{Note:} when compiling the x10 runtime lib using command \CodeIn{ant dist}, this flag \textbf{must} be turned off; since the current data-centric implementation lacks the support for C++ backend.
 
-Here is the general work flow of compiling an X10 program:
+Here is the general workflow of compiling an X10 program:
 
 \begin{enumerate}
 
-\Item Parse the X10 program text into AST tokens. The parser is automatically generated based on the grammar files located in package  \CodeIn{x10.parser}. When a rule defined in the \CodeIn{x10.g} grammar file is matched, the parser will invoke corresponding action method in class \CodeIn{x10.parser.X10SemanticRules} to create AST nodes.  At this stage, almost AST nodes do not contain any type information. The parser merely uses a \CodeIn{polyglot.parse.ParsedName} object to represent each type node.
+\Item Parse the X10 program text into AST tokens. The parser is automatically generated based on the grammar files located in package  \CodeIn{x10.parser}. When a rule defined in the \CodeIn{x10.g} grammar file is matched, the parser will invoke corresponding action method in class \CodeIn{x10.parser.X10SemanticRules} to create AST nodes.  At this stage, almost all AST nodes do not contain any type information. The parser merely uses a \CodeIn{polyglot.parse.ParsedName} object to represent each type node.
 
-\Item Translate a \CodeIn{ParsedName} object into a \CodeIn{TypeNode}. This step is done by the \CodeIn{ParsedName.toType} method. This method creates a \CodeIn{AmbTypeNode} node for each \CodeIn{ParsedName} object to represent a type node. However, the created \CodeIn{AmbTypeNode} still needs to be dis-ambiguated before type-checking.
+\Item Translate a \CodeIn{ParsedName} object into a \CodeIn{TypeNode}. This step is done by the \CodeIn{ParsedName.toType} method. This method creates an \CodeIn{AmbTypeNode} node for each \CodeIn{ParsedName} object to represent a type node. However, the created \CodeIn{AmbTypeNode} still needs to be dis-ambiguated before type-checking.
 
-\Item Dis-ambiguate each \CodeIn{AmbTypeNode} node. This step is performed by the class \CodeIn{x10.visit.X10TypeChecker}. Method \CodeIn{X10TypeChecker.leaveCall} first calls \CodeIn{disambiguate(tc)} before performing type-checking. The \CodeIn{disambiguate} method is overriden in every ambiguous type node to resolve ambiguity and infer types. Thus, if a new AST node type is added,  be aware of overriding the \CodeIn{disambiguate} method.
+\Item Dis-ambiguate each \CodeIn{AmbTypeNode} node. This step is performed by the class \CodeIn{x10.visit.X10TypeChecker}. Method \CodeIn{X10TypeChecker.leaveCall} first calls \CodeIn{disambiguate(tc)} before performing type-checking. The \CodeIn{disambiguate} method is overridden in every ambiguous type node to resolve ambiguity and infer types. Thus, if a new AST node type is added,  you may need to override the \CodeIn{disambiguate} method.
 
-\Item After disambuigiating each AST node, the following compiler workflow is essentially applying a set of passes to the AST tree. Each pass is implemented as a visitor. All visitor classes are under packages  \CodeIn{x10.visit} and \CodeIn{polyglot.visit}.  A visitor can manipulate each AST node,  delete, or add needed information to it. The visiting order of each visitor is defined in class \CodeIn{x10.ExtensionInfo} (and \CodeIn{x10c.ExtensionInfo} and \CodeIn{x10cpp.ExtensionInfo} for Java and C++ specific passes). A good example to refer is the  \CodeIn{goals(Job)} method.
+\Item After disambiguating each AST node, the following compilation workflow is essentially applying a set of passes to the AST tree. Each pass is implemented as a visitor. All visitor classes are under packages  \CodeIn{x10.visit} and \CodeIn{polyglot.visit}.  Visitors' visiting order  is defined in class \CodeIn{x10.ExtensionInfo} (and \CodeIn{x10c.ExtensionInfo} and \CodeIn{x10cpp.ExtensionInfo} for Java and C++ specific passes). A good example to refer is the  \CodeIn{x10.ExtensionInfo.goals(Job)} method.
 
-\Item After type-checking, many optimization and code generation tasks in X10 is implemented as a X10-to-X10 source-code-level transformation. A good example is the \CodeIn{x10.visit.Lowerer} class. When implementing new features, normally you only need to define a similar visitor (as the \CodeIn{Lowerer} class) to perform X10- to-X10 source transformation instead of modifying the backend translation from X10 to Java (C++).
+\Item After type-checking, many optimization and code generation tasks in X10 is implemented as an X10-to-X10 source-code-level transformation. A good example is the \CodeIn{x10.visit.Lowerer} class. When implementing new features, normally you only need to define a similar visitor (as the \CodeIn{Lowerer} class) to perform X10- to-X10 source transformation instead of modifying the backend translation from X10 to Java (C++).
 
-\Item The last step is generating native code (Java bytecode and C++ binary code) from the X10 AST. Normally, you do not need to touch this phase.
+\Item The last step is to generate native code (Java bytecode and C++ binary code) from the X10 AST. Normally, you do not need to touch this phase.
 
 
 \end{enumerate}
@@ -108,9 +108,9 @@ Here are the detailed steps in implementing the above syntax changes:
 
 \begin{enumerate}
 
-\Item Go to \CodeIn{X10KWLexer.gi} file, and modify two places. First, add \CodeIn{linked} as keyword by adding a new entry under the \textit{\%Export} declaration. Then, add a new entry for the \CodeIn{linked} modifier by adding a new entry to the \textit{\%Rules} declaration.
+\Item Go to \CodeIn{x10/parser/X10KWLexer.gi} file, and modify two places. First, add \CodeIn{linked} as a keyword by inserting a new entry under the \textit{\%Export} declaration. Then, add a new entry for the \CodeIn{linked} modifier by inserting a new entry to the \textit{\%Rules} declaration.
 
-\Item Go to \CodeIn{polyglot.types.Flags} class. Add a new static field declaration like \CodeIn{public static final Flags LINKED = createFlag("linked", null)}. Then, add three corresponding methods: \CodeIn{Flags linked()}, \CodeIn{Flags clearLinked()}, and \CodeIn{boolean isLinked}.  
+\Item Go to \CodeIn{polyglot.types.Flags} class. Add a new static field declaration like \CodeIn{public static final Flags LINKED = createFlag("linked", null)}. Then, add three related methods: \CodeIn{Flags linked()}, \CodeIn{Flags clearLinked()}, and \CodeIn{boolean isLinked}.  
 
 \Item Go to class \CodeIn{x10.parser.X10SemanticRules.FlagModifier}. Add a new field declaration: \CodeIn{public static int LINKED = 19}, and change the field \CodeIn{NUM\_FLAGS} correspondingly.  Change the \CodeIn{FlagModifier.flags()} method by adding an extra if condition like \CodeIn{if(flag == LINKED) } \CodeIn{return Flags.LINKED}.  Add a new entry in method \CodeIn{FlagModifier.name} like \CodeIn{if(flag = LINKED)} \CodeIn{return "linked"}. Finally, add a new rule for the modifier \CodeIn{linked} in the \CodeIn{X10SemanticRules} class:
 
@@ -118,7 +118,7 @@ Here are the detailed steps in implementing the above syntax changes:
 
 
 \Item Depending on how the new keyword should be used, you may also need to modify a few declarations in classes \CodeIn{FlagModifier} 
-and \CodeIn{TypeSystem\_c}. For the \CodeIn{linked} case, the new keyword can only be used to decorate a type, thus  a new entry in the \CodeIn{typeModifiers} declaration is added.
+and \CodeIn{TypeSystem\_c}. For the \CodeIn{linked} case, the new keyword can only be used to decorate a type, thus  I added a new entry in the \CodeIn{typeModifiers} declaration.
 
 \end{enumerate}
 
@@ -126,49 +126,51 @@ and \CodeIn{TypeSystem\_c}. For the \CodeIn{linked} case, the new keyword can on
 
 \begin{enumerate}
 
-\Item Go to \CodeIn{x10.parser.x10.g} file. Add corresponding productions as well as their action methods in class \CodeIn{X10SemanticRules}.
+\Item Go to \CodeIn{x10/parser/x10.g} file. Add new productions as well as their action methods in class \CodeIn{X10SemanticRules}.
 
-\Item For the \CodeIn{linked} keyword, first add a production rule under the \textit{Modifier :: =} declaration, then add a production rule under the \textit{TypeName ::= } declaration. For each added production rule, corresponding action method must be added in class \CodeIn{X10SemanticRules}.
+\Item For the \CodeIn{linked} keyword, first add a production rule under the \textit{Modifier :: =} declaration, then add a production rule under the \textit{TypeName ::= } declaration. For each added production rule, corresponding action method must be added to class \CodeIn{X10SemanticRules}.
 
-\Item For the new \CodeIn{atomic} section syntax, one additional rule needs to be added to the \CodeIn{AtomicStatement} declaration. Similarly, corresponding action method should be added in class \CodeIn{X10SemanticRules}.
+\Item For the new \CodeIn{atomic} section syntax, one additional rule needs to be added to the \CodeIn{AtomicStatement} declaration. Similarly, corresponding action method should be added to class \CodeIn{X10SemanticRules}.
 
 \end{enumerate}
 
 \subsubsection{Building the new parser}
 
-You need to first download the \CodeIn{lpg.generator}. The easiest way is to download it from its CVS repository (\textit{lpg.cvs.sf.net} with \textit{anonymous} user, and repository path: \textit{/cvsroot/lpg}).
-Be aware of choosing the a correct version for your environment. In my environment, I chose two projects \CodeIn{lpg.generator} and \CodeIn{lpg.generator.linux\_x86\_64}. The first project must be used by any version, and the second project is platform-specific.
+You need to first download the \CodeIn{lpg.generator}. The easiest way is to obtain it from its CVS repository (\textit{lpg.cvs.sf.net} with \textit{anonymous} user, with repository path: \textit{/cvsroot/lpg}).
+Be aware of choosing the correct version for your environment. For my laptop, I chose two projects \CodeIn{lpg.generator} and \CodeIn{lpg.generator.linux\_x86\_64}. The first project must be used by any version, and the second project is platform-specific.
 
 Run the \textit{grammar} task in the \CodeIn{x10.compiler/build.xml} configuration file, and remember to refresh the whole project.
 
 \subsubsection{Define new AST nodes and propagate type information}
 
-%If the changes to compiler result to new kind of AST node,  you must define the corresponding AST node class, which is normally placed in pakcage \CodeIn{x10.ast}.
+%If the changes to compiler result to new kind of AST node,  you must define the corresponding AST node class, which is normally placed in package \CodeIn{x10.ast}.
 
-Using data-centric synchronization features, two variable can be declared as:
+Using data-centric synchronization features, variables can be declared as:
 
 \CodeIn{var a1:A = new A();}
 
+or
+
 \CodeIn{var a2: linked A = new linked A();}
 
-The above variable \CodeIn{a1} and \CodeIn{a2}  technically have different types. \CodeIn{a1} is a raw \CodeIn{A} object, and \CodeIn{a2} is a \CodeIn{linked A} object. Thus,  the compiler must
-keep this \textit{linked} information through the whole compiling process,  propagating from the initial parsing phase to the  type-checking phase to the code generation phase.
+The above variable \CodeIn{a1} and \CodeIn{a2}  technically have different types: \CodeIn{a1} is a raw \CodeIn{A} object, and \CodeIn{a2} is a \CodeIn{linked A} object. Thus,  the compiler must
+keep the \textit{linked} information through the whole compilation process,  propagating from the initial parsing phase to the  type-checking phase, then to the code generation phase.
 
-To achieve the above goal, the following changes are made  (\textbf{Note}: the following changes can work,  but may not be the optimal way for implementation):
+To achieve this goal, I made the following changes (\textbf{Note}: the following changes can work,  but may not be the optimal way for implementation):
 
 \begin{enumerate}
 
-\Item Add a \CodeIn{FlagsNode flags} field to the \CodeIn{TypeNode\_c} class. This field indicates whether a type node is linked to other's atomic set. The value of \CodeIn{flags} is \CodeIn{null} by default, and is set to \CodeIn{linked} if the current object is \textit{linked} to somewhere else. \textbf{Note:} the \CodeIn{copy} method must be overriden or modified, to make sure this new \CodeIn{flags} field will also be copied.
+\Item Add a \CodeIn{FlagsNode flags} field to the \CodeIn{TypeNode\_c} class. This field indicates whether a type node is linked to other's atomic set. The value of \CodeIn{flags} is \CodeIn{null} by default, and is set to \CodeIn{linked} if the current object is \textit{linked} to somewhere else. \textbf{Note:} the \CodeIn{copy} method must be overridden or modified, to make sure this new \CodeIn{flags} field is copied.
 
 \Item Add a \CodeIn{FlagsNode flags} field to the \CodeIn{ParsedName} class to represent whether the type object is \CodeIn{linked} or not. The \CodeIn{flags} field can only be \CodeIn{null} (the default value) or \CodeIn{linked}.
 
-\Item Change the \CodeIn{ParsedName.toType} method. It checks, if the \CodeIn{flags} field is \CodeIn{linked}, the compiler needs to create a different AST node of type \CodeIn{X10AmbTypeNodeLinked\_c} for it.
+\Item Change the \CodeIn{ParsedName.toType} method. It checks, if the \CodeIn{flags} field is \CodeIn{linked}, the compiler creates a different AST node of type \CodeIn{X10AmbTypeNodeLinked\_c}.
 
-\Item The newly added \CodeIn{X10AmbTypeNodeLinked\_c} type represent a \textit{linked} ambiguious AST node. Its \CodeIn{flags} field is set to \CodeIn{linked} inside method \CodeIn{ParsedName.toType}.
+\Item The newly added \CodeIn{X10AmbTypeNodeLinked\_c} type represents a \textit{linked} ambiguous AST node. Its \CodeIn{flags} field is set to \CodeIn{linked} inside method \CodeIn{ParsedName.toType}.
 
-\Item When dis-ambiguating a type node, the \CodeIn{linked} flags must be preserved and propagated correctly from the \CodeIn{X10AmbTypeNodeLinked\_c} node.  The code for preserving the \CodeIn{linked} flag is in \CodeIn{X10AmbTypeNodeLinked\_c}.\CodeIn{disambiguate},  and \CodeIn{X10Disamb\_c}.\CodeIn{disambiguateNoPrefix} methods. The \textbf{most} important notice here is: when setting a type node as \CodeIn{linked},  that type node must be copied and then re-set the field value on the copied node (see the code in \CodeIn{X10Disamb\_c}.\CodeIn{disambiguateNoPrefix} as an example). This is because \textit{all} variables with the same type are sharing the \textit{same} type node object; thus, a linked  node must have a different object (with the same type value but an additional \CodeIn{linked} field).
+\Item When dis-ambiguating a type node, the \CodeIn{linked} flags must be preserved and propagated correctly from the \CodeIn{X10AmbTypeNodeLinked\_c} node.  The code for preserving the \CodeIn{linked} flag is in \CodeIn{X10AmbTypeNodeLinked\_c}.\CodeIn{disambiguate},  and \CodeIn{X10Disamb\_c}.\CodeIn{disambiguateNoPrefix} methods. The \textbf{most} important notice here is: when setting a type node as \CodeIn{linked},  that type node must be copied and then re-set the field value on the copied node (see the code in \CodeIn{X10Disamb\_c}.\CodeIn{disambiguateNoPrefix} as an example). This is because \textit{all} variables with the same type are sharing the \textit{same} type node object; thus, a linked  node must have a different type node object (with the same type value but an additional \CodeIn{linked} field).
 
-\Item Finally, the \CodeIn{AbstractNodeFactory\_c}, \CodeIn{NodeFactory}, and \CodeIn{X10NodeFactory\_c} should also be modified by adding additional factory methods to create the new \CodeIn{X10AmbTypeNodeLinked\_c} nodes.
+\Item Finally, classes \CodeIn{AbstractNodeFactory\_c}, \CodeIn{NodeFactory}, and \CodeIn{X10NodeFactory\_c} should also be modified by adding additional factory methods to create the new \CodeIn{X10AmbTypeNodeLinked\_c} nodes.
 
 \end{enumerate}
 
@@ -177,19 +179,19 @@ To achieve the above goal, the following changes are made  (\textbf{Note}: the f
 \subsection{Performing type checking}
 \label{sec:typechecking}
 
-The visitor \CodeIn{X10AtomicityChecker} performs type-checking for the new grammar rules. As indicated in its \CodeIn{leaveCall(Node, Node, NodeVisitor)} method, the type-checking is essentially invoking the \CodeIn{checkAtomicity} and \CodeIn{checkLinkProperty} methods on each AST node as the visitor traverses the whole tree.
+Class \CodeIn{X10AtomicityChecker} performs type-checking for the new grammar rules. As indicated in its \CodeIn{leaveCall(Node, Node, NodeVisitor)} method, the type-checking is essentially invoking methods \CodeIn{checkAtomicity} and \CodeIn{checkLinkProperty} on each AST node as the visitor traverses the AST.
 
-Two methods  \CodeIn{checkAtomicity} and \CodeIn{checkLinkProperty} are added to a few related places, namely, classes \CodeIn{Node\_c}, \CodeIn{JL\_c}, and \CodeIn{NodeOps}. The default behavior of these two methods are doing nothing. So, if needed, an AST node can override these two methods to check certain properties.
+Two methods  \CodeIn{checkAtomicity} and \CodeIn{checkLinkProperty} are added to a few related places, namely, classes \CodeIn{Node\_c}, \CodeIn{JL\_c}, and \CodeIn{NodeOps}, with the default behavior of  doing nothing.  Concrete AST node types need to override these two methods to check against the typing rules.
 
-In general,  \CodeIn{checkAtomicity} fetches the \CodeIn{linked} flags from the \CodeIn{TypeNode} (that is associated with some AST nodes that are translated from \CodeIn{X10AmbTypeNodeLinked\_c}), and add \textit{atomic context} to its type. The \textit{atomic context} here represents the atomic set to which the declared var is linked to.  To keep the \textit{atomic context} information,  I added a  field \CodeIn{Type} \CodeIn{atomicContext} to class \CodeIn{X10ParsedClassType\_c} to record the linked object type. This field is set inside the \CodeIn{checkAtomicity} method (for a few special cases, it is set inside the \CodeIn{typeCheck} method). After fetching the \CodeIn{atomicContext}, the visitor checks the linked property against the typing rules. (\textbf{Note} that, for most cases, \CodeIn{checkAtomicity} and \CodeIn{checkLinkProperty} can be merged into one method).
+In general,  \CodeIn{checkAtomicity} fetches the \CodeIn{linked} flag from a \CodeIn{TypeNode} object (associated with some AST nodes translated from \CodeIn{X10AmbTypeNodeLinked\_c}), and add \textit{atomic context} to its type. The \textit{atomic context} here represents the atomic set to which the declared var is linked to.  To keep the \textit{atomic context} information,  I added a  field \CodeIn{Type} \CodeIn{atomicContext} to class \CodeIn{X10ParsedClassType\_c} to record the linked object type. This field is set inside the \CodeIn{checkAtomicity} method (for a few special cases, it is set inside the \CodeIn{typeCheck} method). After setting the field \CodeIn{atomicContext}, the visitor checks the linked property against the typing rules. (\textbf{Note} that, for most cases, \CodeIn{checkAtomicity} and \CodeIn{checkLinkProperty} can be merged into one method).
 
 During type-checking, we not only need to check the type compatibility as the normal X10 type-checking does, but also need to check the consistency of the \CodeIn{atomicContext} field to see whether a variable is always linked to the same atomic set.
 
-I next use a few examples to show how the type checking is performed:
+I next use a few examples to show how the type-checking works:
 
 \begin{enumerate}
 
-\Item checking assignment
+\Item \textbf{checking assignment}
 
 \CodeIn { class C \{}
 
@@ -213,9 +215,9 @@ The type of \CodeIn{a2} is \CodeIn{A}, with \CodeIn{atomicContext = C}, indicati
 
 Thus, when checking the assignment \CodeIn{a2 = a1}, the type checker will issue an error, saying that \CodeIn{a2} is linked to somewhere else, and can not be assigned to a raw object \CodeIn{a1} which is not linked to any other atomic set.
 
-\Item checking field access.
+\Item \textbf{checking field access}.
 
-Consider the following example (just for illustration purpose. we may make field as strongly private later):
+Consider the following example:
 
 \CodeIn { class C \{}
 
@@ -229,7 +231,7 @@ Consider the following example (just for illustration purpose. we may make field
 
 \hspace{6mm}\CodeIn{var c1: linked C = new linked C();}
 
-\hspace{6mm}\CodeIn{c1.f = new C(); } //type check this assignment
+\hspace{6mm}\CodeIn{c1.f = c1; } //type check this assignment
 
 \hspace{3mm} \CodeIn{\}}
 
@@ -242,7 +244,7 @@ The type of \CodeIn{c1} is: \CodeIn{C} with \CodeIn{atomicContext = B}
 The type of \CodeIn{new linked C()} inside method \CodeIn{foo()}
 is: \CodeIn{C} with \CodeIn{atomicContext = B}
 
-The \textbf{tricky} part is that expression \CodeIn{c1.f} has type: \CodeIn{C} but with \CodeIn{atomicContext = B}, since as indicated by the typing rule the accessed field's \CodeIn{atomicContext} equals the receiver's \CodeIn{atomicContext} if both are linked.
+The \textbf{tricky} part is that expression \CodeIn{c1.f} has type: \CodeIn{C} but with \CodeIn{atomicContext = B}. Note, this is different froom the type of field \CodeIn{f} declared in class \CodeIn{C}, since \CodeIn{f} is accessed through \CodeIn{c1}. As indicated by the typing rule for field access, an accessed field's \CodeIn{atomicContext} is equal to the receiver's \CodeIn{atomicContext} if both of them are linked.
 
 Thus, this assignment  type checks.
 
@@ -263,10 +265,11 @@ The major code transformation consists of the following phases:
 \Item Class-level transformation:
 \begin{itemize}
 \Item Let each compiled class (interface) implement (inherit) \CodeIn{x10.util.concurrent.Atomic}.
-\Item Associate each class with a lock by inserting  a unique lock id field. The lock id can be used to find the corresponding lock in a global lock map.  Then, add corresponding getter method for the lock field.
-\Item For each constructor, create a new constructor by adding an additional lock field formal parameter, then add the new constructor to the class declaration.
+\Item Associate each class with a lock by inserting  a unique lock id field. The lock id can be used to find the corresponding lock object in a global lock map.  Additionally, a getter method for the lock field is added.
 
-Here is one transformation example:
+\Item For each constructor, create a new constructor by adding an additional lock formal parameter, then add the new constructor to the class declaration.
+
+Here is a transformation example:
 \begin{CodeOut}
 \begin{alltt}
 public class A \{
@@ -297,7 +300,7 @@ public class A \underline{implements Atomic} \{
 \Item Method-level transformation
 
 \begin{itemize}
-\Item Add additional local locks for parameters which are not associated with a lock (e.g., lib code, and primitive types)
+\Item Add an additional local lock for a parameter which is not associated with a lock (e.g., lib code, and primitive types)
 \Item Transform atomic method to acquire locks
 
 Here is an example:
@@ -327,7 +330,7 @@ public def foo(b:Array[Int]) \{
 \end{CodeOut}
 \end{itemize}
 
-Here is an example for atomic method (\textbf{note:} \CodeIn{atomic} method is the syntactic sugar of \CodeIn{atomic(this)}, and an atomic method will also protect the atomic sets of its formal parameters):
+Here is an example for atomic method (\textbf{note:} \CodeIn{atomic} method is the syntactic sugar of \CodeIn{atomic(this)}, and an atomic method also protects the atomic sets of its formal parameters):
 
 \begin{CodeOut}
 \begin{alltt}
@@ -354,7 +357,7 @@ public \textbf{atomic} def foo(a:A) \{
 
 \Item Block-level transformation
 
-This phase primarily declares locks to protect local variables that are accessed inside an atomic section. Here is an example (in which the local \CodeIn{value} must be protected):
+This phase primarily declares locks to protect local variables that are accessed inside an atomic section. Here is an example (in which the local variable \CodeIn{value} must be protected):
 
 \begin{CodeOut}
 \begin{alltt}
@@ -380,7 +383,7 @@ public def count() \{
 
 \Item Atomic-section-level transformation
 
-This phase primarily grabs suitable locks for each atomic section.  Here is an example which covers almost all locking cases:
+This phase grabs desirable locks for each atomic section.  Here is an example which covers almost all locking cases:
 
 \begin{CodeOut}
 \begin{alltt}
@@ -426,7 +429,7 @@ Two classes are added to the \CodeIn{x10.runtime} project:
 
 1. \CodeIn{x10.util.concurrent.Atomic}. An interface that every compiled class (interface) will implement (inherit) for data-centric sychronization.
 
-2. \CodeIn{x10.util.concurrent.OrderedLock}. A class wrapping a \CodeIn{lock} field and a unique lock id identifier. This class contains all lock operations used in the compiler, such as \CodeIn{createNewLock}, \CodeIn{acquireLocks}, and \CodeIn{releaseLocks}. It also maintains a global lock map.
+2. \CodeIn{x10.util.concurrent.OrderedLock}. A class wrapping a \CodeIn{lock} field with a unique lock id. This class contains all lock operations used by the X10 compiler, such as \CodeIn{createNewLock}, \CodeIn{acquireLocks}, and \CodeIn{releaseLocks}. It also maintains a global lock map.
 
 \subsubsection{Utility methods}
 
@@ -446,24 +449,24 @@ The section summarizes some  known limitations in the current design and impleme
 
 \begin{enumerate}
 
-\Item The global lock map  in class \CodeIn{x10.util.concurrent.OrderedLock} may lead to potential memory leak. This lock map maps an \CodeIn{Integer} lock id to an \CodeIn{OrderedLock} object. When the object associated with a lock id has been recycled, this corresponding map entry should be deleted. Furthermore, if the program is running on multiple places, there will be one copy of lock map per place. Thus, the lock map will no longer be a globally  one. This will lead to problems like lock id conflicts, and how to deal with a sychronized object passed from one place to anther ( which lock should be used to protect it? ).
+\Item The global lock map  in class \CodeIn{x10.util.concurrent.OrderedLock} may lead to potential memory leak. This lock map maps an \CodeIn{Integer} lock id to an \CodeIn{OrderedLock} object. When an object has been recycled, this corresponding map entry should be deleted. Furthermore, if the program is running on multiple places, there will be one copy of lock map per place. Thus, the lock map will no longer be a global one. This will lead to problems like lock id conflicts, and how to deal with a sychronized object passing from one place to anther ( which lock should be used to protect it? ).
 
-Here are a few possible solutions. First, replace the global lock map with a \CodeIn{WeakHashMap}. This \CodeIn{WeakHashMap} maps each object to its associated lock object, so that when the (Java) object has been recycled, the corresponding entry will be automatically deleted. Second, override the \CodeIn{finalize} method in class \CodeIn{x10.lang.Object} to manually delete the corresponding entry in the lock map. The above two solutions can only be applied to Java backend, and there is still no clear solution for the C++ backend. Third, improve the lock id allocation mechanism to avoid conflict id from different places. A possible way is to combine the \textit{place\_id} with a \textit{place-unique} integer as the lock id to ensure its global uniqueness. Another way is to use a separate service (running in a separate place) to allocate locks upon the request.
+Here are a few possible solutions. First, replace the global lock map with a \CodeIn{WeakHashMap}. This \CodeIn{WeakHashMap} maps each object to its associated lock object, so that when the (Java) object has been recycled, the corresponding entry will be automatically deleted. Second, override the \CodeIn{finalize} method in class \CodeIn{x10.lang.Object} to manually delete the corresponding entry in the lock map. The above two solutions can only be applied to Java backend, and there is still no clear solution for the C++ backend. Third, improve the lock id allocation mechanism to avoid conflicted id from different places. A possible way is to combine the \textit{place\_id} with a \textit{place-unique} integer as the lock id to ensure its global uniqueness. Another way is to use a separate service (running in a separate place) to allocate locks upon the request.
 
 \Item Arrays are not well supported in the current implementation. For example, you can not declare an array like: \CodeIn{var linkedArray:} \CodeIn{Array[linked C] = }\CodeIn{new Array[linked C]()}. Implementing this support requires to change a few places.  First, change  class \CodeIn{AmbMacroTypeNode\_c} to capture the \CodeIn{linked} modifier on the parameterized type. Second, change the \CodeIn{disambiguate} method in class \CodeIn{AmbMacroTypeNode\_c}  to propagate the linked information to each type node. Third, implement the \CodeIn{checkAtomicity} and \CodeIn{checkLinkProperty} methods in all array-related AST node classes like \CodeIn{polyglot.ast.ArrayAccess\_c} and \CodeIn{polyglot.ast.ArrayInit\_c} for type-checking.
 
-\Item  The current design treats \CodeIn{linked} as a type modifier. This may unncessarily complicate the implementation (as seen above, multiple code places need to be changed to gurantee the \textit{linked} information is correctly propagated). A more natural solution can be integrating the \CodeIn{linked} keyword seamlessly into the \textit{constraint types} in X10. In that way, a linked var can be declared as: \CodeIn{var c:C\{linked\}} = \CodeIn{new C\{linked\}()}. Doing so can leverage the existing powerful constraint solver in X10 for type checking.
+\Item  The current design treats \CodeIn{linked} as a type modifier. This may unnecessarily complicate the implementation (as seen above, multiple code places need to be changed to guarantee the \textit{linked} information is correctly propagated). A more natural solution can integrate the \CodeIn{linked} keyword seamlessly into the \textit{constraint types} in X10. In that way, a linked var can be declared as: \CodeIn{var c:C\{linked\}} = \CodeIn{new C\{linked\}()}. Doing so can leverage the existing powerful constraint solver in X10 for type-checking.
 
-\Item A few code issues (pure engineering improvement):
+\Item A few pure engineering issues:
 
 \begin{itemize}
-\Item There are fairly code repetition in the \CodeIn{X10LockMapAtomicityTranslator} class. It is possible (but not easy) to reduce the code clones.
+\Item There a  fairly amount of code repetitions in class \CodeIn{X10LockMapAtomicityTranslator}. It is possible (but not easy) to reduce the code clones.
 
-\Item There are some classes and methods annotated with  \CodeIn{@Deprecade} in the code base. Such classes and methods are not used in the current implementation, and thus can be safely removed (in certain cases, you may need to resolve all compilation errors; but that is straightford such as removing all references). The reason I still kept them is  those code can be used as in experiments for comparison purpose. For example, the deprecaded class \CodeIn{X10MixedAtomicityTranslaotr} implements a different way of code generation. It \textit{infers} all accessed variables inside each atomic section.
+\Item Some classes and methods are annotated with  \CodeIn{@Deprecade} in the code base. Such classes and methods are not used in the current implementation, and can be safely removed (in certain cases, you may need to resolve all compilation errors; but that is straightforward without any tricks). The reason I still kept them in the code is such code can be used in experiments for comparison purpose. For example, the deprecaded class \CodeIn{X10MixedAtomicityTranslaotr} implements a different way for code generation. It \textit{infers} all accessed variables inside each atomic section.
 
-\Item When visitor \CodeIn{X10LockMapAtomicityTranslator} adds new code (i.e., field declarations, constructors, field access) to the existing class declaration,  it needs to make sure different instances of the same variable should share the same \textit{def} object. However, this is not fully preserved in the current implementation (see Section~\ref{sec:tips}). For example, as the visitor  visits  a \CodeIn{New\_c} statement, it needs to add an additional lock argument value to it. However, at this point, the new constructor with the additional lock formal parameter has not been inserted to the class declaration yet. Therefore, the \CodeIn{visitNew\_c} method need to create another \CodeIn{ConstructorDef} object. This created \CodeIn{ConstructorDef} object is different from the def object used for the new constructor (which is created when the visitor leaves the class declaration). This issue can lead to a few problems. Particularly, in the \CodeIn{ClosureRemover} and  \CodeIn{X10InnerClassRemover} classes, when the constructor def is updated, the def referred by the \CodeIn{New\_c} statement will not be updated correspondingly.I temporarily work around that problem by manually updating each constructor def.
+\Item When visitor \CodeIn{X10LockMapAtomicityTranslator} adds new code (i.e., field declarations, constructors, field access) to the existing class declaration,  it needs to make sure that different instances of the same variable should share the same \textit{def} object. However, this is not fully preserved in the current implementation (see Section~\ref{sec:tips}). For example, as the visitor  visits  a \CodeIn{New\_c} statement, it needs to add an additional lock argument value to it. However, at this point, the new constructor with the additional lock formal parameter has not been inserted to the class declaration yet. Therefore, the \CodeIn{visitNew\_c} method need to create another \CodeIn{ConstructorDef} object. This created \CodeIn{ConstructorDef} object is different from the def object referred by the new constructor (which is created when the visitor leaves the class declaration). This issue can lead to a few problems. Particularly, in the \CodeIn{ClosureRemover} and  \CodeIn{X10InnerClassRemover} classes, when the constructor def is updated, the def referred by the \CodeIn{New\_c} statement will not be updated correspondingly. I temporarily work around that problem by manually updating each constructor def.
 
-\Item A static option \CodeIn{compile} can be removed in class \CodeIn{Configuration}. This option should be set to \CodeIn{true} when compiling all x10 runtime library.  As I found during my (incomplete) testing, this \CodeIn{compile} can be superseded by the \CodeIn{DATA\_CENTRIC} option (set \CodeIn{DATA\_CENTRIC} to \CodeIn{false} is sufficient for compiling x10 runtime lib). I leave it in the code base in case I missed some corner cases that need to manually set this flag.
+\Item A static option \CodeIn{compile} can be removed from class \CodeIn{Configuration}. This option should be set to \CodeIn{true} when compiling all x10 runtime library.  However, as I found during my (incomplete) testing, this \CodeIn{compile} can be safely superseded by the \CodeIn{DATA\_CENTRIC} option (set \CodeIn{DATA\_CENTRIC} to \CodeIn{false} is sufficient for compiling X10 runtime lib). I leave it in the code base in case I missed some corner cases that need to manually set this flag.
 \end{itemize}
 
 
@@ -476,23 +479,23 @@ I finally summarize a few useful tricks, tips and common pitfalls.
 
 \begin{enumerate}
 
-\Item \textbf{How to test your code.} According to the standard user manual on the  X10 website, you can run \CodeIn{ant dist} to build the whole compiler,  use \CodeIn{x10c} to compile the code, and use \CodeIn{x10} to run the code.  The command \CodeIn{ant dist} will compile all compiler code as well as the runtime lib, and cost over 4 minutes. Normally, you do not need to run this command everytime after making some changes only to the \CodeIn{x10.compiler} project. Instead, running \CodeIn{ant compiler-jar} is much more faster (completed in 5 seconds). If you are using eclipse, a more convenient way to test the compiler is to run the code directly inside eclipse as follows: (1) select an X10 class file on the explorer view, and (2) click the run $\rightarrow$ x10c launch option. The embedded \CodeIn{x10c} will automatically compile the \textit{selected} X10 file. The output Java file is located in the \CodeIn{out} folder. 
+\Item \textbf{How to test your code.} According to the standard user manual on the  X10 website, you can run \CodeIn{ant dist} to build the whole compiler,  use \CodeIn{x10c} to compile the code, and use \CodeIn{x10} to run the code. However, the command \CodeIn{ant dist} will compile all the compiler code as well as the runtime lib, and cost over 4 minutes. Normally, you do not need to run this command everytime after making changes only to the \CodeIn{x10.compiler} project. Instead, running \CodeIn{ant compiler-jar} is much more faster (completed in 5 seconds). If you are using eclipse, a more convenient way to test the compiler is to run the code directly inside eclipse as follows: (1) select an X10 class file on the explorer view, and (2) click the run $\rightarrow$ x10c launch option. The embedded \CodeIn{x10c} will automatically compile the \textit{selected} X10 file. The output Java file is located in the \CodeIn{out} folder. 
 
 \Item \textbf{How to debug your code.} Debugging X10 code is not an easy task. Here are a few tips:
 
 \begin{itemize}
 
-\Item \textbf{Use the generated Java file}. Each Java file contains  line numbers in the original X10 code for the transformed Java code. Those line numbers are very useful to trace back to the original X10 file for fault localization.
+\Item \textbf{Use the generated Java file}. Each Java file contains  line numbers from the original X10 code for the transformed Java code. Those line numbers are very useful to trace back to the original X10 file for fault localization.
 
-\Item \textbf{Pretty-print an AST Node.} There are two useful methods: \CodeIn{Node.prettyPrint(System.out)}, and \CodeIn{PrettyPrinter.printAST}. The first method prints an AST node in a text form (what you see in a code file), while the second one prints an AST node in a tree structure (you can see each Node types from the result).
+\Item \textbf{Pretty-print an AST Node.} There are two useful methods: \CodeIn{Node.prettyPrint(System.out)}, and \CodeIn{PrettyPrinter.printAST}. The first method prints an AST node in a text form (what you see in a code file), while the second one prints an AST node in a tree structure (you can see the type of each AST node from the result).
 
 \end{itemize}
 
 
-\Item \textbf{Add a compiler configuration option.} It is very easy: just add two static field declarations to file \CodeIn{x10.Configuration} class.  The first one declares the option name, such as \CodeIn{public boolean OPTIMIZE = false}, and the second one is a \CodeIn{String} type that must end with a fixed suffix \CodeIn{\_desc} as an explanation message, like \CodeIn{private static final String} \CodeIn{OPTIMIZE\_desc } \CodeIn{= "Generate optimized code";}.
+\Item \textbf{Add a compiler configuration option.} It is very easy: just add two static field declarations to class \CodeIn{x10.Configuration}.  The first one declares the option name, such as \CodeIn{public boolean OPTIMIZE = false}; and the second one is a \CodeIn{String} type that must end with a fixed suffix \CodeIn{\_desc} as an explanation message, like \CodeIn{private static final String} \CodeIn{OPTIMIZE\_desc } \CodeIn{= "Generate optimized code";}.
 
 
-\Item \textbf{Be aware of the visitor order.} Normally, all visitors override the \CodeIn{leaveCall} method to manipulate the AST. You can treat this method to visit a given AST in a bottom-up manner.  Roughly speaking, for the code snippet below, it will visit code places in the order of \textit{A, B, C,  D, E, and F}.
+\Item \textbf{Be aware of the visitor order.} Normally, all visitors override the \CodeIn{leaveCall} method to manipulate an AST. You can treat this method to visit a given AST in a bottom-up manner.  Roughly speaking, for the code snippet below, it will visit code places in the order of \textit{A, B, C,  D, E, and F}.
 
 \begin{CodeOut}
 \begin{alltt}
