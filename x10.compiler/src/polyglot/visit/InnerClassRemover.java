@@ -176,8 +176,8 @@ public abstract class InnerClassRemover extends ContextVisitor {
         if(isDataCentric &&
         		neu.constructorInstance().def().formalTypes().size() != args.size()
         		&& !X10TypeUtils.skipClassByName(neu.constructorInstance().def().container().get().toString())) {
-        	System.out.println("--- act on inner class removing, remove constructor. "
-        			+ neu);
+//        	System.out.println("--- act on inner class removing, remove constructor. "
+//        			+ neu);
           List<Ref<? extends Type>> formalTypes = new LinkedList<Ref<? extends Type>>();
           formalTypes.add(Types.ref(neu.objectType().type()));
           formalTypes.addAll(neu.constructorInstance().def().formalTypes());

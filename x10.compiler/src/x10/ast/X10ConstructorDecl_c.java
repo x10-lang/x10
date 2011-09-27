@@ -659,6 +659,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
     			X10ClassDecl_c.accumulateAtomicFields(fieldClazzType.def());
     			//if the field has atomic context.
     			if(fieldClazzType.getAtomicContext() != null) {
+    				
     				//check the field class, as well as the class should have atomic fields
     				if(!fieldClazzType.def().hasAtomicFields(false)) {
 						Errors.issue(tc.job(),

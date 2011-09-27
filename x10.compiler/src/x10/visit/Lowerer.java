@@ -724,7 +724,7 @@ public class Lowerer extends ContextVisitor {
 
     // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }
     private Stmt visitAtomic(Atomic a) throws SemanticException {
-    	System.out.println("process atomic in lowerer, pos: " + a.position());
+    	//System.out.println("process atomic in lowerer, pos: " + a.position());
         Position pos = a.position();
 
         final Name varName = Context.makeFreshName("dummyLock");

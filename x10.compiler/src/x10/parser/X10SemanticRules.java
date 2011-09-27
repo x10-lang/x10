@@ -2570,10 +2570,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 		// type);
 		// for data-centric synchronization
 		type.setFlagsNode(SimpleNamedType.getFlagsNode());
-		if (type.getFlagsNode() != null) {
-			System.out.println("  @SemanticRules type is: " + type + ", pos: "
-					+ pos());
-		}
+//		if (type.getFlagsNode() != null) {
+//			System.out.println("  @SemanticRules type is: " + type + ", pos: "
+//					+ pos());
+//		}
 		setResult(type);
 	}
 
@@ -2956,8 +2956,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes {
 		fn = fn.flags(fn.flags().clearAtomic());
 		// save the flag information
 		TypeName.setFlagsNode(fn);
-		System.out.println("@X10SemanticRules: " + fn + ",  pos: " + TypeName
-				+ ", modifier: " + modifiers);
+//		System.out.println("@X10SemanticRules: " + fn + ",  pos: " + TypeName
+//				+ ", modifier: " + modifiers);
 		setResult(TypeName);
 	}
 

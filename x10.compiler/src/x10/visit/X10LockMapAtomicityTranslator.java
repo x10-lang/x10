@@ -625,8 +625,8 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
         	
         	//remove the atomic flag in method
         	n = n.flags(nf.FlagsNode(pos, n.flags().flags().clearAtomic()));
-        	System.out.println("process atomic method in X10LinkedAtomicityTranslator, pos: " + n.position());
-        	System.out.println("  remove atomic: " + n.position());
+//        	System.out.println("process atomic method in X10LinkedAtomicityTranslator, pos: " + n.position());
+//        	System.out.println("  remove atomic: " + n.position());
         }
     	
     	return n.body(newBlock);
@@ -887,7 +887,7 @@ public class X10LockMapAtomicityTranslator extends ContextVisitor {
         	atomic = (Atomic_c) atomic.body(newBlock);
     	}
     	
-    	System.out.println("process atomic in X10LockMapAtomicityTranslator, pos: " + pos);
+    	//System.out.println("process atomic in X10LockMapAtomicityTranslator, pos: " + pos);
     	
     	return atomic; //note, will get rid of atomic notation after visiting all classes
     }

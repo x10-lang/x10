@@ -20,11 +20,13 @@ import java.util.List;
 import polyglot.ast.AmbTypeNode;
 import polyglot.ast.CanonicalTypeNode;
 import polyglot.ast.ClassBody;
+import polyglot.ast.ConstructorCall.Kind;
 import polyglot.ast.Expr;
 import polyglot.ast.New;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.Special;
 import polyglot.ast.TypeNode;
 import polyglot.ast.ProcedureCall;
 import polyglot.types.ClassDef;
@@ -460,9 +462,18 @@ public class X10New_c extends New_c implements X10New {
 			if(providedArgClazz != null) {
 				//check whether the atomic context matches
 				if(definedClazzType.hasAtomicContext() && !providedArgClazz.hasAtomicContext()) {
-					SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(providedArgExpr,
+					boolean isThis = false;
+					if(providedArgExpr instanceof X10Special_c) {
+						X10Special_c special = (X10Special_c)providedArgExpr;
+						if(special.kind().equals(Special.Kind.THIS)) {
+							isThis = true;
+						}
+					}
+					if(!isThis) {
+					  SemanticException e = new Errors.TypeDoesnotHaveAtomicContext(providedArgExpr,
 							providedArgClazz, definedClazzType.getAtomicContext(), providedArgExpr.position());
-					Errors.issue(tc.job(), e);
+					  Errors.issue(tc.job(), e);
+					}
 				}
 				if(!definedClazzType.hasAtomicContext() && providedArgClazz.hasAtomicContext()) {
 					SemanticException e = new Errors.TypeCanNotHaveAtomicContext(providedArgExpr,
