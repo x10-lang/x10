@@ -97,11 +97,6 @@ public final class Array[T] (
     private val raw:IndexedMemoryChunk[T];
     
     /**
-     * Helper struct that encapsulates layout calculation for non-rail Arrays.
-     */
-    private val layout:RectLayout;
-    
-    /**
      * Return the IndexedMemoryChunk[T] that is providing the backing storage for the array.
      * This method is primarily intended to be used to interface with native libraries 
      * (eg BLAS, ESSL). <p>
@@ -128,9 +123,12 @@ public final class Array[T] (
     public @Inline def this(reg:Region) {T haszero}
     {
         property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
-        
-        layout = RectLayout(reg);
-        val n = layout.size();
+        val crh = new LayoutHelper(reg);
+        layout_min0 = crh.min0;
+        layout_stride1 = crh.stride1;
+        layout_min1 = crh.min1;
+        layout = crh.layout;
+        val n = crh.size;
         raw = IndexedMemoryChunk.allocateZeroed[T](n);
     }   
 
@@ -153,12 +151,15 @@ public final class Array[T] (
     public @Inline def this(reg:Region, init:(Point(reg.rank))=>T)
     {
         property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
-        
-        layout = RectLayout(reg);
-        val n = layout.size();
+        val crh = new LayoutHelper(reg);
+        layout_min0 = crh.min0;
+        layout_stride1 = crh.stride1;
+        layout_min1 = crh.min1;
+        layout = crh.layout;
+        val n = crh.size;
         val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         for (p:Point(reg.rank) in reg) {
-            r(layout.offset(p))= init(p);
+            r(offset(p))= init(p);
         }
         raw = r;
     }
@@ -174,8 +175,12 @@ public final class Array[T] (
     {
         property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
-        layout = RectLayout(reg);
-        val n = layout.size();
+        val crh = new LayoutHelper(reg);
+        layout_min0 = crh.min0;
+        layout_stride1 = crh.stride1;
+        layout_min1 = crh.min1;
+        layout = crh.layout;
+        val n = crh.size;
         val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
         if (reg.rect) {
             // Can be optimized into a simple fill of the backing IndexedMemoryChunk
@@ -185,7 +190,7 @@ public final class Array[T] (
             }
         } else {
             for (p:Point(reg.rank) in reg) {
-                r(layout.offset(p))= init;
+                r(offset(p))= init;
             }
         }
         raw = r;
@@ -206,8 +211,12 @@ public final class Array[T] (
     {
         property(reg as Region{self!=null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
         
-        layout = RectLayout(reg);
-        val n = layout.size();
+        val crh = new LayoutHelper(reg);
+        layout_min0 = crh.min0;
+        layout_stride1 = crh.stride1;
+        layout_min1 = crh.min1;
+        layout = crh.layout;
+        val n = crh.size;
         if (n > backingStore.length()) {
             throw new IllegalArgumentException("backingStore too small");
         }
@@ -218,7 +227,6 @@ public final class Array[T] (
      * Construct an Array view of a backing IndexedMemoryChunk
      * using the region (0..backingStore.length-1)
      * 
-     * @param reg The region over which to define the array.
      * @param backingStore The backing storage for the array data.
      */
     public @Inline def this(backingStore:IndexedMemoryChunk[T])
@@ -226,12 +234,9 @@ public final class Array[T] (
         val myReg = new RectRegion1D(0, backingStore.length()-1) 
              as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
         property(myReg, 1, true, true, true, backingStore.length());
-        
-        layout = RectLayout(myReg);
-        val n = layout.size();
-        if (n > backingStore.length()) {
-            throw new IllegalArgumentException("backingStore too small");
-        }
+
+	layout_min0 = layout_stride1 = layout_min1 = 0;
+        layout = null;
         raw = backingStore;
     }
 
@@ -244,10 +249,10 @@ public final class Array[T] (
         val myReg = new RectRegion1D(0, size-1) 
              as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
         property(myReg, 1, true, true, true, size);
-        
-        layout = RectLayout(0, size-1);
-        val n = layout.size();
-        raw = IndexedMemoryChunk.allocateZeroed[T](n);
+
+	layout_min0 = layout_stride1 = layout_min1 = 0;
+        layout = null;
+        raw = IndexedMemoryChunk.allocateZeroed[T](size);
     }
     
     
@@ -272,9 +277,9 @@ public final class Array[T] (
         val myReg = new RectRegion1D(0, size-1) as Region{self.zeroBased, self.rail,self.rank==1,self.rect, self!=null};
         property(myReg, 1, true, true, true, size);
         
-        layout = RectLayout(0, size-1);
-        val n = layout.size();
-        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
+	layout_min0 = layout_stride1 = layout_min1 = 0;
+        layout = null;
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](size);
         for (i in 0..(size-1)) {
             r(i)= init(i);
         }
@@ -295,9 +300,9 @@ public final class Array[T] (
            as Region{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
         property(myReg, 1, true, true, true, size);
         
-        layout = RectLayout(0, size-1);
-        val n = layout.size();
-        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
+	layout_min0 = layout_stride1 = layout_min1 = 0;
+        layout = null;
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](size);
         for (i in 0..(size-1)) {
             r(i)= init;
         }
@@ -313,10 +318,12 @@ public final class Array[T] (
     public @Inline def this(init:Array[T])
     {
         property(init.region, init.rank, init.rect, init.zeroBased, init.rail, init.size);
-        layout = RectLayout(region);
-        val n = layout.size();
-        val r  = IndexedMemoryChunk.allocateUninitialized[T](n);
-        IndexedMemoryChunk.copy(init.raw, 0, r, 0, n);
+        layout_min0 = init.layout_min0;
+        layout_stride1 = init.layout_stride1;
+        layout_min1 = init.layout_min1;
+        layout = init.layout;
+        val r  = IndexedMemoryChunk.allocateUninitialized[T](init.raw.length());
+        IndexedMemoryChunk.copy(init.raw, 0, r, 0, r.length());
         raw = r;
     }
     
@@ -414,7 +421,7 @@ public final class Array[T] (
             if (CompilerFlags.checkBounds() && !region.contains(i0)) {
                 raiseBoundsError(i0);
             }
-            return raw(layout.offset(i0));
+	    return raw(i0 - layout_min0);
         }
     }
     
@@ -433,7 +440,9 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        return raw(layout.offset(i0,i1));
+        var offset:int  = i0 - layout_min0;
+        offset = offset*layout_stride1 + i1 - layout_min1;
+        return raw(offset);
     }
     
     /**
@@ -452,7 +461,7 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        return raw(layout.offset(i0, i1, i2));
+        return raw(offset(i0, i1, i2));
     }
     
     /**
@@ -472,7 +481,7 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        return raw(layout.offset(i0, i1, i2, i3));
+        return raw(offset(i0, i1, i2, i3));
     }
     
     /**
@@ -488,7 +497,7 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(pt)) {
             raiseBoundsError(pt);
         }
-        return raw(layout.offset(pt));
+        return raw(offset(pt));
     }
     
     
@@ -513,7 +522,7 @@ public final class Array[T] (
             if (CompilerFlags.checkBounds() && !region.contains(i0)) {
                 raiseBoundsError(i0);
             }
-            raw(layout.offset(i0)) = v;
+            raw(i0-layout_min0) = v;
         }
         return v;
     }
@@ -535,7 +544,9 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1)) {
             raiseBoundsError(i0, i1);
         }
-        raw(layout.offset(i0,i1)) = v;
+        var offset:int  = i0 - layout_min0;
+        offset = offset*layout_stride1 + i1 - layout_min1;
+        raw(offset) = v;
         return v;
     }
     
@@ -557,7 +568,7 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2)) {
             raiseBoundsError(i0, i1, i2);
         }
-        raw(layout.offset(i0, i1, i2)) = v;
+        raw(offset(i0, i1, i2)) = v;
         return v;
     }
     
@@ -580,7 +591,7 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(i0, i1, i2, i3)) {
             raiseBoundsError(i0, i1, i2, i3);
         }
-        raw(layout.offset(i0, i1, i2, i3)) = v;
+        raw(offset(i0, i1, i2, i3)) = v;
         return v;
     }
     
@@ -599,7 +610,7 @@ public final class Array[T] (
         if (CompilerFlags.checkBounds() && !region.contains(p)) {
             raiseBoundsError(p);
         }
-        raw(layout.offset(p)) = v;
+        raw(offset(p)) = v;
         return v;
     }
     
@@ -619,7 +630,7 @@ public final class Array[T] (
             }   
         } else {
             for (p in region) {
-                raw(layout.offset(p)) = v;
+                raw(offset(p)) = v;
             }
         }
     }
@@ -1165,7 +1176,112 @@ public final class Array[T] (
     private static @NoInline @NoReturn def raiseBoundsError(pt:Point) {
         throw new ArrayIndexOutOfBoundsException("point " + pt + " not contained in array");
     }    
+
+    /*
+     * Implementation of layout calculations.
+     * An inlined version of the code that used to be in RectLayout,
+     * Structured this way to obtain optimal time/space performance
+     * on both Managed and Native X10 for arrays of rank 1 and 2.
+     */
+
+    val layout_min0:int;
+    val layout_stride1:int;
+    val layout_min1:int;
+
+    /*
+     * Contains stride and min information for dimensions > 2.
+     * Will be null if rank<=2.
+     * layout(2*(i-2)) is the stride for dimension i.
+     * layout(2*(i-2)+1) is the min value for dimension i.
+     */
+    val layout:Rail[int];
+
+    // NOTE: Hand-inlined into operator this() 
+    private @Inline def offset(i0:int) = i0 - layout_min0;
+
+    // NOTE: Hand-inlined into operator this() 
+    private @Inline def offset(i0:int, i1:int) {
+        var offset:int  = i0 - layout_min0;
+        offset = offset*layout_stride1 + i1 - layout_min1;
+        return offset;
+    }
+
+    private @Inline def offset(i0:int, i1:int, i2:int) {
+        var offset:int  = i0 - layout_min0;
+        offset = offset*layout_stride1 + i1 - layout_min1;
+        offset = offset*layout(0) + i2 - layout(1);
+        return offset;
+    }
+
+    private @Inline def offset(i0:int, i1:int, i2:int, i3:int) {
+        var offset:int  = i0 - layout_min0;
+        offset = offset*layout_stride1 + i1 - layout_min1;
+        offset = offset*layout(0) + i2 - layout(1);
+        offset = offset*layout(2) + i3 - layout(3);
+        return offset;
+    }
+
+    private @Inline def offset(pt:Point):int {
+        var offset:int = pt(0) - layout_min0;
+        if (pt.rank>1) {
+            offset = offset*layout_stride1 + pt(1) - layout_min1;
+            for (i in 2..(pt.rank-1)) {
+                offset = offset * layout(2*(i-2)) + pt(i) - layout(2*(i-2)+1);
+            }
+        }
+        return offset;
+    }
+
+    // We could eliminate this struct at the cost of making the 
+    // layout related fields of the class var instead of val.
+    // There's no good way in X10 to factor out the initialization of
+    // a subset of a classes val fields, so instead we use this struct to
+    // bundle up the initial values of the instance fields and then copy them
+    // to the actual fields in the various Array constructors.
+    private static struct LayoutHelper {
+        val min0:int;
+        val stride1:int;
+        val min1:int;
+        val size:int;
+        val layout:Rail[int];
+
+        def this(reg:Region) {
+            if (reg.isEmpty()) {
+                min0 = stride1 = min1 = 0;
+                size = 0;
+                layout = null;
+            } else {
+                if (reg.rank == 1) {
+                    min0 = reg.min(0);
+                    stride1 = 0;
+                    min1 = 0;
+                    size = reg.max(0) - reg.min(0) + 1;
+                    layout = null;
+                } else if (reg.rank == 2) {
+                    min0 = reg.min(0);
+                    min1 = reg.min(1);
+                    stride1 = reg.max(1) - reg.min(1) + 1;
+                    size = stride1 * (reg.max(0)-reg.min(0)+1);
+                    layout = null;
+                } else {
+                    layout = new Rail[int](2*(reg.rank-2));
+                    min0 = reg.min(0);
+                    min1 = reg.min(1);
+                    stride1 = reg.max(1) - reg.min(1) + 1;
+                    var sz:int = stride1 * (reg.max(0)-reg.min(0)+1);
+                    for (i in 2..(reg.rank-1)) {
+                        val stride = reg.max(i) - reg.min(i) + 1;
+	                sz *= stride;
+                        layout(2*(i-2)) = stride;
+                        layout(2*(i-2)+1) = reg.min(i);
+                    }
+                    size = sz;
+                }
+            }
+        }
+    }
 }
+
 public type Array[T](r:Int) = Array[T]{self.rank==r};
 public type Array[T](r:Region) = Array[T]{self.region==r};
 public type Array[T](a:Array[T]) = Array[T]{self==a};
