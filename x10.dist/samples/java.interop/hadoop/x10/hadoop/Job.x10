@@ -8,7 +8,7 @@ import org.apache.hadoop.conf.Configuration;
 public class Job[APPLICATION, MAPPER, COMBINER, REDUCER, KEYOUT, VALUEOUT] {
     val job : org.apache.hadoop.mapreduce.Job;
 
-    @Throws("java.io.IOException")
+    @Throws[java.io.IOException]
     def this(conf: Configuration, name: String) {
         job = new org.apache.hadoop.mapreduce.Job(conf, name);
         job.setJarByClass(Java.javaClass[APPLICATION]());
