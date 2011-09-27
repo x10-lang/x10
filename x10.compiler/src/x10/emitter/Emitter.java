@@ -1972,6 +1972,8 @@ public class Emitter {
 	    w.end();
 	    w.write(")");
 
+	    w.write(printThrowsClause(def));
+
 	    /* Remove throw types support
 	    if (!impl.throwTypes().isEmpty()) {
 	        w.allowBreak(6);
@@ -2089,7 +2091,9 @@ public class Emitter {
     
     	    w.end();
     	    w.write(")");
-    
+
+    	    w.write(printThrowsClause(def));
+
     	    /** Remove throw types support.
     	    if (!mi.throwTypes().isEmpty()) {
     	        w.allowBreak(6);

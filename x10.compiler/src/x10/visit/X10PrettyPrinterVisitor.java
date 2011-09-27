@@ -1442,6 +1442,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             printConstructorFormals(n, false);
        
+            w.write(Emitter.printThrowsClause(n.constructorDef()));
+
             w.write("{");
             
             w.write("return ");
