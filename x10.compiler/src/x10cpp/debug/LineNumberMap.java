@@ -1419,7 +1419,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B08170C, // 2011-08-23, 12:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B091C0F, // 2011-09-28, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");

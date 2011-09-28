@@ -3456,7 +3456,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			        	for (int i=0; i< n.formals().size(); i++)
 			        	{
 			        		Formal f = n.formals().get(i);
-			        		lineNumberMap.addLocalVariableMapping(f.name().toString(), f.type().toString(), c.currentCode().position().line(), c.currentCode().position().endLine(), c.currentCode().position().file(), true, -2, false);
+			        		X10ClassType t = f.type().type().toClass();
+			        		lineNumberMap.addLocalVariableMapping(f.name().toString(), f.type().toString(), c.currentCode().position().line(), c.currentCode().position().endLine(), c.currentCode().position().file(), true, -2, (t==null?false:t.isX10Struct()));
 			        	}
 		        	}
 		        }
