@@ -777,7 +777,7 @@ doTest() {
 	# TODO: run test via TestHarness instead.
 # run the x10 test case $tstDir/$srcDir/test.x10
 
-  chkArgs 7 "$@"
+  chkArgs 8 "$@"
   local srcDir="$1"
   local testDir="$2"
   local test="$3"
