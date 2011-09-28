@@ -33,7 +33,8 @@ import java.util.TreeSet;
 public class X10JavaSerializer {
 
     // When a Object is serialized record its position
-    IdentityHashMap<Object, Integer> objectMap = new IdentityHashMap<Object, Integer>();
+    // N.B. set initial size to 19 as a workaround for frequent hash collision with J9
+    IdentityHashMap<Object, Integer> objectMap = new IdentityHashMap<Object, Integer>(19);
     DataOutputStream out;
     int counter = 0;
 
