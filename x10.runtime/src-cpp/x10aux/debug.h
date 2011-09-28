@@ -185,7 +185,7 @@ struct _MetaDebugInfo_t {
 
 //extern void _X10_Entry_Hook();     // A hook at the start of every X10 method.
 //extern void _X10_Exit_Hook();      // A hook at the end of every X10 method.
-extern void _X10_STATEMENT_HOOK();   // A hook at the start of every X10 executable statement.
+//extern void _X10_STATEMENT_HOOK();   // A hook at the start of every X10 executable statement.
                                      // Follows any method start hook, and precedes any method end hook.
 
 #ifdef __APPLE__

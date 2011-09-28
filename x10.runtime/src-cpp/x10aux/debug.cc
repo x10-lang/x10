@@ -19,6 +19,6 @@
 
 // A hook at the start of every X10 executable statement.
 // Follows any method start hook, and precedes any method end hook.
-void _X10_STATEMENT_HOOK() { }
+//void _X10_STATEMENT_HOOK() { }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

@@ -184,6 +184,7 @@ public class X10CPPTranslator extends Translator {
 		}
 		
 		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
+/* 		Statement hooks are no longer needed in the current debugger.  They were used by the "small scale" debugger, based on gdb.
 		if (opts.x10_config.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If) && !(n instanceof For))
 		{
 			w.write("_X10_STATEMENT_HOOK()");
@@ -192,6 +193,7 @@ public class X10CPPTranslator extends Translator {
 			else
 				w.write(", ");
 		}
+*/		
 		
 		final int startLine = w.currentStream().getStreamLineNumber(); // for debug info
 
