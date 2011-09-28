@@ -19,7 +19,7 @@ import x10.compiler.Inline;
  * Complex is a struct representing a complex number (a + b*i).
  * The real and imaginary components are represented as Doubles.
  */
-public struct Complex /*TODO implements Arithmetic[Complex]*/ {
+public struct Complex implements Arithmetic[Complex] {
 
     /** The real component of this complex number. */
     public val re:Double;
