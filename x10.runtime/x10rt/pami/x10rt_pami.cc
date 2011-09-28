@@ -105,6 +105,13 @@ struct x10rt_pami_team
 	pami_task_t *places; // list of team members
 };
 
+struct x10rt_pami_team_destroy
+{
+	x10rt_completion_handler *tch;
+	void *arg;
+	int teamid;
+};
+
 struct x10rt_pami_team_databuffer
 {
 	uint32_t teamId;
@@ -258,10 +265,16 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 		PAMI_Client_query (state.client, &configuration, 1);
 		if (configuration.value.intval == 0)
 		{
+			#ifdef __GNUC__
+			__extension__
+			#endif
 			async_progress_register_function PAMIX_Context_async_progress_register = (async_progress_register_function) PAMI_Extension_symbol (state.async_extension, "register");
 			PAMIX_Context_async_progress_register (context, NULL, NULL, NULL, NULL);
 		}
 
+		#ifdef __GNUC__
+		__extension__
+		#endif
 		async_progress_enable_function PAMIX_Context_async_progress_enable = (async_progress_enable_function) PAMI_Extension_symbol (state.async_extension, "enable");
 		PAMIX_Context_async_progress_enable (context, PAMIX_ASYNC_ALL);
 
@@ -759,6 +772,19 @@ static void team_create_dispatch (
 	}
 }
 
+static void team_destroy_complete (pami_context_t context, void* cookie, pami_result_t result)
+{
+	if (result != PAMI_SUCCESS)
+		error("Error detected in team_destroy_complete");
+
+	x10rt_pami_team_destroy* ptd = (x10rt_pami_team_destroy*)cookie;
+
+	state.teams[ptd->teamid].size = 0;
+	free(state.teams[ptd->teamid].places);
+	state.teams[ptd->teamid].places = NULL;
+	ptd->tch(ptd->arg);
+	free(cookie);
+}
 
 
 /** Initialize the X10RT API logical layer.
@@ -869,6 +895,9 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			status = PAMI_Extension_open (state.client, "EXT_hfi_extension", &state.hfi_extension);
 			if (status == PAMI_SUCCESS)
 			{
+				#ifdef __GNUC__
+				__extension__
+				#endif
 				state.hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(state.hfi_extension, "hfi_remote_update"); // if fail, hfi_update is set to NULL
 				#ifdef DEBUG
 					fprintf(stderr, "HFI present and enabled at place %u\n", state.myPlaceId);
@@ -1318,6 +1347,9 @@ void x10rt_net_finalize()
 
 	if (state.async_extension != NULL)
 	{
+		#ifdef __GNUC__
+		__extension__
+		#endif
 		async_progress_disable_function PAMIX_Context_async_progress_disable = (async_progress_disable_function) PAMI_Extension_symbol (state.async_extension, "disable");
 		if (state.numParallelContexts)
 			for (int i=0; i<state.numParallelContexts; i++)
@@ -1695,12 +1727,26 @@ void x10rt_net_team_del (x10rt_team team, x10rt_place role,
                          x10rt_completion_handler *ch, void *arg)
 {
 	pami_result_t status = PAMI_ERROR;
-	status = PAMI_Geometry_destroy(state.client, &state.teams[team].geometry);
+	pami_context_t context;
+
+	x10rt_pami_team_destroy* ptd = (x10rt_pami_team_destroy*)malloc(sizeof(x10rt_pami_team_destroy));
+	ptd->teamid = team;
+	ptd->arg = arg;
+	ptd->tch = ch;
+	if (state.numParallelContexts)
+		context = getConcurrentContext();
+	else
+	{
+		context = state.context[0];
+		status = PAMI_Context_lock(context);
+		if (status != PAMI_SUCCESS) error("Unable to lock the context to send a message");
+	}
+
+	status = PAMI_Geometry_destroy(state.client, &state.teams[team].geometry, context, team_destroy_complete, ptd);
 	if (status != PAMI_SUCCESS) error("Unable to destroy geometry");
-	state.teams[team].size = 0;
-	free(state.teams[team].places);
-	state.teams[team].places = NULL;
-	ch(arg);
+
+	if (!state.numParallelContexts)
+		PAMI_Context_unlock(context);
 }
 
 x10rt_place x10rt_net_team_sz (x10rt_team team)
