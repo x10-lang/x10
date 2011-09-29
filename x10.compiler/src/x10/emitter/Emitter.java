@@ -1459,7 +1459,7 @@ public class Emitter {
         }
     }
     
-    public boolean alreadyPrinted(List<Type> alreadyPrintedTypes, Type type) {
+    public static boolean alreadyPrinted(List<Type> alreadyPrintedTypes, Type type) {
         boolean alreadyPrinted = false;
         if (type instanceof FunctionType) {
             if (((FunctionType) type).returnType().isVoid()) {
@@ -1606,9 +1606,8 @@ public class Emitter {
 	    }
 
 	    X10ClassType ct = cd.asType();
-	    List<MethodInstance> methods;
 	    for (MethodDef md : cd.methods()) {
-	        methods = getInstantiatedMethods(ct, md.asInstance());
+	        List<MethodInstance> methods = getInstantiatedMethods(ct, md.asInstance());
 	        for (MethodInstance mi : methods) {
 	            printBridgeMethod(ct, md.asInstance(), mi.def(), false);
 	        }
@@ -1640,9 +1639,9 @@ public class Emitter {
 	    }
 	}
 
-    private void getInheritedMethods(X10ClassType ct, List<MethodInstance> results, List<MethodInstance> overrides) {
+    private void getInheritedMethods(X10ClassType ct, List<MethodInstance> inheriteds, List<MethodInstance> overrides) {
         ArrayList<MethodInstance> list = new ArrayList<MethodInstance>(ct.methods());
-        list.addAll(results);
+        list.addAll(inheriteds);
         for (MethodInstance mi : list) {
             for (MethodInstance mi2 : mi.overrides(tr.context())) {
                 if (X10PrettyPrinterVisitor.isGenericOverloading || (ct.superClass() != null && mi2.container().typeEquals(ct.superClass(), tr.context()))) {
@@ -1662,11 +1661,11 @@ public class Emitter {
                         }
                     }
                     if (!contains) {
-                        results.add(mi);
+                        inheriteds.add(mi);
                     }
                 }
             }
-            getInheritedMethods(sup.toClass(), results, overrides);
+            getInheritedMethods(sup.toClass(), inheriteds, overrides);
         }       
     }
 
@@ -1738,6 +1737,7 @@ public class Emitter {
                 for (MethodInstance mi1 : methods) {
                     if (mi1.def().equals(impled.def())) {
                         contains = true;
+                        break;
                     }
                 }
                 if (contains) continue;
@@ -1799,9 +1799,7 @@ public class Emitter {
     private boolean existMethodInterfaces(Type t, Type type, MethodInstance mi, MethodInstance mdi) {
 	    if (t.typeEquals(type, tr.context())) {
 	        Type returnType = mdi.returnType();
-	        if (
-	                isInstantiated(mi.def().returnType().get(), returnType)
-	        ) {
+	        if (isInstantiated(mi.def().returnType().get(), returnType)) {
 	            if (X10PrettyPrinterVisitor.isGenericOverloading) {
 	                boolean containsTypeParam = false;
 	                List<Ref<? extends Type>> types = mi.def().formalTypes();
@@ -1846,27 +1844,57 @@ public class Emitter {
 	    return X10PrettyPrinterVisitor.isPrimitive(type);
 	}
 
-	private boolean containsInstantiatedMethod(List<MethodInstance> methods, MethodInstance impled) {
-        for (MethodInstance mi : methods) {
+    // old and potentially buggy code
+//	private boolean containsInstantiatedMethod(List<MethodInstance> methods, MethodInstance impled) {
+//        for (MethodInstance mi : methods) {
+//            if (
+//                !(
+//                    (Types.baseType(mi.def().returnType().get()) instanceof ParameterType && Types.baseType(impled.def().returnType().get()) instanceof ParameterType)
+//                    || (!(Types.baseType(mi.def().returnType().get()) instanceof ParameterType) && !(Types.baseType(impled.def().returnType().get()) instanceof ParameterType))
+//                )
+//            ) {
+//                continue;
+////                return false;
+//            }
+//            List<Ref<? extends Type>> types = mi.def().formalTypes();
+//            for (int i = 0;i < types.size(); ++i) {
+//                if (
+//                    !(
+//                        (Types.baseType(types.get(i).get()) instanceof ParameterType && Types.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
+//                        || (!(Types.baseType(types.get(i).get()) instanceof ParameterType) && !(Types.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
+//                ) {
+//                    continue;
+////                    return false;
+//                }
+//            }
+//            return true;
+//        }
+//        return false;
+//    }
+    // correct code
+    private static boolean containsInstantiatedMethod(List<MethodInstance> methods, MethodInstance impled) {
+        MethodDef impledDef = impled.def();
+        List<Ref<? extends Type>> implFormalTypes = impledDef.formalTypes();
+        methods: for (MethodInstance mi : methods) {
+            MethodDef miDef = mi.def();
+            Type miReturnType = miDef.returnType().get();
+            Type impledReturnType = impledDef.returnType().get();
             if (
                 !(
-                    (Types.baseType(mi.def().returnType().get()) instanceof ParameterType && Types.baseType(impled.def().returnType().get()) instanceof ParameterType)
-                    || (!(Types.baseType(mi.def().returnType().get()) instanceof ParameterType) && !(Types.baseType(impled.def().returnType().get()) instanceof ParameterType))
+                    (miReturnType.isParameterType() && impledReturnType.isParameterType())
+                    || (!miReturnType.isParameterType() && !impledReturnType.isParameterType())
                 )
-            ) {
-                continue;
-//                return false;
-            }
-            List<Ref<? extends Type>> types = mi.def().formalTypes();
-            for (int i = 0;i < types.size(); ++i) {
+            ) continue;
+            List<Ref<? extends Type>> miFormalTypes = miDef.formalTypes();
+            for (int i = 0; i < miFormalTypes.size(); ++i) {
+                Type miFormalType = miFormalTypes.get(i).get();
+                Type implFormalType = implFormalTypes.get(i).get();
                 if (
                     !(
-                        (Types.baseType(types.get(i).get()) instanceof ParameterType && Types.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
-                        || (!(Types.baseType(types.get(i).get()) instanceof ParameterType) && !(Types.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
-                ) {
-                    continue;
-//                    return false;
-                }
+                        (miFormalType.isParameterType() && implFormalType.isParameterType())
+                        || (!miFormalType.isParameterType() && !implFormalType.isParameterType())
+                    )
+                ) continue methods;
             }
             return true;
         }
