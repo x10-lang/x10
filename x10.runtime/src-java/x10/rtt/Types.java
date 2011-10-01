@@ -29,10 +29,10 @@ public class Types {
         Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
         if (supportTypeParameterOfJavaType && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
             // type parameters for unknown raw Java classes are Any
-            x10.rtt.RuntimeType.Variance[] variances = new x10.rtt.RuntimeType.Variance[typeVariables.length];
-            java.util.Arrays.fill(variances, x10.rtt.RuntimeType.Variance.INVARIANT);
+            RuntimeType.Variance[] variances = new RuntimeType.Variance[typeVariables.length];
+            java.util.Arrays.fill(variances, RuntimeType.Variance.INVARIANT);
             // add superclass and all interfaces to parents
-            x10.rtt.Type<?>[] parents = new x10.rtt.Type[interfaces.length + (superclass != null ? 1 : 0)];
+            Type<?>[] parents = new Type[interfaces.length + (superclass != null ? 1 : 0)];
             int i = 0;
             for (Class<?> intf : interfaces) {
                 java.lang.reflect.TypeVariable<?>[] parentTypeVariables = intf.getTypeParameters();
@@ -570,13 +570,13 @@ public class Types {
     	return rtt.isSubtype(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
     }
 
-    public static <T> T cast(final java.lang.Object self, x10.rtt.Type<?> rtt) {
+    public static <T> T cast(final java.lang.Object self, Type<?> rtt) {
         if (self == null) return null;
         if (rtt != null && !rtt.instanceOf(self)) throw new x10.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
-    public static <T> T castConversion(final java.lang.Object self, x10.rtt.Type<?> rtt) {
+    public static <T> T castConversion(final java.lang.Object self, Type<?> rtt) {
         if (self == null) return null;
         T ret = (T) conversion(rtt, self, true);
         if (rtt != null && !rtt.instanceOf(ret)) throw new x10.lang.ClassCastException(rtt.typeName());

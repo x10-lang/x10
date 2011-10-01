@@ -17,6 +17,7 @@ import x10.lang.Iterator;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -66,7 +67,7 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
     public static final RuntimeType<X10Throwable> $RTT = new NamedType<X10Throwable>(
         "x10.lang.Throwable",
         X10Throwable.class,
-        new Type[] { x10.rtt.Types.OBJECT }
+        new Type[] { Types.OBJECT }
     );
     public RuntimeType<?> $getRTT() {
         return $RTT;

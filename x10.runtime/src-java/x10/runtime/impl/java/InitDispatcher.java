@@ -19,6 +19,9 @@ import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.List;
 
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
+
 import x10.core.ThrowableUtilities;
 import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
@@ -66,12 +69,8 @@ public abstract class InitDispatcher {
         $Closure$Initialize(Method initializer) {
         	this.initializer = initializer;
         }
-        public x10.rtt.RuntimeType<?> $getRTT() {
-            return $RTT;
-        }
-        public x10.rtt.Type<?> $getParam(int i) {
-            return null;
-        }
+        public RuntimeType<?> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) { return null; }
 
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
             throw new UnsupportedOperationException("Cannot serialize " + getClass());
@@ -147,12 +146,8 @@ public abstract class InitDispatcher {
         $Closure$Deserialize() {
         }
 
-        public x10.rtt.RuntimeType<?> $getRTT() {
-            return $RTT;
-        }
-        public x10.rtt.Type<?> $getParam(int i) {
-            return null;
-        }
+        public RuntimeType<?> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) { return null; }
 
         // This is not meant to be serialized.
         public void $_serialize(X10JavaSerializer serializer) throws IOException {

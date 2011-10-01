@@ -32,7 +32,7 @@ public class AnyType extends RuntimeType<Object> {
     
     // for shortcut
     @Override
-    public boolean isSubtype(x10.rtt.Type<?> o) {
+    public boolean isSubtype(Type<?> o) {
         return o == Types.ANY;
     };
     

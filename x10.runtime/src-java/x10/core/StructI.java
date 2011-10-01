@@ -12,9 +12,10 @@
 package x10.core;
 
 import x10.rtt.RuntimeType;
+import x10.rtt.Types;
 
 // Base interface for all X10 structs
 public interface StructI extends Any, Cloneable {
-    public static final RuntimeType<StructI> $RTT = x10.rtt.Types.STRUCT;
+    public static final RuntimeType<StructI> $RTT = Types.STRUCT;
     public boolean _struct_equals$O(Object o);
 }

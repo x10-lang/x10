@@ -11,6 +11,8 @@
 
 package x10.core;
 
+import x10.rtt.RuntimeType;
+import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
@@ -26,38 +28,39 @@ final public class String extends x10.core.Ref implements
     private static final long serialVersionUID = 1L;
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, String.class);
 
-    public static final x10.rtt.RuntimeType<java.lang.String> $RTT = Types.STRING;
-    
-    public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
-    public x10.rtt.Type<?> $getParam(int i) {return null;}
+    public static final RuntimeType<java.lang.String> $RTT = Types.STRING;
+    @Override
+    public RuntimeType<?> $getRTT() {return $RTT;}
+    @Override
+    public Type<?> $getParam(int i) {return null;}
     
     // dispatcher for method abstract public (a1:Z1)=> U.$apply(a1:Z1): U
-    public x10.core.Char $apply(final x10.core.Int a1, final x10.rtt.Type t1) {
+    public x10.core.Char $apply(final x10.core.Int a1, final Type t1) {
         return x10.core.Char.$box($apply(x10.core.Int.$unbox(a1)));
     }
 
     // dispatcher for method abstract public x10.lang.Comparable.compareTo(that:T): x10.lang.Int
-    public java.lang.Object compareTo(final java.lang.Object a1, final x10.rtt.Type t1) {
+    public java.lang.Object compareTo(final java.lang.Object a1, final Type t1) {
         return compareTo((java.lang.String)a1);
     }
 
     // dispatcher for method abstract public x10.util.Ordered.operator<(that:T):x10.lang.Boolean
-    public java.lang.Object $lt(final java.lang.Object a1, final x10.rtt.Type t1) {
+    public java.lang.Object $lt(final java.lang.Object a1, final Type t1) {
         return x10.core.Boolean.$box($lt$O((java.lang.String) a1));
     }
 
     // dispatcher for method abstract public x10.util.Ordered.operator>(that:T):x10.lang.Boolean
-    public java.lang.Object $gt(final java.lang.Object a1, final x10.rtt.Type t1) {
+    public java.lang.Object $gt(final java.lang.Object a1, final Type t1) {
         return x10.core.Boolean.$box($gt$O((java.lang.String) a1));
     }
 
     // dispatcher for method abstract public x10.util.Ordered.operator<=(that:T):x10.lang.Boolean
-    public java.lang.Object $le(final java.lang.Object a1, final x10.rtt.Type t1) {
+    public java.lang.Object $le(final java.lang.Object a1, final Type t1) {
         return x10.core.Boolean.$box($le$O((java.lang.String) a1));
     }
 
     // dispatcher for method abstract public x10.util.Ordered.operator>=(that:T):x10.lang.Boolean
-    public java.lang.Object $ge(final java.lang.Object a1, final x10.rtt.Type t1) {
+    public java.lang.Object $ge(final java.lang.Object a1, final Type t1) {
         return x10.core.Boolean.$box($ge$O((java.lang.String) a1));
     }
 
@@ -177,11 +180,11 @@ final public class String extends x10.core.Ref implements
 //    }
 //
 //    public x10.core.Rail<java.lang.Character> chars() {
-//        return x10.core.ArrayFactory.<java.lang.Character>makeRailFromJavaArray(x10.rtt.Types.CHAR, $value.toCharArray());
+//        return x10.core.ArrayFactory.<java.lang.Character>makeRailFromJavaArray(Types.CHAR, $value.toCharArray());
 //    }
 //
 //    public x10.core.Rail<java.lang.Byte> bytes() {
-//        return x10.core.ArrayFactory.<java.lang.Byte>makeRailFromJavaArray(x10.rtt.Types.BYTE, $value.getBytes());
+//        return x10.core.ArrayFactory.<java.lang.Byte>makeRailFromJavaArray(Types.BYTE, $value.getBytes());
 //    }
 //
 //    public x10.core.String substring(final int fromIndex, final int toIndex) {
@@ -230,7 +233,7 @@ final public class String extends x10.core.Ref implements
 //        for (int i = 0; i < split.length; i++) {
 //            res[i] = new x10.core.String(split[i]);
 //        }
-//        return x10.core.ArrayFactory.<x10.core.String>makeRailFromJavaArray(x10.rtt.Types.STRING, res);
+//        return x10.core.ArrayFactory.<x10.core.String>makeRailFromJavaArray(Types.STRING, res);
 //    }
 //
 //    public x10.core.String trim() {
@@ -238,7 +241,7 @@ final public class String extends x10.core.Ref implements
 //    }
 
 //    public static <T>x10.core.String
-//        valueOf_0_$$x10$lang$String_T(final x10.rtt.Type T, final T v)
+//        valueOf_0_$$x10$lang$String_T(final Type T, final T v)
 //    {
 //        return new x10.core.String(java.lang.String.valueOf(v));
 //    }
@@ -313,13 +316,13 @@ final public class String extends x10.core.Ref implements
 //    }
 //
 //    final public <T>x10.core.String
-//        $plus_0_$$x10$lang$String_T(final x10.rtt.Type T, final T x)
+//        $plus_0_$$x10$lang$String_T(final Type T, final T x)
 //    {
 //        return new x10.core.String($value + x);
 //    }
 //
 //    public static <T>x10.core.String
-//        $plus_0_$$x10$lang$String_T(final x10.rtt.Type T, final T x, final x10.core.String y)
+//        $plus_0_$$x10$lang$String_T(final Type T, final T x, final x10.core.String y)
 //    {
 //        return new x10.core.String(x + y.$value);
 //    }

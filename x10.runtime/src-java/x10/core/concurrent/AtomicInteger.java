@@ -15,6 +15,7 @@ import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -53,12 +54,11 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     public static final RuntimeType<AtomicInteger> $RTT = new NamedType<AtomicInteger>(
         "x10.util.concurrent.AtomicInteger",
         AtomicInteger.class,
-        new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
+        new Type[] { Types.OBJECT }
     );
     public RuntimeType<AtomicInteger> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {
-        return null;
-    }
+    public Type<?> $getParam(int i) { return null; }
+    
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());
 	}

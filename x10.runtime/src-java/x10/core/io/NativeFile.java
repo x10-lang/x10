@@ -15,6 +15,7 @@ import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
@@ -104,7 +105,7 @@ public class NativeFile extends java.io.File implements RefI {
     public static final RuntimeType<NativeFile> $RTT = new NamedType<NativeFile>(
         "x10.io.File.NativeFile",
         NativeFile.class,
-        new Type[] { x10.rtt.Types.OBJECT }
+        new Type[] { Types.OBJECT }
     );
     public RuntimeType<NativeFile> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }

@@ -15,6 +15,7 @@ import x10.core.Ref;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 
 public class InputStream extends Ref {
   
@@ -121,9 +122,11 @@ public class InputStream extends Ref {
     public static final RuntimeType<InputStream> $RTT = new NamedType<InputStream>(
         "x10.io.InputStreamReader.InputStream",
         InputStream.class,
-        new Type[] { x10.rtt.Types.OBJECT }
+        new Type[] { Types.OBJECT }
     );
+    @Override
     public RuntimeType<?> $getRTT() { return $RTT; }
+    @Override
     public Type<?> $getParam(int i) { return null; }
 
 }

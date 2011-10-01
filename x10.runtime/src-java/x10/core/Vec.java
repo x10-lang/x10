@@ -15,6 +15,7 @@ import x10.array.Array;
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
+import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
@@ -40,20 +41,13 @@ public final class Vec<T> extends x10.core.Struct {
     public static final RuntimeType<Vec<?>> $RTT = new NamedType<Vec<?>>(
         "x10.util.Vec",
         Vec.class,
-        new RuntimeType.Variance[] { RuntimeType.Variance.INVARIANT },
+        new Variance[] { Variance.INVARIANT },
         new Type[] { Types.STRUCT }
     );
-
     @Override
-    public RuntimeType<Vec<?>> $getRTT() {
-        return $RTT;
-    }
-
+    public RuntimeType<Vec<?>> $getRTT() { return $RTT; }
     @Override
-    public Type<?> $getParam(int i) {
-        if (i == 0) return T;
-        return null;
-    }
+    public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 
     private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
         if (x10.runtime.impl.java.Runtime.TRACE_SER) {

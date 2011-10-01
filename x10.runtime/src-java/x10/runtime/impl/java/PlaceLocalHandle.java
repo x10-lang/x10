@@ -11,6 +11,8 @@
 
 package x10.runtime.impl.java;
 
+import x10.rtt.Type;
+
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -60,7 +62,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     }
 
     // constructor just for allocation
-    public PlaceLocalHandle(java.lang.System[] $dummy, x10.rtt.Type<T> T) {
+    public PlaceLocalHandle(java.lang.System[] $dummy, Type<T> T) {
     }
     
     public PlaceLocalHandle $init() {
@@ -69,13 +71,13 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     }
 
     // not used
-//    public PlaceLocalHandle(x10.rtt.Type<T> T) {
+//    public PlaceLocalHandle(Type<T> T) {
 //        id = nextId();
 //    }
 
     // TODO haszero
     // zero value constructor
-    public PlaceLocalHandle(x10.rtt.Type<T> T, java.lang.System $dummy) {
+    public PlaceLocalHandle(Type<T> T, java.lang.System $dummy) {
         id = nextId();
     }
 
@@ -115,7 +117,7 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 	}
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null, (x10.rtt.Type<?>) null);
+        PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null, (Type<?>) null);
         deserializer.record_reference(placeLocalHandle);
 		return $_deserialize_body(placeLocalHandle, deserializer);
 	}

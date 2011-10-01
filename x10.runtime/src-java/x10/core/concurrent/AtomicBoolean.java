@@ -15,6 +15,7 @@ import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -53,12 +54,10 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     public static final RuntimeType<AtomicBoolean> $RTT = new NamedType<AtomicBoolean>(
         "x10.util.concurrent.AtomicBoolean",
         AtomicBoolean.class,
-        new x10.rtt.Type[] { x10.rtt.Types.OBJECT }
+        new Type[] { Types.OBJECT }
     );
     public RuntimeType<AtomicBoolean> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {
-        return null;
-    }
+    public Type<?> $getParam(int i) { return null; }
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.get());

@@ -25,12 +25,12 @@ import x10.rtt.FloatType;
 import x10.rtt.IntType;
 import x10.rtt.LongType;
 import x10.rtt.NamedType;
-import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.ShortType;
 import x10.rtt.StringType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
@@ -38,8 +38,8 @@ import x10.x10rt.X10JavaSerializer;
 
 public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
-	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, IndexedMemoryChunk.class, "x10.util.IndexedMemoryChunk");
+    private static final long serialVersionUID = 1L;
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, IndexedMemoryChunk.class, "x10.util.IndexedMemoryChunk");
 
     public int length;
     public Object value;
@@ -80,8 +80,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     private IndexedMemoryChunk(Type<T> type, int length, boolean zeroed) {
         this(type, length, type.makeArray(length));
         if (zeroed) {
-            if (!x10.rtt.Types.hasNaturalZero(type)) {
-                Object zeroValue = x10.rtt.Types.zeroValue(type);
+            if (!Types.hasNaturalZero(type)) {
+                Object zeroValue = Types.zeroValue(type);
                 java.util.Arrays.fill((Object[]) value, zeroValue);
             }
         }
@@ -145,7 +145,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         } else if (value instanceof double[]) {
             Arrays.fill(getDoubleArray(), start, start+numElems, 0.0);
         } else {
-            Object zeroValue = x10.rtt.Types.zeroValue(type);
+            Object zeroValue = Types.zeroValue(type);
             Arrays.fill(getObjectArray(), start, start+numElems, zeroValue);
         }
     }
@@ -219,7 +219,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
         }
         public static final RuntimeType<$Closure$0> $RTT =
-        	new x10.rtt.StaticVoidFunType<$Closure$0>($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, x10.rtt.Types.OBJECT });
+        	new x10.rtt.StaticVoidFunType<$Closure$0>($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
+        @Override
         public RuntimeType<$Closure$0> $getRTT() { return $RTT; }
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
@@ -405,7 +406,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             x10.lang.Runtime.runAsync(dstWrapperHome, copyBody2);
         }
         public static final RuntimeType<$Closure$1<?>> $RTT =
-        	new x10.rtt.StaticVoidFunType<$Closure$1<?>>($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, x10.rtt.Types.OBJECT });
+        	new x10.rtt.StaticVoidFunType<$Closure$1<?>>($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
+        @Override
         public RuntimeType<$Closure$1<?>> $getRTT() { return $RTT; }
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
@@ -484,19 +486,13 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new NamedType<IndexedMemoryChunk<?>>(
         "x10.util.IndexedMemoryChunk",
         IndexedMemoryChunk.class,
-        new RuntimeType.Variance[] { Variance.INVARIANT },
-        new Type[] { x10.rtt.Types.STRUCT }
+        new Variance[] { Variance.INVARIANT },
+        new Type[] { Types.STRUCT }
     );
-    
     @Override
-    public RuntimeType<IndexedMemoryChunk<?>> $getRTT() {
-        return $RTT;
-    }
-
+    public RuntimeType<IndexedMemoryChunk<?>> $getRTT() { return $RTT; }
     @Override
-    public Type<?> $getParam(int i) {
-        return i == 0 ? type : null;
-    }
+    public Type<?> $getParam(int i) { return i == 0 ? type : null; }
 
 
     // Methods to get the backing array.   May be called by generated code.

@@ -16,6 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import x10.array.Array;
+import x10.rtt.Types;
 import x10.runtime.impl.java.UnknownJavaThrowable;
 
 public abstract class ThrowableUtilities {
@@ -284,7 +285,7 @@ public abstract class ThrowableUtilities {
 //        for (int i=0 ; i<elements.length ; ++i) {
 //            str[i] = elements[i].toString();
 //        }
-//        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+//        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(Types.STRING, str);
 //    }
     
 //    public static void printStackTrace(Throwable t, x10.io.Printer p) {

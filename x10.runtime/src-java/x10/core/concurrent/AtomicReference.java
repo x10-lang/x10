@@ -16,6 +16,7 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -61,12 +62,11 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
         "x10.util.concurrent.AtomicReference",
         AtomicReference.class,
         new Variance[] { Variance.INVARIANT },
-        new Type[] { x10.rtt.Types.OBJECT }
+        new Type[] { Types.OBJECT }
     );
     public RuntimeType<AtomicReference> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {
-        return i == 0 ? T : null;
-    }
+    public Type<?> $getParam(int i) { return i == 0 ? T : null; }
+    
     public Type<T> T;
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {

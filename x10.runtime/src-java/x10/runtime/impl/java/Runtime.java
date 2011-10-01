@@ -15,6 +15,7 @@ import x10.core.ThrowableUtilities;
 import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
@@ -105,13 +106,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             x10.runtime.impl.java.InitDispatcher.runInitializer();
         }
 
-        public x10.rtt.RuntimeType<?> $getRTT() {
-            return $RTT;
-        }
+        public RuntimeType<?> $getRTT() { return $RTT; }
 
-        public x10.rtt.Type<?> $getParam(int i) {
-            return null;
-        }
+        public Type<?> $getParam(int i) { return null; }
 
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
@@ -147,13 +144,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             this.aargs = aargs;
         }
 
-        public x10.rtt.RuntimeType<?> $getRTT() {
-            return $RTT;
-        }
+        public RuntimeType<?> $getRTT() { return $RTT; }
 
-        public x10.rtt.Type<?> $getParam(int i) {
-            return null;
-        }
+        public Type<?> $getParam(int i) { return null; }
 
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
             throw new UnsupportedOperationException("Serialization not supported for " + getClass());
@@ -181,7 +174,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
 
         // build up Array[String] for args
-        final x10.array.Array<String> aargs = x10.array.Array.<String> $make(x10.rtt.Types.STRING, args.length);
+        final x10.array.Array<String> aargs = x10.array.Array.<String> $make(Types.STRING, args.length);
         for (int i = 0; i < args.length; i++) {
             aargs.$set__1x10$array$Array$$T$G(i, args[i]);
         }
@@ -543,7 +536,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static x10.util.HashMap<String, String> loadenv() {
         Map<String, String> env = System.getenv();
-        x10.util.HashMap<String, String> map = x10.util.HashMap.<String, String> $make(x10.rtt.Types.STRING, x10.rtt.Types.STRING);
+        x10.util.HashMap<String, String> map = x10.util.HashMap.<String, String> $make(Types.STRING, Types.STRING);
         for (Map.Entry<String, String> e : env.entrySet()) {
             map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V(e.getKey(), e.getValue());
         }

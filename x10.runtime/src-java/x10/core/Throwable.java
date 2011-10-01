@@ -109,7 +109,7 @@ public class Throwable extends java.lang.RuntimeException {
         for (int i=0 ; i<elements.length ; ++i) {
             str[i] = elements[i].toString();
         }
-        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(Types.STRING, str);
     }
 
     // XTENLANG-2680
@@ -132,7 +132,7 @@ public class Throwable extends java.lang.RuntimeException {
     public static final RuntimeType<Throwable> $RTT = new NamedType<Throwable>(
         "x10.lang.Throwable",
         Throwable.class,
-        new Type[] { x10.rtt.Types.OBJECT }
+        new Type[] { Types.OBJECT }
     );
     public RuntimeType<?> $getRTT() {
         return $RTT;

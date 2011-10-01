@@ -20,6 +20,7 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
+import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -127,19 +128,13 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
     public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = new NamedType<RemoteIndexedMemoryChunk<?>>(
         "x10.util.RemoteIndexedMemoryChunk",
         RemoteIndexedMemoryChunk.class,
-        new RuntimeType.Variance[] { Variance.INVARIANT },
-        new Type[] { x10.rtt.Types.STRUCT }
+        new Variance[] { Variance.INVARIANT },
+        new Type[] { Types.STRUCT }
     );
-    
     @Override
-    public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() {
-        return $RTT;
-    }
-
+    public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() { return $RTT; }
     @Override
-    public Type<?> $getParam(int i) {
-        return i == 0 ? type : null;
-    }
+    public Type<?> $getParam(int i) { return i == 0 ? type : null; }
     
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write(length);
