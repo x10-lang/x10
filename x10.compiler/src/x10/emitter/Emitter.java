@@ -1728,8 +1728,9 @@ public class Emitter {
 
     private List<MethodInstance> getInstantiatedMethods(X10ClassType ct, MethodInstance mi) {
         List<MethodInstance> methods = new ArrayList<MethodInstance>();
+        if (mi.flags().isPrivate()) return methods;       // N.B. shortcut for (*1) is this needed?
         for (MethodInstance impled : mi.implemented(tr.context())) {
-            if (mi.flags().isPrivate()) continue;
+//            if (mi.flags().isPrivate()) continue;       // N.B. (*1) is this needed?
             if (mi.container().typeEquals(impled.container(), tr.context())) continue;
 
             if (X10PrettyPrinterVisitor.isGenericOverloading) {
@@ -1781,10 +1782,10 @@ public class Emitter {
                 }
             }
             else {
-                for (Type t:ct.interfaces()) {
+                for (Type t : ct.interfaces()) {
                     if (existMethodInterfaces(t, ti, impled, mi)) {
                         methods.add(impled);
-                        continue;
+                        break;
                     }
                 }
             }
@@ -2209,8 +2210,9 @@ public class Emitter {
 
     private List<MethodInstance> getOverriddenMethods(X10ClassType ct, MethodInstance mi) {
         List<MethodInstance> methods = new ArrayList<MethodInstance>();
+        if (mi.flags().isPrivate()) return methods;     // N.B. shortcut for (*1) is this needed?
         for1:for (MethodInstance impled : mi.implemented(tr.context())) {
-            if (mi.flags().isPrivate()) continue;
+//            if (mi.flags().isPrivate()) continue;     // N.B. (*1) is this needed?
             if (mi.container().typeEquals(impled.container(), tr.context())) continue;
     
             if (X10PrettyPrinterVisitor.isGenericOverloading) {
@@ -2248,10 +2250,10 @@ public class Emitter {
                 }
             }
             else {
-                for (Type t:ct.interfaces()) {
+                for (Type t : ct.interfaces()) {
                     if (existMethodInterfaces2(t, ti, impled, mi)) {
                         methods.add(impled);
-                        continue;
+                        break;
                     }
                 }
             }
