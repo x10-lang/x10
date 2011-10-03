@@ -4389,54 +4389,53 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return false;
     }
 
-    /**
-     * A list of one object that has an infinite circular iterator.
-     */
-    private static class CircularList<T> extends AbstractList<T> {
-        private T o;
+    // not used
+//    /**
+//     * A list of one object that has an infinite circular iterator.
+//     */
+//    private static class CircularList<T> extends AbstractList<T> {
+//        private T o;
+//
+//        public CircularList(T o) {
+//            this.o = o;
+//        }
+//
+//        public Iterator<T> iterator() {
+//            return new Iterator<T>() {
+//                public boolean hasNext() {
+//                    return true;
+//                }
+//
+//                public T next() {
+//                    return o;
+//                }
+//
+//                public void remove() {
+//                    return;
+//                }
+//            };
+//        }
+//
+//        public T get(int i) {
+//            return o;
+//        }
+//
+//        public int size() {
+//            return -1;
+//        }
+//    }
 
-        public CircularList(T o) {
-            this.o = o;
-        }
-
-        public Iterator<T> iterator() {
-            return new Iterator<T>() {
-                public boolean hasNext() {
-                    return true;
-                }
-
-                public T next() {
-                    return o;
-                }
-
-                public void remove() {
-                    return;
-                }
-            };
-        }
-
-        public T get(int i) {
-            return o;
-        }
-
-        public int size() {
-            return -1;
-        }
-    }
-
-    private static class ConstructorIdTypeForAnnotation extends X10ParsedClassType_c {
+    private final static class ConstructorIdTypeForAnnotation extends X10ParsedClassType_c {
+        private static final long serialVersionUID = 1L;
         private int i = -1;
-
-        public ConstructorIdTypeForAnnotation(X10ClassDef def) {
+        private ConstructorIdTypeForAnnotation(X10ClassDef def) {
             super(def);
         }
-
         private ConstructorIdTypeForAnnotation setIndex(int i) {
             assert i > -1;
             this.i = i;
             return this;
         }
-
         private int getIndex() {
             return i;
         }
