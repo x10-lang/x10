@@ -1733,7 +1733,9 @@ public class Emitter {
 //            if (mi.flags().isPrivate()) continue;       // N.B. (*1) is this needed?
             if (mi.container().typeEquals(impled.container(), tr.context())) continue;
 
-            if (X10PrettyPrinterVisitor.isGenericOverloading) {
+            // Fix for XTENLANG-2940
+//            if (X10PrettyPrinterVisitor.isGenericOverloading) {
+            if (false) {
                 boolean contains = false;
                 for (MethodInstance mi1 : methods) {
                     if (mi1.def().equals(impled.def())) {
