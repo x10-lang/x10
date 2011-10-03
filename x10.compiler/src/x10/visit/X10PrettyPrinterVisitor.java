@@ -187,13 +187,14 @@ import x10cpp.visit.ASTQuery;
 public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static final String JAVA_LANG_OBJECT = "java.lang.Object";
-    public static final String JAVA_LANG_CLASS = "java.lang.Class";
     public static final String JAVA_IO_SERIALIZABLE = "java.io.Serializable";
-    public static final String JAVA_LANG_SYSTEM = "java.lang.System";
     public static final String X10_CORE_REF = "x10.core.Ref";
     public static final String X10_CORE_STRUCT = "x10.core.Struct";
     public static final String X10_CORE_ANY = "x10.core.Any";
     public static final String X10_CORE_X10GENERATED = "x10.core.X10Generated";
+
+    public static final String DUMMY_PARAM_TYPE1 = "java.lang.System";
+    public static final String DUMMY_PARAM_TYPE2 = "java.lang.Class<?>";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
@@ -701,7 +702,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + JAVA_LANG_SYSTEM + "[]) null");
+                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + DUMMY_PARAM_TYPE1 + "[]) null");
                             // N.B. in custom deserializer, initialize type params with null
                             for (ParameterType typeParam : def.typeParameters()) {
                                 w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
@@ -709,7 +710,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(");");
                             w.newline();
                         } else {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + JAVA_LANG_SYSTEM + ") null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + DUMMY_PARAM_TYPE1 + ") null);");
                         }
                     } else {
                         if (def.flags().isAbstract()) {
@@ -720,7 +721,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 // XTENLANG-2830
                                 /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
                                 && !def.flags().isInterface()) {
-                                w.write("(" + JAVA_LANG_SYSTEM + "[]) null");
+                                w.write("(" + DUMMY_PARAM_TYPE1 + "[]) null");
                                 // N.B. in custom deserializer, initialize type params with null
                                 for (ParameterType typeParam : def.typeParameters()) {
                                     w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
@@ -822,7 +823,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
-            w.write("public " + Emitter.mangleToJava(def.name()) + "(final " + JAVA_LANG_SYSTEM + "[] $dummy");
+            w.write("public " + Emitter.mangleToJava(def.name()) + "(final " + DUMMY_PARAM_TYPE1 + "[] $dummy");
             List<String> params = new ArrayList<String>();
             for (ParameterType p : def.typeParameters()) {
                 String param = Emitter.mangleParameterType(p);
@@ -1534,7 +1535,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(" " + dummy + narg++);
                         w.write(",");
                     }
-                    w.write(JAVA_LANG_CLASS + "<?>");
+                    w.write(DUMMY_PARAM_TYPE2);
                 } else {
                     w.write("[]");
                 }
@@ -1610,7 +1611,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(X10_CORE_REF);
         else
                 er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
-        w.write("((" + JAVA_LANG_SYSTEM + "[]) null");
+        w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
         printArgumentsForTypeParamsPreComma(typeParams, false);
         w.write(")");
     }
@@ -2871,7 +2872,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 for (int i = 0; i < cid + 1; i++) {
                     if (i % 256 == 0) {
                         if (i != 0) w.write(") null,");
-                        w.write("(" + JAVA_LANG_CLASS + "<?>");
+                        w.write("(" + DUMMY_PARAM_TYPE2);
                     } else {
                         w.write("[]");
                     }

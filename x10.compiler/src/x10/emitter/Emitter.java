@@ -3453,7 +3453,7 @@ public class Emitter {
             // XTENLANG-2830
             /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
             && !def.flags().isInterface()) {
-            w.write("(" + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + "[]) null");
+            w.write("(" + X10PrettyPrinterVisitor.DUMMY_PARAM_TYPE1 + "[]) null");
             // N.B. in custom deserializer, initialize type params with null
             for (ParameterType typeParam : def.typeParameters()) {
                 w.write(", (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") null");
@@ -3552,7 +3552,7 @@ public class Emitter {
         for (ParameterType type : def.typeParameters()) {
         	w.write("final x10.rtt.Type " + mangleParameterType(type) + ", ");
         }
-        w.write("final " + X10PrettyPrinterVisitor.JAVA_LANG_SYSTEM + " $dummy) { ");
+        w.write("final " + X10PrettyPrinterVisitor.DUMMY_PARAM_TYPE1 + " $dummy) { ");
 
         /* struct does not have super type
         // call super zero value constructor
