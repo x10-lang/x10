@@ -8,8 +8,8 @@ extra_lib=""
 mx=""
 defs=""
 dev=""
-java_args=""
-args=""
+java_args=()
+args=()
 
 PRINT_DIR=""
 
@@ -30,22 +30,22 @@ while [ -n "$1" ]; do
         -config) shift; config="$1.cfg";;
         -dev) dev="true";;
 	-pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1l ;;
-	-pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args="dummy argument" ;;
+	-pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args=(dummy argument) ;;
 	-pkg-conf) echo "Please use the -help option to get a list of valid options"; exit 1 ;;
-        -J*) java_args="${java_args} '${1##-J}'";;
-        -*=*) java_args="${java_args} -Dx10.${1##-}";;
-        -*) java_args="${java_args} -Dx10.${1##-}=true";;
-#        *.x10) args="$args '${1%%.x10}\$${MAIN_CLASS}'"; shift; args="$args $*"; break;;
-        *.jar) args="$args -jar '$1'"; shift; args="$args $*"; break;;
+        -J*) java_args=("${java_args[@]}" "${1##-J}");;
+        -*=*) java_args=("${java_args[@]}" "-Dx10.${1##-}");;
+        -*) java_args=("${java_args[@]}" "-Dx10.${1##-}=true");;
+#        *.x10) args=("${args[@]}" "${1%%.x10}\$${MAIN_CLASS}"); shift; args=("${args[@]}" "$@"); break;;
+        *.jar) args=("${args[@]}" -jar "$1"); shift; args=("${args[@]}" "$@"); break;;
         *) if [ -z "$main" ]; then
                main="$1"
            fi
-           args="$args '$1\$${MAIN_CLASS}'"; shift; args="$args $*"; break;;
+           args=("${args[@]}" "$1\$${MAIN_CLASS}"); shift; args=("${args[@]}" "$@"); break;;
     esac
     shift
 done
 
-if [ -n "$help" -o -z "$args" ]; then
+if [ -n "$help" -o -z "${args[*]}" ]; then
     cat << EOF
 Usage: x10 [options] <main-class> [arg0 arg1 ...]
 where [options] includes:
@@ -118,7 +118,7 @@ if [[ "$UNAME" = CYGWIN* ]]; then
         JAVA="$(cygpath -au "$TOP/bin/cyglaunch")"
         launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
     else
-        java_args="-DX10RT_IMPL=disabled ${java_args}"
+        java_args=("-DX10RT_IMPL=disabled" "${java_args[@]}")
     fi
 else
     launcher="${TOP}${FILE_SEP}bin${FILE_SEP}X10Launcher"
@@ -127,22 +127,22 @@ fi
 
 # TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
-java_args="-Djava.library.path=\"$externpath\" -ea -classpath \"$classpath\" ${java_args}"
-#java_args="-Djava.library.path=\"$externpath\" -ea -Xbootclasspath/a:\"$classpath\" ${java_args}"
+java_args=("-Djava.library.path=$externpath" -ea -classpath "$classpath" "${java_args[@]}")
+#java_args=("-Djava.library.path=$externpath" -ea "-Xbootclasspath/a:$classpath" "${java_args[@]}")
 
 if [ -n "$mx" ]; then
-   java_args="-Xmx$mx $java_args"
+   java_args=("-Xmx$mx" "${java_args[@]}")
 fi
 
-java_args="${java_args} ${defs}"
+java_args=("${java_args[@]}" ${defs})
 
 # skip loading test in case of executable jar
 if [ -n "$main" ]; then
-command="\"$JAVA\" $java_args -ea x10.runtime.impl.java.TestClassLoading '$main\$$MAIN_CLASS'"
-[ -n "$verbose" ] && echo "$command"
+command=("$JAVA" "${java_args[@]}" -ea x10.runtime.impl.java.TestClassLoading "$main\$$MAIN_CLASS")
+[ -n "$verbose" ] && echo "${command[*]}"
 (
 unset X10_NPLACES
-eval "$command"
+"${command[@]}"
 if [ "$?" -ne "0" ]; then
   echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
   exit 1
@@ -152,14 +152,14 @@ fi
 
 # HACK: enforce normal compilation in preloading phase
 IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`
-if [ -n "$IBMJ9VM" ]; then java_args="-Xjit:classLoadPhaseThreshold=10000 ${java_args}"; fi
+if [ -n "$IBMJ9VM" ]; then java_args=("-Xjit:classLoadPhaseThreshold=10000" "${java_args[@]}"); fi
 
-command="\"$JAVA\" $java_args $config $args"
-[ -n "$verbose" ] && echo "$command"
+command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
+[ -n "$verbose" ] && echo "${command[*]}"
 if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
-    eval "$time $command"
+    $time "${command[@]}"
 else 
-    eval "$time$launcher $command"
+    $time$launcher "${command[@]}"
 fi
 
 exit $?
