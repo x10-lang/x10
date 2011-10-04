@@ -147,8 +147,11 @@ public final class GL {
     public static def glTexSubImage2D (target:Int, level:Int, xOffset:Int, yOffset:Int, width:Int, height:Int, format:Int, typ:Int, bufferOffset:Int) : void { }
     @Native("c++", "glTexImage2D(#target, #level, #xOff, #yOff, #w, #h, #border, #fmt, x10aux::lookup_or_null(#data, #dataOffset))")
     public static def glTexImage2D[T] (target:Int, level:Int, xOff:Int, yOff:Int, w:Int, h:Int, border:Int, fmt:Int, data:Array[T](1), dataOffset:Int) : void { }
-    @Native("c++", "x10::util::IndexedMemoryChunk<#T>::IndexedMemoryChunk((#T*)glMapBuffer(#target, #value), #len)")
-    public static def glMapBuffer[T] (target:Int, value:Int, len:Int) : IndexedMemoryChunk[T] { return Zero.get[IndexedMemoryChunk[T]](); }
+    public static def glMapBuffer[T] (target:Int, value:Int, len:Int) : IndexedMemoryChunk[T] {
+        @Native("c++", "TPMGL(T) *tmp = (TPMGL(T)*)::glMapBuffer(target, value);") { }
+        @Native("c++", "return typename x10::util::IndexedMemoryChunk<TPMGL(T)>::IndexedMemoryChunk(tmp, tmp, len);") { }
+        return Zero.get[IndexedMemoryChunk[T]]();
+    }
     @Native("c++", "glUnmapBuffer(#target)")
     public static def glUnmapBuffer (target:Int) : void { }
     @Native("c++", "GL_ARRAY_BUFFER")
