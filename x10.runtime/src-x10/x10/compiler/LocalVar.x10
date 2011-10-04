@@ -22,6 +22,6 @@ public class LocalVar[T] {
     @Native("java", "(#this).get$G()")
     public def get():T = null as Any as T;
     
-    @Native("java", "(#this).set$G(#local)")
+    @Native("java", "(#this).set__0x10$compiler$LocalVar$$T$G(#local)")
     public operator this(local:T):T {return local;}
 }

@@ -87,7 +87,7 @@ public class LocalVar<T> extends x10.core.Ref {
         return (T) (local == nullObject ? null : local);
     }
 
-    public T set$G(final T local) {
+    public T set__0x10$compiler$LocalVar$$T$G(final T local) {
         idToObject.put(id,local);
         return local;
     }
