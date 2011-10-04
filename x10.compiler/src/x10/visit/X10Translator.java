@@ -220,6 +220,10 @@ public class X10Translator extends Translator {
             
 //            javacCmd.add("-warn:+boxing");	// only for ecj
 
+            if (options.x10_config.DEBUG) {
+                javacCmd.add("-g");                
+            }
+
             for (Collection<String> files : compiler.outputFiles().values()) {
                 javacCmd.addAll(files);
             }
