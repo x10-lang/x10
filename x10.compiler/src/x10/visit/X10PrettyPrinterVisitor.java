@@ -205,6 +205,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
+    // TODO stop generating factory method
+    public static final boolean generateFactoryMethod = true;
+    public static final boolean generateOnePhaseConstructor = true;
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -1253,14 +1256,28 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             return;
         }
 
-        w.write("// creation method for java code");
+
+        List<ParameterType> typeParameters = type.x10Def().typeParameters();
+
+        boolean isUnsplittable;
+        if (supportConstructorSplitting
+            && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
+            && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
+            isUnsplittable = false;
+        } else {
+            isUnsplittable = true;
+        }
+
+        List<Formal> formals = n.formals();
+
+        if (generateFactoryMethod) {
+
+        w.write("// creation method for java code (factory method)");
         w.newline();
 
         tr.print(n,
                  tr.nodeFactory().FlagsNode(n.flags().position(),
                                             n.flags().flags().clearPrivate().clearProtected().Public().Static()), w);
-
-        List<ParameterType> typeParameters = type.x10Def().typeParameters();
 
         // TODO check without type bounds
         er.printMethodParams(typeParameters);
@@ -1280,23 +1297,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write("return ");
 
-        boolean passParamsToConstructor = false;
-        if (supportConstructorSplitting
-                && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
+        if (!isUnsplittable) {
             printAllocationCall(type, typeParameters);                
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
         } else {
             w.write("new ");
             w.write(n.name().toString());
-            passParamsToConstructor = true;
         }
         w.write("(");
 
-        List<Formal> formals = n.formals();
-
-        if (passParamsToConstructor) {
+        if (isUnsplittable) {
             printArgumentsForTypeParams(typeParameters, formals.size() == 0);
         }
 
@@ -1317,6 +1328,66 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.end();
         w.write("}");
         w.newline();
+
+        }
+        
+        // N.B. we don't generate 1-phase constructor here, since it will be generated as a normal compilation result of X10 constructor. 
+        if (generateOnePhaseConstructor && !isUnsplittable) {
+
+        w.write("// creation method for java code (1-phase java constructor)");
+        w.newline();
+
+        tr.print(n,
+                 tr.nodeFactory().FlagsNode(n.flags().position(),
+                                            n.flags().flags().clearPrivate().clearProtected().Public()), w);
+
+        // N.B. printing type parameters causes post compilation error for XTENLANG_423 and GenericInstanceof16
+        er.printType(type, NO_QUALIFIER);
+
+        printConstructorFormals(n, true);
+
+        w.write(Emitter.printThrowsClause(n.constructorDef()));
+
+        w.write("{");
+        w.begin(4);
+
+        if (!isUnsplittable) {
+            w.write("this");
+            w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
+            printArgumentsForTypeParamsPreComma(typeParameters, false);
+            w.write(")");
+            
+            w.write(";"); w.newline();
+            
+            w.write(CONSTRUCTOR_METHOD_NAME);
+        } else {
+            w.write("this");
+        }
+        w.write("(");
+
+        if (isUnsplittable) {
+            printArgumentsForTypeParams(typeParameters, formals.size() == 0);
+        }
+
+        for (int i = 0; i < formals.size(); i++) {
+            Formal formal = formals.get(i);
+            if (i != 0) {
+                w.write(",");
+            }
+            tr.print(n, formal.name(), w);
+        }
+
+        printExtraArgments((X10ConstructorInstance) n.constructorDef().asInstance());
+
+        w.write(")");
+
+        w.write(";");
+
+        w.end();
+        w.write("}");
+        w.newline();
+
+        }
     }
 
     private Stmt getFirstStatement(X10ConstructorDecl_c n) {
