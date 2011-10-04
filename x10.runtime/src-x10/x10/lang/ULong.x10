@@ -129,7 +129,6 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the quotient of this ULong and the other ULong.
      */
     @Native("java", "x10.core.Unsigned.div(#this, #x)")
-    //@Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.div(#this.longVal, #x.longVal))") // boxed
     @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:ULong): ULong; /*{
     	// TODO implement in X10
@@ -144,7 +143,6 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the remainder from dividing this ULong by the other ULong.
      */
     @Native("java", "x10.core.Unsigned.rem(#this, #x)")
-    //@Native("java", "x10.lang.ULong.$make(x10.core.Unsigned.rem(#this.longVal, #x.longVal))") // boxed
     @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:ULong): ULong; /* {
     	// TODO implement in X10

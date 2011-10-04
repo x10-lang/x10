@@ -205,8 +205,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
-    // TODO stop generating factory method
-    public static final boolean generateFactoryMethod = true;
+    public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
@@ -717,7 +716,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         }
                     } else {
                         if (def.flags().isAbstract()) {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = (" + Emitter.mangleToJava(def.name()) + ")" + Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME + "();");
+                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = (" + Emitter.mangleToJava(def.name()) + ") ");
+                            if (generateFactoryMethod) {
+                                w.write(Emitter.mangleToJava(def.name()) + "." + CREATION_METHOD_NAME);
+                            } else {
+                                assert generateOnePhaseConstructor;
+                                w.write("new " + Emitter.mangleToJava(def.name()));
+                            }
+                            w.writeln("();");
                         } else {
                             w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(");
                             if (supportConstructorSplitting

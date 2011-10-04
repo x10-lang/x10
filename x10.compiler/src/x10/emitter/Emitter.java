@@ -3304,10 +3304,16 @@ public class Emitter {
         }
         w.write("return this; }");
         w.newline();
-	    w.write("private Object readResolve() { return ");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-        w.write(".");
-        w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+        w.write("private Object readResolve() { return ");
+	if (X10PrettyPrinterVisitor.generateFactoryMethod) {
+	    printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+	    w.write(".");
+	    w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+	} else {
+	    assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
+	    w.write("new ");
+	    printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+	}
         w.write("(");
         for (ParameterType type : def.typeParameters()) {
         	w.write(mangleParameterType(type) + ", ");
@@ -3434,9 +3440,15 @@ public class Emitter {
         w.write("$_obj = (");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(") ");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-        w.write(".");
-        w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
+            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+            w.write(".");
+            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+        } else {
+            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
+            w.write("new ");
+            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        }
         w.writeln("(" + params + fieldName + ");");
         w.writeln("return $_obj;");
         w.end();

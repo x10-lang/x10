@@ -19,18 +19,31 @@ public class FileOutputStream extends OutputStream {
     
     private static final long serialVersionUID = 1L;
 
-    private FileOutputStream(String name) throws java.io.FileNotFoundException {
-        super(new java.io.FileOutputStream(name));
+    // constructor just for allocation
+    public FileOutputStream(java.lang.System[] $dummy) {
+        super($dummy);
     }
-    
-    public static FileOutputStream $make(String name) {
+
+    public FileOutputStream $init(String name) {
         try {
-            return new FileOutputStream(name);
+            super.$init(new java.io.FileOutputStream(name));
+            return this;
         } catch (java.io.FileNotFoundException e) {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
-    
+
+    // creation method for java code (factory method)
+    public static FileOutputStream $make(String name) {
+        return new FileOutputStream((java.lang.System[]) null).$init(name);
+    }
+    // creation method for java code (1-phase java constructor)
+    public FileOutputStream(String name) {
+        this((java.lang.System[]) null);
+        $init(name);
+    }
+
+
     //
     // Runtime type information
     //

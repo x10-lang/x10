@@ -64,14 +64,14 @@ public final class Vec<T> extends x10.core.Struct {
     public Vec<T> $init(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
-        this.backing = x10.array.Array.<T> $make(T, size);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
         return this;
     }
 
     public Vec(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
-        this.backing = x10.array.Array.<T> $make(T, size);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
     }
 
     public Vec<T> $init(final Type<T> T, Vec<T> other) {
@@ -82,7 +82,7 @@ public final class Vec<T> extends x10.core.Struct {
 //        for (int i = 0; i < this.size; ++i) {
 //            this.backing.$set_1x10$array$Array$$T$G(i, other.backing.$apply$G(i));
 //        }
-        this.backing = x10.array.Array.<T> $make(T, other.backing, (java.lang.Class<?>[][][][][][]) null);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (java.lang.Class<?>[][][][][][]) null);
         return this;
     }
 
@@ -94,7 +94,7 @@ public final class Vec<T> extends x10.core.Struct {
 //        for (int i = 0; i < this.size; ++i) {
 //            this.backing.$set_1x10$array$Array$$T$G(i, other.backing.$apply$G(i));
 //        }
-        this.backing = x10.array.Array.<T> $make(T, other.backing, (java.lang.Class<?>[][][][][][]) null);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (java.lang.Class<?>[][][][][][]) null);
     }
 
     // zero value constructor

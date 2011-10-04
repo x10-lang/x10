@@ -18,7 +18,7 @@ public class FileWriter extends OutputStreamWriter {
     @NativeRep("java", "x10.core.io.FileOutputStream", null, "x10.core.io.FileOutputStream.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::FileWriter__FileOutputStream>", "x10::io::FileWriter__FileOutputStream", null)
     protected final static class FileOutputStream extends OutputStream {
-        @Native("java", "x10.core.io.FileOutputStream.$make(#path)")
+        @Native("java", "new x10.core.io.FileOutputStream((java.lang.System[]) null).$init(#path)")
         public native def this(path: String); // throws IOException;
     }
 
