@@ -1170,11 +1170,11 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	for (int i = 1; i < _argc; i++) {
         argv[++z] = escape_various_things2(_argv[i]);
     }
-	argv[z + _argc] = NULL;
+	argv[z] = NULL;
 
 	#ifdef DEBUG
 		fprintf(stderr, "Launcher %u exec-ing SSH process to start up launcher %u on %s.\n", _myproc, id, remotehost);
-		for (int i=0; i<z+_argc; i++)
+		for (int i=0; i<z; i++)
 			fprintf (stderr, " %s ", argv[i]);
 		fprintf (stderr, "\n");
 	#endif
