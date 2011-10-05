@@ -1053,20 +1053,23 @@ static char *escape_various_things (const char *in)
 }
 
 // this escaping is for BLAH in the case of the following bash script
-// echo 'BLAH'
+// echo BLAH
+// the strategy is to put single quotes around the whole thing, meaning the only things
+// we have to deal with inside are additional occurrences of the single quote character.
 static char *escape_various_things2 (const char *in)
 {
     size_t sz = strlen(in);
-    size_t out_sz = sz+5;
-    char *out = static_cast<char*>(malloc(out_sz+1));
+    size_t out_sz = 0;
+    char *out = NULL;
     size_t out_cnt = 0;
     for (size_t i=0 ; i<sz ; ++i) {
         if (out_cnt+5 >= out_sz) {
-            out_sz = out_cnt+5;
+            out_sz = out_cnt+10;
             out = static_cast<char*>(realloc(out, out_sz+1));
         }
+        if (i==0) out[out_cnt++] = '\''; // beginning quote
         switch (in[i]) {
-            case '\'': // ' will break bash, turn it into "'" (but come out of the existing quote first)
+             case '\'': // ' will break bash, turn it into "'" (but come out of the existing single quote first)
             out[out_cnt++] = '\'';
             out[out_cnt++] = '"';
             out[out_cnt++] = '\'';
@@ -1079,6 +1082,7 @@ static char *escape_various_things2 (const char *in)
             break;
         }
     }
+    out[out_cnt++] = '\'';
     out[out_cnt] = '\0';
     return out;
 }
@@ -1090,7 +1094,7 @@ static char *alloc_env_assign(const char *var, const char *val)
 
 static char *alloc_env_always_assign(const char *var, const char *val)
 {
-    return alloc_printf("%s='%s'", var, escape_various_things2(val));
+    return alloc_printf("%s=%s", var, escape_various_things2(val));
 }
 
 // check with the environment variable name contains characters that bash does not allow (e.g. '.')
@@ -1163,22 +1167,9 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     argv[++z] = alloc_env_always_assign(X10_LAUNCHER_PARENT, masterPort);
     argv[++z] = alloc_env_always_assign(X10_LAUNCHER_PLACE, alloc_printf("%d",id));
 	argv[++z] = cmd;
-	//argv[++z] = "env";
-	for (int i = 1; i < _argc; i++)
-	{
-		if (strchr(_argv[i], '$') != NULL)
-		{
-			// make sure ssh doesn't turn a $ into an env variable lookup
-			int l = strlen(_argv[i]);
-			argv[z+i] = (char*)alloca(l+3);
-			argv[z+i][0] = '\'';
-			strcpy(&argv[z+i][1], _argv[i]);
-			argv[z+i][l+1]='\'';
-			argv[z+i][l+2]='\0';
-		}
-		else
-			argv[z + i] = _argv[i];
-	}
+	for (int i = 1; i < _argc; i++) {
+        argv[++z] = escape_various_things2(_argv[i]);
+    }
 	argv[z + _argc] = NULL;
 
 	#ifdef DEBUG
