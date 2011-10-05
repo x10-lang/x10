@@ -90,7 +90,7 @@ public class KMeansCUDADemo(gpu:Place) {
             Console.ERR.println("You must download this file before you can run the demo.");
         }
         val fr = file.openRead();
-        assert file.size() / 4 / dim == numPoints;
+        assert file.size() / 4 / dim == numPoints as Long;
         val glPoints = new Array[Float](numPoints*dim, (Int) => {
             return Float.fromIntBits(Marshal.INT.read(fr).reverseBytes());
         });
