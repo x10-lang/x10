@@ -19,6 +19,26 @@ bool getBoolEnvVar(const char* name) {
     return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
 }
 
+size_t x10aux::getMemSizeEnvVar(const char* name, bool* defined) {
+    char *value = getenv(name);
+    if (NULL == value) {
+        *defined = false;
+        return 0;
+    } else {
+        *defined = true;
+        char* end = NULL;
+        size_t size = strtoul(value, &end, 10);
+        if (NULL != end) {
+            if (*end == 'k' || *end == 'K') {
+                size *= 1024;
+            } else if (*end == 'm' || *end == 'M') {
+                size *= (1024 * 1024);
+            }
+        }
+        return size;
+    }
+}
+
 const bool x10aux::trace_ansi_colors = getBoolEnvVar("X10_TRACE_ANSI_COLORS");
 const bool x10aux::trace_static_init = getBoolEnvVar("X10_TRACE_STATIC_INIT") || getBoolEnvVar("X10_TRACE_ALL");
 const bool x10aux::trace_x10rt = getBoolEnvVar("X10_TRACE_X10RT") || getBoolEnvVar("X10_TRACE_NET") || getenv("X10_TRACE_ALL");

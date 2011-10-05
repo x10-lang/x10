@@ -203,13 +203,18 @@ Thread::thread_init(const ref<String> name)
     int contentionscope = PTHREAD_SCOPE_PROCESS;
     pthread_attr_setscope(&__xthread_attr, contentionscope);
 
-    /*
-     * NOTE: Setting the stacksize to small breaks BDWGC.
-     *       Just use the default stacksize to avoid confusing the GC!
-     */
-    //stacksize
-    //size_t stacksize = PTHREAD_STACK_MIN;
-    //*pthread_attr_setstacksize(&__xthread_attr, stacksize);
+    // Check to see if the user is trying to explictly set the stack size.
+    // If they are, do what they say.  If not do nothing and just use the default.
+    bool defined = false;
+    size_t stacksize = getMemSizeEnvVar("X10_STACK_SIZE", &defined);
+    if (defined) {
+        int rc = pthread_attr_setstacksize(&__xthread_attr, stacksize);
+        if (rc != 0) {
+            ::fprintf(stderr, "Cannot set stack size to %d; %s. Using default size instead.\n", stacksize, ::strerror(rc));
+        } else {
+            ::fprintf(stderr, "Successfully set stack size to %d\n", stacksize);
+        }
+    }
 
     // suspendstate
     //int suspendstate = PTHREAD_CREATE_SUSPENDED_NP;
