@@ -71,15 +71,17 @@ x10rt_place x10rt_child_index (x10rt_place child)
 { return x10rt_lgl_child_index(child); }
 
 
-static bool print_headers = getenv("X10RT_PRINT_MSG_HEADERS")!=NULL;
+static uint32_t print_headers = getenv("X10RT_PRINT_MSG_HEADERS") != NULL
+                              ? (uint32_t)strtoull(getenv("X10RT_PRINT_MSG_HEADERS"),NULL,10)
+                              : 0xFFFFFFFF;
 void x10rt_send_msg (x10rt_msg_params *p)
 {
-    if (print_headers) {
+    if (p->len > print_headers) {
         ::fprintf(stderr,"p%llu --%llu--> p%llu (%'llu bytes)\n",
-                (unsigned long long)x10rt_lgl_here(),
-                (unsigned long long)p->type,
-                (unsigned long long)p->dest_place,
-                (unsigned long long)p->len);
+                  (unsigned long long)x10rt_lgl_here(),
+                  (unsigned long long)p->type,
+                  (unsigned long long)p->dest_place,
+                  (unsigned long long)p->len);
     }
     return x10rt_lgl_send_msg(p);
 }
