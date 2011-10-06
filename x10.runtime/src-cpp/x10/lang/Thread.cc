@@ -210,9 +210,9 @@ Thread::thread_init(const ref<String> name)
     if (defined) {
         int rc = pthread_attr_setstacksize(&__xthread_attr, stacksize);
         if (rc != 0) {
-            ::fprintf(stderr, "Cannot set stack size to %d; %s. Using default size instead.\n", stacksize, ::strerror(rc));
+            ::fprintf(stderr, "Cannot set stack size to %d; %s. Using default size instead.\n", (int)stacksize, ::strerror(rc));
         } else {
-            ::fprintf(stderr, "Successfully set stack size to %d\n", stacksize);
+            ::fprintf(stderr, "Successfully set stack size to %d\n", (int)stacksize);
         }
     }
 
