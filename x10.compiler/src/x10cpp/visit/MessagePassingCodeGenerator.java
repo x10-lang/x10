@@ -1381,9 +1381,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	public static String createMainStub(String container, X10CPPCompilerOptions options) {
 		StringBuilder sb = new StringBuilder();
-        sb.append("#include <x10/lang/Runtime.h>\n");
         sb.append("#include <x10aux/bootstrap.h>\n");
-		String mainTypeArgs = "x10::lang::Runtime," + container;
+		String mainTypeArgs = container;
         sb.append("extern \"C\" { int main(int ac, char **av) { return x10aux::template_main"+chevrons(mainTypeArgs)+"(ac,av); } }\n");
         if (options.x10_config.DEBUG)
 		{

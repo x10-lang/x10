@@ -110,87 +110,11 @@ namespace x10aux {
     };
 
     void initialize_xrx();
-
-    template<class Runtime, class T> int template_main(int ac, char **av) {
-
-        setlinebuf(stdout);
-
-        x10aux::num_local_cores = sysconf(_SC_NPROCESSORS_ONLN);
-
-        x10aux::network_init(ac,av);
-
-#ifdef X10_USE_BDWGC
-        GC_INIT();
-#endif
-        x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = X10_NULL;
-
-#ifndef NO_EXCEPTIONS
-        try {
-#endif
-            x10aux::place_local::initialize();
-
-            // Initialise enough state to make this 'main' thread look like a normal x10 thread
-            // (e.g. make Thread::CurrentThread work properly).
-            x10::lang::Runtime__Worker::_make((x10_int)0);
-            x10aux::initialize_xrx();
-
-            args = x10aux::convert_args(ac, av);
-
-            // Construct closure to invoke the static initialisers at place 0
-            x10aux::ref<x10::lang::VoidFun_0_0> init_closure =
-                x10aux::ref<StaticInitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::StaticInitClosure)))
-                                               x10aux::StaticInitClosure());
-
-            // Construct closure to invoke the user's "public static def main(Array[String]) : void"
-            // if at place 0 otherwise wait for asyncs.
-            x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
-                x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
-                                              x10aux::BootStrapClosure(T::main,args));
-
-            x10aux::DeserializationDispatcher::registerHandlers();
-            Runtime::start(init_closure, main_closure); // use XRX
-            //init_closure->__apply(); // bypass XRX
-            //main_closure->__apply(); // bypass XRX
-            //sleep(3);
-
-#ifndef NO_EXCEPTIONS
-        } catch(int exitCode) {
-
-            x10aux::exitCode = exitCode;
-
-        } catch(x10aux::__ref& e) {
-
-            // Assume that only throwables can be thrown
-            // and things are never thrown by interface (always cast to a value/object class)
-            x10aux::ref<x10::lang::Throwable> &e_ =
-                static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
-
-            fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here,
-                    x10aux::string_utils::cstr(nullCheck(nullCheck(e_)->toString())));
-
-            e_->printStackTrace();
-
-            x10aux::exitCode = 1;
-
-        } catch(...) {
-
-            fprintf(stderr, "Caught unrecognised exception at place %ld\n", (long)x10aux::here);
-            x10aux::exitCode = 1;
-
-        }
-#endif
-        x10aux::shutdown();
-
-        if (x10aux::trace_rxtx)
-            fprintf(stderr, "Place: %ld   rx: %lld/%lld   tx: %lld/%lld\n",
-                (long)x10aux::here,
-                (long long)x10aux::deserialized_bytes, (long long)x10aux::asyncs_received,
-                (long long)x10aux::serialized_bytes, (long long)x10aux::asyncs_sent);
-
-        return x10aux::exitCode;
+    int real_x10_main(int, char**, ApplicationMainFunction);
+    
+    template<class T> int template_main(int ac, char **av) {
+        return x10aux::real_x10_main(ac, av, &T::main);
     }
-
-
 }
 
 #endif
