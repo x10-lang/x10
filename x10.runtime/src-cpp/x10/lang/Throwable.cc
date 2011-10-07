@@ -214,8 +214,8 @@ ref<Throwable> Throwable::fillInStackTrace() {
 void extract_frame (const char *start, char * &filename, char * &symbol, size_t &addr) {
     // arbitrary_text + "(" + symbol + "+0x" + hex_offset + ") [0x" + address +"]"
     const char *lparen = strrchr(start,'(');
-    const char *plus = strrchr(start,'+');
-    const char *x = strrchr(start,'x');
+    const char *plus = NULL == lparen ? NULL : strrchr(lparen,'+');
+    const char *x = NULL == lparen ? NULL : strrchr(lparen,'x');
 
     if (lparen==NULL || plus==NULL || x==NULL) {
         filename = NULL;
