@@ -1025,7 +1025,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode OBSOLETE_Offersopt = (TypeNode) _OBSOLETE_Offersopt;
         Block ClosureBody = (Block) _ClosureBody;
         setResult(nf.Closure(pos(), FormalParameters, WhereClauseopt,
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,  ClosureBody));
+        		HasResultTypeopt == null ? nf.UnknownTypeNode(JPGPosition.COMPILER_GENERATED) : HasResultTypeopt,  ClosureBody));
     }
     // Production: PackageOrTypeName ::= PackageOrTypeName '.' ErrorId
     void rule_PackageOrTypeName0(Object _PackageOrTypeName) {

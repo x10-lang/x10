@@ -66,7 +66,7 @@ public class AtExpr_c extends Closure_c implements AtExpr {
 	}
 
 	public AtExpr_c(NodeFactory nf, Position p, Expr place, List<Node> captures, Block body) {
-	    super(nf, p, Collections.<Formal>emptyList(), nf.UnknownTypeNode(p), null, null, body);
+	    super(nf, p, Collections.<Formal>emptyList(), nf.UnknownTypeNode(Position.COMPILER_GENERATED), null, null, body);
 		this.place = place;
 		this.captures = captures;
 	}
