@@ -1,3 +1,7 @@
+#if defined(__CYGWIN__) || defined(__FreeBSD__)
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin and FreeBSD
+#endif
+
 #include <cstdlib>
 #include <cstdio>
 
