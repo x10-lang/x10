@@ -209,6 +209,8 @@ namespace x10 {
             static pthread_key_t __thread_mapper;
             static x10_boolean __thread_mapper_inited;
 
+            static void initAttributes(pthread_attr_t*);
+            
         protected:
             // Helper method to initialize a Thread object.
             void thread_init(const x10aux::ref<x10::lang::String> name);

@@ -177,59 +177,22 @@ Thread::thread_init(const ref<String> name)
         __thread_mapper_inited = true;
     }
 
-    // create thread attributes object
-    // ??check the return code for ENOMEM??
-    (void)pthread_attr_init(&__xthread_attr);
-
-    // set this thread's attributes
-    // guardsize
-#ifdef _AIX
-    size_t guardsize = PAGESIZE;
-#else
-    size_t guardsize = getpagesize();
-#endif
-    pthread_attr_setguardsize(&__xthread_attr, guardsize);
-    // inheritsched
-    int inheritsched = PTHREAD_INHERIT_SCHED;
-    pthread_attr_setinheritsched(&__xthread_attr, inheritsched);
-    // schedpolicy
-    int policy = SCHED_OTHER;
-    pthread_attr_setschedpolicy(&__xthread_attr, policy);
-    // detachstate
-    int detachstate = PTHREAD_CREATE_JOINABLE;
-    //int detachstate = PTHREAD_CREATE_DETACHED;
-    pthread_attr_setdetachstate(&__xthread_attr, detachstate);
-    // contentionscope
-    int contentionscope = PTHREAD_SCOPE_PROCESS;
-    pthread_attr_setscope(&__xthread_attr, contentionscope);
-
-    // Check to see if the user is trying to explictly set the stack size.
-    // If they are, do what they say.  If not do nothing and just use the default.
-    bool defined = false;
-    size_t stacksize = getMemSizeEnvVar("X10_STACK_SIZE", &defined);
-    if (defined) {
-        int rc = pthread_attr_setstacksize(&__xthread_attr, stacksize);
-        if (rc != 0) {
-            ::fprintf(stderr, "Cannot set stack size to %d; %s. Using default size instead.\n", (int)stacksize, ::strerror(rc));
-        } else {
-            ::fprintf(stderr, "Successfully set stack size to %d\n", (int)stacksize);
-        }
-    }
-
-    // suspendstate
-    //int suspendstate = PTHREAD_CREATE_SUSPENDED_NP;
-    //pthread_attr_setsuspendstate_np(&__xthread_attr, suspendstate);
-
     if (__thread_id != 1) {
         // default: create a new execution thread
+
+        // ??check the return code for ENOMEM??
+        (void)pthread_attr_init(&__xthread_attr);
+
+        initAttributes(&__xthread_attr);
+
         int err = pthread_create(&__xthread, &__xthread_attr,
-                             thread_start_routine, (void *)this);
+                                 thread_start_routine, (void *)this);
         if (err) {
             ::fprintf(stderr,"Could not create worker thread: %s\n", ::strerror(err));
             ::abort();
         }
     } else {
-        // hack: if this is the first worker thread ever created (in bootstrap.h)
+        // hack: if this is the first worker thread ever created (in bootstrap.cc)
         // then take over the current thread instead of creating a new one
         pthread_setspecific(__thread_mapper, this);
         thread_bind_cpu();
@@ -241,6 +204,48 @@ Thread::thread_init(const ref<String> name)
 
     __xrxDPrEnd();
 }
+
+
+void Thread::initAttributes(pthread_attr_t* attr) {
+    // guardsize
+#ifdef _AIX
+    size_t guardsize = PAGESIZE;
+#else
+    size_t guardsize = getpagesize();
+#endif
+    pthread_attr_setguardsize(attr, guardsize);
+    // inheritsched
+    int inheritsched = PTHREAD_INHERIT_SCHED;
+    pthread_attr_setinheritsched(attr, inheritsched);
+    // schedpolicy
+    int policy = SCHED_OTHER;
+    pthread_attr_setschedpolicy(attr, policy);
+    // detachstate
+    int detachstate = PTHREAD_CREATE_JOINABLE;
+    //int detachstate = PTHREAD_CREATE_DETACHED;
+    pthread_attr_setdetachstate(attr, detachstate);
+    // contentionscope
+    int contentionscope = PTHREAD_SCOPE_PROCESS;
+    pthread_attr_setscope(attr, contentionscope);
+
+    // Check to see if the user is trying to explictly set the stack size.
+    // If they are, do what they say.  If not do nothing and just use the default.
+    bool defined = false;
+    size_t stacksize = getMemSizeEnvVar("X10_STACK_SIZE", &defined);
+    if (defined) {
+        int rc = pthread_attr_setstacksize(attr, stacksize);
+        if (rc != 0) {
+            ::fprintf(stderr, "Cannot set stack size to %d; %s. Using default size instead.\n", (int)stacksize, ::strerror(rc));
+        } else {
+            ::fprintf(stderr, "Successfully set stack size to %d\n", (int)stacksize);
+        }
+    }
+
+    // suspendstate
+    //int suspendstate = PTHREAD_CREATE_SUSPENDED_NP;
+    //pthread_attr_setsuspendstate_np(attr, suspendstate);
+}
+    
 
 // destructor
 Thread::~Thread()
