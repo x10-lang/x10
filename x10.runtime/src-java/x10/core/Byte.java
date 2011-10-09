@@ -44,7 +44,7 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     private abstract static class Cache {
         static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Byte.Cache.enabled", "false"));
         static final int low = -128;
-        static final int high = enabled ? 127 : low; // disable caching
+        static final int high = enabled ? 127 : (low - 1); // disable caching
         static final Byte cache[] = new Byte[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {

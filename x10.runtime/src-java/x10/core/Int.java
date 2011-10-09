@@ -51,14 +51,12 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
             int h = 127;
             java.lang.String highPropValue = System.getProperty("x10.lang.Int.Cache.high");
             if (highPropValue != null) {
-                // Use Long.decode here to avoid invoking methods that
-                // require Integer's autoboxing cache to be initialized
-                int i = java.lang.Long.decode(highPropValue).intValue();
+            	int i = java.lang.Integer.parseInt(highPropValue);
                 i = Math.max(i, h);
                 // Maximum array size is Integer.MAX_VALUE
                 h = Math.min(i, Integer.MAX_VALUE + low);
             }
-            high = enabled ? h : low; // disable caching
+            high = enabled ? h : (low - 1); // disable caching
 
             cache = new Int[high - low + 1];
             for (int i = 0; i < cache.length; ++i) {

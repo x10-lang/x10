@@ -14,7 +14,6 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -44,7 +43,7 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     private abstract static class Cache {
         static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.UShort.Cache.enabled", "false"));
         static final int low = 0;
-        static final int high = enabled ? 255 : low; // disable caching
+        static final int high = enabled ? 255 : (low - 1); // disable caching
         static final UShort cache[] = new UShort[high - low + 1];
         static {
             for (int i = 0; i < cache.length; ++i) {
