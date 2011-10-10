@@ -233,12 +233,16 @@ void Thread::initAttributes(pthread_attr_t* attr) {
     bool defined = false;
     size_t stacksize = getMemSizeEnvVar("X10_STACK_SIZE", &defined);
     if (defined) {
+#if defined(__CYGWIN__) 
+        ::fprintf(stderr, "Sorry setting the stacksize is not supported on cygwin. Using default size.\n");
+#else
         int rc = pthread_attr_setstacksize(attr, stacksize);
         if (rc != 0) {
             ::fprintf(stderr, "Cannot set stack size to %d; %s. Using default size instead.\n", (int)stacksize, ::strerror(rc));
         } else {
             ::fprintf(stderr, "Successfully set stack size to %d\n", (int)stacksize);
         }
+#endif
     }
 
     // suspendstate
