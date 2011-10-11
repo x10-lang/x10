@@ -778,7 +778,6 @@ public class X10CPPTranslator extends Translator {
         	}
         }
         catch(Exception e) {
-        	e.printStackTrace();
         	eq.enqueue(noError?ErrorInfo.WARNING:ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
         	return false;
         }
