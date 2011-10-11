@@ -1104,7 +1104,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Id> exploded = (List<Id>) o[2];
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
-        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+        if (type == null) type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
         Expr init = (Expr) o[5];
         LocalDecl ld = nf.LocalDecl(pos, fn, type, name, init, exploded);
         ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
@@ -1252,7 +1252,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             List<Id> exploded = (List<Id>) o[2];
             DepParameterExpr guard = (DepParameterExpr) o[3];
             TypeNode type = (TypeNode) o[4];
-            if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+            if (type == null) type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
             Expr init = (Expr) o[5];
             LocalDecl ld = nf.LocalDecl(pos, fn, type, name, init, exploded);
             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
@@ -2176,7 +2176,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Id> exploded = (List<Id>) o[2];
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
-        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+        if (type == null) type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
         List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
         f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
@@ -2198,7 +2198,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Id> exploded = (List<Id>) o[2];
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
-        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+        if (type == null) type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
         List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
         f = (Formal) ((X10Ext) f.ext()).annotations(extractAnnotations(modifiers));
@@ -2467,7 +2467,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr Expression = (Expr) _Expression;
         Stmt Statement = (Stmt) _Statement;
         Id name = nf.Id(pos(), Name.makeFresh());
-        TypeNode type = nf.UnknownTypeNode(pos());
+        TypeNode type = nf.UnknownTypeNode(pos().markCompilerGenerated());
         setResult(nf.AtEach(pos(),
                 nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                 Expression,
@@ -3609,7 +3609,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Id> exploded = (List<Id>) o[2];
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
-        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+        if (type == null) type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
         Expr init = (Expr) o[5];
         List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
@@ -3632,7 +3632,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Id> exploded = (List<Id>) o[2];
         DepParameterExpr guard = (DepParameterExpr) o[3];
         TypeNode type = (TypeNode) o[4];
-        if (type == null) type = nf.UnknownTypeNode(name != null ? name.position() : pos);
+        if (type == null) type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
         Expr init = (Expr) o[5];
         List<Formal> explodedFormals = createExplodedFormals(exploded);
         f = nf.X10Formal(pos(), fn, type, name, explodedFormals, unnamed);
@@ -3746,7 +3746,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers, Flags.PROPERTY),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(pos().markCompilerGenerated()) : HasResultTypeopt,
                 Identifier,
                 TypeParametersopt,
                 FormalParameters,
@@ -3767,7 +3767,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         List<Node> modifiers = checkMethodModifiers(MethodModifiersopt);
         MethodDecl md = nf.X10MethodDecl(pos(),
                 extractFlags(modifiers, Flags.PROPERTY),
-                HasResultTypeopt == null ? nf.UnknownTypeNode(pos()) : HasResultTypeopt,
+                HasResultTypeopt == null ? nf.UnknownTypeNode(pos().markCompilerGenerated()) : HasResultTypeopt,
                 Identifier,
                 Collections.<TypeParamNode>emptyList(),
                 Collections.<Formal>emptyList(),
@@ -3923,7 +3923,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             Id name = (Id) o[1];
             if (name == null) name = nf.Id(pos, Name.makeFresh());
             TypeNode type = (TypeNode) o[3];
-            if (type == null) type = nf.UnknownTypeNode(name.position());
+            if (type == null) type = nf.UnknownTypeNode(name.position().markCompilerGenerated());
             Expr init = (Expr) o[4];
             FieldDecl fd = nf.FieldDecl(pos, fn, type, name, init);
             fd = (FieldDecl) ((X10Ext) fd.ext()).annotations(extractAnnotations(modifiers));
@@ -4433,7 +4433,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         Expr Expression = (Expr) _Expression;
         Stmt Statement = (Stmt) _Statement;
         Id name = nf.Id(pos(), Name.makeFresh());
-        TypeNode type = nf.UnknownTypeNode(pos());
+        TypeNode type = nf.UnknownTypeNode(pos().markCompilerGenerated());
         setResult(nf.ForLoop(pos(),
                 nf.X10Formal(pos(), nf.FlagsNode(pos(), Flags.FINAL), type, name, null, true),
                 Expression,
