@@ -22,12 +22,12 @@ public class KMeansDist {
     static val points_region = 0..(POINTS-1)*0..(DIM-1);
 
     public static def main (Array[String]) {
-        val rnd = PlaceLocalHandle.make[Random](Dist.makeUnique(), () => new Random(0));
-        val local_curr_clusters = PlaceLocalHandle.make[Array[Float](1)](Dist.makeUnique(), 
+        val rnd = PlaceLocalHandle.make[Random](PlaceGroup.WORLD, () => new Random(0));
+        val local_curr_clusters = PlaceLocalHandle.make[Array[Float](1)](PlaceGroup.WORLD, 
                                                                             () => new Array[Float](CLUSTERS*DIM));
-        val local_new_clusters = PlaceLocalHandle.make[Array[Float](1)](Dist.makeUnique(),
+        val local_new_clusters = PlaceLocalHandle.make[Array[Float](1)](PlaceGroup.WORLD,
 							                   () =>  new Array[Float](CLUSTERS*DIM));
-        val local_cluster_counts = PlaceLocalHandle.make[Array[Int](1)](Dist.makeUnique(), 
+        val local_cluster_counts = PlaceLocalHandle.make[Array[Int](1)](PlaceGroup.WORLD, 
                                                                            ()=> new Array[Int](CLUSTERS));
 
         val points_dist = Dist.makeBlock(points_region, 0);

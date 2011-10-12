@@ -100,7 +100,7 @@ class FRASimpleDist {
         val num_updates = 4*tableSize;
 
         // create local tables
-        val tables = PlaceLocalHandle.make[LocalTable](Dist.makeUnique(), () => new LocalTable(localTableSize));
+        val tables = PlaceLocalHandle.make[LocalTable](PlaceGroup.WORLD, () => new LocalTable(localTableSize));
 
         // print some info
         println("Main table size   = 2^" +logLocalTableSize + "*" + Place.MAX_PLACES+" = " + tableSize+ " words");
