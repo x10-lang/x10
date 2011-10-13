@@ -11,7 +11,7 @@
 
 package x10.lang;
 
-public class NullPointerException extends RuntimeException {
+public class NullPointerException extends Exception {
     public def this() { super(); }
     public def this(message: String) { super(message); } 
 }

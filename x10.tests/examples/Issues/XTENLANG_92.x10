@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_92 extends x10Test {
 
     static class C implements Iterable[int] {
-        public def iterator(): Iterator[int] { throw new RuntimeException(); }
+        public def iterator(): Iterator[int] { throw new Exception(); }
     }
 
     public def run(): boolean {

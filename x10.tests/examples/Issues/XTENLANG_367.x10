@@ -27,9 +27,9 @@ class XTENLANG_367 extends x10Test {
                 count++;
             } finally {
                 count++;
-                throw new RuntimeException();
+                throw new Exception();
             }
-        } catch (e: RuntimeException) { }
+        } catch (e: Exception) { }
         return count == 3;
     }
 

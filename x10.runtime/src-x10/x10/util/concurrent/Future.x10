@@ -35,7 +35,7 @@ public class Future[T] implements ()=>T {
 
     /**
      * Set if the activity terminated with an exception.
-     * Can only be of type Error or RuntimeException
+     * Can only be of type Error or Exception
      *
      */
     // This cant be Cell because I need to create it before I know the value

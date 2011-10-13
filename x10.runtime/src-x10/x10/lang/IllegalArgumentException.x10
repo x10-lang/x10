@@ -14,7 +14,7 @@ package x10.lang;
 /**
  * Thrown to indicate that a method has been passed an illegal or inappropriate argument.
  */
-public class IllegalArgumentException extends RuntimeException {
+public class IllegalArgumentException extends Exception {
 
     /**
      * Construct an IllegalArgumentException with no detail message and no cause.

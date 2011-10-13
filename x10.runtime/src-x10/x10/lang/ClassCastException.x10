@@ -15,7 +15,7 @@ package x10.lang;
  * Thrown to indicate that the code has attempted to cast an object to a subclass of which it is
  * not an instance.
  */
-public class ClassCastException extends RuntimeException {
+public class ClassCastException extends Exception {
 
     /**
      * Construct a ClassCastException with no detail message.

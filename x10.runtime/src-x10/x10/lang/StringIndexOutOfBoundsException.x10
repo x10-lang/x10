@@ -15,7 +15,7 @@ package x10.lang;
  * Thrown to indicate that a string has been accessed with an illegal index.
  * For example, the point is outside of the string's region.
  */
-public class StringIndexOutOfBoundsException extends RuntimeException {
+public class StringIndexOutOfBoundsException extends Exception {
 
     /**
      * Construct a StringIndexOutOfBoundsException with no detail message.

@@ -18,7 +18,7 @@ import harness.x10Test;
 class XTENLANG_217 extends x10Test {
 
     static class A {
-        operator this(i:int): double {throw new RuntimeException();} // FIXME: XTENLANG-1443
+        operator this(i:int): double {throw new Exception();} // FIXME: XTENLANG-1443
         operator this(i:int)=(v:double) {}
     }
     

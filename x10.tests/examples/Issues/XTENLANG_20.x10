@@ -20,7 +20,7 @@ class XTENLANG_20 extends x10Test {
     class X {}
     
     class I implements (X)=>int {
-        public operator this(X): int { throw new RuntimeException(); }
+        public operator this(X): int { throw new Exception(); }
     }
 
     public def run(): boolean {

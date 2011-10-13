@@ -25,7 +25,7 @@ class XTENLANG_29 extends x10Test {
     
     class BD implements M[P,R] {
         public def m(): M[P,R] = this;
-        public operator this(P): R { throw new RuntimeException(); }
+        public operator this(P): R { throw new Exception(); }
     }
 
     public def run(): boolean {

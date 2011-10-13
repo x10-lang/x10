@@ -250,7 +250,7 @@ import x10.io.SerialData;
         }
         
         public def next(): HashEntry[Key,Value] {
-			if (originalModCount!=map.modCount) throw new RuntimeException("Your code has a concurrency bug! You updated the hashmap "+(map.modCount-originalModCount)+" times since you created the iterator.");
+			if (originalModCount!=map.modCount) throw new Exception("Your code has a concurrency bug! You updated the hashmap "+(map.modCount-originalModCount)+" times since you created the iterator.");
             val j = i;
 //            assert map.table(j) != null && ! map.table(j).removed : "map entry " + j + " is null or removed";
             i++;

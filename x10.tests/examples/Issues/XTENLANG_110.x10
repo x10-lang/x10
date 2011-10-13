@@ -22,11 +22,11 @@ class XTENLANG_110 extends x10Test {
     class D extends C {}
     
     static class CS implements Iterable[C] {
-        public def iterator(): Iterator[C] { throw new RuntimeException(); }
+        public def iterator(): Iterator[C] { throw new Exception(); }
     }
     
     static class DS implements Iterable[D] {
-        public def iterator(): Iterator[D] { throw new RuntimeException(); }
+        public def iterator(): Iterator[D] { throw new Exception(); }
     }
     
     val cs = new CS();

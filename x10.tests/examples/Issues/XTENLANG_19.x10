@@ -21,7 +21,7 @@ class XTENLANG_19 extends x10Test {
     class X {}
     
     class Init implements Indexable[P,X] {
-        public operator this(P): X { throw new RuntimeException(); }
+        public operator this(P): X { throw new Exception(); }
     }
 
     public def run(): boolean {

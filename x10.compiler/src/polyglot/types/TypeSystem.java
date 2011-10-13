@@ -441,11 +441,6 @@ public interface TypeSystem {
     Type Exception();
 
     /**
-     * <code>java.lang.RuntimeException</code>
-     */
-    Type RuntimeException();
-
-    /**
      * <code>java.lang.Cloneable</code>
      */
     Type Cloneable();

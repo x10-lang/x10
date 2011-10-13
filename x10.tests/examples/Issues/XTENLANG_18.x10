@@ -24,7 +24,7 @@ class XTENLANG_18 extends x10Test {
     class P {}
     
     class I implements (P)=>int {
-        public operator this(P): int { throw new RuntimeException(); }
+        public operator this(P): int { throw new Exception(); }
     }
 
     public def run(): boolean {

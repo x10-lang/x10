@@ -71,7 +71,7 @@ public class AccumulatorRuntimeTest extends x10Test {
 			}
 		}
 	}
-	static def fail():void { throw new RuntimeException("Failed!"); }
+	static def fail():void { throw new Exception("Failed!"); }
 	static def testAcc() {
 		val x = new Accumulator[Long](LongReducer());
 		val y = new Accumulator[Long](LongReducer2());

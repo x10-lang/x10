@@ -393,7 +393,7 @@ public class WSSynthesizer {
      * @throws SemanticException 
      */
     protected Stmt genThrowRuntimeExceptionStmt(String msg, Expr appendInfo, Context ct) throws SemanticException {
-        NewInstanceSynth nis = new NewInstanceSynth(nf, ct, compilerPos, (ClassType) ts.RuntimeException());
+        NewInstanceSynth nis = new NewInstanceSynth(nf, ct, compilerPos, (ClassType) ts.Exception());
 
         Expr msgRef = synth.stringValueExpr(msg, compilerPos);
         

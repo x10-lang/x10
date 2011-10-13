@@ -18,9 +18,9 @@ import harness.x10Test;
 class XTENLANG_9 extends x10Test {
 
     class It[T] implements Iterator[T] {
-        public def hasNext(): boolean { throw new RuntimeException(); }
-        public def next(): T { throw new RuntimeException(); }
-        public def remove(): void { throw new RuntimeException(); }
+        public def hasNext(): boolean { throw new Exception(); }
+        public def next(): T { throw new Exception(); }
+        public def remove(): void { throw new Exception(); }
     }
 
     public def run(): boolean {

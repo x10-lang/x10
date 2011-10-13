@@ -15,7 +15,7 @@ package x10.lang;
  * Thrown to indicate that a clock was used incorrectly.  For example, attempting to operate
  * on a dropped clock throws an instance of this class.
  */
-public class ClockUseException extends RuntimeException {
+public class ClockUseException extends Exception {
 
     /**
      * Construct a ClockUseException with the default detail message.

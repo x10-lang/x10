@@ -20,8 +20,8 @@ class XTENLANG_10 extends x10Test {
     class C {}
     
     class It implements Iterator[C] {
-        public def hasNext(): boolean { throw new RuntimeException(); }
-        public def next(): C { throw new RuntimeException(); }
+        public def hasNext(): boolean { throw new Exception(); }
+        public def next(): C { throw new Exception(); }
     }
     
     public def run(): boolean {

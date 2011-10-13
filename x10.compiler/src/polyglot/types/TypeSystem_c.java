@@ -2342,10 +2342,6 @@ public class TypeSystem_c implements TypeSystem
         return load("x10.lang.Exception");
     }
 
-    public X10ClassType RuntimeException() {
-        return load("x10.lang.RuntimeException");
-    }
-
     public X10ClassType NullPointerException() {
         return load("x10.lang.NullPointerException");
     }

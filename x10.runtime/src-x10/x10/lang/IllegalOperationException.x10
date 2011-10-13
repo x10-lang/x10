@@ -14,7 +14,7 @@ package x10.lang;
 /**
  * Thrown to indicate that the operation is not legal for a particular object.
  */
-public class IllegalOperationException extends RuntimeException {
+public class IllegalOperationException extends Exception {
     /**
      * Construct an IllegalOperationException with the default detail message.
      */

@@ -26,7 +26,7 @@ class XTENLANG_52 extends x10Test {
     
         static type R(rank:int) = R{self.rank==rank};
     
-        @NonEscaping public final def get(): R(rank) { throw new RuntimeException(); }
+        @NonEscaping public final def get(): R(rank) { throw new Exception(); }
     
         val rs = [get()];
     

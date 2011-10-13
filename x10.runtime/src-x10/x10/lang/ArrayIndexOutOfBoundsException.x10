@@ -15,7 +15,7 @@ package x10.lang;
  * Thrown to indicate that an array has been accessed with an illegal index.
  * For example, the point is outside of the array's region.
  */
-public class ArrayIndexOutOfBoundsException extends RuntimeException {
+public class ArrayIndexOutOfBoundsException extends Exception {
 
     /**
      * Construct an ArrayIndexOutOfBoundsException with no detail message.

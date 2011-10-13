@@ -19,12 +19,12 @@ class XTENLANG_4 extends x10Test {
 
     class R(rank:int) {
         def this(r:int) { property(r); }
-        def m(val r: int): R{self.rank==r} { throw new RuntimeException(); }
+        def m(val r: int): R{self.rank==r} { throw new Exception(); }
     }
     
     class B extends R {
         def this(r:int) { super(r); }
-        def m(val r: int): R{self.rank==r} { throw new RuntimeException(); }
+        def m(val r: int): R{self.rank==r} { throw new Exception(); }
     }
 
     public def run(): boolean {

@@ -11,7 +11,7 @@
 
 package x10.lang;
 
-public class UnsupportedOperationException extends RuntimeException {
+public class UnsupportedOperationException extends Exception {
     public def this() = super("unsupported operation exception");
     public def this(message: String) = super(message);
 }

@@ -17,11 +17,11 @@ import harness.x10Test;
 
 class XTENLANG_147 extends x10Test {
 
-    def foo1():int { throw new RuntimeException(); }
-    def bar1(()=>int): void { throw new RuntimeException(); }
+    def foo1():int { throw new Exception(); }
+    def bar1(()=>int): void { throw new Exception(); }
     
-    def foo2(): void { throw new RuntimeException(); }
-    def bar2(()=>void): void { throw new RuntimeException(); }
+    def foo2(): void { throw new Exception(); }
+    def bar2(()=>void): void { throw new Exception(); }
     
     public def foo() {
     

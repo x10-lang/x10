@@ -15,7 +15,7 @@ package x10.lang;
  * Thrown to indicate that an entity residing in a different place is accessed from 'here'.
  * Since most place checking is done statically, only used when accessing array elements.
  */
-public class BadPlaceException extends RuntimeException {
+public class BadPlaceException extends Exception {
 
     /**
      * Construct a BadPlaceException with the default detail message.

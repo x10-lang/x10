@@ -192,7 +192,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
 
     protected Type fCCEType;
 
-    protected Type fREType; // RuntimeException
+    protected Type fEType; // Exception
 
     protected Type fDivByZeroType;
 
@@ -2160,7 +2160,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
       }
 
       public Collection<Pair<Type, Object>> getCatchTargets(Type label) {
-        Collection<Pair<Type, Object>> result = Collections.singleton(Pair.<Type,Object>make(fREType, CAstControlFlowMap.EXCEPTION_TO_EXIT));
+        Collection<Pair<Type, Object>> result = Collections.singleton(Pair.<Type,Object>make(fEType, CAstControlFlowMap.EXCEPTION_TO_EXIT));
         return result;
       }
 
@@ -2361,7 +2361,7 @@ public class X10toCAstTranslator implements TranslatorToCAst {
       fIdentityMapper = identityMapper;
       fNPEType = fTypeSystem.NullPointerException();
       fCCEType = fTypeSystem.ClassCastException();
-      fREType = fTypeSystem.RuntimeException();
+      fEType = fTypeSystem.Exception();
       fDivByZeroType = fTypeSystem.ArithmeticException();
     }
 

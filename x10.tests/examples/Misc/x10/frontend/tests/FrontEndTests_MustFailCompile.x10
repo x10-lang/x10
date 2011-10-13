@@ -889,7 +889,7 @@ class TestAsync {
          // all (except q) are definitely-assigned now. 
 
 	}
-	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new RuntimeException("ERROR! loc="+loc+" expected="+expected+" a="+a); }
+	static def use2(loc:Int,expected:Int,a:Int) { if (expected!=a) throw new Exception("ERROR! loc="+loc+" expected="+expected+" a="+a); }
 	
 	public static def main2(Array[String]) {
 	     var i:Int;
@@ -6314,7 +6314,7 @@ class XTENLANG_1767 {
 						// that's why I can't build any example that will cause a bug...
 				} catch (e1:Throwable) {}
 			} 
-		} catch (e2:RuntimeException) {}
+		} catch (e2:Exception) {}
 	}
 }
 
@@ -6822,42 +6822,42 @@ class XTENLANG_1851 {
 	val f:Int;
 	var b:Boolean;
 	def this(Double) {
-		throw new RuntimeException();
+		throw new Exception();
 	}
 	def this(Char) { // ERR
 		try {
-			throw new RuntimeException();
+			throw new Exception();
 		} catch (e:Error) {}
 	}
 	def this(Float) { // ERR
-		async throw new RuntimeException();
+		async throw new Exception();
 	}
 	def this(String) { // ERR
-		finish async throw new RuntimeException();
+		finish async throw new Exception();
 	}
 	def this(Int) { // ERR
 	}
 	def this(Any) {
 		if (b)
-			throw new RuntimeException();
+			throw new Exception();
 		else
 			f = 1;
 	}
 	def this(Long) {
 		try {
-			throw new RuntimeException();
+			throw new Exception();
 		} catch (e:Error) {}
 		f = 1;
 	}
 	def this(Byte) {
 		try {
-			throw new RuntimeException();
+			throw new Exception();
 		} catch (e:Error) {}
 		throw new Exception();
 	}
 	def this(UByte) {// ERR
 		try {
-			throw new RuntimeException();
+			throw new Exception();
 		} catch (e:Error) {}
 		if (b) throw new Exception();
 	}

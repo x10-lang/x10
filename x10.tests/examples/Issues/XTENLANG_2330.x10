@@ -150,7 +150,7 @@ class XTENLANG_2370
 		// (x1:Array[Int],x2:T)=>{ if (GUARD...) throw ...;  x1(x2); }
         arr(p); // ERR
     }
-	static def fail():void { throw new RuntimeException("test failed!"); }
+	static def fail():void { throw new Exception("test failed!"); }
 	static def test() {
 		m([1,2,3], [2] as Point);
 		try { m([1,2,3], [2,3] as Point); fail(); } catch (e:FailedDynamicCheckException) {}
@@ -206,7 +206,7 @@ class TestArrayMap {
 }
 
 class DynamicCallsTest {
-	def fail():void { throw new RuntimeException("test failed!"); }
+	def fail():void { throw new Exception("test failed!"); }
 	def run() {
 		new ConstrainedCall(0).test();
 		try { new ConstrainedCall(1).test(); fail(); } catch (e:FailedDynamicCheckException) {}
@@ -266,13 +266,13 @@ class XTENLANG_2712[T](a:Int) {
 		m(3); // ok
 		try { m(2);  fail(); } catch (e:FailedDynamicCheckException) {}
 	}
-	static def fail():void { throw new RuntimeException("test failed!"); }
+	static def fail():void { throw new Exception("test failed!"); }
 }
 class Helper2330(p:Int) {
 	// test inner classes (both instance & nested), inheritance, overriding, generics (for generics I just checked codegen below, not runtime behaviour)
 	// new & call (with and without target/qualifier), operators
 
-	def fail():void { throw new RuntimeException("test failed!"); }
+	def fail():void { throw new Exception("test failed!"); }
 
 	def test() {
 		test(1);

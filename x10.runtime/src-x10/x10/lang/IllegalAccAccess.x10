@@ -14,5 +14,5 @@ package x10.lang;
 /**
  * Thrown when one performs operations on an accumulator without being registered on it.
  */
-public final class IllegalAccAccess extends RuntimeException {
+public final class IllegalAccAccess extends Exception {
 }

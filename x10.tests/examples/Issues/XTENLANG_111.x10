@@ -18,12 +18,12 @@ import harness.x10Test;
 class XTENLANG_111 extends x10Test {
 
     static class P {
-        public static operator (r: Array[int]): P { throw new RuntimeException(); }
+        public static operator (r: Array[int]): P { throw new Exception(); }
     }
     
     static class A {
-        operator this(p:P): int { throw new RuntimeException(); } // FIXME: XTENLANG-1443
-        operator this(p:P)=(e:int): void { throw new RuntimeException(); }
+        operator this(p:P): int { throw new Exception(); } // FIXME: XTENLANG-1443
+        operator this(p:P)=(e:int): void { throw new Exception(); }
     }
         
     def foo(a:A) {

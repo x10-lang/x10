@@ -15,7 +15,7 @@ package x10.lang;
  * Thrown when an exceptional arithmetic condition has occurred.
  * For example, an integer "divide by zero" throws an instance of this class.
  */
-public class ArithmeticException extends RuntimeException {
+public class ArithmeticException extends Exception {
 
     /**
      * Construct an ArithmeticException with no detail message.

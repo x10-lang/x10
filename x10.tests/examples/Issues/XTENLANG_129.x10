@@ -21,7 +21,7 @@ class XTENLANG_129 extends x10Test {
         def this(rank:int) = property(rank);
     }
     
-    static def z(): R{rank==1} { throw new RuntimeException(); }
+    static def z(): R{rank==1} { throw new Exception(); }
     
     val w: (int)=>R{rank==1} = (int)=>z();
 

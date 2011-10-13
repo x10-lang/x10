@@ -861,7 +861,7 @@ public class Lowerer extends ContextVisitor {
     //    Runtime.ensureNotInAtomic();
     //    val fresh = Runtime.startFinish();
     //    try { S; }
-    //    catch (t:Throwable) { Runtime.pushException(t); throw new RuntimeException(); }
+    //    catch (t:Throwable) { Runtime.pushException(t); throw new Exception(); }
     //    finally { Runtime.stopFinish(fresh); }
     //    }
     private Stmt visitFinish(Finish f) throws SemanticException {
@@ -882,7 +882,7 @@ public class Lowerer extends ContextVisitor {
         Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
                 nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(ts.Void());
-        Throw thr = throwRuntimeException(pos);
+        Throw thr = throwException(pos);
         Expr startCall = specializedFinish2(f);
 
         Context xc = context();
@@ -911,9 +911,9 @@ public class Lowerer extends ContextVisitor {
         		tcfBlock);
     }
 
-    // Generates a throw of a new RuntimeException().
-    private Throw throwRuntimeException(Position pos) throws SemanticException {
-        Type re = ts.RuntimeException();
+    // Generates a throw of a new Exception().
+    private Throw throwException(Position pos) throws SemanticException {
+        Type re = ts.Exception();
         X10ConstructorInstance ci = ts.findConstructor(re, ts.ConstructorMatcher(re, Collections.<Type>emptyList(), context()));
         Expr newRE = nf.New(pos, nf.CanonicalTypeNode(pos, re), Collections.<Expr>emptyList()).constructorInstance(ci).type(re);
         return nf.Throw(pos, newRE);
@@ -923,7 +923,7 @@ public class Lowerer extends ContextVisitor {
     //    {
     //    val fresh = Runtime.startCollectingFinish(R);
     //    try { S; }
-    //    catch (t:Throwable) { Runtime.pushException(t); throw new RuntimeException(); }
+    //    catch (t:Throwable) { Runtime.pushException(t); throw new Exception(); }
     //    finally { x = Runtime.stopCollectingFinish(fresh); }
     //    }
     private Stmt visitFinishExpr(Assign n, LocalDecl l, Return r) throws SemanticException {
@@ -976,7 +976,7 @@ public class Lowerer extends ContextVisitor {
         Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
                 nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(ts.Void());
-        Throw thr = throwRuntimeException(pos);
+        Throw thr = throwException(pos);
         Catch catchBlock = nf.Catch(pos, formal, nf.Block(pos, nf.Eval(pos, call), thr));
         
         // Begin finally block

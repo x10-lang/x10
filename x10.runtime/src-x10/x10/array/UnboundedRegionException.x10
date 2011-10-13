@@ -12,7 +12,7 @@
 package x10.array;
 
 
-public class UnboundedRegionException extends RuntimeException {
+public class UnboundedRegionException extends Exception {
 
     public def this(msg: String): UnboundedRegionException {
         super(msg);

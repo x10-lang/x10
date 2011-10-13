@@ -86,12 +86,6 @@ public abstract class ThrowableUtilities {
             x10RuntimeExceptions.put(javaClass, x10Class);
             x10UnsupportedOperationException = x10Class;
             
-            javaClass = java.lang.RuntimeException.class;
-            x10Name = "x10.lang.RuntimeException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-            x10RuntimeException = x10Class;
-            
             // x10Exceptions
             // N.B. ThrowableUtilities.x10Exceptions must be sync with TryCatchExpander.x10Exceptions
             javaClass = java.io.FileNotFoundException.class;

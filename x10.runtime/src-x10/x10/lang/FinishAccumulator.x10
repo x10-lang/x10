@@ -63,7 +63,7 @@ public final class FinishAccumulator[T] {}
         //MYPRINT("acceptResult: a="+a+" curr="+curr);
     }
     public def calcResult():Any {
-        if (sr==null) throw new RuntimeException("Error in Runtime for accumulators!");
+        if (sr==null) throw new Exception("Error in Runtime for accumulators!");
         sr.placeMerge();
         val res = sr.result();
         //MYPRINT("calcResult res="+res);
