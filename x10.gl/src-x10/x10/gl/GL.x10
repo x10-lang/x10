@@ -26,6 +26,7 @@ public final class GL {
         public def reshape (x:Int, y:Int) : void { }
         public def motion (x:Int, y:Int) : void { }
         public def passiveMotion (x:Int, y:Int) : void { }
+        public def mouse (button:Int, state:Int, x:Int, y:Int) : void { }
     }
 
     static the_feh = new Cell[FrameEventHandler](null);
@@ -37,6 +38,7 @@ public final class GL {
     static def reshape (x:Int, y:Int) { the_feh().reshape(x,y); }   
     static def motion (x:Int, y:Int) { the_feh().motion(x,y); }
     static def passiveMotion (x:Int, y:Int) { the_feh().passiveMotion(x,y); }
+    static def mouse (button:Int, state:Int, x:Int, y:Int) : void { the_feh().mouse(button,state,x,y); }
     static def idle () { the_feh().idle(); }
 
     public static def glutInit (args: Array[String]{rail}) : Array[String]{rail} {
@@ -77,6 +79,7 @@ public final class GL {
             "    ::glutMouseFunc(click);\n"+
             "    ::glutMotionFunc(motion);\n"+
             "    ::glutPassiveMotionFunc(passiveMotion);\n"+
+            "    ::glutMouseFunc(mouse);\n"+
             "    ::glutReshapeFunc(reshape);\n"+
             "    ::glutIdleFunc(idle);\n"+
             "    ::glutMainLoop();\n"
