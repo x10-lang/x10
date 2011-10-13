@@ -21,6 +21,7 @@ public final class GL {
         public def display () : void { }
         public def idle () : void { }
         public def keyboard (key: Char, x:Int, y:Int) : void { }
+        public def keyboardUp (key: Char, x:Int, y:Int) : void { }
         public def click (button:Int, updown:Int, x:Int, y:Int) : void { }
         public def reshape (x:Int, y:Int) : void { }
         public def motion (x:Int, y:Int) : void { }
@@ -31,6 +32,7 @@ public final class GL {
 
     static def display () { the_feh().display(); }
     static def keyboard (key: UByte, x:Int, y:Int) { the_feh().keyboard(key as Byte as Char, x, y); }
+    static def keyboardUp (key: UByte, x:Int, y:Int) { the_feh().keyboardUp(key as Byte as Char, x, y); }
     static def click (button:Int, updown:Int, x:Int, y:Int) { the_feh().click(button, updown, x, y); }
     static def reshape (x:Int, y:Int) { the_feh().reshape(x,y); }   
     static def motion (x:Int, y:Int) { the_feh().motion(x,y); }
@@ -71,6 +73,7 @@ public final class GL {
         @Native("c++",
             "    ::glutDisplayFunc(display);\n"+
             "    ::glutKeyboardFunc(keyboard);\n"+
+            "    ::glutKeyboardUpFunc(keyboardUp);\n"+
             "    ::glutMouseFunc(click);\n"+
             "    ::glutMotionFunc(motion);\n"+
             "    ::glutPassiveMotionFunc(passiveMotion);\n"+
