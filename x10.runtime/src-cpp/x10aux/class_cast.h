@@ -56,17 +56,25 @@ namespace x10aux {
 
     // ClassCastNotPrimitive
     template<class T, class F> struct ClassCastNotPrimitive { static GPUSAFE T _(F obj, bool checked) {
+        // If we get here, then the code must be doing a class cast which
+        // is outside the X10 type system (ie, it must fail).
+        // 
+        // Many such cases will be flagged as static errors by the X10 typechecker,
+        // however it is possible (using generic types) to write statically correct
+        // X10 code that will result in an unconditional class cast exception at runtime.
+        // In particular, consider:
+        //
+        // class Cast[S,T] { def m(s:S):T = s as T; }
+        // new Cast[int,String]().m(10);
+        // 
 
-        // [DC] can't make sense of the following comment, however this case
-        // would seem to catch the case where T and F are structs but are not
-        // in the 11 (or however many) primitive types that are caught earlier
-        // in the template specialisation.  The front end should prevent this
-        // from happening, so an internal (to the X10 team) debug message is
-        // appropriate.
+        const RuntimeType *from = getRTT<F>();
+        const RuntimeType *to = getRTT<T>();
+        throwClassCastException(from, to);
 
-        // [DG] If we get here, then we are doing a ref==>struct or struct==>ref, which is not allowed in X10 2.0.
-        throwClassCastException("This should not happen, please file a bug");
-        return NULL;
+        // DUMMY return.  This is unreachable
+        T dummy;
+        return dummy;
     } };
 
     template<class T, class F> struct ClassCastNotPrimitive<ref<T>,ref<F> > {
