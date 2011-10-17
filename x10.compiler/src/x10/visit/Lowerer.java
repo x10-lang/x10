@@ -246,6 +246,37 @@ public class Lowerer extends ContextVisitor {
 				return null;
 			}
     	}
+    	
+        // handle at(p) async S and treat it as the old async(p) S.
+    	if (n instanceof AtStmt) {
+    	    AtStmt atStm = (AtStmt) n;
+    	    Stmt body = atStm.body();
+    	    Async async = toAsync(body);
+    	    if (async==null)
+    	        return null;
+    	    Expr place = atStm.place();
+            if (ts.hasSameClassDef(Types.baseType(place.type()), ts.GlobalRef())) {
+                try {
+                    place = synth.makeFieldAccess(async.position(),place, ts.homeName(), context());
+                } catch (SemanticException e) {
+                }
+            }
+            List<Expr> clocks = async.clocks();
+            place = (Expr) visitEdgeNoOverride(atStm, place);
+            body = (Stmt) visitEdgeNoOverride(async, async.body());
+            if (clocks != null && ! clocks.isEmpty()) {
+                List<Expr> nclocks = new ArrayList<Expr>();
+                for (Expr c : clocks) {
+                    nclocks.add((Expr) visitEdgeNoOverride(async, c));
+                }
+                clocks =nclocks;
+            }
+            try {
+                return visitAsyncPlace(async, place, body, atStm.atDef().capturedEnvironment());
+            } catch (SemanticException z) {
+                return null;
+            }
+    	}
     	// handle async at(p) S and treat it as the old async(p) S.
     	if (n instanceof Async) {
     		Async async = (Async) n;
@@ -260,6 +291,7 @@ public class Lowerer extends ContextVisitor {
     			} catch (SemanticException e) {
     			}
     		}
+            if (!ExpressionFlattener.isPrimary(place)) return null;
     		List<Expr> clocks = async.clocks();
     		place = (Expr) visitEdgeNoOverride(atStm, place);
     		body = (Stmt) visitEdgeNoOverride(atStm, atStm.body());
@@ -438,15 +470,31 @@ public class Lowerer extends ContextVisitor {
     }
 
     private AtStmt toAtStmt(Stmt body) {
-    	if ((body instanceof AtStmt)) {
-    		return (AtStmt) body;
+        if ((body instanceof AtStmt)) {
+            return (AtStmt) body;
+        }
+        if (body instanceof Block) {
+            Block block = (Block) body;
+            if (block.statements().size()==1) {
+                body = block.statements().get(0);
+                if ((body instanceof AtStmt)) {
+                    return (AtStmt) body;
+                }
+            }
+        }
+        return null;
+    }
+
+    private Async toAsync(Stmt body) {
+    	if ((body instanceof Async)) {
+    		return (Async) body;
     	}
     	if (body instanceof Block) {
     		Block block = (Block) body;
     		if (block.statements().size()==1) {
     			body = block.statements().get(0);
-    			if ((body instanceof AtStmt)) {
-    				return (AtStmt) body;
+    			if ((body instanceof Async)) {
+    				return (Async) body;
     			}
     		}
     	}

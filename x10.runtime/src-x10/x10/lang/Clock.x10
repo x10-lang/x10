@@ -142,7 +142,7 @@ public final class Clock(name:String) {
     }
     @Global def dropInternal(entry:Map.Entry[Clock,Int]) {
         val ph = entry.getValue();
-        async at(root.home) {
+        at(root.home) async {
 	    val rcl:Clock = root();
             rcl.dropLocal(ph);
         }

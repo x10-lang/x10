@@ -780,14 +780,14 @@ import x10.util.concurrent.SimpleLatch;
         }
     }
 
-    // async at, async, at statement, and at expression implementation
-    // at is implemented using async at
-    // async at and at must make a copy of the closure parameter (local or remote)
-    // async at and at should dealloc the closure parameter
+    // asyncat, async, at statement, and at expression implementation
+    // at is implemented using asyncat
+    // asyncat and at must make a copy of the closure parameter (local or remote)
+    // asyncat at and at should dealloc the closure parameter
     // async must not copy or dealloc the closure parameter
     
     /**
-     * Run async at
+     * Run asyncat
      */
     public static def runAsync(place:Place, clocks:Rail[Clock], body:()=>void):void {
     	runAsync(place, clocks, body, 0);
@@ -859,7 +859,7 @@ import x10.util.concurrent.SimpleLatch;
 	}
 
     /**
-     * Run @Uncounted async at
+     * Run @Uncounted asyncat
      */
     public static def runUncountedAsync(place:Place, body:()=>void):void {
     	runUncountedAsync(place, body, 0);
@@ -924,17 +924,17 @@ import x10.util.concurrent.SimpleLatch;
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box = GlobalRef(me);
         val clockPhases = activity().clockPhases;
-        async at(place) {
+        at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 body();
-                async at(box.home) {
+                at(box.home) async {
                     val me2 = box();
                     me2.clockPhases = clockPhases;
                     me2.release();
                 }
             } catch (e:Throwable) {
-                async at(box.home) {
+                at(box.home) async {
                     val me2 = box();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
@@ -977,18 +977,18 @@ import x10.util.concurrent.SimpleLatch;
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me);
         val clockPhases = activity().clockPhases;
-        async at(place) {
+        at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 val result = eval();
-                async at(box.home) {
+                at(box.home) async {
                     val me2 = box();
                     me2.t = new Box[T](result);
                     me2.clockPhases = clockPhases;
                     me2.release();
                 }
             } catch (e:Throwable) {
-                async at(box.home) {
+                at(box.home) async {
                     val me2 = box();
                     me2.e = e;
                     me2.clockPhases = clockPhases;

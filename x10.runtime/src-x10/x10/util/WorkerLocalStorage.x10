@@ -22,10 +22,10 @@ package x10.util;
  *   static store = new x10.util.WorkerLocalStorage[String,String]();
  * 
  *   public static def main(Array[String]) {
- *     finish async at (here.next()) {
+ *     finish at (here.next()) async {
  *       store.put("salutation", "Hello");
  *     }
- *     finish async at (here.next()) {
+ *     finish at (here.next()) async {
  *       Console.OUT.println(store.getOrElse("salutation", "Bye"));
  *     }
  *   }
