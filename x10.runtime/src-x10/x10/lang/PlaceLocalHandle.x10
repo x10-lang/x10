@@ -210,46 +210,4 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
         }
         return handle;
     }
-
-    /**
-     * Create a distributed object with local state of type T at each place in
-     * the argument distribution. For each point p in dist the object at place
-     * dist(p) will be initialized with a copy of array(p).
-     * When this method returns, the local objects will be initialized and
-     * available via the returned PlaceLocalHandle instance at every place in
-     * the distribution.
-     * 
-     * @param dist a distribution specifiying the places where local objects should be created.
-     * @param array the array of objects to be distribute.
-     * @return a PlaceLocalHandle that can be used to access the local objects.
-     */
-    public static def makeFromArray[T](dist:Dist, array:Array[T]){T <: Object,dist.region == array.region}:PlaceLocalHandle[T] {
-        val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
-        @Pragma(Pragma.FINISH_SPMD) finish for (p in dist.region) {
-            val v = array(p);
-            at (dist(p)) async handle.set(v);
-        }
-        return handle;
-    }
-
-    /**
-     * Create a distributed object with local state of type T at each place in
-     * the argument distribution. For each point p in dist the object at place
-     * dist(p) will be initialized with init(v) where v is a copy of array(p).
-     * When this method returns, the local objects will be initialized and
-     * available via the returned PlaceLocalHandle instance at every place in
-     * the distribution.
-     * 
-     * @param dist a distribution specifiying the places where local objects should be created.
-     * @param array the array of objects to be distribute.
-     * @return a PlaceLocalHandle that can be used to access the local objects.
-     */
-    public static def makeFromArray[T,U](dist:Dist, array:Array[U], init:(U)=>T){T <: Object,dist.region == array.region}:PlaceLocalHandle[T] {
-        val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
-        @Pragma(Pragma.FINISH_SPMD) finish for (p in dist.region) {
-            val v = array(p);
-            at (dist(p)) async handle.set(init(v));
-        }
-        return handle;
-    }
 }
