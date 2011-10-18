@@ -29,7 +29,10 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Int.class);
+    static {
+        x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Int.class);
+    }
+    private static short _serialization_id;
     
     public static final RuntimeType<?> $RTT = Types.INT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -172,6 +175,10 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
 
     public short $_get_serialization_id() {
         return _serialization_id;
+    }
+
+    public static void $_set_serialization_id(short id) {
+         _serialization_id = id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {

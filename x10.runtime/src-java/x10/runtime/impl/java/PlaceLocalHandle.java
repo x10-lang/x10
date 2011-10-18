@@ -28,7 +28,10 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, PlaceLocalHandle.class);
+    static {
+        x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, PlaceLocalHandle.class);
+    }
+    private static short _serialization_id;
 
     private static final HashMap<Long,Object> data = new HashMap<Long,Object>();
     
@@ -115,6 +118,10 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
 	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
+
+    public static void $_set_serialization_id(short id) {
+         _serialization_id = id;
+    }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null, (Type<?>) null);

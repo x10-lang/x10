@@ -5,8 +5,12 @@ import java.io.*;
 
 public class Basic {
 
-    private static final short _RunnableWithBuf_id = x10.x10rt.DeserializationDispatcher.addDispatcher( x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RunnableWithBuf.class);
-    private static final short _Handler_id = x10.x10rt.DeserializationDispatcher.addDispatcher( x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, Handler.class);
+    static {
+        x10.x10rt.DeserializationDispatcher.addDispatcher( x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RunnableWithBuf.class);
+        x10.x10rt.DeserializationDispatcher.addDispatcher( x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, Handler.class);
+    }
+    private static short _RunnableWithBuf_id;
+    private static short _Handler_id;
 
     private static class RunnableWithBuf implements Serializable, x10.x10rt.X10JavaSerializable {
         public static final int Ping = 1;
@@ -34,6 +38,9 @@ public class Basic {
             return $_deserialize_body(_obj, deserializer);
         }
         public short $_get_serialization_id() { return _RunnableWithBuf_id; }
+        public static void $_set_serialization_id(short id) {
+             _RunnableWithBuf_id = id;
+        }
         public void $_serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write(this.id);
         }
@@ -262,6 +269,9 @@ public class Basic {
             return $_deserialize_body(_obj, deserializer);
         }
         public short $_get_serialization_id() { return _Handler_id; }
+        public static void $_set_serialization_id(short id) {
+             _Handler_id = id;
+        }
         public void $_serialize(x10.x10rt.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write((x10.x10rt.X10JavaSerializable) this.id);
             if (this.buf == null) {

@@ -102,6 +102,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     // static init activity
     static class $Closure$Init implements x10.core.fun.VoidFun_0_0 {
         public void $apply() {
+
+            // Assign ID's to all X10 classes
+            DeserializationDispatcher.assignSerializationIDs();
+            DeserializationDispatcher.printSeruializationIDs();
             // execute X10-level static initialization
             x10.runtime.impl.java.InitDispatcher.runInitializer();
         }

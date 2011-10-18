@@ -21,7 +21,7 @@ public class ShortType extends RuntimeType<x10.core.Short> {
 //public class ShortType extends RuntimeType<x10.core.Short>implements X10JavaSerializable {
 
 	private static final long serialVersionUID = 1L;
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ShortType.class.getName());
+//    private static short _serialization_id;x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ShortType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {

@@ -28,7 +28,10 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
     x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ULong.class);
+    static {
+        x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ULong.class);
+    }
+    private static short _serialization_id;
     
     public static final RuntimeType<?> $RTT = Types.ULONG;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -128,6 +131,10 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
 
     public short $_get_serialization_id() {
         return _serialization_id;
+    }
+
+    public static void $_set_serialization_id(short id) {
+         _serialization_id = id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {

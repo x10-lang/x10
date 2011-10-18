@@ -369,6 +369,7 @@ public class Emitter {
 	}
 
     public static final String SERIALIZE_ID_METHOD = "$_get_serialization_id";
+    public static final String SERIALIZE_ID_METHOD_SET = "$_set_serialization_id";
     public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";
     public static final String SERIALIZE_METHOD = "$_serialize";
     public static final String DESERIALIZE_BODY_METHOD = "$_deserialize_body";
@@ -3494,6 +3495,17 @@ public class Emitter {
         w.newline();
         w.writeln("}");
         w.newline();
+
+        // $_set_serialization_id()
+        w.writeln("public static void " + Emitter.SERIALIZE_ID_METHOD_SET + "(short id) {");
+        w.newline(4);
+        w.begin(0);
+        w.writeln(" " + Emitter.SERIALIZATION_ID_FIELD + " = id;");
+        w.end();
+        w.newline();
+        w.writeln("}");
+        w.newline();
+
 
         // _serialize()
         w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");

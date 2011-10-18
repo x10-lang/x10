@@ -28,7 +28,10 @@ import x10.x10rt.X10JavaSerializer;
 public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable{
 
 	private static final long serialVersionUID = 1L;
-	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RemoteIndexedMemoryChunk.class);
+    static {
+        x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RemoteIndexedMemoryChunk.class);
+    }
+	private static short _serialization_id;
 
     private static AtomicInteger lastId = new AtomicInteger(0);
     // all referenced objects in this place
@@ -146,6 +149,10 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
 	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
+
+    public static void $_set_serialization_id(short id) {
+         _serialization_id = id;
+    }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         RemoteIndexedMemoryChunk rimc = new RemoteIndexedMemoryChunk(null);

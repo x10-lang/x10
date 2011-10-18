@@ -20,6 +20,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -45,9 +47,11 @@ public class DeserializationDispatcher {
     // We first increment i before issuing the id hence initialize to NULL_ID
     private static short i = NULL_ID;
 
+    private static List<DeserializationInfo> tempIdToDeserializationInfo = new ArrayList<DeserializationInfo>();
     private static List<DeserializationInfo> idToDeserializationInfo = new ArrayList<DeserializationInfo>();
     private static List<Method> idToDeserializermethod = new ArrayList<Method>();
     private static Map<String, Short> classNameToId = new HashMap<String, Short> ();
+    private static Map<Class, String> alternates = new HashMap<Class, String> ();
 
     // Keep track of the asyncs that need to be registered with the X10 RT implementation
     private static List<DeserializationInfo> asyncs = new ArrayList<DeserializationInfo>();
@@ -58,6 +62,8 @@ public class DeserializationDispatcher {
         CLOSURE_KIND_SIMPLE_ASYNC, // is an async with just finish state
         CLOSURE_KIND_GENERAL_ASYNC // is an async represented with generial XRX closure
     };
+
+    /*
 
     public static short addDispatcher(ClosureKind closureKind, Class clazz) {
         if (i == NULL_ID) {
@@ -104,6 +110,86 @@ public class DeserializationDispatcher {
         i++;
     }
 
+    */
+
+    public static void addDispatcher(ClosureKind closureKind, Class clazz) {
+        add(closureKind, clazz);
+    }
+
+    public static void addDispatcher(ClosureKind closureKind, Class clazz, String alternate) {
+        alternates.put(clazz, alternate);
+        addDispatcher(closureKind, clazz);
+    }
+
+    private static void add(ClosureKind closureKind, Class clazz) {
+        DeserializationInfo deserializationInfo = new DeserializationInfo(closureKind, clazz);
+        tempIdToDeserializationInfo.add(deserializationInfo);
+        if (deserializationInfo.closureKind != ClosureKind.CLOSURE_KIND_NOT_ASYNC) {
+            // This class needs a message ID
+            asyncs.add(deserializationInfo);
+        }
+    }
+
+    public static void assignSerializationIDs() {
+        Collections.sort(tempIdToDeserializationInfo, new IDComparator());
+        classNameToId.put(null, i);
+        idToDeserializationInfo.add(i, null);
+        idToDeserializermethod.add(i, null);
+        i++;
+        try {
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.String"));
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Float"));
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Double"));
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Integer"));
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Boolean"));
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Byte"));
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Short"));
+            addJavaClass(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Character"));
+        } catch (ClassNotFoundException e) {
+            // This will never happen
+        }
+        for (int index = 0; index < tempIdToDeserializationInfo.size(); index++) {
+            DeserializationInfo deserializationInfo = tempIdToDeserializationInfo.get(index);
+            deserializationInfo.sid = i;
+            classNameToId.put(deserializationInfo.clazz.getName(), i);
+            String alternateString;
+            if ((alternateString = alternates.get(deserializationInfo.clazz)) != null) {
+                classNameToId.put(alternateString, i);
+            }
+            idToDeserializationInfo.add(i, deserializationInfo);
+            if (!(deserializationInfo.clazz.isInterface() || Modifier.isAbstract(deserializationInfo.clazz.getModifiers()))) {
+                idToDeserializermethod.add(i, getDeserializerMethod(deserializationInfo.clazz));
+                final Method setSerializationIDMethod = getSetSerializationIDMethod(deserializationInfo.clazz);
+                try {
+                    setSerializationIDMethod.invoke(null, i);
+                } catch (IllegalAccessException e) {
+                    throw new RuntimeException("The class " + deserializationInfo.clazz.getName() + " should privide a $_set_serialization_id method.", e);
+                } catch (InvocationTargetException e) {
+                    throw new RuntimeException("The class " + deserializationInfo.clazz.getName() + " should privide a $_set_serialization_id method.", e);
+                }
+            } else {
+                idToDeserializermethod.add(i, null);
+            }
+            i++;
+        }
+    }
+
+    public static void printSeruializationIDs() {
+        for (int index = 1; index < idToDeserializationInfo.size(); index ++) {
+            DeserializationInfo deserializationInfo = idToDeserializationInfo.get(index);
+            System.out.println(deserializationInfo.sid + " : " + deserializationInfo.clazz.getName());
+        }
+    }
+
+    private static void addJavaClass(ClosureKind closureKind, Class clazz) {
+        classNameToId.put(clazz.getName(), i);
+        DeserializationInfo deserializationInfo = new DeserializationInfo(closureKind, clazz);
+        deserializationInfo.sid = i;
+        idToDeserializationInfo.add(i, deserializationInfo);
+        idToDeserializermethod.add(i, null);
+        i++;
+    }
+
     public static Object getInstanceForId(short i, X10JavaDeserializer deserializer) throws IOException {
 
         if (i == refValue) {
@@ -138,6 +224,17 @@ public class DeserializationDispatcher {
     public static Method getDeserializerMethod(Class<?> clazz) {
         try {
             Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
+            method.setAccessible(true);
+            return method;
+        } catch (NoSuchMethodException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Method getSetSerializationIDMethod(Class<?> clazz) {
+        try {
+            Method method = clazz.getMethod("$_set_serialization_id", short.class);
             method.setAccessible(true);
             return method;
         } catch (NoSuchMethodException e) {
@@ -274,10 +371,16 @@ public class DeserializationDispatcher {
         // this is a static serialization
         public boolean isStaticInitializer = false;
 
-        private DeserializationInfo(ClosureKind closureKind, Class clazz, short sid) {
+        private DeserializationInfo(ClosureKind closureKind, Class clazz) {
             this.closureKind = closureKind;
             this.clazz = clazz;
-            this.sid = sid;
+        }
+    }
+    
+    static class IDComparator implements Comparator<DeserializationInfo> {
+
+        public int compare(DeserializationInfo deserializationInfo, DeserializationInfo deserializationInfo1) {
+            return deserializationInfo.clazz.getName().compareTo(deserializationInfo1.clazz.getName());
         }
     }
 }

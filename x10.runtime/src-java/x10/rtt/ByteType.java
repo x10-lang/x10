@@ -25,7 +25,7 @@ public class ByteType extends RuntimeType<x10.core.Byte> {
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.BYTE;
     }
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ByteType.class.getName());
+//    private static short _serialization_id;x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ByteType.class.getName());
 
     public ByteType() {
         super(x10.core.Byte.class,

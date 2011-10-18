@@ -25,8 +25,10 @@ import java.io.IOException;
 public class Ref implements RefI {
     
     private static final long serialVersionUID = 1L;
-    
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Ref.class);
+    static {
+        x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Ref.class);
+    }
+    private static short _serialization_id;
 
     // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
@@ -68,7 +70,11 @@ public class Ref implements RefI {
     }
     
     public short $_get_serialization_id() {
-         return $_serialization_id;
+         return _serialization_id;
+    }
+
+    public static void $_set_serialization_id(short id) {
+         _serialization_id = id;
     }
     
     public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {

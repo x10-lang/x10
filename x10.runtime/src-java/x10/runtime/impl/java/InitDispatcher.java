@@ -41,12 +41,11 @@ public abstract class InitDispatcher {
     private static final String initializerPrefix = "getInitialized$";
     private static final String deserializerPrefix = "getDeserialized$";
 
-    static final short static_broadcast__serialization_id = init();
+    static short static_broadcast__serialization_id;
 
-    static short init() {
-        short id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, $Closure$Deserialize.class);
-        DeserializationDispatcher.setStaticInitializer(id);
-        return id;
+    // TODO set static initializer to true
+    static {
+        DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, $Closure$Deserialize.class);
     }
 
     /**
@@ -156,6 +155,10 @@ public abstract class InitDispatcher {
 
         public short $_get_serialization_id() {
             return static_broadcast__serialization_id;
+        }
+
+        public static void $_set_serialization_id(short id) {
+            static_broadcast__serialization_id = id;
         }
 
         public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {

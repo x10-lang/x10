@@ -549,23 +549,45 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (!flags.isInterface()) {
             // TODO compute serialVersionUID with the same logic as javac
             long serialVersionUID = 1L;
-            w.write("private static final long serialVersionUID = " + serialVersionUID + "L;");
+            w.writeln("private static final long serialVersionUID = " + serialVersionUID + "L;");
+
+            w.write("static {");
+            w.newline(4);
+            w.begin(0);
+            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(" + closureKind);
+            w.write(Emitter.mangleToJava(def.name()));
+            w.writeln(".class);");
+            w.newline();
+            w.write("}");
+            w.end();
             w.newline();
 
             // _serialization_id
-            w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
+            w.writeln("private static short " + Emitter.SERIALIZATION_ID_FIELD + ";");
+        } else {
+
+            w.write("public class $initSerializationID {");
+            w.newline(4);
+            w.begin(0);
+            w.write("public static short addDispatcher() {");
+            w.newline(4);
+            w.begin(0);
             w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(" + closureKind);
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
+            w.writeln("return 0;");
+            w.end();
             w.newline();
-        } else {
+            w.writeln("}");
+            w.end();
+            w.newline();
+            w.writeln("}");
+
+
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
             // _serialization_id
-            w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(" + closureKind);
-            w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class);");
-            w.newline();
+            w.writeln("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = $initSerializationID.addDispatcher();");
+
         }
 
         // print the clone method
@@ -755,6 +777,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline(4);
                 w.begin(0);
                 w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
+                w.end();
+                w.newline();
+                w.writeln("}");
+                w.newline();
+
+                // $_set_serialization_id()
+                w.writeln("public static void " + Emitter.SERIALIZE_ID_METHOD_SET + "(short id) {");
+                w.newline(4);
+                w.begin(0);
+                w.writeln(" " + Emitter.SERIALIZATION_ID_FIELD + " = id;");
                 w.end();
                 w.newline();
                 w.writeln("}");

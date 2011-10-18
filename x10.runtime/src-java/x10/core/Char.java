@@ -28,7 +28,10 @@ import java.io.IOException;
 final public class Char extends Struct implements java.lang.Comparable<Char>, x10.util.Ordered<Char>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Char.class);
+    static {
+        x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Char.class);
+    }
+    private static short _serialization_id;
     
     public static final RuntimeType<?> $RTT = Types.CHAR;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -116,6 +119,10 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
 
     public short $_get_serialization_id() {
         return _serialization_id;
+    }
+
+    public static void $_set_serialization_id(short id) {
+         _serialization_id = id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
