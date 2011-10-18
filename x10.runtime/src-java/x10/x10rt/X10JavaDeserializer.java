@@ -20,6 +20,7 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
 
+import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -50,6 +51,10 @@ public class X10JavaDeserializer {
         objectList = new ArrayList<Object>();
     }
 
+    public DataInput getInpForHadoop() {
+    	return in;
+    }
+    
     public int record_reference(Object obj) {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("\tRecorded new reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET + " at " + counter + "  (absolute) in map");

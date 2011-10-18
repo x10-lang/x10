@@ -18,6 +18,8 @@ import x10.io.CustomSerialization;
 import x10.io.SerialData;
 import x10.runtime.impl.java.Runtime;
 
+import java.io.DataInput;
+import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
@@ -42,6 +44,11 @@ public class X10JavaSerializer {
         this.out = out;
     }
 
+
+    public DataOutput getOutForHadoop() {
+    	return out;
+    }
+    
     public void write(X10JavaSerializable obj) throws IOException {
         if (obj == null) {
             writeNull();
