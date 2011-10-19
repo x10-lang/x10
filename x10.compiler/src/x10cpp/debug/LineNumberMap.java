@@ -444,7 +444,7 @@ public class LineNumberMap extends StringTable {
 				}
 			}
 			int comma = cm._sizeOfArg.indexOf(',');
-			if (comma > -1)
+			if (comma > -1) // multiple arguments
 			{
 				// this has template arguments.  Add in the TPMGL stuff
 				int start = cm._sizeOfArg.indexOf('<');
@@ -456,10 +456,10 @@ public class LineNumberMap extends StringTable {
 					else
 						break;
 				}
-				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), TPMGL(").replaceFirst(">", ")>");
-				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("TPMGL(").concat(temp);
+				String temp = cm._sizeOfArg.substring(start+1).replace(",", "), class TPMGL(").replaceFirst(">", ")>");
+				cm._sizeOfArg = cm._sizeOfArg.substring(0, start+1).concat("class TPMGL(").concat(temp);
 			}
-			else
+			else // single argument
 			{
 				int argstart = cm._sizeOfArg.lastIndexOf('<');
 				if (argstart > 0)					
@@ -1419,7 +1419,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0B0A050F, // 2011-10-05, 15:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0B0A130A, // 2011-10-19, 10:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
