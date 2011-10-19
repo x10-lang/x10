@@ -2858,7 +2858,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         w.write(".");
-        w.write("instanceOf(");
+        w.write("isInstance(");
 
         Type exprType = Types.baseType(c.expr().type());
         boolean needParen = false;

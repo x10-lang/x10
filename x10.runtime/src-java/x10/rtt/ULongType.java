@@ -45,9 +45,9 @@ public class ULongType extends RuntimeType<x10.core.ULong> {
         return "x10.lang.ULong";
     }
 
-    // for shortcut 
+    // for shortcut
     @Override
-    public boolean instanceOf(Object o) {
+    public boolean isInstance(Object o) {
         return o instanceof x10.core.ULong;
     }
     

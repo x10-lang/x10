@@ -138,7 +138,7 @@ public final class Vec<T> extends x10.core.Struct {
     // not needed
 //    @Override
 //    final public boolean equals(java.lang.Object other) {
-//        if (!Vec.$RTT.instanceOf(other, T)) return false;
+//        if (!Vec.$RTT.isInstance(other, T)) return false;
 //        return this.equals_0$1x10$util$Vec$$T$2((Vec) Types.asStruct(new ParameterizedType(Vec.$RTT, T), other));
 //    }
 //
@@ -151,7 +151,7 @@ public final class Vec<T> extends x10.core.Struct {
 //    }
 
     final public boolean _struct_equals$O(java.lang.Object otherObj) {
-        if (!Vec.$RTT.instanceOf(otherObj, T)) return false;
+        if (!Vec.$RTT.isInstance(otherObj, T)) return false;
         Vec<T> other = (Vec<T>) Types.asStruct(new ParameterizedType(Vec.$RTT, T), otherObj);
         // optimized
 //      if (this.size != other.size) return false;

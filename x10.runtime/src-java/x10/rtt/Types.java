@@ -200,22 +200,24 @@ public class Types {
     	return Double.toString(value);
     }
     
-    // for convenience
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt) {
-        return rtt.instanceOf(o);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0) {
-        return rtt.instanceOf(o, param0);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1) {
-        return rtt.instanceOf(o, param0, param1);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1, Type<?> param2) {
-        return rtt.instanceOf(o, param0, param1, param2);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?>... params) {
-        return rtt.instanceOf(o, params);
-    }
+    // not used
+//    // for convenience
+//    public static boolean instanceOf(Object o, RuntimeType<?> rtt) {
+//        return rtt.isInstance(o);
+//    }
+//    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0) {
+//        return rtt.isInstance(o, param0);
+//    }
+//    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1) {
+//        return rtt.isInstance(o, param0, param1);
+//    }
+//    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1, Type<?> param2) {
+//        return rtt.isInstance(o, param0, param1, param2);
+//    }
+//    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?>... params) {
+//        return rtt.isInstance(o, params);
+//    }
+    
     // box java primitives to x10 boxed types
     public static Object $box(Object o) {
         if (o instanceof java.lang.Byte) {
@@ -572,14 +574,14 @@ public class Types {
 
     public static <T> T cast(final java.lang.Object self, Type<?> rtt) {
         if (self == null) return null;
-        if (rtt != null && !rtt.instanceOf(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.isInstance(self)) throw new x10.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
     public static <T> T castConversion(final java.lang.Object self, Type<?> rtt) {
         if (self == null) return null;
         T ret = (T) conversion(rtt, self, true);
-        if (rtt != null && !rtt.instanceOf(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.isInstance(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
         return ret;
     }
 

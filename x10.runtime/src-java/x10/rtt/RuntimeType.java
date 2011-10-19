@@ -144,12 +144,16 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return true;
     }
 
-    public boolean instanceOf(Object o) {
+    public boolean isInstance(Object o) {
         if (o == null) {return false;}
         if (o.getClass() == impl) {
             return true;
         }
         return impl.isInstance(o);
+    }
+    @Deprecated
+    public final boolean instanceOf(Object o) {
+        return isInstance(o);
     }
 
     private static final boolean isSubtype(Variance varianceForParam, Type<?> typeForFormalParam, Type<?> typeForActualParam) {
@@ -165,7 +169,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return true;
     }
     // o instanceof This and params
-    public final boolean instanceOf(Object o, Type<?>... params) {
+    public final boolean isInstance(Object o, Type<?>... params) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
@@ -193,6 +197,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         else {
             return false;
         }
+    }
+    @Deprecated
+    public final boolean instanceOf(Object o, Type<?>... params) {
+        return isInstance(o, params);
     }
 
     private boolean checkAnonymous(Class<?> target) {
@@ -428,7 +436,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
     
     // for shortcut
-    public boolean instanceOf(Object o, Type<?> param0) {
+    public boolean isInstance(Object o, Type<?> param0) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
@@ -455,10 +463,14 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             return false;
         }
     }
+    @Deprecated
+    public final boolean instanceOf(Object o, Type<?> param0) {
+        return isInstance(o, param0);
+    }
 
 
     // for shortcut
-    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1) {
+    public final boolean isInstance(Object o, Type<?> param0, Type<?> param1) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
@@ -490,10 +502,14 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
         
     }
+    @Deprecated
+    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1) {
+        return isInstance(o, param0, param1);
+    }
 
 
-    // for shortcut 
-    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
+    // for shortcut
+    public final boolean isInstance(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
@@ -527,6 +543,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         else {
             return false;
         }
+    }
+    @Deprecated
+    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
+        return isInstance(o, param0, param1, param2);
     }
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {

@@ -45,9 +45,9 @@ public class UIntType extends RuntimeType<x10.core.UInt> {
         return "x10.lang.UInt";
     }
 
-    // for shortcut 
+    // for shortcut
     @Override
-    public boolean instanceOf(Object o) {
+    public boolean isInstance(Object o) {
         return o instanceof x10.core.UInt;
     }
     

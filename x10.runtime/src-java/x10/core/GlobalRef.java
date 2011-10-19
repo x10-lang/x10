@@ -245,7 +245,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     }
 
     final public boolean _struct_equals$O(java.lang.Object other) {
-        if (!x10.core.GlobalRef.$RTT.instanceOf(other, T)) {
+        if (!x10.core.GlobalRef.$RTT.isInstance(other, T)) {
             return false;
         }
         return this._struct_equals((x10.core.GlobalRef<T>) other);
