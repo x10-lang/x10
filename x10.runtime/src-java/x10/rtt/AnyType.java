@@ -32,8 +32,8 @@ public class AnyType extends RuntimeType<Object> {
     
     // for shortcut
     @Override
-    public boolean isSubtype(Type<?> o) {
-        return o == Types.ANY;
+    public boolean isAssignableTo(Type<?> superType) {
+        return superType == Types.ANY;
     };
     
 }

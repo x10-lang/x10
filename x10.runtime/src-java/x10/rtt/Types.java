@@ -380,7 +380,7 @@ public class Types {
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isSubtype(STRUCT);
+    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isAssignableTo(STRUCT);
     }
 
     
@@ -569,7 +569,7 @@ public class Types {
     private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     public static boolean hasNaturalZero(Type<?> rtt) {
-    	return rtt.isSubtype(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
+    	return rtt.isAssignableTo(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
     }
 
     public static <T> T cast(final java.lang.Object self, Type<?> rtt) {

@@ -18,7 +18,7 @@ public interface Type<T> extends java.io.Serializable, x10.x10rt.X10JavaSerializ
     boolean instanceOf(Object o);
     
     boolean equals(Object o);
-    boolean isSubtype(Type<?> o);
+    boolean isAssignableTo(Type<?> superType);
     
     Object makeArray(int dim0);
     Object makeArray(int dim0, int dim1);

@@ -41,8 +41,8 @@ public class ObjectType extends RuntimeType<x10.core.RefI> {
     
     // for shortcut
     @Override
-    public boolean isSubtype(Type<?> o) {
-        return o == Types.OBJECT || o == Types.ANY;
+    public boolean isAssignableTo(Type<?> superType) {
+        return superType == Types.OBJECT || superType == Types.ANY;
     };
 
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {

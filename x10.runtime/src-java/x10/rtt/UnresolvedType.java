@@ -93,7 +93,7 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
         return isInstance(o);
     }
 
-    public final boolean isSubtype(Type o) {
+    public final boolean isAssignableTo(Type superType) {
         throw new UnsupportedOperationException();
     }
 

@@ -44,21 +44,21 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     public ParameterizedType() {
     }
 
-    public final boolean isSubtype(Type<?> o) {
-        if (this == o) return true;
-        if (o == Types.ANY) return true;
-        if (o == Types.OBJECT) return !Types.isStructType(this);
-        if (!o.getImpl().isAssignableFrom(rtt.getImpl())) {
+    public final boolean isAssignableTo(Type<?> superType) {
+        if (this == superType) return true;
+        if (superType == Types.ANY) return true;
+        if (superType == Types.OBJECT) return !Types.isStructType(this);
+        if (!superType.getImpl().isAssignableFrom(rtt.getImpl())) {
             return false;
         }
-        if (o instanceof ParameterizedType) {
-            ParameterizedType<?> pt = (ParameterizedType<?>) o;
-            if (pt.getRuntimeType().isSuperType(pt.params, rtt, params)) {
+        if (superType instanceof ParameterizedType) {
+            ParameterizedType<?> pt = (ParameterizedType<?>) superType;
+            if (pt.getRuntimeType().isAssignableFrom(pt.params, rtt, params)) {
                 return true;
             }
         }
-        else if (o instanceof RuntimeType) {
-            if (((RuntimeType<?>) o).isSuperType(null, rtt, params)) {
+        else if (superType instanceof RuntimeType) {
+            if (((RuntimeType<?>) superType).isAssignableFrom(null, rtt, params)) {
                 return true;
             }
         }
