@@ -26,9 +26,31 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RuntimeType.class);
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
+    private static final Variance[][] invariants = {
+        null,
+        new Variance[] {Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+        new Variance[] {Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT,Variance.INVARIANT},
+    };
+    public static Variance[] INVARIANTS(int length) {
+        assert length >= 1;
+        if (length <= 10) {
+            return invariants[length];
+        }
+        Variance[] variances = new Variance[length];
+        java.util.Arrays.fill(variances, Variance.INVARIANT);
+        return variances;
+    }
     
     public Class<?> impl;
-    public Variance[] variances;
+    private Variance[] variances;
     public Type<?>[] parents;
 
     // Just for allocation
@@ -57,8 +79,17 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return impl;
     }
     
-    public Variance[] getVariances() {
-        return variances;
+    // not used
+//    public Variance[] getVariances() {
+//        return variances;
+//    }
+    
+    private final Variance getVariance(int i) {
+        return variances[i];
+    }
+    
+    private final int numParams() {
+        return variances != null ? variances.length : 0;
     }
     
     public Type<?>[] getParents() {
@@ -142,7 +173,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             Type<?> typeForFormalParam;
             Type<?> typeForActualParam;
             for (int i = 0, s = params.length; i < s; i++) {
-                varianceForParam = variances[i];
+                varianceForParam = getVariance(i);
                 typeForFormalParam = Types.getParam(o, i);
                 typeForActualParam = params[i];
                 if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
@@ -289,7 +320,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (impl == rtt.getImpl()) {
             if (params != null) {
                 for (int i = 0, s = params.length; i < s; i ++) {
-                    switch (variances[i]) {
+                    switch (getVariance(i)) {
                     case INVARIANT:
                         if (!params[i].equals(paramsType[i])) {return false;}
                         break;
@@ -353,9 +384,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     protected final String typeNameForFun(Object o) {
+        int numParams = numParams();
         String str = "(";
         int i;
-        for (i = 0; i < variances.length - 1; i++) {
+        for (i = 0; i < numParams - 1; i++) {
             if (i != 0) str += ",";
             str += ((Any) o).$getParam(i).typeName();
         }
@@ -364,9 +396,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return str;
     }
     protected final String typeNameForVoidFun(Object o) {
+        int numParams = numParams();
         String str = "(";
-        if (variances != null && variances.length > 0) {
-            for (int i = 0; i < variances.length; i++) {
+        if (numParams > 0) {
+            for (int i = 0; i < numParams; i++) {
                 if (i != 0) str += ",";
                 str += ((Any) o).$getParam(i).typeName();
             }
@@ -375,11 +408,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return str;
     }
     protected final String typeNameForOthers(Object o) {
+        int numParams = numParams();
         String str = typeName();
-        if (variances != null && variances.length > 0) {
+        if (numParams > 0) {
             if (o instanceof Any || Types.supportTypeParameterOfJavaType) {
                 str += "[";
-                for (int i = 0; i < variances.length; i ++) {
+                for (int i = 0; i < numParams; i ++) {
                     if (i != 0) str += ",";
                     str += Types.getParam(o, i).typeName();
                 }
@@ -401,7 +435,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             Variance varianceForParam;
             Type<?> typeForFormalParam;
             Type<?> typeForActualParam;
-            varianceForParam = variances[0];
+            varianceForParam = getVariance(0);
             typeForFormalParam = Types.getParam(o, 0);
             typeForActualParam = param0;
             if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
@@ -431,11 +465,11 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             Variance varianceForParam;
             Type<?> typeForFormalParam;
             Type<?> typeForActualParam;
-            varianceForParam = variances[0];
+            varianceForParam = getVariance(0);
             typeForFormalParam = Types.getParam(o, 0);
             typeForActualParam = param0;
             if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
-            varianceForParam = variances[1];
+            varianceForParam = getVariance(1);
             typeForFormalParam = Types.getParam(o, 1);
             typeForActualParam = param1;
             if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
@@ -466,15 +500,15 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             Variance varianceForParam;
             Type<?> typeForFormalParam;
             Type<?> typeForActualParam;
-            varianceForParam = variances[0];
+            varianceForParam = getVariance(0);
             typeForFormalParam = Types.getParam(o, 0);
             typeForActualParam = param0;
             if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
-            varianceForParam = variances[1];
+            varianceForParam = getVariance(1);
             typeForFormalParam = Types.getParam(o, 1);
             typeForActualParam = param1;
             if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
-            varianceForParam = variances[2];
+            varianceForParam = getVariance(2);
             typeForFormalParam = Types.getParam(o, 2);
             typeForActualParam = param2;
             if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
