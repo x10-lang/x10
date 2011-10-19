@@ -121,6 +121,18 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return impl.isInstance(o);
     }
 
+    private static final boolean isSubtype(Variance varianceForParam, Type<?> typeForFormalParam, Type<?> typeForActualParam) {
+        switch (varianceForParam) {
+        case INVARIANT:
+        	return typeForActualParam.equals(typeForFormalParam);
+        case COVARIANT:
+        	return typeForFormalParam.isSubtype(typeForActualParam);
+        case CONTRAVARIANT:
+        	return typeForActualParam.isSubtype(typeForFormalParam);
+        }
+//        assert false; // should never happen
+        return true;
+    }
     // o instanceof This and params
     public final boolean instanceOf(Object o, Type<?>... params) {
         if (o == null) {return false;}
@@ -133,17 +145,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                 varianceForParam = variances[i];
                 typeForFormalParam = Types.getParam(o, i);
                 typeForActualParam = params[i];
-                switch (varianceForParam) {
-                case INVARIANT:
-                    if (!typeForActualParam.equals(typeForFormalParam)) {return false;}
-                    break;
-                case COVARIANT:
-                    if (!typeForFormalParam.isSubtype(typeForActualParam)) {return false;}
-                    break;
-                case CONTRAVARIANT:
-                    if (!typeForActualParam.isSubtype(typeForFormalParam)) {return false;}
-                    break;
-                }
+                if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
             }
             return true;
         }
@@ -402,15 +404,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             varianceForParam = variances[0];
             typeForFormalParam = Types.getParam(o, 0);
             typeForActualParam = param0;
-            if (varianceForParam.equals(Variance.INVARIANT)) {
-                if (!typeForActualParam.equals(typeForFormalParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.COVARIANT)) {
-                if (!typeForFormalParam.isSubtype(typeForActualParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.CONTRAVARIANT)) {
-                if (!typeForActualParam.isSubtype(typeForFormalParam)) {return false;}
-            }
+            if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
             return true;
         }
         else if (impl.isInstance(o)) {
@@ -440,27 +434,11 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             varianceForParam = variances[0];
             typeForFormalParam = Types.getParam(o, 0);
             typeForActualParam = param0;
-            if (varianceForParam.equals(Variance.INVARIANT)) {
-                if (!typeForActualParam.equals(typeForFormalParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.COVARIANT)) {
-                if (!typeForFormalParam.isSubtype(typeForActualParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.CONTRAVARIANT)) {
-                if (!typeForActualParam.isSubtype(typeForFormalParam)) {return false;}
-            }
+            if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
             varianceForParam = variances[1];
             typeForFormalParam = Types.getParam(o, 1);
             typeForActualParam = param1;
-            if (varianceForParam.equals(Variance.INVARIANT)) {
-                if (!typeForActualParam.equals(typeForFormalParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.COVARIANT)) {
-                if (!typeForFormalParam.isSubtype(typeForActualParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.CONTRAVARIANT)) {
-                if (!typeForActualParam.isSubtype(typeForFormalParam)) {return false;}
-            }
+            if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
             return true;
         }
         else if (impl.isInstance(o)) {
@@ -491,39 +469,15 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             varianceForParam = variances[0];
             typeForFormalParam = Types.getParam(o, 0);
             typeForActualParam = param0;
-            if (varianceForParam.equals(Variance.INVARIANT)) {
-                if (!typeForActualParam.equals(typeForFormalParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.COVARIANT)) {
-                if (!typeForFormalParam.isSubtype(typeForActualParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.CONTRAVARIANT)) {
-                if (!typeForActualParam.isSubtype(typeForFormalParam)) {return false;}
-            }
+            if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
             varianceForParam = variances[1];
             typeForFormalParam = Types.getParam(o, 1);
             typeForActualParam = param1;
-            if (varianceForParam.equals(Variance.INVARIANT)) {
-                if (!typeForActualParam.equals(typeForFormalParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.COVARIANT)) {
-                if (!typeForFormalParam.isSubtype(typeForActualParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.CONTRAVARIANT)) {
-                if (!typeForActualParam.isSubtype(typeForFormalParam)) {return false;}
-            }
+            if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
             varianceForParam = variances[2];
             typeForFormalParam = Types.getParam(o, 2);
             typeForActualParam = param2;
-            if (varianceForParam.equals(Variance.INVARIANT)) {
-                if (!typeForActualParam.equals(typeForFormalParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.COVARIANT)) {
-                if (!typeForFormalParam.isSubtype(typeForActualParam)) {return false;}
-            }
-            else if (varianceForParam.equals(Variance.CONTRAVARIANT)) {
-                if (!typeForActualParam.isSubtype(typeForFormalParam)) {return false;}
-            }
+            if (!isSubtype(varianceForParam, typeForFormalParam, typeForActualParam)) {return false;}
             return true;
         }
         else if (impl.isInstance(o)) {
