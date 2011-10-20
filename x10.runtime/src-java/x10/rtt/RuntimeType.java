@@ -173,10 +173,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
-            Variance variance;
-            Type<?> paramForInstance;
-            Type<?> paramForType;
             for (int i = 0, s = params.length; i < s; i++) {
+                Variance variance;
+                Type<?> paramForInstance;
+                Type<?> paramForType;
                 variance = getVariance(i);
                 paramForInstance = Types.getParam(o, i);
                 paramForType = params[i];
@@ -328,17 +328,13 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (impl == rtt.getImpl()) {
             if (params != null) {
                 for (int i = 0, s = params.length; i < s; i ++) {
-                    switch (getVariance(i)) {
-                    case INVARIANT:
-                        if (!params[i].equals(paramsType[i])) {return false;}
-                        break;
-                    case COVARIANT:
-                        if (!paramsType[i].isAssignableTo(params[i])) {return false;}
-                        break;
-                    case CONTRAVARIANT:
-                        if (!params[i].isAssignableTo(paramsType[i])) {return false;}
-                        break;
-                    }
+                    Variance variance;
+                    Type<?> paramForInstance;
+                    Type<?> paramForType;
+                    variance = getVariance(i);
+                    paramForInstance = paramsType[i];
+                    paramForType = params[i];
+                    if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
                 }
             }
             return true;
