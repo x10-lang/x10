@@ -969,7 +969,8 @@ import x10.util.concurrent.SimpleLatch;
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
-                return deepCopy(deepCopy(eval)());
+            	// TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
+            	return deepCopy(deepCopy(eval)());
             } catch (t:Throwable) {
                 throw deepCopy(t);
             }
