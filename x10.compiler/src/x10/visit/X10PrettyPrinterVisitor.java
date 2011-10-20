@@ -3057,7 +3057,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (n.equals()) {
             w.write(".equals(");
         } else {
-            w.write(".isSubtype(");
+            w.write(".isAssignableTo(");
         }
         new RuntimeTypeExpander(er, sup.type()).expand(tr);
         w.write("))");
