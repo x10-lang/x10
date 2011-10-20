@@ -232,6 +232,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return false;
     }
 
+    // TODO consolidate
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o),
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) and 
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT)
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o) {
         if (rtt.parents != null) {
@@ -261,6 +265,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return false;
     }
 
+    // TODO consolidate
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o),
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) and 
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT)
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) {
         if (rtt.parents != null) {
@@ -292,6 +300,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return false;
     }
     
+    // TODO consolidate
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o),
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) and 
+    // instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT)
     // e.g. C[T1,T2]:Super[Int, T1] -> C[Int,Double]:Super[Int,Int] 
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT) {
         if (rtt.parents != null) {
