@@ -156,14 +156,14 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return isInstance(o);
     }
 
-    private static final boolean subtypeTestForParam(Variance variance, Type<?> paramForType, Type<?> paramForInstance) {
+    private static final boolean subtypeTestForParam(Variance variance, Type<?> paramOfSuperType, Type<?> paramOfSubType) {
         switch (variance) {
         case INVARIANT:
-            return paramForType.equals(paramForInstance);
+            return paramOfSuperType.equals(paramOfSubType);
         case COVARIANT:
-            return paramForInstance.isAssignableTo(paramForType);
+            return paramOfSubType.isAssignableTo(paramOfSuperType);
         case CONTRAVARIANT:
-            return paramForType.isAssignableTo(paramForInstance);
+            return paramOfSuperType.isAssignableTo(paramOfSubType);
         }
 //        assert false; // should never happen
         return true;
@@ -175,12 +175,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (target == impl || checkAnonymous(target)) {
             for (int i = 0, s = params.length; i < s; i++) {
                 Variance variance;
-                Type<?> paramForInstance;
-                Type<?> paramForType;
+                Type<?> paramOfSubType;
+                Type<?> paramOfSuperType;
                 variance = getVariance(i);
-                paramForInstance = Types.getParam(o, i);
-                paramForType = params[i];
-                if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+                paramOfSubType = Types.getParam(o, i);
+                paramOfSuperType = params[i];
+                if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             }
             return true;
         }
@@ -273,7 +273,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                         for (int i = 0; i < paramsT.length; i ++ ) {
                             if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
                                 int index = ((UnresolvedType) paramsT[i]).getIndex();
-                                newParamsT[i]= index == -1 ? rtt : any.$getParam(index);
+                                newParamsT[i] = index == -1 ? rtt : any.$getParam(index);
                             }
                             else {
                                 newParamsT[i] = paramsT[i];
@@ -329,12 +329,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             if (params != null) {
                 for (int i = 0, s = params.length; i < s; i ++) {
                     Variance variance;
-                    Type<?> paramForInstance;
-                    Type<?> paramForType;
+                    Type<?> paramOfSubType;
+                    Type<?> paramOfSuperType;
                     variance = getVariance(i);
-                    paramForInstance = paramsType[i];
-                    paramForType = params[i];
-                    if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+                    paramOfSubType = paramsType[i];
+                    paramOfSuperType = params[i];
+                    if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
                 }
             }
             return true;
@@ -437,12 +437,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
             Variance variance;
-            Type<?> paramForInstance;
-            Type<?> paramForType;
+            Type<?> paramOfSubType;
+            Type<?> paramOfSuperType;
             variance = getVariance(0);
-            paramForInstance = Types.getParam(o, 0);
-            paramForType = param0;
-            if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+            paramOfSubType = Types.getParam(o, 0);
+            paramOfSuperType = param0;
+            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             return true;
         }
         else if (impl.isInstance(o)) {
@@ -471,16 +471,16 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
             Variance variance;
-            Type<?> paramForInstance;
-            Type<?> paramForType;
+            Type<?> paramOfSubType;
+            Type<?> paramOfSuperType;
             variance = getVariance(0);
-            paramForInstance = Types.getParam(o, 0);
-            paramForType = param0;
-            if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+            paramOfSubType = Types.getParam(o, 0);
+            paramOfSuperType = param0;
+            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             variance = getVariance(1);
-            paramForInstance = Types.getParam(o, 1);
-            paramForType = param1;
-            if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+            paramOfSubType = Types.getParam(o, 1);
+            paramOfSuperType = param1;
+            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             return true;
         }
         else if (impl.isInstance(o)) {
@@ -510,20 +510,20 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         Class<?> target = o.getClass();
         if (target == impl || checkAnonymous(target)) {
             Variance variance;
-            Type<?> paramForInstance;
-            Type<?> paramForType;
+            Type<?> paramOfSubType;
+            Type<?> paramOfSuperType;
             variance = getVariance(0);
-            paramForInstance = Types.getParam(o, 0);
-            paramForType = param0;
-            if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+            paramOfSubType = Types.getParam(o, 0);
+            paramOfSuperType = param0;
+            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             variance = getVariance(1);
-            paramForInstance = Types.getParam(o, 1);
-            paramForType = param1;
-            if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+            paramOfSubType = Types.getParam(o, 1);
+            paramOfSuperType = param1;
+            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             variance = getVariance(2);
-            paramForInstance = Types.getParam(o, 2);
-            paramForType = param2;
-            if (!subtypeTestForParam(variance, paramForType, paramForInstance)) {return false;}
+            paramOfSubType = Types.getParam(o, 2);
+            paramOfSuperType = param2;
+            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             return true;
         }
         else if (impl.isInstance(o)) {
