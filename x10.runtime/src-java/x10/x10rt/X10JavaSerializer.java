@@ -385,7 +385,7 @@ public class X10JavaSerializer {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("\t\tFound repeated reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET+ " at " + pos + " (absolute) in map");
             }
-            // We have serialized this object beofre hence no need to do it again
+            // We have serialized this object before hence no need to do it again
             if (writeRef) {
                 write(DeserializationDispatcher.refValue);
                 out.writeInt(pos);
@@ -425,7 +425,7 @@ public class X10JavaSerializer {
     			|| "x10.rtt.ULongType".equals(bodyClass.getName())
     			|| "x10.rtt.UShortType".equals(bodyClass.getName())) {
     		writeClassID(superclass.getName());
-    		// These classes dont implement the serialization/deserialization routines, hence we serialize the superclass
+    		// These classes don't implement the serialization/deserialization routines, hence we serialize the superclass
     		serializeClassUsingReflection(body, superclass);
     		return;
     	}
@@ -518,7 +518,6 @@ public class X10JavaSerializer {
     				Field field = bodyClass.getDeclaredField(typeParameter.getName());
     				fields.add(field);
     			}
-    			processFields(body, fields);
     			CustomSerialization cs = (CustomSerialization)body;
     			SerialData serialData = cs.serialize();
     			writeObjectUsingReflection(serialData);

@@ -299,34 +299,39 @@ public class X10JavaDeserializer {
     private Object deserializeRefUsingReflection(short serializationID) throws IOException {
         try {
             Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
+            String className = clazz.getName();
 
             Object o = null;
 
             // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
-            if (!"java.lang.Class".equals(clazz.getName())) {
+            if (!"java.lang.Class".equals(className)) {
                 o = unsafe.allocateInstance(clazz);
             }
             int i = record_reference(o);
-            Class<?> superclass = clazz.getSuperclass();
 
-            if ("x10.rtt.FloatType".equals(clazz.getName()) || "x10.rtt.IntType".equals(clazz.getName())
-                    || "x10.rtt.DoubleType".equals(clazz.getName())
-                    || "x10.rtt.LongType".equals(clazz.getName())
-                    || "x10.rtt.BooleanType".equals(clazz.getName())
-                    || "x10.rtt.StringType".equals(clazz.getName())
-                    || "x10.rtt.CharType".equals(clazz.getName())
-                    || "x10.rtt.ByteType".equals(clazz.getName())
-                    || "x10.rtt.ShortType".equals(clazz.getName())
-                    || "x10.rtt.ObjectType".equals(clazz.getName())
-                    || "x10.rtt.UByteType".equals(clazz.getName())
-                    || "x10.rtt.UIntType".equals(clazz.getName())
-                    || "x10.rtt.ULongType".equals(clazz.getName())
-                    || "x10.rtt.UShortType".equals(clazz.getName())) {
+            if (className.startsWith("x10.rtt.") &&
+            		("x10.rtt.FloatType".equals(className) 
+            				|| "x10.rtt.IntType".equals(className)
+            				|| "x10.rtt.DoubleType".equals(className)
+            				|| "x10.rtt.LongType".equals(className)
+            				|| "x10.rtt.BooleanType".equals(className)
+            				|| "x10.rtt.StringType".equals(className)
+            				|| "x10.rtt.CharType".equals(className)
+            				|| "x10.rtt.ByteType".equals(className)
+            				|| "x10.rtt.ShortType".equals(className)
+            				|| "x10.rtt.ObjectType".equals(className)
+            				|| "x10.rtt.UByteType".equals(className)
+            				|| "x10.rtt.UIntType".equals(className)
+            				|| "x10.rtt.ULongType".equals(className)
+            				|| "x10.rtt.UShortType".equals(className)
+            		)) {
+                // These classes don't implement the serialization/deserialization routines, hence we deserialize the superclass
                 readShort();
-                // These classes dont implement the serialization/deserialization routines, hence we deserialize the superclass
+                Class<?> superclass = clazz.getSuperclass();
                 return deserializeClassUsingReflection(superclass, o, i);
+            } else {
+            	return deserializeClassUsingReflection(clazz, o, i);
             }
-            return deserializeClassUsingReflection(clazz, o, i);
         } catch (SecurityException e) {
             // This should never happen
             throw new RuntimeException(e);
@@ -401,19 +406,10 @@ public class X10JavaDeserializer {
         		obj = deserializeClassUsingReflection(superclass, obj, i);
         	}
 
-        	Set<Field> fields = new TreeSet<Field>(new FieldComparator());
-
-
             if (isCustomSerializable) {
-                TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-                for (TypeVariable<? extends Class<? extends Object>> typeParameter : typeParameters) {
-                    Field field = clazz.getDeclaredField(typeParameter.getName());
-                    fields.add(field);
-                }
-                processFields(obj, fields);
                 SerialData serialData = (SerialData) readRefUsingReflection();
 
-                // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
+                // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
                 Method makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
                 makeMethod.setAccessible(true);
                 makeMethod.invoke(obj, serialData);
@@ -434,6 +430,7 @@ public class X10JavaDeserializer {
             }
 
             // We need to sort the fields first. Cause the order here could depend on the JVM.
+        	Set<Field> fields = new TreeSet<Field>(new FieldComparator());
             Field[] declaredFields = clazz.getDeclaredFields();
             for (Field field : declaredFields) {
                 if (field.isSynthetic())
@@ -453,8 +450,6 @@ public class X10JavaDeserializer {
         } catch (NoSuchMethodException e) {
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        } catch (NoSuchFieldException e) {
             throw new RuntimeException(e);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException(e);
