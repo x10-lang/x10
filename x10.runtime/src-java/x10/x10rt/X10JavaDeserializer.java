@@ -342,7 +342,7 @@ public class X10JavaDeserializer {
     
     private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
 
-    public <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException {
+    private <T> T deserializeClassUsingReflection(Class<?> clazz, T obj, int i) throws IOException {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
@@ -406,7 +406,16 @@ public class X10JavaDeserializer {
         		obj = deserializeClassUsingReflection(superclass, obj, i);
         	}
 
-            if (isCustomSerializable) {
+        	if (isCustomSerializable) {
+        		// Process type parameters
+        		Set<Field> fields = new TreeSet<Field>(new FieldComparator());
+        		TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
+        		for (TypeVariable<? extends Class<? extends Object>> typeParameter : typeParameters) {
+        			Field field = clazz.getDeclaredField(typeParameter.getName());
+        			fields.add(field);
+        		}
+        		processFields(obj, fields);
+
                 SerialData serialData = (SerialData) readRefUsingReflection();
 
                 // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
@@ -455,6 +464,10 @@ public class X10JavaDeserializer {
             throw new RuntimeException(e);
 		} catch (InstantiationException e) {
             throw new RuntimeException(e);
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchFieldException e) {
+			throw new RuntimeException(e);
 		}
     }
 
