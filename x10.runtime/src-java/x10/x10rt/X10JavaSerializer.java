@@ -472,7 +472,6 @@ public class X10JavaSerializer {
     		if (Runtime.TRACE_SER) {
     			Runtime.printTraceMessage("Creating serialization thunk "+ans.getClass()+" for "+clazz);
     		}
-    		System.out.println();
     	}
     	return ans;
     }
