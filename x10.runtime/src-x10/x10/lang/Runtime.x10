@@ -108,7 +108,7 @@ import x10.util.concurrent.SimpleLatch;
      */
     @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o)")
     @Native("c++", "x10aux::deep_copy<#T >(#o)")
-    static native def deepCopy[T](o:T):T;
+    public static native def deepCopy[T](o:T):T;
 
     /**
      * Process one incoming message if any (non-blocking).
