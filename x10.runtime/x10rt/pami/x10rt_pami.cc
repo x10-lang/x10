@@ -34,9 +34,10 @@
 #define X10RT_PAMI_SCATTER_ALG "X10RT_PAMI_SCATTER_ALG"
 #define X10RT_PAMI_ALLTOALL_ALG "X10RT_PAMI_ALLTOALL_ALG"
 #define X10RT_PAMI_ALLREDUCE_ALG "X10RT_PAMI_ALLREDUCE_ALG"
+#define X10RT_PAMI_ALLGATHER_ALG "X10RT_PAMI_ALLGATHER_ALG"
 
 enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE, NEW_TEAM}; // PAMI doesn't send messages with type=0... it just silently eats them.
-enum COLLTYPE{BARRIER=0, BCAST, SCATTER, ALLTOALL, ALLREDUCE};
+enum COLLTYPE{BARRIER=0, BCAST, SCATTER, ALLTOALL, ALLREDUCE, ALLGATHER};
 
 //mechanisms for the callback functions used in the register and probe methods
 typedef void (*handlerCallback)(const x10rt_msg_params *);
@@ -143,7 +144,7 @@ struct x10rt_pami_state
 	hfi_remote_update_fn hfi_update;
 	pami_extension_t async_extension; // for async progress
 	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
-	uint32_t collectiveAlgorithmSelection[5]; // algorithm selection for each supported collective. barrier, broadcast, scatter, alltoall, allreduce
+	uint32_t collectiveAlgorithmSelection[6]; // algorithm selection for each supported collective. barrier, broadcast, scatter, alltoall, allreduce, allgather
 } state;
 
 static void local_msg_dispatch (pami_context_t context, void* cookie, const void* header_addr, size_t header_size,
@@ -939,6 +940,8 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		state.collectiveAlgorithmSelection[ALLTOALL] = atoi(getenv(X10RT_PAMI_ALLTOALL_ALG));
 	if (getenv(X10RT_PAMI_ALLREDUCE_ALG))
 		state.collectiveAlgorithmSelection[ALLREDUCE] = atoi(getenv(X10RT_PAMI_ALLREDUCE_ALG));
+	if (getenv(X10RT_PAMI_ALLGATHER_ALG))
+		state.collectiveAlgorithmSelection[ALLGATHER] = atoi(getenv(X10RT_PAMI_ALLGATHER_ALG));
 }
 
 
@@ -1709,10 +1712,13 @@ void x10rt_net_team_split (x10rt_team parent, x10rt_place parent_role, x10rt_pla
 	pami_xfer_t operation;
 	operation.cb_done = split_stage2;
 	operation.cookie = cbd;
-	operation.algorithm = always_works_alg[0];
+	if (state.collectiveAlgorithmSelection[ALLGATHER] < num_algorithms[0])
+		operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[ALLGATHER]];
+	else
+		operation.algorithm = must_query_alg[state.collectiveAlgorithmSelection[ALLGATHER]-num_algorithms[0]];
 	operation.cmd.xfer_allgather.rcvbuf = (char*)colors;
 	operation.cmd.xfer_allgather.rtype = PAMI_TYPE_BYTE;
-	operation.cmd.xfer_allgather.rtypecount = sizeof(x10rt_place)*parentTeamSize;
+	operation.cmd.xfer_allgather.rtypecount = sizeof(x10rt_place);// *parentTeamSize;
 	operation.cmd.xfer_allgather.sndbuf = (char*)&color;
 	operation.cmd.xfer_allgather.stype = PAMI_TYPE_BYTE;
 	operation.cmd.xfer_allgather.stypecount = sizeof(x10rt_place);
@@ -1805,7 +1811,6 @@ void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_hand
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
-	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	#ifdef DEBUG
 		if ((team==0 && state.myPlaceId==0) || (team>0 && state.myPlaceId == state.teams[team].places[0]))
 		{
@@ -1873,7 +1878,6 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
-	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	#ifdef DEBUG
 		if (role==root)
 		{
@@ -1953,7 +1957,6 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
-	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	if (state.collectiveAlgorithmSelection[SCATTER] < num_algorithms[0])
 		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[SCATTER]];
 	else
@@ -2095,7 +2098,6 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	memset(&tcb->operation, 0, sizeof (tcb->operation));
 	tcb->operation.cb_done = collective_operation_complete;
 	tcb->operation.cookie = tcb;
-	// TODO - figure out a better way to choose.  For now, the code just uses the first *known good* algorithm.
 	if (state.collectiveAlgorithmSelection[ALLREDUCE] < num_algorithms[0])
 		tcb->operation.algorithm = always_works_alg[state.collectiveAlgorithmSelection[ALLREDUCE]];
 	else
