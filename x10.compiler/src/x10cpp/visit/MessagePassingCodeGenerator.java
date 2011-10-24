@@ -207,6 +207,7 @@ import x10.types.ClosureInstance;
 import x10.types.ParameterType;
 
 import x10.types.FunctionType;
+import x10.types.ThisDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorInstance;
@@ -3431,6 +3432,14 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Warnings.issue(tr.job(), msg, n.position());
             }
         }
+        List<VarInstance<? extends VarDef>> prunned = new ArrayList<VarInstance<? extends VarDef>>(env.size());
+        for (VarInstance<?> vi : env) {
+            VarDef def = vi.def();
+            if ((def instanceof X10LocalDef) || def instanceof ThisDef) {
+                prunned.add(vi);
+            }
+        }
+        env = prunned;
         
 		if (((X10CPPCompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG && !in_template_closure)
 		{
@@ -3441,10 +3450,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		        final LineNumberMap lineNumberMap = fileToLineNumberMap.get(key);
 		        if (lineNumberMap != null)
 		        {
-		        	int numMembers = c.variables.size();
+		        	int numMembers = env.size();
 		        	for (int i = 0; i < numMembers; i++) 
 		        	{
-		        		VarInstance<?> var = c.variables.get(i);
+		        		VarInstance<?> var = env.get(i);
 		        		String name = var.name().toString();
 		        		if (name.equals(THIS)) 
 		    				name = SAVED_THIS;
@@ -3463,7 +3472,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    }
 		}
 
-        emitter.printDeclarationList(sw, c, c.variables, refs);
+        emitter.printDeclarationList(sw, c, env, refs);
         sw.forceNewline();
 
         sw.write("x10aux::serialization_id_t "+SERIALIZE_ID_METHOD+"() {");
@@ -3471,12 +3480,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.write("return "+SERIALIZATION_ID_FIELD+";"); sw.end(); sw.newline();
         sw.write("}"); sw.newline(); sw.forceNewline();
 
-        generateClosureSerializationFunctions(c, cnamet, sw, n.body(), refs);
+        generateClosureSerializationFunctions(c, cnamet, sw, n.body(), env, refs);
 
         sw.write(cname+"(");
-        for (int i = 0; i < c.variables.size(); i++) {
+        for (int i = 0; i < env.size(); i++) {
             if (i > 0) sw.write(", ");
-            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) env.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;
@@ -3490,8 +3499,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.write(")");
         sw.begin(0);
         // FIXME: factor out this loop
-        for (int i = 0 ; i < c.variables.size() ; i++) {
-            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
+        for (int i = 0 ; i < env.size() ; i++) {
+            VarInstance<?> var = (VarInstance<?>) env.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;
@@ -3594,9 +3603,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
         }
         sw.write(cname+templateArgs+"(");
-        for (int i = 0; i < c.variables.size(); i++) {
+        for (int i = 0; i < env.size(); i++) {
             if (i > 0) sw.write(", ");
-            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) env.get(i);
             String name = var.name().toString();
             if (name.equals(THIS)) {
                 // FIXME: Hack upon hack...
@@ -3633,7 +3642,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
         }
         
-        for (VarInstance<?> var : c.variables) {
+        for (VarInstance<?> var : closureDef.capturedEnvironment()) {
             VarDef def = var.def();
             if ((def instanceof X10LocalDef)) {
                 X10LocalDef ld = ((X10LocalDef)def);
@@ -3647,12 +3656,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, 
                                                          Block block, List<VarInstance<?>> refs) {
+        generateClosureSerializationFunctions(c, cnamet, inc, block, c.variables, refs);
+    }
+
+    protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, 
+                                                         Block block, List<VarInstance<?>> env, List<VarInstance<?>> refs) {
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         // FIXME: factor out this loop
-        for (int i = 0; i < c.variables.size(); i++) {
+        for (int i = 0; i < env.size(); i++) {
             if (i > 0) inc.newline();
-            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
+            VarInstance<?> var = (VarInstance<?>) env.get(i);
             String name = var.name().toString();
             if (name.equals(THIS)) {
                 name = SAVED_THIS;
@@ -3670,8 +3684,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.writeln("buf.record_reference("+make_ref(cnamet)+"(storage));");
         
         // FIXME: factor out this loop
-        for (int i = 0; i < c.variables.size(); i++) {
-            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
+        for (int i = 0; i < env.size(); i++) {
+            VarInstance<?> var = (VarInstance<?>) env.get(i);
             Type t = var.type();
             String type;
             if (refs.contains(var)) {
@@ -3690,8 +3704,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
         inc.write(make_ref(cnamet)+" this_ = new (storage) "+cnamet+"(");
         // FIXME: factor out this loop
-        for (int i = 0; i < c.variables.size(); i++) {
-            VarInstance<?> var = (VarInstance<?>) c.variables.get(i);
+        for (int i = 0; i < env.size(); i++) {
+            VarInstance<?> var = (VarInstance<?>) env.get(i);
             String name = var.name().toString();
             if (name.equals(THIS))
                 name = SAVED_THIS;

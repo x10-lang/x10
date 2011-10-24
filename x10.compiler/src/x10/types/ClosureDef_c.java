@@ -110,6 +110,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         ClosureDef_c res = (ClosureDef_c) super.copy();
         res.asInstance = null;
         res.asType = null;
+        res.capturedEnvironment = TypedList.<VarInstance<? extends VarDef>>copy(capturedEnvironment, VarInstance.class, false);
         return res;
     }
 
