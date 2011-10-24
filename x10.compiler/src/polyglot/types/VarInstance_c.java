@@ -13,6 +13,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
     boolean constantValueSet;
     boolean isConstant;
     ConstantValue constantValue;
+    boolean lval; // occurs in lval position
 
     public ConstantValue constantValue() {
         if (!constantValueSet && def.known()) {
@@ -98,5 +99,15 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
         VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
         v.type = type;
         return v;
+    }
+    
+    public VarInstance<T> lval(boolean lval) {
+        VarInstance_c<T> v = this.<VarInstance_c<T>>copyGeneric();
+        v.lval = lval;
+        return v;
+    }
+
+    public boolean lval() {
+        return lval;
     }
 }
