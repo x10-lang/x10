@@ -411,17 +411,25 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 	// shut down any connections if they still exist
 	handleDeadParent();
 
-	// clean up any leftover children (prevent zombies)
+	// clean up any leftover children (prevent zombies) and process exit code
+	// launchers -1 and 0 may hang forever if runtime at place 0 hangs
+	// other launchers and runtimes should always terminate
 	int status;
 
-	for (uint32_t i = 0; i <= _numchildren; i++)
+	// first wait for sublaunchers to exit
+	// sublaunchers should die on their own because we previously cut connections with them
+	for (uint32_t i = 0; i < _numchildren; i++)
 	{
-		int pid = waitpid(_pidlst[i], &status, WNOHANG);
-		if (pid != _pidlst[i]) {
-			kill(_pidlst[i], SIGKILL);
-			waitpid(_pidlst[i], &status, 0);
-		}
+		waitpid(_pidlst[i], &status, 0);
 	}
+
+	// second kill local runtimes at place > 0
+	if (_myproc!=0 && _myproc!=0xFFFFFFFF) {
+		kill(_pidlst[_numchildren], SIGKILL);
+	}
+
+	// finally wait for local runtime/launcher 0
+	waitpid(_pidlst[_numchildren], &status, 0);
 
 	// propagate exit code of local runtime/launcher 0
 	int exitcode = 0xFEEDC0DE;
