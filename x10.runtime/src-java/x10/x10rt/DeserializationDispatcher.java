@@ -36,6 +36,7 @@ public class DeserializationDispatcher {
     public static final short SHORT_ID = 7;
     public static final short LONG_ID = 8;
     public static final short CHARACTER_ID = 9;
+    public static final short MAX_ID_FOR_PRIMITIVE = 9;
     public static final String NULL_VALUE = "__NULL__";
 
     public static final short refValue = Short.MAX_VALUE;
@@ -73,6 +74,7 @@ public class DeserializationDispatcher {
                 add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Boolean"), false);
                 add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Byte"), false);
                 add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Short"), false);
+                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Long"), false);
                 add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Character"), false);
             } catch (ClassNotFoundException e) {
                 // This will never happen

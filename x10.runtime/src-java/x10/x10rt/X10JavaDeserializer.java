@@ -290,7 +290,7 @@ public class X10JavaDeserializer {
                 Runtime.printTraceMessage("Deserialized a null reference");
             }
             return null;
-        } else if (serializationID <= 8) {
+        } else if (serializationID <= DeserializationDispatcher.MAX_ID_FOR_PRIMITIVE) {
             return DeserializationDispatcher.deserializePrimitive(serializationID, this);
         }
 
