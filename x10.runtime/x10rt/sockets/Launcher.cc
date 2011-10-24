@@ -990,15 +990,15 @@ static char *escape_various_things (const char *in)
 static char *escape_various_things2 (const char *in)
 {
     size_t sz = strlen(in);
-    size_t out_sz = 0;
-    char *out = NULL;
+    size_t out_sz = sz+5;
+    char *out = (char*) malloc(sz+5);
     size_t out_cnt = 0;
+    out[out_cnt++] = '\''; // beginning quote
     for (size_t i=0 ; i<sz ; ++i) {
         if (out_cnt+5 >= out_sz) {
             out_sz = out_cnt+10;
             out = static_cast<char*>(realloc(out, out_sz+1));
         }
-        if (i==0) out[out_cnt++] = '\''; // beginning quote
         switch (in[i]) {
              case '\'': // ' will break bash, turn it into "'" (but come out of the existing single quote first)
             out[out_cnt++] = '\'';
