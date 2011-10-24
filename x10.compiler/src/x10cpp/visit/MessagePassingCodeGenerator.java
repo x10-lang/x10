@@ -2903,7 +2903,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    assert var.name() == n.name().id();
 		}
 		if (c.isInsideClosure())
-			c.saveEnvVariableInfo(var.name().toString());
+			c.saveEnvVariableInfo(var.name().toString(), var.lval());
 		sw.write(mangled_non_method_name(var.name().toString()));
 	}
 
@@ -3637,13 +3637,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             VarDef def = var.def();
             if ((def instanceof X10LocalDef)) {
                 X10LocalDef ld = ((X10LocalDef)def);
-                if (!ld.flags().isFinal()) {
+                if (!ld.flags().isFinal() || var.lval()) {
                     refs.add(var);
-                } else if (ld.isAsyncInit()) {
-                    Set<LocalDef> currentAsyncInits = c.findData(SharedVarsMethods.ASYNC_INIT_VALS_KEY);
-                    if (currentAsyncInits != null && currentAsyncInits.contains(ld)) {
-                        refs.add(var);
-                    }
                 }
             }
         }

@@ -204,14 +204,18 @@ public class X10CPPContext_c extends Context {
     }
 
     
-	public void saveEnvVariableInfo(String name) {
+    public void saveEnvVariableInfo(String name) {
+        saveEnvVariableInfo(name, false);
+    }
+
+	public void saveEnvVariableInfo(String name, boolean lval) {
 		VarInstance<?> vi = findVariableInThisScope(Name.make(name));
 		if (vi != null) {  // found declaration 
 			// local variable (do nothing)
 		} else if (inClosure) {
-			addVar(name); // local variable
+			addVar(name, lval); // local variable
 		} else {  // Captured Variable
-			((X10CPPContext_c) outer).saveEnvVariableInfo(name);
+			((X10CPPContext_c) outer).saveEnvVariableInfo(name, lval);
 		}
 	}
 
@@ -223,7 +227,7 @@ public class X10CPPContext_c extends Context {
         else return null;
     }
 
-    private void addVar(String name) {
+    private void addVar(String name, boolean lval) {
 		VarInstance<?> vi = lookup(name, this);
 		if (vi==null) {
 		    System.out.println("Internal compiler error: this variable name could not be looked up: "+name);
@@ -237,6 +241,7 @@ public class X10CPPContext_c extends Context {
                 break;
             }
         }
+        if (lval) vi = vi.lval(lval);
 		if (!contains) variables.add(vi);
 	}
 
@@ -251,7 +256,7 @@ public class X10CPPContext_c extends Context {
 			VarInstance<?> v = variables.get(i);
 			VarInstance<?> cvi = findVariableInThisScope(v.name());
 			if (cvi == null)   // declaration not found 
-				((X10CPPContext_c) outer).saveEnvVariableInfo(v.name().toString());
+				((X10CPPContext_c) outer).saveEnvVariableInfo(v.name().toString(), v.lval());
 		}
 	}
     
