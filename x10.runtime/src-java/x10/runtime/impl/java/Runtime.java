@@ -165,7 +165,19 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
             // System.out.println("start preloading of classes");
             Class<?> userMain = this.getClass().getEnclosingClass();
-            x10.runtime.impl.java.PreLoader.preLoad(userMain, Boolean.getBoolean("x10.PRELOAD_STRINGS"));
+            String extraClassesString = System.getProperty("x10.EXTRA_PRELOAD_CLASSES");
+            java.util.ArrayList<String> extraClasses;
+            if (extraClassesString != null) {
+                extraClasses = new java.util.ArrayList<String>();
+                java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(extraClassesString, ",");
+                while (tokenizer.hasMoreTokens()) {
+                    String name = tokenizer.nextToken();
+                    extraClasses.add(name);
+                }
+            } else {
+                extraClasses = null;
+            }
+            x10.runtime.impl.java.PreLoader.preLoad(userMain, extraClasses, Boolean.getBoolean("x10.PRELOAD_STRINGS"));
         }
 
         // Obtain message ID's for each async
