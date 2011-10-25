@@ -9,7 +9,7 @@ sub printCHeader {
     print " *  You may obtain a copy of the License at\n";
     print " *      http://www.opensource.org/licenses/eclipse-1.0.php\n";
     print " *\n";
-    print " *  (C) Copyright IBM Corporation 2006-2010.\n";
+    print " *  (C) Copyright IBM Corporation 2006-2011.\n";
     print " */\n\n";
 }
 
@@ -22,7 +22,7 @@ sub printMakeHeader {
     print "#  You may obtain a copy of the License at\n";
     print "#      http://www.opensource.org/licenses/eclipse-1.0.php\n";
     print "#\n";
-    print "#  (C) Copyright IBM Corporation 2006-2010.\n";
+    print "#  (C) Copyright IBM Corporation 2006-2011.\n";
     print "#\n\n";
 }
 
