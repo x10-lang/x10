@@ -357,6 +357,28 @@ public class X10JavaDeserializer {
 			}
     }
     
+    // This method is called from generated code when an X10 class has a Java superclass.
+    public <T> Object deserializeClassUsingReflection(Class<? extends Object> clazz, T obj, int i) throws IOException {
+		try {
+			DeserializerThunk thunk = getDeserializerThunk(clazz);
+			return thunk.deserializeObject(clazz, obj, i, this);
+		} catch (SecurityException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchFieldException e) {
+			throw new RuntimeException(e);
+		} catch (NoSuchMethodException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalArgumentException e) {
+			throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+			throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+			throw new RuntimeException(e);
+		} catch (InstantiationException e) {
+			throw new RuntimeException(e);
+		}
+    }
+    
     private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
     
     private DeserializerThunk getDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {

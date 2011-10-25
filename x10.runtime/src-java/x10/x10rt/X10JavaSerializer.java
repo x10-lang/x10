@@ -454,6 +454,33 @@ public class X10JavaSerializer {
 		}
     }
 
+    // This method is called from generated code when an X10 class has a Java superclass
+    public <T> void serializeClassUsingReflection(T obj, Class<T> clazz) throws IOException {
+    	try {
+    		SerializerThunk st = getSerializerThunk(clazz);
+    		writeClassID(clazz.getName());
+    		st.serializeObj(obj, this);
+    	} catch (SecurityException e) {
+    		e.printStackTrace();
+    		throw new RuntimeException(e);
+    	} catch (IllegalArgumentException e) {
+    		e.printStackTrace();
+    		throw new RuntimeException(e);
+		} catch (IllegalAccessException e) {
+    		e.printStackTrace();
+    		throw new RuntimeException(e);
+		} catch (InvocationTargetException e) {
+    		e.printStackTrace();
+    		throw new RuntimeException(e);
+		} catch (NoSuchFieldException e) {
+    		e.printStackTrace();
+    		throw new RuntimeException(e);
+		} catch (NoSuchMethodException e) {
+    		e.printStackTrace();
+    		throw new RuntimeException(e);
+		}    	
+    }
+    
     public void writeClassID(String className) throws IOException {
     	short id = DeserializationDispatcher.getIDForClassName(className);
     	if (id < 0) {
