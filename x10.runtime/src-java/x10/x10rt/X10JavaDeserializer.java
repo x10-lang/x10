@@ -339,7 +339,7 @@ public class X10JavaDeserializer {
             
 			try {
 				DeserializerThunk thunk = getDeserializerThunk(clazz);
-				return thunk.deserializeObject(o, i, this);
+				return thunk.deserializeObject(clazz, o, i, this);
 			} catch (SecurityException e) {
 				throw new RuntimeException(e);
 			} catch (NoSuchFieldException e) {
@@ -528,14 +528,14 @@ public class X10JavaDeserializer {
     		superclassThunk = st;
 		}
     	
-    	<T> T deserializeObject(T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+    	<T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
     		if (superclassThunk != null) {
-    			obj = superclassThunk.deserializeObject(obj, i, jds);
+    			obj = superclassThunk.deserializeObject(clazz, obj, i, jds);
     		}
-    		return deserializeBody(obj, i, jds);
+    		return deserializeBody(clazz, obj, i, jds);
     	}
     	
-    	protected abstract <T> T deserializeBody(T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException;
+    	protected abstract <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException;
     }
     
     private static class FieldBasedDeserializerThunk extends DeserializerThunk {
@@ -560,7 +560,7 @@ public class X10JavaDeserializer {
      		fields = flds.toArray(new Field[flds.size()]);
      	}
 
-		protected <T> T deserializeBody(T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalAccessException {		
+		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalAccessException {		
 	        for (Field field : fields) {
 	            Class<?> type = field.getType();
 	            if (type.isPrimitive()) {
@@ -591,7 +591,8 @@ public class X10JavaDeserializer {
     		readMethod.setAccessible(true);
     	}
 
-		protected <T> T deserializeBody(T obj, int i, X10JavaDeserializer jds) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+		@SuppressWarnings("unchecked")
+		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
         	if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Calling hadoop deserializer with object of type " + obj.getClass());
             }
@@ -628,7 +629,7 @@ public class X10JavaDeserializer {
     	}
 
 		@Override
-		protected <T> T deserializeBody(T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
 			for (Field field : fields) {
 				Object value = jds.readRefUsingReflection();
 				field.set(obj, value);
@@ -651,8 +652,7 @@ public class X10JavaDeserializer {
     	}
 
 		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected <T> T deserializeBody(T obj, int i, X10JavaDeserializer jds) throws IOException {
-    		Class<? extends Object> clazz = obj.getClass();
+		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
 	        if ("java.lang.String".equals(clazz.getName())) {
 	            obj = (T) jds.readStringValue();
 	            return obj;
