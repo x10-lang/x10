@@ -438,7 +438,7 @@ public class X10Call_c extends Call_c implements X10Call {
         if (t == null)
             return null;
         if (Types.isX10Struct(t)) {
-            X10New_c neu = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), t), Collections.<TypeNode>emptyList(), args);
+            X10New_c neu = (X10New_c) nf.X10New(position(), nf.CanonicalTypeNode(position(), t), Collections.<TypeNode>emptyList(), args, false);
             neu = (X10New_c) neu.newOmitted(true);
             Pair<ConstructorInstance, List<Expr>> p = X10New_c.findConstructor(tc, neu, t, argTypes);
             X10ConstructorInstance ci = (X10ConstructorInstance) p.fst();

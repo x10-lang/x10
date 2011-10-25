@@ -91,10 +91,13 @@ import x10.visit.X10TypeChecker;
  * @author nystrom
  */
 public class X10New_c extends New_c implements X10New {
-    public X10New_c(Position pos, boolean newOmitted, Expr qualifier, TypeNode tn, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
+	boolean isLinked;
+	
+    public X10New_c(Position pos, boolean newOmitted, Expr qualifier, TypeNode tn, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body, boolean isLinked) {
         super(pos, qualifier, tn, arguments, body);
         this.typeArguments = TypedList.copyAndCheck(typeArguments, TypeNode.class, true);
         this.newOmitted = newOmitted;
+        this.isLinked = isLinked;
     }
 
     private boolean newOmitted = false;
@@ -153,6 +156,10 @@ public class X10New_c extends New_c implements X10New {
         n = (X10New_c) n.typeArguments(typeArgs);
         n = (X10New_c) X10Del_c.visitAnnotations(n, tb);
         return n;
+    }
+    
+    public boolean isLinked(){
+    	return isLinked;
     }
 
     List<TypeNode> typeArguments;

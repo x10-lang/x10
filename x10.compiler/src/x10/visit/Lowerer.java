@@ -73,6 +73,7 @@ import x10.ast.AtEach;
 import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.Atomic;
+import x10.ast.AtomicUnitOfWork;
 import x10.ast.Closure;
 import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
@@ -331,6 +332,8 @@ public class Lowerer extends ContextVisitor {
             return visitNext((Next) n);
         if (n instanceof Atomic)
             return visitAtomic((Atomic) n);
+        if (n instanceof AtomicUnitOfWork)
+            return visitAtomicUnitOfWork((AtomicUnitOfWork) n);
         if (n instanceof When)
             return visitWhen((When) n);
         if (n instanceof Finish)
@@ -716,6 +719,13 @@ public class Lowerer extends ContextVisitor {
 
     // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }
     private Stmt visitAtomic(Atomic a) throws SemanticException {
+        Position pos = a.position();
+        Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
+        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
+        return nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
+    }
+    
+    private Stmt visitAtomicUnitOfWork(AtomicUnitOfWork a) throws SemanticException {
         Position pos = a.position();
         Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
         Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));

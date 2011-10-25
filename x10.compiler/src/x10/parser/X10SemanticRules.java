@@ -296,7 +296,9 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         public static int CLOCKED     = 14;
         public static int STATIC      = 15;
         public static int TRANSIENT   = 16;
-        public static int NUM_FLAGS   = TRANSIENT + 1;
+        public static int LINKED = 17;
+        public static int NUM_FLAGS   = LINKED + 1;
+        
 
         private JPGPosition pos;
         private int flag;
@@ -321,6 +323,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (flag == CLOCKED)       return Flags.CLOCKED;
             if (flag == TRANSIENT)    return Flags.TRANSIENT;
             if (flag == STATIC)       return Flags.STATIC;
+            
+            if (flag == LINKED)       return Flags.LINKED;
             assert(false);
             return null;
         }
@@ -343,6 +347,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             if (flag == CLOCKED)       return "clocked";
             if (flag == STATIC)       return "static";
             if (flag == TRANSIENT)    return "transient";
+            if (flag == LINKED)       return "linked";
             assert(false);
             return "?";
         }
@@ -387,6 +392,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             fieldModifiers[PROPERTY] = true;
             fieldModifiers[PUBLIC] = true;
             fieldModifiers[STATIC] = true;
+            fieldModifiers[LINKED] = true;
         }
         public boolean isFieldModifier(int flag) {
             return fieldModifiers[flag];
@@ -395,6 +401,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         public static boolean variableModifiers[] = new boolean[NUM_FLAGS];
         static {
             variableModifiers[CLOCKED] = true;
+            variableModifiers[LINKED] = true; 
         }
         public boolean isVariableModifier(int flag) {
             return variableModifiers[flag];
@@ -1302,6 +1309,12 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_AtomicStatement0(Object _Statement) {
         Stmt Statement = (Stmt) _Statement;
         setResult(nf.Atomic(pos(), nf.Here(pos(getLeftSpan())), Statement));
+    }
+ // Production: AtomicStatement ::= atomic ( ArgumentListopt ) Statement
+    void rule_AtomicStatement1(Object _ArgumentListopt, Object _Statement) {
+        Stmt Statement = (Stmt) _Statement;
+        List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
+        setResult(nf.AtomicUnitOfWork(pos(), nf.Here(pos(getLeftSpan())), ArgumentListopt, Statement));
     }
     // Production: PackageName ::= PackageName '.' ErrorId
     void rule_PackageName0(Object _PackageName) {
@@ -2984,6 +2997,10 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     void rule_Modifier10() {
         setResult(new FlagModifier(pos(), FlagModifier.CLOCKED));
     }
+ // Production: Modifier ::= clocked
+    void rule_Modifier11() {
+        setResult(new FlagModifier(pos(), FlagModifier.LINKED));
+    }
     // Production: ExpressionName ::= FullyQualifiedName '.' ErrorId
     void rule_ExpressionName0(Object _FullyQualifiedName) {
         ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
@@ -4165,17 +4182,18 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         setResult(FormalParameterListopt);
     }
     // Production: ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt '(' ArgumentListopt ')' ClassBodyopt
-    void rule_ClassInstanceCreationExpression0(Object _TypeName, Object _TypeArgumentsopt, Object _ArgumentListopt, Object _ClassBodyopt) {
+    // Production: ClassInstanceCreationExpression ::= new linked TypeName TypeArgumentsopt '(' ArgumentListopt ')' ClassBodyopt
+    void rule_ClassInstanceCreationExpression0(boolean isLinked, Object _TypeName, Object _TypeArgumentsopt, Object _ArgumentListopt, Object _ClassBodyopt) {
         ParsedName TypeName = (ParsedName) _TypeName;
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
         List<Expr> ArgumentListopt = (List<Expr>) _ArgumentListopt;
         ClassBody ClassBodyopt = (ClassBody) _ClassBodyopt;
         if (ClassBodyopt == null)
-            setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt));
-        else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt)) ;
+            setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, isLinked));
+        else setResult(nf.X10New(pos(), TypeName.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt, isLinked)) ;
     }
     // Production: ClassInstanceCreationExpression ::= Primary '.' new Identifier TypeArgumentsopt '(' ArgumentListopt ')' ClassBodyopt
-    void rule_ClassInstanceCreationExpression2(Object _Primary, Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt, Object _ClassBodyopt) {
+    void rule_ClassInstanceCreationExpression2(boolean isLinked, Object _Primary, Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt, Object _ClassBodyopt) {
         Expr Primary = (Expr) _Primary;
         Id Identifier = (Id) _Identifier;
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
@@ -4183,11 +4201,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         ClassBody ClassBodyopt = (ClassBody) _ClassBodyopt;
         ParsedName b = new ParsedName(nf, ts, pos(), Identifier);
         if (ClassBodyopt == null)
-            setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt));
-        else setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
+            setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt, isLinked));
+        else setResult(nf.X10New(pos(), Primary, b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt, isLinked));
     }
     // Production: ClassInstanceCreationExpression ::= FullyQualifiedName '.' new Identifier TypeArgumentsopt '(' ArgumentListopt ')' ClassBodyopt
-    void rule_ClassInstanceCreationExpression3(Object _FullyQualifiedName, Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt, Object _ClassBodyopt) {
+    void rule_ClassInstanceCreationExpression3(boolean isLinked, Object _FullyQualifiedName, Object _Identifier, Object _TypeArgumentsopt, Object _ArgumentListopt, Object _ClassBodyopt) {
         ParsedName FullyQualifiedName = (ParsedName) _FullyQualifiedName;
         Id Identifier = (Id) _Identifier;
         List<TypeNode> TypeArgumentsopt = (List<TypeNode>) _TypeArgumentsopt;
@@ -4195,8 +4213,8 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         ClassBody ClassBodyopt = (ClassBody) _ClassBodyopt;
         ParsedName b = new ParsedName(nf, ts, pos(), Identifier);
         if (ClassBodyopt == null)
-            setResult(nf.X10New(pos(), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt));
-        else setResult(nf.X10New(pos(), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt));
+            setResult(nf.X10New(pos(), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, isLinked));
+        else setResult(nf.X10New(pos(), FullyQualifiedName.toExpr(), b.toType(), TypeArgumentsopt, ArgumentListopt, ClassBodyopt, isLinked));
     }
     // Production: AtExpression ::= at ( Expression ) ClosureBody
     // Production: AtExpression ::= at ( Expression ; * ) ClosureBody

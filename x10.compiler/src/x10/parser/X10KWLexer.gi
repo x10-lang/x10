@@ -138,6 +138,7 @@
     in
     instanceof
     interface
+    linked
     native
     new
     null
@@ -328,6 +329,11 @@
               | i n t e r f a c e
         /.$BeginAction
                 $setResult($_interface);
+          $EndAction
+        ./
+              | l i n k e d
+        /.$BeginAction
+                $setResult($_linked);
           $EndAction
         ./
               | n a t i v e

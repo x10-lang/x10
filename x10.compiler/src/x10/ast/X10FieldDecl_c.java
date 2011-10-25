@@ -582,6 +582,10 @@ public class X10FieldDecl_c extends FieldDecl_c implements X10FieldDecl {
                     Errors.issue(tc.job(),new SemanticException("A property type cannot be a type parameter.",position),this);
             }
             
+            if (f.isLinked() && !type.isReference()){
+            	Errors.issue(tc.job(), new SemanticException("A linked field cannot be primitive.", position), this);
+            }
+            
 	    	return n;
 	    }
         public ArrayList<X10ParsedClassType> getAllTypeArgs(X10ParsedClassType curr) {

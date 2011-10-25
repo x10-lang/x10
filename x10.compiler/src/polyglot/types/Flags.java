@@ -41,6 +41,8 @@ public class Flags implements Serializable
     public static final Flags PROPERTY = createFlag("property", null);
     public static final Flags STRUCT = createFlag("struct", null);
     public static final Flags CLOCKED = createFlag("clocked", null);
+    
+    public static final Flags LINKED = createFlag("linked", null);
 
     /** All access flags. */
     protected static final Flags ACCESS_FLAGS = PUBLIC.set(PRIVATE).set(PROTECTED);
@@ -125,6 +127,29 @@ public class Flags implements Serializable
      */
     public boolean contains(Flags other) {
         return this.flags.containsAll(other.flags);
+    }
+    
+    /**
+     * Return a copy of this <code>this</code> with the <code>linked</code>
+     * flag set.
+     */
+    public Flags Linked() {
+	return set(LINKED);
+    }
+
+    /**
+     * Return a copy of this <code>this</code> with the <code>linked</code>
+     * flag clear.
+     */
+    public Flags clearLinked() {
+	return clear(LINKED);
+    }
+
+    /**
+     * Return true if <code>this</code> has the <code>linked</code> flag set.
+     */
+    public boolean isLinked() {
+	return contains(LINKED);
     }
 
     /**

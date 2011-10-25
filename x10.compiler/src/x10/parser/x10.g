@@ -340,6 +340,10 @@
         /.$BeginJava
 			r.rule_Modifier10();
         $EndJava./
+        			| linked
+        /.$BeginJava
+			r.rule_Modifier11();
+        $EndJava./
 
     MethodModifiersopt ::= Modifiersopt
                          | MethodModifiersopt property$property
@@ -475,16 +479,28 @@
 
     ClassInstanceCreationExpression ::= new TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-			r.rule_ClassInstanceCreationExpression0(TypeName,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
+			r.rule_ClassInstanceCreationExpression0(false, TypeName,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
         $EndJava./
                                       | Primary . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-			r.rule_ClassInstanceCreationExpression2(Primary,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
+			r.rule_ClassInstanceCreationExpression2(false, Primary,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
         $EndJava./
                                       | FullyQualifiedName . new Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
         /.$BeginJava
-			r.rule_ClassInstanceCreationExpression3(FullyQualifiedName,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
+			r.rule_ClassInstanceCreationExpression3(false, FullyQualifiedName,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
+        $EndJava./			
+        							  | new linked TypeName TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+        /.$BeginJava
+			r.rule_ClassInstanceCreationExpression0(true, TypeName,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
         $EndJava./
+        							  | Primary . new linked Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+        /.$BeginJava
+			r.rule_ClassInstanceCreationExpression2(true, Primary,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
+        $EndJava./
+                                      | FullyQualifiedName . new linked Identifier TypeArgumentsopt ( ArgumentListopt ) ClassBodyopt
+        /.$BeginJava
+			r.rule_ClassInstanceCreationExpression3(true, FullyQualifiedName,Identifier,TypeArgumentsopt,ArgumentListopt,ClassBodyopt);
+        $EndJava./			
                        
     AssignPropertyCall ::= property TypeArgumentsopt ( ArgumentListopt ) ;
         /.$BeginJava
@@ -967,6 +983,10 @@
     AtomicStatement ::= atomic Statement
         /.$BeginJava
 			r.rule_AtomicStatement0(Statement);
+        $EndJava./
+        			  | atomic ( ArgumentListopt ) Statement
+        /.$BeginJava
+			r.rule_AtomicStatement1(ArgumentListopt, Statement);
         $EndJava./
 
 

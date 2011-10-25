@@ -3198,14 +3198,14 @@ public class TypeSystem_c implements TypeSystem
     protected final Flags X10_LOCAL_CLASS_FLAGS =  legalLocalClassFlags();
 
     public Flags legalLocalFlags() {
-        return Final().Clocked();
+        return Final().Clocked().Linked();
     }
     protected final Flags LOCAL_FLAGS = legalLocalFlags();
     protected final Flags X10_LOCAL_VARIABLE_FLAGS =  legalLocalFlags();
 
 
     public Flags legalFieldFlags() {
-        return legalAccessFlags().Static().Final().Transient().Property().Clocked();
+        return legalAccessFlags().Static().Final().Transient().Property().Clocked().Linked();
     }
     protected final Flags FIELD_FLAGS = legalFieldFlags();
     protected final Flags X10_FIELD_VARIABLE_FLAGS = legalFieldFlags();

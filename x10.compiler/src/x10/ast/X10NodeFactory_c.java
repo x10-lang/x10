@@ -256,6 +256,14 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return a;
 	}
 	
+	// Wrap the body of an atomic in a block to facilitate code transformation.
+	public AtomicUnitOfWork AtomicUnitOfWork(Position pos, Expr place, List<Expr> argList, Stmt body) {
+		AtomicUnitOfWork a = new AtomicUnitOfWork_c(pos, place, argList, asBlock(body));
+		a = (AtomicUnitOfWork) a.ext(extFactory().extExpr());
+		a = (AtomicUnitOfWork) a.del(delFactory().delExpr());
+		return a;
+	}
+	
 	public AtExpr AtExpr(Position pos, Expr place, Block body) {
 		AtExpr f = new AtExpr_c(this, pos, place, body);
 		X10ExtFactory_c ext_fac = (X10ExtFactory_c) extFactory();
@@ -376,31 +384,31 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		return X10Call(pos, target, name, Collections.<TypeNode>emptyList(), args);
 	}
 	
-	public X10New X10New(Position pos, boolean newOmitted, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
-		X10New n = new X10New_c(pos, newOmitted, qualifier, objectType, typeArguments, arguments, body);
+	public X10New X10New(Position pos, boolean newOmitted, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body, boolean isLinked) {
+		X10New n = new X10New_c(pos, newOmitted, qualifier, objectType, typeArguments, arguments, body, isLinked);
 		n = (x10.ast.X10New) n.ext(extFactory().extNew());
 		n = (x10.ast.X10New) n.del(delFactory().delNew());
 		return n;
 	}
 
-	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
-		return X10New(pos, false, qualifier, objectType, typeArguments, arguments, body);
+	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body, boolean isLinked) {
+		return X10New(pos, false, qualifier, objectType, typeArguments, arguments, body, isLinked);
 	}
 
-	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments) {
-		return X10New(pos, qualifier, objectType, typeArguments, arguments, null);
+	public X10New X10New(Position pos, Expr qualifier, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, boolean isLinked) {
+		return X10New(pos, qualifier, objectType, typeArguments, arguments, null, isLinked);
 	}
 
-	public X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body) {
-		return X10New(pos, null, objectType, typeArguments, arguments, body);
+	public X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, ClassBody body, boolean isLinked) {
+		return X10New(pos, null, objectType, typeArguments, arguments, body, isLinked);
 	}
 
-	public X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments) {
-		return X10New(pos, null, objectType, typeArguments, arguments, null);
+	public X10New X10New(Position pos, TypeNode objectType, List<TypeNode> typeArguments, List<Expr> arguments, boolean isLinked) {
+		return X10New(pos, null, objectType, typeArguments, arguments, null, isLinked);
 	}
 
 	public X10New New(Position pos, Expr qualifier, TypeNode objectType, List<Expr> arguments, ClassBody body) {
-		return X10New(pos, qualifier, objectType, Collections.<TypeNode>emptyList(), arguments, body);
+		return X10New(pos, qualifier, objectType, Collections.<TypeNode>emptyList(), arguments, body, false);
 	}
 	
 	// Wrap the body in a block to facilitate code transformations

@@ -122,6 +122,7 @@ import x10.visit.StaticNestedClassRemover;
 import x10.visit.TypeParamAlphaRenamer;
 import x10.visit.X10ImplicitDeclarationExpander;
 import x10.visit.X10InnerClassRemover;
+import x10.visit.X10LinkedChecker;
 import x10.visit.X10MLVerifier;
 import x10.visit.X10Translator;
 import x10.visit.X10TypeBuilder;
@@ -487,6 +488,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            goals.add(AnnotationChecker(job));
            goals.add(CheckASTForErrors(job));
            //goals.add(TypeCheckBarrier());
+           goals.add(CheckLinkedAnnotations(job));
        }
 
        private Goal addPreOptimizationGoals(Job job, List<Goal> goals) {
@@ -987,6 +989,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
            return new ForgivingVisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
+       }
+       
+       public Goal CheckLinkedAnnotations(Job job) {
+           TypeSystem ts = job.extensionInfo().typeSystem();
+           NodeFactory nf = job.extensionInfo().nodeFactory();
+           return new ForgivingVisitorGoal("LinkedAnnotations", job, new X10LinkedChecker(job, ts, nf)).intern(this);
        }
 
        public static class ValidatingVisitorGoal extends VisitorGoal {

@@ -255,6 +255,10 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
 
         X10LocalDecl_c n = (X10LocalDecl_c) this.type(tc.nodeFactory().CanonicalTypeNode(typeNode.position(), type));
 
+        if (this.flags.flags().isLinked() && !type.isReference()){
+        	Errors.issue(tc.job(), new SemanticException("A linked variable cannot be primitive.", position), this);
+        }
+        
         // Need to check that the initializer is a subtype of the (declared or inferred) type of the variable,
         // or can be implicitly coerced to the type.
         if (n.init != null) {
@@ -263,6 +267,8 @@ public class X10LocalDecl_c extends LocalDecl_c implements X10VarDecl {
                 return n.init(newInit);
             Errors.issue(tc.job(), Errors.CannotAssign.make(n.init, type, tc, n.init.position()), n);
         }
+        
+        
 
         return n;
     }

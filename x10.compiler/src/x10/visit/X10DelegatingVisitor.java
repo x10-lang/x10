@@ -97,6 +97,7 @@ import x10.ast.AtExpr_c;
 import x10.ast.AtHomeExpr_c;
 import x10.ast.AtHomeStmt_c;
 import x10.ast.AtStmt_c;
+import x10.ast.AtomicUnitOfWork_c;
 import x10.ast.Atomic_c;
 import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
@@ -201,6 +202,7 @@ public class X10DelegatingVisitor {
 		if (n instanceof Case_c) { visit((Case_c)n); return; }
 		if (n instanceof Branch_c) { visit((Branch_c)n); return; }
 		if (n instanceof Atomic_c) { visit((Atomic_c)n); return; }
+		if (n instanceof AtomicUnitOfWork_c) { visit((AtomicUnitOfWork_c)n); return; }
 		if (n instanceof AtHomeStmt_c) { visit((AtHomeStmt_c)n); return; }
 		if (n instanceof AtStmt_c) { visit((AtStmt_c)n); return; }
 		if (n instanceof Async_c) { visit((Async_c)n); return; }
@@ -390,6 +392,7 @@ public class X10DelegatingVisitor {
 					public void visit(AtHomeStmt_c n) { visit((AtStmt_c)n); }
 				public void visit(Async_c n) { visit((Stmt_c)n); }
 				public void visit(Atomic_c n) { visit((Stmt_c)n); }
+				public void visit(AtomicUnitOfWork_c n) { visit((Stmt_c)n); }
 				public void visit(Branch_c n) { visit((Stmt_c)n); }
 				public void visit(Case_c n) { visit((Stmt_c)n); }
 				public void visit(Catch_c n) { visit((Stmt_c)n); }
