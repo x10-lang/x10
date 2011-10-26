@@ -36,5 +36,17 @@ import x10.compiler.Mutable;
     @Native("java", "#this.set(#i,#v)")
     @Native("c++", "#this.set(#v,#i)")
     public operator this(i:Int) = (v:T) : T = backing(i) = v;
+
+    @Native("java", "(#this).toString()")
+    @Native("c++", "(#this)->toString()")
+    public native def toString():String;
+
+    @Native("java", "(#this).equals(#that)")
+    @Native("c++", "(#this)->equals(#that)")
+    public native def equals(that:Any):Boolean;
+
+    @Native("java", "(#this).hashCode()")
+    @Native("c++", "(#this)->hashCode()")
+    public native def hashCode():Int;
 }
 
