@@ -118,7 +118,9 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
             if (executable_path != null) {
                 // set a new temporary directory to output_directory for creating a jar file
                 try {
-                    output_directory = createTempDir("x10c.output_directory.", null);
+                    String prefix = "x10c-" + System.getProperty("user.name") + ".";
+                    String suffix = "";
+                    output_directory = createTempDir(prefix, suffix);
                 } catch (IOException e) {
                     // TODO Auto-generated catch block
                     e.printStackTrace();
