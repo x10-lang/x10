@@ -18,6 +18,7 @@ import java.util.Set;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.main.UsageError;
 import polyglot.main.Main.TerminationException;
+import x10cpp.postcompiler.PrecompiledLibrary;
 
 public class X10CCompilerOptions extends x10.X10CompilerOptions {
 
@@ -78,8 +79,23 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
     }
 
     @Override
+    public String constructFullClasspath() {
+        StringBuilder sb = new StringBuilder(super.constructFullClasspath());
+        for (PrecompiledLibrary pcl : x10libs) {
+            sb.append(File.pathSeparator);
+            sb.append(pcl.absolutePathToRoot + File.separator + pcl.sourceJar);
+        }
+        return sb.toString();
+    }
+
+    @Override
     public String constructPostCompilerClasspath() {
-        return output_directory + File.pathSeparator + "." + File.pathSeparator + output_classpath;
+        StringBuilder sb = new StringBuilder(super.constructPostCompilerClasspath());
+        for (PrecompiledLibrary pcl : x10libs) {
+            sb.append(File.pathSeparator);
+            sb.append(pcl.absolutePathToRoot + File.separator + pcl.sourceJar);
+        }
+        return sb.toString();
     }
 
     @Override
