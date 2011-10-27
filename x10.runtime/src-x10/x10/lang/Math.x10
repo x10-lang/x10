@@ -43,6 +43,18 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::round(#a)")
    public static native def round(a:Double):Double;
 
+   @Native("java", "(float)java.lang.Math.getExponent(#a)")
+   @Native("c++", "::ilogbf(#a)")
+   public static native def getExponent(a:Float):Int;
+
+   @Native("java", "java.lang.Math.getExponent(#a)")
+   @Native("c++", "::ilogb(#a)")
+   public static native def getExponent(a:Double):Int;
+
+   @Native("java", "(float)java.lang.Math.pow(#a, #b)")
+   @Native("c++", "::powf(#a,#b)")
+   public static native def powf(a:Float, b:Float):Float;
+
    @Native("java", "java.lang.Math.pow(#a, #b)")
    @Native("c++", "x10aux::math_utils::pow(#a,#b)")
    public static native def pow(a:Double, b:Double):Double;
