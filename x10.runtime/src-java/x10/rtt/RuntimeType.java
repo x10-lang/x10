@@ -133,7 +133,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
         if (superType instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) superType;
-            if (pt.getRuntimeType().isAssignableFrom(pt.getParams(), this, null)) {
+            if (pt.getRawType().isAssignableFrom(pt.getActualTypeArguments(), this, null)) {
                 return true;
             }
         }
@@ -243,19 +243,19 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                 if (impl.isAssignableFrom(t.getImpl())) {
                     if (t instanceof ParameterizedType<?>) {
                         ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                        Type<?>[] paramsT = pt.getParams();
-                        Type<?>[] newParamsT = new Type<?>[paramsT.length];
-                        for (int i = 0; i < paramsT.length; i ++ ) {
-                            if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                                int index = ((UnresolvedType) paramsT[i]).getIndex();
+                        Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
+                        Type<?>[] resolvedTypeArgumentsT = new Type<?>[origTypeArgumentsT.length];
+                        for (int i = 0; i < origTypeArgumentsT.length; i++) {
+                            if (origTypeArgumentsT[i] != null && origTypeArgumentsT[i] instanceof UnresolvedType) {
+                                int index = ((UnresolvedType) origTypeArgumentsT[i]).getIndex();
                                 assert(index == -1);
-                                newParamsT[i] = rtt;
+                                resolvedTypeArgumentsT[i] = rtt;
                             }
                             else {
-                                newParamsT[i] = paramsT[i];
+                                resolvedTypeArgumentsT[i] = origTypeArgumentsT[i];
                             }
                         }
-                        if (isAssignableFrom(params, pt.getRuntimeType(), newParamsT)) {
+                        if (isAssignableFrom(params, pt.getRawType(), resolvedTypeArgumentsT)) {
                             return true;
                         }
                     }
@@ -276,18 +276,18 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                 if (impl.isAssignableFrom(t.getImpl())) {
                     if (t instanceof ParameterizedType<?>) {
                         ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                        Type<?>[] paramsT = pt.getParams();
-                        Type<?>[] newParamsT = new Type<?>[paramsT.length];
-                        for (int i = 0; i < paramsT.length; i ++ ) {
-                            if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                                int index = ((UnresolvedType) paramsT[i]).getIndex();
-                                newParamsT[i] = index == -1 ? rtt : any.$getParam(index);
+                        Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
+                        Type<?>[] resolvedTypeArgumentsT = new Type<?>[origTypeArgumentsT.length];
+                        for (int i = 0; i < origTypeArgumentsT.length; i++) {
+                            if (origTypeArgumentsT[i] != null && origTypeArgumentsT[i] instanceof UnresolvedType) {
+                                int index = ((UnresolvedType) origTypeArgumentsT[i]).getIndex();
+                                resolvedTypeArgumentsT[i] = index == -1 ? rtt : any.$getParam(index);
                             }
                             else {
-                                newParamsT[i] = paramsT[i];
+                                resolvedTypeArgumentsT[i] = origTypeArgumentsT[i];
                             }
                         }
-                        if (isAssignableFrom(params, pt.getRuntimeType(), newParamsT)) {
+                        if (isAssignableFrom(params, pt.getRawType(), resolvedTypeArgumentsT)) {
                             return true;
                         }
                     }
@@ -311,18 +311,18 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                 if (impl.isAssignableFrom(t.getImpl())) {
                     if (t instanceof ParameterizedType<?>) {
                         ParameterizedType<?> pt = (ParameterizedType<?>) t;
-                        Type<?>[] paramsT = pt.getParams();
-                        Type<?>[] newParamsT = new Type<?>[paramsT.length];
-                        for (int i = 0; i < paramsT.length; i ++ ) {
-                            if (paramsT[i] != null && paramsT[i] instanceof UnresolvedType) {
-                                int index = ((UnresolvedType) paramsT[i]).getIndex();
-                                newParamsT[i] = index == -1 ? rtt : paramsRTT[index];
+                        Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
+                        Type<?>[] resolvedTypeArgumentsT = new Type<?>[origTypeArgumentsT.length];
+                        for (int i = 0; i < origTypeArgumentsT.length; i++) {
+                            if (origTypeArgumentsT[i] != null && origTypeArgumentsT[i] instanceof UnresolvedType) {
+                                int index = ((UnresolvedType) origTypeArgumentsT[i]).getIndex();
+                                resolvedTypeArgumentsT[i] = index == -1 ? rtt : paramsRTT[index];
                             }
                             else {
-                                newParamsT[i] = paramsT[i];
+                                resolvedTypeArgumentsT[i] = origTypeArgumentsT[i];
                             }
                         }
-                        if (isAssignableFrom(params, pt.getRuntimeType(), newParamsT)) {
+                        if (isAssignableFrom(params, pt.getRawType(), resolvedTypeArgumentsT)) {
                             return true;
                         }
                     }

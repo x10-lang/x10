@@ -606,11 +606,11 @@ public class Types {
     }
     */
     public static Object zeroValue(Type<?> rtt) {
-        Type<?>[] typeParams = null;
+        Type<?>[] actualTypeArguments = null;
         if (rtt instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) rtt;
-            rtt = pt.getRuntimeType(); 
-            typeParams = pt.getParams();
+            rtt = pt.getRawType(); 
+            actualTypeArguments = pt.getActualTypeArguments();
         }
         if (isStructType(rtt)) {
             if (rtt == BYTE) return BYTE_ZERO;
@@ -627,8 +627,8 @@ public class Types {
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
             // N.B. to enable following special paths, make corresponding $RTTs singleton
             // N.B. since GlobalRef and IndexedMemoryChunk have their own zero value constructor, special paths are no longer needed
-//            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(typeParams[0], (java.lang.System) null);
-//            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(typeParams[0], (java.lang.System) null);
+//            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(actualTypeArguments[0], (java.lang.System) null);
+//            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(actualTypeArguments[0], (java.lang.System) null);
             // for user-defined structs, call zero value constructor
             try {
                 Class<?> impl = rtt.getImpl();
@@ -646,10 +646,10 @@ public class Types {
                 
                 /*
                 int i = 0;
-                if (typeParams != null) {
-                    for ( ; i < typeParams.length; ++i) {
+                if (actualTypeArguments != null) {
+                    for ( ; i < actualTypeArguments.length; ++i) {
                         // pass type params
-                        params[i] = typeParams[i];
+                        params[i] = actualTypeArguments[i];
                     }
                 }
                 for ( ; i < paramTypes.length; ++i) {
@@ -657,12 +657,12 @@ public class Types {
                     params[i] = zeroValue(paramTypes[i]);
                 }
                 */
-                assert typeParams == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
+                assert actualTypeArguments == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == actualTypeArguments.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
                 int i = 0;
-                if (typeParams != null) {
-                    for ( ; i < typeParams.length; ++i) {
+                if (actualTypeArguments != null) {
+                    for ( ; i < actualTypeArguments.length; ++i) {
                         // pass type params
-                        params[i] = typeParams[i];
+                        params[i] = actualTypeArguments[i];
                     }
                 }
                 params[i] = null;

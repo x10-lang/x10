@@ -21,23 +21,23 @@ import java.io.IOException;
 
 public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ParameterizedType.class);
 
-    public RuntimeType<T> rtt;
-    public Type<?>[] params;
+    public RuntimeType<T> rawType;
+    public Type<?>[] actualTypeArguments;
     
-    RuntimeType<T> getRuntimeType() {
-        return rtt;
+    RuntimeType<T> getRawType() {
+        return rawType;
     }
     
-    Type<?>[] getParams() {
-        return params;
+    Type<?>[] getActualTypeArguments() {
+        return actualTypeArguments;
     }
 
-    public ParameterizedType(RuntimeType<T> rtt, Type<?>... params) {
-        this.rtt = rtt;
-        this.params = params;
+    public ParameterizedType(RuntimeType<T> rawType, Type<?>... actualTypeArguments) {
+        this.rawType = rawType;
+        this.actualTypeArguments = actualTypeArguments;
     }
 
     // Constructor just for allocation
@@ -48,17 +48,17 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         if (this == superType) return true;
         if (superType == Types.ANY) return true;
         if (superType == Types.OBJECT) return !Types.isStructType(this);
-        if (!superType.getImpl().isAssignableFrom(rtt.getImpl())) {
+        if (!superType.getImpl().isAssignableFrom(rawType.getImpl())) {
             return false;
         }
         if (superType instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) superType;
-            if (pt.getRuntimeType().isAssignableFrom(pt.params, rtt, params)) {
+            if (pt.getRawType().isAssignableFrom(pt.actualTypeArguments, rawType, actualTypeArguments)) {
                 return true;
             }
         }
         else if (superType instanceof RuntimeType) {
-            if (((RuntimeType<?>) superType).isAssignableFrom(null, rtt, params)) {
+            if (((RuntimeType<?>) superType).isAssignableFrom(null, rawType, actualTypeArguments)) {
                 return true;
             }
         }
@@ -66,7 +66,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     }
 
     public final boolean isInstance(Object o) {
-        return rtt.isInstance(o, params);
+        return rawType.isInstance(o, actualTypeArguments);
     }
     @Deprecated
     public final boolean instanceOf(Object o) {
@@ -78,15 +78,15 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         if (this == o) return true;
         if (o instanceof ParameterizedType<?>) {
             ParameterizedType<?> t = (ParameterizedType<?>) o;
-            if (!rtt.equals(t.rtt)) {
+            if (!rawType.equals(t.rawType)) {
                 return false;
             }
-            Type<?>[] parameters = t.params;
-            if (params.length != parameters.length) {
+            Type<?>[] t_actualTypeArguments = t.actualTypeArguments;
+            if (actualTypeArguments.length != t_actualTypeArguments.length) {
                 return false;
             }
-            for (int i = 0; i < params.length; i++) {
-                if (!params[i].equals(parameters[i])) {
+            for (int i = 0; i < actualTypeArguments.length; i++) {
+                if (!actualTypeArguments[i].equals(t_actualTypeArguments[i])) {
                     return false;
                 }
             }
@@ -97,46 +97,46 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     
     @Override
     public final int hashCode() {
-        return rtt.hashCode();
+        return rawType.hashCode();
     }
 
     public final int arrayLength(Object array) {
-        return rtt.arrayLength(array);
+        return rawType.arrayLength(array);
     }
 
     public final T getArray(Object array, int i) {
-        return rtt.getArray(array, i);
+        return rawType.getArray(array, i);
     }
 
     public final Class<?> getImpl() {
-        return rtt.getImpl();
+        return rawType.getImpl();
     }
 
     public final Object makeArray(int dim0) {
-        return rtt.makeArray(dim0);
+        return rawType.makeArray(dim0);
     }
 
     public final Object makeArray(int dim0, int dim1) {
-    	return rtt.makeArray(dim0, dim1);
+    	return rawType.makeArray(dim0, dim1);
     }
 
     public final Object makeArray(int dim0, int dim1, int dim2) {
-    	return rtt.makeArray(dim0, dim1, dim2);
+    	return rawType.makeArray(dim0, dim1, dim2);
     }
     
     public final Object makeArray(int dim0, int dim1, int dim2, int dim3) {
-    	return rtt.makeArray(dim0, dim1, dim2, dim3);
+    	return rawType.makeArray(dim0, dim1, dim2, dim3);
     }
     
     public final Object makeArray(Object... elems) {
-        return rtt.makeArray(elems);
+        return rawType.makeArray(elems);
     }
 
 //    public final T setArray(Object array, int i, T v) {
-//        return rtt.setArray(array, i, v);
+//        return rawType.setArray(array, i, v);
 //    }
     public final void setArray(Object array, int i, T v) {
-    	rtt.setArray(array, i, v);
+    	rawType.setArray(array, i, v);
     }
 
     @Override
@@ -167,9 +167,9 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     }
     
     public final String typeName(Object o) {
-        if (rtt instanceof FunType) {
+        if (rawType instanceof FunType) {
             return typeNameForFun(o);
-        } else if (rtt instanceof VoidFunType) {
+        } else if (rawType instanceof VoidFunType) {
             return typeNameForVoidFun(o);
         } else {
             return typeNameForOthers(o);
@@ -180,21 +180,21 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     public final String typeNameForFun(Object o) {
         String str = "(";
         int i;
-        for (i = 0; i < params.length - 1; i++) {
+        for (i = 0; i < actualTypeArguments.length - 1; i++) {
             if (i != 0) str += ",";
-            str += printType(params[i], o);
+            str += printType(actualTypeArguments[i], o);
         }
         str += ")=>";
-        str += printType(params[i], o);
+        str += printType(actualTypeArguments[i], o);
         return str;
     }
 
     public final String typeNameForVoidFun(Object o) {
         String str = "(";
-        if (params != null && params.length > 0) {
-            for (int i = 0; i < params.length; i++) {
+        if (actualTypeArguments != null && actualTypeArguments.length > 0) {
+            for (int i = 0; i < actualTypeArguments.length; i++) {
                 if (i != 0) str += ",";
-                str += printType(params[i], o);
+                str += printType(actualTypeArguments[i], o);
             }
         }
         str += ")=>void";
@@ -202,38 +202,38 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     }
     
     public final String typeNameForOthers(Object o) {
-        String str = rtt.typeName();
+        String str = rawType.typeName();
         str += "[";
-        for (int i = 0; i < params.length; i ++) {
+        for (int i = 0; i < actualTypeArguments.length; i ++) {
             if (i != 0) str += ",";
-            str += printType(params[i], o);
+            str += printType(actualTypeArguments[i], o);
         }
         str += "]";
         return str;
     }
 
-	public void $_serialize(X10JavaSerializer serializer) throws IOException {
-		serializer.write(rtt);
-        serializer.write(params);
-	}
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+        serializer.write(rawType);
+        serializer.write(actualTypeArguments);
+    }
 
-	public static X10JavaSerializable $_deserializer( X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         ParameterizedType pt = new ParameterizedType();
         deserializer.record_reference(pt);
         return $_deserialize_body(pt, deserializer);
-	}
+    }
 
     public static X10JavaSerializable $_deserialize_body(ParameterizedType pt, X10JavaDeserializer deserializer) throws IOException {
-		RuntimeType rt = (RuntimeType) deserializer.readRef();
-        pt.rtt = rt;
+        RuntimeType rawType = (RuntimeType) deserializer.readRef();
+        pt.rawType = rawType;
         int length = deserializer.readInt();
-        Type[] ps = new Type[length];
-        deserializer.readArray(ps);
-        pt.params = ps;
+        Type[] actualTypeArguments = new Type[length];
+        deserializer.readArray(actualTypeArguments);
+        pt.actualTypeArguments = actualTypeArguments;
         return pt;
     }
 
-	public short $_get_serialization_id() {
-		return _serialization_id;
-	}
+    public short $_get_serialization_id() {
+        return _serialization_id;
+    }
 }
