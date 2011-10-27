@@ -43,7 +43,7 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::round(#a)")
    public static native def round(a:Double):Double;
 
-   @Native("java", "(float)java.lang.Math.getExponent(#a)")
+   @Native("java", "java.lang.Math.getExponent(#a)")
    @Native("c++", "::ilogbf(#a)")
    public static native def getExponent(a:Float):Int;
 
