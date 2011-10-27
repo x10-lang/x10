@@ -3655,11 +3655,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
     }
 
     protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, 
-                                                         Block block, List<VarInstance<?>> refs) {
-        generateClosureSerializationFunctions(c, cnamet, inc, block, c.variables, refs);
-    }
-
-    protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, 
                                                          Block block, List<VarInstance<?>> env, List<VarInstance<?>> refs) {
         inc.write("void "+SERIALIZE_BODY_METHOD+"("+SERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
