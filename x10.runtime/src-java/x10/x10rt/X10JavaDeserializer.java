@@ -619,7 +619,11 @@ public class X10JavaDeserializer {
                 Runtime.printTraceMessage("Calling hadoop deserializer with object of type " + obj.getClass());
             }
         	
+        	// TODO: Question for Avi:  Why do we need to call newInstance here?
+        	//    We already used Unsafe to get us a new object....do we have to call constructor too due to 
+        	//    some expectation of Hadoop that the default constructor is called?
             obj = (T)constructor.newInstance();
+            jds.update_reference(i, obj);
     		readMethod.invoke(obj, jds.in);
     		return obj;
 		}
