@@ -32,7 +32,7 @@ namespace x10aux {
     template<class T> __device__ T *nullCheck (T *v) { return v; }
     template<class T> __device__ T zeroCheck (T v) { return v; }
 
-    template<class T, class U> __device__ x10_boolean struct_equals (T a, T b) { return a==b; }
+    template<class T, class U> __device__ x10_boolean struct_equals (T a, U b) { return a==b; }
 
     template<class T> struct cuda_array {
         x10_int FMGL(size);
