@@ -57,22 +57,38 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public RuntimeType() {
     }
     
-    public RuntimeType(Class<?> impl) {
+    protected RuntimeType(Class<?> impl) {
         this(impl, null, null);
     }
 
-    public RuntimeType(Class<?> impl, Variance[] variances) {
+    protected RuntimeType(Class<?> impl, Variance[] variances) {
         this(impl, variances, null);
     }
 
-    public RuntimeType(Class<?> impl, Type<?>[] parents) {
+    protected RuntimeType(Class<?> impl, Type<?>[] parents) {
         this(impl, null, parents);
     }
     
-    public RuntimeType(Class<?> impl, Variance[] variances, Type<?>[] parents) {
+    protected RuntimeType(Class<?> impl, Variance[] variances, Type<?>[] parents) {
         this.impl = impl;
         this.variances = variances;
         this.parents = parents;
+    }
+    
+    public static <T> RuntimeType/*<T>*/ make(Class<?> impl) {
+        return new RuntimeType<T>(impl, null, null);
+    }
+
+    public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Variance[] variances) {
+        return new RuntimeType<T>(impl, variances, null);
+    }
+
+    public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Type<?>[] parents) {
+        return new RuntimeType<T>(impl, null, parents);
+    }
+    
+    public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Variance[] variances, Type<?>[] parents) {
+        return new RuntimeType<T>(impl, variances, parents);
     }
 
     public Class<?> getImpl() {

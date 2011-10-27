@@ -60,9 +60,9 @@ public class Types {
                 }
                 ++i;
             }
-            return new RuntimeType(impl, variances, parents);
+            return RuntimeType.make(impl, variances, parents);
         } else {
-            return new RuntimeType(impl);
+            return RuntimeType.make(impl);
         }
         // TODO cache RTT to WeakHashMap<Class,RuntimeType>
     }
