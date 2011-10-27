@@ -41,7 +41,7 @@ public class Types {
                     Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
                     // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
-                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                    parents[i] = ParameterizedType.make(parentRTT, parentParams);
                 } else {
                     parents[i] = parentRTT;
                 }
@@ -54,7 +54,7 @@ public class Types {
                     Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
                     // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
-                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                    parents[i] = ParameterizedType.make(parentRTT, parentParams);
                 } else {
                     parents[i] = parentRTT;
                 }

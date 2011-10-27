@@ -19,7 +19,7 @@ import x10.x10rt.X10JavaSerializer;
 public class UShortType extends RuntimeType<x10.core.UShort> {
 //public class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaSerializable{
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UShortType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
@@ -30,10 +30,10 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
     public UShortType() {
         super(x10.core.UShort.class,
             new Type[] {
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-        		new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-        		new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-        		new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }

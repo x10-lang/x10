@@ -35,9 +35,12 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         return actualTypeArguments;
     }
 
-    public ParameterizedType(RuntimeType<T> rawType, Type<?>... actualTypeArguments) {
+    private ParameterizedType(RuntimeType<T> rawType, Type<?>... actualTypeArguments) {
         this.rawType = rawType;
         this.actualTypeArguments = actualTypeArguments;
+    }
+    public static <T> ParameterizedType/*<T>*/ make(RuntimeType<T> rawType, Type<?>... actualTypeArguments) {
+        return new ParameterizedType<T>(rawType, actualTypeArguments);
     }
 
     // Constructor just for allocation

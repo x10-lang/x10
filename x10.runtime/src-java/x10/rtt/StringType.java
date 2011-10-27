@@ -33,8 +33,8 @@ public class StringType extends RuntimeType<String> {
     public StringType() {
         super(String.class,
             new Type[] {
-                new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
+                ParameterizedType.make(Fun_0_1.$RTT, Types.INT, Types.CHAR),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS)
             }
         );
     }

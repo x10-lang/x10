@@ -21,7 +21,7 @@ import java.io.IOException;
 public class IntType extends RuntimeType<x10.core.Int> {
 //public class IntType extends RuntimeType<x10.core.Int> implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, IntType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
@@ -32,10 +32,10 @@ public class IntType extends RuntimeType<x10.core.Int> {
     public IntType() {
         super(x10.core.Int.class,
             new Type[] {
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-                new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }

@@ -3155,7 +3155,7 @@ public class Emitter {
                 dumpRegex("NativeRep", components, tr, pat);
             }
             else if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
-                w.write("new x10.rtt.ParameterizedType(");
+                w.write("x10.rtt.ParameterizedType.make(");
                 if (x10Type instanceof FunctionType) {
                     FunctionType ft = (FunctionType) x10Type;
                     List<Type> args = ft.argumentTypes();

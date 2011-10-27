@@ -19,8 +19,7 @@ import x10.x10rt.X10JavaSerializer;
 import java.io.IOException;
 
 public class CharType extends RuntimeType<x10.core.Char> {
-//public class CharType extends RuntimeType<x10.core.Char>implements X10JavaSerializable {
-
+//public class CharType extends RuntimeType<x10.core.Char> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, CharType.class.getName());
@@ -33,8 +32,8 @@ public class CharType extends RuntimeType<x10.core.Char> {
     public CharType() {
         super(x10.core.Char.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                  ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                  ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }

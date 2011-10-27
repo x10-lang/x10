@@ -21,7 +21,7 @@ import java.io.IOException;
 public class FloatType extends RuntimeType<x10.core.Float> {
 //public class FloatType extends RuntimeType<x10.core.Float> implements X10JavaSerializable{
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, FloatType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
@@ -32,9 +32,9 @@ public class FloatType extends RuntimeType<x10.core.Float> {
     public FloatType() {
         super(x10.core.Float.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                  new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                  ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                  ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                  ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }

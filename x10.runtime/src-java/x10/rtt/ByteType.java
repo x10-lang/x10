@@ -20,7 +20,7 @@ import java.io.IOException;
 public class ByteType extends RuntimeType<x10.core.Byte> {
 //public class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.BYTE;
@@ -30,10 +30,10 @@ public class ByteType extends RuntimeType<x10.core.Byte> {
     public ByteType() {
         super(x10.core.Byte.class,
             new Type[] {
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-                new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }

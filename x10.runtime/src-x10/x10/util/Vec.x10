@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Mutable;
 
-@NativeRep("java", "x10.core.Vec<#T$box>", null, "new x10.rtt.ParameterizedType(x10.core.Vec.$RTT, #T$rtt)")
+@NativeRep("java", "x10.core.Vec<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.Vec.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::util::NativeVec<#T, ##size#-1#>", "x10::util::NativeVec<#T, ##size#-1#>", null)
 @Mutable public struct Vec[T] (@Native("c++","#this.size()")size:Int) {
 

@@ -388,7 +388,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    public static final RuntimeType<$Closure$Eval> $RTT =
 		new x10.rtt.StaticFunType<$Closure$Eval>($Closure$Eval.class, 
 							 new Variance[] {Variance.INVARIANT, Variance.INVARIANT},
-							 new Type[] {new x10.rtt.ParameterizedType(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1)), Types.OBJECT});
+							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1)), Types.OBJECT});
 	    @Override
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    @Override
@@ -454,7 +454,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    public static final RuntimeType<$Closure$Apply> $RTT =
 		new x10.rtt.StaticFunType<$Closure$Apply>($Closure$Apply.class, 
 							  new Variance[] {Variance.INVARIANT},
-							  new Type[] {new x10.rtt.ParameterizedType(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0)), Types.OBJECT});
+							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0)), Types.OBJECT});
 	    @Override
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    @Override

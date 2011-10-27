@@ -32,9 +32,9 @@ public class DoubleType extends RuntimeType<x10.core.Double> {
     public DoubleType() {
         super(x10.core.Double.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                  new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                  ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                  ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                  ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }
