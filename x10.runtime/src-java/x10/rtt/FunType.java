@@ -13,22 +13,39 @@ package x10.rtt;
 
 public class FunType<T> extends RuntimeType<T> {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    public FunType(Class<?> c) {
-        super(c);
-    }
+    // not used
+//    protected FunType(Class<?> c) {
+//        super(c);
+//    }
+//    
+//    protected FunType(Class<?> c, Variance[] variances) {
+//        super(c, variances);
+//    }
+//
+//    protected FunType(Class<?> c, Type<?>[] parents) {
+//        super(c, parents);
+//    }
     
-    public FunType(Class<?> c, Variance[] variances) {
-        super(c, variances);
-    }
-
-    public FunType(Class<?> c, Type<?>[] parents) {
-        super(c, parents);
-    }
-    
-    public FunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
+    protected FunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
         super(c, variances, parents);
+    }
+
+    public static <T> FunType/*<T>*/ make(Class<?> c) {
+        return new FunType<T>(c, null, null);
+    }
+    
+    public static <T> FunType/*<T>*/ make(Class<?> c, Variance[] variances) {
+        return new FunType<T>(c, variances, null);
+    }
+
+    public static <T> FunType/*<T>*/ make(Class<?> c, Type<?>[] parents) {
+        return new FunType<T>(c, null, parents);
+    }
+    
+    public static <T> FunType/*<T>*/ make(Class<?> c, Variance[] variances, Type<?>[] parents) {
+        return new FunType<T>(c, variances, parents);
     }
 
     @Override

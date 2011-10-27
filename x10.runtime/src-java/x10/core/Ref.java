@@ -48,7 +48,7 @@ public class Ref implements RefI {
     public Ref(Object out$) {}
     */
 
-    public static final RuntimeType<Ref> $RTT = new NamedType<Ref>("x10.lang.Object", Ref.class);
+    public static final RuntimeType<Ref> $RTT = NamedType.<Ref> make("x10.lang.Object", Ref.class);
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}
 

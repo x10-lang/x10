@@ -14,22 +14,39 @@ package x10.rtt;
 // for static inner classes that are compiled from closures
 public class StaticVoidFunType<T> extends RuntimeType<T> {
     
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    public StaticVoidFunType(Class<?> c) {
-        super(c);
-    }
+    // not used
+//    protected StaticVoidFunType(Class<?> c) {
+//        super(c);
+//    }
+//    
+//    protected StaticVoidFunType(Class<?> c, Variance[] variances) {
+//        super(c, variances);
+//    }
+//
+//    protected StaticVoidFunType(Class<?> c, Type<?>[] parents) {
+//        super(c, parents);
+//    }
     
-    public StaticVoidFunType(Class<?> c, Variance[] variances) {
-        super(c, variances);
-    }
-
-    public StaticVoidFunType(Class<?> c, Type<?>[] parents) {
-        super(c, parents);
-    }
-    
-    public StaticVoidFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
+    protected StaticVoidFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
         super(c, variances, parents);
+    }
+
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> c) {
+        return new StaticVoidFunType<T>(c, null, null);
+    }
+    
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> c, Variance[] variances) {
+        return new StaticVoidFunType<T>(c, variances, null);
+    }
+
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> c, Type<?>[] parents) {
+        return new StaticVoidFunType<T>(c, null, parents);
+    }
+    
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> c, Variance[] variances, Type<?>[] parents) {
+        return new StaticVoidFunType<T>(c, variances, parents);
     }
 
     @Override

@@ -20,7 +20,7 @@ import java.io.IOException;
 
 public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, NamedType.class);
     
     public String typeName;
@@ -30,24 +30,51 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         super();
     }
     
-    public NamedType(String typeName, Class<?> c) {
-        super(c);
-        this.typeName = typeName;
-    }
+    // not used
+//    protected NamedType(String typeName, Class<?> c) {
+//        super(c);
+//        this.typeName = typeName;
+//    }
 
+    // N.B. this is used to implement readResolve() in place for Types.COMPARABLE
     public NamedType(String typeName, Class<?> c, Variance[] variances) {
         super(c, variances);
         this.typeName = typeName;
     }
 
-    public NamedType(String typeName, Class<?> c, Type<?>[] parents) {
-        super(c, parents);
-        this.typeName = typeName;
-    }
+    // not used
+//    protected NamedType(String typeName, Class<?> c, Type<?>[] parents) {
+//        super(c, parents);
+//        this.typeName = typeName;
+//    }
     
-    public NamedType(String typeName, Class<?> c, Variance[] variances, Type<?>[] parents) {
+    protected NamedType(String typeName, Class<?> c, Variance[] variances, Type<?>[] parents) {
         super(c, variances, parents);
         this.typeName = typeName;
+    }
+
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c) {
+        NamedType<T> _this = new NamedType<T>(typeName, c, null, null);
+        _this.typeName = typeName;
+        return _this;
+    }
+
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Variance[] variances) {
+        NamedType<T> _this = new NamedType<T>(typeName, c, variances, null);
+        _this.typeName = typeName;
+        return _this;
+    }
+
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Type<?>[] parents) {
+        NamedType<T> _this = new NamedType<T>(typeName, c, null, parents);
+        _this.typeName = typeName;
+        return _this;
+    }
+    
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Variance[] variances, Type<?>[] parents) {
+        NamedType<T> _this = new NamedType<T>(typeName, c, variances, parents);
+        _this.typeName = typeName;
+        return _this;
     }
 
     @Override

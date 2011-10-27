@@ -26,10 +26,10 @@ public class LocalVar<T> extends x10.core.Ref {
     private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalVar.class);
 
     public static final RuntimeType<LocalVar<?>> $RTT =
-        new x10.rtt.NamedType<LocalVar<?>>(
+        x10.rtt.NamedType.<LocalVar<?>> make(
                 "x10.compiler.LocalVar",
                 /* base class */ LocalVar.class,
-                /* variances */ new Variance[] { Variance.INVARIANT },
+                /* variances */ RuntimeType.INVARIANTS(1),
                 /* parents */ new Type[] { Types.OBJECT }
     );
     @Override

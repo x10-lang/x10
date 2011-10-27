@@ -2945,21 +2945,21 @@ public class Emitter {
         w.write("> " + X10PrettyPrinterVisitor.RTT_NAME + " = ");
         if (isStaticFunType) {
             // Option for closures
-//            w.write("new x10.rtt.RuntimeType");
+//            w.write("x10.rtt.RuntimeType");
             if (isVoidFun) {
-                w.write("new x10.rtt.StaticVoidFunType");
+                w.write("x10.rtt.StaticVoidFunType");
             } else {
-                w.write("new x10.rtt.StaticFunType");
+                w.write("x10.rtt.StaticFunType");
             }
         } else {
             // Option for non-closures
-//            w.write("new x10.rtt.RuntimeType");
-            w.write("new x10.rtt.NamedType");
+//            w.write("x10.rtt.RuntimeType");
+            w.write("x10.rtt.NamedType");
         }
-        w.write("<");
+        w.write(".<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
-        w.write("(");
+        w.write(" make(");
         w.newline();
         if (!isStaticFunType) {
             // Option for non-closures

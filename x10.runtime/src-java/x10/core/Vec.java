@@ -38,10 +38,10 @@ public final class Vec<T> extends x10.core.Struct {
     }
 
     private Type<T> T;
-    public static final RuntimeType<Vec<?>> $RTT = new NamedType<Vec<?>>(
+    public static final RuntimeType<Vec<?>> $RTT = NamedType.<Vec<?>> make(
         "x10.util.Vec",
         Vec.class,
-        new Variance[] { Variance.INVARIANT },
+        RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
     @Override

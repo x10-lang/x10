@@ -29,8 +29,7 @@ public class Types {
         Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
         if (supportTypeParameterOfJavaType && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
             // type parameters for unknown raw Java classes are Any
-            RuntimeType.Variance[] variances = new RuntimeType.Variance[typeVariables.length];
-            java.util.Arrays.fill(variances, RuntimeType.Variance.INVARIANT);
+            RuntimeType.Variance[] variances = RuntimeType.INVARIANTS(typeVariables.length);
             // add superclass and all interfaces to parents
             Type<?>[] parents = new Type[interfaces.length + (superclass != null ? 1 : 0)];
             int i = 0;
@@ -333,10 +332,8 @@ public class Types {
     // create rtt of comparable before all types that implement comparable (e.g. int)
     public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
         "x10.lang.Comparable",
-        Comparable.class, 
-        new RuntimeType.Variance[] {
-            RuntimeType.Variance.INVARIANT
-        }
+        Comparable.class,
+        RuntimeType.INVARIANTS(1)
     ) {
         // make sure deserialized RTT object is not duplicated
         private Object readResolve() throws java.io.ObjectStreamException {

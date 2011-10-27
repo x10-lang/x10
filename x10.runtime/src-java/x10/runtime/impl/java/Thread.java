@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 public class Thread extends java.lang.Thread implements x10.core.RefI {
     private static final long serialVersionUID = 1L;
-    public static final RuntimeType<Thread> $RTT = new NamedType<Thread>("x10.lang.Thread", Thread.class, new Type<?>[] { Types.OBJECT });
+    public static final RuntimeType<Thread> $RTT = NamedType.<Thread> make("x10.lang.Thread", Thread.class, new Type<?>[] { Types.OBJECT });
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 

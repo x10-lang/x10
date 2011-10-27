@@ -13,22 +13,39 @@ package x10.rtt;
 
 public class VoidFunType<T> extends RuntimeType<T> {
     
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    public VoidFunType(Class<?> c) {
-        super(c);
-    }
+    // not used
+//    protected VoidFunType(Class<?> c) {
+//        super(c);
+//    }
+//    
+//    protected VoidFunType(Class<?> c, Variance[] variances) {
+//        super(c, variances);
+//    }
+//
+//    protected VoidFunType(Class<?> c, Type<?>[] parents) {
+//        super(c, parents);
+//    }
     
-    public VoidFunType(Class<?> c, Variance[] variances) {
-        super(c, variances);
-    }
-
-    public VoidFunType(Class<?> c, Type<?>[] parents) {
-        super(c, parents);
-    }
-    
-    public VoidFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
+    protected VoidFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
         super(c, variances, parents);
+    }
+
+    public static <T> VoidFunType/*<T>*/ make(Class<?> c) {
+        return new VoidFunType<T>(c, null, null);
+    }
+    
+    public static <T> VoidFunType/*<T>*/ make(Class<?> c, Variance[] variances) {
+        return new VoidFunType<T>(c, variances, null);
+    }
+
+    public static <T> VoidFunType/*<T>*/ make(Class<?> c, Type<?>[] parents) {
+        return new VoidFunType<T>(c, null, parents);
+    }
+    
+    public static <T> VoidFunType/*<T>*/ make(Class<?> c, Variance[] variances, Type<?>[] parents) {
+        return new VoidFunType<T>(c, variances, parents);
     }
 
     @Override
