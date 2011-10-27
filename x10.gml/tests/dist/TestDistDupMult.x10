@@ -9,12 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-/*
- *  This file is part of the X10 Applications project.
- *
- *  (C) Copyright IBM Corporation 2011.
- */
-
 import x10.io.Console;
 
 import x10.matrix.Matrix;
