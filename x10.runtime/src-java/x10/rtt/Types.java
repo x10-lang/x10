@@ -611,7 +611,7 @@ public class Types {
 //            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(actualTypeArguments[0], (java.lang.System) null);
             // for user-defined structs, call zero value constructor
             try {
-                Class<?> impl = rtt.getImpl();
+                Class<?> impl = rtt.getJavaClass();
                 java.lang.reflect.Constructor<?> ctor = null;
                 Class<?>[] paramTypes = null;
                 for (java.lang.reflect.Constructor<?> ctor0 : impl.getConstructors()) {

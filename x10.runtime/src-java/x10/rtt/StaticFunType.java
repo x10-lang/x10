@@ -19,77 +19,77 @@ public class StaticFunType<T> extends RuntimeType<T> {
     private static final long serialVersionUID = 1L;
 
     // not used
-//    protected StaticFunType(Class<?> c) {
-//        super(c);
+//    protected StaticFunType(Class<?> javaClass) {
+//        super(javaClass);
 //    }
 //    
-//    protected StaticFunType(Class<?> c, Variance[] variances) {
-//        super(c, variances);
+//    protected StaticFunType(Class<?> javaClass, Variance[] variances) {
+//        super(javaClass, variances);
 //    }
 //
-//    protected StaticFunType(Class<?> c, Type<?>[] parents) {
-//        super(c, parents);
+//    protected StaticFunType(Class<?> javaClass, Type<?>[] parents) {
+//        super(javaClass, parents);
 //    }
     
-    protected StaticFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
-        super(c, variances, parents);
+    protected StaticFunType(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+        super(javaClass, variances, parents);
     }
 
     private static final boolean useCache = true;
     private static final ConcurrentHashMap<Class<?>, StaticFunType<?>> typeCache = new ConcurrentHashMap<Class<?>, StaticFunType<?>>();
-    public static <T> StaticFunType/*<T>*/ make(Class<?> c) {
+    public static <T> StaticFunType/*<T>*/ make(Class<?> javaClass) {
         if (useCache) {
-            StaticFunType<?> type = typeCache.get(c);
+            StaticFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticFunType<?> type0 = new StaticFunType<T>(c, null, null);
-                type = typeCache.putIfAbsent(c, type0);
+                StaticFunType<?> type0 = new StaticFunType<T>(javaClass, null, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticFunType<T>) type;
         } else {
-            return new StaticFunType<T>(c, null, null);
+            return new StaticFunType<T>(javaClass, null, null);
         }
     }
     
-    public static <T> StaticFunType/*<T>*/ make(Class<?> c, Variance[] variances) {
+    public static <T> StaticFunType/*<T>*/ make(Class<?> javaClass, Variance[] variances) {
         if (useCache) {
-            StaticFunType<?> type = typeCache.get(c);
+            StaticFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticFunType<?> type0 = new StaticFunType<T>(c, variances, null);
-                type = typeCache.putIfAbsent(c, type0);
+                StaticFunType<?> type0 = new StaticFunType<T>(javaClass, variances, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticFunType<T>) type;
         } else {
-            return new StaticFunType<T>(c, variances, null);
+            return new StaticFunType<T>(javaClass, variances, null);
         }
     }
 
-    public static <T> StaticFunType/*<T>*/ make(Class<?> c, Type<?>[] parents) {
+    public static <T> StaticFunType/*<T>*/ make(Class<?> javaClass, Type<?>[] parents) {
         if (useCache) {
-            StaticFunType<?> type = typeCache.get(c);
+            StaticFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticFunType<?> type0 = new StaticFunType<T>(c, null, parents);
-                type = typeCache.putIfAbsent(c, type0);
+                StaticFunType<?> type0 = new StaticFunType<T>(javaClass, null, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticFunType<T>) type;
         } else {
-            return new StaticFunType<T>(c, null, parents);
+            return new StaticFunType<T>(javaClass, null, parents);
         }
     }
     
-    public static <T> StaticFunType/*<T>*/ make(Class<?> c, Variance[] variances, Type<?>[] parents) {
+    public static <T> StaticFunType/*<T>*/ make(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
         if (useCache) {
-            StaticFunType<?> type = typeCache.get(c);
+            StaticFunType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                StaticFunType<?> type0 = new StaticFunType<T>(c, variances, parents);
-                type = typeCache.putIfAbsent(c, type0);
+                StaticFunType<?> type0 = new StaticFunType<T>(javaClass, variances, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (StaticFunType<T>) type;
         } else {
-            return new StaticFunType<T>(c, variances, parents);
+            return new StaticFunType<T>(javaClass, variances, parents);
         }
     }
 

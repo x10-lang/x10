@@ -51,7 +51,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         if (this == superType) return true;
         if (superType == Types.ANY) return true;
         if (superType == Types.OBJECT) return !Types.isStructType(this);
-        if (!superType.getImpl().isAssignableFrom(rawType.getImpl())) {
+        if (!superType.getJavaClass().isAssignableFrom(rawType.getJavaClass())) {
             return false;
         }
         if (superType instanceof ParameterizedType) {
@@ -107,8 +107,8 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
         return rawType.getArray(array, i);
     }
 
-    public final Class<?> getImpl() {
-        return rawType.getImpl();
+    public final Class<?> getJavaClass() {
+        return rawType.getJavaClass();
     }
 
     public final Object makeArray(int dim0) {

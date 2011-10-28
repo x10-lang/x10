@@ -81,7 +81,7 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
         throw new UnsupportedOperationException();
     }
 
-    public final Class<?> getImpl() {
+    public final Class<?> getJavaClass() {
         throw new UnsupportedOperationException();
     }
 

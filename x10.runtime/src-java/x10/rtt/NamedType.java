@@ -32,82 +32,82 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     }
     
     // not used
-//    protected NamedType(String typeName, Class<?> c) {
-//        super(c);
+//    protected NamedType(String typeName, Class<?> javaClass) {
+//        super(javaClass);
 //        this.typeName = typeName;
 //    }
 //
-//    protected NamedType(String typeName, Class<?> c, Variance[] variances) {
-//        super(c, variances);
+//    protected NamedType(String typeName, Class<?> javaClass, Variance[] variances) {
+//        super(javaClass, variances);
 //        this.typeName = typeName;
 //    }
 //
-//    protected NamedType(String typeName, Class<?> c, Type<?>[] parents) {
-//        super(c, parents);
+//    protected NamedType(String typeName, Class<?> javaClass, Type<?>[] parents) {
+//        super(javaClass, parents);
 //        this.typeName = typeName;
 //    }
     
     // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
-    protected NamedType(String typeName, Class<?> c, Variance[] variances, Type<?>[] parents) {
-        super(c, variances, parents);
+    protected NamedType(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+        super(javaClass, variances, parents);
         this.typeName = typeName;
     }
 
     private static final boolean useCache = true;
     private static final ConcurrentHashMap<Class<?>, NamedType<?>> typeCache = new ConcurrentHashMap<Class<?>, NamedType<?>>();
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c) {
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(c);
+            NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, c, null, null);
-                type = typeCache.putIfAbsent(c, type0);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, null, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, c, null, null);
+            return new NamedType<T>(typeName, javaClass, null, null);
         }
     }
 
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Variance[] variances) {
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(c);
+            NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, c, variances, null);
-                type = typeCache.putIfAbsent(c, type0);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, variances, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, c, variances, null);
+            return new NamedType<T>(typeName, javaClass, variances, null);
         }
     }
 
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Type<?>[] parents) {
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Type<?>[] parents) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(c);
+            NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, c, null, parents);
-                type = typeCache.putIfAbsent(c, type0);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, null, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, c, null, parents);
+            return new NamedType<T>(typeName, javaClass, null, parents);
         }
     }
     
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Variance[] variances, Type<?>[] parents) {
+    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(c);
+            NamedType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, c, variances, parents);
-                type = typeCache.putIfAbsent(c, type0);
+                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, variances, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (NamedType<T>) type;
         } else {
-            return new NamedType<T>(typeName, c, variances, parents);
+            return new NamedType<T>(typeName, javaClass, variances, parents);
         }
     }
 

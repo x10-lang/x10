@@ -50,7 +50,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return variances;
     }
     
-    public Class<?> impl;
+    public Class<?> javaClass;
     private Variance[] variances;
     public Type<?>[] parents;
 
@@ -58,84 +58,84 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public RuntimeType() {
     }
     
-    protected RuntimeType(Class<?> impl) {
-        this(impl, null, null);
+    protected RuntimeType(Class<?> javaClass) {
+        this(javaClass, null, null);
     }
 
-    protected RuntimeType(Class<?> impl, Variance[] variances) {
-        this(impl, variances, null);
+    protected RuntimeType(Class<?> javaClass, Variance[] variances) {
+        this(javaClass, variances, null);
     }
 
-    protected RuntimeType(Class<?> impl, Type<?>[] parents) {
-        this(impl, null, parents);
+    protected RuntimeType(Class<?> javaClass, Type<?>[] parents) {
+        this(javaClass, null, parents);
     }
     
-    protected RuntimeType(Class<?> impl, Variance[] variances, Type<?>[] parents) {
-        this.impl = impl;
+    protected RuntimeType(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+        this.javaClass = javaClass;
         this.variances = variances;
         this.parents = parents;
     }
   
     private static final boolean useCache = true;
     private static final ConcurrentHashMap<Class<?>, RuntimeType<?>> typeCache = new ConcurrentHashMap<Class<?>, RuntimeType<?>>();
-    public static <T> RuntimeType/*<T>*/ make(Class<?> impl) {
+    public static <T> RuntimeType/*<T>*/ make(Class<?> javaClass) {
         if (useCache) {
-            RuntimeType<?> type = typeCache.get(impl);
+            RuntimeType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                RuntimeType<?> type0 = new RuntimeType<T>(impl, null, null);
-                type = typeCache.putIfAbsent(impl, type0);
+                RuntimeType<?> type0 = new RuntimeType<T>(javaClass, null, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (RuntimeType<T>) type;
         } else {
-            return new RuntimeType<T>(impl, null, null);
+            return new RuntimeType<T>(javaClass, null, null);
         }
     }
 
-    public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Variance[] variances) {
+    public static <T> RuntimeType/*<T>*/ make(Class<?> javaClass, Variance[] variances) {
         if (useCache) {
-            RuntimeType<?> type = typeCache.get(impl);
+            RuntimeType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                RuntimeType<?> type0 = new RuntimeType<T>(impl, variances, null);
-                type = typeCache.putIfAbsent(impl, type0);
+                RuntimeType<?> type0 = new RuntimeType<T>(javaClass, variances, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (RuntimeType<T>) type;
         } else {
-            return new RuntimeType<T>(impl, variances, null);
+            return new RuntimeType<T>(javaClass, variances, null);
         }
     }
 
-    public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Type<?>[] parents) {
+    public static <T> RuntimeType/*<T>*/ make(Class<?> javaClass, Type<?>[] parents) {
         if (useCache) {
-            RuntimeType<?> type = typeCache.get(impl);
+            RuntimeType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                RuntimeType<?> type0 = new RuntimeType<T>(impl, null, parents);
-                type = typeCache.putIfAbsent(impl, type0);
+                RuntimeType<?> type0 = new RuntimeType<T>(javaClass, null, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (RuntimeType<T>) type;
         } else {
-            return new RuntimeType<T>(impl, null, parents);
+            return new RuntimeType<T>(javaClass, null, parents);
         }
     }
     
-    public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Variance[] variances, Type<?>[] parents) {
+    public static <T> RuntimeType/*<T>*/ make(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
         if (useCache) {
-            RuntimeType<?> type = typeCache.get(impl);
+            RuntimeType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                RuntimeType<?> type0 = new RuntimeType<T>(impl, variances, parents);
-                type = typeCache.putIfAbsent(impl, type0);
+                RuntimeType<?> type0 = new RuntimeType<T>(javaClass, variances, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (RuntimeType<T>) type;
         } else {
-            return new RuntimeType<T>(impl, variances, parents);
+            return new RuntimeType<T>(javaClass, variances, parents);
         }
     }
 
-    public Class<?> getImpl() {
-        return impl;
+    public Class<?> getJavaClass() {
+        return javaClass;
     }
     
     // not used
@@ -165,10 +165,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (this == o) return true;
         if (o instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) o;
-            if (!impl.equals(rt.impl)) {
+            if (!javaClass.equals(rt.javaClass)) {
                 return false;
             }
-            // N.B. for given impl, we assume variances and parents are unique.
+            // N.B. for given javaClass, we assume variances and parents are unique.
             // Therefore we don't need to compare them.
             return true;
         }
@@ -177,7 +177,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     
     @Override
     public int hashCode() {
-        return impl.hashCode();
+        return javaClass.hashCode();
     }
 
     public boolean isAssignableTo(Type<?> superType) {
@@ -186,7 +186,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (superType == Types.OBJECT) return !Types.isStructType(this);
         if (superType instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) superType;
-            if (rt.impl.isAssignableFrom(impl)) {
+            if (rt.javaClass.isAssignableFrom(javaClass)) {
                 return true;
             }
         }
@@ -205,10 +205,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     public boolean isInstance(Object o) {
         if (o == null) {return false;}
-        if (o.getClass() == impl) {
+        if (o.getClass() == javaClass) {
             return true;
         }
-        return impl.isInstance(o);
+        return javaClass.isInstance(o);
     }
 
     private static final boolean subtypeTestForParam(Variance variance, Type<?> paramOfSuperType, Type<?> paramOfSubType) {
@@ -227,7 +227,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public final boolean isInstance(Object o, Type<?>... params) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
-        if (target == impl || checkAnonymous(target)) {
+        if (target == javaClass || checkAnonymous(target)) {
             for (int i = 0, s = params.length; i < s; i++) {
                 Variance variance;
                 Type<?> paramOfSubType;
@@ -239,7 +239,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             }
             return true;
         }
-        else if (impl.isInstance(o)) { // i.e. type of o != This
+        else if (javaClass.isInstance(o)) { // i.e. type of o != This
             return checkParents(o, params);
         }
         // not needed for Java primitives. not sure for String
@@ -258,10 +258,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (!target.isAnonymousClass()) {
             return false;
         }
-        if (target.getSuperclass() != java.lang.Object.class && target.getSuperclass() == impl) {
+        if (target.getSuperclass() != java.lang.Object.class && target.getSuperclass() == javaClass) {
             return true;
         }
-        if (target.getInterfaces().length == 1 && target.getInterfaces()[0] == impl) {
+        if (target.getInterfaces().length == 1 && target.getInterfaces()[0] == javaClass) {
             return true;
         }
         return false;
@@ -291,7 +291,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Object o) {
         if (rtt.parents != null) {
             for (Type<?> t : rtt.parents) {
-                if (impl.isAssignableFrom(t.getImpl())) {
+                if (javaClass.isAssignableFrom(t.getJavaClass())) {
                     if (t instanceof ParameterizedType<?>) {
                         ParameterizedType<?> pt = (ParameterizedType<?>) t;
                         Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
@@ -324,7 +324,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Any any) {
         if (rtt.parents != null) {
             for (Type<?> t : rtt.parents) {
-                if (impl.isAssignableFrom(t.getImpl())) {
+                if (javaClass.isAssignableFrom(t.getJavaClass())) {
                     if (t instanceof ParameterizedType<?>) {
                         ParameterizedType<?> pt = (ParameterizedType<?>) t;
                         Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
@@ -359,7 +359,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     private final boolean instantiateCheck(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsRTT) {
         if (rtt.parents != null) {
             for (Type<?> t : rtt.parents) {
-                if (impl.isAssignableFrom(t.getImpl())) {
+                if (javaClass.isAssignableFrom(t.getJavaClass())) {
                     if (t instanceof ParameterizedType<?>) {
                         ParameterizedType<?> pt = (ParameterizedType<?>) t;
                         Type<?>[] origTypeArgumentsT = pt.getActualTypeArguments();
@@ -388,7 +388,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     
     // check "rtt and paramsType" <: "this and params"
     final boolean isAssignableFrom(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsType) {
-        if (impl == rtt.getImpl()) {
+        if (javaClass == rtt.getJavaClass()) {
             if (params != null) {
                 for (int i = 0, s = params.length; i < s; i ++) {
                     Variance variance;
@@ -402,7 +402,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             }
             return true;
         }
-        else if (impl.isAssignableFrom(rtt.getImpl())) {
+        else if (javaClass.isAssignableFrom(rtt.getJavaClass())) {
             return instantiateCheck(params, rtt, paramsType);
         }
         else {
@@ -411,19 +411,19 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
     
     public Object makeArray(int length) {
-        return Array.newInstance(impl, length);
+        return Array.newInstance(javaClass, length);
     }
 
     public Object makeArray(int dim0, int dim1) {
-    	return Array.newInstance(impl, new int[] { dim0, dim1 });
+    	return Array.newInstance(javaClass, new int[] { dim0, dim1 });
     }
     
     public Object makeArray(int dim0, int dim1, int dim2) {
-    	return Array.newInstance(impl, new int[] { dim0, dim1, dim2 });
+    	return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2 });
     }
     
     public Object makeArray(int dim0, int dim1, int dim2, int dim3) {
-    	return Array.newInstance(impl, new int[] { dim0, dim1, dim2, dim3 });
+    	return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2, dim3 });
     }
     
     public Object makeArray(Object... elems) {
@@ -443,7 +443,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     public String typeName() {
-        return impl.getName();
+        return javaClass.getName();
     }
 
     protected final String typeNameForFun(Object o) {
@@ -494,7 +494,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public boolean isInstance(Object o, Type<?> param0) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
-        if (target == impl || checkAnonymous(target)) {
+        if (target == javaClass || checkAnonymous(target)) {
             Variance variance;
             Type<?> paramOfSubType;
             Type<?> paramOfSuperType;
@@ -504,7 +504,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             return true;
         }
-        else if (impl.isInstance(o)) {
+        else if (javaClass.isInstance(o)) {
             return checkParents(o, param0);
         }
         // not needed for Java primitives. not sure for String
@@ -523,7 +523,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public final boolean isInstance(Object o, Type<?> param0, Type<?> param1) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
-        if (target == impl || checkAnonymous(target)) {
+        if (target == javaClass || checkAnonymous(target)) {
             Variance variance;
             Type<?> paramOfSubType;
             Type<?> paramOfSuperType;
@@ -537,7 +537,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             return true;
         }
-        else if (impl.isInstance(o)) {
+        else if (javaClass.isInstance(o)) {
             return checkParents(o, param0, param1);
         }
         // not needed for Java primitives. not sure for String
@@ -557,7 +557,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public final boolean isInstance(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
-        if (target == impl || checkAnonymous(target)) {
+        if (target == javaClass || checkAnonymous(target)) {
             Variance variance;
             Type<?> paramOfSubType;
             Type<?> paramOfSuperType;
@@ -575,7 +575,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
             return true;
         }
-        else if (impl.isInstance(o)) {
+        else if (javaClass.isInstance(o)) {
             return checkParents(o, param0, param1, param2);
         }
         // not needed for Java primitives. not sure for String
@@ -591,7 +591,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        String name = impl.getName();
+        String name = javaClass.getName();
         serializer.writeClassID(name);
 	}
 
@@ -645,7 +645,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
         try {
             Class<?> aClass = Class.forName(className);
-            rt.impl = aClass;
+            rt.javaClass = aClass;
         } catch (ClassNotFoundException e) {
             // This should not happen though
             throw new RuntimeException(e);
