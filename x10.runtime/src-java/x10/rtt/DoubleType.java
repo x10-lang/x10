@@ -17,9 +17,10 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class DoubleType extends RuntimeType<x10.core.Double> {
-//public class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaSerializable{
+public final class DoubleType extends RuntimeType<x10.core.Double> {
+//public final class DoubleType extends RuntimeType<x10.core.Double> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, DoubleType.class.getName());
@@ -51,33 +52,40 @@ public class DoubleType extends RuntimeType<x10.core.Double> {
     }
 
     @Override
-    public double[] makeArray(int length) {
-        return new double[length];
+    public double[] makeArray(int dim0) {
+        return new double[dim0];
     }
     
     @Override
-	public double[][] makeArray(int dim0, int dim1) {
+    public double[][] makeArray(int dim0, int dim1) {
         return new double[dim0][dim1];
-	}
-
-	@Override
-	public double[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new double[dim0][dim1][dim2];
-	}
-
-	@Override
-	public double[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new double[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public double[] makeArray(Object... elem) {
-        double[] arr = new double[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.Double.$unbox(elem[i]);
-        }
-        return arr;
     }
+    
+    @Override
+    public double[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new double[dim0][dim1][dim2];
+    }
+    
+    @Override
+    public double[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new double[dim0][dim1][dim2][dim3];
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(double.class, dims);
+    }
+    
+    // not used
+//    @Deprecated
+//    @Override
+//    public double[] makeArray(Object... elem) {
+//        double[] arr = new double[elem.length];
+//        for (int i = 0; i < elem.length; i++) {
+//            arr[i] = x10.core.Double.$unbox(elem[i]);
+//        }
+//        return arr;
+//    }
     
     @Override
     public x10.core.Double getArray(Object array, int i) {

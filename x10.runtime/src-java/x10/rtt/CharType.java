@@ -17,9 +17,10 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class CharType extends RuntimeType<x10.core.Char> {
-//public class CharType extends RuntimeType<x10.core.Char> implements X10JavaSerializable {
+public final class CharType extends RuntimeType<x10.core.Char> {
+//public final class CharType extends RuntimeType<x10.core.Char> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, CharType.class.getName());
@@ -50,33 +51,40 @@ public class CharType extends RuntimeType<x10.core.Char> {
     }
 
     @Override
-    public char[] makeArray(int length) {
-        return new char[length];
+    public char[] makeArray(int dim0) {
+        return new char[dim0];
     }
     
     @Override
-	public char[][] makeArray(int dim0, int dim1) {
+    public char[][] makeArray(int dim0, int dim1) {
         return new char[dim0][dim1];
-	}
-
-	@Override
-	public char[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new char[dim0][dim1][dim2];
-	}
-
-	@Override
-	public char[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new char[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public char[] makeArray(Object... elem) {
-        char[] arr = new char[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.Char.$unbox(elem[i]);
-        }
-        return arr;
     }
+    
+    @Override
+    public char[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new char[dim0][dim1][dim2];
+    }
+    
+    @Override
+    public char[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new char[dim0][dim1][dim2][dim3];
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(char.class, dims);
+    }
+    
+    // not used
+//    @Deprecated
+//    @Override
+//    public char[] makeArray(Object... elem) {
+//        char[] arr = new char[elem.length];
+//        for (int i = 0; i < elem.length; i++) {
+//            arr[i] = x10.core.Char.$unbox(elem[i]);
+//        }
+//        return arr;
+//    }
     
     @Override
     public x10.core.Char getArray(Object array, int i) {

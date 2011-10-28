@@ -410,8 +410,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
     }
     
-    public Object makeArray(int length) {
-        return Array.newInstance(javaClass, length);
+    public Object makeArray(int dim0) {
+        return Array.newInstance(javaClass, dim0);
     }
 
     public Object makeArray(int dim0, int dim1) {
@@ -426,9 +426,15 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     	return Array.newInstance(javaClass, new int[] { dim0, dim1, dim2, dim3 });
     }
     
-    public Object makeArray(Object... elems) {
-        return elems;
+    public Object makeArray(int... dims) {
+        return Array.newInstance(javaClass, dims);
     }
+    
+    // not used
+//    @Deprecated
+//    public Object makeArray(Object... elems) {
+//        return elems;
+//    }
     
     public T getArray(Object array, int i) {
         return ((T[])array)[i];

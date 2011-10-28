@@ -12,7 +12,7 @@
 package x10.rtt;
 
 
-public class AnyType extends RuntimeType<Object> {
+public final class AnyType extends RuntimeType<Object> {
 
     private static final long serialVersionUID = 1L;
 

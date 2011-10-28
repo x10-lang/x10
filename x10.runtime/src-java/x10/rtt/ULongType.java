@@ -17,9 +17,10 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class ULongType extends RuntimeType<x10.core.ULong> {
-//public class ULongType extends RuntimeType<x10.core.ULong> implements X10JavaSerializable{
+public final class ULongType extends RuntimeType<x10.core.ULong> {
+//public final class ULongType extends RuntimeType<x10.core.ULong> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ULongType.class.getName());
@@ -52,33 +53,40 @@ public class ULongType extends RuntimeType<x10.core.ULong> {
     }
     
     @Override
-    public long[] makeArray(int length) {
-        return new long[length];
+    public long[] makeArray(int dim0) {
+        return new long[dim0];
     }
     
     @Override
-	public long[][] makeArray(int dim0, int dim1) {
+    public long[][] makeArray(int dim0, int dim1) {
         return new long[dim0][dim1];
-	}
-
-	@Override
-	public long[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new long[dim0][dim1][dim2];
-	}
-
-	@Override
-	public long[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new long[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public long[] makeArray(Object... elem) {
-        long[] arr = new long[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.ULong.$unbox(elem[i]);
-        }
-        return arr;
     }
+    
+    @Override
+    public long[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new long[dim0][dim1][dim2];
+    }
+    
+    @Override
+    public long[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new long[dim0][dim1][dim2][dim3];
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(long.class, dims);
+    }
+    
+    // not used
+//    @Deprecated
+//    @Override
+//    public long[] makeArray(Object... elem) {
+//        long[] arr = new long[elem.length];
+//        for (int i = 0; i < elem.length; i++) {
+//            arr[i] = x10.core.ULong.$unbox(elem[i]);
+//        }
+//        return arr;
+//    }
     
     @Override
     public x10.core.ULong getArray(Object array, int i) {

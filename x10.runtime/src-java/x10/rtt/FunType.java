@@ -13,7 +13,7 @@ package x10.rtt;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class FunType<T> extends RuntimeType<T> {
+public final class FunType<T> extends RuntimeType<T> {
 
     private static final long serialVersionUID = 1L;
 

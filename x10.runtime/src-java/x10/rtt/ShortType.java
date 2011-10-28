@@ -16,9 +16,10 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class ShortType extends RuntimeType<x10.core.Short> {
-//public class ShortType extends RuntimeType<x10.core.Short> implements X10JavaSerializable {
+public final class ShortType extends RuntimeType<x10.core.Short> {
+//public final class ShortType extends RuntimeType<x10.core.Short> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ShortType.class.getName());
@@ -51,33 +52,40 @@ public class ShortType extends RuntimeType<x10.core.Short> {
     }
     
     @Override
-    public short[] makeArray(int length) {
-        return new short[length];
+    public short[] makeArray(int dim0) {
+        return new short[dim0];
     }
     
     @Override
-	public short[][] makeArray(int dim0, int dim1) {
+    public short[][] makeArray(int dim0, int dim1) {
         return new short[dim0][dim1];
-	}
-
-	@Override
-	public short[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new short[dim0][dim1][dim2];
-	}
-
-	@Override
-	public short[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new short[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public short[] makeArray(Object... elem) {
-        short[] arr = new short[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.Short.$unbox(elem[i]);
-        }
-        return arr;
     }
+    
+    @Override
+    public short[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new short[dim0][dim1][dim2];
+    }
+    
+    @Override
+    public short[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new short[dim0][dim1][dim2][dim3];
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(short.class, dims);
+    }
+    
+    // not used
+//    @Deprecated
+//    @Override
+//    public short[] makeArray(Object... elem) {
+//        short[] arr = new short[elem.length];
+//        for (int i = 0; i < elem.length; i++) {
+//            arr[i] = x10.core.Short.$unbox(elem[i]);
+//        }
+//        return arr;
+//    }
 
     @Override
     public x10.core.Short getArray(Object array, int i) {

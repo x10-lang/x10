@@ -14,7 +14,7 @@ package x10.rtt;
 import java.util.concurrent.ConcurrentHashMap;
 
 // for static inner classes that are compiled from closures
-public class StaticVoidFunType<T> extends RuntimeType<T> {
+public final class StaticVoidFunType<T> extends RuntimeType<T> {
     
     private static final long serialVersionUID = 1L;
 

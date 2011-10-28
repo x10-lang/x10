@@ -18,7 +18,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class ObjectType extends RuntimeType<x10.core.RefI> {
+public final class ObjectType extends RuntimeType<x10.core.RefI> {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ObjectType.class.getName());

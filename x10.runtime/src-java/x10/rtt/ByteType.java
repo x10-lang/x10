@@ -16,9 +16,10 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class ByteType extends RuntimeType<x10.core.Byte> {
-//public class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSerializable {
+public final class ByteType extends RuntimeType<x10.core.Byte> {
+//public final class ByteType extends RuntimeType<x10.core.Byte> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
     // make sure deserialized RTT object is not duplicated
@@ -50,33 +51,40 @@ public class ByteType extends RuntimeType<x10.core.Byte> {
     }
     
     @Override
-    public byte[] makeArray(int length) {
-        return new byte[length];
+    public byte[] makeArray(int dim0) {
+        return new byte[dim0];
     }
     
     @Override
-	public byte[][] makeArray(int dim0, int dim1) {
+    public byte[][] makeArray(int dim0, int dim1) {
         return new byte[dim0][dim1];
-	}
-
-	@Override
-	public byte[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new byte[dim0][dim1][dim2];
-	}
-
-	@Override
-	public byte[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new byte[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public byte[] makeArray(Object... elem) {
-        byte[] arr = new byte[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.Byte.$unbox(elem[i]);
-        }
-        return arr;
     }
+    
+    @Override
+    public byte[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new byte[dim0][dim1][dim2];
+    }
+    
+    @Override
+    public byte[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new byte[dim0][dim1][dim2][dim3];
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(byte.class, dims);
+    }
+    
+    // not used
+//    @Deprecated
+//    @Override
+//    public byte[] makeArray(Object... elem) {
+//        byte[] arr = new byte[elem.length];
+//        for (int i = 0; i < elem.length; i++) {
+//            arr[i] = x10.core.Byte.$unbox(elem[i]);
+//        }
+//        return arr;
+//    }
     
     @Override
     public x10.core.Byte getArray(Object array, int i) {

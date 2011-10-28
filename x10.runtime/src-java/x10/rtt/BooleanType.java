@@ -17,9 +17,10 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class BooleanType extends RuntimeType<x10.core.Boolean>{
-//public class BooleanType extends RuntimeType<x10.core.Boolean> implements X10JavaSerializable{
+public final class BooleanType extends RuntimeType<x10.core.Boolean> {
+//public final class BooleanType extends RuntimeType<x10.core.Boolean> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, BooleanType.class.getName());
@@ -49,33 +50,40 @@ public class BooleanType extends RuntimeType<x10.core.Boolean>{
     }
 
     @Override
-    public boolean[] makeArray(int length) {
-        return new boolean[length];
+    public boolean[] makeArray(int dim0) {
+        return new boolean[dim0];
     }
     
     @Override
-	public boolean[][] makeArray(int dim0, int dim1) {
+    public boolean[][] makeArray(int dim0, int dim1) {
         return new boolean[dim0][dim1];
-	}
-
-	@Override
-	public boolean[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new boolean[dim0][dim1][dim2];
-	}
-
-	@Override
-	public boolean[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new boolean[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public boolean[] makeArray(Object... elem) {
-        boolean[] arr = new boolean[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.Boolean.$unbox(elem[i]);
-        }
-        return arr;
     }
+    
+    @Override
+    public boolean[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new boolean[dim0][dim1][dim2];
+    }
+    
+    @Override
+    public boolean[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new boolean[dim0][dim1][dim2][dim3];
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(boolean.class, dims);
+    }
+    
+    // not used
+//    @Deprecated
+//    @Override
+//    public boolean[] makeArray(Object... elem) {
+//        boolean[] arr = new boolean[elem.length];
+//        for (int i = 0; i < elem.length; i++) {
+//            arr[i] = x10.core.Boolean.$unbox(elem[i]);
+//        }
+//        return arr;
+//    }
     
     @Override
     public x10.core.Boolean getArray(Object array, int i) {
