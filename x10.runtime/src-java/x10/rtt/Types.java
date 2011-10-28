@@ -333,7 +333,8 @@ public class Types {
     public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
         "x10.lang.Comparable",
         Comparable.class,
-        RuntimeType.INVARIANTS(1)
+        RuntimeType.INVARIANTS(1),
+        null
     ) {
         // make sure deserialized RTT object is not duplicated
         private Object readResolve() throws java.io.ObjectStreamException {

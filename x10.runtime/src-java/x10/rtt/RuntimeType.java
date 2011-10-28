@@ -13,6 +13,7 @@ package x10.rtt;
 
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.util.concurrent.ConcurrentHashMap;
 
 import x10.core.Any;
 import x10.x10rt.DeserializationDispatcher;
@@ -74,21 +75,63 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         this.variances = variances;
         this.parents = parents;
     }
-    
+  
+    private static final boolean useCache = true;
+    private static final ConcurrentHashMap<Class<?>, RuntimeType<?>> typeCache = new ConcurrentHashMap<Class<?>, RuntimeType<?>>();
     public static <T> RuntimeType/*<T>*/ make(Class<?> impl) {
-        return new RuntimeType<T>(impl, null, null);
+        if (useCache) {
+            RuntimeType<?> type = typeCache.get(impl);
+            if (type == null) {
+                RuntimeType<?> type0 = new RuntimeType<T>(impl, null, null);
+                type = typeCache.putIfAbsent(impl, type0);
+                if (type == null) type = type0;
+            }
+            return (RuntimeType<T>) type;
+        } else {
+            return new RuntimeType<T>(impl, null, null);
+        }
     }
 
     public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Variance[] variances) {
-        return new RuntimeType<T>(impl, variances, null);
+        if (useCache) {
+            RuntimeType<?> type = typeCache.get(impl);
+            if (type == null) {
+                RuntimeType<?> type0 = new RuntimeType<T>(impl, variances, null);
+                type = typeCache.putIfAbsent(impl, type0);
+                if (type == null) type = type0;
+            }
+            return (RuntimeType<T>) type;
+        } else {
+            return new RuntimeType<T>(impl, variances, null);
+        }
     }
 
     public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Type<?>[] parents) {
-        return new RuntimeType<T>(impl, null, parents);
+        if (useCache) {
+            RuntimeType<?> type = typeCache.get(impl);
+            if (type == null) {
+                RuntimeType<?> type0 = new RuntimeType<T>(impl, null, parents);
+                type = typeCache.putIfAbsent(impl, type0);
+                if (type == null) type = type0;
+            }
+            return (RuntimeType<T>) type;
+        } else {
+            return new RuntimeType<T>(impl, null, parents);
+        }
     }
     
     public static <T> RuntimeType/*<T>*/ make(Class<?> impl, Variance[] variances, Type<?>[] parents) {
-        return new RuntimeType<T>(impl, variances, parents);
+        if (useCache) {
+            RuntimeType<?> type = typeCache.get(impl);
+            if (type == null) {
+                RuntimeType<?> type0 = new RuntimeType<T>(impl, variances, parents);
+                type = typeCache.putIfAbsent(impl, type0);
+                if (type == null) type = type0;
+            }
+            return (RuntimeType<T>) type;
+        } else {
+            return new RuntimeType<T>(impl, variances, parents);
+        }
     }
 
     public Class<?> getImpl() {

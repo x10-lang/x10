@@ -17,6 +17,7 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
@@ -35,46 +36,79 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
 //        super(c);
 //        this.typeName = typeName;
 //    }
-
-    // N.B. this is used to implement readResolve() in place for Types.COMPARABLE
-    public NamedType(String typeName, Class<?> c, Variance[] variances) {
-        super(c, variances);
-        this.typeName = typeName;
-    }
-
-    // not used
+//
+//    protected NamedType(String typeName, Class<?> c, Variance[] variances) {
+//        super(c, variances);
+//        this.typeName = typeName;
+//    }
+//
 //    protected NamedType(String typeName, Class<?> c, Type<?>[] parents) {
 //        super(c, parents);
 //        this.typeName = typeName;
 //    }
     
+    // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
     protected NamedType(String typeName, Class<?> c, Variance[] variances, Type<?>[] parents) {
         super(c, variances, parents);
         this.typeName = typeName;
     }
 
+    private static final boolean useCache = true;
+    private static final ConcurrentHashMap<Class<?>, NamedType<?>> typeCache = new ConcurrentHashMap<Class<?>, NamedType<?>>();
     public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c) {
-        NamedType<T> _this = new NamedType<T>(typeName, c, null, null);
-        _this.typeName = typeName;
-        return _this;
+        if (useCache) {
+            NamedType<?> type = typeCache.get(c);
+            if (type == null) {
+                NamedType<?> type0 = new NamedType<T>(typeName, c, null, null);
+                type = typeCache.putIfAbsent(c, type0);
+                if (type == null) type = type0;
+            }
+            return (NamedType<T>) type;
+        } else {
+            return new NamedType<T>(typeName, c, null, null);
+        }
     }
 
     public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Variance[] variances) {
-        NamedType<T> _this = new NamedType<T>(typeName, c, variances, null);
-        _this.typeName = typeName;
-        return _this;
+        if (useCache) {
+            NamedType<?> type = typeCache.get(c);
+            if (type == null) {
+                NamedType<?> type0 = new NamedType<T>(typeName, c, variances, null);
+                type = typeCache.putIfAbsent(c, type0);
+                if (type == null) type = type0;
+            }
+            return (NamedType<T>) type;
+        } else {
+            return new NamedType<T>(typeName, c, variances, null);
+        }
     }
 
     public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Type<?>[] parents) {
-        NamedType<T> _this = new NamedType<T>(typeName, c, null, parents);
-        _this.typeName = typeName;
-        return _this;
+        if (useCache) {
+            NamedType<?> type = typeCache.get(c);
+            if (type == null) {
+                NamedType<?> type0 = new NamedType<T>(typeName, c, null, parents);
+                type = typeCache.putIfAbsent(c, type0);
+                if (type == null) type = type0;
+            }
+            return (NamedType<T>) type;
+        } else {
+            return new NamedType<T>(typeName, c, null, parents);
+        }
     }
     
     public static <T> NamedType/*<T>*/ make(String typeName, Class<?> c, Variance[] variances, Type<?>[] parents) {
-        NamedType<T> _this = new NamedType<T>(typeName, c, variances, parents);
-        _this.typeName = typeName;
-        return _this;
+        if (useCache) {
+            NamedType<?> type = typeCache.get(c);
+            if (type == null) {
+                NamedType<?> type0 = new NamedType<T>(typeName, c, variances, parents);
+                type = typeCache.putIfAbsent(c, type0);
+                if (type == null) type = type0;
+            }
+            return (NamedType<T>) type;
+        } else {
+            return new NamedType<T>(typeName, c, variances, parents);
+        }
     }
 
     @Override
