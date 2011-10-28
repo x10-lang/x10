@@ -211,42 +211,42 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return javaClass.isInstance(o);
     }
 
-    private static final boolean subtypeTestForParam(Variance variance, Type<?> paramOfSuperType, Type<?> paramOfSubType) {
+    private static final boolean subtypeTestForParam(Variance variance, Type<?> superParam, Type<?> subParam) {
         switch (variance) {
         case INVARIANT:
-            return paramOfSuperType.equals(paramOfSubType);
+            return superParam.equals(subParam);
         case COVARIANT:
-            return paramOfSubType.isAssignableTo(paramOfSuperType);
+            return subParam.isAssignableTo(superParam);
         case CONTRAVARIANT:
-            return paramOfSuperType.isAssignableTo(paramOfSubType);
+            return superParam.isAssignableTo(subParam);
         }
 //        assert false; // should never happen
         return true;
     }
-    // o instanceof This and params
-    public final boolean isInstance(Object o, Type<?>... params) {
+    // o instanceof this and thisParams
+    public final boolean isInstance(Object o, Type<?>... thisParams) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == javaClass || checkAnonymous(target)) {
-            for (int i = 0, s = params.length; i < s; i++) {
+            for (int i = 0, s = thisParams.length; i < s; i++) {
                 Variance variance;
-                Type<?> paramOfSubType;
-                Type<?> paramOfSuperType;
+                Type<?> subParam;
+                Type<?> thisParam;
                 variance = getVariance(i);
-                paramOfSubType = Types.getParam(o, i);
-                paramOfSuperType = params[i];
-                if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+                subParam = Types.getParam(o, i);
+                thisParam = thisParams[i];
+                if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
             }
             return true;
         }
         else if (javaClass.isInstance(o)) { // i.e. type of o != This
-            return checkParents(o, params);
+            return checkParents(o, thisParams);
         }
         // not needed for Java primitives. not sure for String
         /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
-            return checkParents(o, params);
+            return checkParents(o, thisParams);
         }
         */
         else {
@@ -386,24 +386,24 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return false;
     }
     
-    // check "rtt and paramsType" <: "this and params"
-    final boolean isAssignableFrom(Type<?>[] params, RuntimeType<?> rtt, Type<?>[] paramsType) {
-        if (javaClass == rtt.getJavaClass()) {
-            if (params != null) {
-                for (int i = 0, s = params.length; i < s; i ++) {
+    // check "subType and subParams" <: "this and thisParams"
+    final boolean isAssignableFrom(Type<?>[] thisParams, RuntimeType<?> subType, Type<?>[] subParams) {
+        if (javaClass == subType.getJavaClass()) {
+            if (thisParams != null) {
+                for (int i = 0, s = thisParams.length; i < s; i ++) {
                     Variance variance;
-                    Type<?> paramOfSubType;
-                    Type<?> paramOfSuperType;
+                    Type<?> subParam;
+                    Type<?> thisParam;
                     variance = getVariance(i);
-                    paramOfSubType = paramsType[i];
-                    paramOfSuperType = params[i];
-                    if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+                    subParam = subParams[i];
+                    thisParam = thisParams[i];
+                    if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
                 }
             }
             return true;
         }
-        else if (javaClass.isAssignableFrom(rtt.getJavaClass())) {
-            return instantiateCheck(params, rtt, paramsType);
+        else if (javaClass.isAssignableFrom(subType.getJavaClass())) {
+            return instantiateCheck(thisParams, subType, subParams);
         }
         else {
             return false;
@@ -476,7 +476,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (numParams > 0) {
             if (o instanceof Any || Types.supportTypeParameterOfJavaType) {
                 str += "[";
-                for (int i = 0; i < numParams; i ++) {
+                for (int i = 0; i < numParams; i++) {
                     if (i != 0) str += ",";
                     str += Types.getParam(o, i).typeName();
                 }
@@ -491,27 +491,27 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
     
     // for shortcut
-    public boolean isInstance(Object o, Type<?> param0) {
+    public boolean isInstance(Object o, Type<?> thisParam0) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == javaClass || checkAnonymous(target)) {
             Variance variance;
-            Type<?> paramOfSubType;
-            Type<?> paramOfSuperType;
+            Type<?> subParam;
+            Type<?> thisParam;
             variance = getVariance(0);
-            paramOfSubType = Types.getParam(o, 0);
-            paramOfSuperType = param0;
-            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+            subParam = Types.getParam(o, 0);
+            thisParam = thisParam0;
+            if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
             return true;
         }
         else if (javaClass.isInstance(o)) {
-            return checkParents(o, param0);
+            return checkParents(o, thisParam0);
         }
         // not needed for Java primitives. not sure for String
         /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
-            return checkParents(o, param0);
+            return checkParents(o, thisParam0);
         }
         */
         else {
@@ -520,31 +520,31 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     // for shortcut
-    public final boolean isInstance(Object o, Type<?> param0, Type<?> param1) {
+    public final boolean isInstance(Object o, Type<?> thisParam0, Type<?> thisParam1) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == javaClass || checkAnonymous(target)) {
             Variance variance;
-            Type<?> paramOfSubType;
-            Type<?> paramOfSuperType;
+            Type<?> subParam;
+            Type<?> thisParam;
             variance = getVariance(0);
-            paramOfSubType = Types.getParam(o, 0);
-            paramOfSuperType = param0;
-            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+            subParam = Types.getParam(o, 0);
+            thisParam = thisParam0;
+            if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
             variance = getVariance(1);
-            paramOfSubType = Types.getParam(o, 1);
-            paramOfSuperType = param1;
-            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+            subParam = Types.getParam(o, 1);
+            thisParam = thisParam1;
+            if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
             return true;
         }
         else if (javaClass.isInstance(o)) {
-            return checkParents(o, param0, param1);
+            return checkParents(o, thisParam0, thisParam1);
         }
         // not needed for Java primitives. not sure for String
         /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
-            return checkParents(o, param0, param1);
+            return checkParents(o, thisParam0, thisParam1);
         }
         */
         else {
@@ -554,35 +554,35 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     // for shortcut
-    public final boolean isInstance(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
+    public final boolean isInstance(Object o, Type<?> thisParam0, Type<?> thisParam1, Type<?> thisParam2) {
         if (o == null) {return false;}
         Class<?> target = o.getClass();
         if (target == javaClass || checkAnonymous(target)) {
             Variance variance;
-            Type<?> paramOfSubType;
-            Type<?> paramOfSuperType;
+            Type<?> subParam;
+            Type<?> thisParam;
             variance = getVariance(0);
-            paramOfSubType = Types.getParam(o, 0);
-            paramOfSuperType = param0;
-            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+            subParam = Types.getParam(o, 0);
+            thisParam = thisParam0;
+            if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
             variance = getVariance(1);
-            paramOfSubType = Types.getParam(o, 1);
-            paramOfSuperType = param1;
-            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+            subParam = Types.getParam(o, 1);
+            thisParam = thisParam1;
+            if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
             variance = getVariance(2);
-            paramOfSubType = Types.getParam(o, 2);
-            paramOfSuperType = param2;
-            if (!subtypeTestForParam(variance, paramOfSuperType, paramOfSubType)) {return false;}
+            subParam = Types.getParam(o, 2);
+            thisParam = thisParam2;
+            if (!subtypeTestForParam(variance, thisParam, subParam)) {return false;}
             return true;
         }
         else if (javaClass.isInstance(o)) {
-            return checkParents(o, param0, param1, param2);
+            return checkParents(o, thisParam0, thisParam1, thisParam2);
         }
         // not needed for Java primitives. not sure for String
         /*
         else if (o instanceof String || o instanceof Number) {
             // @NativeRep'ed type
-            return checkParents(o, param0, param1, param2);
+            return checkParents(o, thisParam0, thisParam1, thisParam2);
         }
         */
         else {
