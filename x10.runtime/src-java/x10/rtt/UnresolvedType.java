@@ -117,9 +117,6 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
         throw new UnsupportedOperationException();
     }
 
-//    public final Object setArray(Object array, int i, Object v) {
-//        throw new UnsupportedOperationException();
-//    }
     public final void setArray(Object array, int i, Object v) {
         throw new UnsupportedOperationException();
     }

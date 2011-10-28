@@ -83,12 +83,6 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
         return x10.core.UShort.$box(((short[]) array)[i]);
     }
     
-//    @Override
-//    public x10.core.UShort setArray(Object array, int i, x10.core.UShort v) {
-//        // avoid boxing again
-//        ((int[]) array)[i] = x10.core.UShort.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.UShort v) {
         ((short[]) array)[i] = x10.core.UShort.$unbox(v);

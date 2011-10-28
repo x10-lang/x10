@@ -83,12 +83,6 @@ public class UByteType extends RuntimeType<x10.core.UByte> {
         return x10.core.UByte.$box(((byte[]) array)[i]);
     }
     
-//    @Override
-//    public x10.core.UByte setArray(Object array, int i, x10.core.UByte v) {
-//        // avoid boxing again
-//        ((int[]) array)[i] = x10.core.UByte.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.UByte v) {
         ((byte[]) array)[i] = x10.core.UByte.$unbox(v);

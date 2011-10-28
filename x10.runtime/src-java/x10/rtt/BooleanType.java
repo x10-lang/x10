@@ -82,11 +82,6 @@ public class BooleanType extends RuntimeType<x10.core.Boolean>{
         return x10.core.Boolean.$box(((boolean[]) array)[i]);
     }
     
-//    @Override
-//    public x10.core.Boolean setArray(Object array, int i, x10.core.Boolean v) {
-//        ((boolean[]) array)[i] = x10.core.Boolean.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.Boolean v) {
         ((boolean[]) array)[i] = x10.core.Boolean.$unbox(v);

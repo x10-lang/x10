@@ -85,12 +85,6 @@ public class ULongType extends RuntimeType<x10.core.ULong> {
         return x10.core.ULong.$box(((long[]) array)[i]);
     }
     
-//    @Override
-//    public x10.core.ULong setArray(Object array, int i, x10.core.ULong v) {
-//        // avoid boxing again
-//        ((int[]) array)[i] = x10.core.ULong.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.ULong v) {
         ((long[]) array)[i] = x10.core.ULong.$unbox(v);

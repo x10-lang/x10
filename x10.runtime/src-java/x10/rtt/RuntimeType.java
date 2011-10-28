@@ -442,10 +442,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return ((T[])array)[i];
     }
 
-//    public T setArray(Object array, int i, T v) {
-//        ((T[])array)[i] = v;
-//        return v;
-//    }
     public void setArray(Object array, int i, T v) {
         ((T[])array)[i] = v;
     }

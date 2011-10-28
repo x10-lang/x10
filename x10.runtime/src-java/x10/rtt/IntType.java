@@ -85,11 +85,6 @@ public class IntType extends RuntimeType<x10.core.Int> {
         return x10.core.Int.$box(((int[]) array)[i]);
     }
     
-//    @Override
-//    public x10.core.Int setArray(Object array, int i, x10.core.Int v) {
-//        ((int[]) array)[i] = x10.core.Int.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.Int v) {
         ((int[]) array)[i] = x10.core.Int.$unbox(v);

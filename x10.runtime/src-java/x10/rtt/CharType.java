@@ -83,11 +83,6 @@ public class CharType extends RuntimeType<x10.core.Char> {
         return x10.core.Char.$box(((char[]) array)[i]);
     }
     
-//    @Override
-//    public Character setArray(Object array, int i, x10.core.Char v) {
-//        ((char[]) array)[i] = x10.core.Char.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.Char v) {
         ((char[]) array)[i] = x10.core.Char.$unbox(v);
