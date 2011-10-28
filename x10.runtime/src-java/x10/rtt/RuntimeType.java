@@ -210,10 +210,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
         return impl.isInstance(o);
     }
-    @Deprecated
-    public final boolean instanceOf(Object o) {
-        return isInstance(o);
-    }
 
     private static final boolean subtypeTestForParam(Variance variance, Type<?> paramOfSuperType, Type<?> paramOfSubType) {
         switch (variance) {
@@ -256,10 +252,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         else {
             return false;
         }
-    }
-    @Deprecated
-    public final boolean instanceOf(Object o, Type<?>... params) {
-        return isInstance(o, params);
     }
 
     private boolean checkAnonymous(Class<?> target) {
@@ -526,11 +518,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             return false;
         }
     }
-    @Deprecated
-    public final boolean instanceOf(Object o, Type<?> param0) {
-        return isInstance(o, param0);
-    }
-
 
     // for shortcut
     public final boolean isInstance(Object o, Type<?> param0, Type<?> param1) {
@@ -565,11 +552,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
         
     }
-    @Deprecated
-    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1) {
-        return isInstance(o, param0, param1);
-    }
-
 
     // for shortcut
     public final boolean isInstance(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
@@ -606,10 +588,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         else {
             return false;
         }
-    }
-    @Deprecated
-    public final boolean instanceOf(Object o, Type<?> param0, Type<?> param1, Type<?> param2) {
-        return isInstance(o, param0, param1, param2);
     }
 
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {

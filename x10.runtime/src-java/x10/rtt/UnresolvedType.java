@@ -88,10 +88,6 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
     public final boolean isInstance(Object o) {
         throw new UnsupportedOperationException();
     }
-    @Deprecated
-    public final boolean instanceOf(Object o) {
-        return isInstance(o);
-    }
 
     public final boolean isAssignableTo(Type superType) {
         throw new UnsupportedOperationException();

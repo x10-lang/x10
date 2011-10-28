@@ -14,8 +14,6 @@ package x10.rtt;
 
 public interface Type<T> extends java.io.Serializable, x10.x10rt.X10JavaSerializable {
     boolean isInstance(Object o);
-    @Deprecated
-    boolean instanceOf(Object o);
     
     boolean equals(Object o);
     boolean isAssignableTo(Type<?> superType);

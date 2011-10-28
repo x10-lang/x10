@@ -71,10 +71,6 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable{
     public final boolean isInstance(Object o) {
         return rawType.isInstance(o, actualTypeArguments);
     }
-    @Deprecated
-    public final boolean instanceOf(Object o) {
-        return isInstance(o);
-    }
     
     @Override
     public final boolean equals(Object o) {
