@@ -302,30 +302,42 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
     public native def toString(radix:Int): String;
 
     /**
-     * Returns a String representation of this Long as a hexadecimal number.
-     * @return a String representation of this Long as a hexadecimal number.
+     * Returns a String representation of this Long in base 16.
+     * This method is simply a synonym for toString(16).
+     * In particular toHexString(-20) will print -14; to print
+     * the 64 bit two's complement hexadecimal representation of a 
+     * Long l use (l as ULong).toHexString().  
+     *
+     * @return a String representation of this Long in base 16.
      */
-    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
     @Native("java", "java.lang.Long.toString(#this, 16)")
-    @Native("c++", "x10aux::long_utils::toHexString(#0)")
+    @Native("c++", "x10aux::long_utils::toString(#0, 16)")
     public native def toHexString(): String;
 
     /**
-     * Returns a String representation of this Long as an octal number.
-     * @return a String representation of this Long as an octal number.
+     * Returns a String representation of this Long in base 8.
+     * This method is simply a synonym for toString(8).
+     * In particular toHexString(-20) will print -24; to print
+     * the 64 bit two's complement octal representation of a Long l
+     * use (l as ULong).toOctalString().  
+     *
+     * @return a String representation of this Long in base 8.
      */
-    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
     @Native("java", "java.lang.Long.toString(#this, 8)")
-    @Native("c++", "x10aux::long_utils::toOctalString(#0)")
+    @Native("c++", "x10aux::long_utils::toString(#0, 8)")
     public native def toOctalString(): String;
 
     /**
-     * Returns a String representation of this Long as a binary number.
-     * @return a String representation of this Long as a binary number.
+     * Returns a String representation of this Long in base 2.
+     * This method is simply a synonym for toString(2).
+     * In particular toBinaryString(-20) will print -10100; to print
+     * the 64 bit two's complement binary representation of a Long l
+     * use (l as ULong).toBinaryString().  
+     *
+     * @return a String representation of this Long in base 2.
      */
-    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
     @Native("java", "java.lang.Long.toString(#this, 2)")
-    @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
+    @Native("c++", "x10aux::long_utils::toString(#0, 2)")
     public native def toBinaryString(): String;
 
     /**
@@ -337,7 +349,7 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
     public native def toString(): String;
 
     /**
-     * @deprecated use {@link #parse(String,Int)} instead
+     * @deprecated use {@link #parse(String,Long)} instead
      */
     // @Native("java", "x10.core.Signed.parseLong(#s, #radix)")
     @Native("java", "java.lang.Long.parseLong(#s, #radix)")

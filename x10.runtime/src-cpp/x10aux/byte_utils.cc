@@ -21,24 +21,21 @@ using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
+static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+                           'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+                           'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+                           'x', 'y', 'z' };
+
 const ref<String> x10aux::byte_utils::toString(x10_byte value, x10_int radix) {
     if (0 == value) return String::Lit("0");
-    assert(radix>=2);
-    assert(radix<=16);
-    static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7',  
-                               '8', '9', 'a', 'b', 'c', 'd', 'e', 'f' };
-    // worst case is binary -128: needs -, 8 digits, and a '\0'
+    if (radix < 2 || radix > 36) radix = 10;
+    // worst case is binary of Byte.MIN_VALUE -- - plus 8 digits and a '\0'
     char buf[10] = ""; //zeroes entire buffer (S6.7.8.21)
-    x10_int value2;
-    if (value < 0) {
-        value2 = 0x80 - (value & 0x7F);
-    } else {
-        value2 = value;
-    }
+    x10_byte value2 = value;
     char *b;
     // start on the '\0', will predecrement so will not clobber it
     for (b=&buf[9] ; value2>0 ; value2/=radix) {
-        *(--b) = numerals[value2 % radix];
+        *(--b) = numerals[::abs((int)(value2 % radix))];
     }
     if (value < 0) {
         *(--b) = '-';
@@ -46,19 +43,25 @@ const ref<String> x10aux::byte_utils::toString(x10_byte value, x10_int radix) {
     return String::Steal(alloc_printf("%s",b));
 }
 
-const ref<String> x10aux::byte_utils::toHexString(x10_byte value) {
-    return x10aux::byte_utils::toString(value, 16);
-}
-
-const ref<String> x10aux::byte_utils::toOctalString(x10_byte value) {
-    return x10aux::byte_utils::toString(value, 8);
-}
-
-const ref<String> x10aux::byte_utils::toBinaryString(x10_byte value) {
-    return x10aux::byte_utils::toString(value, 2);
-}
-
 const ref<String> x10aux::byte_utils::toString(x10_byte value) {
+    return to_string(value);
+}
+
+const ref<String> x10aux::byte_utils::toString(x10_ubyte value, x10_int radix) {
+    if (0 == value) return String::Lit("0");
+    if (radix < 2 || radix > 36) radix = 10;
+    // worst case is binary: 8 digits and a '\0'
+    char buf[9] = ""; //zeroes entire buffer (S6.7.8.21)
+    x10_ubyte value2 = value;
+    char *b;
+    // start on the '\0', will predecrement so will not clobber it
+    for (b=&buf[8] ; value2>0 ; value2/=radix) {
+        *(--b) = numerals[value2 % radix];
+    }
+    return String::Steal(alloc_printf("%s",b));
+}
+
+const ref<String> x10aux::byte_utils::toString(x10_ubyte value) {
     return to_string(value);
 }
 
