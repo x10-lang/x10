@@ -29,13 +29,12 @@ while [ -n "$1" ]; do
         -libpath) shift; extra_lib="$1";;
         -config) shift; config="$1.cfg";;
         -dev) dev="true";;
-	-pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1l ;;
-	-pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args=(dummy argument) ;;
-	-pkg-conf) echo "Please use the -help option to get a list of valid options"; exit 1 ;;
+        -pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1l ;;
+        -pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args=(dummy argument) ;;
+        -pkg-conf) echo "Please use the -help option to get a list of valid options"; exit 1 ;;
         -J*) java_args=("${java_args[@]}" "${1##-J}");;
         -*=*) java_args=("${java_args[@]}" "-Dx10.${1##-}");;
         -*) java_args=("${java_args[@]}" "-Dx10.${1##-}=true");;
-#        *.x10) args=("${args[@]}" "${1%%.x10}\$${MAIN_CLASS}"); shift; args=("${args[@]}" "$@"); break;;
         *.jar) args=("${args[@]}" -jar "$1"); shift; args=("${args[@]}" "$@"); break;;
         *) if [ -z "$main" ]; then
                main="$1"
@@ -136,23 +135,39 @@ fi
 
 java_args=("${java_args[@]}" ${defs})
 
+java_version=
 # skip loading test in case of executable jar
 if [ -n "$main" ]; then
-command=("$JAVA" "${java_args[@]}" -ea x10.runtime.impl.java.TestClassLoading "$main\$$MAIN_CLASS")
-[ -n "$verbose" ] && echo "${command[*]}"
-(
+command=("$JAVA" -showversion "${java_args[@]}" -ea x10.runtime.impl.java.TestClassLoading "$main\$$MAIN_CLASS")
+#[ -n "$verbose" ] && echo "${command[*]}"
+java_version=`(
 unset X10_NPLACES
-"${command[@]}"
+"${command[@]}" 2>&1
 if [ "$?" -ne "0" ]; then
   echo >&2 "Error: Cannot load main class for" "$main" "with classpath" "$classpath"
   exit 1
 fi
-)
+)`
 fi
 
-# HACK: enforce normal compilation in preloading phase
-IBMJ9VM=`"$JAVA" -version 2>&1 | grep 'IBM J9 VM'`
-if [ -n "$IBMJ9VM" ]; then java_args=("-Xjit:classLoadPhaseThreshold=10000" "${java_args[@]}"); fi
+[ -n "${java_version}" ] || java_version=`"$JAVA" -version 2>&1`
+ibmj9vm=
+case ${java_version} in
+    *IBM\ J9\ VM*) ibmj9vm=true ;;
+esac
+ibm64bit=
+case ${java_version} in
+    *amd64-64*) ibm64bit=true ;;
+    *ppc64-64*) ibm64bit=true ;;
+esac
+if [ -n "${ibmj9vm}" ]; then
+    # use normal optlevel in preloading phase
+    java_args=("-Xjit:classLoadPhaseThreshold=10000" "${java_args[@]}")
+    java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
+#    if [ -n "${ibm64bit}" ]; then
+#        java_args=("-Xcompressedrefs" "${java_args[@]}")
+#    fi
+fi
 
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
