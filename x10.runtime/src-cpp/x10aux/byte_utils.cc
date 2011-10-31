@@ -34,7 +34,7 @@ const ref<String> x10aux::byte_utils::toString(x10_byte value, x10_int radix) {
     x10_byte value2 = value;
     char *b;
     // start on the '\0', will predecrement so will not clobber it
-    for (b=&buf[9] ; value2>0 ; value2/=radix) {
+    for (b=&buf[9] ; value2 != 0 ; value2/=radix) {
         *(--b) = numerals[::abs((int)(value2 % radix))];
     }
     if (value < 0) {

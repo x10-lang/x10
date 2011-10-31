@@ -33,7 +33,7 @@ const ref<String> x10aux::short_utils::toString(x10_short value, x10_int radix) 
     x10_short value2 = value;
     char *b;
     // start on the '\0', will predecrement so will not clobber it
-    for (b=&buf[17] ; value2>0 ; value2/=radix) {
+    for (b=&buf[17] ; value2 != 0 ; value2/=radix) {
         *(--b) = numerals[::abs((int)(value2 % radix))];
     }
     if (value < 0) {
