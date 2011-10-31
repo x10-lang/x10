@@ -138,7 +138,7 @@ java_args=("${java_args[@]}" ${defs})
 java_version=
 # skip loading test in case of executable jar
 if [ -n "$main" ]; then
-command=("$JAVA" -showversion "${java_args[@]}" -ea x10.runtime.impl.java.TestClassLoading "$main\$$MAIN_CLASS")
+command=("$JAVA" -showversion "${java_args[@]}" x10.runtime.impl.java.TestClassLoading "$main\$${MAIN_CLASS}")
 #[ -n "$verbose" ] && echo "${command[*]}"
 java_version=`(
 unset X10_NPLACES
@@ -152,11 +152,9 @@ fi
 
 [ -n "${java_version}" ] || java_version=`"$JAVA" -version 2>&1`
 ibmj9vm=
-case ${java_version} in
-    *IBM\ J9\ VM*) ibmj9vm=true ;;
-esac
+[[ "${java_version}" =~ ".*IBM J9 VM.*" ]] && ibmj9vm=true
 ibm64bit=
-case ${java_version} in
+case "${java_version}" in
     *amd64-64*) ibm64bit=true ;;
     *ppc64-64*) ibm64bit=true ;;
 esac
