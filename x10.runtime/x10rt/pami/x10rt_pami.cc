@@ -899,10 +899,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 				#ifdef __GNUC__
 				__extension__
 				#endif
-				state.hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(state.hfi_extension, "hfi_remote_update"); // if fail, hfi_update is set to NULL
-				#ifdef DEBUG
-					fprintf(stderr, "HFI present and enabled at place %u\n", state.myPlaceId);
-				#endif
+				state.hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(state.hfi_extension, "hfi_remote_update"); // This may succeed even if HFI is not available
 			}
 			else
 			{
@@ -1414,6 +1411,16 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 			status = state.hfi_update (state.context[0], 1, &remote_info);
 			PAMI_Context_unlock(state.context[0]);
 		}
+		if (status != PAMI_SUCCESS)
+		{
+			state.hfi_update = NULL;
+			#ifdef DEBUG
+				fprintf(stderr, "Place %u discovered HFI is not available.  Disabling.\n", state.myPlaceId);
+			#endif
+			// redo the call, but this time hfi_update will be null, and we'll use the else path below
+			x10rt_net_remote_op(place, victim, type, value);
+			return;
+		}
 	}
 	else
 	{
@@ -1449,7 +1456,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 	{
 		// use HFI remote operations
 		#ifdef DEBUG
-			fprintf(stderr, "Place %u executing a remote %u operations using HFI\n", numOps, state.myPlaceId);
+			fprintf(stderr, "Place %u executing a remote %u operations using HFI\n", state.myPlaceId, numOps);
 		#endif
 		if (state.numParallelContexts)
 			status = state.hfi_update (getConcurrentContext(), numOps, (hfi_remote_update_info_t*)ops);
@@ -1458,6 +1465,16 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 			PAMI_Context_lock(state.context[0]);
 			status = state.hfi_update(state.context[0], numOps, (hfi_remote_update_info_t*)ops);
 			PAMI_Context_unlock(state.context[0]);
+		}
+		if (status != PAMI_SUCCESS)
+		{
+			state.hfi_update = NULL;
+			#ifdef DEBUG
+				fprintf(stderr, "Place %u discovered HFI is not available... disabling.\n", state.myPlaceId);
+			#endif
+			// redo the call, but this time hfi_update will be null, and we'll use the else path below
+			x10rt_net_remote_ops(ops, numOps);
+			return;
 		}
 	}
 	else
