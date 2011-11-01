@@ -1,14 +1,8 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 Applications project.
  *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2011.
  */
-
 package linreg;
 
 import x10.io.Console;
@@ -28,10 +22,13 @@ import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DupDenseMatrix;
 
+//
 
 /**
- * Parallel linear regression based on GML distributed 
- * dense/sparse matrix
+   Parallel implementation of linear regression
+   <p>
+
+   <p>
  */
 public class LinearRegression{
 
@@ -51,7 +48,6 @@ public class LinearRegression{
 
 	val r:DenseMatrix(V.N, 1);
 	val d_q:DupDenseMatrix(V.N, 1);
-	val d_q2:DupDenseMatrix(V.N, 1);
 	val q:DenseMatrix(V.N, 1);
 	
 	//----Profiling-----
@@ -84,7 +80,6 @@ public class LinearRegression{
 		d_q= DupDenseMatrix.make(V.N, 1);
 		q  = d_q.local();
 
-		d_q2 = DupDenseMatrix.make(V.N, 1);
 		w  = DenseMatrix.make(V.N, 1);
 		w.init(0.0);
 		Debug.flushln("Init done");
@@ -114,9 +109,9 @@ public class LinearRegression{
 			//-------------------
 			ct = Timer.milliTime();
 			// 10: q=((t(V) %*% (V %*% p)) + lambda*p)
-			d_q.transMult(V, Vp.mult(V, d_p), d_q2, false);
+			d_q.transMult(V, Vp.mult(V, d_p), false);
 			//Vp.mult(V, d_p);                    Vp.printBlock("V * p= \n");
-			//d_q.transMult(V, Vp, d_q2, false); 	q.print("Parallel V^t * V * p:\n");
+			//d_q.transMult(V, Vp, false); 	q.print("Parallel V^t * V * p:\n");
 			parCompT += Timer.milliTime() - ct;
 			
 			//---------------------

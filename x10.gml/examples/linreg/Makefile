@@ -34,7 +34,7 @@ depend_src  = SeqLinearRegression.x10 LinearRegression.x10
 build_path	= build
 
 # GML path
-gml_path    = ../../../matrix
+gml_path    = ../..
 
 # compile options
 X10_FLAG	= -sourcepath ../.  -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS -O -NO_CHECKS

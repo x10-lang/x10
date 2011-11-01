@@ -34,7 +34,7 @@ depend_src  = SeqGNNMF.x10 GNNMF.x10
 build_path	= build
 
 # GML path
-gml_path    = ../../../matrix
+gml_path    = ../..
 
 
 # compile options
