@@ -57,7 +57,7 @@ MPI_GML_LIB	= -classpath $(gml_lib)/native_mpi_gml.jar -x10lib $(gml_path)/nativ
 ###################################################
 # X10 file build rules
 ################################################### 
-$(target)_mpi	: $(x10src) $(depend_src) $(gml_inc)
+$(target)_mpi	: $(x10src) $(depend_src) $(gml_inc) check_gml_mpi
 		$(XC)  -x10rt mpi $(MPI_GML_LIB) $(X10_FLAG) $(MPI_FLAG) $< -o $@ \
 		-post '$(MCC) # $(POST_PATH) # $(POST_LIBS)'
 

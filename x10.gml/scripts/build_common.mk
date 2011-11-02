@@ -49,10 +49,6 @@ gml_scripts	= $(gml_path)/scripts
 ###################################################
 include $(gml_scripts)/system_setting.mk
 
-#include $(gml_scripts)/build_managed.mk
-#include $(gml_scripts)/build_native.mk
-#include $(gml_scripts)/build_native_mpi.mk
-
 #Build defautl target for all runtime backend and runtime transports
 all	:
 	$(foreach rt, $(runtime_list), $(MAKE) all_$(rt); )
@@ -70,12 +66,20 @@ clean_all ::
 lib	:
 	cd $(gml_path) && make all -f Makefile all
 
-check_gml		: 
-	@(if test -d $(gml_inc); then echo "Find GML include path"; \
-	else echo "Cannot find $(gml_inc). Apps compiling may fail. If so, rebuilt your GML library"; fi)
+check_gml_inc 	: $(gml_path)/include $(gml_path)/lib
+# If fails, rebuild x10.gml library
+
+check_gml_mpi	: $(gml_path)/native_mpi_gml.properties  $(gml_path)/lib/native_mpi_gml.jar  $(gml_path)/lib/native_mpi_gml.so
+# If fails, rebuild x10.gml native MPI flaor by running make native_mpi at $(gml_path)
+
+check_gml_c	: check_gml_inc $(gml_path)/native_gml.properties $(gml_path)/lib/native_gml.jar $(gml_path)/lib/native_gml.so
+# If fails, rebuild x10.gml native backend, by running make native at $(gml_path)
+
+check_gml_java	: check_gml_inc $(gml_path)/managed_gml.properties $(gml_path)/lib/managed_gml.jar
+# If fails, rebuild x10.gml managed backend by running make managed at $(gml_path)
 
 ####----------------------------------------------
-.PHONY		: lib all runall sock mpi java clean cleanall all_mpi all_sock all_lapi all_java chk_gml_inc help
+.PHONY		: lib all runall sock mpi java clean cleanall all_mpi all_sock all_lapi all_java chk_gml_inc help check_gml_inc check_gml_mpi check_gml_c check_gml_java help
 ####----------------------------------------------
 
 help ::

@@ -42,7 +42,7 @@ GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml.properties  -cp $(gml_lib)/managed
 # X10 file built rules
 ################################################### 
 
-$(build_path)/$(target).class	: $(x10src) $(depend_src)
+$(build_path)/$(target).class	: $(x10src) $(depend_src) check_gml_java
 			$(XJ) $(X10_FLAG) $(GML_LIB_JAVA) $< 
 
 ###----------------
