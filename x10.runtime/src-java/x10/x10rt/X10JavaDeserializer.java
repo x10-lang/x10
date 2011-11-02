@@ -304,18 +304,6 @@ public class X10JavaDeserializer {
             Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
             String className = clazz.getName();
 
-            Object o = null;
-
-            // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
-            if (!"java.lang.Class".equals(className)) {
-                try {
-					o = unsafe.allocateInstance(clazz);
-				} catch (InstantiationException e) {
-					throw new RuntimeException(e);
-				}
-            }
-            int i = record_reference(o);
-
             if (className.startsWith("x10.rtt.") &&
             		("x10.rtt.FloatType".equals(className) 
             				|| "x10.rtt.IntType".equals(className)
@@ -339,7 +327,7 @@ public class X10JavaDeserializer {
             
 			try {
 				DeserializerThunk thunk = getDeserializerThunk(clazz);
-				return thunk.deserializeObject(clazz, o, i, this);
+				return thunk.deserializeObject(clazz, this);
 			} catch (SecurityException e) {
 				throw new RuntimeException(e);
 			} catch (NoSuchFieldException e) {
@@ -361,7 +349,7 @@ public class X10JavaDeserializer {
     public <T> Object deserializeClassUsingReflection(Class<? extends Object> clazz, T obj, int i) throws IOException {
 		try {
 			DeserializerThunk thunk = getDeserializerThunk(clazz);
-			return thunk.deserializeObject(clazz, obj, i, this);
+			return thunk.deserializeObject(clazz, this);
 		} catch (SecurityException e) {
 			throw new RuntimeException(e);
 		} catch (NoSuchFieldException e) {
@@ -550,6 +538,22 @@ public class X10JavaDeserializer {
     		superclassThunk = st;
 		}
     	
+    	@SuppressWarnings("unchecked")
+		<T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            T obj = null;
+
+            // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
+            if (!"java.lang.Class".equals(clazz.getName())) {
+                try {
+					obj = (T)unsafe.allocateInstance(clazz);
+				} catch (InstantiationException e) {
+					throw new RuntimeException(e);
+				}
+            }
+            int i = jds.record_reference(obj);
+            return deserializeObject(clazz, obj, i, jds);
+    	}
+    	
     	<T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
     		if (superclassThunk != null) {
     			obj = superclassThunk.deserializeObject(clazz, obj, i, jds);
@@ -613,17 +617,24 @@ public class X10JavaDeserializer {
     		readMethod.setAccessible(true);
     	}
 
-		@SuppressWarnings("unchecked")
-		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-        	if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Calling hadoop deserializer with object of type " + obj.getClass());
+       	@SuppressWarnings("unchecked")
+       	@Override
+		<T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+           	if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Calling hadoop deserializer with object of type " + clazz);
             }
         	
-        	// TODO: Question for Avi:  Why do we need to call newInstance here?
-        	//    We already used Unsafe to get us a new object....do we have to call constructor too due to 
-        	//    some expectation of Hadoop that the default constructor is called?
-            obj = (T)constructor.newInstance();
-            jds.update_reference(i, obj);
+       		// Hadoop assumes that the default constructor will be used to create the instance.
+       		// The default constructor will execute field initialization expressions.  
+       		// So we have to mimic that behavior here.
+            T obj = (T)constructor.newInstance();
+            int i = jds.record_reference(obj);
+
+            return deserializeObject(clazz, obj, i, jds);
+    	}
+    	
+		@Override
+		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
     		readMethod.invoke(obj, jds.in);
     		return obj;
 		}
