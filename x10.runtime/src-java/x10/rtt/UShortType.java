@@ -76,17 +76,6 @@ public final class UShortType extends RuntimeType<x10.core.UShort> {
         return Array.newInstance(short.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public short[] makeArray(Object... elem) {
-//        short[] arr = new short[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.UShort.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.UShort getArray(Object array, int i) {
         return x10.core.UShort.$box(((short[]) array)[i]);

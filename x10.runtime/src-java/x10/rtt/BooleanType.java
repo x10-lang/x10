@@ -74,17 +74,6 @@ public final class BooleanType extends RuntimeType<x10.core.Boolean> {
         return Array.newInstance(boolean.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public boolean[] makeArray(Object... elem) {
-//        boolean[] arr = new boolean[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.Boolean.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.Boolean getArray(Object array, int i) {
         return x10.core.Boolean.$box(((boolean[]) array)[i]);

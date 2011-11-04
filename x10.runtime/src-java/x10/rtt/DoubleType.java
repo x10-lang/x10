@@ -76,17 +76,6 @@ public final class DoubleType extends RuntimeType<x10.core.Double> {
         return Array.newInstance(double.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public double[] makeArray(Object... elem) {
-//        double[] arr = new double[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.Double.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.Double getArray(Object array, int i) {
         return x10.core.Double.$box(((double[]) array)[i]);

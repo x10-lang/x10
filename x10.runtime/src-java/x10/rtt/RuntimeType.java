@@ -430,12 +430,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return Array.newInstance(javaClass, dims);
     }
     
-    // not used
-//    @Deprecated
-//    public Object makeArray(Object... elems) {
-//        return elems;
-//    }
-    
     public T getArray(Object array, int i) {
         return ((T[])array)[i];
     }
@@ -596,12 +590,12 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
     }
 
-	public void $_serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
         String name = javaClass.getName();
         serializer.writeClassID(name);
-	}
+    }
 
-	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         RuntimeType rt = new RuntimeType();
         int i = deserializer.record_reference(rt);
         X10JavaSerializable x10JavaSerializable = $_deserialize_body(rt, deserializer);
@@ -609,11 +603,11 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             deserializer.update_reference(i, x10JavaSerializable);
         }
         return x10JavaSerializable;
-	}
+    }
 
-	public short $_get_serialization_id() {
-		return _serialization_id;
-	}
+    public short $_get_serialization_id() {
+        return _serialization_id;
+    }
 
     public static X10JavaSerializable $_deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
         short classId = deserializer.readShort();

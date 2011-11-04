@@ -23,9 +23,6 @@ public interface Type<T> extends java.io.Serializable, x10.x10rt.X10JavaSerializ
     Object makeArray(int dim0, int dim1, int dim2);
     Object makeArray(int dim0, int dim1, int dim2, int dim3);
     Object makeArray(int... dims);
-    // not used
-//    @Deprecated
-//    Object makeArray(Object... elems);
     void setArray(Object array, int i, T v);
     T getArray(Object array, int i);
     int arrayLength(Object array);

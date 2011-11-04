@@ -76,17 +76,6 @@ public final class FloatType extends RuntimeType<x10.core.Float> {
         return Array.newInstance(float.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public float[] makeArray(Object... elem) {
-//        float[] arr = new float[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.Float.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.Float getArray(Object array, int i) {
         return x10.core.Float.$box(((float[]) array)[i]);

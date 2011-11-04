@@ -76,17 +76,6 @@ public final class UByteType extends RuntimeType<x10.core.UByte> {
         return Array.newInstance(byte.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public byte[] makeArray(Object... elem) {
-//        byte[] arr = new byte[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.UByte.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.UByte getArray(Object array, int i) {
         return x10.core.UByte.$box(((byte[]) array)[i]);

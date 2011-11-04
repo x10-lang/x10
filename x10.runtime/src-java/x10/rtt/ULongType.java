@@ -77,17 +77,6 @@ public final class ULongType extends RuntimeType<x10.core.ULong> {
         return Array.newInstance(long.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public long[] makeArray(Object... elem) {
-//        long[] arr = new long[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.ULong.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.ULong getArray(Object array, int i) {
         return x10.core.ULong.$box(((long[]) array)[i]);

@@ -75,17 +75,6 @@ public final class CharType extends RuntimeType<x10.core.Char> {
         return Array.newInstance(char.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public char[] makeArray(Object... elem) {
-//        char[] arr = new char[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.Char.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.Char getArray(Object array, int i) {
         return x10.core.Char.$box(((char[]) array)[i]);

@@ -77,17 +77,6 @@ public final class IntType extends RuntimeType<x10.core.Int> {
         return Array.newInstance(int.class, dims);
     }
     
-    // not used
-//    @Deprecated
-//    @Override
-//    public int[] makeArray(Object... elem) {
-//        int[] arr = new int[elem.length];
-//        for (int i = 0; i < elem.length; i++) {
-//            arr[i] = x10.core.Int.$unbox(elem[i]);
-//        }
-//        return arr;
-//    }
-    
     @Override
     public x10.core.Int getArray(Object array, int i) {
         return x10.core.Int.$box(((int[]) array)[i]);
