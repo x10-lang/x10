@@ -90,7 +90,7 @@ sub PrintHelp {
 
   printf "
 --- Benchmark test suite help ---
-$cmd     : Dry run. Print all commands in test bench test suite
+$cmd     : Dry run. Print all commands in benchmark test suite
 $cmd -r  : Launch benchmark test suite
 $cmd -p  : Parsing output logs of all test output, and printing result in stdout
 $cmd -h  : Print help info

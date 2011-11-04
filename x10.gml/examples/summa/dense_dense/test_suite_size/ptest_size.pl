@@ -17,24 +17,26 @@ use diagnostics;
 use Getopt::Std;
 use File::stat;
 use FileHandle;
-
-
-# Following settings are defined in config file
-#---------------------------
-my @MatrixSizeList;
-my $NZDensity;
-#---------------------------
-# List of number of node used in tests
-my @NodeList;
-my $ProcPerNode;
-#--------------------------
-# Batch job submition options. The following is an example used for Triloka cluster.
-my $BatchModeOpt;
-my $gml_path;         # x10.gml root path
-my $jopts;            # Execution parameters for managed backend
-#--------------------------
-my @TestExecList;
+ 
+#====================================================================================================
+# User input options
+#---------- Test parameters ---------------
+#
+my @MatrixRows;   # number of rows in first operand matrix
 my $itnum;
+my $panelsize;
+my $BatchModeOpt; # Job queue name on Triloka.
+
+##-----------
+my $gml_path;
+my $jopts;
+
+#-------------------------------------------------
+#
+my @NodeList;           # Node list, number of nodes for all tests
+my $ProcPerNode;		# Number of processors used for each node
+my @TestExecList;
+my $RunOpts;
 my $LogFile;
 
 #==================================================================
@@ -53,38 +55,25 @@ sub RunTest;
 sub RunTestSuite;
 sub ParseData;
 sub PrintOut;
-
-#==================================================================
-
+#-------------------------------------------------
+#
+# Default value settings. These valus can be replaced by input parameters
+#
 my $RunningFlag = 0;            # Default value only allows printing the test cases, or dry run
                                 # Using "-r" to run the all test cases
 my $ParsingFlag = 0;
-my %opt;						# Input options
-
-autoflush STDOUT 1;
-getopts('rpbh', \%opt);
-
-if (defined $opt{p}) {
-  $ParsingFlag = 1;
-}
-if (defined $opt{r}) {
-  $RunningFlag = 1;
-}
-
-if (defined $opt{b}) {
-  $BatchModeOpt   = "-p Batch";
-}
-
-if (defined $opt{h}) {
-  PrintHelp;
-  exit;
-}
 
 #==================================================================
+#
+my %opt;           # Input options
 
-my @TestLog = ();
-my %Result ;
+autoflush STDOUT 1;
+getopts('rpb:', \%opt);
 
+if (defined $opt{p}) {$ParsingFlag = 1;} # parsing out log
+if (defined $opt{r}) {$RunningFlag = 1;} # start batch executions
+if (defined $opt{b}) {$BatchModeOpt= "-p $opt{b}";}
+if (defined $opt{h}) {PrintHelp; exit;}
 ###########################################################################
 sub PrintHelp {
   my $cmd=$0;
@@ -103,6 +92,10 @@ Alternatively, you can use dry-run to get list benchmark test comands and creat 
 submission scripts.\n";
 
 }
+#==================================================================
+
+my @TestLog = ();
+my %Result ;
 
 ###########################################################################
 
@@ -111,7 +104,7 @@ sub RunTest {
 
   if ($ParsingFlag != 0) {
 	return ParseData($cmd);
-  } elsif ($RunningFlag != 0) {
+  } elsif ($RunningFlag != 0){
 	return RunCmd($cmd);
   }
   print $cmd, "\n";
@@ -121,7 +114,6 @@ sub RunTest {
 ##########################################################################
 
 sub RunCmd {
-
   my $cmd = "$_[0]";
   my $tryleft = 10;
 
@@ -129,23 +121,23 @@ sub RunCmd {
   TESTOUT->autoflush(1);
 
   while ($tryleft > 0 ) {
-	open TESTOUT, "$cmd | " or die "Can't fork command executin process\n";
+     open TESTOUT, "$cmd | " or die "Can't fork command executin process\n";
 
-	print OUTFILE_H "*****************************************************\n";
-	print OUTFILE_H "$cmd\n";
-	
-	while (<TESTOUT>) {
-	  print "$_";
-	  print OUTFILE_H "$_";
-	  $tryleft = 0;
-	} 
-	close TESTOUT or print "Cannot close TEST pipe";
-	if ($tryleft > 0 ) {
-	  print "Test failed, start another one. $tryleft tries left\n";
-	  $tryleft--;
-	  sleep 5;
-	}
-	sleep 3;
+     print OUTFILE_H "*****************************************************\n";
+     print OUTFILE_H "$cmd\n";
+
+     while (<TESTOUT>) {
+	print "$_";
+	print OUTFILE_H "$_";
+        $tryleft = 0;
+     }
+     close TESTOUT or print "Cannot close TEST pipe";
+     if ($tryleft > 0 ) {
+	   print "Test failed, start another one. $tryleft tries left\n";
+	   $tryleft--;
+	   sleep 5;
+     }
+     sleep 3;
   }
 }
 
@@ -153,33 +145,20 @@ sub RunCmd {
 
 sub ParseData {
   my $cmd = "$_[0]";
+  my $p; my $t; my $f; my $tt; my $tf;
 
-  while (<TEST_IN>) {
-	#$_ = $TestLog[$i];
+  while(<TEST_IN>) {
 	if ($_ =~ m/$cmd/) {
-	  #print "Found $cmd";
 	  while (<TEST_IN>) {
-		if ($_ =~ m/Total time:[\s]*([\d]+)ms/) {
-		  my $TotalTime=$1;
-		  #print "Found total time\n";
-		  if ($_ =~ m/Calc:[\s]+([\d]+)ms/ ) {
-			my $CalcTime = $1;
-			if ($_ =~ m/Comm:[\s]+([\d]+)ms/ ) {
-			  my $CommTime = $1;
-			  $_ = <TEST_IN>;
-			  if ($_=~ m/Comp:[\s]+([\d]+)/) {
-				my $wvTime=$1;
-				<TEST_IN>; $_=<TEST_IN>;
-				if ($_ =~ m/Comp:[\s]+([\d]+)/) {
-				  my $vhTime=$1;
-				  return ($TotalTime, $CalcTime, $CommTime, $wvTime, $vhTime);
-				}
-			  }
-			  print "No Comp time found\n";
+		if ($_ =~ m/mult --- Panelsize:[\s]*([\d]+), Time:[\s]+([\d.]+) Sec, Mfps:[\s]*([\d.]+)/ ) {
+		  $p= $1; $t=$2; $f=$3;
+
+		  while (<TEST_IN>) {
+			if ($_ =~ m/multTrans --- Panelsize:[\s]*[\d]+, Time:[\s]*([\d.]+) Sec, Mfps:[\s]*([\d.]+)/ ) {
+			  $tt=$1; $tf=$2;
+			  return ($t, $f, $tt, $tf);
 			}
-			print "No Comm time found\n";
-		  } 
-		  print "No Calc time found\n";
+		  }
 		}
 	  }
 	}
@@ -192,55 +171,54 @@ sub ParseData {
 
 sub PrintOut {
 
-  print "#Results are in sec/iteration [time, Communication]\n";
   #------------------------------------------------------------------------
-  print("# Num of Nodes: $NodeList[0] ($ProcPerNode per node), total proc (places):", $NodeList[0] * $ProcPerNode, "\n");
-  print("# Nonzero |");
+  print("# Scalability tests on number of matrix dimension - rows of first operand matrix\n");
+  print("# Runtime options:$RunOpts\n");
+  print("# Time in second per iteration\n");
+
+  print("#            |");
   foreach my $test (@TestExecList) {
-	printf("|  %20s   |", $test->{name});
+	printf("|  %32s   |", $test->{name});
   }
   print("\n");
-  print("# million |");
+  print("# matrix row |");
   foreach my $test (@TestExecList) {
-      printf("|   Total    |  Commu(s)  |");
+      printf("|mult:Time,  MFPS  |multTran:Time,MFPS|");
   }
   print("\n");
   #-----------------------------------------
-  for my $np (@NodeList) {
-	for my $ms (@MatrixSizeList) {
-	  printf(" %3.3f   |", $ms*100000*$NZDensity/1000000);
-	  for my $texe (@TestExecList) {
-		my $exe = $texe->{name};
-		my $t = 1.0 * $Result{$exe}{$ms}{$np}[0]/$itnum/1000;
-		my $c = 1.0 * $Result{$exe}{$ms}{$np}[1]/$itnum/1000;
-		my $m = 1.0 * $Result{$exe}{$ms}{$np}[2]/$itnum/1000;
-		my $wv= 1.0 * $Result{$exe}{$ms}{$np}[3]/$itnum/1000;
-		my $vh= 1.0 * $Result{$exe}{$ms}{$np}[4]/$itnum/1000;
-		printf("| %10.4f | %10.4f |", $t, $m)
+  for my $np (@NodeList)      {
+	#printf("    %3d  ", $np*$ProcPerNode);
+	for my $ms (@MatrixRows) {
+      printf("     %7i |", $ms);
+	  for my $t (@TestExecList)  {
+		my $exe = $t->{name};
+		my $t = 1.0 * $Result{$exe}{$ms}{$np}[0];
+		my $f = 1.0 * $Result{$exe}{$ms}{$np}[1];
+		my $tt = 1.0 * $Result{$exe}{$ms}{$np}[2];
+		my $tf = 1.0 * $Result{$exe}{$ms}{$np}[3];
+		printf("| %7.3f , %6.1f | %7.3f , %6.1f |", $t, $f, $tt, $tf);
 	  }
 	  printf("\n");
 	}
   }
+  print "\n";
 }
 
 ###########################################################################
 sub RunTestSuite {
-
   foreach my $test (@TestExecList) {
 	my $testexe = $test->{name};
 	my $launch  = $test->{alloc};
 	my $wrap    = $test->{wrapper};
 	my %dms=();
-
-	foreach my $ms (@MatrixSizeList) {
-
+	foreach my $ms (@MatrixRows) {
 	  my %dnp=();
 	  foreach my $nn (@NodeList) {
-		my $np        = $nn * $ProcPerNode;
-		my $exe_param = "$ms $NZDensity $itnum";
-		my @retval    = RunTest("$launch -N$nn -n$np $BatchModeOpt $wrap $testexe $exe_param");
+		my $np = $nn * $ProcPerNode;
+		my @retval = RunTest("$launch -N$nn -n$np $BatchModeOpt $wrap $testexe $ms $RunOpts");
 
-		$dnp{$nn} = [ @retval ];
+		$dnp{$nn} = [ @retval ]; #{ %dps };
 	  }
 	  $dms{$ms} = { %dnp };
 	}
@@ -266,7 +244,7 @@ if ($RunningFlag != 0) {
   #
   PrintOut();
 
-} else {
+} else  {
   print "This is dry run, no actual running\n";
   RunTestSuite;
 }
