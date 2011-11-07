@@ -729,7 +729,7 @@ static void team_create_dispatch (
 {
 	uint32_t newTeamId = *((uint32_t*)header_addr);
 	if (newTeamId <= state.lastTeamIndex)
-		error("Caught an invalid request to put the same place in a team more than once");
+		error("Place %u attempted to join team %u, but it is already a member of that team.  A place can not be in the same team more than once.", state.myPlaceId, newTeamId);
 
 	unsigned previousLastTeam = expandTeams(1);
 	if (previousLastTeam+1 != newTeamId) error("misalignment detected in team_create_dispatch");
