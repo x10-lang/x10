@@ -5,9 +5,13 @@ time=""
 verbose=""
 extra_cp=""
 extra_lib=""
+ms=""
 mx=""
+ss=""
 defs=""
 dev=""
+nocompressedrefs=""
+noassert=""
 java_args=()
 args=()
 
@@ -18,7 +22,15 @@ while [ -n "$1" ]; do
         -h|-help|--help) help="1"; break;;
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
+#        -ms) shift; ms="$1";;
+        -ms*) ms="${1##-ms}";;
+        -Xms*) ms="${1##-Xms}";;
         -mx) shift; mx="$1";;
+        -mx*) mx="${1##-mx}";;
+        -Xmx*) mx="${1##-Xmx}";;
+#        -ss) shift; ss="$1";;
+        -ss*) ss="${1##-ss}";;
+        -Xss*) ss="${1##-Xss}";;
         -D*) if [[ "${1##-D}" = java.library.path=* ]]; then
                  echo >&2 "Error: Cannot reset java.library.path, use -libpath instead"
                  exit 1
@@ -28,10 +40,12 @@ while [ -n "$1" ]; do
         -classpath|-cp) shift; extra_cp="$1";;
         -libpath) shift; extra_lib="$1";;
         -config) shift; config="$1.cfg";;
+        -nocompressedrefs) nocompressedrefs="true";;
+        -noassert) noassert="true";;
         -dev) dev="true";;
-        -pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1l ;;
+        -pkg-conf=) echo "Please use the -help option to get a list of valid options"; exit 1;;
         -pkg-conf=*) PRINT_DIR="${1##-pkg-conf=}" ; args=(dummy argument) ;;
-        -pkg-conf) echo "Please use the -help option to get a list of valid options"; exit 1 ;;
+        -pkg-conf) echo "Please use the -help option to get a list of valid options"; exit 1;;
         -J*) java_args=("${java_args[@]}" "${1##-J}");;
         -*=*) java_args=("${java_args[@]}" "-Dx10.${1##-}");;
         -*) java_args=("${java_args[@]}" "-Dx10.${1##-}=true");;
@@ -51,16 +65,20 @@ where [options] includes:
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
     -h -help --help          print this message
-    -mx <size>               set max heap size, e.g., -mx 200M
+    -ms<size>                set initial heap size to <size>, e.g. -ms256m
+    -mx<size>                set maximum heap size to <size>, e.g. -mx1024m
+    -ss<size>                set maximum Java thread stack size to <size>
     -D<name>=<value>         set system property <name> to <value>
     -classpath <path>        search path for class files
     -libpath <path>          search path for native libraries
     -config <conf>           (IGNORED) read configuration from etc${FILE_SEP}<conf>.cfg
+    -nocompressedrefs        disable compressed references (64-bit JVM only)
+    -noassert                disable assertion check
     -dev                     developer mode (use unpackaged X10 libraries)
-    -pkg-conf=dir            Print absolute directory, where dir is one of
+    -pkg-conf=dir            print absolute directory, where dir is one of
                                [bin, etc, include, lib, stdlib]
-    -J<arg>                  [USE WITH CAUTION] pass <arg> directly to java.
-        e.g., use -J-verbose to make java execution verbose.
+    -J<arg>                  [USE WITH CAUTION] pass <arg> directly to Java.
+        e.g., use -J-verbose to make Java execution verbose.
 EOF
     exit 1
 fi
@@ -126,11 +144,21 @@ fi
 
 # TODO: executable jar
 # Note: use bootstrap class path instead of user class path to make it visible from jar file
-java_args=("-Djava.library.path=$externpath" -ea -classpath "$classpath" "${java_args[@]}")
-#java_args=("-Djava.library.path=$externpath" -ea "-Xbootclasspath/a:$classpath" "${java_args[@]}")
+java_args=("-Djava.library.path=$externpath" -classpath "$classpath" "${java_args[@]}")
+#java_args=("-Djava.library.path=$externpath" "-Xbootclasspath/a:$classpath" "${java_args[@]}")
 
+if [ -z "$noassert" ]; then
+   java_args=("-ea" "${java_args[@]}")
+fi
+
+if [ -n "$ss" ]; then
+   java_args=("-Xss$ss" "${java_args[@]}")
+fi
 if [ -n "$mx" ]; then
    java_args=("-Xmx$mx" "${java_args[@]}")
+fi
+if [ -n "$ms" ]; then
+   java_args=("-Xms$ms" "${java_args[@]}")
 fi
 
 java_args=("${java_args[@]}" ${defs})
@@ -152,7 +180,7 @@ fi
 
 [ -n "${java_version}" ] || java_version=`"$JAVA" -version 2>&1`
 ibmj9vm=
-# following pattern matches with bash 3.2 but doesn't match with bash 4.1
+# following pattern match works with bash 3.2 but doesn't work with bash 4.1
 #[[ "${java_version}" =~ ".*IBM J9 VM.*" ]] && ibmj9vm=true
 case "${java_version}" in
     *IBM\ J9\ VM*) ibmj9vm=true ;;
@@ -166,9 +194,11 @@ if [ -n "${ibmj9vm}" ]; then
     # use normal optlevel in preloading phase
     java_args=("-Xjit:classLoadPhaseThreshold=10000" "${java_args[@]}")
     java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
-#    if [ -n "${ibm64bit}" ]; then
-#        java_args=("-Xcompressedrefs" "${java_args[@]}")
-#    fi
+    if [ -n "${ibm64bit}" ]; then
+        if [ -z "${nocompressedrefs}" ]; then
+            java_args=("-Xcompressedrefs" "${java_args[@]}")
+        fi
+    fi
 fi
 
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
