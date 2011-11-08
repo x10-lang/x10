@@ -216,7 +216,7 @@ public class ClosureRemover extends ContextVisitor {
                             }
                         }
                         
-                        X10MethodDef md = (X10MethodDef) xts.methodDef(pos, Types.ref(ct), flags, cld.returnType(), name, rts, argTypes, ct.def().thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
+                        X10MethodDef md = (X10MethodDef) xts.methodDef(pos, pos, Types.ref(ct), flags, cld.returnType(), name, rts, argTypes, ct.def().thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
                         
                         X10MethodDecl mdcl = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, flags), cl.returnType(), xnf.Id(pos, name), tps, formals, null, null, body);
     
@@ -365,7 +365,7 @@ public class ClosureRemover extends ContextVisitor {
                     }
                     
                     // TODO handle "this" in type constraints
-                    X10MethodDef closureMethodDef = xts.methodDef(pos, Types.ref(staticNestedClassDef.asType()), Flags.PUBLIC, cld.returnType(), ClosureCall.APPLY, Collections.<ParameterType>emptyList(), cld.formalTypes(), staticNestedClassDef.thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
+                    X10MethodDef closureMethodDef = xts.methodDef(pos, pos, Types.ref(staticNestedClassDef.asType()), Flags.PUBLIC, cld.returnType(), ClosureCall.APPLY, Collections.<ParameterType>emptyList(), cld.formalTypes(), staticNestedClassDef.thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
                     
                     staticNestedClassDef.setMethods(Collections.singletonList(closureMethodDef));
                     // create class decl
@@ -470,7 +470,7 @@ public class ClosureRemover extends ContextVisitor {
                     List<Type> typeArgs = new ArrayList<Type>(staticNestedClassDef.typeParameters());
                     X10ClassType staticNestedClassType = staticNestedClassDef.asType().typeArguments(typeArgs);
                     
-                    X10ConstructorDef consd = xts.constructorDef(pos,
+                    X10ConstructorDef consd = xts.constructorDef(pos, pos,
                                                               Types.ref(staticNestedClassType),
                                                               Flags.PRIVATE,
                                                               Types.ref(staticNestedClassType),

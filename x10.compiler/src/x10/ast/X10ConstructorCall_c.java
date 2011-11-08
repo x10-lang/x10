@@ -85,7 +85,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 
 	    ConstructorCall_c n = this;
 
-	    ConstructorInstance ci = ts.createConstructorInstance(position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking constructor call."));
+	    ConstructorInstance ci = ts.createConstructorInstance(position(), position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking constructor call."));
 	    return n.constructorInstance(ci);
 	}
 	

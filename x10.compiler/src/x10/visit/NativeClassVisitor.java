@@ -238,7 +238,7 @@ public class NativeClassVisitor extends ContextVisitor {
             xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
             xd = xd.returnType(ftnode);
 
-            ConstructorDef xdef = xts.constructorDef(p,
+            ConstructorDef xdef = xts.constructorDef(p, p,
                     Types.ref(cdef.asType()),
                     Flags.PRIVATE,
                     Collections.<Ref<? extends Type>>singletonList(Types.ref(ftype))

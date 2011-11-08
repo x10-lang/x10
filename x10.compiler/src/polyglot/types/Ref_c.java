@@ -9,7 +9,7 @@ public class Ref_c<T extends TypeObject> extends TypeObject_c implements Ref<T> 
     T v;
     
     public Ref_c(T v) {
-        super(v.typeSystem(), v.position());
+        super(v.typeSystem(), v.position(), v.errorPosition());
         assert v != null;
         this.v = v;
     }

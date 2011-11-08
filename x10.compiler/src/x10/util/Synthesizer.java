@@ -202,7 +202,7 @@ public class Synthesizer {
 	    MethodDecl result = 
 	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, block);
 
-	    MethodDef rmi = xts.methodDef(CG, Types.ref(ct.classDef().asType()), 
+	    MethodDef rmi = xts.methodDef(CG, CG, Types.ref(ct.classDef().asType()), 
 	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, ct.classDef().thisDef(), formalNames, null, null, null, null);
 
 	    result = result.methodDef(rmi);
@@ -923,7 +923,7 @@ public class Synthesizer {
 	 * @return X10ConstructorDec
 	 * @throws SemanticException 
 	 */	
-    public X10ConstructorDecl makeClassCopyConstructor(Position p, X10ClassDecl cDecl, List<Name> fieldName,
+    public X10ConstructorDecl makeClassCopyConstructor(Position p, Position errorP, X10ClassDecl cDecl, List<Name> fieldName,
                                                        List<Name> parmName, List<Type> parmType, List<Flags> parmFlags,
                                                        Context context) throws SemanticException {
         X10ClassDef cDef = (X10ClassDef) cDecl.classDef();
@@ -967,7 +967,7 @@ public class Synthesizer {
         xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
         xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
-        ConstructorDef xDef = xts.constructorDef(p, Types.ref(cDef.asType()), Flags.PRIVATE, ftList);
+        ConstructorDef xDef = xts.constructorDef(p, errorP, Types.ref(cDef.asType()), Flags.PRIVATE, ftList);
         return (X10ConstructorDecl) xd.constructorDef(xDef);
     }
 
@@ -983,7 +983,7 @@ public class Synthesizer {
      * @return X10ClassDecl
      * @throws SemanticException
      */
-    public X10ClassDecl addClassConstructor(Position p,
+    public X10ClassDecl addClassConstructor(Position p, Position errorP,
                                             X10ClassDecl cDecl,
                                             List<Name> parmName,
                                             List<Type> parmType,
@@ -1025,7 +1025,7 @@ public class Synthesizer {
         xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
         xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
-        ConstructorDef xDef = xts.constructorDef(p,
+        ConstructorDef xDef = xts.constructorDef(p, errorP,
                 Types.ref(cDef.asType()),
                 Flags.PUBLIC,
                 frList                                         // formal types
@@ -1169,7 +1169,7 @@ public class Synthesizer {
      * @return X10ClassDecl
      * @throws SemanticException 
      */ 
-    public X10ClassDecl addClassSuperConstructor(Position p,
+    public X10ClassDecl addClassSuperConstructor(Position p, Position errorP,
             X10ClassDecl cDecl,
             List<Name> parmName,
             List<Type> parmType,
@@ -1177,7 +1177,7 @@ public class Synthesizer {
             Context context) throws SemanticException {
        
         Stmt s = makeSuperCallStatement(p, cDecl, parmName, parmType, parmFlags, context);                   
-        return addClassConstructor(p, cDecl, parmName, parmType, parmFlags, Collections.singletonList(s), context);
+        return addClassConstructor(p, errorP, cDecl, parmName, parmType, parmFlags, Collections.singletonList(s), context);
     }
     
     
@@ -1193,16 +1193,16 @@ public class Synthesizer {
      * @param throwTypes
      * @return
      */
-    public X10MethodDef createMethodDef(Position p, X10ClassDef classDef,
+    public X10MethodDef createMethodDef(Position p, Position errorP, X10ClassDef classDef,
             Flags flag,
             Type returnType,
             Name name,
             List<Formal> formals,
             List<Type> throwTypes
             ){
-    	return createMethodDef(p, classDef, flag, returnType, name, formals, throwTypes, null);
+    	return createMethodDef(p, errorP, classDef, flag, returnType, name, formals, throwTypes, null);
     }
-    public X10MethodDef createMethodDef(Position p, X10ClassDef classDef,
+    public X10MethodDef createMethodDef(Position p, Position errorP, X10ClassDef classDef,
                                        Flags flag,
                                        Type returnType,
                                        Name name,
@@ -1219,7 +1219,7 @@ public class Synthesizer {
         for (Type t : throwTypes) {
             throwTypeRefs.add(Types.ref(t));
         }
-        X10MethodDef mDef = (X10MethodDef) xts.methodDef(p, 
+        X10MethodDef mDef = (X10MethodDef) xts.methodDef(p, errorP,
                 Types.ref(classDef.asType()),                
                 flag, 
                 Types.ref(returnType), 
@@ -1331,7 +1331,7 @@ public class Synthesizer {
      * @return X10ClassDecl
      * @throws SemanticException 
      */ 
-    public X10ClassDecl createClassWithConstructor(Position p, 
+    public X10ClassDecl createClassWithConstructor(Position p, Position errorP,
                                                    X10ClassDef cDef,
                                                    Context context) throws SemanticException
     {
@@ -1346,7 +1346,7 @@ public class Synthesizer {
         xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
         xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
-        ConstructorDef xDef = xts.constructorDef(p,
+        ConstructorDef xDef = xts.constructorDef(p, errorP,
                 Types.ref(cDef.asType()),
                 Flags.PRIVATE,
                 Collections.<Ref<? extends Type>>emptyList());

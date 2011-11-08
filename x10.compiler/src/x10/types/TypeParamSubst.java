@@ -245,7 +245,7 @@ public class TypeParamSubst {
 	private ClosureInstance reinstantiateClosure(ClosureInstance t) {
 		if (eager) {
 		    final ClosureInstance fi = t;
-		    ClosureInstance res = new ClosureInstance_c(fi.typeSystem(), fi.position(), Types.ref(fi.def()));
+		    ClosureInstance res = new ClosureInstance_c(fi.typeSystem(), fi.position(), fi.errorPosition(), Types.ref(fi.def()));
 		    res = (ClosureInstance) res.returnType(reinstantiate(fi.returnType()));
 		    res = (ClosureInstance) res.formalNames(reinstantiate(fi.formalNames()));
 		    res = (ClosureInstance) res.formalTypes(reinstantiate(fi.formalTypes()));

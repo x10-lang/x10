@@ -22,8 +22,8 @@ public abstract class MemberDef_c extends Def_c implements MemberDef
     /** Used for deserializing types. */
     protected MemberDef_c() { }
 
-    public MemberDef_c(TypeSystem ts, Position pos, Ref<? extends ContainerType> container, Flags flags) {
-        super(ts, pos);
+    public MemberDef_c(TypeSystem ts, Position pos, Position errorPos, Ref<? extends ContainerType> container, Flags flags) {
+        super(ts, pos, errorPos);
         this.container = container;
         this.flags = flags;
     }

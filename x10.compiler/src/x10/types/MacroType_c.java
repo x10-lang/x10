@@ -68,7 +68,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	Ref<? extends Type> definedType;
 
 	public MacroType_c(TypeSystem ts, Position pos, Ref<TypeDef> def) {
-		super(ts, pos);
+		super(ts, pos, pos);
 		this.def = def;
 	}
 	

@@ -635,7 +635,7 @@ public class StaticInitializer extends ContextVisitor {
         // create static call for initialization
         List<TypeNode> typeArgsN = Collections.<TypeNode>emptyList();
         List<Expr> args = Collections.<Expr>emptyList();
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Call result = (Call) xnf.X10Call(pos, xnf.CanonicalTypeNode(pos, receiver),
                                         xnf.Id(pos, name), typeArgsN, args)
                                         .methodInstance(mi).type(returnType);
@@ -645,7 +645,7 @@ public class StaticInitializer extends ContextVisitor {
     private MethodDef makeMethodDef(Position pos, X10ClassType receiver, Name name, Type returnType) {
         Position CG = Position.compilerGenerated(null);
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
-        MethodDef md = xts.methodDef(CG, Types.ref(receiver), 
+        MethodDef md = xts.methodDef(CG, CG, Types.ref(receiver), 
                                      Flags.STATIC, Types.ref(returnType), name, argTypes);
         return md;
     }
@@ -680,8 +680,8 @@ public class StaticInitializer extends ContextVisitor {
         List<Expr> args = new ArrayList<Expr>();
         args.add(getInitDispatcherConstant(pos, "UNINITIALIZED").type(xts.Int()));
 
-        ConstructorDef cd = xts.defaultConstructor(pos, Types.ref(type)); 
-        ConstructorInstance ci = xts.createConstructorInstance(pos, Types.ref(cd));
+        ConstructorDef cd = xts.defaultConstructor(pos, pos, Types.ref(type)); 
+        ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
         Expr init = xnf.New(pos, tn, args).constructorInstance(ci).type(type);
 
         // fieldDecl and its association with fieldDef
@@ -736,9 +736,9 @@ public class StaticInitializer extends ContextVisitor {
         Name name = Name.make(deserializerPrefix+fName);
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
-        MethodDef md = xts.methodDef(pos, Types.ref(classDef.asType()), 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(classDef.asType()), 
                                      Flags.STATIC, Types.ref(xts.Void()), name, argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // X10JavaDeserializer argument definition
         Name deserializerName = Name.make("deserializer");
@@ -798,9 +798,9 @@ public class StaticInitializer extends ContextVisitor {
         // create MethodDef
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
-        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
                                      Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
@@ -916,9 +916,9 @@ public class StaticInitializer extends ContextVisitor {
 
         // make instance call
         ObjectType targetType = (ObjectType)target.type();
-        MethodDef md = xts.methodDef(pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Object()), name, 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Object()), name, 
                                      Collections.<Ref<? extends Type>>emptyList());
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr applyCall = xnf.X10Call(pos, target, xnf.Id(pos, name), Collections.<TypeNode>emptyList(), 
                                      Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Object());
 
@@ -938,9 +938,9 @@ public class StaticInitializer extends ContextVisitor {
         ClassType type = (ClassType)xts.Runtime();
         Id name = xnf.Id(pos, Name.make("hereInt"));
 
-        MethodDef md = xts.methodDef(pos, Types.ref(type), Flags.STATIC, Types.ref(xts.Int()), name.id(),
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(type), Flags.STATIC, Types.ref(xts.Int()), name.id(),
                                      Collections.<Ref<? extends Type>>emptyList());
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr here = xnf.X10Call(pos, xnf.X10CanonicalTypeNode(pos, type), name, 
                                 Collections.<TypeNode>emptyList(), 
                                 Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Int());
@@ -956,9 +956,9 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Int()));
         argTypes.add(Types.ref(xts.Int()));
-        MethodDef md = xts.methodDef(pos, Types.ref((ClassType) xts.AtomicInteger()),
+        MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType) xts.AtomicInteger()),
                 Flags.NONE, Types.ref(xts.Boolean()), cs.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = new ArrayList<Expr>();
         args.add(getInitDispatcherConstant(pos, "UNINITIALIZED").type(xts.Int()));
@@ -977,9 +977,9 @@ public class StaticInitializer extends ContextVisitor {
 
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Int()));
-        MethodDef md = xts.methodDef(pos, Types.ref((ClassType)xts.AtomicInteger()), 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
                                      Flags.NONE, Types.ref(xts.Void()), name.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = new ArrayList<Expr>();
         args.add(getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int()));
@@ -1015,9 +1015,9 @@ public class StaticInitializer extends ContextVisitor {
         }
         argTypes.add(Types.ref(xts.Short()));
         Type returnType = (fdPLH == null) ? xts.Void() : PlaceLocalHandle();
-        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()),
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()),
                 Flags.NONE, Types.ref(returnType), id.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
         List<Expr> args = new ArrayList<Expr>();
@@ -1042,9 +1042,9 @@ public class StaticInitializer extends ContextVisitor {
         Id name = xnf.Id(pos, Name.make("get"));
 
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
-        MethodDef md = xts.methodDef(pos, Types.ref((ClassType)xts.AtomicInteger()), 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
                                      Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = Collections.<Expr>emptyList();
         List<TypeNode> typeParamNodes = Collections.<TypeNode>emptyList();
@@ -1073,9 +1073,9 @@ public class StaticInitializer extends ContextVisitor {
         // create MethodDef
         Id id = xnf.Id(pos, methodName);
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
-        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
                                      Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
         List<Expr> args = Collections.<Expr>emptyList();
@@ -1162,9 +1162,9 @@ public class StaticInitializer extends ContextVisitor {
         argTypes.add(Types.ref(xts.String()));
 
         // create MethodDef
-        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()), 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
                                      Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // get full path class name
         String fullName = getPackageName(classDef) + getClassName(classDef);
@@ -1193,9 +1193,9 @@ public class StaticInitializer extends ContextVisitor {
         argTypes.add(Types.ref(xts.String()));
 
         // create MethodDef
-        MethodDef md = xts.methodDef(pos, Types.ref(InitDispatcher()),
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()),
                                      Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, Types.ref(md));
+        MethodInstance mi = xts.createMethodInstance(pos, pos,Types.ref(md));
 
         // get fully qualified field name
         String fullName = getPackageName(classDef) + getClassName(classDef) + "." + Emitter.mangleToJava(fieldName);

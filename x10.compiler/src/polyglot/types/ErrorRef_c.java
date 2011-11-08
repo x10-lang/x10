@@ -12,7 +12,7 @@ public class ErrorRef_c<T> extends TypeObject_c implements Ref<T> {
     String errorMessage;
     
     public ErrorRef_c(TypeSystem ts, Position pos, String errorMessage) {
-        super(ts, pos);
+        super(ts, pos, pos);
         this.errorMessage = errorMessage;
     }
 

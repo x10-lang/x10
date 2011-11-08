@@ -28,7 +28,7 @@ public class JavaArrayType_c extends ReferenceType_c implements JavaArrayType
     protected JavaArrayType_c() { }
 
     public JavaArrayType_c(TypeSystem ts, Position pos, Ref<? extends Type> base) {
-	super(ts, pos);
+	super(ts, pos, pos);
 	this.base = base;
 
         methods = null;
@@ -41,7 +41,7 @@ public class JavaArrayType_c extends ReferenceType_c implements JavaArrayType
             methods = new ArrayList<MethodDef>(1);
 
             // Add method public Object clone()
-            MethodDef mi = ts.methodDef(position(),
+            MethodDef mi = ts.methodDef(position(), position(),
                                         Types.<JavaArrayType_c>ref(this),
                                         ts.Public(),
                                         Types.<Type>ref(ts.Object()),

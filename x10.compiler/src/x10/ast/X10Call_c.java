@@ -164,7 +164,7 @@ public class X10Call_c extends Call_c implements X10Call {
 
     TypeSystem ts = tb.typeSystem();
 
-    MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking method invocation."));
+    MethodInstance mi = ts.createMethodInstance(position(),position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking method invocation."));
     return n.methodInstance(mi);
   }
 

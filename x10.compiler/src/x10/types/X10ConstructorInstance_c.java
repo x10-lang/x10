@@ -62,9 +62,9 @@ import x10.types.constraints.TypeConstraint;
 public class X10ConstructorInstance_c extends ConstructorInstance_c implements X10ConstructorInstance {
     private static final long serialVersionUID = 65438556574848648L;
 
-    public X10ConstructorInstance_c(TypeSystem ts, Position pos, 
+    public X10ConstructorInstance_c(TypeSystem ts, Position pos, Position errorPos,
     		Ref<? extends X10ConstructorDef> def) {
-        super(ts, pos, def);
+        super(ts, pos, errorPos, def);
     }
     
     @Override

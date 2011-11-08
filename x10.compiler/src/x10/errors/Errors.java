@@ -221,7 +221,7 @@ public class Errors {
 		private static final long serialVersionUID = -729466352124876376L;
 		public DuplicateMember(TypeObject def) {
 			super("Duplicate member." + 
-					"\n\t Member: " + def, def.position());
+					"\n\t Member: " + def, def.errorPosition());
 		}
 	}
 
@@ -314,7 +314,7 @@ public class Errors {
 					+ "\n\t Method B: " + mj.signature()
 					+ "\n\t Container B: " + mj.container()
 					+ "\n\t Expected Type: " + mj.returnType()
-					+ "\n\t Found Type: " + mi.returnType(), mi.position());
+					+ "\n\t Found Type: " + mi.returnType(), mi.errorPosition());
 			}
 	}
 
@@ -478,7 +478,7 @@ public class Errors {
 			super("Inconsistent return type."
 					+ "\n\t ReturnType: " + t
 					+ "\n\t Invocation: " + me,
-                    me.position());
+                    me.errorPosition());
 		}
 	}
 	public static class CannotAssignToProperty extends EqualByTypeAndPosException {
@@ -2163,7 +2163,7 @@ public class Errors {
             		+ "\n\t mi: " + mi
             		+ "\n\t mj: " + mj
             		+ "\n\t Reason: mj's guard does not entail mi's guard.",
-            		mi.position());
+            		mi.errorPosition());
         }
     }
     public static class IllegalConstraint  extends SemanticException {

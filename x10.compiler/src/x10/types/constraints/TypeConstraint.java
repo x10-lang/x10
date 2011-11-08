@@ -238,7 +238,7 @@ public class TypeConstraint implements Copy, Serializable {
 	    for (int i = 0; i < typeFormals.size(); i++) {
 	        Type xtype = typeFormals.get(i);
 	        xtype = xts.expandMacros(xtype);
-	        Type ytype = new ParameterType(xts, me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
+	        Type ytype = new ParameterType(xts, me.position(),  me.position(), Name.makeFresh(), Types.ref((X10ProcedureDef) me.def()));
 	
 	        // TODO: should enforce this statically
 	        if (! (xtype instanceof ParameterType))

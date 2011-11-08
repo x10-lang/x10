@@ -7,8 +7,8 @@ import polyglot.util.Position;
 public abstract class ConstructorInstance_c extends ProcedureInstance_c<ConstructorDef> implements ConstructorInstance {
     private static final long serialVersionUID = -702966148217075519L;
 
-    public ConstructorInstance_c(TypeSystem ts, Position pos, Ref<? extends ConstructorDef> def) {
-        super(ts, pos, def);
+    public ConstructorInstance_c(TypeSystem ts, Position pos, Position errorPos, Ref<? extends ConstructorDef> def) {
+        super(ts, pos, errorPos, def);
     }
 
     protected Flags flags;

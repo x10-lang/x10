@@ -68,7 +68,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
             //List<Ref<? extends Type>> throwTypes,
             Ref<? extends Type> offerType) {
 
-        super(ts, pos);
+        super(ts, pos, pos);
         this.typeContainer = typeContainer;
         this.methodContainer = methodContainer;
         this.returnType = returnType;
@@ -147,7 +147,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
 
     public ClosureInstance asInstance() {
         if (asInstance == null) {
-            asInstance = ((TypeSystem) ts).createClosureInstance(position(), Types.ref(this));
+            asInstance = ((TypeSystem) ts).createClosureInstance(position(), errorPosition(), Types.ref(this));
         }
         return (ClosureInstance) asInstance;
     }

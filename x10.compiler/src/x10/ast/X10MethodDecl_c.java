@@ -174,7 +174,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 
 	protected X10MethodDef createMethodDef(TypeSystem ts, X10ClassDef ct, Flags flags) {
-		X10MethodDef mi = (X10MethodDef) ts.methodDef(position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
+		X10MethodDef mi = (X10MethodDef) ts.methodDef(position(), name().position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
 				Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
 

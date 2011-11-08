@@ -7,7 +7,7 @@ public class VarInstance_c<T extends VarDef> extends Use_c<T> implements VarInst
     private static final long serialVersionUID = 1662108421276493195L;
 
     public VarInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
-        super(ts, pos, def);
+        super(ts, pos, pos, def);
     }
 
     boolean constantValueSet;

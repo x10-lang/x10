@@ -49,8 +49,8 @@ public abstract class ParametrizedType_c extends ReferenceType_c implements Para
 	Flags flags;
 	Name name;
 
-	public ParametrizedType_c(TypeSystem ts, Position pos) {
-		super(ts, pos);
+	public ParametrizedType_c(TypeSystem ts, Position pos, Position errorPosition) {
+		super(ts, pos, errorPosition);
 	}
 	
 	public ParametrizedType container(ContainerType container) {

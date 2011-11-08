@@ -184,7 +184,7 @@ public class ClosureCall_c extends Expr_c implements ClosureCall {
 
 		TypeSystem ts = (TypeSystem) tb.typeSystem();
 
-		MethodInstance mi = (MethodInstance) ts.createMethodInstance(position(), 
+		MethodInstance mi = (MethodInstance) ts.createMethodInstance(position(), position(),
 				new ErrorRef_c<MethodDef>(ts, position(), 
 						"Cannot get MethodDef before type-checking closure call."));
 		return n.closureInstance(mi);

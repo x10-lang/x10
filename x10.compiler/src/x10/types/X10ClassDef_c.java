@@ -451,7 +451,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public X10ClassType asType() {
     	
     	if (asType == null) {
-    		asType = ts.createClassType(position(), Types.ref(this));
+    		asType = ts.createClassType(position(), errorPosition(), Types.ref(this));
     	}
     	return (X10ClassType) asType;
     }
@@ -597,7 +597,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     }
     
     public Ref<? extends ContainerType> container() {
-        return Types.<ClassType>ref(ts.createClassType(position(), this.outer));
+        return Types.<ClassType>ref(ts.createClassType(position(), errorPosition(), this.outer));
     }
     
     public void name(Name name) {
@@ -609,6 +609,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public void position(Position pos) {
 	this.position = pos;
     }
+    
+    public void errorPosition(Position pos) {
+    	this.errorPosition = pos;
+        }
 
     public void setPackage(Ref<? extends Package> p) {
 	this.package_ = p;

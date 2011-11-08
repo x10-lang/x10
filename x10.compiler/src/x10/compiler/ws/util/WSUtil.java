@@ -463,7 +463,7 @@ public class WSUtil {
         
         TypeSystem xts = methodDef.typeSystem();
         
-        X10MethodDef mDef = (X10MethodDef) xts.methodDef(methodDef.position(), 
+        X10MethodDef mDef = (X10MethodDef) xts.methodDef(methodDef.position(), methodDef.errorPosition(),
                 Types.ref(containerClassDef.asType()),                
                 methodDef.flags(), 
                 methodDef.returnType(), 

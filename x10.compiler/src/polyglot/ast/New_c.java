@@ -157,7 +157,7 @@ public abstract class New_c extends Expr_c implements X10New
 
         New_c n = this;
 
-        ConstructorInstance ci = ts.createConstructorInstance(position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking new expression."));
+        ConstructorInstance ci = ts.createConstructorInstance(position(), position(), new ErrorRef_c<ConstructorDef>(ts, position(), "Cannot get ConstructorDef before type-checking new expression."));
         n = (New_c) n.constructorInstance(ci);
         
         Expr qual = (Expr) n.visitChild(n.qualifier(), tb);

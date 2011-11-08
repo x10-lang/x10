@@ -111,6 +111,8 @@ public interface ClassDef extends MemberDef
      */
     void position(Position pos);
     
+    void errorPosition(Position errorPos);
+    
     /**
      * The <code>Source</code> that this class type
      * was loaded from. Should be <code>null</code> if it was not loaded from

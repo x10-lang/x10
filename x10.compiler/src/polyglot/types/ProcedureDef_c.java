@@ -25,10 +25,10 @@ public abstract class ProcedureDef_c extends MemberDef_c implements ProcedureDef
     /** Used for deserializing types. */
     protected ProcedureDef_c() { }
 
-    public ProcedureDef_c(TypeSystem ts, Position pos,
+    public ProcedureDef_c(TypeSystem ts, Position pos, Position errorPos,
             Ref<? extends ContainerType> container,
 			       Flags flags, List<Ref<? extends Type>> formalTypes) {
-        super(ts, pos, container, flags);
+        super(ts, pos, errorPos, container, flags);
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
     }
     

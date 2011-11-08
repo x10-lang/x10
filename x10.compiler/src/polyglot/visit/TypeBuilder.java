@@ -183,19 +183,20 @@ public class TypeBuilder extends NodeVisitor
      * Do not fail on duplicate types, but create another instance of the type with a
      * dummy name, to allow proceeding with compilation.
      */
-    protected ClassDef newClass(Position pos, Flags flags, Name name) {
-        return newClass(pos, flags, name, null);
+    protected ClassDef newClass(Position pos, Position errorPos, Flags flags, Name name) {
+        return newClass(pos, errorPos, flags, name, null);
     }
     /**
      * Do not fail on duplicate types, but create another instance of the type with a
      * dummy name, to allow proceeding with compilation.
      */
-    protected X10ClassDef newClass(Position pos, Flags flags, Name name, SemanticException error) {
+    protected X10ClassDef newClass(Position pos, Position errorPos, Flags flags, Name name, SemanticException error) {
         TypeSystem ts = typeSystem();
 
         X10ClassDef ct = ts.createClassDef(job().source());
 
         ct.position(pos);
+        ct.errorPosition(errorPos);
         ct.flags(flags);
         ct.name(name);
         ct.superType(new ErrorRef_c<Type>(ts, pos, "Cannot get superclass before type-checking class declaration."));
@@ -327,12 +328,12 @@ public class TypeBuilder extends NodeVisitor
         return ct;
     }
 
-    public TypeBuilder pushClass(Position pos, Flags flags, Name name) {
-        return pushClass(pos, flags, name, null);
+    public TypeBuilder pushClass(Position pos, Position errorPos, Flags flags, Name name) {
+        return pushClass(pos, errorPos, flags, name, null);
     }
 
-    public TypeBuilder pushClass(Position pos, Flags flags, Name name, SemanticException error) {
-        X10ClassDef t = newClass(pos, flags, name, error);
+    public TypeBuilder pushClass(Position pos, Position errorPos, Flags flags, Name name, SemanticException error) {
+        X10ClassDef t = newClass(pos, errorPos, flags, name, error);
         return pushClass(t);
     }
 

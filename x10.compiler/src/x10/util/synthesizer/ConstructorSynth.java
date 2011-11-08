@@ -77,7 +77,7 @@ public class ConstructorSynth extends AbstractStateSynth implements IClassMember
             throwTypeRefs.add(Types.ref(t));
         }
 
-        conDef = (X10ConstructorDef) xts.constructorDef(pos, Types.ref(classType), flags, formalTypeRefs); // formal
+        conDef = (X10ConstructorDef) xts.constructorDef(pos, pos, Types.ref(classType), flags, formalTypeRefs); // formal
                                                                                                           // types
                                                                        
         classDef.addConstructor(conDef);

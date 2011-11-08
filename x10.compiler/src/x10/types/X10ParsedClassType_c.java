@@ -199,8 +199,8 @@ implements X10ParsedClassType
         clearCache();
     }
 
-    public X10ParsedClassType_c(TypeSystem ts, Position pos, Ref<? extends X10ClassDef> def) {
-        super(ts, pos, def);
+    public X10ParsedClassType_c(TypeSystem ts, Position pos, Position errorPos, Ref<? extends X10ClassDef> def) {
+        super(ts, pos, errorPos, def);
         clearCache();
     }
  
