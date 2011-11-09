@@ -179,27 +179,57 @@ fi
 fi
 
 [ -n "${java_version}" ] || java_version=`"$JAVA" -version 2>&1`
+
+
+#
+# IBM J9 VM specific options
+#
 ibmj9vm=
-# following pattern match works with bash 3.2 but doesn't work with bash 4.1
+ibmj9vmr26=
+ibmj9vm64bit=
+# following pattern matches with bash 3.2 but doesn't match with bash 4.1
 #[[ "${java_version}" =~ ".*IBM J9 VM.*" ]] && ibmj9vm=true
 case "${java_version}" in
-    *IBM\ J9\ VM*) ibmj9vm=true ;;
-esac
-ibm64bit=
-case "${java_version}" in
-    *amd64-64*) ibm64bit=true ;;
-    *ppc64-64*) ibm64bit=true ;;
+    *IBM\ J9\ VM*) ibmj9vm=true
+    case "${java_version}" in
+        *build\ 2.6*) ibmj9vmr26=true ;;
+    esac
+    case "${java_version}" in
+        *amd64-64*) ibmj9vm64bit=true ;;
+        *ppc64-64*) ibmj9vm64bit=true ;;
+    esac
+    ;;
 esac
 if [ -n "${ibmj9vm}" ]; then
-    # use normal optlevel in preloading phase
-    java_args=("-Xjit:classLoadPhaseThreshold=10000" "${java_args[@]}")
+    ibmj9vmjitopts=
+
+    # use default jit optlevel while preloading
+    if [ -n "${ibmj9vmjitopts}" ]; then
+        ibmj9vmjitopts="${ibmj9vmjitopts},"
+    fi
+    ibmj9vmjitopts="${ibmj9vmjitopts}classLoadPhaseThreshold=10000"
+
+    if [ -n "${ibmj9vmr26}" ]; then
+        # experimental support for java7
+        if [ -n "${ibmj9vmjitopts}" ]; then
+            ibmj9vmjitopts="${ibmj9vmjitopts},"
+        fi
+        ibmj9vmjitopts="${ibmj9vmjitopts}count=1000,bcount=250,milcount=1"
+    fi
+
     java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
-    if [ -n "${ibm64bit}" ]; then
+
+    if [ -n "${ibmj9vm64bit}" ]; then
         if [ -z "${nocompressedrefs}" ]; then
             java_args=("-Xcompressedrefs" "${java_args[@]}")
         fi
     fi
+
+    if [ -n "${ibmj9vmjitopts}" ]; then
+        java_args=("-Xjit:${ibmj9vmjitopts}" "${java_args[@]}")
+    fi
 fi
+
 
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
