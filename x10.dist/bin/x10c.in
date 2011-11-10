@@ -27,6 +27,7 @@ while [ -n "$1" ]; do
         -v|-verbose|--verbose) verbose="1";;
         -t|-time) time="time ";;
         -classpath|-cp) shift; extra_cp="$1";;
+        -x10lib) shift; propfile="$(cd $(dirname "$1") && pwd)/$(basename "$1")"; args="$args -x10lib '$propfile'";;
         -profile) profile="-Xrunhprof:cpu=samples";;
         -config) shift; config="$1.cfg";;
         -extclass) shift; ext=$1;;
@@ -46,6 +47,7 @@ Usage: x10c [options] <source-file>.x10 ...
 where [options] includes:
     -sourcepath <path>       source path
     -classpath <path>        search path for class files
+#    -x10lib <lib.properties> use the precompiled x10 library described by <lib.properties>
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
     -x10rt <impl>            select x10rt impl (lapi, pgp, sockets, mpi, standalone)
