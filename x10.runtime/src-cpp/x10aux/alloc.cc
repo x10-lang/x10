@@ -117,6 +117,14 @@ size_t x10aux::heap_size() {
 #endif
 }
 
+void x10aux::trigger_gc() {
+#ifdef X10_USE_BDWGC
+    GC_gcollect();
+#else
+    // DO nothing.
+#endif
+}
+
 namespace {
     bool have_init_congruent = false;
     unsigned char *congruent_base;

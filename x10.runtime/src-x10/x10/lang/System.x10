@@ -84,6 +84,13 @@ public class System {
     public static native def heapSize():long;
 
     /**
+     * Trigger a garbage collection.
+     */
+    @Native("java", "java.lang.System.gc()")
+    @Native("c++", "x10aux::trigger_gc()")
+    public static native def gc():void;
+
+    /**
      * Returns an immutable map from environment variables to values.
      */
     public static def getenv():Map[String,String] = Runtime.env;
