@@ -355,9 +355,9 @@ public class X10Translator extends Translator {
                     }
 
                     if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
-                    	// generate property file for use as "x10c -x10lib libfoo.properties ..."
+                    	// generate property file for use as "x10c -x10lib foo.properties ..."
                     	String jarFileName = jarFile.getName(); // foo.jar
-                    	String propFileName = "lib" + jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // libfoo.properties
+                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
                     	File propFile = new File(directoryHoldingJarFile, propFileName);
                     	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
                     	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
