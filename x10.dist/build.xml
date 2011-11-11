@@ -328,7 +328,7 @@
     </target>
 
     <target name="runtime-java" depends="init,common-jar,constraints-jar">
-        <ant antfile="${x10.runtime.location}/build.xml" target="dist-java" inheritAll="false" dir="${x10.runtime.location}"/>
+        <ant antfile="${x10.runtime.location}/build.xml" target="dist-java-x10rt" inheritAll="false" dir="${x10.runtime.location}"/>
     </target>
 
     <target name="runtime-cpp" depends="init">
