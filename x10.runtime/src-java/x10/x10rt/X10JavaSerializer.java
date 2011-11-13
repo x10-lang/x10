@@ -412,23 +412,27 @@ public class X10JavaSerializer {
     		return;
     	}
     	Class<? extends Object> bodyClass = body.getClass();
-    	if ("x10.rtt.FloatType".equals(bodyClass.getName()) || "x10.rtt.IntType".equals(bodyClass.getName())
-    			|| "x10.rtt.DoubleType".equals(bodyClass.getName())
-    			|| "x10.rtt.LongType".equals(bodyClass.getName())
-    			|| "x10.rtt.BooleanType".equals(bodyClass.getName())
-    			|| "x10.rtt.StringType".equals(bodyClass.getName())
-    			|| "x10.rtt.CharType".equals(bodyClass.getName())
-    			|| "x10.rtt.ByteType".equals(bodyClass.getName())
-    			|| "x10.rtt.ShortType".equals(bodyClass.getName())
-    			|| "x10.rtt.ObjectType".equals(bodyClass.getName())
-    			|| "x10.rtt.UByteType".equals(bodyClass.getName())
-    			|| "x10.rtt.UIntType".equals(bodyClass.getName())
-    			|| "x10.rtt.ULongType".equals(bodyClass.getName())
-    			|| "x10.rtt.UShortType".equals(bodyClass.getName())) {
+    	String className = bodyClass.getName();
+
+    	if (className.startsWith("x10.rtt.") &&
+    			("x10.rtt.FloatType".equals(bodyClass.getName()) 
+    					|| "x10.rtt.IntType".equals(bodyClass.getName())
+    					|| "x10.rtt.DoubleType".equals(bodyClass.getName())
+    					|| "x10.rtt.LongType".equals(bodyClass.getName())
+    					|| "x10.rtt.BooleanType".equals(bodyClass.getName())
+    					|| "x10.rtt.StringType".equals(bodyClass.getName())
+    					|| "x10.rtt.CharType".equals(bodyClass.getName())
+    					|| "x10.rtt.ByteType".equals(bodyClass.getName())
+    					|| "x10.rtt.ShortType".equals(bodyClass.getName())
+    					|| "x10.rtt.ObjectType".equals(bodyClass.getName())
+    					|| "x10.rtt.UByteType".equals(bodyClass.getName())
+    					|| "x10.rtt.UIntType".equals(bodyClass.getName())
+    					|| "x10.rtt.ULongType".equals(bodyClass.getName())
+    					|| "x10.rtt.UShortType".equals(bodyClass.getName()))) {
     		// These classes don't implement the serialization/deserialization routines, hence we serialize the superclass
-        	bodyClass = bodyClass.getSuperclass();
+    		bodyClass = bodyClass.getSuperclass();
     	}
-    	
+
     	try {
     		SerializerThunk st = getSerializerThunk(bodyClass);
     		writeClassID(bodyClass.getName());
