@@ -276,13 +276,9 @@ public class Basic {
         try {
             VoidFun_0_0 body = new Handler(runner, buf, len);
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            if (x10.runtime.impl.java.Runtime.CUSTOM_JAVA_SERIALIZATION) {
-                DataOutputStream objStream = new DataOutputStream(baos); // TODO: use Runtime.serialize()
-                x10.x10rt.X10JavaSerializer serializer = new x10.x10rt.X10JavaSerializer(objStream);
-                serializer.write((x10.x10rt.X10JavaSerializable) body);
-            } else {
-                (new java.io.ObjectOutputStream(baos)).writeObject(body);
-            }
+            DataOutputStream objStream = new DataOutputStream(baos); // TODO: use Runtime.serialize()
+            x10.x10rt.X10JavaSerializer serializer = new x10.x10rt.X10JavaSerializer(objStream);
+            serializer.write((x10.x10rt.X10JavaSerializable) body);
             byte[] msg = baos.toByteArray();
             int msgLen = baos.size();
             //System.err.println(X10RT.here()+": About to send a message to place "+place);
