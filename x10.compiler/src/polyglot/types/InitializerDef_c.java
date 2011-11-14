@@ -21,7 +21,7 @@ public abstract class InitializerDef_c extends MemberDef_c implements Initialize
     protected InitializerDef_c() { }
 
     public InitializerDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> container, Flags flags) {
-        super(ts, pos, container, flags);
+        super(ts, pos, pos, container, flags);
     }
 
     InitializerInstance asInstance;

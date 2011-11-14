@@ -59,8 +59,8 @@ import x10.types.matcher.Subst;
 public class FunctionType_c extends X10ParsedClassType_c implements FunctionType {
     private static final long serialVersionUID = 2768150875334536668L;
 
-    public FunctionType_c(final TypeSystem ts, Position pos, final X10ClassDef def) {
-        super(ts, pos, Types.ref(def));
+    public FunctionType_c(final TypeSystem ts, Position pos, Position errorPosition, final X10ClassDef def) {
+        super(ts, pos, errorPosition, Types.ref(def));
     }
 
     @Override

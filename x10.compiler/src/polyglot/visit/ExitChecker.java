@@ -140,9 +140,9 @@ public class ExitChecker extends DataFlow
                     if (code.codeDef() instanceof FunctionDef) {
                         FunctionDef fd = (FunctionDef) code.codeDef();
                         String designator = (fd instanceof MethodDef) ? "Method" : "Closure";
-                        reportError(new Errors.MustReturnValueOfType(designator, fd, code.position()));
+                        reportError(new Errors.MustReturnValueOfType(designator, fd, code.codeDef().errorPosition()));
                     } else {
-                        reportError(new Errors.MissingReturnStatement(code.position()));
+                        reportError(new Errors.MissingReturnStatement(code.codeDef().errorPosition()));
                     }
                 }
             }

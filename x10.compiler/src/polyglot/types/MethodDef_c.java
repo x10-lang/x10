@@ -28,11 +28,11 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     /** Used for deserializing types. */
     protected MethodDef_c() { }
 
-    protected MethodDef_c(TypeSystem ts, Position pos,
+    protected MethodDef_c(TypeSystem ts, Position pos, Position errorPos,
 	 		    Ref<? extends ContainerType> container,
 	                    Flags flags, Ref<? extends Type> returnType, Name name,
 			    List<Ref<? extends Type>> formalTypes) {
-        super(ts, pos, container, flags, formalTypes);
+        super(ts, pos, errorPos, container, flags, formalTypes);
 	this.returnType = returnType;
 	this.name = name;
     }
@@ -41,7 +41,7 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     
     public MethodInstance asInstance() {
         if (asInstance == null) {
-            asInstance = ts.createMethodInstance(position(), Types.ref(this));
+            asInstance = ts.createMethodInstance(position(), errorPosition(), Types.ref(this));
         }
         return asInstance;
     }

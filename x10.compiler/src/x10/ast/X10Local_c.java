@@ -109,6 +109,10 @@ public class X10Local_c extends Local_c {
 	        li = findAppropriateLocal(tc, liName);
 	    }
 
+	    if (context.inAssignment()) {
+	        // local is assigned to
+	        li = (LocalInstance) li.lval(true);
+	    }
 	    context.recordCapturedVariable(li);
 
         if (!li.flags().isFinal()) {

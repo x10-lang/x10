@@ -78,7 +78,7 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
         for (Type t : throwTypes) {
             throwTypeRefs.add(Types.ref(t));
         }
-        methodDef = (X10MethodDef) xts.methodDef(pos, 
+        methodDef = (X10MethodDef) xts.methodDef(pos, pos,
                 Types.ref(classDef.asType()),                
                 flags, 
                 Types.ref(returnType), 

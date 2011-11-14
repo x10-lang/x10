@@ -304,7 +304,7 @@ public class Reinstantiator extends TypeParamSubstTransformer {
             X10MethodDef md = d.methodDef();
             DepParameterExpr g = d.guard();
             TypeNode ot = d.offerType();
-            return visitor().typeSystem().methodDef( md.position(), 
+            return visitor().typeSystem().methodDef( md.position(), md.errorPosition(),
                                                      md.container(), 
                                                      md.flags(), 
                                                      d.returnType().typeRef(), 
@@ -336,7 +336,7 @@ public class Reinstantiator extends TypeParamSubstTransformer {
                 returnTypeRef = cd.returnType();
             }
             return visitor().typeSystem().constructorDef(
-                    cd.position(), 
+                    cd.position(), cd.errorPosition(),
                     cd.container(), 
                     cd.flags(), 
                     returnTypeRef, 

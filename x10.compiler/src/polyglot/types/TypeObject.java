@@ -29,6 +29,8 @@ public interface TypeObject extends Copy, Serializable
      */
     Position position();
     
+    Position errorPosition();
+    
     void equals(Type t);
 //    void equals(TypeObject t);
     void equalsImpl(Type t);

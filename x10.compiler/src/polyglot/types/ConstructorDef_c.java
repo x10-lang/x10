@@ -24,17 +24,17 @@ public abstract class ConstructorDef_c extends ProcedureDef_c implements Constru
     /** Used for deserializing types. */
     protected ConstructorDef_c() { }
 
-    protected ConstructorDef_c(TypeSystem ts, Position pos,
+    protected ConstructorDef_c(TypeSystem ts, Position pos, Position errorPos,
 	                         Ref<? extends ContainerType> container,
 				 Flags flags, List<Ref<? extends Type>> formalTypes) {
-        super(ts, pos, container, flags, formalTypes);
+        super(ts, pos, errorPos, container, flags, formalTypes);
     }
     
     protected transient ConstructorInstance asInstance;
 
     public ConstructorInstance asInstance() {
         if (asInstance == null) {
-            asInstance = ts.createConstructorInstance(position(), Types.ref(this));
+            asInstance = ts.createConstructorInstance(position(), errorPosition(), Types.ref(this));
         }
         return asInstance;
     }

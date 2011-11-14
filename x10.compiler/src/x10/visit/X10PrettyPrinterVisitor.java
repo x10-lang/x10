@@ -597,6 +597,58 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print the custom serializer
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
+        } else if(subtypeOfHadoopWritable(def)){
+        	w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+            w.newline(4);
+            w.begin(0);
+            
+            if (!config.NO_TRACES && !config.OPTIMIZE) {
+                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+                w.write("x10.runtime.impl.java.Runtime.printTraceMessage(\"X10JavaSerializable for Hadoop Writable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                w.writeln("} ");
+            }
+            
+            //_deserialize_body method
+            w.writeln("$_obj.readFields($deserializer.getInpForHadoop());");
+            w.writeln("return $_obj;");
+            w.end();
+            w.newline();
+            w.writeln("}");
+            w.newline();
+
+            // _deserializer  method
+            w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+            w.newline(4);
+            w.begin(0);
+            w.write(Emitter.mangleToJava(def.name()) + " $_obj = (" + Emitter.mangleToJava(def.name()) + ") ");
+            w.writeln("new " + Emitter.mangleToJava(def.name()) + "();");
+            w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+            w.end();
+            w.newline();
+            w.writeln("}");
+            w.newline();
+            
+            // _serialize_id()
+            w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
+            w.newline(4);
+            w.begin(0);
+            w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
+            w.end();
+            w.newline();
+            w.writeln("}");
+            w.newline();
+            
+         // _serialize()
+            w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
+            w.newline(4);
+            w.begin(0);
+            w.writeln("this.write($serializer.getOutForHadoop());");
+            w.end();
+            w.newline();
+            w.writeln("}");
+            w.newline();
+            
         } else {
             if (!def.flags().isInterface()) {
 
@@ -961,8 +1013,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private static final String SERIAL_DATA = "x10.io.SerialData";
 
     private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
+        return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
+    }
+
+    private static final String HADOOP_WRITABLE = "org.apache.hadoop.io.Writable";
+    private static boolean subtypeOfHadoopWritable(X10ClassDef def) {
+        return subtypeOfInterface(def, HADOOP_WRITABLE);
+    }
+
+    private static boolean subtypeOfInterface(X10ClassDef def, String interfaceName) {
         for (Ref<? extends Type> ref : def.interfaces()) {
-            if (CUSTOM_SERIALIZATION.equals(ref.get().toString())) {
+            if (interfaceName.equals(ref.get().toString())) {
                 return true;
             }
         }
@@ -973,7 +1034,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             type = ((ConstrainedType) type).baseType().get();
         }
         X10ClassDef superDef = ((X10ParsedClassType_c) type).def();
-        return subtypeOfCustomSerializer(superDef);
+        return subtypeOfInterface(superDef, interfaceName);
     }
 
     // TODO haszero
@@ -2797,7 +2858,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         w.write(".");
-        w.write("instanceOf(");
+        w.write("isInstance(");
 
         Type exprType = Types.baseType(c.expr().type());
         boolean needParen = false;
@@ -2996,7 +3057,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (n.equals()) {
             w.write(".equals(");
         } else {
-            w.write(".isSubtype(");
+            w.write(".isAssignableTo(");
         }
         new RuntimeTypeExpander(er, sup.type()).expand(tr);
         w.write("))");

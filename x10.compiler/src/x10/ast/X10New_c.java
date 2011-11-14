@@ -643,7 +643,7 @@ public class X10New_c extends New_c implements X10New {
                 ci = xts.findConstructor(targetType, xts.ConstructorMatcher(targetType, typeArgs, argTypes, c));
             }
             else {
-                ConstructorDef dci = xts.defaultConstructor(n.position(), Types.<ClassType> ref(ct));
+                ConstructorDef dci = xts.defaultConstructor(n.position(), n.position(), Types.<ClassType> ref(ct));
                 ci = (X10ConstructorInstance) dci.asInstance();
             }
 

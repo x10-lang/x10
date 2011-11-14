@@ -48,8 +48,8 @@ public class ParameterType extends Type_c implements Named {
     Name name;
 	Ref<? extends Def> def;
 	
-	public ParameterType(TypeSystem ts, Position pos, Name name, Ref<? extends Def> def) {
-		super(ts, pos);
+	public ParameterType(TypeSystem ts, Position pos, Position errorPos, Name name, Ref<? extends Def> def) {
+		super(ts, pos, errorPos);
 		this.name = name;
 		this.def = def;
 	}

@@ -12,8 +12,11 @@
 package x10.visit;
 
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Iterator;
 
@@ -298,7 +301,7 @@ public class X10Translator extends Translator {
                     // create manifest file
                     File manifest = File.createTempFile("x10c.manifest.", null);
                     manifest.deleteOnExit();    // TODO delete explicitly
-                    java.io.PrintWriter out = new java.io.PrintWriter(new java.io.FileWriter(manifest));
+                    PrintWriter out = new PrintWriter(new FileWriter(manifest));
                     if (main_class != null) {
                         // add Main-Class attribute for executable jar
                         out.println("Main-Class: " + main_class + "$" + X10PrettyPrinterVisitor.MAIN_CLASS);
@@ -349,6 +352,17 @@ public class X10Translator extends Translator {
                     if (jarProc.exitValue() > 0) {
                         eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + jarProc.exitValue());
                         return false;
+                    }
+
+                    if (options.buildX10Lib != null) {  // ignore lib from -buildx10lib <lib>
+                    	// generate property file for use as "x10c -x10lib foo.properties ..."
+                    	String jarFileName = jarFile.getName(); // foo.jar
+                    	String propFileName = jarFileName.substring(0, jarFileName.length() - ".jar".length()) + ".properties"; // foo.properties
+                    	File propFile = new File(directoryHoldingJarFile, propFileName);
+                    	PrintWriter propFileWriter = new PrintWriter(new FileWriter(propFile));
+                    	propFileWriter.println("X10LIB_TIMESTAMP=" + String.format("%tc", Calendar.getInstance()));
+                    	propFileWriter.println("X10LIB_SRC_JAR=" + jarFileName);
+                    	propFileWriter.close();
                     }
                 }
             }

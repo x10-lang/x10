@@ -78,9 +78,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		protected CConstraint realXClause;
 		protected SemanticException realClauseInvalid;
 
-		public ConstrainedType(TypeSystem ts, Position pos, 
+		public ConstrainedType(TypeSystem ts, Position pos, Position errorPos,
 				Ref<? extends Type> baseType, Ref<CConstraint> constraint) {
-			super(ts, pos);
+			super(ts, pos, errorPos);
 			assert ts != null;
 			this.baseType = baseType;
 			// todo: we currently use UnknownType as an InvalidType
@@ -582,15 +582,15 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		        CConstraint newc = Types.get(c);
 		
 		        if (newc == null)
-		            return new ConstrainedType(ts, tx.position(), Types.ref(tx), Types.ref(new CConstraint()));
+		            return new ConstrainedType(ts, tx.position(), tx.position(), Types.ref(tx), Types.ref(new CConstraint()));
 		        
 		        if (oldc == null) {
-		            return new ConstrainedType(ts, tx.position(), t, c);
+		            return new ConstrainedType(ts, tx.position(), tx.position(), t, c);
 		        }
 		        else {
 		            newc = newc.copy();
 		            newc.addIn(oldc); //  may become inconsistent
-		            return new ConstrainedType(ts, tx.position(), 
+		            return new ConstrainedType(ts, tx.position(), tx.position(),
 		                                       Types.ref(Types.baseType(tx)), 
 		                                       Types.ref(newc));
 		        }
@@ -627,7 +627,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		
 		    Type tx = t.getCached();
 		    assert tx != null;
-		    return new ConstrainedType((TypeSystem) tx.typeSystem(), tx.position(), t.known()? t: tref, cref);
+		    return new ConstrainedType((TypeSystem) tx.typeSystem(), tx.position(), tx.position(), t.known()? t: tref, cref);
 		}
 		
 		/**

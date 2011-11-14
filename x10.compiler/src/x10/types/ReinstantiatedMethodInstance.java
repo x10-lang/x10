@@ -18,7 +18,7 @@ public final class ReinstantiatedMethodInstance extends MethodInstance_c {
 
 	ReinstantiatedMethodInstance(TypeParamSubst typeParamSubst, TypeSystem ts, Position pos,
 			Ref<? extends X10MethodDef> def, MethodInstance fi) {
-		super(ts, pos, def);
+		super(ts, pos, pos, def);
 		this.typeParamSubst = typeParamSubst;
 		this.fi = fi;
 	}

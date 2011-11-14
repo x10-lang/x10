@@ -29,8 +29,8 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
     /** Used for deserializing types. */
     protected ClassType_c() { }
 
-    public ClassType_c(TypeSystem ts, Position pos, Ref<? extends X10ClassDef> def) {
-        super(ts, pos);
+    public ClassType_c(TypeSystem ts, Position pos, Position errorPos, Ref<? extends X10ClassDef> def) {
+        super(ts, pos, errorPos);
         this.def = def;
     }
     

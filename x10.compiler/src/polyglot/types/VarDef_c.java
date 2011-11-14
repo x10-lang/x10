@@ -28,7 +28,7 @@ public abstract class VarDef_c extends Def_c implements VarDef
 
     public VarDef_c(TypeSystem ts, Position pos,
 	                 Flags flags, Ref<? extends Type> type, Name name) {
-    	super(ts, pos);
+    	super(ts, pos, pos);
     	this.flags = flags;
     	this.type = type;
     	this.name = name;

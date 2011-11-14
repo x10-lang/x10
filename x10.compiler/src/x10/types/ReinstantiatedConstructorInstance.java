@@ -23,7 +23,7 @@ public final class ReinstantiatedConstructorInstance extends X10ConstructorInsta
 
 	ReinstantiatedConstructorInstance(TypeParamSubst typeParamSubst, TypeSystem ts, Position pos,
 			Ref<? extends X10ConstructorDef> def, X10ConstructorInstance fi) {
-		super(ts, pos, def);
+		super(ts, pos, pos, def);
 		this.typeParamSubst = typeParamSubst;
 		this.fi = fi;
 	}

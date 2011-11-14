@@ -32,4 +32,7 @@ public interface VarInstance<T extends VarDef> extends Use<T> {
      * Whether the variable has a constant value.
      */
     boolean isConstant();
+
+    boolean lval();
+    VarInstance<T> lval(boolean lval);
 }

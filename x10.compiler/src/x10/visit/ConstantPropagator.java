@@ -48,6 +48,7 @@ import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.Async_c;
+import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Closure_c;
 import x10.ast.StmtExpr;
@@ -103,6 +104,8 @@ public class ConstantPropagator extends ContextVisitor {
                 n.visit(new ClosureCaptureVisitor(this.context(), ((Async)n).asyncDef()));
             } else if (n instanceof Closure) {
                 n.visit(new ClosureCaptureVisitor(this.context(), ((Closure)n).closureDef()));                
+            } else if (n instanceof AtStmt) {
+                n.visit(new ClosureCaptureVisitor(this.context(), ((AtStmt)n).atDef()));                
             }
         }
 

@@ -691,7 +691,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 		    MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
 		    if (mj == null) {
 			if (!ct.flags().isAbstract()) {
-			    throw new SemanticException(ct.fullName() + " should be declared abstract; it does not define " + mi.signature()+ ", which is declared in " + rt.toClass().fullName(), ct.position());
+			    throw new SemanticException(ct.fullName() + " should be declared abstract; it does not define " + mi.signature()+ ", which is declared in " + rt.toClass().fullName(), ct.errorPosition());
 			}
 			else {
 			    // no implementation, but that's ok, the class is
@@ -708,7 +708,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 			    // change the position of the semantic
 			    // exception to be the class that we
 			    // are checking.
-			    throw new SemanticException(e.getMessage(), ct.position());
+			    throw new SemanticException(e.getMessage(), ct.errorPosition());
 			}
 		    }
 		    else {
@@ -754,7 +754,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	if (!(mi.name().equals(mj.name()) && mi.hasFormals(mj.formalTypes(), context))) {
 	    throw new SemanticException(mi.signature() 
 	                                + " in " + mi.container() + " cannot override " + mj.signature() 
-	                                + " in " + mj.container()+ "; incompatible " + "parameter types", mi.position());
+	                                + " in " + mj.container()+ "; incompatible " + "parameter types", mi.errorPosition());
 	}
 
 	boolean shouldReport = reporter.should_report(Reporter.types, 3);
@@ -765,7 +765,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	                                + " in " + mi.container() + " cannot override " + mj.signature() 
 	                                + " in " + mj.container()+ "; attempting to use incompatible return type." 
 	                                + "\n\tFound: " + mi.returnType() 
-	                                + "\n\tExpected: " + mj.returnType(),mi.position());
+	                                + "\n\tExpected: " + mj.returnType(),mi.errorPosition());
 	}
 
 /*	if (!ts.throwsSubset(mi, mj)) {
@@ -782,14 +782,14 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	    throw new SemanticException(mi.signature() 
 	                                + " in " + mi.container() + " cannot override " + mj.signature() 
 	                                + " in " + mj.container()+ "; attempting to assign weaker " 
-	                                + "access privileges", mi.position());
+	                                + "access privileges", mi.errorPosition());
 	}
 
 	if (mi.flags().isStatic() != mj.flags().isStatic()) {
 	    if (shouldReport)
 	        reporter.report(3, mi.signature() + " is " + (mi.flags().isStatic() ? "" : "not") + " static but " + mj.signature() + " is "
 	                      + (mj.flags().isStatic() ? "" : "not") + " static");
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is " + (mj.flags().isStatic() ? "" : "not") + "static", mi.position());
+	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is " + (mj.flags().isStatic() ? "" : "not") + "static", mi.errorPosition());
 	}
 
 	if (!mi.def().equals(mj.def()) && mj.flags().isFinal()) {
@@ -797,7 +797,7 @@ public abstract class TypeEnv_c implements TypeEnv, Cloneable {
 	    // method instance.
 	    if (shouldReport)
 	        reporter.report(3, mj.flags() + " final");
-	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is final", mi.position());
+	    throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()+ "; overridden method is final", mi.errorPosition());
 	}
     }
 

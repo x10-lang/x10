@@ -166,7 +166,7 @@ public class TypeParamAlphaRenamer extends NodeTransformingVisitor {
             TypeParamNode tpn = (TypeParamNode) n;
             ParameterType pt = tpn.type();
             if (hasType(pt)) {
-                ParameterType npt = new ParameterType(ts, pt.position().markCompilerGenerated(), Name.makeFresh(pt.name()), pt.def());
+                ParameterType npt = new ParameterType(ts, pt.position(), pt.position().markCompilerGenerated(), Name.makeFresh(pt.name()), pt.def());
                 mapType(pt, npt);
                 return tpn.type(npt).name(tpn.name().id(npt.name()));
             } else {

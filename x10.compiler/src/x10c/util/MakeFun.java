@@ -100,7 +100,7 @@ public class MakeFun {
 
 			fun_ps.println();
 
-			//     public static final RuntimeType<Fun_0_2<?,?,?>> $RTT = new FunType<Fun_0_2<?,?,?>>(
+			//     public static final RuntimeType<Fun_0_2<?,?,?>> $RTT = FunType.<Fun_0_2<?,?,?>> make(
 			String fun_unknowntypes = "<";
 			for (int i = 1; i <= n + 1; ++i) {
 				fun_unknowntypes += "?";
@@ -109,7 +109,7 @@ public class MakeFun {
 			}
 			fun_unknowntypes += ">";
 			fun_ps.print("    public static final RuntimeType<" + fun_name + fun_unknowntypes);
-			fun_ps.println("> " + X10PrettyPrinterVisitor.RTT_NAME + " = new " + X10PrettyPrinterVisitor.X10_FUN_CLASS_NAME_PREFIX + "Type<" + fun_name + fun_unknowntypes + ">(");
+                        fun_ps.println("> " + X10PrettyPrinterVisitor.RTT_NAME + " = " + X10PrettyPrinterVisitor.X10_FUN_CLASS_NAME_PREFIX + "Type.<" + fun_name + fun_unknowntypes + "> make(");
 
 			//         Fun_0_2.class,
 			fun_ps.println("        " + fun_name + ".class,");
@@ -167,7 +167,7 @@ public class MakeFun {
 
 			voidfun_ps.println();
 
-			//     public static final RuntimeType<VoidFun_0_2<?,?>> $RTT = new VoidFunType<VoidFun_0_2<?,?>>(
+			//     public static final RuntimeType<VoidFun_0_2<?,?>> $RTT = VoidFunType.<VoidFun_0_2<?,?>> make(
 			String voidfun_unknowntypes = "<";
 			for (int i = 1; i <= n; ++i) {
 				voidfun_unknowntypes += "?";
@@ -176,7 +176,7 @@ public class MakeFun {
 			}
 			voidfun_unknowntypes += ">";
 			voidfun_ps.print("    public static final RuntimeType<" + voidfun_name + voidfun_unknowntypes);
-			voidfun_ps.println("> " + X10PrettyPrinterVisitor.RTT_NAME + " = new " + X10PrettyPrinterVisitor.X10_VOIDFUN_CLASS_NAME_PREFIX + "Type<" + voidfun_name + voidfun_unknowntypes + ">(");
+                        voidfun_ps.println("> " + X10PrettyPrinterVisitor.RTT_NAME + " = " + X10PrettyPrinterVisitor.X10_VOIDFUN_CLASS_NAME_PREFIX + "Type.<" + voidfun_name + voidfun_unknowntypes + "> make(");
 			
 			//         VoidFun_0_2.class,
 			voidfun_ps.println("        " + voidfun_name + ".class,");

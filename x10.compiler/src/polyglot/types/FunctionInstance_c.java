@@ -7,8 +7,8 @@ import polyglot.util.Position;
 public abstract class FunctionInstance_c<T extends FunctionDef> extends ProcedureInstance_c<T> implements FunctionInstance<T> {
     private static final long serialVersionUID = 7771092895217853763L;
 
-    public FunctionInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
-        super(ts, pos, def);
+    public FunctionInstance_c(TypeSystem ts, Position pos, Position errorPos, Ref<? extends T> def) {
+        super(ts, pos, errorPos, def);
     }
     
     protected Ref<? extends Type> returnType;

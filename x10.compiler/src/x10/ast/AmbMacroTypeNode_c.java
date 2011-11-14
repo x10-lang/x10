@@ -479,7 +479,7 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
                         ct = (X10ParsedClassType) ts.createFakeClass(ct.fullName(), e);
                         int i = 0;
                         for (TypeNode ta : typeArgs) {
-                            ct.def().addTypeParameter(new ParameterType(ts, Position.COMPILER_GENERATED, Name.make("T"+(i++)), Types.ref(ct.def())), ParameterType.Variance.INVARIANT);
+                            ct.def().addTypeParameter(new ParameterType(ts, Position.COMPILER_GENERATED, Position.COMPILER_GENERATED, Name.make("T"+(i++)), Types.ref(ct.def())), ParameterType.Variance.INVARIANT);
                         }
                     }
                 }

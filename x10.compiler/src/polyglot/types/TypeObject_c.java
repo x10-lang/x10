@@ -21,6 +21,7 @@ public abstract class TypeObject_c implements TypeObject
 
     protected transient TypeSystem ts;
     protected Position position;
+    protected Position errorPosition;
 
     /** Used for deserializing types. */
     protected TypeObject_c() {
@@ -28,12 +29,13 @@ public abstract class TypeObject_c implements TypeObject
     
     /** Creates a new type in the given a TypeSystem. */
     public TypeObject_c(TypeSystem ts) {
-        this(ts, null);
+        this(ts, null, null);
     }
 
-    public TypeObject_c(TypeSystem ts, Position pos) {
+    public TypeObject_c(TypeSystem ts, Position pos, Position errorPos) {
 	this.ts = ts;
 	this.position = pos;
+	this.errorPosition = errorPos;
     }
 
     public Object copy() {
@@ -56,6 +58,10 @@ public abstract class TypeObject_c implements TypeObject
 
     public Position position() {
         return position;
+    }
+    
+    public Position errorPosition() {
+    	return errorPosition;
     }
 
     private void writeObject(ObjectOutputStream out) throws IOException {
