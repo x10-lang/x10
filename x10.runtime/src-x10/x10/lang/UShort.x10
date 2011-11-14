@@ -396,32 +396,32 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return a String representation of this UShort in the specified radix.
      */
     @Native("java", "java.lang.Integer.toString((#this) & 0xffff, #radix)")
-    @Native("c++", "x10aux::int_utils::toString((#0) & 0xffff, #1)")
-    public native def toString(radix:Int): String; /*  = ((this.shortVal & 0xFFFF) as Int).toString(radix); */
+    @Native("c++", "x10aux::short_utils::toString(#0, #1)")
+    public native def toString(radix:Int): String; 
 
     /**
      * Returns a String representation of this UShort as a hexadecimal number.
      * @return a String representation of this UShort as a hexadecimal number.
      */
     @Native("java", "java.lang.Integer.toHexString((#this) & 0xffff)")
-    @Native("c++", "x10aux::int_utils::toHexString((#0) & 0xffff)")
-    public native def toHexString(): String; /*  = this.shortVal.toHexString(); */
+    @Native("c++", "x10aux::short_utils::toString(#0, 16)")
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this UShort as an octal number.
      * @return a String representation of this UShort as an octal number.
      */
     @Native("java", "java.lang.Integer.toOctalString((#this) & 0xffff)")
-    @Native("c++", "x10aux::int_utils::toOctalString((#0) & 0xffff)")
-    public native def toOctalString(): String; /*  = this.shortVal.toOctalString(); */
+    @Native("c++", "x10aux::short_utils::toString(#0, 8)")
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this UShort as a binary number.
      * @return a String representation of this UShort as a binary number.
      */
     @Native("java", "java.lang.Integer.toBinaryString((#this) & 0xffff)")
-    @Native("c++", "x10aux::int_utils::toBinaryString((#0) & 0xffff)")
-    public native def toBinaryString(): String; /*  = this.shortVal.toBinaryString(); */
+    @Native("c++", "x10aux::short_utils::toString(#0, 2)")
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this UShort as a decimal number.
@@ -429,7 +429,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      */
     @Native("java", "java.lang.Integer.toString((#this) & 0xffff)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String; /*  = ((this.shortVal & 0xFFFF) as Int).toString(); */
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead

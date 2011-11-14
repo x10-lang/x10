@@ -102,7 +102,7 @@ public class NativeFile extends java.io.File implements RefI {
 	//
     // Runtime type information
     //
-    public static final RuntimeType<NativeFile> $RTT = new NamedType<NativeFile>(
+    public static final RuntimeType<NativeFile> $RTT = NamedType.<NativeFile> make(
         "x10.io.File.NativeFile",
         NativeFile.class,
         new Type[] { Types.OBJECT }

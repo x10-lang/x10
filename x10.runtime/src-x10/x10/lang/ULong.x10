@@ -392,40 +392,31 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "x10.core.Unsigned.toString(#this, #radix)")
     @Native("c++", "x10aux::long_utils::toString(#0, #1)")
-    public native def toString(radix:Int): String; /*  {
-        val realRadix = (radix < 2 || 36 < radix) ? 10 : radix; 
-        val hi:ULong = this/realRadix;
-        val lo:ULong = this%realRadix;
-        return hi == 0ul ? lo.longVal.toString(realRadix) :
-               hi.longVal.toString(realRadix) + lo.longVal.toString(realRadix);
-    } */
+    public native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this ULong as a hexadecimal number.
      * @return a String representation of this ULong as a hexadecimal number.
      */
-    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
     @Native("java", "java.lang.Long.toHexString(#this)")
-    @Native("c++", "x10aux::long_utils::toHexString(#0)")
-    public native def toHexString(): String; /*  = this.toString(16); */
+    @Native("c++", "x10aux::long_utils::toString(#0, 16)")
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this ULong as an octal number.
      * @return a String representation of this ULong as an octal number.
      */
-    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
     @Native("java", "java.lang.Long.toOctalString(#this)")
-    @Native("c++", "x10aux::long_utils::toOctalString(#0)")
-    public native def toOctalString(): String; /*  = this.toString(8); */
+    @Native("c++", "x10aux::long_utils::toString(#0, 8)")
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this ULong as a binary number.
      * @return a String representation of this ULong as a binary number.
      */
-    // N.B. "java.lang.Long.to{Binary,Octal,Hex}String(long)" handles the argument as unsigned but "java.lang.Long.toString(long,int)" does not.
     @Native("java", "java.lang.Long.toBinaryString(#this)")
-    @Native("c++", "x10aux::long_utils::toBinaryString(#0)")
-    public native def toBinaryString(): String; /*  = this.toString(2); */
+    @Native("c++", "x10aux::long_utils::toString(#0, 2)")
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this ULong as a decimal number.
@@ -433,7 +424,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      */
     @Native("java", "x10.core.Unsigned.toString(#this)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String; /* = this.toString(10); */
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead

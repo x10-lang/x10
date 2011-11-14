@@ -17,7 +17,7 @@
 
 namespace x10aux {
 
-    extern x10_int exitCode;
+    extern volatile x10_int exitCode;
 
     class system_utils {
     public:

@@ -12,14 +12,16 @@
 package x10.rtt;
 
 
+import java.lang.reflect.Array;
+
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
-public class UByteType extends RuntimeType<x10.core.UByte> {
-//public class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSerializable{
+public final class UByteType extends RuntimeType<x10.core.UByte> {
+//public final class UByteType extends RuntimeType<x10.core.UByte> implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UByteType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
@@ -30,10 +32,10 @@ public class UByteType extends RuntimeType<x10.core.UByte> {
     public UByteType() {
         super(x10.core.UByte.class,
             new Type[] {
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-        		new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-        		new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-        		new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }
@@ -43,39 +45,35 @@ public class UByteType extends RuntimeType<x10.core.UByte> {
         return "x10.lang.UByte";
     }
 
-    // for shortcut 
+    // for shortcut
     @Override
-    public boolean instanceOf(Object o) {
+    public boolean isInstance(Object o) {
         return o instanceof x10.core.UByte;
     }
     
     @Override
-    public byte[] makeArray(int length) {
-        return new byte[length];
+    public byte[] makeArray(int dim0) {
+        return new byte[dim0];
     }
     
     @Override
-	public byte[][] makeArray(int dim0, int dim1) {
+    public byte[][] makeArray(int dim0, int dim1) {
         return new byte[dim0][dim1];
-	}
-
-	@Override
-	public byte[][][] makeArray(int dim0, int dim1, int dim2) {
+    }
+    
+    @Override
+    public byte[][][] makeArray(int dim0, int dim1, int dim2) {
         return new byte[dim0][dim1][dim2];
-	}
-
-	@Override
-	public byte[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+    }
+    
+    @Override
+    public byte[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
         return new byte[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public byte[] makeArray(Object... elem) {
-        byte[] arr = new byte[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.UByte.$unbox(elem[i]);
-        }
-        return arr;
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(byte.class, dims);
     }
     
     @Override
@@ -83,12 +81,6 @@ public class UByteType extends RuntimeType<x10.core.UByte> {
         return x10.core.UByte.$box(((byte[]) array)[i]);
     }
     
-//    @Override
-//    public x10.core.UByte setArray(Object array, int i, x10.core.UByte v) {
-//        // avoid boxing again
-//        ((int[]) array)[i] = x10.core.UByte.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.UByte v) {
         ((byte[]) array)[i] = x10.core.UByte.$unbox(v);

@@ -29,7 +29,7 @@ import x10.compiler.NativeRep;
  * of this class is safe, but there are some loopholes that can be 
  * used when absolutely necessary for performance..<p>
  */
-@NativeRep("java", "x10.core.IndexedMemoryChunk<#T$box>", null, "new x10.rtt.ParameterizedType(x10.core.IndexedMemoryChunk.$RTT, #T$rtt)")
+@NativeRep("java", "x10.core.IndexedMemoryChunk<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.IndexedMemoryChunk.$RTT, #T$rtt)")
 @NativeRep("c++", "x10::util::IndexedMemoryChunk<#T >", "x10::util::IndexedMemoryChunk<#T >", null)
 public struct IndexedMemoryChunk[T] {
 

@@ -96,7 +96,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     public static def make[T](pg:PlaceGroup, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         finish for (p in pg) {
-            async at (p) handle.set(init());
+            at (p) async handle.set(init());
         }
         return handle;
     }
@@ -119,7 +119,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         finish for (p in pg) {
             val v:U = init_here(p);
-            async at (p) handle.set(init_there(v));
+            at (p) async handle.set(init_there(v));
         }
         return handle;
     }
@@ -181,7 +181,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
     public static def makeFlat[T](pg:PlaceGroup, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         @Pragma(Pragma.FINISH_SPMD) finish for (p in pg) {
-            async at (p) handle.set(init());
+            at (p) async handle.set(init());
         }
         return handle;
     }
@@ -206,7 +206,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         @Pragma(Pragma.FINISH_SPMD) finish for (p in pg) {
             val v:U = init_here(p);
-            async at (p) handle.set(init_there(v));
+            at (p) async handle.set(init_there(v));
         }
         return handle;
     }

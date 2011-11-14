@@ -126,7 +126,7 @@ public class OutputStream extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<OutputStream> $RTT = new NamedType<OutputStream>(
+    public static final RuntimeType<OutputStream> $RTT = NamedType.<OutputStream> make(
         "x10.io.OutputStreamWriter.OutputStream",
         OutputStream.class,
         new Type[] { Types.OBJECT }
@@ -180,7 +180,7 @@ public class OutputStream extends Ref {
         public void write(byte[] b, int off, int len) {
             throw new x10.lang.UnsupportedOperationException();
         }
-        public static final RuntimeType<WriterOutputStream> $RTT = new NamedType<WriterOutputStream>(
+        public static final RuntimeType<WriterOutputStream> $RTT = NamedType.<WriterOutputStream> make(
             "x10.io.OutputStreamWriter.OutputStream.WriterOutputStream",
             WriterOutputStream.class,
             new Type[] { OutputStream.$RTT }

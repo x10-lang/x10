@@ -12,7 +12,7 @@
 package x10.rtt;
 
 
-public class StructType extends RuntimeType<x10.core.StructI> {
+public final class StructType extends RuntimeType<x10.core.StructI> {
 
     private static final long serialVersionUID = 1L;
 

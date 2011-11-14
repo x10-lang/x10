@@ -35,10 +35,10 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, GlobalRef.class, "x10.lang.GlobalRef");
 
-    public static final RuntimeType<GlobalRef<?>> $RTT = new x10.rtt.NamedType<GlobalRef<?>>(
+    public static final RuntimeType<GlobalRef<?>> $RTT = x10.rtt.NamedType.<GlobalRef<?>> make(
         "x10.lang.GlobalRef",
         GlobalRef.class,
-        new Variance[] { Variance.INVARIANT },
+        RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
     @Override
@@ -245,7 +245,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     }
 
     final public boolean _struct_equals$O(java.lang.Object other) {
-        if (!x10.core.GlobalRef.$RTT.instanceOf(other, T)) {
+        if (!x10.core.GlobalRef.$RTT.isInstance(other, T)) {
             return false;
         }
         return this._struct_equals((x10.core.GlobalRef<T>) other);
@@ -336,7 +336,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
 	private static final long serialVersionUID = 1L;
 	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalEval.class);
-	public static final RuntimeType<LocalEval> $RTT = new x10.rtt.NamedType<LocalEval>("x10.lang.GlobalRef.LocalEval", LocalEval.class, new Type[] {Types.OBJECT});
+	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class, new Type[] {Types.OBJECT});
 	@Override
 	public RuntimeType<?> $getRTT() {return $RTT;}
     
@@ -386,9 +386,9 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    private static final long serialVersionUID = 1L;
 	    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Eval.class);
 	    public static final RuntimeType<$Closure$Eval> $RTT =
-		new x10.rtt.StaticFunType<$Closure$Eval>($Closure$Eval.class, 
-							 new Variance[] {Variance.INVARIANT, Variance.INVARIANT},
-							 new Type[] {new x10.rtt.ParameterizedType(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1)), Types.OBJECT});
+		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 
+							 RuntimeType.INVARIANTS(2),
+							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1)), Types.OBJECT});
 	    @Override
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    @Override
@@ -452,9 +452,9 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    private static final long serialVersionUID = 1L;
 	    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Apply.class);
 	    public static final RuntimeType<$Closure$Apply> $RTT =
-		new x10.rtt.StaticFunType<$Closure$Apply>($Closure$Apply.class, 
-							  new Variance[] {Variance.INVARIANT},
-							  new Type[] {new x10.rtt.ParameterizedType(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0)), Types.OBJECT});
+		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class,
+                                                          RuntimeType.INVARIANTS(1),
+							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0)), Types.OBJECT});
 	    @Override
 	    public RuntimeType<?> $getRTT() {return $RTT;}
 	    @Override

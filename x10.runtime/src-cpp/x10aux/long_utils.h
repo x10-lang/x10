@@ -25,10 +25,9 @@ namespace x10aux {
     class long_utils {
     public:
         static const ref<x10::lang::String> toString(x10_long value, x10_int radix);
-        static const ref<x10::lang::String> toHexString(x10_long value);
-        static const ref<x10::lang::String> toOctalString(x10_long value);
-        static const ref<x10::lang::String> toBinaryString(x10_long value);
         static const ref<x10::lang::String> toString(x10_long value);
+        static const ref<x10::lang::String> toString(x10_ulong value, x10_int radix);
+        static const ref<x10::lang::String> toString(x10_ulong value);
         static x10_long parseLong(ref<x10::lang::String> s, x10_int radix);
         static x10_long parseLong(ref<x10::lang::String> s) { return parseLong(s, 10); }
         static x10_ulong parseULong(ref<x10::lang::String> s, x10_int radix);

@@ -395,32 +395,32 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return a String representation of this UByte in the specified radix.
      */
     @Native("java", "java.lang.Integer.toString((#this) & 0xff, #radix)")
-    @Native("c++", "x10aux::int_utils::toString((#0) & 0xff, #1)")
-    public native def toString(radix:Int): String; /*  = ((this.byteVal & 0xFF) as Int).toString(radix); */
+    @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
+    public native def toString(radix:Int): String;
 
     /**
      * Returns a String representation of this UByte as a hexadecimal number.
      * @return a String representation of this UByte as a hexadecimal number.
      */
     @Native("java", "java.lang.Integer.toHexString((#this) & 0xff)")
-    @Native("c++", "x10aux::int_utils::toHexString((#0) & 0xff)")
-    public native def toHexString(): String; /*  = this.byteVal.toHexString(); */
+    @Native("c++", "x10aux::byte_utils::toString(#0, 16)")
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this UByte as an octal number.
      * @return a String representation of this UByte as an octal number.
      */
     @Native("java", "java.lang.Integer.toOctalString((#this) & 0xff)")
-    @Native("c++", "x10aux::int_utils::toOctalString((#0) & 0xff)")
-    public native def toOctalString(): String; /*  = this.byteVal.toOctalString(); */
+    @Native("c++", "x10aux::byte_utils::toString(#0, 8)")
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this UByte as a binary number.
      * @return a String representation of this UByte as a binary number.
      */
     @Native("java", "java.lang.Integer.toBinaryString((#this) & 0xff)")
-    @Native("c++", "x10aux::int_utils::toBinaryString((#0) & 0xff)")
-    public native def toBinaryString(): String; /*  = this.byteVal.toBinaryString(); */
+    @Native("c++", "x10aux::byte_utils::toString(#0, 2)")
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this UByte as a decimal number.
@@ -428,7 +428,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      */
     @Native("java", "java.lang.Integer.toString((#this) & 0xff)")
     @Native("c++", "x10aux::to_string(#0)")
-    public native def toString(): String; /*  = ((this.byteVal & 0xFF) as Int).toString(); */
+    public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead

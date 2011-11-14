@@ -340,10 +340,13 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 		if (select(fd_max+1, &infds, NULL, &efds, &timeout) < 0)
 			break; // select error.  This can happen when we're in the middle of shutdown
 
-		if (_dieAt > 0)
+		if (_singleton->_dieAt > 0)
 		{
 			time_t now = time(NULL);
-			if (now >= _dieAt)
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: Time to die=%lu, current time=%lu\n", _myproc, _dieAt, now);
+			#endif
+			if (now >= _singleton->_dieAt)
 				break;
 		}
 
@@ -408,69 +411,75 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 
 	signal(SIGCHLD, SIG_DFL); // disable the SIGCHLD handler
 
-	// save the return code for place 0.
-	int exitcode = _returncode; // exitcode is here to cover up any issues with using a static variable for the exit code, which may happen on Windows (and AIX?).
-	if ((_myproc==0 || _myproc==0xFFFFFFFF) && _pidlst[_numchildren] != -1)
-	{
-	    int status;
- 		if (waitpid(_pidlst[_numchildren], &status, 0) == _pidlst[_numchildren])
-		{
- 			if (WIFEXITED(status))
- 			{
- 				exitcode = WEXITSTATUS(status);
-//				if (exitcode != 0)
-//					fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
- 			}
- 			else if (WIFSIGNALED(status))
- 			{
- 				if (WTERMSIG(status) == SIGPIPE) // normal at shutdown
- 					exitcode = 0;
- 				else
- 				{
-					exitcode = 128 + WTERMSIG(status);
-//					fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
- 				}
- 			}
- 			else if (WIFSTOPPED(status))
- 			{
- 				exitcode = 128 + WSTOPSIG(status);
-// 				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
- 			}
-// 			else if (WIFCONTINUED(status))
-// 				fprintf(stdout, "Launcher %d: local runtime continue signal detected\n", _myproc);
-// 			else
-// 				fprintf(stdout, "Launcher %d: local runtime exit status unknown\n", _myproc);
- 			_pidlst[_numchildren] = -1;
-		}
-	}
-
 	// shut down any connections if they still exist
 	handleDeadParent();
 
-	// wait for and clean up any leftover launchers (prevent zombies)
+	// clean up any leftover children (prevent zombies) and process exit code
+	// launchers -1 and 0 may hang forever if runtime at place 0 hangs
+	// other launchers and runtimes should always terminate
+	int status;
+
+	// first wait for sublaunchers to exit
+	// sublaunchers should die on their own because we previously cut connections with them
 	for (uint32_t i = 0; i < _numchildren; i++)
 	{
 		if (_pidlst[i] != -1)
-		{
-			waitpid(_pidlst[i], NULL, 0);
-			_pidlst[i] = -1;
-		}
+			waitpid(_pidlst[i], &status, 0);
 	}
 
-	// take out the local runtime, if it's still kicking
+	// second kill local runtimes at place > 0, or if we're exiting due to a signal at some other place
 	if (_pidlst[_numchildren] != -1)
 	{
-		kill(_pidlst[_numchildren], SIGKILL);
-		waitpid(_pidlst[_numchildren], NULL, 0);
-		_pidlst[_numchildren] = -1;
+		if ((_myproc!=0 && _myproc!=0xFFFFFFFF) || _exitcode != (int)0xFEEDC0DE)
+			kill(_pidlst[_numchildren], SIGKILL);
+
+		// finally wait for local runtime/launcher 0
+		waitpid(_pidlst[_numchildren], &status, 0);
+	}
+
+	if (_exitcode == (int)0xFEEDC0DE) // capture the runtime exit code if we haven't already saved one previously
+	{
+		// propagate exit code of local runtime/launcher 0
+		if (WIFEXITED(status))
+		{
+			_exitcode = WEXITSTATUS(status);
+			#ifdef DEBUG
+				if (_exitcode != 0) fprintf(stdout, "Launcher %d: local runtime exited with code %i\n", _myproc, WEXITSTATUS(status));
+			#endif
+		}
+		else if (WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGPIPE) // normal at shutdown
+				_exitcode = 0;
+			else
+			{
+				_exitcode = 128 + WTERMSIG(status);
+				#ifdef DEBUG
+					fprintf(stdout, "Launcher %d: local runtime exited with signal %i\n", _myproc, WTERMSIG(status));
+				#endif
+			}
+		}
+		else if (WIFSTOPPED(status))
+		{
+			_exitcode = 128 + WSTOPSIG(status);
+			#ifdef DEBUG
+				fprintf(stdout, "Launcher %d: local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
+			#endif
+		}
+		#ifdef DEBUG
+		else if (WIFCONTINUED(status))
+			fprintf(stdout, "Launcher %d: local runtime continue signal detected\n", _myproc);
+		else
+			fprintf(stdout, "Launcher %d: local runtime exit status unknown\n", _myproc);
+		#endif
 	}
 
 	// free up allocated memory (not really needed, since we're about to exit)
 	free(_hostlist);
 	#ifdef DEBUG
-		fprintf(stderr, "Launcher %u: cleanup complete.  Goodbye!\n", _myproc);
+		fprintf(stderr, "Launcher %u: cleanup complete, exit code=%u.  Goodbye!\n", _myproc, _exitcode);
 	#endif
-	exit(exitcode);
+	exit(_exitcode);
 }
 
 /* *********************************************************************** */
@@ -689,12 +698,76 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 		#endif
 	}
 
+	// check to see if all of this child's links are down
+	if (_childControlLinks[childNo]>=0 || _childCoutLinks[childNo]>=0 || _childCerrorLinks[childNo]>=0)
+		return true; // some parts of this child are still alive
+
+	// if we reach here, then this child is dead.  Check out why.
+	int status;
+	waitpid(_pidlst[childNo], &status, 0);
+	_pidlst[childNo] = -1;
+
+	#ifdef DEBUG
+		fprintf(stderr, "Launcher %u: captured exit code %s, %i of child %u\n", _myproc, (WIFEXITED(status)?"true":"false"), WEXITSTATUS(status), childNo);
+	#endif
+	// save this return code if it's worth saving.  The local runtime overwrites other runtimes if there are multiple errors (runtime 0 is top dog).
+	if (_exitcode == (int)0xFEEDC0DE || (childNo == _numchildren && !(WIFSIGNALED(status) && WTERMSIG(status)==SIGTERM)))
+	{
+		if (childNo == _numchildren)
+		{
+			if (WIFEXITED(status))
+			{
+				_exitcode = WEXITSTATUS(status);
+				if (_exitcode > 0 && _myproc > 0 && _myproc != 0xFFFFFFFF)
+					fprintf(stderr, "Place %u exited unexpectedly with exit code: %i\n", _myproc, _exitcode);
+			}
+			else if (WIFSIGNALED(status))
+			{
+				if (WTERMSIG(status) != SIGPIPE) // normal at shutdown
+				{
+					_exitcode = 128 + WTERMSIG(status);
+					fprintf(stderr, "Place %u exited unexpectedly with signal: %s\n", _myproc, strsignal(WTERMSIG(status)));
+				}
+			}
+			else if (WIFSTOPPED(status))
+			{
+				_exitcode = 128 + WSTOPSIG(status);
+				#ifdef DEBUG
+					fprintf(stdout, "Launcher %d: Local runtime stopped with code %i\n", _myproc, WSTOPSIG(status));
+				#endif
+			}
+			#ifdef DEBUG
+			else if (WIFCONTINUED(status))
+				fprintf(stdout, "Launcher %d: Local runtime continue signal detected\n", _myproc);
+			else
+				fprintf(stdout, "Launcher %d: Local runtime exit status unknown\n", _myproc);
+			#endif
+		}
+		else if (WIFEXITED(status) && WEXITSTATUS(status) > 0)
+		{
+			// this indicates that one of our child launchers caught exited abnormally
+			// forward the signal and exit immediately
+			_exitcode = WEXITSTATUS(status);
+			#ifdef DEBUG
+				fprintf(stdout, "Launcher %d: child runtime gave return code %i.  Forwarding.\n", _myproc, _exitcode);
+			#endif
+			Launcher::cb_sighandler_term(SIGTERM);
+			return false;
+		}
+	}
+	#ifdef DEBUG
+	else
+		fprintf(stderr, "Launcher %u: exit code is already set\n", _myproc);
+	#endif
+
+	// start the deadman timer
+	Launcher::cb_sighandler_cld(SIGTERM);
+
 	// check to see if *all* child links are down
 	for (uint32_t i=0; i<=_numchildren; i++)
 	{
-		if (_childControlLinks[i] >= 0) return true;
-		if (_childCoutLinks[i] >= 0) return true;
-		if (_childCerrorLinks[i] >= 0) return true;
+		if (_pidlst[i] != -1)
+			return true;
 	}
 	return false;
 }
@@ -714,8 +787,13 @@ bool Launcher::handleDeadParent()
 
 	// take down all the children
 	for (uint32_t i=0; i<=_numchildren; i++)
-		for (int j=0; j<=2; j++)
-			handleDeadChild(i, j);
+	{
+		if (_pidlst[i] != -1)
+		{
+			for (int j=0; j<=2; j++)
+				handleDeadChild(i, j);
+		}
+	}
 	return false;
 }
 
@@ -916,64 +994,14 @@ int Launcher::forwardMessage(struct ctrl_msg* message, char* data)
 
 void Launcher::cb_sighandler_cld(int signo)
 {
-	int status;
-	int pid=wait(&status);
-
-	for (uint32_t i=0; i<=_singleton->_numchildren; i++)
-	{
-		if (_singleton->_pidlst[i] == pid)
-		{
-			_singleton->_pidlst[i] = -1;
-			if (i == _singleton->_numchildren)
-			{
-				#ifdef DEBUG
-				fprintf(stderr, "Launcher %d: SIGCHLD from runtime (pid=%d), status=%d, signaled=%d, wtermsig=%d\n", _singleton->_myproc, pid, WEXITSTATUS(status), WIFSIGNALED(status), WTERMSIG(status));
-				if (WEXITSTATUS(status) != 0)
-					fprintf(stderr, "Launcher %d: non-zero return code from local runtime (pid=%d), status=%d (previous stored status=%d)\n", _singleton->_myproc, pid, WEXITSTATUS(status), WEXITSTATUS(_singleton->_returncode));
-				#endif
-				if (WIFEXITED(status))
-				{
-					_singleton->_returncode = WEXITSTATUS(status);
-					// On RHEL 6, we sometimes get a 222 instead of 0.  It's a mystery why - seems to be a special feature of RHEL6.  Masking.
-					if (_singleton->_myproc==-1 && _singleton->_returncode==222)
-						_singleton->_returncode = 0;
-//					if (_singleton->_returncode != 0)
-//						fprintf(stdout, "Launcher %d: runtime exited with code %i, signal %i\n", _singleton->_myproc, WEXITSTATUS(status), signo);
-				}
-				else if (WIFSIGNALED(status))
-				{
-					if (WTERMSIG(status) == SIGPIPE) // normal at shutdown time
-						_singleton->_returncode = 0;
-					else
-					{
-						_singleton->_returncode = 128 + WTERMSIG(status);
-//						fprintf(stdout, "Launcher %d: runtime exited with signal %i\n", _singleton->_myproc, WTERMSIG(status));
-					}
-				}
-				else if (WIFSTOPPED(status))
-				{
-					_singleton->_returncode = 128 + WSTOPSIG(status);
-//					fprintf(stdout, "Launcher %d: runtime stopped with code %i\n", _singleton->_myproc, WSTOPSIG(status));
-				}
-//	 			else if (WIFCONTINUED(status))
-//	 				fprintf(stdout, "Launcher %d: runtime continue signal detected\n", _singleton->_myproc);
-//	 			else
-//	 				fprintf(stdout, "Launcher %d: runtime exit status unknown\n", _singleton->_myproc);
-
-				if (_singleton->_runtimePort[0] != '\0')
-					sprintf(_singleton->_runtimePort, "PLACE_%u_IS_DEAD", _singleton->_myproc);
-			}
-			#ifdef DEBUG
-			else
-				fprintf(stderr, "Launcher %d: SIGCHLD from child launcher for place %d (pid=%d), status=%d\n", _singleton->_myproc, i+_singleton->_firstchildproc, pid, WEXITSTATUS(status));
-			#endif
-
-			break;
-		}
-	}
 	// limit our lifetime to a few seconds, to allow any children to shut down on their own. Then kill em' all.
 	if (_singleton->_dieAt == 0)
+	{
 		_singleton->_dieAt = 2+time(NULL);
+		#ifdef DEBUG
+			fprintf(stderr, "Launcher %u: started the doomsday device\n", _singleton->_myproc);
+		#endif
+	}
 }
 
 void Launcher::cb_sighandler_term(int signo)
@@ -1059,15 +1087,15 @@ static char *escape_various_things (const char *in)
 static char *escape_various_things2 (const char *in)
 {
     size_t sz = strlen(in);
-    size_t out_sz = 0;
-    char *out = NULL;
+    size_t out_sz = sz+5;
+    char *out = (char*) malloc(sz+5);
     size_t out_cnt = 0;
+    out[out_cnt++] = '\''; // beginning quote
     for (size_t i=0 ; i<sz ; ++i) {
         if (out_cnt+5 >= out_sz) {
             out_sz = out_cnt+10;
             out = static_cast<char*>(realloc(out, out_sz+1));
         }
-        if (i==0) out[out_cnt++] = '\''; // beginning quote
         switch (in[i]) {
              case '\'': // ' will break bash, turn it into "'" (but come out of the existing single quote first)
             out[out_cnt++] = '\'';

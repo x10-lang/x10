@@ -219,7 +219,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
         }
         public static final RuntimeType<$Closure$0> $RTT =
-        	new x10.rtt.StaticVoidFunType<$Closure$0>($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
+        	x10.rtt.StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
         @Override
         public RuntimeType<$Closure$0> $getRTT() { return $RTT; }
 
@@ -406,7 +406,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             x10.lang.Runtime.runAsync(dstWrapperHome, copyBody2);
         }
         public static final RuntimeType<$Closure$1<?>> $RTT =
-        	new x10.rtt.StaticVoidFunType<$Closure$1<?>>($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
+        	x10.rtt.StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
         @Override
         public RuntimeType<$Closure$1<?>> $getRTT() { return $RTT; }
 
@@ -483,10 +483,10 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     	return null;
     }
 
-    public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = new NamedType<IndexedMemoryChunk<?>>(
+    public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = NamedType.<IndexedMemoryChunk<?>> make(
         "x10.util.IndexedMemoryChunk",
         IndexedMemoryChunk.class,
-        new Variance[] { Variance.INVARIANT },
+        RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
     @Override

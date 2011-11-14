@@ -33,8 +33,8 @@ static void report_fault(int signal)
 int main(int argc, char **argv)
 {
 	// the default signal handler doesn't flush stderr, so we register our own, which does.
-	signal(SIGSEGV,report_fault);
-	signal(SIGFPE,report_fault);
+//	signal(SIGSEGV,report_fault);
+//	signal(SIGFPE,report_fault);
 
     x10rt_init(&argc, &argv);
     x10rt_registration_complete();

@@ -100,7 +100,7 @@ abstract class FinishState {
         }
         public def waitForFinish() {
             notifyActivityTermination();
-            if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
+            if ((!Runtime.STRICT_FINISH) && Runtime.STATIC_THREADS) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
@@ -176,7 +176,6 @@ abstract class FinishState {
             exception = t;
         }
         public def waitForFinish():void {
-            if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
             latch.await();
             val t = MultipleExceptions.make(exception);
             if (null != t) throw t;
@@ -391,7 +390,9 @@ abstract class FinishState {
         }
         public def waitForFinish():void {
             notifyActivityTermination();
-            if (!Runtime.STRICT_FINISH) Runtime.worker().join(latch);
+            if ((!Runtime.STRICT_FINISH) && (Runtime.STATIC_THREADS || (counts.length() == 0))) {
+                Runtime.worker().join(latch);
+            }
             latch.await();
             if (counts.length() != 0) {
                 val root = ref();

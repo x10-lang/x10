@@ -11,7 +11,7 @@
  
 package x10.compiler;
 
-@NativeRep("java", "x10.core.LocalVar<#T$box>", null, "new x10.rtt.ParameterizedType(x10.core.LocalVar.$RTT, #T$rtt)")
+@NativeRep("java", "x10.core.LocalVar<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.LocalVar.$RTT, #T$rtt)")
 public class LocalVar[T] {
 
     public def this(local:T):LocalVar[T] {}

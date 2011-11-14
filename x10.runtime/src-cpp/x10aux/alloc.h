@@ -130,6 +130,9 @@ namespace x10aux {
     // The accuracy of result returned by this method will vary widely depending on
     // the underlying implementation of allocation.
     size_t heap_size();
+
+    // Trigger a GC.  No-op if no GC...
+    void trigger_gc();
 }
 
 #endif

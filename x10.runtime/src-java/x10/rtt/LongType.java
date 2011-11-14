@@ -16,11 +16,12 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class LongType extends RuntimeType<x10.core.Long> {
-//public class LongType extends RuntimeType<x10.core.Long> implements X10JavaSerializable{
+public final class LongType extends RuntimeType<x10.core.Long> {
+//public final class LongType extends RuntimeType<x10.core.Long> implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LongType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
@@ -31,10 +32,10 @@ public class LongType extends RuntimeType<x10.core.Long> {
     public LongType() {
         super(x10.core.Long.class,
             new Type[] {
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-                new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }
@@ -44,41 +45,37 @@ public class LongType extends RuntimeType<x10.core.Long> {
         return "x10.lang.Long";
     }
 
-    // for shortcut 
+    // for shortcut
     @Override
-    public boolean instanceOf(Object o) {
+    public boolean isInstance(Object o) {
         return o instanceof x10.core.Long;
     }
     
     @Override
-    public long[] makeArray(int length) {
-        return new long[length];
+    public long[] makeArray(int dim0) {
+        return new long[dim0];
     }
     
     @Override
-	public long[][] makeArray(int dim0, int dim1) {
+    public long[][] makeArray(int dim0, int dim1) {
         return new long[dim0][dim1];
-	}
-
-	@Override
-	public long[][][] makeArray(int dim0, int dim1, int dim2) {
-        return new long[dim0][dim1][dim2];
-	}
-
-	@Override
-	public long[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
-        return new long[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public long[] makeArray(Object... elem) {
-        long[] arr = new long[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.Long.$unbox(elem[i]);
-        }
-        return arr;
     }
     
+    @Override
+    public long[][][] makeArray(int dim0, int dim1, int dim2) {
+        return new long[dim0][dim1][dim2];
+    }
+    
+    @Override
+    public long[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+        return new long[dim0][dim1][dim2][dim3];
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(long.class, dims);
+    }
+
     @Override
     public x10.core.Long getArray(Object array, int i) {
         return x10.core.Long.$box(((long[]) array)[i]);

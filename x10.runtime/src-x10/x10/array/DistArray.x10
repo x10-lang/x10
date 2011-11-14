@@ -481,7 +481,7 @@ public final class DistArray[T] (
      */
     public def fill(v:T) {
         finish for (where in dist.places()) {
-            async at (where) {
+            at (where) async {
                 val imc = raw();
                 val reg = dist.get(here);
                 for (pt in reg) {
@@ -527,7 +527,7 @@ public final class DistArray[T] (
     public final def map[U](dst:DistArray[U](this.dist), op:(T)=>U):DistArray[U](dist){self==dst} {
         finish {
             for (where in dist.places()) {
-                async at(where) {
+                at(where) async {
                     val reg = dist.get(here);
                     val srcImc = raw();
                     val dstImc = dst.raw();
@@ -556,7 +556,7 @@ public final class DistArray[T] (
     public final def map[U](dst:DistArray[U](this.dist), filter:Region(rank), op:(T)=>U):DistArray[U](dist){self==dst} {
         finish {
             for (where in dist.places()) {
-                async at(where) {
+                at(where) async {
                     val reg = dist.get(here);
                     val freg = reg && filter;
                     val srcImc = raw();
@@ -610,7 +610,7 @@ public final class DistArray[T] (
     public final def map[S,U](dst:DistArray[S](this.dist), src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
         finish {
             for (where in dist.places()) {
-                async at(where) {
+                at(where) async {
                     val reg = dist.get(here);
                     val src1Imc = raw();
                     val src2Imc = src.raw();
@@ -640,7 +640,7 @@ public final class DistArray[T] (
     public final def map[S,U](dst:DistArray[S](this.dist), src:DistArray[U](this.dist), filter:Region(rank), op:(T,U)=>S):DistArray[S](dist) {
         finish {
             for (where in dist.places()) {
-                async at(where) {
+                at(where) async {
                     val reg = dist.get(here);
                     val freg = reg && filter;
                     val src1Imc = raw();
@@ -690,7 +690,7 @@ public final class DistArray[T] (
 
         val result = finish(reducer) {
             for (where in dist.places()) {
-                async at (where) {
+                at (where) async {
                     val reg = dist.get(here);
                     var localRes:U = unit;
                     val imc = raw();

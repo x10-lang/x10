@@ -22,25 +22,48 @@ using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
+
+static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
+                           'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
+                           'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
+                           'x', 'y', 'z' };
+
 const ref<String> x10aux::long_utils::toString(x10_long value, x10_int radix) {
-    (void) value; (void) radix;
-    UNIMPLEMENTED("toString");
-    return X10_NULL;
-}
-
-const ref<String> x10aux::long_utils::toHexString(x10_long value) {
-    return x10aux::long_utils::toString(value, 16);
-}
-
-const ref<String> x10aux::long_utils::toOctalString(x10_long value) {
-    return x10aux::long_utils::toString(value, 8);
-}
-
-const ref<String> x10aux::long_utils::toBinaryString(x10_long value) {
-    return x10aux::long_utils::toString(value, 2);
+    if (0 == value) return String::Lit("0");
+    if (radix < 2 || radix > 36) radix = 10;
+    // worst case is binary of Long.MIN_VALUE -- - plus 64 digits and a '\0'
+    char buf[66] = ""; //zeroes entire buffer (S6.7.8.21)
+    x10_long value2 = value;
+    char *b;
+    // start on the '\0', will predecrement so will not clobber it
+    for (b=&buf[65] ; value2 != 0 ; value2/=radix) {
+        *(--b) = numerals[::abs((int)(value2 % radix))];
+    }
+    if (value < 0) {
+        *(--b) = '-';
+    }
+    return String::Steal(alloc_printf("%s",b));
 }
 
 const ref<String> x10aux::long_utils::toString(x10_long value) {
+    return to_string(value);
+}
+
+const ref<String> x10aux::long_utils::toString(x10_ulong value, x10_int radix) {
+    if (0 == value) return String::Lit("0");
+    if (radix < 2 || radix > 36) radix = 10;
+    // worst case is binary: 64 digits and a '\0'
+    char buf[65] = ""; //zeroes entire buffer (S6.7.8.21)
+    x10_ulong value2 = value;
+    char *b;
+    // start on the '\0', will predecrement so will not clobber it
+    for (b=&buf[64] ; value2>0 ; value2/=radix) {
+        *(--b) = numerals[value2 % radix];
+    }
+    return String::Steal(alloc_printf("%s",b));
+}
+
+const ref<String> x10aux::long_utils::toString(x10_ulong value) {
     return to_string(value);
 }
 

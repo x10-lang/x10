@@ -29,8 +29,7 @@ public class Types {
         Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
         if (supportTypeParameterOfJavaType && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
             // type parameters for unknown raw Java classes are Any
-            RuntimeType.Variance[] variances = new RuntimeType.Variance[typeVariables.length];
-            java.util.Arrays.fill(variances, RuntimeType.Variance.INVARIANT);
+            RuntimeType.Variance[] variances = RuntimeType.INVARIANTS(typeVariables.length);
             // add superclass and all interfaces to parents
             Type<?>[] parents = new Type[interfaces.length + (superclass != null ? 1 : 0)];
             int i = 0;
@@ -41,7 +40,7 @@ public class Types {
                     Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
                     // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
-                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                    parents[i] = ParameterizedType.make(parentRTT, parentParams);
                 } else {
                     parents[i] = parentRTT;
                 }
@@ -54,15 +53,15 @@ public class Types {
                     Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
                     // TODO bounds
                     java.util.Arrays.fill(parentParams, ANY);
-                    parents[i] = new ParameterizedType(parentRTT, parentParams);
+                    parents[i] = ParameterizedType.make(parentRTT, parentParams);
                 } else {
                     parents[i] = parentRTT;
                 }
                 ++i;
             }
-            return new RuntimeType(impl, variances, parents);
+            return RuntimeType.make(impl, variances, parents);
         } else {
-            return new RuntimeType(impl);
+            return RuntimeType.make(impl);
         }
         // TODO cache RTT to WeakHashMap<Class,RuntimeType>
     }
@@ -200,22 +199,6 @@ public class Types {
     	return Double.toString(value);
     }
     
-    // for convenience
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt) {
-        return rtt.instanceOf(o);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0) {
-        return rtt.instanceOf(o, param0);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1) {
-        return rtt.instanceOf(o, param0, param1);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?> param0, Type<?> param1, Type<?> param2) {
-        return rtt.instanceOf(o, param0, param1, param2);
-    }
-    public static boolean instanceOf(Object o, RuntimeType<?> rtt, Type<?>... params) {
-        return rtt.instanceOf(o, params);
-    }
     // box java primitives to x10 boxed types
     public static Object $box(Object o) {
         if (o instanceof java.lang.Byte) {
@@ -331,10 +314,9 @@ public class Types {
     // create rtt of comparable before all types that implement comparable (e.g. int)
     public static final RuntimeType<Comparable> COMPARABLE = new NamedType<Comparable>(
         "x10.lang.Comparable",
-        Comparable.class, 
-        new RuntimeType.Variance[] {
-            RuntimeType.Variance.INVARIANT
-        }
+        Comparable.class,
+        RuntimeType.INVARIANTS(1),
+        null
     ) {
         // make sure deserialized RTT object is not duplicated
         private Object readResolve() throws java.io.ObjectStreamException {
@@ -378,7 +360,7 @@ public class Types {
         return false;
     }
     static boolean isStructType(Type<?> rtt) {
-    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isSubtype(STRUCT);
+    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isAssignableTo(STRUCT);
     }
 
     
@@ -567,19 +549,19 @@ public class Types {
     private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     public static boolean hasNaturalZero(Type<?> rtt) {
-    	return rtt.isSubtype(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
+    	return rtt.isAssignableTo(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
     }
 
     public static <T> T cast(final java.lang.Object self, Type<?> rtt) {
         if (self == null) return null;
-        if (rtt != null && !rtt.instanceOf(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.isInstance(self)) throw new x10.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
     public static <T> T castConversion(final java.lang.Object self, Type<?> rtt) {
         if (self == null) return null;
         T ret = (T) conversion(rtt, self, true);
-        if (rtt != null && !rtt.instanceOf(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.isInstance(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
         return ret;
     }
 
@@ -604,11 +586,11 @@ public class Types {
     }
     */
     public static Object zeroValue(Type<?> rtt) {
-        Type<?>[] typeParams = null;
+        Type<?>[] actualTypeArguments = null;
         if (rtt instanceof ParameterizedType) {
             ParameterizedType<?> pt = (ParameterizedType<?>) rtt;
-            rtt = pt.getRuntimeType(); 
-            typeParams = pt.getParams();
+            rtt = pt.getRawType(); 
+            actualTypeArguments = pt.getActualTypeArguments();
         }
         if (isStructType(rtt)) {
             if (rtt == BYTE) return BYTE_ZERO;
@@ -625,11 +607,11 @@ public class Types {
             if (rtt == BOOLEAN) return BOOLEAN_ZERO;
             // N.B. to enable following special paths, make corresponding $RTTs singleton
             // N.B. since GlobalRef and IndexedMemoryChunk have their own zero value constructor, special paths are no longer needed
-//            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(typeParams[0], (java.lang.System) null);
-//            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(typeParams[0], (java.lang.System) null);
+//            if (rtt == x10.core.IndexedMemoryChunk.$RTT) return new x10.core.IndexedMemoryChunk(actualTypeArguments[0], (java.lang.System) null);
+//            if (rtt == x10.core.GlobalRef.$RTT) return new x10.core.GlobalRef(actualTypeArguments[0], (java.lang.System) null);
             // for user-defined structs, call zero value constructor
             try {
-                Class<?> impl = rtt.getImpl();
+                Class<?> impl = rtt.getJavaClass();
                 java.lang.reflect.Constructor<?> ctor = null;
                 Class<?>[] paramTypes = null;
                 for (java.lang.reflect.Constructor<?> ctor0 : impl.getConstructors()) {
@@ -644,10 +626,10 @@ public class Types {
                 
                 /*
                 int i = 0;
-                if (typeParams != null) {
-                    for ( ; i < typeParams.length; ++i) {
+                if (actualTypeArguments != null) {
+                    for ( ; i < actualTypeArguments.length; ++i) {
                         // pass type params
-                        params[i] = typeParams[i];
+                        params[i] = actualTypeArguments[i];
                     }
                 }
                 for ( ; i < paramTypes.length; ++i) {
@@ -655,12 +637,12 @@ public class Types {
                     params[i] = zeroValue(paramTypes[i]);
                 }
                 */
-                assert typeParams == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == typeParams.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
+                assert actualTypeArguments == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == actualTypeArguments.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
                 int i = 0;
-                if (typeParams != null) {
-                    for ( ; i < typeParams.length; ++i) {
+                if (actualTypeArguments != null) {
+                    for ( ; i < actualTypeArguments.length; ++i) {
                         // pass type params
-                        params[i] = typeParams[i];
+                        params[i] = actualTypeArguments[i];
                     }
                 }
                 params[i] = null;

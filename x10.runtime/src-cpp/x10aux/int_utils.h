@@ -25,10 +25,9 @@ namespace x10aux {
     class int_utils {
     public:
         static const ref<x10::lang::String> toString(x10_int value, x10_int radix);
-        static const ref<x10::lang::String> toHexString(x10_int value);
-        static const ref<x10::lang::String> toOctalString(x10_int value);
-        static const ref<x10::lang::String> toBinaryString(x10_int value);
         static const ref<x10::lang::String> toString(x10_int value);
+        static const ref<x10::lang::String> toString(x10_uint value, x10_int radix);
+        static const ref<x10::lang::String> toString(x10_uint value);
         static x10_int parseInt(ref<x10::lang::String> s, x10_int radix);
         static x10_int parseInt(ref<x10::lang::String> s) { return parseInt(s, 10); }
         static x10_uint parseUInt(ref<x10::lang::String> s, x10_int radix);

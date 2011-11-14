@@ -19,7 +19,7 @@ import x10.rtt.VoidFunType;
 public interface VoidFun_0_4<T1,T2,T3,T4> extends VoidFun {
     Object $apply(T1 o1, Type t1, T2 o2, Type t2, T3 o3, Type t3, T4 o4, Type t4);
 
-    public static final RuntimeType<VoidFun_0_4<?,?,?,?>> $RTT = new VoidFunType<VoidFun_0_4<?,?,?,?>>(
+    public static final RuntimeType<VoidFun_0_4<?,?,?,?>> $RTT = VoidFunType.<VoidFun_0_4<?,?,?,?>> make(
         VoidFun_0_4.class,
         new Variance[] {
             Variance.CONTRAVARIANT,

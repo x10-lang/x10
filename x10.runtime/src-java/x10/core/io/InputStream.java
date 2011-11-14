@@ -119,7 +119,7 @@ public class InputStream extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<InputStream> $RTT = new NamedType<InputStream>(
+    public static final RuntimeType<InputStream> $RTT = NamedType.<InputStream> make(
         "x10.io.InputStreamReader.InputStream",
         InputStream.class,
         new Type[] { Types.OBJECT }

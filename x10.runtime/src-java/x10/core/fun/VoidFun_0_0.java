@@ -17,7 +17,7 @@ import x10.rtt.VoidFunType;
 public interface VoidFun_0_0 extends VoidFun {
     void $apply();
     
-    public static final RuntimeType<VoidFun_0_0> $RTT = new VoidFunType<VoidFun_0_0>(
+    public static final RuntimeType<VoidFun_0_0> $RTT = VoidFunType.<VoidFun_0_0> make(
         VoidFun_0_0.class
     );
 }

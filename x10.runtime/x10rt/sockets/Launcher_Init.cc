@@ -74,13 +74,13 @@ Launcher::Launcher()
 	_hostlist = NULL;
 	_runtimePort[0] = '\0';
 	_myproc = 0xFFFFFFFF;
-	_returncode = 0xFEEDC0DE;
 	_dieAt = 0;
 	_firstchildproc = 0;
 	_numchildren = 0;
 	_pidlst = NULL;
 	_listenSocket = -1;
 	_childControlLinks = NULL;
+	_exitcode = 0xFEEDC0DE;
 }
 
 /* *********************************************************************** */
@@ -229,11 +229,7 @@ void Launcher::initialize(int argc, char ** argv)
 	/* -------------------------------------------- */
 	/*  set up notification from dying processes    */
 	/* -------------------------------------------- */
-	// windows/cygwin seems to have problems with the return code saved in the SIGCHLD handler.
-	// better to just ignore them in realtime, and capture the necessary return codes at shutdown time.
-#ifndef __CYGWIN__
 	signal(SIGCHLD, Launcher::cb_sighandler_cld);
-#endif
 	signal(SIGTERM, Launcher::cb_sighandler_term);
 }
 
