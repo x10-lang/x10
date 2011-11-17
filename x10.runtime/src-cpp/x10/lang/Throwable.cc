@@ -420,6 +420,11 @@ void Throwable::printStackTrace() {
     ref<Array<x10aux::ref<String> > > trace = this->getStackTrace();
     for (int i = 0; i < trace->FMGL(size); ++i)
         fprintf(stderr, "\tat %s\n", trace->__apply(i)->c_str());
+    ref<Throwable> cause = getCause();
+    if (!cause.isNull()) {
+        fprintf(stderr, "Caused by: ");
+        cause->printStackTrace();
+    }
 }
 
 void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
@@ -429,6 +434,11 @@ void Throwable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
     for (int i=0 ; i<trace->FMGL(size) ; ++i) { 
         printer->print(atStr);
         printer->println(trace->__apply(i));
+    }
+    ref<Throwable> cause = getCause();
+    if (!cause.isNull()) {
+        printer->print(x10::lang::String::Lit("Caused by: "));
+        cause->printStackTrace(printer);
     }
 }
 
