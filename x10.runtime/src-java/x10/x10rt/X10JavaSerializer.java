@@ -38,8 +38,8 @@ public class X10JavaSerializer {
 	private static ConcurrentHashMap<Class<?>, SerializerThunk> thunks = new ConcurrentHashMap<Class<?>, X10JavaSerializer.SerializerThunk>(50);
 
     // When a Object is serialized record its position
-    // N.B. set initial size to 19 as a workaround for frequent hash collision with J9
-    IdentityHashMap<Object, Integer> objectMap = new IdentityHashMap<Object, Integer>(19);
+    // N.B. use custom IdentityHashMap class, as standard one has poor performance on J9
+    X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
     DataOutputStream out;
     int counter = 0;
 
