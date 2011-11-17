@@ -137,10 +137,11 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	// The representation of the  guard on the method definition
 	DepParameterExpr guard;
 	List<TypeParamNode> typeParameters;
+	boolean linkedResult;
 
 	TypeNode offerType;
 	TypeNode hasType;
-	public X10MethodDecl_c(NodeFactory nf, Position pos, FlagsNode flags, 
+	public X10MethodDecl_c(NodeFactory nf, Position pos, boolean linkedResult, FlagsNode flags, 
 			TypeNode returnType, Id name,
 			List<TypeParamNode> typeParams, List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, Block body) {
 		super(pos, flags, returnType instanceof HasTypeNode_c ? nf.UnknownTypeNode(returnType.position()) : returnType, 
@@ -150,12 +151,18 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		if (returnType instanceof HasTypeNode_c) 
 			hasType = ((HasTypeNode_c) returnType).typeNode();
 		this.offerType = offerType;
+		this.linkedResult = linkedResult;
 
 	}
 
 	public TypeNode offerType() {
 		return offerType;
 	}
+	
+	public boolean hasLinkedReturn(){
+		return linkedResult;
+	}
+	
 	protected X10MethodDecl_c hasType(TypeNode hasType) {
 		if (this.hasType != hasType)  {
 			X10MethodDecl_c n = (X10MethodDecl_c) copy();
@@ -364,7 +371,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	}
 	@Override
 	public X10MethodDef methodDef() {
-	    return (X10MethodDef) super.methodDef();
+	    X10MethodDef def = (X10MethodDef) super.methodDef();
+	    def.hasLinkedResult(linkedResult);
+	    return def;
 	}
 
 	@Override

@@ -306,7 +306,7 @@ public interface NodeFactory
     X10MethodDecl MethodDecl(Position pos, FlagsNode flags, TypeNode returnType,
             Id name,
             List<Formal> formals,  Block body);
-    X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
+    X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags, boolean isLinked,
             TypeNode returnType, Id name, List<TypeParamNode> typeParams,
             List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, Block body);
     SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);

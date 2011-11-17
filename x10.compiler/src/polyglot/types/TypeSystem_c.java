@@ -472,7 +472,7 @@ public class TypeSystem_c implements TypeSystem
         assert_(returnType);
         assert_(typeParams);
         assert_(argTypes);
-        return new X10MethodDef_c(this, pos, errorPos, container, flags, returnType, name, typeParams, argTypes, thisDef, formalNames, guard, typeGuard, offerType, body);
+        return new X10MethodDef_c(this, pos, errorPos, container, flags, false, returnType, name, typeParams, argTypes, thisDef, formalNames, guard, typeGuard, offerType, body);
     }
     public ClassDef classDefOf(Type t) {
         t = Types.baseType(t);

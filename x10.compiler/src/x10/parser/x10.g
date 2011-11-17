@@ -386,7 +386,11 @@
 
     MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt MethodBody
         /.$BeginJava
-			r.rule_MethodDeclaration0(MethodModifiersopt,Identifier,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
+			r.rule_MethodDeclaration0(MethodModifiersopt,Identifier,TypeParametersopt,FormalParameters,WhereClauseopt, false, HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
+        $EndJava./
+  						| MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt linked HasResultTypeopt OBSOLETE_Offersopt MethodBody
+        /.$BeginJava
+			r.rule_MethodDeclaration0(MethodModifiersopt,Identifier,TypeParametersopt,FormalParameters,WhereClauseopt,true, HasResultTypeopt,OBSOLETE_Offersopt,MethodBody);
         $EndJava./
                         | BinaryOperatorDeclaration
                         | PrefixOperatorDeclaration

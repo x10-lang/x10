@@ -59,6 +59,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     List<LocalDef> formalNames;
     Ref<XTerm> body;
     Ref<? extends Type> offerType;
+    boolean linkedResult;
 
     private HashSet<X10MethodDef_c> propertyMethodTransitivelyCalls = null; //null - haven't calculated it
     public void calcPropertyMethodTransitivelyCalls(Expr expr) {
@@ -84,7 +85,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 
     public X10MethodDef_c(TypeSystem ts, Position pos, Position errorPos,
             Ref<? extends ContainerType> container,
-            Flags flags, 
+            Flags flags, boolean linkedResult,
             Ref<? extends Type> returnType,
             Name name,
             List<ParameterType> typeParams,
@@ -143,6 +144,14 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 
     public Ref<XTerm> body() {
         return body;
+    }
+    
+    public boolean hasLinkedResult(){
+    	return linkedResult;
+    }
+    
+    public void hasLinkedResult(boolean linkedResult){
+    	this.linkedResult = linkedResult;
     }
     
     public void body(Ref<XTerm> body) {
