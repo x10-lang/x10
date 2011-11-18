@@ -97,10 +97,8 @@ public class X10IdentityHashMap<K, V> extends AbstractMap<K, V> implements Map<K
             }
             if (object instanceof Map.Entry) {
                 Map.Entry<?, ?> entry = (Map.Entry<?, ?>) object;
-                return (key == null ? entry.getKey() == null : key.equals(entry
-                        .getKey()))
-                        && (value == null ? entry.getValue() == null : value
-                                .equals(entry.getValue()));
+                return (key == entry.getKey())
+                        && (value == entry.getValue());
             }
             return false;
         }
@@ -958,11 +956,11 @@ public class X10IdentityHashMap<K, V> extends AbstractMap<K, V> implements Map<K
     }
     
     static boolean areEqualKeys(Object key1, Object key2) {
-        return (key1 == key2) || key1.equals(key2);
+        return (key1 == key2);
     }
 
     static boolean areEqualValues(Object value1, Object value2) {
-        return (value1 == value2) || value1.equals(value2);
+        return (value1 == value2);
     }
 
 }
