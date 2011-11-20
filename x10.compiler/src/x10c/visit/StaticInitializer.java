@@ -768,10 +768,9 @@ public class StaticInitializer extends ContextVisitor {
         Name name = initInfo.fieldDef.name();
 
         Expr rightCustomSerialization = genDeserializeField(pos, deserializerName, fi.type(), true);
-        Block deserializeFieldCustomSerializationBlock = xnf.Block(pos, xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN,
-                                                rightCustomSerialization).fieldInstance(fi).type(rightCustomSerialization.type())));
-
-//        Expr left = xnf.Field(pos, receiver, xnf.Id(pos, name)).fieldInstance(fi).type(right.type());
+        Stmt deserializeFieldCustomSerializationBlock = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, rightCustomSerialization).fieldInstance(fi).type(rightCustomSerialization.type()));
+        // not needed
+//        deserializeFieldCustomSerializationBlock = xnf.Block(pos, deserializeFieldCustomSerializationBlock);
 
         // make statement block
         List<Stmt> stmts = new ArrayList<Stmt>();
@@ -855,18 +854,19 @@ public class StaticInitializer extends ContextVisitor {
         Expr bcastCall = genBroadcastField(pos, left, fieldId, fdPLH, false);
         Expr bcastCallCustomSerialization = genBroadcastField(pos, left, fieldId, fdPLH, true);
 
-        Block broadcastBlock;
-        Block broadcastCustomSerializationBlock;
+        Stmt broadcastCustomSerializationBlock;
 
         if (fdPLH == null) {
             // no return value
-            broadcastCustomSerializationBlock = xnf.Block(pos, xnf.Eval(pos, bcastCallCustomSerialization));
+            broadcastCustomSerializationBlock = xnf.Eval(pos, bcastCallCustomSerialization);
         } else {
             // assign return value from broadcast to PlaceLocalHandle
             Expr plhCustomSerialization = xnf.FieldAssign(pos, receiver, fdPLH.name(), Assign.ASSIGN,
                                        bcastCallCustomSerialization).fieldInstance(fdPLH.fieldDef().asInstance()).type(bcastCallCustomSerialization.type());
-            broadcastCustomSerializationBlock = xnf.Block(pos, xnf.Eval(pos, plhCustomSerialization));
+            broadcastCustomSerializationBlock = xnf.Eval(pos, plhCustomSerialization);
         }
+        // not needed
+//        broadcastCustomSerializationBlock = xnf.Block(pos, broadcastCustomSerializationBlock);
 
         // make statement block of initialization
         List<Stmt> stmts = new ArrayList<Stmt>();
@@ -899,8 +899,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // make statement block of the entire method body
         stmts =  new ArrayList<Stmt>();
-        stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, ifCond, initBody)));
-        stmts.add(xnf.If(pos, initCheckCond, waitBody));
+        stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, ifCond, initBody), xnf.If(pos, initCheckCond, waitBody)));
         Expr returnVal = (fdPLH == null) ? left : genApplyPLH(pos, receiver, fdPLH, right.type(), stmts); 
         stmts.add(xnf.X10Return(pos, returnVal, false));
         Block body = xnf.Block(pos, stmts);
