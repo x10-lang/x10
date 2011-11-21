@@ -899,7 +899,11 @@ public class StaticInitializer extends ContextVisitor {
 
         // make statement block of the entire method body
         stmts =  new ArrayList<Stmt>();
-        stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, ifCond, initBody), xnf.If(pos, initCheckCond, waitBody)));
+        // original
+//        stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, ifCond, initBody)));
+//        stmts.add(xnf.If(pos, initCheckCond, waitBody));
+        // optimized
+        stmts.add(xnf.If(pos, xnf.Binary(pos, placeCheck, Binary.Operator.COND_AND, ifCond), initBody, xnf.If(pos, initCheckCond, waitBody)));
         Expr returnVal = (fdPLH == null) ? left : genApplyPLH(pos, receiver, fdPLH, right.type(), stmts); 
         stmts.add(xnf.X10Return(pos, returnVal, false));
         Block body = xnf.Block(pos, stmts);
