@@ -574,8 +574,6 @@ public class X10JavaDeserializer {
     		Set<Field> flds = new TreeSet<Field>(new FieldComparator());
     		Field[] declaredFields = clazz.getDeclaredFields();
     		for (Field field : declaredFields) {
-    			if (field.isSynthetic())
-    				continue;
     			int modifiers = field.getModifiers();
     			if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
     				continue;

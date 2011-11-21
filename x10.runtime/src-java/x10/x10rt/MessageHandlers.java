@@ -10,6 +10,7 @@
  */
 package x10.x10rt;
 
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
 
@@ -106,8 +107,7 @@ public class MessageHandlers {
     private static void runAsyncAtReceive(byte[] args, short sid) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("@MultiVM : runAsyncAtReceive is called");
-    		java.io.ByteArrayInputStream byteStream
-    		= new java.io.ByteArrayInputStream(args);
+    		ByteArrayInputStream byteStream = new ByteArrayInputStream(args);
     		if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: ByteArrayInputStream");
     		x10.core.fun.VoidFun_0_0 actObj;
 

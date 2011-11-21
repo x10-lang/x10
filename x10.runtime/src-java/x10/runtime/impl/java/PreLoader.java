@@ -106,10 +106,12 @@ public class PreLoader {
          * @param intern whether to intern string constants
          */
         public static void preLoad(Class<?> c, List<String> extraClasses, boolean intern) {
-            if (isSystemClass(c)) return;
+            if (c != null && isSystemClass(c)) return;
             // We need to load all X10 classes so that all statics can be initialized at boot time
             loadX10Classes();
-            preLoad(getClassFile(c), c, intern);
+            if (c != null) {
+            	preLoad(getClassFile(c), c, intern);
+            }
             if (extraClasses != null) {
                 // preload extra classes to make static initialization work properly with reflection
                 for (String name : extraClasses) {
