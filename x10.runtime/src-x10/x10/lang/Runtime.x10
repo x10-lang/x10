@@ -928,18 +928,22 @@ import x10.util.concurrent.SimpleLatch;
             activity().clockPhases = clockPhases;
             try {
                 body();
-                at(box.home) async {
-                    val me2 = box();
+                val closure = ()=> @x10.compiler.RemoteInvocation { 
+                    val me2 = (box as GlobalRef[RemoteControl{self==me,me!=null}]{home==here})();
                     me2.clockPhases = clockPhases;
                     me2.release();
-                }
+                };
+                runClosureCopyAt(box.home.id, closure);
+                dealloc(closure);
             } catch (e:Throwable) {
-                at(box.home) async {
-                    val me2 = box();
+                val closure = ()=> @x10.compiler.RemoteInvocation { 
+                    val me2 = (box as GlobalRef[RemoteControl{self==me,me!=null}]{home==here})();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
                     me2.release();
-                }
+                };
+                runClosureCopyAt(box.home.id, closure);
+                dealloc(closure);
             }
             activity().clockPhases = null;
         }
@@ -982,19 +986,24 @@ import x10.util.concurrent.SimpleLatch;
             activity().clockPhases = clockPhases;
             try {
                 val result = eval();
-                at(box.home) async {
-                    val me2 = box();
-                    me2.t = new Box[T](result);
+                val closure = ()=> @x10.compiler.RemoteInvocation { 
+                    val me2 = (box as GlobalRef[Remote[T]{self==me,me!=null}]{home==here})();
+                    // me2 has type Box[T{box.home==here}]... weird
+                    me2.t = new Box[T{box.home==here}](result as T{box.home==here});
                     me2.clockPhases = clockPhases;
                     me2.release();
-                }
+                };
+                runClosureCopyAt(box.home.id, closure);
+                dealloc(closure);
             } catch (e:Throwable) {
-                at(box.home) async {
-                    val me2 = box();
+                val closure = ()=> @x10.compiler.RemoteInvocation { 
+                    val me2 = (box as GlobalRef[Remote[T]{self==me,me!=null}]{home==here})();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
                     me2.release();
-                }
+                };
+                runClosureCopyAt(box.home.id, closure);
+                dealloc(closure);
             }
             activity().clockPhases = null;
         }
