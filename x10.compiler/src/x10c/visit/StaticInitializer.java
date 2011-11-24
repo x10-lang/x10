@@ -884,7 +884,7 @@ public class StaticInitializer extends ContextVisitor {
         Block initBody = xnf.Block(pos, stmts);
 
         // gen while(AtomicInteger.get() != INITIALIZED) { await(); }
-        Expr initCheckCond = genCheckInitialized(pos, receiver, fdCond);
+        Expr initCheckCond = genCheckInitialized(pos, receiver, fdCond, false);
         Block whileBody = xnf.Block(pos, xnf.Eval(pos, genAwait(pos)));
 
         // make statement block for waiting
@@ -1039,7 +1039,7 @@ public class StaticInitializer extends ContextVisitor {
         return call;
     }
 
-    private Expr genCheckInitialized(Position pos, TypeNode receiver, FieldDef fdCond) {
+    private Expr genCheckInitialized(Position pos, TypeNode receiver, FieldDef fdCond, boolean positive) {
         FieldInstance fi = fdCond.asInstance();
         Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fi).type(fi.type());
         Id name = xnf.Id(pos, Name.make("get"));
@@ -1053,7 +1053,7 @@ public class StaticInitializer extends ContextVisitor {
         List<TypeNode> typeParamNodes = Collections.<TypeNode>emptyList();
         Expr call = xnf.X10Call(pos, ai, name, typeParamNodes, args).methodInstance(mi).type(xts.Int());
 
-        return xnf.Binary(pos, call, Binary.NE, getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int())).type(xts.Boolean());
+        return xnf.Binary(pos, call, positive ? Binary.EQ : Binary.NE, getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int())).type(xts.Boolean());
     }
 
     private Expr genLock(Position pos) {
