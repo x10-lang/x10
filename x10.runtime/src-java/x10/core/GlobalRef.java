@@ -256,11 +256,11 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         if (!other.isGlobalized() && !isGlobalized()) 
             return (t == other.t); // use "==" rather than "equals"
         // if homes are different
-        if (!x10.rtt.Equality.equalsequals(this.home, other.home))
+        if (this.home.id != other.home.id)
             return false;
         // if homes are same
         globalize(); other.globalize(); // ensure both GlobalRefs have ids
-        return x10.rtt.Equality.equalsequals(this.id, other.id);
+        return this.id == other.id;
     }
 
     public void writeExternal(ObjectOutput out) throws IOException {
@@ -348,7 +348,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         
 
 	public static <$T, $U> $U evalAtHome(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval) {
-	    if (x10.rtt.Equality.equalsequals(x10.lang.Runtime.home(),ref.home)) {
+	    if (x10.lang.Runtime.home().id == ref.home.id) {
 		return eval.$apply(ref.$apply$G(),$T);
 	    } else {
                 return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (java.lang.Class<?>) null));
@@ -357,7 +357,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         
         
 	public static <$T> $T getLocalOrCopy(Type $T, x10.core.GlobalRef<$T> ref) {
-	    if (x10.rtt.Equality.equalsequals(x10.lang.Runtime.home(),ref.home)) {
+            if (x10.lang.Runtime.home().id == ref.home.id) {
 		return ref.$apply$G();
 	    } else {
                 return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (java.lang.Class<?>) null));
