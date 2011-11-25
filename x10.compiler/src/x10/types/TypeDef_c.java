@@ -52,10 +52,10 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	protected Ref<? extends Type> type;
 	protected MacroType asType;
 	
-	public TypeDef_c(TypeSystem ts, Position pos, Flags flags, Name name, Ref<? extends ClassType> container, List<ParameterType> typeParams,
+	public TypeDef_c(TypeSystem ts, Position pos, Position errorPos, Flags flags, Name name, Ref<? extends ClassType> container, List<ParameterType> typeParams,
 	        XVar thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
 
-		super(ts, pos, container, flags);
+		super(ts, pos, errorPos, container, flags);
 		this.name = name;
 		this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
 		this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);

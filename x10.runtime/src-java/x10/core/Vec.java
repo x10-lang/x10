@@ -41,10 +41,10 @@ public final class Vec<T> extends x10.core.Struct {
     }
 
     private Type<T> T;
-    public static final RuntimeType<Vec<?>> $RTT = new NamedType<Vec<?>>(
+    public static final RuntimeType<Vec<?>> $RTT = NamedType.<Vec<?>> make(
         "x10.util.Vec",
         Vec.class,
-        new Variance[] { Variance.INVARIANT },
+        RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
     @Override
@@ -141,8 +141,8 @@ public final class Vec<T> extends x10.core.Struct {
     // not needed
 //    @Override
 //    final public boolean equals(java.lang.Object other) {
-//        if (!Vec.$RTT.instanceOf(other, T)) return false;
-//        return this.equals_0$1x10$util$Vec$$T$2((Vec) Types.asStruct(new ParameterizedType(Vec.$RTT, T), other));
+//        if (!Vec.$RTT.isInstance(other, T)) return false;
+//        return this.equals_0$1x10$util$Vec$$T$2((Vec) Types.asStruct(ParameterizedType.make(Vec.$RTT, T), other));
 //    }
 //
 //    final public boolean equals_0$1x10$util$Vec$$T$2(Vec other) {
@@ -154,8 +154,8 @@ public final class Vec<T> extends x10.core.Struct {
 //    }
 
     final public boolean _struct_equals$O(java.lang.Object otherObj) {
-        if (!Vec.$RTT.instanceOf(otherObj, T)) return false;
-        Vec<T> other = (Vec<T>) Types.asStruct(new ParameterizedType(Vec.$RTT, T), otherObj);
+        if (!Vec.$RTT.isInstance(otherObj, T)) return false;
+        Vec<T> other = (Vec<T>) Types.asStruct(ParameterizedType.make(Vec.$RTT, T), otherObj);
         // optimized
 //      if (this.size != other.size) return false;
 //      for (int i = 0; i < this.size; ++i) {

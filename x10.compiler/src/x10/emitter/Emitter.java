@@ -2946,21 +2946,21 @@ public class Emitter {
         w.write("> " + X10PrettyPrinterVisitor.RTT_NAME + " = ");
         if (isStaticFunType) {
             // Option for closures
-//            w.write("new x10.rtt.RuntimeType");
+//            w.write("x10.rtt.RuntimeType");
             if (isVoidFun) {
-                w.write("new x10.rtt.StaticVoidFunType");
+                w.write("x10.rtt.StaticVoidFunType");
             } else {
-                w.write("new x10.rtt.StaticFunType");
+                w.write("x10.rtt.StaticFunType");
             }
         } else {
             // Option for non-closures
-//            w.write("new x10.rtt.RuntimeType");
-            w.write("new x10.rtt.NamedType");
+//            w.write("x10.rtt.RuntimeType");
+            w.write("x10.rtt.NamedType");
         }
-        w.write("<");
+        w.write(".<");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(">");
-        w.write("(");
+        w.write(" make(");
         w.newline();
         if (!isStaticFunType) {
             // Option for non-closures
@@ -2970,23 +2970,40 @@ public class Emitter {
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(".class");
         
-        for (int i = 0; i < def.variances().size(); i ++) {
-            w.write(", ");
-            w.newline();
-            if (i == 0) w.write("/* variances */ new x10.rtt.RuntimeType.Variance[] {");
-            ParameterType.Variance v = def.variances().get(i);
-            switch (v) {
-            case INVARIANT:
-                w.write("x10.rtt.RuntimeType.Variance.INVARIANT");
-                break;
-            case COVARIANT:
-                w.write("x10.rtt.RuntimeType.Variance.COVARIANT");
-                break;
-            case CONTRAVARIANT:
-                w.write("x10.rtt.RuntimeType.Variance.CONTRAVARIANT");
-                break;
+        if (def.variances().size() > 0) {
+            boolean allInvariants = true;
+            for (int i = 0; i < def.variances().size(); ++i) {
+                if (def.variances().get(i) != ParameterType.Variance.INVARIANT) {
+                    allInvariants = false;
+                    break;
+                }
             }
-            if (i == def.variances().size() - 1) w.write("}");
+            if (allInvariants) {
+                // use cached one to avoid creating array of Variance repeatedly
+                w.write(", ");
+                w.newline();
+                w.write("/* variances */ x10.rtt.RuntimeType.INVARIANTS(" + def.variances().size() + ")");
+            }
+            else {
+                for (int i = 0; i < def.variances().size(); ++i) {
+                    w.write(", ");
+                    w.newline();
+                    if (i == 0) w.write("/* variances */ new x10.rtt.RuntimeType.Variance[] {");
+                    ParameterType.Variance v = def.variances().get(i);
+                    switch (v) {
+                    case INVARIANT:
+                        w.write("x10.rtt.RuntimeType.Variance.INVARIANT");
+                        break;
+                    case COVARIANT:
+                        w.write("x10.rtt.RuntimeType.Variance.COVARIANT");
+                        break;
+                    case CONTRAVARIANT:
+                        w.write("x10.rtt.RuntimeType.Variance.CONTRAVARIANT");
+                        break;
+                    }
+                    if (i == def.variances().size() - 1) w.write("}");
+                }
+            }
         }
         w.newline();
         
@@ -3139,7 +3156,7 @@ public class Emitter {
                 dumpRegex("NativeRep", components, tr, pat);
             }
             else if (x10Type.typeArguments() != null && x10Type.typeArguments().size() > 0) {
-                w.write("new x10.rtt.ParameterizedType(");
+                w.write("x10.rtt.ParameterizedType.make(");
                 if (x10Type instanceof FunctionType) {
                     FunctionType ft = (FunctionType) x10Type;
                     List<Type> args = ft.argumentTypes();

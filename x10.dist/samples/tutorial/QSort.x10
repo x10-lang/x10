@@ -22,7 +22,7 @@
  */
 public class QSort {
 
-  private static def partition(data:Array[int](1), left:int, right:int) {
+  private static def partition(data:Rail[int], left:int, right:int) {
       var i:int = left;
       var j:int = right;
       var tmp:int;
@@ -43,7 +43,7 @@ public class QSort {
       return i;
   }
 
-  static def qsort(data:Array[int](1), left:int, right:int) {
+  static def qsort(data:Rail[int], left:int, right:int) {
       index:int = partition(data, left, right);
       finish {
           if (left < index - 1)
@@ -54,10 +54,10 @@ public class QSort {
       }
   }
 
-  public static def main(args:Array[String](1)) {
+  public static def main(args:Rail[String]) {
       val N = args.size>0 ? Int.parse(args(0)) : 100;
       val r = new x10.util.Random();
-      val data = new Array[int](N, (int)=>r.nextInt(9999));
+      val data = new Rail[int](N, (int)=>r.nextInt(9999));
       qsort(data, 0, N-1);
       for ([i] in 0..(N-1)) {
           Console.OUT.print(data(i)); 

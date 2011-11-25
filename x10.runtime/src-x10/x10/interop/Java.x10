@@ -37,7 +37,7 @@ public class Java {
     public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int):array[array[array[T]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "(#T[][][][])#T$rtt.makeArray(#d0,#d1,#d2,#d3)")
     public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int, d3:Java.int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
-    @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getImpl()")
+    @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass()")
     public static native def javaClass[T]():java.lang.Class;
     @Native("java", "do { throw #e; } while (false)")
     public static native @NoReturn def throwException(e:java.lang.Throwable):void;

@@ -95,12 +95,34 @@ public class PreLoader {
 	 * @param c the class to pre-load
 	 * @param intern whether to intern string constants
 	 */
-	public static void preLoad(Class<?> c, boolean intern) {
-		if (isSystemClass(c)) return;
-        // We need to load all X10 classes so that all statics can be initialized at boot time
-        loadX10Classes();
-		preLoad(getClassFile(c), c, intern);
-	}
+        public static void preLoad(Class<?> c, boolean intern) {
+            preLoad(c, null, intern);
+        }
+        /**
+         * Recursively pre-load the given class and all the classes it statically
+         * references, optionally interning string constants.
+         * @param c the class to pre-load
+         * @param extraClasses the extra classes to pre-load
+         * @param intern whether to intern string constants
+         */
+        public static void preLoad(Class<?> c, List<String> extraClasses, boolean intern) {
+            if (c != null && isSystemClass(c)) return;
+            // We need to load all X10 classes so that all statics can be initialized at boot time
+            loadX10Classes();
+            if (c != null) {
+            	preLoad(getClassFile(c), c, intern);
+            }
+            if (extraClasses != null) {
+                // preload extra classes to make static initialization work properly with reflection
+                for (String name : extraClasses) {
+                    try {
+                        Class<?> extraClass = Class.forName(name);
+                        preLoad(getClassFile(extraClass), extraClass, intern);
+                    } catch (ClassNotFoundException e) {
+                    }
+                }
+            }
+        }
 	private static void preLoad(String name, Class<?> c) {
 		preLoad(name, c, true);
 	}

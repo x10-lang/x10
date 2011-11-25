@@ -403,28 +403,25 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * Returns a String representation of this UInt as a hexadecimal number.
      * @return a String representation of this UInt as a hexadecimal number.
      */
-    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
     @Native("java", "java.lang.Integer.toHexString(#this)")
-    @Native("c++", "x10aux::int_utils::toHexString(#0)")
-    public native def toHexString(): String; /*  = this.intVal.toHexString(); */
+    @Native("c++", "x10aux::int_utils::toString(#0, 16)")
+    public native def toHexString(): String;
 
     /**
      * Returns a String representation of this UInt as an octal number.
      * @return a String representation of this UInt as an octal number.
      */
-    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
     @Native("java", "java.lang.Integer.toOctalString(#this)")
-    @Native("c++", "x10aux::int_utils::toOctalString(#0)")
-    public native def toOctalString(): String; /*  = this.intVal.toOctalString(); */
+    @Native("c++", "x10aux::int_utils::toString(#0, 8)")
+    public native def toOctalString(): String;
 
     /**
      * Returns a String representation of this UInt as a binary number.
      * @return a String representation of this UInt as a binary number.
      */
-    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
     @Native("java", "java.lang.Integer.toBinaryString(#this)")
-    @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
-    public native def toBinaryString(): String; /*  = this.intVal.toBinaryString(); */
+    @Native("c++", "x10aux::int_utils::toString(#0, 2)")
+    public native def toBinaryString(): String;
 
     /**
      * Returns a String representation of this UInt as a decimal number.

@@ -24,7 +24,7 @@ public class AsyncInstance_c extends MethodInstance_c implements AsyncInstance {
     private static final long serialVersionUID = 8978058925652253461L;
 
     public AsyncInstance_c(TypeSystem ts, Position pos, Ref<? extends AsyncDef> def) {
-        super(ts, pos, def);
+        super(ts, pos, pos, def);
     }
 
     public AsyncDef def() {

@@ -23,7 +23,7 @@ import x10.compiler.NativeRep;
  *
  * @param T the type of entities that this entity may be compared to
  */
-@NativeRep("java", "java.lang.Comparable<#T$box>", null, "new x10.rtt.ParameterizedType(x10.rtt.Types.COMPARABLE, #T$rtt)")
+@NativeRep("java", "java.lang.Comparable<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.rtt.Types.COMPARABLE, #T$rtt)")
 @NativeRep("c++", "x10aux::ref<x10::lang::Comparable<#T > >", "x10::lang::Comparable<#T >", null)
 public interface Comparable[T] {
     /**

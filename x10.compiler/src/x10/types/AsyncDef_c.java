@@ -43,7 +43,7 @@ public class AsyncDef_c extends X10MethodDef_c implements AsyncDef {
             Ref<? extends ClassType> typeContainer,
             boolean isStatic)
     {
-        super(ts, pos.markCompilerGenerated(), Types.ref(ts.Runtime()),
+        super(ts, pos.markCompilerGenerated(), pos.markCompilerGenerated(), Types.ref(ts.Runtime()),
                 isStatic ? ts.Public().Static() : ts.Public(), Types.ref(ts.Void()),
                 Name.make(AtDef.DUMMY_AT_ASYNC), typeParameters,
                 Collections.<Ref<? extends Type>>emptyList(), thisDef,

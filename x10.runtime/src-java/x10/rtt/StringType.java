@@ -19,8 +19,8 @@ import x10.x10rt.X10JavaSerializer;
 import java.io.IOException;
 
 
-public class StringType extends RuntimeType<String> {
-//public class StringType extends RuntimeType<String> implements X10JavaSerializable {
+public final class StringType extends RuntimeType<String> {
+//public final class StringType extends RuntimeType<String> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static short _serialization_id;x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, StringType.class.getName());
@@ -33,14 +33,14 @@ public class StringType extends RuntimeType<String> {
     public StringType() {
         super(String.class,
             new Type[] {
-                new ParameterizedType(Fun_0_1.$RTT, Types.INT, Types.CHAR),
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS)
+                ParameterizedType.make(Fun_0_1.$RTT, Types.INT, Types.CHAR),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS)
             }
         );
     }
     
     @Override
-    public boolean instanceOf(Object obj) {
+    public boolean isInstance(Object obj) {
         // rules for String boxing currently are not straightforward,
         // so we accept both unboxed (java.lang) and boxed (x10.core) objects.
         return obj instanceof java.lang.String || obj instanceof x10.core.String;

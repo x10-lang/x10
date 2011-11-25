@@ -514,9 +514,9 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		}
 	}
 
-	protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block, List<VarInstance<?>> refs) {
+	protected void generateClosureSerializationFunctions(X10CPPContext_c c, String cnamet, StreamWrapper inc, Block block, List<VarInstance<?>> env2, List<VarInstance<?>> refs) {
 
-		super.generateClosureSerializationFunctions(c, cnamet, inc, block,refs);
+		super.generateClosureSerializationFunctions(c, cnamet, inc, block, env2, refs);
 
 		if (blockIsKernel(block)) {
 

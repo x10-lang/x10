@@ -82,7 +82,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return propertyMethodTransitivelyCalls.contains(this);
     }
 
-    public X10MethodDef_c(TypeSystem ts, Position pos,
+    public X10MethodDef_c(TypeSystem ts, Position pos, Position errorPos,
             Ref<? extends ContainerType> container,
             Flags flags, 
             Ref<? extends Type> returnType,
@@ -95,7 +95,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Ref<TypeConstraint> typeGuard,
             Ref< ? extends Type> offerType,
             Ref<XTerm> body) {
-        super(ts, pos, container, flags, returnType, name, formalTypes);
+        super(ts, pos, errorPos, container, flags, returnType, name, formalTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;

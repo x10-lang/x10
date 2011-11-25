@@ -11,25 +11,86 @@
 
 package x10.rtt;
 
+import java.util.concurrent.ConcurrentHashMap;
+
 // for static inner classes that are compiled from closures
-public class StaticVoidFunType<T> extends RuntimeType<T> {
+public final class StaticVoidFunType<T> extends RuntimeType<T> {
     
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
-    public StaticVoidFunType(Class<?> c) {
-        super(c);
-    }
+    // not used
+//    protected StaticVoidFunType(Class<?> javaClass) {
+//        super(javaClass);
+//    }
+//    
+//    protected StaticVoidFunType(Class<?> javaClass, Variance[] variances) {
+//        super(javaClass, variances);
+//    }
+//
+//    protected StaticVoidFunType(Class<?> javaClass, Type<?>[] parents) {
+//        super(javaClass, parents);
+//    }
     
-    public StaticVoidFunType(Class<?> c, Variance[] variances) {
-        super(c, variances);
+    protected StaticVoidFunType(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+        super(javaClass, variances, parents);
     }
 
-    public StaticVoidFunType(Class<?> c, Type<?>[] parents) {
-        super(c, parents);
+    private static final boolean useCache = true;
+    private static final ConcurrentHashMap<Class<?>, StaticVoidFunType<?>> typeCache = new ConcurrentHashMap<Class<?>, StaticVoidFunType<?>>();
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass) {
+        if (useCache) {
+            StaticVoidFunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, null, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (StaticVoidFunType<T>) type;
+        } else {
+            return new StaticVoidFunType<T>(javaClass, null, null);
+        }
     }
     
-    public StaticVoidFunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
-        super(c, variances, parents);
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass, Variance[] variances) {
+        if (useCache) {
+            StaticVoidFunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, variances, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (StaticVoidFunType<T>) type;
+        } else {
+            return new StaticVoidFunType<T>(javaClass, variances, null);
+        }
+    }
+
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass, Type<?>[] parents) {
+        if (useCache) {
+            StaticVoidFunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, null, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (StaticVoidFunType<T>) type;
+        } else {
+            return new StaticVoidFunType<T>(javaClass, null, parents);
+        }
+    }
+    
+    public static <T> StaticVoidFunType/*<T>*/ make(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+        if (useCache) {
+            StaticVoidFunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                StaticVoidFunType<?> type0 = new StaticVoidFunType<T>(javaClass, variances, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (StaticVoidFunType<T>) type;
+        } else {
+            return new StaticVoidFunType<T>(javaClass, variances, parents);
+        }
     }
 
     @Override

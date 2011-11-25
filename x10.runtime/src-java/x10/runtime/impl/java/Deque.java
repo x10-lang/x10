@@ -208,7 +208,7 @@ public class Deque extends Ref {
     //
     // Runtime type information
     //
-    public static final RuntimeType<Deque> $RTT = new NamedType<Deque>(
+    public static final RuntimeType<Deque> $RTT = NamedType.<Deque> make(
         "x10.lang.Deque",
         Deque.class 
     );

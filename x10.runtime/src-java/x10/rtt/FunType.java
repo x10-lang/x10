@@ -11,24 +11,85 @@
 
 package x10.rtt;
 
-public class FunType<T> extends RuntimeType<T> {
+import java.util.concurrent.ConcurrentHashMap;
 
-	private static final long serialVersionUID = 1L;
+public final class FunType<T> extends RuntimeType<T> {
 
-    public FunType(Class<?> c) {
-        super(c);
+    private static final long serialVersionUID = 1L;
+
+    // not used
+//    protected FunType(Class<?> javaClass) {
+//        super(javaClass);
+//    }
+//    
+//    protected FunType(Class<?> javaClass, Variance[] variances) {
+//        super(javaClass, variances);
+//    }
+//
+//    protected FunType(Class<?> javaClass, Type<?>[] parents) {
+//        super(javaClass, parents);
+//    }
+    
+    protected FunType(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+        super(javaClass, variances, parents);
+    }
+
+    private static final boolean useCache = true;
+    private static final ConcurrentHashMap<Class<?>, FunType<?>> typeCache = new ConcurrentHashMap<Class<?>, FunType<?>>();
+    public static <T> FunType/*<T>*/ make(Class<?> javaClass) {
+        if (useCache) {
+            FunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                FunType<?> type0 = new FunType<T>(javaClass, null, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (FunType<T>) type;
+        } else {
+            return new FunType<T>(javaClass, null, null);
+        }
     }
     
-    public FunType(Class<?> c, Variance[] variances) {
-        super(c, variances);
+    public static <T> FunType/*<T>*/ make(Class<?> javaClass, Variance[] variances) {
+        if (useCache) {
+            FunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                FunType<?> type0 = new FunType<T>(javaClass, variances, null);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (FunType<T>) type;
+        } else {
+            return new FunType<T>(javaClass, variances, null);
+        }
     }
 
-    public FunType(Class<?> c, Type<?>[] parents) {
-        super(c, parents);
+    public static <T> FunType/*<T>*/ make(Class<?> javaClass, Type<?>[] parents) {
+        if (useCache) {
+            FunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                FunType<?> type0 = new FunType<T>(javaClass, null, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (FunType<T>) type;
+        } else {
+            return new FunType<T>(javaClass, null, parents);
+        }
     }
     
-    public FunType(Class<?> c, Variance[] variances, Type<?>[] parents) {
-        super(c, variances, parents);
+    public static <T> FunType/*<T>*/ make(Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+        if (useCache) {
+            FunType<?> type = typeCache.get(javaClass);
+            if (type == null) {
+                FunType<?> type0 = new FunType<T>(javaClass, variances, parents);
+                type = typeCache.putIfAbsent(javaClass, type0);
+                if (type == null) type = type0;
+            }
+            return (FunType<T>) type;
+        } else {
+            return new FunType<T>(javaClass, variances, parents);
+        }
     }
 
     @Override

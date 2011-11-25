@@ -299,14 +299,19 @@ public class X10LocalClassRemover extends LocalClassRemover {
             if (n instanceof Local && r instanceof Field) {
                 Local l = (Local) n;
                 Field f = (Field) r;
+                // walk the stack of enclosing capturing scopes
                 Context c = context.findEnclosingCapturingScope();
-                if (c != null) {
+                while (c != null) {
                     EnvironmentCapture ec = (EnvironmentCapture) c.currentCode();
                     List<VarInstance<? extends VarDef>> env =
                         new ArrayList<VarInstance<? extends VarDef>>(ec.capturedEnvironment());
+                    if (!env.contains(l.localInstance())) break;
+                    // replace local instance in capture with corresponding field and this instances
                     env.remove(l.localInstance());
                     env.add(f.fieldInstance());
+                    env.add(f.target().type().toClass().def().thisDef().asInstance());
                     ec.setCapturedEnvironment(env);
+                    c = c.pop().findEnclosingCapturingScope();
                 }
             }
             return r;

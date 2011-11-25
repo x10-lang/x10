@@ -145,13 +145,14 @@ public class ClosureSynthesizer {
             public ClosureType asType() {
                 if (asType == null) {
                     X10ClassDef cd = this;
-                    asType = new ClosureType_c(xts, pos, this, def.methodContainer().get());
+                    asType = new ClosureType_c(xts, pos, def.errorPosition(), this, def.methodContainer().get());
                 }
                 return (ClosureType) asType;
             }
         };
 
         cd.position(pos);
+        cd.errorPosition(def.errorPosition());
         cd.name(null);
         cd.setPackage(null);
         cd.kind(ClassDef.ANONYMOUS);
@@ -165,7 +166,7 @@ public class ClosureSynthesizer {
         ThisDef thisDef = cd.thisDef();
 
         List<LocalDef> formalNames = xts.dummyLocalDefs(def.formalTypes());
-        X10MethodDef mi = xts.methodDef(pos, Types.ref(ct),
+        X10MethodDef mi = xts.methodDef(pos, def.errorPosition(), Types.ref(ct),
                 Flags.PUBLIC.Abstract(), def.returnType(),
                 ClosureCall.APPLY, 
                 def.typeParameters(), 
@@ -296,7 +297,7 @@ public class ClosureSynthesizer {
             public FunctionType asType() {
                 if (asType == null) {
                     X10ClassDef cd = this;
-                    asType = new FunctionType_c(xts, pos, this);
+                    asType = new FunctionType_c(xts, pos, pos, this);
                 }
                 return (FunctionType) asType;
             }
@@ -321,12 +322,12 @@ public class ClosureSynthesizer {
         final List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
 
         for (int i = 0; i < numTypeParams; i++) {
-            ParameterType t = new ParameterType(xts, pos, Name.make("X" + i), Types.ref(cd));
+            ParameterType t = new ParameterType(xts, pos, pos, Name.make("X" + i), Types.ref(cd));
             typeParams.add(t);
         }
 
         for (int i = 0; i < numValueParams; i++) {
-            ParameterType t = new ParameterType(xts, pos, Name.make("Z" + (i + 1)), Types.ref(cd));
+            ParameterType t = new ParameterType(xts, pos, pos, Name.make("Z" + (i + 1)), Types.ref(cd));
             argTypes.add(Types.ref(t));
             cd.addTypeParameter(t, ParameterType.Variance.CONTRAVARIANT);
         }
@@ -336,7 +337,7 @@ public class ClosureSynthesizer {
         Type rt = null;
 
         if (!isVoid) {
-            ParameterType returnType = new ParameterType(xts, pos, Name.make("U"), Types.ref(cd));
+            ParameterType returnType = new ParameterType(xts, pos, pos, Name.make("U"), Types.ref(cd));
             cd.addTypeParameter(returnType, ParameterType.Variance.COVARIANT);
             rt = returnType;
         }
@@ -362,7 +363,7 @@ public class ClosureSynthesizer {
                 throw new InternalCompilerError("Unexpected exception while creating a function type", pos, e);
             }
         }
-        X10MethodDef mi = xts.methodDef(pos, Types.ref(ct),
+        X10MethodDef mi = xts.methodDef(pos, pos, Types.ref(ct),
         		Flags.PUBLIC.Abstract(), Types.ref(rt),
         		ClosureCall.APPLY, 
         		typeParams, 

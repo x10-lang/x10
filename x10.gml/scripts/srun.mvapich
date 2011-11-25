@@ -1,0 +1,11 @@
+#!/bin/sh
+export X10_HOSTFILE="hosts.$SLURM_JOB_ID"
+export X10_NPLACES=$SLURM_NPROCS
+export X10_SINGLE_JVM=""
+srun /bin/hostname -s | sort -n > $X10_HOSTFILE
+#echo $X10_NPLACES
+#cat $X10_HOSTFILE
+mpirun_rsh -np $X10_NPLACES -hostfile $X10_HOSTFILE $@
+rc=$?
+rm -f $X10_HOSTFILE
+exit $rc

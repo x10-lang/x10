@@ -301,27 +301,42 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
     public native def toString(radix:Int): String;
 
     /**
-     * Returns a String representation of this Byte as a hexadecimal number.
-     * @return a String representation of this Byte as a hexadecimal number.
+     * Returns a String representation of this Byte in base 16.
+     * This method is simply a synonym for toString(16).
+     * In particular toHexString(-20) will print -14; to print
+     * the 8 bit two's complement hexadecimal representation of a Byte v
+     * use (v as UByte).toHexString().  
+     *
+     * @return a String representation of this Byte in base 16.
      */
     @Native("java", "x10.core.Signed.toString((byte)#this, 16)")
-    @Native("c++", "x10aux::byte_utils::toHexString(#0)")
+    @Native("c++", "x10aux::byte_utils::toString(#0, 16)")
     public native def toHexString(): String;
 
     /**
-     * Returns a String representation of this Byte as an octal number.
-     * @return a String representation of this Byte as an octal number.
+     * Returns a String representation of this Byte in base 8.
+     * This method is simply a synonym for toString(8).
+     * In particular toOctalString(-20) will print -24; to print
+     * the 8 bit two's complement octal representation of a Byte v
+     * use (v as UByte).toOctalString().  
+     *
+     * @return a String representation of this Byte in base 8.
      */
     @Native("java", "x10.core.Signed.toString((byte)#this, 8)")
-    @Native("c++", "x10aux::byte_utils::toOctalString(#0)")
+    @Native("c++", "x10aux::byte_utils::toString(#0, 8)")
     public native def toOctalString(): String;
 
     /**
-     * Returns a String representation of this Byte as a binary number.
-     * @return a String representation of this Byte as a binary number.
+     * Returns a String representation of this Byte in base 2.
+     * This method is simply a synonym for toString(2).
+     * In particular toBinaryString(-20) will print -10100; to print
+     * the 8 bit two's complement binary representation of a Byte v
+     * use (v as UByte).toBinaryString().  
+     *
+     * @return a String representation of this Byte in base 2.
      */
     @Native("java", "x10.core.Signed.toString((byte)#this, 2)")
-    @Native("c++", "x10aux::byte_utils::toBinaryString(#0)")
+    @Native("c++", "x10aux::byte_utils::toString(#0, 2)")
     public native def toBinaryString(): String;
 
     /**

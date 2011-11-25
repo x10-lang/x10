@@ -28,10 +28,10 @@ public class LocalVar<T> extends x10.core.Ref {
     private static short _serialization_id;
 
     public static final RuntimeType<LocalVar<?>> $RTT =
-        new x10.rtt.NamedType<LocalVar<?>>(
+        x10.rtt.NamedType.<LocalVar<?>> make(
                 "x10.compiler.LocalVar",
                 /* base class */ LocalVar.class,
-                /* variances */ new Variance[] { Variance.INVARIANT },
+                /* variances */ RuntimeType.INVARIANTS(1),
                 /* parents */ new Type[] { Types.OBJECT }
     );
     @Override

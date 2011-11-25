@@ -40,8 +40,8 @@ import x10.types.constraints.TypeConstraint;
 public class ClosureInstance_c extends FunctionInstance_c<ClosureDef> implements ClosureInstance {
     private static final long serialVersionUID= 2804222307728697502L;
 
-    public ClosureInstance_c(TypeSystem ts, Position pos, Ref<? extends ClosureDef> def) {
-        super(ts, pos, def);
+    public ClosureInstance_c(TypeSystem ts, Position pos, Position errorPos, Ref<? extends ClosureDef> def) {
+        super(ts, pos, errorPos, def);
     }
     
     public ClosureDef x10Def() {

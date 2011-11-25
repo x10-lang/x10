@@ -128,10 +128,10 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
     	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");    	
     }
 
-    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = new NamedType<RemoteIndexedMemoryChunk<?>>(
+    public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = NamedType.<RemoteIndexedMemoryChunk<?>> make(
         "x10.util.RemoteIndexedMemoryChunk",
         RemoteIndexedMemoryChunk.class,
-        new Variance[] { Variance.INVARIANT },
+        RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
     @Override

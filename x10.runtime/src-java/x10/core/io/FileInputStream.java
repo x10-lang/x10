@@ -47,7 +47,7 @@ public class FileInputStream extends InputStream {
     //
     // Runtime type information
     //
-    public static final RuntimeType<FileInputStream> $RTT = new NamedType<FileInputStream>(
+    public static final RuntimeType<FileInputStream> $RTT = NamedType.<FileInputStream> make(
         "x10.io.FileReader.FileInputStream",
         FileInputStream.class,
         new Type[] { InputStream.$RTT }

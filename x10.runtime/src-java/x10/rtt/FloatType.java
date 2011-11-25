@@ -17,11 +17,12 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.lang.reflect.Array;
 
-public class FloatType extends RuntimeType<x10.core.Float> {
-//public class FloatType extends RuntimeType<x10.core.Float> implements X10JavaSerializable{
+public final class FloatType extends RuntimeType<x10.core.Float> {
+//public final class FloatType extends RuntimeType<x10.core.Float> implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 //    private static short _serialization_id;x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, FloatType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
@@ -32,9 +33,9 @@ public class FloatType extends RuntimeType<x10.core.Float> {
     public FloatType() {
         super(x10.core.Float.class,
               new Type[] {
-                  new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-                  new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-                  new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                  ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                  ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                  ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                   Types.STRUCT
               });
     }
@@ -44,39 +45,35 @@ public class FloatType extends RuntimeType<x10.core.Float> {
         return "x10.lang.Float";
     }
 
-    // for shortcut 
+    // for shortcut
     @Override
-    public boolean instanceOf(Object o) {
+    public boolean isInstance(Object o) {
         return o instanceof x10.core.Float;
     }
 
     @Override
-    public float[] makeArray(int length) {
-        return new float[length];
+    public float[] makeArray(int dim0) {
+        return new float[dim0];
     }
     
     @Override
-	public float[][] makeArray(int dim0, int dim1) {
+    public float[][] makeArray(int dim0, int dim1) {
         return new float[dim0][dim1];
-	}
-
-	@Override
-	public float[][][] makeArray(int dim0, int dim1, int dim2) {
+    }
+    
+    @Override
+    public float[][][] makeArray(int dim0, int dim1, int dim2) {
         return new float[dim0][dim1][dim2];
-	}
-
-	@Override
-	public float[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+    }
+    
+    @Override
+    public float[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
         return new float[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public float[] makeArray(Object... elem) {
-        float[] arr = new float[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.Float.$unbox(elem[i]);
-        }
-        return arr;
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(float.class, dims);
     }
     
     @Override

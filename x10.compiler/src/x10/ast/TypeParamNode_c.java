@@ -85,7 +85,7 @@ public class TypeParamNode_c extends Term_c implements TypeParamNode {
 //	            throw new SemanticException("Type parameter cannot occur outside method, constructor, closure, or type definition.", position());
 //	        }
 	        
-	        ParameterType t = new ParameterType(xts, position(), name.id(), Types.ref(def));
+	        ParameterType t = new ParameterType(xts, position(), position(), name.id(), Types.ref(def));
 	        return type(t);
 	}
 

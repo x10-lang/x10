@@ -12,14 +12,16 @@
 package x10.rtt;
 
 
+import java.lang.reflect.Array;
+
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
-public class UShortType extends RuntimeType<x10.core.UShort> {
-//public class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaSerializable{
+public final class UShortType extends RuntimeType<x10.core.UShort> {
+//public final class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaSerializable {
 
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 //    private static short _serialization_id;x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UShortType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
@@ -30,10 +32,10 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
     public UShortType() {
         super(x10.core.UShort.class,
             new Type[] {
-                new ParameterizedType(Types.COMPARABLE, UnresolvedType.THIS),
-        		new ParameterizedType(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
-        		new ParameterizedType(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
-        		new ParameterizedType(x10.util.Ordered.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Arithmetic.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.lang.Bitwise.$RTT, UnresolvedType.THIS),
+                ParameterizedType.make(x10.util.Ordered.$RTT, UnresolvedType.THIS),
                 Types.STRUCT
             });
     }
@@ -43,39 +45,35 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
         return "x10.lang.UShort";
     }
 
-    // for shortcut 
+    // for shortcut
     @Override
-    public boolean instanceOf(Object o) {
+    public boolean isInstance(Object o) {
         return o instanceof x10.core.UShort;
     }
     
     @Override
-    public short[] makeArray(int length) {
-        return new short[length];
+    public short[] makeArray(int dim0) {
+        return new short[dim0];
     }
     
     @Override
-	public short[][] makeArray(int dim0, int dim1) {
+    public short[][] makeArray(int dim0, int dim1) {
         return new short[dim0][dim1];
-	}
-
-	@Override
-	public short[][][] makeArray(int dim0, int dim1, int dim2) {
+    }
+    
+    @Override
+    public short[][][] makeArray(int dim0, int dim1, int dim2) {
         return new short[dim0][dim1][dim2];
-	}
-
-	@Override
-	public short[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
+    }
+    
+    @Override
+    public short[][][][] makeArray(int dim0, int dim1, int dim2, int dim3) {
         return new short[dim0][dim1][dim2][dim3];
-	}
-
-	@Override
-    public short[] makeArray(Object... elem) {
-        short[] arr = new short[elem.length];
-        for (int i = 0; i < elem.length; i++) {
-            arr[i] = x10.core.UShort.$unbox(elem[i]);
-        }
-        return arr;
+    }
+    
+    @Override
+    public Object makeArray(int... dims) {
+        return Array.newInstance(short.class, dims);
     }
     
     @Override
@@ -83,12 +81,6 @@ public class UShortType extends RuntimeType<x10.core.UShort> {
         return x10.core.UShort.$box(((short[]) array)[i]);
     }
     
-//    @Override
-//    public x10.core.UShort setArray(Object array, int i, x10.core.UShort v) {
-//        // avoid boxing again
-//        ((int[]) array)[i] = x10.core.UShort.$unbox(v);
-//        return v;
-//    }
     @Override
     public void setArray(Object array, int i, x10.core.UShort v) {
         ((short[]) array)[i] = x10.core.UShort.$unbox(v);

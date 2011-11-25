@@ -20,7 +20,7 @@ final class ReinstantiatedClosureInstance_c extends ClosureInstance_c {
 
 	ReinstantiatedClosureInstance_c(TypeParamSubst typeParamSubst, TypeSystem ts, Position pos,
 			Ref<? extends ClosureDef> def, ClosureInstance fi) {
-		super(ts, pos, def);
+		super(ts, pos, pos, def);
 		this.typeParamSubst = typeParamSubst;
 		this.fi = fi;
 	}

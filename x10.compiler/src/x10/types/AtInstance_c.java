@@ -24,7 +24,7 @@ public class AtInstance_c extends MethodInstance_c implements AtInstance {
     private static final long serialVersionUID = 107893706880034330L;
 
     public AtInstance_c(TypeSystem ts, Position pos, Ref<? extends AtDef> def) {
-        super(ts, pos, def);
+        super(ts, pos, pos, def);
     }
 
     public AtDef def() {

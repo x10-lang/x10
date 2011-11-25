@@ -54,7 +54,7 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     //
     // Runtime type information
     //
-    public static final RuntimeType<AtomicInteger> $RTT = new NamedType<AtomicInteger>(
+    public static final RuntimeType<AtomicInteger> $RTT = NamedType.<AtomicInteger> make(
         "x10.util.concurrent.AtomicInteger",
         AtomicInteger.class,
         new Type[] { Types.OBJECT }

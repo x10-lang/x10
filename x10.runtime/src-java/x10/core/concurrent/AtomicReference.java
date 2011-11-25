@@ -61,10 +61,10 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     //
     // Runtime type information
     //
-    public static final RuntimeType<AtomicReference> $RTT = new NamedType<AtomicReference>(
+    public static final RuntimeType<AtomicReference> $RTT = NamedType.<AtomicReference> make(
         "x10.util.concurrent.AtomicReference",
         AtomicReference.class,
-        new Variance[] { Variance.INVARIANT },
+        RuntimeType.INVARIANTS(1),
         new Type[] { Types.OBJECT }
     );
     public RuntimeType<AtomicReference> $getRTT() {return $RTT;}

@@ -219,11 +219,11 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
 	if (tc.context().currentClass().flags().isInterface()) {
             if (flags.isProtected() || flags.isPrivate()) {
                 Errors.issue(tc.job(), 
-                		new Errors.InterfaceMethodsMustBePublic(position()));
+                		new Errors.InterfaceMethodsMustBePublic(name().position()));
             }
             
             if (flags.isStatic()) {
-        	Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotBeStatic(position()));
+        	Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotBeStatic(name().position()));
             }
         }
 
@@ -238,26 +238,26 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         ClassType ct = container.toClass();
 
 	if (body == null && ! (flags.isAbstract() || flags.isNative())) {
-	    Errors.issue(tc.job(), new Errors.MissingMethodBody(position()));
+	    Errors.issue(tc.job(), new Errors.MissingMethodBody(name().position()));
 	}
 
         if (body != null && ct.flags().isInterface()) {
-	    Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotHaveBody(position()));
+	    Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotHaveBody(name().position()));
         }
 
 	if (body != null && flags.isAbstract()) {
-	    Errors.issue(tc.job(), new Errors.AbstractMethodCannotHaveBody(position()));
+	    Errors.issue(tc.job(), new Errors.AbstractMethodCannotHaveBody(name().position()));
 	}
 
 	if (body != null && flags.isNative()) {
-	    Errors.issue(tc.job(), new Errors.NativeMethodCannotHaveBody(position()));
+	    Errors.issue(tc.job(), new Errors.NativeMethodCannotHaveBody(name().position()));
 	}
 
         // check that inner classes do not declare static methods
         if (ct != null && flags.isStatic() && (ct.isInnerClass() || ct.isLocal() || ct.isAnonymous())) {
             // it's a static method in an inner class.
             Errors.issue(tc.job(),
-                    new Errors.InnerClassesCannotDeclareStaticMethods(methodDef(), ct, position()));             
+                    new Errors.InnerClassesCannotDeclareStaticMethods(methodDef(), ct, name().position()));             
         }
     }
 

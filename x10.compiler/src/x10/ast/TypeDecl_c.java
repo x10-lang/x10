@@ -217,7 +217,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		if (topLevel)
 		    flags = flags.Static();
 
-		TypeDef typeDef = new TypeDef_c(ts, position(), flags, name.id(), container,
+		TypeDef typeDef = new TypeDef_c(ts, position(), name().position(), flags, name.id(), container,
 		                                Collections.<ParameterType>emptyList(),
 		                                thisVar, Collections.<LocalDef>emptyList(),
 		                                Collections.<Ref<? extends Type>>emptyList(), null, null, null);

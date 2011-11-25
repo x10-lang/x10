@@ -26,11 +26,11 @@ public abstract class ReferenceType_c extends Type_c implements ObjectType
     }
 
     public ReferenceType_c(TypeSystem ts) {
-	this(ts, null);
+	this(ts, null, null);
     }
 
-    public ReferenceType_c(TypeSystem ts, Position pos) {
-	super(ts, pos);
+    public ReferenceType_c(TypeSystem ts, Position pos, Position errorPos) {
+	super(ts, pos, errorPos);
     }
 
     public boolean isReference() { return true; }

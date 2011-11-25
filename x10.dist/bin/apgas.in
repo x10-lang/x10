@@ -64,7 +64,8 @@ LIB_DIR=
 
 classpath=""
 [ -n "$dev" ] && classpath="${TOP}${FILE_SEP}..${FILE_SEP}x10.runtime${FILE_SEP}classes${PATH_SEP}"
-classpath=".${PATH_SEP}${classpath}${TOP}${FILE_SEP}stdlib${FILE_SEP}${FILE_SEP}x10.jar"
+classpath=".${PATH_SEP}${classpath}${TOP}${FILE_SEP}stdlib${FILE_SEP}x10.jar"
+classpath="${classpath}${PATH_SEP}${TOP}${FILE_SEP}lib${FILE_SEP}${MATH_JAR}"
 classpath="${classpath}${PATH_SEP}${TOP}${FILE_SEP}..${FILE_SEP}apgas.java${FILE_SEP}bin${FILE_SEP}"
 
 if [ -n "$extra_cp" ]; then

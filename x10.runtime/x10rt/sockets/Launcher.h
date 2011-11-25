@@ -117,6 +117,7 @@ class Launcher
 		int * _childControlLinks; /* children's control connections */
 		int * _childCoutLinks; /* children's cout connections */
 		int * _childCerrorLinks; /* children's cerror connections */
+		int _exitcode; /* The exit code */
 };
 #endif /* #ifdef */
 

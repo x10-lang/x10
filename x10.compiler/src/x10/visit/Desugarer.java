@@ -311,6 +311,7 @@ public class Desugarer extends ContextVisitor {
         public ClosureCaptureVisitor(Context context, EnvironmentCapture cd) {
             this.context = context;
             this.cd = cd;
+            this.cd.setCapturedEnvironment(new ArrayList<VarInstance<?>>());
         }
         @Override
         public Node leave(Node old, Node n, NodeVisitor v) {

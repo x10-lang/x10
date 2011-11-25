@@ -164,6 +164,10 @@ public class CXXCommandBuilder {
         if (options.pg) {
             cxxCmd.add("-pg");
         }
+        
+        if (options.gpt) {
+            cxxCmd.add("-g");
+        }
 
         cxxCmd.addAll(x10rt.cxxFlags);
         for (PrecompiledLibrary pcl:options.x10libs) {

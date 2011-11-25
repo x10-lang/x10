@@ -180,19 +180,19 @@ public abstract class ConstructorDecl_c extends Term_c implements ConstructorDec
 	
 	if (ct.flags().isInterface()) {
 	    Errors.issue(tc.job(), 
-	    		new Errors.CannotDeclareConstructorInInterface(position()));
+	    		new Errors.CannotDeclareConstructorInInterface(name().position()));
 	}
 	
 	if (ct.isAnonymous()) {
 	    Errors.issue(tc.job(),
-	            new Errors.CannotDeclareConstructorInAnonymousClass(position()));
+	            new Errors.CannotDeclareConstructorInAnonymousClass(name().position()));
 	}
 	
 	Name ctName = ct.name();
 	
 	if (! ctName.equals(name.id())) {
 	    Errors.issue(tc.job(), 
-	    		new Errors.ConstructorNameDoesNotMatchContainingClassName(name, ctName, position()));
+	    		new Errors.ConstructorNameDoesNotMatchContainingClassName(name, ctName, name().position()));
 	}
 	
 	Flags flags = flags().flags();
@@ -205,11 +205,11 @@ public abstract class ConstructorDecl_c extends Term_c implements ConstructorDec
 	}
 	
 	if (body == null && ! flags.isNative()) {
-	    Errors.issue(tc.job(), new Errors.MissingConstructorBody(position()));
+	    Errors.issue(tc.job(), new Errors.MissingConstructorBody(name().position()));
 	}
 	
 	if (body != null && flags.isNative()) {
-	    Errors.issue(tc.job(), new Errors.NativeConstructorCannotHaveABody(position()));
+	    Errors.issue(tc.job(), new Errors.NativeConstructorCannotHaveABody(name().position()));
 	}
 	
 	return this;

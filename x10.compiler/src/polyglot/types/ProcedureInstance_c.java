@@ -13,8 +13,8 @@ import x10.types.MethodInstance;
 public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<T> implements X10ProcedureInstance<T> {
     private static final long serialVersionUID = -5028005051545234620L;
 
-    protected ProcedureInstance_c(TypeSystem ts, Position pos, Ref<? extends T> def) {
-        super(ts, pos, def);
+    protected ProcedureInstance_c(TypeSystem ts, Position pos, Position errorPos, Ref<? extends T> def) {
+        super(ts, pos,errorPos,def);
     }
 
     

@@ -190,8 +190,8 @@ public class SettableAssign_c extends Assign_c implements SettableAssign {
 
 	    TypeSystem ts = (TypeSystem) tb.typeSystem();
 
-	    MethodInstance mi = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
-	    MethodInstance ami = ts.createMethodInstance(position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
+	    MethodInstance mi = ts.createMethodInstance(position(), position(),new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
+	    MethodInstance ami = ts.createMethodInstance(position(), position(), new ErrorRef_c<MethodDef>(ts, position(), "Cannot get MethodDef before type-checking settable assign."));
 	    return n.methodInstance(mi).applyMethodInstance(ami);
 	}
 

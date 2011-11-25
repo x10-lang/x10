@@ -29,12 +29,12 @@ public abstract class Type_c extends TypeObject_c implements Type
     
     /** Creates a new type in the given a TypeSystem. */
     public Type_c(TypeSystem ts) {
-        this(ts, null);
+        this(ts, null, null);
     }
 
     /** Creates a new type in the given a TypeSystem at a given position. */
-    public Type_c(TypeSystem ts, Position pos) {
-        super(ts, pos);
+    public Type_c(TypeSystem ts, Position pos, Position errorPos) {
+        super(ts, pos, errorPos);
     }
 
     public List<Type> annotations() {

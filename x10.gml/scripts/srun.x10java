@@ -1,0 +1,11 @@
+#!/bin/sh
+hostfile="$PWD/hosts.$SLURM_JOB_ID"
+nproc=$SLURM_NPROCS
+export X10_SINGLE_JVM=""
+Xgo=`which X10Launcher`
+srun -l /bin/hostname -s | sort -n | awk '{print $2}' > $hostfile
+echo $Xgo -np $SLURM_NPROCS -hostfile $hostfile "$@"
+$Xgo -np $SLURM_NPROCS -hostfile $hostfile "$@"
+rc=$?
+rm -f $hostfile
+exit $rc

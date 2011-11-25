@@ -14,7 +14,7 @@ package x10.util.concurrent;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
-@NativeRep("java", "x10.core.concurrent.AtomicReference<#T$box>", null, "new x10.rtt.ParameterizedType(x10.core.concurrent.AtomicReference.$RTT, #T$rtt)")
+@NativeRep("java", "x10.core.concurrent.AtomicReference<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.concurrent.AtomicReference.$RTT, #T$rtt)")
 @NativeRep("c++", "x10aux::ref<x10::util::concurrent::AtomicReference<#T > >", "x10::util::concurrent::AtomicReference<#T >", null)
 public final class AtomicReference[T]{T<:Object} {
 	

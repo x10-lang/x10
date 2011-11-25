@@ -70,6 +70,12 @@ public final class GL {
     public static def glutSwapBuffers () : void { }
     @Native("c++", "glutPostRedisplay()")
     public static def glutPostRedisplay () : void { }
+    @Native("c++", "glutSetCursor(#x)")
+    public static def glutSetCursor (x:Int) : void { }
+    @Native("c++", "glutWarpPointer(#x,#y)")
+    public static def glutWarpPointer (x:Int, y:Int) : void { }
+    @Native("c++", "glutGet(#x)")
+    public static def glutGet (x:Int) : Int = 0;
     public static def glutMainLoop (callbacks : FrameEventHandler) {
         the_feh() = callbacks;
         @Native("c++",
@@ -85,12 +91,69 @@ public final class GL {
             "    ::glutMainLoop();\n"
         ) { };
     }
-    @Native("c++", "GLUT_RGB")
-    public static GLUT_RGB : Int = 0;
-    @Native("c++", "GLUT_RGBA")
-    public static GLUT_RGBA : Int = 0;
-    @Native("c++", "GLUT_DOUBLE")
-    public static GLUT_DOUBLE : Int = 0;
+    @Native("c++", "GLUT_RGB") public static GLUT_RGB : Int = 0;
+    @Native("c++", "GLUT_RGBA") public static GLUT_RGBA : Int = 0;
+    @Native("c++", "GLUT_DOUBLE") public static GLUT_DOUBLE : Int = 0;
+    //s/.*/@Native("c++", "&") public static & : Int = 0;/g
+    @Native("c++", "GLUT_CURSOR_RIGHT_ARROW") public static GLUT_CURSOR_RIGHT_ARROW : Int = 0;
+    @Native("c++", "GLUT_CURSOR_LEFT_ARROW") public static GLUT_CURSOR_LEFT_ARROW : Int = 0;
+    @Native("c++", "GLUT_CURSOR_INFO") public static GLUT_CURSOR_INFO : Int = 0;
+    @Native("c++", "GLUT_CURSOR_DESTROY") public static GLUT_CURSOR_DESTROY : Int = 0;
+    @Native("c++", "GLUT_CURSOR_HELP") public static GLUT_CURSOR_HELP : Int = 0;
+    @Native("c++", "GLUT_CURSOR_CYCLE") public static GLUT_CURSOR_CYCLE : Int = 0;
+    @Native("c++", "GLUT_CURSOR_SPRAY") public static GLUT_CURSOR_SPRAY : Int = 0;
+    @Native("c++", "GLUT_CURSOR_WAIT") public static GLUT_CURSOR_WAIT : Int = 0;
+    @Native("c++", "GLUT_CURSOR_TEXT") public static GLUT_CURSOR_TEXT : Int = 0;
+    @Native("c++", "GLUT_CURSOR_CROSSHAIR") public static GLUT_CURSOR_CROSSHAIR : Int = 0;
+    @Native("c++", "GLUT_CURSOR_UP_DOWN") public static GLUT_CURSOR_UP_DOWN : Int = 0;
+    @Native("c++", "GLUT_CURSOR_LEFT_RIGHT") public static GLUT_CURSOR_LEFT_RIGHT : Int = 0;
+    @Native("c++", "GLUT_CURSOR_TOP_SIDE") public static GLUT_CURSOR_TOP_SIDE : Int = 0;
+    @Native("c++", "GLUT_CURSOR_BOTTOM_SIDE") public static GLUT_CURSOR_BOTTOM_SIDE : Int = 0;
+    @Native("c++", "GLUT_CURSOR_LEFT_SIDE") public static GLUT_CURSOR_LEFT_SIDE : Int = 0;
+    @Native("c++", "GLUT_CURSOR_RIGHT_SIDE") public static GLUT_CURSOR_RIGHT_SIDE : Int = 0;
+    @Native("c++", "GLUT_CURSOR_TOP_LEFT_CORNER") public static GLUT_CURSOR_TOP_LEFT_CORNER : Int = 0;
+    @Native("c++", "GLUT_CURSOR_TOP_RIGHT_CORNER") public static GLUT_CURSOR_TOP_RIGHT_CORNER : Int = 0;
+    @Native("c++", "GLUT_CURSOR_BOTTOM_RIGHT_CORNER") public static GLUT_CURSOR_BOTTOM_RIGHT_CORNER : Int = 0;
+    @Native("c++", "GLUT_CURSOR_BOTTOM_LEFT_CORNER") public static GLUT_CURSOR_BOTTOM_LEFT_CORNER : Int = 0;
+    @Native("c++", "GLUT_CURSOR_FULL_CROSSHAIR") public static GLUT_CURSOR_FULL_CROSSHAIR : Int = 0;
+    @Native("c++", "GLUT_CURSOR_NONE") public static GLUT_CURSOR_NONE : Int = 0;
+    @Native("c++", "GLUT_CURSOR_INHERIT") public static GLUT_CURSOR_INHERIT : Int = 0;
+    @Native("c++", "GLUT_WINDOW_X") public static GLUT_WINDOW_X : Int = 0;
+    @Native("c++", "GLUT_WINDOW_Y") public static GLUT_WINDOW_Y : Int = 0;
+    @Native("c++", "GLUT_WINDOW_WIDTH") public static GLUT_WINDOW_WIDTH : Int = 0;
+    @Native("c++", "GLUT_WINDOW_HEIGHT") public static GLUT_WINDOW_HEIGHT : Int = 0;
+    @Native("c++", "GLUT_WINDOW_BUFFER_SIZE") public static GLUT_WINDOW_BUFFER_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_STENCIL_SIZE") public static GLUT_WINDOW_STENCIL_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_DEPTH_SIZE") public static GLUT_WINDOW_DEPTH_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_RED_SIZE") public static GLUT_WINDOW_RED_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_GREEN_SIZE") public static GLUT_WINDOW_GREEN_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_BLUE_SIZE") public static GLUT_WINDOW_BLUE_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_ALPHA_SIZE") public static GLUT_WINDOW_ALPHA_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_ACCUM_RED_SIZE") public static GLUT_WINDOW_ACCUM_RED_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_ACCUM_GREEN_SIZE") public static GLUT_WINDOW_ACCUM_GREEN_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_ACCUM_BLUE_SIZE") public static GLUT_WINDOW_ACCUM_BLUE_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_ACCUM_ALPHA_SIZE") public static GLUT_WINDOW_ACCUM_ALPHA_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_DOUBLEBUFFER") public static GLUT_WINDOW_DOUBLEBUFFER : Int = 0;
+    @Native("c++", "GLUT_WINDOW_RGBA") public static GLUT_WINDOW_RGBA : Int = 0;
+    @Native("c++", "GLUT_WINDOW_PARENT") public static GLUT_WINDOW_PARENT : Int = 0;
+    @Native("c++", "GLUT_WINDOW_NUM_CHILDREN") public static GLUT_WINDOW_NUM_CHILDREN : Int = 0;
+    @Native("c++", "GLUT_WINDOW_COLORMAP_SIZE") public static GLUT_WINDOW_COLORMAP_SIZE : Int = 0;
+    @Native("c++", "GLUT_WINDOW_NUM_SAMPLES") public static GLUT_WINDOW_NUM_SAMPLES : Int = 0;
+    @Native("c++", "GLUT_WINDOW_STEREO") public static GLUT_WINDOW_STEREO : Int = 0;
+    @Native("c++", "GLUT_WINDOW_CURSOR") public static GLUT_WINDOW_CURSOR : Int = 0;
+    @Native("c++", "GLUT_SCREEN_WIDTH") public static GLUT_SCREEN_WIDTH : Int = 0;
+    @Native("c++", "GLUT_SCREEN_HEIGHT") public static GLUT_SCREEN_HEIGHT : Int = 0;
+    @Native("c++", "GLUT_SCREEN_WIDTH_MM") public static GLUT_SCREEN_WIDTH_MM : Int = 0;
+    @Native("c++", "GLUT_SCREEN_HEIGHT_MM") public static GLUT_SCREEN_HEIGHT_MM : Int = 0;
+    @Native("c++", "GLUT_MENU_NUM_ITEMS") public static GLUT_MENU_NUM_ITEMS : Int = 0;
+    @Native("c++", "GLUT_DISPLAY_MODE_POSSIBLE") public static GLUT_DISPLAY_MODE_POSSIBLE : Int = 0;
+    @Native("c++", "GLUT_INIT_DISPLAY_MODE") public static GLUT_INIT_DISPLAY_MODE : Int = 0;
+    @Native("c++", "GLUT_INIT_WINDOW_X") public static GLUT_INIT_WINDOW_X : Int = 0;
+    @Native("c++", "GLUT_INIT_WINDOW_Y") public static GLUT_INIT_WINDOW_Y : Int = 0;
+    @Native("c++", "GLUT_INIT_WINDOW_WIDTH") public static GLUT_INIT_WINDOW_WIDTH : Int = 0;
+    @Native("c++", "GLUT_INIT_WINDOW_HEIGHT") public static GLUT_INIT_WINDOW_HEIGHT : Int = 0;
+    @Native("c++", "GLUT_ELAPSED_TIME") public static GLUT_ELAPSED_TIME : Int = 0;
+    @Native("c++", "GLUT_WINDOW_FORMAT_ID") public static GLUT_WINDOW_FORMAT_ID : Int = 0;
 
     @Native("c++", "glewInit()")
     public static def glewInit () : Boolean = true;

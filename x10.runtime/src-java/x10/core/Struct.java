@@ -33,7 +33,7 @@ public abstract class Struct implements StructI {
         return _struct_equals$O(o);
     }
 
-    public static final RuntimeType<Struct> $RTT = new RuntimeType<Struct>(Struct.class, new Type[] { Types.STRUCT });
+    public static final RuntimeType<Struct> $RTT = RuntimeType.<Struct> make(Struct.class, new Type[] { Types.STRUCT });
     public RuntimeType<?> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) {return null;}
 

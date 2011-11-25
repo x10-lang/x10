@@ -305,30 +305,42 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
     public native def toString(radix:Int): String;
 
     /**
-     * Returns a String representation of this Int as a hexadecimal number.
-     * @return a String representation of this Int as a hexadecimal number.
+     * Returns a String representation of this Int in base 16.
+     * This method is simply a synonym for toString(16).
+     * In particular toHexString(-20) will print -14; to print
+     * the 32 bit two's complement hexadecimal representation of an Int v
+     * use (v as UInt).toHexString().  
+     *
+     * @return a String representation of this Int in base 16.
      */
-    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
     @Native("java", "java.lang.Integer.toString(#this, 16)")
-    @Native("c++", "x10aux::int_utils::toHexString(#0)")
+    @Native("c++", "x10aux::int_utils::toString(#0, 16)")
     public native def toHexString(): String;
 
     /**
-     * Returns a String representation of this Int as an octal number.
-     * @return a String representation of this Int as an octal number.
+     * Returns a String representation of this Int in base 8.
+     * This method is simply a synonym for toString(8).
+     * In particular toOctalString(-20) will print -24; to print
+     * the 32 bit two's complement octal representation of an Int v
+     * use (v as UInt).toHexString().  
+     *
+     * @return a String representation of this Int in base 8.
      */
-    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
     @Native("java", "java.lang.Integer.toString(#this, 8)")
-    @Native("c++", "x10aux::int_utils::toOctalString(#0)")
+    @Native("c++", "x10aux::int_utils::toString(#0, 8)")
     public native def toOctalString(): String;
 
     /**
-     * Returns a String representation of this Int as a binary number.
-     * @return a String representation of this Int as a binary number.
+     * Returns a String representation of this Int in base 2.
+     * This method is simply a synonym for toString(2).
+     * In particular toBinaryString(-20) will print -10100; to print
+     * the 32 bit two's complement binary representation of an Int v
+     * use (v as UInt).toBinaryString().  
+     *
+     * @return a String representation of this Int in base 2.
      */
-    // N.B. "java.lang.Integer.to{Binary,Octal,Hex}String(int)" handles the argument as unsigned but "java.lang.Integer.toString(int,int)" does not.
     @Native("java", "java.lang.Integer.toString(#this, 2)")
-    @Native("c++", "x10aux::int_utils::toBinaryString(#0)")
+    @Native("c++", "x10aux::int_utils::toString(#0, 2)")
     public native def toBinaryString(): String;
 
     /**

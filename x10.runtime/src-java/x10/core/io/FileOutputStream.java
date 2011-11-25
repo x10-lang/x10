@@ -47,7 +47,7 @@ public class FileOutputStream extends OutputStream {
     //
     // Runtime type information
     //
-    public static final RuntimeType<FileOutputStream> $RTT = new NamedType<FileOutputStream>(
+    public static final RuntimeType<FileOutputStream> $RTT = NamedType.<FileOutputStream> make(
         "x10.io.FileWriter.FileOutputStream",
         FileOutputStream.class,
         new Type[] { OutputStream.$RTT }

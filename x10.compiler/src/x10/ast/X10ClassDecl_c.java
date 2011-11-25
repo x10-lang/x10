@@ -543,7 +543,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (name.id().equals(JAVA_ARRAY) && tb.currentClass() != null && tb.currentClass().fullName().equals(X10_INTEROP_JAVA))
         	tb = tb.pushClass(tb.typeSystem().JavaArray().def());
         else
-        	tb = tb.pushClass(position(), flags.flags(), name.id(), errorInAST);
+        	tb = tb.pushClass(position(), name().position(), flags.flags(), name.id(), errorInAST);
 
         X10ClassDef type = tb.currentClass();
 
@@ -903,13 +903,13 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 throw new InternalCompilerError("Couldn't find x10.lang.annotations.Annotation",e);
             }
             if (!classDef().asType().isSubtype(A,tc.context())) {
-                Errors.issue(tc.job(), new SemanticException("Interfaces that do not extend Annotation cannot have property fields. Use property methods instead.",position));                
+                Errors.issue(tc.job(), new SemanticException("Interfaces that do not extend Annotation cannot have property fields. Use property methods instead.",name().position()));                
             }
         }
 
         // check properties are always simpler than their container
         if (((X10ClassDef_c)classDef()).hasCircularProperty())
-            Errors.issue(tc.job(), new SemanticException("A class can only have properties of a 'simpler' type, i.e., there must be an ordering for all types such that if A has a property of type B then B is 'simpler' than A, and if A extends B then B is 'simpler' than A.",position));            
+            Errors.issue(tc.job(), new SemanticException("A class can only have properties of a 'simpler' type, i.e., there must be an ordering for all types such that if A has a property of type B then B is 'simpler' than A, and if A extends B then B is 'simpler' than A.",name().position()));            
 
     	return n;
     }
@@ -939,7 +939,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         if (xts.hasUnknown(t))
             return;
         if (! t.isClass() || t.toClass().flags().isInterface()) {
-            throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : position());
+            throw new SemanticException("Cannot extend type " + t + "; not a class.", superClass != null ? superClass.position() : name().position());
         }
         xts.checkCycles((ObjectType) t);
     }
@@ -953,7 +953,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             return;
         if (! t.isClass() || ! t.toClass().flags().isInterface()) {
             String s = type.flags().isInterface() ? "extend" : "implement";
-            throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", position());
+            throw new SemanticException("Cannot " + s + " type " + t + "; not an interface.", name().position());
         }
         xts.checkCycles((ObjectType) t);
     }

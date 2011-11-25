@@ -112,7 +112,7 @@ final public class RuntimeTypeExpander extends Expander {
             
             // XTENLANG-1102
             if (args.size() > 0) {
-                er.w.write("new x10.rtt.ParameterizedType(");
+                er.w.write("x10.rtt.ParameterizedType.make(");
                 printFunRTT(ct, args, ret);
                 for (Type a:args) {
                     er.w.write(",");
@@ -156,7 +156,7 @@ final public class RuntimeTypeExpander extends Expander {
                 if (ct.isGloballyAccessible() && classTypeArgs.size() == 0) {
                     er.w.write(rttString);
                 } else {
-                    er.w.write("new x10.rtt.ParameterizedType(");
+                    er.w.write("x10.rtt.ParameterizedType.make(");
                     er.w.write(rttString);
                     for (int i = 0; i < classTypeArgs.size(); i++) {
                         er.w.write(", ");

@@ -52,7 +52,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     List<LocalDef> formalNames;
     Ref<? extends Type> offerType;
 
-    public X10ConstructorDef_c(TypeSystem ts, Position pos,
+    public X10ConstructorDef_c(TypeSystem ts, Position pos, Position errorPos,
             Ref<? extends ContainerType> container,
             Flags flags,
             Ref<? extends Type> returnType,
@@ -61,7 +61,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, 
             Ref<? extends Type> offerType) {
-        super(ts, pos, container, flags, formalTypes);
+        super(ts, pos, errorPos, container, flags, formalTypes);
         this.returnType = returnType;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;

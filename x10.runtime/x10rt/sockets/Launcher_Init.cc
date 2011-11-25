@@ -80,6 +80,7 @@ Launcher::Launcher()
 	_pidlst = NULL;
 	_listenSocket = -1;
 	_childControlLinks = NULL;
+	_exitcode = 0xFEEDC0DE;
 }
 
 /* *********************************************************************** */

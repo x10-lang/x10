@@ -10,12 +10,12 @@
  */
 package x10.x10rt;
 
-import x10.lang.FinishState;
-import x10.runtime.impl.java.Runtime;
-
+import java.io.ByteArrayInputStream;
 import java.io.DataInputStream;
 import java.io.InputStream;
-import java.io.ObjectInputStream;
+
+import x10.lang.FinishState;
+import x10.runtime.impl.java.Runtime;
 
 /**
  * A class to contain the Java portion of message send/receive pairs.
@@ -68,41 +68,28 @@ public class MessageHandlers {
     private static void runClosureAtReceive(byte[] args , short sid) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("@MultiVM : runClosureAtReceive is called");
-    		java.io.ByteArrayInputStream byteStream 
-    			= new java.io.ByteArrayInputStream(args);
+    		java.io.ByteArrayInputStream byteStream = new java.io.ByteArrayInputStream(args);
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ByteArrayInputStream");
-            x10.core.fun.VoidFun_0_0 actObj;
-            InputStream objStream;
 
-            // Static initialization follows the custom serialization protocol irrespective of the following flag hence
-            // if its a static initializer use custom serialization
-            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION || DeserializationDispatcher.isStaticInitializer(sid)) {
-                objStream = new DataInputStream(byteStream);
-    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-                X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Starting deserialization ");
-                }
-                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef(sid);
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Ending deserialization ");
-                }
-            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
-                objStream = new DataInputStream(byteStream);
-    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-                X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Starting deserialization ");
-                }
-                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRefUsingReflection();
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Ending deserialization ");
-                }
-            } else {
-                objStream = new java.io.ObjectInputStream(byteStream);
-    		    if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
-                actObj = (x10.core.fun.VoidFun_0_0) ((ObjectInputStream)objStream).readObject();
-            }
+    		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
+    		InputStream objStream = new DataInputStream(byteStream);
+    		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: ObjectInputStream");
+    		X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
+    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+    			System.out.println("Starting deserialization ");
+    		}
+    		x10.core.fun.VoidFun_0_0 actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef(sid);
+    		if (Runtime.PROF_SER) {
+    			long stop = System.nanoTime();
+    			long duration = stop-start;
+    			if (duration >= Runtime.PROF_SER_FILTER) {
+    				System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
+    			}
+    		}
+    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+    			System.out.println("Ending deserialization ");
+    		}
+
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after cast and deserialization");
     		actObj.$apply();
     		if (X10RT.VERBOSE) System.out.println("runClosureAtReceive: after apply");
@@ -120,44 +107,32 @@ public class MessageHandlers {
     private static void runAsyncAtReceive(byte[] args, short sid) {
     	try{
     		if (X10RT.VERBOSE) System.out.println("@MultiVM : runAsyncAtReceive is called");
-    		java.io.ByteArrayInputStream byteStream
-    			= new java.io.ByteArrayInputStream(args);
+    		ByteArrayInputStream byteStream = new ByteArrayInputStream(args);
     		if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: ByteArrayInputStream");
-            x10.core.fun.VoidFun_0_0 actObj;
-            FinishState finishState;
-            InputStream objStream;
-            if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION) {
-                objStream = new DataInputStream(byteStream);
-    		    if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: ObjectInputStream");
-                X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Starting deserialization ");
-                }
-                finishState = (FinishState) deserializer.readRef();
-                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef(sid);
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Ending deserialization ");
-                }
-            } else if (X10JavaSerializable.CUSTOM_JAVA_SERIALIZATION_USING_REFLECTION) {
-                objStream = new DataInputStream(byteStream);
-    		    if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: ObjectInputStream");
-                X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Starting deserialization ");
-                }
-                finishState = (FinishState) deserializer.readRefUsingReflection();
-                actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRefUsingReflection();
-                if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
-                    System.out.println("Ending deserialization ");
-                }
-            } else {
-                objStream = new java.io.ObjectInputStream(byteStream);
-    		    if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: ObjectInputStream");
-                finishState = (FinishState) ((ObjectInputStream)objStream).readObject();
-                actObj = (x10.core.fun.VoidFun_0_0) ((ObjectInputStream)objStream).readObject();
-            }
+    		x10.core.fun.VoidFun_0_0 actObj;
+
+    		long start = Runtime.PROF_SER ? System.nanoTime() : 0;
+    		InputStream objStream = new DataInputStream(byteStream);
+    		if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: ObjectInputStream");
+    		X10JavaDeserializer deserializer = new X10JavaDeserializer((DataInputStream) objStream);
+    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+    			System.out.println("Starting deserialization ");
+    		}
+    		FinishState finishState = (FinishState) deserializer.readRef();
+    		actObj = (x10.core.fun.VoidFun_0_0) deserializer.readRef(sid);
+    		if (Runtime.PROF_SER) {
+    			long stop = System.nanoTime();
+    			long duration = stop-start;
+    			if (duration >= Runtime.PROF_SER_FILTER) {
+    				System.out.println("Deserialization took "+(((double)duration)/1e6)+" ms.");
+    			}
+    		}
+    		if (x10.runtime.impl.java.Runtime.TRACE_SER_DETAIL) {
+    			System.out.println("Ending deserialization ");
+    		}
+
     		if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: after cast and deserialization");
-            x10.lang.Runtime.execute(actObj, finishState);
+    		x10.lang.Runtime.execute(actObj, finishState);
     		if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive: after apply");
     		objStream.close();
     		if (X10RT.VERBOSE) System.out.println("runAsyncAtReceive is done !");

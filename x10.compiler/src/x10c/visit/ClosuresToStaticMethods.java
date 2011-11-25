@@ -166,7 +166,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                 }
                                 
                                 
-                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes);
+                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes);
                                 mdcl = mdcl.typeParameters(tps);
                                 nmembers.add(mdcl.methodDef(md));
                                 md.setTypeParameters(rts);

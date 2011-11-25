@@ -943,11 +943,11 @@ public class Emitter {
 		return;
 	}
 
-	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, List<VarInstance<?>> refs) {
+	public void printDeclarationList(CodeWriter w, X10CPPContext_c c, List<VarInstance<?>> vars, List<VarInstance<?>> refs) {
 		printDeclarationList(w, c, vars, true, false, refs);
 	}
 
-	void printDeclarationList(CodeWriter w, X10CPPContext_c c, ArrayList<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance<?>> refs) {
+	void printDeclarationList(CodeWriter w, X10CPPContext_c c, List<VarInstance<?>> vars, boolean saved_this_mechanism, boolean writable, List<VarInstance<?>> refs) {
 		for (int i = 0; i < vars.size(); i++) {
 			VarInstance<?> var = vars.get(i);
 			VarDef def = var.def();

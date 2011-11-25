@@ -398,7 +398,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 	// Create the constructor declaration node and the CI.
 	ConstructorDecl td = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PRIVATE), cd.name(), formals,  nf.Block(pos, statements));
     td = (ConstructorDecl) td.visit(new MarkReachable());
-	ConstructorDef ci = ts.constructorDef(pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes);
+	ConstructorDef ci = ts.constructorDef(pos, pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes);
 	td = td.constructorDef(ci);
 
 	return td;

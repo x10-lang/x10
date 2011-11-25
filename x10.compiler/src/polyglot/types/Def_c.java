@@ -11,8 +11,8 @@ public class Def_c extends TypeObject_c {
         super(ts);
     }
     
-    public Def_c(TypeSystem ts, Position pos) {
-        super(ts, pos);
+    public Def_c(TypeSystem ts, Position pos, Position errorPosition) {
+        super(ts, pos, errorPosition);
     }
 
     public final boolean equalsImpl(TypeObject o) {

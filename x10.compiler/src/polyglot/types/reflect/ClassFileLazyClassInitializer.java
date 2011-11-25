@@ -441,7 +441,7 @@ public class ClassFileLazyClassInitializer {
         }
         //name = name.replace('$', '.'); // keep the name with the '$' to make sure the system finds the class
         Name shortName = Name.make(name.substring(name.lastIndexOf('.')+1));
-        return Types.<Type>ref(ts.createClassType(position(), defForName(name, flags)).name(shortName));
+        return Types.<Type>ref(ts.createClassType(position(), position(), defForName(name, flags)).name(shortName));
     }
 
     public void initTypeObject() {
@@ -672,7 +672,7 @@ public class ClassFileLazyClassInitializer {
     
         List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
     
-        return ts.methodDef(ct.position(), Types.ref(ct.asType()),
+        return ts.methodDef(ct.position(), ct.errorPosition(), Types.ref(ct.asType()),
                                  ts.flagsForBits(method.getModifiers()),
                                  returnType, Name.make(name), argTypes);
     }
@@ -710,7 +710,7 @@ public class ClassFileLazyClassInitializer {
             }
         }
         
-        return ts.constructorDef(mi.position(), Types.ref(ct.asType()), mi.flags(),
+        return ts.constructorDef(mi.position(), mi.errorPosition(), Types.ref(ct.asType()), mi.flags(),
                                       formals);
     }
 

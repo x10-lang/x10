@@ -1,0 +1,63 @@
+===============================================================================
+How to run benchmark test-suite for GNMF, page rank, linear regression and SUMMA.
+===============================================================================
+
+This example directory contains several benchmark test-suites, including
+1) gnmf     - Gaussian non-negative matrix factorization
+2) pagerank - page rank application
+3) linreg   - linear regression application
+4) summa    - benchmark test for SUMMA algorithm 
+
+All benchmark test-suites share similar testing structure, including test path names, 
+test configuration, how tests are launched and executed, and how test output logs 
+are parsed.
+
+Please note all benchmark test-suites within this package are created for SLURM system.
+Reconfiguration is required to adapt to different cluster environment, which may run different 
+resource management systems, such as PBS, LSF, Loadleveler, or NQS. 
+
+
+------------------------------------
+Benchmark test-suite perl scripts
+------------------------------------
+ptest_config.pl  - configuration scripts for benchmark test-suite.
+ptest_size.pl    - scalability test on problem sizes, given fixed number of places.
+ptest_core.pl    - scalability test on number of cores (or places), given fixed problem size.
+
+
+1) Configure benchmark test : ptest_config.pl
+
+Test benchmark settings
+
+* MatrixSizeList - list of matrix dimension (rows or columns of matrix), used in scalability 
+                   on problem size. Only one number is need for scalability test on place.  
+* NZdensity      - Nonzero density for sparse matrix.
+* NodeList       - Numbers of nodes tested for scalability test on places. Only one number needed
+                   for scalability test on problem size.
+* ProcPerNode    - Process/place on each node. This number should be smaller than number of cores
+                   on each node.
+* BatchModeOpt   - Options used when launching benchmark test in batch mode. 
+* gml_path       - root path of x10.gml
+* jopts          - managed backend runtime options. No changes needed.
+* itnum          - test iteration number, input of applications.
+* LogFile        - Output log file name.
+* TestExecList   - Test execution list.
+  ** name           -- test executable path name
+  ** alloc          -- Resource allocation name. "alloc" is SLURM system's resource allocator. 
+  ** wrapper        -- execution wrapper. "srun.mvapich" is wrapper for running native-backend
+                       on InfiniBand. "srun.x10sock" is wrapper for running native-backend with 
+                       socket communication. "srun.x10java" is wrapper for running managed-backend.
+                 
+2) Dry-run: listing test-suite execution commands.
+./ptest_core.pl 
+./ptest_size.pl
+
+3) Launch test-suite
+./ptest_core.pl -r
+./ptest_size.pl -r
+
+4) Parsing test output logs
+./ptest_core.pl -p
+./ptest_size.pl -p
+
+

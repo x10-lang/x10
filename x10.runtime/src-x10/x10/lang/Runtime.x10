@@ -108,7 +108,7 @@ import x10.util.concurrent.SimpleLatch;
      */
     @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o)")
     @Native("c++", "x10aux::deep_copy<#T >(#o)")
-    static native def deepCopy[T](o:T):T;
+    public static native def deepCopy[T](o:T):T;
 
     /**
      * Process one incoming message if any (non-blocking).
@@ -969,7 +969,8 @@ import x10.util.concurrent.SimpleLatch;
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
-                return deepCopy(deepCopy(eval)());
+            	// TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
+            	return deepCopy(deepCopy(eval)());
             } catch (t:Throwable) {
                 throw deepCopy(t);
             }

@@ -1,0 +1,136 @@
+#
+#  This file is part of the X10 project (http://x10-lang.org).
+#
+#  This file is licensed to You under the Eclipse Public License (EPL);
+#  You may not use this file except in compliance with the License.
+#  You may obtain a copy of the License at
+#      http://www.opensource.org/licenses/eclipse-1.0.php
+#
+#  (C) Copyright IBM Corporation 2006-2011.
+#
+
+============== X10 parallel matrix library (xpmat) =================
+
+X10 Parallel Matrix Library implements (double-precision) dense and
+sparse matrices, partitioned into blocks and distributed across
+multiple places. Operations provided include cell-wise
+addition/multiplication etc, matrix multiply (using the SUMMA
+algorithm) and Euclidean distance. The library can run on the Native
+backend (on sockets and MPI transport), and on the Managed backend (on
+sockets transport). It has been tested on cluster of multi-core x86
+nodes interconnected with Infiniband and ethernet.
+
+Some application programs are provided, including Gaussian
+non-negative matrix factorization, pagerank, linear regression and
+logistic regression. Programmers typically call the library by
+creating matrices with an appropriate distribution and then writing
+sequential code to operate on these matrices in parallel.
+
+=============================================================
+Instructions
+
+1) Build libraries
+make help    -- Print help and make instruction for different transport and backend
+make native  -- Make native backend library
+make managed -- Make managed backend library
+make native_mpi -- Make native backend for MPI transport
+
+Output
+Include dir:  include/. 
+Library dir:  lib/.
+  Native backend		: native_gml.jar, native_gml.so 
+  Native MPI transport	: native_mpi_gml.jar native_mpi_gml.so,
+  Managed backend		: managed_gml.jar
+
+property file 
+  Native backend		: native_gml.properties
+  Native MPI transport	: native_mpi_gml.properties
+  Managed backend		: managed_gml.properites
+
+2) Building applications
+- Add [native|native_mpi|managed]_gml.jar in "-classpath" 
+- Add [native|native_mpi|managed].properties in "-x10lib"
+NOTE: put gml path name before jar and properities file names.
+If using "~" in the path name, and compiler complains about not 
+finding the library, replacing "~" with either absolute pathname or relative 
+pathname of the gml library.
+
+3) Running applications
+- Native MPI transport
+  No different from running MPI applications
+  mpirun -np [number of processes] [app name] [args]
+- Native backend on socket transport
+  [absolute pathname]/X10Launcher -np [number of places] [app name] names] [args]
+- Managed backend
+  Add managed_gml.jar to "-classpath"
+  Add gml library path to "-libpath"
+  [absolute pathname]/X10Launcher -np [number of places] x10 -classpath [managed_gml.jar] -libpath [gml lib] [app name] [args] 
+   
+
+==============================================================
+1) Matrix types:
+
+The current implementation of x10 parallel matrix library supports
+two matrix structures: dense and sparse, which are compatible with
+column-major and CSC-LT format.
+ 
+1.1) Basic types
+  - Dense matrix: matrix elements are stored in column-major order in 
+a continuous memory space. 
+  - Sparse matrix: compatible to CSC-LT format, which stores nonzeros 
+    element values and corresponding indexes in the column-major order.
+
+
+Matrix data can be partitioned into blocks in a partitioning grid. Each 
+block stores data in dense or sparse structure.
+1.2) Block-partitioned matrix
+  - Dense block matrix: matrix is partitioned in (m x n) blocks, where m 
+    is number of row blocks and n is number of column blocks. Each block 
+    uses dense matrix format to store matrix data.
+  - Sparse block matrix: similar to dense block matrix, but uses sparse 
+    matrix format to store data of all matrix blocks.
+
+
+Partitioned matrix can distribute blocks to all places.  Current 
+implementation constrains 1-to-1 mapping between blocks and places. 
+Future version may left this constrains.
+
+1.3) Distributed matrix
+  - Distributed dense matrix: matrix is partitioned and each place is 
+    assigned with one dense block only.
+  - Distributed sparse matrix: similar to distributed dense block.
+
+2) Matrix operations
+
+Some commonly used operations are implemented, including cell-wise add, 
+subtract, multiply, division, cell-wise sum, Eculidean distance, and 
+matrix multiply, 
+
+Common rules:
+ - Result of a matrix operation is stored in the invocation object, which 
+   is also the returned value.  This allows chain operations.
+ - Most of matrix operations have the results stored in dense matrix 
+   structures, which includes dense matrix, dense block matrix and
+   distributed dense matrix.  The sparse matrix is not used to store 
+   results. The exception is scaling operations for sparse matrix. 
+ - Oprands of must have the same distribution if they are distributed matrix
+ 
+
+1.1) Cell-wise operations
+
+Cell-wise operations are defined as add-on operations, which means the 
+output is also serves as input operand in the operation.  
+
+  - scaling
+  - add
+  - subtract
+  - multiply
+  - divide
+  - sum
+  - Eculidean distance
+
+1.2) Matrix multiplication
+	- multiply
+    - multiply with first oprand transposed
+    - multiply with second operand transposed
+

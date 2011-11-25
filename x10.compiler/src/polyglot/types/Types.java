@@ -262,7 +262,7 @@ public class Types {
 	}
 
 	public static ConstrainedType constrainedType(Type base, CConstraint c) {
-		return new ConstrainedType((TypeSystem) base.typeSystem(), base.position(), ref(base),
+		return new ConstrainedType((TypeSystem) base.typeSystem(), base.position(), base.position(), ref(base),
 				ref(c));
 	}
 
