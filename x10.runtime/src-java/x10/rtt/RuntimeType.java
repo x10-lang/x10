@@ -42,7 +42,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     };
     public static Variance[] INVARIANTS(int length) {
         assert length >= 1;
-        if (length <= 10) {
+        if (length < invariants.length) {
             return invariants[length];
         }
         Variance[] variances = new Variance[length];
