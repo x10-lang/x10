@@ -119,6 +119,9 @@ public final class Configuration extends x10.config.Configuration {
 //    public final boolean MULTI_NODE = true;
 //    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
 
+    public boolean OPTIMIZE_COMMUNICATIONS = false;
+    private static final String OPTIMIZE_COMMUNICATIONS_desc = "Communication optimizations, i.e. scalar replacement";
+
     /**
      * Parses one argument from the command line.  This allows the user
      * to specify options also on the command line (in addition to the
