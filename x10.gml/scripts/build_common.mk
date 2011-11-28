@@ -69,10 +69,10 @@ lib	:
 check_gml_inc 	: $(gml_path)/include $(gml_path)/lib
 # If fails, rebuild x10.gml library
 
-check_gml_mpi	: $(gml_path)/native_mpi_gml.properties  $(gml_path)/lib/native_mpi_gml.jar  $(gml_path)/lib/native_mpi_gml.so
+check_gml_mpi	: $(gml_path)/native_mpi_gml.properties  $(gml_path)/lib/native_mpi_gml.jar  $(gml_path)/lib/libnative_mpi_gml.so
 # If fails, rebuild x10.gml native MPI flaor by running make native_mpi at $(gml_path)
 
-check_gml_c	: check_gml_inc $(gml_path)/native_gml.properties $(gml_path)/lib/native_gml.jar $(gml_path)/lib/native_gml.so
+check_gml_c	: check_gml_inc $(gml_path)/native_gml.properties $(gml_path)/lib/native_gml.jar $(gml_path)/lib/libnative_gml.so
 # If fails, rebuild x10.gml native backend, by running make native at $(gml_path)
 
 check_gml_java	: check_gml_inc $(gml_path)/managed_gml.properties $(gml_path)/lib/managed_gml.jar
