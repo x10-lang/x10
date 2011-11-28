@@ -1,13 +1,9 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 Applications project.
  *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2011.
  */
+
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -161,24 +157,32 @@ extern "C" {
   JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_matvecMult
   (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray x, jdoubleArray y, jintArray dim, jdoubleArray scale, jint tranA) {
 
-	jdouble* amat = env->GetDoubleArrayElements(A, false);
-    jdouble* xvec = env->GetDoubleArrayElements(x, false);
-    jdouble* yvec = env->GetDoubleArrayElements(y, false);
-    jdouble* scal = env->GetDoubleArrayElements(scale, false);
+    jboolean isCopy;
+    jdouble* amat = env->GetDoubleArrayElements(A, NULL);
+    jdouble* xvec = env->GetDoubleArrayElements(x, NULL);
+    jdouble* yvec = env->GetDoubleArrayElements(y, &isCopy);
+    jdouble* scal = env->GetDoubleArrayElements(scale, NULL);
     jint dimlist[2];
     // This line is necessary, since Java arrays are not guaranteed 
     // to have a continuous memory layout like C arrays.
     env->GetIntArrayRegion(dim, 0, 2, dimlist);
 
-	matrix_vector_mult(amat, xvec, yvec, dimlist, scal, tranA);
+    matrix_vector_mult(amat, xvec, yvec, dimlist, scal, tranA);
+
+    if (isCopy == JNI_TRUE) {
+       //printf("Copying data from c library back to original data in JVM\n");
+       env->ReleaseDoubleArrayElements(y, yvec, 0);
+    }
+
   }
 
   //-------------------------------------------------------------
   // public static native void symvecMult(double[] A, double[] x, double[] y, ...) 
   JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_symvecMult
   (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray x, jdoubleArray y, jintArray dim, jdoubleArray scale) {
-	jboolean isCopy;
-	jdouble* amat = env->GetDoubleArrayElements(A, NULL);
+    jboolean isCopy;
+
+    jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* xvec = env->GetDoubleArrayElements(x, NULL);
     jdouble* yvec = env->GetDoubleArrayElements(y, &isCopy);
     jdouble* scal = env->GetDoubleArrayElements(scale, NULL);
@@ -200,8 +204,8 @@ extern "C" {
   JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_trimatMult
   (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray B, jintArray dim, jint tranA) {
 
-	jboolean isCopy;
-	jdouble* amat = env->GetDoubleArrayElements(A, NULL);
+    jboolean isCopy;
+    jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bmat = env->GetDoubleArrayElements(B, &isCopy);
     jint dimlist[2];
     // This line is necessary, since Java arrays are not guaranteed 
@@ -222,8 +226,8 @@ extern "C" {
   JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_trimatSolve
   (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray bx, jint m, jint n) {
 
-	jboolean isCopy;
-	jdouble* amat = env->GetDoubleArrayElements(A, NULL);
+    jboolean isCopy;
+    jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bxvec = env->GetDoubleArrayElements(bx, &isCopy);
     jint dimlist[2];
 

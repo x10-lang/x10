@@ -323,8 +323,8 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param ddm      duplicated dense matrix
 	 */
 	public def copyTo(dupden:DupDenseMatrix(M,N)):void {
-		Debug.assure(grid.numRowBlocks==1,
-					"Number of row blocks is not 1");
+		Debug.assure(grid.numRowBlocks==1||N==1,
+					"Number of row blocks is not 1 or matrix is not a vector");
 
 		/* Timing */ val stt = Timer.milliTime();
 		comm.gatherRowBs(grid, distBs, dupden.local());
