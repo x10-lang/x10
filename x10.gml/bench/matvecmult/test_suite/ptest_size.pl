@@ -157,32 +157,22 @@ sub ParseData {
   while (<TEST_IN>) {
 	#$_ = $TestLog[$i];
 	if ($_ =~ m/$cmd/) {
-	  #print "Found $cmd";
 	  while (<TEST_IN>) {
-		if ($_ =~ m/Total time:[\s]*([\d]+)ms/) {
+		my $ln = $_;
+		if ($ln =~ m/MatVecMult Time:[\s]*([\d.]+) ms/) { 
 		  my $TotalTime=$1;
-		  #print "Found total time\n";
-		  if ($_ =~ m/Calc:[\s]+([\d]+)ms/ ) {
-			my $CalcTime = $1;
-			if ($_ =~ m/Comm:[\s]+([\d]+)ms/ ) {
-			  my $CommTime = $1;
-			  $_ = <TEST_IN>;
-			  if ($_=~ m/Comp:[\s]+([\d]+)/) {
-				my $wvTime=$1;
-				<TEST_IN>; $_=<TEST_IN>;
-				if ($_ =~ m/Comp:[\s]+([\d]+)/) {
-				  my $vhTime=$1;
-				  return ($TotalTime, $CalcTime, $CommTime, $wvTime, $vhTime);
-				}
-			  }
-			  print "No Comp time found\n";
-			}
-			print "No Comm time found\n";
-		  } 
-		  print "No Calc time found\n";
+                  if ($ln =~ m/communication:[\s]*([\d.]+)/) {
+		     my $cmt=$1;
+                     if ($ln =~ m/computation:[\s]*([\d.]+)/) {
+                         my $cpt=$1;
+		         return ($TotalTime, $cmt, $cpt);
+		     }
+                  }
 		}
-	  }
-	}
+           }
+         
+	   print "No MatVecMult Time found\n";
+        } 
   }
   print "Parse error:", "$cmd", "\n";
   die "Parsing error";
@@ -195,12 +185,12 @@ sub PrintOut {
   print "#Results are in sec/iteration [time, Communication]\n";
   #------------------------------------------------------------------------
   print("# Num of Nodes: $NodeList[0] ($ProcPerNode per node), total proc (places):", $NodeList[0] * $ProcPerNode, "\n");
-  print("# Nonzero |");
+  print("# size of mat  |");
   foreach my $test (@TestExecList) {
 	printf("|  %20s   |", $test->{name});
   }
   print("\n");
-  print("# million |");
+  print("# K row-column |");
   foreach my $test (@TestExecList) {
       printf("|   Total    |  Commu(s)  |");
   }
@@ -208,15 +198,13 @@ sub PrintOut {
   #-----------------------------------------
   for my $np (@NodeList) {
 	for my $ms (@MatrixSizeList) {
-	  printf(" %3.3f   |", $ms*100000*$NZDensity/1000000);
+	  printf(" %5i         |", $ms/1000);
 	  for my $texe (@TestExecList) {
 		my $exe = $texe->{name};
-		my $t = 1.0 * $Result{$exe}{$ms}{$np}[0]/$itnum/1000;
-		my $c = 1.0 * $Result{$exe}{$ms}{$np}[1]/$itnum/1000;
-		my $m = 1.0 * $Result{$exe}{$ms}{$np}[2]/$itnum/1000;
-		my $wv= 1.0 * $Result{$exe}{$ms}{$np}[3]/$itnum/1000;
-		my $vh= 1.0 * $Result{$exe}{$ms}{$np}[4]/$itnum/1000;
-		printf("| %10.4f | %10.4f |", $t, $m)
+		my $t = 1.0 * $Result{$exe}{$ms}{$np}[0]/1000;
+		my $c = 1.0 * $Result{$exe}{$ms}{$np}[1]/1000;
+		my $m = 1.0 * $Result{$exe}{$ms}{$np}[2]/1000;
+		printf("| %10.4f | %10.4f |", $t, $c)
 	  }
 	  printf("\n");
 	}

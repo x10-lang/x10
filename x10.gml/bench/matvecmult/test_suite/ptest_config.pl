@@ -16,7 +16,7 @@
 # All definations overwrite the default value in ptest script.
 #-----------------------------------------------------------------
 
-printf "\#Setting benchmark test configuation\n";
+printf "\#Setting benchmark test config\n";
 
 #----------------------
 # Matrix configurations
@@ -75,7 +75,7 @@ printf "\#Set output log file                 : $LogFile\n";
 # Or use the dry run output to creat your batch system's job submission script.
 #
 @TestExecList = (
-	{name => "../MatVecMult_mpi", 	alloc => "salloc", 	wrapper => "$gml_path/scripts/srun.mvapich"},
+#	{name => "../MatVecMult_mpi", 	alloc => "salloc", 	wrapper => "$gml_path/scripts/srun.mvapich"},
 	{name => "../MatVecMult_sock", alloc => "salloc", 	wrapper => "$gml_path/scripts/srun.x10sock"},
 	{name => "MatVecMult",         alloc => "salloc",  wrapper => "$gml_path/scripts/srun.x10java x10 -mx 2048M $jopts"}
 );
