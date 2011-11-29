@@ -68,9 +68,7 @@ public class CommunicationOptimizer extends ContextVisitor {
     private final Synthesizer synth;
     private final boolean shouldOpt;
 
-    private static int globalVarID = 0;
-
-    private final String VALRAIL_ACCESS = "operator()";
+    private final static String OPERATOR_APPLY = "operator()";
 
     public CommunicationOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
@@ -80,10 +78,8 @@ public class CommunicationOptimizer extends ContextVisitor {
         shouldOpt = ((X10CompilerOptions)job.extensionInfo().getOptions()).x10_config.OPTIMIZE_COMMUNICATIONS;
     }
 
-    private static int count;
-
     private static Name getTmp() {
-        return Name.make("__communicationoptimizer__var__" + (count++) + "__");
+        return Name.makeFresh("__comopt__var__");
     }
 
     public Node override(Node parent, Node n) {
@@ -190,8 +186,7 @@ public class CommunicationOptimizer extends ContextVisitor {
                 }
                 ss.add(s);
                 continue;
-            } /*else
-                checkFutureStmt(s, ss);*/
+            }
 
             Stmt stmt = processStmt(s, (Loop_c)parent, null);
             if (stmt != null)
@@ -224,8 +219,7 @@ public class CommunicationOptimizer extends ContextVisitor {
                 }
                 ss.add(s);
                 continue;
-            } /*else 
-        checkFutureStmt(s, ss);*/
+            }
 
             Stmt stmt = processStmt(s, (X10Loop)parent, null);
             if (stmt != null)
@@ -393,41 +387,6 @@ public class CommunicationOptimizer extends ContextVisitor {
     }
 
     /**
-     * Check if the current statement contains Future construct that has been optimized.
-     * If so, add the related stmts for optimizing.
-     */
-    /*private boolean checkFutureStmt(Stmt s, List<Stmt> ss) {
-    if (s instanceof Eval_c) {
-        if (((Eval)s).expr() instanceof Assign_c) {
-        Expr rightExpr = ((Assign_c)((Eval)s).expr()).right();
-        if (rightExpr instanceof Future_c) {
-            ArrayList<Stmt> stmtList = scalarReplaceMap.get(rightExpr.position());
-            if (stmtList != null) {
-            // Insert the scalar replacement statements here                       
-            ss.addAll(stmtList);
-
-            return true;
-            }
-        }
-        }
-    } else if (s instanceof X10LocalDecl_c) {
-        X10LocalDecl_c localDecl = (X10LocalDecl_c)s;
-        Expr init = localDecl.init();
-        if (init instanceof Future_c) {
-        ArrayList<Stmt> stmtList = scalarReplaceMap.get(init.position());
-        if (stmtList != null) {
-            // Insert the scalar replacement statements here                           
-            ss.addAll(stmtList);
-
-            return true;
-        }   
-        }
-    }
-
-    return false;
-    }*/
-
-    /**
      * Process the stmt inside the async, ateach and at
      *
      * @param stmt
@@ -523,7 +482,7 @@ public class CommunicationOptimizer extends ContextVisitor {
             // Verify the array
             if (xts.isArray(classType)
                     && !xts.isX10DistArray(classType)
-                    && call.methodInstance().name().toString().startsWith(VALRAIL_ACCESS)) {
+                    && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
                 // Check the method arguments, here we only handle .apply(ind)
                 List<Expr> arguments = call.arguments();
                 for (Expr arg : arguments) {
@@ -534,8 +493,8 @@ public class CommunicationOptimizer extends ContextVisitor {
 
                 // Create the new local variable which is final                  
                 Position pos = call.position();                                  
-                Name srName = Name.make(getReceiverName(call.target()) + "_" + globalVarID ++);
-                Type valType = getValType(classType);                      
+                Name srName = Name.makeFresh(getReceiverName(call.target()));
+                Type valType = TypeSystem_c.getArrayComponentType(classType);                   
                 LocalDef srDef = xts.localDef(pos, xts.Final(), Types.ref(valType), srName);
                 // Create the scalar replacement statement
                 LocalDecl srLocalDecl = xnf.LocalDecl(pos, xnf.FlagsNode(pos, xts.Final()), xnf.CanonicalTypeNode(pos, Types.ref(valType)), xnf.Id(pos, srName), call).localDef(srDef);
@@ -563,7 +522,7 @@ public class CommunicationOptimizer extends ContextVisitor {
             return field;
 
         Position pos = field.position();                                 
-        Name srName = Name.make(field.name().toString() + "_" + globalVarID ++);
+        Name srName = Name.makeFresh(field.name().toString());
 
         Type valType = field.fieldInstance().type();
         LocalDef srDef = xts.localDef(pos, xts.Final(), Types.ref(valType), srName);  
@@ -595,7 +554,7 @@ public class CommunicationOptimizer extends ContextVisitor {
                 // Verify the array
                 if (xts.isArray(classType) 
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(VALRAIL_ACCESS)) { 
+                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) { 
                     // Check the method arguments, here we only handle .apply(ind)           
                     List<Expr> arguments = call.arguments();                                 
                     for (Expr arg : arguments) {
@@ -606,7 +565,7 @@ public class CommunicationOptimizer extends ContextVisitor {
 
                     // Create the new local variable which is final                  
                     Position pos = localDecl.position();                             
-                    Name srName = Name.make(localDecl.name().toString() + "_" + globalVarID ++);
+                    Name srName = Name.makeFresh(localDecl.name().toString());
                     LocalDef srDef = xts.localDef(pos, xts.Final(), localDecl.type().typeRef(), srName);
                     // Create the scalar replacement statement
                     Id srId = xnf.Id(pos, srName);
@@ -632,7 +591,7 @@ public class CommunicationOptimizer extends ContextVisitor {
                 return (Stmt)localDecl;
 
             Position pos = localDecl.position();                                
-            Name srName = Name.make(localDecl.name().toString() + "_" + globalVarID ++);
+            Name srName = Name.makeFresh(localDecl.name().toString());
             LocalDef srDef = xts.localDef(pos, xts.Final(), localDecl.type().typeRef(), srName); 
 
             // Create the scalar replacement statement
@@ -668,17 +627,17 @@ public class CommunicationOptimizer extends ContextVisitor {
                 //     X10ParsedClassType_c classType = (X10ParsedClassType_c)target.localInstance().type();
                 Type classType = target.localInstance().type();
 
-                if (xts.isArray/*isValRail*/(classType) 
+                if (xts.isArray(classType) 
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(VALRAIL_ACCESS)) {
-                    // Handle the ValRail element reading, which is an array inside the async closure         
+                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
+                    // Handle the Array element reading, which is an array inside the async closure         
                     // Check the method arguments, here we only handle .apply(ind)
                     List<Expr> arguments = call.arguments();
                     if (arguments.size() == 1) {
                         if (checkInvariant(arguments.get(0), outerClosure, env)) {
                             // Create the new local variable which is final                  
                             Position pos = localAssign.position();
-                            Name srName = Name.make(localAssign.local().name().toString() + "_" + globalVarID ++);
+                            Name srName = Name.makeFresh(localAssign.local().name().toString());
                             Type leftType = localAssign.leftType();
                             LocalDef srDef = xts.localDef(pos, xts.Final(), Types.ref(leftType), srName);
                             // Create the scalar replacement statement                       
@@ -714,17 +673,17 @@ public class CommunicationOptimizer extends ContextVisitor {
                 //     X10ParsedClassType_c classType = (X10ParsedClassType_c)target.localInstance().type();
                 Type classType = target.localInstance().type();
 
-                if (xts.isArray/*isValRail*/(classType) 
+                if (xts.isArray(classType) 
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(VALRAIL_ACCESS)) {
-                    // Handle the ValRail element reading, which is an array inside the async closure
+                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
+                    // Handle the Array element reading, which is an array inside the async closure
                     // Check the method arguments, here we only handle .apply(ind)
                     List<Expr> arguments = call.arguments();
                     if (arguments.size() == 1) {
                         if (checkInvariant(arguments.get(0), outerClosure, null)) {
                             // Create the new local variable which is final
                             Position pos = fieldAssign.position();
-                            Name srName = Name.make(fieldAssign.name().toString() + "_" + globalVarID ++);
+                            Name srName = Name.makeFresh(fieldAssign.name().toString());
                             Type leftType = fieldAssign.leftType();
                             LocalDef srDef = xts.localDef(pos, xts.Final(), Types.ref(leftType), srName);
                             // Create the scalar replacement statement
@@ -855,33 +814,6 @@ public class CommunicationOptimizer extends ContextVisitor {
     }
 
     /**
-     * Pick up the base type of ValRail from the type argument list
-     *
-     * @param ValRail type
-     */
-    private Type getValType(Type railType) {
-        if (xts.isArray(railType)) {
-            // The processing of constraint type may not be necessary
-            if (railType instanceof ConstrainedType) {
-                ConstrainedType constraintedType = (ConstrainedType)railType;
-                railType = constraintedType.baseType().get();
-            } 
-
-            // Check the type argument list to pick up the base type of ValRail
-            if (railType instanceof X10ClassType) {
-                List<Type> typeArgs = ((X10ClassType)railType).typeArguments();
-                if (typeArgs.size() == 1)
-                    return typeArgs.get(0);
-                else
-                    return null;
-            } else
-                return null;
-        } else {
-            return null;
-        }
-    }
-
-    /**
      * Get the X10Field target, this is for handling the recursive case, e.g. p.q.x
      *
      * @param Receiver target
@@ -926,7 +858,7 @@ public class CommunicationOptimizer extends ContextVisitor {
 
                 if (xts.isArray(classType)
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(VALRAIL_ACCESS)) {
+                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
                     // Check the method arguments
                     List<Expr> arguments = call.arguments();
                     for (Expr arg : arguments) {
