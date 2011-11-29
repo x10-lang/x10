@@ -34,8 +34,6 @@ public class X10RT {
      * Initialize the X10RT runtime.  This method must be called before any other
      * methods on this class or on any other X10RT related class can be successfully
      * invoked.
-     * 
-     * @throws IllegalArgumentException if numProgressThreads is not positive
      */
     public static synchronized void init() {
       if (state != State.UNINITIALIZED) return;
