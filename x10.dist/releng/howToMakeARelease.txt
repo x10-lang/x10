@@ -71,11 +71,11 @@ When all necessary fixes have been propagated to the release branch, one can bui
 
       makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
 
-      Put language spec pdf on dist.codehaus. 
+      Put language spec pdf in project web space at x10.sourceforge.net
       Update in place x10-latest.pdf in addition to creating a x10-<version>.pdf. 
       The release page itself will point to the x10-<version>.pdf. 
       All of the other parts of the website refer to x10-latest.pdf.
-   6. Generate new x10doc and upload it to dist.codehaus
+   6. Generate new x10doc and upload to project web space at x10.sourceforge.net
    7. Update the "X10 Releases" page to link to the new download version.
    8. Update the "latest release" menu item in Downloads-submenu
    9. Send out mail announcements to x10-users and x10-announce

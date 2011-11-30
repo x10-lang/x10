@@ -16,7 +16,7 @@
     <property name="math.jar" value="${lib}/commons-math-2.2.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
     <property name="bdwgc.tar" value="bdwgc-7.1.tar.gz"/>
-    <property name="bdwgc.url" value="http://dist.codehaus.org/x10/dependencies/${bdwgc.tar}"/>
+    <property name="bdwgc.url" value="http://x10.sourceforge.net/dependencies/${bdwgc.tar}"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
     <property name="tar.exe" value="tar"/>
