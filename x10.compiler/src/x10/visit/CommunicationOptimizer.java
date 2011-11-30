@@ -68,8 +68,6 @@ public class CommunicationOptimizer extends ContextVisitor {
     private final Synthesizer synth;
     private final boolean shouldOpt;
 
-    private final static String OPERATOR_APPLY = "operator()";
-
     public CommunicationOptimizer(Job job, TypeSystem ts, NodeFactory nf) {
         super(job, ts, nf);
         xts = (TypeSystem_c) ts;
@@ -482,7 +480,7 @@ public class CommunicationOptimizer extends ContextVisitor {
             // Verify the array
             if (xts.isArray(classType)
                     && !xts.isX10DistArray(classType)
-                    && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
+                    && call.methodInstance().name().equals(OperatorNames.APPLY)) {
                 // Check the method arguments, here we only handle .apply(ind)
                 List<Expr> arguments = call.arguments();
                 for (Expr arg : arguments) {
@@ -554,7 +552,7 @@ public class CommunicationOptimizer extends ContextVisitor {
                 // Verify the array
                 if (xts.isArray(classType) 
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) { 
+                        && call.methodInstance().name().equals(OperatorNames.APPLY)) { 
                     // Check the method arguments, here we only handle .apply(ind)           
                     List<Expr> arguments = call.arguments();                                 
                     for (Expr arg : arguments) {
@@ -629,7 +627,7 @@ public class CommunicationOptimizer extends ContextVisitor {
 
                 if (xts.isArray(classType) 
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
+                        && call.methodInstance().name().equals(OperatorNames.APPLY)) {
                     // Handle the Array element reading, which is an array inside the async closure         
                     // Check the method arguments, here we only handle .apply(ind)
                     List<Expr> arguments = call.arguments();
@@ -675,7 +673,7 @@ public class CommunicationOptimizer extends ContextVisitor {
 
                 if (xts.isArray(classType) 
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
+                        && call.methodInstance().name().equals(OperatorNames.APPLY)) {
                     // Handle the Array element reading, which is an array inside the async closure
                     // Check the method arguments, here we only handle .apply(ind)
                     List<Expr> arguments = call.arguments();
@@ -858,7 +856,7 @@ public class CommunicationOptimizer extends ContextVisitor {
 
                 if (xts.isArray(classType)
                         && !xts.isX10DistArray(classType)
-                        && call.methodInstance().name().toString().startsWith(OPERATOR_APPLY)) {
+                        && call.methodInstance().name().equals(OperatorNames.APPLY)) {
                     // Check the method arguments
                     List<Expr> arguments = call.arguments();
                     for (Expr arg : arguments) {
