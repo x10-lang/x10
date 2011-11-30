@@ -38,7 +38,7 @@ public class Thread implements x10.core.RefI {
 
     static final ThreadLocal<Thread> context = new ThreadLocal<Thread>() {
         protected Thread initialValue() {
-            return new Thread();
+            return x10.lang.Runtime.wrapNativeThread();
         }
     };
 

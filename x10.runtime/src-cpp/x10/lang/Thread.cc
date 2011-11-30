@@ -90,6 +90,11 @@ Thread::_make(ref<x10::lang::String> name) {
     return (new (alloc<Thread>()) Thread())->_constructor(name);
 }
 
+ref<Thread>
+Thread::_make() {
+    return NULL;
+}
+
 const serialization_id_t Thread::_serialization_id =
     DeserializationDispatcher::addDeserializer(Thread::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 

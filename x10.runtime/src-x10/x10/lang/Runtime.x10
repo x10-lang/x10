@@ -480,6 +480,13 @@ import x10.util.concurrent.SimpleLatch;
             random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
         }
 
+        def this(workerId:Int, dummy:Boolean) {
+            super();
+            this.workerId = workerId;
+            random = new Random(workerId + (workerId << 8) + (workerId << 16) + (workerId << 24));
+            activity = new Activity(()=>{}, FinishState.UNCOUNTED_FINISH);
+        }
+
         // return size of the deque
         def size():Int = queue.size();
 
@@ -649,6 +656,23 @@ import x10.util.concurrent.SimpleLatch;
                 workers(i) = worker;
                 worker.start();
             }
+        }
+
+        public def wrapNativeThread():Worker {
+            lock.lock();
+            val i = size++;
+            dead++; // native threads should terminate on their own
+            lock.unlock();
+            if (i >= MAX_THREADS) {
+                println(here+": TOO MANY THREADS... ABORTING");
+                System.exit(1);
+            }
+            if (WARN_ON_THREAD_CREATION) {
+                println(here+": WARNING: A new OS-level thread was discovered (there are now "+size+" threads).");
+            }
+            val worker = new Worker(i, false);
+            workers(i) = worker;
+            return worker;
         }
 
         // notify the pool a worker resumed execution after a blocking operation
@@ -1169,6 +1193,10 @@ import x10.util.concurrent.SimpleLatch;
         if (!STATIC_THREADS) {
             pool.decrease(n);
         }
+    }
+
+    public static def wrapNativeThread():Worker {
+        return pool.wrapNativeThread();
     }
 }
 

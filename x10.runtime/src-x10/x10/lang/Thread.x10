@@ -26,6 +26,8 @@ class Thread implements CustomSerialization {
 
     public native def this(String);
 
+    public native def this();
+
     public static native def currentThread():Thread;
 
     public native def start():void;
