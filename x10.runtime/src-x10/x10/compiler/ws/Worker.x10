@@ -79,7 +79,7 @@ public final class Worker {
             }
             if (null != k) break;
             //4) remote activity
-            Runtime.wsProcessEvents();
+            Runtime.x10rtProbe();
             k = fifo.steal();
         }
         return k;
@@ -96,21 +96,32 @@ public final class Worker {
         }
     }
 
+    public static def wsRunAsync(id:Int, body:()=>void):void {
+        if (id == Runtime.hereInt()) {
+            val copy = Runtime.deepCopy(body);
+            copy();
+            Runtime.dealloc(copy);
+        } else {
+            Runtime.x10rtSendMessage(id, body);
+        }
+        Runtime.dealloc(body);
+    }
+
     public static def runAsyncAt(place:Place, frame:RegularFrame){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
-        Runtime.wsRunAsync(place.id, body);
+        wsRunAsync(place.id, body);
     }
 
     @NoReturn static public def runAt(place:Place, frame:RegularFrame){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsFIFO().push(frame); };
-        Runtime.wsRunAsync(place.id, body);
+        wsRunAsync(place.id, body);
         throw Abort.ABORT;
     }
 
     public static def stop(){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsEnd(); };
         for (var i:Int = 1; i<Place.MAX_PLACES; i++) {
-            Runtime.wsRunCommand(i, body);
+            Runtime.x10rtSendMessage(i, body);
         }
         Runtime.dealloc(body);
         Runtime.wsEnd();

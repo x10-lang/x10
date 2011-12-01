@@ -135,7 +135,7 @@ abstract class FinishState {
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 }
-                Runtime.runClosureAt(ref.home.id, closure);
+                Runtime.x10rtSendMessage(ref.home.id, closure);
                 Runtime.dealloc(closure);
             }
         }
@@ -207,7 +207,7 @@ abstract class FinishState {
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             }
-            Runtime.runClosureAt(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure);
             Runtime.dealloc(closure);
         }
     }
@@ -399,7 +399,7 @@ abstract class FinishState {
                 val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
                 seen(Runtime.hereInt()) = false;
                 for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                    if (seen(i)) Runtime.runClosureAt(i, closure);
+                    if (seen(i)) Runtime.x10rtSendMessage(i, closure);
                 }
                 Runtime.dealloc(closure);
             }
@@ -547,7 +547,7 @@ abstract class FinishState {
             count = 0;
             exceptions = null;
             lock.unlock();
-            Runtime.runClosureAt(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure);
             Runtime.dealloc(closure);
         }
     }
@@ -702,7 +702,7 @@ abstract class FinishState {
             count = 0;
             exceptions = null;
             lock.unlock();
-            Runtime.runClosureAt(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure);
             Runtime.dealloc(closure);
         }
     }
