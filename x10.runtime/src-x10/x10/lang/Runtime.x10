@@ -55,17 +55,17 @@ import x10.util.concurrent.SimpleLatch;
     @Native("c++", "x10aux::system_utils::printf(#fmt, #t)")
     public native static def printf[T](fmt:String, t:T) : void;
 
+    // Environment variables
+
+    @PerProcess static env = Configuration.loadEnv();
+
+    @PerProcess public static STRICT_FINISH = Configuration.strict_finish();
+    @PerProcess public static NTHREADS = Configuration.nthreads();
+    @PerProcess public static MAX_THREADS = Configuration.max_threads();
+    @PerProcess public static STATIC_THREADS = Configuration.static_threads();
+    @PerProcess public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
+
     // Native runtime interface
-
-    @Native("c++", "PLATFORM_MAX_THREADS")
-    private static PLATFORM_MAX_THREADS: Int = Int.MAX_VALUE;
-
-    @Native("c++", "DEFAULT_STATIC_THREADS")
-    private static DEFAULT_STATIC_THREADS: Boolean = false;
-
-    @Native("java", "x10.runtime.impl.java.Runtime.loadenv()")
-    @Native("c++", "x10aux::loadenv()")
-    private static native def loadenv():x10.util.HashMap[String,String];
 
     /**
      * Run body at place(id).
@@ -117,139 +117,6 @@ import x10.util.concurrent.SimpleLatch;
     @Native("java","x10.runtime.impl.java.Runtime.eventProbe()")
     static def event_probe():void {}
 
-    // Accessors for native performance counters
-
-    static PRINT_STATS = false;
-
-    @Native("c++","x10aux::asyncs_sent")
-    static def getAsyncsSent():Long = 0L;
-
-    @Native("c++","x10aux::asyncs_sent = #v")
-    static def setAsyncsSent(v:Long):void { }
-
-    @Native("c++","x10aux::asyncs_received")
-    static def getAsyncsReceived():Long = 0L;
-
-    @Native("c++","x10aux::asyncs_received = #v")
-    static def setAsyncsReceived(v:Long):void { }
-
-    @Native("c++","x10aux::serialized_bytes")
-    static def getSerializedBytes():Long = 0L;
-
-    @Native("c++","x10aux::serialized_bytes = #v")
-    static def setSerializedBytes(v:Long):void { }
-
-    @Native("c++","x10aux::deserialized_bytes")
-    static def getDeserializedBytes():Long = 0L;
-
-    @Native("c++","x10aux::deserialized_bytes = #v")
-    static def setDeserializedBytes(v:Long):void { }
-
-    public static def serializedSize[T](v:T) {
-        var r:Long;
-        @Native("java", "r = x10.runtime.impl.java.Runtime.serialize(v).length;")
-        @Native("c++", "x10aux::serialization_buffer buf; buf.write(v); r = buf.length();")
-        { r = -1L; }
-        return r;
-    }
-
-    public static struct X10RTMessageStats {
-        public def this () {
-            this.bytesSent = 0;
-            this.messagesSent = 0;
-            this.bytesReceived = 0;
-            this.messagesReceived = 0;
-        }
-        public def this (bytesSent:Long, messagesSent:Long, bytesReceived:Long, messagesReceived:Long) {
-            this.bytesSent = bytesSent;
-            this.messagesSent = messagesSent;
-            this.bytesReceived = bytesReceived;
-            this.messagesReceived = messagesReceived;
-        }
-        public bytesSent:Long;
-        public messagesSent:Long;
-        public bytesReceived:Long;
-        public messagesReceived:Long;
-
-        public operator + this = this;
-        public operator - this = X10RTMessageStats(-bytesSent, -messagesSent, -bytesReceived, -messagesReceived);
-        public operator this + (that:X10RTMessageStats) = X10RTMessageStats(bytesSent+that.bytesSent,
-                                                                            messagesSent+that.messagesSent,
-                                                                            bytesReceived+that.bytesReceived,
-                                                                            messagesReceived+that.messagesReceived);
-        public operator this - (that:X10RTMessageStats) = this + (-that);
-
-        public def toString () = "[out:"+bytesSent+"/"+messagesSent+" in:"+bytesReceived+"/"+messagesReceived+"]";
-    }
-
-    public static struct X10RTStats {
-        public def this () {
-            this.msg = X10RTMessageStats();
-            this.put = X10RTMessageStats();
-            this.putCopiedBytesSent = 0;
-            this.putCopiedBytesReceived = 0;
-            this.get = X10RTMessageStats();
-            this.getCopiedBytesSent = 0;
-            this.getCopiedBytesReceived = 0;
-        }
-        public def this (msg:X10RTMessageStats,
-                         put:X10RTMessageStats, putCopiedBytesSent:Long, putCopiedBytesReceived:Long,
-                         get:X10RTMessageStats, getCopiedBytesSent:Long, getCopiedBytesReceived:Long) {
-            this.msg = msg;
-            this.put = put;
-            this.putCopiedBytesSent = putCopiedBytesSent;
-            this.putCopiedBytesReceived = putCopiedBytesReceived;;
-            this.get = get;
-            this.getCopiedBytesSent = getCopiedBytesSent;
-            this.getCopiedBytesReceived = getCopiedBytesReceived;
-
-        }
-
-        public msg:X10RTMessageStats;
-
-        public put:X10RTMessageStats;
-        public putCopiedBytesSent:Long;
-        public putCopiedBytesReceived:Long;
-
-        public get:X10RTMessageStats;
-        public getCopiedBytesSent:Long;
-        public getCopiedBytesReceived:Long;
-
-        public operator + this = this;
-        public operator - this = X10RTStats(-msg,
-                                            -put,-putCopiedBytesSent,-putCopiedBytesReceived,
-                                            -get,-getCopiedBytesSent,-getCopiedBytesReceived);
-        public operator this + (that:X10RTStats) = X10RTStats(msg+that.msg,
-                                                              put+that.put,
-                                                              putCopiedBytesSent+that.putCopiedBytesSent,
-                                                              putCopiedBytesReceived+that.putCopiedBytesReceived,
-                                                              get+that.get,
-                                                              getCopiedBytesSent+that.getCopiedBytesSent,
-                                                              getCopiedBytesReceived+that.getCopiedBytesReceived);
-        public operator this - (that:X10RTStats) = this + (-that);
-
-        public def toString () = 
-            "msg:"+msg+
-            " put:"+put+
-            " putCopiedBytesSent:"+putCopiedBytesSent+
-            " putCopiedBytesReceived:"+putCopiedBytesReceived+
-            " get:"+get+
-            " getCopiedBytesSent:"+getCopiedBytesSent+
-            " getCopiedBytesReceived:"+getCopiedBytesReceived;
-    }
-
-
-    /** Fetch the current state of the X10RT-level counters, including Array.asyncCopy (i.e. get/put) information. */
-    public static def getX10RTStats () {
-        @Native("c++", "return x10aux::get_X10RTStats<x10::lang::Runtime__X10RTStats,x10::lang::Runtime__X10RTMessageStats>();")
-        {
-            return X10RTStats();
-        }
-    }
-
-    /** Fetch the current state of the X10RT-level counters, excluding anything related to Array.asyncCopy */
-    public static def getX10RTMessageStats () = getX10RTStats().msg;
-
     // Methods for explicit memory management
 
     @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#o.operator->())")
@@ -261,81 +128,7 @@ import x10.util.concurrent.SimpleLatch;
     @Native("c++", "x10aux::dealloc(#o.operator->())")
     public static def dealloc (o:()=>void):void { }
 
-    // Configuration options
-
-    private static def x10_strict_finish():Boolean {
-        try {
-            val v = env.getOrThrow("X10_STRICT_FINISH");
-            return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
-        } catch (NoSuchElementException) {
-        }
-        return false;
-    }
-
-    /**
-     * The initial number of worker threads
-     */
-    private static def x10_nthreads():Int {
-        var v:Int = 0;
-        try {
-            v = Int.parse(env.getOrThrow("X10_NTHREADS"));
-        } catch (NoSuchElementException) {
-        } catch (NumberFormatException) {
-        }
-        if (v <= 0) v = 1;
-        if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
-        return v;
-    }
-
-    /**
-     * An upper bound on the number of worker threads
-     */
-    private static def x10_max_threads():Int {
-        var v:Int = 0;
-        try {
-           v = Int.parse(env.getOrThrow("X10_MAX_THREADS"));
-       } catch (NoSuchElementException) {
-       } catch (NumberFormatException) {
-       }
-       if (v <= 0) v = NTHREADS;
-       if (!STATIC_THREADS && v < 1000) v = 1000;
-       if (v > PLATFORM_MAX_THREADS) v = PLATFORM_MAX_THREADS;
-       return v;
-    }
-
-    private static def x10_static_threads():Boolean {
-        try {
-            val v = env.getOrThrow("X10_STATIC_THREADS");
-            return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
-        } catch (NoSuchElementException) {
-        }
-        return DEFAULT_STATIC_THREADS;
-    }
-
-    private static def x10_warn_on_thread_creation():Boolean {
-        try {
-            val v = env.getOrThrow("X10_WARN_ON_THREAD_CREATION");
-            return !(v.equalsIgnoreCase("false") || v.equalsIgnoreCase("f") || v.equals("0"));
-        } catch (NoSuchElementException) {
-        }
-        return DEFAULT_STATIC_THREADS;
-    }
-
-    /**
-     * The number of logical processors available on the host.
-     */
-    @Native("c++", "x10aux::num_local_cores")
-    @Native("java", "java.lang.Runtime.getRuntime().availableProcessors()")
-    public native static def availableProcessors():Int;
-
-
     @PerProcess static staticMonitor = new Monitor();
-    @PerProcess static env = loadenv();
-    @PerProcess public static STRICT_FINISH = x10_strict_finish();
-    @PerProcess public static NTHREADS = x10_nthreads();
-    @PerProcess public static MAX_THREADS = x10_max_threads();
-    @PerProcess public static STATIC_THREADS = x10_static_threads();
-    @PerProcess public static WARN_ON_THREAD_CREATION = x10_warn_on_thread_creation();
 
     //Work-Stealing Runtime Related Interface
     
@@ -797,10 +590,7 @@ import x10.util.concurrent.SimpleLatch;
                 pool(NTHREADS);
             }
         } finally {
-            if (PRINT_STATS) {
-                println("ASYNC SENT AT PLACE " + here.id +" = " + getAsyncsSent());
-                println("ASYNC RECV AT PLACE " + here.id +" = " + getAsyncsReceived());
-            }
+            GlobalCounters.printStats();
         }
     }
 
