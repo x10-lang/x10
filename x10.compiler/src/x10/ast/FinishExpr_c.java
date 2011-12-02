@@ -15,11 +15,13 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
+import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.Position;
 import polyglot.visit.CFGBuilder;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import x10.errors.Errors;
 import x10.extension.X10Del;
@@ -156,5 +158,15 @@ public class FinishExpr_c extends Expr_c implements FinishExpr {
 		Stmt body = (Stmt) visitChild(this.body, v);
 		return reconstruct(reducer, body);
 	}
-
+	
+	public String toString() {
+		return "finish(" + reducer.toString() + ")" + body.toString();
+	}
+	
+	public void prettyPrint(CodeWriter w, PrettyPrinter tr) {
+		w.write("finish (");
+		printBlock(reducer, w, tr);
+		w.write(")");
+		printBlock(body, w, tr);
+	}
 }
