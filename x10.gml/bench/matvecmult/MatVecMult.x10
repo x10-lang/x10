@@ -21,10 +21,21 @@ import x10.matrix.dist.DistMultDupToDist;
 //import x10.matrix.dist.DistMultDistToDup;
 
 /**
-   This class contains test cases for dense matrix multiplication.
+   This class implements matrix * vector multiplication: 
+ * for (1..iteration) {
+ *    A * V = P;
+ *    V = P;
+ * }
+ * where A is squared sparse matrix, V and P are vectors (1-column dense matrix).
    <p>
-
+ * The matrix A is partitioned in row-wise fashion, which is to say that the matrix is partitioned into (num_place, 1)
+ * block matrix, where each place is assigned a block.
    <p>
+ * Vector V is duplicated in all places, and P vector is distributed in the same way
+ * as matrix A.
+ * <p>
+ * Before the end of each iteration, P is gathered at the root place and copied
+ * to vector V, and then all copies of V are synchronized in all places.
  */
 
 public class MatVecMult{
@@ -51,9 +62,10 @@ class DVMultRowwise {
 	val partP:Grid;
 	
 	val dstA:DistSparseMatrix(M,M);
-	val dupV:DupDenseMatrix(dstA.N,1);
-	val dstP:DistDenseMatrix(dstA.M,1);
-	val P:DenseMatrix(dstA.M,1);
+	val dupV:DupDenseMatrix(M,1);
+	val V:DenseMatrix(M,1);
+	val dstP:DistDenseMatrix(M,1);
+	val P:DenseMatrix(M,1);
 	
 	//---------------------
 	public var st:Double;
@@ -66,14 +78,15 @@ class DVMultRowwise {
     	it = i; vrf=v;
     	
     	val numP = Place.numPlaces();//Place.MAX_PLACES;
-    	Console.OUT.printf("\nTest Dist sparse mult Dup dense over %d places\n", numP);
+    	Console.OUT.printf("\nTest Dist sparse mult Dup dense in %d places\n", numP);
  
     	partA = new Grid(M, M, numP, 1);
     	dstA  = DistSparseMatrix.make(partA, nnz) as DistSparseMatrix(M,M);
-    	dstA.initRandom(nnz);
-    	dstA.printRandomInfo();
+    	//dstA.initRandom(nnz);
+    	//dstA.printRandomInfo();
     	Console.OUT.flush();
     	
+    	V    = DenseMatrix.make(M,1);
     	dupV = DupDenseMatrix.makeRand(M, 1);
     	dupV.initRandom();
 
@@ -83,16 +96,14 @@ class DVMultRowwise {
 	}
 	
 	public def run(): void {
-		var ret:Boolean = true;
+		if (vrf > 0)
+			dupV.local().copyTo(V);
+		
  		// Set the matrix function
 		runMultParallel();
-		if (vrf > 0)
+		if (vrf > 0) {
 			runVerify();
-
-		if (ret)
-			Console.OUT.println("Dist Dup multiplication Test passed!");
-		else
-			Console.OUT.println("--------Dist-Dup multiplication Test failed!--------");
+		}
 	}
 	//------------------------------------------------
 	//------------------------------------------------
@@ -121,7 +132,7 @@ class DVMultRowwise {
 	public def runVerify():Boolean {
 		Console.OUT.printf("Starting converting sparse matrix to dense\n");
 		val ma = dstA.toDense() as DenseMatrix(M,M);
-		val mb = dupV.getMatrix() as DenseMatrix(M,1);
+		val mb = V;//dupV.getMatrix() as DenseMatrix(M,1);
 		val mc = DenseMatrix.make(ma.M, mb.N) as DenseMatrix(M,1);
 		Console.OUT.printf("Starting verification on dense matrix\n");
 		

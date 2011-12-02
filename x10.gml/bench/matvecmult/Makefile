@@ -10,7 +10,7 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list 	= MatVecMult
+target_list 	= MatVecMult MatVecMultCol
 
 target		= MatVecMult
 
