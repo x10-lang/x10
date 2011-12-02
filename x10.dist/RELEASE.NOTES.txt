@@ -1,4 +1,4 @@
-Release 2.2.1
+Release 2.2.2
 
 MAJOR CHANGES
 
@@ -6,27 +6,18 @@ No major changes have been made to the language specification
 in this release.  The following major changes have been made to the
 implementation and the class libraries.
 
-  The + and - operators were removed from the IntRange class and
-  replaced by a translate method.  The motivation for this API change
-  was to avoid a common programming mistake:
-    for (i in 0..n-1) { ... }
-  In the loop above, i actually ranges from -1 to n-1 because .. has higher
-  precedence than - (to support concise region products like 0..n*0..n).
-  In 2.2.1 this loop will be flagged as a compile time error; write it as:
-    for (i in 0..(n-1)) { ... }
-
-  Managed X10 now uses Java built-in primitives to implement unsigned
-  X10 structs (UInt, ULong, etc).  This significantly improves the 
-  performance of unsigned types with Managed X10.
-
-  We have implemented a new custom serialization protocol for Managed X10,
-  resulting in significant performance improvements for multi-place programs
-  on Managed X10.
-
-  The built-in numeric structs (Int, ULong, Double, etc) now implement
-  the interfaces, Arithmetic, Bitwise and Ordered (as appropriate).  
-  This enables writing generic code over types that implement common operations
-  such as +, *, <=, etc.
+  + X10 now requires a Java 6.0 SDK as the minimum Java version
+    to build X10.  Previous versions of X10 would work on either 
+    Java 5.0 or Java 6.0.
+  + Starting with X10 2.2.2, the compiler/runtime system will optimize
+    the pattern 
+        at (P) async S; 
+    into a more efficient remote async invocation for any P. The pattern 
+        async at (p) S;
+     will only be optimized into a more efficient remote async invocation 
+     when p is a simple expression (eg local variable reference).  
+     Therefore we recomment using at (P) async S where possible.
+     All code in the X10 standard library and benchmarks has been updated.
 
 Please consult the language specification for the details of
 any minor language changes and specification clarifications made in
@@ -34,7 +25,7 @@ this release.
 
 LIMITATIONS OF THIS RELEASE
 
-The following features described in the 2.2.1 language manual do not
+The following features described in the 2.2.2 language manual do not
 currently work and will be fixed in the subsequent releases:
   - Non-static type definitions as class or interface members
     (static type defs do work)
@@ -60,119 +51,13 @@ The generated C++ code requires g++ 4.2 or better to be compiled;
 we do almost all of our testing against g++ 4.3.2.  On AIX, you
 may either use g++ 4.2 or better or xlC 10.1.0.4 or better.
 
-
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.2.1
+Below is a summary of JIRA issues addressed for the X10 2.2.2
 
-** New Features and Improvements
-    * [XTENLANG-1006] - CUDA: no functions
-    * [XTENLANG-1560] - constant propagator should propagate closure literals
-    * [XTENLANG-1703] - Support "operator#(...)" syntax for invoking operators
-    * [XTENLANG-2075] - Primitives should implement Arithmetic, Bitwise, Ordered
-    * [XTENLANG-2130] - Enable constant folding for unsigned numeric operations
-    * [XTENLANG-2419] - Performance of Array.reduce()
-    * [XTENLANG-2675] - Enable constant propagation of NullLit
-    * [XTENLANG-2679] - Reenable mapping unsigned types to Java primitives
-    * [XTENLANG-2787] - x10::lang::Place::_make is not inlined
-    * [XTENLANG-2791] - Use direct copy rather than memcpy for serialization on little-endian platforms
-    * [XTENLANG-2792] - Bulk serialization of IndexedMemoryChunk[T] where T is primitive
-    * [XTENLANG-2794] - Array.clear()
-    * [XTENLANG-2797] - Char should implement Ordered
-    * [XTENLANG-2798] - Implement caching boxed values in Java backend
-    * [XTENLANG-2799] - Enable operator inlining and privatization for unsigned types in Java backend
-    * [XTENLANG-2805] - Faster comparison against null
-    * [XTENLANG-2813] - Remove obsolete IORuntimeException
-    * [XTENLANG-2818] - Support for non-virtual instance calls in Managed X10
-    * [XTENLANG-2821] - Inline GrowableIndexedMemoryChunk.apply(int) for better performance of ArrayList.apply(int)
-    * [XTENLANG-2829] - Use fast native implementations of Math.abs
-    * [XTENLANG-2847] - Allow the compiler to be canceled
-    * [XTENLANG-2859] - ClassCastException in ParsedName for handling method selector
-    * [XTENLANG-2883] - DistArray.getLocalPortion()
-    * [XTENLANG-2920] - X10DT: progress view shows "Remote Compilation" when compiling on localhost
-
-** Bug
-    * [XTENLANG-1938] - Expressions should be allowed as statements (ie allow expr; )
-    * [XTENLANG-1990] - Describe rt options in spec
-    * [XTENLANG-2016] - DYNAMIC_CALLS doesn't report an inserted check (and STATIC_CALLS fails with an error)
-    * [XTENLANG-2293] - unreachable catch blocks
-    * [XTENLANG-2300] - gcc compilation error "multiple definition of closure" for a closure in a inlinable method
-    * [XTENLANG-2376] - Runtime checking a constructor guard for a constructor call (super/this)
-    * [XTENLANG-2663] - Integer_ConstraintWithVariable generates incorrect code with optimization
-    * [XTENLANG-2680] - Override and implement virtual and interface method with @Native is broken in Java backend
-    * [XTENLANG-2686] - Stop converting unknown Java exception to x10
-    * [XTENLANG-2712] - Dynamic casts not generated for new expressions on macro-types.
-    * [XTENLANG-2729] - Should (1.0 as Any as Int) succeed or fail?  Interactions between upcasts and "user-defined" conversions
-    * [XTENLANG-2739] - LangSpec example using UInt causes post-compilation error on Java back end (Structs30)
-    * [XTENLANG-2745] - Unreachable catch block for Exception is not detected.
-    * [XTENLANG-2751] - Code cleanup pass causes post-compilation error
-    * [XTENLANG-2752] - Coercion of constant to unsigned type causes InternalCompilerError
-    * [XTENLANG-2755] - java backend post compilation errors on DYNAMIC_CHECKS
-    * [XTENLANG-2756] - Dispatcher for super interface method not generated in Java backend
-    * [XTENLANG-2757] - Using local variable in type constraint in async breaks postcompilatoin
-    * [XTENLANG-2760] - Unsigned types get lost when stored in constraints
-    * [XTENLANG-2762] - Another ClosureRemover bug in Java backend (AsyncTest2)
-    * [XTENLANG-2765] - Octal literals are not checked for well-formedness
-    * [XTENLANG-2767] - Java backend code generation problem in Issues/XTENLANG_2330.x10
-    * [XTENLANG-2768] - Struct with IndexedMemoryChunk field suffers corruption by GC due to containsPtrs==false
-    * [XTENLANG-2770] - Test case fails the wrong way
-    * [XTENLANG-2771] - Compiler erroneously permits var locals to be used in constraints (DepTypeInMethodRet1_MustFailCompile)
-    * [XTENLANG-2772] - Preserve type of IntLit for narrower than Int in Java backend
-    * [XTENLANG-2773] - Missing boxing of String in Java backend (Expressions3e9h)
-    * [XTENLANG-2774] - inlining causes non-generic closure declaration to get generated after the call to it in a generic method in the C++ backend
-    * [XTENLANG-2776] - Spec's example in "Limitation: Runtime Constraint Erasure" should be auto-checked
-    * [XTENLANG-2777] - Need a warning on unsound casts, with -VERBOSE at least
-    * [XTENLANG-2778] - Get rid of "Offers" clauses from the auto-imported grammar.
-    * [XTENLANG-2780] - Post-compilation errors when creating an array of inner class type
-    * [XTENLANG-2781] - spec needs to describe propagation in inferred types.
-    * [XTENLANG-2783] - Stop propagating String literal to closure body (AtomicReferenceTest)
-    * [XTENLANG-2784] - Preserve declared type for numeric values (Expressions1x7i)
-    * [XTENLANG-2790] - Inliner fails to replace this in closure when inlining an instance method into a static method
-    * [XTENLANG-2801] - C++ backend:optimizer:post compilation fails at element access on DistArray
-    * [XTENLANG-2802] - Inliner issue when inlining non-generic method into generic method and c++ backend
-    * [XTENLANG-2807] - no error when use 8 for Octal number
-    * [XTENLANG-2809] - StringBuilder with null - SegFault
-    * [XTENLANG-2812] - Post-compilation error for SeqMethodCall1.x10
-    * [XTENLANG-2814] - StringBuilder insert() with null - SegFault
-    * [XTENLANG-2815] - Random: nextLong(): hangs with nextLong combination
-    * [XTENLANG-2816] - javac error compiling GlobalRef.evalAtHome
-    * [XTENLANG-2817] - Multi-place programs launched with the sockets X10RT implementation seem to hang on exit
-    * [XTENLANG-2820] - x10.util.Vec not fully implemented?
-    * [XTENLANG-2822] - C++ backend cast injector casting to wrong type in the inlined constructor.  Instantiation problem?
-    * [XTENLANG-2827] - ITable lookup failure
-    * [XTENLANG-2828] - NativeClass problems with user-defined Java classes
-    * [XTENLANG-2830] - Deserializer cause javac error for a class with a property
-    * [XTENLANG-2832] - Return code lost (incorrectly 0 from aborting program) on multi-place (or single place, HOSTLIST set) program using x10rt_sockets
-    * [XTENLANG-2834] - Bugs in GlobalRef Mortal object handling in Java back-end
-    * [XTENLANG-2837] - anonymous class c++ backend NPE
-    * [XTENLANG-2838] - Desugarer violates its postcondition
-    * [XTENLANG-2839] - ClosureRemover Improvements
-    * [XTENLANG-2840] - Post-compilation error for SPECjbb2005
-    * [XTENLANG-2841] - GlobalRefs causing exceptions in some JVMs
-    * [XTENLANG-2842] - Eliminate + and - operators on IntRange to avoid commom programming mistake of writing 0..n-1
-    * [XTENLANG-2850] - native c++ Comparable itable thunks not quite standard
-    * [XTENLANG-2854] - Incorrect container for compiler generated abstract method for each interface method implemented by an abstract class
-    * [XTENLANG-2863] - String + void can give a Java error, not an X10 one.
-    * [XTENLANG-2865] - var async capture broken in certain cases
-    * [XTENLANG-2877] - Region.eliminate eliminates wrong dimension
-    * [XTENLANG-2885] - First twist of Random.random() still not completely random
-    * [XTENLANG-2890] - Post-compilation errors due to the lack of boxing primitives for closure arguments (Exceptions, ExceptionsRemote, FinishCrossMethodMultiAsync and MultiAsyncs)
-    * [XTENLANG-2891] - NullPointerException in the typechecker
-    * [XTENLANG-2893] - java.lang.NullPointerException in desugarer (MatrixAddSubclass_MustFailCompile)
-    * [XTENLANG-2895] - co/contra-variance of function type not correctly implemented in Java backend (ADA_005f)
-    * [XTENLANG-2896] - X10DT: failure to compile code which compiles fine with x10c++
-    * [XTENLANG-2898] - booleans (and sometimes ints) lose their Boolean-ness when boxed and put in arrays in the Java back end
-    * [XTENLANG-2906] - toronto testcase: PlaceLocalHandle.id overflow (ADA_039f)
-    * [XTENLANG-2908] - X10DT: Can't rename newly created launch configuration
-    * [XTENLANG-2909] - Closure inlining of generic closure constrained <: struct breaks Managed codegen
-    * [XTENLANG-2914] - Assertion failure in constant propagator (XTENLANG_2330)
-    * [XTENLANG-2919] - BlockBlockDist fails to cover for some combinations of Region / MAX_PLACES
-
-** Task
-    * [XTENLANG-2766] - Document static vs dynamic checking of numeric conversions
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/browse/XTENLANG/fixforversion/17131
+http://jira.codehaus.org/browse/XTENLANG/fixforversion/PUT_NUMBER_HERE
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
