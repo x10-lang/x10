@@ -12,9 +12,11 @@
 package x10.util;
 
 /**
- * @author Dave Cunningham
-*/
-// This class exists as a work-around for XTENLANG-624
+ * An Option is a utility struct primarily used to support
+ * command line parsing by the OptionsParser class.
+ * It encapsulates a long and short form of the option
+ * and a description.
+ */
 public struct Option {
     public short_:String; // underscore is workaround for XTENLANG-623
     public long_:String;
@@ -30,4 +32,35 @@ public struct Option {
         this.description=d;
     }
     public def toString() = description;
+
+    public def equals(other:Any):Boolean {
+        if (other instanceof Option) {
+            return equals(other as Option);
+        } else {
+            return false;
+        }
+    }
+
+    public def equals(that:Option):Boolean {
+        if (!description.equals(that.description)) return false;
+        if (long_ != null) {
+            if (!long_.equals(that.long_)) return false;
+        } else {
+            if (that.long_ != null) return false;
+        }
+        if (short_ == null) return that.short_ == null;
+        return short_.equals(that.short_);
+    }
+
+    public def hashCode():Int {
+        var result:int = 1;
+        if (short_ != null) {
+            result = 8191*result + short_.hashCode();
+        }
+        if (long_ != null) {
+            result = 8191*result + long_.hashCode();
+        }
+        result = 8191 * result + description.hashCode();
+        return result;
+    }
 }
