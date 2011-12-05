@@ -48,6 +48,8 @@ import polyglot.visit.ErrorHandlingVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.Async;
 import x10.ast.Async_c;
+import x10.ast.AtEach;
+import x10.ast.AtExpr;
 import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Closure_c;
@@ -96,17 +98,22 @@ public class ConstantPropagator extends ContextVisitor {
     protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
         Position pos = n.position();
         
-        // If we are propagating closures, then AST nodes that capture lexical
-        // environments need to have the captured environment recomputed for their def 
-        // because we may have propagated one or more closure literals into their bodies.
-        if (propClosures) {
-            if (n instanceof Async) {
-                n.visit(new ClosureCaptureVisitor(this.context(), ((Async)n).asyncDef()));
-            } else if (n instanceof Closure) {
-                n.visit(new ClosureCaptureVisitor(this.context(), ((Closure)n).closureDef()));                
-            } else if (n instanceof AtStmt) {
-                n.visit(new ClosureCaptureVisitor(this.context(), ((AtStmt)n).atDef()));                
-            }
+        // AST nodes that capture lexical environments need to have the captured environment
+        // recomputed in leaveCall because we may have done one of two things:
+        //   (a) Constant propagated away uses of a lexically captured variable, thus 
+        //       reducing the captured environment.
+        //   (b) Propagated one or more closure literals into the body of the construct,
+        //       which can increase the captured environment. 
+        if (n instanceof Async) {
+        	n.visit(new ClosureCaptureVisitor(this.context(), ((Async)n).asyncDef()));
+        } else if (n instanceof AtStmt) {
+        	((AtStmt)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtStmt)n).atDef()));                
+        } else if (n instanceof AtEach) {
+        	((AtEach)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtEach)n).atDef()));
+        } else if (n instanceof AtExpr) {
+        	((AtExpr)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtExpr)n).closureDef()));                
+        } else if (n instanceof Closure) {
+        	n.visit(new ClosureCaptureVisitor(this.context(), ((Closure)n).closureDef()));                
         }
 
         if (!(n instanceof Expr || n instanceof Stmt)) return n;
