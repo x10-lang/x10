@@ -25,5 +25,19 @@ public class XClass extends JClass {
         o.println(x.jstring());
         o.println(x.jinteger());
         o.println(x.jclass());
+	o.println(x.typeName());
+	o.println(x.equals(x));
+	o.println(x.hashCode());
+	o.println(x.toString());
+	o.println(x instanceof Any);
+	//o.println(x instanceof Object); // compile error (see below)
     }
 }
+
+/*
+x10c -d bin -cp bin-java src/XClass.x10
+src/XClass.x10:33: An instance of the left type cannot possibly be an instance of the right type.    
+     	 Left type: XClass{self==x, x!=null}    
+     	 Right type: x10.lang.Object
+1 error.
+*/
