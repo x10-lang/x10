@@ -33,6 +33,8 @@ import polyglot.ast.Stmt;
 import polyglot.ast.Throw;
 import polyglot.ast.VarDecl;
 import polyglot.frontend.Job;
+import polyglot.types.Context;
+import polyglot.types.LocalDef;
 import polyglot.types.Name;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
@@ -54,6 +56,7 @@ import x10.ast.AtStmt;
 import x10.ast.Closure;
 import x10.ast.Closure_c;
 import x10.ast.StmtExpr;
+import x10.ast.X10Formal;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -105,15 +108,20 @@ public class ConstantPropagator extends ContextVisitor {
         //   (b) Propagated one or more closure literals into the body of the construct,
         //       which can increase the captured environment. 
         if (n instanceof Async) {
-        	n.visit(new ClosureCaptureVisitor(this.context(), ((Async)n).asyncDef()));
+            n.visit(new ClosureCaptureVisitor(this.context(), ((Async)n).asyncDef()));
         } else if (n instanceof AtStmt) {
-        	((AtStmt)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtStmt)n).atDef()));                
+            ((AtStmt)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtStmt)n).atDef()));                
         } else if (n instanceof AtEach) {
-        	((AtEach)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtEach)n).atDef()));
+            // Only want to visit the body to recompute capture, but need to simulate 
+            // visiting the formal so that it gets in scope for the body so env capture can find it.
+            AtEach ateach = (AtEach)n;
+            Context tmpContext = this.context().pushBlock();
+            ateach.formal().addDecls(tmpContext);
+            ateach.body().visit(new ClosureCaptureVisitor(tmpContext, ateach.atDef()));
         } else if (n instanceof AtExpr) {
-        	((AtExpr)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtExpr)n).closureDef()));                
+            ((AtExpr)n).body().visit(new ClosureCaptureVisitor(this.context(), ((AtExpr)n).closureDef()));                
         } else if (n instanceof Closure) {
-        	n.visit(new ClosureCaptureVisitor(this.context(), ((Closure)n).closureDef()));                
+            n.visit(new ClosureCaptureVisitor(this.context(), ((Closure)n).closureDef()));                
         }
 
         if (!(n instanceof Expr || n instanceof Stmt)) return n;
