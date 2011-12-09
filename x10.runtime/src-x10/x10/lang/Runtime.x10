@@ -86,6 +86,13 @@ public final class Runtime {
     public static native def x10rtProbe():void;
 
     /**
+     * Process one incoming active message if any (non-blocking).
+     */
+    @Native("c++", "x10aux::event_probe()")
+    @Native("java","x10.runtime.impl.java.Runtime.eventProbe()")
+    public static native def wsProcessEvents():void;
+
+    /**
      * Return a deep copy of the parameter.
      */
     @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o)")
