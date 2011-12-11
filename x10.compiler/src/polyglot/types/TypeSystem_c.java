@@ -799,7 +799,8 @@ public class TypeSystem_c implements TypeSystem
      **/
     public boolean isThrowable(Type type) {
         assert_(type);
-        return emptyContextSubtype(type,Throwable());
+        return emptyContextSubtype(type,Throwable()) 
+        || emptyContextSubtype(type, JavaThrowable());
     }
 
     
@@ -2106,6 +2107,7 @@ public class TypeSystem_c implements TypeSystem
     protected Type CLASS_;
     protected Type STRING_;
     protected Type THROWABLE_;
+    protected Type JLTHROWABLE_;
 
     public Type JavaObject()  { 
         if (OBJECT_ != null) 
@@ -2120,9 +2122,11 @@ public class TypeSystem_c implements TypeSystem
         if (STRING_ != null) return STRING_;
         return STRING_ = load("java.lang.String"); 
     }
-    public Type JavaThrowable() { 
-        if (THROWABLE_ != null) return THROWABLE_;
-        return THROWABLE_ = load("java.lang.Throwable"); 
+    public X10ClassType JavaThrowable() {
+        if (JLTHROWABLE_ != null) return (X10ClassType) JLTHROWABLE_;
+        X10ClassType t = load("java.lang.Throwable");
+        JLTHROWABLE_ = t;
+        return t;
     }
     public Type JavaError() { return load("java.lang.Error"); }
     public Type JavaException() { return load("java.lang.Exception"); }
