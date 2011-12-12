@@ -1010,7 +1010,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
-    private static final String SERIAL_DATA = "x10.io.SerialData";
+    public static final String SERIAL_DATA = "x10.io.SerialData";
+    public static final String SERIAL_DATA_FIELD_NAME = "$$serialdata";
 
     private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
@@ -1252,7 +1253,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return false;
     }
 
-    private static boolean isSplittable(Type type) {
+    public static boolean isSplittable(Type type) {
         return supportConstructorSplitting
         && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
         && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type));
@@ -1559,7 +1560,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // Refractored  method that can be called by reflection
         if (isCustomSerializable) {
             w.begin(4);
-            w.writeln("public void  " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
+            w.writeln("public void " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
             n.printSubStmt(body, w, tr);
             w.writeln("}");
             w.end();

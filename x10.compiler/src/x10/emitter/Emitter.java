@@ -3302,7 +3302,7 @@ public class Emitter {
 
 	public void generateCustomSerializer(X10ClassDef def, X10ClassDecl_c n) {
 	    X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
-	    String fieldName = "$$serialdata";
+	    String fieldName = X10PrettyPrinterVisitor.SERIAL_DATA_FIELD_NAME;
 	    w.write("// custom serializer");
 	    w.newline();
         w.write("private transient x10.io.SerialData " + fieldName + ";");
@@ -3454,25 +3454,30 @@ public class Emitter {
             params.add(mangleParameterType(at));
         }
 
-        // FIXME WIP XTENLANG-2974
-        // we should set type objects and fields (from params and fieldName) of $_obj rather than reinstantiating it, since it may have already been serialized (and thus registered).
-        w.write("$_obj = (");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-        w.write(") ");
-        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-            w.write(".");
-            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
-        } else {
-            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
-            w.write("new ");
-            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
-        }
-        String paramNames = "";
+        // XTENLANG-2974
+        // N.B. we cannot reinstantiating $_obj since it may have already been serialized (and thus registered).
+//        w.write("$_obj = (");
+//        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+//        w.write(") ");
+//        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
+//            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+//            w.write(".");
+//            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
+//        } else {
+//            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
+//            w.write("new ");
+//            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+//        }
+//        String paramNames = "";
+//        for (String param : params) {
+//            paramNames = paramNames + param + ", ";
+//        }
+//        w.writeln("(" + paramNames + fieldName + ");");
+        // set type objects to the fields of $_obj and initialize $_obj by calling $init(SerialData). 
         for (String param : params) {
-            paramNames = paramNames + param + ", ";
+            w.writeln("$_obj." + param + " = " + param + ";");
         }
-        w.writeln("(" + paramNames + fieldName + ");");
+        w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME + "(" + fieldName + ");");
         
         w.writeln("return $_obj;");
         w.end();
@@ -3538,6 +3543,20 @@ public class Emitter {
         w.newline();
         w.writeln("}");
         w.newline();
+
+        // XTENLANG-2974 generate dummy $init(SerialData) for non-splittable type to simplify above _deserialize_body method.
+        if (!X10PrettyPrinterVisitor.isSplittable(def.asType())) {
+            w.writeln("// dummy 2nd-phase constructor for non-splittable type");
+            w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME + "(" + X10PrettyPrinterVisitor.SERIAL_DATA +  " " + fieldName + ") {");
+            w.newline(4);
+            w.begin(0);
+            w.writeln("throw new x10.lang.RuntimeException(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
+            w.end();
+            w.newline();
+            w.writeln("}");
+            w.newline();
+        }
+
 	}
 
     // Emits the code to serialize the super class
