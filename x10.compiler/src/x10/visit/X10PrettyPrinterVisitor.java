@@ -1252,6 +1252,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return false;
     }
 
+    private static boolean isSplittable(Type type) {
+        return supportConstructorSplitting
+        && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
+        && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type));
+    }
+
     @Override
     public void visit(X10ConstructorDecl_c n) {
 
@@ -1263,10 +1269,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         printCreationMethodDecl(n);
 
         X10ClassType type = Types.get(n.constructorDef().container()).toClass();
-        if (supportConstructorSplitting
-                && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.isUnsplittable(type)) {
-
+        if (isSplittable(type)) {
             printConstructorMethodDecl(n, isCustomSerializable);
             return;
         }
@@ -1326,14 +1329,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         List<ParameterType> typeParameters = type.x10Def().typeParameters();
 
-        boolean isUnsplittable;
-        if (supportConstructorSplitting
-            && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-            && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
-            isUnsplittable = false;
-        } else {
-            isUnsplittable = true;
-        }
+        boolean isSplittable = isSplittable(type);
 
         List<Formal> formals = n.formals();
 
@@ -1364,7 +1360,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write("return ");
 
-        if (!isUnsplittable) {
+        if (isSplittable) {
             printAllocationCall(type, typeParameters);                
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
@@ -1374,7 +1370,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         w.write("(");
 
-        if (isUnsplittable) {
+        if (!isSplittable) {
             printArgumentsForTypeParams(typeParameters, formals.size() == 0);
         }
 
@@ -1399,7 +1395,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         
         // N.B. we don't generate 1-phase constructor here, since it will be generated as a normal compilation result of X10 constructor. 
-        if (generateOnePhaseConstructor && !isUnsplittable) {
+        if (generateOnePhaseConstructor && isSplittable) {
 
         w.write("// creation method for java code (1-phase java constructor)");
         w.newline();
@@ -1418,7 +1414,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write("{");
         w.begin(4);
 
-        if (!isUnsplittable) {
+        if (isSplittable) {
             w.write("this");
             w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
             printArgumentsForTypeParamsPreComma(typeParameters, false);
@@ -1432,7 +1428,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         w.write("(");
 
-        if (isUnsplittable) {
+        if (!isSplittable) {
             printArgumentsForTypeParams(typeParameters, formals.size() == 0);
         }
 
@@ -2964,10 +2960,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (er.printNativeNew(c, mi)) return;
         
-        if (supportConstructorSplitting
-                && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))
-                && !type.fullName().toString().startsWith("java.")) {
+        if (isSplittable(type) && !type.fullName().toString().startsWith("java.")) {
 
             printAllocationCall(type, mi.container().toClass().typeArguments());
 
@@ -3968,7 +3961,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(X10ConstructorCall_c c) {
         ContainerType ct = c.constructorInstance().container();
-        if (supportConstructorSplitting && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
+        if (isSplittable(ct)
+            || ct.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME) // is this needed?
+            ) {
             TypeSystem ts = tr.typeSystem();
             boolean isObject = isObject(ct);
 //            if (isObject) return;  // TODO stop calling constructor of x10.lang.Object for optimization (it should be safe)
