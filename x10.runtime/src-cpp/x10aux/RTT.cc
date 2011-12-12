@@ -31,7 +31,7 @@ const char *RuntimeType::name() const {
         ss << baseName;
         ss << "[";
         for (int i=0; i<paramsc; i++) {
-            if (i>0) ss << ", ";
+            if (i>0) ss << ",";
             ss << params[i]->name();
         }
         ss << "]";
