@@ -3444,14 +3444,14 @@ public class Emitter {
             w.writeln("} ");
         }
 
-        String params = "";
+        ArrayList<String> params = new ArrayList<String>();
         w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
         for (ParameterType at : def.typeParameters()) {
             w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
             printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
             w.write(" = ( " + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ) ");
             w.writeln("$deserializer.readRef();");
-            params = params + mangleParameterType(at) + ", ";
+            params.add(mangleParameterType(at));
         }
 
         // FIXME WIP XTENLANG-2974
@@ -3468,7 +3468,11 @@ public class Emitter {
             w.write("new ");
             printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         }
-        w.writeln("(" + params + fieldName + ");");
+        String paramNames = "";
+        for (String param : params) {
+            paramNames = paramNames + param + ", ";
+        }
+        w.writeln("(" + paramNames + fieldName + ");");
         
         w.writeln("return $_obj;");
         w.end();
