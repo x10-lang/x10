@@ -3454,6 +3454,8 @@ public class Emitter {
             params = params + mangleParameterType(at) + ", ";
         }
 
+        // FIXME WIP XTENLANG-2974
+        // we should set type objects and fields (from params and fieldName) of $_obj rather than reinstantiating it, since it may have already been serialized (and thus registered).
         w.write("$_obj = (");
         printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         w.write(") ");
@@ -3467,6 +3469,7 @@ public class Emitter {
             printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
         }
         w.writeln("(" + params + fieldName + ");");
+        
         w.writeln("return $_obj;");
         w.end();
         w.newline();
