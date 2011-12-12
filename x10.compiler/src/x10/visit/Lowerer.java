@@ -140,13 +140,13 @@ public class Lowerer extends ContextVisitor {
         altsynth = new AltSynthesizer(ts, nf);
     }
 
-    private static int count;
+    private int count;
     //Collecting Finish Use: store reducer
-    private static Stack<FinishExpr> reducerS = new Stack<FinishExpr>();
-    private static Stack<Local> clockStack = new Stack<Local>();
-    private static int flag = 0;
+    private Stack<FinishExpr> reducerS = new Stack<FinishExpr>();
+    private Stack<Local> clockStack = new Stack<Local>();
+    private int flag = 0;
 
-    private static Name getTmp() {
+    private Name getTmp() {
         return Name.make("__lowerer__var__" + (count++) + "__");
     }
 
@@ -244,6 +244,8 @@ public class Lowerer extends ContextVisitor {
 				return result;
 			} catch (SemanticException z) {
 				return null;
+			} finally {
+			    clockStack.pop();
 			}
     	}
     	
@@ -399,15 +401,15 @@ public class Lowerer extends ContextVisitor {
         List<TypeNode> typeArgs = Arrays.asList(new TypeNode[] { c.returnType() });
         Position bPos = c.body().position();
         ClosureDef cDef = c.closureDef().position(bPos);
+        // If in a clocked context, must capture implicit clock variable 
+        // being added by the lowering phase.
+        if (!clockStack.isEmpty()) {
+            cDef.addCapturedVariable(clockStack.peek().localInstance());
+        }
         Expr closure = nf.Closure(c, bPos)
             .closureDef(cDef)
         	.type(cDef.classDef().asType());
         List<Expr> args = new ArrayList<Expr>(Arrays.asList(new Expr[] { place, closure }));
-        List<Type> mArgs = new ArrayList<Type>(Arrays.asList(new Type[] {
-            ts.Place(), cDef.asType()
-        }));
-       // List<Type> tArgs = Arrays.asList(new Type[] { fDef.returnType().get() });
-
         Expr result = synth.makeStaticCall(pos, ts.Runtime(), implName,
         		typeArgs, args, c.type(), context());
         return result;
@@ -466,7 +468,16 @@ public class Lowerer extends ContextVisitor {
 
     private Stmt visitAtStmt(AtStmt a) throws SemanticException {
         Position pos = a.position();
-        return atStmt(pos, a.body(), a.place(), a.atDef().capturedEnvironment(), a.atDef());
+
+        // If in a clocked context, must capture implicit clock variable 
+        // being added by the lowering phase.
+        List<VarInstance<? extends VarDef>> env = a.atDef().capturedEnvironment();
+        if (!clockStack.isEmpty()) {
+            env = new ArrayList<VarInstance<? extends VarDef>>(env);
+            env.add(clockStack.peek().localInstance());
+        }
+        
+        return atStmt(pos, a.body(), a.place(), env, a.atDef());
     }
 
     private AtStmt toAtStmt(Stmt body) {
