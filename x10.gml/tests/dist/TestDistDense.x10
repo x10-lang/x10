@@ -85,8 +85,19 @@ class TestDD {
 		if (ret)
 			Console.OUT.println("DistDenseMatrix Clone test passed!");
 		else
-			Console.OUT.println("--------Dense Matrix Clone test failed!--------");
-		return ret;
+			Console.OUT.println("--------DistDense Matrix Clone test failed!--------");
+
+                ddm(1, 1) = ddm(2,2) = 10.0;
+
+                if ((ddm(1,1)==ddm(2,2)) && (ddm(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("Dist Dense Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("----------Dist Dense Matrix chain assignment test failed!-------");
+                }
+
+                return ret;
 	}
 
 	public def testCopyTo():Boolean {

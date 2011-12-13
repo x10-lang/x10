@@ -91,6 +91,17 @@ class TestDM {
 			Console.OUT.println("DistMatrix Clone test passed!");
 		else
 			Console.OUT.println("--------DistMatrix Clone test failed!--------");
+
+                ddm(1, 1) = ddm(2,2) = 10.0;
+
+                if ((ddm(1,1)==ddm(2,2)) && (ddm(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("Dist Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("---------- Dist Matrix chain assignment test failed!-------");
+                }
+
 		return ret;
 	}
 

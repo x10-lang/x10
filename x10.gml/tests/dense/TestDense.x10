@@ -1,12 +1,7 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 Applications project.
  *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2011.
  */
 
 import x10.io.Console;
@@ -60,6 +55,7 @@ class AddScalTest {
 			Console.OUT.println("----------------Test failed!----------------");
 	}
 
+    
 	public def testClone():Boolean{
 
 		Console.OUT.println("Starting dense Matrix clone test");
@@ -67,11 +63,23 @@ class AddScalTest {
 		dm.initRandom(); // same as  val dm = DenseMatrix.makeRand(M, N); 
 		
 		val dm1 = dm.clone();
-		val ret = dm.equals(dm1);
+		var ret:Boolean = dm.equals(dm1);
+				
 		if (ret)
 			Console.OUT.println("Dense Matrix Clone test passed!");
 		else
 			Console.OUT.println("--------Dense Matrix Clone test failed!--------");
+		
+		dm(1, 1) = dm(2,2) = 10.0;
+		
+		if ((dm(1,1)==dm(2,2)) && (dm(1,1)==10.0)) {
+			ret &= true;
+			Console.OUT.println("Dense Matrix chain assignment test passed!");
+		} else {
+			ret &= false;
+			Console.OUT.println("---------- Dense Matrix chain assignment test failed!-------");
+		}
+		
 		return ret;
 	}
 

@@ -87,6 +87,17 @@ class TestSBMatrix {
 			Console.OUT.println("Sparse block matrix Clone and dense conversion test passed!");
 		else
 			Console.OUT.println("--------Sparse block matrix Clone test failed!--------");
+
+                sbm(1, 1) = sbm1(2,2) = 10.0;
+
+                if ((sbm(1,1)==sbm1(2,2)) && (sbm(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("Sparse block Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("---------- Sparse block Matrix chain assignment test failed!-------");
+                }
+
 		return ret;
 	}
 
