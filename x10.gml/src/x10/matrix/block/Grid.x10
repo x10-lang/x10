@@ -8,7 +8,6 @@
  *
  *  (C) Copyright IBM Corporation 2006-2011.
  */
-
 package x10.matrix.block;
 
 import x10.matrix.Debug;
@@ -308,7 +307,29 @@ public class Grid(M:Int, N:Int,
 		return [br, bc, x, y];
 	}
 			
+   	/**
+   	 * Given row and column index, return block ID in the coloumn-wise
+   	 * indexing.
+   	 */
+   	public def findBlock(var x:Int, var y:Int): Int {
+   	
+   		var br:Int;
+   		var bc:Int;
+   		var bid:Int=0;
+   		Debug.assure( (x >=0) && (x<this.M) && (y>=0) && (y<this.N));
 
+   		for (bc=0; y >= colBs(bc) && bc<numColBlocks; bc++) {
+   			y -= colBs(bc);
+   			bid += numRowBlocks;
+   		}
+   		
+   		for (br=0; x >= rowBs(br) && br<numRowBlocks; br++) {
+   			x -= rowBs(br);
+   			bid++;
+   		}
+   		return bid;   		
+   	}
+   	
 	//-----------------------------------------------------
 	/**
 	 * Return a grid partition for the transposed matrix.
@@ -341,6 +362,9 @@ public class Grid(M:Int, N:Int,
 	 */
 	public def equals(that:Grid):Boolean {
 		var retval:Boolean = likeMe(that);
+		
+		if (this ==that) return true;
+		
 		for (var r:Int=0; r<numRowBlocks&&retval; r++)
 			retval &= (rowBs(r)==that.rowBs(r));
 		

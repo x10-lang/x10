@@ -197,10 +197,11 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * @param  r  the r-th rows in the matrix
 	 * @param  c  the c-th columns in the matrix
 	 */
-	public  operator this(x:Int,y:Int)=(v:Double) {
+	public  operator this(x:Int,y:Int)=(v:Double):Double {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		this.getMatrix(bid)(loc(2), loc(3))=v;
+		return v;
 	}
 	//---------------------------------------------------
 
@@ -280,9 +281,8 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	/**
 	 * x = this * x
 	 */
-	protected def cellAddTo(x:DenseMatrix(M,N)) {
-		Debug.exit("Not implemented");
-		return x;
+	protected def cellAddTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	/**
@@ -303,7 +303,15 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		return this;
 	}
 	
-	
+	public def cellAdd(d:Double):BlockMatrix(this) {
+		//Debug.flushln("Here ");
+		for (val [p] :Point in listBs) {
+			val dst = listBs(p).getMatrix();
+			dst.cellAdd(d);
+		}
+		return this;
+	}
+		
 	//-----------------------
     /**
      * Cell-wise subtraction: this -= x
@@ -326,8 +334,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * x = x - this 
 	 */
 	public def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		Debug.exit("Not implemented");
-		return x;
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	/**

@@ -262,9 +262,10 @@ public class DupDenseMatrix extends Matrix {
 	 * Assign v to (x, y) in the copy at here. Other copies are not
 	 * modified.
 	 */
-	public operator this(x:Int,y:Int) = (v:Double):void {
+	public operator this(x:Int,y:Int) = (v:Double):Double{
 		local()(x, y) = v;
 		//this.dupMs(here.id()).d(y*this.M+x) = v;
+		return v;
 	}
 
 
@@ -412,6 +413,17 @@ public class DupDenseMatrix extends Matrix {
 			val sm = A.local();
 	        val dm = local();
 	        dm.cellAdd(sm);
+	    }
+		/* Timing */ calcTime += Timer.milliTime() - st;
+		return this;
+	}
+
+	public def cellAdd(d:Double)  {
+		//Debug.assure(this.M==A.M&&this.N==A.N);
+		/* Timing */ val st= Timer.milliTime();
+	    finish ateach([p]  in this.dupMs) {
+	        val dm = local();
+	        dm.cellAdd(d);
 	    }
 		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;

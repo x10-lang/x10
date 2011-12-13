@@ -451,13 +451,14 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 * Set data value v to position at (x, y). (x, y) is absolute
 	 * coordination in the matrix.
 	 */
-	public operator this(x:Int,y:Int)=(v:Double){
+	public operator this(x:Int,y:Int)=(v:Double):Double {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		
 		at (this.distBs.dist(bid)) {
 			this.local()(loc(2), loc(3))=v;
 		}
+		return v;
 	}
 	//
 	public  def reset():void {
@@ -527,6 +528,11 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 * Cellwise addition in DistSparseMatrix is not supported and
 	 */
 	public def cellAdd(A:DistSparseMatrix(M,N))  {
+		Debug.exit("No implementation of cellwise add-in for DistSparseMatrix");
+		return this;
+	}
+
+	public def cellAdd(d:Double)  {
 		Debug.exit("No implementation of cellwise add-in for DistSparseMatrix");
 		return this;
 	}

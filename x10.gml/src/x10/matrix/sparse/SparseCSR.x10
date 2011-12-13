@@ -233,8 +233,9 @@ public class SparseCSR extends Matrix {
 	 *
 	 * Modifying sparse matrix after creation is not advised
 	 */
-	public operator this(r:Int, c:Int) = (v:Double) {
+	public operator this(r:Int, c:Int) = (v:Double):Double {
 	    crdata(c)=Pair[Int,Double](r,v);
+	    return v;
 	}
 
 	public def setRow(r:Int, cl:Compress1D) {
@@ -608,10 +609,14 @@ public class SparseCSR extends Matrix {
     /**
      * Return this += x; not supported
      */
-    public def cellAdd(x:Matrix(M,N))  {
-		Debug.exit("Cell-wise addition does not support using SparseCSR to store result");
-		return this;
+    public def cellAdd(x:Matrix(M,N)):SparseCSR(this)  {
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSR to store result");
     }
+    
+    public def cellAdd(d:Double):SparseCSR(this) {
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
+    }   
+    
 	/**
 	 * dst += this
 	 */
@@ -638,9 +643,8 @@ public class SparseCSR extends Matrix {
     /**
      * Return this *= x, not supported
      */
-    public def cellMult(x:Matrix(M,N)) {
-		Debug.exit("Cell-wise multiplication does not support using SparseCSR to store result");
-		return this;
+    public def cellMult(x:Matrix(M,N)):SparseCSR(this) {
+    	throw new UnsupportedOperationException("Cell-wise multiplication does not support using SparseCSR to store result");
     }
 	/**
 	 * x = this * x
@@ -653,9 +657,8 @@ public class SparseCSR extends Matrix {
     /**
      * Return this = this / x, not supported
      */
-    public def cellDiv(x:Matrix(M,N))  {
-		Debug.exit("Cell-wise division does not support using SparseCSR to store result");
-		return this;
+    public def cellDiv(x:Matrix(M,N)):SparseCSR(this)  {
+    	throw new UnsupportedOperationException("Cell-wise division does not support using SparseCSR to store result");
     }
 
 	/**
@@ -879,5 +882,5 @@ public class SparseCSR extends Matrix {
 		}
 		return tc as Int;
 	}
-
+	
 }

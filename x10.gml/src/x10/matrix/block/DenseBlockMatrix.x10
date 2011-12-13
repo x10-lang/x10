@@ -246,10 +246,11 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 * @param  r  the index of rows in the matrix
 	 * @param  c  the index of columns in the matrix
 	 */
-	public  operator this(x:Int,y:Int)=(v:Double) {
+	public  operator this(x:Int,y:Int)=(v:Double):Double {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		listBs(bid).dense(loc(2), loc(3))=v;
+		return v;
 	}
 
  	//====================================================================
@@ -338,6 +339,15 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;
 	}
 
+	public def cellAdd(d:Double):DenseBlockMatrix(this) {
+		for (val [p] :Point in listBs) {
+			val dst = listBs(p).dense;
+			dst.cellAdd(d);
+		}		
+
+		return this;
+	}
+	
 	//-----------------------
     /**
      * Cell-wise subtraction: this -= x

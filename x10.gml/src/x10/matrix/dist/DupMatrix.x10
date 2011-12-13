@@ -56,6 +56,7 @@ public abstract class DupMatrix extends Matrix{
 	public def add(that:Matrix):Matrix {
 		throw new IllegalOperationException("Not implemented method"); 
 	}
+
 	public def sub(that:Matrix):Matrix {
 		throw new IllegalOperationException("Not implemented method"); 
 	}

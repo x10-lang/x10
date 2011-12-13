@@ -146,7 +146,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param y   column index
 	 * @param d   the new value for the element
 	 */
-	abstract public operator this(x:Int, y:Int)=(d:Double):void;
+	abstract public operator this(x:Int, y:Int)=(d:Double):Double;
 	
 	
 	/**
@@ -164,8 +164,9 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param a   index of column major position in the storage
 	 * @param d   new element value
 	 */
-	public operator this(a:Int)=(d:Double):void {
+	public operator this(a:Int)=(d:Double):Double {
 		this(a%M, a/N) = d;
+		return d;
 	}
 	
 	//=====================================================================
@@ -198,6 +199,11 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @return    this instance which stores the result
 	 */
 	abstract public def cellAdd(x:Matrix(M,N)): Matrix(this); 
+
+	/**
+	 * Cellwise add
+	 */
+	abstract public def cellAdd(d:Double): Matrix(this); 
 	
 	/**
 	 * Cellwise operation x = x + this 
@@ -384,6 +390,13 @@ public abstract class Matrix(M:Int, N:Int) {
 		x.cellAdd(that);
 		return x;
 	}
+	
+	public operator this + (d:Double):Matrix(M,N) {
+		val x = clone();
+		x.cellAdd(d);
+		return x;
+	}
+	
 	/**
 	 * Cell-wise subtraction operator overloading. Return matrix cell-wise subtraction of
 	 * this - that in a new matrix instance which has the same type as the left-side 
@@ -409,6 +422,12 @@ public abstract class Matrix(M:Int, N:Int) {
 	public operator this * (that:Matrix(M,N)):Matrix(M,N) {
 		val x = clone();
 		x.cellMult(that);
+		return x;
+	}
+
+	public operator this - (d:Double):Matrix(M,N) {
+		val x = clone();
+		x.cellAdd(-d);
 		return x;
 	}
 	

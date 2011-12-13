@@ -354,8 +354,9 @@ public class DenseMatrix extends Matrix {
 	 * @param  x  the x-th row 
 	 * @param  y  the y-th column
 	 */
-	public  operator this(x:Int,y:Int) = (v:Double):void {
+	public  operator this(x:Int,y:Int) = (v:Double):Double {
 		d(y*this.M+x) = v;
+		return v;
 	}
 
 	/**
@@ -890,8 +891,17 @@ public class DenseMatrix extends Matrix {
 	public operator - this = clone().scale(-1.0);
 	
 	public operator (v:Double) + this = this.clone().cellAdd(v);
-	public operator this + (v:Double) = this.clone().cellAdd(v);
-	public operator this - (v:Double) = this.clone().cellSub(v);
+	public operator this + (v:Double):DenseMatrix(M,N) {
+		val ret = this.clone();
+		return ret.cellAdd(v);
+		//return dst;
+	}
+	
+	public operator this - (v:Double):DenseMatrix(M,N) {
+		val ret = this.clone();
+		return ret.cellSub(v);
+	}
+	
 	public operator (v:Double) - this = this.clone().cellSubFrom(v);
 	public operator this / (v:Double) = this.clone().cellDiv(v);
 	public operator (v:Double) / this = this.clone().cellDivBy(v);

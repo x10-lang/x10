@@ -78,8 +78,22 @@ public abstract class MatrixBlock {
 	 * <p> Initial matrix data in blocks with random values.
 	 */
 	abstract public def initRandom() : void;
+	
+	/**
+	 * Initialize matrix block data with random values between given
+	 * range.
+	 * 
+	 * @param lo         lower bound for random value
+	 * @param up         upper bound for random value
+	 */
+	abstract public def initRandom(lo:Int, up:Int) : void;
 
-
+	//===================================================
+	/**
+	 * Allocate memory space for the same matrix block of this
+	 */
+	abstract public def alloc():MatrixBlock;
+	
 	/**
 	 * Make a copy of myself
 	 */
@@ -125,6 +139,13 @@ public abstract class MatrixBlock {
 		calcTime=0; commTime=0;
 	}
 
+	//--------------------------------
+	public def sameAs(mb:MatrixBlock): Boolean {
+		if (this.myRowId == mb.myRowId &&
+			this.myColId == mb.myColId) 
+			return true;
+		return false;
+	}
 	
 	//--------------------------------
 	public def toString() : String {

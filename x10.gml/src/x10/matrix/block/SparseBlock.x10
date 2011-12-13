@@ -107,6 +107,41 @@ public class SparseBlock extends MatrixBlock {
 		val smat = SparseCSC.make(m, n, nzcnt);
 		return new SparseBlock(rid, cid, smat);
 	}
+	
+	/**
+	 * Create a sparse-matrix block and allocate memory space for 
+	 * specified nonzer sparsity
+	 * 
+	 * @param   gp      The grid partitioning of matrix
+	 * @param  rid      block's row id
+	 * @param  cid      block's column id
+	 * @param  m        rows in block
+	 * @param  n        columns in block
+	 * @param  nzd      sparsity in block
+	 */
+	public static def make(rid:Int, cid:Int, m:Int, n:Int, nzd:Double
+	) : SparseBlock {
+		val nzcnt:Int = (nzd*m*n) as Int;
+		val smat = SparseCSC.make(m, n, nzcnt);
+		return new SparseBlock(rid, cid, smat);
+	}
+	
+	/**
+	 * Create a sparse-matrix block and allocate memory space for 
+	 * specified nonzer sparsity
+	 * 
+	 * @param  rid      block's row id
+	 * @param  cid      block's column id
+	 * @param  m        rows in block
+	 * @param  n        columns in block
+	 * @param  nzcnt    nonzero count
+	 */
+	public static def make(rid:Int, cid:Int, m:Int, n:Int, nzcnt:Int
+	) : SparseBlock {
+		val smat = SparseCSC.make(m, n, nzcnt);
+		return new SparseBlock(rid, cid, smat);
+	}	
+	
 	//----------------------------------------------------
 	//Initialization
 	//----------------------------------------------------
@@ -137,7 +172,17 @@ public class SparseBlock extends MatrixBlock {
 	public def initRandom(nzd:Double):void {
 		sparse.initRandom(nzd);
 	}
-
+	
+	/**
+	 * Initialize matrix block data with random values within given
+	 * range.
+	 * 
+	 * @param lo         lower bound for random value
+	 * @param up         upper bound for random value
+	 */
+	public def initRandom(lb:Int, ub:Int) {
+		sparse.initRandom(lb, ub);
+	}
 	//-------------------------------------------------------------------
 	/**
 	 * Return the instance of matrix in the sparse block

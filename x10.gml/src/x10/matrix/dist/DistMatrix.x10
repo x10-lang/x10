@@ -269,7 +269,7 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 			val srcmat:Matrix = srcblk.getMatrix();
 			val dstden:DenseMatrix = dmat.local() as DenseMatrix;
 			//Debug.flushln("Make a copy matrix block ");
-			srcmat.copyTo(dstden);
+			srcmat.copyTo(dstden as DenseMatrix(srcmat.M, srcmat.N));
 			//src.copyTo(dst as DenseMatrix(src.M, src.N));
 		}
 	}
@@ -332,10 +332,11 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 	  * @param  c  the c-th column of the matrix
 	  * @param  v  the value
 	  */
-	 public  operator this(x:Int,y:Int)=(v:Double) {
+	 public  operator this(x:Int,y:Int)=(v:Double):Double {
 		 val loc = grid.find(x, y);
 		 val bid = grid.getBlockId(loc(0), loc(1));
 		 at (distBs.dist(bid)) getMatrix(bid)(loc(2), loc(3))=v;
+		 return v;
 	 }
 
 
@@ -399,6 +400,13 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 		 return this;
 	 }
 
+	 public def cellAdd(d:Double) {
+		 finish ateach(val [p] :Point in this.dist) {
+			 val m = local();
+			 m.cellAdd(d);
+		 }
+		 return this;
+	 }	 
 
 	 protected def cellAddTo(dst:DenseMatrix(M,N)) {
 		 Debug.exit("Not implemented");

@@ -335,10 +335,11 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 * @param  r  the index of rows in the matrix
 	 * @param  c  the index of columns in the matrix
 	 */
-	public  operator this(x:Int,y:Int)=(v:Double) {
+	public  operator this(x:Int,y:Int)=(v:Double):Double  {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		listBs(bid).sparse(loc(2), loc(3))=v;
+		return v;
 	}
 
 
@@ -363,11 +364,16 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 * @param   x  the source matrix to be added with
      */
-    public def cellAdd(x:Matrix(M,N))  {
+    public def cellAdd(x:Matrix(M,N)):SparseBlockMatrix(this)  {
 		Debug.exit("Matrix add does not support using sparse matrix to store result");
 	    return this;
 	}
 
+    public def cellAdd(d:Double):SparseBlockMatrix(this)  {
+    	Debug.exit("Matrix add does not support using sparse matrix to store result");
+    	return this;
+    }
+    
 	/**
 	 * dst = this + dst
 	 */

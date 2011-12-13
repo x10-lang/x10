@@ -337,8 +337,9 @@ public class SparseCSC extends Matrix {
 	 *
 	 * Modifying sparse matrix after creation should be avoided
 	 */
-	public operator this(r:Int, c:Int) = (v:Double) {
+	public operator this(r:Int, c:Int) = (v:Double):Double {
 	    ccdata(c)=Pair[Int,Double](r,v);
+	    return v;
 	}
 	
 	//========================================================================
@@ -873,10 +874,13 @@ public class SparseCSC extends Matrix {
      * Return this += x; not supported
      */
     public def cellAdd(x:Matrix(M,N)):SparseCSC(this) {
-		Debug.exit("Cell-wise addition does not support using SparseCSC as output matrix");
-		return this;
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
     }
-
+    
+    public def cellAdd(d:Double):SparseCSC(this) {
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
+    }
+    
 	/**
 	 * x = this + x
 	 *

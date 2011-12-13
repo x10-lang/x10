@@ -129,7 +129,18 @@ public class DenseBlock extends MatrixBlock {
 		dense.initRandom();
 	}
 	//
-
+	
+	/**
+	 * Initialize matrix block data with random values between given
+	 * range.
+	 * 
+	 * @param lo         lower bound for random value
+	 * @param up         upper bound for random value
+	 */
+	public def initRandom(lb:Int, ub:Int) {
+		dense.initRandom(lb, ub);
+	}
+	
 	//==================================================================
 	// Data access
 	//==================================================================
