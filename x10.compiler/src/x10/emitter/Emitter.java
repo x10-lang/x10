@@ -1500,10 +1500,11 @@ public class Emitter {
     
     private static String getMangledMethodName(MethodDef md, boolean printIncludingGeneric) {
         StringBuilder sb = new StringBuilder(mangleToJava(md.name()));
+        ClassType ct = (ClassType) md.container().get();
         List<Ref<? extends Type>> formalTypes = md.formalTypes();
         for (int i = 0; i < formalTypes.size(); ++i) {
             Type type = formalTypes.get(i).get();
-            buildMangledMethodName((ClassType) md.container().get(), sb, i, type, printIncludingGeneric);
+            buildMangledMethodName(ct, sb, i, type, printIncludingGeneric);
         }
         return sb.toString();
     }
