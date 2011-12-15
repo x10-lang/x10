@@ -315,8 +315,8 @@ public class DenseMatrix extends Matrix {
 	 * @param colCnt         number of column to copy
 	 */
 	public static def copySubset(src:DenseMatrix, var srcRowOffset:Int, var srcColOffset:Int,
-								 dst:DenseMatrix, var dstRowOffset:Int, var dstColOffset:Int,
-								 rowCnt:Int, colCnt:Int): Int {
+			 dst:DenseMatrix, var dstRowOffset:Int, var dstColOffset:Int,
+			 rowCnt:Int, colCnt:Int): Int {
 		
 		Debug.assure(src.M <= dst.M && 
 					 srcColOffset+colCnt <= src.N && 
@@ -371,9 +371,9 @@ public class DenseMatrix extends Matrix {
 	 * @param  dm          the targeting dense matrix to store the submatrix
 	 */
 	public  def subset(row_offset:Int, 
-					   col_offset:Int, 
-					   row:Int, col:Int, 
-					   dm:DenseMatrix) : void {
+			   col_offset:Int, 
+			   row:Int, col:Int, 
+			   dm:DenseMatrix) : void {
 		copySubset(this, row_offset, col_offset, dm, 0, 0, row, col);
 	}
 
@@ -388,8 +388,8 @@ public class DenseMatrix extends Matrix {
 	 * @return the submatrix in dense format
 	 */
 	public def subset(row_offset:Int, 
-					  col_offset:Int, 
-					  row:Int, col:Int):DenseMatrix {
+			  col_offset:Int, 
+			  row:Int, col:Int):DenseMatrix {
 		val nm = DenseMatrix.make(row, col);
 		subset(row_offset, col_offset, row, col, nm);
 		return nm;
@@ -441,35 +441,88 @@ public class DenseMatrix extends Matrix {
 	 */
 	public  def scale(a:Int) = scale(a as Double);
 
-	/**
-	 * Compute the Euclidean distance between this and the given matrix
-	 * 
-	 * @param x		matrix object
-	 * @return		Euclidean distance
-	 */
-	public def norm(x:Matrix(M,N)):Double {
-		var nv:Double = 0.0;
-		for (var c:Int=0; c<N; c++) {
-			for (var r:Int=0; r<M; r++) {
-				nv += this(c,r)*x(c,r);
-			}
-		}
-		return nv;
-	}
+    /**
+     * Compute the Euclidean distance between "this" and the given matrix
+     * 
+     * @param x matrix object
+     * @return Euclidean distance
+     */
+    public def norm(x:Matrix(M,N)):Double {
+        return Math.sqrt(frobeniusProduct(x));
+    }
 
-	/**
-	 * Compute the Euclidean distance between "this" and the given dense matrix
-	 * 
-	 * @param x		dense matrix object
-	 * @return		Euclidean distance
-	 */
-	public def norm(x:DenseMatrix(M,N)):Double {
-		var nv:Double = 0.0;
-		for (var i:Int=0; i<N*M; i++) {
-			nv += this.d(i)*x.d(i);
-		}
-		return nv;
-	}
+    /**
+     * Compute the Frobenius inner product between "this" and the given matrix,
+     * that is, the sum of the products of corresponding elements.
+     * 
+     * @param x matrix object
+     * @return Frobenius inner product
+     */
+    public def frobeniusProduct(x:Matrix(M,N)):Double {
+        var nv:Double = 0.0;
+        for (var c:Int=0; c<N; c++) {
+            for (var r:Int=0; r<M; r++) {
+                nv += this(c,r)*x(c,r);
+            }
+        }
+        return nv;
+    }
+
+    /**
+     * Compute the Frobenius or Euclidean norm of this matrix
+     * 
+     * @return Euclidean norm
+     */
+    public def norm():Double {
+        return Math.sqrt(frobeniusProduct(this));
+    }
+
+    /**
+     * Compute the Euclidean distance between "this" and the given dense matrix
+     * 
+     * @param x dense matrix object
+     * @return Euclidean distance
+     */
+    public def norm(x:DenseMatrix(M,N)):Double {
+        return Math.sqrt(frobeniusProduct(x));
+    }
+
+    /**
+     * Compute the Frobenius inner product between "this" and the given dense matrix
+     * 
+     * @param x dense matrix object
+     * @return Frobenius inner product
+     */
+    public def frobeniusProduct(x:DenseMatrix(M,N)):Double {
+        var nv:Double = 0.0;
+        for (var i:Int=0; i<N*M; i++) {
+            nv += this.d(i)*x.d(i);
+        }
+        return nv;
+    }
+
+    /**
+     * Compute the maximum absolute value of all elements of this matrix
+     * (the matrix norm with p==Inf)
+     *
+     * @return max absolute value of any element
+     */
+    public def maxNorm():Double {
+        val maxAbsReducer = ((res : Double, a : Double) => Math.max(Math.abs(a), res));
+        return d.reduce(maxAbsReducer, -1.0);
+    }
+
+    /**
+     * Compute the trace of this matrix (sum of diagonal elements)
+     *
+     * @return the sum of diagonal elements
+     */
+    public def trace():Double {
+        var tr:Double = 0.0;
+        for (var i:Int=0; i<M*N; i+=N)
+            tr += d(i);
+        return tr;
+    }
 	
 	/**
 	 * Compute the sum of all matrix elements

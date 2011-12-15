@@ -76,7 +76,9 @@ column-major and CSC-LT format.
  
 1.1) Basic types
   - Dense matrix: matrix elements are stored in column-major order in 
-a continuous memory space. 
+    a continuous memory space. 
+  - Symmetric and triangular matrix. Current implementation supports
+    the lower part of matrix data stored in column-major.
   - Sparse matrix: compatible to CSC-LT format, which stores nonzeros 
     element values and corresponding indexes in the column-major order.
 
@@ -103,8 +105,8 @@ Future version may left this constrains.
 2) Matrix operations
 
 Some commonly used operations are implemented, including cell-wise add, 
-subtract, multiply, division, cell-wise sum, Eculidean distance, and 
-matrix multiply, 
+subtract, multiply, division, cell-wise sum, Euclidean distance, max norm,
+trace and matrix multiply. 
 
 Common rules:
  - Result of a matrix operation is stored in the invocation object, which 
@@ -113,13 +115,13 @@ Common rules:
    structures, which includes dense matrix, dense block matrix and
    distributed dense matrix.  The sparse matrix is not used to store 
    results. The exception is scaling operations for sparse matrix. 
- - Oprands of must have the same distribution if they are distributed matrix
+ - Operands of must have the same distribution if they are distributed matrix
  
 
 1.1) Cell-wise operations
 
 Cell-wise operations are defined as add-on operations, which means the 
-output is also serves as input operand in the operation.  
+output also serves as input operand in the operation.  
 
   - scaling
   - add
@@ -127,10 +129,16 @@ output is also serves as input operand in the operation.
   - multiply
   - divide
   - sum
-  - Eculidean distance
 
-1.2) Matrix multiplication
+1.2) Matrix properties
+  - Euclidean distance
+  - max norm
+  - trace
+
+1.3) Matrix multiplication
 	- multiply
-    - multiply with first oprand transposed
+    - multiply with first operand transposed
     - multiply with second operand transposed
+
+
 
