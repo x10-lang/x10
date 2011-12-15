@@ -1274,4 +1274,6 @@ public interface TypeSystem {
     X10ClassType JavaArray();
     boolean isJavaArray(Type me);
     boolean isPrimitiveJavaArray(Type type);
+    X10ClassType JavaThrowable();
+    boolean isJavaThrowable(Type me);
 }

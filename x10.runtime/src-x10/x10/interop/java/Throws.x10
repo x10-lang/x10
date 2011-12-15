@@ -11,9 +11,15 @@
 
 package x10.interop.java;
 
-import x10.lang.annotations.MethodAnnotation;
+import x10.lang.annotations.StatementAnnotation;
+import x10.lang.annotations.TypeAnnotation;
 
 /**
  * This annotation is used to declare a method or a constructor which throws java checked exception.
+ * T is the class of the checked exception.  For readability, the annotation is actually on the body
+ * or the return type of the method/constructor.
+ * Usage:
+ *   def m(a:Int) @Throws[java.io.IOException] { ... }
+ *   def r(b:Double):Boolean @Throws[java.io.IOException] { ... }
  */
-public interface Throws[T]{T <: java.lang.Throwable} extends MethodAnnotation { }
+public interface Throws[T]{T<:java.lang.Throwable} extends StatementAnnotation, TypeAnnotation { }

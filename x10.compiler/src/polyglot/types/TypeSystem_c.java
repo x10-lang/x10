@@ -799,8 +799,7 @@ public class TypeSystem_c implements TypeSystem
      **/
     public boolean isThrowable(Type type) {
         assert_(type);
-        return emptyContextSubtype(type,Throwable()) 
-        || emptyContextSubtype(type, JavaThrowable());
+        return emptyContextSubtype(type,Throwable());
     }
 
     
@@ -809,7 +808,7 @@ public class TypeSystem_c implements TypeSystem
      * uncheckedExceptions().
      */
     public boolean isUncheckedException(Type type) {
-        return isThrowable(type);
+        return isThrowable(type) || isJavaUncheckedException(type);
     }
     /**
      * Returns a list of the Throwable types that need not be declared
@@ -818,6 +817,8 @@ public class TypeSystem_c implements TypeSystem
     public Collection<Type> uncheckedExceptions() {
         List<Type> l = new ArrayList<Type>(1);
         l.add(Throwable());
+        l.add(JavaRuntimeException());
+        l.add(JavaError());
         return l;
         }
     
@@ -2103,34 +2104,23 @@ public class TypeSystem_c implements TypeSystem
         return forName(name);
     }
 
-    protected Type OBJECT_;
+    protected X10ClassType OBJECT_;
     protected Type CLASS_;
-    protected Type STRING_;
-    protected Type THROWABLE_;
-    protected Type JLTHROWABLE_;
+    protected X10ClassType STRING_;
+    protected X10ClassType THROWABLE_;
+    protected X10ClassType JLTHROWABLE_;
 
-    public Type JavaObject()  { 
-        if (OBJECT_ != null) 
-            return OBJECT_;
-        return OBJECT_ = load("java.lang.Object"); 
-    }
     public Type JavaClass()   { 
         if (CLASS_ != null) return CLASS_;
         return CLASS_ = load("java.lang.Class"); 
     }
-    public Type JavaString()  { 
-        if (STRING_ != null) return STRING_;
-        return STRING_ = load("java.lang.String"); 
-    }
     public X10ClassType JavaThrowable() {
-        if (JLTHROWABLE_ != null) return (X10ClassType) JLTHROWABLE_;
-        X10ClassType t = load("java.lang.Throwable");
-        JLTHROWABLE_ = t;
-        return t;
+        if (JLTHROWABLE_ != null) return JLTHROWABLE_;
+        return JLTHROWABLE_ = load("java.lang.Throwable");
     }
-    public Type JavaError() { return load("java.lang.Error"); }
-    public Type JavaException() { return load("java.lang.Exception"); }
-    public Type javaRuntimeException() { return load("java.lang.RuntimeException"); }
+    public X10ClassType JavaError() { return load("java.lang.Error"); }
+    public X10ClassType JavaException() { return load("java.lang.Exception"); }
+    public X10ClassType JavaRuntimeException() { return load("java.lang.RuntimeException"); }
     public Type Cloneable() { return load("java.lang.Cloneable"); }
     public Type Serializable() { return load("java.io.Serializable"); }
     public Type JavaNullPointerException() { return load("java.lang.NullPointerException"); }
@@ -2949,7 +2939,18 @@ public class TypeSystem_c implements TypeSystem
                 "x10.lang.Float".equals(arrayType) ||
                 "x10.lang.Long".equals(arrayType);
     }
+    
+    public boolean isJavaThrowable(Type type) {
+        assert_(type);
+        return emptyContextSubtype(type,JavaThrowable());
+    }
 
+    public boolean isJavaUncheckedException(Type type) {
+    	assert_(type);
+    	return emptyContextSubtype(type,JavaRuntimeException()) ||
+    	       emptyContextSubtype(type, JavaError());
+    }
+    
     public Type arrayOf(Ref<? extends Type> type, int dims) {
 	return arrayOf(null, type, dims);
     }

@@ -163,6 +163,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.constraints.SubtypeConstraint;
+import x10.util.AnnotationUtils;
 import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
@@ -1354,7 +1355,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         printConstructorFormals(n, true);
 
-        w.write(Emitter.printThrowsClause(n.constructorDef()));
+        boolean isFirst = true;
+        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");                
+            }
+            er.printType(_throws, 0);
+        }
 
         w.write("{");
         w.begin(4);
@@ -1410,7 +1420,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         printConstructorFormals(n, true);
 
-        w.write(Emitter.printThrowsClause(n.constructorDef()));
+        boolean isFirst = true;
+        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");                
+            }
+            er.printType(_throws, 0);
+        }
+
 
         w.write("{");
         w.begin(4);
@@ -1503,7 +1523,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         List<String> params = printConstructorFormals(n, false);
 
-        w.write(Emitter.printThrowsClause(n.constructorDef()));
+        boolean isFirst = true;
+        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");                
+            }
+            er.printType(_throws, 0);
+        }
 
         Block body = n.body();
         if (body != null) {
@@ -1578,7 +1607,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             printConstructorFormals(n, false);
        
-            w.write(Emitter.printThrowsClause(n.constructorDef()));
+            isFirst = true;
+            for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+                if (isFirst) {
+                    w.write(" throws ");
+                    isFirst = false;
+                } else {
+                    w.write(", ");                
+                }
+                er.printType(_throws, 0);
+            }
 
             w.write("{");
             

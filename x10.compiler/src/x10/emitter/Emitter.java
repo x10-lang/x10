@@ -51,7 +51,6 @@ import polyglot.types.Def;
 import polyglot.types.Flags;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
-import polyglot.types.NoClassException;
 import polyglot.types.NullType;
 import polyglot.types.QName;
 import polyglot.types.Ref;
@@ -99,6 +98,7 @@ import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
+import x10.util.AnnotationUtils;
 import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 import x10.visit.ChangePositionVisitor;
@@ -1066,27 +1066,7 @@ public class Emitter {
       this.dumpRegex("Native", components, tr, pat);
 	}
 
-        // def is X10MethodDef or X10ConstructorDef
-        // @Throws[java.lang.Throwable] => throws java.lang.Throwable
-        public static String printThrowsClause(X10Def def) {
-            Type throwsType = def.typeSystem().Throws();
-            List<Type> _throwss = def.annotationsNamed(throwsType.fullName());
-            StringBuilder sb = new StringBuilder();
-            boolean isFirst = true;
-            for (Type _throws : _throwss) {
-                if (isFirst) {
-                    sb.append(" throws ");
-                    isFirst = false;
-                } else {
-                    sb.append(", ");
-                }
-                sb.append(_throws.toClass().typeArguments().get(0).fullName().toString());
-            }
-            return sb.toString();
-        }
-
-        public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
-
+	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
 		Flags flags = n.flags().flags();
 
 		Context c = tr.context();
@@ -1230,7 +1210,16 @@ public class Emitter {
 		}
 */
 
-		w.write(printThrowsClause(n.methodDef()));
+		boolean isFirst = true;
+		for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+			if (isFirst) {
+				w.write(" throws ");
+				isFirst = false;
+			} else {
+				w.write(", ");				
+			}
+			printType(_throws, 0);
+		}
 
 		w.end();
 
@@ -2004,8 +1993,6 @@ public class Emitter {
 	    w.end();
 	    w.write(")");
 
-	    w.write(printThrowsClause(def));
-
 	    /* Remove throw types support
 	    if (!impl.throwTypes().isEmpty()) {
 	        w.allowBreak(6);
@@ -2020,6 +2007,18 @@ public class Emitter {
 	        }
 	    }
 */
+
+	    boolean isFirst = true;
+	    for (Type _throws : AnnotationUtils.getThrowsTypes(impl.def())) {
+	        if (isFirst) {
+	            w.write(" throws ");
+	            isFirst = false;
+	        } else {
+	            w.write(", ");				
+	        }
+	        printType(_throws, 0);
+	    }
+
 	    w.write("{");
 	    if (!impl.returnType().isVoid()) {
 	        w.write("return ");
@@ -2124,9 +2123,7 @@ public class Emitter {
     	    w.end();
     	    w.write(")");
 
-    	    w.write(printThrowsClause(def));
-
-    	    /** Remove throw types support.
+    	    /* Remove throw types support.
     	    if (!mi.throwTypes().isEmpty()) {
     	        w.allowBreak(6);
     	        w.write("throws ");
@@ -2140,6 +2137,18 @@ public class Emitter {
     	        }
     	    }
     */
+
+    	    boolean isFirst = true;
+    	    for (Type _throws : AnnotationUtils.getThrowsTypes(mi.def())) {
+    	        if (isFirst) {
+    	            w.write(" throws ");
+    	            isFirst = false;
+    	        } else {
+    	            w.write(", ");				
+    	        }
+    	        printType(_throws, 0);
+    	    }
+
     	    w.write("{");
     	    if (!mi.returnType().isVoid()) {
     	        w.write("return ");
@@ -2830,46 +2839,6 @@ public class Emitter {
 	            expander.expand(tr);
 	        }
 	    }
-	}
-
-	public static X10ClassType annotationNamed(TypeSystem ts, Node o, QName name)
-			throws SemanticException {
-		// Nate's code. This one.
-		if (o.ext() instanceof X10Ext) {
-			X10Ext ext = (X10Ext) o.ext();
-			Type baseType = ts.systemResolver().findOne(name);
-			List<X10ClassType> ats = ext.annotationMatching(baseType);
-			if (ats.size() > 1) {
-				throw new SemanticException("Expression has more than one "+ name + " annotation.", o.position());
-			}
-			if (!ats.isEmpty()) {
-				X10ClassType at = ats.get(0);
-				return at;
-			}
-		}
-		return null;
-	}
-
-    public static List<X10ClassType> annotationsNamed(TypeSystem ts, Node o, QName fullName) {
-        if (o.ext() instanceof X10Ext) {
-            X10Ext ext = (X10Ext) o.ext();
-            return ext.annotationNamed(fullName);
-        }
-        return null;
-    }
-	
-	public static boolean hasAnnotation(TypeSystem ts, Node dec, QName name) {
-		try {
-			if (annotationNamed(ts, dec, name) != null)
-				return true;
-		} catch (NoClassException e) {
-			if (!e.getClassName().equals(name.toString()))
-				throw new InternalCompilerError(
-						"Something went terribly wrong", e);
-		} catch (SemanticException e) {
-			throw new InternalCompilerError("Something is terribly wrong", e);
-		}
-		return false;
 	}
 
 	public boolean hasEffects(Receiver e) {
@@ -3955,31 +3924,33 @@ public class Emitter {
                 throwsClause = new Join(er, "", "throws ", new Join(er, ", ", l));
             }*/
 
-    		String throwsClause = printThrowsClause(n.methodDef());
+            Expander throwsClause = new Inline(this, "");
+            List<Type> throwsTypes = AnnotationUtils.getThrowsTypes(n);
+            if (throwsTypes.size() > 0) {
+                List<Expander> l = new ArrayList<Expander>(throwsTypes.size());
+                for (Type _throws : throwsTypes) {
+                    l.add(new TypeExpander(this, _throws, 0));
+                }
+                throwsClause = new Join(this, "", "throws ", new Join(this, ", ", l));
+            }
 
-    		// SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass 
+            // SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass #3=throws
             String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
                 "private static final long serialVersionUID = 1L;\n" +
-                "public static void main(java.lang.String[] args)" +
-                throwsClause +
-                " {\n" +
+                "public static void main(java.lang.String[] args) #throws {\n" +
                     "// start native runtime\n" +
                     "new " + X10PrettyPrinterVisitor.MAIN_CLASS + "().start(args);\n" +
                 "}\n" +
                 "\n" +
                 "// called by native runtime inside main x10 thread\n" +
-                "public void runtimeCallback(final x10.array.Array<java.lang.String> args)" +
-                throwsClause +
-                " {\n" +
+                "public void runtimeCallback(final x10.array.Array<java.lang.String> args) #throws {\n" +
                     "// call the original app-main method\n" +
                     "#mainclass.main(args);\n" +
                 "}\n" +
             "}\n" +
             "\n" +
             "// the original app-main method\n" +
-            "public static void main(#args)" +
-            throwsClause +
-            " #body";
+            "public static void main(#args) #throws #body";
             Map<String,Object> components = new HashMap<String,Object>();
             Object component;
             int i = 0;
@@ -3992,6 +3963,9 @@ public class Emitter {
             component = tr.context().currentClass().name();
 //            components.put(String.valueOf(i++), component);
             components.put("mainclass", component);
+            component = throwsClause;
+//            components.put(String.valueOf(i++), component);
+            components.put("throws", component);
             dumpRegex(X10PrettyPrinterVisitor.MAIN_CLASS, components, tr, regex);
 
             return true;

@@ -95,7 +95,6 @@ import x10.ast.X10Special;
 import x10.ast.X10Unary_c;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
-import x10.emitter.Emitter;
 import x10.extension.X10Ext;
 import x10.extension.X10Ext_c;
 import x10.optimizations.ForLoopOptimizer;
@@ -117,6 +116,7 @@ import x10.types.constants.StringValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
 import x10.util.AltSynthesizer;
+import x10.util.AnnotationUtils;
 import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.InstanceCallSynth;
@@ -526,7 +526,7 @@ public class Lowerer extends ContextVisitor {
     	List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
         X10Ext ext = (X10Ext) a.ext();
-        List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        List<X10ClassType> refs = AnnotationUtils.annotationsNamed(a, REF);
         List<VarInstance<? extends VarDef>> env = a.asyncDef().capturedEnvironment();
         if (a.clocked()) {
             env = new ArrayList<VarInstance<? extends VarDef>>(env);
@@ -548,7 +548,7 @@ public class Lowerer extends ContextVisitor {
     private Stmt visitAsyncPlace(Async a, Expr place, Stmt body, List<VarInstance<? extends VarDef>> env) throws SemanticException {
         List<Expr> clocks = clocks(a.clocked(), a.clocks());
         Position pos = a.position();
-        List<X10ClassType> refs = Emitter.annotationsNamed(ts, a, REF);
+        List<X10ClassType> refs = AnnotationUtils.annotationsNamed(a, REF);
         if (a.clocked()) {
             env = new ArrayList<VarInstance<? extends VarDef>>(env);
             env.add(clockStack.peek().localInstance());
@@ -570,7 +570,7 @@ public class Lowerer extends ContextVisitor {
     }
 
     public static boolean isUncountedAsync(TypeSystem ts, Async a) {
-        return Emitter.hasAnnotation(ts, a, UNCOUNTED);
+        return AnnotationUtils.hasAnnotation(ts, a, UNCOUNTED);
     }
 
     /**
@@ -588,7 +588,7 @@ public class Lowerer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeAsync(Async a, Expr p, Stmt body) throws SemanticException {
-        if (!Emitter.hasAnnotation(ts, a, IMMEDIATE))
+        if (!AnnotationUtils.hasAnnotation(ts, a, IMMEDIATE))
             return null;
         if (a.clocks().size() != 0)
             return null;
@@ -839,7 +839,7 @@ public class Lowerer extends ContextVisitor {
      * TODO: move into a separate pass!
      */
     private Stmt specializeFinish(Finish f) throws SemanticException {
-        if (!Emitter.hasAnnotation(ts, f, IMMEDIATE))
+        if (!AnnotationUtils.hasAnnotation(ts, f, IMMEDIATE))
             return null;
         Position pos = f.position();
         ClassType target = (ClassType) ts.forName(REMOTE_OPERATION);

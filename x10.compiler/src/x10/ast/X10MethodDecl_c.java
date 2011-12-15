@@ -75,6 +75,7 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
 import polyglot.util.CollectionUtil;
+import x10.util.AnnotationUtils;
 import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
@@ -1109,6 +1110,21 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			}
 			((Ref<Type>) nn.returnType().typeRef()).update(t);
 			nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), t));
+		}
+
+		List<AnnotationNode> bodyAnnotations = AnnotationUtils.annotationNodesMatching(nn.body(), xts.Throws());
+		List<AnnotationNode> rtypeAnnotations = AnnotationUtils.annotationNodesMatching(nn.returnType(), xts.Throws());
+		if ((bodyAnnotations != null && !bodyAnnotations.isEmpty()) ||
+			(rtypeAnnotations != null && !rtypeAnnotations.isEmpty()))
+		{
+			List<Ref<? extends Type>> annotations = new ArrayList<Ref<? extends Type>>(nn.methodDef().defAnnotations());
+			for (AnnotationNode an : bodyAnnotations) {
+				annotations.add(an.annotationType().typeRef());
+			}
+			for (AnnotationNode an : rtypeAnnotations) {
+				annotations.add(an.annotationType().typeRef());
+			}
+			nn.methodDef().setDefAnnotations(annotations);
 		}
 
 		return nn;

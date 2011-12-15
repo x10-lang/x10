@@ -23,7 +23,8 @@ public interface ProcedureDecl extends CodeDecl
     /** The procedure's flags. */
     FlagsNode flags();
 
-    /** The procedure's formal parameters.
+    /**
+     * The procedure's formal parameters.
      * @return A list of {@link polyglot.ast.Formal Formal}.
      */
     List<Formal> formals();
@@ -33,4 +34,7 @@ public interface ProcedureDecl extends CodeDecl
      * after signature disambiguation.
      */
     ProcedureDef procedureInstance();
+
+    /** The procedure's return type. */
+    TypeNode returnType();
 }
