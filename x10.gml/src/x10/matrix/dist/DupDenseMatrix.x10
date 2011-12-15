@@ -182,9 +182,10 @@ public class DupDenseMatrix extends Matrix {
 	 * <p> Initialize duplicated dense matrix(m,n) with random values.
 	 * All copies are synchronized.
 	 */
-	public def initRandom() : void {
+	public def initRandom() : DupDenseMatrix(this) {
 		local().initRandom();
 		sync();
+		return this;
 	}
 
 	/**
@@ -195,9 +196,10 @@ public class DupDenseMatrix extends Matrix {
 	 *
 	 * @param ival     initial value for all elements
 	 */
-	public def init(ival:Double) : void {
+	public def init(ival:Double) : DupDenseMatrix(this) {
 		local().init(ival);
 		sync();
+		return this;
 	}
 	
 	//================================================================

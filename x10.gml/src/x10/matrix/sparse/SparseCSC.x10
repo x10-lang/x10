@@ -190,8 +190,9 @@ public class SparseCSC extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see Compress2D.initConst()
 	 */
-	public def init(v:Double, sp:Double):void {
+	public def init(v:Double, sp:Double):SparseCSC(this) {
 		val cnt = ccdata.initConst(M, v, sp);
+		return this;
 		//sparsity = 1.0 * cnt/M/N;
 	} 
 	
@@ -201,9 +202,10 @@ public class SparseCSC extends Matrix {
 	 *
 	 * @param v     initial value for all nonzero elements.
 	 */
-	public def init(v:Double):void {
+	public def init(v:Double):SparseCSC(this) {
 		val nzd = 1.0*getStorageSize()/M/N;
 		init(v, nzd);
+		return this;
 	}
 	
 	/**
@@ -219,14 +221,16 @@ public class SparseCSC extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see init(v:Double, sp:Double)
 	 */
-	public def initRandom(lb:Int, ub:Int, sp:Double) : void {
+	public def initRandom(lb:Int, ub:Int, sp:Double) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp, lb, ub);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	}
 	
-	public def initRandom(sp:Double) : void {
+	public def initRandom(sp:Double) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	}
 	/**
 	 * For testing purpose,
@@ -237,14 +241,16 @@ public class SparseCSC extends Matrix {
 	 * @param lb     lower bound of random value
 	 * @param up     upper bound of random value
 	 */
-	public def initRandom(lb:Int, ub:Int): void { 
+	public def initRandom(lb:Int, ub:Int): SparseCSC(this) { 
 		val nzd = 1.0 * getStorageSize() /M/N;
 		initRandom(lb, ub, nzd);
+		return this;
 	}
 	
-	public def initRandom(): void { 
+	public def initRandom(): SparseCSC(this) { 
 		val nzd = 1.0 * getStorageSize() /M/N;
 		initRandom(nzd);
+		return this;
 	}
 
 	/**

@@ -244,10 +244,11 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 *
 	 * @param   ival        The constant value
 	 */
-	public def init(ival:Double) : void {
+	public def init(ival:Double) : DistSparseMatrix(this) {
 		finish ateach (val [p] :Point in this.dist) {
 			distBs(p).init(ival);
 		}
+		return this;
 	}
 
 	/**
@@ -261,16 +262,18 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 * @param ub      upper bound of random value 
 	 * @param sp     sparsity used for initialization
 	 */
-	public def initRandom(lb:Int, ub:Int, sp:Double) :void {
+	public def initRandom(lb:Int, ub:Int, sp:Double) :DistSparseMatrix(this) {
 		finish ateach (val [p] :Point in this.dist) {
 			distBs(p).sparse.initRandom(lb, ub, sp);
-		}	
+		}
+		return this;
 	}
 	
-	public def initRandom(sp:Double) :void {
+	public def initRandom(sp:Double) : DistSparseMatrix(this) {
 		finish ateach (val [p] :Point in this.dist) {
 			distBs(p).sparse.initRandom(sp);
-		}	
+		}
+		return this;
 	}
 	/**
 	 * For testing purpose.

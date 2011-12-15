@@ -210,11 +210,12 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * 
 	 * @param ival     initial value for all elements in matrix
 	 */
-	public def init(ival:Double):void {
+	public def init(ival:Double):DistDenseMatrix(this) {
 		
 		finish ateach (val [p] :Point in distBs) {
 			distBs(p).dense.init(ival);
 		}
+		return this;
 	}
 
 	/**
@@ -223,16 +224,18 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param lb  --- lower bound of random value
 	 * @param up  --- upper bound of random value
 	 */
-	public def initRandom(lb:Int, ub:Int):void {
+	public def initRandom(lb:Int, ub:Int):DistDenseMatrix(this) {
 		finish ateach (val [p] :Point in distBs) {
 			distBs(p).dense.initRandom(lb, ub);
 		}
+		return this;
 	}
 	
-	public def initRandom():void {
+	public def initRandom():DistDenseMatrix(this) {
 		finish ateach (val [p] :Point in distBs) {
 			distBs(p).dense.initRandom();
 		}
+		return this;
 	}
 	//==================================================================
 	// Matrix data allocation

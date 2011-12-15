@@ -133,12 +133,8 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzcnt     number of nonzero elements
 	 */
-	public static def makeRand(m:Int, n:Int, nzcnt:Int): DupSparseMatrix(m,n) {
-		val ddm = make(m, n, nzcnt);
-		ddm.initRandom();
-		return ddm;
-	}
-
+	public static def makeRand(m:Int, n:Int, nzcnt:Int): DupSparseMatrix(m,n) = make(m, n, nzcnt).initRandom();
+	
 	/**
 	 * For testing purpose.
 	 *
@@ -149,10 +145,7 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzd     sparsity
 	 */
-	public static def makeRand(m:Int, n:Int, nzd:Double): DupSparseMatrix(m,n) {
-		val nzcnt:Int = (nzd * m * n) as Int;
-		return makeRand(m, n, nzcnt);
-	}
+	public static def makeRand(m:Int, n:Int, nzd:Double) = make(m, n, nzd).initRandom();
 
 	/**
 	 * For testing purpose.
@@ -162,9 +155,10 @@ public class DupSparseMatrix extends Matrix {
 	 * 
 	 * @param ival     initial constant value.
 	 */
-	public def init(ival:Double) : void {
+	public def init(ival:Double) : DupSparseMatrix(this) {
 		local().init(ival);
 		sync();
+		return this;
 	}
 
 	/**
@@ -174,9 +168,10 @@ public class DupSparseMatrix extends Matrix {
 	 *
 	 * @param nzd     the sparsity used int initialzation.
 	 */
-	public def initRandom(nzd:Double) : void {
+	public def initRandom(nzd:Double) : DupSparseMatrix(this) {
 		local().initRandom(nzd);
 		sync();
+		return this;
 	}
 
 	/**
@@ -184,9 +179,10 @@ public class DupSparseMatrix extends Matrix {
 	 *
 	 * <p> Initialize duplicated sparse matrix with random values.
 	 */
-	public def initRandom() : void {
+	public def initRandom() : DupSparseMatrix(this) {
 		local().initRandom();
 		sync();
+		return this;
 	}
 	//================================================================
 	// Data copy and reset

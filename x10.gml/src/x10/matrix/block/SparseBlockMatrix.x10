@@ -152,10 +152,11 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 * @param ival 		constant value for all elements
 	 */
-	public def init(ival:Double):void {
+	public def init(ival:Double):SparseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).sparse.init(ival);
 		}
+		return this;
 	}
 
 
@@ -166,20 +167,22 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 * 
 	 * @param nzd  	sparsity for all blocks
 	 */
-	public def initRandom(nzd:Double):void {
+	public def initRandom(nzd:Double):SparseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).sparse.initRandom(nzd);
 		}
+		return this;
 	}
 
 	/**
 	 * Initialize sparse block matrix with random values. The sparsity of
 	 * each block is computed by the storage size over the size of matrix.
 	 */
-	public def initRandom():void {
+	public def initRandom():SparseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).sparse.initRandom();
 		}
+		return this;
 	}
 
 

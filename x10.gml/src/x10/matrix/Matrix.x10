@@ -326,6 +326,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	//---------------------------
 	//Cellwise operators
 	//---------------------------
+	public operator - this = clone().scale(-1.0);
 	
 	/**
 	 * Scaling operator overloading: this = this &#42 dblv

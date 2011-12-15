@@ -31,7 +31,7 @@ public type DenseMatrix(C:Matrix)=DenseMatrix{self==C};
  */
 public class DenseMatrix extends Matrix {
 	//================================================================
-	// Base data structure, defined in derived classes
+	// Base data structure
 	//================================================================
 
 	/**
@@ -120,20 +120,23 @@ public class DenseMatrix extends Matrix {
 	 * Initialize all elements of the dense matrix with a constant value.
 	 * @param  iv 	the constant value
 	 */	
-	public def init(iv:Double): void {
-		for (var i:Int=0; i<M*N; i++)	this.d(i) = iv;
+	public def init(iv:Double): DenseMatrix(this) {
+		for (var i:Int=0; i<M*N; i++)	
+			this.d(i) = iv;
+		return this;
 	}
 
 	/**
 	 * Initialize all elements of the dense matrix with random 
 	 * values between 0.0 and 1.0.
 	 */	
-	public def initRandom(): void {
+	public def initRandom(): DenseMatrix(this) {
 		val rgen = RandTool.getRandGen();
 		//val ll = M*N / 100;
 		for (var i:Int=0; i<M*N; i++) {
 			this.d(i) = rgen.nextDouble();
 		}
+		return this;
 	}
 	
 	/**
@@ -143,13 +146,14 @@ public class DenseMatrix extends Matrix {
 	 * @param lb	lower bound of random values
 	 * @param up	upper bound of random values
 	 */	
-	public def initRandom(lb:Int, ub:Int): void {
+	public def initRandom(lb:Int, ub:Int): DenseMatrix(this) {
 		val len = Math.abs(ub-lb)+1;
 		val rgen = RandTool.getRandGen();
 		//val ll = M*N / 100;
 		for (var i:Int=0; i<M*N; i++) {
 			this.d(i) = rgen.nextInt(len)+lb;
 		}
+		return this;
 	}
 	/**
 	 * Create a dense matrix instance and initialize it with random values
@@ -161,9 +165,7 @@ public class DenseMatrix extends Matrix {
 	 * @See initRandom()
 	 */
 	public static def makeRand(m:Int, n:Int):DenseMatrix(m,n) {
-		val dm = DenseMatrix.make(m, n);
-		dm.initRandom();
-		return dm;
+		return DenseMatrix.make(m, n).initRandom();
 	}
 
 	/**
@@ -188,10 +190,9 @@ public class DenseMatrix extends Matrix {
 	 
 	/**
 	 * Make a copy the matrix instance. 
-     * <p>Note: this clone method use array copy constructor. If the
-     * source matrix has larger storage than the number of elements 
-     * (M &#42 N), the target will have the memory storage.  
-	 */
+     * <p>Note: this clone method use array copy constructor. 
+     * The size of clone result will be the same as its source.
+ 	 */
 	public  def clone():DenseMatrix(M,N){
 		//val na = new Array[Double](M*N, (i:Int)=> this.d(i));
 		val nd = new Array[Double](this.d) as Array[Double](1){rail};

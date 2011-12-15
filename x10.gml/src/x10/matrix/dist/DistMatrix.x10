@@ -185,20 +185,22 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 	 * as either dense blocks or sparse blocks.
 	 *
 	 */	
-	public def init(ival:Double) : void {
+	public def init(ival:Double) : DistMatrix(this) {
 		finish ateach(val [p] :Point in this.dist) {
 			distBs(p).init(ival);
 		}
+		return this;
 	}
 	
 	/**
 	 * Initial matrix data with random values. The blocks must be created. 
 	 *
 	 */	
-	public def initRandom() : void {
+	public def initRandom() : DistMatrix(this) {
 		finish ateach([p] :Point in this.dist) {
 			distBs(p).initRandom();
 		}
+		return this;
 	}
 
 	//----------------------

@@ -56,6 +56,8 @@ base_src=\
 	x10/matrix/Matrix.x10 \
 	x10/matrix/RandTool.x10 \
 	x10/matrix/DenseMatrix.x10 \
+	x10/matrix/SymMatrix.x10 \
+	x10/matrix/TriMatrix.x10 \
 	x10/matrix/DistPConsole.x10	\
 	x10/matrix/MatrixMultXTen.x10  \
 	x10/matrix/PConsole.x10 \

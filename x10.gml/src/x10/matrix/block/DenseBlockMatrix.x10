@@ -126,20 +126,22 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 * Initialize dense block matrix with a constant value
 	 *
 	 */
-	public def init(ival:Double):void {
+	public def init(ival:Double):DenseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).init(ival);
 		}
+		return this;
 	}
 
 	/**
 	 * Initialize dense block matrix with random values 
 	 * 
 	 */
-	public def initRandom():void {
+	public def initRandom():DenseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).initRandom();
 		}
+		return this;
 	}
 
 	/**

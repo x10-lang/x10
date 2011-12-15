@@ -130,9 +130,10 @@ public class SparseCSR extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see SparseCSC.init(v:Double, sp:Double)
 	 */
-	public def init(v:Double, sp:Double):void {
+	public def init(v:Double, sp:Double):SparseCSR(this) {
 		val cnt = crdata.initConst(N, v, sp);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	} 
 	
 	public def init(v:Double):void {
@@ -146,14 +147,16 @@ public class SparseCSR extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see SparseCSC.initRandom(sp:Double)
 	 */
-	public def initRandom(sp:Double) : void {
+	public def initRandom(sp:Double) : SparseCSR(this) {
 		val cnt = crdata.initRandomFast(N, sp);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	}
 
-	public def initRandom(): void {
+	public def initRandom(): SparseCSR(this) {
 		val nzd = 1.0 * getStorageSize()/M/N;
 		initRandom(nzd);
+		return this;
 	}
 
 	/**
