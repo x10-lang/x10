@@ -14,8 +14,7 @@ import x10.interop.java.Throws;
 import x10.runtime.impl.java.InteropFuns;
 
 public class RunJava {
-    @Throws[java.lang.Throwable]
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Array[String](1)) @Throws[java.lang.Throwable] {
         if (args.size < 1) {
             Console.ERR.println("Please specify the Java Main class");
             return;
