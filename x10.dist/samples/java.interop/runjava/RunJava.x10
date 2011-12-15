@@ -20,13 +20,11 @@ public class RunJava {
             return;
         }
                 
-        val className:java.lang.String = Java.convert(args(0));
+        val className = args(0);
         val numRestArgs = args.size - 1;
-        val javaArgs:Java.array[java.lang.String] = Java.newArray[java.lang.String](numRestArgs);
-                
-        for (i in 0..(numRestArgs - 1)) {
-            javaArgs(i) = Java.convert(args(i+1));
-        }
+        val restArgs =  new Array[String](numRestArgs);
+        Array.copy(args, 1, restArgs, 0, numRestArgs);
+        val javaArgs = Java.convert(restArgs);
                 
         val mainClass = java.lang.Class.forName(className);
         val stringArrayClass = java.lang.Class.forName("[Ljava.lang.String;");
