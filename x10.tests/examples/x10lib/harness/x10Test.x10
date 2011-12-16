@@ -48,6 +48,22 @@ abstract public class x10Test {
         reportResult(b);
     }
 
+    // Convert a partial path and a file name into
+    // an absolute path to the file.
+    // If being run under the nightly test harness, then
+    // X10_HOME will be set in the environment and will be used
+    // to build up a path.  If it is not set, the simple path ./fileName
+    // will be returned instead.
+    public static def pathCombine(prefix:String, file:String):String {
+        val env = System.getenv();
+        val home = env.getOrElse("X10_HOME", null);
+        if (home == null) {
+            return "./"+file;
+        } else {
+            return home+"/x10.tests/examples/"+prefix+"/"+file;
+        }
+    }
+
     public static PREFIX: String = "++++++ ";
 
     public static def success(): void = {
@@ -86,7 +102,6 @@ abstract public class x10Test {
     /**
      * Return a random integer between lb and ub (inclusive)
      */
-
     protected def ranInt(lb: int, ub: int): int = {
         return lb + myRand.nextInt(ub-lb+1);
     }
