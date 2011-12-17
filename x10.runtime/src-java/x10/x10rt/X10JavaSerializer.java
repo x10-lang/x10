@@ -673,6 +673,11 @@ public class X10JavaSerializer {
     	abstract <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException;
     }
     
+    // XTENLANG-2983 serialize some transient fields for compatibility with java standard serialization
+    public static boolean forceSerialization(Class<? extends Object> clazz, Field field) {
+        return "java.io.File".equals(clazz.getName()) && "prefixLength".equals(field.getName());
+    }
+    
     private static class FieldBasedSerializerThunk extends SerializerThunk {
     	protected final Field[] fields;
     	
@@ -684,7 +689,7 @@ public class X10JavaSerializer {
     		Field[] declaredFields = clazz.getDeclaredFields();
     		for (Field field : declaredFields) {
     			int modifiers = field.getModifiers();
-    			if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+    			if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && !forceSerialization(clazz, field))) {
     				continue;
     			}
     			field.setAccessible(true);
