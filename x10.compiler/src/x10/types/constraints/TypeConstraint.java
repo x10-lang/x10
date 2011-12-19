@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Collection;
 
 import polyglot.util.Copy;
+import polyglot.util.InternalCompilerError;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XTerms;
@@ -34,6 +35,7 @@ import x10.types.X10ProcedureInstance;
 import x10.types.TypeParamSubst;
 import polyglot.types.TypeSystem;
 import x10.types.ParameterType.Variance;
+import x10.types.matcher.Subst;
 import polyglot.types.Name;
 import polyglot.types.JavaPrimitiveType;
 import polyglot.types.SemanticException;
@@ -448,6 +450,9 @@ public class TypeConstraint implements Copy, Serializable {
         if (ytype == null)
             return;
         if (ytype instanceof FunctionType) {
+            // The arguments may be named, and these names may occur
+            // in arg types, guard, return types. These names must
+            // be normalized. See FunctionType_c.equalImpl.
             FunctionType yft = (FunctionType) ytype;
             TypeSystem ts = yft.typeSystem();
             List<Type> Tl = yft.argumentTypes();
@@ -456,6 +461,28 @@ public class TypeConstraint implements Copy, Serializable {
             List<Type> Sl = xft.argumentTypes();
             Type S = xft.returnType();
             CConstraint g = xft.guard();
+            
+             
+                XVar[] ys = Types.toVarArray(Types.toLocalDefList(yft.formalNames()));
+                XVar[] xs = Types.toVarArray(Types.toLocalDefList(xft.formalNames()));
+                
+                if (g != null) {
+                    try {
+                        g = g.substitute(xs, ys);
+                    } catch (XFailure e) {
+                        throw new InternalCompilerError("Unexpected exception comparing function types", xft.position(), e);
+                    }
+                }
+                if (h != null) {
+                    try {
+                        h = h.substitute(xs, ys);
+                    } catch (XFailure e) {
+                        throw new InternalCompilerError("Unexpected exception comparing function types", yft.position(), e);
+                    }
+                }
+                
+            
+            
             if (Tl.size() == Sl.size() && (T.isVoid() == S.isVoid()) && ts.env(ts.emptyContext()).entails(h, g)) {
                 // Now we are in the case xft is (S1,..,Sn){g}=>S and yft is (T1,...,Tn){h}=>T
                 // This will generate for each i, Si <: Ti (contravariant arguments) and
@@ -463,9 +490,21 @@ public class TypeConstraint implements Copy, Serializable {
                 for (int i = 0; i < Sl.size(); i++) {
                     Type Si = Sl.get(i);
                     Type Ti = Tl.get(i);
+                    try {
+                        Ti = Subst.subst(Ti, xs, ys, new Type[]{}, new ParameterType[]{});
+                        Si = Subst.subst(Si, xs, ys, new Type[]{}, new ParameterType[]{});
+                    } catch (SemanticException e) {
+                        throw new InternalCompilerError("Unexpected exception comparing function types", e);
+                    }
                     addTypeParameterBindings(Ti, Si, false);
                 }
                 if (!S.isVoid()) {
+                    try {
+                        T = Subst.subst(T, xs, ys, new Type[]{}, new ParameterType[]{});
+                        S = Subst.subst(S, xs, ys, new Type[]{}, new ParameterType[]{});
+                    } catch (SemanticException e) {
+                        throw new InternalCompilerError("Unexpected exception comparing function types", e);
+                    }
                     addTypeParameterBindings(S, T, false);
                 }
             }
