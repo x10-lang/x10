@@ -2352,8 +2352,11 @@ public class Emitter {
         X10ClassType ct = cd.asType();
         
         List<MethodInstance> methods = ct.methods();
-        Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods 
-        = CollectionFactory.newHashMap();
+        List<Type> interfaces = ct.interfaces();
+        List<Type> allInterfaces = new ArrayList<Type>();
+        getAllInterfaces(interfaces, allInterfaces);
+
+        Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods = CollectionFactory.newHashMap();
         for (MethodInstance myMethod : methods) {
             List<MethodInstance> implementeds = myMethod.implemented(tr.context());
             List<MethodInstance> targets = new ArrayList<MethodInstance>();
@@ -2384,8 +2387,6 @@ public class Emitter {
                 if (!isContainsTypeParams) continue;
                 
                 // only implements by itself not super class's
-                List<Type> allInterfaces = new ArrayList<Type>();
-                getAllInterfaces(ct.interfaces(), allInterfaces);
                 boolean isContainInterfaces = false;
                 for (Type type : allInterfaces) {
                     if (type.typeEquals(implemented.container(), tr.context())) {
@@ -2407,7 +2408,6 @@ public class Emitter {
         getInheritedMethods(ct, inheriteds, overrides);
         for (MethodInstance mi : inheriteds) {
             List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
-            List<Type> interfaces = ct.interfaces();
             getImplMethodsForDispatch(mi, implMethods, interfaces);
             add(dispatcherToMyMethods, mi, implMethods);
         }
