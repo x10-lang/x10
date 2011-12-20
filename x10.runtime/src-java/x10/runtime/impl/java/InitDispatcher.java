@@ -53,6 +53,7 @@ public abstract class InitDispatcher {
      * Executed only in place 0
      */
     static class $Closure$Initialize implements x10.core.fun.VoidFun_0_0 {
+        private static final long serialVersionUID = 1L;
     	private final Method initializer;
         public void $apply() {
             // execute X10-level static initialization
@@ -126,6 +127,7 @@ public abstract class InitDispatcher {
     }
 
     public static class $Closure$Deserialize implements x10.core.fun.VoidFun_0_0 {
+        private static final long serialVersionUID = 1L;
     	public short fieldId;
     	public X10JavaDeserializer x10JavaDeserializer;
 
