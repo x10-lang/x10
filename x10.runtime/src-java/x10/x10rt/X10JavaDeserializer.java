@@ -575,7 +575,7 @@ public class X10JavaDeserializer {
     		Field[] declaredFields = clazz.getDeclaredFields();
     		for (Field field : declaredFields) {
     			int modifiers = field.getModifiers();
-                        if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && !X10JavaSerializer.forceSerialization(clazz, field))) {
+    			if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
     				continue;
     			}
     			field.setAccessible(true);
