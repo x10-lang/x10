@@ -62,7 +62,7 @@ public class Throw_c extends Stmt_c implements Throw
 
     /** Type check the statement. */
     public Node typeCheck(ContextVisitor tc) {
-    	if (! expr.type().isThrowable()) {
+    	if (! expr.type().isThrowable() && !tc.typeSystem().isJavaThrowable(expr.type())) {
 	    Errors.issue(tc.job(),
 	            new SemanticException("Can only throw subclasses of \"" +tc.typeSystem().Throwable() + "\".", expr.position()),
 	            this);
