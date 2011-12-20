@@ -105,9 +105,9 @@ namespace x10aux {
         return (T*)::realloc(src, dsz);
     }
 
-    template<class T> void system_dealloc(const T* obj_) {
+    template<class T> inline void system_dealloc(const T* obj_) {
         _M_("system_alloc: Freeing chunk " << (void*)obj_ << " of type " << TYPENAME(T));
-        ::free(obj_);
+        ::free((void*)obj_);
     }
 
     template<class T> inline T* alloc(size_t size = sizeof(T), bool containsPtrs = true) {

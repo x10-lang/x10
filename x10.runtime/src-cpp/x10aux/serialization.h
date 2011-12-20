@@ -88,7 +88,7 @@
  * _serialize_body and _deserialize_body are dual, and obviously they should be written to match
  * each other.
  *
- * Classes, clousres, and boxed structs must call buf.record_reference(R) on the deserialization buffer
+ * Classes, closures, and boxed structs must call buf.record_reference(R) on the deserialization buffer
  * buf right after allocating the object in the DeserializationDispatcher callback
  * (where R is the newly allocated object).
  */
@@ -102,11 +102,6 @@ namespace x10 {
 
 
 namespace x10aux {
-
-    // Used to allow us to define 'do-nothing' constructors for classes that already have default
-    // constructors.  Currently only used in closures.
-    class SERIALIZATION_MARKER { };
-
 
     // addr_map can be used to detect and properly handle cycles when serializing object graphs
     // it can also be used to avoid serializing two copies of an object when serializing a DAG.
@@ -123,7 +118,7 @@ namespace x10aux {
     public:
         addr_map(int init_size = 4) :
             _size(init_size),
-            _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*)))
+            _ptrs(new (x10aux::system_alloc<const void*>((init_size)*sizeof(const void*)))
                       const void*[init_size]),
             _top(0)
         { }
@@ -148,7 +143,7 @@ namespace x10aux {
             return ref<T>(val);
         }
         void reset() { _top = 0; assert (false); }
-        ~addr_map() { x10aux::dealloc(_ptrs); }
+        ~addr_map() { x10aux::system_dealloc(_ptrs); }
     };
 
 
@@ -194,11 +189,11 @@ namespace x10aux {
 
     public:
 
-        serialization_buffer (void);
+        serialization_buffer (void) : buffer(NULL), limit(NULL), cursor(NULL), map() {}
 
         ~serialization_buffer (void) {
             if (buffer!=NULL) {
-                std::free(buffer);
+                x10aux::system_dealloc(buffer);
             }
         }
 
