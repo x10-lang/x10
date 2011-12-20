@@ -8,11 +8,8 @@ public class JavaExceptionTest2 {
         try {
             javaException2a();
         } catch (e:java.lang.Throwable) {
+        	Console.OUT.println("Passed");
             e.printStackTrace(); // this statement should be reachable
         }
     }
 }
-/*
-JavaExceptionTest2.x10:12: Unreachable statement.
-1 error.
-*/
