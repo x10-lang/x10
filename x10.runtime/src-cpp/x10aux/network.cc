@@ -231,6 +231,19 @@ void x10aux::run_closure_at(x10aux::place p, x10aux::ref<Reference> body, x10aux
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Async id: "<<ANSI_RESET<<id);
 
+    // We're playing a sleazy trick here and not following the general
+    // serialization protocol. We should be calling buf.write(body),
+    // but instead we are just calling it's serialize_body method directly.
+    // This is problematic because buf.write has the responsibility for
+    // creating the entry in buf's address_map to handle repeated references.
+    // The _deserialize method of body will call record_reference.
+    // Therefore we have to record the reference explicitly here so
+    // that if body is reachable from the object graph that is reachable
+    // from body itself, then we create the proper aliasing on the receiving end.
+    // Unlikely, but could happen if a reference to the closure escapes into
+    // the heap before the closure is serialized. Doesn't happen in practice with
+    // the current XRX design, but put in the code to guard against future changes.
+    buf.manually_record_reference(body);
     body->_serialize_body(buf);
 
     unsigned long sz = buf.length();
