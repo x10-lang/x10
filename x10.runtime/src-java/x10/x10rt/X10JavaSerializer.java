@@ -679,12 +679,18 @@ public class X10JavaSerializer {
     	FieldBasedSerializerThunk(Class<? extends Object> clazz, SerializerThunk st) {
     		super(st);
 
+    		// XTENLANG-2982,2983 transient fields may be initialized with readObject method. 
+    		Method readObjectMethod = null;
+    		try {
+    		    readObjectMethod = clazz.getDeclaredMethod("readObject", java.io.ObjectInputStream.class);
+    		} catch (Exception e) {}
+
     		// Sort the fields to get JVM-independent ordering.
     		Set<Field> flds = new TreeSet<Field>(new FieldComparator());
     		Field[] declaredFields = clazz.getDeclaredFields();
     		for (Field field : declaredFields) {
     			int modifiers = field.getModifiers();
-    			if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+    			if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && readObjectMethod == null)) {
     				continue;
     			}
     			field.setAccessible(true);
