@@ -72,22 +72,26 @@ public class TeamSupport {
 	
 	
 	public static int nativeSize(int id) {
-	    int size = 0;
-	    try {
-	        size = nativeSizeImpl(id);
-	    } catch (UnsatisfiedLinkError e) {
-	        aboutToDie("nativeSize");
+	    if (!X10RT.forceSinglePlace){
+		    int size = 0;
+		    try {
+		        size = nativeSizeImpl(id);
+		    } catch (UnsatisfiedLinkError e) {
+		        aboutToDie("nativeSize");
+		    }
+		    return size;
 	    }
-	    return size;
+	    return 1;
 	}
 	
 	public static void nativeBarrier(int id, int role) {
-	    FinishState fs = ActivityManagement.activityCreationBookkeeping();
-	    
-	    try {
-                nativeBarrierImpl(id, role, fs);
-	    } catch (UnsatisfiedLinkError e) {
-	        aboutToDie("nativeBarrier");
+	    if (!X10RT.forceSinglePlace){
+	    	FinishState fs = ActivityManagement.activityCreationBookkeeping();
+		    try {
+		    	nativeBarrierImpl(id, role, fs);
+		    } catch (UnsatisfiedLinkError e) {
+		        aboutToDie("nativeBarrier");
+		    }
 	    }
 	}
 	
