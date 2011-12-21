@@ -274,6 +274,7 @@ depend:
 #nuke only object code
 cleanobj:
 	$(FIND) . \( -name '*.h.gch' -o -name '*.o' -o -name '*.rpo' \) -print0 | $(XARGS) -0 -t $(RM) -r
+	$(RM) gen/all-o-generated
 
 #nuke everything
 cleangen:
