@@ -25,10 +25,11 @@ public abstract class ThrowableUtilities {
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Errors = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Throwables = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
-    private static Class<? extends x10.core.Throwable> x10RuntimeException;
-    private static Class<? extends x10.core.Throwable> x10Exception;
-    private static Class<? extends x10.core.Throwable> x10Error;
-    private static Class<? extends x10.core.Throwable> x10Throwable;
+    // XTENLANG-2689
+//    private static Class<? extends x10.core.Throwable> x10RuntimeException;
+//    private static Class<? extends x10.core.Throwable> x10Exception;
+//    private static Class<? extends x10.core.Throwable> x10Error;
+//    private static Class<? extends x10.core.Throwable> x10Throwable;
 
     private static Class<? extends x10.core.Throwable> x10UnsupportedOperationException;
     
@@ -85,6 +86,13 @@ public abstract class ThrowableUtilities {
             x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
             x10RuntimeExceptions.put(javaClass, x10Class);
             x10UnsupportedOperationException = x10Class;
+
+            javaClass = java.lang.RuntimeException.class;
+            x10Name = "x10.lang.RuntimeException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            // XTENLANG-2689
+//            x10RuntimeException = x10Class;
             
             // x10Exceptions
             // N.B. ThrowableUtilities.x10Exceptions must be sync with TryCatchExpander.x10Exceptions
@@ -117,7 +125,8 @@ public abstract class ThrowableUtilities {
             x10Name = "x10.lang.Exception";
             x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
             x10Exceptions.put(javaClass, x10Class);
-            x10Exception = x10Class;
+            // XTENLANG-2689
+//            x10Exception = x10Class;
             
             // x10Errors
             // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
@@ -140,17 +149,19 @@ public abstract class ThrowableUtilities {
             x10Name = "x10.lang.Error";
             x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
             x10Errors.put(javaClass, x10Class);
-            x10Error = x10Class;
+            // XTENLANG-2689
+//            x10Error = x10Class;
 
             // x10Throwables
             // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
-            // N.B. x10.lang.Throwable is @NativeRep'ed to x10.core.Throwable
+            // N.B. x10.lang.Throwable is @NativeRep'ed to x10.core.X10Throwable
             javaClass = java.lang.Throwable.class;
-//            x10Name = "x10.core.Throwable";
+//            x10Name = "x10.core.X10Throwable";
 //            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
             x10Class = x10.core.X10Throwable.class;
             x10Throwables.put(javaClass, x10Class);
-            x10Throwable = x10Class;
+            // XTENLANG-2689
+//            x10Throwable = x10Class;
             
         } catch (ClassNotFoundException e) {
             // TODO Auto-generated catch block
