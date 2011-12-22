@@ -568,7 +568,11 @@ public class X10JavaSerializer {
     }
 
     public void writeArrayUsingReflection(Object obj) throws IOException {
-
+        if (obj == null) {
+            writeNull();
+            return;
+        }
+        write(DeserializationDispatcher.javaArrayID);
     	Class<?> componentType = obj.getClass().getComponentType();
     	int length = Array.getLength(obj);
     	write(length);

@@ -462,6 +462,13 @@ public class X10JavaDeserializer {
     }
 
     public Object readArrayUsingReflection(Class<?> componentType) throws IOException {
+        short serializationID = readShort();
+        if (serializationID == DeserializationDispatcher.NULL_ID) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Deserialized a null array");
+            }
+            return null;
+        }
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
                 return readIntArray();

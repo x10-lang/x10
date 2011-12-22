@@ -41,6 +41,7 @@ public class DeserializationDispatcher {
 
     public static final short refValue = Short.MAX_VALUE;
     public static final short javaClassID = refValue - 1;
+    public static final short javaArrayID = refValue - 2;
 
     // Should start issuing id's from 1 cause the id 0 is used to indicate a null value.
     // We first increment i before issuing the id hence initialize to NULL_ID
