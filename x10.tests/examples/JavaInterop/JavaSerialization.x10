@@ -15,10 +15,10 @@ public class JavaSerialization extends x10Test {
     def testFile() {
         val file = new java.io.File("/user");
         val orig = file.getParentFile();
-	Console.OUT.println(orig);
+        //Console.OUT.println(orig);
         at (here) {
             val copy = file.getParentFile();
-            Console.OUT.println(copy);
+            //Console.OUT.println(copy);
             chk(orig.equals(copy));
         }
     }
@@ -26,21 +26,21 @@ public class JavaSerialization extends x10Test {
     def testHashSet() {
         val hashSet = new java.util.HashSet();
         val orig = hashSet.toString();
-        Console.OUT.println(orig);
+        //Console.OUT.println(orig);
         at (here) {
             val copy = hashSet.toString();
-            Console.OUT.println(copy);
+            //Console.OUT.println(copy);
             chk(orig.equals(copy));
         }
     }
 
     public def run(): Boolean = {
-	testFile();
-	testHashSet();
-	return true;
+        testFile();
+        testHashSet();
+        return true;
     }
 
     public static def main(args: Array[String](1)) {
-	new JavaSerialization().execute();
+        new JavaSerialization().execute();
     }
 }
