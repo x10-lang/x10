@@ -249,7 +249,7 @@ public class TryCatchExpander extends Expander {
         "x10.util.NoSuchElementException",
         "x10.lang.NullPointerException",
         "x10.lang.UnsupportedOperationException",
-        // XTENLANG-2689 stop converting j.l.RuntimeException to x.l.RuntimeException
+        // XTENLANG-2686 stop converting j.l.RuntimeException to x.l.RuntimeException
 //        "x10.lang.RuntimeException",
 //	    "x10.lang.Exception",
 //	    "x10.lang.Throwable"

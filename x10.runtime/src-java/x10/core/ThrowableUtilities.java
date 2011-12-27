@@ -25,7 +25,7 @@ public abstract class ThrowableUtilities {
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Errors = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>> x10Throwables = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.Throwable>>();
-    // XTENLANG-2689
+    // XTENLANG-2686
 //    private static Class<? extends x10.core.Throwable> x10RuntimeException;
 //    private static Class<? extends x10.core.Throwable> x10Exception;
 //    private static Class<? extends x10.core.Throwable> x10Error;
@@ -87,12 +87,12 @@ public abstract class ThrowableUtilities {
             x10RuntimeExceptions.put(javaClass, x10Class);
             x10UnsupportedOperationException = x10Class;
 
-            // XTENLANG-2689 stop converting j.l.RuntimeException to x.l.RuntimeException            
+            // XTENLANG-2686 stop converting j.l.RuntimeException to x.l.RuntimeException            
 //            javaClass = java.lang.RuntimeException.class;
 //            x10Name = "x10.lang.RuntimeException";
 //            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
 //            x10RuntimeExceptions.put(javaClass, x10Class);
-//            // XTENLANG-2689
+//            // XTENLANG-2686
 ////            x10RuntimeException = x10Class;
             
             // x10Exceptions
@@ -126,7 +126,7 @@ public abstract class ThrowableUtilities {
             x10Name = "x10.lang.Exception";
             x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
             x10Exceptions.put(javaClass, x10Class);
-            // XTENLANG-2689
+            // XTENLANG-2686
 //            x10Exception = x10Class;
             
             // x10Errors
@@ -150,7 +150,7 @@ public abstract class ThrowableUtilities {
             x10Name = "x10.lang.Error";
             x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
             x10Errors.put(javaClass, x10Class);
-            // XTENLANG-2689
+            // XTENLANG-2686
 //            x10Error = x10Class;
 
             // x10Throwables
@@ -161,7 +161,7 @@ public abstract class ThrowableUtilities {
 //            x10Class = Class.forName(x10Name).asSubclass(x10.core.Throwable.class);
             x10Class = x10.core.X10Throwable.class;
             x10Throwables.put(javaClass, x10Class);
-            // XTENLANG-2689
+            // XTENLANG-2686
 //            x10Throwable = x10Class;
             
         } catch (ClassNotFoundException e) {
