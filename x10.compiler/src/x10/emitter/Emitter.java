@@ -2358,6 +2358,8 @@ public class Emitter {
 
         Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods = CollectionFactory.newHashMap();
         for (MethodInstance myMethod : methods) {
+            if (myMethod.flags().isStatic()) continue;
+
             List<MethodInstance> implementeds = myMethod.implemented(tr.context());
             List<MethodInstance> targets = new ArrayList<MethodInstance>();
             for (MethodInstance implemented : implementeds) {
