@@ -249,7 +249,7 @@ public class TryCatchExpander extends Expander {
         "x10.util.NoSuchElementException",
         "x10.lang.NullPointerException",
         "x10.lang.UnsupportedOperationException",
-        // XTENLANG-2686 stop converting j.l.RuntimeException to x.l.RuntimeException
+	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        "x10.lang.RuntimeException",
 //	    "x10.lang.Exception",
 //	    "x10.lang.Throwable"
@@ -261,7 +261,8 @@ public class TryCatchExpander extends Expander {
         "x10.io.NotSerializableException",
         "x10.io.IOException",
         "x10.lang.InterruptedException",
-        "x10.lang.Exception",
+	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        "x10.lang.Exception",
 //        "x10.lang.Throwable"
 	};
     // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
@@ -269,12 +270,14 @@ public class TryCatchExpander extends Expander {
         "x10.lang.OutOfMemoryError",
         "x10.lang.StackOverflowError",
         "x10.lang.AssertionError",
-        "x10.lang.Error",
+	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        "x10.lang.Error",
 //        "x10.lang.Throwable"
     };
     // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
     static final String[] x10Throwables = {
-        "x10.lang.Throwable"
+	// XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        "x10.lang.Throwable"
     };
     static final int NO_CONVERSION = 0;
     static final int RUNTIME_EXCEPTION_CONVERSION = 0x01;

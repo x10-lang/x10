@@ -118,6 +118,8 @@ public class XClass {
 	} catch (e2:java.lang.Throwable) {}
 
 	// For @Native method, we can catch Java exception with corresponding X10 exception
+	// XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+	/*
 	passed = false;
 	try {
 	    try {
@@ -142,8 +144,6 @@ public class XClass {
 		assert passed;
 	    }
 	} catch (e2:java.lang.Throwable) {}
-	// XTENLANG-2686 stop converting j.l.RuntimeException to x.l.RuntimeException
-	/*
 	passed = false;
 	try {
 	    try {
@@ -156,7 +156,6 @@ public class XClass {
 		assert passed;
 	    }
 	} catch (e2:java.lang.Throwable) {}
-	*/
 	passed = false;
 	try {
 	    try {
@@ -169,8 +168,11 @@ public class XClass {
 		assert passed;
 	    }
 	} catch (e2:java.lang.Throwable) {}
+	*/
 
 	// For @Native method, we can catch Java exception with corresponding X10 exception
+	// XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+	/*
 	passed = true;
 	try {
 	    try {
@@ -219,6 +221,7 @@ public class XClass {
 		assert passed;
 	    }
 	} catch (e2:java.lang.Throwable) {}
+	*/
 
 	if (allPassed) {
 	    Console.OUT.println("Passed All tests.");
