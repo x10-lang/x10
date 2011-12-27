@@ -142,6 +142,8 @@ public class XClass {
 		assert passed;
 	    }
 	} catch (e2:java.lang.Throwable) {}
+	// XTENLANG-2689 stop converting j.l.RuntimeException to x.l.RuntimeException
+	/*
 	passed = false;
 	try {
 	    try {
@@ -154,6 +156,7 @@ public class XClass {
 		assert passed;
 	    }
 	} catch (e2:java.lang.Throwable) {}
+	*/
 	passed = false;
 	try {
 	    try {
