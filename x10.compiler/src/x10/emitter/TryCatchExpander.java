@@ -262,7 +262,7 @@ public class TryCatchExpander extends Expander {
         "x10.io.IOException",
         "x10.lang.InterruptedException",
 	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        "x10.lang.Exception",
+        "x10.lang.Exception",
 //        "x10.lang.Throwable"
 	};
     // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
@@ -271,13 +271,13 @@ public class TryCatchExpander extends Expander {
         "x10.lang.StackOverflowError",
         "x10.lang.AssertionError",
 	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        "x10.lang.Error",
+        "x10.lang.Error",
 //        "x10.lang.Throwable"
     };
     // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
     static final String[] x10Throwables = {
 	// XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        "x10.lang.Throwable"
+        "x10.lang.Throwable"
     };
     static final int NO_CONVERSION = 0;
     static final int RUNTIME_EXCEPTION_CONVERSION = 0x01;
