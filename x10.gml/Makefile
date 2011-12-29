@@ -1,14 +1,3 @@
-#
-#  This file is part of the X10 project (http://x10-lang.org).
-#
-#  This file is licensed to You under the Eclipse Public License (EPL);
-#  You may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#      http://www.opensource.org/licenses/eclipse-1.0.php
-#
-#  (C) Copyright IBM Corporation 2006-2011.
-#
-
 ###################################################
 ###################################################
 ## Name:  	X10 global parallel matrix library - GML
@@ -25,7 +14,7 @@
 
 src_path	=src
 lib_path	=lib
-build_path	=include
+build_path	= include
 
 #----
 # Output libs, properties, and tar files
@@ -52,16 +41,17 @@ bwrap_path	=$(src_path)/x10/matrix/blas
 base_src=\
 	x10/matrix/Debug.x10 \
 	x10/matrix/DenseMultXTen.x10 \
+	x10/matrix/SymMatrix.x10 \
+	x10/matrix/TriMatrix.x10 \
+	x10/matrix/Vector.x10 \
 	x10/matrix/MathTool.x10 \
 	x10/matrix/Matrix.x10 \
 	x10/matrix/RandTool.x10 \
 	x10/matrix/DenseMatrix.x10 \
-	x10/matrix/SymMatrix.x10 \
-	x10/matrix/TriMatrix.x10 \
 	x10/matrix/DistPConsole.x10	\
 	x10/matrix/MatrixMultXTen.x10  \
 	x10/matrix/PConsole.x10 \
-	x10/matrix/VerifyTools.x10
+	x10/matrix/VerifyTools.x10 
 
 comm_src=\
 	x10/matrix/comm/ArrayRcast.x10 \
@@ -84,6 +74,7 @@ comm_src=\
 
 bwrap_src=\
 	x10/matrix/blas/DenseMultBLAS.x10 \
+	x10/matrix/blas/BLAS.x10 \
 	x10/matrix/blas/DriverBLAS.x10
 
 sparse_src=\
@@ -117,7 +108,8 @@ dist_src=\
 	x10/matrix/dist/DupMatrix.x10 \
 	x10/matrix/dist/DistMatrix.x10 \
 	x10/matrix/dist/DistSparseMatrix.x10  \
-	x10/matrix/dist/DupMultToDup.x10
+	x10/matrix/dist/DupMultToDup.x10 \
+	
 
 summa_src=\
 	x10/matrix/dist/summa/SummaDenseMultSparse.x10 \
