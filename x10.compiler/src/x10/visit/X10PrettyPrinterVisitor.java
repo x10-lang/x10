@@ -217,7 +217,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_STRING = "x10.core.String";
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
-    public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
+    public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.WrappedThrowable";
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
 
     public static final String MAIN_CLASS = "$Main";
@@ -3432,7 +3432,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
         if (runAsync) {
-            tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", "ex", new Expander(er) {
+            tryCatchExpander.addCatchBlock(X10_IMPL_WRAPPED_THROWABLE, "ex", new Expander(er) {
                 public void expand(Translator tr) {
                     w.write("x10.lang.Runtime.pushException(ex);");
                 }
@@ -3455,14 +3455,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.WrappedThrowable(t));");
+        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_WRAPPED_THROWABLE + "(t));");
         // }
         // });
         // } else {
         // tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("throw new x10.runtime.impl.java.WrappedThrowable(t);");
+        // w.write("throw new " + X10_IMPL_WRAPPED_THROWABLE + "(t);");
         // }
         // });
         // }
@@ -3481,14 +3481,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.WrappedThrowable(ex));");
+        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_WRAPPED_THROWABLE + "(ex));");
         // }
         // });
         // } else {
         // tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("throw new x10.runtime.impl.java.WrappedThrowable(ex);");
+        // w.write("throw new " + X10_IMPL_WRAPPED_THROWABLE + "(ex);");
         // }
         // });
         // }
@@ -4425,7 +4425,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         if (isJavaCheckedExceptionCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", temp, new Expander(er) {
+            expander.addCatchBlock(X10_IMPL_WRAPPED_THROWABLE, temp, new Expander(er) {
                 public void expand(Translator tr) {
                     w.newline();
 
