@@ -4403,6 +4403,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    private static boolean isJavaCheckedException(Type catchType) {
+        // TODO need check
+        return catchType.toString().startsWith("java") && !catchType.isUncheckedException();
+    }
     @Override
     public void visit(Try_c c) {
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
@@ -4412,7 +4416,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         boolean isConstrainedExceptionCaught = false; // XTENLANG-2384
         for (int i = 0; i < catchBlocks.size(); ++i) {
             Type type = catchBlocks.get(i).catchType();
-            if (type.toString().startsWith("java") && !type.isUncheckedException()) {
+            if (isJavaCheckedException(type)) {
                 // found Java checked exceptions caught here!!
                 isJavaCheckedExceptionCaught = true;
             }
@@ -4428,7 +4432,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
-                        if (!type.toString().startsWith("java") || type.isUncheckedException())
+                        if (!isJavaCheckedException(type))
                         // if (type.isSubtype(tr.typeSystem().Error(),
                         // tr.context()) ||
                         // type.isSubtype(tr.typeSystem().RuntimeException(),
