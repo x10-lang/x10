@@ -13,24 +13,125 @@ package x10.matrix.blas;
 
 import x10.io.Console;
 import x10.util.Random;
+import x10.compiler.NoInline;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-
-//import x10.matrix.blas.DriverBLAS;
+import x10.matrix.Vector;
+import x10.matrix.SymMatrix;
+import x10.matrix.TriMatrix;
 
 /**
- * This class provides static methods to perform dense matrix 
- * multiplication using BLAS driver. 
+ * This class provides static methods to perform matrix 
+ * multiplication and triangular solver function using BLAS driver. 
  * 
- * The general case of matrix multiplication requires two input
- * dense matrices, A and B, and one output matrix C.
- * 
+ * <P> The general case of matrix multiplication requires two input
+ * matrices, A and B, and one output matrix C. Scaling factors 
+ * for input matrix A and output matrix C are ignored here. 
  * If plus = true, then performs C += A x B, otherwise C = A x B
+ * 
+ * <p> The leading dimension of a matrix must be same as its number of rows.
+ * All matrices uses column-major storage.
+ * 
+ * <P> For functions other than multiply, look for in BLAS.x10.
+ * 
  */
 
 public class DenseMultBLAS {
 
+	//===============================================================
+	// Dense multiply vector
+	//===============================================================
+	public static def comp(
+			A:DenseMatrix, 
+            B:Vector(A.N), 
+            C:Vector(A.M), 
+            plus:Boolean) :void {
+		val dim:Array[Int](1)=[A.M, A.N];
+		val scal:Array[Double](1) = new Array[Double](2);
+	    scal(0)=1.0;
+		scal(1)=plus?1.0:0.0;
+        val transA:Int = 0;
+		DriverBLAS.matrix_vector_mult(A.d, B.d, C.d, dim, scal, transA);
+	}
+
+	public static def compTransMult(
+			A:DenseMatrix, 
+            B:Vector(A.M), 
+            C:Vector(A.N), 
+            plus:Boolean) :void {
+		val dim:Array[Int](1)=[A.M, A.N];
+		val scal:Array[Double](1) = new Array[Double](2);
+	    scal(0)=1.0;
+		scal(1)=plus?1.0:0.0;
+        val transA:Int = 1;
+		DriverBLAS.matrix_vector_mult(A.d, B.d, C.d, dim, scal, transA);
+	}
+
+	//===============================================================
+	// Symmetric multiply vector
+	//===============================================================
+	public static def comp(
+			A:SymMatrix,
+            B:Vector(A.N), 
+            C:Vector(A.N), 
+            plus:Boolean) :void {
+		val dim:Array[Int](1)=[A.N, A.M];
+		val scal:Array[Double](1) = new Array[Double](2);
+	    scal(0)=1.0;
+		scal(1)=plus?1.0:0.0;
+		DriverBLAS.sym_vector_mult(A.d, B.d, C.d, dim, scal);
+	}
+
+	//===============================================================
+	// Symmetric multiply dense
+	//===============================================================
+	public static def comp(
+			A:SymMatrix, 
+			B:DenseMatrix{A.N==B.M}, 
+			C:DenseMatrix{A.M==C.M&&B.N==C.N},
+			plus:Boolean  ):void {
+		val scal = new Array[Double](2);
+		scal(0) = 1.0;
+		scal(1) = plus?1.0:0.0;
+		val dims:Array[Int](1) = [ C.M, C.N ];
+
+		DriverBLAS.sym_matrix_mult(A.d, B.d, C.d, dims, scal);
+	}
+
+	public static def comp(
+			A:DenseMatrix, 
+			B:SymMatrix{A.N==B.M}, 
+			C:DenseMatrix{A.M==C.M&&B.N==C.N},
+			plus:Boolean  ):void {
+		val scal = new Array[Double](2);
+		scal(0) = 1.0;
+		scal(1) = plus?1.0:0.0;
+		val dims:Array[Int](1) = [ C.M, C.N ];
+
+		DriverBLAS.matrix_sym_mult(A.d, B.d, C.d, dims, scal);
+	}
+
+	//===============================================================
+	// Triangular dense matrix multiply
+	//===============================================================
+
+	public static def comp(A:TriMatrix, B:DenseMatrix{A.N==B.M}):void  {
+		DriverBLAS.tri_matrix_mult(A.d, B.d, [B.M, B.N], 0);
+	}
+
+	public static def compTransMult(A:TriMatrix, B:DenseMatrix{A.N==B.M}):void  {
+		DriverBLAS.tri_matrix_mult(A.d, B.d, [B.M, B.N], 1);
+	}
+
+	public static def comp(B:DenseMatrix, A:TriMatrix{B.N==A.M}):void  {
+		DriverBLAS.matrix_tri_mult(B.d, A.d, [B.M, B.N], 0);
+	}
+
+	public static def compMultTrans(B:DenseMatrix, A:TriMatrix{B.N==A.M}):void  {
+		DriverBLAS.matrix_tri_mult(B.d, A.d, [B.M, B.N], 1);
+	}
+	
 	//================================================================
 	// Dense multiply with Dense, calling blas
 	//================================================================
@@ -44,11 +145,7 @@ public class DenseMultBLAS {
 	 * @param C      dense matrix which is used to store the result
 	 * @param plus   the add-on flag
 	 */
-	public static def comp(
-			A:DenseMatrix, 
-			B:DenseMatrix{A.N==B.M}, 
-			C:DenseMatrix{A.M==C.M&&B.N==C.N},
-			plus:Boolean  ):void {
+	public static def comp(A:DenseMatrix, B:DenseMatrix{A.N==B.M}, C:DenseMatrix{A.M==C.M&&B.N==C.N}, plus:Boolean):void {
 		val scaling = new Array[Double](2);
 		scaling(0) = 1.0;
 		scaling(1) = plus?1.0:0.0;
@@ -76,7 +173,6 @@ public class DenseMultBLAS {
 	//-------------------------------------------------------------------
 	// Simplified mult interface
 	//-------------------------------------------------------------------
-	
 	/**
 	 * Compute C = A &#42 B
 	 *
@@ -144,6 +240,7 @@ public class DenseMultBLAS {
 			C:DenseMatrix{C.M==A.N,C.N==B.N}):void {
 		compTransMult(A, B, C, false);
 	}
+
 	/**
 	 * Compute A<sup>T</sup> &#42 B and return the result in a new dense matrix object.
 	 *
@@ -211,7 +308,7 @@ public class DenseMultBLAS {
 		return C;
 	}
 
-	//---------------
+	//---------------------------------------------------------------------
 	
 	/**
 	 * Compute C += A<sup>T</sup> &#42 B<sup>T</sup> if plus is true, 
@@ -242,12 +339,43 @@ public class DenseMultBLAS {
 	 * @param B      the second operand dense matrix which is used in transposed form
 	 * @return       a new dense matrix which is used to store the result
 	 */
-	public static def compTransMultTrans(
-			A:DenseMatrix, 
-			B:DenseMatrix{B.N==A.M}):DenseMatrix(A.N,B.M) {
+	public static def compTransMultTrans(A:DenseMatrix,	B:DenseMatrix{B.N==A.M}):DenseMatrix(A.N,B.M) {
 		val C = DenseMatrix.make(A.N, B.M);
 		compTransMultTrans(A, B, C, false);
 		return C;
 	}
+			
+	//===========================================================
+	//
+	//===========================================================
+	/**
+	 * Triangular solver  A &#42  x = b
+	 */	
+	public static def solveTriMultVec(A:TriMatrix, bx:Vector(A.N)) : void {
+		DriverBLAS.tri_vector_solve(A.d, bx.d, [A.M, A.N], 0);
+	}
+	//-------------------------------------------------------------
+	/**
+	 * Solve matrix A &#42  X = B
+	 */
+	public static def solveTriMultMat(A:TriMatrix, BX:DenseMatrix(A.N)) : void {
+		DriverBLAS.tri_matrix_solve(A.d, BX.d, [BX.M, BX.N], 0);
+	}
+
+	public static def solveTriTransMultMat(A:TriMatrix, BX:DenseMatrix(A.M,A.N)) : void {
+		DriverBLAS.tri_matrix_solve(A.d, BX.d, [BX.M, BX.N], 1);
+	}
+	
+	//-------------------------------------------------------------
+	/**
+	 * Solve matrix X &#42 op(A) = B 
+	 */
+	public static def solveMatMultTri(BX:DenseMatrix, A:TriMatrix(BX.N)) : void {
+		DriverBLAS.matrix_tri_solve(BX.d, A.d, [BX.M, BX.N], 0);
+	}
+	
+	public static def solveMatMultTransTri(BX:DenseMatrix, A:TriMatrix(BX.M)) : void {
+		DriverBLAS.matrix_tri_solve(BX.d, A.d, [BX.M, BX.N], 1);
+	}	
 
 }

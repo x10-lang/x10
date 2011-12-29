@@ -15,7 +15,11 @@ import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
 
-import x10.matrix.blas.DriverBLAS;
+//----------------------------------------------
+//import x10.matrix.blas.DriverBLAS; 
+//Cannot call DriverBLAS static method from here. Must be in the same path as WrapBLAS.java
+//----------------------------------------------
+
 import x10.matrix.blas.DenseMultBLAS;
 
 public type DenseMatrix(m:Int, n:Int)=DenseMatrix{self.M==m, self.N==n};

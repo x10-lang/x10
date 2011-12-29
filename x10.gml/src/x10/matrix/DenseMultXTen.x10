@@ -22,10 +22,51 @@ import x10.util.Random;
 public class DenseMultXTen {
 	
 	//===================================================================
+	// X10 dense * vector driver
+	// NOTE: do not merge with MatrixMultXTen, unless the compiler bug is fixed
+	//===================================================================
+	/**
+	 * X10 matrix * vector driver: C = A &#42 B or  C += A &#42 B 
+	 * if plus is true.
+	 *
+	 */
+	public static def comp(
+			A:DenseMatrix, 
+            B:Vector(A.N), 
+            C:Vector(A.M), plus:Boolean) :void {
+		var aidx:Int=0;
+		if (!plus) for (var i:Int=0; i<A.M; i++) C.d(i) = 0.0;
+
+		for (var c:Int=0; c<A.N; c++) {
+			for (var r:Int=0; r<A.M; r++, aidx++) {
+				C.d(r) += A.d(aidx) * B.d(c);
+			}
+		}
+	}
+
+	/**
+	 * X10 matrix * vector driver: C = A <sup>T</sup> &#42 B or  C += A <sup>T</sup> &#42 B 
+	 * if plus is true.
+	 */
+	public static def compTransMult(
+			A:DenseMatrix, 
+            B:Vector(A.M), 
+            C:Vector(A.N), plus:Boolean) :void {
+		var aidx:Int=0;
+		if (!plus) for (var i:Int=0; i<A.N; i++) C.d(i) = 0.0;
+
+		for (var c:Int=0; c<A.N; c++) {
+			for (var r:Int=0; r<A.M; r++, aidx++) {
+				C.d(c) += A.d(aidx) * B.d(r);
+			}
+		}
+	}
+
+	//===================================================================
 	// X10 dense * dense driver
 	// NOTE: do not merge with MatrixMultXTen, unless the compiler bug is fixed
 	//===================================================================
-	
+
 	/**
 	 * X10 driver for dense matrix multiplication. Compute C += A &#42 B if plus is true
 	 * else C = A &#42 B.

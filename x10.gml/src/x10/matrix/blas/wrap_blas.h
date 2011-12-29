@@ -32,8 +32,11 @@ double abs_sum(int n, double* x);
 // C = alpah* op(A) * op(B) + beta*C
 void matrix_matrix_mult(double* A, double* B, double* C, 
 						int* dim, double* scale, int* trans);
+
 // C = alpah* A * B + beta*C, where A is symmetrix matrix of lower trianular part
 void sym_matrix_mult(double* A, double* B, double* C, 
+					 int* dim, double* scale);
+void matrix_sym_mult(double* B, double* A, double* C,
 					 int* dim, double* scale);
 
 //------------------------------------------------------------------------
@@ -44,17 +47,23 @@ void sym_matrix_mult(double* A, double* B, double* C,
 //y = alpah * op(A)*x + beta * y
 void matrix_vector_mult(double* A, double* x, double* y, 
 						int* dim, double* scale, int transA);
-//y = alpah* A *x + beta * y, A is symmetrix matrix of lower triangular part
-void sym_vector_mult(double* A, double* x, double* y, 
+//y = alpah* x *A + beta * y, A is symmetrix matrix of lower triangular part
+void sym_vector_mult(double* x, double* A, double* y,
 					 int* dim, double* scale);
+//   A*x = b,   or   A'*x = b,
+void tri_vector_mult(double* A, double* bx, int lda, int transA);
 
-//------------------------------------------------------------------------
 //  B := alpha*op( A )*B, A is lower-non-unit triangular
-void tri_matrix_mult(double* A, double* B, int* dim, int tranA);
-// B := alpha*B*op( A ), A is lower-non-unit triangular
+void tri_matrix_mult(double* A, double* B, int* dim, int tranB);
+// A := alpha*B*op( A ), B is lower-non-unit triangular
 void matrix_tri_mult(double* B, double* A, int* dim, int tranA);
+
+//-------------------------------------------------------------------
 //Solve Ax=b. result->x
-void tri_matrix_solve(double* A, double* bx, int m, int n);
+void tri_vector_solve(double* A, double* bx, int* dim, int tranA);
+//Solve op(A)X=B
+void tri_matrix_solve(double* A, double* BX, int* dim, int tranA);
+void matrix_tri_solve(double* BX, double* A, int* dim, int tranA);
 
 //------------------------------------------------------------------------
 // Other tools
