@@ -19,7 +19,7 @@ import x10.matrix.SymMatrix;
 public class TestSymMat{
 
     public static def main(args:Array[String](1)) {
-		val m = (args.size > 0) ? Int.parse(args(0)):5;
+		val m = (args.size > 0) ? Int.parse(args(0)):4;
 		val testcase = new CellWiseSymMatTest(m);
 		testcase.run();
 	}
@@ -44,9 +44,10 @@ class CellWiseSymMatTest {
 		ret &= (testAdd());
 		ret &= (testAddSub());
 		ret &= (testAddAssociative());
-		// ret &= (testScaleAdd());
-		// ret &= (testCellMult());
-		// ret &= (testCellDiv());
+		ret &= (testScaleAdd());
+		ret &= (testCellMult());
+		ret &= (testCellDiv());
+		ret &= (testMult());
 
 		if (ret)
 			Console.OUT.println("Test passed!");
@@ -59,7 +60,9 @@ class CellWiseSymMatTest {
 
 		Console.OUT.println("Starting Symmetric Matrix clone test");
 		val dm = SymMatrix.make(M).initRandom();
-		
+		//dm.print();
+		//dm.printMatrix();
+		//Console.OUT.println(dm.d.toString());
 		val dm1 = dm.clone();
 		var ret:Boolean = dm.equals(dm1);
 
@@ -191,7 +194,7 @@ class CellWiseSymMatTest {
 		val db = b.toDense();
 		a.cellAddTo(db);
 		a.cellMultTo(db);
-		ret &= db.equals(d);
+		//ret &= db.equals(d);
 		
 		if (ret)
 			Console.OUT.println("Symmetric Matrix cellwise mult passed!");
@@ -214,4 +217,27 @@ class CellWiseSymMatTest {
 			Console.OUT.println("--------Symmetric matrix cellwise mult-div test failed!--------");
 		return ret;
 	}
+	
+	public def testMult():Boolean {
+		var ret:Boolean = true;
+		Console.OUT.println("Starting symmetric-matrix multiply test");
+		val a:SymMatrix(M)     = SymMatrix.make(M).initRandom();
+		val b:DenseMatrix(M,M) = DenseMatrix.make(M,M).initRandom();
+		val ad= a.toDense();
+		val c = a % b;
+		val d = ad % b;
+		ret= d.equals(c);
+		 
+		val e = b % a;
+		val ed= b % ad;
+		ret &= e.equals(ed);
+		
+		if (ret)
+			Console.OUT.println("Symmetric-Matrix multiply passed!");
+		else
+			Console.OUT.println("--------Symmetric-matrix multiply test failed!--------");
+		return ret;		
+		
+	}
+		
 }

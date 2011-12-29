@@ -10,9 +10,9 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list = TestTriMat TestSymMat
+target_list = TestVectorMult TestVector
 
-target		= TestSymMat
+target		= TestVector
 
 # build path
 build_path	= build

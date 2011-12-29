@@ -44,9 +44,11 @@ class CellWiseTriMatTest {
 		ret &= (testAdd());
 		ret &= (testAddSub());
 		ret &= (testAddAssociative());
-		// ret &= (testScaleAdd());
-		// ret &= (testCellMult());
-		// ret &= (testCellDiv());
+		ret &= (testScaleAdd());
+		ret &= (testCellMult());
+		ret &= (testCellDiv());
+		ret &= (testMult());
+		ret &= (testSolve());
 
 		if (ret)
 			Console.OUT.println("Test passed!");
@@ -58,7 +60,7 @@ class CellWiseTriMatTest {
 	public def testClone():Boolean{
 
 		Console.OUT.println("Starting Triangular Matrix clone test");
-		val dm = TriMatrix.make(M).initRandom();
+		val dm = TriMatrix.make(M).init(1.0);
 		
 		val dm1 = dm.clone();
 		var ret:Boolean = dm.equals(dm1);
@@ -214,4 +216,57 @@ class CellWiseTriMatTest {
 			Console.OUT.println("--------Triangular matrix cellwise mult-div test failed!--------");
 		return ret;
 	}
+	
+	public def testMult():Boolean {
+		var ret:Boolean = true;
+		Console.OUT.println("Starting triangular-matrix multiply test");
+		val a:TriMatrix(M)     = TriMatrix.make(M).init(1);//Random();
+		val b:DenseMatrix(M,M) = DenseMatrix.make(M,M).init(1);//Random();
+		val ad= a.toDense();
+		//a.print();
+		val c = a % b;
+		//c.print();
+		val d = ad % b;
+		ret= d.equals(c);
+		
+		val e = b % a;
+		//e.print();
+		val ed= b % ad;
+		//ed.print();
+		ret &= e.equals(ed);
+		
+		if (ret)
+			Console.OUT.println("Triangular-Matrix multiply passed!");
+		else
+			Console.OUT.println("--------Triangular-matrix multiply test failed!--------");
+		return ret;		
+		
+	}
+	public def testSolve():Boolean {
+		var ret:Boolean = true;
+		Console.OUT.println("Starting matrix-triangular solver test");
+		val X:DenseMatrix(M,M) = DenseMatrix.make(M,M).initRandom();
+		val A:TriMatrix(M)    = TriMatrix.make(M).initRandom();
+		val B:DenseMatrix(M,M) = A % X;
+		
+		//A.print("TriMatrix A");
+		//X.print("Matrix X");
+		//B.print("Mult result B");
+		A.solveSelfMultMat(B);// A % X = B  
+		//B.print();
+		ret &= X.equals(B);
+		
+		val C:DenseMatrix(M,M) = X % A;
+		A.solveMatMultSelf(C);
+		ret &= X.equals(C);
+		
+		if (ret)
+			Console.OUT.println("Matrix-Triangular solver passed!");
+		else
+			Console.OUT.println("--------Matrix-Triangular solver test failed!--------");
+		return ret;		
+		
+	}
+
+	
 }
