@@ -12,7 +12,7 @@
 # Source files and paths
 ###################################################
 
-src_path	=sandbox
+src_path	=src
 lib_path	=lib
 build_path	=include
 
