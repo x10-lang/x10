@@ -16,7 +16,7 @@ import x10.util.Random;
 import x10.util.Timer;
 
 import x10.matrix.blas.BLAS;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 
 public type Vector(m:Int)=Vector{self.N==m};
 public type Vector(v:Vector)=Vector{self==v};
@@ -112,6 +112,16 @@ public class Vector(N:Int) implements (Int) => Double {
     	}
     	return this;
     }
+    
+    /**
+     * Init with function
+     */
+    public def init(f:(int)=>Double): Vector(this) {
+    	for (var i:Int=0; i<N; i++)
+    		this.d(i) = f(i);
+    	return this;
+    }
+    
     
 	//======================================================
     public def rail():Array[Double](1) = d;
@@ -299,13 +309,13 @@ public class Vector(N:Int) implements (Int) => Double {
 	//-------------------------------------------------------------------
 	public  def mult(A:DenseMatrix(this.N), B:Vector(A.N), plus:Boolean):Vector(this) {
 
-		DenseMultBLAS.comp(A, B, this, plus);
+		DenseMatrixBLAS.comp(A, B, this, plus);
 		return this;
 	}
 	
 	public  def transMult(A:DenseMatrix{self.N==this.N}, B:Vector(A.M), plus:Boolean):Vector(this) {
 
-		DenseMultBLAS.compTransMult(A, B, this, plus);
+		DenseMatrixBLAS.compTransMult(A, B, this, plus);
 		return this;
 	}
 	
@@ -420,7 +430,7 @@ public class Vector(N:Int) implements (Int) => Double {
  	 * @return    this object, overwritten by solution vector.
  	 */
  	public def solveTriMultSelf(A:TriMatrix(N,N)):Vector(this) {
- 		DenseMultBLAS.solveTriMultVec(A, this);
+ 		DenseMatrixBLAS.solveTriMultVec(A, this);
  		return this;
  	}
  	

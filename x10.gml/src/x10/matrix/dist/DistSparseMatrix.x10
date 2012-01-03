@@ -250,7 +250,27 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 		}
 		return this;
 	}
-
+	
+	/**
+	 * Initialize distributed matrix using global row and column indexes as inputs to
+	 * a given initial function.
+	 */
+	public def init(f:(Int,Int)=>Double): DistSparseMatrix(this) {
+		var coloff:Int=0;
+		var rowoff:Int=0;
+		finish for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), cb++) {
+			rowoff = 0;
+			for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+				val pid = grid.getBlockId(rb, cb);
+				val roff:Int = rowoff;
+				val coff:Int = coloff;
+				async at(distBs.dist(pid)) {
+					distBs(pid).init(roff, coff, f);
+				}
+			}
+		}
+		return this;
+	}
 	/**
 	 * For testing purpose.
 	 *

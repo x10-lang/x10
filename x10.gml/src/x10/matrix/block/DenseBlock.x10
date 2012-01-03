@@ -120,6 +120,13 @@ public class DenseBlock extends MatrixBlock {
 	public def init(ival:Double):void {
 		dense.init(ival);
 	}
+	/**
+	 * Initialize matrix block data with input function, given offset on 
+	 * row and column.
+	 */
+	public def init(x_off:Int, y_off:Int, f:(Int, Int)=>Double):void {
+		dense.init(x_off, y_off, f);
+	}
 	
 	/**
 	 * Initialize all elements in the matrix block with random values.

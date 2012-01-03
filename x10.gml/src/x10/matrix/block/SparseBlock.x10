@@ -17,6 +17,7 @@ import x10.util.Timer;
 //
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 // Sparse matrix
 import x10.matrix.sparse.CompressArray;
@@ -155,7 +156,15 @@ public class SparseBlock extends MatrixBlock {
 	public def init(ival:Double): void {
 		sparse.init(ival);
 	}
-
+	
+	/**
+	 * Initialize matrix block data with input function, given offset on 
+	 * row and column.
+	 */
+	public def init(x_off:Int, y_off:Int, f:(Int, Int)=>Double):void {
+		sparse.init(x_off, y_off, f);
+	}
+	
 	/**
 	 * Initialize the sparse matrix block with random values.
 	 *

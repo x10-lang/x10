@@ -15,7 +15,7 @@ import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
 
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 
 public type TriMatrix(m:Int, n:Int)=TriMatrix{m==n, self.M==m, m==n};
 public type TriMatrix(m:Int)=TriMatrix{self.M==m,self.N==m};
@@ -130,6 +130,33 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 		return this;
 	}
 
+	/**
+	 * Initialize using function. Only lower triangular part is valid.
+	 * The upper triangular part is written using initial function.
+	 * 
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(f:(Int)=>Double): TriMatrix(this) {
+		for (var i:Int=0; i<M*N; i++)
+			this.d(i) = f(i);
+		return this;
+	}
+	
+	/**
+	 * Init with function. Only the lower triangular part is initialized.
+	 * 
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(f:(Int,Int)=>Double): TriMatrix(this) {
+		var i:Int=0;
+		for (var c:Int=0; c<N; c++, i+=c+M-N)
+			for (var r:Int=c; r<M; r++, i++)
+				this.d(i) = f(r, c);
+		return this;
+	}
+	
 	/**
 	 * Initialize all elements of the dense matrix with random 
 	 * values between 0.0 and 1.0.
@@ -352,7 +379,7 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	//================================================================
 	// Matrix multiply operations: self this<- op(A)*op(B) + (plus?1:0) * C
 	// Default is using BLAS driver
-	// Use DenseMultBLAS method calls
+	// Use DenseMatrixBLAS method calls
 	//================================================================
 	public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N),	plus:Boolean):TriMatrix(this) {
 		throw new UnsupportedOperationException("Matrix multiply does not support using TriMatrix as output matrix");
@@ -370,12 +397,12 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	// Triangular % Matrix solvers
 	//==================================================================
 	public def solveMatMultSelf(A:DenseMatrix{self.N==this.N}):DenseMatrix(A) {
-		DenseMultBLAS.solveMatMultTri(A, this);
+		DenseMatrixBLAS.solveMatMultTri(A, this);
 		return A;
 	}
 	
 	public def solveSelfMultMat(A:DenseMatrix(N)):DenseMatrix(A) {
-		DenseMultBLAS.solveTriMultMat(this, A);
+		DenseMatrixBLAS.solveTriMultMat(this, A);
 		return A;
 	}	
 	//==================================================================
@@ -420,13 +447,13 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	 */
 	public operator this % (that:DenseMatrix(N)):DenseMatrix(M,that.N) {
 		val ret = that.clone();
-		DenseMultBLAS.comp(this, ret);
+		DenseMatrixBLAS.comp(this, ret);
 		return ret;
 	}
 	
 	public operator (that:DenseMatrix{self.N==this.M}) % this :DenseMatrix(that.M,N) {
 		val ret = that.clone();
-		DenseMultBLAS.comp(ret, this);
+		DenseMatrixBLAS.comp(ret, this);
 		return ret;
 	}
 		

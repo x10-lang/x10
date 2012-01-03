@@ -16,6 +16,7 @@ import x10.util.Pair;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
 
@@ -252,7 +253,84 @@ public class SparseCSC extends Matrix {
 		initRandom(nzd);
 		return this;
 	}
-
+	//---------------------------------------------------------
+	/**
+	 * Initialize with given function with range [0..M, 0..N]
+	 */
+	public def init(f:(Int, Int)=>Double): SparseCSC(this) {
+		
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val ccol = ccdata.cLine(c);
+			ccol.offset = offset;
+			for (var r:Int=0; r<M; r++) {
+				val nzval:Double = f(r, c);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=r;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			ccol.length = offset - ccol.offset;
+		}
+		ca.count = offset;
+		return this;
+	}
+	
+	/**
+	 * Initialize wiht nonzero indexing function and value generating function.
+	 * 
+	 * @param fidx     Nonzero row indexing, must be ascending function. Given values (r, c), compute the r-th nonzero row index in column c.
+	 * @param fval     value generating function, given row and column index.
+	 */
+	public def init(fidx:(Int, Int)=>Int, fval:(Int, Int)=>Double): SparseCSC(this) {
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val ccol = ccdata.cLine(c);
+			ccol.offset = offset;
+			for (var r:Int=0; r<M&&offset<ca.index.size; r++) {
+				val nzidx = fidx(r, c);
+				if (nzidx >= M) break;
+				val nzval = fval(nzidx, c);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=nzidx;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			ccol.length = offset - ccol.offset;
+		}
+		ca.count = offset;
+		return this;
+	}
+	
+	/**
+	 * Initial sparse matrix using function and row and column offsets.
+	 */
+	public def init(rowoff:Int, coloff:Int, f:(Int, Int)=>Double): SparseCSC(this) {
+		
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val ccol = ccdata.cLine(c);
+			ccol.offset = offset;
+			for (var r:Int=0; r<M&&offset<ca.index.size; r++) {
+				val nzval:Double = f(r+rowoff, c+coloff);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=r;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			ccol.length = offset - ccol.offset;
+		}
+		ca.count = offset;
+		return this;
+	}	
+	
+	
 	/**
 	 * For testing purpose.
 	 *

@@ -72,6 +72,8 @@ public abstract class MatrixBlock {
 	 */
 	abstract public def init(ival:Double) : void;
 
+	abstract public def init(xoff:Int, yoff:Int, f:(Int,Int)=>Double) : void;
+
 	/**
 	 * For testing purpose.
 	 *

@@ -11,11 +11,9 @@
 
 package x10.matrix.blas;
 
-import x10.io.Console;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
-import x10.compiler.NoInline;
 
 @NativeCPPInclude("wrap_blas.h")
 @NativeCPPCompilationUnit("wrap_blas.c")
@@ -91,7 +89,7 @@ protected class DriverBLAS {
 	 */
     @Native("java","WrapBLAS.dotProd(#1,(#2).raw().getDoubleArray(),(#3).raw().getDoubleArray())")
     @Native("c++","dot_prod(#1,(#2)->raw()->raw(),(#3)->raw()->raw())")
-		public static @NoInline native def dot_prod(
+		public static native def dot_prod(
 				n:Int, 
 				X:Array[Double](1),
 				Y:Array[Double](1)):Double;	

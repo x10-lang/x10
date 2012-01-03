@@ -76,7 +76,8 @@ public class Compress1D {
 		this.offset = offset;
 		this.length = cnt;		
 	}
-
+	//-------------------------------------------------------------
+	//-------------------------------------------------------------
 	/**
 	 * Short version of make and initialize with random values
 	 * @see constructor()

@@ -20,7 +20,7 @@ import x10.util.Timer;
 //Cannot call DriverBLAS static method from here. Must be in the same path as WrapBLAS.java
 //----------------------------------------------
 
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 
 public type DenseMatrix(m:Int, n:Int)=DenseMatrix{self.M==m, self.N==n};
 public type DenseMatrix(m:Int)=DenseMatrix{self.M==m};
@@ -130,6 +130,48 @@ public class DenseMatrix extends Matrix {
 		return this;
 	}
 
+	/**
+	 * Initialize using function
+	 * 
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(f:(Int)=>Double): DenseMatrix(this) {
+		for (var i:Int=0; i<M*N; i++)
+			this.d(i) = f(i);
+		return this;
+	}
+	
+	/**
+	 * Init with function
+	 * 
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(f:(Int,Int)=>Double): DenseMatrix(this) {
+		var i:Int=0;
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++, i++)
+				this.d(i) = f(r, c);
+		return this;
+	}
+	
+	/**
+	 * Init with function and row and column index offsets
+	 * 
+	 * @param rowoff  row index offset
+	 * @param coloff  column index offset
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(rowoff:Int, coloff:Int, f:(Int,Int)=>Double): DenseMatrix(this) {
+		var i:Int=0;
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++, i++)
+				this.d(i) = f(rowoff+r, coloff+c);
+		return this;
+	}	
+	//----------------------------------------------------------
 	/**
 	 * Initialize all elements of the dense matrix with random 
 	 * values between 0.0 and 1.0.
@@ -875,7 +917,7 @@ public class DenseMatrix extends Matrix {
 	public def mult(A:DenseMatrix{self.M==this.M}, 
 					B:DenseMatrix{self.N==this.N,A.N==B.M},//DenseMatrix(A.N,N), 
 					plus:Boolean) {
-		DenseMultBLAS.comp(A, B, this, plus); //BLAS driver
+		DenseMatrixBLAS.comp(A, B, this, plus); //BLAS driver
 		return this;
 	}
 
@@ -906,7 +948,7 @@ public class DenseMatrix extends Matrix {
 			A:DenseMatrix{self.N==this.M}, 
 			B:DenseMatrix{self.N==this.N,A.M==B.M},//DenseMatrix(A.N,N), 
 			plus:Boolean) {
-		DenseMultBLAS.compTransMult(A, B, this, plus); //BLAS driver
+		DenseMatrixBLAS.compTransMult(A, B, this, plus); //BLAS driver
 		return this;
 	}
 
@@ -923,7 +965,7 @@ public class DenseMatrix extends Matrix {
 			A:DenseMatrix{self.M==this.M}, 
 			B:DenseMatrix{self.M==this.N,A.N==B.N},//DenseMatrix(A.N,N), 
 			plus:Boolean) {
-		DenseMultBLAS.compMultTrans(A, B, this, plus); //BLAS driver
+		DenseMatrixBLAS.compMultTrans(A, B, this, plus); //BLAS driver
 		return this;
 	}
 
@@ -1010,7 +1052,7 @@ public class DenseMatrix extends Matrix {
 	public  operator this % (that:DenseMatrix{self.M==this.N}
 							 ):DenseMatrix(this.M,that.N) {
 		val dm = DenseMatrix.make(this.M, that.N);
-		DenseMultBLAS.comp(this, that, dm, false);
+		DenseMatrixBLAS.comp(this, that, dm, false);
 		return dm;
 	}
 	

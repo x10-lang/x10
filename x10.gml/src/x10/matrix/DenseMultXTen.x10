@@ -282,7 +282,7 @@ public class DenseMultXTen {
 	 * @param B      second operand matrix in multiply
 	 * @return       a new dense matrix which is used to store the result
 	 */
-	public static def comp(A:DenseMatrix, B:DenseMatrix{A.N==B.M}):DenseMatrix {
+	public static def comp(A:DenseMatrix, B:DenseMatrix{A.N==B.M}):DenseMatrix(A.M,B.N) {
 		val C = DenseMatrix.make(A.M, B.N);
 		DenseMultXTen.comp(A, B, C, false);
 		return C;

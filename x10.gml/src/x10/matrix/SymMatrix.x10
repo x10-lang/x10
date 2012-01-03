@@ -15,7 +15,7 @@ import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
 
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 
 public type SymMatrix(m:Int, n:Int)=SymMatrix{m==n, self.M==m, self.N==n};
 public type SymMatrix(m:Int)=SymMatrix{self.M==m,self.N==m};
@@ -138,7 +138,34 @@ public class SymMatrix extends Matrix{self.M==self.N} {
 				this.d(i) = iv;
 		return this;
 	}
-
+	
+	/**
+	 * Initialize using function. Only lower triangular part is valid.
+	 * The upper triangular part is written using initial function.
+	 * 
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(f:(Int)=>Double): SymMatrix(this) {
+		for (var i:Int=0; i<M*N; i++)
+			this.d(i) = f(i);
+		return this;
+	}
+	
+	/**
+	 * Init with function. Only the lower triangular part is initialized.
+	 * 
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(f:(Int,Int)=>Double): SymMatrix(this) {
+		var i:Int=0;
+		for (var c:Int=0; c<N; c++, i+=c+M-N)
+			for (var r:Int=c; r<M; r++, i++)
+				this.d(i) = f(r, c);
+		return this;
+	}
+	
 	/**
 	 * Initialize all elements of the dense matrix with random 
 	 * values between 0.0 and 1.0.
@@ -376,7 +403,7 @@ public class SymMatrix extends Matrix{self.M==self.N} {
 	//================================================================
 	// Matrix multiply operations: self this<- op(A)*op(B) + (plus?1:0) * C
 	// Default is using BLAS driver
-	// Use DenseMultBLAS method calls
+	// Use DenseMatrixBLAS method calls
 	//================================================================
 	public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N),	plus:Boolean):SymMatrix(this) {
 		throw new UnsupportedOperationException("Matrix multiply does not support using SymMatrix as output matrix");
@@ -433,13 +460,13 @@ public class SymMatrix extends Matrix{self.M==self.N} {
 	 */
 	public operator this % (that:DenseMatrix(N)):DenseMatrix(M,that.N) {
 		val ret = DenseMatrix.make(this.M, that.N);
-		DenseMultBLAS.comp(this, that, ret, false);
+		DenseMatrixBLAS.comp(this, that, ret, false);
 		return ret;
 	}
 	
 	public operator (that:DenseMatrix{self.N==this.M}) % this :DenseMatrix(that.M,N) {
 		val ret = DenseMatrix.make(that.M, this.N);
-		DenseMultBLAS.comp(that, this, ret, false);
+		DenseMatrixBLAS.comp(that, this, ret, false);
 		return ret;
 	}
 		

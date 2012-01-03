@@ -19,7 +19,7 @@ import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 //
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SparseMultDenseToDense;
@@ -176,7 +176,7 @@ public class DistMultDupToDist {
 			val dmC = C.getMatrix(p) as DenseMatrix(dmA.M, dmB.N);
 			//
 			/* TIMING */ val stt = Timer.milliTime();
-			DenseMultBLAS.comp(dmA, dmB, dmC, plus);
+			DenseMatrixBLAS.comp(dmA, dmB, dmC, plus);
 			/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
 		}
 		return C;
@@ -210,7 +210,7 @@ public class DistMultDupToDist {
 			val dmC = C.getMatrix(p) as DenseMatrix(dmA.M, dmB.M);
 			
 			/* TIMING */ val stt = Timer.milliTime();
-			DenseMultBLAS.compMultTrans(dmA, dmB, dmC, plus);
+			DenseMatrixBLAS.compMultTrans(dmA, dmB, dmC, plus);
 			/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
 		}
 		return C;
@@ -246,7 +246,7 @@ public class DistMultDupToDist {
 			val dmC = C.local() as DenseMatrix(dmA.N, dmB.N);
 			
 			/* TIMING */ val stt = Timer.milliTime();
-			DenseMultBLAS.compTransMult(dmA, dmB, dmC, plus);
+			DenseMatrixBLAS.compTransMult(dmA, dmB, dmC, plus);
 			/* TIMING */ C.distBs(p).calcTime += Timer.milliTime() - stt;
 		}
 		return C;

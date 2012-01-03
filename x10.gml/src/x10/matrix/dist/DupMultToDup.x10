@@ -19,7 +19,7 @@ import x10.matrix.Debug;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 //
 //import x10.matrix.mpi.TeamAllBcast; //wait for perf improvement
 
@@ -50,7 +50,7 @@ public class DupMultToDup {
 			val mA = A.local();
 			val mB = B.local();
 			val mC = C.local();
-			DenseMultBLAS.comp(mA, mB, mC, plus);
+			DenseMatrixBLAS.comp(mA, mB, mC, plus);
 		}
 		/* Timeing */ C.calcTime += Timer.milliTime() - st;
 		   return C;
@@ -82,7 +82,7 @@ public class DupMultToDup {
 			plus:Boolean
 	):DupDenseMatrix(C) {
 		Debug.assure(C.M==A.M&&A.N==B.M&&B.N==C.N);
-		DenseMultBLAS.comp(A, B, C.local(), plus);
+		DenseMatrixBLAS.comp(A, B, C.local(), plus);
 		C.sync();
 		return C;
 	}
@@ -121,7 +121,7 @@ public class DupMultToDup {
 			val mA = A.local();
 			val mB = B.local();
 			val mC = C.local();
-			DenseMultBLAS.compTransMult(mA, mB, mC, plus);
+			DenseMatrixBLAS.compTransMult(mA, mB, mC, plus);
 		}
 		/* Timeing */ C.calcTime += Timer.milliTime() - st;
 		   return C;
@@ -152,7 +152,7 @@ public class DupMultToDup {
 			plus:Boolean
 	) : DupDenseMatrix(C) {
 		Debug.assure(C.M==A.N&&A.M==B.M&&B.N==C.N);
-		DenseMultBLAS.compTransMult(A, B, C.local(), plus);
+		DenseMatrixBLAS.compTransMult(A, B, C.local(), plus);
 		C.sync();
 		return C;
 	}
@@ -195,7 +195,7 @@ public class DupMultToDup {
 			val mA = A.local();
 			val mB = B.local();
 			val mC = C.local();
-			DenseMultBLAS.compMultTrans(mA, mB, mC, plus);
+			DenseMatrixBLAS.compMultTrans(mA, mB, mC, plus);
 		}
 		/* Timeing */ C.calcTime += Timer.milliTime() - st;
 		return C;
@@ -227,7 +227,7 @@ public class DupMultToDup {
 			plus:Boolean
 	) : DupDenseMatrix(C) {
 		Debug.assure(C.M==A.M&&A.N==B.N&&B.M==C.N);
-		DenseMultBLAS.compMultTrans(A, B, C.local(), plus);
+		DenseMatrixBLAS.compMultTrans(A, B, C.local(), plus);
 		C.sync(); //Update all copies
 		return C;
 	}

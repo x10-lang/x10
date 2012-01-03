@@ -18,16 +18,11 @@ import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 //
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.DenseMultSparseToDense;
 import x10.matrix.sparse.SparseMultDenseToDense;
-//
-//import x10.matrix.dist.DistDenseMatrix;
-//import x10.matrix.dist.DistSparseMatrix;
-//import x10.matrix.dist.DupDenseMatrix;
-
 
 /**
  * This class provides distributed matrix multiply with distributed sparse matrix,
@@ -247,9 +242,9 @@ public class DistMultDistToDup {
 			val dmC = C.local() as DenseMatrix(dmA.N, dmB.N);
 			
 			if (p != rootpid || !plus)
-				DenseMultBLAS.compTransMult(dmA, dmB, dmC, false);
+				DenseMatrixBLAS.compTransMult(dmA, dmB, dmC, false);
 			else 
-				DenseMultBLAS.compTransMult(dmA, dmB, dmC, true);
+				DenseMatrixBLAS.compTransMult(dmA, dmB, dmC, true);
 		}
 		/* TIMING */ C.calcTime += Timer.milliTime() - stt;
 
