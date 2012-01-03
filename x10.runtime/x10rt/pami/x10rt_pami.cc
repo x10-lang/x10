@@ -35,6 +35,7 @@
 #define X10RT_PAMI_ALLTOALL_ALG "X10RT_PAMI_ALLTOALL_ALG"
 #define X10RT_PAMI_ALLREDUCE_ALG "X10RT_PAMI_ALLREDUCE_ALG"
 #define X10RT_PAMI_ALLGATHER_ALG "X10RT_PAMI_ALLGATHER_ALG"
+#define X10RT_PAMI_BUFFER_REGISTERED "X10RT_PAMI_BUFFER_REGISTERED"
 
 enum MSGTYPE {STANDARD=1, PUT, GET, GET_COMPLETE, NEW_TEAM}; // PAMI doesn't send messages with type=0... it just silently eats them.
 enum COLLTYPE{BARRIER=0, BCAST, SCATTER, ALLTOALL, ALLREDUCE, ALLGATHER};
@@ -213,10 +214,7 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	memset(&hints, 0, sizeof(pami_send_hint_t));
 	hints.recv_contiguous = PAMI_HINT_ENABLE;
 
-	// TODO: this check is here to workaround a bug on x86 shared memory introduced in pami 1118a.
-	// otherwise, this would always be enabled
-	char* shmem = getenv("MP_SHARED_MEMORY");
-	if (!shmem || strcasecmp("no", shmem)!=0)
+	if (checkBoolEnvVar(getenv(X10RT_PAMI_BUFFER_REGISTERED)))
 		hints.buffer_registered = PAMI_HINT_ENABLE;
 
 	//hints.multicontext = PAMI_HINT_DISABLE;
@@ -801,8 +799,8 @@ static void team_destroy_complete (pami_context_t context, void* cookie, pami_re
 void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
 	pami_result_t   status = PAMI_ERROR;
-	const char    *name = "X10";
-	setenv("MP_MSG_API", name, 1);
+	setenv("MP_MSG_API", "X10", 0);
+	const char *name = getenv("MP_MSG_API");
 
 	// Check if we want to enable async progress
 	if (checkBoolEnvVar(getenv(X10RT_PAMI_ASYNC_PROGRESS)))
