@@ -61,7 +61,7 @@ all_mpi	:
 clean	::
 		rm -f $(target)_mpi
 
-cleanall ::
+clean_all ::
 		$(foreach f, $(target_list), rm -f $(f)_mpi; )
 
 ###-----------
@@ -70,6 +70,6 @@ help	::
 	@echo " make mpi       : build default test $(target) for native backend running on MPI transport";
 	@echo " make all_mpi   : build all [ $(target_list) ] for native backend running on MPI transport";
 	@echo " make clean     : remove default built binary $(target)_mpi";
-	@echo " make cleanall : remove all built targets";
+	@echo " make clean_all : remove all built targets";
 	@echo "";
 		

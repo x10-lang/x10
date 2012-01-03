@@ -15,6 +15,9 @@
 # 2) Server: computing server host settings
 server		=triloka
 
+#leave empty, if do not want build with lapack library, otherwise uncomment the following line
+add_lapack	= yes
+
 ###################################################
 ## Compiler settings
 ###################################################
@@ -39,6 +42,11 @@ ifeq ($(server), $(findstring $(server), $(shell hostname)))
 blas_path   =/usr/lib64
 blas_name	=blas
 blas_lib	= $(blas_path)/lib$(blas_name).so
+#
+lapack_path =/usr/lib64
+lapack_name =lapack
+lapack_lib  =$(lapack_path)/lib$(lapack_name).so
+#
 #post compile for mpi transport 
 #mpi_path 	= -L/usr/lib64/slurm 
 #mpi_lib		= -lpmi
@@ -47,11 +55,13 @@ else
 blas_path  	=/usr/lib
 blas_name	=blas
 blas_lib	= $(blas_path)/lib$(blas_name).so
+#
+lapack_path =/usr/lib
+lapack_name =lapack
+lapack_lib  =$(lapack_path)/lib$(lapack_name).so
+#
 server		= localhost
 endif
-
-### bblas_lib must exist
-###
 
 #------------------------------------------------------
 # Post compiling options
@@ -68,3 +78,10 @@ ifdef  gfortran
 POST_LIBS	+= -l$(gfortran)
 endif
 
+#------------------------------------------------------
+# add lapack, optional
+ifdef add_lapack
+POST_PATH	+= -L$(lapack_path)
+POST_LIBS	+= -l$(lapack_name)
+add_jlapack =chk_jlapack
+endif

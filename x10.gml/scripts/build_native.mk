@@ -65,7 +65,7 @@ all_lapi	:
 clean	::
 		rm -f $(target)_sock $(target)_lapi
 
-cleanall ::
+clean_all ::
 		$(foreach f, $(target_list), rm -f $(f)_sock $(f)_lapi; )
 ###----------
 help	::
@@ -75,7 +75,7 @@ help	::
 	@echo " make lapi       : build default target $(target) for native backend running on socket transport";
 	@echo " make all_lapi   : build all targets [ $(target_list) ] for native backend running on socket transport";
 	@echo " make clean      : remove default built binary $(target)_sock $(target)_lapi";
-	@echo " make cleanall  : remove all builds for the list of tragets";
+	@echo " make clean_all  : remove all builds for the list of tragets";
 	@echo "";
 
 		

@@ -50,7 +50,7 @@ all	:
 clean	::
 		rm -rf $(build_path)  $(target)_mpi $(target)_sock $(target)_lapi
 		
-cleanall:: 
+clean_all:: 
 		rm -rf $(build_path)
 		$(foreach f, $(target_list), rm -f $(f)_mpi $(f)_sock $(f)_lapi; )
 
@@ -64,7 +64,7 @@ check_gml		:
 	else echo "Cannot find $(gml_inc). Apps compiling may fail. If so, rebuilt your GML library"; fi)
 
 ####----------------------------------------------
-.PHONY		: lib all runall sock mpi java clean cleanall all_mpi all_sock all_lapi all_java chk_gml_inc help
+.PHONY		: lib all runall sock mpi java clean clean_all all_mpi all_sock all_lapi all_java chk_gml_inc help
 ####----------------------------------------------
 
 help ::
@@ -73,6 +73,6 @@ help ::
 	@echo " make clean     : clean up the build for default target - $(target)";
 	@echo " make lib       : build gml library";
 	@echo " make clean     : clean up default build";
-	@echo " make cleanall : clean up alltests build";
+	@echo " make clean_all : clean up alltests build";
 	@echo "";
 
