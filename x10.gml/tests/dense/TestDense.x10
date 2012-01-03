@@ -45,6 +45,7 @@ class AddScalTest {
 		var ret:Boolean = true;
  		// Set the matrix function
 		ret &= (testClone());
+		ret &= (testInit());
 		ret &= (testScale());
 		ret &= (testAdd());
 		ret &= (testAddSub());
@@ -87,6 +88,22 @@ class AddScalTest {
 		return ret;
 	}
 
+	public def testInit():Boolean {
+		Console.OUT.println("Starting dense Matrix initialization test");
+		var ret:Boolean = true;
+		val den = DenseMatrix.make(M,N).init((r:Int, c:Int)=>(1.0+r+c));
+		
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++)
+				ret &= (den(r,c) == 1.0+r+c);
+		
+		if (ret)
+			Console.OUT.println("Dense matrix initialization func test passed!");
+		else
+			Console.OUT.println("--------Dense matrix initialization func failed!--------");	
+		return ret;
+	}
+	
 	public def testScale():Boolean{
 		Console.OUT.println("Starting dense matrix scaling test");
 		val dm = DenseMatrix.makeRand(M, N);

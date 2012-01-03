@@ -1,19 +1,14 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
- *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  This file is part of the X10 Applications project.
+ * 
+ *  (C) Copyright IBM Corporation 2011.
  */
 
 import x10.io.Console;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.MatrixMultXTen;
 import x10.matrix.DenseMultXTen;
 import x10.matrix.VerifyTools;
@@ -146,7 +141,7 @@ public class TestMultDense{
 					M, K, K, N);
 			val a:DenseMatrix(M,K) = DenseMatrix.makeRand(M, K);
 			val b:DenseMatrix(K,N) = DenseMatrix.makeRand(K, N);
-			val c:DenseMatrix(M,N) = DenseMultXTen.comp(a, b);
+			val c:DenseMatrix(a.M,b.N) = DenseMultXTen.comp(a, b);
 			
 			Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 			val ret = VerifyTools.verifyMatMult(a, b, c);
@@ -165,7 +160,7 @@ public class TestMultDense{
 			val b = DenseMatrix.make(K, N);
 			a.initRandom(); b.initRandom();
 
-			val c = DenseMultBLAS.comp(a, b);
+			val c = DenseMatrixBLAS.comp(a, b);
 			
 			Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 			
@@ -185,7 +180,7 @@ public class TestMultDense{
 			val b = DenseMatrix.make(K, N);
 			a.initRandom(); b.initRandom();
 
-			val c1 = DenseMultBLAS.comp(a, b);
+			val c1 = DenseMatrixBLAS.comp(a, b);
 			val c2 = DenseMultXTen.comp(a, b);
 			val c3 = MatrixMultXTen.comp(a as Matrix(M,K), b as Matrix(K,N));
 			
@@ -211,7 +206,7 @@ public class TestMultDense{
 		// 						   M, K, K, N);
 		// 		val a = DenseMatrix.makeSmall(M, K);
 		// 		val b = DenseMatrix.makeSmall(K, N);
-		// 		val c = DenseMultBLAS.comp(a, b);
+		// 		val c = DenseMatrixBLAS.comp(a, b);
 		// 		Console.OUT.printf("Result matrix: %dx%d\n", c.M, c.N);
 		// 		val cd= MatrixMultXTen.comp(a, b);
 		

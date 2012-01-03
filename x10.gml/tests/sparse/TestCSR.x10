@@ -69,7 +69,7 @@ class AddSubCSR {
 		//sp.print();
 		val sp1 = sp.clone();
 		//sp1.print();
-		var ret = sp.equals(sp1);
+		var ret:Boolean = sp.equals(sp1);
 		if (ret)
 			Console.OUT.println("CSR Clone test passed!");
 		else

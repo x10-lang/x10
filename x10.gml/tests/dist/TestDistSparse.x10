@@ -81,8 +81,6 @@ public class TestDistSparse {
                 	}
 
                 return ret;
-
-			return ret;
 		}
 
 		public def testCopy():Boolean {

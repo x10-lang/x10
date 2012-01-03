@@ -43,6 +43,7 @@ class AddSubCSC {
 		Console.OUT.println("CSC Test on "+M+"x"+N+" matrix "+ nzp+" sparsity");
  		// Set the matrix function
 		ret &= (testClone());
+		ret &= (testInit());
 		ret &= (testAdd());
 		ret &= (testAddSub());
 		ret &= (testAddAssociative());
@@ -97,7 +98,23 @@ class AddSubCSC {
 			Console.OUT.println("--------CSC Add: sp+sp.neg() test failed--------");
 		return ret;
 	}
+	
+	public def testInit():Boolean {
+		Console.OUT.println("Start Sparse CSC initialization func test");
+		var ret:Boolean=true;
+		val sp = SparseCSC.make(M, N, 0.6).init((r:Int, c:Int)=>((r+c)%2 as Double));
 
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++)
+				ret &= (sp(r,c) == ((r+c)%2 as Double));
+		
+		if (ret)
+			Console.OUT.println("SparseCSC initialization func test passed!");
+		else
+			Console.OUT.println("--------SparseCSC initialization func test failed--------");
+		return ret;
+	}
+	
 	public def testAddSub():Boolean {
 		Console.OUT.println("CSC Add-sub");
 		val sp = SparseCSC.make(M, N, nzp);
@@ -117,6 +134,7 @@ class AddSubCSC {
 			Console.OUT.println("--------CSC Add-sub test failed!--------");
 		return ret;
 	}
+	
 	public def testAddAssociative():Boolean {
 		Console.OUT.println("CSC Add associative test");
 		val a = SparseCSC.make(M, N, nzp);

@@ -1,12 +1,7 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 Applications project.
  *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2011.
  */
 
 import x10.io.Console;
@@ -16,7 +11,7 @@ import x10.compiler.Ifndef;
 import x10.matrix.Matrix;
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.block.Grid;
 
 import x10.matrix.dist.DistDenseMatrix;
@@ -104,7 +99,7 @@ class SummaMultTest {
 		val mc = DenseMatrix.make(ma.M, mb.N);
 		
 		Debug.flushln("Start sequential dense matrix multiply");
-		DenseMultBLAS.comp(ma, mb, mc, false);
+		DenseMatrixBLAS.comp(ma, mb, mc, false);
 		Debug.flushln("Done sequential dense matrix multiply");
 
 		val ret = dc.equals(mc as Matrix(dc.M, dc.N));
@@ -143,7 +138,7 @@ class SummaMultTest {
 		val mc = DenseMatrix.make(ma.M, mb.M);
 		
 		Debug.flushln("Start sequential dense matrix multTrans");
-		DenseMultBLAS.compMultTrans(ma, mb, mc, false);
+		DenseMatrixBLAS.compMultTrans(ma, mb, mc, false);
 		Debug.flushln("Done sequential dense matrix multTrans");
 
 		val ret = dc.equals(mc as Matrix(dc.M, dc.N));
@@ -181,7 +176,7 @@ class SummaMultTest {
 		val mc = DenseMatrix.make(ma.M, mb.N);
 		
 		Debug.flushln("Start sequential dense matrix multiply");
-		DenseMultBLAS.comp(ma, mb, mc, false);
+		DenseMatrixBLAS.comp(ma, mb, mc, false);
 		Debug.flushln("Done sequential dense matrix multiply");
 
 		val ret = dc.equals(mc as Matrix(dc.M, dc.N));
@@ -221,7 +216,7 @@ class SummaMultTest {
 		val mc = DenseMatrix.make(ma.M, mb.M);
 		
 		Debug.flushln("Start sequential dense matrix multTrans");
-		DenseMultBLAS.compMultTrans(ma, mb, mc, false);
+		DenseMatrixBLAS.compMultTrans(ma, mb, mc, false);
 		Debug.flushln("Done sequential dense matrix multTrans");
 		//mc.print("Sequential result");
 		

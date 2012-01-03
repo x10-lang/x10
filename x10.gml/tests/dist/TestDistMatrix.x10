@@ -13,7 +13,6 @@ import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-//import x10.matrix.DenseMultBLAS;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.DenseBlock;

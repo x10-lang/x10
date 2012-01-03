@@ -1,12 +1,7 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 Applications project.
  *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2011.
  */
 
 import x10.io.Console;
@@ -15,7 +10,7 @@ import x10.io.Console;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.MatrixMultXTen;
 import x10.matrix.DenseMultXTen;
 
@@ -75,7 +70,7 @@ class TransMultTest {
 
 		val cm = DenseMatrix.make(M, N);
 		cm.transMult(a, b, false);
-		//DenseMultBLAS.compTransMult(a, b, cm, false); //c.print("Result a.T * b\n");
+		//DenseMatrixBLAS.compTransMult(a, b, cm, false); //c.print("Result a.T * b\n");
 
 		val c = DenseMatrix.make(M, N);
 		DenseMultXTen.compTransMult(a, b, c, false);
@@ -100,7 +95,7 @@ class TransMultTest {
 
 		val cm = DenseMatrix.make(M, N);
 		cm.multTrans(a, b, false);
-		//DenseMultBLAS.compMultTrans(a, b, cm, false);
+		//DenseMatrixBLAS.compMultTrans(a, b, cm, false);
 		//val c = a * b.T();
 
 		val c= DenseMatrix.make(M, N);
@@ -125,7 +120,7 @@ class TransMultTest {
 		b.initRandom();
 		val cm = DenseMatrix.make(M, N);
 
-		DenseMultBLAS.compTransMultTrans(a, b, cm, false); //val c = a.T() * b.T();
+		DenseMatrixBLAS.compTransMultTrans(a, b, cm, false); //val c = a.T() * b.T();
 		//
 		val c= DenseMatrix.make(M, N);
 		MatrixMultXTen.compTransMultTrans(a, b, c, false);
@@ -151,7 +146,7 @@ class TransMultTest {
 		am.initRandom();
 		bm.initRandom();
 		val cm = DenseMatrix.make(M,N); 
-		DenseMultBLAS.compTransMult(am, bm, cm, false);
+		DenseMatrixBLAS.compTransMult(am, bm, cm, false);
 		//c=a.T() * b;
 		//c.print("Result a.T * b\n");
 	
@@ -180,7 +175,7 @@ class TransMultTest {
 		bm.initRandom();
 
 		val cm = DenseMatrix.make(M,N);
-		DenseMultBLAS.compMultTrans(am, bm, cm, false);//val c = a * b.T();
+		DenseMatrixBLAS.compMultTrans(am, bm, cm, false);//val c = a * b.T();
 
 		val a = am as Matrix(M, K);
 		val b = bm as Matrix(N,K); 
@@ -205,7 +200,7 @@ class TransMultTest {
 		am.initRandom();
 		bm.initRandom();
 		val cm = DenseMatrix.make(M,N);
-		DenseMultBLAS.compTransMultTrans(am, bm, cm, false); //val c = a.T() * b.T();
+		DenseMatrixBLAS.compTransMultTrans(am, bm, cm, false); //val c = a.T() * b.T();
 		
 		val a  = am as Matrix(K,M);
 		val b  = bm as Matrix(N,K);

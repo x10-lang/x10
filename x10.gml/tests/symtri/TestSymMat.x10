@@ -40,6 +40,7 @@ class CellWiseSymMatTest {
 		var ret:Boolean = true;
  		// Set the matrix function
 		ret &= (testClone());
+		ret &= (testInit());
 		ret &= (testScale());
 		ret &= (testAdd());
 		ret &= (testAddSub());
@@ -90,6 +91,22 @@ class CellWiseSymMatTest {
 			Console.OUT.println("---------- Symmetric Matrix chain assignment test failed!-------");
 		}
 		
+		return ret;
+	}
+	
+	public def testInit():Boolean {
+		Console.OUT.println("Starting Symmetric Matrix initialization test");
+		var ret:Boolean = true;
+		val sym = SymMatrix.make(M).init((r:Int, c:Int)=>(1.0+r+c));
+		
+		for (var c:Int=0; c<M; c++)
+			for (var r:Int=0; r<M; r++)
+				ret &= (sym(r,c) == 1.0+r+c);
+		
+		if (ret)
+			Console.OUT.println("Symmetric matrix initialization func test passed!");
+		else
+			Console.OUT.println("--------Symmetric matrix initialization func failed!--------");	
 		return ret;
 	}
 	
