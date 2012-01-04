@@ -46,7 +46,7 @@ class TestSBMatrix {
 		N = args.size > 1 ?Int.parse(args(1)):M+2;
 		R = args.size > 2 ?Int.parse(args(2)):2;
 		C = args.size > 3 ?Int.parse(args(3)):3;
-		nzd =  args.size > 4 ?Double.parse(args(4)):0.2;
+		nzd =  args.size > 4 ?Double.parse(args(4)):0.9;
 		grid = new Grid(M, N, R, C);
 	}
 
