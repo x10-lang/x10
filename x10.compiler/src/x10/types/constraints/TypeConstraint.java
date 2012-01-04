@@ -462,52 +462,50 @@ public class TypeConstraint implements Copy, Serializable {
             Type S = xft.returnType();
             CConstraint g = xft.guard();
             
-             
-                XVar[] ys = Types.toVarArray(Types.toLocalDefList(yft.formalNames()));
-                XVar[] xs = Types.toVarArray(Types.toLocalDefList(xft.formalNames()));
-                
-                if (g != null) {
-                    try {
-                        g = g.substitute(xs, ys);
-                    } catch (XFailure e) {
-                        throw new InternalCompilerError("Unexpected exception comparing function types", xft.position(), e);
-                    }
-                }
-                if (h != null) {
-                    try {
-                        h = h.substitute(xs, ys);
-                    } catch (XFailure e) {
-                        throw new InternalCompilerError("Unexpected exception comparing function types", yft.position(), e);
-                    }
-                }
-                
-            
-            
-            if (Tl.size() == Sl.size() && (T.isVoid() == S.isVoid()) && ts.env(ts.emptyContext()).entails(h, g)) {
-                // Now we are in the case xft is (S1,..,Sn){g}=>S and yft is (T1,...,Tn){h}=>T
-                // This will generate for each i, Si <: Ti (contravariant arguments) and
-                // T <: S (covariant return types).
-                for (int i = 0; i < Sl.size(); i++) {
-                    Type Si = Sl.get(i);
-                    Type Ti = Tl.get(i);
-                    try {
-                        Ti = Subst.subst(Ti, xs, ys, new Type[]{}, new ParameterType[]{});
-                        Si = Subst.subst(Si, xs, ys, new Type[]{}, new ParameterType[]{});
-                    } catch (SemanticException e) {
-                        throw new InternalCompilerError("Unexpected exception comparing function types", e);
-                    }
-                    addTypeParameterBindings(Ti, Si, false);
-                }
-                if (!S.isVoid()) {
-                    try {
-                        T = Subst.subst(T, xs, ys, new Type[]{}, new ParameterType[]{});
-                        S = Subst.subst(S, xs, ys, new Type[]{}, new ParameterType[]{});
-                    } catch (SemanticException e) {
-                        throw new InternalCompilerError("Unexpected exception comparing function types", e);
-                    }
-                    addTypeParameterBindings(S, T, false);
-                }
-            }
+           if ( Tl.size() == Sl.size() && (T.isVoid() == S.isVoid())) { 
+               XVar[] ys = Types.toVarArray(Types.toLocalDefList(yft.formalNames()));
+               XVar[] xs = Types.toVarArray(Types.toLocalDefList(xft.formalNames()));
+
+               if (g != null) {
+                   try {
+                       g = g.substitute(xs, ys);
+                   } catch (XFailure e) {
+                       throw new InternalCompilerError("Unexpected exception comparing function types", xft.position(), e);
+                   }
+               }
+               if (h != null) {
+                   try {
+                       h = h.substitute(xs, ys);
+                   } catch (XFailure e) {
+                       throw new InternalCompilerError("Unexpected exception comparing function types", yft.position(), e);
+                   }
+               }
+               if (ts.env(ts.emptyContext()).entails(h, g)) {
+                   // Now we are in the case xft is (S1,..,Sn){g}=>S and yft is (T1,...,Tn){h}=>T
+                   // This will generate for each i, Si <: Ti (contravariant arguments) and
+                   // T <: S (covariant return types).
+                   for (int i = 0; i < Sl.size(); i++) {
+                       Type Si = Sl.get(i);
+                       Type Ti = Tl.get(i);
+                       try {
+                           Ti = Subst.subst(Ti, xs, ys, new Type[]{}, new ParameterType[]{});
+                           Si = Subst.subst(Si, xs, ys, new Type[]{}, new ParameterType[]{});
+                       } catch (SemanticException e) {
+                           throw new InternalCompilerError("Unexpected exception comparing function types", e);
+                       }
+                       addTypeParameterBindings(Ti, Si, false);
+                   }
+                   if (!S.isVoid()) {
+                       try {
+                           T = Subst.subst(T, xs, ys, new Type[]{}, new ParameterType[]{});
+                           S = Subst.subst(S, xs, ys, new Type[]{}, new ParameterType[]{});
+                       } catch (SemanticException e) {
+                           throw new InternalCompilerError("Unexpected exception comparing function types", e);
+                       }
+                       addTypeParameterBindings(S, T, false);
+                   }
+               }
+           }
         }
         else if (ytype instanceof X10ClassType) {
             X10ClassType yct = (X10ClassType) ytype;
