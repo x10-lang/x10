@@ -137,7 +137,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             } catch (java.lang.Error e) {
                 throw e;
             } catch (java.lang.Throwable t) {
-                throw new x10.runtime.impl.java.WrappedThrowable(t);
+                // TODO try to consolidate WrappedThrowable with UnknownJavaThrowable
+//                throw new x10.runtime.impl.java.WrappedThrowable(t);
+                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
             }
         }
 

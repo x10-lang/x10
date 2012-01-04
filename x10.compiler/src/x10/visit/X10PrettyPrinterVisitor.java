@@ -217,7 +217,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_STRING = "x10.core.String";
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
-    public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.WrappedThrowable";
+    // TODO try to consolidate WrappedThrowable with UnknownJavaThrowable
+//    public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.WrappedThrowable";
+    public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
 
     public static final String MAIN_CLASS = "$Main";
