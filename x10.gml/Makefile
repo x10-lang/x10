@@ -93,14 +93,14 @@ sparse_src=\
   	x10/matrix/sparse/Compress1D.x10 \
    	x10/matrix/sparse/Compress2D.x10 \
    	x10/matrix/sparse/DenseMultSparseToDense.x10 \
-    x10/matrix/sparse/SparseCSR.x10 \
-    x10/matrix/sparse/SparseMultSparseToDense.x10 \
-    x10/matrix/sparse/SparseAddToDense.x10 \
-    x10/matrix/sparse/SparseDivToDense.x10 \
-    x10/matrix/sparse/SparseSubToDense.x10 \
-    x10/matrix/sparse/CompressArray.x10  \
-    x10/matrix/sparse/SparseCSC.x10  \
-    x10/matrix/sparse/SparseMultDenseToDense.x10
+    	x10/matrix/sparse/SparseCSR.x10 \
+    	x10/matrix/sparse/SparseMultSparseToDense.x10 \
+    	x10/matrix/sparse/SparseAddToDense.x10 \
+    	x10/matrix/sparse/SparseDivToDense.x10 \
+    	x10/matrix/sparse/SparseSubToDense.x10 \
+    	x10/matrix/sparse/CompressArray.x10  \
+    	x10/matrix/sparse/SparseCSC.x10  \
+    	x10/matrix/sparse/SparseMultDenseToDense.x10
 
 block_src=\
 	x10/matrix/block/BlockMatrix.x10  \
@@ -120,10 +120,7 @@ dist_src=\
 	x10/matrix/dist/DupMatrix.x10 \
 	x10/matrix/dist/DistMatrix.x10 \
 	x10/matrix/dist/DistSparseMatrix.x10  \
-	x10/matrix/dist/DupMultToDup.x10 \
-	x10/matrix/distblock/DistMap.x10 \
-	x10/matrix/distblock/DistGrid.x10 \
-	x10/matrix/distblock/DistBlockMatrix.x10
+	x10/matrix/dist/DupMultToDup.x10 
 	
 
 summa_src=\
