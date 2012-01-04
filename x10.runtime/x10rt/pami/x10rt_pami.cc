@@ -214,11 +214,6 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	memset(&hints, 0, sizeof(pami_send_hint_t));
 	hints.recv_contiguous = PAMI_HINT_ENABLE;
 
-	if (checkBoolEnvVar(getenv(X10RT_PAMI_BUFFER_REGISTERED)))
-		hints.buffer_registered = PAMI_HINT_ENABLE;
-
-	//hints.multicontext = PAMI_HINT_DISABLE;
-
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
 	pami_dispatch_callback_function fn;
 	fn.p2p = local_msg_dispatch;
@@ -560,6 +555,7 @@ static void get_handler_complete (pami_context_t   context,
 	parameters.send.data.iov_len    = 0;
 	parameters.send.dest 			= header->dest_place;
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = cookie;
 	parameters.events.local_fn      = cookie_free;
 	parameters.events.remote_fn     = NULL;
@@ -1067,6 +1063,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		parameters.send.data.iov_len    = p->len;
 		parameters.send.dest 			= target;
 		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 		parameters.events.remote_fn     = NULL;
 
 		#ifdef DEBUG
@@ -1212,6 +1209,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		parameters.send.data.iov_len    = header->x10msg.len;
 		parameters.send.dest 			= target;
 		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 		parameters.events.cookie		= (void*)header;
 		parameters.events.local_fn		= free_header_data;
 		parameters.events.remote_fn     = NULL;
@@ -1282,6 +1280,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	parameters.send.data.iov_len    = header->x10msg.len;
 	parameters.send.dest 			= target;
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = NULL;
 	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;
@@ -1566,6 +1565,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	parameters.send.data.iov_base   = state.teams[newTeamId].places; // team members
 	parameters.send.data.iov_len    = placec*sizeof(pami_task_t);
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = NULL;
 	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;
