@@ -414,6 +414,9 @@ public class Vector(N:Int) implements (Int) => Double {
  	public def compDistance(V:Vector(N)):Double =
  		compDistance(this, V);
  	
+ 	public static def norm(a:Vector, b:Vector(a.N))=compDistance(a,b);
+ 	public def norm(V:Vector(N)) = compDistance(this, V);
+ 	
  	// Sum
  	public def sum():Double {
  		var s:Double = 0.0;
