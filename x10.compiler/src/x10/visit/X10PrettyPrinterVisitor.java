@@ -4451,6 +4451,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         w.write(") {");
                         w.newline();
 
+                        // stop generating redundant code for empty block
+                        if (!cb.body().statements().isEmpty()) {
                         cb.formal().translate(w, tr);
                         w.write(" = ");
                         // TODO:CAST
@@ -4461,6 +4463,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                         cb.body().translate(w, tr);
                         w.newline();
+                        }
 
                         w.write("}");
                         w.newline();
