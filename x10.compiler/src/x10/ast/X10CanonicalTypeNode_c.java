@@ -303,8 +303,10 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
             w.write("<unknown-type>");
         } else {
             type.get().print(w);
-            final X10ParsedClassType baseType = Types.myBaseType(type.get());
-            if (extras && baseType!=null
+            // vj: printing Parameters should be handled by the type itself.
+            // Move this code to ClassType_c.print(CodeWriter).
+            /*final X10ParsedClassType baseType = Types.myBaseType(type.get());
+              if (extras && baseType!=null
                     && !(baseType instanceof FunctionType_c)) {
                 List<Type> typeArguments = baseType.typeArguments();
                 if (typeArguments != null && typeArguments.size() > 0) {
@@ -323,7 +325,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
                     w.write("]");
                     w.end();
                 }
-            }
+            }*/
             if (extras && type.get() instanceof ConstrainedType) {
                 ((ConstrainedType) type.get()).printConstraint(w);
             }

@@ -12,9 +12,11 @@ import java.util.*;
 import polyglot.frontend.Globals;
 import polyglot.frontend.Job;
 import polyglot.util.*;
+import x10.types.FunctionType_c;
 import x10.types.MethodInstance;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
+import x10.types.X10ParsedClassType;
 
 /**
  * A <code>ClassType</code> represents a class -- either loaded from a
@@ -256,25 +258,46 @@ public abstract class ClassType_c extends ReferenceType_c implements ClassType
     
     /** Pretty-print the name of this class to w. */
     public void print(CodeWriter w) {
-	// XXX This code duplicates the logic of toString.
+        // XXX This code duplicates the logic of toString.
         if (isTopLevel()) {
             if (package_() != null) {
-		package_().print(w);
-		w.write(".");
-		w.allowBreak(2, 3, "", 0);
+                package_().print(w);
+                w.write(".");
+                w.allowBreak(2, 3, "", 0);
             }
             w.write(name().toString());
+            final X10ParsedClassType baseType = Types.myBaseType(this);
+            if (baseType!=null
+                    && !(baseType instanceof FunctionType_c)) {
+                List<Type> typeArguments = baseType.typeArguments();
+                if (typeArguments != null && typeArguments.size() > 0) {
+                    w.write("[");
+                    w.allowBreak(2, 2, "", 0); // miser mode
+                    w.begin(0);
+                            
+                    for (Iterator<Type> i = typeArguments.iterator(); i.hasNext(); ) {
+                        Type t = i.next();
+                        t.print(w);
+                        if (i.hasNext()) {
+                        w.write(",");
+                        w.allowBreak(0, " ");
+                        }
+                    }
+                    w.write("]");
+                    w.end();
+                }
+            }
         } else if (isMember()) {
             container().print(w);
-	    w.write(".");
-	    w.allowBreak(2, 3, "", 0);
-	    w.write(name().toString());
+            w.write(".");
+            w.allowBreak(2, 3, "", 0);
+            w.write(name().toString());
         } else if (isLocal()) {
-	    w.write(name().toString());
+            w.write(name().toString());
         } else if (isAnonymous()) {
-	    w.write("<anonymous class>");
+            w.write("<anonymous class>");
         } else {
-	    w.write("<unknown class>");
+            w.write("<unknown class>");
         }
     }
 
