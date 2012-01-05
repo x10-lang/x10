@@ -16,7 +16,7 @@ import x10.constraint.XFailure;
  *
  */
 public interface ConstraintMaker {
-    
+
     /**
      * Produce the constraint.
      * @return

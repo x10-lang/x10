@@ -20,33 +20,15 @@ import x10.constraint.XVar;
  */
 public class CSelf extends XRoot {
     private static final long serialVersionUID = 7709199402803815649L;
-    
     public final int num;
-    
-    public CSelf(int n) {
-        this.num=n;
-    }
-    
-    public int hashCode() {
-        return num;
-    }
-
-    public boolean okAsNestedTerm() {
-    	return true;
-    }
-    public boolean hasVar(XVar v) {
-        return equals(v);
-    }
+    public CSelf(int n) {this.num=n;}
+    public int hashCode() {return num;}
+    public boolean okAsNestedTerm() {return true;}
+    public boolean hasVar(XVar v) {return equals(v);}
     public boolean equals(Object o) {
-        if (this == o)
-            return true;
-        if (o instanceof CSelf) {
-            return num == ((CSelf) o).num;
-        }
+        if (this == o) return true;
+        if (o instanceof CSelf) return num == ((CSelf) o).num;
         return false;
     }
-
-    public String toString() {
-        return CTerms.SELF_VAR_PREFIX;// + num;
-    }
+    public String toString() {return CTerms.SELF_VAR_PREFIX;}
 }

@@ -16,24 +16,16 @@ import x10.types.X10FieldDef;
 
 public class QualifiedVar extends XField<Type> {
     private static final long serialVersionUID = -407228981450822754L;
-    
     // lazily initialized
     private String string;
     private String getString() {
-        if (string == null) {
-            string = field + "." + receiver;
-        }
+        if (string == null) string = field + "." + receiver;
         return string;
     }
-    
-    public QualifiedVar(Type fi, XVar r) {
-        super(r, fi, false);
-    }
-   
+    public QualifiedVar(Type fi, XVar r) {super(r, fi, false);}
     @Override
     public QualifiedVar copyReceiver(XVar newReceiver) {
-        if (newReceiver == receiver)
-            return this;
+        if (newReceiver == receiver) return this;
         return new QualifiedVar(field, newReceiver);
     }
     /**
@@ -42,39 +34,18 @@ public class QualifiedVar extends XField<Type> {
      * is A.
      * @return
      */
-    public Type type() {
-      return field;
+    public Type type() {return field;}
+    public XVar var() {return receiver;}
+
+    @Override public XTerm subst(XTerm y, XVar x, boolean propagate) {
+        return equals(x) ? y : receiver.equals(x) 
+            ? copyReceiver((XVar) y) : super.subst(y, x, propagate);
     }
-    public XVar var() {
-        return receiver;
-    }
-    
-    @Override
-    public XTerm subst(XTerm y, XVar x, boolean propagate) {
-        return equals(x) ? y : 
-            receiver.equals(x) 
-            ? copyReceiver((XVar) y)
-                    : super.subst(y, x, propagate);
-    }
-    
+
     public boolean equals(Object x) {
-        if (! (x instanceof QualifiedVar)) {
-            return false;
-        }
+        if (! (x instanceof QualifiedVar)) return false;
         QualifiedVar o = (QualifiedVar) x;
         return receiver.equals(o.receiver) && field == o.field;
     }
-  /*  public XVar thisVar() {
-        if (field instanceof X10FieldDef) {
-            return ((X10ClassDef) Types.get(((X10FieldDef) field).container()).toClass().def()).thisVar();
-        }
-        return null;
-    }
-  */
-  
-    @Override
-    public String toString() {
-        return getString();
-    }
-    
+    @Override public String toString() {return getString();}
 }

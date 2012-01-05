@@ -18,24 +18,15 @@ import x10.constraint.XTerm;
  *
  */
 public class CAtom extends XFormula<MemberDef> {
-  private static final long serialVersionUID = -1734428949188126121L;
-  public CAtom(MethodDef op, MethodDef opAsExpr, List<XTerm> args) {
-      super(op, opAsExpr, args, true);
-  }
-  public CAtom(MethodDef op, MethodDef opAsExpr, XTerm... args) {
-      super(op, opAsExpr, true, args);
-  }
-  public CAtom(FieldDef op, FieldDef opAsExpr, List<XTerm> args) {
-      super(op, opAsExpr, args, true);
-  }
-  public CAtom(FieldDef op, FieldDef opAsExpr, XTerm... args) {
-      super(op, opAsExpr, true, args);
-  }
-  
-  /**
-   * Return the MemberDef that this CAtom is built on.
-   * @return
-   */
-  public MemberDef def() {return op;}
-  public MemberDef exprDef() {return asExprOp;}
+    private static final long serialVersionUID = -1734428949188126121L;
+    public CAtom(MethodDef op, MethodDef opAsExpr, List<XTerm> args) {super(op, opAsExpr, args, true);}
+    public CAtom(MethodDef op, MethodDef opAsExpr, XTerm... args) {super(op, opAsExpr, true, args);}
+    public CAtom(FieldDef op, FieldDef opAsExpr, List<XTerm> args) {super(op, opAsExpr, args, true);}
+    public CAtom(FieldDef op, FieldDef opAsExpr, XTerm... args) {super(op, opAsExpr, true, args);}
+    /**
+     * Return the MemberDef that this CAtom is built on.
+     * @return
+     */
+    public MemberDef def() {return op;}
+    public MemberDef exprDef() {return asExprOp;}
 }
