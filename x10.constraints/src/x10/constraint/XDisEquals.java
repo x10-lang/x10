@@ -18,41 +18,30 @@ package x10.constraint;
  *
  */
 
-
 public class XDisEquals extends XFormula<String> {
+    private static final long serialVersionUID = 1513527157734278225L;
 
-
-	public XDisEquals(XTerm left, XTerm right) {
+    public XDisEquals(XTerm left, XTerm right) {
 		super(XTerms.disEqualsName, XTerms.asExprDisEqualsName, false, left, right);
 	}
 	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 	    XPromise p = c.intern(left());
-	    if (p == null)
-	        return null;
+	    if (p == null) return null;
 	    XPromise q = c.intern(right());
-	    if (q == null)
-	        return null;
+	    if (q == null) return null;
 
 	    XTerm pTerm = p.term(), qTerm = q.term();
 	    if (pTerm instanceof XLit && qTerm instanceof XLit) {
-	        if (pTerm.equals(qTerm))
-	            return c.intern(XTerms.FALSE);
-	        else
-	            return c.intern(XTerms.TRUE);
+	            return c.intern(pTerm.equals(qTerm)?XTerms.FALSE:XTerms.TRUE);
 	    }
 	    else {
-	        if (p != q || ! pTerm.equals(qTerm))
-	            // Handle x==x also
+	        if (p != q || ! pTerm.equals(qTerm)) // Handle x==x also
 	            return c.intern(XTerms.TRUE);
-	        else
-	            return super.internIntoConstraint(c, last);
+	        else return super.internIntoConstraint(c, last);
 	    }
 	}
 	
-	@Override
-	public String toString() {
-		return left() + "!=" + right();
-	}
+	@Override public String toString() {return left() + "!=" + right();}
 
 }
 

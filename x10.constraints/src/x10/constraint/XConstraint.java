@@ -11,6 +11,7 @@
 
 package x10.constraint;
 
+import x10.constraint.visitors.AddInVisitor;
 import x10.constraint.visitors.ConstraintGenerator;
 import x10.constraint.visitors.EntailsVisitor;
 import x10.constraint.visitors.XGraphVisitor;
@@ -89,9 +90,7 @@ public class XConstraint implements Cloneable {
 
     public XConstraint() {}
     
-    public Map<XTerm, XPromise> roots() {
-        return roots;
-    }
+    public Map<XTerm, XPromise> roots() { return roots;}
     
     /**
 	 * Return the list of existentially quantified variables in this constraint.
@@ -101,8 +100,7 @@ public class XConstraint implements Cloneable {
     	List<XVar> xvars = new LinkedList<XVar>();
     	if (roots==null) return xvars;
     	for (XTerm xt : roots.keySet()) {
-    		if (xt.isEQV())
-    			xvars.add((XVar) xt);
+    		if (xt.isEQV()) xvars.add((XVar) xt);
     	}
     	return xvars;
     }
@@ -156,27 +154,23 @@ public class XConstraint implements Cloneable {
        // return copyInto(new XConstraint());
     }
     public void addIn(XConstraint c) {
-    	    if (c== null)
-    	        return;
-    	    if (! c.consistent()) {
-    	        setInconsistent();
-                return;
-    	    }
-    	    if (c.valid()) {
-    	        return;
-    	    }
-    	    x10.constraint.visitors.AddInVisitor v 
-    	    = new x10.constraint.visitors.AddInVisitor(true, false, this);
-    	    // hideFake==false to permit the "place checking" to work.
-    	    // This ensures that multiple objects created at the same place
-    	    // e.g. GlobalRef's, are treated as being at the same place by the 
-    	    // type-checker.
-    	    c.visit(v);
-    	    // vj: What about thisVar for c? Should that be added?
-    	    // thisVar = getThisVar(this, c);
-    	    return;
-    	}
-    
+        if (c== null) return;
+        if (! c.consistent()) {
+            setInconsistent();
+            return;
+        }
+        if (c.valid()) return;
+        AddInVisitor v  = new AddInVisitor(true, false, this);
+        // hideFake==false to permit the "place checking" to work.
+        // This ensures that multiple objects created at the same place
+        // e.g. GlobalRef's, are treated as being at the same place by the 
+        // type-checker.
+        c.visit(v);
+        // vj: What about thisVar for c? Should that be added?
+        // thisVar = getThisVar(this, c);
+        return;
+    }
+
     /**
      * Return the result of copying this into c.  
      * TODO: Do this with an XGraphVisitor.
@@ -231,9 +225,7 @@ public class XConstraint implements Cloneable {
 	 */
     public List<XFormula<?>> atoms() {
     	List<XFormula<?>> r = new LinkedList<XFormula<?>>();
-    	if (roots == null)
-    		return r;
-    		
+    	if (roots == null) return r;
     	for (XTerm t : roots.keySet()) {
     		if (t instanceof XFormula<?>) {
     			r.add((XFormula<?>) t);
@@ -246,32 +238,23 @@ public class XConstraint implements Cloneable {
      * @return
      */
     public Set<XVar> vars() {
-        List<XTerm> terms = constraints();
         Set <XVar> result = CollectionFactory.newHashSet();
-        for (XTerm term : terms) {
-           addTerm(term, result);
-        }
+        for (XTerm term : constraints()) addTerm(term, result);
         return result;   
     }
     private void addTerm(XTerm term, Set<XVar> result) {
-        if (term==null)
-            return;
+        if (term==null) return;
         if (term instanceof XFormula) {
             XFormula<?> form = (XFormula<?>) term;
-            for (XTerm arg : form.arguments())
-                addTerm(arg, result);
+            for (XTerm arg : form.arguments()) addTerm(arg, result);
             return;
         } 
-        if (term instanceof XVar)
-            addVar((XVar) term, result);
+        if (term instanceof XVar) addVar((XVar) term, result);
     }
     private void addVar(XVar var, Set<XVar> result) {
-        if (var == null)
-            return;
+        if (var == null) return;
         result.add(var);
-        if (var instanceof XField) {
-            addVar(((XField)var).receiver(), result);
-        }
+        if (var instanceof XField) addVar(((XField)var).receiver(), result);
     }
    
     /**
@@ -280,16 +263,12 @@ public class XConstraint implements Cloneable {
 	 * returns the field consistent.
 	 * @return true iff the constraint is consistent.
      */
-    public boolean consistent() {
-        return consistent;
-    }
+    public boolean consistent() { return consistent; }
 
     /** Is the constraint valid? i.e. is it satisfied by every solution?
      * 
      */
-    public boolean valid() { 	
-        return consistent && valid;
-    }
+    public boolean valid() { return consistent && valid;}
 
     private boolean flatten(boolean isEq, XTerm left, XTerm right)  {
 
@@ -310,16 +289,10 @@ public class XConstraint implements Cloneable {
                 left = args.get(0);
                 right = args.get(1);
                 boolean isLitTrue = boolLit==XTerms.TRUE;
-                if (isLitTrue==isEquals) {
-                    // ok
-                } else {
-                    isEq = !isEq;
-                }
-                if (isEq) {
-                    addBinding(left, right);
-                } else {
-                    addDisBinding(left, right);
-                }
+                if (isLitTrue==isEquals) {}           // ok
+                else isEq = !isEq;
+                if (isEq) addBinding(left, right);
+                else  addDisBinding(left, right);
                 return true;
             }
         }
@@ -336,22 +309,13 @@ public class XConstraint implements Cloneable {
         assert right != null;
 
         if (flatten(true,left, right)) return;
-
-        if (!consistent)
-            return;
-        if (roots == null)
-            roots = CollectionFactory.<XTerm, XPromise> newHashMap();
+        if (!consistent) return;
+        if (roots == null) roots = CollectionFactory.<XTerm, XPromise> newHashMap();
 
         XPromise p1 = intern(left);
-        if (p1==null) {
-            setInconsistent();
-            return;
-        }
+        if (p1==null) { setInconsistent(); return;}
         XPromise p2 = intern(right);
-        if (p2 == null) {
-            setInconsistent();
-            return;
-        }
+        if (p2 == null) { setInconsistent();return;}
         try {
             valid &= ! p1.bind(p2, this);
         } catch (XFailure z) {
@@ -371,34 +335,18 @@ public class XConstraint implements Cloneable {
     	assert right !=null;
 
         if (flatten(false,left, right)) return;
-
-    	if (! consistent)
-    		return;
-    	if (roots == null)
-    		roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+    	if (! consistent) return;
+    	if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
     	XPromise p1 = intern(left);
-    	if (p1 == null) {
-    	    setInconsistent();
-    	    return;
-    	}
+    	if (p1 == null)    {setInconsistent();return;}
     	XPromise p2 = intern(right);
-    	if (p2 == null) {
-    	    setInconsistent();
-    	    return;
-    	}
-    	if (p1.equals(p2)) {
-    		setInconsistent();
-    		return;
-    	}
+    	if (p2 == null)    {setInconsistent();return;}
+    	if (p1.equals(p2)) {setInconsistent();return;}
     	try {
     	    valid &= ! p1.disBind(p2);
     	    if (left instanceof XField<?> && right instanceof XField<?>) {
-    	    	XField<?> lf = (XField<?>) left;
-    	    	XField<?> rf = (XField<?>) right;
-    	    	if (lf.field()==rf.field()) {
-    	    		addDisBinding(lf.receiver(), rf.receiver());
-    	    	}
-    	    	
+    	    	XField<?> lf = (XField<?>) left, rf = (XField<?>) right;
+    	    	if (lf.field()==rf.field()) addDisBinding(lf.receiver(), rf.receiver()); 	    	
     	    }
     	} catch (XFailure z) {
     	    setInconsistent();
@@ -415,17 +363,11 @@ public class XConstraint implements Cloneable {
 	 * @throws XFailure
 	 */
     public void addAtom(XTerm t) throws XFailure {
-        if (!consistent)
-            return;
+        if (!consistent) return;
         valid = false;
-        if (roots == null)
-            roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+        if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
         XPromise p = t.nfp(this);
-        
-        if (p != null)
-            // nothing to do
-            return;
-        
+        if (p != null) return;           // nothing to do    
         p = intern(t);
     }
     /**
@@ -435,18 +377,14 @@ public class XConstraint implements Cloneable {
 	 * @return
 	 */
     public boolean entails(XConstraint other)  {
-        if (!consistent)
-            return true;
-        if (other == null || other.valid())
-            return true;
+        if (!consistent) return true;
+        if (other == null || other.valid()) return true;
         EntailsVisitor ev = new EntailsVisitor(true, false, this);
         other.visit(ev);
         return ev.result();
     }
     
-    public void setInconsistent() {
-        this.consistent = false;
-    }  
+    public void setInconsistent() { this.consistent = false; }  
    
     /**
 	 * Return the least upper bound of this and other. That is, the resulting 
@@ -458,20 +396,14 @@ public class XConstraint implements Cloneable {
 	 * @return
 	 */
     public XConstraint leastUpperBound(XConstraint other) {
-        if (! consistent)
-            return other;
-        if (! other.consistent())
-            return this;
-        if (valid) 
-            return this;
-        if (other.valid())
-            return other;
+        if (! consistent)         return other;
+        if (! other.consistent()) return this;
+        if (valid)                return this;
+        if (other.valid())        return other;
        	XConstraint result = new XConstraint();
        	for (XTerm term : other.constraints()) {
        		try {
-       			if (entails(term)) {
-       				result.addTerm(term);
-       			}
+       			if (entails(term)) result.addTerm(term);
        		} catch (XFailure z) {
        		    result.setInconsistent();
        		}
@@ -489,14 +421,10 @@ public class XConstraint implements Cloneable {
     public XConstraint residue(XConstraint other) {
         assert other.consistent();
         XConstraint result = new XConstraint();
-        if (! consistent)
-            return result;
-
+        if (! consistent) return result;
         for (XTerm term : other.constraints()) {
             try {
-                if (! entails(term)) {
-                    result.addTerm(term);
-                }
+                if (! entails(term)) result.addTerm(term);
             } catch (XFailure z) {
                 // since other is consistent, result must be.
                 result.setInconsistent();
@@ -513,8 +441,7 @@ public class XConstraint implements Cloneable {
 	 * @return
 	 */
     public List<XTerm> constraints() {
-        if (roots == null)
-            return new ArrayList<XTerm>(0);
+        if (roots == null) return new ArrayList<XTerm>(0);
         ConstraintGenerator cg = new ConstraintGenerator(true, false);
         visit(cg);
         return cg.result();
@@ -531,13 +458,11 @@ public class XConstraint implements Cloneable {
 	 */
 
     protected void visit( XGraphVisitor xg) {
-        if (roots == null)
-            return;
+        if (roots == null) return;
         Collection<XPromise> values = roots.values();
         for (XPromise p : values) {
         	boolean result = p.visit(null, xg, this);
-            if (! result )
-                return;
+            if (! result ) return;
         }
     }
     
@@ -569,13 +494,10 @@ public class XConstraint implements Cloneable {
     public boolean disEntails(XTerm t1, XTerm t2)  {
     	if (! consistent) return true;
     	XPromise p1 = t1.nfp(this);
-    	if (p1 == null) // this constraint knows nothing about t1.
-    		return false;
+    	if (p1 == null) return false; // this constraint knows nothing about t1.
     	XPromise p2 = t2.nfp(this);
-    	if (p2 == null)
-    		return false;
-    	if (p1.isDisBoundTo(p2))
-    		return true;
+    	if (p2 == null) return false;
+    	if (p1.isDisBoundTo(p2)) return true;
     	Map<Object, XPromise> p1f = p1.fields();
     	if (p1f !=null) {
     		Map<Object, XPromise> p2f = p2.fields();
@@ -584,9 +506,7 @@ public class XConstraint implements Cloneable {
     				Object field = me.getKey();
     				XPromise r1 = me.getValue().lookup();
     				XPromise r2 = p2f.get(field).lookup();
-    				if (r1.isDisBoundTo(r2))
-    					return true;
-    				
+    				if (r1.isDisBoundTo(r2)) return true;
     			}
     	}
     	return false;
@@ -601,8 +521,7 @@ public class XConstraint implements Cloneable {
 	 * @return true iff this |- a==b
 	 */
     public boolean entails(XTerm t1, XTerm t2)  {
-        if (!consistent)
-            return true;
+        if (!consistent) return true;
         XPromise p1 = t1.nfp(this);
         XPromise p2 = t2.nfp(this);
         return p1 == p2 || p1.term().equals(p2.term());
@@ -616,12 +535,7 @@ public class XConstraint implements Cloneable {
 	 */
     public boolean equiv(XConstraint other) throws XFailure {
         boolean result = entails(other);
-        if (result) {
-            if (other == null)
-                result = valid;
-            else
-                result = other.entails(this);
-        }
+        if (result) result =  other == null ? valid : other.entails(this);
         return result;
     }
 
@@ -632,47 +546,35 @@ public class XConstraint implements Cloneable {
             XTerm left = f.left();
             XTerm right = f.right();
             
-            if (entails(left, right)) {
-                return true;
-            }
+            if (entails(left, right)) return true;
             if (right instanceof XEquals) {
             	XEquals r = (XEquals) right;
-            	if (entails(r.left(), r.right())) {
-            		return entails(left, XTerms.TRUE);
-            	}
+            	if (entails(r.left(), r.right())) return entails(left, XTerms.TRUE);
             	if (disEntails(r.left(), r.right())) {
             		return entails(left, XTerms.FALSE);
             	}
             }
             if (right instanceof XDisEquals) {
             	XDisEquals r = (XDisEquals) right;
-            	if (entails(r.left(), r.right())) {
-            		return entails(left, XTerms.FALSE);
-            	}
-            	if (disEntails(r.left(), r.right())) {
-            		return entails(left, XTerms.TRUE);
-            	}
+            	if (entails(r.left(), r.right())) return entails(left, XTerms.FALSE);
+            	if (disEntails(r.left(), r.right())) return entails(left, XTerms.TRUE);
             }
             
         } else if (t instanceof XDisEquals) {
             XDisEquals f = (XDisEquals) t;
             XTerm left = f.left();
             XTerm right = f.right();
-            
-            if (disEntails(left, right)) {
-                return true;
-            }
+            if (disEntails(left, right)) return true;
         }
         else if (t instanceof XFormula) {
-        	XFormula f = (XFormula) t;
+        	XFormula<?> f = (XFormula<?>) t;
         	Object op = f.operator();
         	List<XTerm> args = f.arguments();
         	int n = args.size();
-        	for (XFormula x : atoms()) {
+        	for (XFormula<?> x : atoms()) {
         		if (x.operator().equals(op)) {
         			List<XTerm> xargs = x.arguments();
-        			if (n!= xargs.size())
-        				continue;
+        			if (n!= xargs.size()) continue;
         			int i=0;
         			while(i < n && entails(args.get(i), xargs.get(i))) i++;
         			if (i==n) return true;
@@ -680,20 +582,14 @@ public class XConstraint implements Cloneable {
         	}
         	return false;
         }
-
         return false;
     }
 
 
     public String toString() {
         XConstraint c = this;
-        
-        if (! c.consistent) {
-            return "{inconsistent}";
-        }
-
+        if (! c.consistent) return "{inconsistent}";
         String str ="";
-
         final boolean exists_toString = false;
         if (exists_toString) {
             List<XVar> eqvs = eqvs();
@@ -711,7 +607,6 @@ public class XConstraint implements Cloneable {
             if (ls !=null)
             	str += ls;
         }
-        
         return "{" + str + "}";
     }
 
@@ -757,14 +652,10 @@ public class XConstraint implements Cloneable {
 			XTerm y = ys[i];
 			XVar x = xs[i];
 
-			if (! y.equals(x))
-				eq = false;
+			if (! y.equals(x)) eq = false;
 		}
-		if (eq)
-			return this;
-    	
-    	if (! consistent)
-    		return this;
+		if (eq) return this;
+    	if (! consistent) return this;
     	
     	// Don't do the quick occurrence check; x might occur in a self constraint.
     	//		XPromise last = lookupPartialOk(x);
@@ -793,10 +684,7 @@ public class XConstraint implements Cloneable {
 
     		try {
     			result.addTerm(t);
-    		}
-    		catch (XFailure z) {
-    			throw z;
-    		}
+    		} catch (XFailure z) { throw z;}
     	}
     	//		XConstraint_c result = clone();
     	//		result.valid = true;
@@ -810,9 +698,7 @@ public class XConstraint implements Cloneable {
 	 * @param v
 	 * @return true iff v is a root variable of this.
 	 */
-    public boolean hasVar(XVar v) {
-        return roots != null && roots.keySet().contains(v);
-    }
+    public boolean hasVar(XVar v) { return roots != null && roots.keySet().contains(v);}
 
   
 	/**
@@ -826,12 +712,8 @@ public class XConstraint implements Cloneable {
     // This is needed for Nelson-Oppen to work correctly.
     // Each atom should be a root.
     public void addTerm(XTerm term) throws XFailure {
-        if (term.isAtomicFormula()) {
-            addAtom(term);
-        }
-        else if (term instanceof XVar) {
-            addBinding(term, XTerms.TRUE);
-        }
+        if (term.isAtomicFormula())    addAtom(term);
+        else if (term instanceof XVar) addBinding(term, XTerms.TRUE);
         /*else if (term instanceof XNot) {
             XNot t = (XNot) term;
             if (t.unaryArg() instanceof XVar)
@@ -882,9 +764,7 @@ public class XConstraint implements Cloneable {
 	 * @throws XFailure
 	 */
 
-    XPromise intern(XTerm term)  {
-        return intern(term, null);
-    }
+    XPromise intern(XTerm term)  { return intern(term, null);}
     
     /**
      * Used to implement substitution:  if last != null, term, is substituted for 
@@ -904,8 +784,7 @@ public class XConstraint implements Cloneable {
     }
 
     XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last)  {
-        if (roots == null)
-            roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+        if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
         XPromise p =  roots.get(baseVar);
         if (p == null) {
             p = (replaceP && last != null) ? last : new XPromise(baseVar);
@@ -915,8 +794,7 @@ public class XConstraint implements Cloneable {
     }
     
     void addPromise(XTerm p, XPromise node) {
-        if (roots == null)
-            roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+        if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
         roots.put(p, node);
     }
 

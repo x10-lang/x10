@@ -15,12 +15,12 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * A representation of a Field.
+ * A representation of a Field.T is a FieldDef or a MethodDef.
  * @author vj
  *
  */
 public class XField<T> extends XVar {
-
+    private static final long serialVersionUID = -6911344390866611523L;
     public XVar receiver;
     public T field;
     public  boolean hasEQV;
@@ -39,9 +39,7 @@ public class XField<T> extends XVar {
         return newThis;
     }
 
-    public XField(XVar receiver, T field) {
-        this(receiver, field, false);
-    }
+    public XField(XVar receiver, T field) { this(receiver, field, false);}
 
     public XField(XVar receiver, T field, boolean hidden) {
         super();
@@ -53,7 +51,6 @@ public class XField<T> extends XVar {
 
     public boolean isHidden() { return hidden; }
     @Override public boolean hasEQV(){ return hasEQV;}
-
     public XTermKind kind() { return XTermKind.FIELD_ACCESS; }
 
     @Override
@@ -62,26 +59,16 @@ public class XField<T> extends XVar {
         if (! equals(r))
             return r;
         XVar newReceiver = (XVar) receiver.subst(y, x);
-        if (newReceiver == receiver) {
-            return this;
-        }
+        if (newReceiver == receiver) return this;
         XField<T> result = clone();
         result.receiver = newReceiver;
         result.hasEQV = newReceiver.hasEQV();
         return result;
     }
 
-
-    public boolean okAsNestedTerm() {
-    	return true;
-    }
-    public List<XEQV> eqvs() {
-        return receiver().eqvs();
-    }
-
-    public T field() {
-        return field;
-    }
+    public boolean okAsNestedTerm() { return true; }
+    public List<XEQV> eqvs() { return receiver().eqvs();}
+    public T field() { return field;}
 
     /** 
      * if this is r.f, then return newReceiver.f.
@@ -89,8 +76,7 @@ public class XField<T> extends XVar {
      * @return
      */
     public XField<T> copyReceiver(XVar newReceiver) {
-    	if (newReceiver == receiver)
-    		return this;
+    	if (newReceiver == receiver) return this;
         return new XField<T>(newReceiver, field, hidden);
     }
     /** If this is r.f1.f2..fn, then return newRoot.f1.f2...fn.
@@ -107,21 +93,10 @@ public class XField<T> extends XVar {
         return copyReceiver(newRoot);
     }
     */
-    public String name() {
-        return field.toString();
-    }
-
-    public boolean hasVar(XVar v) {
-        return equals(v) || receiver.hasVar(v);
-    }
-
-    public XVar receiver() {
-        return receiver;
-    }
-
-    public int hashCode() {
-        return receiver.hashCode() + field.hashCode();
-    }
+    public String name() { return field.toString();}
+    public boolean hasVar(XVar v) { return equals(v) || receiver.hasVar(v);}
+    public XVar receiver() { return receiver; }
+    public int hashCode() { return receiver.hashCode() + field.hashCode(); }
 
     @SuppressWarnings("unchecked")
     public boolean equals(Object o) {
@@ -148,16 +123,13 @@ public class XField<T> extends XVar {
 
     // memoize rootVar and path.
     protected XVar[] vars;
-
     public XVar[] vars() {
-        if (vars == null)
-            initVars();
+        if (vars == null) initVars();
         return vars;
     }
 
     public XVar rootVar() {
-        if (vars == null)
-            initVars();
+        if (vars == null) initVars();
         return vars[0];
     }
 

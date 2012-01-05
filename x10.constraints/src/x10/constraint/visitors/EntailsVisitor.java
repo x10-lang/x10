@@ -22,7 +22,5 @@ public class EntailsVisitor extends XGraphVisitor{
         result &= c1.disEntails(t1, t2);
         return result;
     }
-    public boolean result() {
-        return result;
-    }
+    public boolean result() {return result;}
 }

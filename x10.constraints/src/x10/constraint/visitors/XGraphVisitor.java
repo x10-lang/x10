@@ -2,8 +2,6 @@ package x10.constraint.visitors;
 
 import java.util.HashMap;
 import java.util.Map;
-
-import x10.constraint.XEQV;
 import x10.constraint.XField;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -25,14 +23,11 @@ import x10.constraint.XVar;
  *
  */
 public abstract class XGraphVisitor {
-	
 	Map<XTerm, XTerm> eqvVarRep; 
 
 	protected void addVarRep(XTerm eqv, XTerm rep) {
-		if (eqvVarRep == null)
-			eqvVarRep = new HashMap<XTerm, XTerm>();
-		if (eqvVarRep.get(eqv)==null)
-			eqvVarRep.put(eqv, rep);
+		if (eqvVarRep == null) eqvVarRep = new HashMap<XTerm, XTerm>();
+		if (eqvVarRep.get(eqv)==null) eqvVarRep.put(eqv, rep);
 	}
 	/**
 	 * Returns null unless eqvVarRep is set, and maps eqv to some value v.
@@ -48,8 +43,7 @@ public abstract class XGraphVisitor {
 		if (result == null) return null;
 		while (result.hasEQV()) {
 			XTerm temp = eqvVarRep.get(result);
-			if (temp == null)
-				return result;
+			if (temp == null) return result;
 			result = temp;
 		}
 		return result;
@@ -60,15 +54,13 @@ public abstract class XGraphVisitor {
 	 */
 	protected XTerm nf(XTerm eqv) {
 	    XTerm z = varRep(eqv);
-	    if (z != null)
-	        return z;
+	    if (z != null) return z;
 	    
 	    if (eqv instanceof XField<?> ) {
 	        XField<?> t = (XField<?>) eqv;
 	        XTerm rt = t.receiver();
 	        XTerm tz =nf(rt);
-	        if (tz == null)
-	            return null;
+	        if (tz == null) return null;
 	        return t.copyReceiver((XVar) tz);
 	    }
 	    return null;
@@ -107,15 +99,11 @@ public abstract class XGraphVisitor {
     	if (hideEQV) {
     		if (t1.hasEQV()) {
     			XTerm t1b = nf(t1);
-    			if (t1b != null) {
-    				t1=t1b;
-    			}
+    			if (t1b != null) t1=t1b;
     		}
     		if (t2.hasEQV()) {
     			XTerm t2b = nf(t2);
-    			if (t2b != null) {
-    				t2 = t2b;
-    			}
+    			if (t2b != null) t2 = t2b;
     		}
     		if (t1.hasEQV()) {
     			addVarRep(t1, t2);
@@ -126,10 +114,8 @@ public abstract class XGraphVisitor {
     			return true;
     		}
     	}
-    	 if (hideFake && t1 instanceof XField && ((XField<?>) t1).isHidden())
-             return true;
-         if (hideFake && t2 instanceof XField && ((XField<?>) t2).isHidden())
-             return true;
+    	 if (hideFake && t1 instanceof XField && ((XField<?>) t1).isHidden()) return true;
+         if (hideFake && t2 instanceof XField && ((XField<?>) t2).isHidden()) return true;
     	return visitEquals(t1, t2);
     }
     
@@ -153,9 +139,7 @@ public abstract class XGraphVisitor {
     		}
     		if (t2.hasEQV()) {
     			XTerm t2b = nf(t2);
-    			if (t2b != null) {
-    				t2 = t2b;
-    			}
+    			if (t2b != null) t2 = t2b;
     		}
     		if (t1.hasEQV()) {
     			// ugh. Of course, cannot add t1 --> t2 when we are processing t1 != t2!!!
@@ -173,12 +157,9 @@ public abstract class XGraphVisitor {
     			return true;
     		}
     	}
-   	 if (hideFake && t1 instanceof XField && ((XField<?>) t1).isHidden())
-         return true;
-     if (hideFake && t2 instanceof XField && ((XField<?>) t2).isHidden())
-         return true;
+   	 if (hideFake && t1 instanceof XField && ((XField<?>) t1).isHidden()) return true;
+     if (hideFake && t2 instanceof XField && ((XField<?>) t2).isHidden()) return true;
      return visitDisEquals(t1, t2);
     }
     
-   
 }

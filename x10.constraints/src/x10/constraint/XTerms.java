@@ -56,27 +56,20 @@ public class XTerms {
 	 * Make a fresh EQV with a system chosen name. 
 	 * @return
 	 */
-	public static XEQV makeEQV() {
-		return new XEQV(nextId++);
-	}
+	public static XEQV makeEQV() {return new XEQV(nextId++);}
 	/**
 	 * Make a fresh UQV with a system chosen name. 
 	 * @return
 	 */
-	public static XUQV makeUQV() {
-		return new XUQV(nextId++);
-	}
+	public static XUQV makeUQV() {return new XUQV(nextId++);}
 
 	/**
 	 * Make a fresh UQV whose name starts with prefix.
 	 * @param prefix -- a prefix of the name for the returned UQV
 	 * @return
 	 */
-	public static XUQV makeUQV(String prefix) {
-		return new XUQV(prefix, nextId++);
-	}
+	public static XUQV makeUQV(String prefix) {return new XUQV(prefix, nextId++);}
 
-	
 	/**
 	 * Make and return <code>receiver.field</code>.
 	 * @param receiver
@@ -124,10 +117,7 @@ public class XTerms {
 		assert left != null;
 		assert right != null;
 		if (left instanceof XLit && right instanceof XLit) {
-		        if (left.equals(right))
-		            return XTerms.TRUE;
-		        else
-		            return XTerms.FALSE;
+		        return(left.equals(right))? XTerms.TRUE: XTerms.FALSE;
 		}
 		return new XEquals(left, right);
 	}
@@ -142,11 +132,7 @@ public class XTerms {
 		assert left != null;
 		assert right != null;
 		if (left instanceof XLit && right instanceof XLit) {
-			
-		        if (left.equals(right))
-		            return XTerms.FALSE;
-		        else
-		            return XTerms.TRUE;
+		    return (left.equals(right))?XTerms.FALSE:XTerms.TRUE;
 		}
 		return new XDisEquals(left, right);
 	}
@@ -169,9 +155,7 @@ public class XTerms {
 	 * Return the constraint true.
 	 * @return
 	 */
-	public static XConstraint makeTrueConstraint() {
-		return new XConstraint();
-	}
+	public static XConstraint makeTrueConstraint() {return new XConstraint();}
 	
 	//*************************************** Implementation
 	/**

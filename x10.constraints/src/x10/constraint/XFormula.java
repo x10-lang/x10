@@ -25,11 +25,11 @@ import java.util.Map;
  *
  */
 public class XFormula<T> extends XTerm {
-	    public final T op;
+    private static final long serialVersionUID = -124049106759891751L;
+        public final T op;
 	    public final T asExprOp;
 	    public List<XTerm> arguments;
 	    public final boolean isAtomicFormula;
-
 
         public XTerm accept(TermVisitor visitor) {
             XTerm res = visitor.visit(this);
@@ -91,10 +91,9 @@ public class XFormula<T> extends XTerm {
 	                changed = true;
 	            newArgs.add(a);
 	        }
-	        XFormula n = (XFormula) super.subst(y, x, propagate);
-	        if (! changed)
-	            return n;
-	        if (n == this) n = (XFormula) clone();
+	        XFormula<?> n = (XFormula<?>) super.subst(y, x, propagate);
+	        if (! changed) return n;
+	        if (n == this) n = (XFormula<?>) clone();
 	        n.arguments = newArgs;
 	        return n;
 	    }
@@ -132,10 +131,8 @@ public class XFormula<T> extends XTerm {
 	    public List<XTerm> arguments() { return arguments; }
 
 	    public boolean hasVar(XVar v) {
-	        for (XTerm arg : arguments) {
-	            if (arg.hasVar(v))
-	                return true;
-	        }
+	        for (XTerm arg : arguments) 
+	            if (arg.hasVar(v)) return true;
 	        return false;
 	    }
 	    
@@ -143,19 +140,13 @@ public class XFormula<T> extends XTerm {
 	        assert last == null;
 	        // Evaluate left == right, if both are literals.
 	        XPromise result = nfp(c);
-	        if (result != null) // this term has already been interned.
-	            return result;
+	        if (result != null) return result; // this term has already been interned.
 	        Map<Object, XPromise> fields = CollectionFactory.newHashMap();
 	        for (int i = 0; i < arguments.size(); i++) {
 	            XTerm arg = arguments.get(i);
-	            if (arg == null) {
-	            	// System.err.println("XFormula_c: null arg in " + this);
-	            	continue;
-	            }
-	            	
+	            if (arg == null) continue;
+	            if (c == null) return null;
 	            XPromise child = c.intern(arg);
-	            if (c == null)
-	                return null;
 	            fields.put(new Integer(i), child);
 	        }
 	        // C_Local_c v = new C_Local_c(op);
@@ -184,18 +175,13 @@ public class XFormula<T> extends XTerm {
 
 	    public int hashCode() {
 	        int hash = 29;
-	        for (XTerm arg: arguments) {
-	        	if (arg != null)
-	            hash += arg.hashCode();
-	        }
+	        for (XTerm arg: arguments)
+	        	if (arg != null) hash += arg.hashCode();
 	        return hash;
 	    }
 	    
 	    public boolean hasEQV() {
-	        for (XTerm arg: arguments) {
-	            if (arg.hasEQV())
-	                return true;
-	        }
+	        for (XTerm arg: arguments) if (arg.hasEQV()) return true;
 	        return false;
 	    }
 
@@ -204,18 +190,15 @@ public class XFormula<T> extends XTerm {
 	     * is an XFormula with equal ops and equal args.
 	     */
 	    public boolean equals(Object o) {
-	        if (this == o)
-	            return true;
+	        if (this == o) return true;
 	        if (o instanceof XFormula) {
 	            XFormula<?> c = (XFormula<?>) o;
-	            if (! c.op.equals(op))
-	            	return false;
+	            if (! c.op.equals(op)) return false;
 	            if (c.arguments().size() == arguments().size()) {
 	                for (int i = 0; i < arguments().size(); i++) {
 	                    XTerm ti = arguments().get(i);
 	                    XTerm ci = c.arguments().get(i);
-	                    if (! ti.equals(ci))
-	                        return false;
+	                    if (! ti.equals(ci)) return false;
 	                }
 	                return true;
 	            }
@@ -223,16 +206,9 @@ public class XFormula<T> extends XTerm {
 	        return false;
 	    }
 
-	    public XPromise toPromise() {
-	        throw new Error("Not implemented yet.");
-	    }
-
-	    public boolean okAsNestedTerm() {
-	    	return false;
-	    }
-	    
-	    @Override
-	    public XPromise nfp(XConstraint c) {
+	    public XPromise toPromise() {throw new Error("Not implemented yet.");}
+	    public boolean okAsNestedTerm() { return false;}
+	    @Override public XPromise nfp(XConstraint c) {
 	    	assert c!=null;
 	    	XPromise p;
 	    	if (c.roots == null) {
