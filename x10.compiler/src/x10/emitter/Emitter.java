@@ -1509,12 +1509,12 @@ public class Emitter {
     }
 
     private static void buildMangledMethodName(ClassType ct, StringBuilder sb, int i, Type type, boolean printIncludingGeneric) {
-        if (type.isUnsignedNumeric()) {
+        Type t = Types.baseType(type);
+        if (t.isUnsignedNumeric()) {
             sb.append(FORMAL_MARKER(i));
             sb.append(UNSIGNED_NUMERIC_TYPE_SUFFIX);
         }
-        Type t = Types.baseType(type);
-        if (t.isClass() && (printIncludingGeneric || !containsTypeParam(t))) {
+        else if (t.isClass() && (printIncludingGeneric || !containsTypeParam(t))) {
             // def g(l:x10.util.Map[x10.lang.Int,x10.lang.Float]) {...}
             //  -> g__0$1x10$lang$Int$3x10$lang$Float$2(x10.util.Map l) {...}  ("$1", "$2" and "$3" means "[", "]" and ",", respectively)
             X10ClassType x10t = t.toClass();
