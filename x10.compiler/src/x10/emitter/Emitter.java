@@ -1487,15 +1487,21 @@ public class Emitter {
         return alreadyPrinted;
     }
     
-    private static String getMangledMethodName(MethodDef md, boolean printIncludingGeneric) {
-        StringBuilder sb = new StringBuilder(mangleToJava(md.name()));
-        ClassType ct = (ClassType) md.container().get();
-        List<Ref<? extends Type>> formalTypes = md.formalTypes();
+    public static String getMangledMethodSuffix(ClassType ct, List<Ref<? extends Type>> formalTypes, boolean printIncludingGeneric) {
+        StringBuilder sb = new StringBuilder();
         for (int i = 0; i < formalTypes.size(); ++i) {
             Type type = formalTypes.get(i).get();
             buildMangledMethodName(ct, sb, i, type, printIncludingGeneric);
         }
         return sb.toString();
+    }
+
+    private static String getMangledMethodName(MethodDef md, boolean printIncludingGeneric) {
+        String methodName = mangleToJava(md.name());
+        ClassType ct = (ClassType) md.container().get();
+        List<Ref<? extends Type>> formalTypes = md.formalTypes();
+        String methodSuffix = getMangledMethodSuffix(ct, formalTypes, printIncludingGeneric);
+        return methodName + methodSuffix;
     }
     
     private static String getMangledMethodName(ClassType ct, MethodInstance mi, boolean printIncludingGeneric) {
