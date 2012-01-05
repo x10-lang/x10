@@ -84,32 +84,53 @@ public class TryCatchExpander extends Expander {
 			}
 		}
 
-		int conversionRequired() {
-		    String catchExClassName = (catchBlock != null) ? catchBlock.catchType().toString() : exClass;
-		    int rc = 0;
-		    for (String exc : x10RuntimeExceptions)
-		        if (catchExClassName.equals(exc)) {
-		            rc |= RUNTIME_EXCEPTION_CONVERSION;
-		            break;
-		        }
-		    for (String exc : x10Exceptions)
-		        if (catchExClassName.equals(exc)) {
-		            rc |= EXCEPTION_CONVERSION;
-		            break;
-		        }
-            for (String exc : x10Errors)
-                if (catchExClassName.equals(exc)) {
-                    rc |= ERROR_CONVERSION;
-                    break;
+//		int conversionRequired() {
+//		    String catchExClassName = (catchBlock != null) ? catchBlock.catchType().toString() : exClass;
+//		    int rc = 0;
+//		    for (String exc : x10RuntimeExceptions)
+//		        if (catchExClassName.equals(exc)) {
+//		            rc |= RUNTIME_EXCEPTION_CONVERSION;
+//		            break;
+//		        }
+//		    for (String exc : x10Exceptions)
+//		        if (catchExClassName.equals(exc)) {
+//		            rc |= EXCEPTION_CONVERSION;
+//		            break;
+//		        }
+//		    for (String exc : x10Errors)
+//		        if (catchExClassName.equals(exc)) {
+//		            rc |= ERROR_CONVERSION;
+//		            break;
+//		        }
+//		    for (String exc : x10Throwables)
+//		        if (catchExClassName.equals(exc)) {
+//		            rc |= THROWABLE_CONVERSION;
+//		            break;
+//		        }
+//		    return rc;
+//		}
+		// XTENLANG-2871 simplify Java to X10 exception conversion logic 
+                // Use subtype checking instead of exact match of type name
+		// Assume that conversion of j.l.Throwable also includes conversion of j.l.Exception etc. 
+                int conversionRequired() {
+                    TypeSystem ts = er.tr.typeSystem();
+                    Type catchType = (catchBlock != null) ? catchBlock.catchType() : ts.load(exClass);
+                    Context context = er.tr.context();
+                    int rc = 0;
+//                    if (ts.isSubtype(catchType, ts.RuntimeException(), context)) {
+//                        rc |= RUNTIME_EXCEPTION_CONVERSION;                        
+//                    } else
+                    if (ts.isSubtype(catchType, ts.Exception(), context)) {
+                        rc |= EXCEPTION_CONVERSION;                        
+                    } else
+                    if (ts.isSubtype(catchType, ts.Error(), context)) {
+                        rc |= ERROR_CONVERSION;                        
+                    } else
+                    if (ts.isSubtype(catchType, ts.Throwable(), context)) {
+                        rc |= THROWABLE_CONVERSION;                        
+                    }
+                    return rc;
                 }
-            for (String exc : x10Throwables)
-                if (catchExClassName.equals(exc)) {
-                    rc |= THROWABLE_CONVERSION;
-                    break;
-                }
-            return rc;
-		}
-
 	}
 
 	private final CodeWriter w;
