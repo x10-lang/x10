@@ -24,10 +24,11 @@ public class Types {
     public static final boolean supportTypeParameterOfJavaType = false;
     
     public static RuntimeType<?> getRTT(Class<?> impl) {
-        java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
-        Class<?>[] interfaces = impl.getInterfaces();
-        Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
-        if (supportTypeParameterOfJavaType && (typeVariables.length > 0 || interfaces.length > 0 || superclass != null)) {
+        if (supportTypeParameterOfJavaType && (impl.getTypeParameters().length > 0 || impl.getInterfaces().length > 0 || impl.getSuperclass() != null)) {
+            // N.B. avoid useless meta operations for efficiency and debuggability
+            java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
+            Class<?>[] interfaces = impl.getInterfaces();
+            Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
             // type parameters for unknown raw Java classes are Any
             RuntimeType.Variance[] variances = RuntimeType.INVARIANTS(typeVariables.length);
             // add superclass and all interfaces to parents
