@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// MANAGED_X10_ONLY
+
 public class JavaException extends x10Test {
     def x10Exception(): Boolean {
 	var pass: Boolean = false;

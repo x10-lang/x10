@@ -264,6 +264,14 @@ function isTestCase {
 		printf "\n[$prog: err]: no \"public static def main\" method in ${file}\n"
 		return 1
 	fi
+
+	printf "\n===> ${EGREP} -q 'MANAGED_X10_ONLY' $1\n\n" 1>&2
+	${EGREP} -q 'MANAGED_X10_ONLY' $1
+	if [[ $? == 0 ]]; then
+		printf "\n[$prog: err]: ${file} contains MANAGED_X10_ONLY directive\n"
+		return 1
+	fi
+
 	return 0
 }
 

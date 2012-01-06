@@ -12,6 +12,8 @@
 import harness.x10Test;
 import x10.interop.java.Throws;
 
+// MANAGED_X10_ONLY
+
 public class JavaException3 extends x10Test {
     def this() @Throws[java.lang.Throwable] {
         throw new java.lang.Throwable("I like Java.");          

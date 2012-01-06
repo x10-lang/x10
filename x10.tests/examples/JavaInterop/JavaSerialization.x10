@@ -11,6 +11,8 @@
 
 import harness.x10Test;
 
+// MANAGED_X10_ONLY
+
 public class JavaSerialization extends x10Test {
     def testFile() {
         val file = new java.io.File("/user");
