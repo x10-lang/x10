@@ -15,6 +15,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,6 +79,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
@@ -208,6 +210,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportConstructorInlining = true;
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
+    // XTENLANG-2987
+    public static final boolean stableParameterMangling = false;
+//    public static final boolean stableParameterMangling = true;
+    public static final boolean stableParameterManglingNewParams = false;   // TO BE REMOVED
+//    public static final boolean stableParameterManglingNewParams = true;    // TO BE REMOVED
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -992,6 +999,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print the original body
         n.print(n.body(), w, tr);
 
+        if (stableParameterMangling) {
+            printExtraTypes(def);
+        }
+
         w.end();
         w.newline();
         w.write("}");
@@ -1175,7 +1186,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //        return true;
 //    }
 
-    private void setConstructorIds(X10ClassDef def) {
+    private static void setConstructorIds(X10ClassDef def) {
         List<ConstructorDef> cds = def.constructors();
         int constructorId = 0;
         for (ConstructorDef cd : cds) {
@@ -1206,7 +1217,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     }
 
-    private boolean hasConstructorIdAnnotation(X10ConstructorDef condef) {
+    private static boolean hasConstructorIdAnnotation(X10ConstructorDef condef) {
         List<Type> annotations = condef.annotations();
         for (Type an : annotations) {
             if (an instanceof ConstructorIdTypeForAnnotation) {
@@ -1217,7 +1228,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     // if it isn't set id or don't have an annotation, return -1
-    private int getConstructorId(X10ConstructorDef condef) {
+    private static int getConstructorId(X10ConstructorDef condef) {
         if (!hasConstructorIdAnnotation(condef)) {
             ContainerType st = condef.container().get();
             if (st.isClass()) {
@@ -1702,6 +1713,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
+            if (stableParameterMangling && stableParameterManglingNewParams) {
+            String extraTypeName = getExtraTypeName(n.constructorDef());
+            w.write(", " + extraTypeName + " " + dummy);
+            } else {
             w.write(",");
             int narg = 0;
             for (int i = 0; i < cid + 1; i++) {
@@ -1716,6 +1731,41 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
             w.write(" " + dummy + narg);
+            }
+        }
+    }
+
+    private static String getExtraTypeName(X10ConstructorDef md) {
+        assert stableParameterMangling;
+        assert getConstructorId(md) != -1;
+        ClassType ct = (ClassType) md.container().get();
+        List<Ref<? extends Type>> formalTypes = md.formalTypes();
+        String methodSuffix = Emitter.getMangledMethodSuffix(ct, formalTypes, true);
+        if (methodSuffix.length() == 0) {
+            System.out.println("@@@ getExtraTypeName: ct = " + ct + ", formalTypes = " + formalTypes);
+        }
+        // FIXME does not hold for x10.lang.Accumulator$$Closure$2.this(x10.lang.Accumulator[T])
+        // In this case, formalTypes should be [Accumurator[T]] (i.e. typeArguments should be non-null) but it is actually [Accumurator] (typeAruments is null).
+        // Looks like ClosureRemover does not copy type parameters correctly.
+//        assert methodSuffix.length() > 0;
+        return methodSuffix;
+    }
+    // should be called after setConstructorIds(def)
+    private void printExtraTypes(X10ClassDef def) {
+        assert stableParameterMangling;
+        HashSet<String> extraTypeNames = new HashSet<String>();
+        List<ConstructorDef> cds = def.constructors();
+        for (ConstructorDef cd : cds) {
+            X10ConstructorDef xcd = (X10ConstructorDef) cd;
+            int cid = getConstructorId(xcd);
+            if (cid != -1) {
+                String extraTypeName = getExtraTypeName(xcd);
+                if (!extraTypeNames.contains(extraTypeName)) {
+                    extraTypeNames.add(extraTypeName);
+                    w.writeln("// synthetic type for parameter mangling");
+                    w.writeln("public abstract static class " + extraTypeName + " {}");
+                }
+            }
         }
     }
 
@@ -1756,6 +1806,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
+            if (stableParameterMangling && stableParameterManglingNewParams) {
+            w.write(", " + dummy);
+            } else {
             w.write(",");
             int narg = 0;
             for (int i = 0; i < cid + 1; i++) {
@@ -1767,6 +1820,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             }
             w.write(" " + dummy + narg);
+            }
         }
     }
 
@@ -3040,6 +3094,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (md instanceof X10ConstructorDef) {
             int cid = getConstructorId((X10ConstructorDef) md);
             if (cid != -1) {
+                if (stableParameterMangling && stableParameterManglingNewParams) {
+                String extraTypeName = getExtraTypeName((X10ConstructorDef) md);
+                w.write(", (");
+                // print as qualified name
+                er.printType(md.container().get(), 0); w.write(".");
+                w.write(extraTypeName + ") null");
+                } else {
                 w.write(",");
                 for (int i = 0; i < cid + 1; i++) {
                     if (i % 256 == 0) {
@@ -3050,6 +3111,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     }
                 }
                 w.write(") null");
+                }
             }
         }
     }
