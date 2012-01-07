@@ -36,6 +36,7 @@ public class XField<T> extends XVar {
         if (newReceiver==receiver) return this;
         XField<T> newThis = (XField<T>) this.clone();
         newThis.receiver = newReceiver;
+        newThis.hasEQV= newReceiver.hasEQV();
         return newThis;
     }
 
