@@ -65,8 +65,10 @@ pami_type_t DATATYPE_CONVERSION_TABLE[] = {PAMI_TYPE_UNSIGNED_CHAR, PAMI_TYPE_SI
 size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12}; // the number of bytes used for each entry in the table above.
 // values for pami_op are mapped to indexes of x10rt_red_op_type
 pami_data_function OPERATION_CONVERSION_TABLE[] = {PAMI_DATA_SUM, PAMI_DATA_PROD, PAMI_DATA_NOOP, PAMI_DATA_BAND, PAMI_DATA_BOR, PAMI_DATA_BXOR, PAMI_DATA_MAX, PAMI_DATA_MIN};
-// values of x10rt_op_type are mapped to pami_atomic_t
-//pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
+// values of x10rt_op_type are mapped to pami_atomic_t.
+// The x10rt_op_type values correspond to the HFI values, not the PAMI_Rmw() values, so we need to convert when not using HFI.
+// The conversion table assumes HFI values: enum x10rt_op_type={X10RT_OP_ADD = 0x00, X10RT_OP_AND = 0x01, X10RT_OP_OR  = 0x02, X10RT_OP_XOR = 0x03}
+pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
 
 struct x10rtCallback
 {
@@ -1427,7 +1429,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
 		operation.remote = (void *)victim;
 		operation.value = &value;
-		operation.operation = (pami_atomic_t)type;
+		operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
 		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
@@ -1498,7 +1500,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 				error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", ops[i].dest, status);
 			operation.remote = (void*)ops[i].dest_buf;
 			operation.value = &ops[i].value;
-			operation.operation = (pami_atomic_t)ops[i].op;
+			operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[ops[i].op];
 			status = PAMI_Rmw(context, &operation);
 		}
 		if (!state.numParallelContexts)
