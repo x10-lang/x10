@@ -94,8 +94,18 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 		
         usageForFlag(out, "-pg", "generate code with additional instrumentation to write profile data in gprof format");
         usageForFlag(out, "-gpt", "link the google perftools library to the generated executable");
+        usageForFlag(out, "-post <compiler>", 
+                     "run a C++ compiler after translation.  " +
+                     "The structure of <compiler> is " +
+                     "\"[pre-command with options (usually g++)] " +
+                     "[(#|%) [post-options (usually extra files)] " +
+                     "[(#|%) [library options]]]\".  " +
+                     "Using '%' instead of '#' to delimit a section will cause " +
+                     "the default values in that section to be omitted.");
         usageForFlag(out, "-cxx-prearg <arg>", "Add <arg> to the C++ compilation command line before the list of files");
         usageForFlag(out, "-cxx-postarg <arg>", "Add <arg> to the C++ compilation command line after the list of files");
+        usageForFlag(out, "-c", "compile only to .cc");
+
 
 		String[][] options = x10cpp_config.options();
 		for (int i = 0; i < options.length; i++) {
@@ -104,24 +114,6 @@ public class X10CPPCompilerOptions extends x10.X10CompilerOptions {
 			String optdesc = optinfo[2]+"(default = "+optinfo[3]+")";
 			usageForFlag(out, optflag, optdesc);
 		}
-	}
-	
-	/**
-	 * Override usage info for the -post flag.
-	 * @see polyglot.main.Options#usageForFlag(java.io.PrintStream, java.lang.String, java.lang.String)
-	 */
-	protected void usageForFlag(PrintStream out, String flag, String description) {
-	    if (flag.startsWith("-post ")) {
-	        flag = "-post <compiler>";
-	        description = "run a C++ compiler after translation.  " +
-	                      "The structure of <compiler> is " +
-	                      "\"[pre-command with options (usually g++)] " +
-	                      "[(#|%) [post-options (usually extra files)] " +
-	                      "[(#|%) [library options]]]\".  " +
-	                      "Using '%' instead of '#' to delimit a section will cause " +
-	                      "the default values in that section to be omitted.";
-	    }
-	    super.usageForFlag(out, flag, description);
 	}
 	
 	private Set<String> compilationUnits = CollectionFactory.newHashSet();

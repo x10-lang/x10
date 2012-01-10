@@ -13,6 +13,7 @@ package x10c;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.util.Set;
 
 import polyglot.frontend.ExtensionInfo;
@@ -130,6 +131,14 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
                 output_directory = new File(current_dir);
             }
         }
+    }
+    
+    @Override
+    public void usage(PrintStream out) {
+        super.usage(out);
+        usageForFlag(out, "-c", "compile only to .java");
+        usageForFlag(out, "-post <compiler>", 
+                          "use <compiler> to generate .class files from generated .java");
     }
 
 }
