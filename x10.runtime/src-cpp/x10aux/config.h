@@ -91,6 +91,8 @@
 #define ENV_CONGRUENT_BASE "X10_CONGRUENT_BASE"
 #define ENV_CONGRUENT_SIZE "X10_CONGRUENT_SIZE"
 #define ENV_CONGRUENT_HUGE "X10_CONGRUENT_HUGE"
+#define ENV_CONGRUENT_OFFSET "X10_CONGRUENT_OFFSET"
+#define ENV_CONGRUENT_PERIOD "X10_CONGRUENT_PERIOD"
 
 #ifndef NO_IOSTREAM
 #  include <iostream>
@@ -163,7 +165,10 @@ namespace x10aux {
     
     char *get_congruent_base();
     char *get_congruent_size();
-    bool get_congruent_huge();
+
+    extern const bool congruent_huge;
+    extern const size_t congruent_offset;
+    extern const size_t congruent_period;
 
     size_t get_remote_op_batch();
 

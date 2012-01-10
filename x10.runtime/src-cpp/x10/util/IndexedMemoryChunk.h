@@ -419,7 +419,12 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::copy(x10::util::Inde
 template<class T>
 x10::util::RemoteIndexedMemoryChunk<T> x10::util::IndexedMemoryChunk<T>::getCongruentSibling (x10::lang::Place p)
 {
-    return RemoteIndexedMemoryChunk<T>(raw(), length(), p);
+	size_t addr = (size_t)raw();
+
+    if (x10aux::congruent_huge) {
+		addr = addr - x10aux::congruent_offset * ((x10aux::here % (1 << x10aux::congruent_period))) + (x10aux::congruent_offset * (p.FMGL(id) % (1 << x10aux::congruent_period)));
+    }
+    return RemoteIndexedMemoryChunk<T>((T*)addr, length(), p);
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<T>::_serialize(x10::util::IndexedMemoryChunk<T> this_,

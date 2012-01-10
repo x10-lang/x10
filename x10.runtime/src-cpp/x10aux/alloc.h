@@ -67,7 +67,9 @@ namespace x10aux {
     // terms of size parameter) at all places for the pointers returned to be
     // actually congruent (i.e. for all places to have the same addresses)
     void *alloc_internal_congruent(size_t size);
-    
+
+    void *alloc_internal_huge(size_t size);
+
 #ifdef X10_USE_BDWGC
 	extern bool gc_init_done;
 #endif
