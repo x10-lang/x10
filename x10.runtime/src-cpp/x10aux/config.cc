@@ -19,7 +19,7 @@ bool getBoolEnvVar(const char* name) {
     return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));
 }
 
-bool getSizeTEnvVar(const char* name) {
+size_t getSizeTEnvVar(const char* name) {
     char* value = getenv(name);
     return value!=NULL ? strtoull(value,NULL,0) : 0;
 }
