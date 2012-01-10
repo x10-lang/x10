@@ -396,9 +396,6 @@ public class Options {
 //        usageForFlag(out, "-scramble [seed]", "scramble the ast (for testing)");
         usageForFlag(out, "-noserial", "disable class serialization");
         usageForFlag(out, "-nooutput", "delete output files after compilation");
-        usageForFlag(out, "-c", "compile only to .java");
-        usageForFlag(out, "-post <compiler>", 
-                          "run javac-like compiler after translation");
         usageForFlag(out, "-debugpositions", "generate position information for compiler-generated code");
         usageForFlag(out, "-simpleoutput", "use SimpleCodeWriter");
         usageForFlag(out, "-define <macro>", "define <macro>");
