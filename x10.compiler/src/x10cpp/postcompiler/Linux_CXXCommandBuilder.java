@@ -34,6 +34,10 @@ public class Linux_CXXCommandBuilder extends CXXCommandBuilder {
         super.addPostArgs(cxxCmd);
 
         for (PrecompiledLibrary pcl:options.x10libs) {
+            if (options.x10_config.DEBUG) {
+                cxxCmd.add("-Wl,--rpath");
+                cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib-dbg");
+            }
             cxxCmd.add("-Wl,--rpath");
             cxxCmd.add("-Wl,"+pcl.absolutePathToRoot+"/lib");
         }
