@@ -195,7 +195,7 @@ public class CXXCommandBuilder {
     public void addPostArgs(ArrayList<String> cxxCmd) {
         for (PrecompiledLibrary pcl:options.x10libs) {
             
-            if (options.x10_config.DEBUG) {
+            if (options.x10_config.DEBUG && !options.x10_config.DEBUG_APP_ONLY) {
                 cxxCmd.add("-L"+pcl.absolutePathToRoot+"/lib-dbg");
             }
             cxxCmd.add("-L"+pcl.absolutePathToRoot+"/lib");                

@@ -44,6 +44,9 @@ public final class Configuration extends x10.config.Configuration {
 
     public boolean DEBUG = false;
     private static final String DEBUG_desc = "Generate debug information";
+    
+    public boolean DEBUG_APP_ONLY = false;
+    private static final String DEBUG_APP_ONLY_desc = "Only generate debug information for the user application; still link with non-debug version of libraries";
 
     public boolean NO_TRACES = false;
     private static final String NO_TRACES_desc = "Disable traces";
