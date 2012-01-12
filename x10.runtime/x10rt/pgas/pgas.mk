@@ -168,9 +168,10 @@ ifeq ($(X10RT_PLATFORM), sunos)
   MOV_LDLIBS_PGAS_SOCKETS += -lresolv -lnsl -lsocket -lrt
 endif
 
-#disable PGAS_SOCKETS
-PLATFORM_SUPPORTS_PGAS_SOCKETS    := no
-
+#disable building all PGAS transports except PGAS_BGP
+PLATFORM_SUPPORTS_PGAS_SOCKETS := no
+PLATFORM_SUPPORTS_PGAS_PANE := no
+PLATFORM_SUPPORTS_PGAS_LAPI := no
 
 #{{{ Deciding what underlying PGAS builds are available
 ifdef CUSTOM_PGAS
