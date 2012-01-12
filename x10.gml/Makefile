@@ -78,12 +78,16 @@ comm_src=\
 	x10/matrix/comm/DenseRemoteDestInfo.x10 \
 	x10/matrix/comm/MatrixGather.x10 \
 	x10/matrix/comm/MatrixRingCast.x10 \
-	x10/matrix/comm/SparseRemoteSourceInfo.x10
+	x10/matrix/comm/SparseRemoteSourceInfo.x10\
+	x10/matrix/comm/BlockRemoteCopy.x10 \
+	x10/matrix/comm/BlockBcast.x10
+
 
 bwrap_src=\
 	x10/matrix/blas/DenseMatrixBLAS.x10 \
 	x10/matrix/blas/BLAS.x10 \
 	x10/matrix/blas/DriverBLAS.x10
+
 lapack_src=\
 	x10/matrix/lapack/DenseMatrixLAPACK.x10 \
 	x10/matrix/lapack/LAPACK.x10 \
@@ -120,7 +124,11 @@ dist_src=\
 	x10/matrix/dist/DupMatrix.x10 \
 	x10/matrix/dist/DistMatrix.x10 \
 	x10/matrix/dist/DistSparseMatrix.x10  \
-	x10/matrix/dist/DupMultToDup.x10 
+	x10/matrix/dist/DupMultToDup.x10 \
+	x10/matrix/distblock/DistMap.x10 \
+	x10/matrix/distblock/DistGrid.x10 \
+	x10/matrix/distblock/BlockSet.x10 \
+	x10/matrix/distblock/DistBlockMatrix.x10
 	
 
 summa_src=\

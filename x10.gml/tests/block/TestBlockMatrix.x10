@@ -59,6 +59,7 @@ class RunBlockMatrix {
  		// Set the matrix function
  		ret &= (testClone());
 		ret &= (testScale());
+		ret &= (testAddSub());
 
 		if (ret)
 			Console.OUT.println("Block matrix test passed!");
@@ -118,6 +119,25 @@ class RunBlockMatrix {
 		return ret;
 	}
 
+	public def testAddSub():Boolean {
+		Console.OUT.println("Starting block matrix add test");
+		val dm = BlockMatrix.makeDense(grid).initRandom();
+		val sm = BlockMatrix.makeSparse(grid, nzd).initRandom();
 
+		val dm1 = dm * -1.0;
+		val dm0 = dm + dm1;
+		val ret = dm0.equals(0.0);
+		Debug.assure(ret);
+		
+		sm.copyTo(dm);
+		val dm00 = dm - sm;
+		
+		if (ret)
+			Console.OUT.println("Block matrix dense block Add: dm + dm*-1 test passed");
+		else
+			Console.OUT.println("--------Block matrix dense block Add: dm + dm*-1 test failed--------");
+		
+		return ret;
+	}
 
 } 

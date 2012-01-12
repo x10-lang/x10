@@ -10,7 +10,7 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list = TestDense TestMultDense TestTrans
+target_list = TestDense TestMultDense TestTrans TestLapack
 
 target		= TestDense
 

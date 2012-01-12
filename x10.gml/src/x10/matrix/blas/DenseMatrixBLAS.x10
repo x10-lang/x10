@@ -11,9 +11,6 @@
 
 package x10.matrix.blas;
 
-import x10.io.Console;
-import x10.util.Random;
-import x10.compiler.NoInline;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
@@ -37,7 +34,7 @@ import x10.matrix.TriMatrix;
  * 
  */
 
-public class DenseMultBLAS {
+public class DenseMatrixBLAS {
 
 	//===============================================================
 	// Dense multiply vector
@@ -184,7 +181,7 @@ public class DenseMultBLAS {
 			A:DenseMatrix, 
 			B:DenseMatrix{A.N==B.M}, 
 			C:DenseMatrix{A.M==C.M,B.N==C.N}  ): void {
-		DenseMultBLAS.comp(A, B, C, false);
+		DenseMatrixBLAS.comp(A, B, C, false);
 	}
 	/**
 	 * Compute A &#42 B and store result in a new dense matrix object. 
@@ -198,7 +195,7 @@ public class DenseMultBLAS {
 			B:DenseMatrix{A.N==B.M}):DenseMatrix(A.M,B.N) {
 				
 		val C = DenseMatrix.make(A.M, B.N);
-		DenseMultBLAS.comp(A, B, C, false);
+		DenseMatrixBLAS.comp(A, B, C, false);
 		return C;
 	}
 
