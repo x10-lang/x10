@@ -352,43 +352,43 @@ public class Vector(N:Int) implements (Int) => Double {
 	// Operand overloading
 	//======================================================
 	// Operator add
-	public  operator this + (that:Vector(N)):Vector(N) = this.clone().cellAdd(that);
-	public  operator this + (dv:Double) = this.clone().cellAdd(dv);
+	public  operator this + (that:Vector(N)) = this.clone().cellAdd(that) as Vector(N);
+	public  operator this + (dv:Double)      = this.clone().cellAdd(dv) as Vector(N);
 	// Operator sub
-	public  operator this - (that:Vector(N)):Vector(N) = this.clone().cellSub(that);
-	public  operator this - (dv:Double) = this.clone().cellSub(dv);
-	public  operator (dv:Double) - this = this.clone().cellSubFrom(dv);
+	public  operator this - (that:Vector(N)) = this.clone().cellSub(that) as Vector(N);
+	public  operator this - (dv:Double)      = this.clone().cellSub(dv)  as Vector(N);
+	public  operator (dv:Double) - this      = this.clone().cellSubFrom(dv)  as Vector(N);
 	
 	// Operator cellwise multiply
-	public  operator this * (dv:Double)                = this.clone().scale(dv);
-	public  operator (dv:Double) * this                = this.clone().scale(dv);
-	public  operator this * (that:Vector(N)):Vector(N) = this.clone().cellMult(that);
+	public  operator this * (dv:Double)      = this.clone().scale(dv) as Vector(N);
+	public  operator (dv:Double) * this      = this.clone().scale(dv) as Vector(N);
+	public  operator this * (that:Vector(N)) = this.clone().cellMult(that) as Vector(N);
 
 	// Operator cellwise div
-	public  operator this / (dv:Double)           = this.clone().cellDiv(dv);
-	public  operator this / (that:Vector(this.N)) = this.clone().cellDiv(that);
-	public  operator (dv:Double) / this           = this.clone().cellDivBy(dv);
+	public  operator this / (dv:Double)           = this.clone().cellDiv(dv) as Vector(N);
+	public  operator this / (that:Vector(this.N)) = this.clone().cellDiv(that) as Vector(N);
+	public  operator (dv:Double) / this           = this.clone().cellDivBy(dv) as Vector(N);
 
 	//Righ-side Operand overload
-	public  operator this % (that:Matrix(N)):Vector(that.N) = 
-		Vector.make(that.N).transMult(that, this as Vector(that.M), false);
-	public  operator this % (that:DenseMatrix(N)):Vector(that.N) =
-		Vector.make(that.N).transMult(that, this as Vector(that.M), false);
-	public  operator this % (that:SymMatrix(N)):Vector(that.N) =
-		Vector.make(that.N).mult(that, this as Vector(that.M), false);
-	public  operator this % (that:TriMatrix(N)):Vector(that.N) =
-		this.clone().transMult(that);
+	public  operator this % (that:Matrix(N)) = 
+		Vector.make(that.N).transMult(that, this as Vector(that.M), false) as Vector(that.N);
+	public  operator this % (that:DenseMatrix(N)) =
+		Vector.make(that.N).transMult(that, this as Vector(that.M), false) as Vector(that.N);
+	public  operator this % (that:SymMatrix(N)) =
+		Vector.make(that.N).mult(that, this as Vector(that.M), false) as Vector(that.N);
+	public  operator this % (that:TriMatrix(N)) =
+		this.clone().transMult(that) as Vector(that.N);
 
 	//Left-side operand overload
- 	public  operator (that:Matrix{self.N==this.N}) % this :Vector(that.M) =
- 		Vector.make(that.M).mult(that, this as Vector(that.N), false);
+ 	public  operator (that:Matrix{self.N==this.N}) % this =
+ 		Vector.make(that.M).mult(that, this as Vector(that.N), false) as Vector(that.N);
  	
- 	public  operator (that:DenseMatrix{self.N==this.N}) % this :Vector(that.M) =
- 		Vector.make(that.M).mult(that, this as Vector(that.N), false);
- 	public  operator (that:SymMatrix{self.N==this.N}) % this :Vector(that.M) =
- 		Vector.make(that.M).mult(that, this, false);
- 	public  operator (that:TriMatrix{self.N==this.N}) % this :Vector(that.M) =
- 		this.clone().mult(that);
+ 	public  operator (that:DenseMatrix{self.N==this.N}) % this =
+ 		Vector.make(that.M).mult(that, this as Vector(that.N), false) as Vector(that.M);
+ 	public  operator (that:SymMatrix{self.N==this.N}) % this =
+ 		Vector.make(that.M).mult(that, this, false) as Vector(that.M);
+ 	public  operator (that:TriMatrix{self.N==this.N}) % this =
+ 		this.clone().mult(that) as Vector(that.M);
  
  	//======================================================
  	/**

@@ -98,6 +98,24 @@ public class SymMatrix extends Matrix{self.M==self.N} {
 		}
 	}
 	
+	public def copyTo(smat:SymMatrix(N)): void {
+		var colstt:Int=0;
+		for (var len:Int=N; len > 0; len--, colstt+=M+1) {
+			Array.copy(this.d, colstt, smat.d, colstt, len);	
+		}
+	}
+
+	public def copyTo(mat:Matrix(M,N)) : void {
+		if (mat instanceof DenseMatrix) {
+			copyTo(mat as DenseMatrix(M,N));
+		} else if (likeMe(mat)) {
+			copyTo(mat as SymMatrix(N));
+		} else {
+			Debug.exit("CopyTo: Target matrix type is not compatible");
+		}
+	}
+	
+	//--------------------------------------------------
 	public def toDense():DenseMatrix(M,N) {
 		val dm = DenseMatrix.make(M,N);
 		copyTo(dm);
@@ -422,23 +440,23 @@ public class SymMatrix extends Matrix{self.M==self.N} {
 	// Operator
 	//==================================================================
 	public operator - this            = this.clone().scale(-1.0) as SymMatrix(M,N);
-	public operator this + (v:Double):SymMatrix(M,N) = this.clone().cellAdd(v) as SymMatrix(M,N);
-	public operator (v:Double) + this:SymMatrix(M,N) = this + v;
+	public operator this + (v:Double) = this.clone().cellAdd(v) as SymMatrix(M,N);
+	public operator (v:Double) + this = this + v;
 
-	public operator this - (v:Double):SymMatrix(M,N) = this.clone().cellSub(v) as SymMatrix(M,N);
-	public operator (v:Double) - this:SymMatrix(M,N) = this.clone().cellSubFrom(v) as SymMatrix(M,N);
-	public operator this / (v:Double):SymMatrix(M,N) = this.clone().cellDiv(v) as SymMatrix(M,N);
-	public operator (v:Double) / this:SymMatrix(M,N) = this.clone().cellDivBy(v) as SymMatrix(M,N);
-	public operator this * (alpha:Double):SymMatrix(M,N) = this.clone().scale(alpha) as SymMatrix(M,N);
-	public operator this * (alpha:Int):SymMatrix(M,N)    = this * (alpha as Double);
+	public operator this - (v:Double) = this.clone().cellSub(v) as SymMatrix(M,N);
+	public operator (v:Double) - this = this.clone().cellSubFrom(v) as SymMatrix(M,N);
+	public operator this / (v:Double) = this.clone().cellDiv(v) as SymMatrix(M,N);
+	public operator (v:Double) / this = this.clone().cellDivBy(v) as SymMatrix(M,N);
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as SymMatrix(M,N);
+	public operator this * (alpha:Int)    = this * (alpha as Double);
 	public operator (alpha:Double) * this = this * alpha;
 	public operator (alpha:Int) * this    = this * alpha;
 	
 	
-	public operator this + (that:SymMatrix(M)):SymMatrix(M,N) = this.clone().cellAdd(that);
-	public operator this - (that:SymMatrix(M)):SymMatrix(M,N) = this.clone().cellSub(that);
-	public operator this * (that:SymMatrix(M)):SymMatrix(M,N) = this.clone().cellMult(that);
-	public operator this / (that:SymMatrix(M)):SymMatrix(M,N) = this.clone().cellDiv(that);
+	public operator this + (that:SymMatrix(M)) = this.clone().cellAdd(that);
+	public operator this - (that:SymMatrix(M)) = this.clone().cellSub(that);
+	public operator this * (that:SymMatrix(M)) = this.clone().cellMult(that);
+	public operator this / (that:SymMatrix(M)) = this.clone().cellDiv(that);
 
 	/**
 	 * Operation with dense matrix and store result in dense format

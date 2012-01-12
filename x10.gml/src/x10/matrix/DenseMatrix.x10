@@ -145,7 +145,7 @@ public class DenseMatrix extends Matrix {
 	/**
 	 * Init with function
 	 * 
-	 * @param f    The function to use to initialize the matrix
+	 * @param f    The function to use to initialize the matrix, mapping (row, column) => double
 	 * @return this object
 	 */
 	public def init(f:(Int,Int)=>Double): DenseMatrix(this) {
@@ -242,8 +242,7 @@ public class DenseMatrix extends Matrix {
 	public  def clone():DenseMatrix(M,N){
 		//val na = new Array[Double](M*N, (i:Int)=> this.d(i));
 		val nd = new Array[Double](this.d) as Array[Double](1){rail};
-		val nm = new DenseMatrix(M, N, nd);
-		return nm;
+		return new DenseMatrix(M, N, nd);
 	}
 
 	/**
@@ -254,6 +253,15 @@ public class DenseMatrix extends Matrix {
 	public def copyTo(dm:DenseMatrix(M,N)):void {
 		copyCols(this, 0, dm, 0, N);
 	}
+	
+	/**
+	 * 
+	 */
+	public def copyTo(mat:Matrix(M,N)):void {
+		Debug.assure(likeMe(mat), "Copy destination matrix type mismatch");
+		copyTo(mat as DenseMatrix(M,N));
+	}
+	                                        
 	
 	/**
 	 * Reset all element to 0.0
@@ -988,69 +996,47 @@ public class DenseMatrix extends Matrix {
 	/**
 	 * Operator overloading for cell-wise matrix subtraction, and return this - that in a new dense format
 	 */
-	public operator - this = clone().scale(-1.0);
-	
-	public operator (v:Double) + this = this.clone().cellAdd(v);
-	public operator this + (v:Double):DenseMatrix(M,N) {
-		val ret = this.clone();
-		return ret.cellAdd(v);
-		//return dst;
-	}
-	
-	public operator this - (v:Double):DenseMatrix(M,N) {
-		val ret = this.clone();
-		return ret.cellSub(v);
-	}
-	
-	public operator (v:Double) - this = this.clone().cellSubFrom(v);
-	public operator this / (v:Double) = this.clone().cellDiv(v);
-	public operator (v:Double) / this = this.clone().cellDivBy(v);
-	
-	/**
-	 * Operator overloading for cell-wise scaling operation and return result in a new dense matrix. 
-	 */
-	public operator this * (alpha:Double) : DenseMatrix(M,N) {
-		val x=clone();
-		x.scale(alpha);
-		return x;
-	}
+	public operator - this = clone().scale(-1.0) as DenseMatrix(M,N);
+	public operator (v:Double) + this = this.clone().cellAdd(v) as DenseMatrix(M,N);
+	public operator this + (v:Double) = this.clone().cellAdd(v) as DenseMatrix(M,N);
 
-	public operator this * (alpha:Int) : DenseMatrix(M,N) {
-		val x= clone();
-		x.scale(alpha);
-		return x;
-	}
-
-	public operator (alpha:Double) * this = this * alpha;
-	public operator (alpha:Int) * this    = this * alpha;;
+	public operator this - (v:Double) = this.clone().cellAdd(-v) as DenseMatrix(M,N);
+	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DenseMatrix(M,N);
+	
+	public operator this / (v:Double) = this.clone().scale(1.0/v) as DenseMatrix(M,N);
+	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DenseMatrix(M,N);
+	
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as DenseMatrix(M,N);
+	public operator this * (alpha:Int)    = this.clone().scale(alpha as Double) as DenseMatrix(M,N);
+	public operator (alpha:Double) * this : DenseMatrix(M,N) = this * alpha;
+	public operator (alpha:Int) * this    : DenseMatrix(M,N) = this * (alpha as Double);
 
 	/**
 	 * Operator overloading for cell-wise add, and return result in a new dense matrix. 
 	 */
-	public operator this + (that:DenseMatrix(M,N)) = clone().cellAdd(that);
+	public operator this + (that:DenseMatrix(M,N)) = this.clone().cellAdd(that) as DenseMatrix(M,N);
 
 	/**
 	 * Operator overloading for cell-wise subtraction, and return this - that in a new dense format
 	 */
-	public operator this - (that:DenseMatrix(M,N)) = clone().cellSub(that);
+	public operator this - (that:DenseMatrix(M,N)) = this.clone().cellSub(that) as DenseMatrix(M,N);
 	
     /**
      * Operator overloading for cell-wise multiplication, and return cell-wise multiply result of
 	 * this &#42 that in dense format
      */
-	public operator this * (that:DenseMatrix(M,N)) = clone().cellMult(that);
+	public operator this * (that:DenseMatrix(M,N)) = this.clone().cellMult(that) as DenseMatrix(M,N);
 
 	/**
 	 * Operator overloading for cell-wise division, and return this / that in a new dense matrix
 	 */
-	public operator this / (that:DenseMatrix(M,N)) = clone().cellDiv(that);
+	public operator this / (that:DenseMatrix(M,N)) = this.clone().cellDiv(that) as DenseMatrix(M,N);
 
 	/**
 	 * Operator overload for matrix multiplication. Return dense matrix multiplication this &#42 that 
 	 * using BLAS driver.
 	 */
-	public  operator this % (that:DenseMatrix{self.M==this.N}
-							 ):DenseMatrix(this.M,that.N) {
+	public  operator this % (that:DenseMatrix{self.M==this.N}):DenseMatrix(this.M,that.N) {
 		val dm = DenseMatrix.make(this.M, that.N);
 		DenseMatrixBLAS.comp(this, that, dm, false);
 		return dm;

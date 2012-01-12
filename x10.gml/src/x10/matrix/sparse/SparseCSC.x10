@@ -892,6 +892,24 @@ public class SparseCSC extends Matrix {
 		extractCols(0, this.N, dm);
 	}
 
+	public static def copyTo(sp:SparseCSC, dm:DenseMatrix, roff:Int, coff:Int): void {
+
+		var dstoff:Int = roff + coff*dm.M;
+		for (var col:Int=0; col<sp.N; col++, dstoff+=dm.M)
+			sp.ccdata.cLine(col).extract(dstoff, dm.d);
+	}
+	
+	public def copyTo(that:SparseCSC(M,N)) = copy(this, that);
+	
+	public def copyTo(that:Matrix(M,N)):void {
+		if (that instanceof DenseMatrix)
+			copyTo(that as DenseMatrix);
+		else if (that instanceof SparseCSC)
+			copyTo(that as SparseCSC);
+		else
+			Debug.exit("CopyTo: target matrix type not supported");	
+	}
+	
 	/**
 	 * Convert to a new dense matrix object
 	 */
@@ -996,6 +1014,10 @@ public class SparseCSC extends Matrix {
 	protected def cellSubFrom(x:DenseMatrix(M,N)) {
 		SparseSubToDense.comp(x, this);
 		return x;
+	}
+	
+	public def cellSubFrom(dv:Double): SparseCSC(this) {
+		throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");		
 	}
 	
 	//-------------------------
@@ -1103,12 +1125,8 @@ public class SparseCSC extends Matrix {
     /**
      * Scaling operation return this &#42 integer
      */
-    public operator this * (intv:Int):SparseCSC(M,N) {
-        val x = clone();
-        x.scale(intv as Double);
-        return x;
-    }
-
+    public operator this * (intv:Int):SparseCSC(M,N) = this * (intv as Double);
+ 
 	public operator (dblv:Double) * this = this * dblv;
 	public operator (intv:Int)    * this = this * intv;
 	
@@ -1144,17 +1162,20 @@ public class SparseCSC extends Matrix {
 		return dm;
 	}
 
+
 	//------------------------------
 	// Add operator overloading
 	//------------------------------
 	/**
 		Add this with another matrix. 
 	*/
-	public operator this + (that:SparseCSC(M,N))   = this.add(that);
-	public operator this + (that:SparseCSR(M,N))   = this.add(that);
-	public operator this + (that:DenseMatrix(M,N)) = this.add(that);
-	public operator (that:DenseMatrix(M,N)) + this= this.add(that);
-
+	public operator this + (that:SparseCSC(M,N))  :DenseMatrix(M,N) = this.add(that);
+	public operator this + (that:SparseCSR(M,N))  :DenseMatrix(M,N) = this.add(that);
+	public operator this + (that:DenseMatrix(M,N)):DenseMatrix(M,N) = this.add(that);
+	public operator (that:DenseMatrix(M,N)) + this:DenseMatrix(M,N) = this.add(that);
+	public operator this + (dv:Double)            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
+	public operator (dv:Double) + this            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
+	
 	//----------------------------
 	/**
 	 *  Return this - that in a new dense 
@@ -1197,8 +1218,19 @@ public class SparseCSC extends Matrix {
 		SparseSubToDense.comp(dm, this);
 		return dm;
 	}
-
-    //========================================================================
+	
+	public operator this - (dv:Double)  :DenseMatrix(M,N) = this.toDense().cellSub(dv);
+	public operator (dv:Double) - this  :DenseMatrix(M,N) = this.toDense().cellSubFrom(dv);
+	
+	//========================================================================
+	// Cellwise mult method
+	//========================================================================
+	public operator this * (that:SparseCSC(M,N))   = this.cellMultTo(that.toDense()) as DenseMatrix(M,N);
+	public operator this * (that:SparseCSR(M,N))   = this.cellMultTo(that.toDense()) as DenseMatrix(M,N);
+	public operator this * (that:DenseMatrix(M,N)) = this.cellMultTo(that) as DenseMatrix(M,N);	
+	public operator (that:DenseMatrix(M,N)) * this = this.cellMultTo(that) as DenseMatrix(M,N);	
+	
+	//========================================================================
 	// Cellwise div method
     //========================================================================
 	
@@ -1244,7 +1276,13 @@ public class SparseCSC extends Matrix {
 		SparseDivToDense.comp(dm, this);
 		return dm;
 	}
-
+	
+	public operator this / (dv:Double) :DenseMatrix(M,N) = this.toDense().cellDiv(dv);
+	
+	//========================================================================
+	// matrix multiply
+	//========================================================================
+	
 	/**
 	 * Perform matrix multiply between two sparse csc matrices
 	 */

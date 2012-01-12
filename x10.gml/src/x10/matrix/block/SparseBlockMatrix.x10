@@ -29,6 +29,8 @@ public type SparseBlockMatrix(C:SparseBlockMatrix)=SparseBlockMatrix{self==C};
 
 
 /**
+ * OBSOLETE. Replace by BlockMatrix
+ * 
  * Sparse block matrix is constructed by  an array or sparse blocks, and
  * partitioning grid specifies how each block is mapped to the whole matrix.
  *  
@@ -159,7 +161,16 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;
 	}
 
-
+	public def init(f:(Int, Int)=>Double):SparseBlockMatrix(this) {
+		var roff:Int=0;
+		var coff:Int=0;
+		for (var cb:Int=0; cb<grid.numColBlocks; coff+=grid.colBs(cb), roff=0, cb++)
+			for (var rb:Int=0; rb<grid.numRowBlocks; roff+=grid.rowBs(rb), rb++ ) {
+				listBs(grid.getBlockId(rb, cb)).init(roff, coff, f);
+			}		
+		return this;
+	}
+	
 	/**
 	 * Initialize sparse block matrix with random values and specified sparsity
 	 * which is used to determine the index distance between adjacent nonzero
@@ -273,7 +284,15 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		}
 		//dst.print("copy to result:");
 	}
+	
+	public def copyTo(that:DenseBlockMatrix(M,N)):void {
+		
+	}
 
+	public def copyTo(that:Matrix(M,N)):void {
+		
+	}
+	
 	/**
 	 *  Copy data from sparse matrix to myself. Used for scatter operation.
 	 * 
@@ -403,7 +422,11 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		Debug.exit("Not implemented");
 		return x;
 	}
-
+	
+	public def cellSubFrom(dv:Double) : SparseBlockMatrix(this) {
+		Debug.exit("Not implemented");
+		return this;
+	}
 	//---------------
 
     /**
@@ -481,6 +504,12 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;		
     }
 
+	//====================================================================
+	// Operator overlead
+	//====================================================================
+	public operator - this = this.clone().scale(-1.0) as SparseBlockMatrix(M,N);
+	
+	
 	//====================================================================
 	// Utils
 	//====================================================================

@@ -202,6 +202,20 @@ public class DupDenseMatrix extends Matrix {
 		return this;
 	}
 	
+	/**
+	 * Init with function
+	 * 
+	 * @param f    The function to use to initialize the matrix, mapping (row, column) => double
+	 * @return this object
+	 */
+	public def init(f:(Int,Int)=>Double): DupDenseMatrix(this) {
+		finish ateach (val [p]:Point in dupMs.dist) {
+			val pid=here.id();
+			dupMs(pid).init(f);
+		}
+		return this;
+	}
+	
 	//================================================================
 	/**
 	 * Allocate memory space to hold duplicated dense matrix(m,n)
@@ -236,7 +250,16 @@ public class DupDenseMatrix extends Matrix {
 		}		
 		tmpReady = true;
 	}
-	
+	//-------------------------------------------------
+	// Copy 
+	//-------------------------------------------------
+	public  def copyTo(that:DupDenseMatrix(M,N)):void {
+		finish ateach(val [p] :Point in this.dist) {
+			val mypid=here.id();
+			val sden = this.dupMs(p);
+			sden.copyTo(that.dupMs(p) as DenseMatrix(sden.M, sden.N));
+		}
+	}		
 	/**
 	 * Copy data at local copy to another dense matrix.
 	 *
@@ -247,6 +270,14 @@ public class DupDenseMatrix extends Matrix {
 		local().copyTo(dm);
 	}
 
+	public def copyTo(that:Matrix(M,N)): void {
+		if (that instanceof DupDenseMatrix)
+			copyTo(that as DupDenseMatrix);
+		else if (that instanceof DenseMatrix)
+			copyTo(that as DenseMatrix);
+		else
+			Debug.exit("CopyTo: target matrix type is not supportede");
+	}
 	//================================================================
 	// Data access
 	//================================================================
@@ -375,11 +406,9 @@ public class DupDenseMatrix extends Matrix {
 	 * Scaling method. All copies are updated concurrently
 	 */
  	public def scale(a:Double) {
-		/* Timing */ val st= Timer.milliTime();
 		finish ateach(val [p] :Point in this.dupMs) {
 			this.local().scale(a);
 		}
-		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
     }
 
@@ -410,24 +439,20 @@ public class DupDenseMatrix extends Matrix {
 	 */
 	public def cellAdd(A:DupDenseMatrix(M,N))  {
 		//Debug.assure(this.M==A.M&&this.N==A.N);
-		/* Timing */ val st= Timer.milliTime();
 	    finish ateach([p]  in this.dupMs) {
 			val sm = A.local();
 	        val dm = local();
 	        dm.cellAdd(sm);
 	    }
-		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
 
 	public def cellAdd(d:Double)  {
 		//Debug.assure(this.M==A.M&&this.N==A.N);
-		/* Timing */ val st= Timer.milliTime();
 	    finish ateach([p]  in this.dupMs) {
 	        val dm = local();
 	        dm.cellAdd(d);
 	    }
-		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
 
@@ -467,17 +492,26 @@ public class DupDenseMatrix extends Matrix {
 	 * Concurrently perform cellwise subtraction on all copies
 	 */
 	public def cellSub(A:DupDenseMatrix(M,N)) {
-		//Debug.assure(this.M==A.M&&this.N==A.N);
-		/* Timing */ val st= Timer.milliTime();
 	    finish ateach([p] in this.dupMs) {
 			val sm = A.local();
 	        val dm = local();
 	        dm.cellSub(sm);
 	    }
-		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
 
+	/**
+	 * this = v - this
+	 */
+	public def cellSubFrom(v:Double):DupDenseMatrix(this) {
+		
+		finish ateach([p] in this.dupMs) {
+			val mat = local();
+			mat.cellSubFrom(v);
+		}
+		return this;
+	}
+	
 	/**
 	 * Perform cell-wise subtraction  x = x - this.
 	 */

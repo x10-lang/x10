@@ -345,7 +345,11 @@ public class SparseBlock extends MatrixBlock {
 	//==================================================================
 	// Utils
 	//==================================================================
+	public def compColDataSize(colOff:Int, colCnt:Int):Int = sparse.countNonZero(colOff,colCnt);
+
 	public def countNonZero() = sparse.countNonZero();
+	
+	public def getStorageSize() = sparse.getStorageSize();
 
 	//-------------------------------
 	public def toString() : String {

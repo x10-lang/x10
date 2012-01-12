@@ -349,6 +349,17 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 
 	//-------------------------------------------------------
 	//
+	//-------------------------------------------------------
+	
+	public def copyTo(that:DistSparseMatrix(M,N)) : void {
+		Debug.assure(this.grid.equals(that.grid));
+		finish ateach(val [p] :Point in this.dist) {
+			val s = this.distBs(p).getMatrix();
+			val d = that.distBs(p).getMatrix();
+			s.copyTo(d as SparseCSC(s.M, s.N));
+		} 		
+	}
+	
 	/**
 	 * Copy data to dense matrix format at here.
 	 */
@@ -391,13 +402,22 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 		Debug.assure(grid.numRowBlocks==1);
 		comm.gatherRowBs(grid, this.distBs, spm);
 	}
-    
-	//public def copyTo(dm:DenseMatrix(M,N)): void {
-		// val sbm:SparseBlockMatrix=SparseBlockMatrix(grid, nzdensity);
-		// copyTo(sbm);
 
-	//}
-
+	public def copyTo(that:Matrix(M,N)): void {
+		if (that instanceof DistSparseMatrix)
+			copyTo(that as DistSparseMatrix);
+		else if (that instanceof DistDenseMatrix)
+			copyTo(that as DistDenseMatrix);
+		else if (that instanceof SparseBlockMatrix)
+			copyTo(that as SparseBlockMatrix);
+		else if (that instanceof DenseMatrix)
+			copyTo(that as DenseMatrix);
+		else if (that instanceof SparseCSC)
+			copyTo(that as SparseCSC);
+		else
+			Debug.exit("CopyTo: target matrix type is not supported");
+	}
+	
 	/**
 	 * Copy data from sparse block matrix at here to dist block sparse matrix
 	 * 
@@ -570,25 +590,29 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	/**
 	 * Cellwise subtraction in DistSparseMatrix is not supported and
 	 */
-	public def cellSub(A:DistSparseMatrix(M,N))  {
-		Debug.exit("No implementation of cellwise sub-in for DistSparseMatrix");
-		return this;
+	public def cellSub(A:DistSparseMatrix(M,N)):DistSparseMatrix(this)  {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	/**
 	 * Cellwise subtraction in DistSparseMatrix is not supported and
 	 */
-	public def cellSub(x:Matrix(M,N)) {
-	    if (! likeMe(x))
-	        throw new UnsupportedOperationException();
-	    return cellSub(x as DistSparseMatrix(M,N));
+	public def cellSub(x:Matrix(M,N)):DistSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	/**
+	 * Perform cell-wise subtraction  this = dv - this. Not support;
+	 */
+	public def cellSubFrom(dv:Double):DistSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
+	}	
+	
+	/**
 	 * Perform cell-wise subtraction  x = x - this.
 	 */
-	protected def cellSubFrom(x:DenseMatrix(M,N)) {
-		Debug.exit("Not available");
+	protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
+		Debug.exit("Not implemented");
 		return x;
 	}
 

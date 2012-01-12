@@ -178,7 +178,22 @@ public class Grid(M:Int, N:Int,
 	public static def make(m:Int, n:Int) =
 		make(m, n, Math.sqrt(Place.MAX_PLACES) as Int, Place.MAX_PLACES); 
 
-
+	
+	/**
+	 * 
+	 */
+	public static def make(rbs:Int, cbs:Int, 
+			rowPartFunc:(Int)=>Int, colPartFunc:(Int)=>Int) {
+		val rBzList = new Array[Int](rbs, (i:Int)=>rowPartFunc(i));
+		val cBzList = new Array[Int](cbs, (i:Int)=>colPartFunc(i));
+		var m:Int=0, n:Int=0;
+		for (var r:Int=0; r<rbs; r++) m+=rBzList(r);
+		for (var c:Int=0; c<cbs; c++) n+=cBzList(c);
+		
+		return new Grid(m, n, rBzList, cBzList);
+	}
+	
+	//================================================================
 	/** 
 	 * Compute the size of segment in partitioning.
   	 *
@@ -329,6 +344,26 @@ public class Grid(M:Int, N:Int,
    		}
    		return bid;   		
    	}
+   	
+   	/**
+   	 * Compute the starting row for a given row block id
+   	 */
+   	public def startRow(rid:Int):Int {
+   		var sttrow:Int=0;
+   		for (var i:Int=0; i<rid; i++)
+   			sttrow += rowBs(i);
+   		return sttrow;
+   	}
+   	
+   	/**
+   	 * Compute the starting column for a given column block id;
+   	 */
+   	public def startColumn(cid:Int):Int {
+   		var sttcol:Int=0;
+   		for (var i:Int=0; i<cid; i++)
+   			sttcol += colBs(i);
+   		return sttcol;
+   	}  	
    	
 	//-----------------------------------------------------
 	/**

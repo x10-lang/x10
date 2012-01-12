@@ -302,6 +302,18 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		return new DistDenseMatrix(grid, ddb);
     }
 	//-------------------------------------------------------
+	// Copy
+	//-------------------------------------------------------
+	public  def copyTo(that:DistDenseMatrix):void {
+		Debug.assure(this.grid.equals(that.grid));		
+		finish ateach(val [p] :Point in this.dist) {
+			val mypid = here.id();
+			val smat  = this.getMatrix(mypid);
+			smat.copyTo(that.getMatrix(mypid) as DenseMatrix(smat.M, smat.N));
+		}
+	}
+	
+	
 	/**
 	 * Copy data from distributed dense matrix in all places
 	 * to dense block matrix at here.
@@ -388,6 +400,19 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		comm.scatterRowBs(grid, den, distBs);
 		/* Timing */ distBs(here.id()).commTime += Timer.milliTime() - stt;
 	}
+	
+	public def copyTo(mat:Matrix(M,N)): void {
+		
+		if (mat instanceof DistDenseMatrix)
+			copyTo(mat as DistDenseMatrix);
+		else if (mat instanceof DenseBlockMatrix)
+			copyTo(mat as DenseBlockMatrix);
+		else if (mat instanceof DenseMatrix)
+			copyTo(mat as DenseMatrix);
+		else
+			Debug.exit("CopyTo: target matrix is not supported");
+	}
+	
 	//================================================================
 	// Data access 
 	//================================================================	
@@ -547,7 +572,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Cellwise subtraction. A must be a DistDenseMatrix instance
 	 */
-	public def cellSub(A:Matrix(M,N)) {//:  DistDenseMatrix(this) {
+	public def cellSub(A:Matrix(M,N)) :  DistDenseMatrix(this) {
 	    if (! likeMe(A))
 	        throw new UnsupportedOperationException("Distributed matrix not compatible");
 	    return cellSub(A as DistDenseMatrix(M,N));
@@ -556,7 +581,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Cellwise subtraction. A must has the same Grid
 	 */
-	public def cellSub(A:DistDenseMatrix(M,N)) {//:  DistDenseMatrix(this) {
+	public def cellSub(A:DistDenseMatrix(M,N)) :  DistDenseMatrix(this) {
 		if (! this.grid.equals(A.grid)) 
 			throw new UnsupportedOperationException("Partitioning grid is not compatible");
 	    finish ateach([p] in this.dist) {
@@ -578,6 +603,15 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		throw new UnsupportedOperationException("Not implemented");
 	}
 
+	public def cellSubFrom(dv:Double):DistDenseMatrix(this) {
+		finish ateach([p] in this.dist) {
+			//Remote capture: dv
+		   val d = this.local();
+		   d.cellSubFrom(dv);
+		}
+		return this;
+	}	
+	
 	//-------------------------------
 	// Cellwise multiplication
 	//-------------------------------
@@ -585,7 +619,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Cellwise multiplication. Input A must be a DistDenseMatrix instance
 	 */
-	public def cellMult(A:Matrix(M,N)) {//: DistDenseMatrix(this) {
+	public def cellMult(A:Matrix(M,N)) : DistDenseMatrix(this) {
 		if (! likeMe(A)) 
 			throw new UnsupportedOperationException("Distributed matrix not compatible");		
 		return cellMult(A as DistDenseMatrix(M,N));
@@ -597,7 +631,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
  	 * <p> For each i,j in the domain of this, replace this(i,j) with 
  	 * this(i,j) * A(i,j).
 	 */
-	public def cellMult(A:DistDenseMatrix(M,N)) {//: DistDenseMatrix(this) {
+	public def cellMult(A:DistDenseMatrix(M,N)): DistDenseMatrix(this) {
 		if (! this.grid.equals(A.grid)) 
 			throw new UnsupportedOperationException("Partitioning of matrices are not same!");
 
@@ -627,7 +661,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * <p> For each i,j in the domain of this, replace this(i,j) with 
 	 * this(i,j) / A(i,j).
 	 */
-	public def cellDiv(A:DistDenseMatrix(M,N)) {//:  DistDenseMatrix(this) {
+	public def cellDiv(A:DistDenseMatrix(M,N)):  DistDenseMatrix(this) {
 		if (! this.grid.equals(A.grid)) 
 			throw new UnsupportedOperationException("Partitioning grid is not compatible");
 	    finish ateach([p] in this.distBs) {
@@ -639,7 +673,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	    return this;
 	}
 
-	public def cellDiv(A:Matrix(M,N))  {
+	public def cellDiv(A:Matrix(M,N)):DistDenseMatrix(this)  {
 		if (! likeMe(A)) 
 			throw new UnsupportedOperationException("Distributed matrix not compatible");		
 		return cellDiv(A as DistDenseMatrix(M,N));
@@ -826,7 +860,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		return this;
 	}	
 	
-	//==================================================================
+	//=================================================================
 	// DistDense * DupDense					 
 	//=================================================================	
 	/**
@@ -872,7 +906,31 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			A:DistSparseMatrix(this.M), 
 			B:DupDenseMatrix(this.N,A.N)):DistDenseMatrix(this) 			
 		= multTrans(A, B, false);
-		
+
+	//=================================================================
+	// Operator overlead			 
+	//=================================================================	
+	public operator - this = this.clone().scale(-1.0) as DistDenseMatrix(M,N);
+	public operator (v:Double) + this = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
+	public operator this + (v:Double) = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
+
+	public operator this - (v:Double) = this.clone().cellAdd(-v) as DistDenseMatrix(M,N);
+	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DistDenseMatrix(M,N);
+	
+	public operator this / (v:Double) = this.clone().scale(1.0/v) as DistDenseMatrix(M,N);
+	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DistDenseMatrix(M,N);
+	
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as DistDenseMatrix(M,N);
+	public operator this * (alpha:Int)    = this.clone().scale(alpha as Double) as DistDenseMatrix(M,N);
+	public operator (alpha:Double) * this : DistDenseMatrix(M,N) = this * alpha;
+	public operator (alpha:Int) * this    : DistDenseMatrix(M,N) = this * (alpha as Double);
+	
+	public operator this + (that:DistDenseMatrix(M,N)) = this.clone().cellAdd(that) as DistDenseMatrix(M,N);
+	public operator this - (that:DistDenseMatrix(M,N)) = this.clone().cellSub(that) as DistDenseMatrix(M,N);
+	public operator this * (that:DistDenseMatrix(M,N)) = this.clone().cellMult(that) as DistDenseMatrix(M,N);
+	public operator this / (that:DistDenseMatrix(M,N)) = this.clone().cellDiv(that) as DistDenseMatrix(M,N);
+
+	
 	//==================================================================
 	// Profiling
 	//==================================================================

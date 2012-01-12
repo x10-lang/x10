@@ -32,8 +32,8 @@ public class DenseBlock extends MatrixBlock {
 	public val dense:DenseMatrix;
 	//
 	//--------- Profiling ---------
-	public var calcTime:Long=0;
-	public var commTime:Long=0;
+	//public var calcTime:Long=0;
+	//public var commTime:Long=0;
 
 	//public val block:DenseMatrix;
 	//===================================================================
@@ -284,8 +284,12 @@ public class DenseBlock extends MatrixBlock {
 				dense.d(i) += srcden.d(j);
 		}
 	}
-		
+	
+	public def compColDataSize(colOff:Int, colCnt:Int) :Int = dense.M*colCnt;
+
 	//==================================================================
+	public def getStorageSize():Int = dense.M*dense.N;
+	
 	public def toString() : String {
 		val output:String = "Dense matrix block ("+myRowId+","+myColId+"): "+
 							   dense.toString();

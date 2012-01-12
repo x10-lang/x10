@@ -29,9 +29,7 @@ public type BlockMatrix(C:BlockMatrix)=BlockMatrix{self==C};
  */
 public class BlockMatrix(grid:Grid) extends Matrix  {
 
-
 	public val listBs:Array[MatrixBlock](1);
-
 
 	//================================================================
 	/**
@@ -94,6 +92,16 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		bm.allocSparseBlocks(nzd);
 		return bm;
 	}
+	
+	/**
+	 * 
+	 */
+	public static def makeDense(that:BlockMatrix): BlockMatrix(that.M, that.N) {
+		val bm:BlockMatrix(that.M, that.N) = makeDense(that.grid) as BlockMatrix(that.M, that.N);
+		that.copyTo(bm);
+		return bm;
+	}
+	
 	//================================================================
 
 	/**
@@ -101,28 +109,43 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * No supported, since no partitioning information.
 	 */
 	public def alloc(m:Int, n:Int):BlockMatrix(m,n) {
-		throw new UnsupportedOperationException();
+		Debug.assure(m==M&&n==N);
+		val nm = new BlockMatrix(this.grid) as BlockMatrix(m,n);
+		for([p] :Point in nm.listBs) {
+			val rid = this.grid.getRowBlockId(p);
+			val cid = this.grid.getColBlockId(p);
+			val mat = this.listBs(p).getMatrix();
+			if (mat instanceof DenseMatrix)
+				nm.listBs(p) = new DenseBlock(rid, cid, mat as DenseMatrix);
+			else if (mat instanceof SparseCSC)
+				nm.listBs(p) = new SparseBlock(rid, cid, mat as SparseCSC);
+			else
+				Debug.exit("Matrix type is not supported in creating matrix block");
+		}
+		return nm;
 	}
 
 
-	public def allocDenseBlocks() : void {
+	public def allocDenseBlocks() : BlockMatrix(this) {
 		for([p] :Point in listBs) {
 			val rid = this.grid.getRowBlockId(p);
 			val cid = this.grid.getColBlockId(p);
 			this.listBs(p) = DenseBlock.make(this.grid, rid, cid);
 		}
+		return this;
 	}
 
-	public def allocSparseBlocks(nzd:Double):void {
+	public def allocSparseBlocks(nzd:Double): BlockMatrix(this) {
 		for([p] :Point in listBs) {
 			val rid = this.grid.getRowBlockId(p);
 			val cid = this.grid.getColBlockId(p);
 			this.listBs(p) = SparseBlock.make(this.grid, rid, cid, nzd);
 		}
+		return this;
 	}
 
 	/**
-	 * Make a copy of myself
+	 * Make a copy of myself, while sharing the same matrix partitioning instance.
 	 *
 	 */
 	public def clone():BlockMatrix(M,N) {
@@ -145,6 +168,21 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		}
 		return this;
 	}
+
+	/**
+	 * Given initial function which maps matrix (row, column) index to
+	 * a double value.
+	 */
+	public def init(f:(Int, Int)=>Double):BlockMatrix(this) {
+		var roff:Int=0;
+		var coff:Int=0;
+		for (var cb:Int=0; cb<grid.numColBlocks; coff+=grid.colBs(cb), roff=0, cb++)
+			for (var rb:Int=0; rb<grid.numRowBlocks; roff+=grid.rowBs(rb), rb++ ) {
+				listBs(grid.getBlockId(rb, cb)).init(roff, coff, f);
+			}		
+		return this;
+	}
+	
 
 	/**
 	 * Initialize dense block matrix with random values 
@@ -206,33 +244,91 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		return v;
 	}
 	//---------------------------------------------------
+	// Copy
+	//---------------------------------------------------
 
 	/**
 	 * Convert to dense matrix in provided memory space
 	 */
     public def copyTo(dm:DenseMatrix(M,N)):void {
-		Debug.assure(this.M==dm.M&&this.N==dm.N);
-		//This 
-		var stt_blk:Int=0;
-		for (var cb:Int=0; cb<grid.numColBlocks; cb++) {
-			
-			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
+   	
+		var rowoff:Int=0;
+		var coloff:Int=0;
+		for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), rowoff=0, cb++) {
+			for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+				
 				val bid = grid.getBlockId(rb, cb);
 				val src = this.getMatrix(bid);
-				var stt_col:Int = stt_blk;
 
-				for (var c:Int=0; c<src.N; c++) {
-					var dstidx:Int = stt_col;
-					for (var r:Int=0; r<src.M; r++, dstidx++)
-						dm.d(dstidx)=src(r, c);
-					stt_col += dm.M;
+				if (src instanceof DenseMatrix) {
+					val densrc = src as DenseMatrix;
+					DenseMatrix.copySubset(src as DenseMatrix, 0, 0, dm, rowoff, coloff, src.M, src.N);
+				} else if (src instanceof SparseCSC) {
+					SparseCSC.copyTo(src as SparseCSC, dm, rowoff, coloff); 
+				} else {
+					Debug.exit("CopyTo: target matrix type not supported");
 				}
-				stt_blk += src.M;
+					
 			}
-			stt_blk += grid.colBs(cb) * dm.M - dm.M;
 		}
 	}
 	
+    public def copyTo(that:BlockMatrix(M,N)): void {
+    	Debug.assure(this.grid.equals(that.grid), "Data partitioning is not compatible");
+    	
+    	for (val [b] : Point in this.listBs) {
+    		this.listBs(b).copyTo(that.listBs(b));
+    	}
+    }
+
+    /**
+     * Copy data from blocks to a sparse CSC matrix
+     * 
+     * @param dst 	target sparse matrix
+     */
+    public def copyTo(dst:SparseCSC(M,N)): void {
+
+    	val sz:Long = getStorageSize();
+    	Debug.assure(sz <= Int.MAX_VALUE,
+    	"Copy block matrix fail! Exceeding the limit of array");
+    	//Check storage size
+    	dst.testIncStorage(0, sz as Int);
+    	
+    	var dstcol:Int=0;
+    	var cnt:Int=0;
+    	for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
+    		for (var col:Int=0; col < grid.colBs(cb); col++, dstcol++) {
+    			val dstln = dst.getCol(dstcol);
+    			var sttidx:Int = 0;
+
+    			dstln.offset = cnt;
+    			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
+    				val bid = grid.getBlockId(rb, cb);
+    				val blk = listBs(bid) as SparseBlock;
+    				val src = blk.sparse;
+    				val srcln = src.getCol(col);
+    				
+    				srcln.appendTo(dstln, sttidx);
+
+    				sttidx += src.M;
+    				cnt   += srcln.length;
+    			}
+    		}
+    	}
+    	//dst.print("copy to result:");
+    }
+    
+    public def copyTo(that:Matrix(M,N)): void {
+    	if (likeMe(that)) {
+    		copyTo(that as BlockMatrix(M,N));
+    	} else if (that instanceof DenseMatrix) {
+    		copyTo(that as DenseMatrix(M,N));
+    	} else {
+    		Debug.exit("CopyTo: target matrix is not compatible");
+    	}
+    }
+    
+    
 	/**
 	 *  Convert to dense matrix
 	 */
@@ -291,14 +387,13 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * this = this + x;
 	 *
 	 */
-	public def cellAdd(x:BlockMatrix(M,N)) {
-		if (! likeMe(x)) 
-			Debug.exit("Block matrix add fails - matrix type not match");
+	public def cellAdd(that:BlockMatrix(M,N)) {
+		Debug.assure(likeMe(that), "Block matrix add fails - matrix type not compatible");
 		
 		//Debug.flushln("Here ");
 		for (val [p] :Point in listBs) {
-			val dst = listBs(p).getMatrix();
-			val src = x.listBs(p).getMatrix();
+			val dst = this.listBs(p).getMatrix();
+			val src = that.listBs(p).getMatrix();
 			dst.cellAdd(src as Matrix(dst.M, dst.N));
 		}		
 
@@ -323,7 +418,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
     public def cellSub(x:Matrix(M,N))  {
 		if (likeMe(x))
 			return cellSub(x as BlockMatrix(M,N));
-
+		// This is slow
 		for (var c:Int=0; c<N; c++) {
 			for (var r:Int=0; r<M; r++) {
 				this(r, c) = this(r, c) - x(r, c);
@@ -340,19 +435,34 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	}
 
 	/**
-	 * this -= x;
-	 *
+	 * this = this -v;
 	 */
-	public def cellSub(x:BlockMatrix(M,N)) {
-		if (! likeMe(x)) 
-			Debug.exit("Block matrix substract fails - matrices not match");
+	public def cellSub(v:Double) = this.cellAdd(-v);
+
+
+	/**
+	 * this = this - that;
+	 * 
+	 */
+	public def cellSub(that:BlockMatrix(M,N)) {
+		Debug.assure(likeMe(that), "Block matrix substract fails - matrix type not compatible");
 		
 		for (val [p] :Point in listBs) {
-			val dst = listBs(p).getMatrix();
-			val src = x.listBs(p).getMatrix();
-			dst.cellSub(src as Matrix(dst.M, dst.N));
+			val dst = this.listBs(p).getMatrix();
+			val obj = that.listBs(p).getMatrix();
+			dst.cellSub(obj as Matrix(dst.M, dst.N));
 		}
 		return this;
+	}
+	/**
+	 * this = v - this
+	 */
+	public def cellSubFrom(dv:Double) : BlockMatrix(this) {
+		for (val [p] :Point in listBs) {
+			val dst = this.getMatrix(p);
+			dst.cellSubFrom(dv);
+		}
+		return this;	
 	}
 
 	//--------------------------------------
@@ -386,13 +496,12 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * this *= x;
 	 *
 	 */
-	public def cellMult(x:DenseBlockMatrix(M,N)):BlockMatrix(this) {
-		if (! likeMe(x)) 
-			Debug.exit("Block matrix cell mult fails - matrices not match");
+	public def cellMult(that:DenseBlockMatrix(M,N)):BlockMatrix(this) {
+		Debug.assure(likeMe(that), "Block matrix cell mult fails - matrices not match");
 		
 		for (val [p] :Point in listBs) {
-			val dst = listBs(p).getMatrix();
-			val src = x.listBs(p).getMatrix();
+			val dst = this.listBs(p).getMatrix();
+			val src = that.listBs(p).getMatrix();
 			dst.cellMult(src as Matrix(dst.M, dst.N));
 		}		
 		return this;
@@ -421,21 +530,37 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		Debug.exit("Not implemented");
 		return x;		
 	}
-
+    
+    public def cellDivBy(v:Double):BlockMatrix(this) {
+    	Debug.exit("No implementation");
+    	return this;
+    }
+    
 	/**
 	 * this /= x;
 	 *
 	 */
-	public def cellDiv(x:BlockMatrix(M,N)): BlockMatrix(this) {
-		if (! likeMe(x)) 
-			Debug.exit("Block matrix cell divide fails - matrices not match");
+	public def cellDiv(that:BlockMatrix(M,N)): BlockMatrix(this) {
+		Debug.assure(likeMe(that), "Block matrix cell divide fails - matrices not match");
 		
 		for (val [p] :Point in listBs) {
-			val dst = listBs(p).getMatrix();
-			val src = x.listBs(p).getMatrix();
+			val dst = this.listBs(p).getMatrix();
+			val src = that.listBs(p).getMatrix();
 			dst.cellDiv(src as Matrix(dst.M, dst.N));
 		}		
 
+		return this;
+	}
+	
+	/**
+	 * this = this /v
+	 */
+	public def cellDiv(v:Double): BlockMatrix(this) {
+		
+		for (val [p] :Point in listBs) {
+			val dst = this.listBs(p).getMatrix();
+			dst.scale(1.0/v);
+		}
 		return this;
 	}
 	//====================================================================
@@ -482,11 +607,48 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		Debug.exit("Not implemented yet");
 		return this;		
     }
+	
+	//====================================================================
+	//Operator overload
+	//====================================================================
+	public operator - this = this.clone().scale(-1.0) as BlockMatrix(M,N);
+	/**
+	 * Operation result is stored in block matrix using dense block as storage.
+	 */
+	public operator (v:Double) + this = makeDense(this).cellAdd(v) as BlockMatrix(M,N);
+	public operator this + (v:Double) = makeDense(this).cellAdd(v) as BlockMatrix(M,N);
+	public operator this - (v:Double) = makeDense(this).cellSub(v) as BlockMatrix(M,N);
+	
+	public operator (v:Double) - this = makeDense(this).cellSubFrom(v) as BlockMatrix(M,N);
+	public operator this / (v:Double) = makeDense(this).cellDiv(v) as BlockMatrix(M,N);
+	public operator (v:Double) / this = makeDense(this).cellDivBy(v) as BlockMatrix(M,N);
+	
+	/**
+	 * Operator overloading for cell-wise scaling operation and return result in a new dense matrix. 
+	 */
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as BlockMatrix(M,N);
+	public operator this * (alpha:Int)    = this.clone().scale(alpha as Double) as BlockMatrix(M,N);
+	public operator (alpha:Double) * this = this * alpha;
+	public operator (alpha:Int) * this    = this * alpha;;
+
+	
+	public operator this + (that:BlockMatrix(M,N)) = makeDense(this).cellAdd(that) as BlockMatrix(M,N);
+	public operator this - (that:DenseMatrix(M,N)) = makeDense(this).cellSub(that) as BlockMatrix(M,N);
+	public operator this * (that:DenseMatrix(M,N)) = makeDense(this).cellMult(that) as BlockMatrix(M,N);
+	public operator this / (that:DenseMatrix(M,N)) = makeDense(this).cellDiv(that) as BlockMatrix(M,N);
 
 	//====================================================================
 	// Utils
 	//====================================================================
-
+	public def getStorageSize():Long {
+		var nzcnt:Long=0;
+		for (val [p] :Point in listBs) {
+			nzcnt += listBs(p).getStorageSize();
+		}
+		return nzcnt;	
+	}
+	
+	
 	/**
 	 * Check matrix has the same type, partition and dimension or not.
 	 *

@@ -24,6 +24,8 @@ public type DenseBlockMatrix(C:DenseBlockMatrix)=DenseBlockMatrix{self==C};
 
 
 /**
+ * OBSOLETE. Use BlockMatrix.
+ * 
  * Dense block matrix is constructed by using an array or dense blocks, and
  * grid partition specifies how each block is mapped to the overall dense matrix.
  * 
@@ -132,7 +134,17 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		}
 		return this;
 	}
-
+	
+	public def init(f:(Int, Int)=>Double):DenseBlockMatrix(this) {
+		var roff:Int=0;
+		var coff:Int=0;
+		for (var cb:Int=0; cb<grid.numColBlocks; coff+=grid.colBs(cb), roff=0, cb++)
+			for (var rb:Int=0; rb<grid.numRowBlocks; roff+=grid.rowBs(rb), rb++ ) {
+				listBs(grid.getBlockId(rb, cb)).init(roff, coff, f);
+			}		
+		return this;
+	}
+	
 	/**
 	 * Initialize dense block matrix with random values 
 	 * 
@@ -181,6 +193,25 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 			dstcolidx += grid.colBs(cb) * this.M;
 		}
 	}
+
+	public def copyTo(that:DenseBlockMatrix(M,N)):void {
+		Debug.assure(this.grid.equals(that.grid), "Data partitioning is not compatible");
+		
+		for (val [b] : Point in this.listBs) {
+			this.listBs(b).copyTo(that.listBs(b));
+		}		
+	}
+
+	public def copyTo(that:Matrix(M,N)):void {
+		if (that instanceof DenseBlockMatrix) {
+			copyTo(that as DenseBlockMatrix);
+		} else if (that instanceof DenseMatrix) {
+			copyTo(that as DenseMatrix(M,N));
+		} else {
+			Debug.exit("CopyTo: target matrix is not compatible");
+		}		
+	}
+	
 	
 	/**
 	 * Copy data from dense matrix to myself.
@@ -341,12 +372,14 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;
 	}
 
+	/**
+	 * Cell-wise add this = this + double
+	 */
 	public def cellAdd(d:Double):DenseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			val dst = listBs(p).dense;
 			dst.cellAdd(d);
 		}		
-
 		return this;
 	}
 	
@@ -397,17 +430,28 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	}
 
 	/**
-	 * this -= x;
+	 * this = this - that;
 	 *
 	 */
-	public def cellSub(x:DenseBlockMatrix(M,N)) {
-		if (! likeMe(x)) 
+	public def cellSub(that:DenseBlockMatrix(M,N)) {
+		if (! likeMe(that)) 
 			Debug.exit("Dense block matrix substract fails - matrices not match");
 		
 		for (val [p] :Point in listBs) {
 			val dst = listBs(p).dense;
-			val src = x.listBs(p).dense as DenseMatrix(dst.M, dst.N);
+			val src = that.listBs(p).dense as DenseMatrix(dst.M, dst.N);
 			dst.cellSub(src);
+		}		
+		return this;
+	}
+
+	/**
+	 * Cell-wise add this = double - this
+	 */
+	public def cellSubFrom(d:Double):DenseBlockMatrix(this) {
+		for (val [p] :Point in listBs) {
+			val dst = listBs(p).dense;
+			dst.cellSubFrom(d);
 		}		
 		return this;
 	}
@@ -577,6 +621,28 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		Debug.exit("Not implemented yet");
 		return this;		
     }
+	//====================================================================
+	// Operator overlead
+	//====================================================================
+	public operator - this = clone().scale(-1.0) as DenseBlockMatrix(M,N);
+	public operator (v:Double) + this = this.clone().cellAdd(v) as DenseBlockMatrix(M,N);
+	public operator this + (v:Double) = this.clone().cellAdd(v) as DenseBlockMatrix(M,N);
+
+	public operator this - (v:Double) = this.clone().cellAdd(-v) as DenseBlockMatrix(M,N);
+	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DenseBlockMatrix(M,N);
+	
+	public operator this / (v:Double) = this.clone().scale(1.0/v) as DenseBlockMatrix(M,N);
+	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DenseBlockMatrix(M,N);
+	
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as DenseBlockMatrix(M,N);
+	public operator this * (alpha:Int)    = this.clone().scale(alpha as Double) as DenseBlockMatrix(M,N);
+	public operator (alpha:Double) * this = this * alpha;
+	public operator (alpha:Int) * this    = this * (alpha as Double);
+
+	public operator this + (that:DenseBlockMatrix(M,N)) = this.clone().cellAdd(that) as DenseBlockMatrix(M,N);
+	public operator this - (that:DenseBlockMatrix(M,N)) = this.clone().cellSub(that) as DenseBlockMatrix(M,N);
+	public operator this * (that:DenseBlockMatrix(M,N)) = this.clone().cellMult(that) as DenseBlockMatrix(M,N);
+	public operator this / (that:DenseBlockMatrix(M,N)) = this.clone().cellDiv(that) as DenseBlockMatrix(M,N);
 
 	//====================================================================
 	// Utils

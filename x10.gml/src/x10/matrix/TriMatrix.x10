@@ -101,10 +101,27 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 		return dm;
 	}
 	
+	public def copyTo(tmat:TriMatrix(N)): void {
+		var colstt:Int=0;
+		for (var len:Int=N; len > 0; len--, colstt+=M+1) {
+			Array.copy(this.d, colstt, tmat.d, colstt, len);		
+		}
+	}
+	
+	public def copyTo(mat:Matrix(M,N)): void {
+		if (mat instanceof DenseMatrix)
+			copyTo(mat as DenseMatrix(M,N));
+		else if (mat instanceof TriMatrix)
+			copyTo(mat as TriMatrix(N));
+		else
+			Debug.exit("CopyTo: matrix type does not compatible");
+	}
+	
 	public def castToDense():DenseMatrix(M,N) {
 		return new DenseMatrix(M, N, this.d);
 	}
-
+	
+	//========================================================================
 	/**
 	 * Reset lower part of triangular matrix. No touch on upper part.
 	 */
@@ -409,15 +426,17 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	// Operator
 	//==================================================================
 	public operator - this            = this.clone().scale(-1.0) as TriMatrix(M,N);
-	public operator this + (v:Double):TriMatrix(M,N) = this.clone().cellAdd(v) as TriMatrix(M,N);
-	public operator (v:Double) + this:TriMatrix(M,N) = this + v;
+	public operator this + (v:Double) = this.clone().cellAdd(v) as TriMatrix(M,N);
+	public operator (v:Double) + this = this + v;
 
-	public operator this - (v:Double):TriMatrix(M,N) = this.clone().cellSub(v) as TriMatrix(M,N);
-	public operator (v:Double) - this:TriMatrix(M,N) = this.clone().cellSubFrom(v) as TriMatrix(M,N);
-	public operator this / (v:Double):TriMatrix(M,N) = this.clone().cellDiv(v) as TriMatrix(M,N);
-	public operator (v:Double) / this:TriMatrix(M,N) = this.clone().cellDivBy(v) as TriMatrix(M,N);
-	public operator this * (alpha:Double):TriMatrix(M,N) = this.clone().scale(alpha) as TriMatrix(M,N);
-	public operator this * (alpha:Int):TriMatrix(M,N)    = this * (alpha as Double);
+	public operator this - (v:Double) = this.clone().cellSub(v) as TriMatrix(M,N);
+	public operator (v:Double) - this = this.clone().cellSubFrom(v) as TriMatrix(M,N);
+	
+	public operator this / (v:Double) = this.clone().cellDiv(v) as TriMatrix(M,N);
+	public operator (v:Double) / this = this.clone().cellDivBy(v) as TriMatrix(M,N);
+	
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as TriMatrix(M,N);
+	public operator this * (alpha:Int)    = this * (alpha as Double);
 	public operator (alpha:Double) * this = this * alpha;
 	public operator (alpha:Int) * this    = this * alpha;
 	
