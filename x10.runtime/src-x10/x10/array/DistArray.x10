@@ -19,6 +19,9 @@ import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
 import x10.compiler.Incomplete;
 
+import x10.io.CustomSerialization;
+import x10.io.SerialData;
+
 import x10.util.IndexedMemoryChunk;
 
 /**
@@ -49,7 +52,8 @@ public final class DistArray[T] (
      */
     dist:Dist
 ) implements (Point(dist.region.rank))=>T,
-             Iterable[Point(dist.region.rank)]
+             Iterable[Point(dist.region.rank)],
+             CustomSerialization
 {
 
     //
@@ -66,9 +70,8 @@ public final class DistArray[T] (
      */
     public property rank(): int = dist.rank;
 
-    // Need a trivial wrapper class because PlaceLocalHandle[T] requires that T <: Object
-    protected static class LocalState[T](data:IndexedMemoryChunk[T]) {
-      public def this(c:IndexedMemoryChunk[T]) { property(c); }
+    protected static class LocalState[T](dist:Dist, data:IndexedMemoryChunk[T]) {
+      public def this(dist:Dist, c:IndexedMemoryChunk[T]) { property(dist, c); }
     }
     /** The place-local backing storage for the DistArray */
     protected val localHandle:PlaceLocalHandle[LocalState[T]];
@@ -108,16 +111,28 @@ public final class DistArray[T] (
      */
     public static def make[T](dist:Dist) {T haszero} = new DistArray[T](dist);
 
-    // TODO: consider making this constructor public
     def this(dist: Dist) {T haszero} : DistArray[T]{self.dist==dist} {
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocateZeroed[T](dist.maxOffset()+1);
-            return new LocalState(localRaw);
+            val size = dist.places().contains(here) ? dist.maxOffset()+1 : 0;
+            val localRaw = IndexedMemoryChunk.allocateZeroed[T](size);
+            return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
+    }
+
+    def this(sd:SerialData) {
+      val plh:PlaceLocalHandle[LocalState[T]] = sd.data as PlaceLocalHandle[LocalState[T]];
+      val d:Dist = plh().dist;
+
+      property(d);
+      localHandle = plh;
+    }
+
+    public def serialize():SerialData {
+        return new SerialData(localHandle, null);
     }
 
 
@@ -144,15 +159,20 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
-            val reg = dist.get(here);
-            for (pt in reg) {
-               localRaw(dist.offset(pt)) = init(pt);
+            val localRaw:IndexedMemoryChunk[T];
+            if (dist.places().contains(here)) {
+                localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
+                val reg = dist.get(here);
+                for (pt in reg) {
+                    localRaw(dist.offset(pt)) = init(pt);
+                }
+            } else {
+                localRaw = IndexedMemoryChunk.allocateUninitialized[T](0);
             }
-            return new LocalState(localRaw);
+            return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
+        localHandle = PlaceLocalHandle.make[LocalState[T]](PlaceGroup.WORLD, plsInit);
     }
 
 
@@ -172,15 +192,20 @@ public final class DistArray[T] (
         property(dist);
 
         val plsInit:()=>LocalState[T] = () => {
-            val localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
-            val reg = dist.get(here);
-            for (pt in reg) {
-                localRaw(dist.offset(pt)) = init;
+            val localRaw:IndexedMemoryChunk[T];
+            if (dist.places().contains(here)) {
+                localRaw = IndexedMemoryChunk.allocateUninitialized[T](dist.maxOffset()+1);
+                val reg = dist.get(here);
+                for (pt in reg) {
+                    localRaw(dist.offset(pt)) = init;
+                }
+            } else {
+                localRaw = IndexedMemoryChunk.allocateUninitialized[T](0);
             }
-            return new LocalState(localRaw);
+            return new LocalState(dist, localRaw);
         };
 
-        localHandle = PlaceLocalHandle.make[LocalState[T]](dist, plsInit);
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
     }
 
     /**
@@ -194,7 +219,9 @@ public final class DistArray[T] (
      */
     protected def this(a:DistArray[T], d:Dist):DistArray[T]{self.dist==d} {
         property(d);
-        localHandle = PlaceLocalHandle.make[LocalState[T]](d, ()=>a.localHandle());
+
+        val plsInit:()=>LocalState[T] = ()=> new LocalState(d, a.localHandle().data);
+        localHandle = PlaceLocalHandle.makeFlat[LocalState[T]](PlaceGroup.WORLD, plsInit);
     }
 
     /**
@@ -501,15 +528,20 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array where <code>result(p) == op(this(p))</code>
      */
     public final def map[U](op:(T)=>U):DistArray[U](this.dist) {
-        val plh = PlaceLocalHandle.make[LocalState[U]](dist, ()=> {
-            val srcImc = raw();
-            val newImc = IndexedMemoryChunk.allocateUninitialized[U](dist.maxOffset()+1);
-            val reg = dist.get(here);
-            for (pt in reg) {
-                val offset = dist.offset(pt);
-                newImc(offset) = op(srcImc(offset));
+        val plh = PlaceLocalHandle.make[LocalState[U]](PlaceGroup.WORLD, ()=> {
+            val newImc:IndexedMemoryChunk[U];
+            if (dist.places().contains(here)) {
+                val srcImc = raw();
+                newImc = IndexedMemoryChunk.allocateUninitialized[U](dist.maxOffset()+1);
+                val reg = dist.get(here);
+                for (pt in reg) {
+                    val offset = dist.offset(pt);
+                    newImc(offset) = op(srcImc(offset));
+                }
+            } else {
+                newImc = IndexedMemoryChunk.allocateUninitialized[U](0);
             }
-            return new LocalState[U](newImc);
+            return new LocalState[U](dist, newImc);
         });
         return new DistArray[U](dist, plh);                       
     }
@@ -582,16 +614,21 @@ public final class DistArray[T] (
      * @return a new array with the same distribution as this array containing the result of the map
      */
     public final def map[S,U](src:DistArray[U](this.dist), op:(T,U)=>S):DistArray[S](dist) {
-        val plh = PlaceLocalHandle.make[LocalState[S]](dist, ()=> {
-            val src1Imc = raw();
-            val src2Imc = src.raw();
-            val newImc = IndexedMemoryChunk.allocateUninitialized[S](dist.maxOffset()+1);
-            val reg = dist.get(here);
-            for (pt in reg) {
-                val offset = dist.offset(pt);
-                newImc(offset) = op(src1Imc(offset), src2Imc(offset));
+        val plh = PlaceLocalHandle.make[LocalState[S]](PlaceGroup.WORLD, ()=> {
+            val newImc:IndexedMemoryChunk[S];
+            if (dist.places().contains(here)) {
+                val src1Imc = raw();
+                val src2Imc = src.raw();
+                newImc = IndexedMemoryChunk.allocateUninitialized[S](dist.maxOffset()+1);
+                val reg = dist.get(here);
+                for (pt in reg) {
+                    val offset = dist.offset(pt);
+                    newImc(offset) = op(src1Imc(offset), src2Imc(offset));
+                }
+            } else {
+                newImc = IndexedMemoryChunk.allocateUninitialized[S](0);
             }
-            return new LocalState[S](newImc);
+            return new LocalState[S](dist, newImc);
         });
         return new DistArray[S](dist, plh);                       
     }
