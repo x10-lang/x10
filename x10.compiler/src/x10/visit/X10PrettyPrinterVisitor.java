@@ -210,6 +210,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportConstructorInlining = true;
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
+    // XTENLANG-2871
+    public static final boolean supportJavaThrowables = true;
     // XTENLANG-2987
     public static final boolean stableParameterMangling = false;
 //    public static final boolean stableParameterMangling = true;
@@ -4467,12 +4469,39 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    private Try_c reorderCatchBlocks(Try_c c) {
+        TypeSystem ts = tr.typeSystem();
+        Context context = tr.context();
+        List<Catch> catchBlocks = c.catchBlocks();
+        List<Catch> newCatchBlocks = new ArrayList<Catch>();
+        boolean hasJavaThrowable = false;
+        for (Catch catchBlock : catchBlocks) {
+            Type catchType = catchBlock.catchType();
+            if (!ts.isJavaThrowable(catchType)) {
+                newCatchBlocks.add(catchBlock);
+            }
+        }
+        for (Catch catchBlock : catchBlocks) {
+            Type catchType = catchBlock.catchType();
+            if (ts.isJavaThrowable(catchType)) {
+                newCatchBlocks.add(catchBlock);
+                hasJavaThrowable = true;
+            }
+        }
+        if (hasJavaThrowable) {
+            c = (Try_c) c.catchBlocks(newCatchBlocks);
+        }
+        return c;
+    }
     private static boolean isJavaCheckedException(Type catchType) {
         // TODO need check
         return catchType.toString().startsWith("java") && !catchType.isUncheckedException();
     }
     @Override
     public void visit(Try_c c) {
+        if (supportJavaThrowables) {
+            c = reorderCatchBlocks(c);
+        }
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
         final List<Catch> catchBlocks = c.catchBlocks();
 
@@ -4493,6 +4522,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 public void expand(Translator tr) {
                     w.newline();
 
+                    boolean needElse = false;
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
@@ -4505,8 +4535,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         // checked exceptions
                             continue;
 
-                        if (i > 0) {
+                        if (needElse) {
                             w.write("else ");
+                        } else {
+                            needElse = true;
                         }
                         w.write("if (" + temp + ".getCause() instanceof ");
                         er.printType(cb.catchType(), 0);
