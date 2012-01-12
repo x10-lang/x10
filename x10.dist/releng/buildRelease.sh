@@ -59,6 +59,7 @@ case "$UNAME" in
       SHORT_HOSTNAME=`hostname -s`
       if [[ "$SHORT_HOSTNAME" == "triloka4" ]]; then 
           X10_PLATFORM='linux_rh6_x86_64'
+          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
       else
           X10_PLATFORM='linux_x86_64'
       fi
@@ -115,7 +116,7 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     cd $distdir/x10.dist
     ant -Doptimize=true -Dtar.version=$X10_VERSION testtar
     ant -Doptimize=true -Dtar.version=$X10_VERSION srctar
-    ant-Doptimize=true dist
+    ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true dist
     if [[ -z "$SKIP_DEBUG_BUILD" ]]; then
         ant -Ddebug=true dist-cpp
     fi 
