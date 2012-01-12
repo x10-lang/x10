@@ -230,6 +230,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //    public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.WrappedThrowable";
     public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
+    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
 
     public static final String MAIN_CLASS = "$Main";
     public static final String RTT_NAME = "$RTT";
@@ -4058,9 +4059,33 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    // N.B. true for Java throwables that are supertype of x.l.Throwable at implementation level
+    private boolean isJavaThrowableAssignableFromX10Throwable(Type catchType) {
+        TypeSystem ts = tr.typeSystem();
+        Context context = tr.context();
+        return ts.typeEquals(catchType, ts.JavaThrowable(), context) ||
+            ts.typeEquals(catchType, ts.JavaException(), context) ||
+            ts.typeEquals(catchType, ts.JavaRuntimeException(), context);
+    }
+
     @Override
     public void visit(Catch_c n) {
-        n.translate(w, tr);
+        w.write("catch (");
+        n.printBlock(n.formal(), w, tr);
+        w.write(")");
+        
+        boolean rethrowX10Throwable = supportJavaThrowables && isJavaThrowableAssignableFromX10Throwable(n.catchType());
+        if (rethrowX10Throwable) {
+            w.writeln("{");
+            String formalName = n.formal().name().toString();
+            w.writeln("if (" + formalName + " instanceof " + X10_CORE_THROWABLE + ") { throw (" + X10_CORE_THROWABLE + ") " + formalName + "; }");
+        }
+        
+        n.printSubStmt(n.body(), w, tr);
+        
+        if (rethrowX10Throwable) {
+            w.writeln("}");
+        }
     }
 
     @Override

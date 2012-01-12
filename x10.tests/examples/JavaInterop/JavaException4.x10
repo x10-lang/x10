@@ -17,6 +17,9 @@ import x10.interop.java.Throws;
 public class JavaException4 extends x10Test {
     public def run(): Boolean {
         try {
+        } catch (e:java.lang.IndexOutOfBoundsException) {
+        } catch (e:java.lang.RuntimeException) {
+        } catch (e:x10.lang.Exception) {
         } catch (e:java.lang.Throwable) {
         } catch (e:x10.lang.Throwable) {
         }
