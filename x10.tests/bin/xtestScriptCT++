@@ -7,19 +7,6 @@
 # This file is part of X10/C++ Test Harness.
 # Simple in-place test harness to test X10/C++ backend.
 
-# get new pgas sockets port number for mpirun launch
-# (based on Igor's script for Columbia cluster)
-# usage: getPGASPort
-function getPGASPort {
-    DEFAULT_PORT=21053
-    IP=$(host -t A $(hostname) | awk '{print $NF}')
-    PORT=$(expr $DEFAULT_PORT + $$ % 1024)
-    while netstat -n -a | grep tcp | grep -q "${IP}.${PORT}"; do
-        let 'PORT = PORT + 1'
-    done
-    PGASRT_HOME_PORT=$PORT
-}
-
 # log file header
 # usage: writeLogHead
 function writeLogHead {
@@ -604,7 +591,7 @@ function main {
 		cleanUpExitHarness 2
 	fi
 	if [[ "$(uname -s)" == "AIX" ]]; then
-		X10CPP="$X10CPP -x10rt pgas_lapi"
+		X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
 	    X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "ppc64" ]]; then
@@ -775,31 +762,24 @@ function main {
 				my_nplaces=$MAX_NPLACES
 			fi
 		fi
-		if [[ `uname -s` == "AIX" ]]; then
-			tchostfile=$tcroot/host.list
-			for (( i = 0; i < my_nplaces; i++ )); do
-				printf "$(hostname)\n" >> $tchostfile
+
+		if [[ "$(uname -s)" == "Darwin" ]]; then
+                    pid_list=`/usr/sbin/lsof -t -i ':21053'`
+		    if (( $? == 0 )); then
+			for pid in $pid_list
+			do
+			    printf "\nkill -9 $pid 2>/dev/null\n\n"
+			    kill -9 $pid 2>/dev/null
 			done
-			run_cmd="/usr/bin/time -p poe ./${tctarget} -procs $my_nplaces -msg_api lapi -hostfile $tchostfile"
-			printf "\n${run_cmd}\n" >> $tcoutdat
-		else
-if [[ "$(uname -s)" == "Darwin" ]]; then
-                        pid_list=`/usr/sbin/lsof -t -i ':21053'`
-			if (( $? == 0 )); then
-for pid in $pid_list
-do
-				printf "\nkill -9 $pid 2>/dev/null\n\n"
-				kill -9 $pid 2>/dev/null
-done
-			fi
-fi
-if [[ "$(uname -s)" == CYGWIN* ]]; then
-			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p $RUN_X10 ./${tctarget}.exe"
-else
-			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
-fi
-			printf "\n${run_cmd}\n" >> $tcoutdat
+		    fi
 		fi
+
+		if [[ "$(uname -s)" == CYGWIN* ]]; then
+		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p $RUN_X10 ./${tctarget}.exe"
+		else
+		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
+		fi
+		printf "\n${run_cmd}\n" >> $tcoutdat
 
 		__cat_test_x10_classpath="$EXTRA_CLASSPATH"
 		__cat_test_x10_timeout="$tctoutval"

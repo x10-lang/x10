@@ -485,19 +485,6 @@ function main {
 		cleanUpExit 2
 	fi
 
-	CUSTOM_PGAS=$CUSTOM_PGAS
-	if [[ -z "$CUSTOM_PGAS" ]]; then
-		CUSTOM_PGAS=$X10_HOME/pgas/common/work
-	fi
-	if [[ ! -f $CUSTOM_PGAS/include/x10/x10.h ]]; then
-		printf "\n[$prog: err]: unable to locate pgas header files!\n"
-		cleanUpExit 2
-	fi
-	if [[ ! (-f $CUSTOM_PGAS/lib/libupcrts_lapi.a || -f $CUSTOM_PGAS/lib/libupcrts_sockets.a || -f $CUSTOM_PGAS/lib/libupcrts_smp.a) ]]; then
-		printf "\n[$prog: err]: unable to locate pgas libraries!\n"
-		cleanUpExit 2
-	fi
-
 	X10LANG=$X10LANG
 	if [[ -z "$X10LANG" ]]; then
 		X10LANG=$X10_HOME/x10.runtime/src-cpp
@@ -527,14 +514,6 @@ function main {
 	printf "#\tE - execution step\n\n"
 	printf "#\tX - test failed\n"
 	printf "#\tY - test passed\n"
-
-	if [[ `uname -s` != "AIX" ]]; then
-		export MP_CHILD=0
-		export MP_PROCS=1
-		export PGASRT_HOME_NODE=127.0.0.1
-		export PGAS_NTHREADS=1
-		export UPC_NTHREADS=1
-	fi
 
 	for tc in ${tclist[*]}; do
 		let 'tcproccnt += 1'
@@ -594,15 +573,7 @@ function main {
 		let 'tccompcnt += 1'
 
 		# try & run the target	
-		if [[ `uname -s` == "AIX" ]]; then
-			tchostfile=$tcroot/host.list
-			for (( i = 0; i < DEFAULT_NPLACES; i++ )); do
-				printf "$(hostname)\n" >> $tchostfile
-			done
-			run_cmd="poe ./${tctarget} -procs $DEFAULT_NPLACES -msg_api lapi -hostfile $tchostfile"
-		else
-			run_cmd="./${tctarget}"
-		fi
+		run_cmd="./${tctarget}"
 
 		# the actual output will be logged here
 		tcoutdat=${tcroot}/${tctarget}.out
