@@ -1276,4 +1276,6 @@ public interface TypeSystem {
     boolean isPrimitiveJavaArray(Type type);
     X10ClassType JavaThrowable();
     boolean isJavaThrowable(Type me);
+    X10ClassType JavaException();
+    X10ClassType JavaRuntimeException();
 }
