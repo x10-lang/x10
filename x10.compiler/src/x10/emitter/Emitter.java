@@ -120,6 +120,15 @@ public class Emitter {
       return "__" + i;
     }
     
+    // WIP XTENLANG-2987
+//    private static final boolean manglePrimitivesAsShortName = true;
+    private static final boolean manglePrimitivesAsShortName = false;
+    // XXX
+    // WIP XTENLANG-2987
+    // must be true when X10PrettyPrinterVisitor.stableParameterMangling is true to avoid too long filename.
+//    private static final boolean mangleDefaultOnDemandImportsAsShortName = true;
+    private static final boolean mangleDefaultOnDemandImportsAsShortName = false;
+    
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
@@ -414,7 +423,60 @@ public class Emitter {
 	private static Name mangleAndFlattenQName(QName name) {
 		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
 	}
+
+	private static final String PRIMITIVE_PREFIX = "$";
+	private static final Name BYTE_NAME = Name.make(PRIMITIVE_PREFIX + "B");
+        private static final Name SHORT_NAME = Name.make(PRIMITIVE_PREFIX + "S");
+        private static final Name INT_NAME = Name.make(PRIMITIVE_PREFIX + "I");
+        private static final Name LONG_NAME = Name.make(PRIMITIVE_PREFIX + "J");
+        private static final Name FLOAT_NAME = Name.make(PRIMITIVE_PREFIX + "F");
+        private static final Name DOUBLE_NAME = Name.make(PRIMITIVE_PREFIX + "D");
+        private static final Name CHAR_NAME = Name.make(PRIMITIVE_PREFIX + "C");
+        private static final Name BOOLEAN_NAME = Name.make(PRIMITIVE_PREFIX + "Z");
+        private static final Name UBYTE_NAME = Name.make(PRIMITIVE_PREFIX + "b");
+        private static final Name USHORT_NAME = Name.make(PRIMITIVE_PREFIX + "s");
+        private static final Name UINT_NAME = Name.make(PRIMITIVE_PREFIX + "i");
+        private static final Name ULONG_NAME = Name.make(PRIMITIVE_PREFIX + "j");
+//        private static final String X10_LANG_PREFIX = "$L$";
+        private static final String X10_LANG_PREFIX = "$";
+//        private static final String X10_ARRAY_PREFIX = "$A$";
+        private static final String X10_ARRAY_PREFIX = "$";
         public static Name mangleAndFlattenQName(Type type) {
+            if (manglePrimitivesAsShortName) {
+                if (type.isSignedNumeric()) {
+                    Name name = null;
+                    if (type.isByte()) name = BYTE_NAME;
+                    else if (type.isShort()) name = SHORT_NAME;
+                    else if (type.isInt()) name = INT_NAME;
+                    else if (type.isLong()) name = LONG_NAME;
+                    else if (type.isFloat()) name = FLOAT_NAME;
+                    else /*if (type.isDouble())*/ name = DOUBLE_NAME;
+                    return name;
+                } else if (type.isUnsignedNumeric()) {
+                    Name name = null;
+                    if (type.isUByte()) name = UBYTE_NAME; 
+                    else if (type.isUShort()) name = USHORT_NAME;
+                    else if (type.isUInt()) name = UINT_NAME;
+                    else /*if (type.isULong())*/ name = ULONG_NAME;
+                    return name;
+                } else if (type.isChar()) {
+                    return CHAR_NAME;
+                } else if (type.isBoolean()) {
+                    return BOOLEAN_NAME;
+                }
+            }
+            if (mangleDefaultOnDemandImportsAsShortName) {
+                String name = type.fullName().toString().replace(".", "$"); // x10$lang$Any etc.
+                String packageName;
+//                packageName = "x10$lang$";
+//                if (name.startsWith(packageName)) {
+//                    return Name.make(X10_LANG_PREFIX + mangleIdentifier(name.substring(packageName.length())));
+//                }
+                packageName = "x10$array$";
+                if (name.startsWith(packageName)) {
+                    return Name.make(X10_ARRAY_PREFIX + mangleIdentifier(name.substring(packageName.length())));
+                }
+            }
             return mangleAndFlattenQName(type.fullName());
         }
 

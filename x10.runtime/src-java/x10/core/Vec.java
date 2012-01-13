@@ -113,7 +113,12 @@ public final class Vec<T> extends x10.core.Struct {
     }
 
     final public T set(final int i, final T v) {
+        // XXX
+        // WIP XTENLANG-2987
+        // for !Emitter.mangleDefaultOnDemandImportsAsShortName
         return backing.$set__1x10$array$Array$$T$G(i, v);
+//        // for Emitter.mangleDefaultOnDemandImportsAsShortName
+//        return backing.$set__1$Array$$T$G(i, v);
     }
 
     final public int size() {

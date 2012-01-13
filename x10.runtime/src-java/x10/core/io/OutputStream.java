@@ -71,6 +71,8 @@ public class OutputStream extends Ref {
     }
     
     // XTENLANG-2680
+    // WIP XTENLANG-2987
+    // for !Emitter.manglePrimitivesAsShortName
     public void write__0$1x10$lang$Byte$2(x10.array.Array buf) {
         try {
             stream.write(buf.raw().getByteArray());
@@ -78,6 +80,14 @@ public class OutputStream extends Ref {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
+//    // for Emitter.manglePrimitivesAsShortName
+//    public void write__0$1$B$2(x10.array.Array buf) {
+//        try {
+//            stream.write(buf.raw().getByteArray());
+//        } catch (java.io.IOException e) {
+//            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
 
     public void write(byte[] b, int off, int len) {
         try {
@@ -88,6 +98,8 @@ public class OutputStream extends Ref {
     }
     
     // XTENLANG-2680
+    // WIP XTENLANG-2987
+    // for !Emitter.manglePrimitivesAsShortName
     public void write__0$1x10$lang$Byte$2(x10.array.Array buf, int off, int len) {
         try {
             stream.write(buf.raw().getByteArray(), off, len);
@@ -95,6 +107,14 @@ public class OutputStream extends Ref {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
         }
     }
+//    // for Emitter.manglePrimitivesAsShortName
+//    public void write__0$1$B$2(x10.array.Array buf, int off, int len) {
+//        try {
+//            stream.write(buf.raw().getByteArray(), off, len);
+//        } catch (java.io.IOException e) {
+//            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+//        }
+//    }
 
     public static OutputStream getNativeOutputStream(x10.io.Writer w) {
         OutputStream os = null;
