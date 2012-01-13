@@ -1744,13 +1744,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         ClassType ct = (ClassType) md.container().get();
         List<Ref<? extends Type>> formalTypes = md.formalTypes();
         String methodSuffix = Emitter.getMangledMethodSuffix(ct, formalTypes, true);
-        if (methodSuffix.length() == 0) {
-            System.out.println("@@@ getExtraTypeName: ct = " + ct + ", formalTypes = " + formalTypes);
-        }
-        // FIXME does not hold for x10.lang.Accumulator$$Closure$2.this(x10.lang.Accumulator[T])
-        // In this case, formalTypes should be [Accumurator[T]] (i.e. typeArguments should be non-null) but it is actually [Accumurator] (typeAruments is null).
-        // Looks like ClosureRemover does not copy type parameters correctly.
-//        assert methodSuffix.length() > 0;
+        assert methodSuffix.length() > 0;
         return methodSuffix;
     }
     // should be called after setConstructorIds(def)
