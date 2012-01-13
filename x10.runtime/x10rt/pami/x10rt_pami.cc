@@ -399,11 +399,14 @@ static void local_msg_dispatch (
 		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)malloc(sizeof(struct x10rt_msg_params));
 		if (hdr == NULL) error("Unable to allocate memory for a msg_dispatch callback");
 		hdr->dest_place = state.myPlaceId;
-		hdr->dest_endpoint = 0; // TODO
+		hdr->dest_endpoint = 0; // TODO endpoints
 		hdr->len = pipe_size; // this is going to be large-ish, otherwise recv would be null
 		hdr->msg = malloc(pipe_size);
 		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
-		hdr->type = *((x10rt_msg_type*)header_addr);
+		if (header_size == sizeof(x10rt_msg_type)) // This is a check for a PAMI bug.  These are *supposed* to be equal
+			hdr->type = *((x10rt_msg_type*)header_addr); // normal and correct
+		else
+			hdr->type = *((uint32_t*)header_addr); // workaround TODO: remove me someday
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u waiting on a partially delivered message %i, len=%lu\n", state.myPlaceId, hdr->type, pipe_size);
 		#endif
@@ -418,8 +421,11 @@ static void local_msg_dispatch (
 	{	// all the data is available, and ready to process
 		x10rt_msg_params mp;
 		mp.dest_place = state.myPlaceId;
-		mp.dest_endpoint = 0; // TODO
-		mp.type = *((x10rt_msg_type*)header_addr);
+		mp.dest_endpoint = 0; // TODO endpoints
+		if (header_size == sizeof(x10rt_msg_type)) // This is a check for a PAMI bug.  These are *supposed* to be equal
+			mp.type = *((x10rt_msg_type*)header_addr); // normal and correct
+		else
+			mp.type = *((uint32_t*)header_addr); // workaround TODO: remove me someday
 		mp.len = pipe_size;
 		if (mp.len > 0)
 		{
