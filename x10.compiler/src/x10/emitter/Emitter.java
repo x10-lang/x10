@@ -411,9 +411,12 @@ public class Emitter {
 		return QName.make(qualifier, shortName);
 	}
 	
-	public static Name mangleAndFlattenQName(QName name) {
+	private static Name mangleAndFlattenQName(QName name) {
 		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
 	}
+        public static Name mangleAndFlattenQName(Type type) {
+            return mangleAndFlattenQName(type.fullName());
+        }
 
 	public static String mangleToJava(Name name) {
 	        String str = mangleIdentifier(name).toString();
@@ -1548,7 +1551,7 @@ public class Emitter {
     private static void appendParameterizedType(StringBuilder sb, ClassType ct, Type t) {
         if (t.isClass()) {
             X10ClassType x10t = t.toClass();
-            sb.append(mangleAndFlattenQName(x10t.fullName()));
+            sb.append(mangleAndFlattenQName(x10t));
             if (x10t.typeArguments() != null && x10t.typeArguments().size() > 0) {
                 List<Type> ts = x10t.typeArguments();
                 if (ts.size() > 0) {
@@ -1567,14 +1570,14 @@ public class Emitter {
             appendParameterType(ct, sb, (ParameterType) t);
         }
         else {
-            sb.append(mangleAndFlattenQName(t.fullName()));
+            sb.append(mangleAndFlattenQName(t));
         }
     }
 
     private static void appendParameterType(ClassType ct, StringBuilder sb, ParameterType t) {
         // N.B. As of September 2011, type parameters are alpha-renamed so that each type parameter has a unique name at every location.
         // Therefore the full name of the type which the type parameter belongs to is not necessarily needed.
-        sb.append(mangleAndFlattenQName(ct.fullName()));
+        sb.append(mangleAndFlattenQName(ct));
         sb.append("$$");
         sb.append(mangleIdentifier(t.name()));
     }
