@@ -212,6 +212,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean generateOnePhaseConstructor = true;
     // XTENLANG-2871
     public static final boolean supportJavaThrowables = true;
+    public static final boolean useRethrowBlock = true;
     // XTENLANG-2987
 //    public static final boolean stableParameterMangling = false;
     public static final boolean stableParameterMangling = true;
@@ -4089,7 +4090,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.printBlock(n.formal(), w, tr);
         w.write(")");
         
-        boolean rethrowX10Throwable = supportJavaThrowables && isJavaThrowableAssignableFromX10Throwable(n.catchType());
+        boolean rethrowX10Throwable = supportJavaThrowables && !useRethrowBlock && isJavaThrowableAssignableFromX10Throwable(n.catchType());
         if (rethrowX10Throwable) {
             w.writeln("{");
             String formalName = n.formal().name().toString();
@@ -4635,8 +4636,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
             });
         } else { // XTENLANG-2384: Normal case, no constrained type in catchBlocks
+            final String temp = "$ex";
+            boolean generateRethrowBlock = true;
             for (int i = 0; i < catchBlocks.size(); ++i) {
-                expander.addCatchBlock(catchBlocks.get(i));
+                Catch catchBlock = catchBlocks.get(i);
+                if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(catchBlock.catchType())) {
+                    generateRethrowBlock = false;
+                    expander.addCatchBlock("x10.core.Throwable", temp, new Expander(er) {
+                        public void expand(Translator tr) {
+                            w.newline();
+                            w.write("throw " + temp + ";"); 
+                            w.newline();
+                        }
+                    });
+                }
+                expander.addCatchBlock(catchBlock);
             }
         }
         expander.expand(tr);
