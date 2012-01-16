@@ -120,12 +120,8 @@ public class Emitter {
       return "__" + i;
     }
     
-    // WIP XTENLANG-2987
 //    private static final boolean manglePrimitivesAsShortName = true;
     private static final boolean manglePrimitivesAsShortName = false;
-    // XXX
-    // WIP XTENLANG-2987
-    // must be true when X10PrettyPrinterVisitor.stableParameterMangling is true to avoid too long filename.
 //    private static final boolean mangleDefaultOnDemandImportsAsShortName = true;
     private static final boolean mangleDefaultOnDemandImportsAsShortName = false;
     
@@ -468,6 +464,7 @@ public class Emitter {
             if (mangleDefaultOnDemandImportsAsShortName) {
                 String name = type.fullName().toString().replace(".", "$"); // x10$lang$Any etc.
                 String packageName;
+                // not sure x10.lang and x10.array packages has a type of the same name.
 //                packageName = "x10$lang$";
 //                if (name.startsWith(packageName)) {
 //                    return Name.make(X10_LANG_PREFIX + mangleIdentifier(name.substring(packageName.length())));

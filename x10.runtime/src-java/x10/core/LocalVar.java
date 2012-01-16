@@ -56,7 +56,30 @@ public class LocalVar<T> extends x10.core.Ref {
         super($dummy);
     }
 
-    public LocalVar<T> $init(final Type<?> T, final T local, java.lang.Class<?> $dummy0) {
+//    // for !X10PrettyPrinterVisitor.stableParameterMangling
+//    public LocalVar<T> $init(final Type<?> T, final T local, java.lang.Class<?> $dummy0) {
+//        super.$init();
+//        this.T = T;
+//        long temp = lastId.getAndIncrement();
+//        while (idToObject.containsKey(temp)) {
+//            temp = lastId.getAndIncrement();
+//        }
+//        id = temp;
+//        idToObject.put(id, local == null ? nullObject : local);
+//        return this;
+//    }
+//    public LocalVar(final Type<?> T, final T local, java.lang.Class<?> $dummy0) {
+//        super();
+//        this.T = T;
+//        long temp = lastId.getAndIncrement();
+//        while (idToObject.containsKey(temp)) {
+//            temp = lastId.getAndIncrement();
+//        }
+//        id = temp;
+//        idToObject.put(id, local == null ? nullObject : local);
+//    }
+    // for X10PrettyPrinterVisitor.stableParameterMangling
+    public LocalVar<T> $init(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
         super.$init();
         this.T = T;
         long temp = lastId.getAndIncrement();
@@ -67,8 +90,7 @@ public class LocalVar<T> extends x10.core.Ref {
         idToObject.put(id, local == null ? nullObject : local);
         return this;
     }
-
-    public LocalVar(final Type<?> T, final T local, java.lang.Class<?> $dummy0) {
+    public LocalVar(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
         super();
         this.T = T;
         long temp = lastId.getAndIncrement();
@@ -78,6 +100,8 @@ public class LocalVar<T> extends x10.core.Ref {
         id = temp;
         idToObject.put(id, local == null ? nullObject : local);
     }
+    // synthetic type for parameter mangling
+    public abstract static class __0x10$compiler$LocalVar$$T {}
     
     public T $apply$G() {
         Object local = idToObject.remove(id);

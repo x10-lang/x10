@@ -213,10 +213,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // XTENLANG-2871
     public static final boolean supportJavaThrowables = true;
     // XTENLANG-2987
-    public static final boolean stableParameterMangling = false;
-//    public static final boolean stableParameterMangling = true;
-    public static final boolean stableParameterManglingNewParams = false;   // TO BE REMOVED
-//    public static final boolean stableParameterManglingNewParams = true;    // TO BE REMOVED
+//    public static final boolean stableParameterMangling = false;
+    public static final boolean stableParameterMangling = true;
+//    public static final int longestTypeName = 0; // always use hash code
+    public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold
+//    public static final int longestTypeName = Integer.MAX_VALUE; // always use mangled suffix
+//    public static final boolean stableParameterManglingNewParams = false;   // TO BE REMOVED
+    public static final boolean stableParameterManglingNewParams = true;    // TO BE REMOVED
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -1738,14 +1741,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     }
 
-    private static String getExtraTypeName(X10ConstructorDef md) {
-        assert stableParameterMangling;
-        assert getConstructorId(md) != -1;
+    private static String getMangledMethodSuffix(X10ConstructorDef md) {
         ClassType ct = (ClassType) md.container().get();
         List<Ref<? extends Type>> formalTypes = md.formalTypes();
         String methodSuffix = Emitter.getMangledMethodSuffix(ct, formalTypes, true);
         assert methodSuffix.length() > 0;
         return methodSuffix;
+    }
+    private static String asTypeName(Type containerType, String methodSuffix) {
+        if (containerType.fullName().toString().length() + 1/*$*/ + methodSuffix.length() + 6/*.class*/> longestTypeName) {
+            // use hashcode to avoid too long class (=file) name
+            // DEBUG
+//            System.out.println("asTypeName: " + containerType.fullName().toString() + " " + methodSuffix);
+            return "$_" + Integer.toHexString(methodSuffix.hashCode());            
+        } else {
+            return methodSuffix;            
+        }
+    }
+    private static String getExtraTypeName(X10ConstructorDef md) {
+        assert stableParameterMangling;
+        assert getConstructorId(md) != -1;
+        return asTypeName(md.container().get(), getMangledMethodSuffix(md));
     }
     // should be called after setConstructorIds(def)
     private void printExtraTypes(X10ClassDef def) {
@@ -1756,10 +1772,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             X10ConstructorDef xcd = (X10ConstructorDef) cd;
             int cid = getConstructorId(xcd);
             if (cid != -1) {
-                String extraTypeName = getExtraTypeName(xcd);
+                String methodSuffix = getMangledMethodSuffix(xcd);
+                String extraTypeName = asTypeName(cd.container().get(), methodSuffix);
                 if (!extraTypeNames.contains(extraTypeName)) {
                     extraTypeNames.add(extraTypeName);
-                    w.writeln("// synthetic type for parameter mangling");
+                    if (!extraTypeName.equals(methodSuffix)) {
+                        w.writeln("// synthetic type for parameter mangling for " + methodSuffix);
+                    } else {
+                        w.writeln("// synthetic type for parameter mangling");
+                    }
                     w.writeln("public abstract static class " + extraTypeName + " {}");
                 }
             }
