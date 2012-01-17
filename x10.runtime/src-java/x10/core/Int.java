@@ -42,7 +42,8 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     }
     
     private abstract static class Cache {
-        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Int.Cache.enabled", "false"));
+        // N.B. enabled by default to avoid boxing of return value from Comparator.compare
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Int.Cache.enabled", "true"));
         static final int low = -128;
         static final int high;
         static final Int cache[];
