@@ -403,10 +403,7 @@ static void local_msg_dispatch (
 		hdr->len = pipe_size; // this is going to be large-ish, otherwise recv would be null
 		hdr->msg = malloc(pipe_size);
 		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
-		if (header_size == sizeof(x10rt_msg_type)) // This is a check for a PAMI bug.  These are *supposed* to be equal
-			hdr->type = *((x10rt_msg_type*)header_addr); // normal and correct
-		else
-			hdr->type = *((uint32_t*)header_addr); // workaround TODO: remove me someday
+		hdr->type = *((x10rt_msg_type*)header_addr);
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u waiting on a partially delivered message %i, len=%lu\n", state.myPlaceId, hdr->type, pipe_size);
 		#endif
@@ -422,10 +419,7 @@ static void local_msg_dispatch (
 		x10rt_msg_params mp;
 		mp.dest_place = state.myPlaceId;
 		mp.dest_endpoint = 0; // TODO endpoints
-		if (header_size == sizeof(x10rt_msg_type)) // This is a check for a PAMI bug.  These are *supposed* to be equal
-			mp.type = *((x10rt_msg_type*)header_addr); // normal and correct
-		else
-			mp.type = *((uint32_t*)header_addr); // workaround TODO: remove me someday
+		mp.type = *((x10rt_msg_type*)header_addr);
 		mp.len = pipe_size;
 		if (mp.len > 0)
 		{

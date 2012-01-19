@@ -40,7 +40,7 @@ typedef void x10rt_completion_handler2 (x10rt_team, void *arg);
 
 /** An integer type capable of representing any message type id.
  */
-typedef uint16_t x10rt_msg_type;
+typedef uint32_t x10rt_msg_type;
 
 /** An integer type capable of representing a remote void* or size_t.
  */
