@@ -883,9 +883,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	{
 		if (sizeof(x10rt_remote_op_params)!=sizeof(hfi_remote_update_info_t))
 		{
-			#ifdef DEBUG
-				fprintf(stderr, "HFI present but the structures don't match at place %u\n", state.myPlaceId);
-			#endif
+			fprintf(stderr, "HFI present but the structures don't match at place %u\n", state.myPlaceId);
 			state.hfi_update = NULL;
 		}
 		else
@@ -900,9 +898,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			}
 			else
 			{
-				#ifdef DEBUG
-					fprintf(stderr, "HFI present but disabled at place %u because PAMI_Extension_open status=%u\n", state.myPlaceId, status);
-				#endif
+				fprintf(stderr, "HFI present but disabled at place %u because PAMI_Extension_open status=%u\n", state.myPlaceId, status);
 				state.hfi_update = NULL;
 			}
 		}
