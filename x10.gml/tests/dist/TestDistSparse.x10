@@ -40,9 +40,9 @@ public class TestDistSparse {
 		public val grow:Grid;
 
 		public def this(args:Array[String](1)) {
-			M = args.size > 0 ?Int.parse(args(0)):50;
+			M = args.size > 0 ?Int.parse(args(0)):5;
 			N = args.size > 1 ?Int.parse(args(1)):M+1;
-			nzp = args.size > 2 ?Double.parse(args(2)):0.95;
+			nzp = args.size > 2 ?Double.parse(args(2)):1.0;
 
 			g   = Grid.make(M,N);
 			grow= Grid.make(M, N, 1, Place.MAX_PLACES);
@@ -70,17 +70,17 @@ public class TestDistSparse {
 				Console.OUT.println("Test dist sparse matrix clone passed");
 			else
 				Console.OUT.println("--------------Test dist sparse matrix clone failed!--------------");
-                	m1(1, 1) = m2(2,2) = 10.0;
+			m1(1, 1) = m2(2,2) = 10.0;
 
-                	if ((m1(1,1)==m2(2,2)) && (m2(1,1)==10.0)) {
-                        	ret &= true;
-                        	Console.OUT.println("Dist sparse Matrix chain assignment test passed!");
-               	 	} else {
-                        	ret &= false;
-                        	Console.OUT.println("---------- Dist sparse chain assignment test failed!-------");
-                	}
+			if ((m1(1,1)==m2(2,2)) && (m2(2,2)==10.0)) {
+				ret &= true;
+				Console.OUT.println("Dist sparse Matrix chain assignment test passed!");
+			} else {
+				ret &= false;
+				Console.OUT.println("---------- Dist sparse chain assignment test failed!-------");
+			}
 
-                return ret;
+			return ret;
 		}
 
 		public def testCopy():Boolean {

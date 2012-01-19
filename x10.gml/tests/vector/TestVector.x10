@@ -151,8 +151,8 @@ class VectorTest {
 
 		val a:Vector(N) = Vector.make(N).initRandom();
 		val b:Vector(N) = Vector.make(N).initRandom();
-		val a1:Vector(N)= a * 0.2;
-		val a2:Vector(N)= a * 0.8;
+		val a1:Vector(a.N)= a * 0.2;
+		val a2:Vector(a.N)= a * 0.8;
 		val a3= a1 + a2;
 		val ret = a.equals(a3 as Vector(a.N));
 		if (ret)
