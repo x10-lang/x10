@@ -80,7 +80,11 @@ comm_src=\
 	x10/matrix/comm/MatrixRingCast.x10 \
 	x10/matrix/comm/SparseRemoteSourceInfo.x10\
 	x10/matrix/comm/BlockRemoteCopy.x10 \
-	x10/matrix/comm/BlockBcast.x10
+	x10/matrix/comm/BlockBcast.x10 \
+	x10/matrix/comm/BlockScatter.x10 \
+	x10/matrix/comm/BlockGather.x10 \
+	x10/matrix/comm/BlockRingCast.x10 \
+ 	x10/matrix/comm/BlockReduce.x10
 
 
 bwrap_src=\
