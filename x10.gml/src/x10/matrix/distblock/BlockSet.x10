@@ -1,4 +1,5 @@
-/*
+/*ls
+ * 
  *  This file is part of the X10 project (http://x10-lang.org).
  *
  *  This file is licensed to You under the Eclipse Public License (EPL);
@@ -15,6 +16,7 @@ import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.sparse.SparseCSC;
 
 import x10.matrix.Debug;
 import x10.matrix.block.Grid;
@@ -96,8 +98,11 @@ public class BlockSet  {
 			if (blk.myRowId == rid &&
 				blk.myColId == cid ) return blk;
 		}
+		Debug.exit("Cannot find block ("+rid+","+cid+") at place "+here.id());
 		return null;
 	}
+	
+	public def findBlock(bid:Int) = find(bid);
 	
 	public def find(bid:Int): MatrixBlock {
 		val rid = grid.getRowBlockId(bid);
@@ -108,12 +113,52 @@ public class BlockSet  {
 	public def findPlace(bid:Int) = dmap.findPlace(bid);
 	
 	//---------------------------------------------------
-	public def get(i:Int) = blocklist.get(i);
+	protected def get(i:Int) = blocklist.get(i);
 	
 	public def getFirst() = blocklist.getFirst();
 	
-	public def getLocalBlockId(idx:Int) = dmap.placemap(here.id()).get(idx);
+	public def getLocalBlockIdAt(index:Int):Int {
+		val grid = getGrid();
+		val blk  = get(index);
+		return grid.getBlockId(blk.myRowId, blk.myColId);
+	}
 	
+	public def getFirstLocalBlockId() = getLocalBlockIdAt(0);
+	
+	public def getBlockId(rowId:Int, colId:Int):Int = getGrid().getBlockId(rowId, colId);
+	
+	//-------------------------------------------------
+	/**
+	 * Local root block is either the rootbid block, if rootbid is local, 
+	 * or the first block has the same row block Id/column block Id.
+	 * Select function is used to pick row-wise or column-wise search.
+	 */
+	public def findLocalRootBlock(rootbid:Int, selectfunc:(Int, Int)=>Int):MatrixBlock {
+		val it = blocklist.iterator();
+		val grid = getGrid();
+		//Check if rootbid is local
+		if (findPlace(rootbid) == here.id())
+			return findBlock(rootbid);
+		
+		val rowblkid = grid.getRowBlockId(rootbid);
+		val colblkid = grid.getColBlockId(rootbid);
+		val targetid = selectfunc(rowblkid, colblkid);		
+		while (it.hasNext()) {
+			val blk = it.next();
+			val checkid = selectfunc(blk.myRowId, blk.myColId);
+			if (checkid == targetid)
+				return blk;
+		}
+		//This should be error
+		Debug.exit("Error in searching first root block");
+		return null;
+	}
+	
+	public def findLocalRootRowBlock(rootbid:Int):MatrixBlock =
+		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>rid);
+	
+	public def findLocalRootColBlock(rootbid:Int):MatrixBlock =
+		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>cid);
 	//---------------------------------------------------
 	/**
 	 * Deep clone all blocks in the set
@@ -176,7 +221,45 @@ public class BlockSet  {
 			if (blk != rootblk)	
 				rootblk.copyTo(blk);
 		}
-	}	
+	}
+	//======================================
+	public def ringCast(rootblk:MatrixBlock, colCnt:Int, select:(Int,Int)=>Int) {
+		val it = this.blocklist.iterator();
+		val target = select(rootblk.myRowId, rootblk.myColId);
+		while (it.hasNext()) {
+			val blk = it.next();
+			if (blk != rootblk) {
+				val chkid = select(blk.myRowId, blk.myColId);
+				if (target == chkid) {
+					//Debug.flushln("Copy root to ("+blk.myRowId+","+blk.myColId+")");
+					rootblk.copyCols(0, colCnt, blk.getMatrix());
+				}
+			}
+		}
+	}
+	
+	//======================================
+	public def reduceSum(rtblk:MatrixBlock): void {
+		val it = this.blocklist.iterator();
+		while (it.hasNext()) {
+			val blk = it.next();
+			if (blk != rtblk) {
+				val rtmat = rtblk.getMatrix();
+				rtmat.cellAdd(blk.getMatrix() as Matrix(rtmat.M, rtmat.N));
+			}
+		}
+	}
+	
+	public def reduceSum(rootbid:Int) : void {
+		val rtblk = find(rootbid);
+		reduceSum(rtblk);
+	}
+	
+	public def reduceSumToFirst() : void {
+		val rtblk = getFirst();
+		reduceSum(rtblk);
+	}
+	
 	//======================================
 	public def iterator() = blocklist.iterator();
 	
@@ -200,7 +283,29 @@ public class BlockSet  {
 			
 		return true;
 	}
+	//=================================================
+	//=================================================
+
+	public def getBlockDataSize(bid:Int):Int {
+		val blk = findBlock(bid);
+		Debug.assure(blk!=null, "Cannot locate block "+bid+" in block set at " +here.id());
+		return blk.getDataSize();
+	}
 	
+	public def getBlockDataSizeAt(blkidx:Int)=
+		get(blkidx).getDataSize();
+	
+	public def getAllBlocksDataSize():Int {
+		var dsz:Int =0;
+		val blkitr = this.iterator();
+		while (blkitr.hasNext()) {
+			val blk = blkitr.next();
+			dsz += blk.getDataSize();
+		}
+		return dsz;
+	}	
+	
+	//=================================================
 	public def toString() :String {
 		
 		val blkitr = this.iterator();

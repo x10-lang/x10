@@ -148,8 +148,7 @@ public abstract class MatrixBlock {
 		val smat = this.getMatrix();
 		smat.copyTo(that.getMatrix() as Matrix(smat.M, smat.N));
 	}
-	
-	
+		
 	/**
 	 * Copy columns of block into the given matrix.
 	 */
@@ -171,6 +170,8 @@ public abstract class MatrixBlock {
 	//--------------------------------
 	
 	abstract public def compColDataSize(colOff:Int, colCnt:Int) :Int;
+	
+	public def getDataSize():Int = compColDataSize(0, getMatrix().N);
 	
 	//----------------------------------------------------------------
 	

@@ -59,7 +59,8 @@ public class BlockBcast extends BlockRemoteCopy {
 	 * @param blks    Input-output. Distributed storage for the source and copies of dense matrix in all places
 	 * @return        count of double-precision data to broadcast
 	 */
-	public static def bcast(distBS:BlocksPLH) = bcast(distBS, 0, 0, distBS().getFirst().getMatrix().N);
+	public static def bcast(distBS:BlocksPLH) = bcast(distBS, 0, 0, distBS().getGrid().getColSize(0));
+	public static def bcast(distBS:BlocksPLH, rootbid:Int) = bcast(distBS, rootbid, 0, distBS().getGrid().getColSize(rootbid));
 
 	/**
 	 * Broadcast dense matrix from here to all other places. 
@@ -95,27 +96,6 @@ public class BlockBcast extends BlockRemoteCopy {
 	} 
 
 	//=================================================================
-	public static def compBlockDataSize(distBS:BlocksPLH, rootbid:Int, colOff:Int, colCnt:Int):Int {
-
-		if (colCnt < 0) return 0;
-		var dsz:Int = 0;
-		val rootpid= distBS().findPlace(rootbid);
-
-		if (here.id() == rootpid) {
-			val blk = distBS().get(rootbid);
-			Debug.assure(blk!=null, "Cannot find root block at place "+here.id());
-			return blk.compColDataSize(colOff, colCnt);
-			
-		} else {
-			dsz = at (Dist.makeUnique()(rootpid)) {
-				val blk = distBS().get(rootbid);
-				Debug.assure(blk!=null, "Cannot find root block at place "+here.id());
-				blk.compColDataSize(colOff, colCnt)
-			};
-		}
-		return dsz;
-	}
-	
 	
 	/**
 	 * Broadcast dense matrix stored by using MPI bcast routine.
@@ -135,8 +115,8 @@ public class BlockBcast extends BlockRemoteCopy {
 			//Get the data count from root block
 			finish ateach (d:Point in Dist.makeUnique()) {
 				//Remote capture: colOff, datasz, rootpid, rootpid
-				val blks = distBS();
-				val blk  = (here.id()==rootpid)?blks.get(rootbid):blks.getFirst();
+				val bset = distBS();
+				val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
 				val den  = blk.getMatrix() as DenseMatrix;
 				val offset = den.M * colOff;
 				
@@ -154,42 +134,56 @@ public class BlockBcast extends BlockRemoteCopy {
 	 */
 	protected static def x10Bcast(distBS:BlocksPLH, rootbid:Int, colOff:Int, colCnt:Int): Int {
 
-		var dsz:Int = 0;
-		var leftpcnt:Int = Place.MAX_PLACES;
+		var datcnt:Int=0;
 		if (colCnt == 0) return 0;
-		//Copy data from root to first block at place 0;
-		if (rootbid != 0) { 
-			//The root block is not the first block 
-			val rootpid = distBS().findPlace(rootbid);
-			dsz = BlockRemoteCopy.copy(distBS, rootbid, colOff, 0, colOff, colCnt);
-			if (rootpid != here.id()) {
-				//Not at root place
-				val datacnt = dsz;
-				at (Dist.makeUnique()(rootpid)) async {
-					val rtblk = distBS().find(rootbid);
-					val pcnt  = Place.MAX_PLACES - here.id(); // Rigth-side of root place's count
-					BlockSet.localCopy(rtblk, distBS(), 0);   // Copy bcast data to starting block
-					binaryTreeCast(distBS, colOff, colCnt, datacnt, pcnt); //Bcast data to all places's starting block
-				}
-				leftpcnt = rootpid;
-			} 
-		} else {
-			dsz = compBlockDataSize(distBS, 0, colOff, colCnt);
-		}
+		val rootpid = distBS().findPlace(rootbid);
 		
-		val pcnt = leftpcnt;
-		//Left tree bcast, when rootpid > 0, or starting bcast from root when rootpid=0
-		binaryTreeCast(distBS, colOff, colCnt, dsz, pcnt);
-		 
-		return dsz;
+		finish {
+			//Start two part
+			//1) if rootpid!=0, goto place 0, start binaryTreeCast within the pid rang of (0 ~ rootpid-1)
+			//2) goto rootpid, start binaryTreeCast within the pid rang of (rootpid, Places.MAX_PLACES-1)
+
+			if (rootpid != 0) { 
+				at (Dist.makeUnique()(0)) {
+					//Remote capture: distBS, rootbid, colOff, colCnt
+					val mat = distBS().getFirst().getMatrix();
+					val dsz = BlockRemoteCopy.copy(distBS, rootbid, colOff, mat, colOff, colCnt);
+					val pcnt = rootpid - 1;
+					if (pcnt > 1) async {
+						binaryTreeCast(distBS, colOff, colCnt, dsz, pcnt);
+					}
+				}
+			}
+			
+			datcnt = at (Dist.makeUnique()(rootpid)) {
+				//Remote capture: distBS, rootbid, colOff, colCnt
+				val bset = distBS();
+				val rtblk = bset.findBlock(rootbid);
+				val llblk = bset.getFirst();
+				if (rtblk.myRowId != llblk.myRowId || rtblk.myColId != llblk.myColId)
+					rtblk.copyCols(colOff, colCnt, llblk.getMatrix());
+
+				val pcnt = Place.MAX_PLACES - here.id();
+				val dsz  = compBlockDataSize(distBS, rootbid, colOff, colCnt);
+				
+				if (pcnt > 1) async {
+					binaryTreeCast(distBS, colOff, colCnt, dsz, pcnt);
+				}
+				dsz
+			};
+		}
+		return datcnt;
 	}
 	
 	//--------------------------------------------------
 	protected static def binaryTreeCast(distBS:BlocksPLH, colOff:Int, colCnt:Int, datasz:Int, pcnt:Int): void {
+		
+		if (pcnt <= 1) return;
+		
 		val mat0 = distBS().getFirst();
-		if (mat0.isDense())
+		if (mat0.isDense()) {
 			binaryTreeCastDense(distBS, colOff, datasz, pcnt);
-		else if (mat0.isSparse()) {
+		} else if (mat0.isSparse()) {
 			
 			val srcmat = distBS().getFirst().getMatrix() as SparseCSC;
 			val srcoff = srcmat.getNonZeroOffset(colOff);
@@ -200,10 +194,9 @@ public class BlockBcast extends BlockRemoteCopy {
 
 			// Start local block sync with the first block in local block set.
 			//distBS().sync();
-
-		}
-		else
+		} else {
 			Debug.exit("Matrix block type is not supported");
+		}
 	}	
 	//----------------------------------------------------------------
 		
@@ -216,6 +209,7 @@ public class BlockBcast extends BlockRemoteCopy {
 	protected static def binaryTreeCastDense(distBS:BlocksPLH, colOff:Int, datasz:Int, pcnt:Int): void {
 		
 		val root   = here.id();
+		//pcnt must > 1
 		val lfcnt:Int = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
 		val rtcnt  = pcnt - lfcnt;
 		val rtroot = root + lfcnt;
@@ -269,8 +263,8 @@ public class BlockBcast extends BlockRemoteCopy {
 			val rootpid    = distBS().findPlace(rootbid);
 			finish ateach (val [p]:Point in Dist.makeUnique()) {
 				//Need: rootpid, rootbid, distBS, datasz, colOff, colCnt,
-				val blks = distBS();
-				val blk  = (here.id()==rootpid)?blks.get(rootbid):blks.getFirst();
+				val bset = distBS();
+				val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
 				val spa  = blk.getMatrix() as SparseCSC;
 				val offset = spa.getNonZeroOffset(colOff);
 				

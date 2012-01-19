@@ -215,6 +215,9 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * @param  i  index of matrix block in array
 	 */
 	public def getMatrix(i:Int) <: Matrix = this.listBs(i).getMatrix();
+	
+	public def getBlock(i:Int) = this.listBs(i);
+	
 
 	//---------
  

@@ -265,6 +265,21 @@ public class DistBlockMatrix extends Matrix{
 		return this;
 	}
 	
+	/**
+	 * Initial specified block
+	 */
+	public def initBlock(bid:Int, f:(Int,Int)=>Double): DistBlockMatrix(this) {
+		val pid = this.getMap().findPlace(bid);
+		at (Dist.makeUnique()(pid)) {
+			val blk = handleBS().findBlock(bid);
+			blk.init(f);
+		}
+		return this;
+	}
+	
+	public def initBlock(rowId:Int,colId:Int, f:(Int,Int)=>Double) =
+		initBlock(getGrid().getBlockId(rowId, colId), f);
+	
 	//=============================================
 	/**
 	 * Allocate memory space for new dist block matrix using the same
@@ -372,6 +387,19 @@ public class DistBlockMatrix extends Matrix{
 		}
 		return d;
 	}
+	
+	//--------------------------------------------
+	/**
+	 * Get block to here. If block is not at local, it will be remote captured.
+	 */
+	public def fetchBlock(bid:Int):MatrixBlock {
+		val map = getMap();
+		val pid = map.findPlace(bid);
+		val blk = at (Dist.makeUnique()(pid)) handleBS().findBlock(bid);
+		return blk;
+	}
+
+	
 	
 	public def getGrid():Grid   = this.handleBS().grid;
 	public def getMap():DistMap = this.handleBS().dmap;
@@ -561,6 +589,7 @@ public class DistBlockMatrix extends Matrix{
 	//=============================================
 	// Util
 	//=============================================
+
 	public def likeMe(A:Matrix):Boolean {
 		if (A instanceof DistBlockMatrix) {
 			val srcBs = this.handleBS();
@@ -607,6 +636,16 @@ public class DistBlockMatrix extends Matrix{
 		return true;
 	}
 	
+	public def getTotalDataSize():Int {
+		var dsz:Int=0;
+		for (p in Place.places()) {
+			val c:Int =  at (p) { handleBS().getAllBlocksDataSize()};
+			dsz += c;
+		}
+		return dsz;
+	}
+	
+	//==================================================================================
 	public def toStringBlock() :String {
 		var output:String = "-------- Dist Matrix Block size:["+M+" x "+N+"] ---------\n";
 		for (p in Place.places()) {

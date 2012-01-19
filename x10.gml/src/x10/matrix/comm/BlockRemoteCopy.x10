@@ -15,6 +15,7 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.SparseCSC;
 
+import x10.matrix.block.MatrixBlock;
 import x10.matrix.distblock.BlockSet;
 //import x10.matrix.distblock.DistMap;
 import x10.matrix.distblock.DistGrid;
@@ -48,7 +49,6 @@ public class BlockRemoteCopy {
 		val srcpid = distBS().findPlace(srcbid);
 		val dsz = at (Dist.makeUnique()(srcpid)) {
 			val blk = distBS().find(srcbid);
-			Debug.assure(blk!=null, "Cannot find source block");
 			val srcmat = blk.getMatrix();
 			copy(srcmat, srcColOff, distBS, dstbid, dstColOff, colCnt)  
 		};
@@ -59,6 +59,13 @@ public class BlockRemoteCopy {
 	//------------------------------------------
 	// Remote array copy matrix to/from 
 	//------------------------------------------
+	public static def copy(src:MatrixBlock, dstBS:BlocksPLH, dstbid:Int):Int =
+		copy(src.getMatrix(), dstBS, dstbid);
+
+	public static def copy(srcBS:BlocksPLH, srcbid:Int, dst:MatrixBlock):Int =
+		copy(srcBS, srcbid, dst.getMatrix());	
+	
+	//----------------------------------------------
 	public static def copy(src:Matrix, dstBS:BlocksPLH, dstbid:Int):Int =
 		copy(src, 0, dstBS, dstbid, 0, src.N);
 
@@ -144,8 +151,6 @@ public class BlockRemoteCopy {
 				at (Dist.makeUnique()(dstpid)) async {
 					//Remote capture: bid, dstColOff, datCnt, 
 					val blk = dst().find(bid);
-					Debug.assure(blk!=null, 
-								 "Receive side: cannot find block "+bid+" at receive place");
 					val dstden = blk.getMatrix() as DenseMatrix;
 					val dstOff = dstden.M * dstColOff;
 					
@@ -171,8 +176,6 @@ public class BlockRemoteCopy {
 		at (Dist.makeUnique()(dstpid)) {
 			//Remote copy: dst, srcbuf, srcOff, dstColOff, datCnt,
 			val blk = dst().find(bid);
-			Debug.assure(blk!=null, 
-					"Cannot find block "+bid+" at receive place");
 			val dstden = blk.getMatrix() as DenseMatrix;
 			val dstOff = dstden.M*dstColOff; 
 			Debug.assure(dstOff+datCnt <= dstden.d.size, "Copy receiving side data overflow");
@@ -210,7 +213,6 @@ public class BlockRemoteCopy {
 		
 		if (here.id() == srcpid) {
 			val blk = src().find(srcbid);
-			Debug.assure(blk!=null, "Cannot find block "+srcbid+" in local block set");
 			val srcden = blk.getMatrix() as DenseMatrix;
 			DenseMatrix.copyCols(srcden, srcColOff, dst, dstColOff, colCnt);
 			return dst.M*colCnt;
@@ -231,14 +233,13 @@ public class BlockRemoteCopy {
 	 */
 	protected static def mpiCopy(src:BlocksPLH, srcpid:Int, bid:Int, srcColOff:Int,
 								 dst:DenseMatrix, dstColOff:Int, colCnt:Int): Int {
-		val datCnt:Int = dst.M*colCnt;
+		val datCnt:Int = dst.M*colCnt; //assuming dst has same leading dimension as src
 		@Ifdef("MPI_COMMU") {
 			val dstpid = here.id();
 			finish {
 				at (Dist.makeUnique()(srcpid)) async {
 					//Need: src, bid, srcOff, datCnt,
 					val blk = src().find(bid);
-					Debug.assure(blk!=null, "Cannot find block "+bid+" at src place");
 					val srcden = blk.getMatrix() as DenseMatrix;				
 					val tag = here.id() * baseTagCopyFrom + dstpid + bid;
 					val srcOff = srcColOff * srcden.M;
@@ -266,8 +267,6 @@ public class BlockRemoteCopy {
 		val rmt:DenseRemoteSourceInfo  = at (Dist.makeUnique()(srcpid)) { 
 			//Need: src, bid, srcColOff, datCnt
 			val blk = src().find(bid);
-			Debug.assure(blk!=null, "Cannot find block "+bid+" at source place");
-
 			val srcden = blk.getMatrix() as DenseMatrix;
 			val srcOff = srcColOff * srcden.M;
 			val datCnt = colCnt * srcden.M;
@@ -301,8 +300,6 @@ public class BlockRemoteCopy {
 		
 		if (here.id() == dstpid) {
 			val blk = dst().find(bid);
-			Debug.assure(blk!=null, "Cannot find block in block set");
-
 			val dstspa = blk.getMatrix() as SparseCSC;
 			val dz = SparseCSC.copyCols(src, srcColOff, dstspa, dstColOff, colCnt);
 			return dz;
@@ -332,7 +329,7 @@ public class BlockRemoteCopy {
 					// Need: srcpid, dstColOff, datasz;
 					val blk = dst().find(bid);
 					val dstspa = blk.getMatrix() as SparseCSC;
-					Debug.assure(dstColOff+colCnt<dstspa.N, "At destination, number of columns exceeds matrix dimension");
+					Debug.assure(dstColOff+colCnt<=dstspa.N, "At destination, number of columns exceeds matrix dimension");
 					
 					val dstoff = dstspa.getNonZeroOffset(dstColOff);
 					val tag    = srcpid * 10000 + here.id();
@@ -378,8 +375,6 @@ public class BlockRemoteCopy {
 		at (Dist.makeUnique()(dstpid)) {
 			//Remote capture: datcnt, rmtidx, rmtval, datoff			
 			val blk = dst().find(bid);
-			Debug.assure(blk!=null, 
-					"Cannot find block "+bid+" at receiving side");			
 			val dstspa = blk.getMatrix() as SparseCSC;
 			//++++++++++++++++++++++++++++++++++++++++++++
 			//Do not call getIndex()/getValue() before init at destination place
@@ -449,12 +444,7 @@ public class BlockRemoteCopy {
 		val dstpid = here.id();//Implicitly carried to dst place
 		
 		// Get the data count first
-		val dsz = at (Dist.makeUnique()(srcpid)) {
-			val blk = src().find(bid);
-			Debug.assure(blk!=null, "Cannot find block "+bid+" at source");			
-			val srcspa = blk.getMatrix() as SparseCSC;
-			srcspa.countNonZero(dstColOff, colCnt) //Implicitly carried to dst place
-		};
+		val dsz = compBlockDataSize(src, bid, srcColOff, colCnt);
 		
 		//Start paired send/recv
 		@Ifdef("MPI_COMMU") {
@@ -512,7 +502,6 @@ public class BlockRemoteCopy {
 
 		val rmt = at (Dist.makeUnique()(srcpid)) {
 			val blk = src().find(bid);
-			Debug.assure(blk!=null, "Cannot find block "+bid+" at source");			
 			val srcspa = blk.getMatrix() as SparseCSC;
 			val off = srcspa.getNonZeroOffset(srcColOff);;
 			val cnt = srcspa.countNonZero(srcColOff, colCnt);
@@ -539,4 +528,45 @@ public class BlockRemoteCopy {
 		
 		return rmt.length;
 	}
+	
+	//====================================================
+	public static def compBlockDataSize(distBS:BlocksPLH, rootbid:Int, colOff:Int, colCnt:Int):Int {
+
+		if (colCnt < 0) return 0;
+		var dsz:Int = 0;
+		val rootpid= distBS().findPlace(rootbid);
+
+		if (here.id() == rootpid) {
+			val blk = distBS().findBlock(rootbid);
+			return blk.compColDataSize(colOff, colCnt);
+			
+		} else {
+			dsz = at (Dist.makeUnique()(rootpid)) {
+				val blk = distBS().findBlock(rootbid);
+				blk.compColDataSize(colOff, colCnt)
+			};
+		}
+		return dsz;
+	}
+
+	public static def compBlockDataSize(distBS:BlocksPLH, rootbid:Int):Int{
+
+		var dsz:Int = 0;
+		val rootpid= distBS().findPlace(rootbid);
+
+		if (here.id() == rootpid) {
+			val blk = distBS().findBlock(rootbid);
+			val mat = blk.getMatrix();
+			return blk.compColDataSize(0, mat.N);
+			
+		} else {
+			dsz = at (Dist.makeUnique()(rootpid)) {
+				val blk = distBS().findBlock(rootbid);
+				val mat = blk.getMatrix();
+				blk.compColDataSize(0, mat.N)
+			};
+		}
+		return dsz;
+	}
+	
 }
