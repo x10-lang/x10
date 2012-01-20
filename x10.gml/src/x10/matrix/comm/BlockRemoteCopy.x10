@@ -549,24 +549,7 @@ public class BlockRemoteCopy {
 		return dsz;
 	}
 
-	public static def compBlockDataSize(distBS:BlocksPLH, rootbid:Int):Int{
+	public static def compBlockDataSize(distBS:BlocksPLH, rootbid:Int):Int =
+		compBlockDataSize(distBS, rootbid, 0, distBS().getGrid().getColSize(rootbid));
 
-		var dsz:Int = 0;
-		val rootpid= distBS().findPlace(rootbid);
-
-		if (here.id() == rootpid) {
-			val blk = distBS().findBlock(rootbid);
-			val mat = blk.getMatrix();
-			return blk.compColDataSize(0, mat.N);
-			
-		} else {
-			dsz = at (Dist.makeUnique()(rootpid)) {
-				val blk = distBS().findBlock(rootbid);
-				val mat = blk.getMatrix();
-				blk.compColDataSize(0, mat.N)
-			};
-		}
-		return dsz;
-	}
-	
 }

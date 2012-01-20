@@ -86,8 +86,9 @@ public class BlockRingCast extends BlockRemoteCopy {
 			val dmap = distBS().getDistMap();
 			val grid = distBS().getGrid();
 			val dsz  = compBlockDataSize(distBS, rootbid, 0, colCnt);
-			val plst = dmap.getPlaceListInRing(grid, rootbid, select); //Root is the first in the list
-
+			val plst = dmap.getPlaceListInRing(grid, rootbid, select); 
+			//Root is the first in the list
+			Debug.assure(plst(0)==rootpid, "RingCast place list must starts with root place id");
 			//Debug.flushln("Ring cast to "+plst.toString());
 			if (plst.size > 1) {
 				val rtblk = distBS().findBlock(rootbid);
@@ -263,15 +264,15 @@ public class BlockRingCast extends BlockRemoteCopy {
 	}	
 	
 	//=======================================================================
-	protected static def finalizeRingCastRowwise(distBS:BlocksPLH, rootbid:Int, colCnt:Int, plist:Array[Int](1)){
+	private static def finalizeRingCastRowwise(distBS:BlocksPLH, rootbid:Int, colCnt:Int, plist:Array[Int](1)){
 		finalizeRingCast(distBS, rootbid, colCnt, (rid:Int,cid:Int)=>rid, plist);
 	}
 
-	protected static def finalRingCastColwise(distBS:BlocksPLH, rootbid:Int, colCnt:Int, plist:Array[Int](1)){
+	private static def finalRingCastColwise(distBS:BlocksPLH, rootbid:Int, colCnt:Int, plist:Array[Int](1)){
 		finalizeRingCast(distBS, rootbid, colCnt, (rid:Int,cid:Int)=>cid, plist);
 	}
 
-	protected static def finalizeRingCast(distBS:BlocksPLH, 
+	private static def finalizeRingCast(distBS:BlocksPLH, 
 			rootbid:Int, colCnt:Int, 
 			select:(Int,Int)=>Int, plist:Array[Int](1)){
 		
@@ -283,7 +284,7 @@ public class BlockRingCast extends BlockRemoteCopy {
 				async at (Dist.makeUnique()(pid)) {
 					val bset = distBS();
 					val blk  = bset.findLocalRootBlock(rootbid, select);
-					if (blk.isSparse()) {
+					if (blk.isSparse() && plist.size > 1) { //If plist has only rootpid, sparse is not initialized for coy
 						val spa = blk.getMatrix() as SparseCSC;
 						if (here.id() != rootpid)
 							spa.finalizeRemoteCopyAtDest();

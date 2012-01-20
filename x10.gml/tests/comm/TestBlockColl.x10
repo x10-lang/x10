@@ -106,22 +106,28 @@ class BlockCollTest {
 	//------------------------------------------------
 	//------------------------------------------------
 	public def testBcast(bmat:DistBlockMatrix):Boolean {
-		val ret:Boolean;
+		var ret:Boolean = true;
 		var ds:Int = 0;
-		
+		var avgt:Double=0;
 		Console.OUT.println("\nTest Bcast on dist block matrix, each block ("+M+"x"+N+") "+
 				"("+bM+","+bN+") blocks over "+ numplace+" places");
 		
 		//bmat.fetchBlock(rootbid).print("BCast root");
-		var st:Long =  Timer.milliTime();
-		BlockBcast.bcast(bmat.handleBS, rootbid);
-		val avgt = 1.0*(Timer.milliTime() - st)/(numplace-1);
-		//bmat.printMatrix("Bcast resuult");
+		for (var rtbid:Int=0; rtbid < bmat.getGrid().size; rtbid++) {
+			Console.OUT.println("Bcast from root block "+rtbid);
+			bmat.reset();
+			bmat.initBlock(rtbid, (r:Int, c:Int)=>(1.0+r+c)*((r+c)%2));
+			val st:Long =  Timer.milliTime();
+			BlockBcast.bcast(bmat.handleBS, rtbid);
+			avgt += (Timer.milliTime() - st);
+			//bmat.printMatrix();
+			ret &= dbmat.syncCheck();
+		}
+	
+		Console.OUT.printf("Bcast %d bytes average time: %.3f ms\n", 
+						   ds*8, avgt/bmat.getGrid().size);
 		
-		Console.OUT.printf("Bcast %d bytes : %.3f ms, thput: %2.2f MB/s per iteration\n", 
-						   ds*8, avgt, 8000.0*ds/avgt/1024/1024);
-		
-		ret = dbmat.syncCheck();
+		//ret = dbmat.syncCheck();
 		if (ret)
 			Console.OUT.println("Bcast dist block matrix passed!");
 		else
