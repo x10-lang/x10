@@ -197,7 +197,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_X10GENERATED = "x10.core.X10Generated";
 
     public static final String DUMMY_PARAM_TYPE1 = "java.lang.System";
-    public static final String DUMMY_PARAM_TYPE2 = "java.lang.Class<?>";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
