@@ -225,10 +225,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
+
+    public static final String X10_CORE_THROWABLE_UTILITIES = "x10.core.ThrowableUtilities";
     public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
     public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
     public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
     public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
+    public static final String JAVA_LANG_EXCEPTION = "java.lang.Exception";
+    public static final String JAVA_LANG_RUNTIME_EXCEPTION = "java.lang.RuntimeException";
+    public static final String JAVA_LANG_ERROR = "java.lang.Error";
 
     public static final String MAIN_CLASS = "$Main";
     public static final String RTT_NAME = "$RTT";
@@ -3971,7 +3976,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (s != null) {
             w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native block
             w.write(s);
-            w.write("} catch (java.lang.Throwable $exc$) { throw x10.core.ThrowableUtilities.convertJavaThrowable($exc$); }"); // XTENLANG-2686
+            w.write("} catch (" + JAVA_LANG_THROWABLE + " $exc$) { throw " + X10_CORE_THROWABLE_UTILITIES + ".convertJavaThrowable($exc$); }"); // XTENLANG-2686
         } else {
             n.translate(w, tr);
         }
