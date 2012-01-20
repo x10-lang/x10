@@ -36,7 +36,7 @@ public class NativeFile extends java.io.File implements RefI {
         try {
             return super.getCanonicalPath();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 
@@ -46,7 +46,7 @@ public class NativeFile extends java.io.File implements RefI {
 //        try {
 //            return super.getCanonicalPath();
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //

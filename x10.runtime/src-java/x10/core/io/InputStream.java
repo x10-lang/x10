@@ -41,7 +41,7 @@ public class InputStream extends Ref {
         try {
             stream.close();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -49,7 +49,7 @@ public class InputStream extends Ref {
         try {
             return stream.read();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -58,7 +58,7 @@ public class InputStream extends Ref {
         try {
             return stream.read();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 
@@ -66,7 +66,7 @@ public class InputStream extends Ref {
         try {
             stream.read(b, off, len);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -74,7 +74,7 @@ public class InputStream extends Ref {
         try {
             return stream.available();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -83,7 +83,7 @@ public class InputStream extends Ref {
         try {
             return stream.available();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 
@@ -91,7 +91,7 @@ public class InputStream extends Ref {
         try {
             stream.skip(n);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -103,7 +103,7 @@ public class InputStream extends Ref {
         try {
             stream.reset();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     

@@ -201,29 +201,26 @@ public class TryCatchExpander extends Expander {
         }
     }
 
-    // N.B. ThrowableUtilities.x10RuntimeExceptions must be sync with TryCatchExpander.x10RuntimeExceptions
-    static final String[] x10RuntimeExceptions = { "x10.lang.ArithmeticException", "x10.lang.ArrayIndexOutOfBoundsException", "x10.lang.StringIndexOutOfBoundsException", "x10.lang.ClassCastException", "x10.lang.NumberFormatException", "x10.lang.IllegalArgumentException", "x10.util.NoSuchElementException", "x10.lang.NullPointerException", "x10.lang.UnsupportedOperationException",
-    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-    //        "x10.lang.RuntimeException",
-    //	    "x10.lang.Exception",
-    //	    "x10.lang.Throwable"
-    };
-    // N.B. ThrowableUtilities.x10Exceptions must be sync with TryCatchExpander.x10Exceptions
-    static final String[] x10Exceptions = { "x10.io.FileNotFoundException", "x10.io.EOFException", "x10.io.NotSerializableException", "x10.io.IOException", "x10.lang.InterruptedException",
-        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-        "x10.lang.Exception",
-    //        "x10.lang.Throwable"
-    };
-    // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
-    static final String[] x10Errors = { "x10.lang.OutOfMemoryError", "x10.lang.StackOverflowError", "x10.lang.AssertionError",
-        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-        "x10.lang.Error",
-    //        "x10.lang.Throwable"
-    };
-    // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
-    static final String[] x10Throwables = {
-    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-    "x10.lang.Throwable" };
+    // not used
+//    // N.B. ThrowableUtilities.x10RuntimeExceptions must be sync with TryCatchExpander.x10RuntimeExceptions
+//    static final String[] x10RuntimeExceptions = { "x10.lang.ArithmeticException", "x10.lang.ArrayIndexOutOfBoundsException", "x10.lang.StringIndexOutOfBoundsException", "x10.lang.ClassCastException", "x10.lang.NumberFormatException", "x10.lang.IllegalArgumentException", "x10.util.NoSuchElementException", "x10.lang.NullPointerException", "x10.lang.UnsupportedOperationException",
+//    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//    //        "x10.lang.RuntimeException",
+//    };
+//    // N.B. ThrowableUtilities.x10Exceptions must be sync with TryCatchExpander.x10Exceptions
+//    static final String[] x10Exceptions = { "x10.io.FileNotFoundException", "x10.io.EOFException", "x10.io.NotSerializableException", "x10.io.IOException", "x10.lang.InterruptedException",
+//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        "x10.lang.Exception",
+//    };
+//    // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
+//    static final String[] x10Errors = { "x10.lang.OutOfMemoryError", "x10.lang.StackOverflowError", "x10.lang.AssertionError",
+//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        "x10.lang.Error",
+//    };
+//    // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
+//    static final String[] x10Throwables = {
+//    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//    "x10.lang.Throwable" };
     public static final int NO_CONVERSION = 0;
     public static final int RUNTIME_EXCEPTION_CONVERSION = 0x01;
     public static final int EXCEPTION_CONVERSION = 0x02;

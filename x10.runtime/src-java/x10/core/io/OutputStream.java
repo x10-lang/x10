@@ -42,7 +42,7 @@ public class OutputStream extends Ref {
         try {
             stream.close();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -50,7 +50,7 @@ public class OutputStream extends Ref {
         try {
             stream.flush();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -58,7 +58,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -66,7 +66,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -76,7 +76,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(buf.raw().getByteArray());
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 //    // for Emitter.manglePrimitivesAsShortName
@@ -84,7 +84,7 @@ public class OutputStream extends Ref {
 //        try {
 //            stream.write(buf.raw().getByteArray());
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 
@@ -92,7 +92,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(b, off, len);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
@@ -102,7 +102,7 @@ public class OutputStream extends Ref {
         try {
             stream.write(buf.raw().getByteArray(), off, len);
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 //    // for Emitter.manglePrimitivesAsShortName
@@ -110,7 +110,7 @@ public class OutputStream extends Ref {
 //        try {
 //            stream.write(buf.raw().getByteArray(), off, len);
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 

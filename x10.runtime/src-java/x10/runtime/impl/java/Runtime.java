@@ -293,7 +293,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             byte[] bytes = serialize(body, finishState);
             x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -342,7 +342,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     		}
     		return body;
     	} catch (java.io.IOException e) {
-    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
     		xe.printStackTrace();
     		throw xe;
     	}

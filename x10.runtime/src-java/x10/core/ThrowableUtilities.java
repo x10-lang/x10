@@ -170,20 +170,21 @@ public abstract class ThrowableUtilities {
         throw new java.lang.Error(t);
     }
     
-	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.RuntimeException e) {
+	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.RuntimeException e) {
+            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
         java.lang.String message = e.getMessage();
         Class<? extends x10.core.X10Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
-            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable)e; // already wrapped
-            else return new UnknownJavaThrowable(e);
+            return new UnknownJavaThrowable(e);
         }
         
         return createX10Throwable(x10Class, message, e);
     }
 
-	public static x10.core.Throwable getCorrespondingX10Exception(java.lang.Exception e) {
+	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Exception e) {
+            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
         java.lang.String message = e.getMessage();
         Class<? extends x10.core.X10Throwable> x10Class = x10Exceptions.get(e.getClass());
         if (x10Class == null) {
@@ -195,7 +196,7 @@ public abstract class ThrowableUtilities {
         return createX10Throwable(x10Class, message, e);
     }
 
-	public static x10.core.Throwable getCorrespondingX10Error(java.lang.Error e) {
+	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Error e) {
         java.lang.String message = e.getMessage();
         Class<? extends x10.core.X10Throwable> x10Class = x10Errors.get(e.getClass());
         if (x10Class == null) {
@@ -208,6 +209,7 @@ public abstract class ThrowableUtilities {
     }
 
 	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Throwable e) {
+            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
         java.lang.String message = e.getMessage();
         Class<? extends x10.core.X10Throwable> x10Class = x10Throwables.get(e.getClass());
         if (x10Class == null) {
@@ -220,26 +222,26 @@ public abstract class ThrowableUtilities {
     }
 
     public static x10.core.Throwable convertJavaRuntimeException(java.lang.RuntimeException e) {
-    	return getCorrespondingX10Exception(e);
+    	return getCorrespondingX10Throwable(e);
     }
     public static x10.core.Throwable convertJavaException(java.lang.Exception e) {
     	if (e instanceof java.lang.RuntimeException) {
-    		return getCorrespondingX10Exception((java.lang.RuntimeException) e);
+    		return getCorrespondingX10Throwable((java.lang.RuntimeException) e);
     	} else
     	/*if (e instanceof java.lang.Exception)*/ {
-    		return getCorrespondingX10Exception(e);
+    		return getCorrespondingX10Throwable(e);
     	}
     }
     public static x10.core.Throwable convertJavaError(java.lang.Error e) {
-    	return getCorrespondingX10Error(e);
+    	return getCorrespondingX10Throwable(e);
     }
     public static x10.core.Throwable convertJavaThrowable(java.lang.Throwable e) {
     	if (e instanceof java.lang.RuntimeException) {
-    		return getCorrespondingX10Exception((java.lang.RuntimeException) e);
+    		return getCorrespondingX10Throwable((java.lang.RuntimeException) e);
     	} else if (e instanceof java.lang.Exception) {
-    		return getCorrespondingX10Exception((java.lang.Exception) e);
+    		return getCorrespondingX10Throwable((java.lang.Exception) e);
     	} else if (e instanceof java.lang.Error) {
-    		return getCorrespondingX10Error((java.lang.Error) e);
+    		return getCorrespondingX10Throwable((java.lang.Error) e);
     	} else
     	/*if (e instanceof java.lang.Throwable)*/ {
     		return getCorrespondingX10Throwable(e);
