@@ -3467,7 +3467,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
         if (runAsync) {
-            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, "ex", new Expander(er) {
+            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, "ex", new Expander(er) {
                 public void expand(Translator tr) {
                     w.write("x10.lang.Runtime.pushException(ex);");
                 }
@@ -4513,7 +4513,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // unwrap and handle Java throwable
         if (isJavaCheckedExceptionCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, temp, new Expander(er) {
+            expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
                 public void expand(Translator tr) {
                     w.newline();
 
@@ -4571,7 +4571,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
         if (isConstrainedExceptionCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock(JAVA_LANG_THROWABLE, temp, new Expander(er) {
+            int convRequired = 0;
+            for (int i = 0; i < catchBlocks.size(); ++i) {
+                convRequired |= TryCatchExpander.conversionRequired(catchBlocks.get(i).catchType());
+            }
+            expander.addCatchBlock(JAVA_LANG_THROWABLE, convRequired, temp, new Expander(er) {
                 public void expand(Translator tr) {
                     boolean generateRethrowBlock = true;
                     w.newline();
@@ -4605,7 +4609,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 Catch catchBlock = catchBlocks.get(i);
                 if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(catchBlock.catchType())) {
                     generateRethrowBlock = false;
-                    expander.addCatchBlock(X10_CORE_THROWABLE, temp, new Expander(er) {
+                    expander.addCatchBlock(X10_CORE_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
                         public void expand(Translator tr) {
                             w.newline();
                             w.write("throw " + temp + ";"); 

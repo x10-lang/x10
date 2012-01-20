@@ -50,12 +50,14 @@ public class TryCatchExpander extends Expander {
 
     private class CatchBlock {
         private final String exClass;
+        private final int convRequired;
         private final String exInstName;
         private final Expander bodyExpander;
         private final Catch catchBlock;
 
-        private CatchBlock(String exClass, String exInstName, Expander bodyExpander) {
+        private CatchBlock(String exClass, int convRequired, String exInstName, Expander bodyExpander) {
             this.exClass = exClass;
+            this.convRequired = convRequired;
             this.exInstName = exInstName;
             this.bodyExpander = bodyExpander;
             this.catchBlock = null;
@@ -63,6 +65,7 @@ public class TryCatchExpander extends Expander {
 
         public CatchBlock(Catch catchBlock) {
             this.exClass = null;
+            this.convRequired = NO_CONVERSION;
             this.exInstName = null;
             this.bodyExpander = null;
             this.catchBlock = catchBlock;
@@ -82,26 +85,30 @@ public class TryCatchExpander extends Expander {
             }
         }
 
-        // XTENLANG-2871 simplify Java to X10 exception conversion logic 
-        // Use subtype checking instead of exact match of type name
-        // Assume that conversion of j.l.Throwable also includes conversion of j.l.Exception etc. 
         int conversionRequired() {
             TypeSystem ts = er.tr.typeSystem();
-            Type catchType = (catchBlock != null) ? catchBlock.catchType() : ts.load(exClass);
-            Context context = er.tr.context();
-            int rc = 0;
-            //            if (ts.isSubtype(catchType, ts.RuntimeException(), context)) {
-            //                rc |= RUNTIME_EXCEPTION_CONVERSION;                        
-            //            } else
-            if (ts.isSubtype(catchType, ts.Exception(), context)) {
-                rc |= EXCEPTION_CONVERSION;
-            } else if (ts.isSubtype(catchType, ts.Error(), context)) {
-                rc |= ERROR_CONVERSION;
-            } else if (ts.isSubtype(catchType, ts.Throwable(), context)) {
-                rc |= THROWABLE_CONVERSION;
-            }
-            return rc;
+            if (catchBlock == null) return convRequired;
+            return TryCatchExpander.conversionRequired(catchBlock.catchType());
         }
+    }
+
+    // XTENLANG-2871 simplify Java to X10 exception conversion logic 
+    // Use subtype checking instead of exact match of type name
+    // Assume that conversion of j.l.Throwable also includes conversion of j.l.Exception etc. 
+    public static int conversionRequired(Type catchType) {
+        TypeSystem ts = catchType.typeSystem();
+        int convRequired = 0;
+//        if (ts.isSubtype(catchType, ts.RuntimeException())) {
+//            convRequired |= RUNTIME_EXCEPTION_CONVERSION;                        
+//        } else
+        if (ts.isSubtype(catchType, ts.Exception())) {
+            convRequired |= EXCEPTION_CONVERSION;
+        } else if (ts.isSubtype(catchType, ts.Error())) {
+            convRequired |= ERROR_CONVERSION;
+        } else if (ts.isSubtype(catchType, ts.Throwable())) {
+            convRequired |= THROWABLE_CONVERSION;
+        }
+        return convRequired;
     }
 
     private final CodeWriter w;
@@ -126,8 +133,8 @@ public class TryCatchExpander extends Expander {
         this.finalBlock = finalBlock;
     }
 
-    public void addCatchBlock(String exClass, String exInstName, Expander expander) {
-        catches.add(new CatchBlock(exClass, exInstName, expander));
+    public void addCatchBlock(String exClass, int convRequired, String exInstName, Expander expander) {
+        catches.add(new CatchBlock(exClass, convRequired, exInstName, expander));
     }
 
     public void addCatchBlock(Catch catchBlock) {
@@ -217,11 +224,11 @@ public class TryCatchExpander extends Expander {
     static final String[] x10Throwables = {
     // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
     "x10.lang.Throwable" };
-    static final int NO_CONVERSION = 0;
-    static final int RUNTIME_EXCEPTION_CONVERSION = 0x01;
-    static final int EXCEPTION_CONVERSION = 0x02;
-    static final int ERROR_CONVERSION = 0x04;
-    static final int THROWABLE_CONVERSION = 0x08;
+    public static final int NO_CONVERSION = 0;
+    public static final int RUNTIME_EXCEPTION_CONVERSION = 0x01;
+    public static final int EXCEPTION_CONVERSION = 0x02;
+    public static final int ERROR_CONVERSION = 0x04;
+    public static final int THROWABLE_CONVERSION = 0x08;
 
     private int checkConversionRequired() {
         int rc = 0;
