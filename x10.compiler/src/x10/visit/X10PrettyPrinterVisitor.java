@@ -214,13 +214,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportJavaThrowables = true;
     public static final boolean useRethrowBlock = true;
     // XTENLANG-2987
-//    public static final boolean stableParameterMangling = false;
     public static final boolean stableParameterMangling = true;
 //    public static final int longestTypeName = 0; // always use hash code
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold
 //    public static final int longestTypeName = Integer.MAX_VALUE; // always use mangled suffix
-//    public static final boolean stableParameterManglingNewParams = false;   // TO BE REMOVED
-    public static final boolean stableParameterManglingNewParams = true;    // TO BE REMOVED
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -1720,7 +1717,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
-            if (stableParameterMangling && stableParameterManglingNewParams) {
+            if (stableParameterMangling) {
             String extraTypeName = getExtraTypeName(n.constructorDef());
             w.write(", " + extraTypeName + " " + dummy);
             } else {
@@ -1825,7 +1822,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
-            if (stableParameterMangling && stableParameterManglingNewParams) {
+            if (stableParameterMangling) {
             w.write(", " + dummy);
             } else {
             w.write(",");
@@ -3113,7 +3110,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (md instanceof X10ConstructorDef) {
             int cid = getConstructorId((X10ConstructorDef) md);
             if (cid != -1) {
-                if (stableParameterMangling && stableParameterManglingNewParams) {
+                if (stableParameterMangling) {
                 String extraTypeName = getExtraTypeName((X10ConstructorDef) md);
                 w.write(", (");
                 // print as qualified name
@@ -4613,6 +4610,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             });
         }
 
+        // TODO supportJavaThrowables
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
         if (isConstrainedExceptionCaught) {
             final String temp = "$ex";
