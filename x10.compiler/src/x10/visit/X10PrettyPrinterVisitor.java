@@ -228,6 +228,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
     public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
     public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
+    public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
 
     public static final String MAIN_CLASS = "$Main";
     public static final String RTT_NAME = "$RTT";
@@ -4503,6 +4504,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (type instanceof ConstrainedType) // XTENLANG-2384: Check if there is a constained type in catchBlocks
                 isConstrainedExceptionCaught = true;
         }
+
+        // unwrap and handle Java throwable
         if (isJavaCheckedExceptionCaught) {
             final String temp = "$ex";
             expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, temp, new Expander(er) {
@@ -4563,12 +4566,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
         if (isConstrainedExceptionCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock(X10_CORE_X10THROWABLE, temp, new Expander(er) {
+            expander.addCatchBlock(JAVA_LANG_THROWABLE, temp, new Expander(er) {
                 public void expand(Translator tr) {
+                    boolean generateRethrowBlock = true;
                     w.newline();
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
+                        if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(type)) {
+                            generateRethrowBlock = false;
+                            w.write("if (" + temp + " instanceof " + X10_CORE_THROWABLE + ") {"); w.newline();
+                            w.write("throw (" + X10_CORE_THROWABLE + ") " + temp + ";"); w.newline();
+                            w.write("} else "); w.newline();
+                        }
                         w.write("if (" + temp + " instanceof ");
                         er.printType(type, 0);
                         if (type instanceof ConstrainedType) {
@@ -4579,7 +4589,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         cb.body().translate(w, tr);
                         w.write("else "); w.newline();
                     }
-                    w.write("{ throw "+ temp + "; }"); w.newline();
+                    // FIXME
+                    w.write("{ "+ temp + ".printStackTrace(); assert false; }"); w.newline();
                 }
             });
         } else { // XTENLANG-2384: Normal case, no constrained type in catchBlocks
@@ -4589,7 +4600,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 Catch catchBlock = catchBlocks.get(i);
                 if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(catchBlock.catchType())) {
                     generateRethrowBlock = false;
-                    expander.addCatchBlock("x10.core.Throwable", temp, new Expander(er) {
+                    expander.addCatchBlock(X10_CORE_THROWABLE, temp, new Expander(er) {
                         public void expand(Translator tr) {
                             w.newline();
                             w.write("throw " + temp + ";"); 
