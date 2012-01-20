@@ -214,7 +214,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportJavaThrowables = true;
     public static final boolean useRethrowBlock = true;
     // XTENLANG-2987
-    public static final boolean stableParameterMangling = true;
 //    public static final int longestTypeName = 0; // always use hash code
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold
 //    public static final int longestTypeName = Integer.MAX_VALUE; // always use mangled suffix
@@ -1003,9 +1002,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print the original body
         n.print(n.body(), w, tr);
 
-        if (stableParameterMangling) {
-            printExtraTypes(def);
-        }
+        // print synthetic types for parameter mangling
+        printExtraTypes(def);
 
         w.end();
         w.newline();
@@ -1717,25 +1715,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
-            if (stableParameterMangling) {
             String extraTypeName = getExtraTypeName(n.constructorDef());
             w.write(", " + extraTypeName + " " + dummy);
-            } else {
-            w.write(",");
-            int narg = 0;
-            for (int i = 0; i < cid + 1; i++) {
-                if (i % 256 == 0) {
-                    if (i != 0) {
-                        w.write(" " + dummy + narg++);
-                        w.write(",");
-                    }
-                    w.write(DUMMY_PARAM_TYPE2);
-                } else {
-                    w.write("[]");
-                }
-            }
-            w.write(" " + dummy + narg);
-            }
         }
     }
 
@@ -1757,13 +1738,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     }
     private static String getExtraTypeName(X10ConstructorDef md) {
-        assert stableParameterMangling;
         assert getConstructorId(md) != -1;
         return asTypeName(md.container().get(), getMangledMethodSuffix(md));
     }
     // should be called after setConstructorIds(def)
     private void printExtraTypes(X10ClassDef def) {
-        assert stableParameterMangling;
         HashSet<String> extraTypeNames = new HashSet<String>();
         List<ConstructorDef> cds = def.constructors();
         for (ConstructorDef cd : cds) {
@@ -1822,21 +1801,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
-            if (stableParameterMangling) {
             w.write(", " + dummy);
-            } else {
-            w.write(",");
-            int narg = 0;
-            for (int i = 0; i < cid + 1; i++) {
-                if (i % 256 == 0) {
-                    if (i != 0) {
-                        w.write(" " + dummy + narg++);
-                        w.write(",");
-                    }
-                }
-            }
-            w.write(" " + dummy + narg);
-            }
         }
     }
 
@@ -3110,24 +3075,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (md instanceof X10ConstructorDef) {
             int cid = getConstructorId((X10ConstructorDef) md);
             if (cid != -1) {
-                if (stableParameterMangling) {
                 String extraTypeName = getExtraTypeName((X10ConstructorDef) md);
                 w.write(", (");
                 // print as qualified name
                 er.printType(md.container().get(), 0); w.write(".");
                 w.write(extraTypeName + ") null");
-                } else {
-                w.write(",");
-                for (int i = 0; i < cid + 1; i++) {
-                    if (i % 256 == 0) {
-                        if (i != 0) w.write(") null,");
-                        w.write("(" + DUMMY_PARAM_TYPE2);
-                    } else {
-                        w.write("[]");
-                    }
-                }
-                w.write(") null");
-                }
             }
         }
     }

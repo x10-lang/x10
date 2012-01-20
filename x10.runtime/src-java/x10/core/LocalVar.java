@@ -56,29 +56,6 @@ public class LocalVar<T> extends x10.core.Ref {
         super($dummy);
     }
 
-//    // for !X10PrettyPrinterVisitor.stableParameterMangling
-//    public LocalVar<T> $init(final Type<?> T, final T local, java.lang.Class<?> $dummy0) {
-//        super.$init();
-//        this.T = T;
-//        long temp = lastId.getAndIncrement();
-//        while (idToObject.containsKey(temp)) {
-//            temp = lastId.getAndIncrement();
-//        }
-//        id = temp;
-//        idToObject.put(id, local == null ? nullObject : local);
-//        return this;
-//    }
-//    public LocalVar(final Type<?> T, final T local, java.lang.Class<?> $dummy0) {
-//        super();
-//        this.T = T;
-//        long temp = lastId.getAndIncrement();
-//        while (idToObject.containsKey(temp)) {
-//            temp = lastId.getAndIncrement();
-//        }
-//        id = temp;
-//        idToObject.put(id, local == null ? nullObject : local);
-//    }
-    // for X10PrettyPrinterVisitor.stableParameterMangling
     public LocalVar<T> $init(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
         super.$init();
         this.T = T;

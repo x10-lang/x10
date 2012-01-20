@@ -157,23 +157,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         return this;
     }
 
-//    // for !X10PrettyPrinterVisitor.stableParameterMangling
-//    public GlobalRef<T> $init(final Type<?> T, T t, java.lang.Class<?> $dummy$0) {
-//        this.T = T;
-//        this.home = x10.lang.Runtime.home();
-//        this.t = t;
-//        return this;
-//    }
-//    public GlobalRef(final Type<?> T, T t, java.lang.Class<?> $dummy$0) {
-//        this.T = T;
-//        this.home = x10.lang.Runtime.home();
-//        this.t = t;
-//    }
-//    // zero value constructor
-//    public GlobalRef(final Type<?> T, java.lang.System $dummy) {
-//        this(T, null, (java.lang.Class<?>) null);
-//    }
-    // for X10PrettyPrinterVisitor.stableParameterMangling
     public GlobalRef<T> $init(final Type<?> T, T t, __0x10$lang$GlobalRef$$T $dummy) {
         this.T = T;
         this.home = x10.lang.Runtime.home();
@@ -368,9 +351,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    if (x10.lang.Runtime.home().id == ref.home.id) {
 		return eval.$apply(ref.$apply$G(),$T);
 	    } else {
-//	        // for !X10PrettyPrinterVisitor.stableParameterMangling
-//                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (java.lang.Class<?>) null));
-                // for X10PrettyPrinterVisitor.stableParameterMangling
                 return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (x10.core.GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null));
 	    }
 	}
@@ -380,9 +360,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
             if (x10.lang.Runtime.home().id == ref.home.id) {
 		return ref.$apply$G();
 	    } else {
-//	        // for !X10PrettyPrinterVisitor.stableParameterMangling
-//                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (java.lang.Class<?>) null));
-	        // for X10PrettyPrinterVisitor.stableParameterMangling
                 return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (x10.core.GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null));
 	    }
 	}
@@ -419,18 +396,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
 	    // constructor just for allocation
 	    public $Closure$Eval(final java.lang.System[] $dummy) { super($dummy);}
-//	    // for !X10PrettyPrinterVisitor.stableParameterMangling
-//	    public $Closure$Eval(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, java.lang.Class<?> $dummy0) {
-//		this.$T = $T;
-//		this.$U = $U;
-//		this.ref = ref;
-//		this.eval = eval;
-//	    }
-//	    // creation method for java code
-//	    public static <$T, $U> $Closure$Eval $make(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, java.lang.Class<?> $dummy0){
-//		return new $Closure$Eval($T, $U, ref, eval, $dummy0);
-//	    }
-	    // for X10PrettyPrinterVisitor.stableParameterMangling
             public $Closure$Eval(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 $dummy) {
                 this.$T = $T;
                 this.$U = $U;
@@ -499,16 +464,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
 	    // constructor just for allocation
 	    public $Closure$Apply(final java.lang.System[] $dummy) { super($dummy);}
-//	    // for !X10PrettyPrinterVisitor.stableParameterMangling
-//	    public $Closure$Apply(Type $T, x10.core.GlobalRef<$T> ref, java.lang.Class<?> $dummy0) {
-//		this.$T = $T;
-//		this.ref = ref;
-//	    }
-//	    // creation method for java code
-//	    public static <$T> $Closure$Apply $make(Type $T, x10.core.GlobalRef<$T> ref, java.lang.Class<?> $dummy0) {
-//		return new $Closure$Apply($T, ref, $dummy0);
-//	    }
-            // for X10PrettyPrinterVisitor.stableParameterMangling
             public $Closure$Apply(Type $T, x10.core.GlobalRef<$T> ref, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 $dummy) {
                 this.$T = $T;
                 this.ref = ref;
