@@ -13,6 +13,9 @@ package x10.emitter;
 import java.io.OutputStream;
 import java.io.Writer;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -86,7 +89,6 @@ public class TryCatchExpander extends Expander {
         }
 
         int conversionRequired() {
-            TypeSystem ts = er.tr.typeSystem();
             if (catchBlock == null) return convRequired;
             return TryCatchExpander.conversionRequired(catchBlock.catchType());
         }
@@ -201,26 +203,26 @@ public class TryCatchExpander extends Expander {
         }
     }
 
-    // not used
-//    // N.B. ThrowableUtilities.x10RuntimeExceptions must be sync with TryCatchExpander.x10RuntimeExceptions
-//    static final String[] x10RuntimeExceptions = { "x10.lang.ArithmeticException", "x10.lang.ArrayIndexOutOfBoundsException", "x10.lang.StringIndexOutOfBoundsException", "x10.lang.ClassCastException", "x10.lang.NumberFormatException", "x10.lang.IllegalArgumentException", "x10.util.NoSuchElementException", "x10.lang.NullPointerException", "x10.lang.UnsupportedOperationException",
-//    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//    //        "x10.lang.RuntimeException",
-//    };
-//    // N.B. ThrowableUtilities.x10Exceptions must be sync with TryCatchExpander.x10Exceptions
-//    static final String[] x10Exceptions = { "x10.io.FileNotFoundException", "x10.io.EOFException", "x10.io.NotSerializableException", "x10.io.IOException", "x10.lang.InterruptedException",
-//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        "x10.lang.Exception",
-//    };
-//    // N.B. ThrowableUtilities.x10Errors must be sync with TryCatchExpander.x10Errors
-//    static final String[] x10Errors = { "x10.lang.OutOfMemoryError", "x10.lang.StackOverflowError", "x10.lang.AssertionError",
-//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        "x10.lang.Error",
-//    };
-//    // N.B. ThrowableUtilities.x10Throwables must be sync with TryCatchExpander.x10Throwables
-//    static final String[] x10Throwables = {
-//    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//    "x10.lang.Throwable" };
+    // N.B. ThrowableUtilities.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
+    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
+        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        ,"java.lang.RuntimeException"
+    ));
+    private static final Set<String> knownJavaExceptions = new HashSet<String>(Arrays.asList("java.io.FileNotFoundException", "java.io.EOFException", "java.io.NotSerializableException", "java.io.IOException", "java.lang.InterruptedException"
+        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        , "java.lang.Exception"
+    ));
+    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError", "java.lang.AssertionError"
+        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+//        , "java.lang.Error"
+    ));
+    private static final Set<String> knownJavaThrowables = Collections.<String>emptySet();
+    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+    public static boolean isKnownJavaThrowable(Type type) {
+        String typeName = type.toString();
+        return knownJavaRuntimeExceptions.contains(typeName) || knownJavaExceptions.contains(typeName) || knownJavaErrors.contains(typeName) || knownJavaThrowables.contains(typeName);
+    }
+    
     public static final int NO_CONVERSION = 0;
     public static final int RUNTIME_EXCEPTION_CONVERSION = 0x01;
     public static final int EXCEPTION_CONVERSION = 0x02;

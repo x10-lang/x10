@@ -4486,9 +4486,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         return c;
     }
-    private static boolean isJavaCheckedException(Type catchType) {
-        // TODO need check
-        return catchType.toString().startsWith("java") && !catchType.isUncheckedException();
+    private static boolean isUnknownJavaThrowable(Type catchType) {
+        // return true for types that will be wrapped to UnknownJavaThrowable
+        return !catchType.isThrowable() && !TryCatchExpander.isKnownJavaThrowable(catchType);
     }
     @Override
     public void visit(Try_c c) {
@@ -4498,20 +4498,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
         final List<Catch> catchBlocks = c.catchBlocks();
 
-        boolean isJavaCheckedExceptionCaught = false;
-        boolean isConstrainedExceptionCaught = false; // XTENLANG-2384
+        boolean isUnknownJavaThrowableCaught = false;
+        boolean isConstrainedThrowableCaught = false; // XTENLANG-2384
         for (int i = 0; i < catchBlocks.size(); ++i) {
             Type type = catchBlocks.get(i).catchType();
-            if (isJavaCheckedException(type)) {
+            if (isUnknownJavaThrowable(type)) {
                 // found Java checked exceptions caught here!!
-                isJavaCheckedExceptionCaught = true;
+                isUnknownJavaThrowableCaught = true;
             }
             if (type instanceof ConstrainedType) // XTENLANG-2384: Check if there is a constained type in catchBlocks
-                isConstrainedExceptionCaught = true;
+                isConstrainedThrowableCaught = true;
         }
 
         // unwrap and handle Java throwable
-        if (isJavaCheckedExceptionCaught) {
+        if (isUnknownJavaThrowableCaught) {
             final String temp = "$ex";
             expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
                 public void expand(Translator tr) {
@@ -4521,13 +4521,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
-                        if (!isJavaCheckedException(type))
-                        // if (type.isSubtype(tr.typeSystem().Error(),
-                        // tr.context()) ||
-                        // type.isSubtype(tr.typeSystem().RuntimeException(),
-                        // tr.context()))
-                        // nothing to do, since UnknownJavaThrowable wraps only Java
-                        // checked exceptions
+                        if (!isUnknownJavaThrowable(type))
                             continue;
 
                         if (needElse) {
@@ -4567,9 +4561,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             });
         }
 
-        // TODO supportJavaThrowables
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
-        if (isConstrainedExceptionCaught) {
+        if (isConstrainedThrowableCaught) {
             final String temp = "$ex";
             int convRequired = 0;
             for (int i = 0; i < catchBlocks.size(); ++i) {
@@ -4598,7 +4591,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         cb.body().translate(w, tr);
                         w.write("else "); w.newline();
                     }
-                    // FIXME
+                    // should not come here
                     w.write("{ "+ temp + ".printStackTrace(); assert false; }"); w.newline();
                 }
             });

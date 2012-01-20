@@ -15,15 +15,53 @@ import x10.interop.java.Throws;
 // MANAGED_X10_ONLY
 
 public class JavaException4 extends x10Test {
-    public def run(): Boolean {
+
+	public def constrainedType(): Boolean {
+		val out = Console.OUT;
+		var passed:Boolean = false;
+		try {
+			out.println("in try");
+			throw new java.lang.Exception();
+		} catch (e:java.lang.IndexOutOfBoundsException) {
+			out.println("in catch java.lang.IndexOutOfBoundsException");
+		} catch (e:java.lang.RuntimeException) {
+			out.println("in catch java.lang.RuntimeException");
+		} catch (e:x10.lang.Exception{self != null}) {
+			out.println("in catch x10.lang.Exception");
+		} catch (e:java.lang.Throwable) {
+			out.println("in catch java.lang.Throwable");
+			passed = true;
+		} catch (e:x10.lang.Throwable) {
+			out.println("in catch x10.lang.Throwable");
+		}
+		return passed;
+	}
+
+    public def plainType(): Boolean {
+    	val out = Console.OUT;
+    	var passed:Boolean = false;
         try {
+        	out.println("in try");
+        	throw new java.lang.Exception();
         } catch (e:java.lang.IndexOutOfBoundsException) {
+        	out.println("in catch java.lang.IndexOutOfBoundsException");
         } catch (e:java.lang.RuntimeException) {
+        	out.println("in catch java.lang.RuntimeException");
         } catch (e:x10.lang.Exception) {
+        	out.println("in catch x10.lang.Exception");
         } catch (e:java.lang.Throwable) {
+        	out.println("in catch java.lang.Throwable");
+        	passed = true;
         } catch (e:x10.lang.Throwable) {
+        	out.println("in catch x10.lang.Throwable");
         }
-        return true;
+        return passed;
+    }
+
+    public def run(): Boolean {
+    	chk(plainType());
+    	chk(constrainedType());
+    	return true;
     }
 
     public static def main(args: Array[String](1)) {
