@@ -212,10 +212,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // XTENLANG-2871
     public static final boolean supportJavaThrowables = true;
     public static final boolean useRethrowBlock = true;
-    // XTENLANG-2987
-//    public static final int longestTypeName = 0; // always use hash code
-    public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold
-//    public static final int longestTypeName = Integer.MAX_VALUE; // always use mangled suffix
+
+    // N.B. should be as short as file name length which is valid on all supported platforms.
+    public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -225,11 +224,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_STRING = "x10.core.String";
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
-    // TODO try to consolidate WrappedThrowable with UnknownJavaThrowable
-//    public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.WrappedThrowable";
-    public static final String X10_IMPL_WRAPPED_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
     public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
+    public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
+    public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
 
     public static final String MAIN_CLASS = "$Main";
     public static final String RTT_NAME = "$RTT";
@@ -3463,7 +3461,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
         if (runAsync) {
-            tryCatchExpander.addCatchBlock(X10_IMPL_WRAPPED_THROWABLE, "ex", new Expander(er) {
+            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, "ex", new Expander(er) {
                 public void expand(Translator tr) {
                     w.write("x10.lang.Runtime.pushException(ex);");
                 }
@@ -3486,14 +3484,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_WRAPPED_THROWABLE + "(t));");
+        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(t));");
         // }
         // });
         // } else {
         // tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("throw new " + X10_IMPL_WRAPPED_THROWABLE + "(t);");
+        // w.write("throw new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(t);");
         // }
         // });
         // }
@@ -3512,14 +3510,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_WRAPPED_THROWABLE + "(ex));");
+        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(ex));");
         // }
         // });
         // } else {
         // tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("throw new " + X10_IMPL_WRAPPED_THROWABLE + "(ex);");
+        // w.write("throw new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(ex);");
         // }
         // });
         // }
@@ -4507,7 +4505,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         if (isJavaCheckedExceptionCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock(X10_IMPL_WRAPPED_THROWABLE, temp, new Expander(er) {
+            expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, temp, new Expander(er) {
                 public void expand(Translator tr) {
                     w.newline();
 
@@ -4520,7 +4518,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         // tr.context()) ||
                         // type.isSubtype(tr.typeSystem().RuntimeException(),
                         // tr.context()))
-                        // nothing to do, since WrappedThrowable wrap only Java
+                        // nothing to do, since UnknownJavaThrowable wraps only Java
                         // checked exceptions
                             continue;
 
@@ -4565,7 +4563,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
         if (isConstrainedExceptionCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock("x10.core.X10Throwable", temp, new Expander(er) {
+            expander.addCatchBlock(X10_CORE_X10THROWABLE, temp, new Expander(er) {
                 public void expand(Translator tr) {
                     w.newline();
                     for (int i = 0; i < catchBlocks.size(); ++i) {
