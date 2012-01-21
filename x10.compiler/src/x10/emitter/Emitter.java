@@ -2573,192 +2573,193 @@ public class Emitter {
     }
 
     private void printDispatchMethod(MethodInstance dispatch, List<MethodInstance> mis) {
-            MethodDef def = dispatch.def();
-            w.write("// dispatcher for " + def);
-            w.newline();
-    
-            Flags flags = dispatch.flags();
-    
-            w.begin(0);
-            w.write(flags.clearAbstract().clear(Flags.NATIVE).translateJava());
-            
-            w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
-            
+        MethodDef def = dispatch.def();
+        w.write("// dispatcher for " + def);
+        w.newline();
+        
+        Flags flags = dispatch.flags();
+        
+        w.begin(0);
+        w.write(flags.clearAbstract().clear(Flags.NATIVE).translateJava());
+        
+        w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
+        
+        w.write(" ");
+        
+        // decl
+        // print the method name
+        printMethodName(def, true, true);
+        
+        w.write("(");
+        
+        boolean first = true;
+        X10MethodDef x10def = (X10MethodDef) def;
+        for (ParameterType p : x10def.typeParameters()) {
+            if (!first) {
+                w.write(", ");
+            } else {
+                first = false;
+            }
+            w.write("final ");
+            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
             w.write(" ");
-
-            // decl
-            // print the method name
-            printMethodName(def, true, true);
-
-            w.write("(");
-            
-            boolean first = true;
-            X10MethodDef x10def = (X10MethodDef) def;
-            for (ParameterType p : x10def.typeParameters()) {
-                if (!first) {
-                    w.write(", ");
+            w.write(mangleParameterType(p));
+        }
+        
+        Name[] names = new Name[def.formalTypes().size()];
+        for (int i = 0; i < def.formalTypes().size(); i++) {
+            Type f = dispatch.formalTypes().get(i);
+            if (!first || i != 0) {
+                w.write(", ");
+            }
+            Type type = def.formalTypes().get(i).get();
+            if (containsTypeParam(type)) {
+                w.write("final ");
+                if (type instanceof ParameterType) {
+                    w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
                 } else {
-                    first = false;
+                    printType(type, 0);
                 }
+                
+                w.write(" ");
+                
+                Name name = Name.make("a" + (i + 1));
+                w.write(name.toString());
+                
+                w.write(", ");
                 w.write("final ");
                 w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
-                w.write(mangleParameterType(p));
-            }
-            
-            Name[] names = new Name[def.formalTypes().size()];
-            for (int i = 0; i < def.formalTypes().size(); i++) {
-                Type f = dispatch.formalTypes().get(i);
-                if (!first || i != 0) {
-                    w.write(", ");
-                }
-                Type type = def.formalTypes().get(i).get();
-                if (containsTypeParam(type)) {
-                    w.write("final ");
-                    if (type instanceof ParameterType) {
-                        w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
-                    } else {
-                        printType(type, 0);
-                    }
-                    
-                    w.write(" ");
-    
-                    Name name = Name.make("a" + (i + 1));
-                    w.write(name.toString());
-                    
-                    w.write(", ");
-                    w.write("final ");
-                    w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
-                    w.write(" ");
-                    Name name1 = Name.make("t" + (i + 1));
-                    w.write(name1.toString());
-                    
-                    names[i] = name1;
-                } else {
-                    w.write("final ");
-                    printType(f, 0);
-                    
-                    w.write(" ");
-    
-                    Name name = Name.make("a" + (i + 1));
-                    w.write(name.toString());
-                }
-            }
-    
-            w.end();
-            w.write(")");
-    /* Remove throw types support
-            if (!dispatch.throwTypes().isEmpty()) {
-                w.allowBreak(6);
-                w.write("throws ");
-                for (Iterator<Type> i = dispatch.throwTypes().iterator(); i.hasNext();) {
-                    Type t = i.next();
-                    printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-                    if (i.hasNext()) {
-                        w.write(",");
-                        w.allowBreak(4, " ");
-                    }
-                }
-            }
-    */
-            w.write(" {");
-            w.newline();
-            
-            for (MethodInstance mi : mis) {
-                if (mis.size() != 1) {
-                    boolean first3 = true;
-                    for (int i = 0; i < names.length; i++) {
-                        Name name = names[i];
-                        if (name == null) continue;
-                        if (first3) {
-                            w.write("if (");
-                            first3 = false;
-                        }
-                        else {
-                            w.write(" && ");
-                        }
-    
-                        w.write(name.toString());
-                        w.write(".equals(");
-                        new RuntimeTypeExpander(this, mi.formalTypes().get(i)).expand();
-                        w.write(")");
-                    }
-                    w.write(") {");
-                }
+                Name name1 = Name.make("t" + (i + 1));
+                w.write(name1.toString());
                 
-                if (!mi.returnType().isVoid()) {
-                    w.write("return ");
-                }
+                names[i] = name1;
+            } else {
+                w.write("final ");
+                printType(f, 0);
                 
-                boolean needParen = false;
-                // this dispatch methods returns Object, so box if the underlying type is not boxed
-                if (!isBoxedType(mi.returnType()) && !mi.returnType().isVoid()) {
-                	printBoxConversion(mi.returnType());
-                	w.write("(");
-                	needParen = true;
-                }
+                w.write(" ");
+                
+                Name name = Name.make("a" + (i + 1));
+                w.write(name.toString());
+            }
+        }
+        
+        w.end();
+        w.write(")");
 
-                // call
-                printMethodName(mi.def(), false, false);
-
-                // print the argument list
-                w.write("(");
-    
-                boolean first2 = true;
-                MethodInstance x10mi = mi;
-                assert (x10mi.typeParameters().size() == x10def.typeParameters().size());
-                for (Type t : x10def.typeParameters()) {
-                    if (!first2) {
-                        w.write(", ");
+//        // Remove throw types support
+//        if (!dispatch.throwTypes().isEmpty()) {
+//            w.allowBreak(6);
+//            w.write("throws ");
+//            for (Iterator<Type> i = dispatch.throwTypes().iterator(); i.hasNext();) {
+//                Type t = i.next();
+//                printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//                if (i.hasNext()) {
+//                    w.write(",");
+//                    w.allowBreak(4, " ");
+//                }
+//            }
+//        }
+        
+        w.write(" {");
+        w.newline();
+        
+        for (MethodInstance mi : mis) {
+            if (mis.size() != 1) {
+                boolean first3 = true;
+                for (int i = 0; i < names.length; i++) {
+                    Name name = names[i];
+                    if (name == null) continue;
+                    if (first3) {
+                        w.write("if (");
+                        first3 = false;
                     }
-                    first2 = false;
-                    new RuntimeTypeExpander(this, t).expand(tr);
-                }
-    
-                for (int i = 0; i < mi.formalTypes().size(); i++) {
-                    Type f = mi.formalTypes().get(i);
-                    if (!first2 || i != 0) {
-                        w.write(", ");
-                    }
-                    boolean closeParen = false;
-                    if (isBoxedType(def.formalTypes().get(i).get())) {
-                        Type bf = Types.baseType(f);
-                        if (!isBoxedType(f)) {
-                            closeParen = printUnboxConversion(f);
-                        } else if (!isMethodParameter(bf, mi, tr.context())) {
-                            // TODO:CAST
-                            w.write("(");
-                            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                            w.write(")");
-                        }
+                    else {
+                        w.write(" && ");
                     }
                     
-                    Name name = Name.make("a" + (i + 1));
                     w.write(name.toString());
-                    if (closeParen)
-                        w.write(")");
-                }
-                w.write(")");
-                if (needParen) {
+                    w.write(".equals(");
+                    new RuntimeTypeExpander(this, mi.formalTypes().get(i)).expand();
                     w.write(")");
                 }
-                w.write(";");
-                if (mi.returnType().isVoid()) {
-                    w.write("return null;");
-                }
-                if (mis.size() != 1) {
-                    w.write("}");
-                }
-                w.newline();
-            }
-    
-            if (mis.size() != 1) {
-                w.write("throw new x10.lang.Error(\"not implemented dispatch mechanism based on contra-variant type completely\");");
+                w.write(") {");
             }
             
-            w.write("}");
+            if (!mi.returnType().isVoid()) {
+                w.write("return ");
+            }
+            
+            boolean needParen = false;
+            // this dispatch methods returns Object, so box if the underlying type is not boxed
+            if (!isBoxedType(mi.returnType()) && !mi.returnType().isVoid()) {
+                printBoxConversion(mi.returnType());
+                w.write("(");
+                needParen = true;
+            }
+            
+            // call
+            printMethodName(mi.def(), false, false);
+            
+            // print the argument list
+            w.write("(");
+            
+            boolean first2 = true;
+            MethodInstance x10mi = mi;
+            assert (x10mi.typeParameters().size() == x10def.typeParameters().size());
+            for (Type t : x10def.typeParameters()) {
+                if (!first2) {
+                    w.write(", ");
+                }
+                first2 = false;
+                new RuntimeTypeExpander(this, t).expand(tr);
+            }
+            
+            for (int i = 0; i < mi.formalTypes().size(); i++) {
+                Type f = mi.formalTypes().get(i);
+                if (!first2 || i != 0) {
+                    w.write(", ");
+                }
+                boolean closeParen = false;
+                if (isBoxedType(def.formalTypes().get(i).get())) {
+                    Type bf = Types.baseType(f);
+                    if (!isBoxedType(f)) {
+                        closeParen = printUnboxConversion(f);
+                    } else if (!isMethodParameter(bf, mi, tr.context())) {
+                        // TODO:CAST
+                        w.write("(");
+                        printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        w.write(")");
+                    }
+                }
+                
+                Name name = Name.make("a" + (i + 1));
+                w.write(name.toString());
+                if (closeParen)
+                    w.write(")");
+            }
+            w.write(")");
+            if (needParen) {
+                w.write(")");
+            }
+            w.write(";");
+            if (mi.returnType().isVoid()) {
+                w.write("return null;");
+            }
+            if (mis.size() != 1) {
+                w.write("}");
+            }
             w.newline();
         }
+        
+        if (mis.size() != 1) {
+            w.write("throw new x10.lang.Error(\"not implemented dispatch mechanism based on contra-variant type completely\");");
+        }
+        
+        w.write("}");
+        w.newline();
+    }
 
     private static boolean isMethodParameter(Type bf, MethodInstance mi, Context context) {
         if (bf instanceof ParameterType) {
