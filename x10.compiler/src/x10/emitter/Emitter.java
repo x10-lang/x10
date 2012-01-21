@@ -1128,176 +1128,173 @@ public class Emitter {
       this.dumpRegex("Native", components, tr, pat);
 	}
 
-	public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
-		Flags flags = n.flags().flags();
-
-		Context c = tr.context();
-
-		boolean isInterface = c.currentClass().flags().isInterface();
+    public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
+        Flags flags = n.flags().flags();
+        
+        Context c = tr.context();
+	    
+        boolean isInterface = c.currentClass().flags().isInterface();
         if (isInterface) {
-			flags = flags.clearPublic();
-			flags = flags.clearAbstract();
-		}
-
-		w.begin(0);
-	    // XTENLANG-2680
-		Flags javaFlags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
-    	// TODO expand @Native annotation of interface method to the types that implement the interface and don't have its implementation.
-		boolean hasNativeAnnotation = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Comparable[T].compareTo(T)*/;
-		if (hasNativeAnnotation) {
-			// N.B. clear native as well since it has @Native annotation. 
-			javaFlags = javaFlags.clearNative();
-		}
-		w.write(javaFlags.translate());
-
-		// print the method type parameters
-		printTypeParams(n, c, n.typeParameters());
-		
-		boolean isDispatcher = X10PrettyPrinterVisitor.isSelfDispatch && isInterface && isDispatcher(n);
-		
-		// print the return type
+            flags = flags.clearPublic();
+            flags = flags.clearAbstract();
+        }
+        
+        w.begin(0);
+        // XTENLANG-2680
+        Flags javaFlags = flags.retainJava(); // ensure that X10Flags are not printed out .. javac will not know what to do with them.
+        // TODO expand @Native annotation of interface method to the types that implement the interface and don't have its implementation.
+        boolean hasNativeAnnotation = supportNativeMethodDecl && getJavaImplForDef(n.methodDef()) != null && !isInterface/*for Comparable[T].compareTo(T)*/;
+        if (hasNativeAnnotation) {
+            // N.B. clear native as well since it has @Native annotation. 
+            javaFlags = javaFlags.clearNative();
+        }
+        w.write(javaFlags.translate());
+        
+        // print the method type parameters
+        printTypeParams(n, c, n.typeParameters());
+        
+        boolean isDispatcher = X10PrettyPrinterVisitor.isSelfDispatch && isInterface && isDispatcher(n);
+        
+        // print the return type
         if (isDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
-	    } else {
-            printType(n.returnType().type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);	        
-	    }
-
+        } else {
+            printType(n.returnType().type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);                
+        }
+        
         w.allowBreak(2, 2, " ", 1);
-
+        
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
         boolean canMangleMethodName = canMangleMethodName(n.methodDef());
         
         // decl
         // print the method name
-		printMethodName(n.methodDef(), isInterface, isDispatcher);
-
-		// print formals
-		w.write("(");
-
-		w.allowBreak(2, 2, "", 0);
-		w.begin(0);
-
-		boolean first = true;
-		// Add a formal parameter of type Type for each type parameters.
-		for (TypeParamNode p : n.typeParameters()) {
-			if (!first) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			} else {
-			    first = false;
-			}
-
-			w.write("final ");
-			w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
-			w.write(" ");
-			w.write(mangleParameterType(p));
-		}
-		int formalNum = 1;
-		for (int i = 0; i < n.formals().size(); i++) {
-		    boolean forceBoxing = false;
-		    if (!canMangleMethodName) {
-		        // for methods, for which we cannot mangle name, a different boxing rule applies:
-		        // we force boxing of an argument if the method implements a method
-		        // with a boxed (generic) argument type in corresponding position
-		        for (MethodInstance supermeth : n.methodDef().asInstance().implemented(tr.context())) {
-		            if (isBoxedType(supermeth.def().formalTypes().get(i).get())) {
-		                forceBoxing = true;
-		                break;
-		            }
-		        }
-		    }
-			if (!first) {
-				w.write(",");
-				w.allowBreak(0, " ");
-			} else {
-			    first = false;
-			}
-
-			Formal f = n.formals().get(i);
-			tr.print(n, f.flags(), w);
-
-			Type type = f.type().type();
-			if (isDispatcher && containsTypeParam(type)) {
-			    printType(type, 0);
-			    w.write(" ");
-			    Name name = f.name().id();
-			    if (name.toString().equals("")) {
-			        name = Name.makeFresh("a");
-			    }
-			    tr.print(n, f.name().id(name), w);
-
-			    w.write(",");
-			    w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
-			    w.write(" ");
-			    Name name1 = Name.make("t" + formalNum++);
-			    tr.print(n, f.name().id(name1), w);
-			}
-			else {
-			    printType(
-			              type,
-			              (n.flags().flags().isStatic() ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS : 0) |
-			              // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-                                      (boxPrimitives || forceBoxing ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0)
-			    );
-			    w.write(" ");
-			    Name name = f.name().id();
-			    if (name.toString().equals("")) {
-			        name = Name.makeFresh("a");
-			    }
-			    tr.print(n, f.name().id(name), w);
-			}
-		}
-
-		w.end();
-		w.write(")");
-
-		/* Removed throw types.
-		 * if (!n.throwTypes().isEmpty()) {
-			w.allowBreak(6);
-			w.write("throws ");
-
-			for (Iterator<TypeNode> i = n.throwTypes().iterator(); i.hasNext();) {
-				TypeNode tn = (TypeNode) i.next();
-				// vj 09/26/08: Changed to print out translated version of throw
-				// type
-				// tr.print(n, tn, w);
-				// TODO: Nate to check.
-				printType(tn.type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-
-				if (i.hasNext()) {
-					w.write(",");
-					w.allowBreak(4, " ");
-				}
-			}
-		}
-*/
-
-		boolean isFirst = true;
-		for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
-			if (isFirst) {
-				w.write(" throws ");
-				isFirst = false;
-			} else {
-				w.write(", ");				
-			}
-			printType(_throws, 0);
-		}
-
-		w.end();
-
-	    // XTENLANG-2680
-		// print @Native annotation as method body
-		if (hasNativeAnnotation) {
-			printNativeMethodDecl(n);
-			return;
-		}
-
-		if (n.body() != null) {
-			tr.print(n, n.body(), w);
-		} else {
-			w.write(";");
-		}
-	}
+        printMethodName(n.methodDef(), isInterface, isDispatcher);
+        
+        // print formals
+        w.write("(");
+        
+        w.allowBreak(2, 2, "", 0);
+        w.begin(0);
+        
+        boolean first = true;
+        // Add a formal parameter of type Type for each type parameters.
+        for (TypeParamNode p : n.typeParameters()) {
+            if (!first) {
+                w.write(",");
+                w.allowBreak(0, " ");
+            } else {
+                first = false;
+            }
+	        
+            w.write("final ");
+            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+            w.write(" ");
+            w.write(mangleParameterType(p));
+        }
+        int formalNum = 1;
+        for (int i = 0; i < n.formals().size(); i++) {
+            boolean forceBoxing = false;
+            if (!canMangleMethodName) {
+                // for methods, for which we cannot mangle name, a different boxing rule applies:
+                // we force boxing of an argument if the method implements a method
+                // with a boxed (generic) argument type in corresponding position
+                for (MethodInstance supermeth : n.methodDef().asInstance().implemented(tr.context())) {
+                    if (isBoxedType(supermeth.def().formalTypes().get(i).get())) {
+                        forceBoxing = true;
+                        break;
+                    }
+                }
+            }
+            if (!first) {
+                w.write(",");
+                w.allowBreak(0, " ");
+            } else {
+                first = false;
+            }
+            
+            Formal f = n.formals().get(i);
+            tr.print(n, f.flags(), w);
+            
+            Type type = f.type().type();
+            if (isDispatcher && containsTypeParam(type)) {
+                printType(type, 0);
+                w.write(" ");
+                Name name = f.name().id();
+                if (name.toString().equals("")) {
+                    name = Name.makeFresh("a");
+                }
+                tr.print(n, f.name().id(name), w);
+                
+                w.write(",");
+                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+                w.write(" ");
+                Name name1 = Name.make("t" + formalNum++);
+                tr.print(n, f.name().id(name1), w);
+            }
+            else {
+                printType(
+                    type,
+                    (n.flags().flags().isStatic() ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS : 0) |
+                    // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+                    (boxPrimitives || forceBoxing ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0)
+                );
+                w.write(" ");
+                Name name = f.name().id();
+                if (name.toString().equals("")) {
+                    name = Name.makeFresh("a");
+                }
+                tr.print(n, f.name().id(name), w);
+            }
+        }
+        
+        w.end();
+        w.write(")");
+        
+//        // Removed throw types.
+//        if (!n.throwTypes().isEmpty()) {
+//            w.allowBreak(6);
+//            w.write("throws ");
+//            
+//            for (Iterator<TypeNode> i = n.throwTypes().iterator(); i.hasNext();) {
+//                TypeNode tn = (TypeNode) i.next();
+//                // vj 09/26/08: Changed to print out translated version of throw type
+//                // tr.print(n, tn, w);
+//                // TODO: Nate to check.
+//                printType(tn.type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//                
+//                if (i.hasNext()) {
+//                    w.write(",");
+//                    w.allowBreak(4, " ");
+//                }
+//            }
+//        }
+        
+        boolean isFirst = true;
+        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");
+            }
+            printType(_throws, 0);
+        }
+        
+        w.end();
+        
+        // XTENLANG-2680
+        // print @Native annotation as method body
+        if (hasNativeAnnotation) {
+            printNativeMethodDecl(n);
+        } else {
+            if (n.body() != null) {
+                tr.print(n, n.body(), w);
+            } else {
+                w.write(";");
+            }
+        }
+    }
 
 	// decl and call
     private void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher) {
