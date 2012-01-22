@@ -156,7 +156,12 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     public java.lang.Object $gt(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
     public java.lang.Object $le(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
     public java.lang.Object $ge(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(UByte a, Type t) { return Unsigned.lt($value,a.$value); }
+    public boolean $gt$O(UByte a, Type t) { return Unsigned.gt($value,a.$value); }
+    public boolean $le$O(UByte a, Type t) { return Unsigned.le($value,a.$value); }
+    public boolean $ge$O(UByte a, Type t) { return Unsigned.ge($value,a.$value); }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {

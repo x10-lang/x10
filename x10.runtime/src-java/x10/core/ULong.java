@@ -163,7 +163,12 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
     public java.lang.Object $gt(ULong a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
     public java.lang.Object $le(ULong a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
     public java.lang.Object $ge(ULong a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(ULong a, Type t) { return Unsigned.lt($value,a.$value); }
+    public boolean $gt$O(ULong a, Type t) { return Unsigned.gt($value,a.$value); }
+    public boolean $le$O(ULong a, Type t) { return Unsigned.le($value,a.$value); }
+    public boolean $ge$O(ULong a, Type t) { return Unsigned.ge($value,a.$value); }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {

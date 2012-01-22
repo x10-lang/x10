@@ -204,6 +204,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final int NO_QUALIFIER = 8;
 
     public static final boolean isSelfDispatch = true;
+    // WIP XTENLANG-2993
+//    public static final boolean returnSpecialTypeFromDispatcher = true;
+    public static final boolean returnSpecialTypeFromDispatcher = false;
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
@@ -2432,7 +2435,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
 
             // call
-            er.printMethodName(md, invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
+            // WIP XTENLANG-2993
+//            er.printMethodName(md, invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
+            er.printMethodName(md, invokeInterface, isDispatchMethod && !(returnSpecialTypeFromDispatcher && isSpecialReturnType), isSpecialReturnType, isParamReturnType);
         }
 
         // print the argument list

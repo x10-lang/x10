@@ -81,6 +81,10 @@ final public class Short extends Number implements StructI, java.lang.Comparable
         return obj;
     }
 
+    public static short $unbox(short value) {
+        return value;
+    }
+    
     public static short $unbox(int value) {
         return (short)value;
     }
@@ -140,7 +144,12 @@ final public class Short extends Number implements StructI, java.lang.Comparable
     public java.lang.Object $gt(Short b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
     public java.lang.Object $le(Short b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
     public java.lang.Object $ge(Short b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(Short b, Type t) { return $value < b.$value; }
+    public boolean $gt$O(Short b, Type t) { return $value > b.$value; }
+    public boolean $le$O(Short b, Type t) { return $value <= b.$value; }
+    public boolean $ge$O(Short b, Type t) { return $value >= b.$value; }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {

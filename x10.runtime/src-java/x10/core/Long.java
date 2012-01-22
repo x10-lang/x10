@@ -135,7 +135,12 @@ final public class Long extends Number implements StructI, java.lang.Comparable<
     public java.lang.Object $gt(Long b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
     public java.lang.Object $le(Long b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
     public java.lang.Object $ge(Long b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(Long b, Type t) { return $value < b.$value; }
+    public boolean $gt$O(Long b, Type t) { return $value > b.$value; }
+    public boolean $le$O(Long b, Type t) { return $value <= b.$value; }
+    public boolean $ge$O(Long b, Type t) { return $value >= b.$value; }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {
