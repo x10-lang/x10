@@ -65,8 +65,10 @@ pami_type_t DATATYPE_CONVERSION_TABLE[] = {PAMI_TYPE_UNSIGNED_CHAR, PAMI_TYPE_SI
 size_t DATATYPE_MULTIPLIER_TABLE[] = {1,1,2,2,4,4,8,8,8,4,12}; // the number of bytes used for each entry in the table above.
 // values for pami_op are mapped to indexes of x10rt_red_op_type
 pami_data_function OPERATION_CONVERSION_TABLE[] = {PAMI_DATA_SUM, PAMI_DATA_PROD, PAMI_DATA_NOOP, PAMI_DATA_BAND, PAMI_DATA_BOR, PAMI_DATA_BXOR, PAMI_DATA_MAX, PAMI_DATA_MIN};
-// values of x10rt_op_type are mapped to pami_atomic_t
-//pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
+// values of x10rt_op_type are mapped to pami_atomic_t.
+// The x10rt_op_type values correspond to the HFI values, not the PAMI_Rmw() values, so we need to convert when not using HFI.
+// The conversion table assumes HFI values: enum x10rt_op_type={X10RT_OP_ADD = 0x00, X10RT_OP_AND = 0x01, X10RT_OP_OR  = 0x02, X10RT_OP_XOR = 0x03}
+pami_atomic_t REMOTE_MEMORY_OP_CONVERSION_TABLE[] = {PAMI_ATOMIC_ADD, PAMI_ATOMIC_AND, PAMI_ATOMIC_OR, PAMI_ATOMIC_XOR};
 
 struct x10rtCallback
 {
@@ -212,14 +214,6 @@ void registerHandlers(pami_context_t context, bool setSendImmediateLimit)
 	pami_dispatch_hint_t hints;
 	memset(&hints, 0, sizeof(pami_send_hint_t));
 	hints.recv_contiguous = PAMI_HINT_ENABLE;
-
-	// TODO: this check is here to workaround a bug on x86 shared memory introduced in pami 1118a.
-	// otherwise, this would always be enabled
-	char* shmem = getenv("MP_SHARED_MEMORY");
-	if (!shmem || strcasecmp("no", shmem)!=0)
-		hints.buffer_registered = PAMI_HINT_ENABLE;
-
-	//hints.multicontext = PAMI_HINT_DISABLE;
 
 	// set up our callback functions, which will convert PAMI messages to X10 callbacks
 	pami_dispatch_callback_function fn;
@@ -405,7 +399,7 @@ static void local_msg_dispatch (
 		struct x10rt_msg_params *hdr = (struct x10rt_msg_params *)malloc(sizeof(struct x10rt_msg_params));
 		if (hdr == NULL) error("Unable to allocate memory for a msg_dispatch callback");
 		hdr->dest_place = state.myPlaceId;
-		hdr->dest_endpoint = 0; // TODO
+		hdr->dest_endpoint = 0; // TODO endpoints
 		hdr->len = pipe_size; // this is going to be large-ish, otherwise recv would be null
 		hdr->msg = malloc(pipe_size);
 		if (hdr->msg == NULL) error("Unable to allocate a msg_dispatch buffer of size %u", pipe_size);
@@ -424,7 +418,7 @@ static void local_msg_dispatch (
 	{	// all the data is available, and ready to process
 		x10rt_msg_params mp;
 		mp.dest_place = state.myPlaceId;
-		mp.dest_endpoint = 0; // TODO
+		mp.dest_endpoint = 0; // TODO endpoints
 		mp.type = *((x10rt_msg_type*)header_addr);
 		mp.len = pipe_size;
 		if (mp.len > 0)
@@ -562,6 +556,7 @@ static void get_handler_complete (pami_context_t   context,
 	parameters.send.data.iov_len    = 0;
 	parameters.send.dest 			= header->dest_place;
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = cookie;
 	parameters.events.local_fn      = cookie_free;
 	parameters.events.remote_fn     = NULL;
@@ -801,8 +796,8 @@ static void team_destroy_complete (pami_context_t context, void* cookie, pami_re
 void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 {
 	pami_result_t   status = PAMI_ERROR;
-	const char    *name = "X10";
-	setenv("MP_MSG_API", name, 1);
+	setenv("MP_MSG_API", "X10", 0);
+	const char *name = getenv("MP_MSG_API");
 
 	// Check if we want to enable async progress
 	if (checkBoolEnvVar(getenv(X10RT_PAMI_ASYNC_PROGRESS)))
@@ -1069,6 +1064,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 		parameters.send.data.iov_len    = p->len;
 		parameters.send.dest 			= target;
 		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 		parameters.events.remote_fn     = NULL;
 
 		#ifdef DEBUG
@@ -1214,6 +1210,7 @@ void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 		parameters.send.data.iov_len    = header->x10msg.len;
 		parameters.send.dest 			= target;
 		memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+		parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 		parameters.events.cookie		= (void*)header;
 		parameters.events.local_fn		= free_header_data;
 		parameters.events.remote_fn     = NULL;
@@ -1284,6 +1281,7 @@ void x10rt_net_send_get (x10rt_msg_params *p, void *buf, x10rt_copy_sz len)
 	parameters.send.data.iov_len    = header->x10msg.len;
 	parameters.send.dest 			= target;
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = NULL;
 	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;
@@ -1431,7 +1429,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		operation.hints.buffer_registered = PAMI_HINT_ENABLE;
 		operation.remote = (void *)victim;
 		operation.value = &value;
-		operation.operation = (pami_atomic_t)type;
+		operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[type];
 		operation.type = PAMI_TYPE_UNSIGNED_LONG_LONG;
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u executing a remote operation %u on %p at place %u\n", state.myPlaceId, type, operation.remote, place);
@@ -1502,7 +1500,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 				error("Unable to create a target endpoint for sending a remote memory operation to %u: %i\n", ops[i].dest, status);
 			operation.remote = (void*)ops[i].dest_buf;
 			operation.value = &ops[i].value;
-			operation.operation = (pami_atomic_t)ops[i].op;
+			operation.operation = (pami_atomic_t)REMOTE_MEMORY_OP_CONVERSION_TABLE[ops[i].op];
 			status = PAMI_Rmw(context, &operation);
 		}
 		if (!state.numParallelContexts)
@@ -1568,6 +1566,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 	parameters.send.data.iov_base   = state.teams[newTeamId].places; // team members
 	parameters.send.data.iov_len    = placec*sizeof(pami_task_t);
 	memset(&parameters.send.hints, 0, sizeof(pami_send_hint_t));
+	parameters.send.hints.buffer_registered = PAMI_HINT_ENABLE;
 	parameters.events.cookie        = NULL;
 	parameters.events.local_fn      = NULL;
 	parameters.events.remote_fn     = NULL;

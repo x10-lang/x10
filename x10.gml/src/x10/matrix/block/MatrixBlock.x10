@@ -17,6 +17,8 @@ import x10.util.Timer;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.DenseMatrix;
+import x10.matrix.sparse.SparseCSC;
 
 /**
  * Matrix block provides an abstraction of matrix block classes, which serves as
@@ -35,6 +37,8 @@ public abstract class MatrixBlock {
 	 * Column block index id.
 	 */
 	public val myColId:Int;
+	
+	//----------------------------
 
 	//----------------------------
 	// Profiling fields
@@ -73,13 +77,45 @@ public abstract class MatrixBlock {
 	abstract public def init(ival:Double) : void;
 
 	/**
+	 * Initialize block matrix data using function, which maps global row and column
+	 * indexes within block to a double value.
+	 * 
+	 * @param xoff      the starting row index of block matrix in the global matrix
+	 * @param yoff      the column index of block matrix in the global matrix
+	 * @param f         function given global row and column indexes returns a double value
+	 */
+	abstract public def init(xoff:Int, yoff:Int, f:(Int,Int)=>Double) : void;
+	
+	/**
+	 * Initial block matrix data using function, which maps (block ID, block row index, block column index]
+	 * to a double value.
+	 */
+	public def init(f:(Int, Int)=>Double):void {
+		getMatrix().init(f); 
+	}
+
+	/**
 	 * For testing purpose.
 	 *
 	 * <p> Initial matrix data in blocks with random values.
 	 */
 	abstract public def initRandom() : void;
+	
+	/**
+	 * Initialize matrix block data with random values between given
+	 * range.
+	 * 
+	 * @param lo         lower bound for random value
+	 * @param up         upper bound for random value
+	 */
+	abstract public def initRandom(lo:Int, up:Int) : void;
 
-
+	//===================================================
+	/**
+	 * Allocate memory space for the same matrix block of this
+	 */
+	abstract public def alloc():MatrixBlock;
+	
 	/**
 	 * Make a copy of myself
 	 */
@@ -106,6 +142,13 @@ public abstract class MatrixBlock {
 	 */
 	abstract public operator this(r:Int, c:Int):Double;
 	
+	//========================================================
+	
+	public def copyTo(that:MatrixBlock): void {
+		val smat = this.getMatrix();
+		smat.copyTo(that.getMatrix() as Matrix(smat.M, smat.N));
+	}
+		
 	/**
 	 * Copy columns of block into the given matrix.
 	 */
@@ -124,8 +167,27 @@ public abstract class MatrixBlock {
 	public def reset():void {
 		calcTime=0; commTime=0;
 	}
-
+	//--------------------------------
 	
+	abstract public def compColDataSize(colOff:Int, colCnt:Int) :Int;
+	
+	public def getDataSize():Int = compColDataSize(0, getMatrix().N);
+	
+	//----------------------------------------------------------------
+	
+	public def isDense():Boolean = (getMatrix() instanceof DenseMatrix); 
+	
+	public def isSparse():Boolean = (getMatrix() instanceof SparseCSC);
+	
+	//--------------------------------
+	public def sameAs(mb:MatrixBlock): Boolean {
+		if (this.myRowId == mb.myRowId &&
+			this.myColId == mb.myColId) 
+			return true;
+		return false;
+	}
+	
+	public abstract def getStorageSize():Int ;
 	//--------------------------------
 	public def toString() : String {
 		val output:String = "Matrix Block ("+myRowId+","+myColId+") : " +

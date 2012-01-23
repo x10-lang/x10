@@ -1,18 +1,15 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 Applications project.
  *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2011.
+ *  (C) Copyright Australian National University 2011.
  */
 
 import x10.io.Console;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.MathTool;
 
 /**
    This class contails test cases for dense matrix addition, scaling, and negative operations.
@@ -27,6 +24,8 @@ public class TestDense{
 		val n = (args.size > 1) ? Int.parse(args(1)):51;
 		val testcase = new AddScalTest(m, n);
 		testcase.run();
+		val propertiesTest = new PropertiesTest(m, n);
+		propertiesTest.run();
 	}
 }
 
@@ -46,6 +45,7 @@ class AddScalTest {
 		var ret:Boolean = true;
  		// Set the matrix function
 		ret &= (testClone());
+		ret &= (testInit());
 		ret &= (testScale());
 		ret &= (testAdd());
 		ret &= (testAddSub());
@@ -60,6 +60,7 @@ class AddScalTest {
 			Console.OUT.println("----------------Test failed!----------------");
 	}
 
+    
 	public def testClone():Boolean{
 
 		Console.OUT.println("Starting dense Matrix clone test");
@@ -67,14 +68,42 @@ class AddScalTest {
 		dm.initRandom(); // same as  val dm = DenseMatrix.makeRand(M, N); 
 		
 		val dm1 = dm.clone();
-		val ret = dm.equals(dm1);
+		var ret:Boolean = dm.equals(dm1);
+				
 		if (ret)
 			Console.OUT.println("Dense Matrix Clone test passed!");
 		else
 			Console.OUT.println("--------Dense Matrix Clone test failed!--------");
+		
+		dm(1, 1) = dm(2,2) = 10.0;
+		
+		if ((dm(1,1)==dm(2,2)) && (dm(1,1)==10.0)) {
+			ret &= true;
+			Console.OUT.println("Dense Matrix chain assignment test passed!");
+		} else {
+			ret &= false;
+			Console.OUT.println("---------- Dense Matrix chain assignment test failed!-------");
+		}
+		
 		return ret;
 	}
 
+	public def testInit():Boolean {
+		Console.OUT.println("Starting dense Matrix initialization test");
+		var ret:Boolean = true;
+		val den = DenseMatrix.make(M,N).init((r:Int, c:Int)=>(1.0+r+c));
+		
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++)
+				ret &= (den(r,c) == 1.0+r+c);
+		
+		if (ret)
+			Console.OUT.println("Dense matrix initialization func test passed!");
+		else
+			Console.OUT.println("--------Dense matrix initialization func failed!--------");	
+		return ret;
+	}
+	
 	public def testScale():Boolean{
 		Console.OUT.println("Starting dense matrix scaling test");
 		val dm = DenseMatrix.makeRand(M, N);
@@ -179,4 +208,79 @@ class AddScalTest {
 			Console.OUT.println("--------Dense matrix cellwise mult-div test failed!--------");
 		return ret;
 	}
+
+}
+
+class PropertiesTest {
+
+    public val M:Int;
+    public val N:Int;
+
+    public def this(m:Int, n:Int) {
+        M = m; N = n;
+    }
+
+    public def run (): void {
+        Console.OUT.println("Starting dense matrix property method tests on "+
+                            M+"x"+N+ " matrices");
+        var ret:Boolean = true;
+        ret &= (testNorm());
+        ret &= (testMaxNorm());
+        ret &= (testTrace());
+
+        if (ret)
+            Console.OUT.println("Test passed!");
+        else
+            Console.OUT.println("----------------Test failed!----------------");
+    }
+
+    public def testNorm():Boolean {
+        Console.OUT.println("Starting dense Matrix norm test");
+
+        val a = DenseMatrix.makeRand(M, N);
+        val alpha = 2.5;
+        val b = a * alpha;
+        val aNorm = a.norm();
+        val bNorm = b.norm();
+        val ret = MathTool.equals(bNorm, aNorm*alpha);
+        if (ret)
+            Console.OUT.println("Dense Matrix norm test passed!");
+        else
+            Console.OUT.println("--------Dense matrix norm test failed!--------");
+        return ret;
+    }
+
+    public def testMaxNorm():Boolean {
+        Console.OUT.println("Starting dense Matrix max norm test ");
+
+        val a = DenseMatrix.makeRand(M, N);
+        val b = DenseMatrix.makeRand(M, N);
+        val aMaxNorm = a.maxNorm();
+        val bMaxNorm = b.maxNorm();
+        val c = a + b;
+        val cMaxNorm = c.maxNorm();
+        val ret = cMaxNorm <= (aMaxNorm+bMaxNorm);
+        if (ret)
+            Console.OUT.println("Dense Matrix max norm test passed!");
+        else
+            Console.OUT.println("--------Dense matrix max norm test failed!--------");
+        return ret;
+    }
+
+    public def testTrace():Boolean {
+        Console.OUT.println("Starting dense Matrix trace test");
+
+        val a = DenseMatrix.makeRand(M, N);
+        val b = DenseMatrix.makeRand(M, N);
+        val aTrace = a.trace();
+        val bTrace = b.trace();
+        val c = a + b;
+        val cTrace = c.trace();
+        val ret = MathTool.equals(cTrace, (aTrace+bTrace));
+        if (ret)
+            Console.OUT.println("Dense Matrix trace test passed!");
+        else
+            Console.OUT.println("--------Dense matrix trace test failed!--------");
+        return ret;
+    }
 }

@@ -13,7 +13,7 @@ import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DistSparseMatrix;
 
@@ -66,7 +66,7 @@ static class RunTest {
 		val da= a.getMatrix();
 		val db= b.getMatrix();
 		val dc= DenseMatrix.make(M,N);
-		DenseMultBLAS.comp(da, db, dc);
+		DenseMatrixBLAS.comp(da, db, dc);
 
 		var ret:Boolean = c.equals(dc);
 		ret &= c.syncCheck();
@@ -87,7 +87,7 @@ static class RunTest {
 
 		val da= a.getMatrix();
 		val dc= DenseMatrix.make(M,N);
-		DenseMultBLAS.comp(da, b, dc, false);
+		DenseMatrixBLAS.comp(da, b, dc, false);
 
 		var ret:Boolean = c.equals(dc);
 		ret &= c.syncCheck();

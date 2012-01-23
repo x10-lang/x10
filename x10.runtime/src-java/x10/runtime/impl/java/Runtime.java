@@ -101,6 +101,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     // static init activity
     static class $Closure$Init implements x10.core.fun.VoidFun_0_0 {
+        private static final long serialVersionUID = 1L;
         public void $apply() {
 
             // Assign ID's to all X10 classes
@@ -125,6 +126,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     // body of main activity
     static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
+        private static final long serialVersionUID = 1L;
         private final Runtime out$;
         private final x10.array.Array<String> aargs;
 
@@ -139,7 +141,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             } catch (java.lang.Error e) {
                 throw e;
             } catch (java.lang.Throwable t) {
-                throw new x10.runtime.impl.java.WrappedThrowable(t);
+                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
             }
         }
 
@@ -192,7 +194,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         // build up Array[String] for args
         final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).$init(args.length);
         for (int i = 0; i < args.length; i++) {
+            // for !Emitter.mangleDefaultOnDemandImportsAsShortName
             aargs.$set__1x10$array$Array$$T$G(i, args[i]);
+//            // for Emitter.mangleDefaultOnDemandImportsAsShortName
+//            aargs.$set__1$Array$$T$G(i, args[i]);
         }
 
         // execute root x10 activity
@@ -292,7 +297,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             byte[] bytes = serialize(body, finishState);
             x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -341,7 +346,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     		}
     		return body;
     	} catch (java.io.IOException e) {
-    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Exception(e);
+    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
     		xe.printStackTrace();
     		throw xe;
     	}
@@ -470,7 +475,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
 		} catch (java.io.IOException e) {
 			e.printStackTrace();
-			throw new x10.runtime.impl.java.WrappedThrowable(e);
+                        throw new x10.runtime.impl.java.UnknownJavaThrowable(e);
 		} finally {
 			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
 		}

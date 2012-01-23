@@ -19,8 +19,8 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 // XTENLANG-2686: Now x10.core.Throwable is a superclass of x10.lang.Throwable (mapped to x10.core.X10Throwable),
-//                and also a superclass of x10.runtime.impl.java.WrappedThrowable and UnknownJavaThrowable.
-public class Throwable extends java.lang.RuntimeException {
+//                and also a superclass of x10.runtime.impl.java.UnknownJavaThrowable.
+abstract public class Throwable extends java.lang.RuntimeException {
 
     private static final long serialVersionUID = 1L;
     public java.lang.String message = null;

@@ -16,6 +16,7 @@ import x10.util.Pair;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
 
@@ -190,8 +191,9 @@ public class SparseCSC extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see Compress2D.initConst()
 	 */
-	public def init(v:Double, sp:Double):void {
+	public def init(v:Double, sp:Double):SparseCSC(this) {
 		val cnt = ccdata.initConst(M, v, sp);
+		return this;
 		//sparsity = 1.0 * cnt/M/N;
 	} 
 	
@@ -201,9 +203,10 @@ public class SparseCSC extends Matrix {
 	 *
 	 * @param v     initial value for all nonzero elements.
 	 */
-	public def init(v:Double):void {
+	public def init(v:Double):SparseCSC(this) {
 		val nzd = 1.0*getStorageSize()/M/N;
 		init(v, nzd);
+		return this;
 	}
 	
 	/**
@@ -219,14 +222,16 @@ public class SparseCSC extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see init(v:Double, sp:Double)
 	 */
-	public def initRandom(lb:Int, ub:Int, sp:Double) : void {
+	public def initRandom(lb:Int, ub:Int, sp:Double) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp, lb, ub);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	}
 	
-	public def initRandom(sp:Double) : void {
+	public def initRandom(sp:Double) : SparseCSC(this) {
 		val cnt = ccdata.initRandomFast(M, sp);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	}
 	/**
 	 * For testing purpose,
@@ -237,16 +242,95 @@ public class SparseCSC extends Matrix {
 	 * @param lb     lower bound of random value
 	 * @param up     upper bound of random value
 	 */
-	public def initRandom(lb:Int, ub:Int): void { 
+	public def initRandom(lb:Int, ub:Int): SparseCSC(this) { 
 		val nzd = 1.0 * getStorageSize() /M/N;
 		initRandom(lb, ub, nzd);
+		return this;
 	}
 	
-	public def initRandom(): void { 
+	public def initRandom(): SparseCSC(this) { 
 		val nzd = 1.0 * getStorageSize() /M/N;
 		initRandom(nzd);
+		return this;
 	}
-
+	//---------------------------------------------------------
+	/**
+	 * Initialize with given function with range [0..M, 0..N]
+	 */
+	public def init(f:(Int, Int)=>Double): SparseCSC(this) {
+		
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val ccol = ccdata.cLine(c);
+			ccol.offset = offset;
+			for (var r:Int=0; r<M; r++) {
+				val nzval:Double = f(r, c);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=r;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			ccol.length = offset - ccol.offset;
+		}
+		ca.count = offset;
+		return this;
+	}
+	
+	/**
+	 * Initialize wiht nonzero indexing function and value generating function.
+	 * 
+	 * @param fidx     Nonzero row indexing, must be ascending function. Given values (r, c), compute the r-th nonzero row index in column c.
+	 * @param fval     value generating function, given row and column index.
+	 */
+	public def init(fidx:(Int, Int)=>Int, fval:(Int, Int)=>Double): SparseCSC(this) {
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val ccol = ccdata.cLine(c);
+			ccol.offset = offset;
+			for (var r:Int=0; r<M&&offset<ca.index.size; r++) {
+				val nzidx = fidx(r, c);
+				if (nzidx >= M) break;
+				val nzval = fval(nzidx, c);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=nzidx;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			ccol.length = offset - ccol.offset;
+		}
+		ca.count = offset;
+		return this;
+	}
+	
+	/**
+	 * Initial sparse matrix using function and row and column offsets.
+	 */
+	public def init(rowoff:Int, coloff:Int, f:(Int, Int)=>Double): SparseCSC(this) {
+		
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val ccol = ccdata.cLine(c);
+			ccol.offset = offset;
+			for (var r:Int=0; r<M&&offset<ca.index.size; r++) {
+				val nzval:Double = f(r+rowoff, c+coloff);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=r;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			ccol.length = offset - ccol.offset;
+		}
+		ca.count = offset;
+		return this;
+	}	
+	
+	
 	/**
 	 * For testing purpose.
 	 *
@@ -337,8 +421,9 @@ public class SparseCSC extends Matrix {
 	 *
 	 * Modifying sparse matrix after creation should be avoided
 	 */
-	public operator this(r:Int, c:Int) = (v:Double) {
+	public operator this(r:Int, c:Int) = (v:Double):Double {
 	    ccdata(c)=Pair[Int,Double](r,v);
+	    return v;
 	}
 	
 	//========================================================================
@@ -807,6 +892,24 @@ public class SparseCSC extends Matrix {
 		extractCols(0, this.N, dm);
 	}
 
+	public static def copyTo(sp:SparseCSC, dm:DenseMatrix, roff:Int, coff:Int): void {
+
+		var dstoff:Int = roff + coff*dm.M;
+		for (var col:Int=0; col<sp.N; col++, dstoff+=dm.M)
+			sp.ccdata.cLine(col).extract(dstoff, dm.d);
+	}
+	
+	public def copyTo(that:SparseCSC(M,N)) = copy(this, that);
+	
+	public def copyTo(that:Matrix(M,N)):void {
+		if (that instanceof DenseMatrix)
+			copyTo(that as DenseMatrix);
+		else if (that instanceof SparseCSC)
+			copyTo(that as SparseCSC);
+		else
+			Debug.exit("CopyTo: target matrix type not supported");	
+	}
+	
 	/**
 	 * Convert to a new dense matrix object
 	 */
@@ -873,10 +976,13 @@ public class SparseCSC extends Matrix {
      * Return this += x; not supported
      */
     public def cellAdd(x:Matrix(M,N)):SparseCSC(this) {
-		Debug.exit("Cell-wise addition does not support using SparseCSC as output matrix");
-		return this;
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
     }
-
+    
+    public def cellAdd(d:Double):SparseCSC(this) {
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
+    }
+    
 	/**
 	 * x = this + x
 	 *
@@ -908,6 +1014,10 @@ public class SparseCSC extends Matrix {
 	protected def cellSubFrom(x:DenseMatrix(M,N)) {
 		SparseSubToDense.comp(x, this);
 		return x;
+	}
+	
+	public def cellSubFrom(dv:Double): SparseCSC(this) {
+		throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");		
 	}
 	
 	//-------------------------
@@ -1015,12 +1125,8 @@ public class SparseCSC extends Matrix {
     /**
      * Scaling operation return this &#42 integer
      */
-    public operator this * (intv:Int):SparseCSC(M,N) {
-        val x = clone();
-        x.scale(intv as Double);
-        return x;
-    }
-
+    public operator this * (intv:Int):SparseCSC(M,N) = this * (intv as Double);
+ 
 	public operator (dblv:Double) * this = this * dblv;
 	public operator (intv:Int)    * this = this * intv;
 	
@@ -1056,17 +1162,20 @@ public class SparseCSC extends Matrix {
 		return dm;
 	}
 
+
 	//------------------------------
 	// Add operator overloading
 	//------------------------------
 	/**
 		Add this with another matrix. 
 	*/
-	public operator this + (that:SparseCSC(M,N))   = this.add(that);
-	public operator this + (that:SparseCSR(M,N))   = this.add(that);
-	public operator this + (that:DenseMatrix(M,N)) = this.add(that);
-	public operator (that:DenseMatrix(M,N)) + this= this.add(that);
-
+	public operator this + (that:SparseCSC(M,N))  :DenseMatrix(M,N) = this.add(that);
+	public operator this + (that:SparseCSR(M,N))  :DenseMatrix(M,N) = this.add(that);
+	public operator this + (that:DenseMatrix(M,N)):DenseMatrix(M,N) = this.add(that);
+	public operator (that:DenseMatrix(M,N)) + this:DenseMatrix(M,N) = this.add(that);
+	public operator this + (dv:Double)            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
+	public operator (dv:Double) + this            :DenseMatrix(M,N) = this.toDense().cellAdd(dv);
+	
 	//----------------------------
 	/**
 	 *  Return this - that in a new dense 
@@ -1109,8 +1218,19 @@ public class SparseCSC extends Matrix {
 		SparseSubToDense.comp(dm, this);
 		return dm;
 	}
-
-    //========================================================================
+	
+	public operator this - (dv:Double)  :DenseMatrix(M,N) = this.toDense().cellSub(dv);
+	public operator (dv:Double) - this  :DenseMatrix(M,N) = this.toDense().cellSubFrom(dv);
+	
+	//========================================================================
+	// Cellwise mult method
+	//========================================================================
+	public operator this * (that:SparseCSC(M,N))   = this.cellMultTo(that.toDense()) as DenseMatrix(M,N);
+	public operator this * (that:SparseCSR(M,N))   = this.cellMultTo(that.toDense()) as DenseMatrix(M,N);
+	public operator this * (that:DenseMatrix(M,N)) = this.cellMultTo(that) as DenseMatrix(M,N);	
+	public operator (that:DenseMatrix(M,N)) * this = this.cellMultTo(that) as DenseMatrix(M,N);	
+	
+	//========================================================================
 	// Cellwise div method
     //========================================================================
 	
@@ -1156,7 +1276,13 @@ public class SparseCSC extends Matrix {
 		SparseDivToDense.comp(dm, this);
 		return dm;
 	}
-
+	
+	public operator this / (dv:Double) :DenseMatrix(M,N) = this.toDense().cellDiv(dv);
+	
+	//========================================================================
+	// matrix multiply
+	//========================================================================
+	
 	/**
 	 * Perform matrix multiply between two sparse csc matrices
 	 */

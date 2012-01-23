@@ -29,7 +29,7 @@ public class FileOutputStream extends OutputStream {
             super.$init(new java.io.FileOutputStream(name));
             return this;
         } catch (java.io.FileNotFoundException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 

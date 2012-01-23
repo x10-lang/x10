@@ -9,16 +9,16 @@
 #  (C) Copyright IBM Corporation 2006-2011.
 #
 
-============== X10 parallel matrix library (xpmat) =================
+============== X10 Global Matrix Library (GML) =================
 
-X10 Parallel Matrix Library implements (double-precision) dense and
+X10 Global Matrix Library implements (double-precision) dense and
 sparse matrices, partitioned into blocks and distributed across
 multiple places. Operations provided include cell-wise
 addition/multiplication etc, matrix multiply (using the SUMMA
-algorithm) and Euclidean distance. The library can run on the Native
-backend (on sockets and MPI transport), and on the Managed backend (on
-sockets transport). It has been tested on cluster of multi-core x86
-nodes interconnected with Infiniband and ethernet.
+algorithm) and others, such as Euclidean distance, sum and etc. 
+The library can run on the Native backend (on sockets and MPI transport), 
+and on the Managed backend (on sockets transport). It has been tested on 
+cluster of multi-core x86 nodes interconnected with Infiniband and ethernet.
 
 Some application programs are provided, including Gaussian
 non-negative matrix factorization, pagerank, linear regression and
@@ -26,10 +26,35 @@ logistic regression. Programmers typically call the library by
 creating matrices with an appropriate distribution and then writing
 sequential code to operate on these matrices in parallel.
 
+
 =============================================================
 Instructions
 
-1) Build libraries
+1) System dependency and settings (scripts/system_setting.mk)
+   * BLAS (basic linear algebra subprograms). 
+     This library is generally avaiable in most computing systems.
+     If not found, you can download the standard BLAS from http://netlib.org/blas 
+     or multi-thread enabled GotoBLAS2 from http://www.tacc.utexas.edu/tacc-projects/gotoblas2. 
+  
+     To configure BLAS pathname, check x10.gml/scripts/system_setting.mk, in which you
+     will find definition lines for "blas_path" and "blas_name".
+
+   * Native-MPI backend: MPI library. 
+     In system_setting.mk, check "MCC" is defined to the desired MPI compiler
+
+   * Managed backend: Java SDK include pathname
+     In system_setting.mk, check "JNI_inc" is defined correcly
+
+	- LAPACK - Linear Algebra PACKage (optional)
+	Currently, LAPACK is used to find eigen values/vectors and solve linear equations.
+	It is not required by GML, as far as its corresponding methods are not used, otherwise 
+	java.lang.NoClassDefFoundError exception is thrown.
+	
+	In system_setting.mk, uncomment "add_lapack=yes" line to build GML with LAPACK library.
+	and also make sure "lapack_path" and "lapack_name" are defined correctly
+	 
+
+2) Build libraries
 make help    -- Print help and make instruction for different transport and backend
 make native  -- Make native backend library
 make managed -- Make managed backend library
@@ -42,20 +67,20 @@ Library dir:  lib/.
   Native MPI transport	: native_mpi_gml.jar native_mpi_gml.so,
   Managed backend		: managed_gml.jar
 
-property file 
+property files
   Native backend		: native_gml.properties
   Native MPI transport	: native_mpi_gml.properties
   Managed backend		: managed_gml.properites
 
-2) Building applications
+3) Building applications
 - Add [native|native_mpi|managed]_gml.jar in "-classpath" 
 - Add [native|native_mpi|managed].properties in "-x10lib"
-NOTE: put gml path name before jar and properities file names.
+NOTE: Problem with specifying gml path name before jar and properities file names.
 If using "~" in the path name, and compiler complains about not 
 finding the library, replacing "~" with either absolute pathname or relative 
 pathname of the gml library.
 
-3) Running applications
+4) Running applications
 - Native MPI transport
   No different from running MPI applications
   mpirun -np [number of processes] [app name] [args]
@@ -76,7 +101,9 @@ column-major and CSC-LT format.
  
 1.1) Basic types
   - Dense matrix: matrix elements are stored in column-major order in 
-a continuous memory space. 
+    a continuous memory space. 
+  - Symmetric and triangular matrix. Current implementation supports
+    the lower part of matrix data stored in column-major.
   - Sparse matrix: compatible to CSC-LT format, which stores nonzeros 
     element values and corresponding indexes in the column-major order.
 
@@ -103,8 +130,8 @@ Future version may left this constrains.
 2) Matrix operations
 
 Some commonly used operations are implemented, including cell-wise add, 
-subtract, multiply, division, cell-wise sum, Eculidean distance, and 
-matrix multiply, 
+subtract, multiply, division, cell-wise sum, Euclidean distance, max norm,
+trace and matrix multiply. 
 
 Common rules:
  - Result of a matrix operation is stored in the invocation object, which 
@@ -113,13 +140,13 @@ Common rules:
    structures, which includes dense matrix, dense block matrix and
    distributed dense matrix.  The sparse matrix is not used to store 
    results. The exception is scaling operations for sparse matrix. 
- - Oprands of must have the same distribution if they are distributed matrix
+ - Operands of must have the same distribution if they are distributed matrix
  
 
 1.1) Cell-wise operations
 
 Cell-wise operations are defined as add-on operations, which means the 
-output is also serves as input operand in the operation.  
+output also serves as input operand in the operation.  
 
   - scaling
   - add
@@ -127,10 +154,16 @@ output is also serves as input operand in the operation.
   - multiply
   - divide
   - sum
-  - Eculidean distance
 
-1.2) Matrix multiplication
+1.2) Matrix properties
+  - Euclidean distance
+  - max norm
+  - trace
+
+1.3) Matrix multiplication
 	- multiply
-    - multiply with first oprand transposed
+    - multiply with first operand transposed
     - multiply with second operand transposed
+
+
 

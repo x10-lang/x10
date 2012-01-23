@@ -345,10 +345,15 @@ public class AmbMacroTypeNode_c extends X10AmbTypeNode_c implements AmbMacroType
     }
     
     public Context enterChildScope(Node child, Context c) {
+        Context oldC = c;
         if (child != this.prefix) {
             TypeSystem ts = c.typeSystem();
             c = c.pushDepType(Types.<Type>ref(ts.unknownType(this.position)));
         }
+        if (c == oldC && c.inAnnotation()) {
+            c = c.shallowCopy();
+        }
+        c.clearAnnotation();
         Context cc = super.enterChildScope(child, c);
         return cc;
     }

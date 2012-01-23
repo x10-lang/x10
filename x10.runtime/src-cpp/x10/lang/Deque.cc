@@ -55,7 +55,7 @@ void Deque::growQueue() {
     newQ->data = x10aux::alloc<volatile void*>(newSize * sizeof(void*));
     memset(newQ->data, 0, (newSize * sizeof(void*)));
     queue = newQ;
-
+    
     int b = base;
     int bf = b + oldSize;
     int oldMask = oldSize - 1;
@@ -68,6 +68,10 @@ void Deque::growQueue() {
         }
         setSlot(newQ, b & newMask, t);
     } while (++b != bf);
+
+    // One might be tempted to dealloc oldQ->data and oldQ here,
+    // but it would not be safe to do so.  They could still be being
+    // concurrently accessed by other threads.
 }
 
 ref<Reference> Deque::steal() {

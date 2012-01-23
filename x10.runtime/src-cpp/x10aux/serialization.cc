@@ -20,8 +20,9 @@ using namespace x10aux;
 using namespace x10::lang;
 
 void addr_map::_grow() {
-    _ptrs = (const void**) ::memcpy(new (x10aux::alloc<const void*>((_size<<1)*sizeof(const void*))) const void*[_size<<1], _ptrs, _size*sizeof(const void*));
-    _size <<= 1;
+    int newSize = _size << 1;
+    _ptrs = x10aux::system_realloc(_ptrs, newSize*(sizeof(const void*)));
+    _size = newSize;
 }
 
 void addr_map::_add(const void* ptr) {
@@ -63,11 +64,6 @@ int addr_map::_position(const void* p) {
     return 0;
 }
 
-serialization_buffer::serialization_buffer (void)
-    // do not use GC
-    : buffer(NULL), limit(NULL), cursor(NULL), map()
-{ }
-
 void serialization_buffer::grow (void) {
     size_t old_capacity = capacity();
     size_t new_capacity = (size_t) (old_capacity * 2.0); // increase capacity by a factor
@@ -79,8 +75,7 @@ void serialization_buffer::grow (void) {
 void serialization_buffer::grow (size_t new_capacity) {
     size_t new_length = length(); // no change in used portion of buffer
     
-    // do not use GC
-    buffer = (char*)std::realloc(buffer, new_capacity);
+    buffer = (char*)x10aux::system_realloc(buffer, new_capacity);
 
     // update pointers to use (potentially) new buffer
     limit = buffer + new_capacity;

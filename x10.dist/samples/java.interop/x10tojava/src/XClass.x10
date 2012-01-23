@@ -12,8 +12,7 @@
 import x10.interop.java.Throws;
 
 public class XClass extends JClass {
-    @Throws[java.lang.Throwable]
-    static def testJThrows():void {
+    static def testJThrows():void @Throws[java.lang.Throwable] {
         val x = new XClass();
         x.jthrows();
     }
@@ -25,5 +24,11 @@ public class XClass extends JClass {
         o.println(x.jstring());
         o.println(x.jinteger());
         o.println(x.jclass());
+	o.println(x.typeName());
+	o.println(x.equals(x));
+	o.println(x.hashCode());
+	o.println(x.toString());
+	o.println(x instanceof Any);
+	//o.println(x instanceof Object); // compile error (see below)
     }
 }

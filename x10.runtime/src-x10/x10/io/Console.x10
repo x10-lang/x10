@@ -28,11 +28,11 @@ public class Console {
         private native static def realIn(): InputStreamReader.InputStream;
     
         @PerProcess
-        public static OUT: Printer = new Printer(new OutputStreamWriter(realOut()));
+        public static OUT:Printer{self!=null} = new Printer(new OutputStreamWriter(realOut()));
         @PerProcess
-        public static ERR: Printer = new Printer(new OutputStreamWriter(realErr()));
+        public static ERR:Printer{self!=null} = new Printer(new OutputStreamWriter(realErr()));
         @PerProcess
-        public static IN:  Reader  = new InputStreamReader(realIn());
+        public static IN:Reader{self!=null}  = new InputStreamReader(realIn());
         
    /*
         public static def write(b: Byte): void throws IOException = OUT.write(b);

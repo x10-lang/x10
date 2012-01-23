@@ -15,8 +15,12 @@ import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
 
-import x10.matrix.blas.DriverBLAS;
-import x10.matrix.blas.DenseMultBLAS;
+//----------------------------------------------
+//import x10.matrix.blas.DriverBLAS; 
+//Cannot call DriverBLAS static method from here. Must be in the same path as WrapBLAS.java
+//----------------------------------------------
+
+import x10.matrix.blas.DenseMatrixBLAS;
 
 public type DenseMatrix(m:Int, n:Int)=DenseMatrix{self.M==m, self.N==n};
 public type DenseMatrix(m:Int)=DenseMatrix{self.M==m};
@@ -31,7 +35,7 @@ public type DenseMatrix(C:Matrix)=DenseMatrix{self==C};
  */
 public class DenseMatrix extends Matrix {
 	//================================================================
-	// Base data structure, defined in derived classes
+	// Base data structure
 	//================================================================
 
 	/**
@@ -120,20 +124,65 @@ public class DenseMatrix extends Matrix {
 	 * Initialize all elements of the dense matrix with a constant value.
 	 * @param  iv 	the constant value
 	 */	
-	public def init(iv:Double): void {
-		for (var i:Int=0; i<M*N; i++)	this.d(i) = iv;
+	public def init(iv:Double): DenseMatrix(this) {
+		for (var i:Int=0; i<M*N; i++)	
+			this.d(i) = iv;
+		return this;
 	}
 
+	/**
+	 * Initialize using function
+	 * 
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(f:(Int)=>Double): DenseMatrix(this) {
+		for (var i:Int=0; i<M*N; i++)
+			this.d(i) = f(i);
+		return this;
+	}
+	
+	/**
+	 * Init with function
+	 * 
+	 * @param f    The function to use to initialize the matrix, mapping (row, column) => double
+	 * @return this object
+	 */
+	public def init(f:(Int,Int)=>Double): DenseMatrix(this) {
+		var i:Int=0;
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++, i++)
+				this.d(i) = f(r, c);
+		return this;
+	}
+	
+	/**
+	 * Init with function and row and column index offsets
+	 * 
+	 * @param rowoff  row index offset
+	 * @param coloff  column index offset
+	 * @param f    The function to use to initialize the matrix
+	 * @return this object
+	 */
+	public def init(rowoff:Int, coloff:Int, f:(Int,Int)=>Double): DenseMatrix(this) {
+		var i:Int=0;
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++, i++)
+				this.d(i) = f(rowoff+r, coloff+c);
+		return this;
+	}	
+	//----------------------------------------------------------
 	/**
 	 * Initialize all elements of the dense matrix with random 
 	 * values between 0.0 and 1.0.
 	 */	
-	public def initRandom(): void {
+	public def initRandom(): DenseMatrix(this) {
 		val rgen = RandTool.getRandGen();
 		//val ll = M*N / 100;
 		for (var i:Int=0; i<M*N; i++) {
 			this.d(i) = rgen.nextDouble();
 		}
+		return this;
 	}
 	
 	/**
@@ -143,13 +192,14 @@ public class DenseMatrix extends Matrix {
 	 * @param lb	lower bound of random values
 	 * @param up	upper bound of random values
 	 */	
-	public def initRandom(lb:Int, ub:Int): void {
+	public def initRandom(lb:Int, ub:Int): DenseMatrix(this) {
 		val len = Math.abs(ub-lb)+1;
 		val rgen = RandTool.getRandGen();
 		//val ll = M*N / 100;
 		for (var i:Int=0; i<M*N; i++) {
 			this.d(i) = rgen.nextInt(len)+lb;
 		}
+		return this;
 	}
 	/**
 	 * Create a dense matrix instance and initialize it with random values
@@ -161,9 +211,7 @@ public class DenseMatrix extends Matrix {
 	 * @See initRandom()
 	 */
 	public static def makeRand(m:Int, n:Int):DenseMatrix(m,n) {
-		val dm = DenseMatrix.make(m, n);
-		dm.initRandom();
-		return dm;
+		return DenseMatrix.make(m, n).initRandom();
 	}
 
 	/**
@@ -188,15 +236,13 @@ public class DenseMatrix extends Matrix {
 	 
 	/**
 	 * Make a copy the matrix instance. 
-     * <p>Note: this clone method use array copy constructor. If the
-     * source matrix has larger storage than the number of elements 
-     * (M &#42 N), the target will have the memory storage.  
-	 */
+     * <p>Note: this clone method use array copy constructor. 
+     * The size of clone result will be the same as its source.
+ 	 */
 	public  def clone():DenseMatrix(M,N){
 		//val na = new Array[Double](M*N, (i:Int)=> this.d(i));
 		val nd = new Array[Double](this.d) as Array[Double](1){rail};
-		val nm = new DenseMatrix(M, N, nd);
-		return nm;
+		return new DenseMatrix(M, N, nd);
 	}
 
 	/**
@@ -207,6 +253,15 @@ public class DenseMatrix extends Matrix {
 	public def copyTo(dm:DenseMatrix(M,N)):void {
 		copyCols(this, 0, dm, 0, N);
 	}
+	
+	/**
+	 * 
+	 */
+	public def copyTo(mat:Matrix(M,N)):void {
+		Debug.assure(likeMe(mat), "Copy destination matrix type mismatch");
+		copyTo(mat as DenseMatrix(M,N));
+	}
+	                                        
 	
 	/**
 	 * Reset all element to 0.0
@@ -314,8 +369,8 @@ public class DenseMatrix extends Matrix {
 	 * @param colCnt         number of column to copy
 	 */
 	public static def copySubset(src:DenseMatrix, var srcRowOffset:Int, var srcColOffset:Int,
-								 dst:DenseMatrix, var dstRowOffset:Int, var dstColOffset:Int,
-								 rowCnt:Int, colCnt:Int): Int {
+			 dst:DenseMatrix, var dstRowOffset:Int, var dstColOffset:Int,
+			 rowCnt:Int, colCnt:Int): Int {
 		
 		Debug.assure(src.M <= dst.M && 
 					 srcColOffset+colCnt <= src.N && 
@@ -354,8 +409,9 @@ public class DenseMatrix extends Matrix {
 	 * @param  x  the x-th row 
 	 * @param  y  the y-th column
 	 */
-	public  operator this(x:Int,y:Int) = (v:Double):void {
+	public  operator this(x:Int,y:Int) = (v:Double):Double {
 		d(y*this.M+x) = v;
+		return v;
 	}
 
 	/**
@@ -369,9 +425,9 @@ public class DenseMatrix extends Matrix {
 	 * @param  dm          the targeting dense matrix to store the submatrix
 	 */
 	public  def subset(row_offset:Int, 
-					   col_offset:Int, 
-					   row:Int, col:Int, 
-					   dm:DenseMatrix) : void {
+			   col_offset:Int, 
+			   row:Int, col:Int, 
+			   dm:DenseMatrix) : void {
 		copySubset(this, row_offset, col_offset, dm, 0, 0, row, col);
 	}
 
@@ -386,8 +442,8 @@ public class DenseMatrix extends Matrix {
 	 * @return the submatrix in dense format
 	 */
 	public def subset(row_offset:Int, 
-					  col_offset:Int, 
-					  row:Int, col:Int):DenseMatrix {
+			  col_offset:Int, 
+			  row:Int, col:Int):DenseMatrix {
 		val nm = DenseMatrix.make(row, col);
 		subset(row_offset, col_offset, row, col, nm);
 		return nm;
@@ -439,35 +495,88 @@ public class DenseMatrix extends Matrix {
 	 */
 	public  def scale(a:Int) = scale(a as Double);
 
-	/**
-	 * Compute the Euclidean distance between this and the given matrix
-	 * 
-	 * @param x		matrix object
-	 * @return		Euclidean distance
-	 */
-	public def norm(x:Matrix(M,N)):Double {
-		var nv:Double = 0.0;
-		for (var c:Int=0; c<N; c++) {
-			for (var r:Int=0; r<M; r++) {
-				nv += this(c,r)*x(c,r);
-			}
-		}
-		return nv;
-	}
+    /**
+     * Compute the Euclidean distance between "this" and the given matrix
+     * 
+     * @param x matrix object
+     * @return Euclidean distance
+     */
+    public def norm(x:Matrix(M,N)):Double {
+        return Math.sqrt(frobeniusProduct(x));
+    }
 
-	/**
-	 * Compute the Euclidean distance between "this" and the given dense matrix
-	 * 
-	 * @param x		dense matrix object
-	 * @return		Euclidean distance
-	 */
-	public def norm(x:DenseMatrix(M,N)):Double {
-		var nv:Double = 0.0;
-		for (var i:Int=0; i<N*M; i++) {
-			nv += this.d(i)*x.d(i);
-		}
-		return nv;
-	}
+    /**
+     * Compute the Frobenius inner product between "this" and the given matrix,
+     * that is, the sum of the products of corresponding elements.
+     * 
+     * @param x matrix object
+     * @return Frobenius inner product
+     */
+    public def frobeniusProduct(x:Matrix(M,N)):Double {
+        var nv:Double = 0.0;
+        for (var c:Int=0; c<N; c++) {
+            for (var r:Int=0; r<M; r++) {
+                nv += this(c,r)*x(c,r);
+            }
+        }
+        return nv;
+    }
+
+    /**
+     * Compute the Frobenius or Euclidean norm of this matrix
+     * 
+     * @return Euclidean norm
+     */
+    public def norm():Double {
+        return Math.sqrt(frobeniusProduct(this));
+    }
+
+    /**
+     * Compute the Euclidean distance between "this" and the given dense matrix
+     * 
+     * @param x dense matrix object
+     * @return Euclidean distance
+     */
+    public def norm(x:DenseMatrix(M,N)):Double {
+        return Math.sqrt(frobeniusProduct(x));
+    }
+
+    /**
+     * Compute the Frobenius inner product between "this" and the given dense matrix
+     * 
+     * @param x dense matrix object
+     * @return Frobenius inner product
+     */
+    public def frobeniusProduct(x:DenseMatrix(M,N)):Double {
+        var nv:Double = 0.0;
+        for (var i:Int=0; i<N*M; i++) {
+            nv += this.d(i)*x.d(i);
+        }
+        return nv;
+    }
+
+    /**
+     * Compute the maximum absolute value of all elements of this matrix
+     * (the matrix norm with p==Inf)
+     *
+     * @return max absolute value of any element
+     */
+    public def maxNorm():Double {
+        val maxAbsReducer = ((res : Double, a : Double) => Math.max(Math.abs(a), res));
+        return d.reduce(maxAbsReducer, -1.0);
+    }
+
+    /**
+     * Compute the trace of this matrix (sum of diagonal elements)
+     *
+     * @return the sum of diagonal elements
+     */
+    public def trace():Double {
+        var tr:Double = 0.0;
+        for (var i:Int=0; i<M*N; i+=N)
+            tr += d(i);
+        return tr;
+    }
 	
 	/**
 	 * Compute the sum of all matrix elements
@@ -816,7 +925,7 @@ public class DenseMatrix extends Matrix {
 	public def mult(A:DenseMatrix{self.M==this.M}, 
 					B:DenseMatrix{self.N==this.N,A.N==B.M},//DenseMatrix(A.N,N), 
 					plus:Boolean) {
-		DenseMultBLAS.comp(A, B, this, plus); //BLAS driver
+		DenseMatrixBLAS.comp(A, B, this, plus); //BLAS driver
 		return this;
 	}
 
@@ -847,7 +956,7 @@ public class DenseMatrix extends Matrix {
 			A:DenseMatrix{self.N==this.M}, 
 			B:DenseMatrix{self.N==this.N,A.M==B.M},//DenseMatrix(A.N,N), 
 			plus:Boolean) {
-		DenseMultBLAS.compTransMult(A, B, this, plus); //BLAS driver
+		DenseMatrixBLAS.compTransMult(A, B, this, plus); //BLAS driver
 		return this;
 	}
 
@@ -864,7 +973,7 @@ public class DenseMatrix extends Matrix {
 			A:DenseMatrix{self.M==this.M}, 
 			B:DenseMatrix{self.M==this.N,A.N==B.N},//DenseMatrix(A.N,N), 
 			plus:Boolean) {
-		DenseMultBLAS.compMultTrans(A, B, this, plus); //BLAS driver
+		DenseMatrixBLAS.compMultTrans(A, B, this, plus); //BLAS driver
 		return this;
 	}
 
@@ -887,62 +996,49 @@ public class DenseMatrix extends Matrix {
 	/**
 	 * Operator overloading for cell-wise matrix subtraction, and return this - that in a new dense format
 	 */
-	public operator - this = clone().scale(-1.0);
-	
-	public operator (v:Double) + this = this.clone().cellAdd(v);
-	public operator this + (v:Double) = this.clone().cellAdd(v);
-	public operator this - (v:Double) = this.clone().cellSub(v);
-	public operator (v:Double) - this = this.clone().cellSubFrom(v);
-	public operator this / (v:Double) = this.clone().cellDiv(v);
-	public operator (v:Double) / this = this.clone().cellDivBy(v);
-	
-	/**
-	 * Operator overloading for cell-wise scaling operation and return result in a new dense matrix. 
-	 */
-	public operator this * (alpha:Double) : DenseMatrix(M,N) {
-		val x=clone();
-		x.scale(alpha);
-		return x;
-	}
+	public operator - this = clone().scale(-1.0) as DenseMatrix(M,N);
+	public operator (v:Double) + this = this.clone().cellAdd(v) as DenseMatrix(M,N);
+	public operator this + (v:Double) = this.clone().cellAdd(v) as DenseMatrix(M,N);
 
-	public operator this * (alpha:Int) : DenseMatrix(M,N) {
-		val x= clone();
-		x.scale(alpha);
-		return x;
-	}
-
-	public operator (alpha:Double) * this = this * alpha;
-	public operator (alpha:Int) * this    = this * alpha;;
+	public operator this - (v:Double) = this.clone().cellAdd(-v) as DenseMatrix(M,N);
+	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DenseMatrix(M,N);
+	
+	public operator this / (v:Double) = this.clone().scale(1.0/v) as DenseMatrix(M,N);
+	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DenseMatrix(M,N);
+	
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as DenseMatrix(M,N);
+	public operator this * (alpha:Int)    = this.clone().scale(alpha as Double) as DenseMatrix(M,N);
+	public operator (alpha:Double) * this : DenseMatrix(M,N) = this * alpha;
+	public operator (alpha:Int) * this    : DenseMatrix(M,N) = this * (alpha as Double);
 
 	/**
 	 * Operator overloading for cell-wise add, and return result in a new dense matrix. 
 	 */
-	public operator this + (that:DenseMatrix(M,N)) = clone().cellAdd(that);
+	public operator this + (that:DenseMatrix(M,N)) = this.clone().cellAdd(that) as DenseMatrix(M,N);
 
 	/**
 	 * Operator overloading for cell-wise subtraction, and return this - that in a new dense format
 	 */
-	public operator this - (that:DenseMatrix(M,N)) = clone().cellSub(that);
+	public operator this - (that:DenseMatrix(M,N)) = this.clone().cellSub(that) as DenseMatrix(M,N);
 	
     /**
      * Operator overloading for cell-wise multiplication, and return cell-wise multiply result of
 	 * this &#42 that in dense format
      */
-	public operator this * (that:DenseMatrix(M,N)) = clone().cellMult(that);
+	public operator this * (that:DenseMatrix(M,N)) = this.clone().cellMult(that) as DenseMatrix(M,N);
 
 	/**
 	 * Operator overloading for cell-wise division, and return this / that in a new dense matrix
 	 */
-	public operator this / (that:DenseMatrix(M,N)) = clone().cellDiv(that);
+	public operator this / (that:DenseMatrix(M,N)) = this.clone().cellDiv(that) as DenseMatrix(M,N);
 
 	/**
 	 * Operator overload for matrix multiplication. Return dense matrix multiplication this &#42 that 
 	 * using BLAS driver.
 	 */
-	public  operator this % (that:DenseMatrix{self.M==this.N}
-							 ):DenseMatrix(this.M,that.N) {
+	public  operator this % (that:DenseMatrix{self.M==this.N}):DenseMatrix(this.M,that.N) {
 		val dm = DenseMatrix.make(this.M, that.N);
-		DenseMultBLAS.comp(this, that, dm, false);
+		DenseMatrixBLAS.comp(this, that, dm, false);
 		return dm;
 	}
 	

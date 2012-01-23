@@ -36,7 +36,7 @@ public class TestDupSparse {
 			M = args.size > 0 ?Int.parse(args(0)):50;
 			N = args.size > 1 ?Int.parse(args(1)):M+1;
 			K = args.size > 2 ?Int.parse(args(2)):M+2;
-			S = args.size > 3 ?Double.parse(args(3)):0.5;
+			S = args.size > 3 ?Double.parse(args(3)):0.99;
 			
 		}
 
@@ -69,6 +69,16 @@ public class TestDupSparse {
 				Console.OUT.println("Dup sparse matrix clone test passed!");
 			else
 				Console.OUT.println("--------Dup sparse Matrix clone test failed!--------");
+                	s1(1, 1) = s2(2,2) = 10.0;
+
+                	if ((s1(1,1)==s2(2,2)) && (s1(1,1)==10.0)) {
+                        	ret &= true;
+                        	Console.OUT.println("DupSparse Matrix chain assignment test passed!");
+                	} else {
+                        	ret &= false;
+                        	Console.OUT.println("---------- DupSparse Matrix chain assignment test failed!-------");
+                	}
+
 			return ret;
 		}
 

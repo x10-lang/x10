@@ -32,16 +32,17 @@ public class WrapBLAS {
 	public static native void matmatMult(double[] A, double[] B, double[] C, int[] dim, double[] scale, int[] trans);
 
 	public static native void symmatMult(double[] A, double[] B, double[] C, int[] dim, double[] scale);
+	public static native void matsymMult(double[] B, double[] A, double[] C, int[] dim, double[] scale);
 
 	public static native void matvecMult(double[] A, double[] x, double[] y, int[] dim, double[] scale, int transA);
-
 	public static native void symvecMult(double[] A, double[] x, double[] y, int[] dim, double[] scale);
+	public static native void trivecMult(double[] A, double[] bx, int lda, int tranA);
 
 	public static native void trimatMult(double[] A, double[] B, int[] dim, int tranA);
-
 	public static native void mattriMult(double[] B, double[] A, int[] dim, int tranA);
 	
-	public static native void trimatSolve(double[] A, double[] bx, int m, int n);
-
+	public static native void trivecSolve(double[] A, double[] bx, int[] dim, int tranA);
+	public static native void trimatSolve(double[] A, double[] BX, int[] dim, int tranA);
+	public static native void mattriSolve(double[] BX, double[] A, int[] dim, int tranA);
 
 }

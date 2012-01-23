@@ -32,6 +32,6 @@ public final class RemoteFinish extends FinishFrame {
             ff.append(stack);
             Runtime.wsFIFO().push(ff);
         };
-        Runtime.wsRunAsync(ffRef.home.id, body);
+        Worker.wsRunAsync(ffRef.home.id, body);
     }
 }

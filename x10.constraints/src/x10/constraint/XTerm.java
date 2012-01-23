@@ -26,10 +26,8 @@ import java.util.ArrayList;
  *
  */
 public abstract class XTerm implements  Serializable, Cloneable {
-
-	public XTerm() {
-		super();
-	}
+    private static final long serialVersionUID = -3094676101576926720L;
+    public XTerm() {super();}
 
 	// The default is OBJECT. May be overridden by subclasses.
 	public XTermKind kind() { return XTermKind.OBJECT;}
@@ -41,9 +39,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * @param x
 	 * @return
 	 */
-	public final XTerm subst(XTerm y, XVar x) {
-	    return subst(y, x, true);
-	}
+	public final XTerm subst(XTerm y, XVar x) {return subst(y, x, true);}
 	
 	/**
 	 * Returns true only if this term is allowed to occur inside a constraint.
@@ -84,22 +80,15 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * Default no; should be overridden by subclasses representing eqvs.
 	 * @return true if it is, false if it isn't.
 	 */
-	public boolean hasEQV() {
-		return false;
-	}
+	public boolean hasEQV() {return false;}
 	
 	/**
 	 * Is this itself an EQV?
 	 * Default no; should be overridden by subclasses representing eqvs.
 	 * @return
 	 */
-	public boolean isEQV() {
-		return false;
-	}
-	
-	public List<XEQV> eqvs() {
-	    return Collections.emptyList();
-	}
+	public boolean isEQV() {return false;}
+	public List<XEQV> eqvs() {return Collections.emptyList();}
 
 	/**
 	 * Is <code>this</code> a prefix of <code>term</code>, i.e. is 
@@ -123,9 +112,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * 
 	 * @return true if this  prefers being bound in a constraint this==t.
 	 */
-	public int prefersBeingBound() {
-		return TERM_SHRUGS_ABOUT_BEING_BOUND;
-	}
+	public int prefersBeingBound() {return TERM_SHRUGS_ABOUT_BEING_BOUND;}
 
 	/**
 	 * Returns true if this term is an atomic formula.
@@ -133,9 +120,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
 	 * 
 	 * @return true -- if this term represents an atomic formula
 	 */
-	public boolean isAtomicFormula() {
-	    return false;
-	}
+	public boolean isAtomicFormula() {return false;}
 
 
 	/** 
@@ -169,7 +154,8 @@ public abstract class XTerm implements  Serializable, Cloneable {
     /**
      * Given a visitor, we traverse the entire term (which is like a tree).
      * @param visitor
-     * @return If the visitor didn't return any new child, then we return "this" (otherwise we create a clone with the new children)
+     * @return If the visitor didn't return any new child, then we return "this"
+     *  (otherwise we create a clone with the new children)
      */
     public XTerm accept(TermVisitor visitor) {
         // The default implementation for "leave" terms (that do not have any children)

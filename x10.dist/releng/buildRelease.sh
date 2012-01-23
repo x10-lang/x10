@@ -31,6 +31,10 @@ while [ $# != 0 ]; do
         export SKIP_X10_BUILD=1
     ;;
 
+    -nodebug)
+	  SKIP_DEBUG_BUILD=1
+    ;;
+
    esac
    shift
 done
@@ -47,22 +51,31 @@ fi
 
 UNAME=`uname -smp | sed -e 's/ /,/g'`
 case "$UNAME" in
-  CYGWIN*,i*86,*) X10_PLATFORM='cygwin_x86';;
+  CYGWIN*,i*86,*) 
+      X10_PLATFORM='cygwin_x86'
+      SKIP_DEBUG_BUILD=1
+      ;;
   Linux,*86_64*,*) 
       SHORT_HOSTNAME=`hostname -s`
       if [[ "$SHORT_HOSTNAME" == "triloka4" ]]; then 
           X10_PLATFORM='linux_rh6_x86_64'
+          EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
       else
           X10_PLATFORM='linux_x86_64'
       fi
       ;;
   Linux,*86*,*) X10_PLATFORM='linux_x86';;
   Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
-  AIX,*,powerpc) X10_PLATFORM='aix_ppc';;
-  Darwin,*,i*86) X10_PLATFORM='macosx_x86'
+  AIX,*,powerpc) 
+      X10_PLATFORM='aix_ppc'
+      SKIP_DEBUG_BUILD=1
+      ;;
+  Darwin,*,i*86) 
+      X10_PLATFORM='macosx_x86'
       export USE_32BIT=true
       export USE_64BIT=true
-   ;;
+      SKIP_DEBUG_BUILD=1
+      ;;
     
   *) echo "Unrecognized platform: '$UNAME'"; exit 1;;
 esac
@@ -103,7 +116,10 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
     cd $distdir/x10.dist
     ant -Doptimize=true -Dtar.version=$X10_VERSION testtar
     ant -Doptimize=true -Dtar.version=$X10_VERSION srctar
-    ant dist -Doptimize=true
+    ant $EXTRA_X10RT_BUILD_ARG -Doptimize=true dist
+    if [[ -z "$SKIP_DEBUG_BUILD" ]]; then
+        ant -Ddebug=true dist-cpp
+    fi 
     ant xrx-xdoc
     $distdir/x10.dist/releng/packageCPPRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
     echo "Platform specific distribuiton tarball created"

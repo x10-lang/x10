@@ -7,19 +7,6 @@
 # This file is part of X10/C++ Test Harness.
 # Simple in-place test harness to test X10/C++ backend.
 
-# get new pgas sockets port number for mpirun launch
-# (based on Igor's script for Columbia cluster)
-# usage: getPGASPort
-function getPGASPort {
-    DEFAULT_PORT=21053
-    IP=$(host -t A $(hostname) | awk '{print $NF}')
-    PORT=$(expr $DEFAULT_PORT + $$ % 1024)
-    while netstat -n -a | grep tcp | grep -q "${IP}.${PORT}"; do
-        let 'PORT = PORT + 1'
-    done
-    PGASRT_HOME_PORT=$PORT
-}
-
 # log file header
 # usage: writeLogHead
 function writeLogHead {
@@ -264,6 +251,14 @@ function isTestCase {
 		printf "\n[$prog: err]: no \"public static def main\" method in ${file}\n"
 		return 1
 	fi
+
+	printf "\n===> ${EGREP} -q 'MANAGED_X10_ONLY' $1\n\n" 1>&2
+	${EGREP} -q 'MANAGED_X10_ONLY' $1
+	if [[ $? == 0 ]]; then
+		printf "\n[$prog: err]: ${file} contains MANAGED_X10_ONLY directive\n"
+		return 1
+	fi
+
 	return 0
 }
 
@@ -596,7 +591,7 @@ function main {
 		cleanUpExitHarness 2
 	fi
 	if [[ "$(uname -s)" == "AIX" ]]; then
-		X10CPP="$X10CPP -x10rt pgas_lapi"
+		X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "x86_64" ]]; then
 	    X10CPP="$X10CPP -x10rt sockets"
 	elif [[ "$(uname -s)" == "Linux" && "$(uname -m)" == "ppc64" ]]; then
@@ -690,15 +685,17 @@ function main {
 		else
 			extendList=""
 		fi
-        extra_opts="$(sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' $tc)"
+		extra_opts="$(sed -ne 's|^\s*//\s*OPTIONS*\:\s*\(.*\)|\1|p' $tc)"
+		extra_sourcepath="$(sed -ne 's|^\s*//\s*SOURCEPATH*\:\s*\(.*\)|\1|p' $tc)"
+                [ -n "$extra_sourcepath" ] && extra_sourcepath="-sourcepath \"$extra_sourcepath\""
 		__cat_test_x10c_sourcepath="$tcroot"
 		__cat_test_x10c_classpath="${EXTRA_CLASSPATH}"
 		__cat_test_x10c_directory="$testDir"
-if [[ "$(uname -s)" == CYGWIN* ]]; then
-		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
-else
-		comp_cmd="${X10CPP} $extra_opts $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/examples/$tDirSlash -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -sourcepath $X10_HOME/x10.dist/samples/work-stealing -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
-fi
+		if [[ "$(uname -s)" == CYGWIN* ]]; then
+		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o \"$(cygpath -am $tcroot)/$tctarget\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$tDirSlash)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/$testDir)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.tests/examples/x10lib)\" -sourcepath \"$(cygpath -am $tcroot)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples)\"  -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/tutorial)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/CUDA)\" -sourcepath \"$(cygpath -am $X10_HOME/x10.dist/samples/work-stealing)\" -d \"$(cygpath -am $tcroot)\" $tc $extendList \"$(cygpath -am ${X10TEST_PATH}/x10lib/harness/x10Test.x10)\""
+		else
+		    comp_cmd="${X10CPP} $extra_opts $extra_sourcepath $X10CPP_EXTRA_OPTS -t -v -report postcompile=1 -CHECK_INVARIANTS=true -MAIN_CLASS=$className -o $tcroot/$tctarget -sourcepath $X10_HOME/x10.tests/examples/$tDirSlash -sourcepath $X10_HOME/x10.tests/examples/$testDir -sourcepath $X10_HOME/x10.tests/examples/x10lib -sourcepath $tcroot -sourcepath $X10_HOME/x10.dist/samples -sourcepath $X10_HOME/x10.dist/samples/tutorial -sourcepath $X10_HOME/x10.dist/samples/CUDA -sourcepath $X10_HOME/x10.dist/samples/work-stealing -d $tcroot $tc $extendList ${X10TEST_PATH}/x10lib/harness/x10Test.x10"
+		fi
 		tccompdat=${tcroot}/${tctarget}.comp
 		printf "\n****** $tDir $className ******\n\n" >> $tccompdat
 
@@ -765,31 +762,24 @@ fi
 				my_nplaces=$MAX_NPLACES
 			fi
 		fi
-		if [[ `uname -s` == "AIX" ]]; then
-			tchostfile=$tcroot/host.list
-			for (( i = 0; i < my_nplaces; i++ )); do
-				printf "$(hostname)\n" >> $tchostfile
+
+		if [[ "$(uname -s)" == "Darwin" ]]; then
+                    pid_list=`/usr/sbin/lsof -t -i ':21053'`
+		    if (( $? == 0 )); then
+			for pid in $pid_list
+			do
+			    printf "\nkill -9 $pid 2>/dev/null\n\n"
+			    kill -9 $pid 2>/dev/null
 			done
-			run_cmd="/usr/bin/time -p poe ./${tctarget} -procs $my_nplaces -msg_api lapi -hostfile $tchostfile"
-			printf "\n${run_cmd}\n" >> $tcoutdat
-		else
-if [[ "$(uname -s)" == "Darwin" ]]; then
-                        pid_list=`/usr/sbin/lsof -t -i ':21053'`
-			if (( $? == 0 )); then
-for pid in $pid_list
-do
-				printf "\nkill -9 $pid 2>/dev/null\n\n"
-				kill -9 $pid 2>/dev/null
-done
-			fi
-fi
-if [[ "$(uname -s)" == CYGWIN* ]]; then
-			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p $RUN_X10 ./${tctarget}.exe"
-else
-			run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
-fi
-			printf "\n${run_cmd}\n" >> $tcoutdat
+		    fi
 		fi
+
+		if [[ "$(uname -s)" == CYGWIN* ]]; then
+		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p $RUN_X10 ./${tctarget}.exe"
+		else
+		    run_cmd="X10_NPLACES=${my_nplaces} X10_HOSTLIST=localhost /usr/bin/time -p ./${tctarget}"
+		fi
+		printf "\n${run_cmd}\n" >> $tcoutdat
 
 		__cat_test_x10_classpath="$EXTRA_CLASSPATH"
 		__cat_test_x10_timeout="$tctoutval"

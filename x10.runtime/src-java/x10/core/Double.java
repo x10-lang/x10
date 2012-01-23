@@ -112,7 +112,12 @@ final public class Double extends Number implements StructI,
     public java.lang.Object $gt(Double b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
     public java.lang.Object $le(Double b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
     public java.lang.Object $ge(Double b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(Double b, Type t) { return $value < b.$value; }
+    public boolean $gt$O(Double b, Type t) { return $value > b.$value; }
+    public boolean $le$O(Double b, Type t) { return $value <= b.$value; }
+    public boolean $ge$O(Double b, Type t) { return $value >= b.$value; }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {

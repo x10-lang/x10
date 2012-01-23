@@ -349,7 +349,8 @@ public class TypeTransformer extends NodeTransformer {
         X10LocalInstance li = (X10LocalInstance) l.localInstance();
         X10LocalDef ld = getLocal(li.x10Def());
         if (li.x10Def() != ld) {
-            li = transformLocalInstance(((X10LocalInstance) ld.asInstance()));
+            X10LocalInstance newli = transformLocalInstance(((X10LocalInstance) ld.asInstance()));
+            li = li.lval() ? (X10LocalInstance)newli.lval(true) : newli;
         }
         if (l.localInstance() != li) {
             return l.localInstance(li);
@@ -526,6 +527,9 @@ public class TypeTransformer extends NodeTransformer {
                 X10LocalDef ld = getLocal(li.x10Def());
                 if (li.x10Def() != ld) {
                     li = transformLocalInstance(((X10LocalInstance) ld.asInstance()));
+                    if (vi.lval()) {
+                        li = (X10LocalInstance)li.lval(true);
+                    }
                     res = ice;
                 }
                 ClosureDef_c.addCapturedVariable(ice, li);

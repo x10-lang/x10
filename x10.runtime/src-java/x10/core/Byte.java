@@ -82,6 +82,10 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
         return obj;
     }
 
+    public static byte $unbox(byte value) {
+        return value;
+    }
+    
     public static byte $unbox(int value) {
         return (byte)value;
     }
@@ -141,6 +145,11 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     public java.lang.Object $gt(Byte b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
     public java.lang.Object $le(Byte b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
     public java.lang.Object $ge(Byte b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(Byte b, Type t) { return $value < b.$value; }
+    public boolean $gt$O(Byte b, Type t) { return $value > b.$value; }
+    public boolean $le$O(Byte b, Type t) { return $value <= b.$value; }
+    public boolean $ge$O(Byte b, Type t) { return $value >= b.$value; }
     
     // extends abstract class java.lang.Number
 //    @Override

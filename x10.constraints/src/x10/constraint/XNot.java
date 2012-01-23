@@ -19,18 +19,13 @@ package x10.constraint;
  *
  */
 public class XNot extends XFormula<String>  {
-	
-	public XNot(XTerm arg) {
-		super(XTerms.notName, XTerms.asExprNotName, false, arg);
-	}
-	
+    private static final long serialVersionUID = -425560155692514682L;
+
+    public XNot(XTerm arg) {super(XTerms.notName, XTerms.asExprNotName, false, arg);}
 	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 		assert false : "Should not intern " + this;
 		return super.internIntoConstraint(c, last);
 	}
 	
-	@Override
-	public String toString() {
-		return "!" + unaryArg();
-	}
+	@Override public String toString() {return "!" + unaryArg();}
 }

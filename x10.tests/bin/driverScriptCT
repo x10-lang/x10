@@ -50,7 +50,6 @@ cleanUpExit() {
 		-e 's;@config_name@;"'"${__cat_config_name}"'";' \
 		-e 's;@config_java_compiler@;"'"${__cat_config_java_compiler}"'";' \
 		-e 's;@config_compiler@;"'"${__cat_config_compiler}"'";' \
-		-e 's;@config_pgas@;"'"${__cat_config_pgas}"'";' \
 		-e 's;@config_transport@;"'"${__cat_config_transport}"'";' \
 		-e 's;@config_checks@;"'"${__cat_config_checks}"'";' \
 		-e 's;@config_debug@;"'"${__cat_config_debug}"'";' \
@@ -215,7 +214,6 @@ __cat_config_name="${__cat_build_type}"
 __cat_config_java_compiler="${__cat_target_jre_version}"
 if [[ "${__cat_backend}" == x10c ]]; then
 	__cat_config_compiler=NA
-	__cat_config_pgas=NA
 	__cat_config_transport=NA
 	__cat_config_checks=NA
 	__cat_config_debug=NA
@@ -227,7 +225,6 @@ REPORTF=${__cat_hostname}_${__cat_backend_arch}_${__cat_start_date_time2}_r${__c
 __cat_x10_home=$X10_HOME
 if [[ "${__cat_x10_home}" == x10c ]]; then
 	__cat_x10lang_path=NA
-	__cat_pgas_path=NA
 fi
 declare -i ecode
 

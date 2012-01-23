@@ -90,6 +90,11 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * Return a copy of this matrix instance. It should share no mutable data with this.
 	 */
 	abstract public def clone():Matrix(M,N);
+
+	/**
+	 * Initial matrix data with function, mapping (row index, column index) to double. 
+	 */
+	abstract public def init(f:(Int, Int)=>Double):Matrix(this);
 	
 	//======================================================================
 	// Data copy and reset 
@@ -124,6 +129,11 @@ public abstract class Matrix(M:Int, N:Int) {
 		return dm;
 	}
 	
+	/**
+	 * Copy data to another matrix
+	 */
+	abstract public def copyTo(that:Matrix(M,N)): void;
+	
 	//======================================================================
 	// Data access and set
 	//======================================================================
@@ -146,7 +156,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param y   column index
 	 * @param d   the new value for the element
 	 */
-	abstract public operator this(x:Int, y:Int)=(d:Double):void;
+	abstract public operator this(x:Int, y:Int)=(d:Double):Double;
 	
 	
 	/**
@@ -164,8 +174,9 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param a   index of column major position in the storage
 	 * @param d   new element value
 	 */
-	public operator this(a:Int)=(d:Double):void {
+	public operator this(a:Int)=(d:Double):Double {
 		this(a%M, a/N) = d;
+		return d;
 	}
 	
 	//=====================================================================
@@ -198,6 +209,11 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @return    this instance which stores the result
 	 */
 	abstract public def cellAdd(x:Matrix(M,N)): Matrix(this); 
+
+	/**
+	 * Cellwise add
+	 */
+	abstract public def cellAdd(d:Double): Matrix(this); 
 	
 	/**
 	 * Cellwise operation x = x + this 
@@ -226,6 +242,11 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @return    result matrix instance
 	 */
 	abstract protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x);
+	
+	/**
+	 * Cell-wise subtraction this = x - this
+	 */
+	abstract protected def cellSubFrom(dv:Double):Matrix(this);
 	
 	//----------------------------------
 	// Cell-wise matrix multiplication
@@ -265,7 +286,6 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @return		result matrix
 	 */
 	abstract protected def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x); 
-	
 	
 	//-------------------------------------------------------------------
 	// Matrix multiplication
@@ -320,6 +340,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	//---------------------------
 	//Cellwise operators
 	//---------------------------
+	public operator - this = clone().scale(-1.0) as Matrix(M,N);
 	
 	/**
 	 * Scaling operator overloading: this = this &#42 dblv
@@ -327,23 +348,15 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param dblv		scaling factor in double
 	 * @return			result of operation 
 	 */
-	public operator this * (dblv:Double):Matrix(M,N) {
-		val x = clone();
-		x.scale(dblv);
-		return x;
-	}
-	
+	public operator this * (dv:Double) = this.clone().scale(dv) as Matrix(M,N);
+
 	/**
 	 * Scaling operator overloading: this = this &#42 intv
 	 * 
 	 * @param intv		scaling factor in double
 	 * @return			result of operation 
 	 */
-	public operator this * (intv:Int):Matrix(M,N) {
-		val x = clone();
-		x.scale(intv as Double);
-		return x;
-	}
+	public operator this * (iv:Int) = this.clone().scale(iv) as Matrix(M,N); 
 	
 	/**
 	 * Scaling operator overloading: this = dblv &#42 this
@@ -351,11 +364,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param dblv		scaling factor in double
 	 * @return			result of operation 
 	 */
-	public operator (dblv:Double) * this :Matrix(M,N) {
-		val x = clone();
-		x.scale(dblv);
-		return x;
-	}
+	public operator (dv:Double) * this = this.clone().scale(dv) as Matrix(M,N);
 	
 	/**
 	 * Scaling operator overloading: this = intv &#42 this
@@ -363,11 +372,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param intv		scaling factor in double
 	 * @return			result of operation 
 	 */
-	public operator (intv:Int) * this :Matrix(M,N) {
-		val x = clone();
-		x.scale(intv as Double);
-		return x;
-	}
+	public operator (iv:Int) * this = this.clone().scale(iv) as Matrix(M,N);
 	
 	//=====================================================================
 	
@@ -379,11 +384,10 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param that		object matrix of add operation
 	 * @return			result of cell-wise add
 	 */
-	public operator this + (that:Matrix(M,N)):Matrix(M,N) {
-		val x = clone();
-		x.cellAdd(that);
-		return x;
-	}
+	public operator this + (that:Matrix(M,N)) = this.clone().cellAdd(that) as Matrix(M,N);
+	
+	public operator this + (dv:Double)        = this.clone().cellAdd(dv) as Matrix(M,N);
+	
 	/**
 	 * Cell-wise subtraction operator overloading. Return matrix cell-wise subtraction of
 	 * this - that in a new matrix instance which has the same type as the left-side 
@@ -392,11 +396,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param that		object matrix of subtraction operation
 	 * @return			result of cell-wise subtract 
 	 */
-	public operator this - (that:Matrix(M,N)):Matrix(M,N) {
-		val x = clone();
-		x.cellSub(that);
-		return x;
-	}
+	public operator this - (that:Matrix(M,N))= this.clone().cellSub(that) as Matrix(M,N);
 	
 	/**
 	 * Cell-wise multiply operator overload. Return cell-wise matrix multiply this &#42 that
@@ -406,11 +406,9 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param that		object matrix of multiply
 	 * @return			result of cell-wise multiply
 	 */
-	public operator this * (that:Matrix(M,N)):Matrix(M,N) {
-		val x = clone();
-		x.cellMult(that);
-		return x;
-	}
+	public operator this * (that:Matrix(M,N)) = this.clone().cellMult(that) as Matrix(M,N);
+
+	public operator this - (dv:Double)        = this.clone().cellAdd(-dv) as Matrix(M,N);
 	
 	/**
 	 * Cell-wise division operator overload. Return cell-wise matrix division of this / that 
@@ -420,11 +418,7 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * @param that		object matrix of division operation
 	 * @return			result of cell-wise division
 	 */
-	public operator this / (that:Matrix(M,N)):Matrix(M,N) {
-		val x = clone();
-		x.cellDiv(that);
-		return x;
-	}
+	public operator this / (that:Matrix(M,N)) = this.clone().cellDiv(that) as Matrix(M,N);
 	
 	/**
 	 * Matrix multiply operator overloading. Return matrix multiplication of this &#42 that 

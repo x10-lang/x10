@@ -17,7 +17,7 @@ public abstract class MathUtils {
         try {
             return org.apache.commons.math.special.Erf.erf(a);
         } catch (org.apache.commons.math.MathException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     

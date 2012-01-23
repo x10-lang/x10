@@ -388,17 +388,14 @@ public class Options {
         usageForFlag(out, "-ox <ext>", "set output extension");
         usageForFlag(out, "-errors <num>", "set the maximum number of errors");
         usageForFlag(out, "-w <num>", 
-                          "set the maximum width of the .java output files");
+                          "set the maximum column width of the output files");
         usageForFlag(out, "-dump <pass>|dumpall", "dump the ast after pass <pass>");
         usageForFlag(out, "-print <pass>|printall",
-	                  "pretty-print the ast after pass <pass>");
+	                      "pretty-print the ast after pass <pass>");
         usageForFlag(out, "-disable <pass>", "disable pass <pass>");
 //        usageForFlag(out, "-scramble [seed]", "scramble the ast (for testing)");
         usageForFlag(out, "-noserial", "disable class serialization");
         usageForFlag(out, "-nooutput", "delete output files after compilation");
-        usageForFlag(out, "-c", "compile only to .java");
-        usageForFlag(out, "-post <compiler>", 
-                          "run javac-like compiler after translation");
         usageForFlag(out, "-debugpositions", "generate position information for compiler-generated code");
         usageForFlag(out, "-simpleoutput", "use SimpleCodeWriter");
         usageForFlag(out, "-define <macro>", "define <macro>");

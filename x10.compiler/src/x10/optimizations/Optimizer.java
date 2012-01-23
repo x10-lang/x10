@@ -84,7 +84,9 @@ public class Optimizer {
             goals.add(ConstructorSplitter());
         }
         if (config.LOOP_OPTIMIZATIONS) {
-            goals.add(LoopUnrolling());
+            if (!(extInfo instanceof x10c.ExtensionInfo)) {
+                goals.add(LoopUnrolling());
+            }
             goals.add(ForLoopOptimizations());
         }
         return goals;

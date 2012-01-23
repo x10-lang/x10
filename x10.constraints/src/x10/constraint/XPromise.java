@@ -133,15 +133,9 @@ public class XPromise implements Cloneable, Serializable{
      * not the term corresponding to the target promise.
      * @return null if this promise is an internal promise.
      */
-    public XTerm term() {
-        return nodeLabel;
-    }
-
-
+    public XTerm term() {return nodeLabel;}
     /** Map from field names f to promises term().f */
-    public Map<Object, XPromise> fields() {
-        return fields;
-    }
+    public Map<Object, XPromise> fields() {return fields;}
 
     /**
      * Set the term corresponding to this promise. The term may be null, such a promise is 
@@ -162,8 +156,7 @@ public class XPromise implements Cloneable, Serializable{
             for (Map.Entry<Object, XPromise> entry : fields.entrySet()) {
                 Object key = entry.getKey();
                 XPromise p = entry.getValue();
-                if (visited.contains(p))
-                    continue;
+                if (visited.contains(p)) continue;
                 visited.add(p);
                 assert p.term() instanceof XField : term + "." + key + " = " + p + " (not a field)";
                 XField<?> f = (XField<?>) p.term();
@@ -177,21 +170,13 @@ public class XPromise implements Cloneable, Serializable{
      * 
      * @return true if it has been forwarded (its value !=null)
      */
-    public boolean forwarded() {
-        return value != null;
-    }
+    public boolean forwarded() {return value != null;}
 
     /** Does this node have children?
      * A node cannot both have children and be forwarded.
      */
-    public boolean hasChildren() {
-        return fields != null;
-    }
-
-    public void setLabel(XVar v) {
-        nodeLabel = v;
-    }
-
+    public boolean hasChildren() {return fields != null;}
+    public void setLabel(XVar v) {nodeLabel = v;}
     protected XPromise clone() {
         XPromise result = null;
         try {
@@ -208,8 +193,7 @@ public class XPromise implements Cloneable, Serializable{
      * @return
      */
     public XPromise lookup() {
-        if (value != null)
-            return value.lookup();
+        if (value != null) return value.lookup();
         return this;
     }
 
@@ -242,13 +226,10 @@ public class XPromise implements Cloneable, Serializable{
         assert index >= 1;
 
         // follow the eq link if there is one.
-        if (value != null )
-            return value.intern(vars, index, last);
-        if (index == vars.length)
-            return this;
+        if (value != null )      return value.intern(vars, index, last);
+        if (index == vars.length)return this;
         // if not, we need to add this path here. Ensure fields is initialized.
-        if (fields == null)
-            fields = CollectionFactory.<Object, XPromise>newHashMap();
+        if (fields == null) fields = CollectionFactory.<Object, XPromise>newHashMap();
         assert vars[index] instanceof XField;
         XField<?> f = (XField<?>) vars[index];
         Object s = f.field();
@@ -263,10 +244,6 @@ public class XPromise implements Cloneable, Serializable{
         // recursively, intern the rest of the path on the child.
         return p.intern(vars, index + 1, last);
     }
-
-
-
-
 
     /**
      * An eq link entering this has just been established. Now the 
@@ -287,16 +264,12 @@ public class XPromise implements Cloneable, Serializable{
                                + ", cannot be added to it.");
         }
 
-        if (fields == null)
-            fields = new LinkedHashMap<Object, XPromise>();
+        if (fields == null) fields = new LinkedHashMap<Object, XPromise>();
         XPromise child = (XPromise) fields.get(s);
 
         if (child != null) {
-            while (child.forwarded())
-                child = child.value();
-            while (orphan.forwarded())
-                orphan = orphan.value();
-
+            while (child.forwarded())  child = child.value();
+            while (orphan.forwarded()) orphan = orphan.value();
             orphan.bind(child, parent);
             return;
         }
@@ -327,12 +300,11 @@ public class XPromise implements Cloneable, Serializable{
                                        + target + ".");
             }
         if (!(target.equals(value)) && !target.equals(nodeLabel)) {
-            if (forwarded())
-                throw new XFailure("The promise " + this + 
+            if (forwarded()) throw new XFailure("The promise " + this + 
                                    " is already bound to " + value 
                                    + "; cannot bind it to " + target + ".");
-            if (this == target) // nothing to do!
-                return false;
+            if (this == target) return false;// nothing to do!
+                
 
             // Check for cycles!
             if (canReach(target) || target.canReach(this))
@@ -341,8 +313,7 @@ public class XPromise implements Cloneable, Serializable{
             int opref = target.term().prefersBeingBound();
             if (pref == XTerm.TERM_MUST_NOT_BE_BOUND) {
                 if (opref == XTerm.TERM_MUST_NOT_BE_BOUND) {
-                    if (term().equals(target.term()))
-                            return true;
+                    if (term().equals(target.term())) return true;
                         throw new XFailure("Cannot bind literal " + term() + " to " + target.term());
                     } 
                 return target.bind(this, parent);
@@ -371,8 +342,7 @@ public class XPromise implements Cloneable, Serializable{
         }
 
         if (disEquals != null) { // transfer disequals links
-            for (XPromise i : disEquals) 
-                target.addDisEquals(i.lookup());
+            for (XPromise i : disEquals) target.addDisEquals(i.lookup());
             disEquals = null;
         }
         return true;
@@ -402,14 +372,11 @@ public class XPromise implements Cloneable, Serializable{
      * constraints?
      */
     public boolean canReach(XPromise p) {
-        if (p == this)
-            return true;
-        if (value != null)
-            return value.canReach(p);
+        if (p == this)     return true;
+        if (value != null) return value.canReach(p);
         if (fields != null)
             for (XPromise q : fields.values())
-                if (q.canReach(p))
-                    return true;
+                if (q.canReach(p)) return true;
         return false;
     }
 
@@ -447,16 +414,16 @@ public class XPromise implements Cloneable, Serializable{
             // If t1 is not an XVar, it is an atomic formula, and the fields 
             // are its sub-terms. Hence v should be null.
             for (Map.Entry<Object,XPromise> m : fields.entrySet()) {
-                XPromise p = m.getValue();
-                XTerm t = p.term();  
-                XVar path2 = v==null? null : ((XField<?>) t).copyReceiver(v);
-                boolean result = p.visit(path2,xg, parent);
+                XPromise p=m.getValue();
+                XTerm t=p.term();  
+                XVar path2=v==null? null : ((XField<?>) t).copyReceiver(v);
+                boolean result=p.visit(path2,xg, parent);
                 if (!result) return result;
             }
         }
         if (disEquals != null) {
-            for (XPromise i : disEquals) {
-                XTerm nf =  i.lookup().term(); 
+            for (XPromise i:disEquals) {
+                XTerm nf=i.lookup().term(); 
                 boolean result = xg.rawVisitDisEquals(t1, nf);
                 if (! result) return result;
             }
@@ -466,8 +433,7 @@ public class XPromise implements Cloneable, Serializable{
 
     private boolean toStringMark = false;
     public String toString(String prefix) {
-        if (toStringMark)
-            return "...";
+        if (toStringMark) return "...";
         toStringMark = true;
         String fieldsString = "{";
         if (fields != null) {
@@ -484,9 +450,7 @@ public class XPromise implements Cloneable, Serializable{
         toStringMark = false;
         return res;
     }
-    public String toString() {
-        return toString("");
-    }
+    public String toString() { return toString(""); }
 
     /**
      * An eq link entering this has just been established. Now the 
@@ -499,9 +463,7 @@ public class XPromise implements Cloneable, Serializable{
             disEquals = CollectionFactory.newHashSet();
         disEquals.add(other);
     }
-    public boolean hasDisBindings() { 
-        return disEquals != null || ! disEquals.isEmpty();
-    }
+    public boolean hasDisBindings() { return disEquals != null || ! disEquals.isEmpty();}
     
     /**
      * Is this promise asserted to be disequal to other?
@@ -512,19 +474,14 @@ public class XPromise implements Cloneable, Serializable{
         if (term() instanceof XLit) {
             XLit term = (XLit) term();
             XTerm o = other.term();
-            if (o instanceof XLit)
-                return ! (term.equals(o));
+            if (o instanceof XLit) return ! (term.equals(o));
         }
-        if (disEquals == null)
-            return false;
-        for (XPromise p : disEquals) {
-            if (p.canReach(other))
-                return true;
-        }
+        if (disEquals == null) return false;
+        for (XPromise p : disEquals) 
+            if (p.canReach(other)) return true;
         return false;
     }
     public void ensureFields() {
-        if (this.fields == null)
-            this.fields = new LinkedHashMap<Object, XPromise>();
+        if (this.fields == null) this.fields = new LinkedHashMap<Object, XPromise>();
     }
 }

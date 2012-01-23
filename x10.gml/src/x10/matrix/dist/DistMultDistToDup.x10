@@ -18,27 +18,21 @@ import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 //
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.DenseMultSparseToDense;
 import x10.matrix.sparse.SparseMultDenseToDense;
-//
-//import x10.matrix.dist.DistDenseMatrix;
-//import x10.matrix.dist.DistSparseMatrix;
-//import x10.matrix.dist.DupDenseMatrix;
-
 
 /**
  * This class provides distributed matrix multiply with distributed sparse matrix,
  * and store result in duplicated matrices.
  *
  * <p>
- * Distributed dense matrix and sparse matrices are partitioned in nx1 blocks, 
+ * When multiplication requires the first input matrix transposed, 
+ * the distributed dense matrix and sparse matrices are partitioned in nx1 blocks, 
  * where n is number places.
  * <p>
- * To use the method, the distributed dense matrix or distributed sparse
- * require to be transposed in multiplication.
  */
 public class DistMultDistToDup {
 
@@ -248,9 +242,9 @@ public class DistMultDistToDup {
 			val dmC = C.local() as DenseMatrix(dmA.N, dmB.N);
 			
 			if (p != rootpid || !plus)
-				DenseMultBLAS.compTransMult(dmA, dmB, dmC, false);
+				DenseMatrixBLAS.compTransMult(dmA, dmB, dmC, false);
 			else 
-				DenseMultBLAS.compTransMult(dmA, dmB, dmC, true);
+				DenseMatrixBLAS.compTransMult(dmA, dmB, dmC, true);
 		}
 		/* TIMING */ C.calcTime += Timer.milliTime() - stt;
 
@@ -268,6 +262,47 @@ public class DistMultDistToDup {
 			B:DistDenseMatrix{self.M==A.M}): DupDenseMatrix(A.N,B.N)  {
 		val C  = DupDenseMatrix.make(A.N,B.N);
 		compTransMult(A, B, C, false);
+		return C;
+	}
+
+	//================================================
+	//================================================
+			
+	/**
+	 * Perform C += A &#42 B or C = A &#42 B. 
+	 * Matrix A has single row block partitioning (column-wise partitioning). 
+	 * Matrix B has single column block partitioning (row-wsie partitioning).
+	 *  Result are stored in duplicated dense matrix.
+	 */
+	public static def comp(
+		A:DistSparseMatrix, 
+		B:DistDenseMatrix{self.M==A.M}, 
+		C:DupDenseMatrix(A.M,B.N),
+		plus:Boolean) : DupDenseMatrix(C){
+						
+		//Global.assure(A.flagTranspose == true);
+		Debug.assure(C.M==A.M&&A.N==B.M&&B.N==C.N, "Matrix dimension mismatch");
+		Debug.assure(A.grid.numRowBlocks==1 && B.grid.numColBlocks==1, 
+				     "Matrices partitioning mismatch");
+
+		val rootpid = here.id();
+
+		/* TIMING */ var stt:Long =  Timer.milliTime();
+		finish ateach (val [p]:Point in A.dist) {
+		//
+		   val smA = A.getMatrix(p) as SparseCSC; 
+		   val dmB = B.getMatrix(p) as DenseMatrix{self.M==smA.N}; 
+		   val dmC = C.local() as DenseMatrix(smA.M, dmB.N);
+
+		   if ((p != rootpid)|| !plus)
+			   SparseMultDenseToDense.comp(smA, dmB, dmC, false);
+		   else 
+			   SparseMultDenseToDense.comp(smA, dmB, dmC, true);
+		}
+		/* TIMING */ C.calcTime += Timer.milliTime() - stt;
+
+		//C.allReduceSum();
+		C.reduceSum(); // Collect sum only at root place
 		return C;
 	}
 

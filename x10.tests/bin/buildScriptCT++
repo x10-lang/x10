@@ -119,6 +119,15 @@ main() {
 		return $status
 	fi
 
+        if [[ -d $X10_INTERNAL_TESTS_REPO ]]; then
+            cd $X10_TESTS/examples
+	    svn co $X10_INTERNAL_TESTS_SVNROOT Internal
+	    status=$?
+	    if (( $status != 0 )); then
+		echo "Failed to checkout internal tests. Continuing anyways" 
+	    fi
+        fi
+
     # build modules in the listed order -- some builds may be redundant
 	printf "\n##### [$prog]: building X10 #####\n"
 	if [[ "$(uname -s)" == "AIX" ]]; then
@@ -149,6 +158,11 @@ fi
 
 if [[ -z "$X10_SVNROOT" ]]; then
 	export X10_SVNROOT="http://x10.svn.sf.net/svnroot/x10/trunk"
+fi
+
+if [[ -z "$X10_INTERNAL_TESTS" ]]; then
+	export X10_INTERNAL_TESTS_REPO="/gsa/yktgsa/projects/x/x10/svn-torontoTests"
+	export X10_INTERNAL_TESTS_SVNROOT="file://$X10_INTERNAL_TESTS_REPO/trunk"
 fi
 
 main

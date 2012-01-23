@@ -8,7 +8,6 @@
  *
  *  (C) Copyright IBM Corporation 2006-2011.
  */
-
 package x10.matrix.block;
 
 import x10.matrix.Debug;
@@ -179,7 +178,22 @@ public class Grid(M:Int, N:Int,
 	public static def make(m:Int, n:Int) =
 		make(m, n, Math.sqrt(Place.MAX_PLACES) as Int, Place.MAX_PLACES); 
 
-
+	
+	/**
+	 * 
+	 */
+	public static def make(rbs:Int, cbs:Int, 
+			rowPartFunc:(Int)=>Int, colPartFunc:(Int)=>Int) {
+		val rBzList = new Array[Int](rbs, (i:Int)=>rowPartFunc(i));
+		val cBzList = new Array[Int](cbs, (i:Int)=>colPartFunc(i));
+		var m:Int=0, n:Int=0;
+		for (var r:Int=0; r<rbs; r++) m+=rBzList(r);
+		for (var c:Int=0; c<cbs; c++) n+=cBzList(c);
+		
+		return new Grid(m, n, rBzList, cBzList);
+	}
+	
+	//================================================================
 	/** 
 	 * Compute the size of segment in partitioning.
   	 *
@@ -308,7 +322,49 @@ public class Grid(M:Int, N:Int,
 		return [br, bc, x, y];
 	}
 			
+   	/**
+   	 * Given row and column index, return block ID in the coloumn-wise
+   	 * indexing.
+   	 */
+   	public def findBlock(var x:Int, var y:Int): Int {
+   	
+   		var br:Int;
+   		var bc:Int;
+   		var bid:Int=0;
+   		Debug.assure( (x >=0) && (x<this.M) && (y>=0) && (y<this.N));
 
+   		for (bc=0; y >= colBs(bc) && bc<numColBlocks; bc++) {
+   			y -= colBs(bc);
+   			bid += numRowBlocks;
+   		}
+   		
+   		for (br=0; x >= rowBs(br) && br<numRowBlocks; br++) {
+   			x -= rowBs(br);
+   			bid++;
+   		}
+   		return bid;   		
+   	}
+   	
+   	/**
+   	 * Compute the starting row for a given row block id
+   	 */
+   	public def startRow(rid:Int):Int {
+   		var sttrow:Int=0;
+   		for (var i:Int=0; i<rid; i++)
+   			sttrow += rowBs(i);
+   		return sttrow;
+   	}
+   	
+   	/**
+   	 * Compute the starting column for a given column block id;
+   	 */
+   	public def startColumn(cid:Int):Int {
+   		var sttcol:Int=0;
+   		for (var i:Int=0; i<cid; i++)
+   			sttcol += colBs(i);
+   		return sttcol;
+   	}  	
+   	
 	//-----------------------------------------------------
 	/**
 	 * Return a grid partition for the transposed matrix.
@@ -341,6 +397,9 @@ public class Grid(M:Int, N:Int,
 	 */
 	public def equals(that:Grid):Boolean {
 		var retval:Boolean = likeMe(that);
+		
+		if (this ==that) return true;
+		
 		for (var r:Int=0; r<numRowBlocks&&retval; r++)
 			retval &= (rowBs(r)==that.rowBs(r));
 		

@@ -167,58 +167,61 @@ void Launcher::initialize(int argc, char ** argv)
 		else
 			childLaunchers = _numchildren;
 
-		_hostlist = (char **) malloc(sizeof(char *) * childLaunchers);
-		if (!_hostlist)
-			DIE("Launcher %u: hostname memory allocation failure", _myproc);
-
-		uint32_t currentNumber = 0;
-		const char* hostNameStart = hostlist;
-		bool skipped = false;
-		while (currentNumber < _firstchildproc+childLaunchers)
+		if (childLaunchers > 0)
 		{
-			bool endOfLine = false;
-			const char* hostNameEnd = strchr(hostNameStart, ',');
-			if (hostNameEnd == NULL)
+			_hostlist = (char **) malloc(sizeof(char *) * childLaunchers);
+			if (!_hostlist)
+				DIE("Launcher %u: hostname memory allocation failure", _myproc);
+
+			uint32_t currentNumber = 0;
+			const char* hostNameStart = hostlist;
+			bool skipped = false;
+			while (currentNumber < _firstchildproc+childLaunchers)
 			{
-				if (!skipped && _firstchildproc > currentNumber)
+				bool endOfLine = false;
+				const char* hostNameEnd = strchr(hostNameStart, ',');
+				if (hostNameEnd == NULL)
 				{
-					skipped = true;
-					if (currentNumber == 0)
-						currentNumber = _firstchildproc;
+					if (!skipped && _firstchildproc > currentNumber)
+					{
+						skipped = true;
+						if (currentNumber == 0)
+							currentNumber = _firstchildproc;
+						else
+							currentNumber = ((_firstchildproc / currentNumber) * currentNumber)-1;
+						hostNameStart = hostlist;
+						continue;
+					}
 					else
-						currentNumber = ((_firstchildproc / currentNumber) * currentNumber)-1;
-					hostNameStart = hostlist;
+					{
+						hostNameEnd = hostNameStart+strlen(hostNameStart);
+						endOfLine = true;
+					}
+				}
+				else if (currentNumber < _firstchildproc)
+				{
+					currentNumber++;
+					hostNameStart = hostNameEnd+1;
 					continue;
 				}
+
+				int hlen = hostNameEnd-hostNameStart;
+				char * host = (char *) malloc(hlen+1);
+				if (!host)
+					DIE("Launcher %u: memory allocation failure", _myproc);
+				strncpy(host, hostNameStart, hlen);
+				host[hlen] = '\0';
+				_hostlist[currentNumber-_firstchildproc] = host;
+
+				#ifdef DEBUG
+					fprintf(stderr, "Launcher %u: launcher for place %i is on %s\n", _myproc, currentNumber, host);
+				#endif
+				if (endOfLine)
+					hostNameStart = hostlist;
 				else
-				{
-					hostNameEnd = hostNameStart+strlen(hostNameStart);
-					endOfLine = true;
-				}
-			}
-			else if (currentNumber < _firstchildproc)
-			{
+					hostNameStart = hostNameEnd+1;
 				currentNumber++;
-				hostNameStart = hostNameEnd+1;
-				continue;
 			}
-
-			int hlen = hostNameEnd-hostNameStart;
-			char * host = (char *) malloc(hlen+1);
-			if (!host)
-				DIE("Launcher %u: memory allocation failure", _myproc);
-			strncpy(host, hostNameStart, hlen);
-			host[hlen] = '\0';
-			_hostlist[currentNumber-_firstchildproc] = host;
-
-			#ifdef DEBUG
-				fprintf(stderr, "Launcher %u: launcher for place %i is on %s\n", _myproc, currentNumber, host);
-			#endif
-			if (endOfLine)
-				hostNameStart = hostlist;
-			else
-				hostNameStart = hostNameEnd+1;
-			currentNumber++;
 		}
 	}
 //	else if (_myproc == 0xFFFFFFFF)
@@ -252,53 +255,56 @@ void Launcher::readHostFile()
 	else
 		childLaunchers = _numchildren;
 
-	_hostlist = (char **) malloc(sizeof(char *) * childLaunchers);
-	if (!_hostlist)
-		DIE("Launcher %u: hostname memory allocation failure", _myproc);
-
-	uint32_t lineNumber = 0;
-	bool skipped = false;
-	char buffer[5120];
-	while (lineNumber < _firstchildproc+childLaunchers)
+	if (childLaunchers > 0)
 	{
-		char* s = fgets(buffer, sizeof(buffer), fd);
-		if (s == NULL)
+		_hostlist = (char **) malloc(sizeof(char *) * childLaunchers);
+		if (!_hostlist)
+			DIE("Launcher %u: hostname memory allocation failure", _myproc);
+
+		uint32_t lineNumber = 0;
+		bool skipped = false;
+		char buffer[5120];
+		while (lineNumber < _firstchildproc+childLaunchers)
 		{
-			if (lineNumber == 0)
-				DIE("file \"%s\" can not be empty", _hostfname);
-			// hit the end of the file, so there are more places than lines
-			// We wrap around, reusing hostnames when this happens
-			if (!skipped && _firstchildproc > lineNumber)
-			{ // don't read the same lines again and again.  Skip ahead.
-				skipped = true;
-				lineNumber = (_firstchildproc / lineNumber) * lineNumber;
+			char* s = fgets(buffer, sizeof(buffer), fd);
+			if (s == NULL)
+			{
+				if (lineNumber == 0)
+					DIE("file \"%s\" can not be empty", _hostfname);
+				// hit the end of the file, so there are more places than lines
+				// We wrap around, reusing hostnames when this happens
+				if (!skipped && _firstchildproc > lineNumber)
+				{ // don't read the same lines again and again.  Skip ahead.
+					skipped = true;
+					lineNumber = (_firstchildproc / lineNumber) * lineNumber;
+				}
+				rewind(fd);
+				continue;
 			}
-			rewind(fd);
-			continue;
-		}
 
-		// skip lines that aren't our children
-		if (lineNumber < _firstchildproc)
-		{
+			// skip lines that aren't our children
+			if (lineNumber < _firstchildproc)
+			{
+				lineNumber++;
+				continue;
+			}
+
+			char * p = strtok(buffer, " \t\n\r");
+			int plen = p ? strlen(p) : 0;
+			if (plen <= 0)
+				break;
+
+			char * host = (char *) malloc(plen + 10);
+			if (!host)
+				DIE("Launcher %u: memory allocation failure", _myproc);
+			strcpy(host, p);
+			_hostlist[lineNumber-_firstchildproc] = host;
+
+			#ifdef DEBUG
+				fprintf(stderr, "Launcher %u: launcher for place %i is on %s\n", _myproc, lineNumber, host);
+			#endif
 			lineNumber++;
-			continue;
 		}
-
-		char * p = strtok(buffer, " \t\n\r");
-		int plen = p ? strlen(p) : 0;
-		if (plen <= 0)
-			break;
-
-		char * host = (char *) malloc(plen + 10);
-		if (!host)
-			DIE("Launcher %u: memory allocation failure", _myproc);
-		strcpy(host, p);
-		_hostlist[lineNumber-_firstchildproc] = host;
-
-		#ifdef DEBUG
-			fprintf(stderr, "Launcher %u: launcher for place %i is on %s\n", _myproc, lineNumber, host);
-		#endif
-		lineNumber++;
 	}
 	fclose(fd);
 }

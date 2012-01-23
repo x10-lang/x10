@@ -401,7 +401,7 @@ public class InlineHelper extends ContextVisitor {
     }
 
     public static Name makeSuperBridgeName(final ClassDef cd, Name name) {
-        return Name.make(Emitter.mangleAndFlattenQName(cd.asType().fullName()) + "$" + Emitter.mangleToJava(name) + BRIDGE_TO_SUPER_SUFFIX);
+        return Name.make(Emitter.mangleAndFlattenQName(cd.asType()) + "$" + Emitter.mangleToJava(name) + BRIDGE_TO_SUPER_SUFFIX);
     }
 
     public static Name makePrivateBridgeName(Name name) {

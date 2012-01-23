@@ -23,7 +23,5 @@ public  final class ConstraintGenerator extends XGraphVisitor {
         result.add(XTerms.makeDisEquals(t1, t2));
         return true;
     }
-    public List<XTerm> result() {
-        return result;
-    }
+    public List<XTerm> result() {return result;}
 }

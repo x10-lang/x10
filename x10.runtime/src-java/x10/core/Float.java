@@ -112,7 +112,12 @@ final public class Float extends Number implements StructI,
     public java.lang.Object $gt(Float b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
     public java.lang.Object $le(Float b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
     public java.lang.Object $ge(Float b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(Float b, Type t) { return $value < b.$value; }
+    public boolean $gt$O(Float b, Type t) { return $value > b.$value; }
+    public boolean $le$O(Float b, Type t) { return $value <= b.$value; }
+    public boolean $ge$O(Float b, Type t) { return $value >= b.$value; }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {

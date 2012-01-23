@@ -150,7 +150,10 @@ public class Compress2D {
 			offset += cLine(l).length;
 		}
 		return offset;
-	}	
+	}
+	
+	
+	
 	/**
 	 * Initialize with random values 
 	 *
@@ -184,8 +187,9 @@ public class Compress2D {
 	 */
 	public def initRandomFast(ldm:Int, nzp:Double) =
 		initRandomFast(ldm, nzp, 0, 0);
+
 	
-	//-------------------
+	//-------------------------------------------------------------
 	/**
 	 * Combination of make and random initialize 
 	 *

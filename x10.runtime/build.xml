@@ -16,7 +16,7 @@
     <property name="math.jar" value="${lib}/commons-math-2.2.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
     <property name="bdwgc.tar" value="bdwgc-7.1.tar.gz"/>
-    <property name="bdwgc.url" value="http://dist.codehaus.org/x10/dependencies/${bdwgc.tar}"/>
+    <property name="bdwgc.url" value="http://x10.sourceforge.net/dependencies/${bdwgc.tar}"/>
     <property name="make.exe" value="make"/>
     <property name="bash.exe" value="bash"/>
     <property name="tar.exe" value="tar"/>
@@ -526,14 +526,13 @@
 
     <target name="dist-bdwgc" depends="build-bdwgc" if="bdwgc.enabled">
       <sequential>
-        <mkdir dir="${stdlib}/lib"/>
-        <copy todir="${stdlib}/lib" preservelastmodified="true" flatten="true" >
-           <!--<fileset dir="${bdwgc.dir}/install/lib" includes="libgc.a"/>-->
+        <mkdir dir="${lib}"/>
+        <copy todir="${lib}" preservelastmodified="true" flatten="true" >
            <fileset dir="${bdwgc.dir}/install" includes="lib/*gc*.a,lib/*gc*.so,lib/*gc*.so.*,lib/*gc*.dylib"/>
            <fileset dir="${bdwgc.dir}/install" includes="bin/*.dll"/> <!-- Cygwin -->
         </copy>
-        <mkdir dir="${stdlib}/include"/>
-        <copy todir="${stdlib}/include">
+        <mkdir dir="${inc}"/>
+        <copy todir="${inc}">
            <fileset dir="${bdwgc.dir}/install/include" includes="**/*.h"/>
         </copy>
       </sequential>

@@ -29,6 +29,8 @@ public type SparseBlockMatrix(C:SparseBlockMatrix)=SparseBlockMatrix{self==C};
 
 
 /**
+ * OBSOLETE. Replace by BlockMatrix
+ * 
  * Sparse block matrix is constructed by  an array or sparse blocks, and
  * partitioning grid specifies how each block is mapped to the whole matrix.
  *  
@@ -152,13 +154,23 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 * @param ival 		constant value for all elements
 	 */
-	public def init(ival:Double):void {
+	public def init(ival:Double):SparseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).sparse.init(ival);
 		}
+		return this;
 	}
 
-
+	public def init(f:(Int, Int)=>Double):SparseBlockMatrix(this) {
+		var roff:Int=0;
+		var coff:Int=0;
+		for (var cb:Int=0; cb<grid.numColBlocks; coff+=grid.colBs(cb), roff=0, cb++)
+			for (var rb:Int=0; rb<grid.numRowBlocks; roff+=grid.rowBs(rb), rb++ ) {
+				listBs(grid.getBlockId(rb, cb)).init(roff, coff, f);
+			}		
+		return this;
+	}
+	
 	/**
 	 * Initialize sparse block matrix with random values and specified sparsity
 	 * which is used to determine the index distance between adjacent nonzero
@@ -166,20 +178,22 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 * 
 	 * @param nzd  	sparsity for all blocks
 	 */
-	public def initRandom(nzd:Double):void {
+	public def initRandom(nzd:Double):SparseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).sparse.initRandom(nzd);
 		}
+		return this;
 	}
 
 	/**
 	 * Initialize sparse block matrix with random values. The sparsity of
 	 * each block is computed by the storage size over the size of matrix.
 	 */
-	public def initRandom():void {
+	public def initRandom():SparseBlockMatrix(this) {
 		for (val [p] :Point in listBs) {
 			listBs(p).sparse.initRandom();
 		}
+		return this;
 	}
 
 
@@ -270,7 +284,15 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		}
 		//dst.print("copy to result:");
 	}
+	
+	public def copyTo(that:DenseBlockMatrix(M,N)):void {
+		
+	}
 
+	public def copyTo(that:Matrix(M,N)):void {
+		
+	}
+	
 	/**
 	 *  Copy data from sparse matrix to myself. Used for scatter operation.
 	 * 
@@ -335,10 +357,11 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 * @param  r  the index of rows in the matrix
 	 * @param  c  the index of columns in the matrix
 	 */
-	public  operator this(x:Int,y:Int)=(v:Double) {
+	public  operator this(x:Int,y:Int)=(v:Double):Double  {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		listBs(bid).sparse(loc(2), loc(3))=v;
+		return v;
 	}
 
 
@@ -363,11 +386,16 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 * @param   x  the source matrix to be added with
      */
-    public def cellAdd(x:Matrix(M,N))  {
+    public def cellAdd(x:Matrix(M,N)):SparseBlockMatrix(this)  {
 		Debug.exit("Matrix add does not support using sparse matrix to store result");
 	    return this;
 	}
 
+    public def cellAdd(d:Double):SparseBlockMatrix(this)  {
+    	Debug.exit("Matrix add does not support using sparse matrix to store result");
+    	return this;
+    }
+    
 	/**
 	 * dst = this + dst
 	 */
@@ -394,7 +422,11 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		Debug.exit("Not implemented");
 		return x;
 	}
-
+	
+	public def cellSubFrom(dv:Double) : SparseBlockMatrix(this) {
+		Debug.exit("Not implemented");
+		return this;
+	}
 	//---------------
 
     /**
@@ -472,6 +504,12 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		return this;		
     }
 
+	//====================================================================
+	// Operator overlead
+	//====================================================================
+	public operator - this = this.clone().scale(-1.0) as SparseBlockMatrix(M,N);
+	
+	
 	//====================================================================
 	// Utils
 	//====================================================================

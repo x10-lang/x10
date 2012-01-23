@@ -141,5 +141,10 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
     public java.lang.Object $gt(Char b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
     public java.lang.Object $le(Char b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
     public java.lang.Object $ge(Char b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(Char b, Type t) { return $value < b.$value; }
+    public boolean $gt$O(Char b, Type t) { return $value > b.$value; }
+    public boolean $le$O(Char b, Type t) { return $value <= b.$value; }
+    public boolean $ge$O(Char b, Type t) { return $value >= b.$value; }
+
 }

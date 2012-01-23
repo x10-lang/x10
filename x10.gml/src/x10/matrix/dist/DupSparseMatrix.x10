@@ -133,12 +133,8 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzcnt     number of nonzero elements
 	 */
-	public static def makeRand(m:Int, n:Int, nzcnt:Int): DupSparseMatrix(m,n) {
-		val ddm = make(m, n, nzcnt);
-		ddm.initRandom();
-		return ddm;
-	}
-
+	public static def makeRand(m:Int, n:Int, nzcnt:Int): DupSparseMatrix(m,n) = make(m, n, nzcnt).initRandom();
+	
 	/**
 	 * For testing purpose.
 	 *
@@ -149,10 +145,7 @@ public class DupSparseMatrix extends Matrix {
 	 * @param n     number of columns
 	 * @param nzd     sparsity
 	 */
-	public static def makeRand(m:Int, n:Int, nzd:Double): DupSparseMatrix(m,n) {
-		val nzcnt:Int = (nzd * m * n) as Int;
-		return makeRand(m, n, nzcnt);
-	}
+	public static def makeRand(m:Int, n:Int, nzd:Double) = make(m, n, nzd).initRandom();
 
 	/**
 	 * For testing purpose.
@@ -162,11 +155,26 @@ public class DupSparseMatrix extends Matrix {
 	 * 
 	 * @param ival     initial constant value.
 	 */
-	public def init(ival:Double) : void {
+	public def init(ival:Double) : DupSparseMatrix(this) {
 		local().init(ival);
 		sync();
+		return this;
 	}
 
+	/**
+	 * Init with function
+	 * 
+	 * @param f    The function to use to initialize the matrix, mapping (row, column) => double
+	 * @return this object
+	 */
+	public def init(f:(Int,Int)=>Double): DupSparseMatrix(this) {
+		finish ateach (val [p]:Point in dupMs.dist) {
+			val pid=here.id();
+			dupMs(pid).init(f);
+		}
+		return this;
+	}
+	
 	/**
 	 * For testing purpose.
 	 *
@@ -174,9 +182,10 @@ public class DupSparseMatrix extends Matrix {
 	 *
 	 * @param nzd     the sparsity used int initialzation.
 	 */
-	public def initRandom(nzd:Double) : void {
+	public def initRandom(nzd:Double) : DupSparseMatrix(this) {
 		local().initRandom(nzd);
 		sync();
+		return this;
 	}
 
 	/**
@@ -184,10 +193,12 @@ public class DupSparseMatrix extends Matrix {
 	 *
 	 * <p> Initialize duplicated sparse matrix with random values.
 	 */
-	public def initRandom() : void {
+	public def initRandom() : DupSparseMatrix(this) {
 		local().initRandom();
 		sync();
+		return this;
 	}
+	
 	//================================================================
 	// Data copy and reset
 	//================================================================	
@@ -212,7 +223,17 @@ public class DupSparseMatrix extends Matrix {
 		return dsm;
 	}
 
-
+	//-------------------------------------------------
+	// Copy 
+	//-------------------------------------------------
+	public  def copyTo(that:DupSparseMatrix(M,N)):void {
+		finish ateach(val [p] :Point in this.dist) {
+			val mypid=here.id();
+			val spa = this.dupMs(mypid);
+			spa.copyTo(that.dupMs(p) as SparseCSC(spa.M, spa.N));
+		}
+	}
+	
 	/**
 	 * Copy element values to the target matrix in same dimension.
 	 *
@@ -233,7 +254,18 @@ public class DupSparseMatrix extends Matrix {
 			local().copyTo(dm.local());
 		}
 	}
-
+	
+	public def copyTo(that:Matrix(M,N)): void {
+		if (that instanceof DupSparseMatrix)
+			copyTo(that as DupSparseMatrix);
+		else if (that instanceof DenseMatrix)
+			copyTo(that as DenseMatrix);
+		else if (that instanceof DupDenseMatrix)
+			copyTo(that as DupDenseMatrix);
+		else
+			Debug.exit("CopyTo: target matrix type is not supportede");
+	}
+	
 	//================================================================
 	// Data access
 	//================================================================
@@ -247,9 +279,10 @@ public class DupSparseMatrix extends Matrix {
 	 * Assign v to (x, y) in the copy at here. Other copies are not
 	 * modified.
 	 */
-	public operator this(x:Int,y:Int) = (v:Double):void {
+	public operator this(x:Int,y:Int) = (v:Double):Double {
 		//this.dupMs(here.id()).d(y*this.M+x) = v;
 		local()(x, y) = v;
+		return v;
 	}
 
 
@@ -328,9 +361,12 @@ public class DupSparseMatrix extends Matrix {
 	/**
 	 * Not support. Cellwise subtraction.
 	 */
-	public def cellAdd(A:Matrix(M,N)) {
-		Debug.exit("Not supported for using sparse matrix to store result");
-		return this;
+	public def cellAdd(A:Matrix(M,N)):DupSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
+	}
+
+	public def cellAdd(d:Double):DupSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	/**
@@ -356,10 +392,18 @@ public class DupSparseMatrix extends Matrix {
 	 * Not support. Cellwise subtraction.
 	 */
 	public def cellSub(A:Matrix(M,N)) {
-		Debug.exit("Not supported for using sparse matrix to store result");
+		Debug.exit("Not support use sparse matrix to store result");
 		return this;
 	}
 
+	/**
+	 * this = v - this
+	 */
+	public def cellSubFrom(v:Double):DupSparseMatrix(this) {
+		Debug.exit("Not support using sparse matrix to store result");
+		return this;
+	}
+	
 	/**
 	 * dst = dst - this
 	 */
@@ -381,9 +425,8 @@ public class DupSparseMatrix extends Matrix {
 	/**
 	 * Not support. Concurrently perform cellwise addition on all copies.
 	 */
-	public def cellMult(A:Matrix(M,N))  {
-		Debug.exit("Not supported for using sparse matrix to store result");
-		return this;
+	public def cellMult(A:Matrix(M,N)):DupSparseMatrix(this)  {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	/**
@@ -408,9 +451,8 @@ public class DupSparseMatrix extends Matrix {
 	/**
 	 * Not support. Concurrently perform cellwise subtraction on all copies
 	 */	
-	public def cellDiv(A:Matrix(M,N)) {
-		Debug.exit("Not supported for using sparse matrix to store result");
-		return this;
+	public def cellDiv(A:Matrix(M,N)):DupSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	/**
@@ -484,8 +526,7 @@ public class DupSparseMatrix extends Matrix {
 			B:Matrix(A.N,this.N), 
 			plus:Boolean):DupSparseMatrix(this) {
 
-		Debug.exit("Not support using sparse matrix to store result");
-		return this;
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 
@@ -495,8 +536,7 @@ public class DupSparseMatrix extends Matrix {
 			B:Matrix(A.M,this.N), 
 			plus:Boolean):DupSparseMatrix(this) {
 		
-		Debug.exit("Not support using sparse matrix to store result");
-		return this;
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 
@@ -510,8 +550,7 @@ public class DupSparseMatrix extends Matrix {
 			B:Matrix(this.N, A.N), 
 			plus:Boolean):DupSparseMatrix(this)  {
 
-		Debug.exit("Not support using sparse matrix to store result");
-		return this;
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	//====================================================================

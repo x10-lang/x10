@@ -40,7 +40,7 @@ typedef void x10rt_completion_handler2 (x10rt_team, void *arg);
 
 /** An integer type capable of representing any message type id.
  */
-typedef uint16_t x10rt_msg_type;
+typedef uint32_t x10rt_msg_type;
 
 /** An integer type capable of representing a remote void* or size_t.
  */
@@ -112,12 +112,13 @@ typedef void *x10rt_finder(const x10rt_msg_params *, x10rt_copy_sz);
 typedef void x10rt_notifier(const x10rt_msg_params *, x10rt_copy_sz);
 
 /** The list of remote operations supported.
+ * The numerical values used correspond to the PAMI HFI operation values
  */
 typedef enum {
-    X10RT_OP_ADD = (0x2 << 2),
-    X10RT_OP_AND = (0x4 << 2),
-    X10RT_OP_OR  = (0x3 << 2),
-    X10RT_OP_XOR = (0x5 << 2)
+    X10RT_OP_ADD = 0x00,
+    X10RT_OP_AND = 0x01,
+    X10RT_OP_OR  = 0x02,
+    X10RT_OP_XOR = 0x03
 } x10rt_op_type;
 
 /** The list of operations supported when doing a reduction. 
@@ -175,7 +176,7 @@ typedef enum {
 typedef struct {
     /** Destination place           */
     unsigned int       dest;
-    /** Atomic operation type       */
+    /** Atomic operation type (x10rt_op_type) */
     unsigned int       op;
     /** buffer on destination place */
     unsigned long long dest_buf;

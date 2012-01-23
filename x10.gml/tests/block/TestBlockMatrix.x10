@@ -42,11 +42,11 @@ class RunBlockMatrix {
 	public val nzd:Double;
 
     public def this(args:Array[String](1)) {
-		M = args.size > 0 ?Int.parse(args(0)):40;
+		M = args.size > 0 ?Int.parse(args(0)):50;
 		N = args.size > 1 ?Int.parse(args(1)):M+2;
 		R = args.size > 2 ?Int.parse(args(2)):2;
 		C = args.size > 3 ?Int.parse(args(3)):3;
-		nzd =  args.size > 4 ?Double.parse(args(4)):0.2;
+		nzd =  args.size > 4 ?Double.parse(args(4)):0.99;
 		grid = new Grid(M, N, R, C);
 	}
 
@@ -59,6 +59,7 @@ class RunBlockMatrix {
  		// Set the matrix function
  		ret &= (testClone());
 		ret &= (testScale());
+		ret &= (testAddSub());
 
 		if (ret)
 			Console.OUT.println("Block matrix test passed!");
@@ -75,16 +76,30 @@ class RunBlockMatrix {
 		//dm.printBlock("Dist dense");
 		val sbm1 = sbm.clone();
 		ret = sbm.equals(sbm1 as Matrix(M,N));
-
+		if (!ret) Console.OUT.println("--------------Block matrix clone test failed------------");
+		
 		val dm = DenseMatrix.make(grid.M, grid.N);
 		sbm.copyTo(dm);
 		//dm2.print("Dense");
 		ret &= sbm.equals(dm as Matrix(M,N));
+		if (!ret) Console.OUT.println("--------------Block matrix dense conversion test failed------------");
 
 		if (ret)
 			Console.OUT.println("Block matrix Clone and dense conversion test passed!");
 		else
-			Console.OUT.println("--------Block matrix Clone test failed!--------");
+			Console.OUT.println("--------Block matrix clone and dense conversion test failed!--------");
+	
+		//must be nonzero positions
+		sbm(0, 1) = sbm(M/2,N/3) = 10.0;
+
+		if ((sbm(0,1)==sbm(M/2,N/3)) && (sbm(0,1)==10.0)) {
+			ret &= true;
+			Console.OUT.println("Block Matrix chained assignment test passed!");
+		} else {
+			ret &= false;
+			Console.OUT.println("---------- Block Matrix chained assignment test failed!-------");
+		}
+
 		return ret;
 	}
 
@@ -104,6 +119,25 @@ class RunBlockMatrix {
 		return ret;
 	}
 
+	public def testAddSub():Boolean {
+		Console.OUT.println("Starting block matrix add test");
+		val dm = BlockMatrix.makeDense(grid).initRandom();
+		val sm = BlockMatrix.makeSparse(grid, nzd).initRandom();
 
+		val dm1 = dm * -1.0;
+		val dm0 = dm + dm1;
+		val ret = dm0.equals(0.0);
+		Debug.assure(ret);
+		
+		sm.copyTo(dm);
+		val dm00 = dm - sm;
+		
+		if (ret)
+			Console.OUT.println("Block matrix dense block Add: dm + dm*-1 test passed");
+		else
+			Console.OUT.println("--------Block matrix dense block Add: dm + dm*-1 test failed--------");
+		
+		return ret;
+	}
 
 } 

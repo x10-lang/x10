@@ -63,6 +63,12 @@ namespace x10 {
                 return this;
             }
 
+            static x10aux::ref<Thread> _make();
+
+            x10aux::ref<Thread> _constructor() {
+                return NULL;
+            }
+
             static const x10aux::serialization_id_t _serialization_id;
 
             virtual x10aux::serialization_id_t _get_serialization_id() { return _serialization_id; };

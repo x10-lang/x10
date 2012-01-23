@@ -45,7 +45,8 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     }
     
     private abstract static class Cache {
-        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Int.Cache.enabled", "false"));
+        // N.B. enabled by default to avoid boxing of return value from Comparator.compare
+        static final boolean enabled = java.lang.Boolean.parseBoolean(System.getProperty("x10.lang.Int.Cache.enabled", "true"));
         static final int low = -128;
         static final int high;
         static final Int cache[];
@@ -150,7 +151,12 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     public java.lang.Object $gt(Int b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
     public java.lang.Object $le(Int b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
     public java.lang.Object $ge(Int b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
-    
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(Int b, Type t) { return $value < b.$value; }
+    public boolean $gt$O(Int b, Type t) { return $value > b.$value; }
+    public boolean $le$O(Int b, Type t) { return $value <= b.$value; }
+    public boolean $ge$O(Int b, Type t) { return $value >= b.$value; }
+
     // extends abstract class java.lang.Number
     @Override
     public int intValue() {

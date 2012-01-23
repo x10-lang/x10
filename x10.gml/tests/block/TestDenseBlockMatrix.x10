@@ -105,6 +105,17 @@ class TestDBMatrix {
 			Console.OUT.println("Dense block matrix Clone and dense copy to/from  passed!");
 		else
 			Console.OUT.println("--------Dense block matrix copy to/from test failed!--------");
+
+                dbm(1, 1) = dbm(2,2) = 10.0;
+
+                if ((dbm(1,1)==dbm(2,2)) && (dbm(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("Dense block Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("---------- Dense block Matrix chain assignment test failed!-------");
+                }
+
 		return ret;
 	}
 

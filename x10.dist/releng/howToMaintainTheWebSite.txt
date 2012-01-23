@@ -1,0 +1,38 @@
+Notes on how to maintain content on the http://x10-lang.org website.
+
+The primary content of the website is maintained in the Joomla content
+management system.  Editing the content is done via administrative interface
+at http://x10plus.cloudaccess.net/administrator/.  If you need to make
+changes to pages in Joomla, you will need an account at this site and
+some basic training on how we have structured the website and the care
+and feeding of the various aspects of it.  Talk to Dave Grove, Ben
+Herta, Mike Hind, or John Thomas for more information.
+
+Secondary content is now served from the project website area
+of the X10 sourceforge project.  Sourceforge has fairly decent
+documentation on how to maintain web content at 
+https://sourceforge.net/apps/trac/sourceforge/wiki/Project%20web
+Some specifics on SF.
+  (a) static content lives on the server at /home/project-web/x10/htdocs
+  (b) using rsync or ssh/sftp/scp to push files to the webserver file
+      system is the easiest way to maintain it. For example:
+        rsync -av <stuff> <SF-ID>,x10@web.sourceforge.net:htdocs/<PATH_TO_STUFF>
+  (c) The file /home/project-web/x10/htdocs/foo/bar will be accessible
+      at the URL http://x10.sourceforge.net/foo/bar
+  (d) The top level URL (http://x10.sourceforge.net) redirects to
+    http://x10-lang.org because http://x10.sourceforge.net/index.php 
+    redirects it, but "child" URLs will go through without being
+    redirected. 
+
+Historically, we generated the x10-lang.org web page from the
+confluence wiki (http://docs.codehaus.org/display/XTENLANG/Home) and
+served static content from http://dist.codehaus.org/x10. The codehaus
+part of our web presence is no longer current and no new content
+should be added there.  The wiki portion of the website has been
+mostly removed to avoid search engines finding old content.  The files
+on dist.codehaus.org/x10 are still in place, because significant
+portions of them are needed by the build procedures for prior releases
+of X10. 
+
+In general, talk to Dave Grove if you have any questions on the
+current structure of the website or how to best maintain it.

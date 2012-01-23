@@ -20,18 +20,10 @@ package x10.constraint;
  */
 
 public class XAnd extends XFormula {
-	
-	public XAnd(XTerm left, XTerm right) {
-		super(XTerms.andName, XTerms.asExprAndName, false, left, right);
+    private static final long serialVersionUID = 6884928193006059913L;
+    public XAnd(XTerm left, XTerm right) {super(XTerms.andName, XTerms.asExprAndName, false, left, right);}
+	public XPromise internIntoConstraint(XConstraint c, XPromise last) {
+	    return super.internIntoConstraint(c, last);
 	}
-	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
-		return super.internIntoConstraint(c, last);
-	}
-
-	@Override
-	public String toString() {
-		return left() + "&&" + right();
-	}
-
+	@Override public String toString() {return left() + "&&" + right();}
 }

@@ -11,29 +11,29 @@
 
 package x10.matrix.blas;
 
-import x10.io.Console;
 import x10.compiler.Native;
-//import x10.compiler.NativeRep;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
-
-//import WrapBLAS;
-//import x10.matrix.*;
 
 @NativeCPPInclude("wrap_blas.h")
 @NativeCPPCompilationUnit("wrap_blas.c")
 	
 /**
- *  This class provides BLAS interface in X10.
+ *  This class provides BLAS interface in X10 via native calls.
  *  Only Double based matrix data array is supported in the current version.
  *  All matrix data is stored in column-major arrays. 
  *  All methods declared here have corresponding specification defined by
  *  BLAS, please refer to BLAS specification for detailed information.
  *  
- *  
- *  <p>To compile with BLAS library, add blas path and library in post compile options.
+ *  <p> 
+ * NOTE: This class has been changed to be protected, so that calls of BLAS routines
+ * are made through BLAS or DenseMultBLAS.  This is a workaround for managed backend
+ * when inlining Java methods from WrapBLAS.java in packages other than blas, which causes 
+ * compiler complains that WrapBLAS cannot be found.
+ * 
+ *  <p>To compile BLAS library, add your system blas path and library in post compile options.
  */
-public class DriverBLAS {
+protected class DriverBLAS {
 
 	// 
     //------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public class DriverBLAS {
 
    
     //------------------------------------------------------------------------
-	// Level Two
+	// Level Three
     //------------------------------------------------------------------------
 
 
@@ -167,6 +167,8 @@ public class DriverBLAS {
 				scale:Array[Double](1),
 				trans:Array[Int](1)):void;
 
+	//========================================================================
+
 	/**
 	 * Compute mB =  alpha &#42 op( mA ) &#42 mB + beta &#42 mB, where mA is lower symmetric matrix
 	 *
@@ -187,12 +189,23 @@ public class DriverBLAS {
 				dim:Array[Int](1), 
 				scale:Array[Double](1)):void;
 
-	// 
+
+	// C = alpah* op(A) * op(B) + beta*C, A is symmetrix of lower triangular matrix
+	@Native("java","WrapBLAS.matsymMult((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getDoubleArray(),(#4).raw().getIntArray(),(#5).raw().getDoubleArray())")
+	@Native("c++","matrix_sym_mult((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw(),(#5)->raw()->raw())")
+		public static native def matrix_sym_mult(
+				mB:Array[Double](1), 
+				mA:Array[Double](1), 
+				mC:Array[Double](1),
+				dim:Array[Int](1), 
+				scale:Array[Double](1)):void;
+
+	//================================================================================
 	/**
 	 * Compute mB =  op( mA ) &#42 mB, mA is lower-non-unit triangular matrix.
 	 *
-	 * @param mA     Double precision array storing matrix mA.
-	 * @param mB     Double precision array storing matrix mB, the second matrix and output.
+	 * @param mA     Double precision array storing triangular matrix mA.
+	 * @param mB     Double precision array storing matrix mB, which also is the output.
 	 * @param dim    dimension array [M, N], which are rows of mB and columns of mB.
 	 * @param tranA  transpose option for mA
 	 *
@@ -207,12 +220,12 @@ public class DriverBLAS {
 
 	// A =  A * op( B ), B is lower-non-unit triangular
 	/**
-	 * Compute mB =  op( mA ) &#42 mB, mB is lower-non-unit triangular matrix.
+	 * Compute mB =  mA &#42 op( mB ), mB is lower-non-unit triangular matrix.
 	 *
-	 * @param mA     Double precision array storing matrix mA.
-	 * @param mB     Double precision array storing matrix mB, the second matrix and output.
+	 * @param mA     Double precision array storing matrix mA and output matrix.
+	 * @param mB     Double precision array storing triangular matrix mB.
 	 * @param dim    dimension array [M, N], which are rows of mB and columns of mB. 
-	 * @param tranB  transpose option for mB
+	 * @param tranB  transpose option for matrix mB
 	 *
 	 */
 	@Native("java","WrapBLAS.mattriMult((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getIntArray(),#4)")
@@ -222,14 +235,13 @@ public class DriverBLAS {
 												 dim:Array[Int](1), 
 												 tranB:Int):void;
 
+	
+	//------------------------------------------------------------------------
+	// Level Two
+	//------------------------------------------------------------------------
+
     //------------------------------------------------------------------------
 	//y = A*x 
-// 	@Native("java","WrapBLAS.matvecMult((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getDoubleArray(),#4,#5)")
-// 	@Native("c++","matrix_vector_mult((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),#4,#5)")
-// 		public static native def matrix_vector_mult(mA:Array[Double](1), 
-// 													x:Array[Double](1), 
-// 													y:Array[Double](1),
-// 													M:Int, N:Int):void;
 	//y = alpah * op(A)*x + beta * y
 	/**
 	 * Compute y = alpha &#42 mA &#42 y + beta &#42 y, matrix-vector multiplication.
@@ -239,6 +251,7 @@ public class DriverBLAS {
 	 * @param y      output vector
 	 * @param dim    dimension array [M, N], which are rows and columns of mA
 	 * @param scale  scalars [alpha, beta]
+	 * @param transA transpose flag for matrix mA
 	 */
 	@Native("java","WrapBLAS.matvecMult((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getDoubleArray(),(#4).raw().getIntArray(),(#5).raw().getDoubleArray(),#6)")
 	@Native("c++","matrix_vector_mult((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),(#4)->raw()->raw(),(#5)->raw()->raw(),#6)")
@@ -269,25 +282,74 @@ public class DriverBLAS {
 				y:Array[Double](1),
 				dim:Array[Int](1), 
 				scale:Array[Double](1)):void;
-
-    //------------------------------------------------------------------------
+	//------------------------------------------------------------------------
 	/**
-	 * Solve equation  mA &#42 x = b, where mA is unit lover-triangular matrix.
+	 * Triangular-vector multply:  op(mA) &#42 x = b, where mA is unit lower-non-diagonal matrix.
+	 * 
+	 * @param mA     the lower-non-diagonal matrix
+	 * @param bx     right-hand side vector as input, and output
+	 * @param N      leading dimension of mA 
+	 * @param tA     transpose option for mA
+	 * 
+	 */	
+	@Native("java","WrapBLAS.trivecMult((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),#3,#4)")
+	@Native("c++","tri_vector_mult((#1)->raw()->raw(),(#2)->raw()->raw(),#3,#4)")
+	public static native def tri_vector_mult(
+			mA:Array[Double](1), 
+			bx:Array[Double](1), 
+			lda:Int, tA:Int):void;
+
+
+	//------------------------------------------------------------------------
+	//------------------------------------------------------------------------
+	/**
+	 * Solve equation  mA &#42 x = b, where mA is unit lower-triangular matrix.
 	 *
 	 * @param mA     the unit lower-triangular matrix
-	 * @param bx     right-hand side vector as input, and solution as output
-	 * @param M      leading dimension of mA
-	 * @param N      order of mA 
+	 * @param bx     right-hand side vector as input, and output
+	 * @param dim    leading dimension and order of mA 
+	 * @param transA transpose option for mA 
 	 *
 	 */	
-	@Native("java","WrapBLAS.trimatSolve((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),#3,#4)")
-	@Native("c++","tri_matrix_solve((#1)->raw()->raw(),(#2)->raw()->raw(),#3,#4)")
-		public static native def tri_matrix_solve(
+	@Native("java","WrapBLAS.trivecSolve((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getIntArray(),#4)")
+	@Native("c++","tri_vector_solve((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),#4)")
+		public static native def tri_vector_solve(
 				mA:Array[Double](1), 
 				bx:Array[Double](1), 
-				M:Int, N:Int):void;
-
+				dim:Array[Int](1), transA:Int):void;
+	
     //------------------------------------------------------------------------
+	/**
+	 * Solve matrix equation  op(mA) &#42 X = B, where mA is unit lower-triangular matrix.
+	 * 
+	 * @param mA     the unit lower-triangular matrix
+	 * @param BX     right-hand side matrix as input, and output
+	 * @param dim    leading dimension of mA and leading dimension of B 
+	 * @param transA transpose option for mA 
+	 * 
+	 */	
+	@Native("java","WrapBLAS.trimatSolve((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getIntArray(),#4)")
+	@Native("c++","tri_matrix_solve((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),#4)")
+	public static native def tri_matrix_solve(
+			mA:Array[Double](1), 
+			BX:Array[Double](1), 
+			dim:Array[Int](1), transA:Int):void;
+
+	/**
+	 * Solve matrix equation  X &#42 op(mA) = B, where mA is unit lower-triangular matrix.
+	 * 
+	 * @param BX     left-hand side matrix as input, and output
+	 * @param mA     the unit lower-triangular matrix
+	 * @param dim    leading dimension of mA and leading dimension of B 
+	 * @param transA transpose option for mA 
+	 * 
+	 */	
+	@Native("java","WrapBLAS.mattriSolve((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),(#3).raw().getIntArray(),#4)")
+	@Native("c++","matrix_tri_solve((#1)->raw()->raw(),(#2)->raw()->raw(),(#3)->raw()->raw(),#4)")
+	public static native def matrix_tri_solve(
+			BX:Array[Double](1), 
+			mA:Array[Double](1), 
+			dim:Array[Int](1), transA:Int):void;
 
    /*
 	//y=A*b

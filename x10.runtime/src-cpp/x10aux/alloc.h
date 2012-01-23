@@ -67,7 +67,9 @@ namespace x10aux {
     // terms of size parameter) at all places for the pointers returned to be
     // actually congruent (i.e. for all places to have the same addresses)
     void *alloc_internal_congruent(size_t size);
-    
+
+    void *alloc_internal_huge(size_t size);
+
 #ifdef X10_USE_BDWGC
 	extern bool gc_init_done;
 #endif
@@ -97,17 +99,29 @@ namespace x10aux {
     
     template<class T>inline T* system_alloc(size_t size = sizeof(T)) {
         _M_("system_alloc: Allocating " << size << " bytes of type " << TYPENAME(T));
-        return (T*)::malloc(size);
+
+        T* ret = (T*)::malloc(size);
+        if (ret == NULL && size > 0) {
+            reportOOM(size);
+        }
+
+        return ret;
     }
 
     template<class T> T* system_realloc(T* src, size_t dsz) {
         _M_("system_alloc: Reallocing chunk " << (void*)src << " of type " << TYPENAME(T));
-        return (T*)::realloc(src, dsz);
+
+        T* ret = (T*)::realloc(src, dsz);
+        if (ret == NULL && dsz > 0) {
+            reportOOM(dsz);
+        }
+
+        return ret;
     }
 
-    template<class T> void system_dealloc(const T* obj_) {
+    template<class T> inline void system_dealloc(const T* obj_) {
         _M_("system_alloc: Freeing chunk " << (void*)obj_ << " of type " << TYPENAME(T));
-        ::free(obj_);
+        ::free((void*)obj_);
     }
 
     template<class T> inline T* alloc(size_t size = sizeof(T), bool containsPtrs = true) {

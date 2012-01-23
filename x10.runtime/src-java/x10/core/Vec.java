@@ -80,24 +80,14 @@ public final class Vec<T> extends x10.core.Struct {
     public Vec<T> $init(final Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        // optimized
-//        this.backing = x10.array.Array.<T> $make(T, other.size);
-//        for (int i = 0; i < this.size; ++i) {
-//            this.backing.$set_1x10$array$Array$$T$G(i, other.backing.$apply$G(i));
-//        }
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (java.lang.Class<?>[][][][][][]) null);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
         return this;
     }
 
     public Vec(final Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        // optimized
-//        this.backing = x10.array.Array.<T> $make(T, other.size);
-//        for (int i = 0; i < this.size; ++i) {
-//            this.backing.$set_1x10$array$Array$$T$G(i, other.backing.$apply$G(i));
-//        }
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (java.lang.Class<?>[][][][][][]) null);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
     }
 
     // zero value constructor
@@ -116,7 +106,10 @@ public final class Vec<T> extends x10.core.Struct {
     }
 
     final public T set(final int i, final T v) {
+        // for !Emitter.mangleDefaultOnDemandImportsAsShortName
         return backing.$set__1x10$array$Array$$T$G(i, v);
+//        // for Emitter.mangleDefaultOnDemandImportsAsShortName
+//        return backing.$set__1$Array$$T$G(i, v);
     }
 
     final public int size() {

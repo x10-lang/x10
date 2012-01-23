@@ -16,6 +16,7 @@ import x10.util.Pair;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 
 public type SparseCSR(M:Int)=SparseCSR{self.M==M};
@@ -130,9 +131,10 @@ public class SparseCSR extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see SparseCSC.init(v:Double, sp:Double)
 	 */
-	public def init(v:Double, sp:Double):void {
+	public def init(v:Double, sp:Double):SparseCSR(this) {
 		val cnt = crdata.initConst(N, v, sp);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	} 
 	
 	public def init(v:Double):void {
@@ -146,16 +148,65 @@ public class SparseCSR extends Matrix {
 	 * @param sp     Nonzero sparsity
 	 * @see SparseCSC.initRandom(sp:Double)
 	 */
-	public def initRandom(sp:Double) : void {
+	public def initRandom(sp:Double) : SparseCSR(this) {
 		val cnt = crdata.initRandomFast(N, sp);
 		//sparsity = 1.0 * cnt/M/N;
+		return this;
 	}
 
-	public def initRandom(): void {
+	public def initRandom(): SparseCSR(this) {
 		val nzd = 1.0 * getStorageSize()/M/N;
 		initRandom(nzd);
+		return this;
 	}
-
+	/**
+	 * Initialize with given function with range [0..M, 0..N]
+	 */
+	public def init(f:(Int, Int)=>Double): SparseCSR(this) {
+		
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var r:Int=0; r<M; r++) {
+			val crow = crdata.cLine(r);
+			crow.offset = offset;
+			for (var c:Int=0; c<N; c++) {
+				val nzval:Double = f(r, c);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=c;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			crow.length = offset - crow.offset;
+		}
+		ca.count = offset;
+		return this;
+	}
+	
+	/**
+	 * Initial sparse matrix using function and row and column offsets.
+	 */
+	public def init(rowoff:Int, coloff:Int, f:(Int, Int)=>Double): SparseCSR(this) {
+		
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var r:Int=0; r<M; r++) {
+			val crow = crdata.cLine(r);
+			crow.offset = offset;
+			for (var c:Int=0; c<N&&offset<ca.index.size; c++) {
+				val nzval:Double = f(r+rowoff, c+coloff);
+				if (! MathTool.isZero(nzval)) {
+					ca.index(offset)=c;
+					ca.value(offset)=nzval;
+					offset++;
+				}
+			}
+			crow.length = offset - crow.offset;
+		}
+		ca.count = offset;
+		return this;
+	}	
+	
 	/**
 	 * For testing purpose.
 	 *
@@ -233,8 +284,9 @@ public class SparseCSR extends Matrix {
 	 *
 	 * Modifying sparse matrix after creation is not advised
 	 */
-	public operator this(r:Int, c:Int) = (v:Double) {
+	public operator this(r:Int, c:Int) = (v:Double):Double {
 	    crdata(c)=Pair[Int,Double](r,v);
+	    return v;
 	}
 
 	public def setRow(r:Int, cl:Compress1D) {
@@ -542,6 +594,21 @@ public class SparseCSR extends Matrix {
 	public def copyTo(dm:DenseMatrix(M,N)): void {
 		extractRows(0, this.M, dm);
 	}
+	
+	public static def copyTo(sp:SparseCSR, dm:DenseMatrix, roff:Int, coff:Int): void {
+		Debug.exit("Not implemented yet");
+	}
+	
+	public def copyTo(that:SparseCSR(M,N)) = copy(this, that);
+	
+	public def copyTo(that:Matrix(M,N)):void {
+		if (that instanceof DenseMatrix)
+			copyTo(that as DenseMatrix);
+		else if (that instanceof SparseCSR)
+			copyTo(that as SparseCSR);
+		else
+			Debug.exit("CopyTo: target matrix type not supported");	
+	}
 
 	/**
 	 * Convert to Dense format, allocating new space for the data.
@@ -608,10 +675,14 @@ public class SparseCSR extends Matrix {
     /**
      * Return this += x; not supported
      */
-    public def cellAdd(x:Matrix(M,N))  {
-		Debug.exit("Cell-wise addition does not support using SparseCSR to store result");
-		return this;
+    public def cellAdd(x:Matrix(M,N)):SparseCSR(this)  {
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSR to store result");
     }
+    
+    public def cellAdd(d:Double):SparseCSR(this) {
+    	throw new UnsupportedOperationException("Cell-wise addition does not support using SparseCSC as output matrix");
+    }   
+    
 	/**
 	 * dst += this
 	 */
@@ -634,13 +705,17 @@ public class SparseCSR extends Matrix {
 		SparseSubToDense.comp(x, this);
 		return x;
 	}
+	
+	public def cellSubFrom(dv:Double):SparseCSR(this) {
+		throw new UnsupportedOperationException("Cell-wise multiplication does not support using SparseCSR to store result");
+	}
+	
 	//-----------------------
     /**
      * Return this *= x, not supported
      */
-    public def cellMult(x:Matrix(M,N)) {
-		Debug.exit("Cell-wise multiplication does not support using SparseCSR to store result");
-		return this;
+    public def cellMult(x:Matrix(M,N)):SparseCSR(this) {
+    	throw new UnsupportedOperationException("Cell-wise multiplication does not support using SparseCSR to store result");
     }
 	/**
 	 * x = this * x
@@ -653,9 +728,8 @@ public class SparseCSR extends Matrix {
     /**
      * Return this = this / x, not supported
      */
-    public def cellDiv(x:Matrix(M,N))  {
-		Debug.exit("Cell-wise division does not support using SparseCSR to store result");
-		return this;
+    public def cellDiv(x:Matrix(M,N)):SparseCSR(this)  {
+    	throw new UnsupportedOperationException("Cell-wise division does not support using SparseCSR to store result");
     }
 
 	/**
@@ -879,5 +953,5 @@ public class SparseCSR extends Matrix {
 		}
 		return tc as Int;
 	}
-
+	
 }

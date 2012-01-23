@@ -49,5 +49,14 @@ public class MathTool {
 	 */
 	public static  def isOne(a:Double)         = (Math.abs(a-1.0) < delta);
 	
-	
+	/**
+	 * Return Euclidean distance between two scalar
+	 */
+	public static def euclideanDistance(a:Array[Double](1), 
+									   b:Array[Double](1), len:Int):Double {
+		var d:Double = 0.0;
+		for (var i:Int=0; i<len; i++)
+			d += (a(i)-b(i))*(a(i)-b(i));
+		return Math.sqrt(d);
+	}
 }

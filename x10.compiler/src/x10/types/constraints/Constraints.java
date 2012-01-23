@@ -23,6 +23,4 @@ import x10.constraint.XTerms;
  *
  */
 public class Constraints {
-	
-	
 }

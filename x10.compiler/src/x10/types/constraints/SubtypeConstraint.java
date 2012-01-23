@@ -26,65 +26,43 @@ import x10.types.TypeParamSubst;
 
 /**
  * A representation of a subtype constraint, S <: T or S == T.
- * 
  * TODO: Separate out implementation of haszero T constraint.
  *
  */
 public class SubtypeConstraint implements Copy, Serializable {
-	private static final long serialVersionUID = 4026637095619421750L;
-
+    private static final long serialVersionUID = 4026637095619421750L;
     public enum Kind {
         SUBTYPE, // <:
         EQUAL, // ==
-        HASZERO}; // haszero
-	
+        HASZERO
+    }; // haszero
     
-	Kind KIND;
+    Kind KIND;
     Type subtype;
     Type supertype;
-   
-
     public SubtypeConstraint(Type subtype, Type supertype, Kind kind) {
-    	 this.subtype = subtype;
-         this.supertype = supertype;
-         this.KIND = kind;
-        if (isHaszero())
-            assert subtype!=null && supertype==null;
-        else
-            assert subtype!=null && supertype!=null;
-    }
- 
-    public SubtypeConstraint(Type subtype, Type supertype, boolean equals) {
-    	this(subtype, supertype, 
-    			equals ? Kind.EQUAL : Kind.SUBTYPE);
+        this.subtype = subtype;
+        this.supertype = supertype;
+        this.KIND = kind;
+        if (isHaszero()) assert subtype!=null && supertype==null;
+        else assert subtype!=null && supertype!=null;
     }
 
-    /*
-     * (non-Javadoc)
-     * 
-     * @see x10.types.SubtypeConstraint#isEqualityConstraint()
-     */
-    public boolean isEqualityConstraint() {
-        return KIND==Kind.EQUAL;
+    public SubtypeConstraint(Type subtype, Type supertype, boolean equals) {
+        this(subtype, supertype, equals ? Kind.EQUAL : Kind.SUBTYPE);
     }
-    public boolean isSubtypeConstraint() {
-        return KIND==Kind.SUBTYPE;
-    }
-    public boolean isHaszero() {
-        return KIND==Kind.HASZERO;
-    }
-   
+    public boolean isEqualityConstraint() {return KIND==Kind.EQUAL;}
+    public boolean isSubtypeConstraint()  {return KIND==Kind.SUBTYPE;}
+    public boolean isHaszero() {           return KIND==Kind.HASZERO;}
     public boolean isKind(Kind k) { return k==KIND;}
     public Kind kind() { return KIND;}
-    
+
     /*
      * (non-Javadoc)
      * 
      * @see x10.types.SubtypeConstraint#subtype()
      */
-    public Type subtype() {
-        return subtype;
-    }
+    public Type subtype() {return subtype;}
 
     /*
      * (non-Javadoc)
@@ -97,22 +75,16 @@ public class SubtypeConstraint implements Copy, Serializable {
     }
 
     public SubtypeConstraint copy() {
-        try {
-            return (SubtypeConstraint) super.clone();
-        }
-        catch (CloneNotSupportedException e) {
+        try {return (SubtypeConstraint) super.clone();
+        } catch (CloneNotSupportedException e) {
             assert false;
             return this;
         }
     }
 
     public static Type subst(Type t, XTerm y, XVar x) {
-        try {
-            return Subst.subst(t, y, x);
-        }
-        catch (SemanticException e) {
-            throw new InternalCompilerError(e);
-        }
+        try { return Subst.subst(t, y, x);
+        } catch (SemanticException e) {throw new InternalCompilerError(e);}
     }
 
     /*
@@ -124,22 +96,15 @@ public class SubtypeConstraint implements Copy, Serializable {
     public SubtypeConstraint subst(XTerm y, XVar x) {
         Type l = subst(subtype, y, x);
         Type r = subst(supertype, y, x);
-
-        if (l == subtype && r == supertype)
-            return this;
-
+        if (l == subtype && r == supertype) return this;
         SubtypeConstraint n = copy();
         n.subtype = l;
         n.supertype = r;
         return n;
     }
 
-    @Override
-    public String toString() {
-        return subtype() +
-                (isHaszero() ? " haszero" :
-                (isEqualityConstraint() ? " == " : " <: ") + supertype());
+    @Override public String toString() {
+        return subtype() + (isHaszero() ? " haszero" :
+            (isEqualityConstraint() ? " == " : " <: ") + supertype());
     }
-
-
 }

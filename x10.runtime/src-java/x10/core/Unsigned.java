@@ -125,7 +125,7 @@ public abstract class Unsigned {
             else
                 return toULONG(a).divide(toULONG(b)).longValue();
         } catch (ArithmeticException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 //    public static long div_U_S(long a, long b) {
@@ -135,7 +135,7 @@ public abstract class Unsigned {
 //            else
 //                return toULONG(a).divide(toSLONG(b)).longValue();
 //        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //    public static long div_S_U(long a, long b) {
@@ -145,7 +145,7 @@ public abstract class Unsigned {
 //            else
 //                return toSLONG(a).divide(toULONG(b)).longValue();
 //        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
     public static long rem(long a, long b) {
@@ -155,7 +155,7 @@ public abstract class Unsigned {
             else
                 return toULONG(a).remainder(toULONG(b)).longValue();
         } catch (ArithmeticException e) {
-            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
 //    public static long rem_U_S(long a, long b) {
@@ -165,7 +165,7 @@ public abstract class Unsigned {
 //            else
 //                return toULONG(a).remainder(toSLONG(b)).longValue();
 //        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //    public static long rem_S_U(long a, long b) {
@@ -175,7 +175,7 @@ public abstract class Unsigned {
 //            else
 //                return toSLONG(a).remainder(toULONG(b)).longValue();
 //        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
     

@@ -225,7 +225,101 @@ extern "C"  {
   void dsymv_(char* uplo, int* N, double* alpha, double* A, int* lda,
 			  double* X, int* incx, double* beta, double* Y, int* incy);
   //----------------------------------------------------------------------
- 											  
+
+  /*
+	  SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
+	*     .. Scalar Arguments ..
+	   INTEGER INCX,LDA,N
+	   CHARACTER DIAG,TRANS,UPLO
+	*     ..
+	*     .. Array Arguments ..
+	   DOUBLE PRECISION A(LDA,*),X(*)
+	*     ..
+	*
+	*  Purpose
+	*  =======
+	*
+	*  DTRMV  performs one of the matrix-vector operations
+	*
+	*     x := A*x,   or   x := A**T*x,
+	*
+	*  where x is an n element vector and  A is an n by n unit, or non-unit,
+	*  upper or lower triangular matrix.
+	*
+	*  Arguments
+	*  ==========
+	*
+	*  UPLO   - CHARACTER*1.
+	*           On entry, UPLO specifies whether the matrix is an upper or
+	*           lower triangular matrix as follows:
+	*
+	*              UPLO = 'U' or 'u'   A is an upper triangular matrix.
+	*
+	*              UPLO = 'L' or 'l'   A is a lower triangular matrix.
+	*
+	*           Unchanged on exit.
+	*
+	*  TRANS  - CHARACTER*1.
+	*           On entry, TRANS specifies the operation to be performed as
+	*           follows:
+	*
+	*              TRANS = 'N' or 'n'   x := A*x.
+	*
+	*              TRANS = 'T' or 't'   x := A**T*x.
+	*
+	*              TRANS = 'C' or 'c'   x := A**T*x.
+	*
+	*           Unchanged on exit.
+	*
+	*  DIAG   - CHARACTER*1.
+	*           On entry, DIAG specifies whether or not A is unit
+	*           triangular as follows:
+	*
+	*              DIAG = 'U' or 'u'   A is assumed to be unit triangular.
+	*
+	*              DIAG = 'N' or 'n'   A is not assumed to be unit
+	*                                  triangular.
+	*
+	*           Unchanged on exit.
+	*
+	*  N      - INTEGER.
+	*           On entry, N specifies the order of the matrix A.
+	*           N must be at least zero.
+	*           Unchanged on exit.
+	*
+	*  A      - DOUBLE PRECISION array of DIMENSION ( LDA, n ).
+	*           Before entry with  UPLO = 'U' or 'u', the leading n by n
+	*           upper triangular part of the array A must contain the upper
+	*           triangular matrix and the strictly lower triangular part of
+	*           A is not referenced.
+	*           Before entry with UPLO = 'L' or 'l', the leading n by n
+	*           lower triangular part of the array A must contain the lower
+	*           triangular matrix and the strictly upper triangular part of
+	*           A is not referenced.
+	*           Note that when  DIAG = 'U' or 'u', the diagonal elements of
+	*           A are not referenced either, but are assumed to be unity.
+	*           Unchanged on exit.
+	*
+	*  LDA    - INTEGER.
+	*           On entry, LDA specifies the first dimension of A as declared
+	*           in the calling (sub) program. LDA must be at least
+	*           max( 1, n ).
+	*           Unchanged on exit.
+	*
+	*  X      - DOUBLE PRECISION array of dimension at least
+	*           ( 1 + ( n - 1 )*abs( INCX ) ).
+	*           Before entry, the incremented array X must contain the n
+	*           element vector x. On exit, X is overwritten with the
+	*           tranformed vector x.
+	*
+	*  INCX   - INTEGER.
+	*           On entry, INCX specifies the increment for the elements of
+	*           X. INCX must not be zero.
+	*           Unchanged on exit.
+	*
+	*/
+  //DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
+  void dtrmv_(char* uplo, char* trans, char* diag, int* N, double* A, int* lda, double* X, int* incx);
 
   //------------------------------------------------------------------------
   // for solving triangular matrix problems
@@ -324,6 +418,8 @@ extern "C"  {
   // for	performs the symmetric rank 2 operation A := alpha*x*y' + alpha*y*x' + A
   // void cblas_dsyr2(enum CBLAS_ORDER order, enum CBLAS_UPLO Uplo, blasint N, double alpha, double *X,
   //            blasint incX, double *Y, blasint incY, double *A, blasint lda);
+
+
 
 
   //------------------------------------------------------------------------
@@ -825,8 +921,61 @@ double abs_sum(int n, double* x)
 //------------------------------------------------------------------------
 // Level Two 
 //------------------------------------------------------------------------
+//y = alpha*op(A)*x + beta * y
+void matrix_vector_mult(double* A, double* x, double* y, int* dim, double* scale, int transA)
+{
+  char tA = transA?'T':'N';
 
+  double alpha = scale[0];
+  double beta  = scale[1];
+  int m    = dim[0];
+  int n    = dim[1];
+  int incx = 1;
+  int incy = 1;
+  dgemv_(&tA, &m, &n,
+		 &alpha, A, &m,
+		         x, &incx,
+		 &beta,  y, &incy);
+}
 
+//y = alpha*A*x + beta * y, A is symmetrix matrix of lower triangular part
+void sym_vector_mult(double* A, double* x, double* y, int* dim, double* scale)
+{
+  char uplo = 'L';
+  double alpha = scale[0];
+  double beta  = scale[1];
+  int m    = dim[0];
+  int n    = dim[1];
+  int incx = 1;
+  int incy = 1;
+
+  //printf("dim: %i %i\n", m, n);
+  //printf("%f %f %f  \n", A[2], A[5], A[7]);
+  //printf("%f %f %f %f \n", x[0], x[1], x[2], x[3]);
+
+  dsymv_(&uplo, &n,
+		 &alpha, A, &m,
+		         x, &incx,
+		 &beta,  y, &incy);
+  //printf("%f %f %f %f \n", y[0], y[1], y[2], y[3]);
+  fflush(stdout);
+
+}
+
+//SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
+//   A*x = b,   or   A'*x = b,
+void tri_vector_mult(double* A, double* bx, int lda, int transA)
+{
+	char uplo = 'L';
+	char trnA = transA?'T':'N';
+	char diag = 'N';
+	int  N  = lda;
+	int  incx = 1;
+
+	dtrmv_(&uplo, &trnA, &diag, &N, A, &lda, bx, &incx);
+	//dtrmv_(char* uplo, char* trans, char* diag, int N, double* A, int lda, double* X, int incx);
+
+}
 //------------------------------------------------------------------------
 // Level Three 
 //------------------------------------------------------------------------
@@ -857,6 +1006,7 @@ void matrix_matrix_mult(double* A, double* B, double* C, int* dim,
 		 &beta,  C, &ldc);
 }
 
+//-------------------------------------------------------------------------------
 
 // C = alpah*A * B + beta*C
 // side = "L", Lower symmetric-triangular data, Non-unit triangular
@@ -876,6 +1026,24 @@ void sym_matrix_mult(double* A, double* B, double* C, int* dim, double* scale)
 		         B, &n, 
 		 &beta,  C, &n);
 }
+
+void matrix_sym_mult(double* B, double* A, double* C, int* dim, double* scale)
+{
+  char side = 'R'; // alpha*B*A
+  char uplo = 'L'; // Lower triangular
+  
+  int    m     = dim[0];
+  int    n     = dim[1];
+  double alpha = scale[0];
+  double beta  = scale[1];
+
+  dsymm_(&side, &uplo, 
+		 &m, &n,
+		 &alpha, A, &m,
+		         B, &n,
+		 &beta,  C, &n);
+}
+
 //-------------------------------------------------------
 // B := alpha*op( A )*B, A is lower-non-unit triangular
 void tri_matrix_mult(double* A, double* B, int* dim, int tranA)
@@ -885,28 +1053,84 @@ void tri_matrix_mult(double* A, double* B, int* dim, int tranA)
   char diag = 'N'; //Non-unit triagnular
   char tran = (tranA)?'T':'N';
   double alpha = 1.0;
-  int m = dim[0];
-  int n = dim[1]; 
+  int m = dim[0]; //Rows of B
+  int n = dim[1]; //Columns of B
   int lda = m;
   int ldb = n;
   dtrmm_(&side, &uplo, &tran, &diag, 
 		 &m, &n, &alpha, A, &lda, B, &ldb);
 }
-// B := alpha*B*op( A ), A is lower-non-unit triangular
-void matrix_tri_mult(double* B, double* A, int* dim, int tranA)
+// B := alpha*A*op( B ), B is lower-non-unit triangular
+void matrix_tri_mult(double* B, double* A, int* dim, int tranB)
 {
-  char side = 'R'; //alpha * B * op(A);
+  char side = 'R'; //alpha * A * op(B);
   char uplo = 'L'; //A is lower triangular
   char diag = 'N'; //Non-unit triagnular
-  char tran = (tranA)?'T':'N';
+  char tTri = (tranB)?'T':'N';
   double alpha = 1.0;
-  int m = dim[0];
-  int n = dim[1]; 
+  int m = dim[0]; //Rows of B
+  int n = dim[1]; //Columns of B
   int lda = n;
   int ldb = m;
 
-  dtrmm_(&side, &uplo, &tran, &diag, 
+  dtrmm_(&side, &uplo, &tTri, &diag,
 		 &m, &n, &alpha, A, &lda, B, &ldb);
+}
+
+//------------------------------------------------------------------------
+// Solve a lower-triangular, non unit-diagonal triangular matrix equation
+// A*x = b
+void tri_vector_solve(double* A, double* bx, int* dim, int tranA)
+{
+  char uplo = 'L';
+  char trans= (tranA)?'T':'N';
+  char diag = 'N';
+  int incx = 1;
+  int m = dim[0]; // Leading dimension of A, must be number of rows in A
+  int n = dim[1]; // Order of matrix A, must be number of columns in A
+
+  dtrsv_(&uplo,  &trans, &diag,
+		 &n, A,  &m,
+		 bx, &incx);
+}
+
+void tri_matrix_solve(double* A, double* BX, int* dim, int tranA)
+{
+	char side = 'L'; //op(A) X = B
+	char uplo = 'L';
+	char trans= (tranA)?'T':'N';
+	char diag = 'N';
+	int  m   = dim[0]; //number of rows in B
+	int  n   = dim[1]; //number of column in B
+	int  lda = m;      //first dimension of A
+	int  ldb = m;      //first dimension of B
+	double alpha = 1.0;
+
+	dtrsm_(&side, &uplo, &trans, &diag,
+		   &m, &n, &alpha, A, &lda, BX, &ldb);
+//void dtrsm_(char* side, char* uplo, char* transA, char* diag, int* M, int* N,
+//			  double* alpha, double* A, int* lda,
+//			  double* B, int* ldb);
+}
+
+
+void matrix_tri_solve(double* BX, double* A, int* dim, int tranA)
+{
+	char side = 'R'; //X op(A) = B
+	char uplo = 'L';
+	char trans= (tranA)?'T':'N';
+	char diag = 'N';
+	int  m   = dim[0]; //number of rows in B
+	int  n   = dim[1]; //number of column in B
+	int  lda = m;      //first dimension of A
+	int  ldb = n;      //first dimension of B
+	double alpha = 1.0;
+
+	dtrsm_(&side, &uplo, &trans, &diag,
+		   &m, &n, &alpha, A, &lda, BX, &ldb);
+//void dtrsm_(char* side, char* uplo, char* transA, char* diag, int* M, int* N,
+//			  double* alpha, double* A, int* lda,
+//			  double* B, int* ldb);
 }
 
 
@@ -926,55 +1150,6 @@ void matrix_tri_mult(double* B, double* A, int* dim, int tranA)
 /* 		 &beta,  y, &incy); */
 /* } */
 
-//y = alpha*op(A)*x + beta * y
-void matrix_vector_mult(double* A, double* x, double* y, int* dim, double* scale, int transA)
-{
-  char tA = transA?'T':'N';
-
-  double alpha = scale[0];
-  double beta  = scale[1];
-  int m    = dim[0];
-  int n    = dim[1];
-  int incx = 1;
-  int incy = 1;
-  dgemv_(&tA, &m, &n,
-		 &alpha, A, &m,
-		         x, &incx, 
-		 &beta,  y, &incy);
-}
-
-//y = alpha*A*x + beta * y, A is symmetrix matrix of lower triangular part
-void sym_vector_mult(double* A, double* x, double* y, int* dim, double* scale)
-{
-  char uplo = 'L';
-  double alpha = scale[0];
-  double beta  = scale[1];
-  int m    = dim[0];
-  int n    = dim[1];
-  int incx = 1;
-  int incy = 1;
-  dsymv_(&uplo, &n, 
-		 &alpha, A, &m,
-		         x, &incx, 
-		 &beta,  y, &incy);
-
-}
-
-
-//------------------------------------------------------------------------
-// Solve a lower-triangular, non unit-diagonal triangular matrix equation 
-// A*x = b
-void tri_matrix_solve(double* A, double* bx, int m, int n) 
-{
-  char uplo = 'L';
-  char trans= 'N';
-  char diag = 'N';
-  int incx = 1;
-
-  dtrsv_(&uplo,  &trans, &diag, 
-		 &n, A,  &m, 
-		 bx, &incx);  
-}
 
 //------------------------------------------------------------------------
 // Other tools

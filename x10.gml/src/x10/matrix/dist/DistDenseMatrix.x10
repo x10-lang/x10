@@ -210,29 +210,56 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * 
 	 * @param ival     initial value for all elements in matrix
 	 */
-	public def init(ival:Double):void {
+	public def init(ival:Double):DistDenseMatrix(this) {
 		
 		finish ateach (val [p] :Point in distBs) {
 			distBs(p).dense.init(ival);
 		}
+		return this;
 	}
-
+	
+	/**
+	 * Initialize using function. 
+	 * 
+	 * @param f    The function to use to initialize the matrix, given global row and column index
+	 * @return this object
+	 */
+	public def init(f:(Int,Int)=>Double): DistDenseMatrix(this) {
+		var coloff:Int=0;
+		var rowoff:Int=0;
+		finish for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), cb++) {
+			rowoff = 0;
+			for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+				val pid = grid.getBlockId(rb, cb);
+				val roff:Int = rowoff;
+				val coff:Int = coloff;
+				async at(distBs.dist(pid)) {
+					distBs(pid).init(roff, coff, f);
+				}
+			}
+		}
+		return this;
+	}
+	
+	//------------------------------------------------------------------
 	/**
 	 * Initialize distributed dense-block matrix with random values
 	 * 
 	 * @param lb  --- lower bound of random value
 	 * @param up  --- upper bound of random value
 	 */
-	public def initRandom(lb:Int, ub:Int):void {
+	public def initRandom(lb:Int, ub:Int):DistDenseMatrix(this) {
 		finish ateach (val [p] :Point in distBs) {
 			distBs(p).dense.initRandom(lb, ub);
 		}
+		return this;
 	}
 	
-	public def initRandom():void {
+	public def initRandom():DistDenseMatrix(this) {
 		finish ateach (val [p] :Point in distBs) {
 			distBs(p).dense.initRandom();
 		}
+		return this;
 	}
 	//==================================================================
 	// Matrix data allocation
@@ -257,7 +284,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param n number of columns in matrix
 	 */
 	public  def alloc(m:Int, n:Int):DistDenseMatrix(m,n) {
-		Debug.exit("Allocation fail, matrix partition is unknown");
+		//Debug.exit("Allocation fail, matrix partition is unknown");
 		val g =  Grid.make(m, n, Place.MAX_PLACES);
 		val nm = DistDenseMatrix.make(g);
 		return nm;
@@ -275,6 +302,18 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		return new DistDenseMatrix(grid, ddb);
     }
 	//-------------------------------------------------------
+	// Copy
+	//-------------------------------------------------------
+	public  def copyTo(that:DistDenseMatrix):void {
+		Debug.assure(this.grid.equals(that.grid));		
+		finish ateach(val [p] :Point in this.dist) {
+			val mypid = here.id();
+			val smat  = this.getMatrix(mypid);
+			smat.copyTo(that.getMatrix(mypid) as DenseMatrix(smat.M, smat.N));
+		}
+	}
+	
+	
 	/**
 	 * Copy data from distributed dense matrix in all places
 	 * to dense block matrix at here.
@@ -316,19 +355,21 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	}
 
 	
-	
 	/**
 	 * Copy data from distributed dense-block matrix in all places to duplicated dense matrix
 	 *
 	 * @param ddm      duplicated dense matrix
 	 */
 	public def copyTo(dupden:DupDenseMatrix(M,N)):void {
-		Debug.assure(grid.numRowBlocks==1,
-					"Number of row blocks is not 1");
+		Debug.assure(grid.numRowBlocks==1||N==1,
+					"Number of row blocks is not 1 or matrix is not a vector");
 
 		/* Timing */ val stt = Timer.milliTime();
+		//Debug.flushln("Starting gathering row Bs");
 		comm.gatherRowBs(grid, distBs, dupden.local());
+		//Debug.flushln("Starting bcast gathered result");
 		comm.bcast(dupden.dupMs);
+		//Debug.flushln("Done bcast");
 		/* Timing */ dupden.commTime += Timer.milliTime() - stt;
 	}
 
@@ -359,6 +400,19 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		comm.scatterRowBs(grid, den, distBs);
 		/* Timing */ distBs(here.id()).commTime += Timer.milliTime() - stt;
 	}
+	
+	public def copyTo(mat:Matrix(M,N)): void {
+		
+		if (mat instanceof DistDenseMatrix)
+			copyTo(mat as DistDenseMatrix);
+		else if (mat instanceof DenseBlockMatrix)
+			copyTo(mat as DenseBlockMatrix);
+		else if (mat instanceof DenseMatrix)
+			copyTo(mat as DenseMatrix);
+		else
+			Debug.exit("CopyTo: target matrix is not supported");
+	}
+	
 	//================================================================
 	// Data access 
 	//================================================================	
@@ -423,10 +477,11 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Set value v at (x, y) 
 	 */
-	public  operator this(x:Int,y:Int)=(v:Double) {
+	public  operator this(x:Int,y:Int)=(v:Double):Double {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		at (this.distBs.dist(bid)) this.getMatrix(bid)(loc(2), loc(3))=v;
+		return v;
 	}
 
 	/**
@@ -484,7 +539,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 */
 	public def cellAdd(A:DistDenseMatrix(M,N)) {//: DistDenseMatrix(this) {
 		if (! this.grid.equals(A.grid)) 
-			Debug.exit("Partitioning of matrices are not same!");
+			throw new UnsupportedOperationException("Partitioning of matrices are not same!");
 
 	    finish ateach([p]  in this.distBs) {
 			/* Timing */ val st:Long = Timer.milliTime();
@@ -495,10 +550,19 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	    return this;
 	}
 
+	public def cellAdd(d:Double) {
 
-	protected def cellAddTo(x:DenseMatrix(M,N)) {
-		Debug.exit("Not implemented");
-		return x;
+		finish ateach([p]  in this.distBs) {
+			/* Timing */ val st:Long = Timer.milliTime();
+			val mat = local();
+			mat.cellAdd(d);
+			/* Timing */ distBs(p).calcTime += Timer.milliTime() - st;
+		}
+		return this;
+	}
+	
+	protected def cellAddTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	//-------------------------------
@@ -508,7 +572,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Cellwise subtraction. A must be a DistDenseMatrix instance
 	 */
-	public def cellSub(A:Matrix(M,N)) {//:  DistDenseMatrix(this) {
+	public def cellSub(A:Matrix(M,N)) :  DistDenseMatrix(this) {
 	    if (! likeMe(A))
 	        throw new UnsupportedOperationException("Distributed matrix not compatible");
 	    return cellSub(A as DistDenseMatrix(M,N));
@@ -517,9 +581,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Cellwise subtraction. A must has the same Grid
 	 */
-	public def cellSub(A:DistDenseMatrix(M,N)) {//:  DistDenseMatrix(this) {
+	public def cellSub(A:DistDenseMatrix(M,N)) :  DistDenseMatrix(this) {
 		if (! this.grid.equals(A.grid)) 
-			Debug.exit("Partitioning grid is not compatible");
+			throw new UnsupportedOperationException("Partitioning grid is not compatible");
 	    finish ateach([p] in this.dist) {
 			/* Timing */ val st:Long = Timer.milliTime();
 	        val d = this.local();
@@ -535,11 +599,19 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @param x     first input and output in subtraction operation
 	 * @return      result matrix
 	 */
-	protected def cellSubFrom(x:DenseMatrix(M,N)) {
-		Debug.exit("Not implemented");
-		return x;
+	protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
+	public def cellSubFrom(dv:Double):DistDenseMatrix(this) {
+		finish ateach([p] in this.dist) {
+			//Remote capture: dv
+		   val d = this.local();
+		   d.cellSubFrom(dv);
+		}
+		return this;
+	}	
+	
 	//-------------------------------
 	// Cellwise multiplication
 	//-------------------------------
@@ -547,7 +619,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Cellwise multiplication. Input A must be a DistDenseMatrix instance
 	 */
-	public def cellMult(A:Matrix(M,N)) {//: DistDenseMatrix(this) {
+	public def cellMult(A:Matrix(M,N)) : DistDenseMatrix(this) {
 		if (! likeMe(A)) 
 			throw new UnsupportedOperationException("Distributed matrix not compatible");		
 		return cellMult(A as DistDenseMatrix(M,N));
@@ -559,9 +631,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
  	 * <p> For each i,j in the domain of this, replace this(i,j) with 
  	 * this(i,j) * A(i,j).
 	 */
-	public def cellMult(A:DistDenseMatrix(M,N)) {//: DistDenseMatrix(this) {
+	public def cellMult(A:DistDenseMatrix(M,N)): DistDenseMatrix(this) {
 		if (! this.grid.equals(A.grid)) 
-			Debug.exit("Partitioning of matrices are not same!");
+			throw new UnsupportedOperationException("Partitioning of matrices are not same!");
 
 	    finish ateach([p]  in this.distBs) {
 			/* Timing */ val st:Long = Timer.milliTime();
@@ -575,9 +647,8 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Perform cell-wise multiply operation x = this &#42 x 
 	 */
-	protected def cellMultTo(x:DenseMatrix(M,N)) {
-		Debug.exit("Not implemented");
-		return x;
+	protected def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
+		throw new UnsupportedOperationException("Not implemented");
 	}	
 
 	//-------------------------------
@@ -590,9 +661,9 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * <p> For each i,j in the domain of this, replace this(i,j) with 
 	 * this(i,j) / A(i,j).
 	 */
-	public def cellDiv(A:DistDenseMatrix(M,N)) {//:  DistDenseMatrix(this) {
+	public def cellDiv(A:DistDenseMatrix(M,N)):  DistDenseMatrix(this) {
 		if (! this.grid.equals(A.grid)) 
-			Debug.exit("Partitioning grid is not compatible");
+			throw new UnsupportedOperationException("Partitioning grid is not compatible");
 	    finish ateach([p] in this.distBs) {
 			/* Timing */ val st:Long = Timer.milliTime();
 	        val d = this.local();
@@ -602,7 +673,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	    return this;
 	}
 
-	public def cellDiv(A:Matrix(M,N))  {
+	public def cellDiv(A:Matrix(M,N)):DistDenseMatrix(this)  {
 		if (! likeMe(A)) 
 			throw new UnsupportedOperationException("Distributed matrix not compatible");		
 		return cellDiv(A as DistDenseMatrix(M,N));
@@ -611,9 +682,8 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	/**
 	 * Perform cellwise return x = this / x 
 	 */	
-	protected def cellDivBy(dst:DenseMatrix(M,N)) {
-		Debug.exit("Not implemented");
-		return dst;
+	protected def cellDivBy(dst:DenseMatrix(M,N)):DenseMatrix(dst) {
+		throw new UnsupportedOperationException("Not implemented");
 	}
 
 	//====================================================================
@@ -790,7 +860,7 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 		return this;
 	}	
 	
-	//==================================================================
+	//=================================================================
 	// DistDense * DupDense					 
 	//=================================================================	
 	/**
@@ -836,7 +906,31 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			A:DistSparseMatrix(this.M), 
 			B:DupDenseMatrix(this.N,A.N)):DistDenseMatrix(this) 			
 		= multTrans(A, B, false);
-		
+
+	//=================================================================
+	// Operator overlead			 
+	//=================================================================	
+	public operator - this = this.clone().scale(-1.0) as DistDenseMatrix(M,N);
+	public operator (v:Double) + this = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
+	public operator this + (v:Double) = this.clone().cellAdd(v) as DistDenseMatrix(M,N);
+
+	public operator this - (v:Double) = this.clone().cellAdd(-v) as DistDenseMatrix(M,N);
+	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DistDenseMatrix(M,N);
+	
+	public operator this / (v:Double) = this.clone().scale(1.0/v) as DistDenseMatrix(M,N);
+	//public operator (v:Double) / this = this.clone().cellDivBy(v) as DistDenseMatrix(M,N);
+	
+	public operator this * (alpha:Double) = this.clone().scale(alpha) as DistDenseMatrix(M,N);
+	public operator this * (alpha:Int)    = this.clone().scale(alpha as Double) as DistDenseMatrix(M,N);
+	public operator (alpha:Double) * this : DistDenseMatrix(M,N) = this * alpha;
+	public operator (alpha:Int) * this    : DistDenseMatrix(M,N) = this * (alpha as Double);
+	
+	public operator this + (that:DistDenseMatrix(M,N)) = this.clone().cellAdd(that) as DistDenseMatrix(M,N);
+	public operator this - (that:DistDenseMatrix(M,N)) = this.clone().cellSub(that) as DistDenseMatrix(M,N);
+	public operator this * (that:DistDenseMatrix(M,N)) = this.clone().cellMult(that) as DistDenseMatrix(M,N);
+	public operator this / (that:DistDenseMatrix(M,N)) = this.clone().cellDiv(that) as DistDenseMatrix(M,N);
+
+	
 	//==================================================================
 	// Profiling
 	//==================================================================

@@ -32,6 +32,7 @@ import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
@@ -104,7 +105,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return n;
             Type type          = n.type();
-            Allocation a       = syn.createAllocation(pos, n.objectType(), n.typeArguments());
+            Allocation a       = (Allocation)syn.createAllocation(pos, n.objectType(), n.typeArguments()).type(type);
             a                  = (Allocation) copyAnnotations(n, a);
             LocalDecl ld       = syn.createLocalDecl(pos, Flags.FINAL, Name.makeFresh("alloc"), a);
             ConstructorCall cc = syn.createConstructorCall(syn.createLocal(pos, ld), n);
@@ -122,7 +123,7 @@ public class ConstructorSplitterVisitor extends ContextVisitor {
             if (isUnsplittable(n.constructorInstance().container().toClass()))
                 return ld;
             Type type          = n.type();
-            Allocation a       = syn.createAllocation(pos, n.objectType(), n.typeArguments());
+            Allocation a       = (Allocation)syn.createAllocation(pos, n.objectType(), n.typeArguments()).type(type);
             a                  = (Allocation) copyAnnotations(n, a);
             // We're in a statement context, so we can avoid a stmt expr.
             List<Stmt> stmts   = new ArrayList<Stmt>();

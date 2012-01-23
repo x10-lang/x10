@@ -1,14 +1,3 @@
-#
-#  This file is part of the X10 project (http://x10-lang.org).
-#
-#  This file is licensed to You under the Eclipse Public License (EPL);
-#  You may not use this file except in compliance with the License.
-#  You may obtain a copy of the License at
-#      http://www.opensource.org/licenses/eclipse-1.0.php
-#
-#  (C) Copyright IBM Corporation 2006-2011.
-#
-
 ###################################################
 ###################################################
 ## Name:  	X10 global parallel matrix library - GML
@@ -26,6 +15,13 @@
 src_path	=src
 lib_path	=lib
 build_path	=include
+
+###
+# Configure system settings for blas library
+# check script/system_settings.mk
+# blas_path = ... 
+# blas_lib	= ...
+# add_lapack= ...
 
 #----
 # Output libs, properties, and tar files
@@ -48,10 +44,14 @@ managed		: managed_gml
 ## Source files
 ###################################################
 bwrap_path	=$(src_path)/x10/matrix/blas
+lwrap_path =$(src_path)/x10/matrix/lapack
 
 base_src=\
 	x10/matrix/Debug.x10 \
 	x10/matrix/DenseMultXTen.x10 \
+	x10/matrix/SymMatrix.x10 \
+	x10/matrix/TriMatrix.x10 \
+	x10/matrix/Vector.x10 \
 	x10/matrix/MathTool.x10 \
 	x10/matrix/Matrix.x10 \
 	x10/matrix/RandTool.x10 \
@@ -59,7 +59,7 @@ base_src=\
 	x10/matrix/DistPConsole.x10	\
 	x10/matrix/MatrixMultXTen.x10  \
 	x10/matrix/PConsole.x10 \
-	x10/matrix/VerifyTools.x10
+	x10/matrix/VerifyTools.x10 
 
 comm_src=\
 	x10/matrix/comm/ArrayRcast.x10 \
@@ -78,24 +78,37 @@ comm_src=\
 	x10/matrix/comm/DenseRemoteDestInfo.x10 \
 	x10/matrix/comm/MatrixGather.x10 \
 	x10/matrix/comm/MatrixRingCast.x10 \
-	x10/matrix/comm/SparseRemoteSourceInfo.x10
+	x10/matrix/comm/SparseRemoteSourceInfo.x10\
+	x10/matrix/comm/BlockRemoteCopy.x10 \
+	x10/matrix/comm/BlockBcast.x10 \
+	x10/matrix/comm/BlockScatter.x10 \
+	x10/matrix/comm/BlockGather.x10 \
+	x10/matrix/comm/BlockRingCast.x10 \
+ 	x10/matrix/comm/BlockReduce.x10
+
 
 bwrap_src=\
-	x10/matrix/blas/DenseMultBLAS.x10 \
+	x10/matrix/blas/DenseMatrixBLAS.x10 \
+	x10/matrix/blas/BLAS.x10 \
 	x10/matrix/blas/DriverBLAS.x10
 
+lapack_src=\
+	x10/matrix/lapack/DenseMatrixLAPACK.x10 \
+	x10/matrix/lapack/LAPACK.x10 \
+	x10/matrix/lapack/DriverLAPACK.x10
+
 sparse_src=\
-	x10/matrix/sparse/Compress1D.x10 \
-    x10/matrix/sparse/Compress2D.x10 \
-    x10/matrix/sparse/DenseMultSparseToDense.x10 \
-    x10/matrix/sparse/SparseCSR.x10 \
-    x10/matrix/sparse/SparseMultSparseToDense.x10 \
-    x10/matrix/sparse/SparseAddToDense.x10 \
-    x10/matrix/sparse/SparseDivToDense.x10 \
-    x10/matrix/sparse/SparseSubToDense.x10 \
-	x10/matrix/sparse/CompressArray.x10  \
-	x10/matrix/sparse/SparseCSC.x10  \
-	x10/matrix/sparse/SparseMultDenseToDense.x10
+  	x10/matrix/sparse/Compress1D.x10 \
+   	x10/matrix/sparse/Compress2D.x10 \
+   	x10/matrix/sparse/DenseMultSparseToDense.x10 \
+    	x10/matrix/sparse/SparseCSR.x10 \
+    	x10/matrix/sparse/SparseMultSparseToDense.x10 \
+    	x10/matrix/sparse/SparseAddToDense.x10 \
+    	x10/matrix/sparse/SparseDivToDense.x10 \
+    	x10/matrix/sparse/SparseSubToDense.x10 \
+    	x10/matrix/sparse/CompressArray.x10  \
+    	x10/matrix/sparse/SparseCSC.x10  \
+    	x10/matrix/sparse/SparseMultDenseToDense.x10
 
 block_src=\
 	x10/matrix/block/BlockMatrix.x10  \
@@ -115,7 +128,12 @@ dist_src=\
 	x10/matrix/dist/DupMatrix.x10 \
 	x10/matrix/dist/DistMatrix.x10 \
 	x10/matrix/dist/DistSparseMatrix.x10  \
-	x10/matrix/dist/DupMultToDup.x10
+	x10/matrix/dist/DupMultToDup.x10 \
+	x10/matrix/distblock/DistMap.x10 \
+	x10/matrix/distblock/DistGrid.x10 \
+	x10/matrix/distblock/BlockSet.x10 \
+	x10/matrix/distblock/DistBlockMatrix.x10
+	
 
 summa_src=\
 	x10/matrix/dist/summa/SummaDenseMultSparse.x10 \
@@ -134,19 +152,20 @@ summa_mpi_src=\
 ##-----
 
 ## basic lib src, non-parallel/dist version
-seq_src		= $(base_src) $(bwrap_src) $(sparse_src) $(block_src) 
+seq_src		= $(base_src) $(bwrap_src) $(lapack_src) $(sparse_src) $(block_src) 
 ## lib src parallel/dist version 
 ##
 mpi_wrap	= $(comm_mpi_src) $(summa_mpi_src)
 lib_src     = $(seq_src) $(dist_src) $(comm_src) $(summa_src)
 
 #--------------------------------------------------
-VPATH		=$(bwrap_path):$(src_path)
+VPATH		=$(bwrap_path):$(lwrap_path):$(src_path)
 
 ###################################################
-##### Dependent library setting Atlas BLAS lib
+# Dependent library setting BLAS lib
 ###################################################
 include scripts/system_setting.mk
+
 
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
 X10_FLAG	= -VERBOSE_CHECKS -O -NO_CHECKS
@@ -164,7 +183,7 @@ POST_MPI	= -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
 ###----------------------------------------------------
 ### build dist lib, multi-place parallel execution 
 ## build for managed backend
-jlib : $(src) chk_dir chk_jblas
+jlib : $(src) chk_dir chk_jblas $(add_jlapack)
 	@echo "------------------ build lib for $(target) on $(server)-------------------"
 	cd $(src_path) && $(XJ) $(X10_FLAG) -buildx10lib ../. $(src) -d ../include -o ../lib/$(target).jar
 	@echo "------------ making properties file for $(target) ------------"
@@ -190,6 +209,7 @@ native_gml		: $(lib_src)
 native_mpi_gml	: $(lib_src) $(mpi_wrap) 
 		@($(MAKE) clib target=$@ src="$(lib_src) $(mpi_wrap)" post_opts='$(MPI_FLAG) $(POST_MPI)')
 
+### build basic non-dist lib, single place (sequential matrix lib)
 managed_seq_gml	: $(seq_src)
 		@($(MAKE) jlib target=$@ src="$(seq_src)")
 
@@ -197,17 +217,22 @@ native_seq_gml	: $(seq_src)
 		@($(MAKE) clib target=$@ src="$(seq_src)" post_opts='$(POST_CPP)')
 
 ###----------------------------------------------------
-### build basic non-dist lib, single place (sequential matrix lib)
+check_blas: 
+		@if [ -f $(blas_lib) ]; then \
+			echo "Find: $(blas_lib)"; \
+		else \
+			echo "Not find: $(blas_lib)"; \
+		fi;
 
 #
 ###------------------------------------------------
 ### BLAS lib for java backend
 
-chk_jblas	: chk_blas jblas
+chk_jblas	: chk_blas jblas 
 			cp $(bwrap_path)/WrapBLAS.java $(build_path)/x10/matrix/blas
-
+			
 chk_blas	: 
-			mkdir -p $(build_path)/x10/matrix/blas
+			mkdir -p $(build_path)/x10/matrix/blas 
 
 wrap_blas.o	: wrap_blas.c
 			g++ -c -v -fPIC $< -o $@
@@ -216,10 +241,30 @@ jni_blas.o 	: jni_blas.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
 
 libjblas.so	: wrap_blas.o jni_blas.o $(blas_lib)
-			g++ -shared -fPIC $^ $(blas_lib) -lgfortran -o $@
+			g++ -shared -fPIC $^ -lgfortran -o $@
 
 jblas		: libjblas.so
 			cp $< $(lib_path)/.
+
+###------------------------------------------------
+chk_jlapack	: chk_lapack jlapack
+			cp $(lwrap_path)/WrapLAPACK.java $(build_path)/x10/matrix/lapack
+
+chk_lapack	:			
+			mkdir -p $(build_path)/x10/matrix/lapack 
+
+wrap_lapack.o: wrap_lapack.c
+			g++ -c -v -fPIC $< -o $@
+
+jni_lapack.o: jni_lapack.c
+			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
+
+libjlapack.so: wrap_lapack.o jni_lapack.o $(lapack_lib)
+			g++ -shared -fPIC $^ $(lapack_lib) -lgfortran -o $@
+
+jlapack		: libjlapack.so
+			cp $< $(lib_path)/.
+
 
 ###------------------------------------------------
 chk_dir:
@@ -236,6 +281,12 @@ clear	::
 ###------------------------------------------------
 help	::
 	@echo "--------------- Make global matrix libraries ---------------"
+	@echo ""
+	@echo "Configure system settings"
+	@echo "Dependent library: BLAS"
+	@echo "Configuring script/system_setting.mk"
+	@echo "--- Define server name when building gml on server side (optional). Default is local host"
+	@echo "--- Define blas_path and blas lib name on local host, and server side (optional)"
 	@echo ""
 	@echo "1) Build full library for multi-place execution"
 	@echo "make managed    -- make library tar file for managed backend: lib/managed_gml.jar and managed_gml.properties"

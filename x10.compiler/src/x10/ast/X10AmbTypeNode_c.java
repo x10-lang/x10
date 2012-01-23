@@ -80,8 +80,7 @@ public class X10AmbTypeNode_c extends AmbTypeNode_c implements X10AmbTypeNode, A
       NodeFactory nf = (NodeFactory) tc.nodeFactory();
       Context c = (Context) tc.context();
 
-      if (! c.inAnnotation() ||
-          (c.pop()!=null && c.pop().inAnnotation())) // To handle "@Throws2[Throwable]" (because Throwable is not an interface)  see XTENLANG-2855
+      if (! c.inAnnotation())
 	  return null;
 
       SemanticException ex;

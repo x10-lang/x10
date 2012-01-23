@@ -15,15 +15,20 @@ import static x10cpp.visit.ASTQuery.getStringPropertyInit;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Node;
+import polyglot.ast.ProcedureDecl;
 import polyglot.frontend.Job;
+import polyglot.types.NoClassException;
+import polyglot.types.ProcedureDef;
 import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
+import x10.ast.AnnotationNode;
 import x10.extension.X10Ext;
 import x10.types.X10ClassType;
 import x10.types.X10Def;
@@ -75,6 +80,7 @@ public class AnnotationUtils {
      * @param node
      * @param type
      * @return
+     * TODO [IP]: same as annotationsMatching() below. 
      */
     public static List<X10ClassType> getAnnotations(Node node, Type type) {
         assert node.ext() instanceof X10Ext;
@@ -88,6 +94,159 @@ public class AnnotationUtils {
     public List<X10ClassType> getAnnotations(Node node) {
         assert node.ext() instanceof X10Ext;
         return ((X10Ext) node.ext()).annotationTypes();
+    }
+
+    /**
+     * @param ts
+     * @param o
+     * @param name
+     * @return
+     * @throws SemanticException
+     */
+    public static X10ClassType annotationNamed(TypeSystem ts, Node o, QName name)
+            throws SemanticException {
+        // Nate's code. This one.
+        if (o.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) o.ext();
+            Type baseType = ts.systemResolver().findOne(name);
+            List<X10ClassType> ats = ext.annotationMatching(baseType);
+            if (ats.size() > 1) {
+                throw new SemanticException("Expression has more than one "+ name + " annotation.", o.position());
+            }
+            if (!ats.isEmpty()) {
+                X10ClassType at = ats.get(0);
+                return at;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * @param o
+     * @param name
+     * @return
+     */
+    public static List<AnnotationNode> annotationNodesNamed(Node o, QName name) {
+        if (o != null && o.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) o.ext();
+            List<AnnotationNode> l = new ArrayList<AnnotationNode>();
+            for (AnnotationNode an : ext.annotations()) {
+                X10ClassType ct = an.annotationInterface();
+                if (name.equals(ct.fullName())) {
+                    l.add(an);
+                }
+            }
+            return l;
+        }
+        return null;
+    }
+    
+    /**
+     * @param o
+     * @param annotationType
+     * @return
+     */
+    public static List<X10ClassType> annotationsMatching(Node o, Type annotationType) {
+        if (o != null && o.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) o.ext();
+            return ext.annotationMatching(annotationType);
+        }
+        return null;
+    }
+
+    /**
+     * @param o
+     * @param annotationType
+     * @return
+     */
+    public static List<AnnotationNode> annotationNodesMatching(Node o, Type annotationType) {
+        if (o != null && o.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) o.ext();
+            List<AnnotationNode> l = new ArrayList<AnnotationNode>();
+            for (AnnotationNode an : ext.annotations()) {
+                X10ClassType ct = an.annotationInterface();
+                if (ct.isSubtype(annotationType, annotationType.typeSystem().emptyContext())) {
+                    l.add(an);
+                }
+            }
+            return l;
+        }
+        return null;
+    }
+    
+    /**
+     * @param ts
+     * @param dec
+     * @param name
+     * @return
+     */
+    public static boolean hasAnnotation(TypeSystem ts, Node dec, QName name) {
+        try {
+            if (AnnotationUtils.annotationNamed(ts, dec, name) != null)
+                return true;
+        } catch (NoClassException e) {
+            if (!e.getClassName().equals(name.toString()))
+                throw new InternalCompilerError(
+                        "Something went terribly wrong", e);
+        } catch (SemanticException e) {
+            throw new InternalCompilerError("Something is terribly wrong", e);
+        }
+        return false;
+    }
+
+    /**
+     * @param o
+     * @param fullName
+     * @return
+     */
+    public static List<X10ClassType> annotationsNamed(Node o, QName fullName) {
+        if (o != null && o.ext() instanceof X10Ext) {
+            X10Ext ext = (X10Ext) o.ext();
+            return ext.annotationNamed(fullName);
+        }
+        return null;
+    }
+
+    /**
+     * @param d
+     * @return
+     */
+    public static List<Type> getThrowsTypes(ProcedureDecl d) {
+        Type throwsType = d.procedureInstance().typeSystem().Throws();
+        // Cannot use annotationsMatching, because that requires an exact type match.
+        List<X10ClassType> _throwss = annotationsNamed(d.returnType(), throwsType.fullName());
+        if (_throwss == null || _throwss.size()==0) {
+            _throwss = annotationsNamed(d.body(), throwsType.fullName());
+        }
+        if (_throwss == null) {
+            _throwss = Collections.<X10ClassType>emptyList();
+        }
+        List<Type> result = new ArrayList<Type>(_throwss.size());
+        for (X10ClassType _throws : _throwss) {
+            assert (_throws.typeArguments().size() == 1);
+            result.add(_throws.typeArguments().get(0));
+        }
+        return result;
+    }
+
+    /**
+     * @param pd
+     * @return
+     */
+    public static List<Type> getThrowsTypes(ProcedureDef pd) {
+        Type throwsType = pd.typeSystem().Throws();
+        // Cannot use annotationsMatching, because that requires an exact type match.
+        List<Type> _throwss = pd.annotationsNamed(throwsType.fullName());
+        if (_throwss == null) {
+            _throwss = Collections.<Type>emptyList();
+        }
+        List<Type> result = new ArrayList<Type>(_throwss.size());
+        for (Type t : _throwss) {
+            X10ClassType _throws = (X10ClassType) t;
+            assert (_throws.typeArguments().size() == 1);
+            result.add(_throws.typeArguments().get(0));
+        }
+        return result;
     }
 
     private static final List<String> javaNativeStrings = Arrays.asList("java");

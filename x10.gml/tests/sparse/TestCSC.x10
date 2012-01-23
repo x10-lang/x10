@@ -1,12 +1,7 @@
 /*
- *  This file is part of the X10 project (http://x10-lang.org).
+ *  This file is part of the X10 Applications project.
  *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2011.
  */
 
 import x10.io.Console;
@@ -48,6 +43,7 @@ class AddSubCSC {
 		Console.OUT.println("CSC Test on "+M+"x"+N+" matrix "+ nzp+" sparsity");
  		// Set the matrix function
 		ret &= (testClone());
+		ret &= (testInit());
 		ret &= (testAdd());
 		ret &= (testAddSub());
 		ret &= (testAddAssociative());
@@ -69,11 +65,21 @@ class AddSubCSC {
 		//sp.print();
 		val sp1 = sp.clone();
 		//sp1.print();
-		val ret = sp.equals(sp1);
+		var ret:Boolean = sp.equals(sp1);
 		if (ret)
 		 	Console.OUT.println("CSC Clone test passed!");
 		else
 		 	Console.OUT.println("--------CSC Clone test failed!--------");
+                sp1(1, 1) = sp1(2,2) = 10.0;
+
+                if ((sp1(1,1)==sp1(2,2)) && (sp1(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("SparseCSC Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("---------- SparseCSC Matrix chain assignment test failed!-------");
+                }
+
 		return ret;
 	}
 
@@ -92,7 +98,23 @@ class AddSubCSC {
 			Console.OUT.println("--------CSC Add: sp+sp.neg() test failed--------");
 		return ret;
 	}
+	
+	public def testInit():Boolean {
+		Console.OUT.println("Start Sparse CSC initialization func test");
+		var ret:Boolean=true;
+		val sp = SparseCSC.make(M, N, 0.6).init((r:Int, c:Int)=>((r+c)%2 as Double));
 
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++)
+				ret &= (sp(r,c) == ((r+c)%2 as Double));
+		
+		if (ret)
+			Console.OUT.println("SparseCSC initialization func test passed!");
+		else
+			Console.OUT.println("--------SparseCSC initialization func test failed--------");
+		return ret;
+	}
+	
 	public def testAddSub():Boolean {
 		Console.OUT.println("CSC Add-sub");
 		val sp = SparseCSC.make(M, N, nzp);
@@ -112,6 +134,7 @@ class AddSubCSC {
 			Console.OUT.println("--------CSC Add-sub test failed!--------");
 		return ret;
 	}
+	
 	public def testAddAssociative():Boolean {
 		Console.OUT.println("CSC Add associative test");
 		val a = SparseCSC.make(M, N, nzp);

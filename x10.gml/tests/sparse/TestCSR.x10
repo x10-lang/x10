@@ -39,7 +39,7 @@ class AddSubCSR {
 
     public def this(args:Array[String](1)) {
 		M = args.size > 0 ?Int.parse(args(0)):4;
-		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
+		nzp = args.size > 1 ?Double.parse(args(1)):0.9;
 		N = args.size > 2 ?Int.parse(args(2)):M+1;
 		K = args.size > 3 ?Int.parse(args(3)):M+2;	
 	}
@@ -69,12 +69,22 @@ class AddSubCSR {
 		//sp.print();
 		val sp1 = sp.clone();
 		//sp1.print();
-		val ret = sp.equals(sp1);
+		var ret:Boolean = sp.equals(sp1);
 		if (ret)
 			Console.OUT.println("CSR Clone test passed!");
 		else
 			Console.OUT.println("--------CSR Clone test failed!--------");
-		return ret;
+	        sp(1, 1) = sp1(2,2) = 10.0;
+
+                if ((sp(1,1)==sp1(2,2)) && (sp(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("SparseCSR Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("---------- SparseCSR Matrix chain assignment test failed!-------");
+                }
+
+                return ret;
 	}
 
 	public def testAdd():Boolean {

@@ -13,7 +13,6 @@ import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-//import x10.matrix.DenseMultBLAS;
 
 import x10.matrix.block.Grid;
 import x10.matrix.block.DenseBlockMatrix;
@@ -41,7 +40,7 @@ class TestDD {
 	public val K:Int;	
 
     public def this(args:Array[String](1)) {
-		M = args.size > 0 ?Int.parse(args(0)):50;
+		M = args.size > 0 ?Int.parse(args(0)):4;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
 		N = args.size > 2 ?Int.parse(args(2)):M+1;
 		K = args.size > 3 ?Int.parse(args(3)):M+2;	
@@ -54,6 +53,7 @@ class TestDD {
 		var ret:Boolean = true;
  		// Set the matrix function
 		ret &= (testClone());
+		ret &= (testInit());
 		ret &= (testCopyTo());
 		ret &= (testScale());
 		ret &= (testAdd());
@@ -85,10 +85,36 @@ class TestDD {
 		if (ret)
 			Console.OUT.println("DistDenseMatrix Clone test passed!");
 		else
-			Console.OUT.println("--------Dense Matrix Clone test failed!--------");
+			Console.OUT.println("--------DistDense Matrix Clone test failed!--------");
+
+                ddm(1, 1) = ddm(2,2) = 10.0;
+
+                if ((ddm(1,1)==ddm(2,2)) && (ddm(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("Dist Dense Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("----------Dist Dense Matrix chain assignment test failed!-------");
+                }
+
+                return ret;
+	}
+	
+	public def testInit():Boolean {
+		Console.OUT.println("Starting Dist Dense Matrix initialization test");
+		var ret:Boolean = true;
+		val ddm = DistDenseMatrix.make(M,N).init((r:Int, c:Int)=>(1.0+r+c));
+		for (var c:Int=0; c<M; c++)
+			for (var r:Int=0; r<M; r++)
+				ret &= (ddm(r,c) == 1.0+r+c);
+		
+		if (ret)
+			Console.OUT.println("Dist Dense matrix initialization func test passed!");
+		else
+			Console.OUT.println("--------Dist Dense matrix initialization func failed!--------");	
 		return ret;
 	}
-
+	
 	public def testCopyTo():Boolean {
 		var ret:Boolean = true;
 		Console.OUT.println("Starting dist dense Matrix copyTo test");

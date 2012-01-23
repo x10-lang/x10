@@ -22,6 +22,10 @@ while [ $# != 0 ]; do
 	shift
     ;;
 
+    -nodebug)
+	debug_arg="-nodebug"
+    ;;
+
    esac
    shift
 done
@@ -43,7 +47,7 @@ for host in $hosts
 do
     echo "Launching buildRelease.sh on $host"
     scp buildRelease.sh $host:/tmp 
-    ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag'"
+    ssh $host "bash -l -c 'cd /tmp; ./buildRelease.sh -dir /tmp/x10-rc-$USER -version $version -tag $tag $debug_arg'"
     ssh $host "(cd /tmp; rm ./buildRelease.sh)"
     echo "transfering binary build from $host to localhost"
     scp "$host:/tmp/x10-rc-$USER/x10-$version/x10.dist/x10-$version*.tgz" .

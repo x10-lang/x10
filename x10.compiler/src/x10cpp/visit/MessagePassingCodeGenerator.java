@@ -1430,8 +1430,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    sw.pushCurrentStream(context.genericFunctions);
 		    context.closures = context.genericFunctionClosures;
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
-		    sw.write("#ifndef "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
-		    sw.write("#define "+guard+"_"+mi.name().toString()+"_"+mid); sw.newline();
+		    sw.write("#ifndef "+guard+"_"+Emitter.mangled_method_name(mi.name().toString())+"_"+mid); sw.newline();
+		    sw.write("#define "+guard+"_"+Emitter.mangled_method_name(mi.name().toString())+"_"+mid); sw.newline();
 		}
 
 		// we sometimes need to use a more general return type as c++ does not support covariant smartptr return types
@@ -1531,7 +1531,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (def.typeParameters().size() != 0) {
 		    sw.popCurrentStream();
 		    String guard = getHeaderGuard(getHeader(mi.container().toClass()));
-		    context.genericFunctions.writeln("#endif // "+guard+"_"+mi.name().toString()+"_"+mid);
+		    context.genericFunctions.writeln("#endif // "+guard+"_"+Emitter.mangled_method_name(mi.name().toString())+"_"+mid);
 		}
 		context.closures = saved_closure_stream;
 	}

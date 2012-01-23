@@ -132,7 +132,7 @@ import x10.visit.CheckEscapingThis;
 import x10.visit.AnnotationChecker;
 import x10.visit.ErrChecker;
 import x10cpp.postcompiler.PrecompiledLibrary;
-
+import x10.visit.CommunicationOptimizer;
 
 /**
  * Extension information for x10 extension.
@@ -491,6 +491,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
 
        private Goal addPreOptimizationGoals(Job job, List<Goal> goals) {
            final Goal typeCheckBarrierGoal = TypeCheckBarrier();
+	       goals.add(CommunicationOptimizer(job));
            goals.add(MoveFieldInitializers(job)); // should do this before desugaring
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
@@ -988,6 +989,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            NodeFactory nf = extInfo.nodeFactory();
            return new ForgivingVisitorGoal("CheckNativeAnnotations", job, new CheckNativeAnnotationsVisitor(job, ts, nf, nativeAnnotationLanguage())).intern(this);
        }
+
+	public Goal CommunicationOptimizer(Job job) {
+            TypeSystem ts = extInfo.typeSystem();
+            NodeFactory nf = extInfo.nodeFactory();
+            return new VisitorGoal("CommunicationOptimizer", job, new CommunicationOptimizer(job, ts, nf)).intern(this);
+        }
 
        public static class ValidatingVisitorGoal extends VisitorGoal {
            private static final long serialVersionUID = 5119557747721488612L;

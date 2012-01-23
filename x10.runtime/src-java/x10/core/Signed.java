@@ -37,7 +37,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Byte.parseByte(s, radix);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //
@@ -46,7 +46,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Byte.parseByte(s);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //    
@@ -55,7 +55,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Short.parseShort(s, radix);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //
@@ -64,7 +64,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Short.parseShort(s);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //    
@@ -73,7 +73,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Integer.parseInt(s, radix);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //
@@ -82,7 +82,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Integer.parseInt(s);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //    
@@ -91,7 +91,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Long.parseLong(s, radix);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //
@@ -100,7 +100,7 @@ public abstract class Signed {
 //        try {
 //            return java.lang.Long.parseLong(s);
 //        } catch (java.lang.NumberFormatException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Exception(e);
+//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
     

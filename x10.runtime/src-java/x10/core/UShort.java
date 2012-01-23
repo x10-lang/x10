@@ -142,6 +142,11 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public java.lang.Object $gt(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
     public java.lang.Object $le(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
     public java.lang.Object $ge(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
+    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    public boolean $lt$O(UShort a, Type t) { return Unsigned.lt($value,a.$value); }
+    public boolean $gt$O(UShort a, Type t) { return Unsigned.gt($value,a.$value); }
+    public boolean $le$O(UShort a, Type t) { return Unsigned.le($value,a.$value); }
+    public boolean $ge$O(UShort a, Type t) { return Unsigned.ge($value,a.$value); }
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write($value);

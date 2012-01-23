@@ -244,12 +244,33 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 *
 	 * @param   ival        The constant value
 	 */
-	public def init(ival:Double) : void {
+	public def init(ival:Double) : DistSparseMatrix(this) {
 		finish ateach (val [p] :Point in this.dist) {
 			distBs(p).init(ival);
 		}
+		return this;
 	}
-
+	
+	/**
+	 * Initialize distributed matrix using global row and column indexes as inputs to
+	 * a given initial function.
+	 */
+	public def init(f:(Int,Int)=>Double): DistSparseMatrix(this) {
+		var coloff:Int=0;
+		var rowoff:Int=0;
+		finish for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), cb++) {
+			rowoff = 0;
+			for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+				val pid = grid.getBlockId(rb, cb);
+				val roff:Int = rowoff;
+				val coff:Int = coloff;
+				async at(distBs.dist(pid)) {
+					distBs(pid).init(roff, coff, f);
+				}
+			}
+		}
+		return this;
+	}
 	/**
 	 * For testing purpose.
 	 *
@@ -261,16 +282,18 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 * @param ub      upper bound of random value 
 	 * @param sp     sparsity used for initialization
 	 */
-	public def initRandom(lb:Int, ub:Int, sp:Double) :void {
+	public def initRandom(lb:Int, ub:Int, sp:Double) :DistSparseMatrix(this) {
 		finish ateach (val [p] :Point in this.dist) {
 			distBs(p).sparse.initRandom(lb, ub, sp);
-		}	
+		}
+		return this;
 	}
 	
-	public def initRandom(sp:Double) :void {
+	public def initRandom(sp:Double) : DistSparseMatrix(this) {
 		finish ateach (val [p] :Point in this.dist) {
 			distBs(p).sparse.initRandom(sp);
-		}	
+		}
+		return this;
 	}
 	/**
 	 * For testing purpose.
@@ -326,6 +349,17 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 
 	//-------------------------------------------------------
 	//
+	//-------------------------------------------------------
+	
+	public def copyTo(that:DistSparseMatrix(M,N)) : void {
+		Debug.assure(this.grid.equals(that.grid));
+		finish ateach(val [p] :Point in this.dist) {
+			val s = this.distBs(p).getMatrix();
+			val d = that.distBs(p).getMatrix();
+			s.copyTo(d as SparseCSC(s.M, s.N));
+		} 		
+	}
+	
 	/**
 	 * Copy data to dense matrix format at here.
 	 */
@@ -368,13 +402,22 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 		Debug.assure(grid.numRowBlocks==1);
 		comm.gatherRowBs(grid, this.distBs, spm);
 	}
-    
-	//public def copyTo(dm:DenseMatrix(M,N)): void {
-		// val sbm:SparseBlockMatrix=SparseBlockMatrix(grid, nzdensity);
-		// copyTo(sbm);
 
-	//}
-
+	public def copyTo(that:Matrix(M,N)): void {
+		if (that instanceof DistSparseMatrix)
+			copyTo(that as DistSparseMatrix);
+		else if (that instanceof DistDenseMatrix)
+			copyTo(that as DistDenseMatrix);
+		else if (that instanceof SparseBlockMatrix)
+			copyTo(that as SparseBlockMatrix);
+		else if (that instanceof DenseMatrix)
+			copyTo(that as DenseMatrix);
+		else if (that instanceof SparseCSC)
+			copyTo(that as SparseCSC);
+		else
+			Debug.exit("CopyTo: target matrix type is not supported");
+	}
+	
 	/**
 	 * Copy data from sparse block matrix at here to dist block sparse matrix
 	 * 
@@ -451,13 +494,14 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 * Set data value v to position at (x, y). (x, y) is absolute
 	 * coordination in the matrix.
 	 */
-	public operator this(x:Int,y:Int)=(v:Double){
+	public operator this(x:Int,y:Int)=(v:Double):Double {
 		val loc = grid.find(x, y);
 		val bid = grid.getBlockId(loc(0), loc(1));
 		
 		at (this.distBs.dist(bid)) {
 			this.local()(loc(2), loc(3))=v;
 		}
+		return v;
 	}
 	//
 	public  def reset():void {
@@ -531,6 +575,11 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 		return this;
 	}
 
+	public def cellAdd(d:Double)  {
+		Debug.exit("No implementation of cellwise add-in for DistSparseMatrix");
+		return this;
+	}
+
 	protected def cellAddTo(dst:DenseMatrix(M,N)) {
 		Debug.exit("Not available");
 		return dst;
@@ -541,25 +590,29 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	/**
 	 * Cellwise subtraction in DistSparseMatrix is not supported and
 	 */
-	public def cellSub(A:DistSparseMatrix(M,N))  {
-		Debug.exit("No implementation of cellwise sub-in for DistSparseMatrix");
-		return this;
+	public def cellSub(A:DistSparseMatrix(M,N)):DistSparseMatrix(this)  {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	/**
 	 * Cellwise subtraction in DistSparseMatrix is not supported and
 	 */
-	public def cellSub(x:Matrix(M,N)) {
-	    if (! likeMe(x))
-	        throw new UnsupportedOperationException();
-	    return cellSub(x as DistSparseMatrix(M,N));
+	public def cellSub(x:Matrix(M,N)):DistSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
 	}
 
 	/**
+	 * Perform cell-wise subtraction  this = dv - this. Not support;
+	 */
+	public def cellSubFrom(dv:Double):DistSparseMatrix(this) {
+		throw new UnsupportedOperationException("Not support using sparse matrix to store result");
+	}	
+	
+	/**
 	 * Perform cell-wise subtraction  x = x - this.
 	 */
-	protected def cellSubFrom(x:DenseMatrix(M,N)) {
-		Debug.exit("Not available");
+	protected def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
+		Debug.exit("Not implemented");
 		return x;
 	}
 

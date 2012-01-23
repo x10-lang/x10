@@ -462,6 +462,13 @@ public class X10JavaDeserializer {
     }
 
     public Object readArrayUsingReflection(Class<?> componentType) throws IOException {
+        short serializationID = readShort();
+        if (serializationID == DeserializationDispatcher.NULL_ID) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Deserialized a null array");
+            }
+            return null;
+        }
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
                 return readIntArray();
@@ -570,12 +577,18 @@ public class X10JavaDeserializer {
     	FieldBasedDeserializerThunk(Class<? extends Object> clazz, DeserializerThunk st) {
     		super(st);
 
+                // XTENLANG-2982,2983 transient fields may be initialized with readObject method. 
+                Method readObjectMethod = null;
+                try {
+                    readObjectMethod = clazz.getDeclaredMethod("readObject", java.io.ObjectInputStream.class);
+                } catch (Exception e) {}
+
     		// Sort the fields to get JVM-independent ordering.
     		Set<Field> flds = new TreeSet<Field>(new FieldComparator());
     		Field[] declaredFields = clazz.getDeclaredFields();
     		for (Field field : declaredFields) {
     			int modifiers = field.getModifiers();
-    			if (Modifier.isStatic(modifiers) || Modifier.isTransient(modifiers)) {
+    			if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && readObjectMethod == null)) {
     				continue;
     			}
     			field.setAccessible(true);

@@ -68,7 +68,17 @@ public class TestDupDense {
 				Console.OUT.println("Dup dense Matrix clone test passed!");
 			else
 				Console.OUT.println("--------Dup Dense Matrix clone test failed!--------");
-			return ret;
+	                d1(1, 1) = d2(2,2) = 10.0;
+
+     	           	if ((d1(1,1)==d2(2,2)) && (d1(1,1)==10.0)) {
+                        	ret &= true;
+                        	Console.OUT.println("Dup Dense Matrix chain assignment test passed!");
+                	} else {
+                        	ret &= false;
+                        	Console.OUT.println("---------- Dup Dense Matrix chain assignment test failed!-------");
+                	}
+
+                	return ret;
 		}
 
 		public def testAddSub():Boolean{

@@ -8,6 +8,8 @@ public class AllTests {
 		TestSuite suite = new TestSuite();
 		//$JUnit-BEGIN$
 		suite.addTestSuite(BindingTest.class);
+		suite.addTestSuite(NestedExTest.class);
+		suite.addTestSuite(QualifiedVarTests.class);
 		//$JUnit-END$
 		return suite;
 	}

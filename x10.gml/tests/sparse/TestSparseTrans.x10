@@ -13,7 +13,7 @@ import x10.io.Console;
 
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.sparse.SparseCSR;
@@ -84,7 +84,7 @@ class SparseTrans {
 		//c.printSparse("Sparse aT*b=\n");
 		val da= a.toDense();
 		val db= b.toDense();
-		val dc:DenseMatrix(M,N)= DenseMultBLAS.compTransMult(da, db);
+		val dc:DenseMatrix(M,N)= DenseMatrixBLAS.compTransMult(da, db);
 		//dc.print("Dense aT*b=\n");
 		val ret = dc.equals(c);
 		if (ret)
@@ -105,7 +105,7 @@ class SparseTrans {
 		//da.print("Dense a=\n");
 		val db= b.toDense();
 		//db.print("Dense b=\n");
-		val dc:DenseMatrix(M,N)= DenseMultBLAS.compTransMult(da, db);
+		val dc:DenseMatrix(M,N)= DenseMatrixBLAS.compTransMult(da, db);
 		val ret = dc.equals(c);
 		//dc.print("Dense a*b=\n");
 
@@ -126,7 +126,7 @@ class SparseTrans {
 		//da.print("Dense a=\n");
 		val db= b;
 		//db.print("Dense b=\n");
-		val dc:DenseMatrix(M,N)= DenseMultBLAS.compTransMult(da, db);
+		val dc:DenseMatrix(M,N)= DenseMatrixBLAS.compTransMult(da, db);
 		val ret = dc.equals(c);
 		//dc.print("Dense a*b=\n");
 		if (ret)
@@ -146,7 +146,7 @@ class SparseTrans {
 		//da.print("Dense a=\n");
 		val db= b;
 		//db.print("Dense b=\n");
-		val dc:DenseMatrix(M,N) = DenseMultBLAS.compMultTrans(da, db);
+		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compMultTrans(da, db);
 		//val dc= da * db.T();
 		val ret = dc.equals(c);
 		//dc.print("Dense a*b=\n");
@@ -171,7 +171,7 @@ class SparseTrans {
 		//c.printSparse("Sparse aT*b=\n");
 		val da= a.toDense();
 		val db= b.toDense();
-		val dc:DenseMatrix(M,N) = DenseMultBLAS.compTransMult(da, db);
+		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compTransMult(da, db);
 		//val dc= da.T() * db;
 		//dc.print("Dense aT*b=\n");
 		val ret = dc.equals(c);
@@ -192,7 +192,7 @@ class SparseTrans {
 		//da.print("Dense a=\n");
 		val db= b.toDense();
 		//db.print("Dense b=\n");
-		val dc:DenseMatrix(M,N) = DenseMultBLAS.compTransMult(da, db);
+		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compTransMult(da, db);
 		//val dc= da.T() * db;
 		val ret = dc.equals(c);
 		//dc.print("Dense a*b=\n");
@@ -214,7 +214,7 @@ class SparseTrans {
 		//da.print("Dense a=\n");
 		val db= b;
 		//db.print("Dense b=\n");
-		val dc:DenseMatrix(M,N) = DenseMultBLAS.compTransMult(da, db);
+		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compTransMult(da, db);
 		//val dc= da.T() * db;
 		val ret = dc.equals(c);
 		//dc.print("Dense a*b=\n");
@@ -235,7 +235,7 @@ class SparseTrans {
 		//da.print("Dense a=\n");
 		val db= b;
 		//db.print("Dense b=\n");
-		val dc:DenseMatrix(M,N)=DenseMultBLAS.compMultTrans(da, db);
+		val dc:DenseMatrix(M,N)=DenseMatrixBLAS.compMultTrans(da, db);
 		//val dc= da * db.T();
 		val ret = dc.equals(c);
 		//dc.print("Dense a*b=\n");
@@ -255,7 +255,7 @@ class SparseTrans {
 		//c.printSparse("Sparse a*b=\n");
 		//db.print("Dense b=\n");
 		val da = a.toDense();
-		val dc:DenseMatrix(M,N) = DenseMultBLAS.compMultTrans(da, b);
+		val dc:DenseMatrix(M,N) = DenseMatrixBLAS.compMultTrans(da, b);
 		//val dc= da * b.T();
 		val ret = dc.equals(c);
 		//dc.print("Dense a*b=\n");
@@ -276,7 +276,7 @@ class SparseTrans {
 		val c = DenseMultSparseToDense.compTransMult(a, b);
 
 		val db = b.toDense();
-		val dc = DenseMultBLAS.compTransMult(a, db);
+		val dc = DenseMatrixBLAS.compTransMult(a, db);
 		//val dc= a.T() * db;
 
 		val ret = dc.equals(c);

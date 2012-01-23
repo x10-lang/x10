@@ -46,7 +46,7 @@ class TestSBMatrix {
 		N = args.size > 1 ?Int.parse(args(1)):M+2;
 		R = args.size > 2 ?Int.parse(args(2)):2;
 		C = args.size > 3 ?Int.parse(args(3)):3;
-		nzd =  args.size > 4 ?Double.parse(args(4)):0.2;
+		nzd =  args.size > 4 ?Double.parse(args(4)):0.9;
 		grid = new Grid(M, N, R, C);
 	}
 
@@ -87,6 +87,17 @@ class TestSBMatrix {
 			Console.OUT.println("Sparse block matrix Clone and dense conversion test passed!");
 		else
 			Console.OUT.println("--------Sparse block matrix Clone test failed!--------");
+
+                sbm(1, 1) = sbm1(2,2) = 10.0;
+
+                if ((sbm(1,1)==sbm1(2,2)) && (sbm(1,1)==10.0)) {
+                        ret &= true;
+                        Console.OUT.println("Sparse block Matrix chain assignment test passed!");
+                } else {
+                        ret &= false;
+                        Console.OUT.println("---------- Sparse block Matrix chain assignment test failed!-------");
+                }
+
 		return ret;
 	}
 

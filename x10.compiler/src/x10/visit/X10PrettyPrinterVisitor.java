@@ -15,6 +15,7 @@ import java.util.AbstractList;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,6 +79,7 @@ import polyglot.ast.Unary;
 import polyglot.ast.Unary_c;
 import polyglot.frontend.Source;
 import polyglot.types.ClassDef;
+import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ContainerType;
 import polyglot.types.Context;
@@ -163,6 +165,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10ParsedClassType_c;
 import x10.types.constraints.SubtypeConstraint;
+import x10.util.AnnotationUtils;
 import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
 import x10c.ast.X10CBackingArrayAccessAssign_c;
@@ -194,7 +197,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_X10GENERATED = "x10.core.X10Generated";
 
     public static final String DUMMY_PARAM_TYPE1 = "java.lang.System";
-    public static final String DUMMY_PARAM_TYPE2 = "java.lang.Class<?>";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
@@ -202,11 +204,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final int NO_QUALIFIER = 8;
 
     public static final boolean isSelfDispatch = true;
+    // WIP XTENLANG-2993
+//    public static final boolean returnSpecialTypeFromDispatcher = true;
+    public static final boolean returnSpecialTypeFromDispatcher = false;
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
+    // XTENLANG-2871
+    public static final boolean supportJavaThrowables = true;
+    public static final boolean useRethrowBlock = true;
+
+    // N.B. should be as short as file name length which is valid on all supported platforms.
+    public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
     public static final String X10_FUN_CLASS_NAME_PREFIX = "Fun";
@@ -216,8 +227,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_STRING = "x10.core.String";
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
-    public static final String X10_RUNTIME_CLASS = "x10.runtime.impl.java.Runtime";
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
+
+    public static final String X10_CORE_THROWABLE_UTILITIES = "x10.core.ThrowableUtilities";
+    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
+    public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
+    public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
+    public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
+    public static final String JAVA_LANG_EXCEPTION = "java.lang.Exception";
+    public static final String JAVA_LANG_RUNTIME_EXCEPTION = "java.lang.RuntimeException";
+    public static final String JAVA_LANG_ERROR = "java.lang.Error";
 
     public static final String MAIN_CLASS = "$Main";
     public static final String RTT_NAME = "$RTT";
@@ -1021,6 +1040,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print the original body
         n.print(n.body(), w, tr);
 
+        // print synthetic types for parameter mangling
+        printExtraTypes(def);
+
         w.end();
         w.newline();
         w.write("}");
@@ -1042,7 +1064,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private static final String CUSTOM_SERIALIZATION = "x10.io.CustomSerialization";
-    private static final String SERIAL_DATA = "x10.io.SerialData";
+    public static final String SERIAL_DATA = "x10.io.SerialData";
+    public static final String SERIAL_DATA_FIELD_NAME = "$$serialdata";
 
     private static boolean subtypeOfCustomSerializer(X10ClassDef def) {
         return subtypeOfInterface(def, CUSTOM_SERIALIZATION);
@@ -1203,7 +1226,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //        return true;
 //    }
 
-    private void setConstructorIds(X10ClassDef def) {
+    private static void setConstructorIds(X10ClassDef def) {
         List<ConstructorDef> cds = def.constructors();
         int constructorId = 0;
         for (ConstructorDef cd : cds) {
@@ -1234,7 +1257,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
     }
 
-    private boolean hasConstructorIdAnnotation(X10ConstructorDef condef) {
+    private static boolean hasConstructorIdAnnotation(X10ConstructorDef condef) {
         List<Type> annotations = condef.annotations();
         for (Type an : annotations) {
             if (an instanceof ConstructorIdTypeForAnnotation) {
@@ -1245,7 +1268,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     // if it isn't set id or don't have an annotation, return -1
-    private int getConstructorId(X10ConstructorDef condef) {
+    private static int getConstructorId(X10ConstructorDef condef) {
         if (!hasConstructorIdAnnotation(condef)) {
             ContainerType st = condef.container().get();
             if (st.isClass()) {
@@ -1284,6 +1307,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return false;
     }
 
+    public static boolean isSplittable(Type type) {
+        return supportConstructorSplitting
+        && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
+        && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type));
+    }
+
     @Override
     public void visit(X10ConstructorDecl_c n) {
 
@@ -1295,10 +1324,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         printCreationMethodDecl(n);
 
         X10ClassType type = Types.get(n.constructorDef().container()).toClass();
-        if (supportConstructorSplitting
-                && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.isUnsplittable(type)) {
-
+        if (isSplittable(type)) {
             printConstructorMethodDecl(n, isCustomSerializable);
             return;
         }
@@ -1358,14 +1384,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         List<ParameterType> typeParameters = type.x10Def().typeParameters();
 
-        boolean isUnsplittable;
-        if (supportConstructorSplitting
-            && !n.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-            && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))) {
-            isUnsplittable = false;
-        } else {
-            isUnsplittable = true;
-        }
+        boolean isSplittable = isSplittable(type);
 
         List<Formal> formals = n.formals();
 
@@ -1389,14 +1408,23 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         printConstructorFormals(n, true);
 
-        w.write(Emitter.printThrowsClause(n.constructorDef()));
+        boolean isFirst = true;
+        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");                
+            }
+            er.printType(_throws, 0);
+        }
 
         w.write("{");
         w.begin(4);
 
         w.write("return ");
 
-        if (!isUnsplittable) {
+        if (isSplittable) {
             printAllocationCall(type, typeParameters);                
             w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME);
@@ -1406,7 +1434,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         w.write("(");
 
-        if (isUnsplittable) {
+        if (!isSplittable) {
             printArgumentsForTypeParams(typeParameters, formals.size() == 0);
         }
 
@@ -1431,7 +1459,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         
         // N.B. we don't generate 1-phase constructor here, since it will be generated as a normal compilation result of X10 constructor. 
-        if (generateOnePhaseConstructor && !isUnsplittable) {
+        if (generateOnePhaseConstructor && isSplittable) {
 
         w.write("// creation method for java code (1-phase java constructor)");
         w.newline();
@@ -1445,12 +1473,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         printConstructorFormals(n, true);
 
-        w.write(Emitter.printThrowsClause(n.constructorDef()));
+        boolean isFirst = true;
+        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");                
+            }
+            er.printType(_throws, 0);
+        }
+
 
         w.write("{");
         w.begin(4);
 
-        if (!isUnsplittable) {
+        if (isSplittable) {
             w.write("this");
             w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
             printArgumentsForTypeParamsPreComma(typeParameters, false);
@@ -1464,7 +1502,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         w.write("(");
 
-        if (isUnsplittable) {
+        if (!isSplittable) {
             printArgumentsForTypeParams(typeParameters, formals.size() == 0);
         }
 
@@ -1538,7 +1576,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         List<String> params = printConstructorFormals(n, false);
 
-        w.write(Emitter.printThrowsClause(n.constructorDef()));
+        boolean isFirst = true;
+        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");                
+            }
+            er.printType(_throws, 0);
+        }
 
         Block body = n.body();
         if (body != null) {
@@ -1595,7 +1642,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // Refractored  method that can be called by reflection
         if (isCustomSerializable) {
             w.begin(4);
-            w.writeln("public void  " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
+            w.writeln("public void " + methodName + "(" + SERIAL_DATA +  " " + n.formals().get(0).name() + ") {");
             n.printSubStmt(body, w, tr);
             w.writeln("}");
             w.end();
@@ -1613,7 +1660,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             printConstructorFormals(n, false);
        
-            w.write(Emitter.printThrowsClause(n.constructorDef()));
+            isFirst = true;
+            for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+                if (isFirst) {
+                    w.write(" throws ");
+                    isFirst = false;
+                } else {
+                    w.write(", ");                
+                }
+                er.printType(_throws, 0);
+            }
 
             w.write("{");
             
@@ -1697,20 +1753,52 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
-            w.write(",");
-            int narg = 0;
-            for (int i = 0; i < cid + 1; i++) {
-                if (i % 256 == 0) {
-                    if (i != 0) {
-                        w.write(" " + dummy + narg++);
-                        w.write(",");
+            String extraTypeName = getExtraTypeName(n.constructorDef());
+            w.write(", " + extraTypeName + " " + dummy);
+        }
+    }
+
+    private static String getMangledMethodSuffix(X10ConstructorDef md) {
+        ClassType ct = (ClassType) md.container().get();
+        List<Ref<? extends Type>> formalTypes = md.formalTypes();
+        String methodSuffix = Emitter.getMangledMethodSuffix(ct, formalTypes, true);
+        assert methodSuffix.length() > 0;
+        return methodSuffix;
+    }
+    private static String asTypeName(Type containerType, String methodSuffix) {
+        if (containerType.fullName().toString().length() + 1/*$*/ + methodSuffix.length() + 6/*.class*/> longestTypeName) {
+            // use hashcode to avoid too long class (=file) name
+            // DEBUG
+//            System.out.println("asTypeName: " + containerType.fullName().toString() + " " + methodSuffix);
+            return "$_" + Integer.toHexString(methodSuffix.hashCode());            
+        } else {
+            return methodSuffix;            
+        }
+    }
+    private static String getExtraTypeName(X10ConstructorDef md) {
+        assert getConstructorId(md) != -1;
+        return asTypeName(md.container().get(), getMangledMethodSuffix(md));
+    }
+    // should be called after setConstructorIds(def)
+    private void printExtraTypes(X10ClassDef def) {
+        HashSet<String> extraTypeNames = new HashSet<String>();
+        List<ConstructorDef> cds = def.constructors();
+        for (ConstructorDef cd : cds) {
+            X10ConstructorDef xcd = (X10ConstructorDef) cd;
+            int cid = getConstructorId(xcd);
+            if (cid != -1) {
+                String methodSuffix = getMangledMethodSuffix(xcd);
+                String extraTypeName = asTypeName(cd.container().get(), methodSuffix);
+                if (!extraTypeNames.contains(extraTypeName)) {
+                    extraTypeNames.add(extraTypeName);
+                    if (!extraTypeName.equals(methodSuffix)) {
+                        w.writeln("// synthetic type for parameter mangling for " + methodSuffix);
+                    } else {
+                        w.writeln("// synthetic type for parameter mangling");
                     }
-                    w.write(DUMMY_PARAM_TYPE2);
-                } else {
-                    w.write("[]");
+                    w.writeln("public abstract static class " + extraTypeName + " {}");
                 }
             }
-            w.write(" " + dummy + narg);
         }
     }
 
@@ -1751,17 +1839,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         String dummy = "$dummy";
         int cid = getConstructorId(n.constructorDef());
         if (cid != -1) {
-            w.write(",");
-            int narg = 0;
-            for (int i = 0; i < cid + 1; i++) {
-                if (i % 256 == 0) {
-                    if (i != 0) {
-                        w.write(" " + dummy + narg++);
-                        w.write(",");
-                    }
-                }
-            }
-            w.write(" " + dummy + narg);
+            w.write(", " + dummy);
         }
     }
 
@@ -2389,7 +2467,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
 
             // call
-            er.printMethodName(md, invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
+            // WIP XTENLANG-2993
+//            er.printMethodName(md, invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
+            er.printMethodName(md, invokeInterface, isDispatchMethod && !(returnSpecialTypeFromDispatcher && isSpecialReturnType), isSpecialReturnType, isParamReturnType);
         }
 
         // print the argument list
@@ -2996,10 +3076,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (er.printNativeNew(c, mi)) return;
         
-        if (supportConstructorSplitting
-                && !type.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME)
-                && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(type))
-                && !type.fullName().toString().startsWith("java.")) {
+        if (isSplittable(type) && !type.fullName().toString().startsWith("java.")) {
 
             printAllocationCall(type, mi.container().toClass().typeArguments());
 
@@ -3038,16 +3115,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (md instanceof X10ConstructorDef) {
             int cid = getConstructorId((X10ConstructorDef) md);
             if (cid != -1) {
-                w.write(",");
-                for (int i = 0; i < cid + 1; i++) {
-                    if (i % 256 == 0) {
-                        if (i != 0) w.write(") null,");
-                        w.write("(" + DUMMY_PARAM_TYPE2);
-                    } else {
-                        w.write("[]");
-                    }
-                }
-                w.write(") null");
+                String extraTypeName = getExtraTypeName((X10ConstructorDef) md);
+                w.write(", (");
+                // print as qualified name
+                er.printType(md.container().get(), 0); w.write(".");
+                w.write(extraTypeName + ") null");
             }
         }
     }
@@ -3432,7 +3504,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
         if (runAsync) {
-            tryCatchExpander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", "ex", new Expander(er) {
+            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, "ex", new Expander(er) {
                 public void expand(Translator tr) {
                     w.write("x10.lang.Runtime.pushException(ex);");
                 }
@@ -3455,14 +3527,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.WrappedThrowable(t));");
+        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(t));");
         // }
         // });
         // } else {
         // tryCatchExpander.addCatchBlock("java.lang.Throwable", "t", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("throw new x10.runtime.impl.java.WrappedThrowable(t);");
+        // w.write("throw new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(t);");
         // }
         // });
         // }
@@ -3481,14 +3553,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("x10.lang.Runtime.pushException(new x10.runtime.impl.java.WrappedThrowable(ex));");
+        // w.write("x10.lang.Runtime.pushException(new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(ex));");
         // }
         // });
         // } else {
         // tryCatchExpander.addCatchBlock("java.lang.Exception", "ex", new
         // Expander(er) {
         // public void expand(Translator tr) {
-        // w.write("throw new x10.runtime.impl.java.WrappedThrowable(ex);");
+        // w.write("throw new " + X10_IMPL_UNKNOWN_JAVA_THROWABLE + "(ex);");
         // }
         // });
         // }
@@ -3941,7 +4013,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (s != null) {
             w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native block
             w.write(s);
-            w.write("} catch (java.lang.Throwable $exc$) { throw x10.core.ThrowableUtilities.convertJavaThrowable($exc$); }"); // XTENLANG-2686
+            w.write("} catch (" + JAVA_LANG_THROWABLE + " $exc$) { throw " + X10_CORE_THROWABLE_UTILITIES + ".convertJavaThrowable($exc$); }"); // XTENLANG-2686
         } else {
             n.translate(w, tr);
         }
@@ -3992,15 +4064,41 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    // N.B. true for Java throwables that are supertype of x.l.Throwable at implementation level
+    private boolean isJavaThrowableAssignableFromX10Throwable(Type catchType) {
+        TypeSystem ts = tr.typeSystem();
+        Context context = tr.context();
+        return ts.typeEquals(catchType, ts.JavaThrowable(), context) ||
+            ts.typeEquals(catchType, ts.JavaException(), context) ||
+            ts.typeEquals(catchType, ts.JavaRuntimeException(), context);
+    }
+
     @Override
     public void visit(Catch_c n) {
-        n.translate(w, tr);
+        w.write("catch (");
+        n.printBlock(n.formal(), w, tr);
+        w.write(")");
+        
+        boolean rethrowX10Throwable = supportJavaThrowables && !useRethrowBlock && isJavaThrowableAssignableFromX10Throwable(n.catchType());
+        if (rethrowX10Throwable) {
+            w.writeln("{");
+            String formalName = n.formal().name().toString();
+            w.writeln("if (" + formalName + " instanceof " + X10_CORE_THROWABLE + ") { throw (" + X10_CORE_THROWABLE + ") " + formalName + "; }");
+        }
+        
+        n.printSubStmt(n.body(), w, tr);
+        
+        if (rethrowX10Throwable) {
+            w.writeln("}");
+        }
     }
 
     @Override
     public void visit(X10ConstructorCall_c c) {
         ContainerType ct = c.constructorInstance().container();
-        if (supportConstructorSplitting && !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(ct))) {
+        if (isSplittable(ct)
+            || ct.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME) // is this needed?
+            ) {
             TypeSystem ts = tr.typeSystem();
             boolean isObject = isObject(ct);
 //            if (isObject) return;  // TODO stop calling constructor of x10.lang.Object for optimization (it should be safe)
@@ -4401,48 +4499,80 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    private Try_c reorderCatchBlocks(Try_c c) {
+        TypeSystem ts = tr.typeSystem();
+        Context context = tr.context();
+        List<Catch> catchBlocks = c.catchBlocks();
+        List<Catch> newCatchBlocks = new ArrayList<Catch>();
+        boolean hasJavaThrowable = false;
+        for (Catch catchBlock : catchBlocks) {
+            Type catchType = catchBlock.catchType();
+            if (!ts.isJavaThrowable(catchType)) {
+                newCatchBlocks.add(catchBlock);
+            }
+        }
+        for (Catch catchBlock : catchBlocks) {
+            Type catchType = catchBlock.catchType();
+            if (ts.isJavaThrowable(catchType)) {
+                newCatchBlocks.add(catchBlock);
+                hasJavaThrowable = true;
+            }
+        }
+        if (hasJavaThrowable) {
+            c = (Try_c) c.catchBlocks(newCatchBlocks);
+        }
+        return c;
+    }
+    private static boolean isUnknownJavaThrowable(Type catchType) {
+        // return true for types that will be wrapped to UnknownJavaThrowable
+        return !catchType.isThrowable() && !TryCatchExpander.isKnownJavaThrowable(catchType);
+    }
     @Override
     public void visit(Try_c c) {
+        if (supportJavaThrowables) {
+            c = reorderCatchBlocks(c);
+        }
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
         final List<Catch> catchBlocks = c.catchBlocks();
 
-        boolean isJavaCheckedExceptionCaught = false;
-        boolean isConstrainedExceptionCaught = false; // XTENLANG-2384
+        boolean isUnknownJavaThrowableCaught = false;
+        boolean isConstrainedThrowableCaught = false; // XTENLANG-2384
         for (int i = 0; i < catchBlocks.size(); ++i) {
             Type type = catchBlocks.get(i).catchType();
-            if (type.toString().startsWith("java") && !type.isUncheckedException()) {
+            if (isUnknownJavaThrowable(type)) {
                 // found Java checked exceptions caught here!!
-                isJavaCheckedExceptionCaught = true;
+                isUnknownJavaThrowableCaught = true;
             }
             if (type instanceof ConstrainedType) // XTENLANG-2384: Check if there is a constained type in catchBlocks
-                isConstrainedExceptionCaught = true;
+                isConstrainedThrowableCaught = true;
         }
-        if (isJavaCheckedExceptionCaught) {
+
+        // unwrap and handle Java throwable
+        if (isUnknownJavaThrowableCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock("x10.runtime.impl.java.WrappedThrowable", temp, new Expander(er) {
+            expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
                 public void expand(Translator tr) {
                     w.newline();
 
+                    boolean needElse = false;
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
-                        if (!type.toString().startsWith("java") || type.isUncheckedException())
-                        // if (type.isSubtype(tr.typeSystem().Error(),
-                        // tr.context()) ||
-                        // type.isSubtype(tr.typeSystem().RuntimeException(),
-                        // tr.context()))
-                        // nothing to do, since WrappedThrowable wrap only Java
-                        // checked exceptions
+                        if (!isUnknownJavaThrowable(type))
                             continue;
 
-                        if (i > 0) {
+                        if (needElse) {
                             w.write("else ");
+                        } else {
+                            needElse = true;
                         }
                         w.write("if (" + temp + ".getCause() instanceof ");
                         er.printType(cb.catchType(), 0);
                         w.write(") {");
                         w.newline();
 
+                        // stop generating redundant code for empty block
+                        if (!cb.body().statements().isEmpty()) {
                         cb.formal().translate(w, tr);
                         w.write(" = ");
                         // TODO:CAST
@@ -4453,6 +4583,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                         cb.body().translate(w, tr);
                         w.newline();
+                        }
 
                         w.write("}");
                         w.newline();
@@ -4468,14 +4599,25 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
-        if (isConstrainedExceptionCaught) {
+        if (isConstrainedThrowableCaught) {
             final String temp = "$ex";
-            expander.addCatchBlock("x10.core.X10Throwable", temp, new Expander(er) {
+            int convRequired = 0;
+            for (int i = 0; i < catchBlocks.size(); ++i) {
+                convRequired |= TryCatchExpander.conversionRequired(catchBlocks.get(i).catchType());
+            }
+            expander.addCatchBlock(JAVA_LANG_THROWABLE, convRequired, temp, new Expander(er) {
                 public void expand(Translator tr) {
+                    boolean generateRethrowBlock = true;
                     w.newline();
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
+                        if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(type)) {
+                            generateRethrowBlock = false;
+                            w.write("if (" + temp + " instanceof " + X10_CORE_THROWABLE + ") {"); w.newline();
+                            w.write("throw (" + X10_CORE_THROWABLE + ") " + temp + ";"); w.newline();
+                            w.write("} else "); w.newline();
+                        }
                         w.write("if (" + temp + " instanceof ");
                         er.printType(type, 0);
                         if (type instanceof ConstrainedType) {
@@ -4486,12 +4628,26 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         cb.body().translate(w, tr);
                         w.write("else "); w.newline();
                     }
-                    w.write("{ throw "+ temp + "; }"); w.newline();
+                    // should not come here
+                    w.write("{ "+ temp + ".printStackTrace(); assert false; }"); w.newline();
                 }
             });
         } else { // XTENLANG-2384: Normal case, no constrained type in catchBlocks
+            final String temp = "$ex";
+            boolean generateRethrowBlock = true;
             for (int i = 0; i < catchBlocks.size(); ++i) {
-                expander.addCatchBlock(catchBlocks.get(i));
+                Catch catchBlock = catchBlocks.get(i);
+                if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(catchBlock.catchType())) {
+                    generateRethrowBlock = false;
+                    expander.addCatchBlock(X10_CORE_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
+                        public void expand(Translator tr) {
+                            w.newline();
+                            w.write("throw " + temp + ";"); 
+                            w.newline();
+                        }
+                    });
+                }
+                expander.addCatchBlock(catchBlock);
             }
         }
         expander.expand(tr);

@@ -127,6 +127,9 @@ public class CXXCommandBuilder {
         
         // header files for all prebuilt-libraries
         for (PrecompiledLibrary pcl:options.x10libs) {
+            if (options.x10_config.DEBUG) {
+                cxxCmd.add("-I"+pcl.absolutePathToRoot+"/include-dbg");
+            }
             cxxCmd.add("-I"+pcl.absolutePathToRoot+"/include");
         }
 
@@ -191,7 +194,12 @@ public class CXXCommandBuilder {
      */
     public void addPostArgs(ArrayList<String> cxxCmd) {
         for (PrecompiledLibrary pcl:options.x10libs) {
-            cxxCmd.add("-L"+pcl.absolutePathToRoot+"/lib");
+            
+            if (options.x10_config.DEBUG && !options.x10_config.DEBUG_APP_ONLY) {
+                cxxCmd.add("-L"+pcl.absolutePathToRoot+"/lib-dbg");
+            }
+            cxxCmd.add("-L"+pcl.absolutePathToRoot+"/lib");                
+            
             cxxCmd.addAll(pcl.ldFlags);
             cxxCmd.addAll(pcl.libs);
         }

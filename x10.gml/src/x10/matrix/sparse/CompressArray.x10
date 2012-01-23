@@ -139,9 +139,61 @@ public class CompressArray {
 							  maxIndex:Int, 
 							  v:Double, 
 							  nzd:Double) : Int =
-		//init(offset, maxIndex, (ci:Int, rg:Random)=>(ci+v), nzd);
 		init(offset, maxIndex, (ci:Int, rg:Random)=>(v), nzd);
 
+	/**
+	 * Initialize compress array using nonzero indexing generating function and value
+	 * generating function.
+	 * 
+	 * @param offset        the starting position in the storage
+	 * @param maxIndex      the maximum surface index
+	 * @param fidx          the indexing function, given [0..maxIndex) range. Must be ascending. 
+	 * @param fval          nonzero value generating function given [0..maxIndex) range If zero, ignored.                     
+	 * @return number of nonzero values
+	 */
+	public def init(offset:Int, maxIndex:Int, 
+			fidx:(Int)=>Int, 
+			fval:(Int)=>Double):Int {
+		var nzidx:Int=0;
+		var stidx:Int=offset;
+		var stval:Double=0;
+		for (var i:Int=0; i<maxIndex&&stidx<index.size; i++) {
+			nzidx = fidx(i);
+			if (nzidx >= maxIndex) break;
+			stval = fval(nzidx);
+			if (! MathTool.isZero(stval)) {
+				this.index(stidx)=nzidx;
+				this.value(stidx)=stval;
+				stidx++;
+			}
+		}
+		count +=stidx-offset;
+		return stidx-offset;
+	}
+
+    /**
+	 * Initialialize compress array using given initial function.
+	 * 
+	 * @param offset       the starting position in the storage
+	 * @param maxIndex     the maximum surface index
+	 * @param f            value generating function, given [0..maxIndex) range.
+	 */
+	public def init(offset:Int, maxIndex:Int, f:(Int)=>Double):Int {
+	
+		var nzidx:Int=0;
+		var stidx:Int=offset;
+		var stval:Double=0;
+		for (var i:Int=0; i<maxIndex&&stidx<index.size; i++, stidx++) {
+			stval = f(i);
+			if (! MathTool.isZero(stval)) {
+				this.index(stidx)=i;
+				this.value(stidx)=stval;
+				stidx++;
+			}
+		}
+		count += stidx-offset;
+		return stidx-offset;
+	}
 
 	/**
 	 * Initialize compress array with random values.  This method is used
@@ -188,7 +240,6 @@ public class CompressArray {
 		// Set the starting posistion, taking half of avg distance
 		if (avgDst > 1.0) {
 			//nextDst = RandTool.nextNormalRandDst(avgDst)/2; 
-		
 			// Generate nonzero indexes
 			while (ci < sts) {
 				nextDst = (RandTool.nextDouble() * dstMax) as Int; 

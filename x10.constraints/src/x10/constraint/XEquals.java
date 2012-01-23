@@ -17,36 +17,29 @@ package x10.constraint;
    @author njnystrom
  */
 public class XEquals extends XFormula<String>  {
-	
-	public XEquals(XTerm left, XTerm right) {
+    private static final long serialVersionUID = 5003576451176083570L;
+
+    public XEquals(XTerm left, XTerm right) {
 		super(XTerms.equalsName, XTerms.asExprEqualsName, false, left, right);
 	}
 	
 	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
 	    XPromise p = c.intern(left());
-	    if (p == null)
-	        return null;
+	    if (p == null) return null;
 	    XPromise q = c.intern(right());
-	    if (q == null)
-	        return null;
+	    if (q == null) return null;
 
 	    XTerm pTerm=p.term(),qTerm=q.term();
 	    if (pTerm instanceof XLit && qTerm instanceof XLit) {
 	            return c.intern(p.equals(q) ? XTerms.TRUE : XTerms.FALSE);
 	    }
 	    else {
-	        if (p == q || p.term().equals(q.term()))
-	            // Handle x==x also
+	        if (p == q || p.term().equals(q.term())) // Handle x==x also
 	            return c.intern(XTerms.TRUE);
-	        else
-	            return super.internIntoConstraint(c, last);
+	        else return super.internIntoConstraint(c, last);
 	    }
 	}
 	
-	@Override
-	public String toString() {
-		return left() + "==" + right();
-	}
-
+	@Override public String toString() {return left() + "==" + right();}
 }
 

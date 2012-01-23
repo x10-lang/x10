@@ -840,15 +840,20 @@ public class StaticInitializer extends ContextVisitor {
     private Block makeInitMethodBody(Position pos, StaticFieldInfo initInfo, FieldDef fdCond, 
                                      FieldDef fdId, FieldDecl fdPLH, X10ClassDef classDef) {
 
-        // gen AtomicInteger.compareAndSet(UNINITIALIZED, INITIALIZING)
+        List<Stmt> stmts;
         TypeNode receiver = xnf.X10CanonicalTypeNode(pos, classDef.asType());
-        Expr ifCond = genAtomicGuard(pos, receiver, fdCond);
-
         FieldInstance fi = initInfo.fieldDef.asInstance();
         Expr right = initInfo.right;
         Name name = initInfo.fieldDef.name();
         Expr left = xnf.Field(pos, receiver, xnf.Id(pos, name)).fieldInstance(fi).type(right.type());
 
+        // gen if (AtomicInteger.get() == INITIALIZED) { return field; }
+        stmts = new ArrayList<Stmt>();
+        stmts.add(xnf.X10Return(pos, (fdPLH == null) ? left : genApplyPLH(pos, receiver, fdPLH, right.type(), stmts), false));
+        Stmt shortCutBlock = xnf.If(pos, genCheckInitialized(pos, receiver, fdCond, true), xnf.Block(pos, stmts));
+
+        // gen AtomicInteger.compareAndSet(UNINITIALIZED, INITIALIZING)
+        Expr ifCond = genAtomicGuard(pos, receiver, fdCond);
         FieldInstance fdidi = fdId.asInstance();
         Expr fieldId = xnf.Field(pos, receiver, xnf.Id(pos, fdId.name())).fieldInstance(fdidi).type(fdidi.type());
         Expr bcastCall = genBroadcastField(pos, left, fieldId, fdPLH, false);
@@ -869,7 +874,7 @@ public class StaticInitializer extends ContextVisitor {
 //        broadcastCustomSerializationBlock = xnf.Block(pos, broadcastCustomSerializationBlock);
 
         // make statement block of initialization
-        List<Stmt> stmts = new ArrayList<Stmt>();
+        stmts = new ArrayList<Stmt>();
         stmts.add(xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, 
                                                 right).fieldInstance(fi).type(right.type())));
 
@@ -884,7 +889,7 @@ public class StaticInitializer extends ContextVisitor {
         Block initBody = xnf.Block(pos, stmts);
 
         // gen while(AtomicInteger.get() != INITIALIZED) { await(); }
-        Expr initCheckCond = genCheckInitialized(pos, receiver, fdCond);
+        Expr initCheckCond = genCheckInitialized(pos, receiver, fdCond, false);
         Block whileBody = xnf.Block(pos, xnf.Eval(pos, genAwait(pos)));
 
         // make statement block for waiting
@@ -899,6 +904,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // make statement block of the entire method body
         stmts =  new ArrayList<Stmt>();
+        stmts.add(shortCutBlock);
         // original
 //        stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, ifCond, initBody)));
 //        stmts.add(xnf.If(pos, initCheckCond, waitBody));
@@ -1039,7 +1045,7 @@ public class StaticInitializer extends ContextVisitor {
         return call;
     }
 
-    private Expr genCheckInitialized(Position pos, TypeNode receiver, FieldDef fdCond) {
+    private Expr genCheckInitialized(Position pos, TypeNode receiver, FieldDef fdCond, boolean positive) {
         FieldInstance fi = fdCond.asInstance();
         Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fi).type(fi.type());
         Id name = xnf.Id(pos, Name.make("get"));
@@ -1053,7 +1059,7 @@ public class StaticInitializer extends ContextVisitor {
         List<TypeNode> typeParamNodes = Collections.<TypeNode>emptyList();
         Expr call = xnf.X10Call(pos, ai, name, typeParamNodes, args).methodInstance(mi).type(xts.Int());
 
-        return xnf.Binary(pos, call, Binary.NE, getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int())).type(xts.Boolean());
+        return xnf.Binary(pos, call, positive ? Binary.EQ : Binary.NE, getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int())).type(xts.Boolean());
     }
 
     private Expr genLock(Position pos) {
