@@ -2,13 +2,6 @@
 # User-servicable Parts #
 #########################
 
-# RTC-8209. Default behavior when building for DEBUG is to create a static lib
-ifndef DEBUG_WITH_SHARED_LIB
-    ifdef DEBUG
-        X10_STATIC_LIB=1
-    endif
-endif
-
 include ../Make.rules
 
 FIND ?= find
