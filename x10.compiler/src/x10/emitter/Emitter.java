@@ -1150,6 +1150,7 @@ public class Emitter {
         }
 
         boolean isDispatcher = X10PrettyPrinterVisitor.isSelfDispatch && isInterface && isDispatcher(n);
+        boolean generateReturnSpecialTypeFromDispatcher = isDispatcher && (X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher && isSpecialReturnType);
 
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
         boolean canMangleMethodName = canMangleMethodName(n.methodDef());
@@ -1159,6 +1160,9 @@ public class Emitter {
         boolean isFirst = false;
 
         
+        // WIP XTENLANG-2993
+        // stop generating interface of dispatcher method returning j.l.Object if the return type is special type
+        if (!generateReturnSpecialTypeFromDispatcher) {
         
         w.begin(0);
         w.write(javaFlags.translate());
@@ -1303,11 +1307,14 @@ public class Emitter {
             }
         }
         
+        // WIP XTENLANG-2993
+        // stop generating interface of dispatcher method returning j.l.Object if the return type is special type
+        }
 
         
         // WIP XTENLANG-2993
         // dispatcher method returing special type
-        if (isDispatcher && (X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher && isSpecialReturnType)) {
+        if (generateReturnSpecialTypeFromDispatcher) {
 
             w.begin(0);
             w.write(javaFlags.translate());
@@ -2742,6 +2749,7 @@ public class Emitter {
     private void printDispatchMethod(MethodInstance dispatch, List<MethodInstance> mis) {
 
         boolean isSpecialReturnType = isSpecialType(dispatch.returnType());
+        boolean generateReturnSpecialTypeFromDispatcher = X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher && isSpecialReturnType;
         
         MethodDef def = dispatch.def();
         Flags flags = dispatch.flags();
@@ -2944,7 +2952,7 @@ public class Emitter {
 
         // WIP XTENLANG-2993
         // dispatcher method returing special type
-        if (X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher && isSpecialReturnType) {
+        if (generateReturnSpecialTypeFromDispatcher) {
             
             w.write("// dispatcher for " + def);
             w.newline();
