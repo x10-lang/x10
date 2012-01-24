@@ -16,7 +16,10 @@ The following is the procedure used to make a release of X10.
 Before creating the release branch (typically the day before)
 
    1. Update the version information in x10.compiler/src/x10/Version.java
-   2. Update the plugin manifest version in all MANIFEST.MF files in X10 core projects
+
+   2. Update the plugin manifest version in all MANIFEST.MF files in 
+      X10 core projects
+
    3. Copy the current set of PGAS binaries found in the svn head sub dir of
       http://dist.codehaus.org/x10/binaryReleases/ to a new subdirectory
       named with the release number and change
@@ -34,24 +37,36 @@ Before creating the release branch (typically the day before)
 Create the release branch and enter into final testing phase
 
    1. "Tag" the release by using x10.dist/releng/makeTag.sh 
-      Use a svn revision number that matches one reported by a night-sanity run. i.e.
+      Use a svn revision number that matches one reported by a 
+      night-sanity run. i.e.
 
       makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -code 
 
-   2. Enable the release-branch regression testing on triloka21 and 23. 
-      Log in as x10reg to each machine, update scripts in bin to pull from the 
-      release branch created by makeTag, and uncomment crontab entry.
+   2. Create an RC2V2 instance from image pok1img-9298.0 to run release-branch 
+      regression testing.
+      Login as root and 
+         sethostname of instance to x10test.rc2
+         update /etc/hosts to match
+         update base software installs (optional step; yum update) 
+      Login as x10reg, and update scripts in bin to pull from the 
+      release branch created by makeTag. 
+      Enable crontab entry for desired test runs.
+
    3. If fixes need to be applied to the release after it is created, apply 
       fixes to head first. After they pass regression testing on head, 
       pull them over to the release branch using
 
         svn merge -c <change revision> ^/trunk
 
-When all necessary fixes have been propagated to the release branch, one can build the actual release artifacts:
+When all necessary fixes have been propagated to the release branch,
+one can build the actual release artifacts:
 
    1. Update JIRA version management to indicate that version has been released.
-   2. Edit and commit release notes to the trunk. Release notes can be mostly generated from JIRA. 
-      Use svn merge to get the release notes from the trunk to the release branch.
+
+   2. Edit and commit release notes to the trunk. Release notes can be
+      mostly generated from JIRA.  Use svn merge to get the release
+      notes from the trunk to the release branch.
+
    3. run masterBuildRelease.sh to build tarballs for most platforms 
       and push them to orquesta.  You will need to run this script from a
       machine where you have passwordless ssh working to all relevant machines.
@@ -62,21 +77,30 @@ When all necessary fixes have been propagated to the release branch, one can bui
       and build a release branch and then use packageCPPRelease.sh.  This
       is due to restricted network connectivity from the front-end machine.
 
-   4. ssh into shell.sf.net and create a subdirectory of /home/frs/project/x/x1/x10 to hold the downloads. 
+   4. ssh into shell.sf.net and create a subdirectory of 
+      /home/frs/project/x/x1/x10 to hold the downloads. 
       Use sftp to move all of the release artifacts from orquesta to sf.
       Rename RELEASE_NOTES.txt to README.txt in the sf download area
-      Use SF web admin API to set the default downloads for each OS platform to the new files
+      Use SF web admin API to set the default downloads for each OS 
+      platform to the new files
+
    5. Make sure language manual has the right version, date, etc. 
       Tag the language manual
 
-      makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
+        makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
 
       Put language spec pdf in project web space at x10.sourceforge.net
-      Update in place x10-latest.pdf in addition to creating a x10-<version>.pdf. 
+      Update in place x10-latest.pdf in addition to creating a 
+      x10-<version>.pdf. 
       The release page itself will point to the x10-<version>.pdf. 
       All of the other parts of the website refer to x10-latest.pdf.
+
    6. Generate new x10doc and upload to project web space at x10.sourceforge.net
+
    7. Update the "X10 Releases" page to link to the new download version.
+
    8. Update the "latest release" menu item in Downloads-submenu
+
    9. Send out mail announcements to x10-users and x10-announce
+
    10. Also post announcement in SF news and web page news.
