@@ -17,6 +17,7 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.util.concurrent.ConcurrentHashMap;
 
 
 public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable {
@@ -38,6 +39,59 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
     private ParameterizedType(RuntimeType<T> rawType, Type<?>... actualTypeArguments) {
         this.rawType = rawType;
         this.actualTypeArguments = actualTypeArguments;
+    }
+    private static final boolean useCache = true;
+    private static final ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>> typeCache1 = new ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>();
+    public static <T> ParameterizedType/*<T>*/ make(RuntimeType<T> rawType, Type<?> actualTypeArgument0) {
+        if (useCache) {
+            ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache10 = typeCache1.get(rawType);
+            if (typeCache10 == null) {
+                ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache10_;
+                typeCache10_ = new ConcurrentHashMap<Type<?>, ParameterizedType<?>>();
+                typeCache10 = typeCache1.putIfAbsent(rawType, typeCache10_);
+                if (typeCache10 == null) typeCache10 = typeCache10_;
+            }
+            ParameterizedType type = typeCache10.get(actualTypeArgument0);
+            if (type == null) {
+                ParameterizedType type_;
+                type_ = new ParameterizedType<T>(rawType, actualTypeArgument0);
+                type = typeCache10.putIfAbsent(actualTypeArgument0, type_);
+                if (type == null) type = type_;
+            }
+            return type;
+        } else {
+            return new ParameterizedType<T>(rawType, actualTypeArgument0);
+        }
+    }
+    private static final ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>> typeCache2 =
+        new ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>>();
+    public static <T> ParameterizedType/*<T>*/ make(RuntimeType<T> rawType, Type<?> actualTypeArgument0, Type<?> actualTypeArgument1) {
+        if (useCache) {
+            ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>> typeCache20 = typeCache2.get(rawType);
+            if (typeCache20 == null) {
+                ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>> typeCache20_;
+                typeCache20_ = new ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>();
+                typeCache20 = typeCache2.putIfAbsent(rawType, typeCache20_);
+                if (typeCache20 == null) typeCache20 = typeCache20_;
+            }
+            ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache21 = typeCache20.get(actualTypeArgument0);
+            if (typeCache21 == null) {
+                ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache21_;
+                typeCache21_ = new ConcurrentHashMap<Type<?>, ParameterizedType<?>>();
+                typeCache21 = typeCache20.putIfAbsent(actualTypeArgument0, typeCache21_);
+                if (typeCache21 == null) typeCache21 = typeCache21_;
+            }
+            ParameterizedType type = typeCache21.get(actualTypeArgument1);
+            if (type == null) {
+                ParameterizedType type_;
+                type_ = new ParameterizedType<T>(rawType, actualTypeArgument0, actualTypeArgument1);
+                type = typeCache21.putIfAbsent(actualTypeArgument1, type_);
+                if (type == null) type = type_;
+            }
+            return type;
+        } else {
+            return new ParameterizedType<T>(rawType, actualTypeArgument0, actualTypeArgument1);
+        }
     }
     public static <T> ParameterizedType/*<T>*/ make(RuntimeType<T> rawType, Type<?>... actualTypeArguments) {
         return new ParameterizedType<T>(rawType, actualTypeArguments);
