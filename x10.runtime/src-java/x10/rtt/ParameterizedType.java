@@ -40,10 +40,11 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
         this.rawType = rawType;
         this.actualTypeArguments = actualTypeArguments;
     }
-    private static final boolean useCache = true;
+    // FIXME recursive type is not supported. see XTENLANG_423.W[U], which extends Z[W[U]], causes NPE for hashCode.
+    private static final boolean useCache = false;
     private static final ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>> typeCache1 = new ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>();
     public static <T> ParameterizedType/*<T>*/ make(RuntimeType<T> rawType, Type<?> actualTypeArgument0) {
-        if (useCache) {
+        if (useCache && rawType != null && actualTypeArgument0 != null) {
             ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache10 = typeCache1.get(rawType);
             if (typeCache10 == null) {
                 ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache10_;
@@ -66,7 +67,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
     private static final ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>> typeCache2 =
         new ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>>();
     public static <T> ParameterizedType/*<T>*/ make(RuntimeType<T> rawType, Type<?> actualTypeArgument0, Type<?> actualTypeArgument1) {
-        if (useCache) {
+        if (useCache && rawType != null && actualTypeArgument0 != null && actualTypeArgument1 != null) {
             ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>> typeCache20 = typeCache2.get(rawType);
             if (typeCache20 == null) {
                 ConcurrentHashMap<Type<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>> typeCache20_;
