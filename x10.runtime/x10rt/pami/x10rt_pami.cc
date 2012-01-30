@@ -727,18 +727,30 @@ static void team_creation_complete (pami_context_t   context,
 	{
 		x10rt_pami_team_create *team = (x10rt_pami_team_create*)cookie;
 		#ifdef DEBUG
-			fprintf(stderr, "New team %u created at place %u\n", team->teamIndex, state.myPlaceId);
+			fprintf(stderr, "New team %u created via split at place %u\n", team->teamIndex, state.myPlaceId);
 		#endif
-		team->cb2(team->teamIndex, team->arg);
 		determineCollectiveAlgorithms(&state.teams[team->teamIndex]);
+		team->cb2(team->teamIndex, team->arg);
 		free(team);
 	}
 	#ifdef DEBUG
 	else
-		fprintf(stderr, "New team created at place %u\n", state.myPlaceId);
+		fprintf(stderr, "New team created via split at place %u\n", state.myPlaceId);
 	#endif
 }
 
+static void team_creation_complete_nocallback (pami_context_t   context,
+                       void          * cookie,
+                       pami_result_t    result)
+{
+	if (result != PAMI_SUCCESS)
+		error("Error detected in team_creation_complete_nocallback");
+
+	determineCollectiveAlgorithms((x10rt_pami_team *)cookie);
+	#ifdef DEBUG
+		fprintf(stderr, "New Team created via team_new at place %u\n", state.myPlaceId);
+	#endif
+}
 
 static void team_create_dispatch_part2 (pami_context_t   context,
                        void          * cookie,
@@ -817,7 +829,7 @@ static void team_create_dispatch (
 		#endif
 
 		pami_result_t   status = PAMI_ERROR;
-		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete, cookie);
+		status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete_nocallback, &state.teams[newTeamId]);
 		if (status != PAMI_SUCCESS) error("Unable to create a new team");
 	}
 }
