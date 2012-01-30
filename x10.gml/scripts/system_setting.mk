@@ -16,7 +16,7 @@
 server		=triloka
 
 #Comment following line, if do not want build with lapack library.
-add_lapack	= yes
+#add_lapack	= commet_out_this_lien_if_no_lapack_methods_is_used
 
 ###################################################
 ## Compiler settings
@@ -51,7 +51,6 @@ lapack_name =lapack
 lapack_lib  =$(lapack_path)/lib$(lapack_name).so
 #
 
-
 #--------- Server settings --------
 # Redefine settings
 ifdef server 
@@ -72,6 +71,7 @@ lapack_lib  =$(lapack_path)/lib$(lapack_name).so
 
 endif
 endif
+server=$(shell hostname)
 
 #------------------------------------------------------
 
@@ -93,5 +93,9 @@ endif
 ifdef add_lapack
 POST_PATH	+= -L$(lapack_path)
 POST_LIBS	+= -l$(lapack_name)
+
+LAPACK_CFLAG = -define ENABLE_LAPACK -cxx-prearg -DENABLE_LAPACK
+
 add_jlapack =chk_jlapack
+
 endif

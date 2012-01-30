@@ -81,17 +81,17 @@ comm_src=\
 	x10/matrix/comm/SparseRemoteSourceInfo.x10\
 	x10/matrix/comm/BlockRemoteCopy.x10 \
 	x10/matrix/comm/BlockBcast.x10 \
-	x10/matrix/comm/BlockScatter.x10 \
 	x10/matrix/comm/BlockGather.x10 \
+	x10/matrix/comm/BlockScatter.x10 \
+	x10/matrix/comm/BlockReduce.x10 \
 	x10/matrix/comm/BlockRingCast.x10 \
- 	x10/matrix/comm/BlockReduce.x10
+	x10/matrix/comm/BlockRingReduce.x10
 
 
 bwrap_src=\
 	x10/matrix/blas/DenseMatrixBLAS.x10 \
 	x10/matrix/blas/BLAS.x10 \
 	x10/matrix/blas/DriverBLAS.x10
-
 lapack_src=\
 	x10/matrix/lapack/DenseMatrixLAPACK.x10 \
 	x10/matrix/lapack/LAPACK.x10 \
@@ -132,7 +132,9 @@ dist_src=\
 	x10/matrix/distblock/DistMap.x10 \
 	x10/matrix/distblock/DistGrid.x10 \
 	x10/matrix/distblock/BlockSet.x10 \
-	x10/matrix/distblock/DistBlockMatrix.x10
+	x10/matrix/distblock/DistBlockMatrix.x10 \
+	x10/matrix/distblock/DupBlockMatrix.x10 
+
 	
 
 summa_src=\
@@ -170,9 +172,10 @@ include scripts/system_setting.mk
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
 X10_FLAG	= -VERBOSE_CHECKS -O -NO_CHECKS
 
-MPI_FLAG    = -define MPI_COMMU -cxx-prearg -DMPI_COMMU
-POST_CPP	= -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
-POST_MPI	= -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
+MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU
+
+POST_CPP	= $(LAPACK_CFLAG) -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
+POST_MPI	= $(MPI_CFLAG) $(LAPACK_CFLAG) -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
 
 ###################################################
 # X10 file built rules
@@ -207,7 +210,7 @@ native_gml		: $(lib_src)
 		@($(MAKE) clib target=$@ src="$(lib_src)" post_opts='$(POST_CPP)')
 
 native_mpi_gml	: $(lib_src) $(mpi_wrap) 
-		@($(MAKE) clib target=$@ src="$(lib_src) $(mpi_wrap)" post_opts='$(MPI_FLAG) $(POST_MPI)')
+		@($(MAKE) clib target=$@ src="$(lib_src) $(mpi_wrap)" post_opts='$(POST_MPI)')
 
 ### build basic non-dist lib, single place (sequential matrix lib)
 managed_seq_gml	: $(seq_src)
@@ -250,11 +253,11 @@ jblas		: libjblas.so
 chk_jlapack	: chk_lapack jlapack
 			cp $(lwrap_path)/WrapLAPACK.java $(build_path)/x10/matrix/lapack
 
-chk_lapack	:			
-			mkdir -p $(build_path)/x10/matrix/lapack 
+chk_lapack	:
+			mkdir -p $(build_path)/x10/matrix/lapack
 
 wrap_lapack.o: wrap_lapack.c
-			g++ -c -v -fPIC $< -o $@
+			g++ -c -v -fPIC -DENABLE_LAPACK $< -o $@
 
 jni_lapack.o: jni_lapack.c
 			g++ -I $(JNI_inc) -c -v -fPIC $< -o $@
