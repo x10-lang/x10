@@ -38,11 +38,8 @@ public class DistGrid{
                     "("+rowCs+" x "+colCs+") places cannot partition "+
 				    "("+matgrid.numRowBlocks+" x "+matgrid.numColBlocks+") blocks");
 
-		Debug.assure(nps <= Place.MAX_PLACES, 
-				"Partitioning blocks error - too many clusters");
-		if (nps < Place.MAX_PLACES) {
-			Debug.flushln("Workload imbalance: not all places are assgined with blocks");
-		}
+		Debug.assure(nps == Place.MAX_PLACES, 
+				"Partitioning blocks error! Number of clusters "+nps+" not same as places "+Place.MAX_PLACES);
 		
 		val blkgrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, 
 						     rowCs, colCs);

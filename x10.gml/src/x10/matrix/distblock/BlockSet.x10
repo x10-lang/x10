@@ -20,6 +20,8 @@ import x10.matrix.sparse.SparseCSC;
 
 import x10.matrix.Debug;
 import x10.matrix.block.Grid;
+import x10.matrix.block.DenseBlock;
+import x10.matrix.block.SparseBlock;
 import x10.matrix.block.MatrixBlock;
 
 /**
@@ -55,6 +57,21 @@ public class BlockSet  {
 	public def this(g:Grid, map:DistMap, bl:ArrayList[MatrixBlock]) {
 		grid=g; dmap = map; blocklist = bl;
 	}
+	//========================================
+	public static def make(m:Int, n:Int, rowBs:Int, colBs:Int, rowCs:Int, colCs:Int) {
+		val gd = Grid.make(m, n, rowBs, colBs);
+		val dp = DistGrid.make(gd, rowCs, colCs).dmap;
+		return new BlockSet(gd, dp);
+	}
+	
+	public static def makeDupBlockSet(mb:MatrixBlock):BlockSet {
+		val mat = mb.getMatrix();
+		val grd = new Grid(mat.M, mat.N, 1, 1);
+		val dbmat  = new BlockSet(grd, null);
+		dbmat.blocklist.add(mb);
+		return dbmat;
+	}
+	
 	//========================================
 	public def getGrid()   = grid;
 	public def getDistMap()= dmap;
@@ -116,6 +133,8 @@ public class BlockSet  {
 	protected def get(i:Int) = blocklist.get(i);
 	
 	public def getFirst() = blocklist.getFirst();
+	
+	public def getFirstMatrix() = blocklist.getFirst().getMatrix();
 	
 	public def getLocalBlockIdAt(index:Int):Int {
 		val grid = getGrid();
@@ -187,10 +206,17 @@ public class BlockSet  {
 	/**
 	 * 
 	 */
-	public def clear():void {
+	protected def clear():void {
 		this.blocklist.clear();
 	}
-
+	
+	protected def resetBlock():void {
+		val it = this.blocklist.iterator();
+		while (it.hasNext()) {
+			val b = it.next();
+			b.reset();
+		}
+	}
 	//=============================================
 	
 	public static def localCopy(srcblk:MatrixBlock, bs:BlockSet, dstidx:Int): void {
@@ -222,8 +248,18 @@ public class BlockSet  {
 				rootblk.copyTo(blk);
 		}
 	}
+	
+	public def sync(rootblk:MatrixBlock, colOff:Int, colCnt:Int) : void {
+		val it = this.blocklist.iterator();
+		while (it.hasNext()) {
+			val blk = it.next();
+			if (blk != rootblk)	
+				rootblk.copyCols(colOff, colCnt, blk.getMatrix());
+		}
+	}
+		
 	//======================================
-	public def ringCast(rootblk:MatrixBlock, colCnt:Int, select:(Int,Int)=>Int) {
+	public def selectCast(rootblk:MatrixBlock, colCnt:Int, select:(Int,Int)=>Int) {
 		val it = this.blocklist.iterator();
 		val target = select(rootblk.myRowId, rootblk.myColId);
 		while (it.hasNext()) {
@@ -239,15 +275,16 @@ public class BlockSet  {
 	}
 	
 	//======================================
+	
+	public static def cellSum(a:DenseMatrix, b:DenseMatrix) : void {
+		b.cellAdd(a as DenseMatrix(b.M, b.N));
+	}
+	
+	/**
+	 * 
+	 */
 	public def reduceSum(rtblk:MatrixBlock): void {
-		val it = this.blocklist.iterator();
-		while (it.hasNext()) {
-			val blk = it.next();
-			if (blk != rtblk) {
-				val rtmat = rtblk.getMatrix();
-				rtmat.cellAdd(blk.getMatrix() as Matrix(rtmat.M, rtmat.N));
-			}
-		}
+		reduce(rtblk, (a:DenseMatrix, b:DenseMatrix)=>b.cellAdd(a as DenseMatrix(b.M,b.N)));
 	}
 	
 	public def reduceSum(rootbid:Int) : void {
@@ -258,6 +295,71 @@ public class BlockSet  {
 	public def reduceSumToFirst() : void {
 		val rtblk = getFirst();
 		reduceSum(rtblk);
+	}
+	
+	//-------------
+	/**
+	 * Operate all blocks in the set and store the reducution result in specified root
+	 * block. The root block is input and output, overwritten with the result
+	 * 
+	 * @param rtblk       root block which stores the reduce result
+	 * @param opFunc      reduce function which takes two operands. First is input and second is input/output dense matrix
+	 */
+	public def reduce(rtblk:MatrixBlock, opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix) :void {
+		val it = this.blocklist.iterator();
+		while (it.hasNext()) {
+			val blk = it.next();
+			if (blk != rtblk) {
+				val rtmat = rtblk.getMatrix() as DenseMatrix;
+				val opmat = blk.getMatrix() as DenseMatrix(rtmat.M, rtmat.N);
+				opFunc(opmat, rtmat);
+				//rtmat.cellAdd(blk.getMatrix() as Matrix(rtmat.M, rtmat.N));
+			}
+		}		
+		
+	}
+	
+	/**
+	 * Perform reduce operation on all blocks and store result to the first
+	 * block in the set
+	 */
+	public def reduce(opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix) :void {
+		val rootblk = this.getFirst();
+		reduce(rootblk, opFunc);
+	}
+
+	/**
+	 * Perform reduce all blocks and store result to the specified block.
+	 */
+	public def reduce(rootBlockId:Int, opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix): void {
+		val rootblk = this.findBlock(rootBlockId);
+		reduce(rootblk, opFunc);
+	}
+	
+	//--------------------
+	public def selectReduce(rootblk:MatrixBlock, colCnt:Int, select:(Int,Int)=>Int, 
+			opFunc:(DenseMatrix,DenseMatrix, Int)=>DenseMatrix) : void{
+		
+		val rootden = rootblk.getMatrix() as DenseMatrix;
+		val it = this.blocklist.iterator();
+		val target = select(rootblk.myRowId, rootblk.myColId);
+		while (it.hasNext()) {
+			val blk = it.next();
+			if (blk != rootblk) {
+				val chkid = select(blk.myRowId, blk.myColId);
+				if (target == chkid) {
+					//Debug.flushln("Copy root to ("+blk.myRowId+","+blk.myColId+")");
+					//rootblk.copyCols(0, colCnt, blk.getMatrix());
+					opFunc(blk.getMatrix() as DenseMatrix, rootden, colCnt);
+				}
+			}
+		}
+	}
+	
+	public def selectReduce(rootbid:Int, colCnt:Int, select:(Int,Int)=>Int, 
+			opFunc:(DenseMatrix,DenseMatrix,Int)=>DenseMatrix) {
+		 val rootblk = this.findLocalRootBlock(rootbid, select);
+		selectReduce(rootblk, colCnt, select, opFunc);
 	}
 	
 	//======================================
@@ -280,9 +382,22 @@ public class BlockSet  {
 		if (blkitr.hasNext() || mapitr.hasNext()) {
 			Debug.exit("Dist blocks and their mapping are not consistent");		
 		}
-			
+		
 		return true;
 	}
+	
+	public def allEqual(tgtmat:Matrix):Boolean {
+		var retval:Boolean = true;
+		val blkitr = this.iterator();
+
+		while (blkitr.hasNext() && retval) {
+			val chkmat = blkitr.next().getMatrix();
+			if (chkmat != tgtmat )
+				retval &= tgtmat.equals(chkmat as Matrix(tgtmat.M,tgtmat.N));
+		}
+		return retval;
+	}
+	
 	//=================================================
 	//=================================================
 

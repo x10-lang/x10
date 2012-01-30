@@ -80,7 +80,8 @@ public class DistBlockMatrix extends Matrix{
 	public static def make(m:Int, n:Int, 
 			rowBs:Int, colBs:Int, 
 			rowPs:Int, colPs:Int):DistBlockMatrix(m,n) {
-		val grid = new Grid(m, n, rowBs, colBs);
+		Debug.assure(rowPs*colPs==Place.MAX_PLACES, "Block partitioning error");
+		val grid = new Grid(m, n, rowBs, colBs);		
 		val dstgrid = new DistGrid(grid, rowPs, colPs);
 		return DistBlockMatrix.make(grid, dstgrid.dmap);		
 	}
@@ -311,14 +312,10 @@ public class DistBlockMatrix extends Matrix{
 	
 	public def reset() {
 		finish ateach (d:Point in Dist.makeUnique()) {
-			val blks   = this.handleBS();			
-			val blkitr = blks.iterator();
-			while (blkitr.hasNext()) {
-				val blk = blkitr.next();
-				blk.reset();
-			}
+			handleBS().resetBlock();
 		}
 	}
+	
 	//=============================================
 	// Copy
 	//=============================================
@@ -338,7 +335,7 @@ public class DistBlockMatrix extends Matrix{
 	}
 	
 	public def copyTo(dst:DenseMatrix(M,N)):void {
-		throw new UnsupportedOperationException();		
+		throw new UnsupportedOperationException();
 	}
 	
 	public def copyTo(mat:Matrix(M,N)): void {
@@ -390,7 +387,8 @@ public class DistBlockMatrix extends Matrix{
 	
 	//--------------------------------------------
 	/**
-	 * Get block to here. If block is not at local, it will be remote captured.
+	 * Get block to here. If block is not at local, it will be remote captured
+	 * and compied to here.
 	 */
 	public def fetchBlock(bid:Int):MatrixBlock {
 		val map = getMap();
@@ -398,8 +396,6 @@ public class DistBlockMatrix extends Matrix{
 		val blk = at (Dist.makeUnique()(pid)) handleBS().findBlock(bid);
 		return blk;
 	}
-
-	
 	
 	public def getGrid():Grid   = this.handleBS().grid;
 	public def getMap():DistMap = this.handleBS().dmap;
@@ -617,23 +613,28 @@ public class DistBlockMatrix extends Matrix{
 		}
 	}
 	
-	
-	public def syncCheck():Boolean {
-		val grid = this.getGrid();
-		val map  = this.getMap();
-		val lclmat  = this.handleBS().getFirst().getMatrix();
-		for (var b:Int=1; b<grid.size; b++) {
-			val bid:Int = b;
-			val rmtplc = map.findPlace(bid);
-			val rmtmat = at (Dist.makeUnique()(rmtplc)) handleBS().find(bid).getMatrix();
-
-			if (! lclmat.equals(rmtmat as Matrix(lclmat.M, lclmat.N))) {
-				Console.OUT.println("Integrity check found differences between the 0-th block and "+b+"-th block");
-				Console.OUT.flush();
-				return false;
+	/**
+	 * Check all blocks are same or not
+	 */
+	public def checkAllBlocksEqual() : Boolean {
+		val rtmat:Matrix = handleBS().getFirst().getMatrix();
+		var retval:Boolean = true;
+		for (var p:Int =0 ; p<Place.MAX_PLACES && retval; p++) {
+			//Debug.flushln("Check block local sync at "+p);
+			if (here.id() != p) {
+				retval &= at (Dist.makeUnique()(p)) {
+					//Remote capture: rtmat
+					handleBS().allEqual(rtmat)				
+				};
+			} else {
+				retval &= handleBS().allEqual(rtmat);
 			}
+			
+			if (!retval) 
+				Console.OUT.println("Integrity check failed at place "+p);
 		}
-		return true;
+		//Debug.flushln("Check block local sync done");
+		return retval;
 	}
 	
 	public def getTotalDataSize():Int {
