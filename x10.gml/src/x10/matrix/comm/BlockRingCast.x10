@@ -291,7 +291,7 @@ public class BlockRingCast extends BlockRemoteCopy {
 						else
 							spa.finalizeRemoteCopyAtSource();
 					}
-					bset.ringCast(blk, colCnt, select);
+					bset.selectCast(blk, colCnt, select);
 				}
 			}
 		}

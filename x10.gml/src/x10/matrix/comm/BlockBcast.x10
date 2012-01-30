@@ -103,25 +103,25 @@ public class BlockBcast extends BlockRemoteCopy {
 	 * @return            Number of elements broadcast
 	 */
 	protected static def mpiBcastDense(distBS:BlocksPLH, rootbid:Int, colOff:Int, colCnt:Int):Int {
-			
+		
 		if (colCnt < 0) return 0;
-		val datasz:Int = compBlockDataSize(distBS, rootbid, colOff, colCnt);
 		
 		@Ifdef("MPI_COMMU") {
 			val rootpid    = distBS().findPlace(rootbid);
 			//Get the data count from root block
-			finish ateach (d:Point in Dist.makeUnique()) {
-				//Remote capture: colOff, datasz, rootpid, rootpid
+			finish ateach (Dist.makeUnique()) {
+				//Remote capture: colOff, colCnt, rootpid
 				val bset = distBS();
 				val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
 				val den  = blk.getMatrix() as DenseMatrix;
 				val offset = den.M * colOff;
+				val datasz = den.M * colCnt;
 				
 				WrapMPI.world.bcast(den.d, offset, datasz, rootpid);
-				bset.sync(blk); 
+				bset.sync(blk, colOff, colCnt);
 			}
 		}
-		return datasz;
+		return distBS().getFirstMatrix().M * colCnt;
 	}
 
 	/**
@@ -130,13 +130,12 @@ public class BlockBcast extends BlockRemoteCopy {
 	 */
 	protected static def mpiBcastSparse(distBS:BlocksPLH, rootbid:Int, colOff:Int, colCnt:Int):Int {
 		
-		val root   = here.id();
 		val datasz = compBlockDataSize(distBS, rootbid, colOff, colCnt);  
 
 		@Ifdef("MPI_COMMU") {
-			val rootpid    = distBS().findPlace(rootbid);
 			finish ateach (val [p]:Point in Dist.makeUnique()) {
-				//Need: rootpid, rootbid, distBS, datasz, colOff, colCnt,
+				//Need: rootbid, distBS, datasz, colOff, colCnt,
+				val rootpid    = distBS().findPlace(rootbid);
 				val bset = distBS();
 				val blk  = (here.id()==rootpid)?bset.findBlock(rootbid):bset.getFirst();
 				val spa  = blk.getMatrix() as SparseCSC;
@@ -150,15 +149,15 @@ public class BlockBcast extends BlockRemoteCopy {
 				else
 					spa.initRemoteCopyAtDest(colOff, colCnt, datasz);
 				
-				WrapMPI.world.bcast(spa.getIndex(), offset, datasz, root);
-				WrapMPI.world.bcast(spa.getValue(), offset, datasz, root);
+				WrapMPI.world.bcast(spa.getIndex(), offset, datasz, rootpid);
+				WrapMPI.world.bcast(spa.getValue(), offset, datasz, rootpid);
 				
 				if (p == rootpid) 
 					spa.finalizeRemoteCopyAtSource();
 				else
 					spa.finalizeRemoteCopyAtDest();
 				
-				bset.sync(blk);
+				bset.sync(blk, colOff, colCnt);
 			}
 		}
 		return datasz;
@@ -191,7 +190,7 @@ public class BlockBcast extends BlockRemoteCopy {
 				startBinaryTreeCast(distBS, rtblk, colOff, colCnt, datcnt);	
 			} 
 			//Finalize broadcast: finialize remote copy and local block set sync
-			finalizeBcast(distBS, rootbid);
+			finalizeBcast(distBS, rootbid, colOff, colCnt);
 		}
 		return datcnt;
 	}
@@ -280,7 +279,7 @@ public class BlockBcast extends BlockRemoteCopy {
 		}
 	}
 	//---------------------------------------------------------------
-	private static def finalizeBcast(distBS:BlocksPLH, rootbid:Int){
+	private static def finalizeBcast(distBS:BlocksPLH, rootbid:Int, colOff:Int, colCnt:Int){
 		val rootpid = here.id();
 		finish ateach ([p]:Point in Dist.makeUnique()) {
 			//Remote block set update
@@ -293,7 +292,7 @@ public class BlockBcast extends BlockRemoteCopy {
 				else
 					spa.finalizeRemoteCopyAtSource();
 			}
-			bset.sync(blk);
+			bset.sync(blk, colOff, colCnt);
 		}	
 	}
 	

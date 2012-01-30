@@ -28,12 +28,12 @@ public type BlocksPLH  =PlaceLocalHandle[BlockSet];
 /**
  */
 public class BlockRemoteCopy {
-	private static val baseTagCopyTo:Int=100000;
-	private static val baseTagCopyFrom:Int=200000;
-	private static val baseTagCopyIdxTo:Int=300000;
-	private static val baseTagCopyIdxFrom:Int=400000;
-	private static val baseTagCopyValTo:Int=500000;
-	private static val baseTagCopyValFrom:Int=600000;
+	protected static val baseTagCopyTo:Int=100000;
+	protected static val baseTagCopyFrom:Int=200000;
+	protected static val baseTagCopyIdxTo:Int=300000;
+	protected static val baseTagCopyIdxFrom:Int=400000;
+	protected static val baseTagCopyValTo:Int=500000;
+	protected static val baseTagCopyValFrom:Int=600000;
 
 	//-----------------------------------------
 	/**

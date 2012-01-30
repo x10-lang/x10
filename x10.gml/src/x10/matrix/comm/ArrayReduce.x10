@@ -185,7 +185,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
 	 * Perform all reduce sum operation. 
 	 * @see reduceSum()
 	 * Result is synchronized for all copies
-	 *
+	 *d
 	 * @param ddmat    Distributed storage for input and output data arrays in all places. 
 	 * @param ddtmp    Temp distributed storage of data arrays.
 	 */
