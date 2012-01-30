@@ -262,7 +262,7 @@ final class RectRegion extends Region{rect} {
     public def contains(i0:int){rank==1}:boolean = containsInternal(i0);
     public def contains(i0:int, i1:int){rank==2}:boolean = containsInternal(i0,i1);
     public def contains(i0:int, i1:int, i2:int){rank==3}:boolean = containsInternal(i0,i1,i2);
-    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4}:boolean = containsInternal(i0,i1,i2,3);
+    public def contains(i0:int, i1:int, i2:int, i3:int){rank==4}:boolean = containsInternal(i0,i1,i2,i3);
 
     private def containsInternal(i0:int):boolean {
         return i0>=min0 && i0<=max0;

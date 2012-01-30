@@ -117,6 +117,7 @@ Below is a summary of JIRA issues addressed for the X10 2.2.2
     * [XTENLANG-2983] - java-interop: java.io.File does not serialize correctly
     * [XTENLANG-2988] - x10c++ help message lists "create java files" as an option
     * [XTENLANG-2990] - binary operator with a generic type doesn't compile in C++ back end
+    * [XTENLANG-2994] - RectRegion.contains() fails with NO_CHECKS=false for 4D array
 
 
 For the details of JIRA issues fixed in this release, see
