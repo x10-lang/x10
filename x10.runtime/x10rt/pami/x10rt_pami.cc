@@ -1895,7 +1895,7 @@ void x10rt_net_bcast (x10rt_team team, x10rt_place role, x10rt_place root, const
 	if (!state.numParallelContexts)
 		PAMI_Context_unlock(context);
 
-	// copy the data for the root separately
+	// copy the data for the root separately.  PAMI does not do this for us.
 	if (role == root)
 		memcpy(dbuf, sbuf, count*el);
 }
@@ -1942,12 +1942,14 @@ void x10rt_net_scatter (x10rt_team team, x10rt_place role, x10rt_place root, con
 	if (!state.numParallelContexts)
 		PAMI_Context_unlock(context);
 
-	// copy the root data from src to dst locally
+/*  The local copy is not needed.  PAMI handles this for us.
 	if (role == root)
 	{
+		// copy the root data from src to dst locally
 		int blockSize = el*count;
 		memcpy(((char*)dbuf)+(blockSize*role), ((char*)sbuf)+(blockSize*role), blockSize);
 	}
+*/
 }
 
 void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
@@ -1988,9 +1990,11 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 	if (!state.numParallelContexts)
 		PAMI_Context_unlock(context);
 
+/*  The local copy is not needed.  PAMI handles this for us.
 	// copy the local section of data from src to dst
 	int blockSize = el*count;
 	memcpy(((char*)dbuf)+(blockSize*role), ((char*)sbuf)+(blockSize*role), blockSize);
+*/
 }
 
 void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, void *dbuf,
