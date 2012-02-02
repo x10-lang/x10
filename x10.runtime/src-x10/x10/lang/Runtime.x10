@@ -687,14 +687,14 @@ public final class Runtime {
             }
         }
         @StackAllocate val me = @StackAllocate new RemoteControl();
-        val box = GlobalRef(me);
+        val box:GlobalRef[RemoteControl] = GlobalRef(me as RemoteControl);
         val clockPhases = activity().clockPhases;
         at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 body();
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
-                    val me2 = (box as GlobalRef[RemoteControl{self==me,me!=null}]{home==here})();
+                    val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                     me2.clockPhases = clockPhases;
                     me2.release();
                 };
@@ -702,7 +702,7 @@ public final class Runtime {
                 dealloc(closure);
             } catch (e:Throwable) {
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
-                    val me2 = (box as GlobalRef[RemoteControl{self==me,me!=null}]{home==here})();
+                    val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
                     me2.release();
@@ -745,14 +745,14 @@ public final class Runtime {
             }
         }
         @StackAllocate val me = @StackAllocate new Remote[T]();
-        val box = GlobalRef(me);
+        val box = GlobalRef(me as Remote[T]);
         val clockPhases = activity().clockPhases;
         at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 val result = eval();
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
-                    val me2 = (box as GlobalRef[Remote[T]{self==me,me!=null}]{home==here})();
+                    val me2 = (box as GlobalRef[Remote[T]]{home==here})();
                     // me2 has type Box[T{box.home==here}]... weird
                     me2.t = new Box[T{box.home==here}](result as T{box.home==here});
                     me2.clockPhases = clockPhases;
@@ -762,7 +762,7 @@ public final class Runtime {
                 dealloc(closure);
             } catch (e:Throwable) {
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
-                    val me2 = (box as GlobalRef[Remote[T]{self==me,me!=null}]{home==here})();
+                    val me2 = (box as GlobalRef[Remote[T]]{home==here})();
                     me2.e = e;
                     me2.clockPhases = clockPhases;
                     me2.release();
