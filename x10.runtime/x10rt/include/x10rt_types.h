@@ -40,7 +40,12 @@ typedef void x10rt_completion_handler2 (x10rt_team, void *arg);
 
 /** An integer type capable of representing any message type id.
  */
+#if defined(__bgp__) 
+// maintain compatability with pre-compiled pgas_bgp libs
+typedef uint16_t x10rt_msg_type;
+#else
 typedef uint32_t x10rt_msg_type;
+#endif
 
 /** An integer type capable of representing a remote void* or size_t.
  */
