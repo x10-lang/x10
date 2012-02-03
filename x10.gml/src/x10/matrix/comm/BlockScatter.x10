@@ -13,7 +13,7 @@ package x10.matrix.comm;
 
 import x10.io.Console;
 import x10.util.Timer;
-import x10.util.Pair;
+import x10.util.ArrayList;
 
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
@@ -24,6 +24,7 @@ import x10.matrix.Debug;
 //import x10.matrix.comm.mpi.UtilMPI;
 
 import x10.matrix.Matrix;
+import x10.matrix.DenseMatrix;
 
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
@@ -46,26 +47,6 @@ public class BlockScatter extends BlockRemoteCopy {
 	}
 	//==============================================
 
-	/**
-	 * Scatter single-row partitioning blocks or single column block matrix from all places to a 
-	 * dense matrix at here
-	 */
-	public static def scatter(src:Matrix, dst:DistBlockMatrix{self.M==src.M,self.N==src.N}) : void {
-		
-		val dstgrid = dst.getGrid();
-		if (src instanceof BlockMatrix) {
-			val srcbm = src as BlockMatrix;
-			Debug.assure(dstgrid.equals(srcbm.grid),
-			"source and destionation matrix partitions are not compatible");
-			scatter(srcbm.listBs, dst.handleBS);
-		} else if (src.N == 1) {
-			scatterVector(src as Matrix{self.N==1}, dst.handleBS);
-		} else if (dstgrid.numRowBlocks==1) {
-			scatterRowBs(src, dst.handleBS);
-		}
-		
-		Debug.exit("Source and destination matrics are not supported in scatter");
-	}
 	//==============================================
 	// Dense matrix block scatter
 	//==============================================
@@ -77,16 +58,16 @@ public class BlockScatter extends BlockRemoteCopy {
 	 * @param src     source matrix block array.
 	 * @param dst     target distributed matrix blocks 
 	 */
-	public static def scatter(src:Array[MatrixBlock](1), dst:BlocksPLH) : void {
+	public static def scatter(src:ArrayList[MatrixBlock], dst:BlocksPLH) : void {
 		
 		val dstgrid = dst().getGrid();
 		val nb = dstgrid.size;
-		Debug.assure(src.size<=nb, 
+		Debug.assure(src.size()<=nb, 
 			"Number blocks in dist and local array mismatch");
 		
 		finish for (var bid:Int=0; bid<nb; bid++) {
 			//Debug.flushln("Scatter: copy to block:"+bid);
-			copy(src(bid), dst, bid);
+			copy(src(bid).getMatrix(), dst, bid);
 		}
 	}
 
@@ -108,7 +89,7 @@ public class BlockScatter extends BlockRemoteCopy {
 		for (var cb:Int=0; cb<gp.numColBlocks; cb++) {
 
 			val colcnt = gp.colBs(cb);	
-			copy(src, coloff, dst, cb, 0, colcnt); 
+			copy(src, coloff, dst, dst().findPlace(cb), cb, 0, colcnt); 
 			coloff += colcnt;
 		}
 	}
@@ -116,7 +97,7 @@ public class BlockScatter extends BlockRemoteCopy {
 	/**
 	 * Scatter 1-column matrix (vector) to distributed dense blocks.
 	 */
-	public static def scatterVector(src:Matrix{self.N==1}, dst:BlocksPLH): void {
+	public static def scatterVector(src:DenseMatrix{self.N==1}, dst:BlocksPLH): void {
 
 		var rowoff:Int=0;
 		val gp = dst().getGrid();
@@ -124,7 +105,7 @@ public class BlockScatter extends BlockRemoteCopy {
 
 			val rowcnt = gp.rowBs(rb);
 			
-			copy(src, rowoff, dst, rb, 0, rowcnt); 
+			copyOffset(src, rowoff, dst, dst().findPlace(rb), rb, 0, rowcnt); 
 			rowoff += rowcnt;
 		}
 	}

@@ -230,7 +230,13 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 		}
 		return this;
 	}
-
+	
+	public def initRandom(lo:Int, up:Int) : DistMatrix(this) {
+		finish ateach(val [p] :Point in this.dist) {
+			distBs(p).initRandom(lo, up);
+		}
+		return this;
+	}
 	//----------------------
 	// Data allocation
 	//----------------------

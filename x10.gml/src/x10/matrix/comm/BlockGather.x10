@@ -13,7 +13,7 @@ package x10.matrix.comm;
 
 import x10.io.Console;
 import x10.util.Timer;
-import x10.util.Pair;
+import x10.util.ArrayList;
 
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
@@ -23,6 +23,7 @@ import x10.matrix.Debug;
 //import x10.matrix.comm.mpi.UtilMPI;
 
 import x10.matrix.Matrix;
+import x10.matrix.DenseMatrix;
 
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
@@ -46,43 +47,22 @@ public class BlockGather extends BlockRemoteCopy {
 
 
 	/**
-	 * Gather single-row partitioning blocks or single column block matrix from all places to a 
-	 * dense matrix at here
-	 */
-	public static def gather(src:DistBlockMatrix, dst:Matrix{self.M==src.M,self.N==src.N}) : void {
-
-		val srcgrid = src.getGrid();
-		if (dst instanceof BlockMatrix) {
-			val dstbm = dst as BlockMatrix;
-			Debug.assure(srcgrid.equals(dstbm.grid),
-					"source and destionation matrix partitions are not compatible");
-			gather(src.handleBS, dstbm.listBs);
-		} else if (dst.N == 1) {
-			gatherVector(src.handleBS, dst as Matrix{self.N==1});
-		} else if (srcgrid.numRowBlocks==1) {
-			gatherRowBs(src.handleBS, dst);
-		}
-		
-		Debug.exit("Source and destination matrics are not supported in gather");
-	}
-	
-	/**
 	 * Gather blocks from distributed BlockSet in all places to block matrix
 	 * at here.
 	 * 
 	 * @param src     source distributed matrix blocks
 	 * @param dst     target matrix block array 
 	 */
-	public static def gather(src:BlocksPLH, dst:Array[MatrixBlock](1)) : void {
+	public static def gather(src:BlocksPLH, dst:ArrayList[MatrixBlock]) : void {
 		
-		val srcg   = src().getGrid();
-		val srcmap = src().getDistMap();
-
-		Debug.assure(dst.size >= srcg.size,
+		val grid   = src().getGrid();
+		Debug.assure(dst.size() >= grid.size,
 				"Not enough blocks at receiving side"); 
 		
-		finish for (var bid:Int=0; bid<srcg.size; bid++) {
-			BlockRemoteCopy.copy(src, bid, dst(bid));
+		finish for (var bid:Int=0; bid<grid.size; bid++) {
+			val dstmat = dst(bid).getMatrix();
+			BlockRemoteCopy.copy(src, src().findPlace(bid), bid, 0, 
+					dstmat, 0, dstmat.N);
 		}
 	}
 	
@@ -94,7 +74,7 @@ public class BlockGather extends BlockRemoteCopy {
 	 * @param src     source matrix, distributed in all places.
 	 * @param dstden     target dense matrix at here
 	 */
-	protected static def gatherRowBs(src:BlocksPLH, dst:Matrix): void {
+	public static def gatherRowBs(src:BlocksPLH, dst:Matrix): void {
 
 		val gp = src().getGrid();
 		var coloff:Int=0;
@@ -104,12 +84,16 @@ public class BlockGather extends BlockRemoteCopy {
 
 			val colcnt = gp.colBs(cb);
 			
-			BlockRemoteCopy.copy(src, cb, 0, dst, coloff, colcnt); 
+			BlockRemoteCopy.copy(src, src().findPlace(cb), cb, 0, dst, coloff, colcnt); 
 			coloff += colcnt;
 		}
 	}
 	
-	protected static def gatherVector(src:BlocksPLH, dst:Matrix{self.N==1}): void {
+	/**
+	 * Gather distrubuted vector (single-column) matrix to here
+	 * in a vector. Only dense format is allowed
+	 */
+	public static def gatherVector(src:BlocksPLH, dst:DenseMatrix{self.N==1}): void {
 
 		val gp = src().getGrid();
 		var rowoff:Int=0;
@@ -117,7 +101,7 @@ public class BlockGather extends BlockRemoteCopy {
 
 			val rowcnt = gp.rowBs(rb);
 			
-			BlockRemoteCopy.copy(src, rb, 0, dst, rowoff, rowcnt); 
+			BlockRemoteCopy.copyOffset(src, src().findPlace(rb), rb, 0, dst, rowoff, rowcnt); 
 
 			rowoff += rowcnt;
 		}

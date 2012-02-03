@@ -41,14 +41,6 @@ public class BlockSet  {
 	public val blocklist:ArrayList[MatrixBlock];
 	//==========================================
 
-	// public def this() {
-	// 	blocklist = new ArrayList[MatrixBlock]();
-	// }
-	// 
-	// public def this(bl:ArrayList[MatrixBlock]) {
-	// 	blocklist = bl;
-	// }
-	
 	public def this(g:Grid, map:DistMap) {
 		grid=g; dmap = map;
 		blocklist = new ArrayList[MatrixBlock]();		
@@ -58,18 +50,64 @@ public class BlockSet  {
 		grid=g; dmap = map; blocklist = bl;
 	}
 	//========================================
+	/**
+	 * Creating block set for given matrix, partition and distribution.
+	 * No memory allocation is performed.
+	 * 
+	 * @param  m      number of rows in matrix
+	 * @param  n      number of columns in matrix
+	 * @param  rowBs  number of partition blocks in row
+	 * @param  colBs  number of partition blocks in column
+	 * @param  rowCs  number of group of blocks in row of grid distribution
+	 * @param  colCs  number of group of blocks in column of grid distribution
+	 */
 	public static def make(m:Int, n:Int, rowBs:Int, colBs:Int, rowCs:Int, colCs:Int) {
-		val gd = Grid.make(m, n, rowBs, colBs);
-		val dp = DistGrid.make(gd, rowCs, colCs).dmap;
-		return new BlockSet(gd, dp);
+		val gd = new Grid(m, n, rowBs, colBs);
+		Debug.assure(rowCs*colCs == Place.MAX_PLACES, 
+				"number of distributions groups of blocks must equal to number of places");
+		val dp = new DistGrid(gd, rowCs, colCs);
+		return new BlockSet(gd, dp.dmap);
+	}
+
+	public def allocDenseBlocks() : BlockSet {
+		val itr = dmap.getBlockIterator(here.id());
+		while (itr.hasNext()) {
+			val bid    = itr.next();
+			val rowbid = grid.getRowBlockId(bid);
+			val colbid = grid.getColBlockId(bid);
+			val m      = grid.rowBs(rowbid);
+			val n      = grid.colBs(colbid);
+			add(DenseBlock.make(rowbid, colbid, m, n));
+		}
+		return this;
 	}
 	
-	public static def makeDupBlockSet(mb:MatrixBlock):BlockSet {
-		val mat = mb.getMatrix();
-		val grd = new Grid(mat.M, mat.N, 1, 1);
-		val dbmat  = new BlockSet(grd, null);
-		dbmat.blocklist.add(mb);
-		return dbmat;
+	public def allocSparseBlocks(nzd:Double) : BlockSet {
+		val itr = dmap.getBlockIterator(here.id());
+		while (itr.hasNext()) {
+			val bid    = itr.next();
+			val rowbid = grid.getRowBlockId(bid);
+			val colbid = grid.getColBlockId(bid);
+			val m      = grid.rowBs(rowbid);
+			val n      = grid.colBs(colbid);
+			add(SparseBlock.make(rowbid, colbid, m, n, nzd));
+		}
+		return this;
+	}
+	//--------------
+	public static def makeDense(m:Int, n:Int, rowBs:Int, colBs:Int, rowCs:Int, colCs:Int) =
+		make(m, n, rowBs, colBs, rowCs, colCs).allocDenseBlocks();
+	
+	public static def makeSparse(m:Int, n:Int, rowBs:Int, colBs:Int, rowCs:Int, colCs:Int, nzd:Double) =
+		make(m, n, rowBs, colBs, rowCs, colCs).allocSparseBlocks(nzd);
+	//--------------------
+	
+	public static def makeDense(g:Grid, d:DistMap) {
+		return new BlockSet(g,d).allocDenseBlocks();
+	}
+	
+	public static def makeSparse(g:Grid, d:DistMap, nzd:Double) {
+		return new BlockSet(g,d).allocSparseBlocks(nzd);
 	}
 	
 	//========================================
@@ -108,6 +146,7 @@ public class BlockSet  {
 		return retval;
 	}
 	//=======================================
+
 	public def find(rid:Int, cid:Int): MatrixBlock {
 		val it = this.iterator();
 		while (it.hasNext()) {
@@ -210,7 +249,7 @@ public class BlockSet  {
 		this.blocklist.clear();
 	}
 	
-	protected def resetBlock():void {
+	protected def reset():void {
 		val it = this.blocklist.iterator();
 		while (it.hasNext()) {
 			val b = it.next();

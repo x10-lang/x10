@@ -152,7 +152,9 @@ public class BlockRingReduce extends BlockRemoteCopy {
 				reduceToHere(distBS, tmpBS, rootblk, colCnt, select, opFunc, nearbyPlcList);
 			}
 		}
-		val rcvden = tmpBS().getFirstMatrix() as DenseMatrix;
+		val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
+		val rcvblk = tmpBS().findLocalRootBlock(rootbid, select);
+		val rcvden = rcvblk.getMatrix() as DenseMatrix;
 		val dstden = rootblk.getMatrix() as DenseMatrix;
 
 		val datcnt = dstden.M*colCnt;
@@ -171,7 +173,9 @@ public class BlockRingReduce extends BlockRemoteCopy {
 				
 		@Ifdef("MPI_COMMU") {
 			val dstpid = here.id();
-			val rcvden = tmpBS().getFirstMatrix() as DenseMatrix;
+			val rcvbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
+			val rcvblk = tmpBS().findLocalRootBlock(rcvbid, select);
+			val rcvden = rcvblk.getMatrix() as DenseMatrix;
 			
 			finish {
 				//Left branch reduction

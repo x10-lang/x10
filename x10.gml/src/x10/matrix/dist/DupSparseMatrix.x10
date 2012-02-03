@@ -199,6 +199,11 @@ public class DupSparseMatrix extends Matrix {
 		return this;
 	}
 	
+	public def initRandom(lo:Int,up:Int) : DupSparseMatrix(this) {
+		local().initRandom(lo,up);
+		sync();
+		return this;
+	}
 	//================================================================
 	// Data copy and reset
 	//================================================================	

@@ -122,7 +122,7 @@ public class DupDenseMatrix extends Matrix {
 		val dm  = new DupDenseMatrix(dms) as DupDenseMatrix(m,n);
 		return dm;
 	}
-
+;
 	/**
 	 * Create duplicated dense matrix by using specified DistArray storage in all places
 	 * 
@@ -187,7 +187,12 @@ public class DupDenseMatrix extends Matrix {
 		sync();
 		return this;
 	}
-
+	
+	public def initRandom(lo:Int, up:Int) : DupDenseMatrix(this) {
+		local().initRandom(lo,up);
+		sync();
+		return this;
+	}
 	/**
 	 * For testing purpose.
 	 *
@@ -217,7 +222,7 @@ public class DupDenseMatrix extends Matrix {
 	}
 	
 	//================================================================
-	/**
+	/**;
 	 * Allocate memory space to hold duplicated dense matrix(m,n)
 	 */
 	public def alloc(m:Int, n:Int)  = make(m, n);
@@ -332,8 +337,8 @@ public class DupDenseMatrix extends Matrix {
 	 * Check Matrix A is duplicated and has the same dist or not
 	 */
 	public def likeMe(A:Matrix):Boolean =
-	    (A instanceof DupDenseMatrix &&
-		 (A as DupDenseMatrix).dupMs.dist.equals(this.dupMs.dist));
+	    (A instanceof DupDenseMatrix && 
+	    		(A as DupDenseMatrix).dupMs.dist.equals(this.dupMs.dist));
 	
 	//================================================================
 	//================================================================

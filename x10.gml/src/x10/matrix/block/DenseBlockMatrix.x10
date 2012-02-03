@@ -155,6 +155,13 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 		}
 		return this;
 	}
+	
+	public def initRandom(lo:Int, up:Int):DenseBlockMatrix(this) {
+		for (val [p] :Point in listBs) {
+			listBs(p).initRandom(lo, up);
+		}
+		return this;
+	}
 
 	/**
 	 * Reset all entry to 0.0

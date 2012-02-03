@@ -29,7 +29,7 @@ import x10.matrix.distblock.BlockSet;
  * The class provides reduce-sum communication for distributed matrix,
  * 
  */
-public class BlockReduce extends BlockRemoteCopy {
+public class BlockSetReduce extends BlockSetRemoteCopy {
 
 	//public var mpi:UtilMPI;
 
@@ -52,12 +52,12 @@ public class BlockReduce extends BlockRemoteCopy {
 	 * @param rootbid    root block ID.
 	 * 
 	 */
-	public static def reduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int): void {
+	public static def reduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Int): void {
 		@Ifdef("MPI_COMMU") {
-			mpiReduceSum(distBS, tmpBS, rootbid);
+			mpiReduceSum(distBS, tmpBS, rootpid);
 		}
 		@Ifndef("MPI_COMMU") {
-			x10Reduce(distBS, tmpBS, rootbid, (a:DenseMatrix, b:DenseMatrix)=>b.cellAdd(a as DenseMatrix(b.M,b.N)));
+			x10Reduce(distBS, tmpBS, rootpid, (a:DenseMatrix, b:DenseMatrix)=>b.cellAdd(a as DenseMatrix(b.M,b.N)));
 		}
 	}
 	
@@ -71,13 +71,13 @@ public class BlockReduce extends BlockRemoteCopy {
 	 * @param opFunc        Reduce operation function, which take two dense matrix as parameters, the 
 	 */
 	public static def reduce(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootbid:Int,
+			rootpid:Int,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
 		@Ifdef("MPI_COMMU") {
-			mpiReduceSum(distBS, tmpBS, rootbid);
+			mpiReduceSum(distBS, tmpBS, rootpid);
 		}
 		@Ifndef("MPI_COMMU") {
-			x10Reduce(distBS, tmpBS, rootbid, opFunc);
+			x10Reduce(distBS, tmpBS, rootpid, opFunc);
 		}
 	}
 	
@@ -90,27 +90,25 @@ public class BlockReduce extends BlockRemoteCopy {
 	 * @param ddtmp      Temp matrix space to store the receiving data.
 	 * @return           Number of elements to received
 	 */
-	public static def x10Reduce(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int,
+	public static def x10Reduce(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Int,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
 		
 		val dmap = distBS().getDistMap();
-		val rootpid:Int = dmap.findPlace(rootbid);
 		var leftpcnt:Int = Place.MAX_PLACES;
 		
 		//Debug.assure(here.id() == 0);
 		if (here.id() != rootpid) {
 			at (Dist.makeUnique()(rootpid)) {
-				x10Reduce(distBS, tmpBS, rootbid, opFunc);
+				x10Reduce(distBS, tmpBS, rootpid, opFunc);
 			}
 		} else {
-			val rtblk  = distBS().findBlock(rootbid);
 			finish {
 				if (rootpid == 0) 
-					reduceToHere(distBS, tmpBS, rtblk, Place.MAX_PLACES, opFunc);
+					reduceToHere(distBS, tmpBS, 0, Place.MAX_PLACES, opFunc);
 				else {
 					val lfpcnt = rootpid;
 					val rtpcnt = Place.MAX_PLACES - lfpcnt;
-					binaryTreeReduce(distBS, tmpBS, rtblk, rtpcnt, 0, lfpcnt, opFunc);
+					binaryTreeReduce(distBS, tmpBS, rootpid, rtpcnt, 0, lfpcnt, opFunc);
 				}
 			}
 		}
@@ -119,38 +117,42 @@ public class BlockReduce extends BlockRemoteCopy {
 	//===========================================================
 	private static def binaryTreeReduce(
 			distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootblk:MatrixBlock, rootPCnt:Int,
+			nearbypid:Int, rootPCnt:Int,
 			remotepid:Int, remotePCnt:Int,
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix) {
-		var rmtbuf:RemoteArray[Double];
+		var rmtbuflst:Array[RemoteArray[Double]](1);
 		finish {
 			//Left branch reduction
-			rmtbuf =  at (Dist.makeUnique()(remotepid)) {
+			rmtbuflst =  at (Dist.makeUnique()(remotepid)) {
 				//Remote capture:distBS, tmpBS, lfpcnt;
-				val blk    = distBS().getFirst();
 				async {
-					reduceToHere(distBS, tmpBS, blk, remotePCnt, opFunc);
+					reduceToHere(distBS, tmpBS, here.id(), remotePCnt, opFunc);
 				}
-				new RemoteArray[Double](blk.getData() as Array[Double]{self!=null})
+				val bl = distBS().blocklist;
+				new Array[RemoteArray[Double]](bl.size(), 
+						(i:Int)=>new RemoteArray[Double](bl(i).getData() as Array[Double]{self!=null}))
 			};
 			//Right branch reduction
 			async {
-				reduceToHere(distBS, tmpBS, rootblk, rootPCnt, opFunc);
+				reduceToHere(distBS, tmpBS, nearbypid, rootPCnt, opFunc);
 			}
 		}
-		val tmpblk = tmpBS().getFirst();
-		val dstden = rootblk.getMatrix() as DenseMatrix;
-		val rcvden = tmpblk.getMatrix() as DenseMatrix;
-		val datcnt = dstden.M*dstden.N;
-		finish Array.asyncCopy[Double](rmtbuf, 0, rcvden.d, 0, datcnt);
-		
-		opFunc(rcvden, dstden);
+		val dstIt = distBS().iterator();
+		val tmpIt = tmpBS().iterator();
+		for (var i:Int=0; i<rmtbuflst.size; i++)  {
+			val rcvden = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix;
+			val dstden = distBS().blocklist.get(i).getMatrix() as DenseMatrix;
+			val datcnt = dstden.M*dstden.N;
+			finish Array.asyncCopy[Double](rmtbuflst(i), 0, rcvden.d, 0, datcnt);
+			opFunc(rcvden, dstden);
+		}
+	
 		//dstmat.cellAdd(rcvmat as DenseMatrix(dstmat.M, dstmat.N));
 	}
 
 	//=========================================================
 	protected static def reduceToHere(distBS:BlocksPLH, tmpBS:BlocksPLH, 
-			rootblk:MatrixBlock, pcnt:Int, 
+			rootpid:Int, pcnt:Int, 
 			opFunc:(DenseMatrix, DenseMatrix)=>DenseMatrix): void {
 		
 		val leftRoot = here.id();
@@ -160,9 +162,7 @@ public class BlockReduce extends BlockRemoteCopy {
 			val rightPCnt  = pcnt - leftPCnt;
 			val rightRoot  = leftRoot + leftPCnt;
 		
-			binaryTreeReduce(distBS, tmpBS, rootblk, leftPCnt, rightRoot, rightPCnt, opFunc);
-		} else if (pcnt == 1) {
-			distBS().reduce(rootblk, opFunc);
+			binaryTreeReduce(distBS, tmpBS, rootpid, leftPCnt, rightRoot, rightPCnt, opFunc);
 		}
 	}
 	
@@ -174,26 +174,20 @@ public class BlockReduce extends BlockRemoteCopy {
 	 * @param ddmat     input and output matrix. 
 	 * @param ddtmp     temp matrix storing the inter-place communication data.
 	 */
-	public static def mpiReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootbid:Int):void {
-			
-		val dmap = distBS().getDistMap();
-		val rootpid:Int = dmap.findPlace(rootbid);
-
+	public static def mpiReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH, rootpid:Int):void {
+	
 		@Ifdef("MPI_COMMU") {
 			finish ateach (val [p]:Point in Dist.makeUnique()) {
 				//Remote capture: rootpid, 
-				val srcblk = tmpBS().getFirst();
-				val dstblk = (rootpid==here.id())?distBS().findBlock(rootbid):distBS().getFirst();
-
-				//Local reduce Sum
-				distBS().reduceSum(dstblk);
-				//Copy to src
-				dstblk.copyTo(srcblk);
-				
-				val src = srcblk.getMatrix() as DenseMatrix;
-				val dst = dstblk.getMatrix() as DenseMatrix;
-				val dsz = src.M*src.N;
-				WrapMPI.world.reduceSum(src.d, dst.d, dsz, rootpid);
+				for (var i:Int =0; i< distBS().blocklist.size(); i++) {
+					val dst = distBS().blocklist.get(i).getMatrix() as DenseMatrix;
+					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
+					
+					//Copy to src
+					dst.copyTo(src);
+					val dsz = dst.M*dst.N;
+					WrapMPI.world.reduceSum(src.d, dst.d, dsz, rootpid);					
+				}
 			}
 		}
 	}
@@ -253,27 +247,18 @@ public class BlockReduce extends BlockRemoteCopy {
 	 * @param ddtmp     temp matrix storing the inter-place communication data.
 	 */
 	protected static def mpiAllReduceSum(distBS:BlocksPLH, tmpBS:BlocksPLH): void {
-		
-		//Debug.flushln("Start all reduce");
 		@Ifdef("MPI_COMMU") {
 			finish ateach (val [p]:Point in Dist.makeUnique()) {
-			
-				val srcblk = tmpBS().getFirst();
-				val dstblk = distBS().getFirst();
-
-				//Local reduce Sum
-				distBS().reduceSum(dstblk);
-				
-				//Copy all blocks to tmp, tmp is source in MPI reduce
-				dstblk.copyTo(srcblk);
-				
-				val src = srcblk.getMatrix() as DenseMatrix;
-				val dst = dstblk.getMatrix() as DenseMatrix;
-				val dsz = src.M*src.N;
-				
-				// all Reduce may cause process to hange
-				WrapMPI.world.allReduceSum(dst.d, dst.d, dsz);
-				distBS().sync(dstblk);
+				//Remote capture: rootpid, 
+				for (var i:Int =0; i< distBS().blocklist.size(); i++) {
+					val dst = distBS().blocklist.get(i).getMatrix() as DenseMatrix;
+					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
+					
+					//Copy to src
+					dst.copyTo(src);
+					val dsz = dst.M*dst.N;
+					WrapMPI.world.allReduceSum(src.d, dst.d, dsz);					
+				}
 			}
 		}
 	}

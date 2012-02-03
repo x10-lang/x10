@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix.distblock;
@@ -75,6 +75,11 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
 	}
 	
 	public static def makeCylic(numBlk:Int, numPlc:Int) = make(numBlk, (i:Int)=>i%numPlc);
+	public static def makeUnique() = make(Place.MAX_PLACES, (i:Int)=>i);
+	public static def makeUnique(numBlk:Int) = make(numBlk, (i:Int)=>i);
+	
+	public static def makeCOnstant(numBlk:Int) = make(numBlk, (i:Int)=>0);
+	public static def makeConstant(numBlk:Int, p:Int) = make(numBlk, (i:Int)=>p); 
 	
 	//==========================================
 	
@@ -178,6 +183,8 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
  		var retval:Boolean = true;
  		
  		if (this==that) return true;
+ 		if (this.numBlock!=that.numBlock) return false;
+
  		for (var i:Int=0; i<blockmap.size && retval; i++) {
  			retval &= this.blockmap(i)==that.blockmap(i);
  		}

@@ -195,7 +195,13 @@ public class SparseBlockMatrix(grid:Grid) extends Matrix  {
 		}
 		return this;
 	}
-
+	
+	public def initRandom(lo:Int, up:Int):SparseBlockMatrix(this) {
+		for (val [p] :Point in listBs) {
+			listBs(p).sparse.initRandom(lo,up);
+		}
+		return this;
+	}
 
 	//================================================================
 	// Data copy and reset
