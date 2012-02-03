@@ -113,7 +113,8 @@ class BlockP2PTest {
 		//src.printMatrix("CopyTo source");
 		var st:Long =  Timer.milliTime();
 		for (var b:Int=0; b<bM*bN; b++) {
-			ds += rmtcp.copy(src, dst.handleBS, b);
+			val dstpid = dst.handleBS().findPlace(b);
+			ds += rmtcp.copy(src, dst.handleBS, dstpid, b);
 		}
 		
 		val avgt = 1.0*(Timer.milliTime() - st)/(numplace-1);
@@ -122,7 +123,7 @@ class BlockP2PTest {
 		Console.OUT.printf("P2P copyTo %d bytes : %.3f ms, thput: %2.2f MB/s per iteration\n", 
 						   ds*8, avgt, 8000.0*ds/avgt/1024/1024);
 		
-		ret = dbmat.syncCheck();
+		ret = dbmat.checkAllBlocksEqual();
 		if (ret)
 			Console.OUT.println("P2P CopyTo dist block matrix passed!");
 		else
@@ -143,8 +144,9 @@ class BlockP2PTest {
 
 		//src.printMatrix("CopyFrom Source matrix");
 		for (var b:Int=0; b<bM*bN; b++) {
+			val srcpid = src.handleBS().findPlace(b);
 			st =  Timer.milliTime();
-			ds += rmtcp.copy(src.handleBS, b, dst);
+			ds += rmtcp.copy(src.handleBS, srcpid, b, dst);
 			tt += Timer.milliTime() - st;
 			//dst.printMatrix("CopyFrom Received "+b );
 			ret &= ori.equals(dst);

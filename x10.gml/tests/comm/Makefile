@@ -10,9 +10,9 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list = TestColl TestP2P TestSparseColl TestBlockP2P TestBlockColl
+target_list = TestColl TestP2P TestSparseColl TestBlockP2P TestBlockColl TestBlockSetComm
 
-target		= TestBlockColl
+target		= TestBlockSetComm
 
 # build path
 build_path	= build

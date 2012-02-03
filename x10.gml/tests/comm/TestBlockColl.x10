@@ -17,7 +17,6 @@ import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistBlockMatrix;		
-import x10.matrix.distblock.DupBlockMatrix;		
 
 import x10.matrix.comm.BlockBcast;
 import x10.matrix.comm.BlockScatter;
@@ -40,7 +39,7 @@ public class TestBlockColl{
 		val n = args.size > 1 ?Int.parse(args(1)):2;
 		val bm= args.size > 2 ?Int.parse(args(2)):2;
 		val bn= args.size > 3 ?Int.parse(args(3)):3;
-		val d = args.size > 4 ? Double.parse(args(4)):0.80;
+		val d = args.size > 4 ? Double.parse(args(4)):0.9;
 		val testcase = new BlockCollTest(m, n, bm, bn, d);
 		testcase.run();
 	}
@@ -59,8 +58,8 @@ class BlockCollTest {
 
 	public val dbmat:DistBlockMatrix;
 	public val sbmat:DistBlockMatrix;
-	public val tmp:DupBlockMatrix;
-	
+	public val tmpmat:DistBlockMatrix;
+
 	public val dblks:BlockMatrix;
 	public val sblks:BlockMatrix;
 	
@@ -73,8 +72,8 @@ class BlockCollTest {
 		bM = bm; bN = bn;
 		
 		dbmat = DistBlockMatrix.makeDense(m*bm, n*bn, bm, bn);
+		tmpmat = DistBlockMatrix.makeDense(m*bm, n*bn, bm, bn);
 		sbmat = DistBlockMatrix.makeSparse(m*bm, n*bn, bm, bn, nzdensity);
-		tmp   = DupBlockMatrix.makeDense(m, n);
 		
 		dbmat.initBlock(rootbid, (x:Int, y:Int)=>(1.0+x+y));
 		sbmat.initBlock(rootbid, (x:Int, y:Int)=>1.0*(x+y)*((x+y)%2));
@@ -98,7 +97,6 @@ class BlockCollTest {
 		retval &= testScatter(dblks, dbmat);
 		retval &= testRingCastRow(dbmat);
 		retval &= testRingCastCol(dbmat);
-		retval &= testReduce(dbmat);
 	
 		retval &= testRingReduceRow(dbmat);
 		retval &= testRingReduceCol(dbmat);
@@ -130,10 +128,12 @@ class BlockCollTest {
 		for (var rtbid:Int=0; rtbid < bmat.getGrid().size && ret; rtbid++) {
 			Console.OUT.println("Bcast from root block "+rtbid); Console.OUT.flush();
 			bmat.reset();
-			bmat.initBlock(rtbid, (r:Int, c:Int)=>(1.0+r+c)*((r+c)%2));
+			bmat.initBlock(rtbid, (r:Int, c:Int)=>(1.0+r+c)*((r+c)%3));
+			//bmat.printMatrix();
 			val st:Long =  Timer.milliTime();
 			BlockBcast.bcast(bmat.handleBS, rtbid);
 			avgt += (Timer.milliTime() - st);
+			//bmat.printMatrix();
 			//bmat.handleBS().getFirstMatrix().printMatrix();
 			ret &= bmat.checkAllBlocksEqual();
 		}
@@ -156,12 +156,13 @@ class BlockCollTest {
 		
 		Console.OUT.printf("\nTest gather of dist block matrix over %d places\n", numplace);
 		blksmat.reset();
+		//distmat.printMatrix();
 		
 		Debug.flushln("Start gathering "+numplace+" places");
 		var st:Long =  Timer.milliTime();
 		BlockGather.gather(distmat.handleBS, blksmat.listBs);
 		//Debug.flushln("Done");
-		
+		//blksmat.printMatrix();
 		ret = distmat.equals(blksmat as Matrix(distmat.M, distmat.N));
 		Debug.flushln("Done verification");
 
@@ -251,33 +252,6 @@ class BlockCollTest {
 		return ret;
 	}
 
-	public def testReduce(distmat:DistBlockMatrix):Boolean {
-		var ret:Boolean = true;
-		var avgt:Double = 0.0;
-		Console.OUT.printf("\nTest gather of dist block matrix over %d places\n", numplace);
-		val result:Double = distmat.getGrid().size;
-		val rootmat = distmat.handleBS().getFirstMatrix();
-		val tmpmat = DupBlockMatrix.makeDense(rootmat.M,rootmat.N);
-		
-		Debug.flushln("Start reduce among "+numplace+" places");
-		for (var rtbid:Int=0; rtbid < distmat.getGrid().size; rtbid++) {
-			Console.OUT.println("Reduce to root block "+rtbid);
-			distmat.init(1.0);
-			val st:Long =  Timer.milliTime();
-			BlockReduce.reduceSum(distmat.handleBS, tmpmat.handleDB, rtbid);
-			avgt += (Timer.milliTime() - st);
-			//distmat.printMatrix();
-			//bmat.printMatrix();
-			val rtmat = distmat.fetchBlock(rtbid).getMatrix();
-			//distmat.printMatrix();
-			ret &= rtmat.equals(result);
-		}
-		if (ret)
-			Console.OUT.println("Test reduceSum for dist block matrix test passed!");
-		else
-			Console.OUT.println("-----Test reduceSum for dist block matrix failed!-----");
-		return ret;
-	}
 	
 	public def testRingReduceRow(distmat:DistBlockMatrix):Boolean {
 		var ret:Boolean = true;
@@ -292,7 +266,7 @@ class BlockCollTest {
 			val colcnt = grid.getColSize(rtbid);
 			
 			//distmat.printMatrix("Init");
-			BlockRingReduce.rowReduceSum(distmat.handleBS, tmp.handleDB, rtbid, colcnt);
+			BlockRingReduce.rowReduceSum(distmat.handleBS, tmpmat.handleBS, rtbid, colcnt);
 			//distmat.printMatrix("row cast result");
 			
 			ret &= distmat.fetchBlock(rtbid).getMatrix().equals(1.0*grid.numColBlocks);
@@ -318,7 +292,7 @@ class BlockCollTest {
 			val colcnt = grid.getColSize(rtbid);
 			
 			//distmat.printMatrix("Init");
-			BlockRingReduce.colReduceSum(distmat.handleBS, tmp.handleDB, rtbid, colcnt);
+			BlockRingReduce.colReduceSum(distmat.handleBS, tmpmat.handleBS, rtbid, colcnt);
 			//distmat.printMatrix("row cast result");
 			
 			ret &= distmat.fetchBlock(rtbid).getMatrix().equals(1.0*grid.numRowBlocks);

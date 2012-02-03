@@ -10,7 +10,7 @@ import x10.util.Timer;
 import x10.matrix.Matrix;
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.block.Grid;
 
 import x10.matrix.dist.DistDenseMatrix;

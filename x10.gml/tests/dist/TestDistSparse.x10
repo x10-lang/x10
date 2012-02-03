@@ -45,7 +45,7 @@ public class TestDistSparse {
 			nzp = args.size > 2 ?Double.parse(args(2)):1.0;
 
 			g   = Grid.make(M,N);
-			grow= Grid.make(M, N, 1, Place.MAX_PLACES);
+			grow= new Grid(M, N, 1, Place.MAX_PLACES);
 		}
 
 		public def run():Boolean {

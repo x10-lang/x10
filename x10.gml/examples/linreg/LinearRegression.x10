@@ -12,7 +12,7 @@ import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 
 import x10.matrix.block.Grid;
 import x10.matrix.sparse.SparseCSC;
@@ -22,13 +22,10 @@ import x10.matrix.dist.DistSparseMatrix;
 import x10.matrix.dist.DistDenseMatrix;
 import x10.matrix.dist.DupDenseMatrix;
 
-//
 
 /**
-   Parallel implementation of linear regression
-   <p>
-
-   <p>
+ * Parallel linear regression based on GML distributed 
+ * dense/sparse matrix
  */
 public class LinearRegression{
 
@@ -48,6 +45,7 @@ public class LinearRegression{
 
 	val r:DenseMatrix(V.N, 1);
 	val d_q:DupDenseMatrix(V.N, 1);
+	val d_q2:DupDenseMatrix(V.N, 1);
 	val q:DenseMatrix(V.N, 1);
 	
 	//----Profiling-----
@@ -80,6 +78,7 @@ public class LinearRegression{
 		d_q= DupDenseMatrix.make(V.N, 1);
 		q  = d_q.local();
 
+		d_q2 = DupDenseMatrix.make(V.N, 1);
 		w  = DenseMatrix.make(V.N, 1);
 		w.init(0.0);
 		Debug.flushln("Init done");
@@ -109,9 +108,9 @@ public class LinearRegression{
 			//-------------------
 			ct = Timer.milliTime();
 			// 10: q=((t(V) %*% (V %*% p)) + lambda*p)
-			d_q.transMult(V, Vp.mult(V, d_p), false);
+			d_q.transMult(V, Vp.mult(V, d_p), d_q2, false);
 			//Vp.mult(V, d_p);                    Vp.printBlock("V * p= \n");
-			//d_q.transMult(V, Vp, false); 	q.print("Parallel V^t * V * p:\n");
+			//d_q.transMult(V, Vp, d_q2, false); 	q.print("Parallel V^t * V * p:\n");
 			parCompT += Timer.milliTime() - ct;
 			
 			//---------------------

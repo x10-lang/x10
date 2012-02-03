@@ -10,6 +10,7 @@ import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 
 import x10.matrix.block.Grid;
+import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.DenseBlockMatrix;
 
 import x10.matrix.distblock.DistMap;
@@ -62,7 +63,7 @@ class TestDB {
 		var ret:Boolean = true;
  		// Set the matrix function
 		ret &= (testClone());
-		//ret &= (testCopyTo());
+		ret &= (testCopyTo());
 		ret &= (testScale());
 		ret &= (testAdd());
 		ret &= (testAddSub());
@@ -79,7 +80,7 @@ class TestDB {
 	public def testClone():Boolean{
 		var ret:Boolean = true;
 		Console.OUT.println("Starting dist block matrix clone test on dense blocks");
-		val ddm = DistBlockMatrix.make(grid, dmap).allocDenseBlocks().init((r:Int, c:Int)=>(1.0+r+c));
+		val ddm = DistBlockMatrix.makeDense(grid, dmap).init((r:Int, c:Int)=>(1.0+r+c));
 		Debug.flushln("Initialization done");
 		//ddm.print();
 		//ddm.printMatrix();
@@ -101,34 +102,41 @@ class TestDB {
 		return ret;
 	}
 
-// 	public def testCopyTo():Boolean {
-// 		var ret:Boolean = true;
-// 		Console.OUT.println("Starting dist dense Matrix copyTo test");
-// 		val ddm = DistDenseMatrix.make(M, N);
-// 		val dbm = DenseBlockMatrix.make(ddm.grid);
-// 		val dm  = DenseMatrix.make(M,N);
-// 
-// 		Debug.flushln("Starting initialization");
-// 		ddm.initRandom();
-// 		Debug.flushln("Initialization done");
-// 
-// 		ddm.copyTo(dbm);
-// 		Debug.flushln("Convert to dense block matrix done");
-// 		ret &= ddm.equals(dbm);
-// 		Debug.flushln("Verify copyTo dense block matrix  done");
-// 		
-// 		dbm.copyTo(dm);
-// 		Debug.flushln("Convert to dense matrix done");
-// 		ret &= ddm.equals(dbm);
-// 		Debug.flushln("Verify copyTo dense matrix done");
-// 
-// 		if (ret)
-// 			Console.OUT.println("Dist dense Matrix copyTo test passed!");
-// 		else
-// 			Console.OUT.println("--------Dist dense matrix copyTo test failed!--------");	
-// 		return ret;
-// 	}
-// 
+	public def testCopyTo():Boolean {
+		var ret:Boolean = true;
+		Console.OUT.println("Starting dist block Matrix copyTo test");
+		val dstblk = DistBlockMatrix.makeDense(grid, dmap);
+		val blkden = BlockMatrix.makeDense(grid);
+		val den    = DenseMatrix.make(M,N);
+
+		Debug.flushln("Copy dist block matrix to block matrix (at here)");
+		dstblk.initRandom();
+		dstblk.copyTo(blkden);
+		ret &= dstblk.equals(blkden as Matrix(dstblk.M, dstblk.N));
+		if (! ret)  return ret;
+		
+		Debug.flushln("Copy data in block matrix from here to distributed block matrix");
+		dstblk.reset();
+		dstblk.copyFrom(blkden);
+		ret &= blkden.equals(dstblk as Matrix(blkden.M,blkden.N));
+		if (! ret) return ret;
+
+		Debug.flushln("Copy data dist block matrix to dense matrix(vector) at here");
+		val dmat = DistBlockMatrix.make(M, 1, bM, 1, Place.MAX_PLACES, 1).allocDenseBlocks().initRandom();
+		val denm = DenseMatrix.make(M, 1);
+		
+		dmat.copyTo(denm);
+		ret &= dmat.equals(denm as Matrix(dmat.M, dmat.N));
+		if (! ret) return ret;
+		
+		
+		if (ret)
+			Console.OUT.println("Dist dense Matrix copyTo test passed!");
+		else
+			Console.OUT.println("--------Dist dense matrix copyTo test failed!--------");	
+		return ret;
+	}
+
  	public def testScale():Boolean{
  		Console.OUT.println("Starting dist block matrix scaling test");
  		val dm = DistBlockMatrix.make(M, N, bM, bN).allocDenseBlocks().initRandom();
@@ -160,8 +168,8 @@ class TestDB {
 
 	public def testAddSub():Boolean {
 		Console.OUT.println("Starting DistBlockMatrix add-sub test");
-		val dm = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
-		val dm1= DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
+		val dm = DistBlockMatrix.makeDense(grid, dmap).initRandom();
+		val dm1= DistBlockMatrix.makeDense(grid, dmap).initRandom();
 		//sp.print("Input:");
 		val dm2   = dm  + dm1;
 		//
@@ -179,9 +187,9 @@ class TestDB {
 	public def testAddAssociative():Boolean {
 		Console.OUT.println("Starting dist block matrix associative test");
 
-		val a = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
-		val b = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();;
-		val c = DistBlockMatrix.makeSparseBlocks(grid, dmap, nzp).initRandom();
+		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
+		val b = DistBlockMatrix.makeDense(grid, dmap).initRandom();;
+		val c = DistBlockMatrix.makeSparse(grid, dmap, nzp).initRandom();
 
 		val c1 = a + b + c;
 		val c2 = a + (b + c);
@@ -196,7 +204,7 @@ class TestDB {
 	public def testScaleAdd():Boolean {
 		Console.OUT.println("Starting dist block Matrix scaling-add test");
 
-		val a = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
+		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 
 		val m = a.toDense();
 		val a1= a * 0.2;
@@ -214,8 +222,8 @@ class TestDB {
 	public def testCellMult():Boolean {
 		Console.OUT.println("Starting dist block Matrix cellwise mult test");
 
-		val a = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
-		val b = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
+		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
+		val b = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 
 		val c = (a + b) * a;
 		val d = a * a + b * a;
@@ -236,8 +244,8 @@ class TestDB {
 	public def testCellDiv():Boolean {
 		Console.OUT.println("Starting DistBlockMatrix cellwise mult-div test");
 
-		val a = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
-		val b = DistBlockMatrix.makeDenseBlocks(grid, dmap).initRandom();
+		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
+		val b = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 
 		val c = (a + b) * a;
 		val d =  c / (a + b);

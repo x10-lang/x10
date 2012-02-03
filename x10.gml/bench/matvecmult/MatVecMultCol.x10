@@ -9,7 +9,7 @@ import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
-import x10.matrix.blas.DenseMultBLAS;
+import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.block.Grid;
 
 import x10.matrix.dist.DistDenseMatrix;
@@ -128,7 +128,7 @@ class DVMultColwise {
 		Console.OUT.printf("Starting verification on dense matrix\n");
 		
 		for (1..it) {
-			DenseMultBLAS.comp(ma, mb, mc, false);
+			DenseMatrixBLAS.comp(ma, mb, mc, false);
 			mc.copyTo(mb);
 		}
 		

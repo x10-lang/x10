@@ -85,7 +85,10 @@ comm_src=\
 	x10/matrix/comm/BlockScatter.x10 \
 	x10/matrix/comm/BlockReduce.x10 \
 	x10/matrix/comm/BlockRingCast.x10 \
-	x10/matrix/comm/BlockRingReduce.x10
+	x10/matrix/comm/BlockRingReduce.x10 \
+	x10/matrix/comm/BlockSetRemoteCopy.x10 \
+	x10/matrix/comm/BlockSetBcast.x10 \
+	x10/matrix/comm/BlockSetReduce.x10
 
 
 bwrap_src=\
@@ -117,7 +120,8 @@ block_src=\
 	x10/matrix/block/SparseBlock.x10 \
 	x10/matrix/block/DenseBlockMatrix.x10 \
 	x10/matrix/block/Grid.x10 \
-	x10/matrix/block/SparseBlockMatrix.x10
+	x10/matrix/block/SparseBlockMatrix.x10 \
+	x10/matrix/block/BlockBlockMult.x10
 
 dist_src=\
 	x10/matrix/dist/DistDenseMatrix.x10 \
