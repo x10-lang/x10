@@ -60,7 +60,7 @@ class RunDenseCollTest {
 
 		numplace =  Place.numPlaces();
 		gpart    =  Grid.make(M, N);   //square-like partition
-		gpartRow =  Grid.make(M, N, 1, numplace); //Single row block partition
+		gpartRow =  new Grid(M, N, 1, numplace); //Single row block partition
 		
 		comm = new CommHandle();
 	}
@@ -69,7 +69,7 @@ class RunDenseCollTest {
 		var ret:Boolean = true;
  		// Set the matrix function
  		ret &= (testBcast());
- 		ret &= (testRingCast());
+ 		//ret &= (testRingCast());
  		ret &= (testGather());
  		ret &= (testGatherRowBs());
  		ret &= (testScatter());

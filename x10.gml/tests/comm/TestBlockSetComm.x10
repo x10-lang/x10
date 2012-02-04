@@ -19,15 +19,9 @@ import x10.matrix.block.Grid;
 import x10.matrix.distblock.DistBlockMatrix;		
 import x10.matrix.distblock.DupBlockMatrix;		
 
-import x10.matrix.comm.BlockBcast;
-import x10.matrix.comm.BlockScatter;
-import x10.matrix.comm.BlockGather;
-import x10.matrix.comm.BlockRingCast;
-import x10.matrix.comm.BlockRingReduce;
-import x10.matrix.comm.BlockReduce;
 import x10.matrix.comm.BlockSetBcast;
 import x10.matrix.comm.BlockSetRemoteCopy;
-
+import x10.matrix.comm.BlockSetReduce;
 
 /**
    This class contains test cases P2P communication for matrix over different places.
@@ -38,10 +32,10 @@ import x10.matrix.comm.BlockSetRemoteCopy;
 
 public class TestBlockSetComm{
     public static def main(args:Array[String](1)) {
-		val m = args.size > 0 ?Int.parse(args(0)):4;
-		val n = args.size > 1 ?Int.parse(args(1)):4;
-		val bm= args.size > 2 ?Int.parse(args(2)):2;
-		val bn= args.size > 3 ?Int.parse(args(3)):2;
+		val m = args.size > 0 ?Int.parse(args(0)):40;
+		val n = args.size > 1 ?Int.parse(args(1)):40;
+		val bm= args.size > 2 ?Int.parse(args(2)):3;
+		val bn= args.size > 3 ?Int.parse(args(3)):7;
 		val d = args.size > 4 ? Double.parse(args(4)):0.99;
 		val testcase = new BlockSetCommTest(m, n, bm, bn, d);
 		testcase.run();
@@ -88,26 +82,25 @@ class BlockSetCommTest {
  		// Set the matrix function
 		var retval:Boolean = true;
 
-		Console.OUT.println("****************************************************************");
-		Console.OUT.println("Test dense blocks collective commu in distributed block matrix");
-		Console.OUT.println("****************************************************************");
+		Console.OUT.println("******************************************************");
+		Console.OUT.println("Test dense block set commu in distributed block matrix");
+		Console.OUT.println("******************************************************");
 
  		retval &= testCopyTo(dupden);
  		retval &= testCopyFrom(dupden);
  		retval &= testBcast(dupden);
-// 		retval &= testReduce(dbmat);
+ 		retval &= testReduce(dupden);
 
- 
- 		Console.OUT.println("****************************************************************");
- 		Console.OUT.println("Test sparse blocks collective commu in distributed block matrix");	
- 		Console.OUT.println("****************************************************************");
+ 		Console.OUT.println("*******************************************************");
+ 		Console.OUT.println("Test sparse block set commu in distributed block matrix");	
+ 		Console.OUT.println("*******************************************************");
  		retval &= testCopyTo(dupspa);
  		retval &= testCopyFrom(dupspa);
  		retval &= testBcast(dupspa);
 		if (retval) 
-			Console.OUT.println("Block communication test collective commu passed!");
+			Console.OUT.println("BlockSet P2P and collective commu test passed!");
 		else
-			Console.OUT.println("------------Block communication test collective commu failed!-----------");
+			Console.OUT.println("------------BlockSet P2P and collective commu test failed!-----------");
 	}
 	//------------------------------------------------
 	
@@ -115,7 +108,7 @@ class BlockSetCommTest {
 		val ret:Boolean;
 		var ds:Int = 0;
 		
-		Console.OUT.println("\nTest P2P copyTo dup block set matrix ("+M+"x"+N+") "+
+		Console.OUT.println("\nTest P2P copyTo dup block set matrix ("+M+","+N+") "+
 				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" placaces");
 		//src.printMatrix("CopyTo source");
 		dst.reset();
@@ -147,12 +140,12 @@ class BlockSetCommTest {
 		var st:Long = 0;
 		var tt:Long = 0;//Timer.milliTime() - st;
 		
-		Console.OUT.println("\nTest P2P copyFrom dup blockset matrix ("+M+"x"+N+") "+
+		Console.OUT.println("\nTest P2P copyFrom dup blockset matrix ("+M+","+N+") "+
 				"partitioned in ("+bM+","+bN+") blocks duplicated over "+ numplace+" places");
 		src.reset();
-		src.local().initRandom();
+		src.local().init((r:Int,c:Int)=>1.0*((r+c)%3));
 		//src.printMatrix("CopyFrom Source matrix");
-		for (var p:Int=0; p<numplace; p++) {
+		for (var p:Int=1; p<numplace; p++) {
 			st =  Timer.milliTime();
 			val pid = p;
 			ds += at (Dist.makeUnique()(pid)) {
@@ -161,7 +154,7 @@ class BlockSetCommTest {
 			tt += Timer.milliTime() - st;
 			//dst.printMatrix("CopyFrom Received "+b );
 		}
-		
+		//src.printAllCopies();		
 		ret = src.checkSync();
 		val avgt = 1.0*tt/(numplace-1);
 		Console.OUT.printf("P2P copyFrom %d bytes: %.3f ms, thput: %2.2f MB/s per iteration\n", 
@@ -194,7 +187,7 @@ class BlockSetCommTest {
 			val st:Long =  Timer.milliTime();
 			BlockSetBcast.bcast(bmat.handleDB, p);
 			avgt += (Timer.milliTime() - st);
-
+			//bmat.printAllMatrixCopies();
 			ret &= bmat.checkSync();
 		}
 	
@@ -211,32 +204,32 @@ class BlockSetCommTest {
 
 	} 	
 	
-// 
-// 	public def testReduce(distmat:DistBlockMatrix):Boolean {
-// 		var ret:Boolean = true;
-// 		var avgt:Double = 0.0;
-// 		Console.OUT.printf("\nTest reduce of dist block matrix over %d places\n", numplace);
-// 		val result:Double = distmat.getGrid().size;
-// 		val rootmat = distmat.handleBS().getFirstMatrix();
-// 		
-// 		Debug.flushln("Start reduce among "+numplace+" places");
-// 		for (var rtbid:Int=0; rtbid < distmat.getGrid().size; rtbid++) {
-// 			Console.OUT.println("Reduce to root block "+rtbid);
-// 			distmat.init(1.0);
-// 			val st:Long =  Timer.milliTime();
-// 			BlockReduce.reduceSum(distmat.handleBS, tmpmat.handleDB, rtbid);
-// 			avgt += (Timer.milliTime() - st);
-// 			//distmat.printMatrix();
-// 			//bmat.printMatrix();
-// 			val rtmat = distmat.fetchBlock(rtbid).getMatrix();
-// 			//distmat.printMatrix();
-// 			ret &= rtmat.equals(result);
-// 		}
-// 		if (ret)
-// 			Console.OUT.println("Test reduceSum for dist block matrix test passed!");
-// 		else
-// 			Console.OUT.println("-----Test reduceSum for dist block matrix failed!-----");
-// 		return ret;
-// 	}
+
+	public def testReduce(dmat:DupBlockMatrix):Boolean {
+		var ret:Boolean = true;
+		var avgt:Double = 0.0;
+		Console.OUT.printf("\nTest reduce of dup block matrix over %d places\n", numplace);
+		dmat.allocTmp();
+		
+		for (var p:Int=0; p < numplace&&ret; p++) {
+			Console.OUT.println("Reduce to root place "+p);
+			dmat.reset();
+			dmat.init(1.0);
+			val st:Long =  Timer.milliTime();
+			BlockSetReduce.reduceSum(dmat.handleDB, dmat.tmpDB, p);
+			avgt += (Timer.milliTime() - st);
+			//distmat.printMatrix();
+			//bmat.printMatrix();
+			ret &= at (Dist.makeUnique()(p)) {
+				//dmat.local().printMatrix();
+				dmat.local().equals(numplace as Double)
+			};
+		}
+		if (ret)
+			Console.OUT.println("Test reduceSum for dist block set matrix test passed!");
+		else
+			Console.OUT.println("-----Test reduceSum for dist block set matrix failed!-----");
+		return ret;
+	}
 
 }

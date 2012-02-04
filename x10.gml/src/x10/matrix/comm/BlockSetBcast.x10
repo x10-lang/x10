@@ -12,7 +12,7 @@
 package x10.matrix.comm;
 
 import x10.io.Console;
-import x10.util.Timer;
+import x10.util.ArrayList;
 
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
@@ -130,47 +130,47 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 
 		@Ifdef("MPI_COMMU") {
 			if (rootpid != here.id()) {
-				at (Dist.makeUnque()(rootpid)) {
+				at (Dist.makeUnique()(rootpid)) {
 					mpiBcastSparse(distBS, rootpid);
 				}
 			}else {
-			
+				var i:Int=0;
 				val blkitr = distBS().iterator();
-				val szlist = new ArrayList[Int]();
+				val szlist = new Array[Int](distBS().blocklist.size());
 				while (blkitr.hasNext()) {
 					val blk = blkitr.next();
-					szlist.add(blk.getDataSize());
+					szlist(i) = blk.getDataSize();
+					datcnt += szlist(i);
+					i++;
 				}
-				val datszlist = szlist.toArray();
-				
 
 				finish ateach (Dist.makeUnique()) {
+					//Remote capture: distBS, szlist
 					val itr = distBS().iterator();
-					var i:Int = 0;
+					var j:Int = 0;
+					//Debug.flushln(szlist.toString());;
+
 					while (itr.hasNext()) {
 						
 						val blk = itr.next();
 						val spa  = blk.getMatrix() as SparseCSC;
-						//++++++++++++++++++++++++++++++++++++++++++++
-						//Do NOT call getIndex()/getValue() before init at destination place
-						//+++++++++++++++++++++++++++++++++++++++++++++
+						val datasz = szlist(j);
 						if (here.id() == rootpid) 
 							spa.initRemoteCopyAtSource();
 						else
-							spa.initRemoteCopyAtDest();
-						val datasz = datszlist(i);
+							spa.initRemoteCopyAtDest(datasz);
 						
 						WrapMPI.world.bcast(spa.getIndex(), 0, datasz, rootpid);
 						WrapMPI.world.bcast(spa.getValue(), 0, datasz, rootpid);
+							
+						if (here.id() == rootpid) 
+							spa.finalizeRemoteCopyAtSource();
+						else
+							spa.finalizeRemoteCopyAtDest();
+						j++;
 					}
-				
-					if (here.id() == rootpid) 
-						spa.finalizeRemoteCopyAtSource();
-					else
-						spa.finalizeRemoteCopyAtDest();
 				}
 			}
-			datcnt = distBS().getAllBlockDataSize();
 		}
 		return datcnt;
 	}
@@ -238,8 +238,10 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 				//Remote capture: distBS, srcbuf, blkid, datCnt, plcnt
 				val dstblk = distBS().findBlock(blkid);
 				val dstden = dstblk.getMatrix() as DenseMatrix;
-				finish Array.asyncCopy[Double](srcbuf, 0, dstden.d, 0, datCnt);
 
+				if (datCnt > 0)	finish {
+					Array.asyncCopy[Double](srcbuf, 0, dstden.d, 0, datCnt);
+				}
 				if (plcnt > 1)
 					castToBranch(distBS, dstblk, datCnt, plcnt);
 			}			
@@ -254,9 +256,11 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 				val dstblk = distBS().findBlock(blkid);
 				val dstspa = dstblk.getMatrix() as SparseCSC;
 				dstspa.initRemoteCopyAtDest(datCnt);
-				finish Array.asyncCopy[Int   ](srcidx, 0, dstspa.getIndex(), 0, datCnt);
-				finish Array.asyncCopy[Double](srcval, 0, dstspa.getValue(), 0, datCnt);
-
+				if (datCnt > 0) {
+					finish Array.asyncCopy[Int   ](srcidx, 0, dstspa.getIndex(), 0, datCnt);
+					finish Array.asyncCopy[Double](srcval, 0, dstspa.getValue(), 0, datCnt);
+				}
+				
 				if (plcnt > 1 ) 
 					castToBranch(distBS, dstblk, datCnt, plcnt);
 				dstspa.finalizeRemoteCopyAtDest();				

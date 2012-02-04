@@ -98,12 +98,12 @@ public class BlockRemoteCopy {
 
 	//=====================================================================
 	protected static def copy(src:DenseMatrix, srcColOff:Int, 
-				dst:BlocksPLH, dstpid:Int, bid:Int, dstColOff:Int, colCnt:Int): Int {		
+				dstBS:BlocksPLH, dstpid:Int, bid:Int, dstColOff:Int, colCnt:Int): Int {		
 		val srcIdxOff:Int = src.M * srcColOff;
 		val datCnt:Int    = src.M * colCnt;
-		val dstIdxOff:Int = dst().getGrid().getRowSize(bid) * dstColOff;
+		val dstIdxOff:Int = dstBS().getGrid().getRowSize(bid) * dstColOff;
 		
-		copyOffset(src, srcIdxOff, dst, dstpid, bid, dstIdxOff, datCnt);
+		copyOffset(src, srcIdxOff, dstBS, dstpid, bid, dstIdxOff, datCnt);
 		return datCnt;
 	}
 	//-----------------------------------------------------------------
@@ -132,7 +132,7 @@ public class BlockRemoteCopy {
 	 * 
 	 */
 	protected static def mpiCopyOffset(src:DenseMatrix, srcIdxOff:Int, 
-			dst:BlocksPLH, dstpid:Int, bid:Int, dstIdxOff:Int, datCnt:Int): void {
+			dstBS:BlocksPLH, dstpid:Int, bid:Int, dstIdxOff:Int, datCnt:Int): void {
 
 		@Ifdef("MPI_COMMU") {
 			val srcpid = here.id();         //Implicitly carried to dst place				
@@ -145,7 +145,7 @@ public class BlockRemoteCopy {
 				// At the destination place, receiving the data 
 				at (Dist.makeUnique()(dstpid)) async {
 					//Remote capture: bid, dstColOff, datCnt, 
-					val blk = dst().find(bid);
+					val blk = dstBS().find(bid);
 					val dstden = blk.getMatrix() as DenseMatrix;
 			
 					Debug.assure(dstIdxOff+datCnt<=dstden.d.size, 
@@ -158,14 +158,14 @@ public class BlockRemoteCopy {
 	}
 
 	protected static def x10CopyOffset(src:DenseMatrix, srcIdxOff:Int, 
-			dst:BlocksPLH, dstpid:Int, bid:Int, dstIdxOff:Int, datCnt:Int): void {
+			dstBS:BlocksPLH, dstpid:Int, bid:Int, dstIdxOff:Int, datCnt:Int): void {
 		
 		val buf = src.d as Array[Double]{self!=null};
 		val srcbuf = new RemoteArray[Double](buf);
 
 		at (Dist.makeUnique()(dstpid)) {
 			//Remote copy: dst, srcbuf, srcIdxOff, dstIdxOff, datCnt,
-			val blk = dst().find(bid);
+			val blk = dstBS().find(bid);
 			val dstden = blk.getMatrix() as DenseMatrix;
 			Debug.assure(dstIdxOff+datCnt <= dstden.d.size, "Copy receiving side data overflow");
 			finish Array.asyncCopy[Double](srcbuf, srcIdxOff, dstden.d, dstIdxOff, datCnt);
@@ -177,37 +177,37 @@ public class BlockRemoteCopy {
 	// Remote array copy From 
 	//------------------------------------------
 	
-	protected static def copy(src:BlocksPLH, srcpid:Int, srcbid:Int, srcColOff:Int, 
+	protected static def copy(srcBS:BlocksPLH, srcpid:Int, srcbid:Int, srcColOff:Int, 
 						   dst:DenseMatrix, dstColOff:Int, colCnt:Int): Int {
 
 		val dstIdxOff:Int = dst.M * dstColOff;
-		val srcM:Int      = src().getGrid().getRowSize(srcbid);
+		val srcM:Int      = srcBS().getGrid().getRowSize(srcbid);
 		val datCnt:Int    = srcM * colCnt;
 		val srcIdxOff:Int = srcM * dstColOff;
 		
-		copyOffset(src, srcpid, srcbid, srcIdxOff, dst, dstIdxOff, datCnt);
+		copyOffset(srcBS, srcpid, srcbid, srcIdxOff, dst, dstIdxOff, datCnt);
 		return datCnt;
 	}
 
 	//===============================================================
-	protected static def copyOffset(src:BlocksPLH, srcpid:Int, srcbid:Int, srcIdxOff:Int, 
+	protected static def copyOffset(srcBS:BlocksPLH, srcpid:Int, srcbid:Int, srcIdxOff:Int, 
 			dst:DenseMatrix, dstIdxOff:Int, datCnt:Int): void {
 
 		Debug.assure(dstIdxOff+datCnt<=dst.d.size, 
 		"Number of column for copying at receiving side exceeds matrix data buffer");
 		
 		if (here.id() == srcpid) {
-			val blk = src().find(srcbid);
+			val blk = srcBS().find(srcbid);
 			val srcden = blk.getMatrix() as DenseMatrix;
 			Array.copy(srcden.d, srcIdxOff, dst.d, dstIdxOff, datCnt);
 		} else {
 			
 			@Ifdef("MPI_COMMU") {
-				mpiCopyOffset(src, srcpid, srcbid, srcIdxOff, dst, dstIdxOff, datCnt);
+				mpiCopyOffset(srcBS, srcpid, srcbid, srcIdxOff, dst, dstIdxOff, datCnt);
 			}
 
 			@Ifndef("MPI_COMMU") {
-				x10CopyOffset(src, srcpid, srcbid, srcIdxOff, dst, dstIdxOff, datCnt);
+				x10CopyOffset(srcBS, srcpid, srcbid, srcIdxOff, dst, dstIdxOff, datCnt);
 			}
 		}
 	}
@@ -215,14 +215,14 @@ public class BlockRemoteCopy {
 	/**
 	 * Copy data from remote matrix to here in a vector
 	 */
-	protected static def mpiCopyOffset(src:BlocksPLH, srcpid:Int, bid:Int, srcIdxOff:Int,
+	protected static def mpiCopyOffset(srcBS:BlocksPLH, srcpid:Int, bid:Int, srcIdxOff:Int,
 								 dst:DenseMatrix, dstIdxOff:Int, datCnt:Int): void {
 		@Ifdef("MPI_COMMU") {
 			val dstpid = here.id();
 			finish {
 				at (Dist.makeUnique()(srcpid)) async {
 					//Need: src, dstpid, srcIdxOff, datCnt,
-					val blk = src().find(bid);
+					val blk = srcBS().find(bid);
 					val srcden = blk.getMatrix() as DenseMatrix;				
 					val tag = here.id() * baseTagCopyFrom + dstpid + bid;
 					
@@ -241,12 +241,12 @@ public class BlockRemoteCopy {
 	/**
 	 * Copy data from remote dense matrix to here in a vector
 	 */
-	protected static def x10CopyOffset(src:BlocksPLH, srcpid:Int, bid:Int, srcIdxOff:Int,
+	protected static def x10CopyOffset(srcBS:BlocksPLH, srcpid:Int, bid:Int, srcIdxOff:Int,
 			dst:DenseMatrix, dstIdxOff:Int, datCnt:Int): void {
 		
 		val rmt:DenseRemoteSourceInfo  = at (Dist.makeUnique()(srcpid)) { 
 			//Need: src, bid, srcIdxOff, datCnt
-			val blk = src().find(bid);
+			val blk = srcBS().find(bid);
 			val srcden = blk.getMatrix() as DenseMatrix;
 			
 			Debug.assure(srcIdxOff + datCnt <= srcden.d.size, 
@@ -266,12 +266,12 @@ public class BlockRemoteCopy {
 	//------------------------
 
 	protected static def copy(src:SparseCSC, srcColOff:Int, 
-			dst:BlocksPLH, dstpid:Int, dstbid:Int, dstColOff:Int, colCnt:Int): Int {
+			dstBS:BlocksPLH, dstpid:Int, dstbid:Int, dstColOff:Int, colCnt:Int): Int {
 		
 		Debug.assure(srcColOff+colCnt <= src.N, "At source, number of columns exceeds matrix dimension ");
 		
 		if (here.id() == dstpid) {
-			val blk = dst().find(dstbid);
+			val blk = dstBS().find(dstbid);
 			val dstspa = blk.getMatrix() as SparseCSC;
 			val dz = SparseCSC.copyCols(src, srcColOff, dstspa, dstColOff, colCnt);
 			return dz;
@@ -279,46 +279,50 @@ public class BlockRemoteCopy {
 		
 		
 		@Ifdef("MPI_COMMU") {
-			return mpiCopy(src, srcColOff, dst, dstpid, dstbid, dstColOff, colCnt);
+			return mpiCopy(src, srcColOff, dstBS, dstpid, dstbid, dstColOff, colCnt);
 		}
 		
 		@Ifndef("MPI_COMMU") {
-			return x10Copy(src, srcColOff, dst, dstpid, dstbid, dstColOff, colCnt);
+			return x10Copy(src, srcColOff, dstBS, dstpid, dstbid, dstColOff, colCnt);
 		}
 	}
 	
 	
 	protected static def mpiCopy(src:SparseCSC, srcColOff:Int,
-			dst:BlocksPLH, dstpid:Int, bid:Int, dstColOff:Int, colCnt:Int): Int {
+			dstBS:BlocksPLH, dstpid:Int, bid:Int, dstColOff:Int, colCnt:Int): Int {
 
 		val srcpid = here.id();        
 		val datasz = src.countNonZero(srcColOff, colCnt); //Implicitly carried to dst place
+		if (datasz == 0) return 0;
+		
 		@Ifdef("MPI_COMMU") {
 			finish {
 				at (Dist.makeUnique()(dstpid)) async {
 					// Need: srcpid, dstColOff, datasz;
-					val blk = dst().find(bid);
+					val blk = dstBS().find(bid);
 					val dstspa = blk.getMatrix() as SparseCSC;
 					Debug.assure(dstColOff+colCnt<=dstspa.N, "At destination, number of columns exceeds matrix dimension");
 					
 					val dstoff = dstspa.getNonZeroOffset(dstColOff);
-					val tag    = srcpid * 10000 + here.id();
-					
+					val idxtag    = baseTagCopyIdxTo + srcpid * 10000 + here.id();
+					val valtag    = baseTagCopyValTo + srcpid * 10000 + here.id();
+									
 					//++++++++++++++++++++++++++++++++++++++++++++
 					//Do NOT call getIndex()/getValue() before init at destination place
 					//+++++++++++++++++++++++++++++++++++++++++++++
 					dstspa.initRemoteCopyAtDest(dstColOff, colCnt, datasz);
-					WrapMPI.world.recv(dstspa.getIndex(), dstoff, datasz, srcpid, tag);
-					WrapMPI.world.recv(dstspa.getValue(), dstoff, datasz, srcpid, tag+100001);
+					WrapMPI.world.recv(dstspa.getIndex(), dstoff, datasz, srcpid, idxtag);
+					WrapMPI.world.recv(dstspa.getValue(), dstoff, datasz, srcpid, valtag);
 					dstspa.finalizeRemoteCopyAtDest();
 				}
 				async {
-					val tag    = srcpid * 10000 + dstpid;
+					val idxtag    = baseTagCopyIdxTo + here.id() * 10000 + dstpid;
+					val valtag    = baseTagCopyValTo + here.id() * 10000 + dstpid;
 					val srcoff = src.getNonZeroOffset(srcColOff);
 					
 					src.initRemoteCopyAtSource(srcColOff, colCnt);
-					WrapMPI.world.send(src.getIndex(), srcoff, datasz, dstpid, tag);
-					WrapMPI.world.send(src.getValue(), srcoff, datasz, dstpid, tag+100001);
+					WrapMPI.world.send(src.getIndex(), srcoff, datasz, dstpid, idxtag);
+					WrapMPI.world.send(src.getValue(), srcoff, datasz, dstpid, valtag);
 					src.finalizeRemoteCopyAtSource();
 				}			
 			}
@@ -328,18 +332,20 @@ public class BlockRemoteCopy {
 	
 	//Sparse matrix remote copy To
 	protected static def x10Copy(src:SparseCSC, srcColOff:Int,
-			dst:BlocksPLH, dstpid:Int, bid:Int,  dstColOff:Int,	colCnt:Int) : Int {
+			dstBS:BlocksPLH, dstpid:Int, bid:Int,  dstColOff:Int,	colCnt:Int) : Int {
 
+		val datcnt = src.initRemoteCopyAtSource(srcColOff, colCnt);
+		if (datcnt == 0) return 0;
+		
 		val idxbuf = src.getIndex() as Array[Int]{self!=null};
 		val valbuf = src.getValue() as Array[Double]{self!=null};
 		val datoff = src.getNonZeroOffset(srcColOff);
-		val datcnt = src.initRemoteCopyAtSource(srcColOff, colCnt);
 		val rmtidx = new RemoteArray[Int](idxbuf);
 		val rmtval = new RemoteArray[Double](valbuf);
 
 		at (Dist.makeUnique()(dstpid)) {
 			//Remote capture: datcnt, rmtidx, rmtval, datoff			
-			val blk = dst().find(bid);
+			val blk = dstBS().find(bid);
 			val dstspa = blk.getMatrix() as SparseCSC;
 			//++++++++++++++++++++++++++++++++++++++++++++
 			//Do not call getIndex()/getValue() before init at destination place
@@ -359,25 +365,25 @@ public class BlockRemoteCopy {
 	// Copy sparse from remote to here
 	//---------------------------------
 	
-	protected static def copy(src:BlocksPLH, srcpid:Int, srcbid:Int, srcColOff:Int,
+	protected static def copy(srcBS:BlocksPLH, srcpid:Int, srcbid:Int, srcColOff:Int,
 			dst:SparseCSC, dstColOff:Int, colCnt:Int): Int {
 
 		Debug.assure(dstColOff+colCnt<=dst.N, 
 				"The range of columns exceeds receiving side matrix dimension");
 		
 		if (here.id() == srcpid) {
-			val blk = src().find(srcbid);
+			val blk = srcBS().find(srcbid);
 			val srcspa = blk.getMatrix() as SparseCSC;
 			
 			return SparseCSC.copyCols(srcspa, srcColOff, dst, dstColOff, colCnt);
 		}
 
 		@Ifdef("MPI_COMMU") {
-			return mpiCopy(src, srcpid, srcbid, srcColOff, dst, dstColOff, colCnt);
+			return mpiCopy(srcBS, srcpid, srcbid, srcColOff, dst, dstColOff, colCnt);
 		}
 
 		@Ifndef("MPI_COMMU") {
-			return x10Copy(src, srcpid, srcbid, srcColOff, dst, dstColOff, colCnt);
+			return x10Copy(srcBS, srcpid, srcbid, srcColOff, dst, dstColOff, colCnt);
 		}
 	}
 
@@ -385,42 +391,43 @@ public class BlockRemoteCopy {
 	 * Based on mpi send/recv, copy data from remote place to here. The data size is 
 	 * transfered to here implicitly before matrix data copy.
 	 */
-	protected static def mpiCopy(src:BlocksPLH, srcpid:Int, bid:Int, srcColOff:Int,
+	protected static def mpiCopy(srcBS:BlocksPLH, srcpid:Int, srcbid:Int, srcColOff:Int,
 			dst:SparseCSC, dstColOff:Int, colCnt:Int): Int {
 
 		val dstpid = here.id();//Implicitly carried to dst place
 		
-		// Get the data count first
-		val dsz = compBlockDataSize(src, bid, srcColOff, colCnt);
+		// Get the data count first, remote capture is used 
+		val dsz = at (Dist.makeUnique()(srcpid)) {
+			compBlockDataSize(srcBS, srcbid, srcColOff, colCnt)
+		};
+		if (dsz == 0) return 0;
 		
 		//Start paired send/recv
 		@Ifdef("MPI_COMMU") {
 			finish {
 				at (Dist.makeUnique()(srcpid)) async {
-					//Need: src, srcpid, srcColOff
-					val srcspa = src().find(bid).getMatrix() as SparseCSC;
+					//Need: srcBS, srcbid, dstpid, srcColOff, dsz
+					val srcspa = srcBS().find(srcbid).getMatrix() as SparseCSC;
 					val srcoff = srcspa.getNonZeroOffset(srcColOff);;
-					val tag    = here.id() * 20000 + dstpid;
-					val datasz = srcspa.countNonZero(dstColOff, colCnt);
+					
+					val idxtag    = baseTagCopyIdxFrom + here.id() * 10000 + dstpid;
+					val valtag    = baseTagCopyValFrom + here.id() * 10000 + dstpid;
 					
 					srcspa.initRemoteCopyAtSource(srcColOff, colCnt);
-					WrapMPI.world.send(srcspa.getIndex(), srcoff, datasz, dstpid, tag);
-					WrapMPI.world.send(srcspa.getValue(), srcoff, datasz, dstpid, tag+1000002);
-					
+					WrapMPI.world.send(srcspa.getIndex(), srcoff, dsz, dstpid, idxtag);
+					WrapMPI.world.send(srcspa.getValue(), srcoff, dsz, dstpid, valtag);
 					srcspa.finalizeRemoteCopyAtSource();
 				}
 				
 				async {
 					
-					val tag    = srcpid * 20000 + dstpid;
 					val dstoff = dst.getNonZeroOffset(dstColOff);
+					val idxtag = baseTagCopyIdxFrom + srcpid * 10000 + here.id();
+					val valtag = baseTagCopyValFrom + srcpid * 10000 + here.id();
 					
-					//++++++++++++++++++++++++++++++++++++++++++++
-					//Do NOT call getIndex()/getValue() before init at destination place
-					//+++++++++++++++++++++++++++++++++++++++++++++
 					dst.initRemoteCopyAtDest(dstColOff, colCnt, dsz);
-					WrapMPI.world.recv(dst.getIndex(), dstoff, dsz, srcpid, tag);
-					WrapMPI.world.recv(dst.getValue(), dstoff, dsz, srcpid, tag+1000002);
+					WrapMPI.world.recv(dst.getIndex(), dstoff, dsz, srcpid, idxtag);
+					WrapMPI.world.recv(dst.getValue(), dstoff, dsz, srcpid, valtag);
 					dst.finalizeRemoteCopyAtDest();
 				}
 			}
@@ -453,10 +460,9 @@ public class BlockRemoteCopy {
 			SparseRemoteSourceInfo(srcspa.getIndex(), srcspa.getValue(), off, cnt)
 		};
 
+		if (rmt.length == 0) return 0;
+
 		val dstoff = dst.getNonZeroOffset(dstColOff);
-		//++++++++++++++++++++++++++++++++++++++++++++
-		//Do NOT call getIndex()/getValue() before init at destination place
-		//+++++++++++++++++++++++++++++++++++++++++++++
 		dst.initRemoteCopyAtDest(dstColOff, colCnt, rmt.length);
 		finish Array.asyncCopy[Int   ](rmt.idxbuf, rmt.offset, dst.getIndex(), dstoff, rmt.length);
 		finish Array.asyncCopy[Double](rmt.valbuf, rmt.offset, dst.getValue(), dstoff, rmt.length);

@@ -29,8 +29,8 @@ import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
 
 /**
- * One-way partitioning (distribution) distributed matrix multiply
- * (1, rowblocks) * (rowblocks, 1) ==> (1, 1)
+ * Block matrix distributed in (1, n) places multiply block matrix distributed in (n, 1)
+ * Result is stored in Duplicated block matrix at here.
  */
 public class DistDistMult {
 	
@@ -59,7 +59,7 @@ public class DistDistMult {
 			val bsB = B.handleBS();
 			val bsC = C.local();
 			
-			bsC.mult(bsA, bs.B, plus);
+			bsC.mult(bsA, bsB, plus);
 		}
 		
 		C.allReduceSum(); 

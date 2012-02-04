@@ -673,10 +673,21 @@ public class DupBlockMatrix extends Matrix {
 		Console.OUT.flush();
 	}
 	public def printAllCopies() {
-		var output:String = "-------- Duplicate block matrix block size:["+M+" x "+N+"] ---------\n";
+		var output:String = "-------- Duplicate block matrix :["+M+" x "+N+"] ---------\n";
 		for (p in Place.places()) {
 			output += "Copy at place " + p.id() +"\n";
 			output += at (p) { handleDB().toString()};
+		}
+		output += "--------------------------------------------------\n";
+		Console.OUT.print(output);
+		Console.OUT.flush();
+	}
+	
+	public def printAllMatrixCopies() {
+		var output:String = "-------- Duplicate block matrix:["+M+" x "+N+"] ---------\n";
+		for (p in Place.places()) {
+			output += "Copy at place " + p.id() +"\n";
+			output += at (p) {(local() as Matrix).dataToString()};
 		}
 		output += "--------------------------------------------------\n";
 		Console.OUT.print(output);
