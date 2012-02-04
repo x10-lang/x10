@@ -845,7 +845,7 @@ public class DenseMatrix extends Matrix {
 			B:Matrix(A.N,this.N), 
 			plus:Boolean):DenseMatrix(this) {
 
-		if (likeMe(A) && likeMe(B)) 
+		if (A instanceof DenseMatrix && B instanceof DenseMatrix) 
 			return mult(A as DenseMatrix(A), B as DenseMatrix(B), plus);
 		//Debug.flushln("Resort to basic X10 matrix multiplication driver");
 		MatrixMultXTen.comp(A, B, this, plus);
@@ -868,9 +868,8 @@ public class DenseMatrix extends Matrix {
 			B:Matrix(A.M,this.N),
 			plus:Boolean): DenseMatrix(this) {
 		
-		if (likeMe(A) && likeMe(B)) 
-			return transMult(A as DenseMatrix(A), 
-							 B as DenseMatrix(B), plus);
+		if (A instanceof DenseMatrix && B instanceof DenseMatrix) 
+			return transMult(A as DenseMatrix(A), B as DenseMatrix(B), plus);
 		//Debug.flushln("Resort to X10 matrix multiplication driver");
 		MatrixMultXTen.compTransMult(A, B, this, plus);
 		return this;
@@ -891,10 +890,8 @@ public class DenseMatrix extends Matrix {
 			B:Matrix(this.N, A.N), 
 			plus:Boolean):DenseMatrix(this) {
 		
-		if (likeMe(A) && likeMe(B)) 
-			return multTrans(A as DenseMatrix{self.M==this.M},
-							 B as DenseMatrix{self.N==A.N,self.M==this.N}, 
-							 plus);
+		if (A instanceof DenseMatrix && B instanceof DenseMatrix) 
+			return multTrans(A as DenseMatrix(A), B as DenseMatrix(B), plus);
 		Debug.flushln("Resort to basic X10 matrix multiplication driver");
 		MatrixMultXTen.compMultTrans(A, B, this, plus);
 		return this;
@@ -909,8 +906,8 @@ public class DenseMatrix extends Matrix {
 	 * @return		result of multiply ("this", the method invoking object)
 	 */
 	public def mult(
-			A:DenseMatrix{self.M==this.M}, 
-			B:DenseMatrix{self.N==this.N&&A.N==B.M})=
+			A:DenseMatrix(this.M), 
+			B:DenseMatrix(A.N,this.N))=
 		mult(A, B, false);
 
 	/**
@@ -922,8 +919,8 @@ public class DenseMatrix extends Matrix {
 	 * @param  plus	result add-on flag
 	 * @return		result
 	 */
-	public def mult(A:DenseMatrix{self.M==this.M}, 
-					B:DenseMatrix{self.N==this.N,A.N==B.M},//DenseMatrix(A.N,N), 
+	public def mult(A:DenseMatrix(this.M), 
+					B:DenseMatrix(A.N, this.N),//DenseMatrix(A.N,N), 
 					plus:Boolean) {
 		DenseMatrixBLAS.comp(A, B, this, plus); //BLAS driver
 		return this;
@@ -939,7 +936,7 @@ public class DenseMatrix extends Matrix {
 	 */
 	public def transMult(
 			A:DenseMatrix{self.N==this.M}, 
-			B:DenseMatrix{self.N==this.N,A.M==B.M}//DenseMatrix(A.N,N), 
+			B:DenseMatrix(A.M, this.N) //DenseMatrix(A.N,N), 
 	) = transMult(A, B, false);
 	
 	/**
@@ -954,7 +951,7 @@ public class DenseMatrix extends Matrix {
 	 */
 	public def transMult(
 			A:DenseMatrix{self.N==this.M}, 
-			B:DenseMatrix{self.N==this.N,A.M==B.M},//DenseMatrix(A.N,N), 
+			B:DenseMatrix(A.M,this.N),//DenseMatrix(A.N,N), 
 			plus:Boolean) {
 		DenseMatrixBLAS.compTransMult(A, B, this, plus); //BLAS driver
 		return this;
@@ -970,8 +967,8 @@ public class DenseMatrix extends Matrix {
 	 * @return		result
 	 */
 	public def multTrans(
-			A:DenseMatrix{self.M==this.M}, 
-			B:DenseMatrix{self.M==this.N,A.N==B.N},//DenseMatrix(A.N,N), 
+			A:DenseMatrix(this.M), 
+			B:DenseMatrix(this.N,A.N),
 			plus:Boolean) {
 		DenseMatrixBLAS.compMultTrans(A, B, this, plus); //BLAS driver
 		return this;
@@ -985,8 +982,8 @@ public class DenseMatrix extends Matrix {
 	 * @param  B 	second matrix
 	 * @return		result
 	 */
-	public def multTrans(A:DenseMatrix{self.M==this.M}, 
-						 B:DenseMatrix{self.M==this.N,A.N==B.N} //DenseMatrix(A.N,N), 
+	public def multTrans(A:DenseMatrix(this.M), 
+						 B:DenseMatrix(this.N,A.N) //DenseMatrix(A.N,N), 
 						 )  = multTrans(A, B, false);
 
 

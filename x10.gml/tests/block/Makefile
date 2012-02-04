@@ -10,9 +10,9 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list 	= TestDenseBlockMatrix TestSparseBlockMatrix TestBlockMatrix
+target_list 	= TestDenseBlockMatrix TestSparseBlockMatrix TestBlockMatrix TestBlockMult
 
-target		= TestDenseBlockMatrix
+target		= TestBlockMult
 #target		= TestDistSparse
 #target		= TestDist
 #target		= TestDistDupMult

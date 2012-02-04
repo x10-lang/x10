@@ -636,12 +636,24 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 			A:BlockMatrix(this.M), 
 			B:BlockMatrix(A.N,this.N), 
 			plus:Boolean):Matrix(this) {
-		Debug.assure(Grid.match(this.grid.rowBs, A.grid.rowBs), "Row partiton mismatch in result matrix");
-		Debug.assure(Grid.match(this.grid.colBs, B.grid.colBs), "Column partition mismatch in result matrix");
-		Debug.assure(Grid.match(A.grid.colBs, B.grid.rowBs), "Row and column partition mismatch");
-		
 		BlockBlockMult.mult(A, B, this, plus);
 		return this;	
+	}
+	
+	public def transMult(
+			A:BlockMatrix{self.N==this.M}, 
+			B:BlockMatrix(A.M,this.N), 
+			plus:Boolean):Matrix(this) {
+		BlockBlockMult.transMult(A, B, this, plus);
+		return this;	
+	}
+	
+	public def multTrans(
+			A:BlockMatrix(this.M), 
+			B:BlockMatrix(this.N,A.N), 
+			plus:Boolean):Matrix(this) {
+		BlockBlockMult.multTrans(A, B, this, plus);
+		return this;
 	}
 	
 	//====================================================================

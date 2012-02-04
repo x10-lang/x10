@@ -22,65 +22,177 @@ import x10.matrix.sparse.SparseCSC;
 
 public class BlockBlockMult  {
 
-
-//====================================================================
+	//====================================================================
+	/**
+	 * Block matrix multiply. Input block matrix must be partitioned in grid, which
+	 * allows array list index matches to its corresponding block id. 
+	 * Therefore, iterations of blocks do not need to search for block list.
+	 * 
+	 */
 	public static def mult(
 			A:BlockMatrix, 
 			B:BlockMatrix(A.N),
 			C:BlockMatrix(A.M,B.N),
 			plus:Boolean):BlockMatrix(C) {
-		Debug.assure(Grid.match(C.grid.rowBs, A.grid.rowBs), "Row partiton mismatch in result matrix");
-		Debug.assure(Grid.match(C.grid.colBs, B.grid.colBs), "Column partition mismatch in result matrix");
-		Debug.assure(Grid.match(A.grid.colBs, B.grid.rowBs), "Row and column partition mismatch");
+		Debug.assure(Grid.match(A.grid.rowBs, C.grid.rowBs), 
+			"Row partiton of first operand and result matrix mismatch in matrix multiply");
+		Debug.assure(Grid.match(B.grid.colBs, C.grid.colBs), 
+			"Column partition of second operand and result matrix mismatch in matrix multiply");
+		Debug.assure(Grid.match(A.grid.colBs, B.grid.rowBs),
+			"Column partition of first and row partition of second operand mismatch in matrix multiply");
 		
-		var startcol:Int = 0;
-		val aM = A.grid.numRowBlocks;
-		val aN = A.grid.numColBlocks;
-		val bM = B.grid.numRowBlocks;
-		val bN = B.grid.numColBlocks;
-		val cM = C.grid.numRowBlocks;
-		val cN = C.grid.numColBlocks;
-		
-		for (var c:Int=0; c<cN; c++) {
-			if (!plus) {
-				for (var i:Int=startcol; i<startcol+cM; i++)
-					C.listBs(i).getMatrix().reset();
-			}
-
-			for (var k:Int=0; k<aN; k++) {
-				val v2    = B.listBs(k+bM*c).getMatrix(); //m2(k, c)
-				//
-				for (var r:Int=0; r<A.M; r++) {
-					val v1= A.listBs(r+k*aM).getMatrix(); //m1(r, k)
-					val v3= C.listBs(startcol+r).getMatrix();
-					v3.mult(v1 as Matrix(v3.M), v2 as Matrix(v1.N,v3.N), true);
-				}
-			}
-			startcol += cM;
-		}
-		return C;
+		return mult(A.listBs, B.listBs, C, plus);
 	}
-			
+	//-----
+	public static def transMult(
+			A:BlockMatrix, 
+			B:BlockMatrix(A.M),
+			C:BlockMatrix(A.N,B.N),
+			plus:Boolean):BlockMatrix(C) {
+		Debug.assure(Grid.match(A.grid.colBs, C.grid.rowBs), 
+			"Column partiton of first operand and row partition of result matrix mismatch in trans-multply");
+		Debug.assure(Grid.match(B.grid.colBs, C.grid.colBs), 
+			"Column partition of second operand and result matrix mismatch in trans-multiply");
+		Debug.assure(Grid.match(A.grid.rowBs, B.grid.rowBs), 
+			"Row partition of first and second operand mismatch in trans-multiply");
+		
+		return transMult(A.listBs, B.listBs, C, plus);
+	}		
+	//-------------
+	public static def multTrans(
+			A:BlockMatrix, 
+			B:BlockMatrix{self.N==A.N},
+			C:BlockMatrix(A.M,B.M),
+			plus:Boolean):BlockMatrix(C) {
+		Debug.assure(Grid.match(A.grid.rowBs, C.grid.rowBs), 
+			"Row partiton of first operand and result matrix mismatch in multiply-trans");
+		Debug.assure(Grid.match(B.grid.rowBs, C.grid.colBs), 
+			"Row partition of second operand and result matrix mismatch in multiply-trans");
+		Debug.assure(Grid.match(A.grid.colBs, B.grid.colBs),
+			"Column partition of first and second operand mismatch in multiply-trans");
+		
+		return multTrans(A.listBs, B.listBs, C, plus);
+	}
+
+	
+	//===================================================================
 	public static def mult(
 			A:ArrayList[MatrixBlock], 
 			B:ArrayList[MatrixBlock],
 			C:BlockMatrix,
 			plus:Boolean):BlockMatrix(C) {
 		
-		// var startcol:Int = 0;
-		// if (! plus) this.reset();
-		// 
-		// for (var cb:Int=0; cb < B.grid.numColBlocks; cb++) {
-		// 	for (var kb:Int=0; kb<A.grid.numColBlocks; kb++) {
-		// 		for (var rb:Int=0; rb<A.grid.numRowBlocks; rb++) {
-		// 			val c = this.findBlock(rb, cb).getMatrix();
-		// 			val a = A.findBlock(rb, kb).getMatrix() as Matrix(c.M);
-		// 			val b = B.findBlock(kb, cb).getMatrix() as Matrix(a.N,c.N);
-		// 			c.mult(a, b, true);
-		// 		}
-		// 	}
-		// }
+		var startcol:Int = 0;
+		if (! plus) C.reset();
+		val grid = C.grid;
+		
+		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
+			val cblist = findColBlockList(B, cb);
+			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
+				val cmat = C.findBlock(rb, cb).getMatrix();
+				val rblist = findRowBlockList(A, rb);
+				val rit = rblist.iterator();
+				val cit = cblist.iterator();
+				Debug.assure(rblist.size()==cblist.size(), "Partition mismatch!");
+				while (rit.hasNext()) {
+					val amat = rit.next().getMatrix() as Matrix(cmat.M);
+					val bmat = cit.next().getMatrix() as Matrix(amat.N,cmat.N);
+					cmat.mult(amat, bmat, true);
+				}
+			}
+		}
 		return C;	
 	}
+	
+	
+	public static def transMult(
+			A:ArrayList[MatrixBlock], 
+			B:ArrayList[MatrixBlock],
+			C:BlockMatrix,
+			plus:Boolean):BlockMatrix(C) {
+		
+		var startcol:Int = 0;
+		if (! plus) C.reset();
+		val grid = C.grid;
+		
+		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
+			val cblist = findColBlockList(B, cb);
+			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
+				val cmat = C.findBlock(rb, cb).getMatrix();
+				val rblist = findColBlockList(A, rb);
+				val rit = rblist.iterator();
+				val cit = cblist.iterator();
+				Debug.assure(rblist.size()==cblist.size(), "Partition mismatch!");
+				while (rit.hasNext()) {
+					val amat = rit.next().getMatrix() as Matrix(cmat.N);
+					val bmat = cit.next().getMatrix() as Matrix(amat.M,cmat.N);
+					cmat.transMult(amat, bmat, true);
+				}
+			}
+		}
+		return C;	
+	}
+	
+	public static def multTrans(
+			A:ArrayList[MatrixBlock], 
+			B:ArrayList[MatrixBlock],
+			C:BlockMatrix,
+			plus:Boolean):BlockMatrix(C) {
+		
+		var startcol:Int = 0;
+		if (! plus) C.reset();
+		val grid = C.grid;
+		
+		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
+			val cblist = findRowBlockList(B, cb);
+			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
+				val cmat = C.findBlock(rb, cb).getMatrix();
+				val rblist = findRowBlockList(A, rb);
+				val rit = rblist.iterator();
+				val cit = cblist.iterator();
+				Debug.assure(rblist.size()==cblist.size(), "Partition mismatch!");
+				while (rit.hasNext()) {
+					val amat = rit.next().getMatrix() as Matrix(cmat.M);
+					val bmat = cit.next().getMatrix() as Matrix(cmat.N,amat.N);
+					cmat.multTrans(amat, bmat, true);
+				}
+			}
+		}
+		return C;	
+	}	
+	
+	//======================
+	//
+	//======================
+	public static def findBlock(blklist:ArrayList[MatrixBlock], rowId:Int, colId:Int):MatrixBlock {
+		val itr = blklist.iterator();
+		while (itr.hasNext()) {
+			val blk = itr.next();
+			if (blk.myRowId == rowId && blk.myColId==colId) {
+				return blk;
+			}
+		}
+		return null;
+				
+	}
+	
+	public static def findSelect(blklist:ArrayList[MatrixBlock], commonId:Int, select:(Int,Int)=>Int):ArrayList[MatrixBlock] {
+		val retlst=new ArrayList[MatrixBlock]();
+		val itr = blklist.iterator();
+		while (itr.hasNext()) {
+			val blk = itr.next();
+			val tgt = select(blk.myRowId, blk.myColId);
+			if (commonId == tgt) 
+				retlst.add(blk);
+		}
+		return retlst;
+	}
+	
+	public static def findRowBlockList(blklist:ArrayList[MatrixBlock], rid:Int) =
+		findSelect(blklist, rid, (r:Int, c:Int)=>r);
+
+	public static def findColBlockList(blklist:ArrayList[MatrixBlock], rid:Int) =
+		findSelect(blklist, rid, (r:Int, c:Int)=>c);
+	
 }
 	
