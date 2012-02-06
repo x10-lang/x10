@@ -87,16 +87,21 @@ public class BlockBlockMult  {
 		val grid = C.grid;
 		
 		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
-			val cblist = findColBlockList(B, cb);
+			val blist = findColBlockList(B, cb);
 			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
 				val cmat = C.findBlock(rb, cb).getMatrix();
-				val rblist = findRowBlockList(A, rb);
-				val rit = rblist.iterator();
-				val cit = cblist.iterator();
-				Debug.assure(rblist.size()==cblist.size(), "Partition mismatch!");
-				while (rit.hasNext()) {
-					val amat = rit.next().getMatrix() as Matrix(cmat.M);
-					val bmat = cit.next().getMatrix() as Matrix(amat.N,cmat.N);
+				val alist = findRowBlockList(A, rb);
+				val ait = alist.iterator();
+				val bit = blist.iterator();
+				Debug.assure(alist.size()==blist.size(), 
+						"Partition mismatch! Number of partition not same.");
+				while (ait.hasNext()) {
+					val ablk = ait.next();
+					val amat = ablk.getMatrix() as Matrix(cmat.M);
+					val bblk = bit.next();
+					val bmat = bblk.getMatrix() as Matrix(amat.N,cmat.N);
+					Debug.assure(ablk.myColId==bblk.myRowId, 
+							"Block partition misaligned in block matrix multiply");
 					cmat.mult(amat, bmat, true);
 				}
 			}
@@ -116,16 +121,21 @@ public class BlockBlockMult  {
 		val grid = C.grid;
 		
 		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
-			val cblist = findColBlockList(B, cb);
+			val blist = findColBlockList(B, cb);
 			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
 				val cmat = C.findBlock(rb, cb).getMatrix();
-				val rblist = findColBlockList(A, rb);
-				val rit = rblist.iterator();
-				val cit = cblist.iterator();
-				Debug.assure(rblist.size()==cblist.size(), "Partition mismatch!");
-				while (rit.hasNext()) {
-					val amat = rit.next().getMatrix() as Matrix(cmat.N);
-					val bmat = cit.next().getMatrix() as Matrix(amat.M,cmat.N);
+				val alist = findColBlockList(A, rb);
+				val ait = alist.iterator();
+				val bit = blist.iterator();
+				Debug.assure(alist.size()==blist.size(), 
+						"Partition mismatch! Numbers of partition blocks not same");
+				while (ait.hasNext()) {
+					val ablk = ait.next();
+					val bblk = bit.next();
+					Debug.assure(ablk.myRowId==bblk.myRowId,
+							"Block partition misaligned in block trans-multiply");
+					val amat = ablk.getMatrix() as Matrix(cmat.N);
+					val bmat = bblk.getMatrix() as Matrix(amat.M,cmat.N);
 					cmat.transMult(amat, bmat, true);
 				}
 			}
@@ -144,16 +154,22 @@ public class BlockBlockMult  {
 		val grid = C.grid;
 		
 		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
-			val cblist = findRowBlockList(B, cb);
+			val blist = findRowBlockList(B, cb);
 			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
 				val cmat = C.findBlock(rb, cb).getMatrix();
-				val rblist = findRowBlockList(A, rb);
-				val rit = rblist.iterator();
-				val cit = cblist.iterator();
-				Debug.assure(rblist.size()==cblist.size(), "Partition mismatch!");
-				while (rit.hasNext()) {
-					val amat = rit.next().getMatrix() as Matrix(cmat.M);
-					val bmat = cit.next().getMatrix() as Matrix(cmat.N,amat.N);
+				val alist = findRowBlockList(A, rb);
+				val ait = alist.iterator();
+				val bit = blist.iterator();
+				Debug.assure(alist.size()==blist.size(), 
+						"Partition mismatch! Number of partitions not same");
+				while (ait.hasNext()) {
+					val ablk = ait.next();
+					val bblk = bit.next();
+					Debug.assure(ablk.myColId==bblk.myColId,
+							"Block partition misaligned in block multiply-trans");
+					
+					val amat = ablk.getMatrix() as Matrix(cmat.M);
+					val bmat = bblk.getMatrix() as Matrix(cmat.N,amat.N);
 					cmat.multTrans(amat, bmat, true);
 				}
 			}
@@ -185,6 +201,17 @@ public class BlockBlockMult  {
 			if (commonId == tgt) 
 				retlst.add(blk);
 		}
+		//sort
+		retlst.sort((b1:MatrixBlock,b2:MatrixBlock)=>select(b2.myColId,b2.myRowId)-select(b1.myColId,b1.myRowId));
+		// if (here.id()==0) {
+		// 	val itr1 = blklist.iterator();
+		// 	while (itr1.hasNext()) {
+		// 		val b=itr1.next();
+		// 		val cmpid = select(b.myColId, b.myRowId);
+		// 		Debug.flushln("Block ("+b.myRowId+","+b.myColId+") cmp value"+cmpid);
+		// 	}
+		// }
+		// Debug.flushln("Done select+sort");
 		return retlst;
 	}
 	

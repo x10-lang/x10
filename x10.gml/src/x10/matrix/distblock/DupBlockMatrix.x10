@@ -214,6 +214,8 @@ public class DupBlockMatrix extends Matrix {
 		return dv;
 	}
 	
+	public def getGrid():Grid = handleDB().getGrid();
+	
 	//==================================================================================
 
 	/**
@@ -627,12 +629,12 @@ public class DupBlockMatrix extends Matrix {
 	public def reduceSum(): void {
 		val rootbid = here.id();
 		allocTmp();
-		//BlockSetReduce.reduceSum(handleDB, tmpDB, rootbid);
+		BlockSetReduce.reduceSum(handleDB, tmpDB, rootbid);
 	}
 	
 	public def allReduceSum(): void {
 		allocTmp();
-		//BlockSetReduce.allReduceSum(handleDB, tmpDB);
+		BlockSetReduce.allReduceSum(handleDB, tmpDB);
 	}	
 	//==================================================================================
 

@@ -137,7 +137,8 @@ dist_src=\
 	x10/matrix/distblock/DistGrid.x10 \
 	x10/matrix/distblock/BlockSet.x10 \
 	x10/matrix/distblock/DistBlockMatrix.x10 \
-	x10/matrix/distblock/DupBlockMatrix.x10 
+	x10/matrix/distblock/DupBlockMatrix.x10 \
+	x10/matrix/distblock/DistDistMult.x10
 
 	
 

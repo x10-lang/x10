@@ -146,8 +146,6 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			finish Array.asyncCopy[Double](rmtbuflst(i), 0, rcvden.d, 0, datcnt);
 			opFunc(rcvden, dstden);
 		}
-	
-		//dstmat.cellAdd(rcvmat as DenseMatrix(dstmat.M, dstmat.N));
 	}
 
 	//=========================================================
@@ -229,13 +227,13 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			x10AllReduce(distBS, tmpBS, opFunc);
 		}
 	}
-	
+	//--------------------
 	public static def x10AllReduce(distBS:BlocksPLH, tmpBS:BlocksPLH,
-			opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix): void {
-
-		x10Reduce(distBS, tmpBS, 0, opFunc);
-
-		BlockBcast.bcast(distBS, 0);
+			opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix) {
+				
+		val rtpid = here.id();
+		x10Reduce(distBS, tmpBS, rtpid, opFunc);
+		BlockSetBcast.bcast(distBS, rtpid);
 	}
 
 	/**

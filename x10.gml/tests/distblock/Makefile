@@ -10,9 +10,9 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list 	= TestDistBlock TestDupBlock
+target_list 	= TestDistBlock TestDupBlock TestDistMult
 
-target		= TestDupBlock
+target		= TestDistMult
 #target		= TestDistSparse
 #target		= TestDist
 #target		= TestDistDupMult
@@ -29,7 +29,7 @@ X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS
 
 # runtime settings
 runtime_list = mpi sock java
-numplaces = 2
+numplaces = 4
 test_args = 
 
 ###################################################
