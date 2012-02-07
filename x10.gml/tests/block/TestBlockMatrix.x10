@@ -19,6 +19,7 @@ import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.Grid;
 
 import x10.matrix.block.BlockMatrix;
+import x10.matrix.block.MatrixBlock;
 
 /**
    <p>
@@ -60,7 +61,8 @@ class RunBlockMatrix {
  		ret &= (testClone());
 		ret &= (testScale());
 		ret &= (testAddSub());
-
+		ret &= (buildBlockMap());
+		
 		if (ret)
 			Console.OUT.println("Block matrix test passed!");
 		else
@@ -140,4 +142,21 @@ class RunBlockMatrix {
 		return ret;
 	}
 
+	public def buildBlockMap():Boolean {
+		Console.OUT.println("Start building block 2D map");
+		val dbm = BlockMatrix.makeDense(grid);
+		dbm.init((r:Int,c:Int)=>1.0*(r+c));
+		dbm.buildBlockMap();
+		
+		var retval:Boolean= true;
+		for (var r:Int=0; r<grid.numRowBlocks &&retval; r++)
+			for (var c:Int=0; c<grid.numColBlocks && retval; c++) {
+				//Console.OUT.println("Block map at ("+r+","+c+")");
+				//dbm.blockMap(r,c).getMatrix().printMatrix();
+				//dbm.findBlock(r,c).getMatrix().printMatrix();
+				
+				retval &= (dbm.findBlock(r,c) == dbm.blockMap(r,c)); 
+			}
+		return retval;
+	}
 } 

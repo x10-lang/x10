@@ -39,15 +39,25 @@ public class BlockSet  {
 	//-----------------------------------------
 		
 	public val blocklist:ArrayList[MatrixBlock];
+	//--------------------------
+	
+	/**
+	 * This is available for fast access after is built.
+	 */
+	protected var blockMap:Array[MatrixBlock](2);
+	
+	
 	//==========================================
 
 	public def this(g:Grid, map:DistMap) {
 		grid=g; dmap = map;
-		blocklist = new ArrayList[MatrixBlock]();		
+		blocklist = new ArrayList[MatrixBlock]();	
+		blockMap=null;
 	}
 
 	public def this(g:Grid, map:DistMap, bl:ArrayList[MatrixBlock]) {
 		grid=g; dmap = map; blocklist = bl;
+		blockMap = null;
 	}
 	//========================================
 	/**
@@ -109,6 +119,28 @@ public class BlockSet  {
 	public static def makeSparse(g:Grid, d:DistMap, nzd:Double) {
 		return new BlockSet(g,d).allocSparseBlocks(nzd);
 	}
+	//-------------------------
+	public def allocFirstColBlocks():ArrayList[MatrixBlock] {
+		val reg  = blockMap.region;
+		val nrbs = reg.max(0)-reg.min(0)+1 ;
+		val blst = new ArrayList[MatrixBlock](nrbs);
+		val cb = reg.min(1);
+		for (var rb:Int=reg.min(0); rb<=reg.max(0); rb++) {
+			blst.add(blockMap(rb, cb).alloc());
+		}
+		return blst;
+	}
+
+	public def allocFirstRowBlocks():ArrayList[MatrixBlock] {
+		val reg  = blockMap.region;
+		val ncbs = reg.max(1)-reg.min(1)+1 ;
+		val blst = new ArrayList[MatrixBlock](ncbs);
+		val rb = reg.min(0);
+		for (var cb:Int=reg.min(1); cb<=reg.max(1); cb++) {
+			blst.add(blockMap(rb, cb).alloc());
+		}
+		return blst;
+	}
 	
 	//========================================
 	public def getGrid()   = grid;
@@ -146,7 +178,50 @@ public class BlockSet  {
 		return retval;
 	}
 	//=======================================
-
+	/**
+	 * Sort all blocks in column-major
+	 */
+	protected def sort() {
+		this.blocklist.sort((b1:MatrixBlock,b2:MatrixBlock)=>cmp(b1,b2));
+	}
+	
+	/**
+	 * Sort all blocks in column-major
+	 */
+	protected static def cmp(b1:MatrixBlock, b2:MatrixBlock):Int {
+		val retval:Int=0;
+		if (b1.myColId == b2.myColId) 
+			return b1.myRowId-b2.myRowId;
+		else 
+			return b1.myColId-b2.myColId;
+	}
+	
+	public def buildBlockMap() {
+		if (blockMap != null) return;
+		//sort list first
+		sort();
+		//Figure out how mange blocks in rwo and column
+		var nrb:Int = 1;
+		val stcb:Int = blocklist.get(0).myColId;
+		while (nrb<blocklist.size()) {
+			val blk = blocklist.get(nrb);
+			if (blk.myColId != stcb) break;
+			nrb++;
+		}
+		val numColBlk:Int = blocklist.size()/nrb;
+		val numRowBlk:Int = nrb;
+		//Debug.flushln("Build block "+numRowBlk+"x"+numColBlk);
+		Debug.assure(numRowBlk*numColBlk==blocklist.size());
+		// Assuming all blocks forms in rectangle 
+		val minRow = blocklist.get(0).myRowId;
+		val minCol = blocklist.get(0).myColId;
+		val maxRow = minRow+numRowBlk-1;
+		val maxCol = minCol+numColBlk-1;
+		blockMap = new Array[MatrixBlock]((minRow..maxRow)*(minCol..maxCol), 
+				(p:Point)=>blocklist.get(p(0)+p(1)*numRowBlk));
+		
+	}
+	//=======================================
 	public def find(rid:Int, cid:Int): MatrixBlock {
 		val it = this.iterator();
 		while (it.hasNext()) {
@@ -470,4 +545,20 @@ public class BlockSet  {
 		}
 		return outstr;	
 	}
+	
+	public def printBlockMap() {
+		var outstr:String="";
+		
+		if (blockMap==null) buildBlockMap();
+		for (var r:Int=blockMap.region.min(0); r<=blockMap.region.max(0); r++) {
+			for (var c:Int=blockMap.region.min(1); c<=blockMap.region.max(1); c++) {
+				val b = blockMap(r, c);
+				outstr +=("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
+			}
+			outstr += "\n";
+		}
+		Console.OUT.println(outstr);
+		Console.OUT.flush();
+	}
+	
 }

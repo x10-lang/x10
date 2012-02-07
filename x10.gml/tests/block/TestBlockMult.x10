@@ -29,12 +29,12 @@ import x10.matrix.block.BlockBlockMult;
 public class TestBlockMult {
 	
     public static def main(args:Array[String](1)) {
-		val testcase = new RunBlockMatrix(args);
+		val testcase = new RunBlockMult(args);
 		testcase.run();
 	}
 }
 
-class RunBlockMatrix {
+class RunBlockMult {
 	public val M:Int;
 	public val K:Int;
 	public val N:Int;
@@ -48,12 +48,12 @@ class RunBlockMatrix {
 	//val A:BlockMatrix(M,K), B:BlockMatrix(K,N), C:BlockMatrix(M,N);
 	
     public def this(args:Array[String](1)) {
-		M = args.size > 0 ?Int.parse(args(0)):4;
-		K = args.size > 1 ?Int.parse(args(1)):M;
-		N = args.size > 2 ?Int.parse(args(2)):M+2;
+		M = args.size > 0 ?Int.parse(args(0)):10;
+		K = args.size > 1 ?Int.parse(args(1)):M+2;
+		N = args.size > 2 ?Int.parse(args(2)):M+4;
 		bM = args.size > 3 ?Int.parse(args(3)):2;
-		bK = args.size > 4 ?Int.parse(args(4)):2;
-		bN = args.size > 5 ?Int.parse(args(5)):2;
+		bK = args.size > 4 ?Int.parse(args(4)):3;
+		bN = args.size > 5 ?Int.parse(args(5)):4;
 		nzd =  args.size > 6 ?Double.parse(args(6)):0.99;
 		
 		gA = new Grid(M, K, bM, bK);

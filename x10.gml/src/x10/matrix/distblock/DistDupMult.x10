@@ -27,19 +27,18 @@ import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
 
 /**
- * Block matrix distributed in (1, n) places multiply block matrix distributed in (n, 1)
- * or (n, 1) trans-multiply (n, 1), or (1, n) multiply-trans (1, n) 
+ * Block matrix distributed in (n, 1) places multiply block matrix 
  * Result is stored in Duplicated block matrix at here.
  */
-public class DistDistMult {
+public class DistDupMult {
 	
 	/**
 	 * 
 	 */
 	public static def mult(
 			A:DistBlockMatrix, 
-			B:DistBlockMatrix(A.N), 
-			C:DupBlockMatrix(A.M,B.N), plus:Boolean) : DupBlockMatrix(C) {
+			B:DupBlockMatrix(A.N), 
+			C:DistBlockMatrix(A.M,B.N), plus:Boolean) : DistBlockMatrix(C) {
 
 		val gA = A.getGrid();
 		val gB = B.getGrid();
@@ -54,27 +53,25 @@ public class DistDistMult {
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
-			val bsB = B.handleBS();
-			val bsC = C.local();
-			bsA.buildBlockMap(); //bsA.printBlockMap();
+			val bsB = B.local();
+			val bsC = C.handleBS();
+			bsA.buildBlockMap();
 			bsB.buildBlockMap();
-			bsC.buildBlockMap(); //bsC.printBlockMap();
+			bsC.buildBlockMap();
 			BlockBlockMult.mult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
-			//BlockBlockMult.mult(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
-		C.allReduceSum();
 		return C;
 	}
 	
 	public static def transMult(
 			A:DistBlockMatrix, 
-			B:DistBlockMatrix(A.M), 
-			C:DupBlockMatrix(A.N,B.N), plus:Boolean) : DupBlockMatrix(C) {
+			B:DupBlockMatrix(A.M), 
+			C:DistBlockMatrix(A.N,B.N), plus:Boolean) : DistBlockMatrix(C) {
 
 		val gA = A.getGrid();
 		val gB = B.getGrid();
 		val gC = C.getGrid();
-	
+		
 		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
 		"Column partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
@@ -83,29 +80,24 @@ public class DistDistMult {
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
-			val bsB = B.handleBS();
-			val bsC = C.local();
-			bsA.buildBlockMap();
-			bsB.buildBlockMap();
-			bsC.buildBlockMap();
+			val bsB = B.local();
+			val bsC = C.handleBS();
 			BlockBlockMult.transMult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
-			//BlockBlockMult.transMult(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
 		
-		C.allReduceSum(); 
 		return C;
 
 	}
 	
 	public static def multTrans(
 			A:DistBlockMatrix, 
-			B:DistBlockMatrix{self.N==A.N},
-			C:DupBlockMatrix(A.M,B.M), plus:Boolean) : DupBlockMatrix(C) {
+			B:DupBlockMatrix{self.N==A.N},
+			C:DistBlockMatrix(A.M,B.M), plus:Boolean) : DistBlockMatrix(C) {
 
 		val gA = A.getGrid();
 		val gB = B.getGrid();
 		val gC = C.getGrid();
-	
+
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
 		"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.rowBs, gC.colBs),
@@ -114,16 +106,11 @@ public class DistDistMult {
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
-			val bsB = B.handleBS();
-			val bsC = C.local();
-			bsA.buildBlockMap();
-			bsB.buildBlockMap();
-			bsC.buildBlockMap();
+			val bsB = B.local();
+			val bsC = C.handleBS();
+			
 			BlockBlockMult.multTrans(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
-			//BlockBlockMult.multTrans(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
-		
-		C.allReduceSum(); 
 		return C;	
 
 	}

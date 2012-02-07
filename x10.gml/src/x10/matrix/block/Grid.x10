@@ -377,11 +377,12 @@ public class Grid(M:Int, N:Int,
 	/**
 	 * Return a grid partition for the transposed matrix.
 	 */
-	public def newT():Grid {
-		val g = new Grid(this.N, this.M, this.numColBlocks, this.numRowBlocks);
+	public def newT():Grid = new Grid(this.colBs, this.rowBs);
+	//{
+		//val g = new Grid(this.N, this.M, this.numColBlocks, this.numRowBlocks);
 		//g.transpose = !this.transpose;
-		return g;
-	}
+		//return g;
+	//}
 
 	//=========================================================
 	/**

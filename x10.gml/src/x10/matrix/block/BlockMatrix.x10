@@ -31,7 +31,9 @@ public type BlockMatrix(C:BlockMatrix)=BlockMatrix{self==C};
 public class BlockMatrix(grid:Grid) extends Matrix  {
 
 	public val listBs:ArrayList[MatrixBlock];
-
+	//----------------------------------------
+	public var blockMap:Array[MatrixBlock](2);
+	
 	//================================================================
 	/**
 	 * Construtblock matrix instance.
@@ -43,6 +45,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		super(gp.M, gp.N);
 		property(gp);
 		listBs = ms;
+		blockMap=null;
 	}
 
 	/**
@@ -227,6 +230,14 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	//-------------------------------------------
 		
 	public def findBlock(rid:Int, cid:Int):MatrixBlock {
+		val bid = grid.getBlockId(rid, cid);
+		val blk = listBs(bid);
+		if (blk.myRowId==rid && blk.myColId==cid) return blk;
+		Debug.flushln("Block Id is not mapped to the same index in the listBs, try to search listBs");
+		return searchBlock(rid, cid);
+	}
+	
+	public def searchBlock(rid:Int, cid:Int):MatrixBlock {
 		val it = listBs.iterator();
 		while (it.hasNext()) {
 			val blk = it.next();
@@ -235,9 +246,23 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		}
 		return null;
 	}
+	//-------------------------------------------
+	/**
+	 * For fast asscess block without searching block every time.
+	 * Restriction is block row id and column id must be the same as the block map
+	 * corrodinate indexes. 
+	 * This process is not a must, since block matrix has block id mapped to the
+	 * same index ID in listBs.
+	 */
+	public def buildBlockMap(): void{
+		if (blockMap != null) return;
+		val rowmax = grid.numRowBlocks -1;
+		val colmax = grid.numColBlocks -1;
+		blockMap = new Array[MatrixBlock]((0..rowmax)*(0..colmax), (p:Point(2))=>findBlock(p(0),p(1)));
+	}
+	
+	//-------------------------------------------
 
-	//---------
- 
 	//	public  def apply(var r:Int, var c:Int):Double {
 	/**
 	 *  Return element value in matrix. override the method in super class.
@@ -733,4 +758,19 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		Debug.println(dbstr);
 	}
 
+	public def printBlockMap() {
+		var outstr:String="";
+		
+		if (blockMap==null) buildBlockMap();
+		for (var r:Int=blockMap.region.min(0); r<=blockMap.region.max(0); r++) {
+			for (var c:Int=blockMap.region.min(1); c<=blockMap.region.max(1); c++) {
+				val b = blockMap(r, c);
+				outstr +=("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
+			}
+			outstr += "\n";
+		}
+		Console.OUT.println(outstr);
+		Console.OUT.flush();
+	}
+	
 }
