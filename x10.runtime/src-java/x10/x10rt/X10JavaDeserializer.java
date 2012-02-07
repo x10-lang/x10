@@ -60,7 +60,8 @@ public class X10JavaDeserializer {
     
     public int record_reference(Object obj) {
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("\tRecorded new reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET + " at " + counter + "  (absolute) in map");
+            String className = obj == null ? "null" : obj.getClass().getName();
+            Runtime.printTraceMessage("\tRecorded new reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + className + Runtime.ANSI_RESET + " at " + counter + "  (absolute) in map");
         }
         objectList.add(counter, obj);
         counter++;
