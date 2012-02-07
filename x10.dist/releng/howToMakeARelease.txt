@@ -84,7 +84,16 @@ one can build the actual release artifacts:
       Use SF web admin API to set the default downloads for each OS 
       platform to the new files
 
-   5. Make sure language manual has the right version, date, etc. 
+   5. ssh into shell.sf.net and create a subdirectory of 
+      /home/frs/project/x/x1/x10dt to hold the downloads. 
+      Use sftp to move all of the release artifacts from orquesta to sf.
+
+   6. ssh into shell.sf.net and create a subdirectory of 
+      /home/project-web/x10/htdocs/x10dt to hold the x10dt update site.
+      create an updateSite subdir of the new directory and unzip the
+      update site zip from the download section into it.
+
+   7. Make sure language manual has the right version, date, etc. 
       Tag the language manual
 
         makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -man
@@ -95,12 +104,13 @@ one can build the actual release artifacts:
       The release page itself will point to the x10-<version>.pdf. 
       All of the other parts of the website refer to x10-latest.pdf.
 
-   6. Generate new x10doc and upload to project web space at x10.sourceforge.net
+   8. Generate new x10doc and upload to project web space at x10.sourceforge.net
+      update the "latest" sym link to point to the new directory.
 
-   7. Update the "X10 Releases" page to link to the new download version.
+   9. Create a release page for the new release on the web site.  
+      Update the "X10 Releases" page to link to the new download version.
+      Update the "latest release" menu item in Downloads-submenu to point to the new release page.
 
-   8. Update the "latest release" menu item in Downloads-submenu
+   10. Post release announcement in SF news and web page front-page news.
 
-   9. Send out mail announcements to x10-users and x10-announce
-
-   10. Also post announcement in SF news and web page news.
+   11. Send out mail announcements to x10-users and x10-announce
