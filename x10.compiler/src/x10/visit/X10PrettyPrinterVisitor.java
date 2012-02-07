@@ -630,6 +630,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             
             //_deserialize_body method
             w.writeln("$_obj.readFields($deserializer.getInpForHadoop());");
+            w.writeln("$deserializer.record_reference($_obj);");
             w.writeln("return $_obj;");
             w.end();
             w.newline();
