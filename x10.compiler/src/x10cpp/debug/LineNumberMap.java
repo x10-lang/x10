@@ -1255,7 +1255,8 @@ public class LineNumberMap extends StringTable {
 	        	{
 	        		String classname = m.lookupString(classId);
 			        w.writeln("static const struct _X10TypeMember _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members[] __attribute__((used)) "+debugDataSectionAttr+" = {");
-			        ClassMapInfo cmi = memberVariables.get(classId);
+	        		ClassMapInfo cmi = memberVariables.get(classId);
+			        boolean someMembersWritten = false;
 			        for (int j=0; j<cmi._members.size();)
 			        {
 			        	MemberVariableMapInfo v = cmi._members.get(j);
@@ -1283,11 +1284,15 @@ public class LineNumberMap extends StringTable {
 			        	}
 			        	if (!skip)
 			        	{
+			        		someMembersWritten = true;
 			        		w.writeln("    { "+v._x10type+", "+v._x10typeIndex+", "+offsets[v._x10memberName]+", "+offsets[v._cppMemberName]+", "+offsets[v._cppClass]+" }, // "+m.lookupString(v._x10memberName));
 			        		j++;
 			        	}
 			        }
-				    w.writeln("};");
+			        if (!someMembersWritten)
+			        	w.writeln("NULL };");
+			        else
+			        	w.writeln("};");
 				    w.forceNewline();
 	        	}
 	        	w.writeln("static const struct _X10ClassMap _X10ClassMapList[] __attribute__((used)) = {");
@@ -1342,14 +1347,21 @@ public class LineNumberMap extends StringTable {
 		    		}
 	        	}	    	
 			    w.writeln("static const struct _X10ClosureMap _X10ClosureMapList[] __attribute__((used)) = {"); // inclusion of debugDataSectionAttr causes issues on Macos.  See XTENLANG-2318.
+			    boolean closureMembersWritten = false;
 			    for (Integer classId : closureMembers.keySet())
 			    {
 			    	String classname = m.lookupString(classId);
 			    	ClassMapInfo cmi = closureMembers.get(classId);
 			    	if (cmi._x10endLine != cmi._x10startLine)
+			    	{
+			    		closureMembersWritten = true;
 			    		w.writeln("    { "+cmi._type+", "+offsets[classId]+", sizeof("+cmi._sizeOfArg.replace(".", "::")+"), "+cmi._members.size()+", "+findFile(cmi._file, files)+", "+cmi._x10startLine +", "+cmi._x10endLine+", _X10"+classname.substring(classname.lastIndexOf('.')+1)+"Members },");
+			    	}
 			    }
-			    w.writeln("};");
+			    if (!closureMembersWritten)
+			    	w.writeln("NULL };");
+			    else
+			    	w.writeln("};");
 			    w.forceNewline();
 		    }
         }
