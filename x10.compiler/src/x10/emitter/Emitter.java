@@ -1230,7 +1230,13 @@ public class Emitter {
             
             Type type = f.type().type();
             if (isDispatcher && containsTypeParam(type)) {
-                printType(type, 0);
+                // XTENLANG-2998
+                // Java backend erases type parameters of interface and merge multiple instantiations of the same generic interface (e.g. I[Int] and I[Float]) into a single Java generic interface (I).
+                if (type instanceof ParameterType) {
+                    w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
+                } else {
+                    printType(type, 0);
+                }
                 w.write(" ");
                 Name name = f.name().id();
                 if (name.toString().equals("")) {

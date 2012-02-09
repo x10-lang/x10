@@ -144,30 +144,30 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
     // implements Arithmetic<ULong>
     public ULong $plus$G() { return this; }
     public ULong $minus$G() { return ULong.$box(-$value); }
-    public ULong $plus(ULong a, Type t) { return ULong.$box($value + a.$value); }
-    public ULong $minus(ULong a, Type t) { return ULong.$box($value - a.$value); }
-    public ULong $times(ULong a, Type t) { return ULong.$box($value * a.$value); }
-    public ULong $over(ULong a, Type t) { return ULong.$box(Unsigned.div($value,a.$value)); }
+    public ULong $plus(java.lang.Object a, Type t) { return ULong.$box($value + ((ULong)a).$value); }
+    public ULong $minus(java.lang.Object a, Type t) { return ULong.$box($value - ((ULong)a).$value); }
+    public ULong $times(java.lang.Object a, Type t) { return ULong.$box($value * ((ULong)a).$value); }
+    public ULong $over(java.lang.Object a, Type t) { return ULong.$box(Unsigned.div($value,((ULong)a).$value)); }
     
     // implements Bitwise<ULong>
     public ULong $tilde$G() { return ULong.$box(~$value); }
-    public ULong $ampersand(ULong a, Type t) { return ULong.$box($value & a.$value); }
-    public ULong $bar(ULong a, Type t) { return ULong.$box($value | a.$value); }
-    public ULong $caret(ULong a, Type t) { return ULong.$box($value ^ a.$value); }
+    public ULong $ampersand(java.lang.Object a, Type t) { return ULong.$box($value & ((ULong)a).$value); }
+    public ULong $bar(java.lang.Object a, Type t) { return ULong.$box($value | ((ULong)a).$value); }
+    public ULong $caret(java.lang.Object a, Type t) { return ULong.$box($value ^ ((ULong)a).$value); }
     public ULong $left$G(final int count) { return ULong.$box($value << count); }
     public ULong $right$G(final int count) { return ULong.$box($value >>> count); } // ULong is always unsigned
     public ULong $unsigned_right$G(final int count) { return ULong.$box($value >>> count); }
     
     // implements Ordered<ULong>
-    public java.lang.Object $lt(ULong a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,a.$value)); }
-    public java.lang.Object $gt(ULong a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
-    public java.lang.Object $le(ULong a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
-    public java.lang.Object $ge(ULong a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
+    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,((ULong)a).$value)); }
+    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,((ULong)a).$value)); }
+    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,((ULong)a).$value)); }
+    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,((ULong)a).$value)); }
     // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(ULong a, Type t) { return Unsigned.lt($value,a.$value); }
-    public boolean $gt$O(ULong a, Type t) { return Unsigned.gt($value,a.$value); }
-    public boolean $le$O(ULong a, Type t) { return Unsigned.le($value,a.$value); }
-    public boolean $ge$O(ULong a, Type t) { return Unsigned.ge($value,a.$value); }
+    public boolean $lt$O(java.lang.Object a, Type t) { return Unsigned.lt($value,((ULong)a).$value); }
+    public boolean $gt$O(java.lang.Object a, Type t) { return Unsigned.gt($value,((ULong)a).$value); }
+    public boolean $le$O(java.lang.Object a, Type t) { return Unsigned.le($value,((ULong)a).$value); }
+    public boolean $ge$O(java.lang.Object a, Type t) { return Unsigned.ge($value,((ULong)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

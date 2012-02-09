@@ -99,21 +99,21 @@ final public class Double extends Number implements StructI,
     // implements Arithmetic<Double>
     public Double $plus$G() { return this; }
     public Double $minus$G() { return Double.$box(-$value); }
-    public Double $plus(Double b, Type t) { return Double.$box($value + b.$value); }
-    public Double $minus(Double b, Type t) { return Double.$box($value - b.$value); }
-    public Double $times(Double b, Type t) { return Double.$box($value * b.$value); }
-    public Double $over(Double b, Type t) { return Double.$box($value / b.$value); }
+    public Double $plus(java.lang.Object b, Type t) { return Double.$box($value + ((Double)b).$value); }
+    public Double $minus(java.lang.Object b, Type t) { return Double.$box($value - ((Double)b).$value); }
+    public Double $times(java.lang.Object b, Type t) { return Double.$box($value * ((Double)b).$value); }
+    public Double $over(java.lang.Object b, Type t) { return Double.$box($value / ((Double)b).$value); }
     
     // implements Ordered<Double>
-    public java.lang.Object $lt(Double b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
-    public java.lang.Object $gt(Double b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
-    public java.lang.Object $le(Double b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
-    public java.lang.Object $ge(Double b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
+    public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Double)b).$value); }
+    public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Double)b).$value); }
+    public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Double)b).$value); }
+    public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Double)b).$value); }
     // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(Double b, Type t) { return $value < b.$value; }
-    public boolean $gt$O(Double b, Type t) { return $value > b.$value; }
-    public boolean $le$O(Double b, Type t) { return $value <= b.$value; }
-    public boolean $ge$O(Double b, Type t) { return $value >= b.$value; }
+    public boolean $lt$O(java.lang.Object b, Type t) { return $value < ((Double)b).$value; }
+    public boolean $gt$O(java.lang.Object b, Type t) { return $value > ((Double)b).$value; }
+    public boolean $le$O(java.lang.Object b, Type t) { return $value <= ((Double)b).$value; }
+    public boolean $ge$O(java.lang.Object b, Type t) { return $value >= ((Double)b).$value; }
 
     // extends abstract class java.lang.Number
     @Override
