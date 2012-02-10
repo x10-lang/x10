@@ -27,8 +27,15 @@ import x10.matrix.distblock.DistBlockMatrix;
 import x10.matrix.distblock.DupBlockMatrix;
 
 /**
- * Block matrix distributed in (n, 1) places multiply block matrix 
- * Result is stored in Duplicated block matrix at here.
+ * Support distributed block matrix multiplies with duplicate block matrix, and
+ * duplicated block matrix multiplies with distributed block matrix. Matrix partitions
+ * are check but not distribution. User must make sure the block distribution is correct,
+ * otherwise, result is not correct or runtime exception occurs.
+ * <p>
+ * Current implementation relies on DistGrid to create corresponding block map for 
+ * easy and fast access blocks. Therefore, distributed block matrix must have blocks
+ * distributed in grid-like map.
+ * 
  */
 public class DistDupMult {
 	
@@ -44,7 +51,6 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		
-		//Global.assure(A.flagTranspose == true);
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
 				"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
@@ -82,6 +88,9 @@ public class DistDupMult {
 			val bsA = A.handleBS();
 			val bsB = B.local();
 			val bsC = C.handleBS();
+			bsA.buildBlockMap();
+			bsB.buildBlockMap();
+			bsC.buildBlockMap();
 			BlockBlockMult.transMult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
 		}
 		
@@ -89,10 +98,8 @@ public class DistDupMult {
 
 	}
 	
-	public static def multTrans(
-			A:DistBlockMatrix, 
-			B:DupBlockMatrix{self.N==A.N},
-			C:DistBlockMatrix(A.M,B.M), plus:Boolean) : DistBlockMatrix(C) {
+	public static def multTrans(A:DistBlockMatrix, B:DupBlockMatrix{self.N==A.N},C:DistBlockMatrix(A.M,B.M), 
+			plus:Boolean) : DistBlockMatrix(C) {
 
 		val gA = A.getGrid();
 		val gB = B.getGrid();
@@ -108,12 +115,100 @@ public class DistDupMult {
 			val bsA = A.handleBS();
 			val bsB = B.local();
 			val bsC = C.handleBS();
+			bsA.buildBlockMap();
+			bsB.buildBlockMap();
+			bsC.buildBlockMap();
+	
+			BlockBlockMult.multTrans(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
+		}
+		return C;
+		
+	}
+			
+	//================================================
+		
+	public static def mult(
+			A:DupBlockMatrix, 
+			B:DistBlockMatrix(A.N), 
+			C:DistBlockMatrix(A.M,B.N), plus:Boolean) : DistBlockMatrix(C) {
+
+		val gA = A.getGrid();
+		val gB = B.getGrid();
+		val gC = C.getGrid();
+		
+		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
+		"Row partition of first and result matrix mismatch");
+		Debug.assure(Grid.match(gB.colBs, gC.colBs),
+		"Column partition of second and result matrix mismatch");
+		
+		finish ateach (Dist.makeUnique()) {
+			//
+			val bsA = A.local();
+			val bsB = B.handleBS();
+			val bsC = C.handleBS();
+			bsA.buildBlockMap();
+			bsB.buildBlockMap();
+			bsC.buildBlockMap();
+			BlockBlockMult.mult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
+		}
+		return C;
+	}
+	public static def transMult(
+			A:DupBlockMatrix, 
+			B:DistBlockMatrix(A.M), 
+			C:DistBlockMatrix(A.N,B.N), plus:Boolean) : DistBlockMatrix(C) {
+
+		val gA = A.getGrid();
+		val gB = B.getGrid();
+		val gC = C.getGrid();
+		
+		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
+		"Column partition of first and result matrix mismatch");
+		Debug.assure(Grid.match(gB.colBs, gC.colBs),
+		"Column partition of second and result matrix mismatch");
+		
+		finish ateach (Dist.makeUnique()) {
+			//
+			val bsA = A.local();
+			val bsB = B.handleBS();
+			val bsC = C.handleBS();
+			bsA.buildBlockMap();
+			bsB.buildBlockMap();
+			bsC.buildBlockMap();
+			BlockBlockMult.transMult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
+		}
+		
+		return C;
+
+	}
+	
+	public static def multTrans(
+			A:DupBlockMatrix, B:DistBlockMatrix{self.N==A.N},C:DistBlockMatrix(A.M,B.M), 
+			plus:Boolean) : DistBlockMatrix(C) {
+
+		val gA = A.getGrid();
+		val gB = B.getGrid();
+		val gC = C.getGrid();
+
+		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
+		"Row partition of first and result matrix mismatch");
+		Debug.assure(Grid.match(gB.rowBs, gC.colBs),
+		"Row partition of second and result matrix mismatch");
+		
+		finish ateach (Dist.makeUnique()) {
+			//
+			val bsA = A.local();
+			val bsB = B.handleBS();
+			val bsC = C.handleBS();
+			bsA.buildBlockMap();
+			bsB.buildBlockMap();
+			bsC.buildBlockMap();
 			
 			BlockBlockMult.multTrans(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
 		}
-		return C;	
-
+		return C;
+		
 	}
-	//==================================================
 	
+
 }

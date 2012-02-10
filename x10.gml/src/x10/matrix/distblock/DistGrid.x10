@@ -25,7 +25,7 @@ public class DistGrid{
 	public val dmap:DistMap;
 	
 	public def this(dm:DistMap) {
-		dmap = dm;		
+		dmap = dm;
 	}
 
 	public def this(matgrid:Grid, rowCs:Int, colCs:Int) {
@@ -47,7 +47,7 @@ public class DistGrid{
 			for (var rb:Int=0; rb<matgrid.numRowBlocks; rb++) {
 				val pid = blkgrid.findBlock(rb, cb); 
 				val bid = matgrid.getBlockId(rb, cb);
-				dmap.add(bid, pid);
+				dmap.set(bid, pid);
 			}
 		}
 	}

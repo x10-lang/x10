@@ -13,6 +13,7 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.compiler.Inline;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -36,11 +37,15 @@ public class BlockSet  {
 	// remote capture.
 	protected val grid:Grid;
 	protected val dmap:DistMap;
+	//---------------
+	public var rowCastPlaceMap:CastPlaceMap;
+	public var colCastPlaceMap:CastPlaceMap; 
+	
 	//-----------------------------------------
 		
 	public val blocklist:ArrayList[MatrixBlock];
 	//--------------------------
-	
+	 
 	/**
 	 * This is available for fast access after is built.
 	 */
@@ -53,11 +58,15 @@ public class BlockSet  {
 		grid=g; dmap = map;
 		blocklist = new ArrayList[MatrixBlock]();	
 		blockMap=null;
+		rowCastPlaceMap=null;
+		colCastPlaceMap=null;
 	}
 
 	public def this(g:Grid, map:DistMap, bl:ArrayList[MatrixBlock]) {
 		grid=g; dmap = map; blocklist = bl;
 		blockMap = null;
+		rowCastPlaceMap=null;
+		colCastPlaceMap=null;
 	}
 	//========================================
 	/**
@@ -80,7 +89,7 @@ public class BlockSet  {
 	}
 
 	public def allocDenseBlocks() : BlockSet {
-		val itr = dmap.getBlockIterator(here.id());
+		val itr = dmap.buildBlockIteratorAtPlace(here.id());
 		while (itr.hasNext()) {
 			val bid    = itr.next();
 			val rowbid = grid.getRowBlockId(bid);
@@ -89,11 +98,12 @@ public class BlockSet  {
 			val n      = grid.colBs(colbid);
 			add(DenseBlock.make(rowbid, colbid, m, n));
 		}
+		assignNeighborPlaces();
 		return this;
 	}
 	
 	public def allocSparseBlocks(nzd:Double) : BlockSet {
-		val itr = dmap.getBlockIterator(here.id());
+		val itr = dmap.buildBlockIteratorAtPlace(here.id());
 		while (itr.hasNext()) {
 			val bid    = itr.next();
 			val rowbid = grid.getRowBlockId(bid);
@@ -102,6 +112,7 @@ public class BlockSet  {
 			val n      = grid.colBs(colbid);
 			add(SparseBlock.make(rowbid, colbid, m, n, nzd));
 		}
+		assignNeighborPlaces();		
 		return this;
 	}
 	//--------------
@@ -119,29 +130,50 @@ public class BlockSet  {
 	public static def makeSparse(g:Grid, d:DistMap, nzd:Double) {
 		return new BlockSet(g,d).allocSparseBlocks(nzd);
 	}
-	//-------------------------
-	public def allocFirstColBlocks():ArrayList[MatrixBlock] {
-		val reg  = blockMap.region;
-		val nrbs = reg.max(0)-reg.min(0)+1 ;
-		val blst = new ArrayList[MatrixBlock](nrbs);
-		val cb = reg.min(1);
-		for (var rb:Int=reg.min(0); rb<=reg.max(0); rb++) {
-			blst.add(blockMap(rb, cb).alloc());
-		}
-		return blst;
-	}
-
-	public def allocFirstRowBlocks():ArrayList[MatrixBlock] {
-		val reg  = blockMap.region;
-		val ncbs = reg.max(1)-reg.min(1)+1 ;
-		val blst = new ArrayList[MatrixBlock](ncbs);
-		val rb = reg.min(0);
-		for (var cb:Int=reg.min(1); cb<=reg.max(1); cb++) {
-			blst.add(blockMap(rb, cb).alloc());
-		}
-		return blst;
+	//========================================================
+	/**
+	 * Used for temporary space in SUMMA. C
+	 * The new block set dose not have all block spaces allocated. Only
+	 * the frontal column blocks is available.
+	 */
+	public def makeFrontColBlockSet(colCnt:Int):BlockSet {
+		//Fake the column partitioning in all blocks
+		val cbs:Array[Int](1){rail} = new Array[Int](grid.numColBlocks, (i:Int)=>colCnt);
+		val ngrid = new Grid(grid.M, grid.numColBlocks*colCnt, grid.rowBs, cbs); 
+		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(colCnt, (r:Int, c:Int)=>r);
+		return new BlockSet(ngrid, dmap, nbl);
 	}
 	
+	/**
+	 * The new block set does not have all block space allocated. DistMap works only
+	 * for frontal row blocks
+	 */
+	public def makeFrontRowBlockSet(rowCnt:Int):BlockSet {
+		//Fake row partitioning in all blocks
+		val rbs:Array[Int](1){rail} = new Array[Int](grid.numRowBlocks, (i:Int)=>rowCnt);
+		val ngrid = new Grid(grid.numColBlocks*rowCnt, grid.N, rbs, grid.colBs);
+		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(rowCnt, (r:Int,c:Int)=>c);
+		return new BlockSet(ngrid, dmap, nbl);
+	}
+	
+	//-----------------------
+	@Inline	
+	private final def allocFrontBlocks(cnt:Int, select:(Int,Int)=>Int):ArrayList[MatrixBlock] {
+		val blst = new ArrayList[MatrixBlock]();
+		val itr = iterator();
+		while (itr.hasNext()) {
+			val srcblk = itr.next();
+			if (containBlockIn(srcblk, blst, select)) continue;
+
+			val srcmat = srcblk.getMatrix();
+			val m = select(srcmat.M, cnt);
+			val n = select(cnt, srcmat.N);
+			val nblk = srcblk.alloc(m, n);
+			blst.add(nblk);
+		}
+		return blst;
+	}
+		
 	//========================================
 	public def getGrid()   = grid;
 	public def getDistMap()= dmap;
@@ -188,14 +220,18 @@ public class BlockSet  {
 	/**
 	 * Sort all blocks in column-major
 	 */
-	protected static def cmp(b1:MatrixBlock, b2:MatrixBlock):Int {
+	@Inline 
+	private static def cmp(b1:MatrixBlock, b2:MatrixBlock):Int {
 		val retval:Int=0;
 		if (b1.myColId == b2.myColId) 
 			return b1.myRowId-b2.myRowId;
 		else 
 			return b1.myColId-b2.myColId;
 	}
-	
+	//===========================================
+	/**
+	 * Build block 2D map. 
+	 */
 	public def buildBlockMap() {
 		if (blockMap != null) return;
 		//sort list first
@@ -218,9 +254,58 @@ public class BlockSet  {
 		val maxRow = minRow+numRowBlk-1;
 		val maxCol = minCol+numColBlk-1;
 		blockMap = new Array[MatrixBlock]((minRow..maxRow)*(minCol..maxCol), 
-				(p:Point)=>blocklist.get(p(0)+p(1)*numRowBlk));
+				(p:Point)=>blocklist.get(p(0)-minRow+(p(1)-minCol)*numRowBlk));
 		
 	}
+	
+	//==============================================================
+	/**
+	 * Build neighboring places for all blocks.
+	 * If nieghbor place ID < 0, it does not have neighbor in that direction.
+	 */
+	public def assignNeighborPlaces() {
+		val itr = iterator();
+		while (itr.hasNext()) {
+			val blk = itr.next();
+			blk.placeNorth = findNorthPlace(blk);
+			blk.placeSouth = findSouthPlace(blk);
+			blk.placeEast = findEastPlace(blk);
+			blk.placeWest = findWestPlace(blk);
+		}
+	}
+	
+	/**
+	 * Find neighboring block's place
+	 */
+	public def findNorthPlace(blk:MatrixBlock) = findNeighborPlace(blk, (n:Int,s:Int, e:Int,w:Int)=>n);
+	public def findSouthPlace(blk:MatrixBlock) = findNeighborPlace(blk, (n:Int,s:Int, e:Int,w:Int)=>s);
+	public def findEastPlace(blk:MatrixBlock)  = findNeighborPlace(blk, (n:Int,s:Int, e:Int,w:Int)=>e);
+	public def findWestPlace(blk:MatrixBlock)  = findNeighborPlace(blk, (n:Int,s:Int, e:Int,w:Int)=>w);
+
+	@Inline private final def findNeighborPlace(blk:MatrixBlock, select:(Int, Int, Int, Int)=>Int):Int {
+		val nbid = select(
+				grid.getNorthId(blk.myRowId, blk.myColId),
+				grid.getSouthId(blk.myRowId, blk.myColId),
+				grid.getEastId( blk.myRowId, blk.myColId),
+				grid.getWestId( blk.myRowId, blk.myColId));
+		if (nbid < 0 ) return -1;
+		return findPlace(nbid);
+	}
+	
+	//=======================================
+	/**
+	 * Build ring cast place list map
+	 */
+	public def buildCastPlaceMap() {
+		
+		if (rowCastPlaceMap != null)
+			rowCastPlaceMap = CastPlaceMap.buildRowCastMap(grid, dmap);
+		
+		if (colCastPlaceMap != null)
+			colCastPlaceMap = CastPlaceMap.buildColCastMap(grid, dmap);
+	}
+	
+	
 	//=======================================
 	public def find(rid:Int, cid:Int): MatrixBlock {
 		val it = this.iterator();
@@ -266,32 +351,73 @@ public class BlockSet  {
 	 * or the first block has the same row block Id/column block Id.
 	 * Select function is used to pick row-wise or column-wise search.
 	 */
-	public def findLocalRootBlock(rootbid:Int, selectfunc:(Int, Int)=>Int):MatrixBlock {
+// 	@Inline
+// 	public final def findLocalRootBlock(rootbid:Int, select:(Int, Int)=>Int):MatrixBlock {
+// 		val it = blocklist.iterator();
+// 		val grid = getGrid();
+// 		//Check if rootbid is local
+// 		if (findPlace(rootbid) == here.id())
+// 			return findBlock(rootbid);
+// 		val id = select(grid.getRowBlockId(rootbid),grid.getColBlockId(rootbid));
+// 		return findFrontBlock(id, select);
+// 	}
+// 
+// 	public def findLocalRootRowBlock(rootbid:Int):MatrixBlock =
+// 		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>rid);
+// 	
+// 	public def findLocalRootColBlock(rootbid:Int):MatrixBlock =
+// 		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>cid);
+// 	
+	//-----------------------------
+	/**
+	 * This is used for temp front blocks .
+	 */
+	public def findFrontRowBlock(rowId:Int) = findFrontBlock(rowId, 0, (r:Int, c:Int)=>r);
+	public def findFrontColBlock(colId:Int) = findFrontBlock(0, colId, (r:Int, c:Int)=>c);
+	
+	/**
+	 * Find the first block having the row-block id (or column block id) in
+	 * rowwise (or column wise) in the block set. This is used when performing
+	 * ring-cast.
+	 */
+	@Inline
+	public final def findFrontBlock(bid:Int, select:(Int, Int)=>Int):MatrixBlock =
+		findFrontBlock(grid.getRowBlockId(bid), grid.getColBlockId(bid), select);
+	
+	@Inline
+	public final def findFrontBlock(rowId:Int, colId:Int, select:(Int, Int)=>Int):MatrixBlock {
+		val id = select(rowId, colId);
 		val it = blocklist.iterator();
-		val grid = getGrid();
-		//Check if rootbid is local
-		if (findPlace(rootbid) == here.id())
-			return findBlock(rootbid);
-		
-		val rowblkid = grid.getRowBlockId(rootbid);
-		val colblkid = grid.getColBlockId(rootbid);
-		val targetid = selectfunc(rowblkid, colblkid);		
 		while (it.hasNext()) {
 			val blk = it.next();
-			val checkid = selectfunc(blk.myRowId, blk.myColId);
-			if (checkid == targetid)
+			val checkid = select(blk.myRowId, blk.myColId);
+			if (checkid == id)
 				return blk;
 		}
 		//This should be error
-		Debug.exit("Error in searching first root block");
+		Debug.exit("Error in searching front block ("+rowId+","+colId+")");
 		return null;
+	}	
+	
+	//--------------------
+	@Inline
+	private static def containBlockIn(src:MatrixBlock, blist:ArrayList[MatrixBlock], 
+			select:(Int,Int)=>Int):Boolean {
+		val itr = blist.iterator();
+		while (itr.hasNext()){
+			val blk = itr.next();
+			val chkId = select(src.myRowId, src.myColId);
+			val selId = select(blk.myRowId, blk.myColId);
+			if (selId == chkId) return true;
+		}
+		return false;		
 	}
-	
-	public def findLocalRootRowBlock(rootbid:Int):MatrixBlock =
-		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>rid);
-	
-	public def findLocalRootColBlock(rootbid:Int):MatrixBlock =
-		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>cid);
+			
+	protected static def containBlockInRow(blk:MatrixBlock, blist:ArrayList[MatrixBlock]):Boolean = 
+		containBlockIn(blk, blist, (r:Int,c:Int)=>r);
+	protected static def containBlockInCol(blk:MatrixBlock, blist:ArrayList[MatrixBlock]):Boolean = 
+		containBlockIn(blk, blist, (r:Int,c:Int)=>c);
+
 	//---------------------------------------------------
 	/**
 	 * Deep clone all blocks in the set
@@ -373,7 +499,8 @@ public class BlockSet  {
 	}
 		
 	//======================================
-	public def selectCast(rootblk:MatrixBlock, colCnt:Int, select:(Int,Int)=>Int) {
+	@Inline 
+	public final def selectCast(rootblk:MatrixBlock, colCnt:Int, select:(Int,Int)=>Int) {
 		val it = this.blocklist.iterator();
 		val target = select(rootblk.myRowId, rootblk.myColId);
 		while (it.hasNext()) {
@@ -472,7 +599,7 @@ public class BlockSet  {
 	
 	public def selectReduce(rootbid:Int, colCnt:Int, select:(Int,Int)=>Int, 
 			opFunc:(DenseMatrix,DenseMatrix,Int)=>DenseMatrix) {
-		 val rootblk = this.findLocalRootBlock(rootbid, select);
+		 val rootblk = this.findFrontBlock(rootbid, select);
 		selectReduce(rootblk, colCnt, select, opFunc);
 	}
 	
@@ -480,25 +607,6 @@ public class BlockSet  {
 	public def iterator() = blocklist.iterator();
 	
 	//======================================
-	public def check():Boolean {
-		val pid    = here.id();
-		val mapitr = dmap.getBlockIterator(pid);
-		val blkitr = this.iterator();
-		while (blkitr.hasNext() && mapitr.hasNext()) {
-			val blk = blkitr.next();
-			val bid = mapitr.next();
-			
-			val dstid = grid.getBlockId(blk.myRowId, blk.myColId);
-			if (dstid != bid) {
-				Debug.exit("Dist blocks and their mapping are not consistent");
-			}
-		}
-		if (blkitr.hasNext() || mapitr.hasNext()) {
-			Debug.exit("Dist blocks and their mapping are not consistent");		
-		}
-		
-		return true;
-	}
 	
 	public def allEqual(tgtmat:Matrix):Boolean {
 		var retval:Boolean = true;

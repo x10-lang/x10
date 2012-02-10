@@ -12,6 +12,7 @@
 package x10.matrix.distblock;
 
 import x10.util.Timer;
+import x10.util.ArrayList;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -45,7 +46,6 @@ public class DistDistSummaMult {
 	val work1:PlaceLocalHandle[BlockSet];
 	val work2:PlaceLocalHandle[BlockSet];
 	//
-	val gA:Grid, gB:Grid, gC:Grid;
 	//------------------------------------------------
 
 	public var commTime:Long=0;
@@ -62,14 +62,15 @@ public class DistDistSummaMult {
 			w1:PlaceLocalHandle[BlockSet],
 			w2:PlaceLocalHandle[BlockSet]) {
 		//Check panelsize
-		gA = a.getGrid();
-		gB = b.getGrid();
-		gC = c.getGrid();
 		work1 = w1;
 		work2 = w2;
 		
 		panelSize = ps;
 		A = a; B=b; C=c;
+
+		A.buildRowCastPlaceMap();
+		B.buildColCastPlaceMap();
+		
 		//alpha = al;
 		beta  = be;
 	}
@@ -90,32 +91,10 @@ public class DistDistSummaMult {
 		
 		return estps;
 	}	
-	
-	private static def makeColTemp(distA:DistBlockMatrix, ps:Int):BlockSet {
-		val lbs = distA.handleBS();
-		val g = lbs.getGrid();
-		val d = lbs.getDistMap();
-		val cbs:Array[Int](1) = new Array[Int](g.numColBlocks, (i:Int)=>ps);
-		val ng = new Grid(g.M, g.numColBlocks*ps, g.rowBs, cbs);
-		val nbl = lbs.allocFirstColBlocks();
-		val nbs = new BlockSet(ng, d, nbl);
-		nbs.buildBlockMap();
-		return nbs;
-	}
-	
-	private static def makeRowTemp(distB:DistBlockMatrix, ps:Int):BlockSet {
-		val lbs = distB.handleBS();
-		val g = lbs.getGrid();
-		val d = lbs.getDistMap();
-		val rbs:Array[Int](1) = new Array[Int](g.numRowBlocks, (i:Int)=>ps);
-		val ng = new Grid(g.numColBlocks*ps, g.N, rbs, g.colBs);
-		val nbl = lbs.allocFirstRowBlocks();
-		val nbs = new BlockSet(ng, d, nbl);
-		nbs.buildBlockMap();
-		return nbs;
-	}
-	
-	
+	//--------------------------------------------------------------------
+
+
+	//-----------------------------------------------------
 	public static def mult(
 			var ps:Int,  /* Panel size*/
 			beta:Double, 
@@ -124,13 +103,13 @@ public class DistDistSummaMult {
 			C:DistBlockMatrix) {
 		
 		val pansz = estPanelSize(ps, A.getGrid(), B.getGrid());
-		val w1 = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), ()=>makeColTemp(A, pansz));
-		val w2 = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), ()=>makeRowTemp(B, pansz));
+		val w1 = A.makeTempFrontColBlocks(pansz);
+		val w2 = B.makeTempFrontRowBlocks(pansz);
 		val s = new DistDistSummaMult(pansz, beta, A, B, C, w1, w2);
 
 		s.parallelMult();
 		
-	}	
+	}
 	
 	//=====================================================================
 	//
@@ -152,6 +131,8 @@ public class DistDistSummaMult {
 		var jj:Int = 0;
 		var st:Long= 0;
 		//
+		val gA = A.getGrid();
+		val gB = B.getGrid();
 		//---------------------------------------------------
 
 		//Scaling the matrixesx
@@ -167,31 +148,34 @@ public class DistDistSummaMult {
 			//-------------------------------------------------------------------
 			//Packing columns and rows and broadcast to same row and column block
 			/* TIMING */ st = Timer.milliTime();
-			ringCastRowBs(jj, iwrk, itCol, A, work1);
-			ringCastColBs(ii, iwrk, itRow, B, work2);
+			startRowCast(jj, iwrk, itCol, A, work1);
+			startColCast(ii, iwrk, itRow, B, work2);
 			/* TIMING */ commTime += Timer.milliTime() - st;
 			//Debug.flushln("Row and column blocks bcast ends");
 			
 			//-----------------------------------------------------------------
 			/* TIMING */ st = Timer.milliTime();
-			finish 	ateach (Dist.makeUnique()) {
-				/* update local block */
-				val mypid = here.id();
-				val wk1 = work1();
-				val wk2 = work2();
-				val cmap = C.handleBS().blockMap;
-				for (pnt:Point(2) in cmap) {
-					val rb = pnt(0);
-					val cb = pnt(1);
-					val cmat = cmap(pnt).getMatrix();
-					val ablk = wk1.blockMap(rb, 0);
-					val bblk = wk2.blockMap(0, cb);
-					val amat = ablk.getMatrix() as Matrix(self.M, klen);
-					val bmat = bblk.getMatrix() as Matrix(klen, self.N);
-						
-					cmat.mult(amat, bmat, true);
-				}	
-			 }
+			// finish 	ateach (Dist.makeUnique()) {
+			// 	/* update local block */
+			// 	val mypid = here.id();
+			// 	val wk1 = work1();
+			// 	val wk2 = work2();
+			// 	val cbs = C.handleBS();
+			// 	val itr = cbs.iterator();
+			// 	val cmap = C.handleBS().blockMap;
+			// 	while (itr.hasNext()) {
+			// 		val cblk = itr.next();
+			// 		val rb = cblk.myRowId;
+			// 		val cb = cblk.myColId;
+			// 		val cmat = cblk.getMatrix();
+			// 		val ablk = wk1.findLocalRootRowBlock(rb);
+			// 		val bblk = wk2.findLocalRootColBlock(cb);
+			// 		val amat = ablk.getMatrix() as Matrix(self.M, klen);
+			// 		val bmat = bblk.getMatrix() as Matrix(klen, self.N);
+			// 			
+			// 		cmat.mult(amat, bmat, true);
+			// 	}	
+			//  }
 			/* TIMING */ calcTime += Timer.milliTime() - st;
 			/* update icurcol, icurrow, ii, jj */
 			ii += iwrk;
@@ -200,6 +184,33 @@ public class DistDistSummaMult {
 			if ( ii>=gB.rowBs(itRow)) { itRow++; ii = 0; };
 		}
 	}
+	//--------------------------------------------
+	
+	public static def startRowCast(jj:Int, klen:Int, itCol:Int, distA:DistBlockMatrix, work1:PlaceLocalHandle[BlockSet]){
+		val dmap = distA.getMap();
+		val grid = distA.getGrid();
+		val sttplc = dmap.findPlace(grid.getBlockId(0, itCol));
+		if (here.id()!= sttplc) {
+			at (Dist.makeUnique()(sttplc)) {
+				startRowCast(jj, klen, itCol, distA, work1);
+			}
+		} else {
+			//Using column cast place list as the starting place of row cast
+			val bs   = distA.handleBS();
+			val plst = bs.colCastPlaceMap.getPlaceList(itCol);
+			
+			for ([p]:Point in plst) {
+				val pid = plst(p);
+				if (pid != here.id()) async {
+					at (Dist.makeUnique()(pid)) {
+						ringCastRowBs(jj, klen, itCol, distA, work1);
+					}
+				} else async {
+					ringCastRowBs(jj, klen, itCol, distA, work1);
+				}
+			}
+		}		
+	}
 	
 	protected static def ringCastRowBs(
 			jj:Int, klen:Int, itCol:Int, 
@@ -207,45 +218,77 @@ public class DistDistSummaMult {
 			work1:PlaceLocalHandle[BlockSet]): void {
 		
 		val grid = dA.getGrid();
-		finish for (var bid:Int=0; bid<dA.getGrid().size; bid++) { 
-			val myColId = grid.getColBlockId(bid);
-			val myRowId = grid.getRowBlockId(bid);
-			if (myColId == itCol) {
-				val pid = dA.getMap().findPlace(bid);
-				val rootbid = bid;
-				async at (Dist.makeUnique()(pid)) {
-					val dstblk = work1().blockMap(myRowId, 0);
-					val srcblk = dA.handleBS().blockMap(myRowId, myColId);
-					srcblk.copyCols(jj, klen, dstblk.getMatrix());
-					BlockRingCast.rowCast(work1, rootbid, klen);
-				}
-			}
+		val bs = dA.handleBS();
+		val itr = bs.iterator();
+		while (itr.hasNext()) {
+			val src = itr.next();
+			if (src.myColId != itCol) continue;
+			val rootbid = grid.getBlockId(src.myRowId, src.myColId);
+			val dstblk  = work1().findFrontRowBlock(src.myRowId);
+			val rowplst = bs.rowCastPlaceMap.getPlaceList(src.myRowId);
+			val datcnt = src.copyCols(jj, klen, dstblk.getMatrix());
+			BlockRingCast.rowCastToPlaces(work1, rootbid, datcnt, rowplst);
 		}
 	}
 		
+	//--------------------------------------
+	
+	
+	public static def startColCast(ii:Int, klen:Int, itRow:Int, distB:DistBlockMatrix, work2:PlaceLocalHandle[BlockSet]){
+		val dmap = distB.getMap();
+		val grid = distB.getGrid();
+		val sttplc = dmap.findPlace(grid.getBlockId(itRow, 0));
+		if (here.id()!= sttplc) {
+			at (Dist.makeUnique()(sttplc)) {
+				startColCast(ii, klen, itRow, distB, work2);
+			}
+		} else {
+			//Using column cast place list as the starting place of row cast
+			val bs   = distB.handleBS();
+			val plst = bs.rowCastPlaceMap.getPlaceList(itRow);
+			
+			for ([p]:Point in plst) {
+				val pid = plst(p);
+				if (pid != here.id()) async {
+					at (Dist.makeUnique()(pid)) {
+						ringCastColBs(ii, klen, itRow, distB, work2);
+					}
+				} else async {
+					ringCastColBs(ii, klen, itRow, distB, work2);
+				}
+			}
+		}		
+	}
+	
 	protected static def ringCastColBs(
 			ii:Int, klen:Int, itRow:Int, 
-			dB:DistBlockMatrix,
-			work2:PlaceLocalHandle[BlockSet]):void {
+			dB:DistBlockMatrix, 
+			work2:PlaceLocalHandle[BlockSet]) {
 		
 		val grid = dB.getGrid();
-		finish for (var bid:Int=0; bid<dB.getGrid().size; bid++) { 
-	
-			val myColId = grid.getColBlockId(bid);
-			val myRowId = grid.getRowBlockId(bid);
-			// Broadcast to all column blocks
-			if (myRowId == itRow) {
-				val pid = dB.getMap().findPlace(bid);
-				val rootbid = bid;
-				async at (Dist.makeUnique()(pid)) {
-					val dstblk = work2().blockMap(0, myColId);
-					val srcblk = dB.handleBS().blockMap(myRowId, myColId);
-					srcblk.copyRows(ii, klen, dstblk.getMatrix());
-					BlockRingCast.colCast(work2, rootbid, klen);
-				}
+		val bs  = dB.handleBS();
+		val itr = bs.iterator();
+		
+		while (itr.hasNext()) {
+			val src = itr.next();
+			if (src.myRowId != itRow) continue;
+			val rootbid = grid.getBlockId(src.myRowId, src.myColId);
+			val dstblk  = work2().findFrontColBlock(src.myColId);
+			val colplst = bs.colCastPlaceMap.getPlaceList(src.myColId);
+			//------------------------------------------------
+			//Dense matrix must reshape to (klen x N), klen may be smaller than the
+			//original matrix M when it is created. The data buffer must keep data compact 
+			//before sending out. Sparse matrix is not affacted.
+			var mat:Matrix = dstblk.getMatrix();
+			if (mat instanceof DenseMatrix && klen != mat.M) {
+				val den = new DenseMatrix(klen, mat.N, (mat as DenseMatrix).d);
+				mat = den as Matrix;
 			}
+			
+			//-------------------------------------------------
+			val datcnt = src.copyRows(ii, klen, mat);
+			BlockRingCast.colCastToPlaces(work2, rootbid, datcnt, colplst);
 		}
 	}
-	
 	
 }

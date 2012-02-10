@@ -84,8 +84,6 @@ comm_src=\
 	x10/matrix/comm/BlockGather.x10 \
 	x10/matrix/comm/BlockScatter.x10 \
 	x10/matrix/comm/BlockReduce.x10 \
-	x10/matrix/comm/BlockRingCast.x10 \
-	x10/matrix/comm/BlockRingReduce.x10 \
 	x10/matrix/comm/BlockSetRemoteCopy.x10 \
 	x10/matrix/comm/BlockSetBcast.x10 \
 	x10/matrix/comm/BlockSetReduce.x10
@@ -138,7 +136,12 @@ dist_src=\
 	x10/matrix/distblock/BlockSet.x10 \
 	x10/matrix/distblock/DistBlockMatrix.x10 \
 	x10/matrix/distblock/DupBlockMatrix.x10 \
-	x10/matrix/distblock/DistDistMult.x10
+	x10/matrix/distblock/DistDistMult.x10 \
+	x10/matrix/distblock/DistDupMult.x10 \
+	x10/matrix/distblock/summa/SummaMult.x10 \
+	x10/matrix/distblock/summa/BlockGridCast.x10 \
+	x10/matrix/distblock/summa/AllGridCast.x10 \
+	x10/matrix/distblock/summa/BlockGridReduce.x10
 
 	
 

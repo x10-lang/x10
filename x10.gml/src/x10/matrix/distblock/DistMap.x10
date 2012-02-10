@@ -12,6 +12,7 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.compiler.Inline;
 
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
@@ -48,19 +49,19 @@ import x10.matrix.block.Grid;
 public class DistMap(numBlock:Int, numPlace:Int)  {
 	
 	public val blockmap:Array[Int](1);            //mapping block ID to its place ID
-	public val placemap:Array[ArrayList[Int]](1); //mapping place ID to list of block IDs
+	//public val placemap:Array[ArrayList[Int]](1); //mapping place ID to list of block IDs
 	
 	public def this(numBlk:Int, numPlc:Int) {
 		property(numBlk, numPlc);
 
 		blockmap = new Array[Int](numBlk, -1);
-		placemap = new Array[ArrayList[Int]](numPlc, (i:Int)=>(new ArrayList[Int]()));
+		//placemap = new Array[ArrayList[Int]](numPlc, (i:Int)=>(new ArrayList[Int]()));
 	}
 	
-	public def this(blkmap:Array[Int](1), plcmap:Array[ArrayList[Int]](1)) {
-		property(blkmap.size, plcmap.size);
+	public def this(blkmap:Array[Int](1), numplc:Int) {
+		property(blkmap.size, numplc);
 		blockmap = blkmap;
-		placemap = plcmap;
+		//placemap = plcmap;
 	}
 	//==========================================
 	public static def make(numBlk:Int):DistMap {
@@ -70,7 +71,7 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
 	public static def make(numBlk:Int, mapfunc:(Int)=>Int) {
 		val dmap = make(numBlk);
 		for (var b:Int=0; b<numBlk; b++) 
-			dmap.add(b, mapfunc(b));
+			dmap.set(b, mapfunc(b));
 		return dmap;
 	}
 	
@@ -87,76 +88,38 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
 	/**
 	 * Add block ID and place ID in mapping
 	 */
- 	public def add(blkID:Int, plcID:Int) {
-
+ 	public def set(blkID:Int, plcID:Int) {
  		blockmap(blkID)=plcID;
- 		val bset = placemap(plcID);
- 		bset.add(blkID);
  	}
 
  	
  	/**
  	 * Find place ID for a given block ID
  	 */
- 	public def findPlace(blkID:Int):Int {
- 		return blockmap(blkID);
- 	}
+ 	@Inline
+ 	public def findPlace(blkID:Int):Int = this.blockmap(blkID);
+ 	
 	
  	/**
  	 * Get block ID set mapped to the same place
  	 */
- 	public def getBlockList(plcID:Int):ArrayList[Int] {
- 		return placemap(plcID);
+ 	public def buildBlockListAtPlace(plcID:Int):ArrayList[Int] {
+ 		val blst = new ArrayList[Int]();
+ 		for (var b:Int=0; b<blockmap.size; b++)
+ 			if (blockmap(b) ==plcID)
+ 				blst.add(b);
+ 		blst.sort((a:Int,b:Int)=>a-b);
+ 		return blst;
  	}
  	
  	/**
  	 * Return iterator on blocks within the specified place
  	 */
- 	public def getBlockIterator(plcID:Int) : Iterator[Int] {
- 		val blst = getBlockList(plcID);
+ 	public def buildBlockIteratorAtPlace(plcID:Int) : Iterator[Int] {
+ 		val blst = buildBlockListAtPlace(plcID);
  		return blst.iterator();
  	}
- 	//--------------------------------------
- 	//
- 	//--------------------------------------
- 	public def getPlaceListInRing(grid:Grid, rootbid:Int, select:(Int,Int)=>Int):Array[Int](1) {
- 		val alist = new ArrayList[Int]();
- 		val rowbid = grid.getRowBlockId(rootbid);
- 		val colbid = grid.getColBlockId(rootbid);
- 		//Check blocks in the same row, iterate all column ids
- 		//Check blocks in the same column, iterate all row ids
- 		val targetsize = select(grid.numColBlocks, grid.numRowBlocks);
- 		
- 		alist.add(here.id());
- 		for (var id:Int=0; id<targetsize; id++) {
- 			val pid = select(
- 					findPlace(grid.getBlockId(rowbid, id)), 
- 					findPlace(grid.getBlockId(id, colbid)));
- 			if (! alist.contains(pid))
- 				alist.add(pid);
- 		}
- 		return alist.toArray();
- 	}
- 	//--------------------------------------
- 	// Modification
- 	//--------------------------------------
  	
- 	/**
- 	 * Map block to a new place
- 	 */
- 	public def changeBlock(blkID:Int, plcID:Int) {
- 		val oldpid = blockmap(blkID);
- 		//Set the new place ID for block
- 		blockmap(blkID) = plcID;
-	
- 		if (oldpid >= 0 ) {
- 			val oldlst = getBlockList(oldpid);
- 			oldlst.remove(blkID);
- 		} 
- 		
- 		val newlst = getBlockList(plcID);
- 		newlst.add(blkID);
- 	}
  	//=======================================
  	
  	// public def transEquals(g:Grid, tmap:DistMap):Boolean {

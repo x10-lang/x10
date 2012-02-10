@@ -196,14 +196,29 @@ public class DistBlockMatrix extends Matrix{
 	}
 	
 	//================================================
+	/**
+	 * Used for temporary space in SUMMA. This method does not creat a complete 
+	 * distributed block matrix. It only creates front (row/column) blocks in all
+	 * places, using the specified column/row counts.
+	 * <p>
+	 * Make front column blocks in each place
+	 */
+	public def makeTempFrontColBlocks(colCnt:Int) =
+		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
+				()=>this.handleBS().makeFrontColBlockSet(colCnt));
+	
+	/**
+	 * Make front row blocks in each place
+	 */
+	public def makeTempFrontRowBlocks(rowCnt:Int) =
+		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
+				()=>this.handleBS().makeFrontRowBlockSet(rowCnt));
+	
+	//================================================
 	public def init(dval:Double) : DistBlockMatrix(this){
 		//Remote capture: dval 
 		finish ateach (d:Point in Dist.makeUnique()) {
-			val pid = here.id();
 			val blks = handleBS();
-			val dmap = blks.dmap;
-			
-			val mapitr = dmap.getBlockIterator(pid);
 			val blkitr = blks.iterator();
 			while (blkitr.hasNext()) {
 				val blk = blkitr.next();
@@ -215,8 +230,7 @@ public class DistBlockMatrix extends Matrix{
 	
 	public def initRandom() : DistBlockMatrix(this){
 		finish ateach (d:Point in Dist.makeUnique()) {
-			val blks   = handleBS();			
-			val blkitr = blks.iterator();
+			val blkitr = handleBS().iterator();
 			while (blkitr.hasNext()) {
 				val blk = blkitr.next();
 				blk.initRandom();
@@ -227,8 +241,7 @@ public class DistBlockMatrix extends Matrix{
 	
 	public def initRandom(lb:Int, ub:Int) : DistBlockMatrix(this){
 		finish ateach (d:Point in Dist.makeUnique()) {
-			val blks   = handleBS();			
-			val blkitr = blks.iterator();
+			val blkitr = handleBS().iterator();
 			while (blkitr.hasNext()) {
 				val blk = blkitr.next();
 				blk.initRandom(lb, ub);
@@ -279,8 +292,7 @@ public class DistBlockMatrix extends Matrix{
 		Debug.assure(m==M&&n==N, "Matrix dimension is not same");
 		val nm = DistBlockMatrix.make(getGrid(), getMap()) as DistBlockMatrix(m,n);
 		finish ateach (d:Point in Dist.makeUnique()) {
-			val blks   = this.handleBS();			
-			val blkitr = blks.iterator();
+			val blkitr = handleBS().iterator();
 			val nblk   = nm.handleBS();
 			while (blkitr.hasNext()) {
 				val mb = blkitr.next();
@@ -309,15 +321,17 @@ public class DistBlockMatrix extends Matrix{
 	// Copy
 	//=============================================
 
-	public def copyTo(dst:DistBlockMatrix(M,N)) {
+	public def copyTo(that:DistBlockMatrix(M,N)) {
 		finish ateach (d in Dist.makeUnique()) {
-			val sblk = this.handleBS();
-			val dblk = dst.handleBS();
-			val sit  = sblk.iterator();
-			val dit  = dblk.iterator();
+			val sit  = this.handleBS().iterator();
+			val dit  = that.handleBS().iterator();
 			while (sit.hasNext()&&dit.hasNext()) {
-				val smat = sit.next().getMatrix();
-				val dmat = dit.next().getMatrix();
+				val sblk = sit.next();
+				val dblk = dit.next();
+				Debug.assure(sblk.myRowId==dblk.myRowId && sblk.myColId==dblk.myColId,
+						"Block mismatch in DistBlockMatrix copyTo");
+				val smat = sblk.getMatrix();
+				val dmat = dblk.getMatrix();
 				smat.copyTo(dmat as Matrix(smat.M, smat.N));
 			}
 		}
@@ -601,7 +615,36 @@ public class DistBlockMatrix extends Matrix{
 	//=============================================
 	// Util
 	//=============================================
-
+	
+	/**
+	 * Build block map in all places to allow fast access local block given block row and column id.
+	 * Do not call this method, if distribution of blocks is not grid-like.
+	 */
+	public def buildBlockMap() {
+		finish ateach (Dist.makeUnique()) {
+			handleBS().buildBlockMap();
+		}
+	}
+	
+	public def buildRowCastPlaceMap() {
+		finish ateach (Dist.makeUnique()) {
+			val bs = handleBS();
+			if (bs.rowCastPlaceMap == null) {
+				bs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(bs.grid, bs.dmap);				
+			}
+		}
+	}
+	
+	public def buildColCastPlaceMap() {
+		finish ateach (Dist.makeUnique()) {
+			val bs = handleBS();
+			if (bs.colCastPlaceMap == null) {
+				bs.colCastPlaceMap = CastPlaceMap.buildColCastMap(bs.grid, bs.dmap);
+			}
+		}
+	}	
+	
+	//===============================================
 	public def likeMe(A:Matrix):Boolean {
 		if (A instanceof DistBlockMatrix) {
 			val srcBs = this.handleBS();
@@ -614,14 +657,6 @@ public class DistBlockMatrix extends Matrix{
 	}
 	//=============================================
 
-	public def checkMapDist() : Boolean {
-		for (p in Place.places()) at (p) {
-			val blks = handleBS();
-			blks.check();
-		}
-		return true;
-	}	
-	//=============================================
 	public def localSync() {
 		finish ateach (p:Point in Dist.makeUnique()) {
 			val bset = handleBS();
