@@ -252,6 +252,7 @@ public class Grid(M:Int, N:Int,
 	 * Given a place id, return the number of columns in the corresponding block
 	 */	
 	public def getColSize(id:Int):Int = colBs(getColBlockId(id));
+
 	/**
 	 * Given place id, return the number of elements in the block
 	 */	
@@ -266,41 +267,39 @@ public class Grid(M:Int, N:Int,
 	// The last col block has the smallest size.
 	public def getMinColSize() = colBs(numColBlocks-1); 
 	//----------
-	//
+	
+	//================================================
 	/**
 	 * Given a place id, return the place id next to it in
-	 * the same row. The method is used is SUMMA.
+	 * the same row. The method is used is SUMMA on DistDense/SparseMatrix
 	 */	
-	public def nextRow(pid:Int):Int 
-	      = ((pid % numRowBlocks + 1)==numRowBlocks) 
-	         ? (pid - numRowBlocks + 1)
-	                 :(pid + 1);
+	public def nextRow(pid:Int):Int = ((pid % numRowBlocks + 1)==numRowBlocks) ? (pid - numRowBlocks + 1):(pid + 1);
 	/**
 	 * Given a place id, return the place id next to it in
 	 * the same column
 	 */	
-	public def nextCol(pid:Int):Int 
-	      = ((pid / numRowBlocks + 1)==numColBlocks) 
-	         ? (pid % numRowBlocks)
-	                 :(pid + numRowBlocks);
+	
+	public def nextCol(pid:Int):Int  = ((pid / numRowBlocks + 1)==numColBlocks) ? (pid % numRowBlocks):(pid + numRowBlocks);
 	/**
 	 * Given a place id, return its previous place id in
 	 * the same row.
 	 */	
-	public def prevRow(pid:Int):Int 
-	      = (pid % numRowBlocks==0) 
-	         ? (pid + numRowBlocks - 1)
-	                 :(pid - 1);
+	public def prevRow(pid:Int):Int = (pid % numRowBlocks==0) ? (pid + numRowBlocks - 1):(pid - 1);
 	/**
 	 * Given a place id, return its previous place id in
 	 * the same cyclic column
-	 */	
-	public def prevCol(pid:Int):Int 
-	      = (pid / numRowBlocks==0) 
-	         ? (pid + numRowBlocks*(numColBlocks - 1))
-	                 :(pid - numRowBlocks); 
+	 */
+	public def prevCol(pid:Int):Int = (pid / numRowBlocks==0) ? (pid + numRowBlocks*(numColBlocks - 1)):(pid - numRowBlocks); 
 	//=========================================================
-
+	/**
+	 * Non-cyclic neighboring block.
+	 */
+	public def getNorthId(rid:Int, cid:Int):Int = rid>0?               getBlockId(rid-1,cid):-1;
+	public def getSouthId(rid:Int, cid:Int):Int = rid<numRowBlocks-1 ? getBlockId(rid+1,cid):-1;
+	public def getWestId(rid:Int, cid:Int):Int  = cid>0?               getBlockId(rid,cid-1):-1;
+	public def getEastId(rid:Int, cid:Int):Int  = cid<numColBlocks-1 ? getBlockId(rid,cid+1):-1;
+	
+	         
 	//----------------------------
 	// Locating block matrix
 	//----------------------------

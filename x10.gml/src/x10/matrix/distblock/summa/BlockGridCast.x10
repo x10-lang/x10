@@ -45,7 +45,8 @@ public class BlockGridCast  {
 	public static def colWise(rid:Int, cid:Int):Int = cid;
 	
 	/**
-	 * Ring-cast sends data from root block to all blocks in the same row in partition
+	 * Sends data of the front block at here that has same row block id as root block to all front blocks 
+	 * in other places in the same row 
 	 *
 	 * @param distBS     distributed block sets in all places
 	 * @param rootbid    root block id
@@ -57,7 +58,8 @@ public class BlockGridCast  {
 	}
 	
 	/**
-	 * Ring-cast sends data from root block to all blocks in the same column in partition
+	 * Sends data of the front block at here that has the same column block id as root block 
+	 * to all front blocks in other places the same column
 	 * 
 	 * @param distBS     distributed block sets in all places
 	 * @param rootbid    root block id
@@ -69,23 +71,16 @@ public class BlockGridCast  {
 	}
 	
 	/**
+	 * Send data of root block to all front blocks in the specified list of places
+	 * row/column-wise. This method reqires to be at the place of root block.
+	 * The root place ID is not required to be in the place list. 
 	 * 
 	 */
-	@Inline
 	public static def castToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, 
 			select:(Int,Int)=>Int, plst:Array[Int](1)) {
-
-		val rootpid = distBS().findPlace(rootbid);
-		if (rootpid != here.id()) {
-			//Goto rootpid to start ringcast
-			at (Dist.makeUnique()(rootpid)) {
-				castToPlaces(distBS, rootbid, datCnt, select, plst);
-			}
-			return;
-		}
-		
+		// Must start at the place of root block
 		if (plst.size > 1) {
-			val rtblk = distBS().findBlock(rootbid);
+			val rtblk = distBS().findFrontBlock(rootbid, select);
 			if (rtblk.isSparse()) {
 				val spa = rtblk.getMatrix() as SparseCSC;
 				spa.initRemoteCopyAtSource();
@@ -107,21 +102,21 @@ public class BlockGridCast  {
 			plist:Array[Int](1)){
 
 		val pcnt   = plist.size;
-		val lfcnt:Int = (pcnt+1) / 2; 
-		val rtcnt  = pcnt - lfcnt;
+		val rtcnt:Int = (pcnt+1) / 2; 
+		val lfcnt  = pcnt - rtcnt;
 		val rtroot = plist(lfcnt);
 
 		val lfplist = new Array[Int](lfcnt, (i:Int)=>plist(i));
 		val rtplist = new Array[Int](rtcnt, (i:Int)=>plist(lfcnt+i));
 
-		//Debug.flushln("left branch "+lfplist.toString());
-		//Debug.flushln("Right branch "+rtplist.toString());		
+		//Debug.flushln("left branch list:"+lfplist.toString());
+		//Debug.flushln("Right branch root:"+rtroot+" list:"+rtplist.toString());		
 		finish {
 			if (rtcnt > 0) async {
 				copyBlockToRightBranch(distBS, rootbid, rtroot, datCnt, select, rtplist);
 			}
 			// Perform binary bcast on the left branch
-			if (lfcnt > 1) async {
+			if (lfcnt > 0) async {
 				binaryTreeCastTo(distBS, rootbid, datCnt, select, lfplist); 
 			}
 		}
@@ -132,7 +127,8 @@ public class BlockGridCast  {
 			distBS:PlaceLocalHandle[BlockSet], rootbid:Int, remotepid:Int, datCnt:Int,
 			select:(Int,Int)=>Int, plist:Array[Int](1)) {
 
-		if (remotepid == here.id()) {
+		val rootpid = distBS().findPlace(rootbid);
+		if (remotepid == here.id() || remotepid==rootpid ) {
 			if (plist.size > 1 ) {
 				binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
 			}
@@ -172,7 +168,6 @@ public class BlockGridCast  {
 			val dstden = blk.getMatrix() as DenseMatrix;
 			// Using copyFrom style
 			finish Array.asyncCopy[Double](srcbuf, 0, dstden.d, 0, datCnt);
-			
 			// Perform binary bcast on the right branch
 			if (plist.size > 1 ) {
 				binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
@@ -302,29 +297,54 @@ public class BlockGridCast  {
 	}
 	
 	//===================================================================
-	public static def verifyCast(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, select:(Int,Int)=>Int, 
-			plst:Array[Int](1)):Boolean {
+	
+	public static def verifyCast(chkBS:PlaceLocalHandle[BlockSet],
+			srcblk:MatrixBlock, 
+			var nxtrid:Int, var nxtcid:Int,
+			select:(Int,Int)=>Int, dir:(Int,Int)=>Int):Boolean {
 		var retval:Boolean = true;
-		val src = at (Dist.makeUnique()(plst(0)))
-			distBS().findFrontBlock(rootbid, select);
-		val srcbuf = src.getData();
 		
-		for (var p:Int=1; p<plst.size&&retval; p++) {
-			val pid = plst(p);
-			val obj = at (Dist.makeUnique()(pid)) 
-				distBS().findFrontBlock(rootbid, select);
-			val objbuf = obj.getData();
+		val grid = chkBS().getGrid();
+		val dmap = chkBS().getDistMap();
+		while (retval) {
+			//My neighoring block's place
+			nxtrid = select(nxtrid, dir(nxtrid-1, nxtrid+1));
+			nxtcid = select(dir(nxtcid-1, nxtcid+1), nxtcid);
+
+			if (nxtrid < 0 || nxtrid >= grid.numRowBlocks) break;
+			if (nxtcid < 0 || nxtcid >= grid.numColBlocks) break;
+			val nxtbid = grid.getBlockId(nxtrid, nxtcid);
+			val nxtplc = dmap.findPlace(nxtbid);
+			if (nxtplc == here.id()) continue;
 			
-			for (var i:Int=0; i<datCnt&&retval; i++)
-				retval &= (srcbuf(i)==objbuf(i));
+			val nxtRowId = nxtrid;
+			val nxtColId = nxtcid;
+			retval &= at (Dist.makeUnique()(nxtplc)) {
+				val objblk = chkBS().findFrontBlock(nxtRowId, nxtColId, select);
+				var ret:Boolean=srcblk.equals(objblk);
+				if (!ret) {
+					Debug.flushln("Check equal failed");
+					srcblk.getMatrix().printMatrix("Remote source block:");
+					objblk.getMatrix().printMatrix("check front block:"+nxtRowId+","+nxtColId+" at "+here.id());
+
+				} else
+					ret = verifyCast(chkBS, objblk, nxtRowId, nxtColId, select, dir);
+				ret
+			};
 		}
 		return retval;
 	}
 	
-	public static def verifyRowCast(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, plst:Array[Int](1)) =
-		verifyCast(distBS, rootbid, datCnt, (r:Int,c:Int)=>r, plst);
+	public static def verifyRowCastEast(chkBS:PlaceLocalHandle[BlockSet], rootblk:MatrixBlock) =
+		verifyCast(chkBS, rootblk, rootblk.myRowId, rootblk.myColId, (r:Int,c:Int)=>r, (w:Int,e:Int)=>e);
+
+	public static def verifyRowCastWest(chkBS:PlaceLocalHandle[BlockSet], rootblk:MatrixBlock) =
+		verifyCast(chkBS, rootblk, rootblk.myRowId, rootblk.myColId, (r:Int,c:Int)=>r, (w:Int,e:Int)=>w);
 			
-	public static def verifyColCast(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, plst:Array[Int](1)) =
-		verifyCast(distBS, rootbid, datCnt, (r:Int,c:Int)=>c, plst);
+	public static def verifyColCastNorth(chkBS:PlaceLocalHandle[BlockSet], rootblk:MatrixBlock) =
+		verifyCast(chkBS, rootblk,  rootblk.myRowId, rootblk.myColId, (r:Int,c:Int)=>c, (n:Int,s:Int)=>n);
+
+	public static def verifyColCastSouth(chkBS:PlaceLocalHandle[BlockSet], rootblk:MatrixBlock) =
+		verifyCast(chkBS, rootblk,  rootblk.myRowId, rootblk.myColId, (r:Int,c:Int)=>c, (n:Int,s:Int)=>s);
 	
 }

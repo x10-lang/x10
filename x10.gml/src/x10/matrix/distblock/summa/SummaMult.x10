@@ -152,27 +152,32 @@ public class SummaMult {
 			
 			//-----------------------------------------------------------------
 			/* TIMING */ st = Timer.milliTime();
-			// finish 	ateach (Dist.makeUnique()) {
-			// 	/* update local block */
-			// 	val mypid = here.id();
-			// 	val wk1 = work1();
-			// 	val wk2 = work2();
-			// 	val cbs = C.handleBS();
-			// 	val itr = cbs.iterator();
-			// 	val cmap = C.handleBS().blockMap;
-			// 	while (itr.hasNext()) {
-			// 		val cblk = itr.next();
-			// 		val rb = cblk.myRowId;
-			// 		val cb = cblk.myColId;
-			// 		val cmat = cblk.getMatrix();
-			// 		val ablk = wk1.findLocalRootRowBlock(rb);
-			// 		val bblk = wk2.findLocalRootColBlock(cb);
-			// 		val amat = ablk.getMatrix() as Matrix(self.M, klen);
-			// 		val bmat = bblk.getMatrix() as Matrix(klen, self.N);
-			// 			
-			// 		cmat.mult(amat, bmat, true);
-			// 	}	
-			//  }
+			finish 	ateach (Dist.makeUnique()) {
+				/* update local block */
+				val mypid = here.id();
+				val wk1 = work1();
+				val wk2 = work2();
+				val cbs = C.handleBS();
+				val itr = cbs.iterator();
+				while (itr.hasNext()) {
+					val cblk = itr.next();
+					val rb = cblk.myRowId;
+					val cb = cblk.myColId;
+					val cmat = cblk.getMatrix();
+					val ablk = wk1.findFrontColBlock(cblk.myColId);
+					val bblk = wk2.findFrontRowBlock(cblk.myRowId);
+					
+					//--------------------------------------------
+					val amat:Matrix = ablk.getMatrix() as Matrix(cmat.M, klen);
+					var bmat:Matrix = bblk.getMatrix() as Matrix(klen, cmat.N);
+					if (bmat instanceof DenseMatrix && klen != bmat.M) {
+						val den = new DenseMatrix(klen, bmat.N, (bmat as DenseMatrix).d);
+						bmat = den as Matrix(klen, cmat.N);
+					}
+						
+					cmat.mult(amat, bmat, true);
+				}	
+			 }
 			/* TIMING */ calcTime += Timer.milliTime() - st;
 			/* update icurcol, icurrow, ii, jj */
 			ii += iwrk;

@@ -169,6 +169,13 @@ public class BlockSet  {
 			val m = select(srcmat.M, cnt);
 			val n = select(cnt, srcmat.N);
 			val nblk = srcblk.alloc(m, n);
+			//------
+			// Cannot use this. Incorrect
+			//nblk.placeSouth = srcblk.placeSouth;
+			//nblk.placeSouth = srcblk.placeNorth;
+			//nblk.placeSouth = srcblk.placeEast;
+			//nblk.placeSouth = srcblk.placeWest;
+			//------
 			blst.add(nblk);
 		}
 		return blst;
@@ -282,7 +289,8 @@ public class BlockSet  {
 	public def findEastPlace(blk:MatrixBlock)  = findNeighborPlace(blk, (n:Int,s:Int, e:Int,w:Int)=>e);
 	public def findWestPlace(blk:MatrixBlock)  = findNeighborPlace(blk, (n:Int,s:Int, e:Int,w:Int)=>w);
 
-	@Inline private final def findNeighborPlace(blk:MatrixBlock, select:(Int, Int, Int, Int)=>Int):Int {
+	@Inline 
+	private final def findNeighborPlace(blk:MatrixBlock, select:(Int, Int, Int, Int)=>Int):Int {
 		val nbid = select(
 				grid.getNorthId(blk.myRowId, blk.myColId),
 				grid.getSouthId(blk.myRowId, blk.myColId),
@@ -318,6 +326,7 @@ public class BlockSet  {
 		return null;
 	}
 	
+	@Inline
 	public def findBlock(bid:Int) = find(bid);
 	
 	public def find(bid:Int): MatrixBlock {
