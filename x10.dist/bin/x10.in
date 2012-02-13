@@ -37,7 +37,14 @@ while [ -n "$1" ]; do
              fi
              # TODO: add tests for more system properties above
              defs="${defs} $1";;
-        -classpath|-cp) shift; extra_cp="$1";;
+        -classpath|-cp)
+            shift
+            if [ -z "$extra_cp" ] ; then
+                extra_cp="${1}"
+            else
+                extra_cp="${extra_cp}${PATH_SEP}${1}"
+            fi
+            ;;
         -libpath) shift; extra_lib="$1";;
         -config) shift; config="$1.cfg";;
         -nocompressedrefs) nocompressedrefs="true";;
