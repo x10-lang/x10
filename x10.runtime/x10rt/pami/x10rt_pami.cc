@@ -1363,19 +1363,22 @@ void x10rt_net_probe()
 	pami_result_t status = PAMI_ERROR;
 	if (state.numParallelContexts)
 	{
-		status = PAMI_Context_advance(getConcurrentContext(), 100);
-		if (status == PAMI_EAGAIN)
-			sched_yield();
+		pami_context_t context = getConcurrentContext();
+		do { status = PAMI_Context_advance(context, 1);
+		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+		if (status == PAMI_ERROR) error ("Problem advancing the current context");
 	}
 	else
 	{
 		status = PAMI_Context_trylock(state.context[0]);
 		if (status == PAMI_EAGAIN) return; // context is already in use
 		if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
-		status = PAMI_Context_advance(state.context[0], 100);
+
+		do { status = PAMI_Context_advance(state.context[0], 1);
+		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
+		if (status == PAMI_ERROR) error ("Problem advancing the context");
+
 		if (PAMI_Context_unlock(state.context[0]) != PAMI_SUCCESS) error ("Unable to unlock the PAMI context");
-		if (status == PAMI_EAGAIN)
-			sched_yield();
 	}
 }
 
