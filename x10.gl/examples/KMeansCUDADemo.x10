@@ -151,7 +151,8 @@ public class KMeansCUDADemo(gpu:Place) {
         val dim = 2;
 
         // classify kernel
-        finish async at (gpu) @CUDA @CUDADirectParams {
+        val gpu2 = gpu;
+        finish async at (gpu2) @CUDA @CUDADirectParams {
             val blocks = CUDAUtilities.autoBlocks(),
                 threads = CUDAUtilities.autoThreads();
             finish for (block in 0..(blocks-1)) async {
