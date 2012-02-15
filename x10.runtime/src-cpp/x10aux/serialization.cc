@@ -21,7 +21,7 @@ using namespace x10::lang;
 
 void addr_map::_grow() {
     int newSize = _size << 1;
-    _ptrs = x10aux::system_realloc(_ptrs, newSize*(sizeof(const void*)));
+    _ptrs = x10aux::realloc(_ptrs, newSize*(sizeof(const void*)));
     _size = newSize;
 }
 
