@@ -118,8 +118,11 @@ namespace x10aux {
     public:
         addr_map(int init_size = 4) :
             _size(init_size),
-            _ptrs(new (x10aux::system_alloc<const void*>((init_size)*sizeof(const void*)))
-                      const void*[init_size]),
+                // NB: Must call x10aux::alloc here because _ptrs may hold the only live reference
+                //     to temporary objects allocated by custom serialization serialize methods.
+                //     If we don't keep those objects live here, the storage may be reused during the
+                //     serialization operation, resulting in incorrect detection of a repeated reference!
+            _ptrs(new (x10aux::alloc<const void*>((init_size)*sizeof(const void*), true)) const void*[init_size]),
             _top(0)
         { }
         /* Returns 0 if the pointer has not been recorded yet */
@@ -143,7 +146,7 @@ namespace x10aux {
             return ref<T>(val);
         }
         void reset() { _top = 0; assert (false); }
-        ~addr_map() { x10aux::system_dealloc(_ptrs); }
+        ~addr_map() { x10aux::dealloc(_ptrs); }
     };
 
 
