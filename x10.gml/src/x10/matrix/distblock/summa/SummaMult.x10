@@ -19,6 +19,9 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
 
+import x10.matrix.sparse.CompressArray;
+import x10.matrix.sparse.SparseCSC;
+
 import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockBlockMult;
@@ -64,9 +67,6 @@ public class SummaMult {
 		
 		panelSize = ps;
 		A = a; B=b; C=c;
-
-		A.buildRowCastPlaceMap();
-		B.buildColCastPlaceMap();
 		
 		//alpha = al;
 		beta  = be;
@@ -89,8 +89,13 @@ public class SummaMult {
 		return estps;
 	}	
 	//--------------------------------------------------------------------
-
-
+	public static def mult(			
+			A:DistBlockMatrix, 
+			B:DistBlockMatrix, 
+			C:DistBlockMatrix, plus:Boolean) {
+		mult(10, plus?1.0:0.0, A, B, C);
+	}
+	
 	//-----------------------------------------------------
 	public static def mult(
 			var ps:Int,  /* Panel size*/
@@ -100,8 +105,8 @@ public class SummaMult {
 			C:DistBlockMatrix) {
 		
 		val pansz = estPanelSize(ps, A.getGrid(), B.getGrid());
-		val w1 = A.makeTempFrontColBlocks(pansz);
-		val w2 = B.makeTempFrontRowBlocks(pansz);
+		val w1 = A.makeTempFrontRowBlocks(pansz);
+		val w2 = B.makeTempFrontColBlocks(pansz); 
 		val s = new SummaMult(pansz, beta, A, B, C, w1, w2);
 
 		s.parallelMult();
@@ -161,22 +166,25 @@ public class SummaMult {
 				val itr = cbs.iterator();
 				while (itr.hasNext()) {
 					val cblk = itr.next();
-					val rb = cblk.myRowId;
-					val cb = cblk.myColId;
 					val cmat = cblk.getMatrix();
-					val ablk = wk1.findFrontColBlock(cblk.myColId);
-					val bblk = wk2.findFrontRowBlock(cblk.myRowId);
+					val ablk = wk1.findFrontRowBlock(cblk.myRowId); 
+					val bblk = wk2.findFrontColBlock(cblk.myColId);
 					
 					//--------------------------------------------
-					val amat:Matrix = ablk.getMatrix() as Matrix(cmat.M, klen);
-					var bmat:Matrix = bblk.getMatrix() as Matrix(klen, cmat.N);
-					if (bmat instanceof DenseMatrix && klen != bmat.M) {
-						val den = new DenseMatrix(klen, bmat.N, (bmat as DenseMatrix).d);
-						bmat = den as Matrix(klen, cmat.N);
+					val amat:Matrix;
+					val bmat:Matrix;
+					if (ablk.isDense()) {
+						amat = new DenseMatrix(ablk.getMatrix().M, klen, ablk.getData()) as Matrix;
+					} else {
+						amat = new SparseCSC(ablk.getMatrix().M, klen, ablk.getCompressArray()) as Matrix;
 					}
-						
-					cmat.mult(amat, bmat, true);
-				}	
+					if (bblk.isDense()) {
+						bmat = new DenseMatrix(klen, bblk.getMatrix().N, bblk.getData()) as Matrix;
+					} else {
+						bmat = new SparseCSC(klen, bblk.getMatrix().N, bblk.getCompressArray()) as Matrix;
+					}
+					cmat.mult(amat as Matrix(cmat.M), bmat as Matrix(amat.N, cmat.N), true);
+				}
 			 }
 			/* TIMING */ calcTime += Timer.milliTime() - st;
 			/* update icurcol, icurrow, ii, jj */

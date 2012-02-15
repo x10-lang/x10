@@ -43,8 +43,8 @@ public class CompressArray {
 
     //static type Rail[T] = Array[T](1){rail};
 
-	public var index:Array[Int](1); // the indices i1,..., in; indices must be positive
-	public var value:Array[Double](1);//{self.size==index.size,rail}; // the values v1,..., vn
+	public var index:Array[Int](1){rail}; // the indices i1,..., in; indices must be positive
+	public var value:Array[Double](1){rail};//{self.size==index.size,rail}; // the values v1,..., vn
 
 	
 	protected var count:Int=0; // n

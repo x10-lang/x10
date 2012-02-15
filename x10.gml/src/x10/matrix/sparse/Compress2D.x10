@@ -255,11 +255,23 @@ public class Compress2D {
 			n += cLine(i).length;
 		return n;
 	}
-
+	
+	public def countNonZeroTo(idxval:int, lineCnt:Int):Int {
+		
+		var n:Int =0;
+		for (var i:Int=0; i< lineCnt; i++)
+			n += cLine(i).countNonZeroTo(idxval);
+		return n;
+	}
+	
 	/**
 	 * Count non zero in all compress lines
 	 */
-	public def countNonZero() = countNonZero(0, size());
+	public def countNonZero() : Int {
+		if (size() == 0) return 0;
+		return cLine(size()-1).offset+cLine(size()-1).length;
+		//countNonZero(0, size());
+	}
 
 	/**
 	 * Reset all compress lines

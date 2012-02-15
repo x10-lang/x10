@@ -360,7 +360,7 @@ public class SparseCSC extends Matrix {
 	 */
 	public def alloc(m:Int, n:Int):SparseCSC(m,n) {
 		// Maximum memory allocation
-		val nz:Int = countNonZero();
+		val nz = (m==this.M) ? countNonZero(0,n) : ccdata.countNonZeroTo(m, n);
 		val ca:CompressArray = new CompressArray(nz);
 		return new SparseCSC(m, n, ca);
 	}

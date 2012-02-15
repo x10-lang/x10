@@ -125,6 +125,7 @@ public abstract class MatrixBlock {
 	 */
 	abstract public def alloc(m:Int, n:Int):MatrixBlock;
 	public def alloc():MatrixBlock = alloc(getMatrix().M,getMatrix().N);
+	abstract public def allocFull(m:Int, n:Int):MatrixBlock;
 
 	/**
 	 * Make a copy of myself
@@ -139,13 +140,14 @@ public abstract class MatrixBlock {
 	/**
 	 * Return the underlying matrix element data storage.
 	 */
-	abstract public def getData():Array[Double](1);
+	abstract public def getData():Array[Double](1){rail};
 
 	/**
 	 * Return the index array, the surface indices for the sparse matrix.
 	 * Not valid for dense matrix block.
 	 */
 	abstract public def getIndex():Array[Int](1);
+	public def getCompressArray() = (getMatrix() as SparseCSC).ccdata;
 
 	/**
 	 * Return the matrix data of specified row and column index.

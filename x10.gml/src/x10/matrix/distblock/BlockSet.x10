@@ -38,20 +38,21 @@ public class BlockSet  {
 	protected val grid:Grid;
 	protected val dmap:DistMap;
 	//---------------
-	public var rowCastPlaceMap:CastPlaceMap;
-	public var colCastPlaceMap:CastPlaceMap; 
-	
-	//-----------------------------------------
-		
-	public val blocklist:ArrayList[MatrixBlock];
-	//--------------------------
 	 
 	/**
 	 * This is available for fast access after is built.
 	 */
 	protected var blockMap:Array[MatrixBlock](2);
 	
+	//-----------------------------------------
 	
+	public val blocklist:ArrayList[MatrixBlock];
+	
+	//-----------------------------------------
+	public var rowCastPlaceMap:CastPlaceMap;
+	public var colCastPlaceMap:CastPlaceMap; 
+	
+	//--------------------------	
 	//==========================================
 
 	public def this(g:Grid, map:DistMap) {
@@ -131,29 +132,37 @@ public class BlockSet  {
 		return new BlockSet(g,d).allocSparseBlocks(nzd);
 	}
 	//========================================================
+	
 	/**
-	 * Used for temporary space in SUMMA. C
-	 * The new block set dose not have all block spaces allocated. Only
-	 * the frontal column blocks is available.
+	 * Front row blocks are the first blocks of each row block in the block set.
+	 * The front row blocks serves as temporary space to store row-wise cast of
+	 * the first operand matrix in SUMMA.
 	 */
-	public def makeFrontColBlockSet(colCnt:Int):BlockSet {
-		//Fake the column partitioning in all blocks
-		val cbs:Array[Int](1){rail} = new Array[Int](grid.numColBlocks, (i:Int)=>colCnt);
-		val ngrid = new Grid(grid.M, grid.numColBlocks*colCnt, grid.rowBs, cbs); 
-		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(colCnt, (r:Int, c:Int)=>r);
-		return new BlockSet(ngrid, dmap, nbl);
+	protected def makeFrontRowBlockSet(rowCnt:Int):BlockSet {
+		//Fake row partitioning in all blocks
+		//val rbs:Array[Int](1){rail} = new Array[Int](grid.numRowBlocks, (i:Int)=>rowCnt);
+		//val ngrid = new Grid(grid.numColBlocks*rowCnt, grid.N, rbs, grid.colBs);
+		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(rowCnt, (r:Int,c:Int)=>r);
+		val nbs = new BlockSet(grid, dmap, nbl);
+		nbs.colCastPlaceMap = CastPlaceMap.buildColCastMap(grid, dmap);
+		nbs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(grid, dmap);
+		return nbs;
 	}
 	
 	/**
-	 * The new block set does not have all block space allocated. DistMap works only
-	 * for frontal row blocks
+	 * Front column blocks are the first blocks of each column block in the block set.
+	 * The front column blocks serves as temporary space to store column-wise cast of
+	 * the second operand matrix in SUMMA
 	 */
-	public def makeFrontRowBlockSet(rowCnt:Int):BlockSet {
-		//Fake row partitioning in all blocks
-		val rbs:Array[Int](1){rail} = new Array[Int](grid.numRowBlocks, (i:Int)=>rowCnt);
-		val ngrid = new Grid(grid.numColBlocks*rowCnt, grid.N, rbs, grid.colBs);
-		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(rowCnt, (r:Int,c:Int)=>c);
-		return new BlockSet(ngrid, dmap, nbl);
+	protected def makeFrontColBlockSet(colCnt:Int):BlockSet {
+		//Fake the column partitioning in all blocks
+		//val cbs:Array[Int](1){rail} = new Array[Int](grid.numColBlocks, (i:Int)=>colCnt);
+		//val ngrid = new Grid(grid.M, grid.numColBlocks*colCnt, grid.rowBs, cbs); 
+		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(colCnt, (r:Int, c:Int)=>c);
+		val nbs =  new BlockSet(grid, dmap, nbl);
+		nbs.colCastPlaceMap = CastPlaceMap.buildColCastMap(grid, dmap);
+		nbs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(grid, dmap);
+		return nbs;
 	}
 	
 	//-----------------------
@@ -168,14 +177,7 @@ public class BlockSet  {
 			val srcmat = srcblk.getMatrix();
 			val m = select(srcmat.M, cnt);
 			val n = select(cnt, srcmat.N);
-			val nblk = srcblk.alloc(m, n);
-			//------
-			// Cannot use this. Incorrect
-			//nblk.placeSouth = srcblk.placeSouth;
-			//nblk.placeSouth = srcblk.placeNorth;
-			//nblk.placeSouth = srcblk.placeEast;
-			//nblk.placeSouth = srcblk.placeWest;
-			//------
+			val nblk = srcblk.allocFull(m, n);
 			blst.add(nblk);
 		}
 		return blst;
@@ -379,20 +381,32 @@ public class BlockSet  {
 // 	
 	//-----------------------------
 	/**
-	 * This is used for temp front blocks .
+	 * Front row block is the first block in the row which has specified row block ID.
+	 * in the block set. The front block is required in SUMMA when receiving row-wise
+	 * cast of the first operand matrix.
 	 */
 	public def findFrontRowBlock(rowId:Int) = findFrontBlock(rowId, 0, (r:Int, c:Int)=>r);
+
+	/**
+	 * Front column block is the first block in the column which has specified column block ID.
+	 * in the block set. The front block is required in SUMMA when receiving column-wise
+	 * cast of the second operand matrix.
+	 */
 	public def findFrontColBlock(colId:Int) = findFrontBlock(0, colId, (r:Int, c:Int)=>c);
 	
 	/**
 	 * Find the first block having the row-block id (or column block id) in
 	 * rowwise (or column wise) in the block set. This is used when performing
 	 * ring-cast.
+	 * 
 	 */
 	@Inline
 	public final def findFrontBlock(bid:Int, select:(Int, Int)=>Int):MatrixBlock =
 		findFrontBlock(grid.getRowBlockId(bid), grid.getColBlockId(bid), select);
-	
+	/**
+	 * Block set must have all blocks sorted in the increasing order of column block id and then row 
+	 * block id
+	 */
 	@Inline
 	public final def findFrontBlock(rowId:Int, colId:Int, select:(Int, Int)=>Int):MatrixBlock {
 		val id = select(rowId, colId);
@@ -409,6 +423,9 @@ public class BlockSet  {
 	}	
 	
 	//--------------------
+	/**
+	 * Check if the given block has front row/column block stored in the given list of blocks or not.
+	 */
 	@Inline
 	private static def containBlockIn(src:MatrixBlock, blist:ArrayList[MatrixBlock], 
 			select:(Int,Int)=>Int):Boolean {

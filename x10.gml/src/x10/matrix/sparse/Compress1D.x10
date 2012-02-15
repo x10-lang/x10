@@ -453,7 +453,19 @@ public class Compress1D {
 			dst(dstpos) = getValue(i);
 		}
 	}
-
+	//=========================================================
+	public def countNonZeroTo(idxval:Int):Int {
+		
+		var n:Int =0;
+		for (var i:Int=offset; i< offset+length; i++) {
+			if (cArray.index(i) <= idxval) 
+				n++;	
+			else
+				break;
+		}
+		return n;
+	}
+	
 	//=========================================================
 	// Util methods
 	//=========================================================

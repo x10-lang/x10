@@ -41,10 +41,8 @@ public class AllGridCast {
 				startRowCast(jj, klen, itCol, distA, work1);
 			}
 		} else {
-			//Using column cast place list as the starting place of row cast
-			val bs   = distA.handleBS();
-			val plst = bs.colCastPlaceMap.getPlaceList(itCol);
-			
+			//Using column cast place list as the starting places of row cast
+			val plst = work1().colCastPlaceMap.getPlaceList(itCol);
 			finish for ([p]:Point in plst) {
 				val pid = plst(p);
 				if (pid != here.id()) async {
@@ -55,7 +53,11 @@ public class AllGridCast {
 					rowCastAll(jj, klen, itCol, distA, work1);
 				}
 			}
-		}		
+		}
+		
+		// if (!startVerifyRowCast(jj, klen, itCol, distA, work1))
+		// 	Debug.exit("Verify rowCast failed");
+		
 	}
 	
 	protected static def rowCastAll(
@@ -63,21 +65,20 @@ public class AllGridCast {
 			dA:DistBlockMatrix, work1:PlaceLocalHandle[BlockSet]) {
 		
 		val grid = dA.getGrid();
-		val bs = dA.handleBS();
-		val itr = bs.iterator();
+		val itr  = dA.handleBS().iterator();
 		
 		while (itr.hasNext()) {
 			val blk = itr.next();
 			if (blk.myColId != itCol) continue;
 			
 			val rootbid = grid.getBlockId(blk.myRowId, blk.myColId);
-
 			val dstblk  = work1().findFrontRowBlock(blk.myRowId);
+			//Debug.flushln("Copy block :"+blk.myRowId+","+blk.myColId+" to "+dstblk.myRowId+","+dstblk.myColId);
+			//blk.getMatrix().printMatrix("Root block ");
 			val datcnt = blk.copyCols(jj, klen, dstblk.getMatrix());
-			
-			val rowplst:Array[Int](1) = bs.rowCastPlaceMap.getPlaceList(blk.myRowId);			
-			BlockGridCast.rowCastToPlaces(work1, rootbid, datcnt, rowplst);
-					
+			//dstblk.getMatrix().printMatrix("First row cast copy");
+			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(blk.myRowId);			
+			BlockGridCast.rowCastToPlaces(work1, rootbid, datcnt, rowplst);			
 		}
 	}
 		
@@ -95,9 +96,8 @@ public class AllGridCast {
 				startColCast(ii, klen, itRow, distB, work2);
 			}
 		} else {
-			//Using column cast place list as the starting place of row cast
-			val bs   = distB.handleBS();
-			val plst = bs.rowCastPlaceMap.getPlaceList(itRow);
+			//Using row cast place list as the starting places of row cast
+			val plst = work2().rowCastPlaceMap.getPlaceList(itRow);
 			finish for ([p]:Point in plst) {
 				val pid = plst(p);
 				if (pid != here.id()) async {
@@ -109,6 +109,9 @@ public class AllGridCast {
 				}
 			}
 		}		
+
+		// if (!startVerifyColCast(ii, klen, itRow, distB, work2))
+		// 	Debug.exit("Verify colCast failed");
 	}
 	
 	protected static def colCastAll(
@@ -117,8 +120,7 @@ public class AllGridCast {
 			work2:PlaceLocalHandle[BlockSet]) {
 		
 		val grid = dB.getGrid();
-		val bs  = dB.handleBS();
-		val itr = bs.iterator();
+		val itr  = dB.handleBS().iterator();
 		
 		while (itr.hasNext()) {
 			val blk = itr.next();
@@ -127,6 +129,7 @@ public class AllGridCast {
 			val rootbid = grid.getBlockId(blk.myRowId, blk.myColId);
 			//------------------------------------------------
 			val dstblk  = work2().findFrontColBlock(blk.myColId);
+			//Debug.flushln("Copy block :"+blk.myRowId+","+blk.myColId+" to "+dstblk.myRowId+","+dstblk.myColId);
 			//Dense matrix must reshape to (klen x N), klen may be smaller than the
 			//original matrix M when it is created. The data buffer must keep data compact 
 			//before sending out. Sparse matrix is not affacted.
@@ -137,14 +140,8 @@ public class AllGridCast {
 			}
 			val datcnt = blk.copyRows(ii, klen, mat);
 			//-------------------------------------------------
-			val colplst:Array[Int](1) = bs.colCastPlaceMap.getPlaceList(blk.myColId);						
+			val colplst:Array[Int](1) = work2().colCastPlaceMap.getPlaceList(blk.myColId);						
 			BlockGridCast.colCastToPlaces(work2, rootbid, datcnt, colplst);	
-
-			//if (! BlockGridCast.verifyColCastNorth(work2, dstblk)) 
-			//	Debug.exit("Cast verify failed north");
-
-			//if (! BlockGridCast.verifyColCastSouth(work2, dstblk))
-			//	Debug.exit("Cast verify failed sourth");
 			
 		}	
 	}
@@ -175,7 +172,6 @@ public class AllGridCast {
 		var retval:Boolean = true;
 		val grid = dA.getGrid();
 		val dmap = dA.getMap();
-		val bs = dA.handleBS();
 
 		// Check copy is correct or not
 		val rootbid = grid.getBlockId(rowId, itCol);
@@ -197,8 +193,8 @@ public class AllGridCast {
 			if (!eql) Debug.flushln("Copy columns verification failed");
 		
 			// check all row blocks
-			eql &= BlockGridCast.verifyRowCastEast(work1, dstblk);
-			eql &= BlockGridCast.verifyRowCastWest(work1, dstblk);
+			eql &= BlockGridCast.verifyRowCastEast(klen, work1, dstblk);
+			eql &= BlockGridCast.verifyRowCastWest(klen, work1, dstblk);
 			eql
 		};
 		return retval;
@@ -257,11 +253,11 @@ public class AllGridCast {
 				for (var r:Int=0; r<klen&&eql; r++)
 					eql &= (srcmat(r+ii, c)==mat(r, c));
 			
-			//if (!eql) Debug.flushln("Copy rows verification failed");
+			if (!eql) Debug.flushln("Copy rows verification failed");
 			
 			// check all row blocks
-			eql &= BlockGridCast.verifyColCastNorth(work2, dstblk);
-			eql &= BlockGridCast.verifyColCastSouth(work2, dstblk);
+			eql &= BlockGridCast.verifyColCastNorth(klen, work2, dstblk);
+			eql &= BlockGridCast.verifyColCastSouth(klen, work2, dstblk);
 			eql
 		};
 		return retval;

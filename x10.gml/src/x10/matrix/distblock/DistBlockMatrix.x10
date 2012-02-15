@@ -196,23 +196,26 @@ public class DistBlockMatrix extends Matrix{
 	}
 	
 	//================================================
-	/**
-	 * Used for temporary space in SUMMA. This method does not creat a complete 
-	 * distributed block matrix. It only creates front (row/column) blocks in all
-	 * places, using the specified column/row counts.
-	 * <p>
-	 * Make front column blocks in each place
-	 */
-	public def makeTempFrontColBlocks(colCnt:Int) =
-		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
-				()=>this.handleBS().makeFrontColBlockSet(colCnt));
 	
 	/**
-	 * Make front row blocks in each place
+	 * Used to create temporary space in SUMMA. This method does not creat a complete 
+	 * distributed block matrix. It only creates the first blocks in each row of 
+	 * the current this block set. It is used to as temp space to store data from
+	 * the first operand matrix in SUMMA
 	 */
 	public def makeTempFrontRowBlocks(rowCnt:Int) =
 		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
 				()=>this.handleBS().makeFrontRowBlockSet(rowCnt));
+	
+	/**
+	 * Used to creat temporary space in SUMMA. This method does not creat a complete 
+	 * distributed block matrix. It only creates the first blocks in each column of 
+	 * the current this block set. It is used to as temp space to store data from
+	 * the second operand matrix in SUMMA
+	 */
+	public def makeTempFrontColBlocks(colCnt:Int) =
+		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
+				()=>this.handleBS().makeFrontColBlockSet(colCnt));
 	
 	//================================================
 	public def init(dval:Double) : DistBlockMatrix(this){
@@ -626,23 +629,23 @@ public class DistBlockMatrix extends Matrix{
 		}
 	}
 	
-	public def buildRowCastPlaceMap() {
-		finish ateach (Dist.makeUnique()) {
-			val bs = handleBS();
-			if (bs.rowCastPlaceMap == null) {
-				bs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(bs.grid, bs.dmap);				
-			}
-		}
-	}
-	
-	public def buildColCastPlaceMap() {
-		finish ateach (Dist.makeUnique()) {
-			val bs = handleBS();
-			if (bs.colCastPlaceMap == null) {
-				bs.colCastPlaceMap = CastPlaceMap.buildColCastMap(bs.grid, bs.dmap);
-			}
-		}
-	}	
+	// public def buildRowCastPlaceMap() {
+	// 	finish ateach (Dist.makeUnique()) {
+	// 		val bs = handleBS();
+	// 		if (bs.rowCastPlaceMap == null) {
+	// 			bs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(bs.grid, bs.dmap);				
+	// 		}
+	// 	}
+	// }
+	// 
+	// public def buildColCastPlaceMap() {
+	// 	finish ateach (Dist.makeUnique()) {
+	// 		val bs = handleBS();
+	// 		if (bs.colCastPlaceMap == null) {
+	// 			bs.colCastPlaceMap = CastPlaceMap.buildColCastMap(bs.grid, bs.dmap);
+	// 		}
+	// 	}
+	// }	
 	
 	//===============================================
 	public def likeMe(A:Matrix):Boolean {

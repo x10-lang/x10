@@ -49,9 +49,13 @@ class RunDistBlockMatrix {
 	public val nzd:Double;
 	
 	//-------------
-	val gA:Grid, gB:Grid, gC:Grid, gTransA:Grid, gTransB:Grid;
-	//val A:BlockMatrix(M,K), B:BlockMatrix(K,N), C:BlockMatrix(M,N);
-	val dA:DistMap, dB:DistMap, dTransA:DistMap, dTransB:DistMap;
+	//Matrix block partitioning
+	val gA:Grid, gTransA:Grid;
+	val gB:Grid, gTransB:Grid;
+	val gC:Grid;
+	//Matrix blocks distribution
+	val dA:DistMap, dTransA:DistMap;
+	val dB:DistMap, dTransB:DistMap;
 	
     public def this(args:Array[String](1)) {
 		M = args.size > 0 ?Int.parse(args(0)):10;
