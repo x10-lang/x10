@@ -381,7 +381,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * A constant holding the maximum value a ULong can have, 2<sup>64</sup>-1.
      */
     @Native("java", "0xffffffffffffffffL")
-    @Native("c++", "0xffffffffffffffffLLU")
+    @Native("c++", "((x10_ulong)0xffffffffffffffffLLU)")
     public static MAX_VALUE: ULong{self==0xffffffffffffffffUL} = 0xffffffffffffffffUL;
 
 
