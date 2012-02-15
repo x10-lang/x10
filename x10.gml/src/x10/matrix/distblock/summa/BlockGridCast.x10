@@ -168,7 +168,9 @@ public class BlockGridCast  {
 			val blk  = distBS().findFrontBlock(rootbid, select);
 			val dstden = blk.getMatrix() as DenseMatrix;
 			// Using copyFrom style
-			finish Array.asyncCopy[Double](srcbuf, 0, dstden.d, 0, datCnt);
+			if (datCnt > 0) {
+				finish Array.asyncCopy[Double](srcbuf, 0, dstden.d, 0, datCnt);
+			}
 			// Perform binary bcast on the right branch
 			if (plist.size > 1 ) {
 				binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
@@ -192,8 +194,10 @@ public class BlockGridCast  {
 			val dstspa = blk.getMatrix() as SparseCSC;
 			// Using copyFrom style
 			dstspa.initRemoteCopyAtDest(datCnt);
-			finish Array.asyncCopy[Int   ](srcidx, 0, dstspa.getIndex(), 0, datCnt);
-			finish Array.asyncCopy[Double](srcval, 0, dstspa.getValue(), 0, datCnt);
+			if (datCnt > 0) {
+				finish Array.asyncCopy[Int   ](srcidx, 0, dstspa.getIndex(), 0, datCnt);
+				finish Array.asyncCopy[Double](srcval, 0, dstspa.getValue(), 0, datCnt);
+			}
 			// Perform binary bcast on the right branch
 			if (plist.size > 1 ) {
 				binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
