@@ -1,4 +1,12 @@
-Release 2.2.2
+Release 2.2.2.1
+
+This patch release contains the following fixes to X10 2.2.2
+  + XTENLANG-3001 : Memory corruption in Native X10 with CustomSerialization
+  + Fix problem with X10 CUDA codegen with latest NVIDIA CUDA release 
+  + bug fix for x10rt_pami poll
+  + bug fix in Native X10 debug maps for xlc v11.1
+
+The X10 2.2.2 release notes are appended unchanged below: 
 
 MAJOR CHANGES
 
