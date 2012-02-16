@@ -1,6 +1,8 @@
 Release 2.2.2.1
 
 This patch release contains the following fixes to X10 2.2.2
+  + XTENLANG-2998 : Generated java code for an X10 interface that extends another X10 interface has an incorrect type 
+  + XTENLANG-2999 : ClassCastException while deserializing Hadoop Writable objects 
   + XTENLANG-3001 : Memory corruption in Native X10 with CustomSerialization
   + Fix problem with X10 CUDA codegen with latest NVIDIA CUDA release 
   + bug fix for x10rt_pami poll
