@@ -130,14 +130,14 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
     }
     
     // implements Ordered<Char>
-    public java.lang.Object $lt(Char b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
-    public java.lang.Object $gt(Char b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
-    public java.lang.Object $le(Char b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
-    public java.lang.Object $ge(Char b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
+    public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Char)b).$value); }
+    public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Char)b).$value); }
+    public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Char)b).$value); }
+    public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Char)b).$value); }
     // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(Char b, Type t) { return $value < b.$value; }
-    public boolean $gt$O(Char b, Type t) { return $value > b.$value; }
-    public boolean $le$O(Char b, Type t) { return $value <= b.$value; }
-    public boolean $ge$O(Char b, Type t) { return $value >= b.$value; }
+    public boolean $lt$O(java.lang.Object b, Type t) { return $value < ((Char)b).$value; }
+    public boolean $gt$O(java.lang.Object b, Type t) { return $value > ((Char)b).$value; }
+    public boolean $le$O(java.lang.Object b, Type t) { return $value <= ((Char)b).$value; }
+    public boolean $ge$O(java.lang.Object b, Type t) { return $value >= ((Char)b).$value; }
 
 }

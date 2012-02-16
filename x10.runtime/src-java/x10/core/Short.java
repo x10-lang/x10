@@ -125,30 +125,30 @@ final public class Short extends Number implements StructI, java.lang.Comparable
     // implements Arithmetic<Short>
     public Short $plus$G() { return this; }
     public Short $minus$G() { return Short.$box(-$value); }
-    public Short $plus(Short b, Type t) { return Short.$box($value + b.$value); }
-    public Short $minus(Short b, Type t) { return Short.$box($value - b.$value); }
-    public Short $times(Short b, Type t) { return Short.$box($value * b.$value); }
-    public Short $over(Short b, Type t) { return Short.$box($value / b.$value); }
+    public Short $plus(java.lang.Object b, Type t) { return Short.$box($value + ((Short)b).$value); }
+    public Short $minus(java.lang.Object b, Type t) { return Short.$box($value - ((Short)b).$value); }
+    public Short $times(java.lang.Object b, Type t) { return Short.$box($value * ((Short)b).$value); }
+    public Short $over(java.lang.Object b, Type t) { return Short.$box($value / ((Short)b).$value); }
     
     // implements Bitwise<Short>
     public Short $tilde$G() { return Short.$box(~$value); }
-    public Short $ampersand(Short b, Type t) { return Short.$box($value & b.$value); }
-    public Short $bar(Short b, Type t) { return Short.$box($value | b.$value); }
-    public Short $caret(Short b, Type t) { return Short.$box($value ^ b.$value); }
+    public Short $ampersand(java.lang.Object b, Type t) { return Short.$box($value & ((Short)b).$value); }
+    public Short $bar(java.lang.Object b, Type t) { return Short.$box($value | ((Short)b).$value); }
+    public Short $caret(java.lang.Object b, Type t) { return Short.$box($value ^ ((Short)b).$value); }
     public Short $left$G(final int count) { return Short.$box($value << count); }
     public Short $right$G(final int count) { return Short.$box($value >> count); }
     public Short $unsigned_right$G(final int count) { return Short.$box($value >>> count); }
     
     // implements Ordered<Short>
-    public java.lang.Object $lt(Short b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
-    public java.lang.Object $gt(Short b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
-    public java.lang.Object $le(Short b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
-    public java.lang.Object $ge(Short b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
+    public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Short)b).$value); }
+    public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Short)b).$value); }
+    public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Short)b).$value); }
+    public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Short)b).$value); }
     // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(Short b, Type t) { return $value < b.$value; }
-    public boolean $gt$O(Short b, Type t) { return $value > b.$value; }
-    public boolean $le$O(Short b, Type t) { return $value <= b.$value; }
-    public boolean $ge$O(Short b, Type t) { return $value >= b.$value; }
+    public boolean $lt$O(java.lang.Object b, Type t) { return $value < ((Short)b).$value; }
+    public boolean $gt$O(java.lang.Object b, Type t) { return $value > ((Short)b).$value; }
+    public boolean $le$O(java.lang.Object b, Type t) { return $value <= ((Short)b).$value; }
+    public boolean $ge$O(java.lang.Object b, Type t) { return $value >= ((Short)b).$value; }
 
     // extends abstract class java.lang.Number
     @Override

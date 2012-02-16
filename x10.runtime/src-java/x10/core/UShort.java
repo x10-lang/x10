@@ -120,30 +120,30 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     // implements Arithmetic<UShort>
     public UShort $plus$G() { return this; }
     public UShort $minus$G() { return UShort.$box(-$value); }
-    public UShort $plus(UShort a, Type t) { return UShort.$box($value + a.$value); }
-    public UShort $minus(UShort a, Type t) { return UShort.$box($value - a.$value); }
-    public UShort $times(UShort a, Type t) { return UShort.$box($value * a.$value); }
-    public UShort $over(UShort a, Type t) { return UShort.$box((short)((0xffff & $value) / (0xffff & a.$value))); }
+    public UShort $plus(java.lang.Object a, Type t) { return UShort.$box($value + ((UShort)a).$value); }
+    public UShort $minus(java.lang.Object a, Type t) { return UShort.$box($value - ((UShort)a).$value); }
+    public UShort $times(java.lang.Object a, Type t) { return UShort.$box($value * ((UShort)a).$value); }
+    public UShort $over(java.lang.Object a, Type t) { return UShort.$box((short)((0xffff & $value) / (0xffff & ((UShort)a).$value))); }
     
     // implements Bitwise<UShort>
     public UShort $tilde$G() { return UShort.$box(~$value); }
-    public UShort $ampersand(UShort a, Type t) { return UShort.$box($value & a.$value); }
-    public UShort $bar(UShort a, Type t) { return UShort.$box($value | a.$value); }
-    public UShort $caret(UShort a, Type t) { return UShort.$box($value ^ a.$value); }
+    public UShort $ampersand(java.lang.Object a, Type t) { return UShort.$box($value & ((UShort)a).$value); }
+    public UShort $bar(java.lang.Object a, Type t) { return UShort.$box($value | ((UShort)a).$value); }
+    public UShort $caret(java.lang.Object a, Type t) { return UShort.$box($value ^ ((UShort)a).$value); }
     public UShort $left$G(final int count) { return UShort.$box($value << count); }
     public UShort $right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
     public UShort $unsigned_right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); }
     
     // implements Ordered<UShort>
-    public java.lang.Object $lt(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,a.$value)); }
-    public java.lang.Object $gt(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
-    public java.lang.Object $le(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
-    public java.lang.Object $ge(UShort a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
+    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,((UShort)a).$value)); }
+    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,((UShort)a).$value)); }
+    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,((UShort)a).$value)); }
+    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,((UShort)a).$value)); }
     // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(UShort a, Type t) { return Unsigned.lt($value,a.$value); }
-    public boolean $gt$O(UShort a, Type t) { return Unsigned.gt($value,a.$value); }
-    public boolean $le$O(UShort a, Type t) { return Unsigned.le($value,a.$value); }
-    public boolean $ge$O(UShort a, Type t) { return Unsigned.ge($value,a.$value); }
+    public boolean $lt$O(java.lang.Object a, Type t) { return Unsigned.lt($value,((UShort)a).$value); }
+    public boolean $gt$O(java.lang.Object a, Type t) { return Unsigned.gt($value,((UShort)a).$value); }
+    public boolean $le$O(java.lang.Object a, Type t) { return Unsigned.le($value,((UShort)a).$value); }
+    public boolean $ge$O(java.lang.Object a, Type t) { return Unsigned.ge($value,((UShort)a).$value); }
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write($value);

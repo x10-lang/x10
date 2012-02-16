@@ -137,30 +137,30 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     // implements Arithmetic<UByte>
     public UByte $plus$G() { return this; }
     public UByte $minus$G() { return UByte.$box(-$value); }
-    public UByte $plus(UByte a, Type t) { return UByte.$box($value + a.$value); }
-    public UByte $minus(UByte a, Type t) { return UByte.$box($value - a.$value); }
-    public UByte $times(UByte a, Type t) { return UByte.$box($value * a.$value); }
-    public UByte $over(UByte a, Type t) { return UByte.$box((short)((0xff & $value) / (0xff & a.$value))); }
+    public UByte $plus(java.lang.Object a, Type t) { return UByte.$box($value + ((UByte)a).$value); }
+    public UByte $minus(java.lang.Object a, Type t) { return UByte.$box($value - ((UByte)a).$value); }
+    public UByte $times(java.lang.Object a, Type t) { return UByte.$box($value * ((UByte)a).$value); }
+    public UByte $over(java.lang.Object a, Type t) { return UByte.$box((short)((0xff & $value) / (0xff & ((UByte)a).$value))); }
     
     // implements Bitwise<UByte>
     public UByte $tilde$G() { return UByte.$box(~$value); }
-    public UByte $ampersand(UByte a, Type t) { return UByte.$box($value & a.$value); }
-    public UByte $bar(UByte a, Type t) { return UByte.$box($value | a.$value); }
-    public UByte $caret(UByte a, Type t) { return UByte.$box($value ^ a.$value); }
+    public UByte $ampersand(java.lang.Object a, Type t) { return UByte.$box($value & ((UByte)a).$value); }
+    public UByte $bar(java.lang.Object a, Type t) { return UByte.$box($value | ((UByte)a).$value); }
+    public UByte $caret(java.lang.Object a, Type t) { return UByte.$box($value ^ ((UByte)a).$value); }
     public UByte $left$G(final int count) { return UByte.$box($value << count); }
     public UByte $right$G(final int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
     public UByte $unsigned_right$G(final int count) { return UByte.$box((0xff & $value) >>> count); }
     
     // implements Ordered<UByte>
-    public java.lang.Object $lt(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,a.$value)); }
-    public java.lang.Object $gt(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,a.$value)); }
-    public java.lang.Object $le(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,a.$value)); }
-    public java.lang.Object $ge(UByte a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,a.$value)); }
+    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.lt($value,((UByte)a).$value)); }
+    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,((UByte)a).$value)); }
+    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,((UByte)a).$value)); }
+    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,((UByte)a).$value)); }
     // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(UByte a, Type t) { return Unsigned.lt($value,a.$value); }
-    public boolean $gt$O(UByte a, Type t) { return Unsigned.gt($value,a.$value); }
-    public boolean $le$O(UByte a, Type t) { return Unsigned.le($value,a.$value); }
-    public boolean $ge$O(UByte a, Type t) { return Unsigned.ge($value,a.$value); }
+    public boolean $lt$O(java.lang.Object a, Type t) { return Unsigned.lt($value,((UByte)a).$value); }
+    public boolean $gt$O(java.lang.Object a, Type t) { return Unsigned.gt($value,((UByte)a).$value); }
+    public boolean $le$O(java.lang.Object a, Type t) { return Unsigned.le($value,((UByte)a).$value); }
+    public boolean $ge$O(java.lang.Object a, Type t) { return Unsigned.ge($value,((UByte)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

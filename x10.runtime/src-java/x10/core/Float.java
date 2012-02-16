@@ -99,21 +99,21 @@ final public class Float extends Number implements StructI,
     // implements Arithmetic<Float>
     public Float $plus$G() { return this; }
     public Float $minus$G() { return Float.$box(-$value); }
-    public Float $plus(Float b, Type t) { return Float.$box($value + b.$value); }
-    public Float $minus(Float b, Type t) { return Float.$box($value - b.$value); }
-    public Float $times(Float b, Type t) { return Float.$box($value * b.$value); }
-    public Float $over(Float b, Type t) { return Float.$box($value / b.$value); }
+    public Float $plus(java.lang.Object b, Type t) { return Float.$box($value + ((Float)b).$value); }
+    public Float $minus(java.lang.Object b, Type t) { return Float.$box($value - ((Float)b).$value); }
+    public Float $times(java.lang.Object b, Type t) { return Float.$box($value * ((Float)b).$value); }
+    public Float $over(java.lang.Object b, Type t) { return Float.$box($value / ((Float)b).$value); }
     
     // implements Ordered<Float>
-    public java.lang.Object $lt(Float b, Type t) { return x10.core.Boolean.$box($value < b.$value); }
-    public java.lang.Object $gt(Float b, Type t) { return x10.core.Boolean.$box($value > b.$value); }
-    public java.lang.Object $le(Float b, Type t) { return x10.core.Boolean.$box($value <= b.$value); }
-    public java.lang.Object $ge(Float b, Type t) { return x10.core.Boolean.$box($value >= b.$value); }
+    public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Float)b).$value); }
+    public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Float)b).$value); }
+    public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Float)b).$value); }
+    public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Float)b).$value); }
     // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(Float b, Type t) { return $value < b.$value; }
-    public boolean $gt$O(Float b, Type t) { return $value > b.$value; }
-    public boolean $le$O(Float b, Type t) { return $value <= b.$value; }
-    public boolean $ge$O(Float b, Type t) { return $value >= b.$value; }
+    public boolean $lt$O(java.lang.Object b, Type t) { return $value < ((Float)b).$value; }
+    public boolean $gt$O(java.lang.Object b, Type t) { return $value > ((Float)b).$value; }
+    public boolean $le$O(java.lang.Object b, Type t) { return $value <= ((Float)b).$value; }
+    public boolean $ge$O(java.lang.Object b, Type t) { return $value >= ((Float)b).$value; }
 
     // extends abstract class java.lang.Number
     @Override
