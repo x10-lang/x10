@@ -110,6 +110,10 @@ public class CXXCommandBuilder {
     protected final boolean usingXLC() {
         return defaultPostCompiler().contains("xlC");
     }
+    
+    protected final boolean bluegene() {
+        return platform.contains("bgp");
+    }
 
     /** 
      * Add all command line arguments to the C++ compiler
@@ -141,7 +145,7 @@ public class CXXCommandBuilder {
             cxxCmd.add(usingXLC() ? "-O3" : "-O2");
             cxxCmd.add(usingXLC() ? "-qinline" : "-finline-functions");
             cxxCmd.add("-DNO_TRACING");
-            if (usingXLC()) {
+            if (usingXLC() && !bluegene()) {
                 cxxCmd.add("-qhot");
                 cxxCmd.add("-qtune=auto");
                 cxxCmd.add("-qarch=auto");

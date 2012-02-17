@@ -122,10 +122,9 @@ ifdef ENABLE_CROSS_COMPILE_BGP
       override CC = bgxlc_r     
     endif
     ifdef OPTIMIZE
-      override CXXFLAGS += -O3 -qinline -qhot
+      override CXXFLAGS += -O3 -qinline
     endif
     override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
-    override CXXFLAGS += -qminimaltoc
     override CXXFLAGS += $(XLC_EXTRA_FLAGS)
   endif
 
