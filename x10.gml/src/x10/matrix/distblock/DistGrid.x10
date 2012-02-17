@@ -21,26 +21,28 @@ import x10.matrix.block.Grid;
  * It does not provide data distribution as Grid does for matrix data, but it defines 
  * methods to build maps from block IDs to place IDs. 
  */
-public class DistGrid{
+public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 	public val dmap:DistMap;
 	
-	public def this(dm:DistMap) {
+	public def this(nrp:Int, ncp:Int, dm:DistMap) {
+		property(nrp, ncp);
 		dmap = dm;
 	}
 
-	public def this(matgrid:Grid, rowCs:Int, colCs:Int) {
-		val nps   = rowCs * colCs;
+	public def this(matgrid:Grid, rowPs:Int, colPs:Int) {
+		property(rowPs, colPs);
+		val nps   = rowPs * colPs;
 		dmap  = new DistMap(matgrid.size, nps);
 		
-		Debug.assure(rowCs <= matgrid.numRowBlocks && 
-				colCs <= matgrid.numColBlocks, 
+		Debug.assure(rowPs <= matgrid.numRowBlocks && 
+				colPs <= matgrid.numColBlocks, 
 				"Cannot distribute ("+matgrid.numRowBlocks+" x "+matgrid.numColBlocks+") blocks"+
-				" over ("+rowCs+" x "+colCs+") places");
+				" over ("+rowPs+" x "+colPs+") places");
 		//Remove this check for duplicated block matrix
 		//Debug.assure(nps == Place.MAX_PLACES, 
 		//		"Partitioning blocks error! Number of clusters "+nps+" is not same as places "+Place.MAX_PLACES);
 		
-		val blkgrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, rowCs, colCs);
+		val blkgrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, rowPs, colPs);
 				
 		//This is not an efficient method, but not too much hurt on performance
 		for (var cb:Int=0; cb<matgrid.numColBlocks; cb++) { 

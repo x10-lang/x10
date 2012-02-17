@@ -183,9 +183,11 @@ public class SummaMult {
 					} else {
 						bmat = new SparseCSC(klen, bblk.getMatrix().N, bblk.getCompressArray()) as Matrix;
 					}
+
 					cmat.mult(amat as Matrix(cmat.M), bmat as Matrix(amat.N, cmat.N), true);
 				}
 			 }
+
 			/* TIMING */ calcTime += Timer.milliTime() - st;
 			/* update icurcol, icurrow, ii, jj */
 			ii += iwrk;

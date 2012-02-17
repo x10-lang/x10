@@ -53,8 +53,9 @@ public class BlockGridCast  {
 	 * @param datCnt     number of data to send out
 	 * @param plst       list of places to receive data
 	 */
-	public static def rowCastToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, plst:Array[Int](1)) {
-		castToPlaces(distBS, rootbid, datCnt, (r:Int,c:Int)=>r, plst);
+	public static def rowCastToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, 
+			colCnt:Int, datCnt:Int, plst:Array[Int](1)) {
+		castToPlaces(distBS, rootbid, colCnt, datCnt, (r:Int,c:Int)=>r, plst);
 	}
 	
 	/**
@@ -66,8 +67,9 @@ public class BlockGridCast  {
 	 * @param colCnt     number of data to send out
 	 * @param plst       list of places
 	 */	
-	public static def colCastToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, plst:Array[Int](1)) {
-		castToPlaces(distBS, rootbid, datCnt, (r:Int,c:Int)=>c, plst);
+	public static def colCastToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, 
+			colCnt:Int, datCnt:Int, plst:Array[Int](1)) {
+		castToPlaces(distBS, rootbid, colCnt, datCnt, (r:Int,c:Int)=>c, plst);
 	}
 	
 	/**
@@ -76,14 +78,15 @@ public class BlockGridCast  {
 	 * The root place ID is not required to be in the place list. 
 	 * 
 	 */
-	public static def castToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, datCnt:Int, 
+	public static def castToPlaces(distBS:PlaceLocalHandle[BlockSet], rootbid:Int, 
+			colCnt:Int, datCnt:Int, 
 			select:(Int,Int)=>Int, plst:Array[Int](1)) {
 		// Must start at the place of root block
 		if (plst.size > 1) {
 			val rtblk = distBS().findFrontBlock(rootbid, select);
 			if (rtblk.isSparse()) {
 				val spa = rtblk.getMatrix() as SparseCSC;
-				spa.initRemoteCopyAtSource();
+				spa.initRemoteCopyAtSource(0, colCnt);
 				binaryTreeCastTo(distBS, rootbid, datCnt, select, plst);
 				spa.finalizeRemoteCopyAtSource();
 			} else {
@@ -202,7 +205,19 @@ public class BlockGridCast  {
 			if (plist.size > 1 ) {
 				binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
 			}
+			// if (rootbid==0 && here.id()==2) {
+			// 	Debug.flushln("Value:"+blk.getData().toString());
+			// 	Debug.flushln("Index:"+blk.getIndex().toString());
+			// }		
 			dstspa.finalizeRemoteCopyAtDest();
+			
+			// if (rootbid==0 && here.id()==2) {
+			// 	Debug.flushln("Recv data :\n"+dstspa.toString());
+			// 	Debug.flushln("Recv buffer:\n"+dstspa.getStorage().toString());
+			// 	Debug.flushln("Value:"+blk.getData().toString());
+			// 	Debug.flushln("Index:"+blk.getIndex().toString());
+			// 	Debug.flushln("Recv matrix:\n"+dstspa.dataToString());
+			// }
 		}	
 	}	
 	//=======================================================================

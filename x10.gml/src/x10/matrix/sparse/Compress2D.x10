@@ -663,7 +663,7 @@ public class Compress2D {
 			pos = cLine(c).offset;
 			//Debug.flushln("Reset column:"+c+" start index:"+pos);
 			if (pos >= ca.index.size) break; //This condition is used to guarde when the last line is empty
-			ca.index(pos) -= ldm; //Mark the index value
+			ca.index(pos) -= ldm;            //Mark the index value
 			//Debug.flushln("To value:"+ ca.index(pos));
 		}
 		return pos-sttpos+cLine(lineOff+lineCnt-1).length;
@@ -711,36 +711,40 @@ public class Compress2D {
 	 * @return -- Return number of elements left unclaimed. Should be 0.
 	 */
 	public def buildIndex(ldm:Int, lineOff:Int, lineCnt:Int, var dataCnt:Int) : Int {
+		if (lineCnt == 0) return dataCnt;
+
 		val ca = getStorage();
-		val lineEnd = lineOff+lineCnt-1;
+		//val lineEnd = lineOff+lineCnt-1;
 		//Compute the starting offset in storage array
 		var pos:Int = lineOff==0?0:cLine(lineOff-1).offset+cLine(lineOff-1).length;
 		var len:Int = 0;
 
-		if (lineCnt == 0) return dataCnt;
-
 		Debug.assure((pos+dataCnt)<=ca.index.size, 
-					 "Build index failed, data count overflow the storage"); 
-
-		if (ca.index(pos) < 0) ca.index(pos) += ldm;
-		cLine(lineOff).length = dataCnt;
-
-		for (var c:Int=lineOff; c<=lineEnd; c++) {
-			cLine(c).offset = pos;
+					 "Building index fail - data count exceeds the storage size"); 
+		
+		if (ca.index(pos) < 0) 
+			ca.index(pos) += ldm; 			// Adjust for the starting line
+		
+		//cLine(lineOff).length = dataCnt;
+		var c:Int = lineOff;
+		while (c < lineOff+lineCnt) {
 			len = 0;
+			cLine(c).offset = pos;			//set the starting offset for compress line
 			while (pos < ca.index.size && dataCnt > 0 ) {
 				if (ca.index(pos) < 0) {
-					ca.index(pos) += ldm; //Adjust ithe index value of next line
-					break;                //Start next compress line
+					ca.index(pos) += ldm; 	//Adjust ithe index value of next line
+					break;                	//Start next compress line
+				} else {
+					len++;                	//Increase length of line
+					pos++;                	//Increase the index of current index of compress array
+					dataCnt--;			  	//Decrease data counter
 				}
-				len++;                    //Increase length of current compressed line
-				pos++;                    //Increase the index of current compressed line
-				dataCnt--;
 			}
-			cLine(c).length = len; //Set the length of compressed line
+			cLine(c).length = len; 			//Set the length of compressed line
+			c++; 							//Next compress line
 		}
 		//ca.print("Result of deseq CA ");
-		ca.count =cLine(lineEnd).offset + cLine(lineEnd).length;
+		ca.count = cLine(c-1).offset + cLine(c-1).length;
 		
 		return dataCnt;
 	}

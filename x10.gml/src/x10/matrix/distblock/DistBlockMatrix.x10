@@ -429,7 +429,9 @@ public class DistBlockMatrix extends Matrix{
 		val blk = at (Dist.makeUnique()(pid)) handleBS().findBlock(bid);
 		return blk;
 	}
-	
+	public def fetchBlock(rid:Int, cid:Int):MatrixBlock =
+		fetchBlock(getGrid().getBlockId(rid, cid));
+
 	public def getGrid():Grid   = this.handleBS().grid;
 	public def getMap():DistMap = this.handleBS().dmap;
 
