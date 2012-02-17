@@ -17,6 +17,7 @@ public class Java {
     public static type double = x10.lang.Double;
     public static type char = x10.lang.Char;
     // Java arrays (special)
+    // TODO: reject unsigned types for element type
     @NativeRep("java", "#T[]", null, "x10.rtt.Types.getRTT(#T[].class)")
     public static final class array[T](
         @Native("java", "(#this).length")

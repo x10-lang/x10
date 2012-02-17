@@ -442,8 +442,43 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return ((T[])array).length;
     }
 
+    private static final String X10_INTEROP_JAVA_ARRAY = "x10.interop.Java.array";
+    private static String typeName(Class<?> javaClass) {
+        if (javaClass.isArray()) {
+            return X10_INTEROP_JAVA_ARRAY + "[" + typeName(javaClass.getComponentType()) + "]";
+        } else if (javaClass.isPrimitive()) {
+            if (byte.class.equals(javaClass)) {
+                return "x10.lang.Byte";
+            }
+            if (short.class.equals(javaClass)) {
+                return "x10.lang.Short";
+            }
+            if (int.class.equals(javaClass)) {
+                return "x10.lang.Int";
+            }
+            if (long.class.equals(javaClass)) {
+                return "x10.lang.Long";
+            }
+            if (float.class.equals(javaClass)) {
+                return "x10.lang.Float";
+            }
+            if (double.class.equals(javaClass)) {
+                return "x10.lang.Double";
+            }
+            if (char.class.equals(javaClass)) {
+                return "x10.lang.Char";
+            }
+            if (boolean.class.equals(javaClass)) {
+                return "x10.lang.Boolean";
+            }
+            assert false;
+            return "";
+        } else {
+            return javaClass.getName();            
+        }
+    }
     public String typeName() {
-        return javaClass.getName();
+        return typeName(javaClass);
     }
 
     protected final String typeNameForFun(Object o) {
