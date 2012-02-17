@@ -101,15 +101,34 @@ endif
 ifndef NO_VAR_OVERRIDE
 
 ifdef ENABLE_CROSS_COMPILE_BGP
-  override MPICXX = /bgsys/drivers/ppcfloor/comm/bin/mpicxx
-  override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
-  override LDFLAGS += -lpthread
   export X10_STATIC_LIB=1
-  override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
   export X10RT_PLATFORM=bgp
-  ifdef OPTIMIZE
-    override CXXFLAGS += -O2 -finline-functions
+  ifdef USE_GCC
+    override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
+    override LDFLAGS += -lpthread
+    override CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-gcc
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O2 -finline-functions
+    endif
   endif
+  ifdef USE_XLC
+    # have to override CXX, but let user specify CUSTOM_XLC if they
+    # need something other than just xlC_r to be used as CXX
+    ifdef CUSTOM_XLC
+      override CXX = $(CUSTOM_XLC)
+      override CC = $(CUSTOM_XLC)
+    else
+      override CXX = bgxlC_r
+      override CC = bgxlc_r     
+    endif
+    ifdef OPTIMIZE
+      override CXXFLAGS += -O3 -qinline -qhot
+    endif
+    override CXXFLAGS += -qsuppress=1540-0809:1500-029:1540-1101:1540-1102
+    override CXXFLAGS += -qminimaltoc
+    override CXXFLAGS += $(XLC_EXTRA_FLAGS)
+  endif
+
 else
 
   # platform independent compiler flags and commands
