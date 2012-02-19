@@ -437,6 +437,7 @@ public class Emitter {
         private static final String X10_LANG_PREFIX = "$";
 //        private static final String X10_ARRAY_PREFIX = "$A$";
         private static final String X10_ARRAY_PREFIX = "$";
+        private static final Name NULLTYPE_NAME = Name.make("$null"); // for NullType
         public static Name mangleAndFlattenQName(Type type) {
             if (manglePrimitivesAsShortName) {
                 if (type.isSignedNumeric()) {
@@ -473,6 +474,9 @@ public class Emitter {
                 if (name.startsWith(packageName)) {
                     return Name.make(X10_ARRAY_PREFIX + mangleIdentifier(name.substring(packageName.length())));
                 }
+            }
+            if (type.isNull()) {
+                return NULLTYPE_NAME;
             }
             return mangleAndFlattenQName(type.fullName());
         }
