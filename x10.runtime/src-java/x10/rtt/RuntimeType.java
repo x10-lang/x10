@@ -58,7 +58,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public RuntimeType() {
     }
     
-    protected RuntimeType(Class<?> javaClass) {
+    public RuntimeType(Class<?> javaClass) {
         this(javaClass, null, null);
     }
 
