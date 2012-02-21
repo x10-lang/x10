@@ -573,7 +573,7 @@ public class DenseMatrix extends Matrix {
      */
     public def trace():Double {
         var tr:Double = 0.0;
-        for (var i:Int=0; i<M*N; i+=N)
+        for (var i:Int=0; i<M*N; i+=M+1)
             tr += d(i);
         return tr;
     }
