@@ -4250,7 +4250,7 @@ public class Emitter {
     		    params.add(mi.def().formalNames().get(i).name().toString());
     		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
-    		    if (X10PrettyPrinterVisitor.isPrimitive(at) && xts.isParameterType(ft)) {
+    		    if (X10PrettyPrinterVisitor.isPrimitive(at) && xts.isParameterType(ft) && !isPrimitiveGenericMethod(mi)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).boxTo(at));
     		    }
     		    else if (X10PrettyPrinterVisitor.isPrimitive(at)) {
@@ -4265,6 +4265,10 @@ public class Emitter {
     		return true;
     	}
     	return false;
+    }
+    
+    public static boolean isPrimitiveGenericMethod(MethodInstance mi) {
+        return X10PrettyPrinterVisitor.isPrimitiveGenericMethod(mi);
     }
 
     public boolean printNativeNew(X10New_c c, X10ConstructorInstance mi) {
