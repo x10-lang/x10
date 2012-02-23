@@ -32,24 +32,15 @@ public class SparseMultDenseToDense {
 	/**
 	 * Return matrix multiplication m1 &#42 m2 in dense format
 	 */
-	public static def comp(m1:SparseCSC, 
-						   m2:DenseMatrix{self.M==m1.N}
-						   ):DenseMatrix(m1.M,m2.N) {
-		//if (m1.isTransposed()) return comp(m1.TtoCSR(), m2);
-		//if (m2.isTransposed()) return compTransB(m1, m2);
-		val m3 = new DenseMatrix(m1.M, m2.N);
-		comp(m1, m2, m3, false);
-		return m3;
-	}
+	public static def comp(m1:SparseCSC, m2:DenseMatrix{self.M==m1.N}):DenseMatrix(m1.M,m2.N) =
+		comp(m1, m2, new DenseMatrix(m1.M, m2.N), false);
 	
 	/**
 	 * Perform matrix multiplication m3 += m1 &#42 m2 if plus is true, 
 	 * else m3 = m1 &#42 m2
 	 */
-	public static def comp(m1:SparseCSC, 
-						   m2:DenseMatrix{self.M==m1.N}, 
-						   m3:DenseMatrix{self.M==m1.M,self.N==m2.N}, 
-						   plus:Boolean):void {
+	public static def comp(m1:SparseCSC, m2:DenseMatrix{self.M==m1.N}, 
+		m3:DenseMatrix{self.M==m1.M,self.N==m2.N}, plus:Boolean):DenseMatrix(m3) {
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
 		var startcol:Int = 0;
@@ -75,27 +66,22 @@ public class SparseMultDenseToDense {
 				}
 			}
 		}
+		return m3;
 	}
 	//------------------
 	/**
 	 * Return matrix multiplication m1 &#42 m2<sup>T</sup> in dense format
 	 */
-	public static def compMultTrans(m1:SparseCSC, 
-									m2:DenseMatrix{self.N==m1.N}
-									):DenseMatrix(m1.M, m2.M) {
-		val m3 = new DenseMatrix(m1.M, m2.M);
-		compMultTrans(m1, m2, m3, false);
-		return m3; 
-	}
+	public static def compMultTrans(m1:SparseCSC, m2:DenseMatrix{self.N==m1.N}):DenseMatrix(m1.M, m2.M) =
+		compMultTrans(m1, m2, new DenseMatrix(m1.M, m2.M), false);
+
 	//------------------
 	/**
 	 * Perform matrix multiplication m3 += m1 &#42 m2<sup>T</sup> if plus is true, 
 	 * else m3 = m1 &#42 m2<sup>T</sup>
 	 */
-	public static def compMultTrans(m1:SparseCSC, 
-									m2:DenseMatrix{self.N==m1.N}, 
-									m3:DenseMatrix{self.M==m1.M, self.N==m2.M}, 
-									plus:Boolean):void {
+	public static def compMultTrans(m1:SparseCSC, m2:DenseMatrix{self.N==m1.N}, 
+		m3:DenseMatrix{self.M==m1.M, self.N==m2.M}, plus:Boolean): DenseMatrix(m3) {
 		//Debug.flushln("Using X10 driver: CSC * Dense.T -> Dense");
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
 		//
@@ -122,27 +108,21 @@ public class SparseMultDenseToDense {
 				}
 			}
 		}
+		return m3;
 	}
 	/**
 	 * Return matrix multiplication m1<sup>T</sup> &#42 m2 in dense format
 	 */
-	public static def compTransMult(m1:SparseCSC, 
-									m2:DenseMatrix{self.M==m1.M}
-									):DenseMatrix(m1.N, m2.N) {
-		val m3 = new DenseMatrix(m1.N, m2.N);
-		comp(m1.TtoCSR(), m2, m3, false);
-		return m3; 
-	}
+	public static def compTransMult(m1:SparseCSC, m2:DenseMatrix{self.M==m1.M}):DenseMatrix(m1.N, m2.N) =
+		comp(m1.TtoCSR(), m2, new DenseMatrix(m1.N, m2.N), false);
+
 	/**
 	 * Perform matrix multiplication m3 += m1<sup>T</sup> &#42 m2 if plus is true, 
 	 * else m3 = m1<sup>T</sup> &#42 m2
 	 */
-	public static def compTransMult(m1:SparseCSC, 
-									m2:DenseMatrix{self.M==m1.M}, 
-									m3:DenseMatrix{self.M==m1.N,self.N==m2.N}, 
-									plus:Boolean) {
+	public static def compTransMult(m1:SparseCSC, m2:DenseMatrix{self.M==m1.M}, 
+		m3:DenseMatrix{self.M==m1.N,self.N==m2.N}, plus:Boolean): DenseMatrix(m3) =
 		comp(m1.TtoCSR(), m2, m3, plus);
-	}
 	
     //------------------------------------------------------------------------
 	// CSR format multiply with Dense
@@ -150,23 +130,15 @@ public class SparseMultDenseToDense {
 	/**
 	 * Return matrix multiplication m1 &#42 m2 in dense format
 	 */
-	public static def comp(m1:SparseCSR, 
-						   m2:DenseMatrix{self.M==m1.N}
-						   ):DenseMatrix(m1.M, m2.N) {
-		//if (m1.isTransposed()) return comp(m1.TtoCSC(), m2);
-		val m3 =  new DenseMatrix(m1.M, m2.N);
-		comp(m1, m2, m3, false);
-		return m3;
-	}
+	public static def comp(m1:SparseCSR, m2:DenseMatrix{self.M==m1.N}):DenseMatrix(m1.M, m2.N) =
+		comp(m1, m2, new DenseMatrix(m1.M, m2.N), false);
 	//
 	/**
 	 * Perform matrix multiplication m3 += m1 &#42 m2 if plus is true, 
 	 * else m3 = m1 &#42 m2
 	 */
-	public static def comp(m1:SparseCSR, 
-						   m2:DenseMatrix{self.M==m1.N}, 
-						   m3:DenseMatrix{self.M==m1.M,self.N==m2.N}, 
-						   plus:Boolean ):void {
+	public static def comp(m1:SparseCSR, m2:DenseMatrix{self.M==m1.N}, 
+		m3:DenseMatrix{self.M==m1.M,self.N==m2.N},plus:Boolean ):DenseMatrix(m3) =
 		//if (m1.isTransposed()) {
 		//	comp(m1.TtoCSC(), m2, m3, plus); 
 		//	return;
@@ -176,14 +148,11 @@ public class SparseMultDenseToDense {
 		//	return;
 		//}
 		comp_byDef(m1, m2, m3, plus);
-	}
 
 	// By definition,
 	// iterate on r and c, for all k
-	public static def comp_byDef(m1:SparseCSR, 
-								 m2:DenseMatrix{self.M==m1.N}, 
-								 m3:DenseMatrix{self.M==m1.M, self.N==m2.N}, 
-								 plus:Boolean ):void {
+	public static def comp_byDef(m1:SparseCSR, m2:DenseMatrix{self.M==m1.N}, 
+		m3:DenseMatrix{self.M==m1.M, self.N==m2.N}, plus:Boolean ): DenseMatrix(m3) {
 		//Debug.flushln("Using X10 driver: CSR * Dense -> Dense");
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.M&&m2.N<=m3.N);
 		//
@@ -206,24 +175,18 @@ public class SparseMultDenseToDense {
 				    m3(r,c)=v3;
 			}
 		}
+		return m3;
 	}
 	//-------
-	public static def compMultTrans(m1:SparseCSR, 
-									m2:DenseMatrix{m2.N==m1.N}
-									):DenseMatrix(m1.M,m2.M) {		
-		val m3 = new DenseMatrix(m1.M, m2.M);
-		compMultTrans(m1, m2, m3, false);
-		return m3; 
-	}
+	public static def compMultTrans(m1:SparseCSR, m2:DenseMatrix{m2.N==m1.N}):DenseMatrix(m1.M,m2.M) =
+		compMultTrans(m1, m2, new DenseMatrix(m1.M, m2.M), false);
+
 	/**
 	 * Perform matrix multiplication m3 += m1 %#42 m2<sup>T</sup> if plus is true, 
 	 * else m3 = m1 &#42 m2<sup>T</sup>
 	 */
-	public static def compMultTrans(m1:SparseCSR, 
-									m2:DenseMatrix{self.N==m1.N}, 
-									m3:DenseMatrix{self.M==m1.M,self.N==m2.M}, 
-									plus:Boolean
-									):void {
+	public static def compMultTrans(m1:SparseCSR, m2:DenseMatrix{self.N==m1.N}, 
+		m3:DenseMatrix{self.M==m1.M,self.N==m2.M}, plus:Boolean):DenseMatrix(m3) {
 
 		Debug.assure(m3.M>=m1.M&&m1.N == m2.N&&m2.M<=m3.N);
 
@@ -251,26 +214,21 @@ public class SparseMultDenseToDense {
 				}
 			}
 		}
+		return m3;
 	}
 
 	/**
 	 * Return matrix multiplication m1<sup>T</sup> &#42 m2 in dense format
 	 */
-	public static def compTransMult(m1:SparseCSR, 
-									m2:DenseMatrix{self.M==m1.M}
-									):DenseMatrix(m1.N, m2.N) {
-		val m3 = new DenseMatrix(m1.N, m2.N);
-		comp(m1.TtoCSC(), m2, m3, false);
-		return m3; 
-	}
+	public static def compTransMult(m1:SparseCSR, m2:DenseMatrix{self.M==m1.M}):DenseMatrix(m1.N, m2.N) =
+		comp(m1.TtoCSC(), m2, new DenseMatrix(m1.N, m2.N), false);
+
 	/**
 	 * Perform matrix multiplication m3 += m1<sup>T</sup> &#42 m2 if plus is true, 
 	 * else m3 = m1<sup>T</sup> &#42 m2
 	 */
-	public static def compTransMult(m1:SparseCSR, 
-									m2:DenseMatrix{self.M==m1.M}, 
-									m3:DenseMatrix{self.M==m1.N, self.N==m2.N}, 
-									plus:Boolean) {
+	public static def compTransMult(m1:SparseCSR, m2:DenseMatrix{self.M==m1.M}, 
+		m3:DenseMatrix{self.M==m1.N, self.N==m2.N}, plus:Boolean): DenseMatrix(m3) =
 		comp(m1.TtoCSC(), m2, m3, plus);
-	}
+
 }
