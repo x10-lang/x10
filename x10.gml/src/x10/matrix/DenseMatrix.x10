@@ -21,6 +21,10 @@ import x10.util.Timer;
 //----------------------------------------------
 
 import x10.matrix.blas.DenseMatrixBLAS;
+import x10.matrix.sparse.SparseCSC;
+import x10.matrix.sparse.SparseMultSparseToDense;
+import x10.matrix.sparse.SparseMultDenseToDense;
+import x10.matrix.sparse.DenseMultSparseToDense;
 
 public type DenseMatrix(m:Int, n:Int)=DenseMatrix{self.M==m, self.N==n};
 public type DenseMatrix(m:Int)=DenseMatrix{self.M==m};
@@ -295,10 +299,10 @@ public class DenseMatrix extends Matrix {
 							   dst:DenseMatrix, dstColOffset:Int, colCnt:Int): Int {
 
 		//Make sure the source and destination are bounded.
-		Debug.assure(src.M <= dst.M && 
-					 srcColOffset+colCnt <= src.N && 
-					 dstColOffset+colCnt <= dst.N, 
-					 "Illegal column offset or count in column copy");
+		Debug.assure(src.M <= dst.M, "Destination leading dimension "+dst.M+" less than source "+src.M);
+		Debug.assure(srcColOffset+colCnt <= src.N, "Source overflow :"+srcColOffset+"+"+colCnt+" > "+src.N); 
+		Debug.assure(dstColOffset+colCnt <= dst.N, "Destination overflow :"+dstColOffset+"+"+colCnt+" > "+dst.N); 
+
 		var srcoff:Int = src.M * srcColOffset;
 		var dstoff:Int = dst.M * dstColOffset;
 		val srcend:Int = src.M * (srcColOffset+colCnt);
@@ -343,10 +347,9 @@ public class DenseMatrix extends Matrix {
 							   dst:DenseMatrix, var dstRowOffset:Int, rowCnt:Int) :Int {
 		
 		//Make sure the source and destination are bounded.
-		Debug.assure(src.N <= dst.N && 
-					 srcRowOffset+rowCnt <= src.M && 
-					 dstRowOffset+rowCnt <= dst.M, 
-					 "illegal row offset or row count in copy rows");
+		Debug.assure(src.N <= dst.N, "Number of columns in source "+src.N+" must not be larger the destination "+dst.N);
+		Debug.assure(srcRowOffset+rowCnt <= src.M, "Source offset "+srcRowOffset+" + row count "+rowCnt+" exceeds source dimension "+src.M);
+		Debug.assure(dstRowOffset+rowCnt <= dst.M, "Destination offset "+dstRowOffset+" + row count "+rowCnt+" exceeds destionation "+dst.M);
 
 		val srcSize:Int = src.M*src.N;
 		for (; srcRowOffset < srcSize; 
@@ -840,14 +843,20 @@ public class DenseMatrix extends Matrix {
 	 * @param plus 	add-on flag
 	 * @return     	result ("this" the method invoking object)
 	 */
-	public def mult(
-			A:Matrix(this.M), 
-			B:Matrix(A.N,this.N), 
-			plus:Boolean):DenseMatrix(this) {
+	public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N),	plus:Boolean):DenseMatrix(this) {
 
-		if (A instanceof DenseMatrix && B instanceof DenseMatrix) 
-			return mult(A as DenseMatrix(A), B as DenseMatrix(B), plus);
-		//Debug.flushln("Resort to basic X10 matrix multiplication driver");
+		if (A instanceof DenseMatrix){
+			if (B instanceof SparseCSC)
+				return mult(A as DenseMatrix(A), B as SparseCSC(B), plus);
+			else if (B instanceof DenseMatrix)
+				return mult(A as DenseMatrix(A), B as DenseMatrix(B), plus);				
+		} else if (A instanceof SparseCSC) {
+			if (B instanceof SparseCSC)
+				return mult(A as SparseCSC(A), B as SparseCSC(B),  plus);
+			else if (B instanceof DenseMatrix)
+				return mult(A as SparseCSC(A), B as DenseMatrix(B), plus);
+		}
+		Debug.flushln("Resort to basic X10 matrix multiplication driver");
 		MatrixMultXTen.comp(A, B, this, plus);
 		return this;
 	}
@@ -863,14 +872,21 @@ public class DenseMatrix extends Matrix {
 	 * @param plus 	add-on flag
 	 * @return     	result ("this" the method invoking object)
 	*/
-	public def transMult(
-			A:Matrix{self.N==this.M}, 
-			B:Matrix(A.M,this.N),
-			plus:Boolean): DenseMatrix(this) {
+	public def transMult(A:Matrix{self.N==this.M}, B:Matrix(A.M,this.N), plus:Boolean): DenseMatrix(this) {
 		
-		if (A instanceof DenseMatrix && B instanceof DenseMatrix) 
-			return transMult(A as DenseMatrix(A), B as DenseMatrix(B), plus);
-		//Debug.flushln("Resort to X10 matrix multiplication driver");
+		if (A instanceof DenseMatrix){
+			if (B instanceof SparseCSC)
+				return transMult(A as DenseMatrix(A), B as SparseCSC(B), plus);
+			else if (B instanceof DenseMatrix)
+				return transMult(A as DenseMatrix(A), B as DenseMatrix(B), plus);				
+		} else if (A instanceof SparseCSC) {
+			if (B instanceof SparseCSC)
+				return transMult(A as SparseCSC(A), B as SparseCSC(B),  plus);
+			else if (B instanceof DenseMatrix)
+				return transMult(A as SparseCSC(A), B as DenseMatrix(B), plus);
+		}
+		
+		Debug.flushln("Resort to X10 matrix multiplication driver");
 		MatrixMultXTen.compTransMult(A, B, this, plus);
 		return this;
 	}
@@ -885,13 +901,19 @@ public class DenseMatrix extends Matrix {
 	 * @param plus 	add-on flag
 	 * @return     	result ("this", the method invoking method)
 	 */
-	public def multTrans(
-			A:Matrix(this.M), 
-			B:Matrix(this.N, A.N), 
-			plus:Boolean):DenseMatrix(this) {
+	public def multTrans(A:Matrix(this.M), B:Matrix(this.N, A.N), plus:Boolean):DenseMatrix(this) {
 		
-		if (A instanceof DenseMatrix && B instanceof DenseMatrix) 
-			return multTrans(A as DenseMatrix(A), B as DenseMatrix(B), plus);
+		if (A instanceof DenseMatrix){
+			if (B instanceof SparseCSC)
+				return multTrans(A as DenseMatrix(A), B as SparseCSC(B), plus);
+			else if (B instanceof DenseMatrix)
+				return multTrans(A as DenseMatrix(A), B as DenseMatrix(B), plus);				
+		} else if (A instanceof SparseCSC) {
+			if (B instanceof SparseCSC)
+				return multTrans(A as SparseCSC(A), B as SparseCSC(B),  plus);
+			else if (B instanceof DenseMatrix)
+				return multTrans(A as SparseCSC(A), B as DenseMatrix(B), plus);
+		}
 		Debug.flushln("Resort to basic X10 matrix multiplication driver");
 		MatrixMultXTen.compMultTrans(A, B, this, plus);
 		return this;
@@ -985,8 +1007,39 @@ public class DenseMatrix extends Matrix {
 	public def multTrans(A:DenseMatrix(this.M), 
 						 B:DenseMatrix(this.N,A.N) //DenseMatrix(A.N,N), 
 						 )  = multTrans(A, B, false);
+	//==================================================================
+	// Sparse multiply to Dense
+	//==================================================================
+	public def mult(A:SparseCSC(this.M), B:SparseCSC(A.N, this.N), plus:Boolean):DenseMatrix(this)=
+		SparseMultSparseToDense.comp(A, B, this, plus);
+	
+	public def mult(A:DenseMatrix(this.M), B:SparseCSC(A.N, this.N), plus:Boolean):DenseMatrix(this) =
+		DenseMultSparseToDense.comp(A, B, this, plus);
+	
+	public def mult(A:SparseCSC(this.M), B:DenseMatrix(A.N, this.N),plus:Boolean):DenseMatrix(this) =
+		SparseMultDenseToDense.comp(A, B, this, plus);
+	
+	//----------------
+	public def transMult(A:SparseCSC{self.N==this.M},B:SparseCSC(A.M,this.N), plus:Boolean): DenseMatrix(this) = 
+		SparseMultSparseToDense.compTransMult(A, B, this, plus);
+	
+	public def transMult(A:DenseMatrix{self.N==this.M},B:SparseCSC(A.M,this.N), plus:Boolean): DenseMatrix(this) = 
+		DenseMultSparseToDense.compTransMult(A, B, this, plus);
 
+	public def transMult(A:SparseCSC{self.N==this.M},B:DenseMatrix(A.M,this.N), plus:Boolean): DenseMatrix(this) = 
+		SparseMultDenseToDense.compTransMult(A, B, this, plus);
 
+	//--------------------
+	public def multTrans(A:SparseCSC(this.M), B:SparseCSC(this.N,A.N),plus:Boolean):DenseMatrix(this) =
+		SparseMultSparseToDense.compMultTrans(A, B, this, plus);
+	
+	public def multTrans(A:DenseMatrix(this.M), B:SparseCSC(this.N,A.N),plus:Boolean):DenseMatrix(this) =
+		DenseMultSparseToDense.compMultTrans(A, B, this, plus);
+
+	public def multTrans(A:SparseCSC(this.M), B:DenseMatrix(this.N,A.N),plus:Boolean):DenseMatrix(this) =
+		SparseMultDenseToDense.compMultTrans(A, B, this, plus);
+
+	
 	//==================================================================
 	// Operator
 	//==================================================================

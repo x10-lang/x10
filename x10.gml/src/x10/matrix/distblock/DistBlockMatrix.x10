@@ -668,6 +668,7 @@ public class DistBlockMatrix extends Matrix{
 			bset.sync(bset.getFirst());
 		}
 	}
+	//=============================================
 	
 	/**
 	 * Check all blocks are same or not

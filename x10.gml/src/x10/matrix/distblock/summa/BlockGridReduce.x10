@@ -33,7 +33,7 @@ import x10.matrix.distblock.BlockSet;
 
 
 /**
- * Ring cast sends data from here to a set of blocks, or partial broadcast
+ * Grid row/column wise reduce
  *.
  */
 public class BlockGridReduce {
@@ -46,164 +46,189 @@ public class BlockGridReduce {
 	
 	
 	/**
+	 * Row-wise reduction-sum of front blocks
+	 */
+	public static def rowReduceSum(
+			distBS:PlaceLocalHandle[BlockSet], 
+			tmpBS:PlaceLocalHandle[BlockSet], 
+			rootbid:Int, 
+			datCnt:Int,
+			plst:Array[Int](1)):void {
+		reduceToRoot(distBS, tmpBS, rootbid, datCnt, 
+				(rid:Int,cid:Int)=>rid, 
+				(src:DenseMatrix,dst:DenseMatrix, dcnt:Int)=>sum(src, dst, dcnt), plst);
+	}
+	
+	/**
+	 * Column-wise reduction-sum of font blocks
+	 */
+	public static def colReduceSum(
+			distBS:PlaceLocalHandle[BlockSet], 
+			tmpBS:PlaceLocalHandle[BlockSet], 
+			rootbid:Int, 
+			datCnt:Int,
+			plst:Array[Int](1)):void {
+		reduceToRoot(distBS, tmpBS, rootbid, datCnt, 
+				(rid:Int,cid:Int)=>cid, 
+				(src:DenseMatrix,dst:DenseMatrix, dcnt:Int)=>sum(src, dst, dcnt), plst);
+	}
+	
+	//------------------------------------------------------------------------
+	public static def sum(src:DenseMatrix, dst:DenseMatrix, datCnt:Int):DenseMatrix(dst) {
+		Debug.assure(src.M==dst.M, 
+			"Leading dimensions of destination and source are not same"); 
+		for (var idx:Int=0; idx < datCnt; idx++)
+			dst.d(idx) += src.d(idx);
+		return dst;		
+	}
+
+	//=========================================================
+	//=========================================================
+	/**
 	 * 
 	 */
-	public static def rowReduceSum(distBS:PlaceLocalHandle[BlockSet], tmpBS:PlaceLocalHandle[BlockSet], rootbid:Int, colCnt:Int):void {
-		ringReduce(distBS, tmpBS, rootbid, colCnt, 
-				(rid:Int,cid:Int)=>rid, 
-				(src:DenseMatrix,dst:DenseMatrix, cc:Int)=>sum(src, dst, cc));
-	}
-	
-	public static def colReduceSum(distBS:PlaceLocalHandle[BlockSet], tmpBS:PlaceLocalHandle[BlockSet], rootbid:Int, colCnt:Int):void {
-		ringReduce(distBS, tmpBS, rootbid, colCnt, 
-				(rid:Int,cid:Int)=>cid, 
-				(src:DenseMatrix,dst:DenseMatrix, cc:Int)=>sum(src, dst, cc));
-	}
-	
-	public static def sum(src:DenseMatrix, root:DenseMatrix, colCnt:Int):DenseMatrix {
-		for (var i:Int=0; i<root.M*colCnt; i++) {
-			root.d(i) += src.d(i);
-		}
-		return root;
-	}
-	//===================================================================
-
-	public static def ringReduce(distBS:PlaceLocalHandle[BlockSet], tmpBS:PlaceLocalHandle[BlockSet], rootbid:Int, colCnt:Int, 
-			select:(Int,Int)=>Int, 
-			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix) {
-		
-		val rootpid = distBS().findPlace(rootbid);
-		
-		if (rootpid != here.id()) {
-			//Goto rootpid to start ringcast
-			at (Dist.makeUnique()(rootpid)) {
-				ringReduce(distBS, tmpBS, rootbid, colCnt, select, opFunc);
-			}
-		} else {
-			//Romte capture: distBS(), rootbid, colCnt
-			val dmap = distBS().getDistMap();
-			val grid = distBS().getGrid();
-			val plst =  CastPlaceMap.buildPlaceList(grid, dmap, rootbid, select); 
-			//Root is the first in the list
-			Debug.assure(plst(0)==rootpid, "RingCast place list must starts with root place id");
-			//Debug.flushln("Ring cast to "+plst.toString());
-			if (plst.size >= 1) {
-				val rootblk = distBS().findBlock(rootbid);
-				reduceToHere(distBS, tmpBS, rootblk, colCnt, select, opFunc, plst);
-			}
-		}		
-	}
-	
-	//=========================================================
-	protected static def reduceToHere(distBS:PlaceLocalHandle[BlockSet], tmpBS:PlaceLocalHandle[BlockSet], 
-			rootblk:MatrixBlock, colCnt:Int, 
+	protected static def reduceToRoot(
+			distBS:PlaceLocalHandle[BlockSet], 
+			tmpBS:PlaceLocalHandle[BlockSet], 
+			rootbid:Int, 
+			datCnt:Int, 
 			select:(Int, Int)=>Int,
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix,
-			plst:Array[Int](1)): void {
-				
-				//val leftRoot = here.id();
-				val pcnt = plst.size;
-				if (pcnt > 1) {
-					Debug.assure(here.id()==plst(0));
-					val leftPCnt  = (pcnt+1) / 2; // make sure left part is larger, if cnt is odd 
-					val rightPCnt  = pcnt - leftPCnt;
-					val rightplst = new Array[Int](rightPCnt, (i:Int)=>plst(leftPCnt+i));
-					val leftplst  = new Array[Int](leftPCnt, (i:Int)=>plst(i));
-
-					@Ifdef("MPI_COMMU") {
-						mpiBinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
-								leftplst, rightplst);
-					}
-					@Ifndef("MPI_COMMU") {
-						x10BinaryTreeReduce(distBS, tmpBS, rootblk, colCnt, select, opFunc, 
-								leftplst, rightplst);
-					}
-				} else if (pcnt == 1) {
-					distBS().selectReduce(rootblk, colCnt, select, opFunc);
-				}
+			plst:Array[Int](1) ) {
+		
+		//find rootpid in the place list, if not, assume root is first one
+		val rootpid = distBS().findPlace(rootbid);
+		var i:Int=0;
+		for (; i<plst.size && plst(i)!=rootpid; i++);
+		if (i>=plst.size) {
+			//Did not find root in place list
+			Debug.exit("Cannot find root pid "+rootpid+" in place list "+plst.toString()+" in reduce");
+		}
+		//remove root place from list
+		val rootidx=i;
+		val newplst = new Array[Int](plst.size-1, (j:Int)=>j<rootidx?plst(j):plst(j+1));
+		at (Dist.makeUnique()(rootpid)) {
+			//Debug.flushln("Root place:"+here.id()+" place list:"+newplst.toString());
+			splitReduceToHere(distBS, tmpBS, rootbid, datCnt, select, opFunc, newplst);
+		}
+	}
+	
+	
+	private static def splitReduceToHere(
+			distBS:PlaceLocalHandle[BlockSet], 
+			tmpBS:PlaceLocalHandle[BlockSet], 
+			rootbid:Int, 
+			datCnt:Int, 
+			select:(Int, Int)=>Int,
+			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix,
+			plst:Array[Int](1)
+			) {
+		if (datCnt ==0) return;
+		if (plst.size > 0) {
+			val pcnt      = plst.size-1;   //remove left branch root from place counter
+			val leftRoot  = plst(0);
+			val leftCnt   = (pcnt+1) / 2;  //divide all places into two parts, left is larger
+			val rightCnt  = pcnt - leftCnt;
+			
+			val leftlst  = new Array[Int](leftCnt,  (i:Int)=>plst(i+1));
+			val rightlst = new Array[Int](rightCnt, (i:Int)=>plst(leftCnt+i+1));
+			
+			@Ifdef("MPI_COMMU") {
+				mpiBinaryTreeReduce(distBS, tmpBS, rootbid, datCnt, select, opFunc, leftRoot, leftlst, rightlst);
 			}
-				
+			@Ifndef("MPI_COMMU") {
+				x10BinaryTreeReduce(distBS, tmpBS, rootbid, datCnt, select, opFunc, leftRoot, leftlst, rightlst);
+			}
+		} 
+	}
+		
 	
 	//-----------------------------
-	private static def x10BinaryTreeReduce(distBS:PlaceLocalHandle[BlockSet], tmpBS:PlaceLocalHandle[BlockSet], 
-			rootblk:MatrixBlock, colCnt:Int,
+	private static def x10BinaryTreeReduce(
+			distBS:PlaceLocalHandle[BlockSet], 
+			tmpBS:PlaceLocalHandle[BlockSet], 
+			rootbid:Int, 
+			datCnt:Int,
 			select:(Int,Int)=>Int,	
-			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix, 
-			nearbyPlcList:Array[Int](1), 
-			remotePlcList:Array[Int](1)) {
+			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix,
+			leftRoot:Int, leftPlist:Array[Int](1), 
+			rightPlist:Array[Int](1)) {
+	
+		var rmtbuf:RemoteArray[Double]=null;
+		//Debug.flushln("Left root:"+leftRoot+" Left list"+leftPlist.toString()+" right:"+rightPlist.toString());
 		
-		var rmtbuf:RemoteArray[Double];
 		finish {
 			//Left branch reduction
-			val remotepid = remotePlcList(0);
-			rmtbuf =  at (Dist.makeUnique()(remotepid)) {
-				//Remote capture:distBS, tmpBS, colCnt, remotePlcList
-				val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-				val rmtblk = distBS().findFrontBlock(rootbid, select);
-				async {
-					reduceToHere(distBS, tmpBS, rmtblk, colCnt, select, opFunc, remotePlcList);
-				}
-				
-				new RemoteArray[Double](rmtblk.getData() as Array[Double]{self!=null})
-			};
-			//Right branch reduction
 			async {
-				reduceToHere(distBS, tmpBS, rootblk, colCnt, select, opFunc, nearbyPlcList);
+				// Need to bring data from remote place
+				rmtbuf =  at (Dist.makeUnique()(leftRoot)) {
+					//Remote capture:distBS, tmpBS, colCnt, rightPlist
+					val rmtblk = distBS().findFrontBlock(rootbid, select);
+					//Debug.flushln("Visiting block("+rmtblk.myRowId+","+rmtblk.myColId+")");
+
+					if (leftPlist.size > 0)  {
+						//Only if there are more places to visit than remote pid
+						splitReduceToHere(distBS, tmpBS, rootbid, datCnt, select, opFunc, leftPlist);
+					}
+					new RemoteArray[Double](rmtblk.getData() as Array[Double]{self!=null})
+				};
+			}
+			//Right branch reduction
+			if (rightPlist.size > 0)	async {
+				splitReduceToHere(distBS, tmpBS, rootbid, datCnt, select, opFunc, rightPlist);
 			}
 		}
-		val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
+		
+		val dstblk = distBS().findFrontBlock(rootbid, select);
 		val rcvblk = tmpBS().findFrontBlock(rootbid, select);
 		val rcvden = rcvblk.getMatrix() as DenseMatrix;
-		val dstden = rootblk.getMatrix() as DenseMatrix;
+		val dstden = dstblk.getMatrix() as DenseMatrix;
 
-		val datcnt = dstden.M*colCnt;
-		finish Array.asyncCopy[Double](rmtbuf, 0, rcvden.d, 0, datcnt);
-		
-		opFunc(rcvden, dstden, colCnt);
-		//dstmat.cellAdd(rcvmat as DenseMatrix(dstmat.M, dstmat.N));
+		finish Array.asyncCopy[Double](rmtbuf, 0, rcvden.d, 0, datCnt);
+		//Debug.flushln("Perform reduction with data from place "+leftRoot);
+		opFunc(rcvden, dstden, datCnt);
 	}
 
-	private static def mpiBinaryTreeReduce(distBS:PlaceLocalHandle[BlockSet], tmpBS:PlaceLocalHandle[BlockSet], 
-			rootblk:MatrixBlock, colCnt:Int,
+	private static def mpiBinaryTreeReduce(
+			distBS:PlaceLocalHandle[BlockSet], 
+			tmpBS:PlaceLocalHandle[BlockSet], 
+			rootbid:Int, 
+			datCnt:Int,
 			select:(Int,Int)=>Int,
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix, 
-			nearbyPlcList:Array[Int](1), 
-			remotePlcList:Array[Int](1))  {
+			leftRoot:Int, leftPlist:Array[Int](1), 
+			rightPlist:Array[Int](1))  {
 				
 		@Ifdef("MPI_COMMU") {
 			val dstpid = here.id();
-			val rcvbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-			val rcvblk = tmpBS().findFrontBlock(rcvbid, select);
+			val rcvblk = tmpBS().findFrontBlock(rootbid, select);
 			val rcvden = rcvblk.getMatrix() as DenseMatrix;
-			
 			finish {
 				//Left branch reduction
-				val remotepid = remotePlcList(0);
-				at (Dist.makeUnique()(remotepid)) async {
+				at (Dist.makeUnique()(leftRoot)) async {
 					//Remote capture:distBS, tmpBS, colCnt, remotePlcList
-					val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
+					if (leftPlist.size > 0)  {
+						splitReduceToHere(distBS, tmpBS, rootbid, datCnt, select, opFunc, leftPlist);
+					}
 					val rmtblk = distBS().findFrontBlock(rootbid, select);
-					
-					reduceToHere(distBS, tmpBS, rmtblk, colCnt, select, opFunc, remotePlcList);
-					
 					val rmtden = rmtblk.getMatrix() as DenseMatrix;
-					val datcnt = rmtden.M * colCnt;
-					val tag = rootbid;//baseTagCopyTo + here.id();
+					val tag    = rootbid;//baseTagCopyTo + here.id();
 					
-					WrapMPI.world.send(rmtblk.getData(), 0, datcnt, dstpid, tag);
+					WrapMPI.world.send(rmtblk.getData(), 0, datCnt, dstpid, tag);		
 				}
+		
 				//left branch reduction
-				async {
-					reduceToHere(distBS, tmpBS, rootblk, colCnt, select, opFunc, nearbyPlcList);
-					
-					val datcnt = rcvden.M*colCnt;
-					val tag    = rcvbid;//baseTagCopyTo + remotepid;
-					WrapMPI.world.recv(rcvden.d, 0, datcnt, remotepid, tag);
+				if (rightPlist.size > 0)	async {
+					splitReduceToHere(distBS, tmpBS, rootbid, datCnt, select, opFunc, rightPlist);
 				}
 			}
 			
-			val dstden = rootblk.getMatrix() as DenseMatrix;
-			opFunc(rcvden, dstden, colCnt);
+			val tag    = rootbid;//baseTagCopyTo + remotepid;
+			WrapMPI.world.recv(rcvden.d, 0, datCnt, leftRoot, tag);
+
+			val dstblk = distBS().findFrontBlock(rootbid, select);
+			val dstden = dstblk.getMatrix() as DenseMatrix;
+			opFunc(rcvden, dstden, datCnt);
 		}
 	}
 }

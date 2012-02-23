@@ -301,7 +301,7 @@ public class BlockSet  {
 		if (nbid < 0 ) return -1;
 		return findPlace(nbid);
 	}
-	
+
 	//=======================================
 	/**
 	 * Build ring cast place list map
@@ -476,7 +476,7 @@ public class BlockSet  {
 		this.blocklist.clear();
 	}
 	
-	protected def reset():void {
+	public def reset():void {
 		val it = this.blocklist.iterator();
 		while (it.hasNext()) {
 			val b = it.next();
@@ -627,6 +627,36 @@ public class BlockSet  {
 			opFunc:(DenseMatrix,DenseMatrix,Int)=>DenseMatrix) {
 		 val rootblk = this.findFrontBlock(rootbid, select);
 		selectReduce(rootblk, colCnt, select, opFunc);
+	}
+	
+	//---------------------------------------
+	public def gridReduce(dstblk:MatrixBlock, datCnt:Int, 
+			select:(Int,Int)=>Int, opFunc:(DenseMatrix,DenseMatrix, Int)=>DenseMatrix) {
+					
+		val dstden = dstblk.getMatrix() as DenseMatrix;
+		val it = this.blocklist.iterator();
+		val target = select(dstblk.myRowId, dstblk.myColId);
+		while (it.hasNext()) {
+			val blk = it.next();
+			if (blk != dstblk) {
+				val chkid = select(blk.myRowId, blk.myColId);
+				if (target == chkid) {
+					//Debug.flushln("Copy root to ("+blk.myRowId+","+blk.myColId+")");
+					//rootblk.copyCols(0, colCnt, blk.getMatrix());
+					opFunc(blk.getMatrix() as DenseMatrix, dstden, datCnt);
+				}
+			}
+		}
+	}
+	
+	public def rowReduce(dstblk:MatrixBlock, datCnt:Int, 
+			opFunc:(DenseMatrix,DenseMatrix, Int)=>DenseMatrix) {
+		gridReduce(dstblk, datCnt, (r:Int,c:Int)=>r, opFunc);
+	}
+	
+	public def colReduce(dstblk:MatrixBlock, datCnt:Int, 
+			opFunc:(DenseMatrix,DenseMatrix, Int)=>DenseMatrix) {
+		gridReduce(dstblk, datCnt, (r:Int,c:Int)=>c, opFunc);
 	}
 	
 	//======================================

@@ -95,6 +95,9 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * Initial matrix data with function, mapping (row index, column index) to double. 
 	 */
 	abstract public def init(f:(Int, Int)=>Double):Matrix(this);
+	abstract public def init(dv:Double):Matrix(this);
+	abstract public def initRandom():Matrix(this);
+	abstract public def initRandom(lowBound:Int, upperBound:Int):Matrix(this);
 	
 	//======================================================================
 	// Data copy and reset 
@@ -455,6 +458,8 @@ public abstract class Matrix(M:Int, N:Int) {
 	 */	
 	//public def equal(v:Double):Boolean = Matrix.testSame(this, v);
 	public def equals(v:Double):Boolean = VerifyTools.testSame(this, v);
+	public def equals(v:Int):Boolean    = VerifyTools.testSame(this, v as Double);
+	public def equals(v:Long):Boolean   = VerifyTools.testSame(this, v as Double);
 	
 	
 	/** 

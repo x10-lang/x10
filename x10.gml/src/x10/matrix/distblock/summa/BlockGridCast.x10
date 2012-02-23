@@ -32,7 +32,7 @@ import x10.matrix.distblock.BlockSet;
 import x10.matrix.distblock.CastPlaceMap;
 
 /**
- * Ring cast sends data from here to a set of blocks, or partial broadcast
+ * Grid row/column-wise broadcast
  *.
  */
 public class BlockGridCast  {
@@ -45,11 +45,12 @@ public class BlockGridCast  {
 	public static def colWise(rid:Int, cid:Int):Int = cid;
 	
 	/**
-	 * Sends data of the front block at here that has same row block id as root block to all front blocks 
-	 * in other places in the same row 
+	 * Sending columns of data in root block at here to front blocks row-wise, that has same row block id 
+	 * as root block to all front blocks in specified places
 	 *
 	 * @param distBS     distributed block sets in all places
 	 * @param rootbid    root block id
+	 * @param colCnt     Number of columns in root block sending out (used in sparse matrix)
 	 * @param datCnt     number of data to send out
 	 * @param plst       list of places to receive data
 	 */
@@ -59,8 +60,8 @@ public class BlockGridCast  {
 	}
 	
 	/**
-	 * Sends data of the front block at here that has the same column block id as root block 
-	 * to all front blocks in other places the same column
+	 * Sending rows of data in root block data at here column-wise to front blocks that has the same column block 
+	 * id as root block in specified places
 	 * 
 	 * @param distBS     distributed block sets in all places
 	 * @param rootbid    root block id
