@@ -104,9 +104,9 @@ public class X10CompilerOptions extends polyglot.main.Options {
 	            PrecompiledLibrary libObj = new PrecompiledLibrary(f.getParentFile().getAbsolutePath(), properties);
 	            addLocalPrecompiledLibrary(libObj);
 	        } catch(IOException e) {
-	            UsageError ue = new UsageError("Unable to load x10library file "+libFile+" "+ e.getMessage());
-	            ue.initCause(e);
-	            throw ue;
+	            Main.TerminationException te = new Main.TerminationException("Unable to load x10library file "+ e.getMessage());
+	            te.initCause(e);
+	            throw te;
 	        }
 	        return ++i;
 		}
@@ -145,7 +145,7 @@ public class X10CompilerOptions extends polyglot.main.Options {
 		usageForFlag(out, "-noassert", "turn off assertion generation");
 		usageForFlag(out, "-o <path>", "set generated executable path (for the post-compiler)");
 		usageForFlag(out, "-x10lib <lib.properties>", "use the precompiled x10 library described by <lib.properties>");
-		usageForFlag(out, "-buildx10lib", "build an x10 library");
+		usageForFlag(out, "-buildx10lib <path>", "build an x10 library");
 
 		String[][] options = x10_config.options();
 		for (int i = 0; i < options.length; i++) {

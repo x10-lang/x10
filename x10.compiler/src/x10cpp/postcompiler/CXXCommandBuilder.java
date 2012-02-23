@@ -229,24 +229,27 @@ public class CXXCommandBuilder {
      * @param cxxCmd the container to which to append the arguments.
      */
     public void addExecutablePath(ArrayList<String> cxxCmd) {
-        File exe = null;
+        File exe = targetFilePath();
+        if (exe != null) {
+            cxxCmd.add("-o");
+            cxxCmd.add(exe.getAbsolutePath().replace(File.separatorChar,'/'));
+        }
+    }
+
+    public File targetFilePath() {
+        File target = null;
         if (options.buildX10Lib != null) {
         	if (options.executable_path != null) {
-                exe = new File(options.buildX10Lib + "/lib/" + sharedLibProps.libPrefix + options.executable_path + sharedLibProps.libSuffix);
-        	} else {
-                return;
-        	}
+                target = new File(options.buildX10Lib + "/lib/" + sharedLibProps.libPrefix + options.executable_path + sharedLibProps.libSuffix);
+         	}
         } else {
         	if (options.executable_path != null) {
-                exe = new File(options.executable_path);
+                target = new File(options.executable_path);
 	        } else if (options.x10_config.MAIN_CLASS != null) {
-	            exe = new File(options.output_directory, options.x10_config.MAIN_CLASS);
-	        } else {
-	            return;
+	            target = new File(options.output_directory, options.x10_config.MAIN_CLASS);
 	        }
         }
-        cxxCmd.add("-o");
-        cxxCmd.add(exe.getAbsolutePath().replace(File.separatorChar,'/'));
+        return target;
     }
 
     /** Construct the C++ compilation command */
@@ -279,7 +282,11 @@ public class CXXCommandBuilder {
         boolean skipArgs = token.equals("%");
         if (!skipArgs) {
             addPreArgs(cxxCmd);
-            addExecutablePath(cxxCmd);
+            if (options.buildX10Lib != null && sharedLibProps.staticLib) {
+                cxxCmd.add("-c");
+            } else {
+                addExecutablePath(cxxCmd);
+            }
         }
 
         for (String file : outputFiles) {

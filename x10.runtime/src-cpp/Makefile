@@ -129,6 +129,9 @@ $(SHLIB_PROPERTIES): $(XRX_REL_SRCS)
 	@echo "X10LIB_LIBPREFIX=$(LIBPREFIX)" >> $@
 	@echo "X10LIB_LIBSUFFIX=$(LIBSUFFIX)" >> $@
 	@echo "X10LIB_X10_STATIC_LIB=$(X10_STATIC_LIB)" >> $@
+	@echo "X10LIB_AR=$(AR)" >> $@
+	@echo "X10LIB_ARFLAGS=$(ARFLAGS)" >> $@
+
 
 ##########################
 # Manually-written Files #
