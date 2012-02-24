@@ -26,6 +26,11 @@ public class TestBlockBlockDist extends x10Test {
         val gridDist4 = Dist.makeBlockBlock(0..5*0..6, 0, 1);
         checkDist(gridDist4);
 
+        val region5 = (1..10)*(-2..10)*(1..10);
+        val dist5 = Dist.makeBlockBlock(region5, 0, 1);
+        val regionForZero = dist5(Place.place(0));
+        chk(region5.minPoint().equals(regionForZero.minPoint()));
+
         return true;
     }
 
