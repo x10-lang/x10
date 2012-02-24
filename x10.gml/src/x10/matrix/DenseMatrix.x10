@@ -927,9 +927,7 @@ public class DenseMatrix extends Matrix {
 	 * @param  B 	second dense matrix in multiply
 	 * @return		result of multiply ("this", the method invoking object)
 	 */
-	public def mult(
-			A:DenseMatrix(this.M), 
-			B:DenseMatrix(A.N,this.N))=
+	public def mult(A:DenseMatrix(this.M), B:DenseMatrix(A.N,this.N))=
 		mult(A, B, false);
 
 	/**
@@ -941,9 +939,7 @@ public class DenseMatrix extends Matrix {
 	 * @param  plus	result add-on flag
 	 * @return		result
 	 */
-	public def mult(A:DenseMatrix(this.M), 
-					B:DenseMatrix(A.N, this.N),//DenseMatrix(A.N,N), 
-					plus:Boolean) {
+	public def mult(A:DenseMatrix(this.M), B:DenseMatrix(A.N, this.N),	plus:Boolean) {
 		DenseMatrixBLAS.comp(A, B, this, plus); //BLAS driver
 		return this;
 	}
@@ -956,10 +952,8 @@ public class DenseMatrix extends Matrix {
 	 * @param  B 	second dense matrix used in transposed
 	 * @return		result
 	 */
-	public def transMult(
-			A:DenseMatrix{self.N==this.M}, 
-			B:DenseMatrix(A.M, this.N) //DenseMatrix(A.N,N), 
-	) = transMult(A, B, false);
+	public def transMult(A:DenseMatrix{self.N==this.M},	B:DenseMatrix(A.M, this.N)) = 
+		transMult(A, B, false);
 	
 	/**
 	 * Multiply two dense matrices and return this += A<sup>T<sup> &#42 B if plus is true,
@@ -971,10 +965,7 @@ public class DenseMatrix extends Matrix {
 	 * @param  plus	add-on flag
 	 * @return		result
 	 */
-	public def transMult(
-			A:DenseMatrix{self.N==this.M}, 
-			B:DenseMatrix(A.M,this.N),//DenseMatrix(A.N,N), 
-			plus:Boolean) {
+	public def transMult(A:DenseMatrix{self.N==this.M},B:DenseMatrix(A.M,this.N), plus:Boolean) {
 		DenseMatrixBLAS.compTransMult(A, B, this, plus); //BLAS driver
 		return this;
 	}
@@ -988,10 +979,7 @@ public class DenseMatrix extends Matrix {
 	 * @param  plus	add-on flag
 	 * @return		result
 	 */
-	public def multTrans(
-			A:DenseMatrix(this.M), 
-			B:DenseMatrix(this.N,A.N),
-			plus:Boolean) {
+	public def multTrans(A:DenseMatrix(this.M), B:DenseMatrix(this.N,A.N),plus:Boolean) {
 		DenseMatrixBLAS.compMultTrans(A, B, this, plus); //BLAS driver
 		return this;
 	}
@@ -1004,9 +992,9 @@ public class DenseMatrix extends Matrix {
 	 * @param  B 	second matrix
 	 * @return		result
 	 */
-	public def multTrans(A:DenseMatrix(this.M), 
-						 B:DenseMatrix(this.N,A.N) //DenseMatrix(A.N,N), 
-						 )  = multTrans(A, B, false);
+	public def multTrans(A:DenseMatrix(this.M), B:DenseMatrix(this.N,A.N)) = 
+		multTrans(A, B, false);
+	
 	//==================================================================
 	// Sparse multiply to Dense
 	//==================================================================

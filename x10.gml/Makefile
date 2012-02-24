@@ -89,6 +89,7 @@ comm_src=\
 	x10/matrix/comm/BlockSetReduce.x10
 
 
+
 bwrap_src=\
 	x10/matrix/blas/DenseMatrixBLAS.x10 \
 	x10/matrix/blas/BLAS.x10 \
@@ -135,15 +136,17 @@ dist_src=\
 	x10/matrix/distblock/DistGrid.x10 \
 	x10/matrix/distblock/BlockSet.x10 \
 	x10/matrix/distblock/DistBlockMatrix.x10 \
-	x10/matrix/distblock/DupBlockMatrix.x10 \
+	x10/matrix/distblock/DupBlockMatrix.x10  \
 	x10/matrix/distblock/DistDistMult.x10 \
+	x10/matrix/distblock/CastPlaceMap.x10 \
 	x10/matrix/distblock/DistDupMult.x10 \
 	x10/matrix/distblock/summa/SummaMult.x10 \
 	x10/matrix/distblock/summa/BlockGridCast.x10 \
 	x10/matrix/distblock/summa/AllGridCast.x10 \
-	x10/matrix/distblock/summa/BlockGridReduce.x10
+	x10/matrix/distblock/summa/BlockGridReduce.x10 \
+	x10/matrix/distblock/summa/AllGridReduce.x10 \
+	x10/matrix/distblock/summa/SummaMultTrans.x10
 
-	
 
 summa_src=\
 	x10/matrix/dist/summa/SummaDenseMultSparse.x10 \

@@ -200,8 +200,8 @@ public class SummaMultTrans {
 					}
 					//Debug.flushln("A block:"+amat.dataToString());
 					//Debug.flushln("W2 block:"+bmat.dataToString());
-					val wmat:Matrix = new DenseMatrix(amat.M, klen, wblk.getData()) as Matrix(amat.M,klen);
-					wmat.multTrans(amat, bmat as Matrix{self.N==amat.N}, true);
+					val wmat = new DenseMatrix(amat.M, klen, wblk.getData()) as Matrix(amat.M,klen);
+					wmat.multTrans(amat, bmat as Matrix(klen, amat.N), true);
 				}
 			 }
 
