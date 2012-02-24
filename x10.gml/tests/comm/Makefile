@@ -10,9 +10,9 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list = TestColl TestP2P TestSparseColl TestBlockP2P TestBlockColl TestBlockSetComm
+target_list = TestColl TestP2P TestSparseColl TestBlockP2P TestBlockColl TestBlockSetComm TestGridCast TestGridReduce
 
-target		= TestBlockSetComm
+target		= TestGridReduce
 
 # build path
 build_path	= build
@@ -25,7 +25,7 @@ X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #
 
 # runtime settings
 runtime_list = mpi sock java
-numplaces = 3
+numplaces = 4
 test_args = 
 
 ###################################################

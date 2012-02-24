@@ -16,16 +16,17 @@ import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.block.Grid;
-import x10.matrix.distblock.DistBlockMatrix;		
+import x10.matrix.distblock.DistBlockMatrix;
+import x10.matrix.distblock.CastPlaceMap;
+import x10.matrix.distblock.BlockSet;
 
 import x10.matrix.comm.BlockBcast;
 import x10.matrix.comm.BlockScatter;
 import x10.matrix.comm.BlockGather;
-import x10.matrix.comm.BlockRingCast;
-import x10.matrix.comm.BlockRingReduce;
 import x10.matrix.comm.BlockReduce;
 
-
+import x10.matrix.distblock.summa.AllGridCast;
+import x10.matrix.distblock.summa.AllGridReduce;
 /**
    This class contains test cases P2P communication for matrix over different places.
    <p>
@@ -70,7 +71,7 @@ class BlockCollTest {
 		M=m; N=n;
 		nzdensity = d;
 		bM = bm; bN = bn;
-		
+				
 		dbmat = DistBlockMatrix.makeDense(m*bm, n*bn, bm, bn);
 		tmpmat = DistBlockMatrix.makeDense(m*bm, n*bn, bm, bn);
 		sbmat = DistBlockMatrix.makeSparse(m*bm, n*bn, bm, bn, nzdensity);
@@ -95,21 +96,15 @@ class BlockCollTest {
 		retval &= testBcast(dbmat);
 		retval &= testGather(dbmat, dblks);
 		retval &= testScatter(dblks, dbmat);
-		retval &= testRingCastRow(dbmat);
-		retval &= testRingCastCol(dbmat);
-	
-		retval &= testRingReduceRow(dbmat);
-		retval &= testRingReduceCol(dbmat);
-		
 
+// 
 		Console.OUT.println("****************************************************************");
 		Console.OUT.println("Test sparse blocks collective commu in distributed block matrix");	
 		Console.OUT.println("****************************************************************");
 		retval &= testBcast(sbmat);
 		retval &= testGather(sbmat, sblks);
 		retval &= testScatter(sblks, sbmat);
-		retval &= testRingCastRow(sbmat);
-		retval &= testRingCastCol(sbmat);		
+
 		if (retval) 
 			Console.OUT.println("Block communication test collective commu passed!");
 		else
@@ -194,115 +189,7 @@ class BlockCollTest {
 		return ret;
 	}
 	
-	public def testRingCastRow(distmat:DistBlockMatrix):Boolean {
-		var ret:Boolean = true;
-		val grid = distmat.getGrid();
 
-		Console.OUT.printf("\nTest ring cast row-wise of dist block matrix over %d places\n", numplace);
-		distmat.reset();
-		var cid:Int =0;
-		
-		for (var rid:Int=0; rid<grid.numRowBlocks; rid++, cid=(cid+1)%grid.numColBlocks) {
-			val rtbid  = grid.getBlockId(rid, cid);
-			val colcnt = grid.getColSize(rtbid);
-			
-			distmat.initBlock(rtbid, (r:Int,c:Int)=>1.0*((r+c)%2)*(r+c+1.0));
-			//distmat.printMatrix("Init");
-			BlockRingCast.rowCast(distmat.handleBS, rtbid, colcnt);
-			//distmat.printMatrix("row cast result");
-			
-		}
-		
-		ret = distmat.checkAllBlocksEqual();
-		Debug.flushln("Done verification");
 
-		if (ret)
-			Console.OUT.println("Test ringcast row-wise for dist block matrix test passed!");
-		else
-			Console.OUT.println("-----Test ringcast row-wise for dist block matrix failed!-----");
-		return ret;
-	}
-	
-	public def testRingCastCol(distmat:DistBlockMatrix):Boolean {
-		var ret:Boolean = true;
-		val grid = distmat.getGrid();
-
-		Console.OUT.printf("\nTest ring cast column-wise of dist block matrix over %d places\n", numplace);
-		distmat.reset();
-		var rid:Int =0;
-		
-		for (var cid:Int=0; cid<grid.numColBlocks; cid++, rid=(rid+1)%grid.numRowBlocks) {
-			val rtbid  = grid.getBlockId(rid, cid);
-			val colcnt = grid.getColSize(rtbid);
-			//Debug.flushln("Set root block:"+rtbid+"("+rid+","+cid+")");
-
-			distmat.initBlock(rtbid, (r:Int,c:Int)=>1.0*((r+c)%2)*(r+c+1.0));
-			//distmat.printMatrix("Init root block");
-			BlockRingCast.colCast(distmat.handleBS, rtbid, colcnt);
-			//distmat.printMatrix("");
-		}
-		
-		ret = distmat.checkAllBlocksEqual();
-		Debug.flushln("Done verification");
-
-		if (ret)
-			Console.OUT.println("Test ringcast column-wise for dist block matrix test passed!");
-		else
-			Console.OUT.println("-----Test ringcast column-wise for dist block matrix failed!-----");
-		return ret;
-	}
-
-	
-	public def testRingReduceRow(distmat:DistBlockMatrix):Boolean {
-		var ret:Boolean = true;
-		val grid = distmat.getGrid();
-
-		Console.OUT.printf("\nTest ring reduce row-wise of dist block matrix over %d places\n", numplace);
-		distmat.reset();
-		var cid:Int =0;
-		for (var rid:Int=0; rid<grid.numRowBlocks && ret; rid++, cid=(cid+1)%grid.numColBlocks) {
-			distmat.init(1.0);
-			val rtbid  = grid.getBlockId(rid, cid);
-			val colcnt = grid.getColSize(rtbid);
-			
-			//distmat.printMatrix("Init");
-			BlockRingReduce.rowReduceSum(distmat.handleBS, tmpmat.handleBS, rtbid, colcnt);
-			//distmat.printMatrix("row cast result");
-			
-			ret &= distmat.fetchBlock(rtbid).getMatrix().equals(1.0*grid.numColBlocks);
-		}
-		
-		if (ret)
-			Console.OUT.println("Test ring reduce row-wise for dist block matrix test passed!");
-		else
-			Console.OUT.println("-----Test ring reduce row-wise for dist block matrix failed!-----");
-		return ret;
-	}
-	
-	public def testRingReduceCol(distmat:DistBlockMatrix):Boolean {
-		var ret:Boolean = true;
-		val grid = distmat.getGrid();
-
-		Console.OUT.printf("\nTest ring reduce col-wise of dist block matrix over %d places\n", numplace);
-		distmat.reset();
-		var rid:Int =0;
-		for (var cid:Int=0; cid<grid.numColBlocks; cid++, rid=(rid+1)%grid.numRowBlocks) {
-			distmat.init(1.0);
-			val rtbid  = grid.getBlockId(rid, cid);
-			val colcnt = grid.getColSize(rtbid);
-			
-			//distmat.printMatrix("Init");
-			BlockRingReduce.colReduceSum(distmat.handleBS, tmpmat.handleBS, rtbid, colcnt);
-			//distmat.printMatrix("row cast result");
-			
-			ret &= distmat.fetchBlock(rtbid).getMatrix().equals(1.0*grid.numRowBlocks);
-		}
-		
-		if (ret)
-			Console.OUT.println("Test ring reduce col-wise for dist block matrix test passed!");
-		else
-			Console.OUT.println("-----Test ring reduce col-wise for dist block matrix failed!-----");
-		return ret;
-	}
-
+	//===============================
 }
