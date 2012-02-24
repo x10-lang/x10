@@ -84,12 +84,12 @@ final class BlockBlockDist extends Dist {
         val blockIndex0 = i < leftOver ? (i*2-leftOverOddOffset) % divisions0 : (i+leftOver) % divisions0;
         val blockIndex1 = i < leftOver ? (i*2) / divisions0 : (i+leftOver) / divisions0;
 
-        val low0 = Math.ceil(blockIndex0 * size0 / divisions0 as Double) as Int;
+        val low0 = min0 + Math.ceil(blockIndex0 * size0 / divisions0 as Double) as Int;
         val blockHi0 = blockIndex0 + (i < leftOver ? 2 : 1);
-        val hi0 = Math.ceil(blockHi0 * size0 / divisions0 as Double) as Int - 1;
+        val hi0 = min0 + Math.ceil(blockHi0 * size0 / divisions0 as Double) as Int - 1;
 
-        val low1 = Math.ceil(blockIndex1 * size1 / divisions1 as Double) as Int;
-        val hi1 = Math.ceil((blockIndex1+1) * size1 / divisions1 as Double) as Int - 1;
+        val low1 = min1 + Math.ceil(blockIndex1 * size1 / divisions1 as Double) as Int;
+        val hi1 = min1 + Math.ceil((blockIndex1+1) * size1 / divisions1 as Double) as Int - 1;
 
         if (region instanceof RectRegion) {
             // Optimize common case.
