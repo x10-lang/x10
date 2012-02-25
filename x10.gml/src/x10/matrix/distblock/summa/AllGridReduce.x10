@@ -64,22 +64,22 @@ public class AllGridReduce {
 			work1:PlaceLocalHandle[BlockSet], tmp:PlaceLocalHandle[BlockSet]) {
 		
 		val grid = work1().getGrid();
-		val itr  = work1().iterator();
+		val itr  = distC.handleBS().iterator();
 		
 		while (itr.hasNext()) {
-			val blk = itr.next();
-			//if (blk.myColId != itCol) continue;
-			val rootbid = grid.getBlockId(blk.myRowId, blk.myColId);
-			//val dstblk  = work1().findFrontRowBlock(blk.myRowId);
+			val dstblk = itr.next() as DenseBlock;
+			if (dstblk.myColId != itCol) continue;
+			val rootbid = grid.getBlockId(dstblk.myRowId, dstblk.myColId);
+			val srcblk  = work1().findFrontRowBlock(dstblk.myRowId);
 			//Debug.flushln("Copy block :"+blk.myRowId+","+blk.myColId+" to "+dstblk.myRowId+","+dstblk.myColId);
 			//if (blk.myRowId==0)	Debug.flushln("Root block :\n"+blk.toString());
 			
-			val datcnt = blk.compColDataSize(jj, klen);	//copyCols(jj, klen, dstblk.getMatrix());
-			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(blk.myRowId);			
+			val datcnt = srcblk.compColDataSize(jj, klen);	//copyCols(jj, klen, dstblk.getMatrix());
+			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(srcblk.myRowId);			
 			BlockGridReduce.rowReduceSum(work1, tmp, rootbid, datcnt, rowplst);
 
-			val dstblk = distC.handleBS().find(blk.myRowId, itCol) as DenseBlock;
-			val srcden = blk.getMatrix() as DenseMatrix;
+			//val dstblk = distC.handleBS().find(blk.myRowId, itCol) as DenseBlock;
+			val srcden = srcblk.getMatrix() as DenseMatrix;
 			dstblk.addCols(jj, klen, srcden);
 		}
 	}
@@ -90,6 +90,7 @@ public class AllGridReduce {
 	 *  Not used in SUMMA. Reserve for future mult-trans SUMMA
 	 */
 	public static def startColReduceSum(ii:Int, klen:Int, itRow:Int, 
+			distC:DistBlockMatrix,
 			work2:PlaceLocalHandle[BlockSet],  tmp:PlaceLocalHandle[BlockSet]){
 		
 		val dmap = work2().getDistMap();
@@ -97,7 +98,7 @@ public class AllGridReduce {
 		val sttplc = dmap.findPlace(grid.getBlockId(itRow, 0));
 		if (here.id()!= sttplc) {
 			at (Dist.makeUnique()(sttplc)) {
-				startColReduceSum(ii, klen, itRow, work2, tmp);
+				startColReduceSum(ii, klen, itRow, distC, work2, tmp);
 			}
 		} else {
 			//Using row cast place list as the starting places of row cast
@@ -106,10 +107,10 @@ public class AllGridReduce {
 				val pid = plst(p);
 				if (pid != here.id()) async {
 					at (Dist.makeUnique()(pid)) {
-						colReduceSumAll(ii, klen, itRow, work2, tmp);
+						colReduceSumAll(ii, klen, itRow, distC, work2, tmp);
 					}
 				} else async {
-					colReduceSumAll(ii, klen, itRow, work2, tmp);
+					colReduceSumAll(ii, klen, itRow, distC, work2, tmp);
 				}
 			}
 
@@ -118,27 +119,28 @@ public class AllGridReduce {
 	
 	protected static def colReduceSumAll(
 			ii:Int, klen:Int, itRow:Int, 
+			distC:DistBlockMatrix,
 			work2:PlaceLocalHandle[BlockSet],  
 			tmp:PlaceLocalHandle[BlockSet]) {
 		
 		val grid = work2().getGrid();
-		val itr  = work2().iterator();
+		val itr  = distC.handleBS().iterator();
 		
 		while (itr.hasNext()) {
-			val blk = itr.next();
-			//if (blk.myRowId != itRow) continue;
+			val dstblk = itr.next() as DenseBlock;
+			if (dstblk.myRowId != itRow) continue;
 			
-			val rootbid = grid.getBlockId(blk.myRowId, blk.myColId);
+			val rootbid = grid.getBlockId(dstblk.myRowId, dstblk.myColId);
 			//------------------------------------------------
-			val dstblk  = work2().findFrontColBlock(blk.myColId);
-			var mat:Matrix = dstblk.getMatrix();
+			val srcblk  = work2().findFrontColBlock(dstblk.myColId);
+			var mat:Matrix = srcblk.getMatrix();
 			if (mat instanceof DenseMatrix && klen != mat.M) {
 				val den = new DenseMatrix(klen, mat.N, (mat as DenseMatrix).d);
 				mat = den as Matrix;
 			}
-			val datcnt = blk.copyRows(ii, klen, mat);
+			val datcnt = dstblk.copyRows(ii, klen, mat);
 			//-------------------------------------------------
-			val colplst:Array[Int](1) = work2().colCastPlaceMap.getPlaceList(blk.myColId);						
+			val colplst:Array[Int](1) = work2().colCastPlaceMap.getPlaceList(dstblk.myColId);						
 			BlockGridReduce.colReduceSum(work2, tmp, rootbid, datcnt, colplst);	
 		}	
 	}

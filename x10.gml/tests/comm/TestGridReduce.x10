@@ -126,20 +126,18 @@ class  GridReduceTest {
 		val grid = distmat.getGrid();
 		val dmap = distmat.getMap();
 		val tmp   = distmat.makeTempFrontColBlocks(1);
-		
 		val work2 = distmat.makeTempFrontColBlocks(1);
 		
 		for (var rowId:Int=0; rowId<grid.numRowBlocks&&retval; rowId++) {
 			
 			initFrontBlocks(1.0, work2);
-			
-			finish AllGridReduce.startColReduceSum(0, 1, rowId, work2, tmp);
+			finish AllGridReduce.startColReduceSum(0, 1, rowId, distmat, work2, tmp);
 			
 			Debug.flushln("Done col-wise cast from row block "+rowId+" over "+pM+" places column-wise");
-			retval &= verifyColReduceSum(pM as Double, 1, rowId, work2);
-			Debug.flushln("Done verification from root block with row block Id:"+rowId);
+
 		}
-		
+		retval &= distmat.equals(pN as Double);
+
 		if (retval)
 			Console.OUT.println("Test ring reduce col-wise for dist block matrix test passed!");
 		else

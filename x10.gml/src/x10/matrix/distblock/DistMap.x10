@@ -22,28 +22,16 @@ import x10.matrix.block.Grid;
 
 /**
  * This class represents how matrix blocks in a partition grid are distributed
- * among all places.
+ * to all places.
  * <p>
  * In a grid partitioning, all blocks are assigned with block numbers in a column-wise
- * fashion.  DistGrid provides a mechanism (or mapping functions) between a block number
+ * fashion.  DistGrid provides a mechanism (mapping functions) between a block number
  * and a place number.
  * 
- * <p> There are several mapping functions provided through this class,
- * The default one-2-one function mapps each block to the place with the place ID.
+ * <p> There are several mapping functions provided in this class, including cylic, 
+ * constant and unique distrition of blocks to number of places.
  * 
- * Propose function
- * 1) When partition blocks > places, partitioning blocks and grouping adjacent blocks
- * to the same place in the same way that matrix is partitioned.
  * 
- * 2) Mapping list: given a block ID ==> a place ID.
- * Mapping list is a m-to-n function, where m>=n, m is number of blocks, and n is number of 
- * places.
- * 
- * In this implementation, one hash table and one list array are used, 
- * The hash table maps place IDs to block IDs, where place ID is key and
- * block ID is value. The list array maps block IDs to place IDs.
- * Therefore, it is easy for iteration over blocks as well as over places. 
- * However, these two maps must keep consistance.
  */
 
 public class DistMap(numBlock:Int, numPlace:Int)  {
@@ -75,6 +63,7 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
 		return dmap;
 	}
 	
+	public static def makeCylic(numBlk:Int) = make(numBlk, (i:Int)=>i%Place.MAX_PLACES);
 	public static def makeCylic(numBlk:Int, numPlc:Int) = make(numBlk, (i:Int)=>i%numPlc);
 	public static def makeUnique() = make(Place.MAX_PLACES, (i:Int)=>i);
 	public static def makeUnique(numBlk:Int) = make(numBlk, (i:Int)=>i);
@@ -146,5 +135,13 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
  			retval &= this.blockmap(i)==that.blockmap(i);
  		}
  		return retval;
+ 	}
+ 	
+ 	public def toString():String {
+ 		var mapstr:String="[";
+ 		for (var i:Int=0; i<blockmap.size; i++)
+ 			mapstr += " b"+i+":"+blockmap(i)+",";
+ 		
+ 		return numBlock.toString()+" blocks"+ numPlace.toString()+"\n"+mapstr+"]\n";
  	}
 }

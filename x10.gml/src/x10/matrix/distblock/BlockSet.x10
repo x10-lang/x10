@@ -317,16 +317,49 @@ public class BlockSet  {
 	
 	
 	//=======================================
-	public def find(rid:Int, cid:Int): MatrixBlock {
-		val it = this.iterator();
-		while (it.hasNext()) {
-			val blk = it.next();
-			if (blk.myRowId == rid &&
-				blk.myColId == cid ) return blk;
-		}
-		Debug.exit("Cannot find block ("+rid+","+cid+") at place "+here.id());
-		return null;
+	protected def search(rid:Int, cid:Int):Int {
+		if (blocklist.size() == 0) return -1;
+
+		var min:Int = 0; 
+		var max:Int = blocklist.size() - 1; 
+		var blk:MatrixBlock;
+		var mid:Int = min;
+		do {
+			mid = min + (max - min) / 2;
+			blk = blocklist.get(mid);
+			
+			if (blk.myColId < cid || ( blk.myColId == cid && blk.myRowId < rid)) {
+				min = mid + 1;
+			} else {
+				max = mid - 1; 
+			}
+			blk = blocklist.get(mid);
+			if (blk.myRowId == rid && blk.myColId== cid) return mid;			
+			
+		} while ( min<=max );
+		return -1;
 	}
+
+	public def find(rid:Int, cid:Int):MatrixBlock {
+		val idx = search(rid, cid);
+		if (idx < 0 ) {
+			Debug.flushln(toString());
+			Debug.flushln(dmap.toString());
+			Debug.exit("Cannot find block ("+rid+","+cid+") at place "+here.id());
+		}
+		return blocklist.get(idx);
+	}
+	
+	// public def find(rid:Int, cid:Int): MatrixBlock {
+	// 	val it = this.iterator();
+	// 	while (it.hasNext()) {
+	// 		val blk = it.next();
+	// 		if (blk.myRowId == rid &&
+	// 			blk.myColId == cid ) return blk;
+	// 	}
+	// 	Debug.exit("Cannot find block ("+rid+","+cid+") at place "+here.id());
+	// 	return null;
+	// }
 	
 	@Inline
 	public def findBlock(bid:Int) = find(bid);
