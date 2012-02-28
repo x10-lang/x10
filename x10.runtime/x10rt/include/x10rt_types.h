@@ -40,11 +40,12 @@ typedef void x10rt_completion_handler2 (x10rt_team, void *arg);
 
 /** An integer type capable of representing any message type id.
  */
-#if defined(__bgp__) 
-// maintain compatability with pre-compiled pgas_bgp libs
-typedef uint16_t x10rt_msg_type;
-#else
+#if defined(X10RT_32BIT_MSG_IDS) 
+// use 32 bits to maintain 4 byte alignment for PAMI
 typedef uint32_t x10rt_msg_type;
+#else
+// only need 16 bits; optimize message size & maintain compatibility with binary pgas libraries (bgp, lapi)
+typedef uint16_t x10rt_msg_type;
 #endif
 
 /** An integer type capable of representing a remote void* or size_t.
