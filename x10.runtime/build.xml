@@ -379,6 +379,10 @@
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
             <arg value="${cppmake.no_checks}" />
+            <arg value="${cppmake.x10rt_mpi}" />
+       	    <arg value="${cppmake.x10rt_pami}" />
+            <arg value="${cppmake.x10rt_pgas}" />
+            <arg value="${cppmake.x10rt_cuda}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
     </target>

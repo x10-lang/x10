@@ -57,6 +57,13 @@ ifdef DEBUG
   X10CPPFLAGS += -DEBUG
 endif
 
+# This has to be here, because it impacts x10rt_types.h
+# Changing it just in the build of x10rt itself is not enough
+ifdef ENABLE_X10RT_PAMI
+    override CXXFLAGS += -DX10RT_32BIT_MSG_IDS
+    override X10RT_PROPS_CXXFLAGS += -DX10RT_32BIT_MSG_IDS
+endif
+
 ifndef JAVA_HOME
   ifeq ($(shell uname -s),Darwin)
     JAVA_HOME=$(shell /usr/libexec/java_home)

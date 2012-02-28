@@ -74,7 +74,7 @@ endif
 etc/x10rt_pami.properties:
 	@echo "X10LIB_PLATFORM=$(X10RT_PLATFORM)" > $@
 	@echo "X10LIB_CXX=$(CXX)" >> $@
-	@echo "X10LIB_CXXFLAGS=" >> $@
+	@echo "X10LIB_CXXFLAGS=$(X10RT_PROPS_CXXFLAGS)" >> $@
 	@echo "X10LIB_LDFLAGS=$(APP_LDFLAGS_PAMI)" >> $@
 	@echo "X10LIB_LDLIBS=$(APP_LDLIBS_PAMI)" >> $@
 
