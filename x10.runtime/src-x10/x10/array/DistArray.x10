@@ -71,8 +71,17 @@ public final class DistArray[T] (
     public property rank(): int = dist.rank;
 
     protected static class LocalState[T](dist:Dist, data:IndexedMemoryChunk[T]) {
-      public def this(dist:Dist, c:IndexedMemoryChunk[T]) { property(dist, c); }
+      public def this(d:Dist, c:IndexedMemoryChunk[T]) { 
+          property(d, c);
+
+          // Calling operator this here serves to force initialization of any 
+          // cached local state in the Dist object.  The main reason for doing
+          // this is to avoid lazy creation of this state (and thus allocation) 
+          // when the debugger uses the LocalState to display the elements of a DistArray
+          val unused = d(here);
+      }
     }
+
     /** The place-local backing storage for the DistArray */
     protected val localHandle:PlaceLocalHandle[LocalState[T]];
     /** Can the backing storage be obtained from cachedRaw? */

@@ -132,6 +132,9 @@ final class BlockDist extends Dist {
             return blockRegionForPlace(p);
         }
     }
+
+    public def containsLocally(p:Point):boolean = get(here).contains(p);
+
     
     // replicated from superclass to workaround xlC bug with using & itables
     public operator this(p:Place):Region(rank) = get(p);
