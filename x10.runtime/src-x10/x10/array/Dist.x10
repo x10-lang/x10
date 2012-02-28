@@ -586,6 +586,13 @@ public abstract class Dist(
      */
     public def contains(p:Point):boolean = region.contains(p);
 
+    /**
+     * Returns true iff this.region contains p and
+     * the distribution maps p to here.
+     * This method is intended to be overriden in subclasses
+     * that can provide more efficient implementations of this operation.
+     */
+    public def containsLocally(p:Point):boolean = contains(p) && this(here).contains(p);
 
     //
     // ops
