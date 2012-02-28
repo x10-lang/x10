@@ -199,9 +199,9 @@ public class DistBlockMatrix extends Matrix{
 	
 	/**
 	 * Used to create temporary space in SUMMA. This method does not creat a complete 
-	 * distributed block matrix. It only creates the first blocks in each row of 
-	 * the current this block set. It is used to as temp space to store data from
-	 * the first operand matrix in SUMMA
+	 * distributed block matrix. It only creates the front blocks of specified number of rows.
+	 * The front row blocks are used to as temp space to store data of rows of matrix from
+	 * of the second perand in SUMMA
 	 */
 	public def makeTempFrontRowBlocks(rowCnt:Int) =
 		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
@@ -209,13 +209,17 @@ public class DistBlockMatrix extends Matrix{
 	
 	/**
 	 * Used to creat temporary space in SUMMA. This method does not creat a complete 
-	 * distributed block matrix. It only creates the first blocks in each column of 
-	 * the current this block set. It is used to as temp space to store data from
-	 * the second operand matrix in SUMMA
+	 * distributed block matrix. It only creates the front blocks of specified number of
+	 * columns. The front column blocks are used to as temp space to store data of
+	 * columns from the first operand matrix in SUMMA
 	 */
 	public def makeTempFrontColBlocks(colCnt:Int) =
 		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
 				()=>this.handleBS().makeFrontColBlockSet(colCnt));
+
+	public def makeTempFrontColDenseBlocks(colCnt:Int) =
+		PlaceLocalHandle.make[BlockSet](Dist.makeUnique(),
+				()=>this.handleBS().makeFrontColDenseBlockSet(colCnt));
 	
 	//================================================
 	public def init(dval:Double) : DistBlockMatrix(this){

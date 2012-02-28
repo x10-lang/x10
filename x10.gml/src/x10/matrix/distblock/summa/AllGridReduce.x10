@@ -70,7 +70,7 @@ public class AllGridReduce {
 			val dstblk = itr.next() as DenseBlock;
 			if (dstblk.myColId != itCol) continue;
 			val rootbid = grid.getBlockId(dstblk.myRowId, dstblk.myColId);
-			val srcblk  = work1().findFrontRowBlock(dstblk.myRowId);
+			val srcblk  = work1().findFrontColBlock(dstblk.myRowId);
 			//Debug.flushln("Copy block :"+blk.myRowId+","+blk.myColId+" to "+dstblk.myRowId+","+dstblk.myColId);
 			//if (blk.myRowId==0)	Debug.flushln("Root block :\n"+blk.toString());
 			
@@ -78,7 +78,7 @@ public class AllGridReduce {
 			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(srcblk.myRowId);			
 			BlockGridReduce.rowReduceSum(work1, tmp, rootbid, datcnt, rowplst);
 
-			//val dstblk = distC.handleBS().find(blk.myRowId, itCol) as DenseBlock;
+			//Debug.flushln(srcblk.toString());
 			val srcden = srcblk.getMatrix() as DenseMatrix;
 			dstblk.addCols(jj, klen, srcden);
 		}
@@ -132,7 +132,7 @@ public class AllGridReduce {
 			
 			val rootbid = grid.getBlockId(dstblk.myRowId, dstblk.myColId);
 			//------------------------------------------------
-			val srcblk  = work2().findFrontColBlock(dstblk.myColId);
+			val srcblk  = work2().findFrontRowBlock(dstblk.myColId);
 			var mat:Matrix = srcblk.getMatrix();
 			if (mat instanceof DenseMatrix && klen != mat.M) {
 				val den = new DenseMatrix(klen, mat.N, (mat as DenseMatrix).d);

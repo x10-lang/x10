@@ -105,8 +105,8 @@ public class SummaMult {
 			C:DistBlockMatrix) {
 		
 		val pansz = estPanelSize(ps, A.getGrid(), B.getGrid());
-		val w1 = A.makeTempFrontRowBlocks(pansz);
-		val w2 = B.makeTempFrontColBlocks(pansz); 
+		val w1 = A.makeTempFrontColBlocks(pansz);
+		val w2 = B.makeTempFrontRowBlocks(pansz); 
 		val s = new SummaMult(pansz, beta, A, B, C, w1, w2);
 
 		s.parallelMult();
@@ -170,8 +170,8 @@ public class SummaMult {
 				while (itr.hasNext()) {
 					val cblk = itr.next();
 					val cmat = cblk.getMatrix();
-					val ablk = wk1.findFrontRowBlock(cblk.myRowId); 
-					val bblk = wk2.findFrontColBlock(cblk.myColId);
+					val ablk = wk1.findFrontColBlock(cblk.myRowId); 
+					val bblk = wk2.findFrontRowBlock(cblk.myColId);
 					
 					//--------------------------------------------
 					val amat:Matrix;

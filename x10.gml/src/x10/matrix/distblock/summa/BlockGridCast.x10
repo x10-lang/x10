@@ -45,7 +45,7 @@ public class BlockGridCast  {
 	public static def colWise(rid:Int, cid:Int):Int = cid;
 	
 	/**
-	 * Sending columns of data in root block at here to front blocks row-wise, that has same row block id 
+	 * Sending columns of data in root block at here to front column blocks row-wise, that has same row block id 
 	 * as root block to all front blocks in specified places
 	 *
 	 * @param distBS     distributed block sets in all places
@@ -60,7 +60,7 @@ public class BlockGridCast  {
 	}
 	
 	/**
-	 * Sending rows of data in root block data at here column-wise to front blocks that has the same column block 
+	 * Sending rows of data in root block data at here column-wise to front row blocks that has the same column block 
 	 * id as root block in specified places
 	 * 
 	 * @param distBS     distributed block sets in all places

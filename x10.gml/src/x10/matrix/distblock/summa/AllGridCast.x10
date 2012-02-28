@@ -72,7 +72,7 @@ public class AllGridCast {
 			if (blk.myColId != itCol) continue;
 			
 			val rootbid = grid.getBlockId(blk.myRowId, blk.myColId);
-			val dstblk  = work1().findFrontRowBlock(blk.myRowId);
+			val dstblk  = work1().findFrontColBlock(blk.myRowId);
 			//Debug.flushln("Copy block :"+blk.myRowId+","+blk.myColId+" to "+dstblk.myRowId+","+dstblk.myColId);
 			//if (blk.myRowId==0)	Debug.flushln("Root block :\n"+blk.toString());
 			
@@ -131,16 +131,18 @@ public class AllGridCast {
 			
 			val rootbid = grid.getBlockId(blk.myRowId, blk.myColId);
 			//------------------------------------------------
-			val dstblk  = work2().findFrontColBlock(blk.myColId);
+			val dstblk  = work2().findFrontRowBlock(blk.myColId);
 			//Debug.flushln("Copy block :"+blk.myRowId+","+blk.myColId+" to "+dstblk.myRowId+","+dstblk.myColId);
 			//Dense matrix must reshape to (klen x N), klen may be smaller than the
 			//original matrix M when it is created. The data buffer must keep data compact 
 			//before sending out. Sparse matrix is not affacted.
 			var mat:Matrix = dstblk.getMatrix();
 			if (mat instanceof DenseMatrix && klen != mat.M) {
+				Debug.assure(klen <= mat.M, "Target leading dimension "+mat.M+" is too small "+klen);
 				val den = new DenseMatrix(klen, mat.N, (mat as DenseMatrix).d);
 				mat = den as Matrix;
 			}
+			//Debug.flushln(blk.toString()+"\n"+mat.toString());
 			val datcnt = blk.copyRows(ii, klen, mat);
 			//-------------------------------------------------
 			val colplst:Array[Int](1) = work2().colCastPlaceMap.getPlaceList(blk.myColId);						
@@ -162,7 +164,8 @@ public class AllGridCast {
 			val sttbid = grid.getBlockId(rowId, 0);
 			val sttplc = dmap.findPlace(sttbid);
 			val rId    = rowId;
-			retval &= at (Dist.makeUnique()(sttplc)) verifyRowCastAll(jj, klen, itCol, rId, distA, work1);
+			retval &= at (Dist.makeUnique()(sttplc)) 
+				verifyRowCastAll(jj, klen, itCol, rId, distA, work1);
 			if (!retval) Debug.flushln("Verify failed when checking "+rowId+
 					" idx off:"+jj+" klen:"+klen+" itCol:"+itCol+" start plc:"+sttplc);
 		}
@@ -183,7 +186,7 @@ public class AllGridCast {
 		
 		retval &= at (Dist.makeUnique()(rootpid)) {
 			val rootblk = dA.handleBS().findBlock(rootbid);
-			val dstblk  = work1().findFrontRowBlock(rowId);
+			val dstblk  = work1().findFrontColBlock(rowId);
 		
 			val srcmat = rootblk.getMatrix();
 			val dstmat = dstblk.getMatrix();
@@ -240,7 +243,7 @@ public class AllGridCast {
 			val rootblk = dB.handleBS().findBlock(rootbid);
 			val srcmat = rootblk.getMatrix();
 			//Debug.flushln("Searching front block:"+colId);
-			val dstblk  = work2().findFrontColBlock(colId);
+			val dstblk  = work2().findFrontRowBlock(colId);
 			//Debug.flushln("Found "+dstblk.myRowId+","+dstblk.myColId);
 			
 			var mat:Matrix = dstblk.getMatrix();

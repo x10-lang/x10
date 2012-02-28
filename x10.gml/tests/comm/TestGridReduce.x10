@@ -98,10 +98,10 @@ class  GridReduceTest {
 
 	
 	public def testRowReduceSum(distmat:DistBlockMatrix):Boolean {
-		Console.OUT.printf("\nTest row-wise reduce of front blocks on %d places\n", numplace);
+		Console.OUT.printf("\nTest row-wise reduce of front column blocks on %d places\n", numplace);
 		var retval:Boolean = true;
-		val tmp   = distmat.makeTempFrontRowBlocks(1);		
-		val work1 = distmat.makeTempFrontRowBlocks(1);
+		val tmp   = distmat.makeTempFrontColBlocks(1);		
+		val work1 = distmat.makeTempFrontColBlocks(1);
 		distmat.reset();
 		
 		for (var colId:Int=0; colId<partgrid.numColBlocks; colId++) {
@@ -125,8 +125,8 @@ class  GridReduceTest {
 		var retval:Boolean = true;
 		val grid = distmat.getGrid();
 		val dmap = distmat.getMap();
-		val tmp   = distmat.makeTempFrontColBlocks(1);
-		val work2 = distmat.makeTempFrontColBlocks(1);
+		val tmp   = distmat.makeTempFrontRowBlocks(1);
+		val work2 = distmat.makeTempFrontRowBlocks(1);
 		
 		for (var rowId:Int=0; rowId<grid.numRowBlocks&&retval; rowId++) {
 			
@@ -156,35 +156,4 @@ class  GridReduceTest {
 		}		
 	}
 	
-	public static def verifyRowReduceSum(dv:Double, ccnt:Int, rowId:Int, work1:PlaceLocalHandle[BlockSet]) =
-		verifyReduceSum(dv, ccnt, rowId, work1, (r:Int,c:Int)=>r);
-	public static def verifyColReduceSum(dv:Double, ccnt:Int, colId:Int, work2:PlaceLocalHandle[BlockSet]) =
-		verifyReduceSum(dv, ccnt, colId, work2, (r:Int,c:Int)=>c);
-
-	
-	public static def verifyReduceSum(dv:Double, colCnt:Int, id:Int, work:PlaceLocalHandle[BlockSet], sel:(r:Int,c:Int)=>Int):Boolean {
-		var retval:Boolean = true;
-		for (var p:Int=0; p<Place.MAX_PLACES&&retval; p++) {
-			val pid = p;
-			retval &= at (Dist.makeUnique()(pid)) {
-				var ret:Boolean = true;
-				val itr = work().iterator();
-				while (itr.hasNext()&&ret) {
-					val blk = itr.next();
-					val tgt = sel(blk.myColId, blk.myRowId);
-					if (tgt == id){
-						val datbuf = blk.getData();
-						val mat = blk.getMatrix();
-						for (var c:Int=0; c<colCnt*mat.M&&ret; c++){ 
-							ret &= datbuf(c)== dv;
-							if (!ret) 
-								Debug.flushln("Inconsistancy found\n"+mat.dataToString());
-						}
-					}
-				}
-				ret
-			};
-		}
-		return retval;
-	}
 }

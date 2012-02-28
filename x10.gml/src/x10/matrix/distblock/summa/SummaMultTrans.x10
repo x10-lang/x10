@@ -117,9 +117,12 @@ public class SummaMultTrans {
 		
 		
 		val pansz = estPanelSize(ps, A.getGrid(), B.getGrid());
-		val w1 = C.makeTempFrontRowBlocks(pansz); //Must be dense block
-		val w2 = B.makeTempFrontColBlocks(pansz); 
-		val w3 = C.makeTempFrontRowBlocks(pansz); //Must be dense block
+		val w1 = A.makeTempFrontColDenseBlocks(pansz); //Must be dense block
+		//or w1= C.makeTempFrontColBlocks(pansz); //Must be dense block
+		val w2 = B.makeTempFrontRowBlocks(pansz); 
+		val w3 = A.makeTempFrontColDenseBlocks(pansz); //Must be dense block
+		//or w3= C.makeTempFrontColBlocks(pansz); //Must be dense block
+
 		val s = new SummaMultTrans(pansz, beta, A, B, C, w1, w2, w3);
 
 		s.parallelMultTrans();
@@ -186,8 +189,8 @@ public class SummaMultTrans {
 					val cblk = itr.next();
 					//val cmat = cblk.getMatrix();
 					val ablk = A.handleBS().find(cblk.myRowId, cblk.myColId);
-					val wblk = wk1.findFrontRowBlock(cblk.myRowId); 
-					val bblk = wk2.findFrontColBlock(cblk.myColId);
+					val wblk = wk1.findFrontColBlock(cblk.myRowId); 
+					val bblk = wk2.findFrontRowBlock(cblk.myColId);
 					
 					//--------------------------------------------
 					val amat = ablk.getMatrix() as Matrix;

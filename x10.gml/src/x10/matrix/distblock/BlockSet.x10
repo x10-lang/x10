@@ -134,15 +134,14 @@ public class BlockSet  {
 	//========================================================
 	
 	/**
-	 * Front row blocks are the first blocks of each row block in the block set.
-	 * The front row blocks serves as temporary space to store row-wise cast of
-	 * the first operand matrix in SUMMA.
+	 * Front row blocks are those blocks which has smallest row ID in the block set in
+	 * each column block.
+	 * The front row blocks serves as temporary space to store column-wise cast of
+	 * the second operand matrix in SUMMA.
 	 */
 	protected def makeFrontRowBlockSet(rowCnt:Int):BlockSet {
 		//Fake row partitioning in all blocks
-		//val rbs:Array[Int](1){rail} = new Array[Int](grid.numRowBlocks, (i:Int)=>rowCnt);
-		//val ngrid = new Grid(grid.numColBlocks*rowCnt, grid.N, rbs, grid.colBs);
-		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(rowCnt, (r:Int,c:Int)=>r);
+		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(rowCnt, (r:Int,c:Int)=>c);
 		val nbs = new BlockSet(grid, dmap, nbl);
 		nbs.colCastPlaceMap = CastPlaceMap.buildColCastMap(grid, dmap);
 		nbs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(grid, dmap);
@@ -150,20 +149,28 @@ public class BlockSet  {
 	}
 	
 	/**
-	 * Front column blocks are the first blocks of each column block in the block set.
-	 * The front column blocks serves as temporary space to store column-wise cast of
-	 * the second operand matrix in SUMMA
+	 * Front column blocks are those blocks which has smallest column block ID in the block set in
+	 * each row block. The front column blocks serves temporary space to store row-wise cast of
+	 * the first operand matrix in SUMMA
 	 */
 	protected def makeFrontColBlockSet(colCnt:Int):BlockSet {
 		//Fake the column partitioning in all blocks
-		//val cbs:Array[Int](1){rail} = new Array[Int](grid.numColBlocks, (i:Int)=>colCnt);
-		//val ngrid = new Grid(grid.M, grid.numColBlocks*colCnt, grid.rowBs, cbs); 
-		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(colCnt, (r:Int, c:Int)=>c);
+		val nbl:ArrayList[MatrixBlock] = allocFrontBlocks(colCnt, (r:Int, c:Int)=>r);
 		val nbs =  new BlockSet(grid, dmap, nbl);
 		nbs.colCastPlaceMap = CastPlaceMap.buildColCastMap(grid, dmap);
 		nbs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(grid, dmap);
 		return nbs;
 	}
+
+	protected def makeFrontColDenseBlockSet(colCnt:Int):BlockSet {
+		//Fake the column partitioning in all blocks
+		val nbl:ArrayList[MatrixBlock] = allocFrontDenseBlocks(colCnt, (r:Int, c:Int)=>r);
+		val nbs =  new BlockSet(grid, dmap, nbl);
+		nbs.colCastPlaceMap = CastPlaceMap.buildColCastMap(grid, dmap);
+		nbs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(grid, dmap);
+		return nbs;
+	}
+
 	
 	//-----------------------
 	@Inline	
@@ -178,6 +185,23 @@ public class BlockSet  {
 			val m = select(srcmat.M, cnt);
 			val n = select(cnt, srcmat.N);
 			val nblk = srcblk.allocFull(m, n);
+			blst.add(nblk);
+		}
+		return blst;
+	}
+
+	@Inline	
+	private final def allocFrontDenseBlocks(cnt:Int, select:(Int,Int)=>Int):ArrayList[MatrixBlock] {
+		val blst = new ArrayList[MatrixBlock]();
+		val itr = iterator();
+		while (itr.hasNext()) {
+			val srcblk = itr.next();
+			if (containBlockIn(srcblk, blst, select)) continue;
+
+			val srcmat = srcblk.getMatrix();
+			val m = select(srcmat.M, cnt);
+			val n = select(cnt, srcmat.N);
+			val nblk = DenseBlock.make(srcblk.myRowId, srcblk.myColId, m, n) as MatrixBlock;//srcblk.allocFull(m, n);
 			blst.add(nblk);
 		}
 		return blst;
@@ -389,43 +413,21 @@ public class BlockSet  {
 	
 	public def getBlockId(rowId:Int, colId:Int):Int = getGrid().getBlockId(rowId, colId);
 	
-	//-------------------------------------------------
-	/**
-	 * Local root block is either the rootbid block, if rootbid is local, 
-	 * or the first block has the same row block Id/column block Id.
-	 * Select function is used to pick row-wise or column-wise search.
-	 */
-// 	@Inline
-// 	public final def findLocalRootBlock(rootbid:Int, select:(Int, Int)=>Int):MatrixBlock {
-// 		val it = blocklist.iterator();
-// 		val grid = getGrid();
-// 		//Check if rootbid is local
-// 		if (findPlace(rootbid) == here.id())
-// 			return findBlock(rootbid);
-// 		val id = select(grid.getRowBlockId(rootbid),grid.getColBlockId(rootbid));
-// 		return findFrontBlock(id, select);
-// 	}
-// 
-// 	public def findLocalRootRowBlock(rootbid:Int):MatrixBlock =
-// 		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>rid);
-// 	
-// 	public def findLocalRootColBlock(rootbid:Int):MatrixBlock =
-// 		findLocalRootBlock(rootbid, (rid:Int, cid:Int)=>cid);
-// 	
+	
 	//-----------------------------
 	/**
-	 * Front row block is the first block in the row which has specified row block ID.
-	 * in the block set. The front block is required in SUMMA when receiving row-wise
-	 * cast of the first operand matrix.
-	 */
-	public def findFrontRowBlock(rowId:Int) = findFrontBlock(rowId, 0, (r:Int, c:Int)=>r);
-
-	/**
-	 * Front column block is the first block in the column which has specified column block ID.
-	 * in the block set. The front block is required in SUMMA when receiving column-wise
+	 * Front row block is the first block (smallest row block ID) in the specified column block
+	 * of the block set. The front row block is required in SUMMA when receiving column-wise
 	 * cast of the second operand matrix.
 	 */
-	public def findFrontColBlock(colId:Int) = findFrontBlock(0, colId, (r:Int, c:Int)=>c);
+	public def findFrontRowBlock(colId:Int) = findFrontBlock(0, colId, (r:Int, c:Int)=>c);
+
+	/**
+	 * Front column block is the first block (smallest column block ID) in the specified row blocks
+	 * of the block set. The front block is required in SUMMA when receiving row-wise
+	 * cast of the first operand matrix.
+	 */
+	public def findFrontColBlock(rowId:Int) = findFrontBlock(rowId, 0, (r:Int, c:Int)=>r);
 	
 	/**
 	 * Find the first block having the row-block id (or column block id) in
@@ -451,7 +453,7 @@ public class BlockSet  {
 				return blk;
 		}
 		//This should be error
-		Debug.exit("Error in searching front block ("+rowId+","+colId+")");
+		Debug.exit("Error in searching front block ("+rowId+","+colId+")\n"+toString());
 		return null;
 	}	
 	

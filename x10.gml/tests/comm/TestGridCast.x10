@@ -111,7 +111,7 @@ class GridCastTest {
 		val grid = distmat.getGrid();
 		val dmap = distmat.getMap();
 		
-		val tmp = distmat.makeTempFrontRowBlocks(1);
+		val tmp = distmat.makeTempFrontColBlocks(1);
  		distmat.init((r:Int,c:Int)=>1.0*(r+c));
  		
 		for (var colId:Int=0; colId<grid.numColBlocks&&retval; colId++) {
@@ -134,7 +134,7 @@ class GridCastTest {
 		var retval:Boolean = true;
 		val grid = distmat.getGrid();
 		val dmap = distmat.getMap();
-		val tmp = distmat.makeTempFrontColBlocks(1);
+		val tmp = distmat.makeTempFrontRowBlocks(1);
 		distmat.init((r:Int,c:Int)=>1.0*(r+c)%2);
 		
 		for (var rowId:Int=0; rowId < grid.numRowBlocks&&retval; rowId++) {
