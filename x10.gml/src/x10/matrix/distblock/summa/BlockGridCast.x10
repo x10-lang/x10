@@ -211,14 +211,7 @@ public class BlockGridCast  {
 			// 	Debug.flushln("Index:"+blk.getIndex().toString());
 			// }		
 			dstspa.finalizeRemoteCopyAtDest();
-			
-			// if (rootbid==0 && here.id()==2) {
-			// 	Debug.flushln("Recv data :\n"+dstspa.toString());
-			// 	Debug.flushln("Recv buffer:\n"+dstspa.getStorage().toString());
-			// 	Debug.flushln("Value:"+blk.getData().toString());
-			// 	Debug.flushln("Index:"+blk.getIndex().toString());
-			// 	Debug.flushln("Recv matrix:\n"+dstspa.dataToString());
-			// }
+
 		}	
 	}	
 	//=======================================================================
@@ -227,27 +220,29 @@ public class BlockGridCast  {
 			rootbid:Int, srcblk:MatrixBlock, rmtpid:Int, datCnt:Int,
 			select:(Int,Int)=>Int, 
 			plist:Array[Int](1)) {
-
-		val srcpid = here.id();
-		val srcden = srcblk.getMatrix() as DenseMatrix;
-		val tag    = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
-		//Tag is used to differ different ring cast.
-		//Row and column-wise ringcast must NOT be carried out at the same
-		//time. This tag only allows ringcast be differed by root block id.
-		finish {
-			async {
-				WrapMPI.world.send(srcden.d, 0, datCnt, rmtpid, tag);
-			}
-			async at (Dist.makeUnique()(rmtpid)) {
-				//Remote capture:distBS, rootbid, datCnt, rtplist, tag
-				val blk    = distBS().findFrontBlock(rootbid, select);
-				val dstden = blk.getMatrix() as DenseMatrix;
-				// Using copyFrom style
-				WrapMPI.world.recv(dstden.d, 0, datCnt, srcpid, tag);
-			
-				// Perform binary bcast on the right branch
-				if (plist.size > 1 ) {
-					binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
+		
+		@Ifdef("MPI_COMMU") {	
+			val srcpid = here.id();
+			val srcden = srcblk.getMatrix() as DenseMatrix;
+			val tag    = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
+			//Tag is used to differ different ring cast.
+			//Row and column-wise ringcast must NOT be carried out at the same
+			//time. This tag only allows ringcast be differed by root block id.
+			finish {
+				async {
+					WrapMPI.world.send(srcden.d, 0, datCnt, rmtpid, tag);
+				}
+				async at (Dist.makeUnique()(rmtpid)) {
+					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
+					val blk    = distBS().findFrontBlock(rootbid, select);
+					val dstden = blk.getMatrix() as DenseMatrix;
+					// Using copyFrom style
+					WrapMPI.world.recv(dstden.d, 0, datCnt, srcpid, tag);
+					
+					// Perform binary bcast on the right branch
+					if (plist.size > 1 ) {
+						binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
+					}
 				}
 			}
 		}
@@ -259,34 +254,35 @@ public class BlockGridCast  {
 			select:(Int,Int)=>Int, 
 			plist:Array[Int](1)) {
 
-		val srcpid = here.id();
-		val srcspa = srcblk.getMatrix() as SparseCSC;
-		val tag = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
-		//Tag must allow to differ multiply ringcast.
-		finish {
-			async {
-				WrapMPI.world.send(srcspa.getIndex(), 0, datCnt, rmtpid, tag);
-				WrapMPI.world.send(srcspa.getValue(), 0, datCnt, rmtpid, tag+1000000);
-			}
-		
-			at (Dist.makeUnique()(rmtpid)) {
-				//Remote capture:distBS, rootbid, datCnt, rtplist, tag
-				val blk    = distBS().findFrontBlock(rootbid, select);
-				val dstspa = blk.getMatrix() as SparseCSC;
-				dstspa.initRemoteCopyAtDest(datCnt);
-				// Using copyFrom style
-				WrapMPI.world.recv(dstspa.getIndex(), 0, datCnt, srcpid, tag);
-				WrapMPI.world.recv(dstspa.getValue(), 0, datCnt, srcpid, tag+1000000);
-				// Perform binary bcast on the right branch
-				//Debug.flushln("Recv "+here.id()+" get from "+srcpid);
-				if (plist.size > 1 ) {
-					binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
+		@Ifdef("MPI_COMMU") {	
+			val srcpid = here.id();
+			val srcspa = srcblk.getMatrix() as SparseCSC;
+			val tag = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
+			//Tag must allow to differ multiply ringcast.
+			finish {
+				async {
+					WrapMPI.world.send(srcspa.getIndex(), 0, datCnt, rmtpid, tag);
+					WrapMPI.world.send(srcspa.getValue(), 0, datCnt, rmtpid, tag+1000000);
 				}
-				dstspa.finalizeRemoteCopyAtDest();
+				
+				at (Dist.makeUnique()(rmtpid)) {
+					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
+					val blk    = distBS().findFrontBlock(rootbid, select);
+					val dstspa = blk.getMatrix() as SparseCSC;
+					dstspa.initRemoteCopyAtDest(datCnt);
+					// Using copyFrom style
+					WrapMPI.world.recv(dstspa.getIndex(), 0, datCnt, srcpid, tag);
+					WrapMPI.world.recv(dstspa.getValue(), 0, datCnt, srcpid, tag+1000000);
+					// Perform binary bcast on the right branch
+					//Debug.flushln("Recv "+here.id()+" get from "+srcpid);
+					if (plist.size > 1 ) {
+						binaryTreeCastTo(distBS, rootbid, datCnt, select, plist);
+					}
+					dstspa.finalizeRemoteCopyAtDest();
+				}
 			}
-		}
+		}	
 	}	
-	
 	//===================================================================	
 	//===================================================================
 	
