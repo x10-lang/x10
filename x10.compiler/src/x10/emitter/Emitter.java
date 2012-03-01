@@ -2928,7 +2928,8 @@ public class Emitter {
                     } else if (!isMethodParameter(bf, mi, tr.context())) {
                         // TODO:CAST
                         w.write("(");
-                        printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        // XTENLANG-3010 : for boxed type, boxing isn't needed anyway. stop boxing for printing "int[]" for "Java.array[Int]".
+                        printType(f, 0);
                         w.write(")");
                     }
                 }
@@ -3587,6 +3588,11 @@ public class Emitter {
                     }
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
+                    // XTENLANG-3010 : runtime type of Java.array[T] is defined as "Types.getRTT(#T[].class)" 
+                    component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                    // Note: to avoid changing number based key, we only register this with name based key 
+//                    components.put(String.valueOf(i++), component);
+                    if (name != null) { components.put(name, component); }
                 }
                 dumpRegex("NativeRep", components, tr, pat);
             }
