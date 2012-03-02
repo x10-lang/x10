@@ -12,6 +12,8 @@
 package x10.matrix.comm;
 
 import x10.io.Console;
+import x10.compiler.Ifdef;
+import x10.compiler.Ifndef;
 import x10.compiler.Native;
 import x10.compiler.NativeCPPInclude;
 import x10.compiler.NativeCPPCompilationUnit;
@@ -68,25 +70,27 @@ public class WrapMPI {
 	//================================================================
 	
 	public def this(d:Dist(1)) {
-		ateach(d) {
-			gml_new_commu();
-		}
 		
 		// Distribution is unique;
 		dist = d;
-
-		//---------------------------
-		// This is for testing purpose
-		if (d.numPlaces() > 1) {
-			finish for ([p]:Point in d) {
-				//val pp = Point.make([p]) as Point(dist.region.rank);
-				val pl = dist(p);
-				async {
-					val mpi_pid = at (pl) world.getCommProcID();
-					if (p != mpi_pid) {
-						Console.OUT.println("Place "+p+" is not proc id "+mpi_pid);
-						Console.OUT.println("Some collective operations will not work correctly");
-						Console.OUT.flush();
+		@Ifdef("MPI_COMMU") {
+				
+			ateach(d) {
+				gml_new_commu();
+			}			
+			//---------------------------
+			// This is for testing purpose
+			if (d.numPlaces() > 1) {
+				finish for ([p]:Point in d) {
+					//val pp = Point.make([p]) as Point(dist.region.rank);
+					val pl = dist(p);
+					async {
+						val mpi_pid = at (pl) world.getCommProcID();
+						if (p != mpi_pid) {
+							Console.OUT.println("Place "+p+" is not proc id "+mpi_pid);
+							Console.OUT.println("Some collective operations will not work correctly");
+							Console.OUT.flush();
+						}
 					}
 				}
 			}
@@ -100,8 +104,10 @@ public class WrapMPI {
 		dist = Dist.makeUnique();
 		//pidmap = new Array[Int](Place.MAX_PLACES, (i:Int)=>i);
 		//displs = new Array[Int](Place.MAX_PLACES, 0);
-		ateach (Dist.makeUnique()) {
-			gml_new_commu();
+		@Ifdef("MPI_COMMU") {
+			ateach (Dist.makeUnique()) {
+				gml_new_commu();
+			}
 		}
 	}
 	//================================================================

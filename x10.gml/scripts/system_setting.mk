@@ -16,7 +16,7 @@
 server		=triloka
 
 #Comment following line, if do not want build with lapack library.
-#add_lapack	= commet_out_this_lien_if_no_lapack_methods_is_used
+add_lapack	= yes
 
 ###################################################
 ## Compiler settings
