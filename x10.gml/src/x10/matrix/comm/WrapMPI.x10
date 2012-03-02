@@ -43,7 +43,10 @@ import x10.matrix.Debug;
  */
 public class WrapMPI {
     
-    @Native("c++","mpi_get_proc_info((#1)->raw()->raw(), (#2)->raw()->raw(), (#3)->raw()->raw(), (#4)->raw()->raw())")
+	@Native("c++","mpi_new_comm()")
+		public static native def gml_new_commu():void;
+
+	@Native("c++","mpi_get_proc_info((#1)->raw()->raw(), (#2)->raw()->raw(), (#3)->raw()->raw(), (#4)->raw()->raw())")
 		public static native def get_proc_info(rk:Rail[Int], np:Rail[Int], hlen:Rail[Int], hstr:Rail[Int]):void;
 
     @Native("c++","mpi_get_name_maxlen((#1)->raw()->raw())")
@@ -65,6 +68,10 @@ public class WrapMPI {
 	//================================================================
 	
 	public def this(d:Dist(1)) {
+		ateach(d) {
+			gml_new_commu();
+		}
+		
 		// Distribution is unique;
 		dist = d;
 
@@ -75,7 +82,7 @@ public class WrapMPI {
 				//val pp = Point.make([p]) as Point(dist.region.rank);
 				val pl = dist(p);
 				async {
-					val mpi_pid = at (pl) WrapMPI.getCommProcID();
+					val mpi_pid = at (pl) world.getCommProcID();
 					if (p != mpi_pid) {
 						Console.OUT.println("Place "+p+" is not proc id "+mpi_pid);
 						Console.OUT.println("Some collective operations will not work correctly");
@@ -93,6 +100,9 @@ public class WrapMPI {
 		dist = Dist.makeUnique();
 		//pidmap = new Array[Int](Place.MAX_PLACES, (i:Int)=>i);
 		//displs = new Array[Int](Place.MAX_PLACES, 0);
+		ateach (Dist.makeUnique()) {
+			gml_new_commu();
+		}
 	}
 	//================================================================
 
@@ -106,7 +116,7 @@ public class WrapMPI {
 		val np   = new Rail[Int](1, 0);
 		val hlen = new Rail[Int](1, 0);
 		val hstr = new Rail[Int](mlen, 0);
-		WrapMPI.get_proc_info(rk, np, hlen, hstr);
+		world.get_proc_info(rk, np, hlen, hstr);
 		val sc = new Rail[Char](hlen(0), (i:Int)=>(hstr(i) as Char));
 		return new String(sc, 0, hlen(0));
 	}
@@ -118,7 +128,7 @@ public class WrapMPI {
 	 */
 	public static def getCommProcID():Int {
 		val rk = new Rail[Int](1, 0);
-		WrapMPI.get_comm_pid(rk);
+		world.get_comm_pid(rk);
 		return rk(0);
 	}
 

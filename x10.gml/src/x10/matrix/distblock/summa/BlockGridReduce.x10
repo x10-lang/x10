@@ -122,7 +122,7 @@ public class BlockGridReduce {
 			select:(Int, Int)=>Int,
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix,
 			plst:Array[Int](1)
-			) {
+			):void {
 		if (datCnt ==0) return;
 		if (plst.size > 0) {
 			val pcnt      = plst.size-1;   //remove left branch root from place counter
@@ -132,8 +132,8 @@ public class BlockGridReduce {
 			
 			val leftlst  = new Array[Int](leftCnt,  (i:Int)=>plst(i+1));
 			val rightlst = new Array[Int](rightCnt, (i:Int)=>plst(leftCnt+i+1));
-			
 			@Ifdef("MPI_COMMU") {
+				//Debug.flushln("call mpiBinaryTreeReduce");
 				mpiBinaryTreeReduce(distBS, tmpBS, rootbid, datCnt, select, opFunc, leftRoot, leftlst, rightlst);
 			}
 			@Ifndef("MPI_COMMU") {
@@ -152,7 +152,7 @@ public class BlockGridReduce {
 			select:(Int,Int)=>Int,	
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix,
 			leftRoot:Int, leftPlist:Array[Int](1), 
-			rightPlist:Array[Int](1)) {
+			rightPlist:Array[Int](1)):void {
 	
 		var rmtbuf:RemoteArray[Double]=null;
 		//Debug.flushln("Left root:"+leftRoot+" Left list"+leftPlist.toString()+" right:"+rightPlist.toString());
@@ -197,7 +197,7 @@ public class BlockGridReduce {
 			select:(Int,Int)=>Int,
 			opFunc:(DenseMatrix, DenseMatrix, Int)=>DenseMatrix, 
 			leftRoot:Int, leftPlist:Array[Int](1), 
-			rightPlist:Array[Int](1))  {
+			rightPlist:Array[Int](1)):void  {
 				
 		@Ifdef("MPI_COMMU") {
 			val dstpid = here.id();
@@ -205,27 +205,35 @@ public class BlockGridReduce {
 			val rcvden = rcvblk.getMatrix() as DenseMatrix;
 			finish {
 				//Left branch reduction
+				//Debug.flushln("Goto leftroot:"+leftRoot);
 				at (Dist.makeUnique()(leftRoot)) async {
+					//Debug.flushln("Start left branch");
 					//Remote capture:distBS, tmpBS, colCnt, remotePlcList
 					if (leftPlist.size > 0)  {
 						splitReduceToHere(distBS, tmpBS, rootbid, datCnt, select, opFunc, leftPlist);
 					}
 					val rmtblk = distBS().findFrontBlock(rootbid, select);
 					val rmtden = rmtblk.getMatrix() as DenseMatrix;
-					val tag    = rootbid;//baseTagCopyTo + here.id();
+					val tag    = 10000+rootbid;//baseTagCopyTo + here.id();
 					
-					WrapMPI.world.send(rmtblk.getData(), 0, datCnt, dstpid, tag);		
+					//Debug.flushln("Start sending data to "+dstpid);
+					WrapMPI.world.send(rmtblk.getData(), 0, datCnt, dstpid, tag);
+					//Debug.flushln("Done sending data to "+dstpid);
 				}
 		
 				//left branch reduction
-				if (rightPlist.size > 0)	async {
+				if (rightPlist.size > 0) async {
+					//Debug.flushln("Start right branch");
 					splitReduceToHere(distBS, tmpBS, rootbid, datCnt, select, opFunc, rightPlist);
 				}
-			}
 			
-			val tag    = rootbid;//baseTagCopyTo + remotepid;
-			WrapMPI.world.recv(rcvden.d, 0, datCnt, leftRoot, tag);
-
+				async {
+					val tag    = 10000+rootbid;//baseTagCopyTo + remotepid;
+					//Debug.flushln("Ready to receive data from "+leftRoot+" tag:"+tag);
+					WrapMPI.world.recv(rcvden.d, 0, datCnt, leftRoot, tag);
+					//Debug.flushln("Data recieved from "+leftRoot+" tag:"+tag);
+				}
+			}
 			val dstblk = distBS().findFrontBlock(rootbid, select);
 			val dstden = dstblk.getMatrix() as DenseMatrix;
 			opFunc(rcvden, dstden, datCnt);

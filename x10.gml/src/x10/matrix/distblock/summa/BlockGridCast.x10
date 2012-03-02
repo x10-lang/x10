@@ -130,7 +130,7 @@ public class BlockGridCast  {
 	
 	private static def copyBlockToRightBranch(
 			distBS:PlaceLocalHandle[BlockSet], rootbid:Int, remotepid:Int, datCnt:Int,
-			select:(Int,Int)=>Int, plist:Array[Int](1)) {
+			select:(Int,Int)=>Int, plist:Array[Int](1)):void {
 
 		val rootpid = distBS().findPlace(rootbid);
 		if (remotepid == here.id() || remotepid==rootpid ) {
@@ -215,16 +215,16 @@ public class BlockGridCast  {
 		}	
 	}	
 	//=======================================================================
-	private static def mpiCopyDenseBlock(
-			distBS:PlaceLocalHandle[BlockSet], 
+	private static def mpiCopyDenseBlock(distBS:PlaceLocalHandle[BlockSet], 
 			rootbid:Int, srcblk:MatrixBlock, rmtpid:Int, datCnt:Int,
-			select:(Int,Int)=>Int, 
-			plist:Array[Int](1)) {
-		
-		@Ifdef("MPI_COMMU") {	
-			val srcpid = here.id();
-			val srcden = srcblk.getMatrix() as DenseMatrix;
-			val tag    = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
+			select:(Int,Int)=>Int, plist:Array[Int](1)):void {
+				//Must use ":void", otherwise, @Ifdef("xxx") won't work
+				//Need further investiagtion.
+		val srcpid = here.id();
+		val srcden = srcblk.getMatrix() as DenseMatrix;
+		val tag    = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
+	
+		@Ifdef("MPI_COMMU") {
 			//Tag is used to differ different ring cast.
 			//Row and column-wise ringcast must NOT be carried out at the same
 			//time. This tag only allows ringcast be differed by root block id.
@@ -232,7 +232,7 @@ public class BlockGridCast  {
 				async {
 					WrapMPI.world.send(srcden.d, 0, datCnt, rmtpid, tag);
 				}
-				async at (Dist.makeUnique()(rmtpid)) {
+				at (Dist.makeUnique()(rmtpid)) async {
 					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
 					val blk    = distBS().findFrontBlock(rootbid, select);
 					val dstden = blk.getMatrix() as DenseMatrix;
@@ -252,20 +252,21 @@ public class BlockGridCast  {
 			distBS:PlaceLocalHandle[BlockSet], 
 			rootbid:Int, srcblk:MatrixBlock, rmtpid:Int, datCnt:Int,
 			select:(Int,Int)=>Int, 
-			plist:Array[Int](1)) {
+			plist:Array[Int](1)):void {
 
-		@Ifdef("MPI_COMMU") {	
-			val srcpid = here.id();
-			val srcspa = srcblk.getMatrix() as SparseCSC;
-			val tag = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
-			//Tag must allow to differ multiply ringcast.
+		val srcpid = here.id();
+		val srcspa = srcblk.getMatrix() as SparseCSC;
+		val tag = rootbid;//RandTool.nextInt(Int.MAX_VALUE);
+		//Tag must allow to differ multiply ringcast.
+
+		@Ifdef("MPI_COMMU") {
 			finish {
 				async {
 					WrapMPI.world.send(srcspa.getIndex(), 0, datCnt, rmtpid, tag);
 					WrapMPI.world.send(srcspa.getValue(), 0, datCnt, rmtpid, tag+1000000);
 				}
 				
-				at (Dist.makeUnique()(rmtpid)) {
+				at (Dist.makeUnique()(rmtpid)) async {
 					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
 					val blk    = distBS().findFrontBlock(rootbid, select);
 					val dstspa = blk.getMatrix() as SparseCSC;
@@ -281,7 +282,7 @@ public class BlockGridCast  {
 					dstspa.finalizeRemoteCopyAtDest();
 				}
 			}
-		}	
+		}
 	}	
 	//===================================================================	
 	//===================================================================
