@@ -53,6 +53,7 @@ import polyglot.visit.NodeVisitor;
 import x10.X10CompilerOptions;
 import x10.ast.TypeParamNode;
 import x10.ast.X10Call;
+import x10.ast.X10CanonicalTypeNode;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl;
 import x10.emitter.Emitter;
@@ -357,8 +358,10 @@ public class InlineHelper extends ContextVisitor {
                     if (mdcl.body() != null) {
                         body = (Block) ((X10Ext_c) body.ext()).annotations(((X10Ext_c) mdcl.body().ext()).annotations());
                     }
-                    X10MethodDecl mdcl1 = xnf.MethodDecl(pos, xnf.FlagsNode(pos, nmd.flags()), 
-                            xnf.X10CanonicalTypeNode(pos, rt), xnf.Id(pos, nmd.name()), formals, body);
+                    X10CanonicalTypeNode returnType = xnf.X10CanonicalTypeNode(pos, rt);
+                    // Copy annotations of return type as well since it has @Throws annotations for native method.
+                    returnType = (X10CanonicalTypeNode) ((X10Ext_c) returnType.ext()).annotations(((X10Ext_c) mdcl.returnType().ext()).annotations());
+                    X10MethodDecl mdcl1 = xnf.MethodDecl(pos, xnf.FlagsNode(pos, nmd.flags()), returnType, xnf.Id(pos, nmd.name()), formals, body);
                     mdcl1 = mdcl1.methodDef(nmd);
                     nmembers.add(mdcl1);
                     cd.addMethod(nmd);
