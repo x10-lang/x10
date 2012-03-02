@@ -17,24 +17,24 @@ import x10.interop.java.Throws;
 public class JavaException5 extends x10Test {
 
     public abstract static class Base {
-	public def f() @Throws[java.io.IOException] {
-	    return null;
-	}
-	private def g() @Throws[java.io.IOException] {
-	    return null;
-	}
+        public def f() @Throws[java.io.IOException] {
+            return null;
+        }
+        private def g() @Throws[java.io.IOException] {
+            return null;
+        }
     }
 
     public static class Derived extends Base {
-	public def f() @Throws[java.io.IOException] {
-	    return super.f();
-	}
+        public def f() @Throws[java.io.IOException] {
+            return super.f();
+        }
     }
 
     public def run(): Boolean = true;
 
     public static def main(args: Array[String](1)) {
-	new JavaException5().execute();
+        new JavaException5().execute();
     }
 
 }
