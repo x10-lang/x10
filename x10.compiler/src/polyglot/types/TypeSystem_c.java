@@ -2529,6 +2529,14 @@ public class TypeSystem_c implements TypeSystem
         	throwsType_ = load("x10.interop.java.Throws");
         return throwsType_;
     }
+    
+    protected X10ClassType perProcessType_;
+    public X10ClassType PerProcess() {
+        if (perProcessType_ == null)
+            perProcessType_ = load("x10.compiler.PerProcess");
+        return perProcessType_;
+    }
+
 
     protected X10ClassType arrayType_ = null;
     public X10ClassType Array() {

@@ -118,6 +118,7 @@ import x10.visit.IfdefVisitor;
 import x10.visit.MainMethodFinder;
 import x10.visit.NativeClassVisitor;
 import x10.visit.RewriteAtomicMethodVisitor;
+import x10.visit.StaticFieldAnalyzer;
 import x10.visit.StaticNestedClassRemover;
 import x10.visit.TypeParamAlphaRenamer;
 import x10.visit.X10ImplicitDeclarationExpander;
@@ -492,6 +493,7 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
        private Goal addPreOptimizationGoals(Job job, List<Goal> goals) {
            final Goal typeCheckBarrierGoal = TypeCheckBarrier();
 	       goals.add(CommunicationOptimizer(job));
+           goals.add(StaticFieldAnalyzer(job));
            goals.add(MoveFieldInitializers(job)); // should do this before desugaring
            final Goal desugarerGoal = Desugarer(job);
            goals.add(desugarerGoal);
@@ -1017,6 +1019,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            return new ValidatingVisitorGoal("MoveFieldInitializers", job, new FieldInitializerMover(job, ts, nf)).intern(this);
        }
        
+       public Goal StaticFieldAnalyzer(Job job) {
+           TypeSystem ts = extInfo.typeSystem();
+           NodeFactory nf = extInfo.nodeFactory();
+           return new ValidatingVisitorGoal("StaticFieldAnalyzer", job, new StaticFieldAnalyzer(job, ts, nf)).intern(this);
+       }
+
        public Goal X10RewriteAtomicMethods(Job job) {
            TypeSystem ts = extInfo.typeSystem();
            NodeFactory nf = extInfo.nodeFactory();
