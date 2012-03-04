@@ -18,54 +18,11 @@ import x10.core.StructI;
 
 public class Types {
     
-    // WIP type parameter of Java type
-    // N.B. type parameter of Java type is not required at runtime with current design since Java types are represented as erased ones in X10
-//    public static final boolean supportTypeParameterOfJavaType = true;
-    public static final boolean supportTypeParameterOfJavaType = false;
-    
     public static RuntimeType<?> getRTT(Class<?> impl) {
-        if (supportTypeParameterOfJavaType && (impl.getTypeParameters().length > 0 || impl.getInterfaces().length > 0 || impl.getSuperclass() != null)) {
-            // N.B. avoid useless meta operations for efficiency and debuggability
-            java.lang.reflect.TypeVariable<?>[] typeVariables = impl.getTypeParameters();
-            Class<?>[] interfaces = impl.getInterfaces();
-            Class<?> superclass = impl.getSuperclass();   // null for java.lang.Object
-            // type parameters for unknown raw Java classes are Any
-            RuntimeType.Variance[] variances = RuntimeType.INVARIANTS(typeVariables.length);
-            // add superclass and all interfaces to parents
-            Type<?>[] parents = new Type[interfaces.length + (superclass != null ? 1 : 0)];
-            int i = 0;
-            for (Class<?> intf : interfaces) {
-                java.lang.reflect.TypeVariable<?>[] parentTypeVariables = intf.getTypeParameters();
-                RuntimeType<?> parentRTT = getRTT(intf);
-                if (parentTypeVariables.length > 0) {
-                    Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
-                    // TODO bounds
-                    java.util.Arrays.fill(parentParams, ANY);
-                    parents[i] = ParameterizedType.make(parentRTT, parentParams);
-                } else {
-                    parents[i] = parentRTT;
-                }
-                ++i;
-            }
-            if (superclass != null) {
-                java.lang.reflect.TypeVariable<?>[] parentTypeVariables = superclass.getTypeParameters();
-                RuntimeType<?> parentRTT = getRTT(superclass);
-                if (parentTypeVariables.length > 0) {
-                    Type<?>[] parentParams = new Type<?>[parentTypeVariables.length];
-                    // TODO bounds
-                    java.util.Arrays.fill(parentParams, ANY);
-                    parents[i] = ParameterizedType.make(parentRTT, parentParams);
-                } else {
-                    parents[i] = parentRTT;
-                }
-                ++i;
-            }
-            return RuntimeType.make(impl, variances, parents);
-        } else {
-            return RuntimeType.make(impl);
-        }
+        return RuntimeType.make(impl);
         // TODO cache RTT to WeakHashMap<Class,RuntimeType>
     }
+
     public static RuntimeType<?> getRTT(Object obj) {
         RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
@@ -80,11 +37,6 @@ public class Types {
     public static Type<?> getParam(Object obj, int i) {
         if (obj instanceof x10.core.Any) {
             return ((Any) obj).$getParam(i);
-        }
-        // type parameters for unknown raw Java classes are Any
-        if (supportTypeParameterOfJavaType) {
-            // TODO bounds
-            return ANY;
         }
         assert false;
         return null;

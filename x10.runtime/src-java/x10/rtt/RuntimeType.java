@@ -276,10 +276,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             }
             return instantiateCheck(params, rtt, any);
         }
-        else if (Types.supportTypeParameterOfJavaType) {
-            RuntimeType<?> rtt = Types.getRTT(o);
-            return instantiateCheck(params, rtt, o);
-        }
         return false;
     }
 
@@ -509,7 +505,7 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         int numParams = numParams();
         String str = typeName();
         if (numParams > 0) {
-            if (o instanceof Any || Types.supportTypeParameterOfJavaType) {
+            if (o instanceof Any) {
                 str += "[";
                 for (int i = 0; i < numParams; i++) {
                     if (i != 0) str += ",";
