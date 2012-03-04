@@ -18,12 +18,12 @@ import x10.core.StructI;
 
 public class Types {
     
-    public static RuntimeType<?> getRTT(Class<?> impl) {
+    public static RuntimeType/*<?>*/ getRTT(Class<?> impl) {
         return RuntimeType.make(impl);
         // TODO cache RTT to WeakHashMap<Class,RuntimeType>
     }
 
-    public static RuntimeType<?> getRTT(Object obj) {
+    public static RuntimeType/*<?>*/ getRTT(Object obj) {
         RuntimeType<?> rtt = null;
         if (obj instanceof Any) {
             rtt = ((Any) obj).$getRTT();
