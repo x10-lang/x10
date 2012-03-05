@@ -21,6 +21,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.AnnotationNode;
+import x10.ast.Closure;
 import x10.ast.X10FieldDecl;
 import x10.extension.X10Ext_c;
 import x10.types.X10FieldDef;
@@ -47,14 +48,15 @@ public class StaticFieldAnalyzer extends ContextVisitor {
                     f_def.annotationsMatching(ts.NativeType()).isEmpty()) {
                 Expr e = fd.init();
                 if (e != null) {
-                    if (e.isConstant()) {
+                    if (e instanceof StringLit_c || e instanceof Closure) {
+                        ts.addAnnotation(f_def, ts.PerProcess(), false);
+                        return n; 
+                    } if (e.isConstant()) {
                         ts.addAnnotation(f_def, ts.PerProcess(), false);
                         Expr e2 = e.constantValue().toLit(nf, ts, e.type(), e.position());
                         return fd.init(e2);
-                    } else if (e instanceof StringLit_c) {
-                        ts.addAnnotation(f_def, ts.PerProcess(), false);
-                        return e;
-                    }
+                    } 
+                    
                 }
             }
         }
