@@ -840,7 +840,7 @@ public class Emitter {
                     } else {
                         name = null;
                     }
-                    component = new TypeExpander(this, at, flags);
+                    component = new TypeExpander(this, at, flags & ~X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name, component); }
 					component = new TypeExpander(this, at, flags | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
@@ -3572,6 +3572,11 @@ public class Emitter {
                     } else {
                         name = null;
                     }
+                    // XTENLANG-3010 : runtime type of Java.array[T] is defined as "Types.getRTT(#T[].class)" 
+                    component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                    // Note: to avoid changing number based key, we only register this with name based key 
+//                    components.put(String.valueOf(i++), component);
+                    if (name != null) { components.put(name, component); }
                     component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
@@ -3588,11 +3593,6 @@ public class Emitter {
                     }
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
-                    // XTENLANG-3010 : runtime type of Java.array[T] is defined as "Types.getRTT(#T[].class)" 
-                    component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-                    // Note: to avoid changing number based key, we only register this with name based key 
-//                    components.put(String.valueOf(i++), component);
-                    if (name != null) { components.put(name, component); }
                 }
                 dumpRegex("NativeRep", components, tr, pat);
             }
