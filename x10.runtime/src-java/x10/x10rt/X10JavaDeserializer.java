@@ -404,6 +404,8 @@ public class X10JavaDeserializer {
            	return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {
            	return new SpecialCaseDeserializerThunk(null);
+        } else if ("java.lang.Object".equals(clazz.getName())) {
+            return new SpecialCaseDeserializerThunk(null);
         }
 
         Class<?>[] interfaces = clazz.getInterfaces();
@@ -736,6 +738,8 @@ public class X10JavaDeserializer {
 	            } catch (ClassNotFoundException e) {
 	                throw new RuntimeException(e);
 	            }
+	        } else if ("java.lang.Object".equals(clazz.getName())) {
+	            return obj;
 	        }
 	        throw new RuntimeException("Unhandled type in special case thunk: "+obj.getClass());
 		}

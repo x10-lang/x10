@@ -530,6 +530,8 @@ public class X10JavaSerializer {
     		return new SpecialCaseSerializerThunk(clazz);
     	} else if ("java.lang.Class".equals(clazz.getName())) {
     		return new SpecialCaseSerializerThunk(clazz);
+    	} else if ("java.lang.Object".equals(clazz.getName())) {
+    	    return new SpecialCaseSerializerThunk(clazz);
     	}
 
     	Class<?>[] interfaces = clazz.getInterfaces();
@@ -801,7 +803,9 @@ public class X10JavaSerializer {
     			((X10Throwable) obj).$_serialize(xjs);
     		} else if ("java.lang.Class".equals(clazz.getName())) {
     			xjs.write(((Class)obj).getName());
-    		}
+    		} /* else if ("java.lang.Object".equals(clazz.getName())) {
+    		    // NOP 
+    		} */
     	}
     }
 }
