@@ -20,7 +20,6 @@ public class Types {
     
     public static RuntimeType/*<?>*/ getRTT(Class<?> impl) {
         return RuntimeType.make(impl);
-        // TODO cache RTT to WeakHashMap<Class,RuntimeType>
     }
 
     public static RuntimeType/*<?>*/ getRTT(Object obj) {
@@ -35,7 +34,7 @@ public class Types {
     }
     
     public static Type<?> getParam(Object obj, int i) {
-        if (obj instanceof x10.core.Any) {
+        if (obj instanceof Any) {
             return ((Any) obj).$getParam(i);
         }
         assert false;
