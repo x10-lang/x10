@@ -346,7 +346,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    Expr init = fd.init();
 	    if (init instanceof Lit) {
 	        Type t = init.type();
-	        return t.isNumeric() || t.isBoolean() || t.isNull();
+	        return (t.isNumeric() && !(t.isFloat() || t.isDouble()))  || t.isBoolean() || t.isNull();
 	    } else {
 	        return false;
 	    }
