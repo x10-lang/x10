@@ -1794,6 +1794,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    
 	    if (perProcess) {
             String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
+            String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
 
             // declare the field initializer method
             h.write("static ");
@@ -1801,6 +1802,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.write(" ");
             h.write(init_nb);
             h.writeln("();");
+            
+            // define the field accessor method.
+            // Accesses from the current compilation will see the PerProcess annotation,
+            // but accesses from other compilations may not.
+            h.write("static inline ");
+            emitter.printType(dec.type().type(), h);
+            h.write(" ");
+            h.write(accessor);
+            h.writeln("() { return "+mangled_field_name(dec.name().id().toString())+"; }");
             
             // define the field and initialize it.
             emitter.printType(dec.type().type(), sw);
