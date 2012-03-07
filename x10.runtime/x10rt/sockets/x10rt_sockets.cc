@@ -97,11 +97,6 @@ bool probe (bool onlyProcessAccept);
  *  utility methods
 *********************************************/
 
-bool checkBoolEnvVar(char* value)
-{
-	return (value && !(strcasecmp("false", value) == 0) && !(strcasecmp("0", value) == 0) && !(strcasecmp("f", value) == 0));	
-}
-
 void error(const char* message)
 {
 	if (errno)

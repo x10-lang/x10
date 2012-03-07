@@ -222,6 +222,42 @@ void Launcher::startChildren()
 				unsetenv(X10_LAUNCHER_CWD);
 
 				// check to see if we want to launch this in a debugger
+                if (checkBoolEnvVar(getenv(X10_JDB)))
+                {
+                    bool suspend_all = checkBoolEnvVar(getenv(X10_JDB_SUSPEND_ALL));
+                    char susp[] = "n";
+                    if (suspend_all || _myproc==0) susp[0] = 'y';
+                    long base_port = getenv(X10_JDB_BASE_PORT)==NULL ? 8000 : strtol(getenv(X10_JDB_BASE_PORT), NULL, 10);
+                    if (base_port < 0 || base_port > 65535) {
+                        DIE("The X10_JDB_BASE_PORT value %ld is invalid (must be 0 -> 65535)\n", base_port);
+                    }
+                    
+                    // launch this runtime in a debugger
+                    char** newargv;
+                    #ifdef DEBUG
+                        fprintf(stderr, "Runtime %u forked with jdb at port %d.  Running exec.\n", _myproc, jdb_port);
+                    #endif
+                    int numArgs = 0;
+                    while (_argv[numArgs] != NULL)
+                        numArgs++;
+                    newargv = (char**)alloca((numArgs+3)*sizeof(char*));
+                    if (newargv == NULL)
+                        DIE("Launcher %u: Allocating new argv for jdb params failed\n", _myproc);
+                    newargv[0] = _argv[0];
+                    newargv[1] = _argv[1];
+                    newargv[2] = (char*)"-Xdebug";
+                    char jdwp[1000] = "";
+                    snprintf(jdwp, sizeof jdwp, "-Xrunjdwp:transport=dt_socket,address=%ld,server=y,suspend=%s", base_port+_myproc, susp);
+                    newargv[3] = jdwp;
+                    for (int i=2; i<numArgs; i++)
+                        newargv[i+2] = _argv[i];
+                    newargv[numArgs+2] = (char*)NULL;
+                    if (execvp(newargv[0], newargv))
+                        // can't get here, if the exec succeeded
+                        DIE("Launcher %u: runtime exec with jdb failed", _myproc);
+                }
+
+                // check to see if we want to launch this in a debugger
 				char* which = getenv(X10_GDB);
 				if (which != NULL)
 				{
