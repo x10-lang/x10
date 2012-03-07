@@ -41,7 +41,7 @@
 #define X10_GDB "X10_GDB" // This flag causes the runtime to launch under gdb in a new xterm
 #define X10_JDB "X10_JDB" // This flag causes the runtime to add extra parameters that java interprets to turn on jdb support in the vm 
 #define X10_JDB_BASE_PORT "X10_JDB_BASE_PORT" // Port to run jdb on (+ the place index)
-#define X10_JDB_SUSPEND_ALL "X10_JDB_SUSPEND_ALL" // Whether to suspend all jdb vms instead of just place 0 (i.e. start execution paused)
+#define X10_JDB_SUSPEND "X10_JDB_SUSPEND" // Whether to suspend all, none, or the first place's jdb vms (i.e. start execution paused)
 #define X10_FORCEPORTS "X10_FORCEPORTS" // a way to force specific listen ports, to run without the launcher
 #define X10_NOYIELD "X10_NOYIELD" // setting this flag means "don't issue a sched_yield() after a probe comes up empty".
 #define X10_LAZYLINKS "X10_LAZYLINKS" // flag to establish place to place links to be at startup, instead of lazily.

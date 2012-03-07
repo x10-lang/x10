@@ -224,9 +224,17 @@ void Launcher::startChildren()
 				// check to see if we want to launch this in a debugger
                 if (checkBoolEnvVar(getenv(X10_JDB)))
                 {
-                    bool suspend_all = checkBoolEnvVar(getenv(X10_JDB_SUSPEND_ALL));
-                    char susp[] = "n";
-                    if (suspend_all || _myproc==0) susp[0] = 'y';
+                    const char *jdb_suspend = getenv(X10_JDB_SUSPEND) == NULL ? "none" : getenv(X10_JDB_SUSPEND);
+                    bool suspend_me = false;
+                    if (!strcmp(jdb_suspend,"none") || !strcmp(jdb_suspend,"NONE")) {
+                        suspend_me = false;
+                    } else if (!strcmp(jdb_suspend,"all") || !strcmp(jdb_suspend,"ALL")) {
+                        suspend_me = true;
+                    } else if (!strcmp(jdb_suspend,"first") || !strcmp(jdb_suspend,"FIRST")) {
+                        suspend_me = 0==_myproc;
+                    } else {
+                        DIE("The X10_JDB_SUSPEND value %s is invalid (must be none / all / first)\n", jdb_suspend);
+                    }
                     long base_port = getenv(X10_JDB_BASE_PORT)==NULL ? 8000 : strtol(getenv(X10_JDB_BASE_PORT), NULL, 10);
                     if (base_port < 0 || base_port > 65535) {
                         DIE("The X10_JDB_BASE_PORT value %ld is invalid (must be 0 -> 65535)\n", base_port);
@@ -247,7 +255,7 @@ void Launcher::startChildren()
                     newargv[1] = _argv[1];
                     newargv[2] = (char*)"-Xdebug";
                     char jdwp[1000] = "";
-                    snprintf(jdwp, sizeof jdwp, "-Xrunjdwp:transport=dt_socket,address=%ld,server=y,suspend=%s", base_port+_myproc, susp);
+                    snprintf(jdwp, sizeof jdwp, "-Xrunjdwp:transport=dt_socket,address=%ld,server=y,suspend=%s", base_port+_myproc, suspend_me ? "y" : "n");
                     newargv[3] = jdwp;
                     for (int i=2; i<numArgs; i++)
                         newargv[i+2] = _argv[i];
