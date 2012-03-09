@@ -13,6 +13,10 @@
  *  This file is here to allow for a stand-alone build of the launcher, which can be used to launch anything.
  */
 
+#ifdef __CYGWIN__
+#undef __STRICT_ANSI__ // Strict ANSI mode is too strict in Cygwin
+#endif
+
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
