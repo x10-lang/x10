@@ -16,6 +16,7 @@ import x10.compiler.Inline;
 
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
+import x10.matrix.RandTool;
 import x10.matrix.block.Grid;
 
 
@@ -70,9 +71,11 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
 	
 	public static def makeConstant(numBlk:Int) = make(numBlk, (i:Int)=>0);
 	public static def makeConstant(numBlk:Int, p:Int) = make(numBlk, (i:Int)=>p); 
-	
+
+	public static def makeRandom(numBlk:Int, numPlc:Int) = make(numBlk, (i:Int)=>RandTool.nextInt(numPlc));
+
 	//==========================================
-	
+		
 	//==========================================
 	/**
 	 * Add block ID and place ID in mapping

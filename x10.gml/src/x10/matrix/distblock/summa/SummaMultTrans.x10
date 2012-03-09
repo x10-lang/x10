@@ -171,12 +171,10 @@ public class SummaMultTrans {
 			AllGridCast.startColCast(ii, iwrk, itRow, B, work2);
 			/* TIMING */ 
 			commTime += Timer.milliTime() - st;
-			
+			st = Timer.milliTime();
 			//Debug.flushln("Row and column blocks bcast ends");
 			
 			//-----------------------------------------------------------------
-			/* TIMING */ 
-			st = Timer.milliTime();
 			finish 	ateach (Dist.makeUnique()) {
 				/* update local block */
 				val mypid = here.id();
@@ -204,13 +202,15 @@ public class SummaMultTrans {
 					//Debug.flushln("A block:"+amat.dataToString());
 					//Debug.flushln("W2 block:"+bmat.dataToString());
 					val wmat = new DenseMatrix(amat.M, klen, wblk.getData()) as Matrix(amat.M,klen);
+					/* TIMING */ 
+					val stt:Long = Timer.milliTime();
 					wmat.multTrans(amat, bmat as Matrix(klen, amat.N), true);
+					cblk.calcTime += Timer.milliTime() - stt;
 				}
-			 }
 
+			 }
 			/* TIMING */ 
 			calcTime += Timer.milliTime() - st;
-			
 			st = Timer.milliTime();
 			AllGridReduce.startRowReduceSum(jj, klen, itCol, C, work1, temp);
 			commTime += Timer.milliTime() - st;

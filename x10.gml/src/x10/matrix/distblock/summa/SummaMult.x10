@@ -155,11 +155,11 @@ public class SummaMult {
 			AllGridCast.startColCast(ii, iwrk, itRow, B, work2);
 			/* TIMING */ 
 			commTime += Timer.milliTime() - st;
+			/* TIMING */ 
+			st = Timer.milliTime();
 			//Debug.flushln("Row and column blocks bcast ends");
 			
 			//-----------------------------------------------------------------
-			/* TIMING */ 
-			st = Timer.milliTime();
 			finish 	ateach (Dist.makeUnique()) {
 				/* update local block */
 				val mypid = here.id();
@@ -186,13 +186,14 @@ public class SummaMult {
 					} else {
 						bmat = new SparseCSC(klen, bblk.getMatrix().N, bblk.getCompressArray()) as Matrix;
 					}
-
+					val stt:long=Timer.milliTime();
 					cmat.mult(amat as Matrix(cmat.M), bmat as Matrix(amat.N, cmat.N), true);
+					cblk.calcTime += Timer.milliTime()-stt;
 				}
 			 }
-
 			/* TIMING */ 
 			calcTime += Timer.milliTime() - st;
+
 			/* update icurcol, icurrow, ii, jj */
 			ii += iwrk;
 			jj += iwrk;

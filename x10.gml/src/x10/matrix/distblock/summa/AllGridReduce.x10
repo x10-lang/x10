@@ -45,15 +45,14 @@ public class AllGridReduce {
 		} else {
 			//Using column cast place list as the starting places of row cast
 			val plst = work1().colCastPlaceMap.getPlaceList(itCol);
-			finish for ([p]:Point in plst) {
-				val pid = plst(p);
-				if (pid != here.id()) async {
-					at (Dist.makeUnique()(pid)) {
+			finish {
+				for ([p]:Point in plst) {
+					val pid = plst(p);
+					at (Dist.makeUnique()(pid)) async {
 						rowReduceSumAll(jj, klen, itCol, distC, work1, tmp);
-					}
-				} else async {
-					rowReduceSumAll(jj, klen, itCol, distC, work1, tmp);
+					} 
 				}
+				rowReduceSumAll(jj, klen, itCol, distC, work1, tmp);
 			}
 		}
 	}
@@ -69,17 +68,19 @@ public class AllGridReduce {
 		while (itr.hasNext()) {
 			val dstblk = itr.next() as DenseBlock;
 			if (dstblk.myColId != itCol) continue;
+			
 			val rootbid = grid.getBlockId(dstblk.myRowId, dstblk.myColId);
-			val srcblk  = work1().findFrontColBlock(dstblk.myRowId);
-			//Debug.flushln("Copy block :"+blk.myRowId+","+blk.myColId+" to "+dstblk.myRowId+","+dstblk.myColId);
+			val rcvblk  = work1().findFrontColBlock(dstblk.myRowId);
 			//if (blk.myRowId==0)	Debug.flushln("Root block :\n"+blk.toString());
 			
-			val datcnt = srcblk.compColDataSize(jj, klen);	//copyCols(jj, klen, dstblk.getMatrix());
-			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(srcblk.myRowId);			
-			BlockGridReduce.rowReduceSum(work1, tmp, rootbid, datcnt, rowplst);
+			val datcnt = rcvblk.compColDataSize(jj, klen);	//copyCols(jj, klen, datblk.getMatrix());
+			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(rcvblk.myRowId);
+			//Debug.flushln("Start row reduce from places:"+rowplst.toString()); 
+			BlockGridReduce.rowReduceSum(work1, tmp, rootbid, rcvblk, datcnt, rowplst);
+			//Debug.flushln("Done row reduce from places:"+rowplst.toString()); 
 
 			//Debug.flushln(srcblk.toString());
-			val srcden = srcblk.getMatrix() as DenseMatrix;
+			val srcden = rcvblk.getMatrix() as DenseMatrix;
 			dstblk.addCols(jj, klen, srcden);
 		}
 	}
@@ -103,17 +104,15 @@ public class AllGridReduce {
 		} else {
 			//Using row cast place list as the starting places of row cast
 			val plst = work2().rowCastPlaceMap.getPlaceList(itRow);
-			finish for ([p]:Point in plst) {
-				val pid = plst(p);
-				if (pid != here.id()) async {
-					at (Dist.makeUnique()(pid)) {
+			finish {
+				for ([p]:Point in plst) {
+					val pid = plst(p);
+					at (Dist.makeUnique()(pid)) async {
 						colReduceSumAll(ii, klen, itRow, distC, work2, tmp);
 					}
-				} else async {
-					colReduceSumAll(ii, klen, itRow, distC, work2, tmp);
 				}
+				colReduceSumAll(ii, klen, itRow, distC, work2, tmp);
 			}
-
 		}
 	}
 	
@@ -132,16 +131,19 @@ public class AllGridReduce {
 			
 			val rootbid = grid.getBlockId(dstblk.myRowId, dstblk.myColId);
 			//------------------------------------------------
-			val srcblk  = work2().findFrontRowBlock(dstblk.myColId);
-			var mat:Matrix = srcblk.getMatrix();
-			if (mat instanceof DenseMatrix && klen != mat.M) {
+			val rcvblk  = work2().findFrontRowBlock(dstblk.myColId);
+			var mat:Matrix = rcvblk.getMatrix();
+			if (klen != mat.M) {
 				val den = new DenseMatrix(klen, mat.N, (mat as DenseMatrix).d);
 				mat = den as Matrix;
 			}
 			val datcnt = dstblk.copyRows(ii, klen, mat);
 			//-------------------------------------------------
 			val colplst:Array[Int](1) = work2().colCastPlaceMap.getPlaceList(dstblk.myColId);						
-			BlockGridReduce.colReduceSum(work2, tmp, rootbid, datcnt, colplst);	
+			BlockGridReduce.colReduceSum(work2, tmp, rootbid, rcvblk, datcnt, colplst);
+			//
+			//dstblk.addRows(ii, klen, mat as DenseMatrix);
+
 		}	
 	}
 	

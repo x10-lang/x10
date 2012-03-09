@@ -48,7 +48,7 @@ public class CastPlaceMap {
 		for (var id:Int=0; id<sz; id++) {
 			val bid = select(g.getBlockId(rowbid, id), g.getBlockId(id, colbid));
 			val pid = dmap.findPlace(bid);
-			if (! alist.contains(pid)) {
+			if (! alist.contains(pid)&&pid!=here.id()) {
 				alist.add(pid);
 			}
 		}

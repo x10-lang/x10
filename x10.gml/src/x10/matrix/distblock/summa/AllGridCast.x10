@@ -43,15 +43,16 @@ public class AllGridCast {
 		} else {
 			//Using column cast place list as the starting places of row cast
 			val plst = work1().colCastPlaceMap.getPlaceList(itCol);
-			finish for ([p]:Point in plst) {
-				val pid = plst(p);
-				if (pid != here.id()) async {
-					at (Dist.makeUnique()(pid)) {
+			//Debug.flushln("Init all row cast from places:"+plst.toString());
+			finish {
+				for ([p]:Point in plst) async {
+					val pid = plst(p);
+					at (Dist.makeUnique()(pid)) async {
+						//Debug.flushln("Starting row cast to places at row block "+itCol);
 						rowCastAll(jj, klen, itCol, distA, work1);
 					}
-				} else async {
-					rowCastAll(jj, klen, itCol, distA, work1);
 				}
+				rowCastAll(jj, klen, itCol, distA, work1);
 			}
 			
 			// if (!startVerifyRowCast(jj, klen, itCol, distA, work1))
@@ -78,8 +79,10 @@ public class AllGridCast {
 			
 			val datcnt = blk.copyCols(jj, klen, dstblk.getMatrix());
 			
-			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(blk.myRowId);			
+			val rowplst:Array[Int](1) = work1().rowCastPlaceMap.getPlaceList(blk.myRowId);	
+			//Debug.flushln("Starting row cast to places:"+rowplst.toString());
 			BlockGridCast.rowCastToPlaces(work1, rootbid, klen, datcnt, rowplst);
+			//Debug.flushln("Done row cast to places:"+rowplst.toString());
 			//Debug.flushln("Rowwise cast Rootbid"+rootbid+" datcnt:"+datcnt);
 		}
 	}
@@ -100,15 +103,14 @@ public class AllGridCast {
 		} else {
 			//Using row cast place list as the starting places of row cast
 			val plst = work2().rowCastPlaceMap.getPlaceList(itRow);
-			finish for ([p]:Point in plst) {
-				val pid = plst(p);
-				if (pid != here.id()) async {
-					at (Dist.makeUnique()(pid)) {
+			finish {
+				for ([p]:Point in plst) {
+					val pid = plst(p);
+					at (Dist.makeUnique()(pid)) async {
 						colCastAll(ii, klen, itRow, distB, work2);
 					}
-				} else async {
-					colCastAll(ii, klen, itRow, distB, work2);
-				}
+				} 
+				colCastAll(ii, klen, itRow, distB, work2);
 			}
 
 			// if (!startVerifyColCast(ii, klen, itRow, distB, work2))
@@ -145,8 +147,10 @@ public class AllGridCast {
 			//Debug.flushln(blk.toString()+"\n"+mat.toString());
 			val datcnt = blk.copyRows(ii, klen, mat);
 			//-------------------------------------------------
-			val colplst:Array[Int](1) = work2().colCastPlaceMap.getPlaceList(blk.myColId);						
+			val colplst:Array[Int](1) = work2().colCastPlaceMap.getPlaceList(blk.myColId);
+			//Debug.flushln("Starting col cast to places:"+colplst.toString());
 			BlockGridCast.colCastToPlaces(work2, rootbid, mat.N, datcnt, colplst);	
+			//Debug.flushln("Done col cast to places:"+colplst.toString());
 			//Debug.flushln("Colwise cast Rootbid"+rootbid+" datcnt:"+datcnt);
 
 		}	
