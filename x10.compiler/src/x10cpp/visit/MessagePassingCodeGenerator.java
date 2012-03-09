@@ -342,16 +342,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return !fd.annotationsMatching(tr.typeSystem().PerProcess()).isEmpty();
 	}
 	
-	private boolean isTrivialInit(FieldDecl_c fd) {
-	    Expr init = fd.init();
-	    if (init instanceof Lit) {
-	        Type t = init.type();
-	        return (t.isNumeric() && !(t.isFloat() || t.isDouble()))  || t.isBoolean() || t.isNull();
-	    } else {
-	        return false;
-	    }
-	}
-
     private void extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream h) {
 		if (cd.typeParameters().size() == 0) return;
 
@@ -376,15 +366,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		    if (dec instanceof FieldDecl_c) {
 		        FieldDecl_c fd = (FieldDecl_c) dec;
                 boolean perProcess = isPerProcess((X10Def) fd.fieldDef());
-                boolean trivialInit = perProcess && isTrivialInit(fd);
 		        ((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
 		        sw.pushCurrentStream(h);
-		        emitter.printHeader(fd, h, tr, false, trivialInit);
-		        if (trivialInit) {
-		            sw.write(" =");
-		            sw.allowBreak(2, " ");
-		            fd.print(fd.init(), sw, tr);		            
-		        }
+		        emitter.printHeader(fd, h, tr, false);
 		        h.write(";");
 		        sw.popCurrentStream();
 		        ((X10CPPTranslator)tr).setContext(context); // FIXME
@@ -426,8 +410,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	            FieldDecl_c fd = (FieldDecl_c) dec;
 	            ((X10CPPTranslator)tr).setContext(fd.enterScope(context)); // FIXME
 	            boolean perProcess = isPerProcess((X10Def) fd.fieldDef());
-	            boolean trivialInit = perProcess && isTrivialInit(fd);
-	            generateStaticFieldSupportCode(fd, container, perProcess, trivialInit, sw);
+	            generateStaticFieldSupportCode(fd, container, perProcess, sw);
 	            ((X10CPPTranslator)tr).setContext(context); // FIXME
 	        } else if (dec instanceof X10MethodDecl_c) {
 	            X10MethodDecl_c md = (X10MethodDecl_c) dec;
@@ -1657,19 +1640,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         }
 
         boolean perProcess = isStatic && isPerProcess((X10Def) dec.fieldDef());
-        boolean trivialStaticInit = perProcess && isTrivialInit(dec);  // For C++ level primitives, let's get a const decl so the C++ compiler can optimize...
-        emitter.printHeader(dec, sw, tr, false, trivialStaticInit);
-        if (trivialStaticInit) {
-            sw.write(" =");
-            sw.allowBreak(2, " ");
-            dec.print(dec.init(), sw, tr);
-        }
+        emitter.printHeader(dec, sw, tr, false);
         sw.writeln(";");
         sw.popCurrentStream();
 
 	    if (isStatic) {
 	        String container = Emitter.translateType(dec.fieldDef().asInstance().container());
-	        generateStaticFieldSupportCode(dec, container, perProcess, trivialStaticInit, sw);
+	        generateStaticFieldSupportCode(dec, container, perProcess, sw);
 	    }
 	    
 	    h.newline(); h.forceNewline();
@@ -1785,25 +1762,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	 * Generates the accessor method and the initialization flag for a given
 	 * field declaration.
 	 */
-	private void generateStaticFieldSupportCode(FieldDecl_c dec, String container, boolean perProcess, boolean trivialInit, StreamWrapper sw) {
+	private void generateStaticFieldSupportCode(FieldDecl_c dec, String container, boolean perProcess, StreamWrapper sw) {
         String name = dec.name().id().toString();
         TypeSystem xts = tr.typeSystem();
         ClassifiedStream h = sw.header();
 	    
-        if (perProcess || trivialInit) {
-            // Always generate the field accessor method.
-            // Accesses from the current compilation will see the PerProcess annotation,
-            // but accesses from other compilations may not.
-            h.write("static inline ");
-            emitter.printType(dec.type().type(), h);
-            h.write(" ");
-            h.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX));
-            h.writeln("() { return "+mangled_field_name(dec.name().id().toString())+"; }");
-        }
-
-        if (trivialInit) return; 
-        
-	    if (perProcess) {
+        if (perProcess) {
             String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
 
             // declare the field initializer method
@@ -1812,6 +1776,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.write(" ");
             h.write(init_nb);
             h.writeln("();");
+            
+            // Always generate the field accessor method.
+            // Accesses from the current compilation will see the PerProcess annotation,
+            // but accesses from other compilations may not.
+            h.write("static inline ");
+            emitter.printType(dec.type().type(), h);
+            h.write(" ");
+            h.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX));
+            h.writeln("() { return "+mangled_field_name(dec.name().id().toString())+"; }");
             
             // define the field and initialize it.
             emitter.printType(dec.type().type(), sw);

@@ -877,7 +877,7 @@ public class Emitter {
 		h.end();
 	}
 
-	void printHeader(FieldDecl_c n, CodeWriter h, Translator tr, boolean qualify, boolean trivialInit) {
+	void printHeader(FieldDecl_c n, CodeWriter h, Translator tr, boolean qualify) {
 		Flags flags = n.flags().flags();
 		h.begin(0);
 		if (!qualify) {
@@ -889,10 +889,6 @@ public class Emitter {
 			h.write("volatile ");
 		}
 		
-		if (trivialInit) {
-		    h.write("const ");
-		}
-
 		printType(n.type().type(), h);
 		h.allowBreak(2, 2, " ", 1);
 		if (qualify) {
