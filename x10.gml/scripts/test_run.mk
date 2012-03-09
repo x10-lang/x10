@@ -25,7 +25,7 @@
 ## execution settings
 ###################################################
 
-#Following settings are used in Triloka8 batch job headnode
+#Following settings are used in Triloka4 batch job headnode
 
 ifeq ($(server), $(findstring $(server), $(shell hostname)))
 	Srun  = mpirun
@@ -43,19 +43,20 @@ Xjvm  = $(shell which x10)
 # run tests short-keys
 
 run_java	: java
-		$(Xrun) -np $(numplaces) $(Xjvm) \
-		-classpath $(build_path):$(gml_lib)/managed_gml.jar \
-		-libpath $(build_path):$(gml_lib) \
-		$(target) $(test_args) 
+		$(Xrun) -np $(numplaces) $(Xjvm) -classpath $(build_path):$(gml_lib)/managed_gml.jar -libpath $(build_path):$(gml_lib) $(target) $(test_args) 
 
 run_mpi		: mpi
 			$(Srun) -n $(numplaces) ./$(target)_mpi $(test_args)
 
 run_sock	: sock
-			$(Xrun) -np $(numplaces) ./$(target)_sock $(test_args)
+			X10_NPLACES=$(numplaces) ./$(target)_sock $(test_args)
 
 run_lapi	: lapi
 			$(Srsv) -n $(numplaces) $(Xrun) ./$(target)_lapi $(test_args)
+
+run_pami	: pami
+			MP_PROCS=$(numplaces) MP_EUILIB=ip ./$(target)_sock $(test_args)
+
 
 ##----- Run all tests in one transport or java backend
 

@@ -141,10 +141,14 @@ dist_src=\
 	x10/matrix/distblock/CastPlaceMap.x10 \
 	x10/matrix/distblock/DistDupMult.x10 \
 	x10/matrix/distblock/summa/SummaMult.x10 \
-	x10/matrix/distblock/summa/BlockGridCast.x10 \
 	x10/matrix/distblock/summa/AllGridCast.x10 \
-	x10/matrix/distblock/summa/BlockGridReduce.x10 \
+	x10/matrix/distblock/summa/BlockGridCast.x10 \
+	x10/matrix/distblock/summa/BinaryTreeCast.x10 \
+	x10/matrix/distblock/summa/RingCast.x10 \
 	x10/matrix/distblock/summa/AllGridReduce.x10 \
+	x10/matrix/distblock/summa/BlockGridReduce.x10 \
+	x10/matrix/distblock/summa/BinaryTreeReduce.x10 \
+	x10/matrix/distblock/summa/RingReduce.x10 \
 	x10/matrix/distblock/summa/SummaMultTrans.x10
 
 
@@ -181,12 +185,14 @@ include scripts/system_setting.mk
 
 
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
-X10_FLAG	= -VERBOSE_CHECKS -O -NO_CHECKS
+X10_FLAG	= -VERBOSE_CHECKS -O -NO_CHECKS  
+#-define ENABLE_RING_COMM
 
-MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU
+MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
 
 POST_CPP	= $(LAPACK_CFLAG) -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
 POST_MPI	= $(MPI_CFLAG) $(LAPACK_CFLAG) -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
+
 
 ###################################################
 # X10 file built rules
@@ -216,7 +222,7 @@ clib : $(clib_src) chk_dir
 ##-----------------------------------------------------------------------
 managed_gml		: $(lib_src)
 		@($(MAKE) jlib target=$@ src="$(lib_src)") 
-
+## native on socket
 native_gml		: $(lib_src)
 		@($(MAKE) clib target=$@ src="$(lib_src)" post_opts='$(POST_CPP)')
 

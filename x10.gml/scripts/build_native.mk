@@ -5,7 +5,7 @@
 ## Contact:   	zhangj@us.ibm.com
 ###################################################
 #This make file is used for building executable 
-#running on C++backend socket transport.
+#running on C++backend socket/lapi/pami transport.
 ###################################################
 ###################################################
 
@@ -35,7 +35,7 @@ x10src		= $(target).x10
 
 ##----------------------------------
 ## This directory is required for building mative backend
-GML_NAT_OPT= -classpath $(gml_lib)/native_gml.jar -x10lib $(gml_path)/native_gml.properties
+GML_NAT_OPT	= -classpath $(gml_lib)/native_gml.jar -x10lib $(gml_path)/native_gml.properties
 
 ###################################################
 # X10 file built rules
@@ -49,9 +49,15 @@ $(target)_lapi	: $(x10src) $(depend_src) $(gml_inc)
 		$(XC) -x10rt pgas_lapi $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
 
+$(target)_pami	: $(x10src) $(depend_src) $(gml_inc)
+		$(XC) -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
+		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
+
+
 ###
 sock		: $(target)_sock
 lapi		: $(target)_lapi
+pami		: $(target)_pami
 
 ###
 all_sock	:
@@ -60,6 +66,10 @@ all_sock	:
 all_lapi	:
 			$(foreach src, $(target_list), $(MAKE) target=$(src) lapi; )
 
+all_pami	:
+			$(foreach src, $(target_list), $(MAKE) target=$(src) pami; )
+
+
 ##--------
 ## clean
 clean	::
@@ -67,6 +77,7 @@ clean	::
 
 clean_all ::
 		$(foreach f, $(target_list), rm -f $(f)_sock $(f)_lapi; )
+		
 ###----------
 help	::
 	@echo "------------------- build for native sock or lapi transport ------------";
@@ -74,8 +85,8 @@ help	::
 	@echo " make all_mpi    : build all targets [ $(target_list) ] for native backend running on socket transport";
 	@echo " make lapi       : build default target $(target) for native backend running on socket transport";
 	@echo " make all_lapi   : build all targets [ $(target_list) ] for native backend running on socket transport";
+	@echo " make pami       : build default target $(target) for native backend running on pami transport";
+	@echo " make all_pami   : build all targets [ $(target_list) ] for native backend running on pami transport";
 	@echo " make clean      : remove default built binary $(target)_sock $(target)_lapi";
 	@echo " make clean_all  : remove all builds for the list of tragets";
 	@echo "";
-
-		
