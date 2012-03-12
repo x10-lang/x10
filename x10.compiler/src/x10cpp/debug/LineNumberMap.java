@@ -1050,27 +1050,25 @@ public class LineNumberMap extends StringTable {
 		    }
 		    Collections.sort(x10toCPPlist, CPPLineInfo.byX10info());
 		    
-		    // remove itens that have duplicate lines, leaving only the one with the earlier column
-		    int previousLine=-1, previousColumn=-1;
-		    for (int i=0; i<x10toCPPlist.size();)
+		    // remove items that have duplicate lines, leaving only the one with the earlier column
+		    CPPLineInfo previousCppDebugInfo = x10toCPPlist.get(0);
+		    for (int i=1; i<x10toCPPlist.size();)
 		    {
 		    	CPPLineInfo cppDebugInfo = x10toCPPlist.get(i);
-		    	if (cppDebugInfo.x10line == previousLine)
+		    	if (cppDebugInfo.x10line == previousCppDebugInfo.x10line)
 		    	{
-		    		if (cppDebugInfo.x10column > previousColumn)
+		    		if (cppDebugInfo.x10column > previousCppDebugInfo.x10column)
 			    		x10toCPPlist.remove(i); // keep the previous one, delete this one
 		    		else
 		    		{
 		    			// keep this one, delete the previous one
 		    			x10toCPPlist.remove(i-1);
-		    			previousLine = 	cppDebugInfo.x10line;
-				    	previousColumn = cppDebugInfo.x10column;
+		    			previousCppDebugInfo = cppDebugInfo;
 		    		}
 		    	}
 		    	else
 		    	{
-			    	previousLine = cppDebugInfo.x10line;
-			    	previousColumn = cppDebugInfo.x10column;
+		    		previousCppDebugInfo = cppDebugInfo;
 			    	i++;
 		    	}
 		    }	
@@ -1431,7 +1429,7 @@ public class LineNumberMap extends StringTable {
         w.newline(4); w.begin(0);
         w.writeln("sizeof(struct _MetaDebugInfo_t),");
         w.writeln("X10_META_LANG,");
-        w.writeln("0x0C021C12, // 2012-02-28, 18:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
+        w.writeln("0x0C030C10, // 2012-03-12, 16:00"); // Format: "YYMMDDHH". One byte for year, month, day, hour.
         w.writeln("sizeof(_X10strings),");
         if (!m.isEmpty()) {
             w.writeln("sizeof(_X10sourceList),");
