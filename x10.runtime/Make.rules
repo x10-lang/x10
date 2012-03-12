@@ -53,7 +53,7 @@ ifdef EXPERIMENTAL
 endif
 
 ifdef DEBUG
-  CXXFLAGS += -g
+  CXXFLAGS += -g -DDEBUG_SUPPORT
   X10CPPFLAGS += -DEBUG
 endif
 

@@ -10,15 +10,33 @@
  */
 
 #include <x10aux/debug.h>
+#include <stdio.h>
 
-// A hook at the start of every X10 method.
-//void _X10_Entry_Hook() { }
+#if defined(DEBUG_SUPPORT)
+// Hook to trigger loading of FD2 component of debugger.
 
-// A hook at the end of every X10 method.
-//void _X10_Exit_Hook() { }
+#if defined (__linux__) && !defined(__bgp__) 
+class FDFDLoader {
+public:
+    FDFDLoader();
+};
 
-// A hook at the start of every X10 executable statement.
-// Follows any method start hook, and precedes any method end hook.
-//void _X10_STATEMENT_HOOK() { }
+static FDFDLoader dummy;
+
+#include <dlfcn.h>
+
+FDFDLoader::FDFDLoader() {
+    void *handle;
+
+    handle = dlopen("libderdFD2.so", RTLD_NOW);
+    if (!handle) {
+        fprintf(stderr, "FD2 lib not loaded (continuing): %s\n", dlerror());
+    }
+}
+
+#endif // __linux__ && !__bgp__
+
+#endif // DEBUG_SUPPORT
+
 
 // vim:tabstop=4:shiftwidth=4:expandtab
