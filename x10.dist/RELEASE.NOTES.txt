@@ -2,7 +2,7 @@ Release 2.2.2.2
 This patch release contains the following fixes to X10 2.2.2.1
   + Enhanced support in x10.array.Dist for Debugger distributed data view
   + Fix to x10rt_msg_type size for pgas_lapi
-  + Update of DebugMap version number
+  + Fix to debug map generation in C++ backend (for X10 Parallel Debugger)
 
 Release 2.2.2.1
 
