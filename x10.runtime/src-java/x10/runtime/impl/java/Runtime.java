@@ -93,6 +93,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
 
         // shutdown
+        X10RT.X10_EXITING_NORMALLY = true;
         System.exit(exitCode);
     }
 

@@ -18,6 +18,8 @@ public class X10RT {
     private static int here;
     private static int numPlaces;
     static boolean forceSinglePlace = false;
+    
+    public static boolean X10_EXITING_NORMALLY = false;
 
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
     
@@ -71,7 +73,13 @@ public class X10RT {
               public void run() {
                   synchronized(X10RT.class) {
                       state = State.TEARING_DOWN;
-                      x10rt_finalize();
+                      if (X10_EXITING_NORMALLY) {
+                          if (VERBOSE) System.err.println("Normal exit; x10rt_finalize called");
+                          x10rt_finalize();
+                          if (VERBOSE) System.err.println("Normal exit; x10rt_finalize returned");
+                      } else {
+                          if (VERBOSE) System.err.println("Abnormal exit; skipping call to x10rt_finalize");
+                      }
                       state = State.TORN_DOWN;
                       System.err.flush();
                       System.out.flush();
