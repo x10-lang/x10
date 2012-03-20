@@ -245,6 +245,13 @@ else
     else
     ifeq ($(firstword $(subst _, ,$(shell uname -s))),CYGWIN)
       export X10RT_PLATFORM=cygwin
+
+      # BDWGC has problems finding the static roots on cygwin if we don't force static linking.
+      # We could make this conditional on ENABLE_GC, but that would force us to plumb the
+      # GC enable/disable status to all uses of this Makefile. So, for now just force it
+      # to static independent of the GC enable/disable status.
+      export X10_STATIC_LIB=1
+
       override CXX ?= g++-4
       override CC ?= gcc-4
       ifndef X10_STATIC_LIB
