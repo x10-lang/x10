@@ -243,7 +243,7 @@ void Launcher::startChildren()
                     // launch this runtime in a debugger
                     char** newargv;
                     #ifdef DEBUG
-                        fprintf(stderr, "Runtime %u forked with jdb at port %d.  Running exec.\n", _myproc, jdb_port);
+                        fprintf(stderr, "Runtime %u forked with jdb at port %d.  Running exec.\n", _myproc, base_port);
                     #endif
                     int numArgs = 0;
                     while (_argv[numArgs] != NULL)
@@ -1208,6 +1208,10 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
 	char ** argv = (char **) alloca (sizeof(char *) * (_argc+environ_sz+32));
 	int z = 0;
 	argv[z] = _ssh_command;
+	static char ttyarg[] = "-tt";
+	argv[++z] = ttyarg;
+	static char quietarg[] = "-q";
+	argv[++z] = quietarg;
 	argv[++z] = remotehost;
     static char env_string[] = "env";
 	argv[++z] = env_string;
