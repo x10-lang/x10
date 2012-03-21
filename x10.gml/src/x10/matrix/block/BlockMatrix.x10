@@ -625,7 +625,8 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 			A:Matrix(this.M), 
 			B:Matrix(A.N,this.N), 
 			plus:Boolean):Matrix(this) {
-		
+		if (A instanceof BlockMatrix && B instanceof BlockMatrix )
+			return mult(A as BlockMatrix, B as BlockMatrix, plus);
 		Debug.exit("Not implemented yet");
 		return this;	
 	}
@@ -641,6 +642,8 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 			A:Matrix{self.N==this.M}, 
 			B:Matrix(A.M,this.N), 
 			plus:Boolean):BlockMatrix(this) {
+		if (A instanceof BlockMatrix && B instanceof BlockMatrix )
+			return transMult(A as BlockMatrix, B as BlockMatrix, plus);
 		Debug.exit("Not implemented yet");
 		return this;		
     }
@@ -651,7 +654,10 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 			A:Matrix(this.M), 
 			B:Matrix(this.N, A.N), 
 			plus:Boolean):BlockMatrix(this)	{
-		
+
+		if (A instanceof BlockMatrix && B instanceof BlockMatrix )
+			return multTrans(A as BlockMatrix, B as BlockMatrix, plus);
+
 		Debug.exit("Not implemented yet");
 		return this;		
     }
@@ -660,7 +666,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	public def mult(
 			A:BlockMatrix(this.M), 
 			B:BlockMatrix(A.N,this.N), 
-			plus:Boolean):Matrix(this) {
+			plus:Boolean):BlockMatrix(this) {
 		BlockBlockMult.mult(A, B, this, plus);
 		return this;	
 	}
@@ -668,7 +674,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	public def transMult(
 			A:BlockMatrix{self.N==this.M}, 
 			B:BlockMatrix(A.M,this.N), 
-			plus:Boolean):Matrix(this) {
+			plus:Boolean):BlockMatrix(this) {
 		BlockBlockMult.transMult(A, B, this, plus);
 		return this;	
 	}
@@ -676,7 +682,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	public def multTrans(
 			A:BlockMatrix(this.M), 
 			B:BlockMatrix(this.N,A.N), 
-			plus:Boolean):Matrix(this) {
+			plus:Boolean):BlockMatrix(this) {
 		BlockBlockMult.multTrans(A, B, this, plus);
 		return this;
 	}

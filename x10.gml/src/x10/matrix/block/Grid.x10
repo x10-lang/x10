@@ -35,8 +35,10 @@ import x10.matrix.MathTool;
  * based on specified "rowBs" and "colBs", as far as, it complies with
  * grid-partitioning.
  */
-public class Grid(M:Int, N:Int,
-				  numRowBlocks:Int, numColBlocks:Int) {
+public type Grid(bM:Int,bN:Int)=Grid{self.numRowBlocks==bM, self.numColBlocks==bN};
+public type Grid(m:Int,n:Int,bM:Int,bN:Int)=Grid{self.M==M,self.N==N,self.numRowBlocks==bM,self.numColBlocks==bN};
+
+public class Grid(M:Int, N:Int,numRowBlocks:Int, numColBlocks:Int) {
 	/**
 	 * Number of blocks in partitioning
 	 */

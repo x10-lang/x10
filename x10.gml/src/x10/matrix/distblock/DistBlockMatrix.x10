@@ -12,6 +12,7 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -23,23 +24,26 @@ import x10.matrix.block.SparseBlock;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.comm.BlockGather;
 import x10.matrix.comm.BlockScatter;
-
+import x10.matrix.comm.BlockSetBcast;
 
 public type DistBlockMatrix(M:Int, N:Int)=DistBlockMatrix{self.M==M, self.N==N};   
 public type DistBlockMatrix(M:Int)=DistBlockMatrix{self.M==M}; 
 public type DistBlockMatrix(C:DistBlockMatrix)=DistBlockMatrix{self==C}; 
 
 /**
- * Distributed block matrix allows matrix partitioned in any arbitary number of blocks.
- * The number of blocks can differ from the number of places, which is not allowed in
- * DistDenseMatrix and DistSparseMatrix.
+ * Distributed block matrix provides data structure for dense or sparse
+ * matrix partitioned in  blocks and distributed among multiple places.  
+ * Each place is allowed to assigned more than one matrix blocks. 
+ * Distribution of blocks defines the place ID for each block of the matrix.
+ * DistBlockMatrix is designed to replace exiting DistDenseMatrix and DistSparseMatrix,
+ * which only support unique distribution, i.e. one block for designated places.
  * 
- * <p>The matrix data partitioning is separated from partitioned block distribution.
- * Matrix data partitioning is specified by Grid, and blocks distribution map is defined
- * by DistMap.
+ * <p>In a DistBlockMatrix instance, matrix data partitioning is defined separately from
+ * distribution of partitioned blocks.
+ * Matrix data partition is specified by Grid and distribution is specified by DistMap.
  * 
  * <p>PlaceLocalHandle is used to hold blocks assigned to places.  In each place,
- * BlockSet stores all blocks in an ArrayList, with a copy of partitioning info Grid and
+ * BlockSet stores all blocks in an ArrayList, with a copy of partitioning Grid and
  * distribution map DistMap.
  */
 public class DistBlockMatrix extends Matrix{
@@ -47,7 +51,13 @@ public class DistBlockMatrix extends Matrix{
 	//public val grid:Grid;
 	public val handleBS:PlaceLocalHandle[BlockSet];
 	//public val local:PlaceLocalHandle[BlockMatrix(M,N)]; //Repackaged in blockmatrix
-
+	//================================================================================
+	/**
+	 * Time profiling
+	 */
+	var commTime:Long =0 ;
+	var calcTime:Long =0;
+	
 	//==============================================
 	
 	public def this(bs:PlaceLocalHandle[BlockSet]) {
@@ -153,7 +163,7 @@ public class DistBlockMatrix extends Matrix{
 		val nm = new DistBlockMatrix(dblks);
 		return nm as DistBlockMatrix(d.M,d.N);
 	}
-
+	//---------------------------
 	public static def makeDense(g:Grid, d:DistMap):DistBlockMatrix(g.M,g.N) {
 		val bs = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
 				()=>(BlockSet.makeDense(g, d)));//Remote capture
@@ -165,7 +175,14 @@ public class DistBlockMatrix extends Matrix{
 				()=>(BlockSet.makeSparse(g, d, nzp)));//Remote capture
 		return new DistBlockMatrix(bs) as DistBlockMatrix(g.M,g.N);		
 	}
+	//----------------------------
+	public static def makeDense(g:Grid):DistBlockMatrix(g.M,g.N) =
+		makeDense(g, DistGrid.make(g).dmap);
 	
+	public static def makeSparse(g:Grid, nzp:Double):DistBlockMatrix(g.M,g.N) =
+		makeSparse(g, DistGrid.make(g).dmap, nzp);
+	
+	//----------------------------
 	public static def makeDense(m:Int, n:Int, rbs:Int, cbs:Int) =
 		make(m, n, rbs, cbs).allocDenseBlocks();
 	
@@ -329,6 +346,8 @@ public class DistBlockMatrix extends Matrix{
 	//=============================================
 
 	public def copyTo(that:DistBlockMatrix(M,N)) {
+		
+		val stt = Timer.milliTime();
 		finish ateach (d in Dist.makeUnique()) {
 			val sit  = this.handleBS().iterator();
 			val dit  = that.handleBS().iterator();
@@ -342,31 +361,52 @@ public class DistBlockMatrix extends Matrix{
 				smat.copyTo(dmat as Matrix(smat.M, smat.N));
 			}
 		}
+		commTime += Timer.milliTime() - stt;
 	}
 	
 	public def copyTo(dst:BlockMatrix(M,N)) {
+		
 		val srcgrid = this.getGrid();
 		Debug.assure(srcgrid.equals(dst.grid),
 			"source and destionation matrix partitions are not compatible");
+		val stt = Timer.milliTime();
 		BlockGather.gather(this.handleBS, dst.listBs);
+		commTime += Timer.milliTime() - stt;
+	}
+	
+	public def copyTo(dst:DupBlockMatrix(M,N)) {
+		val srcgrid = this.getGrid();
+		Debug.assure(srcgrid.equals(dst.local().grid),
+		"source and destionation matrix partitions are not compatible");
+		val stt = Timer.milliTime();		
+		BlockGather.gather(this.handleBS, dst.local().listBs);
+		BlockSetBcast.bcast(dst.handleDB);
+		commTime += Timer.milliTime() - stt;
 	}
 	
 	public def copyTo(dst:Matrix(M,N)):void {
 		val grid = getGrid();
+		val stt = Timer.milliTime();
+
 		if (dst instanceof DistBlockMatrix) {
 			copyTo(dst as DistBlockMatrix(M,N));
 		} else if (dst instanceof BlockMatrix) {
 			copyTo(dst as BlockMatrix(M,N));
+		} else if (dst instanceof DupBlockMatrix) {
+			copyTo(dst as DupBlockMatrix(M,N));
 		} else if ((dst.N == 1)&&( dst instanceof DenseMatrix)) {
 			BlockGather.gatherVector(this.handleBS, dst as DenseMatrix(M,1));
-		} else if (grid.numRowBlocks==1) {
+			commTime += Timer.milliTime() - stt;
+		} else if (grid.numRowBlocks==1) {			
 			BlockGather.gatherRowBs(this.handleBS, dst);
+			commTime += Timer.milliTime() - stt;
 		} else {
 			Debug.exit("Not supported matrix type for converting DistBlockMatrix");
 		}
 	}
 	
 	public def copyTo(den:DenseMatrix(M,N)): void {
+		val stt = Timer.milliTime();
 		if (den.N == 1) {
 			BlockGather.gatherVector(this.handleBS, den as DenseMatrix(M,1));
 		} else {
@@ -375,13 +415,18 @@ public class DistBlockMatrix extends Matrix{
 					"Workaround is to use inter-media BlockMatrix to save gathered blocks"+
 					"and then convert to dense by calling BlockMatrix.copyTo(DenseMatrix)");
 		}
+		commTime += Timer.milliTime() - stt;
+
 	}
 
 	public def copyFrom(src:BlockMatrix(M,N)) {
 		val dstgrid = getGrid();
+		val stt = Timer.milliTime();
+
 		Debug.assure(dstgrid.equals(src.grid),
 		"source and destionation matrix partitions are not compatible");
 		BlockScatter.scatter(src.listBs, this.handleBS);
+		commTime += Timer.milliTime() - stt;
 	}
 	
 	//=============================================
@@ -595,6 +640,28 @@ public class DistBlockMatrix extends Matrix{
 	}
 	
 	//=============================================	
+	
+	public def mult(A:DistBlockMatrix(this.M),B:DupBlockMatrix(A.N,this.N), plus:Boolean):DistBlockMatrix(this) =
+		DistDupMult.mult(A, B, this, plus);
+
+	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DupBlockMatrix(A.M,this.N),plus:Boolean):DistBlockMatrix(this) =
+		DistDupMult.transMult(A, B, this, plus);
+	
+	public def multTrans(A:DistBlockMatrix(this.M),B:DupBlockMatrix(this.N, A.N),plus:Boolean):DistBlockMatrix(this) =
+		DistDupMult.multTrans(A, B, this, plus);
+	
+	//-----------------------------
+	public def mult(A:DupBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N), plus:Boolean):DistBlockMatrix(this) =
+		DistDupMult.mult(A, B, this, plus);
+
+	public def transMult(A:DupBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N),plus:Boolean):DistBlockMatrix(this) =
+		DistDupMult.transMult(A, B, this, plus);
+	
+	public def multTrans(A:DupBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N),plus:Boolean):DistBlockMatrix(this) =
+		DistDupMult.multTrans(A, B, this, plus);
+	
+
+	//=============================================
 	public def mult(A:Matrix(this.M),B:Matrix(A.N,this.N), plus:Boolean):Matrix(this) {
 		throw new UnsupportedOperationException();	
 	}
@@ -635,6 +702,18 @@ public class DistBlockMatrix extends Matrix{
 		}
 	}
 	
+	public def getAllDataCount():Long {
+		var tt:Long = 0;
+		for (var p:Int=0; p<Place.MAX_PLACES; p++) {
+			val pid = p;
+			val ds = at (Dist.makeUnique()(pid)) handleBS().getAllBlocksDataCount();
+			tt += ds;
+		}
+		return tt;
+	}
+	
+	public def getTotalNonZeroCount() = getAllDataCount();
+	
 	// public def buildRowCastPlaceMap() {
 	// 	finish ateach (Dist.makeUnique()) {
 	// 		val bs = handleBS();
@@ -673,6 +752,9 @@ public class DistBlockMatrix extends Matrix{
 		}
 	}
 	//=============================================
+	public def getCalcTime() = calcTime;
+	public def getCommTime() = commTime;
+	//=============================================
 	
 	/**
 	 * Check all blocks are same or not
@@ -701,7 +783,7 @@ public class DistBlockMatrix extends Matrix{
 	public def getTotalDataSize():Int {
 		var dsz:Int=0;
 		for (p in Place.places()) {
-			val c:Int =  at (p) { handleBS().getAllBlocksDataSize()};
+			val c:Int =  at (p) { handleBS().getAllBlocksDataCount()};
 			dsz += c;
 		}
 		return dsz;

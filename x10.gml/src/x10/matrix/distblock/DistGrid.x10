@@ -17,9 +17,8 @@ import x10.matrix.MathTool;
 import x10.matrix.block.Grid;
 
 /**
- * This class defines blocks are partitioned among all places in a grid-like.
- * It does not provide data distribution as Grid does for matrix data, but it defines 
- * methods to build maps from block IDs to place IDs. 
+ * A DistGrid instance specifies how blocks are distributed among places in a grid-like square.
+ * DistGrid uses integer array to map block IDs to place IDs.
  */
 public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 	public val dmap:DistMap;
@@ -66,6 +65,8 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 	 * @return       the map of block IDs to place IDs.
 	 */
 	public static def make(g:Grid) = makeMaxRow(g, Math.sqrt(Place.MAX_PLACES) as Int, Place.MAX_PLACES);
+	
+	
 	
 	/**
 	 * Partitioning all blocks to clusters, while maximizing number of groups (cluster) in row.

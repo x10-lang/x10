@@ -12,6 +12,7 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.Debug;
@@ -39,11 +40,18 @@ public class DupBlockMatrix extends Matrix {
 	
 	//===================================================================================
 	public val handleDB:PlaceLocalHandle[BlockSet];
-	public val local:PlaceLocalHandle[BlockMatrix(M,N)]; //Repackaged in blockmatrix
+	public val local:PlaceLocalHandle[BlockMatrix(M,N)]; //Repackaged blocks in BlockSet to BlockMatrix 
 	//===================================================================================
 	public val tmpDB:PlaceLocalHandle[BlockSet];
 	private var tmpReady:Boolean;
-	//
+	//===================================================================================
+	/*
+	 * Time profiling
+	 */
+	var commTime:Long = 0;
+	var calcTime:Long = 0;
+	
+	//===================================================================================
 	/**
 	 * 
 	 */
@@ -94,7 +102,7 @@ public class DupBlockMatrix extends Matrix {
 						DistMap.makeConstant(blkM*blkN, here.id())));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(m, n);
 	}
-	
+	//-----------
 	public static def makeDense(m:Int, n:Int, blkM:Int, blkN:Int) {
 		val hdl = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
 				()=>BlockSet.makeDense(new Grid(m, n, blkM, blkN), 
@@ -108,6 +116,10 @@ public class DupBlockMatrix extends Matrix {
 						DistMap.makeConstant(blkM*blkN, here.id()), nzd));
 		return new DupBlockMatrix(hdl) as DupBlockMatrix(m, n);
 	}
+	//------------
+	public static def makeDense(m:Int, n:Int) = makeDense(m, n, 1, 1);
+	public static def makeSparse(m:Int, n:Int, nzd:Double) = makeSparse(m, n, 1, 1, nzd);
+	
 	//--------------------------
 	public static def makeDense(dmat:DupBlockMatrix) {
 		val hdl = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
@@ -473,7 +485,9 @@ public class DupBlockMatrix extends Matrix {
 			B:DenseMatrix(A.N,this.N), 
 			plus:Boolean) : DupBlockMatrix(this) {
 		
+		/* Timing */ val st = Timer.milliTime();
 		local().mult(A, B, plus);
+		/* Timing */ calcTime += Timer.milliTime() - st;
 		sync();
 		return this;
 	}
@@ -490,9 +504,11 @@ public class DupBlockMatrix extends Matrix {
 			B:DupBlockMatrix(A.N,this.N), 
 			plus:Boolean) : DupBlockMatrix(this) {
 		
+		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
-			this.local().mult(A, B, plus);
+			this.local().mult(A.local(), B.local(), plus);
 		}
+		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
 
@@ -533,7 +549,9 @@ public class DupBlockMatrix extends Matrix {
 			A:DenseMatrix{self.N==this.M}, 
 			B:DenseMatrix(A.M,this.N), 
 			plus:Boolean) {
+		/* Timing */ val st = Timer.milliTime();
 		local().transMult(A, B, plus);
+		/* Timing */ calcTime += Timer.milliTime() -st;
 		sync();
 		return this;
 	}
@@ -550,9 +568,11 @@ public class DupBlockMatrix extends Matrix {
 			A:DupBlockMatrix{self.N==this.M}, 
 			B:DupBlockMatrix(A.M,this.N), 
 			plus:Boolean) {
+		/* Timing */ val st = Timer.milliTime();
 		finish ateach(Dist.makeUnique()) {
 			local().transMult(A.local(), B.local(), plus);
 		}
+		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
 	
@@ -582,8 +602,9 @@ public class DupBlockMatrix extends Matrix {
 			A:DenseMatrix(this.M), 
 			B:DenseMatrix(this.N,A.N),
 			plus:Boolean ) {
-		
+		/* Timing */ val st = Timer.milliTime();
 		local().multTrans(A, B, plus);
+		/* Timing */ calcTime += Timer.milliTime() -st;
 		sync();
 		return this;
 	}
@@ -599,12 +620,24 @@ public class DupBlockMatrix extends Matrix {
 			A:DupBlockMatrix(this.M), 
 			B:DupBlockMatrix(this.N,A.N),
 			plus:Boolean) {
+		/* Timing */ val st = Timer.milliTime();
 		finish ateach(Dist.makeUnique()) {
 			local().multTrans(A.local(), B.local(), plus);
 		}
+		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
+	//===========================================================
+	
+	public def mult(A:DistBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N), plus:Boolean):DupBlockMatrix(this) =
+		DistDistMult.mult(A, B, this, plus);
 
+	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N),plus:Boolean):DupBlockMatrix(this) =
+		DistDistMult.transMult(A, B, this, plus);
+	
+	public def multTrans(A:DistBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N),plus:Boolean):DupBlockMatrix(this) =
+		DistDistMult.multTrans(A, B, this, plus);
+	
 
 	//===========================================================
 	/**
@@ -616,25 +649,33 @@ public class DupBlockMatrix extends Matrix {
 
 	//==================================================================================
 	public def sync():void {
+		/* Timing */ val st = Timer.milliTime();
 		BlockSetBcast.bcast(handleDB);
+		/* Timing */ commTime += Timer.milliTime() - st;
 	}
 	//==================================================================================
 	
 	public def reduce(opFunc:(DenseMatrix,DenseMatrix)=>DenseMatrix): void {
 		val rootbid = here.id();
 		allocTmp();
-		//BlockSetReduce.reduce(handleDB, tmpDB, rootbid, opFunc);
+		/* Timing */ val st = Timer.milliTime();
+		BlockSetReduce.reduce(handleDB, tmpDB, rootbid, opFunc);
+		/* Timing */ commTime += Timer.milliTime() - st;
 	}
 	
 	public def reduceSum(): void {
 		val rootbid = here.id();
 		allocTmp();
+		/* Timing */ val st = Timer.milliTime();
 		BlockSetReduce.reduceSum(handleDB, tmpDB, rootbid);
+		/* Timing */ commTime += Timer.milliTime() - st;
 	}
 	
 	public def allReduceSum(): void {
 		allocTmp();
+		/* Timing */ val st = Timer.milliTime();
 		BlockSetReduce.allReduceSum(handleDB, tmpDB);
+		/* Timing */ commTime += Timer.milliTime() - st;
 	}	
 	//==================================================================================
 
@@ -660,6 +701,10 @@ public class DupBlockMatrix extends Matrix {
 		}
 		return retval;
 	}
+	//===============================================================================
+	public def getCalcTime() = calcTime;
+	public def getCommTime() = commTime;
+	
 	//==================================================================================
 	public def toString() :String {
 		var output:String = "---Duplicated block Matrix size:["+M+"x"+N+"]---\n";

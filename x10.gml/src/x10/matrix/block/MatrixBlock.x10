@@ -14,6 +14,7 @@ package x10.matrix.block;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
+import x10.compiler.Inline;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -177,13 +178,48 @@ public abstract class MatrixBlock {
 	//public abstract def addCols(y:Int, num:Int, mat:Matrix):void ;
 
 	public def reset():void {
-		calcTime=0; commTime=0;
+		val st = Timer.milliTime();
+		//calcTime=0; commTime=0;
+		getMatrix().reset();
+		calcTime += Timer.milliTime() -st;
 	}
+	//============================================================
+	@Inline
+	public def mult(ablk:MatrixBlock, bblk:MatrixBlock, plus:Boolean):void {
+		val st = Timer.milliTime();
+		val cmat = getMatrix();
+		val amat = ablk.getMatrix() as Matrix(cmat.M);
+		val bmat = bblk.getMatrix() as Matrix(amat.N,cmat.N);
+		cmat.mult(amat, bmat, plus);
+		calcTime += Timer.milliTime() - st;
+	}
+	
+	@Inline
+	public def transMult(ablk:MatrixBlock, bblk:MatrixBlock, plus:Boolean ) :void {
+		val st = Timer.milliTime();
+		val cmat = getMatrix();
+		val amat = ablk.getMatrix() as Matrix{self.N==cmat.M};
+		val bmat = bblk.getMatrix() as Matrix(amat.M,cmat.N);
+		cmat.transMult(amat, bmat, plus);
+		calcTime += Timer.milliTime() - st;
+	}
+	
+	@Inline
+	public def multTrans(ablk:MatrixBlock, bblk:MatrixBlock, plus:Boolean) :void {
+		val st = Timer.milliTime();
+		val cmat = getMatrix();
+		val amat = ablk.getMatrix() as Matrix(cmat.M);
+		val bmat = bblk.getMatrix() as Matrix(cmat.N,amat.N);
+		cmat.multTrans(amat, bmat, plus);
+		calcTime += Timer.milliTime() - st;
+	}
+	//============================================================
+	
 	//--------------------------------
 	
 	abstract public def compColDataSize(colOff:Int, colCnt:Int) :Int;
 	
-	public def getDataSize():Int = compColDataSize(0, getMatrix().N);
+	public def getDataCount():Int = compColDataSize(0, getMatrix().N);
 	
 	//----------------------------------------------------------------
 	

@@ -51,6 +51,7 @@ public class DistDistMult {
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
 				"Column partition of second and result matrix mismatch");
 		
+		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
@@ -62,7 +63,10 @@ public class DistDistMult {
 			BlockBlockMult.mult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
 			//BlockBlockMult.mult(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
+		/* Timing */ val et = Timer.milliTime();
+		/* Timing */ C.calcTime += et - st;
 		C.allReduceSum();
+		/* Timing */ C.commTime += Timer.milliTime() - et;
 		return C;
 	}
 	
@@ -80,6 +84,7 @@ public class DistDistMult {
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
 		"Column partition of second and result matrix mismatch");
 		
+		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
@@ -91,8 +96,10 @@ public class DistDistMult {
 			BlockBlockMult.transMult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
 			//BlockBlockMult.transMult(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
-		
+		/* Timing */ val et = Timer.milliTime();
+		/* Timing */ C.calcTime += et - st;
 		C.allReduceSum(); 
+		/* Timing */ C.commTime += Timer.milliTime() -et;
 		return C;
 
 	}
@@ -111,6 +118,7 @@ public class DistDistMult {
 		Debug.assure(Grid.match(gB.rowBs, gC.colBs),
 		"Row partition of second and result matrix mismatch");
 		
+		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
@@ -123,7 +131,10 @@ public class DistDistMult {
 			//BlockBlockMult.multTrans(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
 		
+		/* Timing */ val et = Timer.milliTime();
+		/* Timing */ C.calcTime += et - st;
 		C.allReduceSum(); 
+		/* Timing */ C.commTime += Timer.milliTime() - et;
 		return C;	
 
 	}

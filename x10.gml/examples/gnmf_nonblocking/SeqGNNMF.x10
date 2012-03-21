@@ -14,8 +14,9 @@ import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
 //
-import x10.matrix.distblock.DistBlockMatrix;
-import x10.matrix.distblock.DupBlockMatrix;
+import x10.matrix.dist.DistDenseMatrix;
+import x10.matrix.dist.DistSparseMatrix;
+import x10.matrix.dist.DupDenseMatrix;
 
 
 /**
@@ -48,14 +49,14 @@ public class SeqGNNMF {
 	// Profiling
 	var tt:Long = 0;
 
-	public def this(v:DistBlockMatrix, 
-					h:DupBlockMatrix,
-					w:DistBlockMatrix,
+	public def this(v:DistSparseMatrix, 
+					h:DupDenseMatrix,
+					w:DistDenseMatrix,
 					i:Int) {
 		iterate = i;
 		V=v.toDense(); 
 		W=w.toDense() as DenseMatrix{self.M==V.M};
-		H=h.toDense() as DenseMatrix(W.N, V.N); 
+		H=h.getMatrix().clone() as DenseMatrix(W.N, V.N); 
 
 		WV  = new DenseMatrix(W.N, V.N); // W^t * V
 		WW  = new DenseMatrix(W.N, W.N); // W^t * W
@@ -118,7 +119,7 @@ public class SeqGNNMF {
 		Console.OUT.flush();
 	}
 
-	public def verifyH(vH:DupBlockMatrix):Boolean {
+	public def verifyH(vH:DupDenseMatrix):Boolean {
 
 		//H.print("Sequential computing result H:");
 		//vH.print("Parallel computing result H:");
@@ -131,7 +132,7 @@ public class SeqGNNMF {
 		return true;
 	}
 
-	public def verifyW(vW:DistBlockMatrix):Boolean {
+	public def verifyW(vW:DistDenseMatrix):Boolean {
 		Console.OUT.print("Verifying W - ");
 		if (! W.equals(vW as Matrix(W.M, W.N))) {
 			Console.OUT.println("Fail!!!!! W is not same.");
@@ -141,8 +142,8 @@ public class SeqGNNMF {
 		return true;
 	}
 
-	public def verify(vH:DupBlockMatrix,
-					  vW:DistBlockMatrix
+	public def verify(vH:DupDenseMatrix,
+					  vW:DistDenseMatrix
 					  ):Boolean {
 		return verifyH(vH)&&verifyW(vW);
 	}

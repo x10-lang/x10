@@ -15,71 +15,104 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.blas.DenseMatrixBLAS;
 //
 import x10.matrix.block.Grid;
-import x10.matrix.block.DenseBlockMatrix;
-import x10.matrix.dist.DupDenseMatrix;
-import x10.matrix.dist.DistDenseMatrix;
-import x10.matrix.dist.DistSparseMatrix;
+import x10.matrix.block.BlockMatrix;
+import x10.matrix.distblock.DistGrid;
+import x10.matrix.distblock.DupBlockMatrix;
+import x10.matrix.distblock.DistBlockMatrix;
 
-import x10.matrix.dist.DistMultDupToDist;
+import x10.matrix.distblock.DistDupMult;
 //
 
 /**
- * Parallel Page Rank algorithm based on GML distributed
- * dense/sparse matrix
+ * Parallel Page Rank algorithm based on GML distributed block matrix.
+ * 
+ * Input parameters:
+ * <p> 1) Rows of G (also columns of G)
+ * <p> 2) Columns of P
+ * <p> 3) Nozero density of G
+ * <p> 4) Iteration
+ * <p> 5) Number of row blocks partitioning in G
+ * <p> 6) Number of column blocks partitioning in G
+ * <p>
+ * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
+ * are distributed to (Place.MAX_PLACES, 1) places, or vertical distribution.
+ * <p>[g_(0,0),           g_(0,1),           ..., g(0,numColBsG-1)]
+ * <p>[g_(1,0),           g_(1,1),           ..., g(1,numColBsG-1)]
+ * <p>......
+ * <p>[g_(numRowBsG-1,0), g_(numRowBsG-1,1), ..., g(numRowBsG-1,numColBsG-1)]
+ * <p>
+ * <p> Matrix P is partitioned into (numColBsG &#42 1) blocks, and replicated in all places.
+ * <p>[p_(0,0)]
+ * <p>[p_(1,0)]
+ * <p>......
+ * <p>[p_(numColBsG-1,0)]
+ * 
+ * 
+ * 
  */
 public class PageRank {
 
+	//-------Matrix dimension-----------
 	val rowG:Int;
 	val colP:Int;
 
 	public val iteration:Int;
 	public val nzDensity:Double;
 	public val alpha:Double= 0.85;
+	//-----------------------------------
+	//-------- Partition and distribution parameters ------
+	public val numRowBsG:Int; //row-wise partitioning blocks
+	public val numColBsG:Int; //column-wise partitioning blocks
+	
+	//-----------------------------------
+	
+	//----------- Input matrix ----------
+	public val G:DistBlockMatrix(rowG, rowG);
+	public val P:DupBlockMatrix(rowG, colP);
+	public val E:BlockMatrix(rowG, colP);
+	public val U:BlockMatrix(colP, rowG);
 
-	public val G:DistSparseMatrix(rowG, rowG);
-	public val P:DupDenseMatrix(rowG, colP);
-	public val E:DenseMatrix(rowG, colP);
-	public val U:DenseMatrix(colP, rowG);
-
-	val gridG:Grid;
-	val gridGP:Grid;
-
-	val distGP:DistDenseMatrix(rowG, colP); // Distributed version of G*P
-	val blckGP:DenseBlockMatrix(rowG, colP);// Used to collecte dist block of P
-	val GP:DenseMatrix(rowG, colP);
-	//val dupGP:DupDenseMatrix(rowG, colP);   // Duplicated version of G*P
-	val UP:DenseMatrix(colP, colP);
+	val GP:DistBlockMatrix(rowG, colP); // Distributed version of G*P
+	val blckGP:BlockMatrix(rowG, colP);     // Used to collect dist block of P
+	//val GP:DenseMatrix(rowG, colP);
+	//val dupGP:DupDenseMatrix(rowG, colP); // Duplicated version of G*P
+	val UP:BlockMatrix(colP, colP);
 
 	val ts:Long = Timer.milliTime();
 	var tt:Long = 0;
 
-	public def this(mg:Int, np:Int, nzd:Double, it:Int) {
+	public def this(mg:Int, np:Int, nzd:Double, it:Int, nrG:Int, ncG:Int) {
 
 		rowG = mg;
 		colP = np;
-
 		iteration = it;
 		nzDensity=nzd;
-
-		gridG = new Grid(rowG, rowG, Place.MAX_PLACES, 1);
-		gridGP= new Grid(rowG, colP, Place.MAX_PLACES, 1);
-
-		G = DistSparseMatrix.make(gridG, nzDensity) as DistSparseMatrix(rowG, rowG);
-		P = DupDenseMatrix.make(rowG, colP);
-		E = DenseMatrix.make(rowG, colP);
-		U = DenseMatrix.make(colP, rowG);
-
-		distGP = DistDenseMatrix.make(gridGP) as DistDenseMatrix(rowG, colP);
-		blckGP = DenseBlockMatrix.make(gridGP) as DenseBlockMatrix(rowG, colP);
-		GP     = DenseMatrix.make(rowG, colP);
-		//dupGP  = DupDenseMatrix.make(rowG, colP); //Need to perform MPI_getherv
-		UP     = DenseMatrix.make(colP, colP);
+		
+		numRowBsG = nrG; numColBsG=ncG; 
+		
+		val gridG = new Grid(rowG, rowG, numRowBsG, numColBsG);
+		val gridP = new Grid(rowG, colP, numColBsG, 1);
+		val gridU = new Grid(colP, rowG, 1, numColBsG);
+		val gridGP= new Grid(rowG, colP, numRowBsG, 1);
+		val gridUP= new Grid(colP, colP, 1, 1);
+		
+		val distG = new DistGrid(gridG, Place.MAX_PLACES, 1);  //Vertical distribution
+		val distGP= new DistGrid(gridGP, Place.MAX_PLACES, 1); //Vertical distribution
+		
+		G = DistBlockMatrix.makeSparse(gridG, distG.dmap, nzDensity) as DistBlockMatrix(rowG, rowG);
+		P = DupBlockMatrix.makeDense(gridP) as DupBlockMatrix(rowG, colP);
+		E = BlockMatrix.makeDense(gridP) as BlockMatrix(rowG, colP);
+		U = BlockMatrix.makeDense(gridU) as BlockMatrix(colP, rowG);
+		
+		GP     = DistBlockMatrix.makeDense(gridGP, distGP.dmap) as DistBlockMatrix(rowG, colP);
+		blckGP = BlockMatrix.makeDense(gridGP) as BlockMatrix(rowG, colP);
+		UP     = BlockMatrix.makeDense(gridUP) as BlockMatrix(colP, colP);
 	}
 	
 	public def init():void {
 		//-----------------------------------------------
 		Debug.flushln("Start initialize input matrices");		
-		G.initRandom(nzDensity);
+		G.initRandom();
 		Debug.flushln("Dist sparse matrix initialization completes");		
 		P.initRandom();
 		Debug.flushln("Initialize duplicated dense matrix P completes");		
@@ -89,7 +122,7 @@ public class PageRank {
 		Debug.flushln("Initialize dense matrix U completes");		
 	}
 
-	public def run():DenseMatrix {
+	public def run():BlockMatrix {
 		var startt:Long =0;
 		var pcompt:Long =0;
 		var scompt:Long =0;
@@ -98,23 +131,23 @@ public class PageRank {
 				
 		for (var i:Int=0; i<iteration; i++) {
 			startt = Timer.milliTime();
-			distGP.mult(G, P)
+			GP.mult(G, P, false)
 				.scale(alpha)
-				.copyTo(blckGP, GP);// dist -> dup
+				.copyTo(blckGP);// dist -> dup
 			//blckGP.copyTo(GP);
 			pcompt += Timer.milliTime() - startt;
 			startt = Timer.milliTime();
 
 			P.local()
-				.mult(E, UP.mult(U, P.local()))
+				.mult(E, UP.mult(U, P.local(), false), false)
 				.scale(1-alpha)
 				.cellAdd(GP);
 			scompt += Timer.milliTime() - startt;
 			P.sync(); // broadcast
 		}
 		tt = Timer.milliTime() - st;
-		val pcomtime = distGP.getCalcTime();
-		val commtime = blckGP.getCommTime() + P.getCommTime();
+		val pcomtime = GP.getCalcTime();
+		val commtime = GP.getCommTime() + P.getCommTime();
 
 		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", rowG, iteration, tt );
 		Console.OUT.printf("comm: %d ms, seq calc: %d ms\n", commtime, scompt);
@@ -125,21 +158,22 @@ public class PageRank {
 
 	public def printInfo() {
 		//
-		Console.OUT.printf("Place: %d, G:(%dx%d) P:(%dx%d))", 
-						   Place.MAX_PLACES, G.M, G.N, P.M, P.N);
-		Console.OUT.printf("distG(%dx%d)  nzDensity:%.3f\n",
-						   gridG.numRowBlocks, gridG.numColBlocks, nzDensity);
-		Console.OUT.flush();
-		
 		val nzc:Float =  G.getTotalNonZeroCount() as Float;
 		val nzd:Float =  nzc / (G.M * G.N as Float);
-		Console.OUT.printf("G nonzero %f, %dx%d, density is %f\n", 
-						   nzc, G.M, G.N, nzd);
-		Console.OUT.printf("Average column nonzero count:%.3f, std:%.3f\n",
-						   G.getAvgColumnSize(), G.getColumnSizeStdDvn());
-		Console.OUT.printf("Average nonzero index distance:%.3f, std:%.3f\n",
-						   G.compAvgIndexDst(), G.compIndexDstStdDvn());
-		//V.printBlockColumnSizeAvgStd();
+		Console.OUT.printf("Input G:(%dx%d), partition:(%dx%d) blocks, ",
+				G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
+		Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%f\n", 
+				Place.MAX_PLACES, 1,  nzDensity, nzc);
+
+		Console.OUT.printf("Input P:(%dx%d), partition:(%dx%d) blocks, duplicated in all places\n",
+				P.M, P.N, P.getGrid().numRowBlocks, P.getGrid().numColBlocks);
+
+		Console.OUT.printf("Input E:(%dx%d), partition:(%dx%d) blocks, local block matrix\n",
+				E.M, E.N, E.grid.numRowBlocks, E.grid.numColBlocks);
+
+		Console.OUT.printf("Input U:(%dx%d), partition:(%dx%d) blocks, local block matrix\n",
+				U.M, U.N, U.grid.numRowBlocks, U.grid.numColBlocks);
+
 		Console.OUT.flush();
 	}
 

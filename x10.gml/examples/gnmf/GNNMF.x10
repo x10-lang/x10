@@ -16,18 +16,48 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
 //
 import x10.matrix.block.Grid;
-import x10.matrix.dist.DistDenseMatrix;
-import x10.matrix.dist.DistSparseMatrix;
+import x10.matrix.distblock.DistGrid;
+import x10.matrix.distblock.DistBlockMatrix;
 //
-import x10.matrix.dist.DupDenseMatrix;
-import x10.matrix.dist.DupMultToDup;
+import x10.matrix.distblock.DupBlockMatrix;
+import x10.matrix.distblock.DistDupMult;
 //
-import x10.matrix.dist.DistMultDistToDup;
-import x10.matrix.dist.DistMultDupToDist;
+//import x10.matrix.dist.DistMultDistToDup;
+//import x10.matrix.dist.DistMultDupToDist;
 
 /**
- * GNNMF implementation based on GML distributed dense/sparse matrix.
- */
+ * Parallel GNNMF implementation is based on GML distributed dense/sparse matrix.
+ * Input V, and input-output W and H use grid partitioning, where V and W
+ * have the same number of rows and same row partitioning, and
+ * W's columns and H's rows are same and share the same partitioning,
+ * same as V's columns and H's columns.
+ * 
+ * Input matrix V is partitioned into (numRowBsV &#42 numColBsV) blocks
+ * <p>
+ * <p>[v_(0,0),           v_(0,1),           ..., v(0,numColBsV-1)]
+ * <p>[v_(1,0),           v_(1,1),           ..., v(1,numColBsV-1)]
+ * <p>......
+ * <p>[v_(numRowBsV-1,0), v_(numRowBsV-1,1), ..., v(numRowBsV-1,numColBsV-1)]
+ * <p>
+ * All numRowBsV &#42 numColBsV blocks are distributed to (Place.MAX_PLACES &#42 1) 
+ * places, or in vertical distribution.
+ * 
+ * <p>
+ * Input-output matrix W is partitioned into (numRowBsV &#42 numColBsW) blocks
+ * <p>
+ * <p>[w_(0,0),           w_(0,1),         ..., w(0,numColBsV-1)]
+ * <p>[w_(1,0),           w_(1,1),         ..., w(1,numColBsV-1)]
+ * <p>......
+ * <p>[w_(numRowBsV-1,0), w_(numRowBsV,1), ..., w(numRowBsV-1,numColBsW-1)]
+ * <p>
+ * <p>Matrix W is partitioned in the same way as V row-wise. 
+ * All numRowBsV &#42 numColBsW blocks in W are distributed to (Place.MAX_PLACES &#42 1) places, 
+ * or vertical distribution.
+ * 
+ * <p>
+ * Input-output matrix H is partitioned into (numColBsW &#42 numColBsV) blocks, which
+ * are duplicated in all places.
+ */ 
 public class GNNMF {
 
 	//------GNNMF matrix size------
@@ -35,68 +65,86 @@ public class GNNMF {
 	val Vn:Int;// = 100000;
 	//val Wm:Int{self==Vm};
 	val Wn:Int = 10;
-	//val Hm:Int{self==Wm} = Wn;
-	//val Hn:Int{self==Vn} = Vn;	
+	// ------Matrix partitioning and distrinution parameters -----
+	val numRowBsV:Int;
+	val numColBsV:Int;
+	val numColBsW:Int;
+	
 	// ------GNNMF parameters------
 	public val iteration:Int;
 	val nzDensity:Double;
 	// ------Data partitioning------
 	val gridV:Grid;
 	val gridW:Grid;
+	val gridH:Grid;
+	
+	// ------Block distribution -------
+	val distV:DistGrid;
+	val distW:DistGrid;
+	
 	// ------Input and output data------
-	public val V:DistSparseMatrix(Vm, Vn);
-	public val W:DistDenseMatrix(Vm, Wn);
-	public val H:DupDenseMatrix(Wn, Vn);
+	public val V:DistBlockMatrix(Vm, Vn);
+	public val W:DistBlockMatrix(Vm, Wn);
+	public val H:DupBlockMatrix(Wn, Vn);
 	// ------Temp data and matrix------ 
-	val WV:DupDenseMatrix(W.N, V.N);   //Store W^t * V result (10x100000) like H
+	val WtV:DupBlockMatrix(W.N, V.N);   //Store W^t * V result (10x100000) like H
 	//val tmpWV:DupDenseMatrix(W.N, V.N);    
-	val WW:DupDenseMatrix(W.N, W.N);   //Store W^t * W  (10x10)
+	val WtW:DupBlockMatrix(W.N, W.N);   //Store W^t * W  (10x10)
 	//val tmpWW:DupDenseMatrix(W.N, W.N);   
 
-	val WWH:DupDenseMatrix(W.N, H.N);  //Store WW * H   (10x100000) like H
-	val VH:DistDenseMatrix(Vm, Wn);    //Store V * H^t  (dx10) like W
-	val HH:DupDenseMatrix(H.M, H.M);   //Store H * H^t, (10x10)
-	val WHH:DistDenseMatrix(Vm, Wn);   //Store W * HH   (dx10) like W
+	val WtWH:DupBlockMatrix(W.N, H.N);  //Store WW * H   (10x100000) like H
+	val VHt:DistBlockMatrix(Vm, Wn);    //Store V * H^t  (dx10) like W
+	val HHt:DupBlockMatrix(H.M, H.M);   //Store H * H^t, (10x10)
+	val WHHt:DistBlockMatrix(Vm, Wn);   //Store W * HH   (dx10) like W
 	
 	// ------Profile timing------
 	val ts:Long = Timer.milliTime();
 	var tt:Long = 0;
 	var t1:Long = 0;
 
-	public def this(d:Int, nv:Int, nz:Double, i:Int) {
+	public def this(d:Int, nv:Int, nz:Double, i:Int, 
+			mbV:Int, nbV:Int, nbW:Int) {
+	
 		Vm = d; Vn =nv;
 		nzDensity=nz;
 		iteration = i;
 		//
-		gridV = new Grid(Vm, Vn, Place.MAX_PLACES, 1);
-		gridW = new Grid(Vm, Wn, Place.MAX_PLACES, 1);
+		numRowBsV = mbV; numColBsV = nbV; numColBsW = nbW;
+		//
+		gridV = new Grid(Vm, Vn, numRowBsV, numColBsV);
+		gridW = new Grid(Vm, Wn, numRowBsV, numColBsW);
+		gridH = new Grid(Wn, Vn, gridW.numColBlocks, gridV.numColBlocks); // H = W^t * V
+		val gridWtW = new Grid(Wn, Wn, gridW.numColBlocks, gridW.numColBlocks);
+		val gridHHt = new Grid(Wn, Wn, gridV.numColBlocks, gridV.numColBlocks);
+		//
+		distV = new DistGrid(gridV, Place.MAX_PLACES, 1);
+		distW = new DistGrid(gridW, Place.MAX_PLACES, 1);
 		//		
 		//------Input matrix data allocation------
 		Debug.flushln("Start memory allocation");		
-		V = DistSparseMatrix.make(gridV, nzDensity) as DistSparseMatrix(Vm, Vn);
-		W = DistDenseMatrix.make(gridW) as DistDenseMatrix(Vm, Wn);
-		H = DupDenseMatrix.make(Wn, Vn);
+		V = DistBlockMatrix.makeSparse(gridV, distV.dmap, nzDensity) as DistBlockMatrix(Vm, Vn);
+		W = DistBlockMatrix.makeDense(gridW, distW.dmap) as DistBlockMatrix(Vm, Wn);
+		H = DupBlockMatrix.makeDense(gridH) as DupBlockMatrix(Wn,Vn);
 
-		WV  = DupDenseMatrix.make(W.N, V.N); // W^t * V
+		WtV  = DupBlockMatrix.makeDense(gridH) as DupBlockMatrix(Wn,Vn);   // W^t * V
 		//tmpWV  =  DupDenseMatrix.make(W.N, V.N);
-		WW  = DupDenseMatrix.make(W.N, W.N); // W^t * W
+		WtW  = DupBlockMatrix.makeDense(gridWtW) as DupBlockMatrix(Wn,Wn); // W^t * W
 		//tmpWW  = DupDenseMatrix.make(W.N, W.N); // W^t * W
-		WWH = DupDenseMatrix.make(W.N, H.N); // (W^t*W)*H
+		WtWH = DupBlockMatrix.makeDense(gridH) as DupBlockMatrix(Wn,Vn);   // (W^t*W)*H
 		
-		VH  = DistDenseMatrix.make(gridW) as DistDenseMatrix(Vm, Wn);   // V*H^t
-		HH  = DupDenseMatrix.make(H.M, H.M); // H * H^t
-		WHH = DistDenseMatrix.make(gridW) as DistDenseMatrix(Vm, Wn);   // W * (H*H^t)
+		VHt  = DistBlockMatrix.makeDense(gridW, distW.dmap) as DistBlockMatrix(Vm, Wn);   // V*H^t
+		HHt  = DupBlockMatrix.makeDense(gridHHt); // H * H^t
+		WHHt = DistBlockMatrix.makeDense(gridW, distW.dmap) as DistBlockMatrix(Vm, Wn);   // W * (H*H^t)
 	}
 
 	public def init():void {
 		Debug.flushln("Start initialize input data");		
-		V.initRandom(nzDensity);
-		Debug.flushln("Dist sparse matrix initialization completes");		
+		V.initRandom();
+		Debug.flushln("Dist block matrix in sparse blocks initialization completes");		
 		W.initRandom();
-		Debug.flushln("Dist dense matrix initialization completes");
+		Debug.flushln("Dist block matrix in dense blocks initialization completes");
 		H.initRandom();
-		Debug.flushln("Dup dense matrix initialization completes");
-
+		Debug.flushln("Dup block matrix in dense blocks initialization completes");
 	}
 
 	public def printInfo():void {
@@ -104,20 +152,23 @@ public class GNNMF {
 		val nzd:Float =  nzc / (V.M * V.N as Float);
 
 		Debug.flushln("Starting X10 GNNMF ");
-		Console.OUT.printf("W:(%dx%d) V:(%dx%d) H:(%dx%d)", 
-						   Vm, Wn, Vm, Vn, Wn, Vn);
-		Console.OUT.printf("gridV(%dx%d) gridV(%dx%d) nzDensity:%.3f\n",
-						   gridW.numRowBlocks, gridW.numColBlocks,
-						   gridV.numRowBlocks, gridV.numColBlocks, 
-						   nzDensity);
+		Console.OUT.printf("Input matrix V:(%dx%d), partitioning:(%dx%d) blocks, distribution:(%dx%d) places\n", 
+						   V.M, V.N, gridV.numRowBlocks, gridV.numColBlocks, 
+						   distV.numRowPlaces, distV.numColPlaces);
+		Console.OUT.printf("V nonzero density: %f, total nonzero count: %f\n", nzd, nzc);
+						   
+		Console.OUT.printf("Input-output matrix W:(%dx%d), partitioning:(%dx%d) blocks, distribution:(%dx%d) places\n", 
+				W.M, W.N, gridW.numRowBlocks, gridW.numColBlocks, distW.numRowPlaces, distV.numColPlaces);
+
+		Console.OUT.printf("Input-output matrix H:(%dx%d), partitioning:(%dx%d) blocks, duplicated in all places\n", 
+				H.M, H.N, gridH.numRowBlocks, gridH.numColBlocks);
+
 		Console.OUT.flush();
 
-		Console.OUT.printf("V nonzero %f, %dx%d, density is %f\n", 
-						   nzc, V.M, V.N, nzd);
-		Console.OUT.printf("Average column nonzero count:%.3f, std:%.3f\n",
-						   V.getAvgColumnSize(), V.getColumnSizeStdDvn());
-		Console.OUT.printf("Average nonzero index distance:%.3f, std:%.3f\n",
-						   V.compAvgIndexDst(), V.compIndexDstStdDvn());
+		//Console.OUT.printf("Average column nonzero count:%.3f, std:%.3f\n",
+		//				   V.getAvgColumnSize(), V.getColumnSizeStdDvn());
+		//Console.OUT.printf("Average nonzero index distance:%.3f, std:%.3f\n",
+		//				   V.compAvgIndexDst(), V.compIndexDstStdDvn());
 		//V.printBlockColumnSizeAvgStd();
 		Console.OUT.flush();
 
@@ -125,19 +176,19 @@ public class GNNMF {
 
 	public def comp_WV_WWH() : void {
 		/* H . (W^t * V / (W^t * W) * H) -> H */
-		WV.transMult(W, V, false); // W^t * V  -> WV
+		WtV.transMult(W, V, false); // W^t * V  -> WV
 
-		//WV.print("Parallel W^t * V =");
-		WW.transMult(W, W, false);// W^t * W  -> WW
+		//WtV.print("Parallel W^t * V =");
+		WtW.transMult(W, W, false);// W^t * W  -> WW
 
-		//WW.print("Parallel W^t * W = ");
-		WWH.mult(WW, H);
+		//WtW.print("Parallel W^t * W = ");
+		WtWH.mult(WtW, H, false);
 
-		//WWH.print("Parallel dup WW * H = ");
-		WV.cellDiv(WWH);                     // WV / WWH -> WV
+		//WtWH.print("Parallel dup WW * H = ");
+		WtV.cellDiv(WtWH);                     // WV / WWH -> WV
 
-		//WV.print("Parallel WV ./ WWH = ");
-		H.cellMult(WV);                      // H . WV   -> H		
+		//WtV.print("Parallel WV ./ WWH = ");
+		H.cellMult(WtV);                      // H . WV   -> H		
 		//H.print("Parallel H update:");
 	}
 
@@ -145,19 +196,19 @@ public class GNNMF {
 		/* W . (V * H^t / W * (H * H^t)) -> W */
 		//V.print("Parallel input V");
 		//H.print("Parallel Input H");
-		VH.multTrans(V, H, false);                // V  * H^t -> VH
-		//VH.print("Parallel VH:");
+		VHt.multTrans(V, H, false);                // V  * H^t -> VH
+		//VHt.print("Parallel VH:");
 
-		HH.multTrans(H, H);                       // H  * H^t -> HH
-		//HH.print("Parallel HH:");
+		HHt.multTrans(H, H, false);                // H  * H^t -> HH
+		//HHt.print("Parallel HH:");
 
-		WHH.mult(W, HH, false);                  // W  * HH  -> WHH  
+		WHHt.mult(W, HHt, false);                  // W  * HH  -> WHH  
 		//WHH.print("Parallel WHH:");
 
-		VH.cellDiv(WHH);                         // VH / WHH -> VH 
-		//VH.print("Parallel VH/WHH:");
+		VHt.cellDiv(WHHt);                         // VH / WHH -> VH 
+		//VHt.print("Parallel VH/WHH:");
 
-		W.cellMult(VH);                          // W  . VH  -> W
+		W.cellMult(VHt);                          // W  . VH  -> W
 		//W.print("Parallel W updated:");
 	}
 
@@ -199,33 +250,33 @@ public class GNNMF {
 		//
 		var tcalc:Long = 0;
 		//
-		tcalc += WV.getCalcTime();  // (W^t * V) and (WV / WWH)
-		tcalc += WW.getCalcTime();  // (W^t * W ) time
-		tcalc += WWH.getCalcTime(); // (WW * H) 
+		tcalc += WtV.getCalcTime();  // (W^t * V) and (WV / WWH)
+		tcalc += WtW.getCalcTime();  // (W^t * W ) time
+		tcalc += WtWH.getCalcTime(); // (WW * H) 
 		tcalc += H.getCalcTime();   // (H . WV)
 		//
-		tcalc += HH.getCalcTime();  // (H * H^t)
-		tcalc += WHH.getCalcTime(); // (W * HH)
-		tcalc += VH.getCalcTime();  // (V * H^t) and (VH / WHH)
+		tcalc += HHt.getCalcTime();  // (H * H^t)
+		tcalc += WHHt.getCalcTime(); // (W * HH)
+		tcalc += VHt.getCalcTime();  // (V * H^t) and (VH / WHH)
 		tcalc += W.getCalcTime();   // (W . VH)
 		//
 		//---------
 		var tcomm:Long = 0;
-		tcomm += WV.getCommTime();  // (W^t * V) all reduce sum time
-		tcomm += WW.getCommTime();  // (W^t * W) all reduce sum time
+		tcomm += WtV.getCommTime();  // (W^t * V) all reduce sum time
+		tcomm += WtW.getCommTime();  // (W^t * W) all reduce sum time
 		tcomm += H.getCommTime();   // H initial bcast
 		//
 
 		Console.OUT.printf("Total time:    %dms, Calc: %dms, Comm:  %dms\n",
 						   tt, tcalc, tcomm);
 		Console.OUT.printf("W^t * V: Comp: %d, AllReduce Comm: %d\n",
-						   WV.getCalcTime(), WV.getCommTime());
+						   WtV.getCalcTime(), WtV.getCommTime());
 
 		Console.OUT.printf("W^t * W: Comp: %d, AllReduce Comm: %d\n",
-						   WW.getCalcTime(), WW.getCommTime());
+						   WtW.getCalcTime(), WtW.getCommTime());
 		
 		Console.OUT.printf("V * H^t  Comp: %d\n",
-						   VH.getCalcTime());
+						   VHt.getCalcTime());
 
 		Console.OUT.printf("One time H bcast: %d\n", H.getCommTime());		
 		

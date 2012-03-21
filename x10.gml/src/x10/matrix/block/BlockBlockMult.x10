@@ -14,6 +14,7 @@ package x10.matrix.block;
 
 import x10.io.Console;
 import x10.util.ArrayList;
+import x10.util.Timer;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -109,18 +110,15 @@ public class BlockBlockMult  {
 				val bit = blist.iterator();
 				Debug.assure(alist.size()==blist.size(), 
 						"Partition mismatch! Number of partition not same.");
-
-				val cmat = C.findBlock(rb, cb).getMatrix();
-				if (!plus) cmat.reset();
+				val cblk = C.findBlock(rb, cb);
+				if (!plus) cblk.reset();
 
 				while (ait.hasNext()) {
 					val ablk = ait.next();
-					val amat = ablk.getMatrix() as Matrix(cmat.M);
 					val bblk = bit.next();
-					val bmat = bblk.getMatrix() as Matrix(amat.N,cmat.N);
 					Debug.assure(ablk.myColId==bblk.myRowId, 
 							"Block partition misaligned in block matrix multiply");
-					cmat.mult(amat, bmat, true);
+					cblk.mult(ablk, bblk, true);					
 				}
 			}
 		}
@@ -143,18 +141,15 @@ public class BlockBlockMult  {
 				val bit = blist.iterator();
 				Debug.assure(alist.size()==blist.size(), 
 						"Partition mismatch! Numbers of partition blocks not same");
-
-				val cmat = C.findBlock(rb, cb).getMatrix();
-				if (!plus) cmat.reset();
+				val cblk = C.findBlock(rb, cb);
+				if (!plus) cblk.reset();
 
 				while (ait.hasNext()) {
 					val ablk = ait.next();
 					val bblk = bit.next();
 					Debug.assure(ablk.myRowId==bblk.myRowId,
 							"Block partition misaligned in block trans-multiply");
-					val amat = ablk.getMatrix() as Matrix{self.N==cmat.M};
-					val bmat = bblk.getMatrix() as Matrix(amat.M,cmat.N);
-					cmat.transMult(amat, bmat, true);
+					cblk.transMult(ablk, bblk, true);
 				}
 			}
 		}
@@ -177,18 +172,15 @@ public class BlockBlockMult  {
 				Debug.assure(alist.size()==blist.size(), 
 						"Partition mismatch! Number of partitions not same");
 
-				val cmat = C.findBlock(rb, cb).getMatrix();
-				if (!plus) cmat.reset();
+				val cblk = C.findBlock(rb, cb);
+				if (!plus) cblk.reset();
 
 				while (ait.hasNext()) {
 					val ablk = ait.next();
 					val bblk = bit.next();
 					Debug.assure(ablk.myColId==bblk.myColId,
 							"Block partition misaligned in block multiply-trans");
-					
-					val amat = ablk.getMatrix() as Matrix(cmat.M);
-					val bmat = bblk.getMatrix() as Matrix(cmat.N,amat.N);
-					cmat.multTrans(amat, bmat, true);
+					cblk.multTrans(ablk, bblk, true);
 				}
 			}
 		}
@@ -198,17 +190,51 @@ public class BlockBlockMult  {
 	//======================
 	//
 	//======================
-	public static def findBlock(blklist:ArrayList[MatrixBlock], rowId:Int, colId:Int):MatrixBlock {
-		val itr = blklist.iterator();
-		while (itr.hasNext()) {
-			val blk = itr.next();
-			if (blk.myRowId == rowId && blk.myColId==colId) {
-				return blk;
+	/**
+	 * This function is same as BlockSet.search(). Considering merging the two.
+	 * Blocks must be sorted in column-major
+	 */
+	protected static def search(blklist:ArrayList[MatrixBlock], rowId:Int, colId:Int):Int {
+		if (blklist.size() == 0) return -1;
+
+		var min:Int = 0; 
+		var max:Int = blklist.size() - 1; 
+		var blk:MatrixBlock;
+		var mid:Int = min;
+		do {
+			mid = min + (max - min) / 2;
+			blk = blklist.get(mid);
+			
+			if (blk.myColId < colId || ( blk.myColId == colId && blk.myRowId < rowId)) {
+				min = mid + 1;
+			} else {
+				max = mid - 1; 
 			}
-		}
-		return null;
-				
+			blk = blklist.get(mid);
+			if (blk.myRowId == rowId && blk.myColId== colId) return mid;			
+			
+		} while ( min<=max );
+		return -1;
 	}
+	
+	public static def findBlock(blklist:ArrayList[MatrixBlock], rowId:Int, colId:Int):MatrixBlock {
+		val idx = search(blklist, rowId, colId);
+		if (idx < 0 ) {
+			Debug.exit("Cannot find block ("+rowId+","+colId+") at place "+here.id());
+		}
+		return blklist.get(idx);
+	}
+	// {	//Need optimzation in searching
+	// 	val itr = blklist.iterator();
+	// 	while (itr.hasNext()) {
+	// 		val blk = itr.next();
+	// 		if (blk.myRowId == rowId && blk.myColId==colId) {
+	// 			return blk;
+	// 		}
+	// 	}
+	// 	return null;
+	// 			
+	// }
 	
 	public static def findSelect(blklist:ArrayList[MatrixBlock], commonId:Int, select:(Int,Int)=>Int):ArrayList[MatrixBlock] {
 		val retlst=new ArrayList[MatrixBlock]();

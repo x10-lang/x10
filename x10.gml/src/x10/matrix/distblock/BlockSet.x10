@@ -714,24 +714,45 @@ public class BlockSet  {
 	//=================================================
 	//=================================================
 
-	public def getBlockDataSize(bid:Int):Int {
+	public def getBlockDataCount(bid:Int):Int {
 		val blk = findBlock(bid);
 		Debug.assure(blk!=null, "Cannot locate block "+bid+" in block set at " +here.id());
-		return blk.getDataSize();
+		return blk.getDataCount();
 	}
 	
-	public def getBlockDataSizeAt(blkidx:Int)=
-		get(blkidx).getDataSize();
+	public def getBlockDataCountAt(blkidx:Int)=
+		get(blkidx).getDataCount();
 	
-	public def getAllBlocksDataSize():Int {
+	public def getAllBlocksDataCount():Int {
 		var dsz:Int =0;
 		val blkitr = this.iterator();
 		while (blkitr.hasNext()) {
 			val blk = blkitr.next();
-			dsz += blk.getDataSize();
+			dsz += blk.getDataCount();
 		}
 		return dsz;
 	}	
+	//=================================================
+	public def getAllCommTime() :Long {
+		
+		val blkitr = this.iterator();
+		var tt:Long = 0;
+		while (blkitr.hasNext()) {
+			val blk = blkitr.next();
+			tt += blk.commTime;
+		}
+		return tt;	
+	}
+	
+	public def getAllCalcTime() :Long {
+		var tt:Long = 0;
+		val blkitr = this.iterator();
+		while (blkitr.hasNext()) {
+			val blk = blkitr.next();
+			tt += blk.calcTime;
+		}
+		return tt;
+	}
 	
 	//=================================================
 	public def toString() :String {
