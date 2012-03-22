@@ -455,6 +455,9 @@ void Launcher::handleRequestsLoop(bool onlyCheckForNewConnections)
 
 	signal(SIGCHLD, SIG_DFL); // disable the SIGCHLD handler
 
+	// send SIGTERM to any remaining children
+	Launcher::cb_sighandler_term(SIGTERM);
+
 	// shut down any connections if they still exist
 	handleDeadParent();
 
@@ -795,11 +798,9 @@ bool Launcher::handleDeadChild(uint32_t childNo, int type)
 			#ifdef DEBUG
 				fprintf(stdout, "Launcher %d: child runtime gave return code %i.  Forwarding.\n", _myproc, _exitcode);
 			#endif
+			Launcher::cb_sighandler_term(SIGTERM);
+			return false;
 		}
-
-		// take everything down after a short delay
-		Launcher::cb_sighandler_term(SIGTERM);
-		return false;
 	}
 	#ifdef DEBUG
 	else
