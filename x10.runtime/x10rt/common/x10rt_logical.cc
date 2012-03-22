@@ -794,6 +794,13 @@ void x10rt_lgl_probe (void)
     x10rt_emu_coll_probe();
 }
 
+void x10rt_lgl_blocking_probe (void)
+{
+	x10rt_lgl_probe();
+	x10rt_net_blocking_probe();
+}
+
+
 void x10rt_lgl_finalize (void)
 {
     if (getenv("X10RT_RXTX")) {

@@ -1032,6 +1032,12 @@ void x10rt_net_probe (void) {
     x10rt_net_probe_ex(false);
 }
 
+void x10rt_net_blocking_probe (void)
+{
+	// TODO: make this blocking.  For now, just call probe.
+	x10rt_net_probe_ex(false);
+}
+
 static void x10rt_net_probe_ex (bool network_only) {
     int arrived;
     MPI_Status msg_status;

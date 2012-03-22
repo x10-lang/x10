@@ -825,6 +825,12 @@ void x10rt_net_probe ()
 		while (probe(false)) { }
 }
 
+void x10rt_net_blocking_probe ()
+{
+	// TODO: make this blocking.  For now, just call probe.
+	x10rt_net_probe();
+}
+
 // return T if data was processed, F if not
 bool probe (bool onlyProcessAccept)
 {

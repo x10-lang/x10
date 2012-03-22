@@ -281,6 +281,12 @@ X10RT_C void x10rt_lgl_blocks_threads (x10rt_place d, x10rt_msg_type type, int d
  */
 X10RT_C void x10rt_lgl_probe (void);
 
+
+/** Probe all the underlying backends, blocking if nothing is available.  \see #x10rt_blocking_probe
+ */
+X10RT_C void x10rt_lgl_blocking_probe (void);
+
+
 /** Clean up the logical layer.  Called by #x10rt_finalize.
  */
 X10RT_C void x10rt_lgl_finalize (void); 

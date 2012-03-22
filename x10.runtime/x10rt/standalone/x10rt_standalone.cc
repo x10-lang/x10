@@ -876,6 +876,12 @@ void x10rt_net_probe (void)
 	}
 }
 
+void x10rt_net_blocking_probe (void)
+{
+	// TODO: make this blocking.  For now, just call probe.
+	x10rt_net_probe();
+}
+
 void x10rt_net_finalize (void)
 {
 	#ifdef DEBUG
