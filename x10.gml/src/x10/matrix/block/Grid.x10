@@ -406,9 +406,8 @@ public class Grid(M:Int, N:Int,numRowBlocks:Int, numColBlocks:Int) {
 	 * @param that   the target partitioning
 	 */
 	public def equals(that:Grid):Boolean {
-		var retval:Boolean = likeMe(that);
 		
-		if (this ==that) return true;
+		if (this == that) return true;
 		if (!likeMe(that)) return false;
 
 		return (match(this.rowBs, that.rowBs) && match(this.colBs, that.colBs));

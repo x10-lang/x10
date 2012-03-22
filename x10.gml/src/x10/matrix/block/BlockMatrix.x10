@@ -84,6 +84,9 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		return bm;
 	}
 
+	public static def makeDense(m:Int, n:Int, rowbs:Int, colbs:Int):BlockMatrix(m,n) =
+		makeDense(new Grid(m,n,rowbs,colbs));
+
 	/**
 	 * Create block matrix with sparse blocks using specified partitioning
 	 * and nonxer density
@@ -96,7 +99,10 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 		bm.allocSparseBlocks(nzd);
 		return bm;
 	}
-	
+
+	public static def makeSparse(m:Int, n:Int, rowbs:Int, colbs:Int, nzd:Double):BlockMatrix(m,n) =
+		makeSparse(new Grid(m,n,rowbs,colbs), nzd);
+
 	/**
 	 * 
 	 */
@@ -325,7 +331,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
     		this.listBs(p).copyTo(that.listBs(p));
     	}
     }
-
+    
     /**
      * Copy data from blocks to a sparse CSC matrix
      * 
@@ -372,6 +378,22 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
     		Debug.exit("CopyTo: target matrix is not compatible");
     	}
     }
+    
+    //---------------------------
+    public def copyFrom(src:DenseMatrix(M,N)):void {
+    	
+    	var rowoff:Int=0;
+    	var coloff:Int=0;
+    	for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), rowoff=0, cb++) {
+    		for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+    			
+    			val bid = grid.getBlockId(rb, cb);
+    			val dst = this.getMatrix(bid) as DenseMatrix;
+
+    			DenseMatrix.copySubset(src, rowoff, coloff, dst, 0, 0, dst.M, dst.N); 			
+    		}
+    	}
+    }   
     
     
 	/**
@@ -433,7 +455,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 *
 	 */
 	public def cellAdd(that:BlockMatrix(M,N)) {
-		Debug.assure(likeMe(that), "Block matrix add fails - matrix type not compatible");
+		Debug.assure(likeMe(that), "Block matrix add fails - matrix partitioning incompatible");
 		
 		//Debug.flushln("Here ");
 		for (var p :Int=0; p<grid.size; p++) {
@@ -621,10 +643,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * returning this += A *&#42 B if plus is true, else
 	 * this = A *&#42 B
      */
-	public def mult(
-			A:Matrix(this.M), 
-			B:Matrix(A.N,this.N), 
-			plus:Boolean):Matrix(this) {
+	public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N),	plus:Boolean):Matrix(this) {
 		if (A instanceof BlockMatrix && B instanceof BlockMatrix )
 			return mult(A as BlockMatrix, B as BlockMatrix, plus);
 		Debug.exit("Not implemented yet");
@@ -638,10 +657,7 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	 * this += A<sup>T</sup> *&#42 B, when plus is true, 
 	 * else this = A<sup>T</sup> *&#42 B
 	 */
-	public def transMult(
-			A:Matrix{self.N==this.M}, 
-			B:Matrix(A.M,this.N), 
-			plus:Boolean):BlockMatrix(this) {
+	public def transMult(A:Matrix{self.N==this.M}, B:Matrix(A.M,this.N), plus:Boolean):BlockMatrix(this) {
 		if (A instanceof BlockMatrix && B instanceof BlockMatrix )
 			return transMult(A as BlockMatrix, B as BlockMatrix, plus);
 		Debug.exit("Not implemented yet");
@@ -650,42 +666,37 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	/** 
 	 * Not implemented. 
 	 */
-	public def multTrans(
-			A:Matrix(this.M), 
-			B:Matrix(this.N, A.N), 
-			plus:Boolean):BlockMatrix(this)	{
-
+	public def multTrans(A:Matrix(this.M), B:Matrix(this.N, A.N), plus:Boolean):BlockMatrix(this) {
 		if (A instanceof BlockMatrix && B instanceof BlockMatrix )
 			return multTrans(A as BlockMatrix, B as BlockMatrix, plus);
 
 		Debug.exit("Not implemented yet");
 		return this;		
     }
-	
+	//---------
+	public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N)) = mult(A, B, false);
+	public def transMult(A:Matrix{self.N==this.M}, B:Matrix(A.M,this.N)) = transMult(A, B, false);
+	public def multTrans(A:Matrix(this.M), B:Matrix(this.N, A.N)) = multTrans(A, B, false);
+		
 	//====================================================================
-	public def mult(
-			A:BlockMatrix(this.M), 
-			B:BlockMatrix(A.N,this.N), 
-			plus:Boolean):BlockMatrix(this) {
+	public def mult(A:BlockMatrix(this.M), B:BlockMatrix(A.N,this.N), plus:Boolean):BlockMatrix(this) {
 		BlockBlockMult.mult(A, B, this, plus);
 		return this;	
 	}
 	
-	public def transMult(
-			A:BlockMatrix{self.N==this.M}, 
-			B:BlockMatrix(A.M,this.N), 
-			plus:Boolean):BlockMatrix(this) {
+	public def transMult(A:BlockMatrix{self.N==this.M}, B:BlockMatrix(A.M,this.N), plus:Boolean):BlockMatrix(this) {
 		BlockBlockMult.transMult(A, B, this, plus);
 		return this;	
 	}
 	
-	public def multTrans(
-			A:BlockMatrix(this.M), 
-			B:BlockMatrix(this.N,A.N), 
-			plus:Boolean):BlockMatrix(this) {
+	public def multTrans(A:BlockMatrix(this.M), B:BlockMatrix(this.N,A.N), plus:Boolean):BlockMatrix(this) {
 		BlockBlockMult.multTrans(A, B, this, plus);
 		return this;
 	}
+	//----------------------------
+	public def mult(A:BlockMatrix(this.M), B:BlockMatrix(A.N,this.N)) = mult(A, B, false);
+	public def transMult(A:BlockMatrix{self.N==this.M}, B:BlockMatrix(A.M,this.N)) = transMult(A, B, false);
+	public def multTrans(A:BlockMatrix(this.M), B:BlockMatrix(this.N,A.N)) = multTrans(A, B, false);
 	
 	//====================================================================
 	//Operator overload

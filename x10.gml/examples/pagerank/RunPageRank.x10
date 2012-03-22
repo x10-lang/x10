@@ -28,9 +28,8 @@ import pagerank.SeqPageRank;
  * <p> (3) Row-wise partition of G. Default Place.MAX_PLACES, or number of places
  * <p> (4) Column-wise partition of G. Default 1.
  * <p> (5) Verification flag. Default 0 or false.
- * <p> (6) Column of P. Default 1
- * <p> (7) Nonzero density of G: Default 0.001
- * <p> (8) Print output flag: Default false. 
+ * <p> (6) Nonzero density of G: Default 0.001
+ * <p> (7) Print output flag: Default false. 
  * 
  */
 public class RunPageRank {
@@ -42,15 +41,14 @@ public class RunPageRank {
 		val rG = args.size > 2 ? Int.parse(args(2)):Place.MAX_PLACES;
 		val cG = args.size > 3 ? Int.parse(args(3)):1;
 		val vf = args.size > 4 ? Int.parse(args(4)):0; //Verify result or not
-		val nP = args.size > 5 ? Int.parse(args(5)):1; //column of P
-		val nZ = args.size > 6 ? Double.parse(args(6)):0.001; //G's nonzero density
-		val pP = args.size > 7 ? Int.parse(args(7)):0; //Print out input and output matrices
+		val nZ = args.size > 5 ? Double.parse(args(5)):0.001; //G's nonzero density
+		val pP = args.size > 6 ? Int.parse(args(6)):0; //Print out input and output matrices
 
 		Console.OUT.println("Set row/col G:"+mG+" density:"+nZ+" iteration:"+iT);
-		if (mG<=0 || iT<1 || nP<1 || nZ<0.0)
+		if (mG<=0 || iT<1 || nZ<0.0)
 			Console.OUT.println("Error in settings");
 		else {
-			val paraPR = new PageRank(mG, nP, nZ, iT, rG, cG);
+			val paraPR = PageRank.make(mG, nZ, iT, rG, cG);
 			paraPR.init();
 			//paraPR.G.printMatrix("Input G sparse matrix");
 

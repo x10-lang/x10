@@ -34,10 +34,9 @@ import gnmf.SeqGNNMF;
  * <p> (3) Number of iterations. Default 10
  * <p> (4) Number of row blocks partitioning V and W. Default is the number of places, or Place.MAX_PLACES.
  * <p> (5) Number of column blocks partitioning V. Default 1
- * <p> (6) Number of column blocks partitioning W. Default 1
- * <p> (7) Verification flag. Default 0 (no verification); 1 (sequentail verison run); 
+ * <p> (6) Verification flag. Default 0 (no verification); 1 (sequentail verison run); 
  * 2 (parallel version run and full matrix verification); 3 (parallel version run and random sampling verification).
- * <p> (8) Column of V. Default: 100000
+ * <p> (7) Column of V. Default: 100000
  */
 public class RunGNMF {
 
@@ -46,17 +45,16 @@ public class RunGNMF {
 		val mD = args.size > 0 ? Int.parse(args(0)):1000;
 		val nZ = args.size > 1 ? Double.parse(args(1)):0.001;
 		val iT = args.size > 2 ? Int.parse(args(2)):10;
-		val mbV= args.size > 3 ? Int.parse(args(3)):Place.MAX_PLACES;
-		val nbV= args.size > 4 ? Int.parse(args(4)):1;
-		val nbW= args.size > 5 ? Int.parse(args(5)):1;
-		val tV = args.size > 6 ? Int.parse(args(6)):0;
-		val nV = args.size > 7 ? Int.parse(args(7)):100000;
+		val rbV= args.size > 3 ? Int.parse(args(3)):Place.MAX_PLACES;
+		val cbV= args.size > 4 ? Int.parse(args(4)):1;
+		val tV = args.size > 5 ? Int.parse(args(5)):0;
+		val nV = args.size > 6 ? Int.parse(args(6)):100000;
 
 		Console.OUT.println("Set d:"+mD+" density:"+nZ+" iteration:"+iT);
 		if ((mD<=0) || (iT<1) || (tV<0))
 			Console.OUT.println("Error in settings");
 		else {
-			val t = new GNNMF(mD, nV, nZ, iT, mbV, nbV, nbW);
+			val t = GNNMF.make(mD, nV, nZ, iT, rbV, cbV);
 			t.init();
 			t.printInfo();
 			if (tV == 0 ) {

@@ -98,9 +98,14 @@ public class DistBlockMatrix extends Matrix{
 			rowBs:Int, colBs:Int, 
 			rowPs:Int, colPs:Int):DistBlockMatrix(m,n) {
 		Debug.assure(rowPs*colPs==Place.MAX_PLACES, "Block partitioning error");
-		val grid = new Grid(m, n, rowBs, colBs);		
-		val dstgrid = new DistGrid(grid, rowPs, colPs);
-		return DistBlockMatrix.make(grid, dstgrid.dmap);		
+		
+		val blks = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
+				()=>(BlockSet.make(m,n,rowBs,colBs,rowPs,colPs)));
+		return new DistBlockMatrix(blks) as DistBlockMatrix(m,n);
+		
+		//val grid = new Grid(m, n, rowBs, colBs);		
+		//val dstgrid = new DistGrid(grid, rowPs, colPs);
+		//return DistBlockMatrix.make(grid, dstgrid.dmap);		
 	}
 	
 	/**
@@ -112,9 +117,13 @@ public class DistBlockMatrix extends Matrix{
 	 * @return DistBlockMatrix instance without memory allocation for matrix data
 	 */
 	public static def make(m:Int, n:Int, rowBs:Int, colBs:Int):DistBlockMatrix(m,n) {
-		val grid = new Grid(m, n, rowBs, colBs);
-		val dstgrid = DistGrid.make(grid);
-		return DistBlockMatrix.make(grid, dstgrid.dmap);
+		var colPs:Int = Math.sqrt(Place.MAX_PLACES) as Int;
+		while (Place.MAX_PLACES % colPs !=0) colPs--;
+		val rowPs = Place.MAX_PLACES / colPs;
+		return make(m, n, rowBs, colBs, rowPs, colPs);
+		//val grid = new Grid(m, n, rowBs, colBs);
+		//val dstgrid = DistGrid.make(grid);
+		//return DistBlockMatrix.make(grid, dstgrid.dmap);
 	}
 	
 	/**
@@ -124,9 +133,13 @@ public class DistBlockMatrix extends Matrix{
 	 * @return DistBlockMatrix instance
 	 */
 	public static def make(m:Int, n:Int):DistBlockMatrix(m,n) {
-		val grid    = Grid.make(m, n);
-		val dstgrid = DistGrid.make(grid);
-		return DistBlockMatrix.make(grid, dstgrid.dmap);
+		var colBs:Int = Math.sqrt(Place.MAX_PLACES) as Int;
+		while (Place.MAX_PLACES % colBs !=0) colBs--;
+		val rowBs = Place.MAX_PLACES / colBs;
+		return make(m, n, rowBs, colBs, rowBs, colBs);
+		//val grid    = Grid.make(m, n);
+		//val dstgrid = DistGrid.make(grid);
+		//return DistBlockMatrix.make(grid, dstgrid.dmap);
 	}
 	
 	/**
@@ -183,9 +196,15 @@ public class DistBlockMatrix extends Matrix{
 		makeSparse(g, DistGrid.make(g).dmap, nzp);
 	
 	//----------------------------
+	public static def makeDense(m:Int, n:Int, rbs:Int, cbs:Int, rps:Int, cps:Int) =
+		make(m, n, rbs, cbs, rps, cps).allocDenseBlocks();
+
 	public static def makeDense(m:Int, n:Int, rbs:Int, cbs:Int) =
 		make(m, n, rbs, cbs).allocDenseBlocks();
-	
+	//------
+	public static def makeSparse(m:Int, n:Int, rbs:Int, cbs:Int, rps:Int, cps:Int, npz:Double) =
+		make(m, n, rbs, cbs, rps, cps).allocSparseBlocks(npz);
+
 	public static def makeSparse(m:Int, n:Int, rbs:Int, cbs:Int, npz:Double) =
 		make(m, n, rbs, cbs).allocSparseBlocks(npz);
 	
@@ -407,13 +426,15 @@ public class DistBlockMatrix extends Matrix{
 	
 	public def copyTo(den:DenseMatrix(M,N)): void {
 		val stt = Timer.milliTime();
-		if (den.N == 1) {
+		if (den.N == 1 ) {
 			BlockGather.gatherVector(this.handleBS, den as DenseMatrix(M,1));
+		} else if (getGrid().numRowBlocks==1){
+			BlockGather.gatherRowBs(this.handleBS, den as Matrix);
 		} else {
 			Debug.exit("DistBlockMatrix does not support direct copyTo densematrix,"+
 					"unless it is single-column matrix (vector)."+
 					"Workaround is to use inter-media BlockMatrix to save gathered blocks"+
-					"and then convert to dense by calling BlockMatrix.copyTo(DenseMatrix)");
+					"and then convert to dense using BlockMatrix.copyTo(DenseMatrix)");
 		}
 		commTime += Timer.milliTime() - stt;
 
@@ -649,6 +670,17 @@ public class DistBlockMatrix extends Matrix{
 	
 	public def multTrans(A:DistBlockMatrix(this.M),B:DupBlockMatrix(this.N, A.N),plus:Boolean):DistBlockMatrix(this) =
 		DistDupMult.multTrans(A, B, this, plus);
+
+	//---- simplified version, no self plus
+	public def mult(A:DistBlockMatrix(this.M),B:DupBlockMatrix(A.N,this.N)):DistBlockMatrix(this) =
+		DistDupMult.mult(A, B, this, false);
+
+	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DupBlockMatrix(A.M,this.N)):DistBlockMatrix(this) =
+		DistDupMult.transMult(A, B, this, false);
+	
+	public def multTrans(A:DistBlockMatrix(this.M),B:DupBlockMatrix(this.N, A.N)):DistBlockMatrix(this) =
+		DistDupMult.multTrans(A, B, this, false);
+
 	
 	//-----------------------------
 	public def mult(A:DupBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N), plus:Boolean):DistBlockMatrix(this) =
@@ -660,7 +692,16 @@ public class DistBlockMatrix extends Matrix{
 	public def multTrans(A:DupBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N),plus:Boolean):DistBlockMatrix(this) =
 		DistDupMult.multTrans(A, B, this, plus);
 	
+	//---
+	public def mult(A:DupBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N)):DistBlockMatrix(this) =
+		DistDupMult.mult(A, B, this, false);
 
+	public def transMult(A:DupBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N)):DistBlockMatrix(this) =
+		DistDupMult.transMult(A, B, this, false);
+	
+	public def multTrans(A:DupBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N)):DistBlockMatrix(this) =
+		DistDupMult.multTrans(A, B, this, false);
+	
 	//=============================================
 	public def mult(A:Matrix(this.M),B:Matrix(A.N,this.N), plus:Boolean):Matrix(this) {
 		throw new UnsupportedOperationException();	

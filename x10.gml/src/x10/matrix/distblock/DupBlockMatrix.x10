@@ -40,7 +40,7 @@ public class DupBlockMatrix extends Matrix {
 	
 	//===================================================================================
 	public val handleDB:PlaceLocalHandle[BlockSet];
-	public val local:PlaceLocalHandle[BlockMatrix(M,N)]; //Repackaged blocks in BlockSet to BlockMatrix 
+	public val local:PlaceLocalHandle[BlockMatrix(M,N)]; //Repackage blocks in BlockSet to BlockMatrix 
 	//===================================================================================
 	public val tmpDB:PlaceLocalHandle[BlockSet];
 	private var tmpReady:Boolean;
@@ -460,10 +460,7 @@ public class DupBlockMatrix extends Matrix {
 	 * Multiplication method by using X10 driver. All copies are updated.
 	 * this = A &#42 B if plus is false, else this += A &#42 B
 	 */
-	public def mult(
-			A:Matrix(this.M), 
-			B:Matrix(A.N,this.N), 
-			plus:Boolean):DupBlockMatrix(this) {
+	public def mult(A:Matrix(this.M), B:Matrix(A.N,this.N),	plus:Boolean):DupBlockMatrix(this) {
 
 		if (A instanceof DenseMatrix(A) && B instanceof DenseMatrix(B) )
 			return mult(A as DenseMatrix, B as DenseMatrix, plus);
@@ -480,10 +477,7 @@ public class DupBlockMatrix extends Matrix {
 	 * @param B      the second operand of dense matrix
 	 * @param plus     result plus flag
 	 */
-	public def mult(
-			A:DenseMatrix(this.M), 
-			B:DenseMatrix(A.N,this.N), 
-			plus:Boolean) : DupBlockMatrix(this) {
+	public def mult(A:DenseMatrix(this.M), B:DenseMatrix(A.N,this.N), plus:Boolean):DupBlockMatrix(this) {
 		
 		/* Timing */ val st = Timer.milliTime();
 		local().mult(A, B, plus);
@@ -499,10 +493,7 @@ public class DupBlockMatrix extends Matrix {
 	 * @param B      the second operand of duplicated dense matrix
 	 * @param plus   result plus flag	 
 	 */	
-	public def mult(
-			A:DupBlockMatrix(this.M), 
-			B:DupBlockMatrix(A.N,this.N), 
-			plus:Boolean) : DupBlockMatrix(this) {
+	public def mult(A:DupBlockMatrix(this.M), B:DupBlockMatrix(A.N,this.N), plus:Boolean):DupBlockMatrix(this) {
 		
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
@@ -511,8 +502,11 @@ public class DupBlockMatrix extends Matrix {
 		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
-
-
+	//----------
+	public def mult(A:Matrix(this.M),B:Matrix(A.N,this.N))                 = mult(A, B, false);
+	public def mult(A:DenseMatrix(this.M), B:DenseMatrix(A.N,this.N))      = mult(A,B,false);
+	public def mult(A:DupBlockMatrix(this.M), B:DupBlockMatrix(A.N,this.N))= mult(A,B,false);
+	
 	//---------------------------------------------------
 	/**
 	 * this += A<sup>T</sup> &#42 B if plus is true. Result copies are 
@@ -545,10 +539,7 @@ public class DupBlockMatrix extends Matrix {
 	 * @param B      second operand of dense matrix 
 	 * @param plus     result plus flag	 
 	 */	
-	public def transMult(
-			A:DenseMatrix{self.N==this.M}, 
-			B:DenseMatrix(A.M,this.N), 
-			plus:Boolean) {
+	public def transMult(A:DenseMatrix{self.N==this.M}, B:DenseMatrix(A.M,this.N), plus:Boolean):DupBlockMatrix(this) {
 		/* Timing */ val st = Timer.milliTime();
 		local().transMult(A, B, plus);
 		/* Timing */ calcTime += Timer.milliTime() -st;
@@ -564,10 +555,7 @@ public class DupBlockMatrix extends Matrix {
 	 * @param B      second operand of dense matrix
 	 * @param plus     result plus flag	 
 	 */	
-	public def transMult(
-			A:DupBlockMatrix{self.N==this.M}, 
-			B:DupBlockMatrix(A.M,this.N), 
-			plus:Boolean) {
+	public def transMult(A:DupBlockMatrix{self.N==this.M}, B:DupBlockMatrix(A.M,this.N), plus:Boolean):DupBlockMatrix(this) {
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach(Dist.makeUnique()) {
 			local().transMult(A.local(), B.local(), plus);
@@ -575,19 +563,16 @@ public class DupBlockMatrix extends Matrix {
 		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
+	//-----
+	public def transMult(A:Matrix{self.N==this.M},B:Matrix(A.M,this.N))                 =transMult(A,B,false);
+	public def transMult(A:DenseMatrix{self.N==this.M}, B:DenseMatrix(A.M,this.N))      =transMult(A,B,false);
+	public def transMult(A:DupBlockMatrix{self.N==this.M}, B:DupBlockMatrix(A.M,this.N))=transMult(A,B,false);
 	
-	//----------------------------------------------
-
 	//------------------------------------------------
-	
-
 	/**
 	 * this = A &#42 B<sup>T</sup>
 	 */
-	public def multTrans(
-			A:Matrix(this.M), 
-			B:Matrix(this.N, A.N), 
-			plus:Boolean):DupBlockMatrix(this){
+	public def multTrans(A:Matrix(this.M), B:Matrix(this.N, A.N), plus:Boolean):DupBlockMatrix(this){
 
 		if (A instanceof DenseMatrix && B instanceof DenseMatrix )
 			return multTrans(A as DenseMatrix, B as DenseMatrix, plus);
@@ -598,10 +583,7 @@ public class DupBlockMatrix extends Matrix {
 		throw new UnsupportedOperationException();
 	}
 
-	public def multTrans(
-			A:DenseMatrix(this.M), 
-			B:DenseMatrix(this.N,A.N),
-			plus:Boolean ) {
+	public def multTrans(A:DenseMatrix(this.M),	B:DenseMatrix(this.N,A.N), plus:Boolean ):DupBlockMatrix(this) {
 		/* Timing */ val st = Timer.milliTime();
 		local().multTrans(A, B, plus);
 		/* Timing */ calcTime += Timer.milliTime() -st;
@@ -609,17 +591,10 @@ public class DupBlockMatrix extends Matrix {
 		return this;
 	}
 	
-	public def multTrans(
-			A:DenseMatrix(this.M), 
-			B:DenseMatrix(this.N,A.N)) = multTrans(A, B, false);
-
 	/**
 	 * this = A &#42 B, results are synchronized at every place
 	 */
-	public def multTrans(
-			A:DupBlockMatrix(this.M), 
-			B:DupBlockMatrix(this.N,A.N),
-			plus:Boolean) {
+	public def multTrans(A:DupBlockMatrix(this.M), B:DupBlockMatrix(this.N,A.N), plus:Boolean) {
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach(Dist.makeUnique()) {
 			local().multTrans(A.local(), B.local(), plus);
@@ -627,6 +602,12 @@ public class DupBlockMatrix extends Matrix {
 		/* Timing */ calcTime += Timer.milliTime() - st;
 		return this;
 	}
+	//--------
+	public def multTrans(A:Matrix(this.M), B:Matrix(this.N, A.N))               =multTrans(A,B,false);
+	public def multTrans(A:DenseMatrix(this.M),	B:DenseMatrix(this.N,A.N))      =multTrans(A,B,false);
+	public def multTrans(A:DupBlockMatrix(this.M), B:DupBlockMatrix(this.N,A.N))=multTrans(A,B,false);
+	
+	
 	//===========================================================
 	
 	public def mult(A:DistBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N), plus:Boolean):DupBlockMatrix(this) =
@@ -637,8 +618,10 @@ public class DupBlockMatrix extends Matrix {
 	
 	public def multTrans(A:DistBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N),plus:Boolean):DupBlockMatrix(this) =
 		DistDistMult.multTrans(A, B, this, plus);
-	
-
+	//------------------
+	public def mult(A:DistBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N))              = DistDistMult.mult(A, B, this, false);
+	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N)) = DistDistMult.transMult(A, B, this, false);
+	public def multTrans(A:DistBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N))        = DistDistMult.multTrans(A, B, this, false);
 	//===========================================================
 	/**
 	 * Operator % performs duplicated dense matrix multiplication

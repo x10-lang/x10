@@ -17,6 +17,8 @@ import x10.matrix.blas.DenseMatrixBLAS;
 import x10.matrix.block.Grid;
 import x10.matrix.block.BlockMatrix;
 import x10.matrix.distblock.DistGrid;
+import x10.matrix.distblock.DistMap;
+
 import x10.matrix.distblock.DupBlockMatrix;
 import x10.matrix.distblock.DistBlockMatrix;
 
@@ -27,12 +29,8 @@ import x10.matrix.distblock.DistDupMult;
  * Parallel Page Rank algorithm based on GML distributed block matrix.
  * 
  * Input parameters:
- * <p> 1) Rows of G (also columns of G)
- * <p> 2) Columns of P
- * <p> 3) Nozero density of G
+ * <p> 1) Sparse matrix G
  * <p> 4) Iteration
- * <p> 5) Number of row blocks partitioning in G
- * <p> 6) Number of column blocks partitioning in G
  * <p>
  * <p> Input matrix G is partitioned into (numRowBsG &#42 numColBsG) blocks. All blocks
  * are distributed to (Place.MAX_PLACES, 1) places, or vertical distribution.
@@ -52,62 +50,76 @@ import x10.matrix.distblock.DistDupMult;
  */
 public class PageRank {
 
-	//-------Matrix dimension-----------
-	val rowG:Int;
-	val colP:Int;
-
+	//------------------
+	static val pN:Int = 1;
 	public val iteration:Int;
-	public val nzDensity:Double;
 	public val alpha:Double= 0.85;
-	//-----------------------------------
-	//-------- Partition and distribution parameters ------
-	public val numRowBsG:Int; //row-wise partitioning blocks
-	public val numColBsG:Int; //column-wise partitioning blocks
-	
 	//-----------------------------------
 	
 	//----------- Input matrix ----------
-	public val G:DistBlockMatrix(rowG, rowG);
-	public val P:DupBlockMatrix(rowG, colP);
-	public val E:BlockMatrix(rowG, colP);
-	public val U:BlockMatrix(colP, rowG);
+	public val G:DistBlockMatrix;
+	public val P:DupBlockMatrix(G.N, pN);
+	public val E:BlockMatrix(G.N, P.N);
+	public val U:BlockMatrix(P.N, G.N);
 
-	val GP:DistBlockMatrix(rowG, colP); // Distributed version of G*P
-	val blckGP:BlockMatrix(rowG, colP);     // Used to collect dist block of P
-	//val GP:DenseMatrix(rowG, colP);
-	//val dupGP:DupDenseMatrix(rowG, colP); // Duplicated version of G*P
-	val UP:BlockMatrix(colP, colP);
-
-	val ts:Long = Timer.milliTime();
+	// Temp data
+	val GP:DistBlockMatrix(G.M, P.N); // Distributed version of G*P
+	val denGP:DenseMatrix(G.N, P.N);  // Used to collect GP and store in dense format (single column)
+	val blkP:BlockMatrix(G.N, P.N);
+	val UP:BlockMatrix(P.N, P.N);
+	
+	// Time profiling
 	var tt:Long = 0;
-
-	public def this(mg:Int, np:Int, nzd:Double, it:Int, nrG:Int, ncG:Int) {
-
-		rowG = mg;
-		colP = np;
+	var ct:Long = 0;
+	
+	public def this(g:DistBlockMatrix, p:DupBlockMatrix(g.N, pN), e:BlockMatrix(g.N, p.N), u:BlockMatrix(p.N, g.N), it:Int) {
+		Debug.assure(DistGrid.isVertical(g.getGrid(), g.getMap()), 
+				"Input block matrix g does not have vertical distribution.");
+				
+		G = g;
+		P = p as DupBlockMatrix(G.N); 
+		E = e as BlockMatrix(G.N,P.N); 
+		U = u as BlockMatrix(P.N,G.N); 
 		iteration = it;
-		nzDensity=nzd;
+		val gG = g.getGrid();
+		val gP = p.getGrid();
+		val rowPs = Place.MAX_PLACES;
 		
-		numRowBsG = nrG; numColBsG=ncG; 
+		val gridGP = new Grid(G.M, P.N, gG.rowBs, gP.colBs);
+		val distGP = new DistGrid(gridGP, rowPs, 1);
+		GP    = DistBlockMatrix.makeDense(gridGP, distGP.dmap) as DistBlockMatrix(G.M, P.N);
 		
-		val gridG = new Grid(rowG, rowG, numRowBsG, numColBsG);
-		val gridP = new Grid(rowG, colP, numColBsG, 1);
-		val gridU = new Grid(colP, rowG, 1, numColBsG);
-		val gridGP= new Grid(rowG, colP, numRowBsG, 1);
-		val gridUP= new Grid(colP, colP, 1, 1);
+		denGP = DenseMatrix.make(G.M, P.N) as DenseMatrix(G.M, P.N); //Store gathered GP blocks in dense format
+		blkP  = BlockMatrix.makeDense(gP) as BlockMatrix(G.N, P.N);  
 		
-		val distG = new DistGrid(gridG, Place.MAX_PLACES, 1);  //Vertical distribution
-		val distGP= new DistGrid(gridGP, Place.MAX_PLACES, 1); //Vertical distribution
-		
-		G = DistBlockMatrix.makeSparse(gridG, distG.dmap, nzDensity) as DistBlockMatrix(rowG, rowG);
-		P = DupBlockMatrix.makeDense(gridP) as DupBlockMatrix(rowG, colP);
-		E = BlockMatrix.makeDense(gridP) as BlockMatrix(rowG, colP);
-		U = BlockMatrix.makeDense(gridU) as BlockMatrix(colP, rowG);
-		
-		GP     = DistBlockMatrix.makeDense(gridGP, distGP.dmap) as DistBlockMatrix(rowG, colP);
-		blckGP = BlockMatrix.makeDense(gridGP) as BlockMatrix(rowG, colP);
-		UP     = BlockMatrix.makeDense(gridUP) as BlockMatrix(colP, colP);
+		val gridUP = new Grid(P.N, P.N, gP.colBs, gP.colBs);
+		UP    = BlockMatrix.makeDense(gridUP) as BlockMatrix(P.N, P.N);
 	}
+
+	public static def make(gM:Int, nzd:Double, it:Int, gRowBs:Int, gColBs:Int) {
+
+		val gN = gM;
+		val pColBs = 1;
+		//---- Distribution---
+		val gRowPs = Place.MAX_PLACES;
+		val gColPs = 1;
+		
+		val g = DistBlockMatrix.makeSparse(gM, gN, gRowBs, gColBs, gRowPs, gColPs, nzd) as DistBlockMatrix(gM,gN);
+		val p = DupBlockMatrix.makeDense(gN, pN, gColBs, pColBs) as DupBlockMatrix(gN, pN);
+		val e = BlockMatrix.makeDense(gN, pN, gColBs, pColBs) as BlockMatrix(gN, pN);
+		val u = BlockMatrix.makeDense(pN, gN, pColBs, gColBs) as BlockMatrix(pN, gN);
+		return new PageRank(g, p, e, u, it);
+	}
+	
+	public static def make(gridG:Grid, blockMap:DistMap, gridP:Grid, gridE:Grid, gridU:Grid,  nzd:Double, it:Int) {
+		//gridG, distG, gridP, gridE and gridU are remote captured in all places
+		val g = DistBlockMatrix.makeSparse(gridG, blockMap, nzd) as DistBlockMatrix(gridG.M, gridG.N);
+		val p = DupBlockMatrix.makeDense(gridP) as DupBlockMatrix(g.N, pN);
+		val e = BlockMatrix.makeDense(gridE) as BlockMatrix(g.N, p.N);
+		val u = BlockMatrix.makeDense(gridU) as BlockMatrix(p.N, g.N);
+		return new PageRank(g, p, e, u, it);
+	}
+	
 	
 	public def init():void {
 		//-----------------------------------------------
@@ -123,34 +135,29 @@ public class PageRank {
 	}
 
 	public def run():BlockMatrix {
-		var startt:Long =0;
-		var pcompt:Long =0;
-		var scompt:Long =0;
+		var seqtime:Long =0;
+		var stt:Long =0;
 		Debug.flushln("Start parallel PageRank");	
-		val st = Timer.milliTime();
-				
+		val st = Timer.milliTime();		
 		for (var i:Int=0; i<iteration; i++) {
-			startt = Timer.milliTime();
-			GP.mult(G, P, false)
-				.scale(alpha)
-				.copyTo(blckGP);// dist -> dup
-			//blckGP.copyTo(GP);
-			pcompt += Timer.milliTime() - startt;
-			startt = Timer.milliTime();
+			
+			GP.mult(G, P).scale(alpha);
 
-			P.local()
-				.mult(E, UP.mult(U, P.local(), false), false)
-				.scale(1-alpha)
-				.cellAdd(GP);
-			scompt += Timer.milliTime() - startt;
+			GP.copyTo(denGP as DenseMatrix(GP.M,GP.N));     // dist -> local dense
+			blkP.copyFrom(denGP); // repackage to block matrix
+
+			stt = Timer.milliTime();
+			P.local().mult(E, UP.mult(U, P.local())).scale(1-alpha).cellAdd(blkP);
+			seqtime += Timer.milliTime() - stt;
+			
 			P.sync(); // broadcast
 		}
 		tt = Timer.milliTime() - st;
-		val pcomtime = GP.getCalcTime();
+		val pmultime = GP.getCalcTime();
 		val commtime = GP.getCommTime() + P.getCommTime();
 
-		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", rowG, iteration, tt );
-		Console.OUT.printf("comm: %d ms, seq calc: %d ms\n", commtime, scompt);
+		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iteration, tt );
+		Console.OUT.printf("comm: %d ms, mult time: %d seq calc: %d ms\n", commtime, pmultime, seqtime);
 		Console.OUT.flush();
 		
 		return P.local();
@@ -163,7 +170,7 @@ public class PageRank {
 		Console.OUT.printf("Input G:(%dx%d), partition:(%dx%d) blocks, ",
 				G.M, G.N, G.getGrid().numRowBlocks, G.getGrid().numColBlocks);
 		Console.OUT.printf("distribution:(%dx%d), nonzero density:%f count:%f\n", 
-				Place.MAX_PLACES, 1,  nzDensity, nzc);
+				Place.MAX_PLACES, 1,  nzd, nzc);
 
 		Console.OUT.printf("Input P:(%dx%d), partition:(%dx%d) blocks, duplicated in all places\n",
 				P.M, P.N, P.getGrid().numRowBlocks, P.getGrid().numColBlocks);

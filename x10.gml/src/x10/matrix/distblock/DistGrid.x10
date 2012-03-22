@@ -43,7 +43,7 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 		
 		val blkgrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, rowPs, colPs);
 				
-		//This is not an efficient method, but not too much hurt on performance
+		//This is not an efficient method, 
 		for (var cb:Int=0; cb<matgrid.numColBlocks; cb++) { 
 			for (var rb:Int=0; rb<matgrid.numRowBlocks; rb++) {
 				val pid = blkgrid.findBlock(rb, cb); 
@@ -97,5 +97,33 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 	public static def makeHorizon(g:Grid) = makeMaxRow(g, 1, Place.MAX_PLACES);
 	
 	public static def makeVertical(g:Grid) = makeMaxRow(g, Place.MAX_PLACES, Place.MAX_PLACES);
-	
+	//-------------------------------------------------------------
+	public static def isHorizontal(g:Grid, dmap:DistMap):Boolean {
+		for (var c:Int=0; c<g.numColBlocks; c++) {
+			val bid0 = g.getBlockId(0, c);
+			val pid0 = dmap.findPlace(bid0);
+			for (var r:Int=1; r<g.numRowBlocks; r++) {
+				val bid = g.getBlockId(r,c);
+				val pid = dmap.findPlace(bid);
+				if (pid != pid0) return false;
+			}
+		}
+		return true;
+	}
+
+	/**
+	 * Check vertical distribution of blocks. 
+	 */
+	public static def isVertical(g:Grid, dmap:DistMap):Boolean {
+		for (var r:Int=0; r<g.numRowBlocks; r++) {
+			val bid0 = g.getBlockId(r, 0);
+			val pid0 = dmap.findPlace(bid0);
+			for (var c:Int=1; c<g.numColBlocks; c++) {
+				val bid = g.getBlockId(r,c);
+				val pid = dmap.findPlace(bid);
+				if (pid != pid0) return false;
+			}
+		}
+		return true;
+	}	
 }
