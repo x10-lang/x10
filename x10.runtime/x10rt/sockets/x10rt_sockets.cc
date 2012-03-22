@@ -91,7 +91,7 @@ struct x10SocketState
 	pthread_mutex_t pendingWriteLock;
 } state;
 
-bool probe (bool onlyProcessAccept);
+bool probe (bool onlyProcessAccept, bool block);
 
 /*********************************************
  *  utility methods
@@ -394,7 +394,7 @@ int initLink(uint32_t remotePlace)
 		return -1;
 
 	if (!state.linkAtStartup || state.socketLinks[remotePlace].fd <= 0)
-		probe(true); // handle any incoming connection requests - we may be able to skip a lookup.
+		probe(true, false); // handle any incoming connection requests - we may be able to skip a lookup.
 
 	if (state.socketLinks[remotePlace].fd <= 0)
 	{
@@ -539,7 +539,7 @@ int initLink(uint32_t remotePlace)
 					fprintf(stderr, "X10rt.Sockets: Place %u did NOT establish a link to place %u\n", state.myPlaceId, remotePlace);
 				#endif
 				while (state.socketLinks[remotePlace].fd < 0) // there is a pending connection coming in.
-					probe(true);
+					probe(true, false);
 			}
 		}
 		else
@@ -818,26 +818,30 @@ void x10rt_net_probe ()
 			initLink(i); // connect to all lower places
 		for (unsigned i=state.myPlaceId+1; i<state.numPlaces; i++)
 			while (state.socketLinks[i].fd <= 0)
-				probe(true); // wait for connections from all upper places
+				probe(true, false); // wait for connections from all upper places
 		state.linkAtStartup = false;
 	}
-	else 
-		while (probe(false)) { }
+	else
+		while (probe(false, false)) { }
 }
 
 void x10rt_net_blocking_probe ()
 {
-	// TODO: make this blocking.  For now, just call probe.
+	// first, call the regular x10rt_net_probe(), which loops, to pull in everything that may already be in the network
 	x10rt_net_probe();
+	// The network is likely empty now.  Call the blocking form of probe, returning after the one (likely blocking) call.
+	probe(false, true);
+	// then, loop again to gather everything from the network before returning.
+	while (probe(false, false)) { }
 }
 
 // return T if data was processed, F if not
-bool probe (bool onlyProcessAccept)
+bool probe (bool onlyProcessAccept, bool block)
 {
 	if (pthread_mutex_lock(&state.readLock) < 0)
 		return false;
 	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
-	int ret = poll(state.socketLinks, state.numPlaces, state.linkAtStartup?100:0);
+	int ret = poll(state.socketLinks, state.numPlaces, block?-1:(state.linkAtStartup?100:0));
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
 
