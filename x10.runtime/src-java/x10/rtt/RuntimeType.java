@@ -82,13 +82,22 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (useCache) {
             RuntimeType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                RuntimeType<?> type0 = new RuntimeType<T>(javaClass, null, null);
+                RuntimeType<?> type0;
+                if (java.lang.String.class.equals(javaClass)) {
+                    type0 = Types.STRING;
+                } else {
+                    type0 = new RuntimeType<T>(javaClass, null, null);
+                }
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
             return (RuntimeType<T>) type;
         } else {
-            return new RuntimeType<T>(javaClass, null, null);
+            if (java.lang.String.class.equals(javaClass)) {
+                return Types.STRING;
+            } else {
+                return new RuntimeType<T>(javaClass, null, null);
+            }
         }
     }
 

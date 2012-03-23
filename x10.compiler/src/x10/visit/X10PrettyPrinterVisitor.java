@@ -2980,29 +2980,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(IntLit_c n) {
         String val = null;
         switch (n.kind()) {
-        case ULONG:
-            val = Long.toString(n.value()) + "L";
+        case BYTE:
+        case UBYTE:
+            val = "((byte) " + Byte.toString((byte) n.value()) + ")";
             break;
-        case LONG:
-            val = Long.toString(n.value()) + "L";
+        case SHORT:
+        case USHORT:
+            val = "((short) " + Short.toString((short) n.value()) + ")";
             break;
+        case INT:
         case UINT:
             val = Integer.toString((int) n.value());
             break;
-        case INT:
-            val = Integer.toString((int) n.value());
-            break;
-        case USHORT:
-            val = Short.toString((short) n.value());
-            break;
-        case SHORT:
-            val = Short.toString((short) n.value());
-            break;
-        case UBYTE:
-            val = Byte.toString((byte) n.value());
-            break;
-        case BYTE:
-            val = Byte.toString((byte) n.value());
+        case LONG:
+        case ULONG:
+            val = Long.toString(n.value()) + "L";
             break;
         // default: // Int, Short, Byte
         // if (n.value() >= 0x80000000L)
