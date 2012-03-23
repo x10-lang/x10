@@ -347,7 +347,7 @@ public class DenseMatrix extends Matrix {
 							   dst:DenseMatrix, var dstRowOffset:Int, rowCnt:Int) :Int {
 		
 		//Make sure the source and destination are bounded.
-		Debug.assure(src.N <= dst.N, "Number of columns in source "+src.N+" must not be larger the destination "+dst.N);
+		Debug.assure(src.N <= dst.N, "Number of columns in source "+src.N+" is larger than the destination "+dst.N);
 		Debug.assure(srcRowOffset+rowCnt <= src.M, "Source offset "+srcRowOffset+" + row count "+rowCnt+" exceeds source dimension "+src.M);
 		Debug.assure(dstRowOffset+rowCnt <= dst.M, "Destination offset "+dstRowOffset+" + row count "+rowCnt+" exceeds destionation "+dst.M);
 
@@ -375,12 +375,10 @@ public class DenseMatrix extends Matrix {
 			 dst:DenseMatrix, var dstRowOffset:Int, var dstColOffset:Int,
 			 rowCnt:Int, colCnt:Int): Int {
 		
-		Debug.assure(src.M <= dst.M && 
-					 srcColOffset+colCnt <= src.N && 
+		Debug.assure(srcColOffset+colCnt <= src.N && 
 					 dstColOffset+colCnt <= dst.N, 
 					 "illegal collumn offset or counts in subset copy");
-		Debug.assure(src.N <= dst.N && 
-					 srcRowOffset+rowCnt <= src.M && 
+		Debug.assure(srcRowOffset+rowCnt <= src.M && 
 					 dstRowOffset+rowCnt <= dst.M, 
 					 "illegal row offset or row count in subset copy");
 

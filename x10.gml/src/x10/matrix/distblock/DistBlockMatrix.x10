@@ -437,7 +437,6 @@ public class DistBlockMatrix extends Matrix{
 					"and then convert to dense using BlockMatrix.copyTo(DenseMatrix)");
 		}
 		commTime += Timer.milliTime() - stt;
-
 	}
 
 	public def copyFrom(src:BlockMatrix(M,N)) {

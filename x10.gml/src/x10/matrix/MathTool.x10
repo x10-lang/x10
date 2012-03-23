@@ -59,4 +59,10 @@ public class MathTool {
 			d += (a(i)-b(i))*(a(i)-b(i));
 		return Math.sqrt(d);
 	}
+	
+	public static def sqrt(n:Int):Int {
+		var rt:Int = Math.sqrt(n) as Int;
+		for (; rt > 1 && n%rt != 0; rt--);
+		return rt;
+	}
 }

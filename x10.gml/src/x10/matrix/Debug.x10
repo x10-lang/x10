@@ -26,8 +26,6 @@ public class Debug {
 	//public static val console:PConsole = new PConsole();
 	public static val console = new DistPConsole();
 	//
-
-
 	//===========================
 	public static final def get():Debug {
 		return instance;

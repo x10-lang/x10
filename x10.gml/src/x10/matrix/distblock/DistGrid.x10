@@ -65,8 +65,7 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 	 * @return       the map of block IDs to place IDs.
 	 */
 	public static def make(g:Grid) = makeMaxRow(g, Math.sqrt(Place.MAX_PLACES) as Int, Place.MAX_PLACES);
-	
-	
+		
 	
 	/**
 	 * Partitioning all blocks to clusters, while maximizing number of groups (cluster) in row.

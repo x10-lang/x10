@@ -635,6 +635,7 @@ public class DupBlockMatrix extends Matrix {
 		/* Timing */ val st = Timer.milliTime();
 		BlockSetBcast.bcast(handleDB);
 		/* Timing */ commTime += Timer.milliTime() - st;
+		//Debug.flushln("Calling sync "+commTime);
 	}
 	//==================================================================================
 	

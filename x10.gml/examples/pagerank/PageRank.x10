@@ -136,26 +136,33 @@ public class PageRank {
 
 	public def run():BlockMatrix {
 		var seqtime:Long =0;
+		var comtime:Long =0;
 		var stt:Long =0;
-		Debug.flushln("Start parallel PageRank");	
+		tt = P.getCommTime();
+		Debug.flushln("Start parallel PageRank at "+tt);	
 		val st = Timer.milliTime();		
 		for (var i:Int=0; i<iteration; i++) {
 			
 			GP.mult(G, P).scale(alpha);
-
+			
+			stt = Timer.milliTime();
 			GP.copyTo(denGP as DenseMatrix(GP.M,GP.N));     // dist -> local dense
+			comtime += Timer.milliTime()-stt;
+			
 			blkP.copyFrom(denGP); // repackage to block matrix
 
 			stt = Timer.milliTime();
 			P.local().mult(E, UP.mult(U, P.local())).scale(1-alpha).cellAdd(blkP);
 			seqtime += Timer.milliTime() - stt;
 			
+			stt = Timer.milliTime();
 			P.sync(); // broadcast
+			comtime += Timer.milliTime() - stt;
 		}
-		tt = Timer.milliTime() - st;
+		tt += Timer.milliTime() - st;
 		val pmultime = GP.getCalcTime();
 		val commtime = GP.getCommTime() + P.getCommTime();
-
+		Console.OUT.printf("Total comm Time:%d ms, Gather:%d ms Bcast:%d ms\n", comtime, GP.getCommTime(), P.getCommTime());
 		Console.OUT.printf("G:%d PageRank total runtime for %d iter: %d ms, ", G.M, iteration, tt );
 		Console.OUT.printf("comm: %d ms, mult time: %d seq calc: %d ms\n", commtime, pmultime, seqtime);
 		Console.OUT.flush();
