@@ -221,7 +221,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
                 interfaceTN.add((TypeNode) xnf.CanonicalTypeNode(pos, t));
             }
 
-            X10ClassDecl cDecl = (X10ClassDecl) xnf.ClassDecl(pos, fNode, id, superTN, interfaceTN, body);
+            classDecl = (X10ClassDecl) xnf.ClassDecl(pos, fNode, id, superTN, interfaceTN, body);
 
             //add type parameters if classDef has type parameters
             if(classDef.typeParameters().size() > 0){
@@ -232,7 +232,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
                 	TypeParamNode tn = xnf.TypeParamNode(compilerPos, xnf.Id(compilerPos, params.get(i).name()), vars.get(i));
                 	typeParamNodes.add(tn.type(params.get(i)));
                 }
-                classDecl = cDecl.typeParameters(typeParamNodes);
+                classDecl = classDecl.typeParameters(typeParamNodes);
             }
         	//After it has type parameters, we need create a type bounds here in all causes
             //In fact, some times, no need setting. For example, the container class has no parameter type
@@ -240,7 +240,7 @@ public class ClassSynth extends AbstractStateSynth implements IClassMemberSynth 
             	classDef.setTypeBounds(Types.ref(new TypeConstraint()));
             }
             
-            classDecl = (X10ClassDecl) cDecl.classDef(classDef);
+            classDecl = (X10ClassDecl) classDecl.classDef(classDef);
         }
         // now tries to add all the members
         ClassBody b = classDecl.body();
