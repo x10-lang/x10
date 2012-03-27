@@ -371,10 +371,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             er.printType(n.type(), 0);
             w.write(")");
             w.write(" ");
+            // XTENLANG-3032 following code only works with non-primitives
+            /*
             new RuntimeTypeExpander(er, base).expand();
             w.write(".makeArray(");
             w.write(n.dims().get(0).toString());
             w.write(")");
+            */
+            w.write("new java.lang.Object[" + n.dims().get(0) + "]");
             return;
         }
         w.write("new ");
