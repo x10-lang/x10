@@ -52,18 +52,17 @@ base_src=\
 	x10/matrix/SymMatrix.x10 \
 	x10/matrix/TriMatrix.x10 \
 	x10/matrix/Vector.x10 \
-	x10/matrix/VectorMult.x10 \
 	x10/matrix/MathTool.x10 \
 	x10/matrix/Matrix.x10 \
 	x10/matrix/RandTool.x10 \
 	x10/matrix/DenseMatrix.x10 \
+	x10/matrix/VectorMult.x10 \
 	x10/matrix/DistPConsole.x10	\
 	x10/matrix/MatrixMultXTen.x10  \
 	x10/matrix/PConsole.x10 \
 	x10/matrix/VerifyTools.x10 
 
 comm_src=\
-	x10/matrix/comm/ArrayRcast.x10 \
 	x10/matrix/comm/ArrayBcast.x10 \
 	x10/matrix/comm/ArrayGather.x10 \
 	x10/matrix/comm/ArrayScatter.x10 \

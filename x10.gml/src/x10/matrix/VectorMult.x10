@@ -190,7 +190,7 @@ public class VectorMult {
 	}
 	
 	public static def mult(B:Vector, A:SymMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) =
-		mult(A, B as Vector(A.N), C as Vector(A.M), plus);
+		mult(A, B as Vector(A.N), C, plus);
 
 	//-------------
 	public static def mult(A:TriMatrix, C:Vector(A.M)):Vector(C) {
