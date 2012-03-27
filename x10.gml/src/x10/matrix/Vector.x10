@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix;
@@ -18,28 +18,28 @@ import x10.util.Timer;
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
 
-public type Vector(m:Int)=Vector{self.N==m};
+public type Vector(m:Int)=Vector{self.M==m};
 public type Vector(v:Vector)=Vector{self==v};
 
 
 /**
- * Class Vector represents an N x 1 matrix, (or 1xN matrix ?)
+ * Class Vector uses an M &#42 1 array as data staorage)
 
  <p> This implemnetation has a dense, single-place representation.
 
  <p> Methods include 
-     1) product of two vectors: Nx1 * 1xN,52
-     2) product of vector and a scalar: Nx1 * 1,
-	 3) product of a scalar and a vector: 1 * 1xN,
-	 4) addition of two vectors: Nx1 + Nx1,
-	 5) substraction between two vectors: Nx1 - Nx1,
-	 6) addition of a vector and a scalar: Nx1 + 1,
-	 7) substraction of a scalar from a vector: Nx1 - 1,
-	 8) inverse of a vector: Nx1
-	 9) norm of a vector: Nx1
+ <p> 1) product of two vectors: Mx1 * 1xM,
+ <p> 2) product of vector and a scalar: Mx1 * 1,
+ <p> 3) product of a scalar and a vector: 1 * 1xM,
+ <p> 4) addition of two vectors: Mx1 + Mx1,
+ <p> 5) substraction between two vectors: Mx1 - Mx1,
+ <p> 6) addition of a vector and a scalar: Mx1 + 1,
+ <p> 7) substraction of a scalar from a vector: Mx1 - 1,
+ <p> 8) inverse of a vector: Mx1
+ <p> 9) norm of a vector: Mx1
 
  */
-public class Vector(N:Int) implements (Int) => Double {
+public class Vector(M:Int) implements (Int) => Double {
 
 	//================================================================
 	// Vector data
@@ -80,7 +80,7 @@ public class Vector(N:Int) implements (Int) => Double {
      * @param  iv 	the constant value
      */	
     public def init(iv:Double): Vector(this) {
-    	for (var i:Int=0; i<N; i++)	
+    	for (var i:Int=0; i<M; i++)	
     		this.d(i) = iv;
     	return this;
     }
@@ -90,7 +90,7 @@ public class Vector(N:Int) implements (Int) => Double {
      */	
     public def initRandom(): Vector(this) {
     	val rgen = RandTool.getRandGen();
-    	for (var i:Int=0; i<N; i++) {
+    	for (var i:Int=0; i<M; i++) {
     		this.d(i) = rgen.nextDouble();
     	}
     	return this;
@@ -106,8 +106,8 @@ public class Vector(N:Int) implements (Int) => Double {
     public def initRandom(lb:Int, ub:Int): Vector(this) {
     	val len = Math.abs(ub-lb)+1;
     	val rgen = RandTool.getRandGen();
-    	//val ll = M*N / 100;
-    	for (var i:Int=0; i<N; i++) {
+    	//val ll = M*M / 100;
+    	for (var i:Int=0; i<M; i++) {
     		this.d(i) = rgen.nextInt(len)+lb;
     	}
     	return this;
@@ -117,7 +117,7 @@ public class Vector(N:Int) implements (Int) => Double {
      * Init with function
      */
     public def init(f:(int)=>Double): Vector(this) {
-    	for (var i:Int=0; i<N; i++)
+    	for (var i:Int=0; i<M; i++)
     		this.d(i) = f(i);
     	return this;
     }
@@ -126,10 +126,10 @@ public class Vector(N:Int) implements (Int) => Double {
 	//======================================================
     public def rail():Array[Double](1) = d;
 
-	public  def clone():Vector(N) {
-		val nv = new Array[Double](N);
-		Array.copy(this.d, 0, nv, 0, N);
-		return new Vector(N, nv);
+	public  def clone():Vector(M) {
+		val nv = new Array[Double](M);
+		Array.copy(this.d, 0, nv, 0, M);
+		return new Vector(M, nv);
 	}
 	
 	//======================================================================
@@ -155,18 +155,22 @@ public class Vector(N:Int) implements (Int) => Double {
 	}
 	
 	public  def reset():void {
-		for (var i:Int=0; i< N; i++) this.d(i) = 0.0;
+		for (var i:Int=0; i< M; i++) this.d(i) = 0.0;
 	}
 	//----------------------------------
 	// Copy all data from vector v to local at dst_off
 	public static def copyTo(src:Vector, soff:Int, dst:Vector, doff:Int, len:Int) {
-		Debug.assure(soff+len<src.N && doff+len<dst.N, "Buffer overflow in vector copy");
+		Debug.assure(soff+len<src.M && doff+len<dst.M, "Buffer overflow in vector copy");
 		Array.copy(src.d, soff, dst.d, doff, len);
 	}
 	
 	// Copy part of data from vector v to local starting from index 0
 	public  def copyTo(v:Vector) {
-		copyTo(this, 0, v, 0, this.N);
+		copyTo(this, 0, v, 0, this.M);
+	}
+	
+	public def copyTo(mat:DenseMatrix) {
+		Array.copy(this.d, 0, mat.d, 0, M);
 	}
 
 	//------------------------------------------------------------------
@@ -174,10 +178,10 @@ public class Vector(N:Int) implements (Int) => Double {
 	//------------------------------------------------------------------
 	
 	/**
-	 * Product of a vector and a scalar: Nx1 * 1
+	 * Product of a vector and a scalar: Mx1 * 1
 	 */
     public  def scale(a:Double) :Vector(this) {
-		for (var i:Int=0; i < N; ++i)
+		for (var i:Int=0; i < M; ++i)
 			this.d(i) = a * this.d(i);
 		return this;
     }
@@ -185,8 +189,8 @@ public class Vector(N:Int) implements (Int) => Double {
 	/**
 	 * Cell-wise mulitply of two vectors
 	 */
-    public def cellMult(V:Vector(N)): Vector(this) {
-        for (var i:Int=0; i < N; ++i) 
+    public def cellMult(V:Vector(M)): Vector(this) {
+        for (var i:Int=0; i < M; ++i) 
 			this.d(i) *= V.d(i);
         return this;
     }
@@ -194,15 +198,15 @@ public class Vector(N:Int) implements (Int) => Double {
     
 	//======================================================
 	/**
-	 * Addition of two vectors: Nx1 + Nx1
+	 * Addition of two vectors: Mx1 + Mx1
 	 */
-    public def cellAdd (V:Vector(N)):Vector(this) {
-		for (var i:Int=0; i < N; ++i) 	this.d(i) += V.d(i);
+    public def cellAdd (V:Vector(M)):Vector(this) {
+		for (var i:Int=0; i < M; ++i) 	this.d(i) += V.d(i);
 		return this;
     }
 
     public def cellAdd (d:Double):Vector(this) {
-    	for (var i:Int=0; i < N; ++i) 	this.d(i) += d;
+    	for (var i:Int=0; i < M; ++i) 	this.d(i) += d;
     	return this;
     }
 
@@ -211,21 +215,22 @@ public class Vector(N:Int) implements (Int) => Double {
 	/** 
 	 * Substraction between two vectors
 	 */
-    public  def cellSub(B:Vector(N)):Vector(this) {
-		for (var i:Int=0; i < N; ++i) 
+    public  def cellSub(B:Vector(M)):Vector(this) {
+		for (var i:Int=0; i < M; ++i) 
 			this.d(i) -= B.d(i);
 		return this;
     }
 
 	/**
-	 * Substraction a scalar from a vector: Nx1 - 1
+	 * Substraction a scalar from a vector: Mx1 - 1
 	 */
     public  def cellSub(d:Double):Vector(this) {
-		for (var i:Int=0; i < N; ++i) this.d(i) -= d;
+		for (var i:Int=0; i < M; ++i) this.d(i) -= d;
 		return this;
     }
-    protected def cellSubFrom(d:Double):Vector(this) {
-    	for (var i:Int=0; i < N; ++i) this.d(i) = d - this.d(i);
+    
+    public def cellSubFrom(d:Double):Vector(this) {
+    	for (var i:Int=0; i < M; ++i) this.d(i) = d - this.d(i);
     	return this;   	
     }
     
@@ -234,34 +239,34 @@ public class Vector(N:Int) implements (Int) => Double {
      * cellwise division: this = dv / this;
      */
     public  def cellDiv(dv:Double):Vector(this) {
-    	for (var i:Int=0; i < N; ++i) this.d(i) /= dv;
+    	for (var i:Int=0; i < M; ++i) this.d(i) /= dv;
     	return this;
     }
     //
 
-    public def cellDiv(v:Vector(this.N)):Vector(this) {
-    	for (var i:Int=0; i< N; ++i) {
+    public def cellDiv(v:Vector(this.M)):Vector(this) {
+    	for (var i:Int=0; i< M; ++i) {
     		this.d(i) /= v.d(i);
     	}
     	return this;
     }
         
-    protected def cellDivBy(dv:Double) : Vector(this) {
-    	for (var i:Int=0; i < N; ++i) this.d(i) = dv / this.d(i);
+    public def cellDivBy(dv:Double) : Vector(this) {
+    	for (var i:Int=0; i < M; ++i) this.d(i) = dv / this.d(i);
     	return this;    	
     }
 	//===============================================
     /**
-	 * Pruduct transition of a vector: Nx1 * (Nx1)^T
+	 * Pruduct transition of a vector: Mx1 * (Mx1)^T
      * Return this^T * x.
      */
     public def blasTransProduct(x:Vector):Double =
-		BLAS.compDotProd(this.N, this.d, x.d);
+		BLAS.compDotProd(this.M, this.d, x.d);
 	
 
-	public def mult(v:Vector(N)):Double {
+	public def mult(v:Vector(M)):Double {
 		var d:Double = 0.0;
-		for(var i:Int=0; i<N; i++) d += this.d(i) * v.d(i);
+		for(var i:Int=0; i<M; i++) d += this.d(i) * v.d(i);
 		return d;
 	}
 	//======================================================
@@ -270,157 +275,136 @@ public class Vector(N:Int) implements (Int) => Double {
 	//-------------------------------------------------------------------
 	// Using Blas routines: self = op(A)* b, self += op(A) * b,
 	//-------------------------------------------------------------------
-	public def mult(A:Matrix(N), B:Vector(A.N), plus:Boolean): Vector(this) {
-		Debug.assure(A.N == B.N && this.N==A.M);
-		if (A instanceof DenseMatrix) 
-			 this.mult(A as DenseMatrix, B, plus);
-		else if (A instanceof SymMatrix) 
-			this.mult(A as SymMatrix, B, plus);
-		else if (A instanceof TriMatrix)
-			this.mult(A as TriMatrix, B, plus);
-		//else if (A instanceof Diagonal)
-		//	this.mult(A as Diagonal, B, plus);
-		else
-			throw new UnsupportedOperationException("Operation not supported in vector multiply: " +
-													this.typeName() + ".mult(" + 
-													A.typeName() + ", " + B.typeName()+")");
-		return this;
-	}
+	public def mult(A:Matrix(M), B:Vector(A.N), plus:Boolean): Vector(this) =
+		VectorMult.mult(A, B, this, plus);
  
-	public def transMult(A:Matrix{self.N==this.N}, B:Vector(A.M), plus:Boolean): Vector(this) {
-		Debug.assure(A.N == B.N && this.N==A.M);
-		if (A instanceof DenseMatrix) 
-			this.transMult(A as DenseMatrix, B, plus);
-		else if (A instanceof SymMatrix) 
-			this.mult(A as SymMatrix, B, plus);
-		//else if (A instanceof TriMatrix)
-		//	this.transMult(A as TriMatrix, B, plus);
-		//else if (A instanceof Diagonal)
-		//	this.mult(A as Diagonal, B, plus);
-		else
-			throw new UnsupportedOperationException("Operation not supported in vector multiply: " +
-					this.typeName() + ".mult(" + 
-					A.typeName() + ", " + B.typeName()+")");
-		return this;
-	}
+	public def transMult(A:Matrix{self.N==this.M}, B:Vector(A.M), plus:Boolean) =
+		VectorMult.mult(B, A, this, plus);
+	
+	//------------------------
+	public def mult(B:Vector, A:Matrix(B.M,this.M), plus:Boolean)      = 
+		VectorMult.mult(B, A, this, plus);
+	public def multTrans(B:Vector, A:Matrix(this.M,B.M), plus:Boolean) = 
+		VectorMult.mult(A, B, this, plus);
 	
 	//-------------------------------------------------------------------
 	// Dense-vector multiply
 	//-------------------------------------------------------------------
-	public  def mult(A:DenseMatrix(this.N), B:Vector(A.N), plus:Boolean):Vector(this) {
-
-		DenseMatrixBLAS.comp(A, B, this, plus);
-		return this;
-	}
+	public def mult(A:DenseMatrix(this.M), B:Vector(A.N), plus:Boolean) = 
+		VectorMult.mult(A, B, this, plus);	
+	public  def transMult(A:DenseMatrix{self.N==this.M}, B:Vector(A.M), plus:Boolean) = 
+		VectorMult.mult(B, A, this, plus);
 	
-	public  def transMult(A:DenseMatrix{self.N==this.N}, B:Vector(A.M), plus:Boolean):Vector(this) {
-
-		DenseMatrixBLAS.compTransMult(A, B, this, plus);
-		return this;
-	}
-	
+	//-----------------------------
+	public def mult(B:Vector, A:DenseMatrix(B.M,this.M), plus:Boolean)      = 
+		VectorMult.mult(B, A, this, plus);
+	public def multTrans(B:Vector, A:DenseMatrix(this.M,B.M), plus:Boolean) = 
+		VectorMult.mult(A, B, this, plus);
+		
 	//-------------------------------------------------------------------
 	// Symmetric-vector multiply
 	//-------------------------------------------------------------------
-	public  def mult(A:SymMatrix(this.N), B:Vector(A.N), plus:Boolean):Vector(this) {
-		val beta = plus?1.0:0.0;
-
-		BLAS.compSymMultVec(A.d, B.d, this.d, 
-				[A.M, A.N],
-				[1.0, beta]);
-		return this;
-	}
+	public  def mult(A:SymMatrix(this.M), B:Vector(A.N), plus:Boolean) =
+		VectorMult.mult(A, B, this, plus);
 	
-	public  def transMult(A:SymMatrix(this.N), B:Vector(A.N), plus:Boolean):Vector(this)
-		= mult(A, B, plus);
+	public  def transMult(A:SymMatrix(this.M), B:Vector(A.N), plus:Boolean) =
+		VectorMult.mult(B, A, this, plus);
+	//--------------
+	public def mult(B:Vector, A:SymMatrix(B.M,this.M), plus:Boolean)      = 
+		VectorMult.mult(B, A, this, plus);
+	public def multTrans(B:Vector, A:SymMatrix(this.M,B.M), plus:Boolean) = 
+		VectorMult.mult(A, B, this, plus);
 
 	//-------------------------------------------------------------------
 	// Triangular-vector multiply
 	//-------------------------------------------------------------------
 	// this = A * this
-	public  def mult(A:TriMatrix(this.N)):Vector(this) {
-		BLAS.compTriMultVec(A.d, this.d, this.N, 0); 
-		return this;
-	}
+	public  def mult(A:TriMatrix(this.M)) =
+		VectorMult.mult(A, this);
 	
-	public  def transMult(A:TriMatrix(this.N)):Vector(this) {
-		BLAS.compTriMultVec(A.d, this.d, this.N, 1); 
-		return this;
-	}
+	public  def transMult(A:TriMatrix(this.M)) =
+		VectorMult.mult(this, A);
+	
 
 	//======================================================
 	// Operand overloading
 	//======================================================
 	// Operator add
-	public  operator this + (that:Vector(N)) = this.clone().cellAdd(that) as Vector(N);
-	public  operator this + (dv:Double)      = this.clone().cellAdd(dv) as Vector(N);
+	public  operator this + (that:Vector(M)) = this.clone().cellAdd(that) as Vector(M);
+	public  operator this + (dv:Double)      = this.clone().cellAdd(dv)   as Vector(M);
 	// Operator sub
-	public  operator this - (that:Vector(N)) = this.clone().cellSub(that) as Vector(N);
-	public  operator this - (dv:Double)      = this.clone().cellSub(dv)  as Vector(N);
-	public  operator (dv:Double) - this      = this.clone().cellSubFrom(dv)  as Vector(N);
+	public  operator this - (that:Vector(M)) = this.clone().cellSub(that)   as Vector(M);
+	public  operator this - (dv:Double)      = this.clone().cellSub(dv)     as Vector(M);
+	public  operator (dv:Double) - this      = this.clone().cellSubFrom(dv) as Vector(M);
 	
 	// Operator cellwise multiply
-	public  operator this * (dv:Double)      = this.clone().scale(dv) as Vector(N);
-	public  operator (dv:Double) * this      = this.clone().scale(dv) as Vector(N);
-	public  operator this * (that:Vector(N)) = this.clone().cellMult(that) as Vector(N);
+	public  operator this * (dv:Double)      = this.clone().scale(dv)      as Vector(M);
+	public  operator (dv:Double) * this      = this.clone().scale(dv)      as Vector(M);
+	public  operator this * (that:Vector(M)) = this.clone().cellMult(that) as Vector(M);
 
 	// Operator cellwise div
-	public  operator this / (dv:Double)           = this.clone().cellDiv(dv) as Vector(N);
-	public  operator this / (that:Vector(this.N)) = this.clone().cellDiv(that) as Vector(N);
-	public  operator (dv:Double) / this           = this.clone().cellDivBy(dv) as Vector(N);
+	public  operator this / (dv:Double)           = this.clone().cellDiv(dv)   as Vector(M);
+	public  operator this / (that:Vector(this.M)) = this.clone().cellDiv(that) as Vector(M);
+	public  operator (dv:Double) / this           = this.clone().cellDivBy(dv) as Vector(M);
 
 	//Righ-side Operand overload
-	public  operator this % (that:Matrix(N)) = 
-		Vector.make(that.N).transMult(that, this as Vector(that.M), false) as Vector(that.N);
-	public  operator this % (that:DenseMatrix(N)) =
-		Vector.make(that.N).transMult(that, this as Vector(that.M), false) as Vector(that.N);
-	public  operator this % (that:SymMatrix(N)) =
-		Vector.make(that.N).mult(that, this as Vector(that.M), false) as Vector(that.N);
-	public  operator this % (that:TriMatrix(N)) =
-		this.clone().transMult(that) as Vector(that.N);
+	public  operator this % (that:Matrix(M)) = 
+		VectorMult.mult(this, that, Vector.make(that.N), false) as Vector(that.N);
+	public  operator this % (that:DenseMatrix(M)) =
+		VectorMult.mult(this, that, Vector.make(that.N), false) as Vector(that.N);
+	public  operator this % (that:SymMatrix(M)) =
+		VectorMult.mult(this, that, Vector.make(that.N), false) as Vector(that.N);
+	public  operator this % (that:TriMatrix(M)) =
+		VectorMult.mult(this.clone(), that) as Vector(that.N);
 
 	//Left-side operand overload
- 	public  operator (that:Matrix{self.N==this.N}) % this =
- 		Vector.make(that.M).mult(that, this as Vector(that.N), false) as Vector(that.N);
- 	
- 	public  operator (that:DenseMatrix{self.N==this.N}) % this =
- 		Vector.make(that.M).mult(that, this as Vector(that.N), false) as Vector(that.M);
- 	public  operator (that:SymMatrix{self.N==this.N}) % this =
- 		Vector.make(that.M).mult(that, this, false) as Vector(that.M);
- 	public  operator (that:TriMatrix{self.N==this.N}) % this =
- 		this.clone().mult(that) as Vector(that.M);
+ 	public  operator (that:Matrix{self.N==this.M}) % this =
+ 		VectorMult.mult(that, this, Vector.make(that.M), false) as Vector(that.M);
+ 	public  operator (that:DenseMatrix{self.N==this.M}) % this =
+ 		VectorMult.mult(that, this, Vector.make(that.M), false) as Vector(that.M);
+ 	public  operator (that:SymMatrix{self.N==this.M}) % this =
+ 		VectorMult.mult(that, this, Vector.make(that.M), false) as Vector(that.M);
+ 	public  operator (that:TriMatrix{self.N==this.M}) % this =
+ 		VectorMult.mult(that, this.clone()) as Vector(that.M);
  
+ 	//========================================================================
+ 	// Matrix multiflies with part of vector and store result in part of vector
+ 	//========================================================================
+ 	
+ 	
+ 	
+ 	
  	//======================================================
  	/**
- 	 * Inverse of a vector: Nx1
+ 	 * Inverse of a vector: Mx1
  	 */
  	public def inverse():Vector(this) = this.cellDivBy(1.0);
 
  	/**
- 	 * Norm of a vector: Nx1
+ 	 * Norm of a vector: Mx1
  	 */
  	public def norm():Double = 
- 		BLAS.compNorm(this.N, this.d);
+ 		BLAS.compNorm(this.M, this.d);
  	
  	
  	// Euclidean distance
- 	public static def compDistance(a:Vector, b:Vector(a.N)):Double {
+ 	public static def compDistance(a:Vector, b:Vector(a.M)):Double {
  		var d:Double = 0.0;
- 		for (var i:Int=0; i<a.N; i++)
+ 		for (var i:Int=0; i<a.M; i++)
  			d += (a.d(i)-b.d(i)) * (a.d(i)-b.d(i));
  		return Math.sqrt(d);
  	}
  	
- 	public def compDistance(V:Vector(N)):Double =
+ 	public def compDistance(V:Vector(M)):Double =
  		compDistance(this, V);
  	
- 	public static def norm(a:Vector, b:Vector(a.N))=compDistance(a,b);
- 	public def norm(V:Vector(N)) = compDistance(this, V);
+ 	public static def norm(a:Vector, b:Vector(a.M))=compDistance(a,b);
+ 	public def norm(V:Vector(M)) = compDistance(this, V);
  	
  	// Sum
  	public def sum():Double {
  		var s:Double = 0.0;
- 		for (var i:Int=0; i<N; i++) s+= this.d(i);
+ 		for (var i:Int=0; i<M; i++) s+= this.d(i);
  		return s;
  	}
  	
@@ -432,19 +416,19 @@ public class Vector(N:Int) implements (Int) => Double {
  	 * @param A   Triangular matrix
  	 * @return    this object, overwritten by solution vector.
  	 */
- 	public def solveTriMultSelf(A:TriMatrix(N,N)):Vector(this) {
+ 	public def solveTriMultSelf(A:TriMatrix(M,M)):Vector(this) {
  		DenseMatrixBLAS.solveTriMultVec(A, this);
  		return this;
  	}
  	
 	//======================================================
  	public def likeMe(v:Vector):Boolean {
- 		return this.N==v.N;
+ 		return this.M==v.M;
  	}
  	
 	//-------------------------------------------------------------------
-	public  def equals(v:Vector(N)):Boolean {
-		for (var c:Int=0; c< N; c++)
+	public  def equals(v:Vector(M)):Boolean {
+		for (var c:Int=0; c< M; c++)
 			if (MathTool.isZero(this.d(c) - v.d(c)) == false) {
 				Console.OUT.println("Diff found [" + c + "] : "+ 
 									this.d(c) + " <> "+ v.d(c));
@@ -454,8 +438,8 @@ public class Vector(N:Int) implements (Int) => Double {
 	}
 	
 	public  def equals(mat:Matrix) :Boolean {
-		if (mat.M == 1 && mat.N == this.N) {
-			for (var c:Int=0; c<N; c++) {
+		if (mat.M == 1 && mat.N == this.M) {
+			for (var c:Int=0; c<M; c++) {
 				if (MathTool.isZero(this.d(c) - mat(0,c)) == false) {
 					Console.OUT.println("Diff found [" + c + "] : "+ 
 							this.d(c) + " <> "+ mat(0,c));
@@ -465,8 +449,8 @@ public class Vector(N:Int) implements (Int) => Double {
 			return true;
 		}
 		
-		if (mat.N == 1 && mat.M == this.N) {
-			for (var c:Int=0; c<N; c++) {
+		if (mat.N == 1 && mat.M == this.M) {
+			for (var c:Int=0; c<M; c++) {
 				if (MathTool.isZero(this.d(c) - mat(c, 0)) == false) {
 					Console.OUT.println("Diff found [" + c + "] : "+ 
 							this.d(c) + " <> "+ mat(c, 0));
@@ -479,7 +463,7 @@ public class Vector(N:Int) implements (Int) => Double {
 	}
 	
 	public  def equals(v:Double):Boolean {
-		for (var c:Int=0; c< N; c++)
+		for (var c:Int=0; c< M; c++)
 			if (MathTool.isZero(this.d(c) - v) == false) {
 				Console.OUT.println("Diff found [" + c + "] : "+ 
 						this.d(c) + " <> "+ v);
@@ -490,8 +474,8 @@ public class Vector(N:Int) implements (Int) => Double {
 	
 	//======================================================
 	public def toString():String {
-		var output:String="Vector("+this.N+") [ ";
-		for (var i:Int=0; i<N; i++)
+		var output:String="Vector("+this.M+") [ ";
+		for (var i:Int=0; i<M; i++)
 			output += this.d(i).toString()+" ";
 		output += "]\n";
 		return output;
