@@ -159,10 +159,9 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 							spa.initRemoteCopyAtSource();
 						else
 							spa.initRemoteCopyAtDest(datasz);
-						
+				
 						WrapMPI.world.bcast(spa.getIndex(), 0, datasz, rootpid);
 						WrapMPI.world.bcast(spa.getValue(), 0, datasz, rootpid);
-							
 						if (here.id() == rootpid) 
 							spa.finalizeRemoteCopyAtSource();
 						else
@@ -194,7 +193,7 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 				val itr=distBS().iterator();
 				while (itr.hasNext()) {
 					val blk = itr.next();
-					val blkdatsz = blk.getDataSize();
+					val blkdatsz = blk.getDataCount();
 					datcnt += blkdatsz;
 					if (blk.isSparse() && blkdatsz > 0) {
 						val spa = blk.getMatrix() as SparseCSC;

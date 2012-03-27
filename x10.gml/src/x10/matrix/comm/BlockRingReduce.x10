@@ -25,7 +25,7 @@ import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.block.MatrixBlock;
-
+import x10.matrix.distblock.CastPlaceMap;
 
 /**
  * Ring cast sends data from here to a set of blocks, or partial broadcast
@@ -84,7 +84,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			//Romte capture: distBS(), rootbid, colCnt
 			val dmap = distBS().getDistMap();
 			val grid = distBS().getGrid();
-			val plst = dmap.getPlaceListInRing(grid, rootbid, select); 
+			val plst =  CastPlaceMap.buildPlaceList(grid, dmap, rootbid, select); 
 			//Root is the first in the list
 			Debug.assure(plst(0)==rootpid, "RingCast place list must starts with root place id");
 			//Debug.flushln("Ring cast to "+plst.toString());
@@ -140,7 +140,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			rmtbuf =  at (Dist.makeUnique()(remotepid)) {
 				//Remote capture:distBS, tmpBS, colCnt, remotePlcList
 				val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-				val rmtblk = distBS().findLocalRootBlock(rootbid, select);
+				val rmtblk = distBS().findFrontBlock(rootbid, select);
 				async {
 					reduceToHere(distBS, tmpBS, rmtblk, colCnt, select, opFunc, remotePlcList);
 				}
@@ -153,7 +153,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 			}
 		}
 		val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-		val rcvblk = tmpBS().findLocalRootBlock(rootbid, select);
+		val rcvblk = tmpBS().findFrontBlock(rootbid, select);
 		val rcvden = rcvblk.getMatrix() as DenseMatrix;
 		val dstden = rootblk.getMatrix() as DenseMatrix;
 
@@ -174,7 +174,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 		@Ifdef("MPI_COMMU") {
 			val dstpid = here.id();
 			val rcvbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-			val rcvblk = tmpBS().findLocalRootBlock(rcvbid, select);
+			val rcvblk = tmpBS().findFrontBlock(rcvbid, select);
 			val rcvden = rcvblk.getMatrix() as DenseMatrix;
 			
 			finish {
@@ -183,7 +183,7 @@ public class BlockRingReduce extends BlockRemoteCopy {
 				at (Dist.makeUnique()(remotepid)) async {
 					//Remote capture:distBS, tmpBS, colCnt, remotePlcList
 					val rootbid = distBS().getGrid().getBlockId(rootblk.myRowId, rootblk.myColId);
-					val rmtblk = distBS().findLocalRootBlock(rootbid, select);
+					val rmtblk = distBS().findFrontBlock(rootbid, select);
 					
 					reduceToHere(distBS, tmpBS, rmtblk, colCnt, select, opFunc, remotePlcList);
 					

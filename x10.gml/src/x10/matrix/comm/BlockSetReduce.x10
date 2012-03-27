@@ -12,7 +12,6 @@
 package x10.matrix.comm;
 
 import x10.io.Console;
-import x10.util.Timer;
 
 import x10.compiler.Ifdef;
 import x10.compiler.Ifndef;
@@ -137,14 +136,16 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 				reduceToHere(distBS, tmpBS, nearbypid, rootPCnt, opFunc);
 			}
 		}
-		val dstIt = distBS().iterator();
-		val tmpIt = tmpBS().iterator();
+		//val dstIt = distBS().iterator();
+		//val tmpIt = tmpBS().iterator();
 		for (var i:Int=0; i<rmtbuflst.size; i++)  {
+			val dstblk = distBS().blocklist.get(i);
+			val dstden = dstblk.getMatrix() as DenseMatrix;
 			val rcvden = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix;
-			val dstden = distBS().blocklist.get(i).getMatrix() as DenseMatrix;
 			val datcnt = dstden.M*dstden.N;
 			finish Array.asyncCopy[Double](rmtbuflst(i), 0, rcvden.d, 0, datcnt);
 			opFunc(rcvden, dstden);
+			
 		}
 	}
 
@@ -178,13 +179,15 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			finish ateach (val [p]:Point in Dist.makeUnique()) {
 				//Remote capture: rootpid, 
 				for (var i:Int =0; i< distBS().blocklist.size(); i++) {
-					val dst = distBS().blocklist.get(i).getMatrix() as DenseMatrix;
+					val blk = distBS().blocklist.get(i);
+					val dst = blk.getMatrix() as DenseMatrix;
 					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
 					
 					//Copy to src
 					dst.copyTo(src);
 					val dsz = dst.M*dst.N;
-					WrapMPI.world.reduceSum(src.d, dst.d, dsz, rootpid);					
+					
+					WrapMPI.world.reduceSum(src.d, dst.d, dsz, rootpid);
 				}
 			}
 		}
@@ -249,13 +252,15 @@ public class BlockSetReduce extends BlockSetRemoteCopy {
 			finish ateach (val [p]:Point in Dist.makeUnique()) {
 				//Remote capture: rootpid, 
 				for (var i:Int =0; i< distBS().blocklist.size(); i++) {
-					val dst = distBS().blocklist.get(i).getMatrix() as DenseMatrix;
+					val blk = distBS().blocklist.get(i);
+					val dst = blk.getMatrix() as DenseMatrix;
 					val src = tmpBS().blocklist.get(i).getMatrix() as DenseMatrix(dst.M,dst.N);
 					
 					//Copy to src
 					dst.copyTo(src);
 					val dsz = dst.M*dst.N;
-					WrapMPI.world.allReduceSum(src.d, dst.d, dsz);					
+					
+					WrapMPI.world.allReduceSum(src.d, dst.d, dsz);
 				}
 			}
 		}
