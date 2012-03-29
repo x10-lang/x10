@@ -124,5 +124,39 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 			}
 		}
 		return true;
-	}	
+	}
+	
+	/**
+	 * Aggregate all segments in the same place to one segment,
+	 * when computing the number of rows or columns within a place
+	 */
+	public static def compLocalRows(grid:Grid, blkmap:DistMap, pid:Int):Int {
+		var rowtt:Int = 0;
+		
+		for (var rid:Int=0; rid<grid.numRowBlocks; rid++) {
+			val bid = grid.getBlockId(rid, 0);
+			if (blkmap.findPlace(bid) == pid) rowtt += grid.rowBs(rid);
+		}
+		return rowtt;
+	}
+
+	public static def compLocalCols(grid:Grid, blkmap:DistMap, pid:Int):Int {
+		var coltt:Int = 0;
+		for (var cid:Int=0; cid<grid.numColBlocks; cid++) {
+			val bid = grid.getBlockId(0, cid);
+			if (blkmap.findPlace(bid) == pid) coltt += grid.colBs(cid);
+		}
+		return coltt;
+	}
+	
+	public static def getAggRowBs(grid:Grid, distgrid:DistGrid):Array[Int](1){rail}{
+		val rbs = new Array[Int](distgrid.numRowPlaces, (i:Int)=>compLocalRows(grid, distgrid.dmap, i));
+		return rbs;
+	}
+	
+	public static def getAggColBs(grid:Grid, distgrid:DistGrid):Array[Int](1){rail}{
+		val cbs = new Array[Int](distgrid.numColPlaces, (i:Int)=>compLocalCols(grid, distgrid.dmap, i));
+		return cbs;
+	}
+	
 }

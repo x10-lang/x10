@@ -21,10 +21,6 @@ import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockBlockMult;
 
-import x10.matrix.distblock.DistMap;
-import x10.matrix.distblock.BlockSet;
-import x10.matrix.distblock.DistBlockMatrix;
-import x10.matrix.distblock.DupBlockMatrix;
 
 /**
  * Support distributed block matrix multiplies with duplicate block matrix, and
@@ -42,7 +38,7 @@ public class DistDupMult {
 	/**
 	 * 
 	 */
-	public static def mult(
+	public static def comp(
 			A:DistBlockMatrix, 
 			B:DupBlockMatrix(A.N), 
 			C:DistBlockMatrix(A.M,B.N), plus:Boolean) : DistBlockMatrix(C) {
@@ -51,6 +47,11 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		
+		Debug.assure(DistGrid.isVertical(gA, A.getMap()), 
+				"First dist block matrix must has vertical distribution");
+		Debug.assure(DistGrid.isVertical(gC, C.getMap()), 
+				"Output dist block matrix must has vertical distribution");
+
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
 				"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
@@ -71,7 +72,7 @@ public class DistDupMult {
 		return C;
 	}
 	
-	public static def transMult(
+	public static def compTransMult(
 			A:DistBlockMatrix, 
 			B:DupBlockMatrix(A.M), 
 			C:DistBlockMatrix(A.N,B.N), plus:Boolean) : DistBlockMatrix(C) {
@@ -80,10 +81,15 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		
+		Debug.assure(DistGrid.isHorizontal(gA, A.getMap()), 
+				"First dist block matrix must has horizontal distribution");
+		Debug.assure(DistGrid.isHorizontal(gC, C.getMap()), 
+				"Output dist block matrix must has horizontal distribution");
+
 		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
-		"Column partition of first and result matrix mismatch");
+				"Column partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
-		"Column partition of second and result matrix mismatch");
+				"Column partition of second and result matrix mismatch");
 		
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
@@ -101,17 +107,22 @@ public class DistDupMult {
 
 	}
 	
-	public static def multTrans(A:DistBlockMatrix, B:DupBlockMatrix{self.N==A.N},C:DistBlockMatrix(A.M,B.M), 
+	public static def compMultTrans(A:DistBlockMatrix, B:DupBlockMatrix{self.N==A.N},C:DistBlockMatrix(A.M,B.M), 
 			plus:Boolean) : DistBlockMatrix(C) {
 
 		val gA = A.getGrid();
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 
+		Debug.assure(DistGrid.isVertical(gA, A.getMap()), 
+				"First dist block matrix must has vertical distribution");
+		Debug.assure(DistGrid.isVertical(gC, C.getMap()), 
+				"Output dist block matrix must has vertical distribution");
+
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
-		"Row partition of first and result matrix mismatch");
+				"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.rowBs, gC.colBs),
-		"Row partition of second and result matrix mismatch");
+				"Row partition of second and result matrix mismatch");
 		
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
@@ -133,7 +144,7 @@ public class DistDupMult {
 			
 	//================================================
 		
-	public static def mult(
+	public static def comp(
 			A:DupBlockMatrix, 
 			B:DistBlockMatrix(A.N), 
 			C:DistBlockMatrix(A.M,B.N), plus:Boolean) : DistBlockMatrix(C) {
@@ -142,10 +153,15 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		
+		Debug.assure(DistGrid.isHorizontal(gB, B.getMap()), 
+				"Second dist block matrix must has horizontal distribution");
+		Debug.assure(DistGrid.isHorizontal(gC, C.getMap()), 
+				"Output dist block matrix must has horizontal distribution");
+		
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
-		"Row partition of first and result matrix mismatch");
+				"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
-		"Column partition of second and result matrix mismatch");
+				"Column partition of second and result matrix mismatch");
 
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
@@ -162,7 +178,7 @@ public class DistDupMult {
 
 		return C;
 	}
-	public static def transMult(
+	public static def compTransMult(
 			A:DupBlockMatrix, 
 			B:DistBlockMatrix(A.M), 
 			C:DistBlockMatrix(A.N,B.N), plus:Boolean) : DistBlockMatrix(C) {
@@ -170,11 +186,16 @@ public class DistDupMult {
 		val gA = A.getGrid();
 		val gB = B.getGrid();
 		val gC = C.getGrid();
+
+		Debug.assure(DistGrid.isHorizontal(gB, B.getMap()), 
+				"Second dist block matrix must has horizontal distribution");
+		Debug.assure(DistGrid.isHorizontal(gC, C.getMap()), 
+				"Output dist block matrix must has horizontal distribution");
 		
 		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
-		"Column partition of first and result matrix mismatch");
+				"Column partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
-		"Column partition of second and result matrix mismatch");
+				"Column partition of second and result matrix mismatch");
 
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {
@@ -193,7 +214,7 @@ public class DistDupMult {
 
 	}
 	
-	public static def multTrans(
+	public static def compMultTrans(
 			A:DupBlockMatrix, B:DistBlockMatrix{self.N==A.N},C:DistBlockMatrix(A.M,B.M), 
 			plus:Boolean) : DistBlockMatrix(C) {
 
@@ -201,10 +222,15 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 
+		Debug.assure(DistGrid.isVertical(gB, B.getMap()), 
+				"Second dist block matrix must has vertical distribution");
+		Debug.assure(DistGrid.isVertical(gC, C.getMap()), 
+				"Output dist block matrix must has vertical distribution");
+
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
-		"Row partition of first and result matrix mismatch");
+				"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.rowBs, gC.colBs),
-		"Row partition of second and result matrix mismatch");
+				"Row partition of second and result matrix mismatch");
 
 		/* Timing */ val st = Timer.milliTime();
 		finish ateach (Dist.makeUnique()) {

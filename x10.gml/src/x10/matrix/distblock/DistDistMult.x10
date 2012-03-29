@@ -21,11 +21,6 @@ import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.BlockBlockMult;
 
-import x10.matrix.distblock.DistMap;
-import x10.matrix.distblock.BlockSet;
-import x10.matrix.distblock.DistBlockMatrix;
-import x10.matrix.distblock.DupBlockMatrix;
-
 /**
  * Block matrix distributed in (1, n) places multiply block matrix distributed in (n, 1)
  * or (n, 1) trans-multiply (n, 1), or (1, n) multiply-trans (1, n) 
@@ -47,12 +42,17 @@ public class DistDistMult {
 		var st:Long;
 		
 		//Global.assure(A.flagTranspose == true);
+		Debug.assure(DistGrid.isHorizontal(gA, A.getMap()), 
+				"First operand of dist block matrix must have horizon distribution");
+		Debug.assure(DistGrid.isVertical(gB, B.getMap()), 
+				"Second operand of dist block matrix must have veritical distribution");
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
 				"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
 				"Column partition of second and result matrix mismatch");
 		
 		/* Timing */ st = Timer.milliTime();
+		val rootpid = here.id();
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
@@ -61,7 +61,8 @@ public class DistDistMult {
 			bsA.buildBlockMap(); //bsA.printBlockMap();
 			bsB.buildBlockMap();
 			bsC.buildBlockMap(); //bsC.printBlockMap();
-			BlockBlockMult.mult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
+			if (here.id() != rootpid || plus==false) bsC.reset();
+			BlockBlockMult.mult(bsA.blockMap, bsB.blockMap, bsC.blockMap, true);
 			//BlockBlockMult.mult(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
 		/* Timing */ C.calcTime +=  Timer.milliTime() - st;
@@ -69,7 +70,7 @@ public class DistDistMult {
 		return C;
 	}
 	
-	public static def transMult(
+	public static def compTransMult(
 			A:DistBlockMatrix, 
 			B:DistBlockMatrix(A.M), 
 			C:DupBlockMatrix(A.N,B.N), plus:Boolean) : DupBlockMatrix(C) {
@@ -78,12 +79,19 @@ public class DistDistMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		var st:Long;
+
+		Debug.assure(DistGrid.isVertical(gA, A.getMap()), 
+				"First dist block matrix must have veritical distribution");
+		Debug.assure(DistGrid.isVertical(gB, B.getMap()), 
+				"Second dist block matrix must have veritical distribution");
+	
 		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
 			"Column partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.colBs, gC.colBs),
 			"Column partition of second and result matrix mismatch");
 		
 		/* Timing */ st = Timer.milliTime();
+		val rootpid = here.id();
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
@@ -92,7 +100,9 @@ public class DistDistMult {
 			bsA.buildBlockMap();
 			bsB.buildBlockMap();
 			bsC.buildBlockMap();
-			BlockBlockMult.transMult(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
+			
+			if (here.id() != rootpid || plus==false) bsC.reset();
+			BlockBlockMult.transMult(bsA.blockMap, bsB.blockMap, bsC.blockMap, true);
 			//BlockBlockMult.transMult(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
 		/* Timing */ C.calcTime += Timer.milliTime() - st;
@@ -101,7 +111,7 @@ public class DistDistMult {
 
 	}
 	
-	public static def multTrans(
+	public static def compMultTrans(
 			A:DistBlockMatrix, 
 			B:DistBlockMatrix{self.N==A.N},
 			C:DupBlockMatrix(A.M,B.M), plus:Boolean) : DupBlockMatrix(C) {
@@ -111,12 +121,17 @@ public class DistDistMult {
 		val gC = C.getGrid();
 		var st:Long;
 		
+		Debug.assure(DistGrid.isHorizontal(gA, A.getMap()), 
+				"First dist block matrix must have horiontl distribution");
+		Debug.assure(DistGrid.isHorizontal(gB, B.getMap()), 
+				"Second dist block matrix must have horizontal distribution");
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
-		"Row partition of first and result matrix mismatch");
+				"Row partition of first and result matrix mismatch");
 		Debug.assure(Grid.match(gB.rowBs, gC.colBs),
-		"Row partition of second and result matrix mismatch");
+				"Row partition of second and result matrix mismatch");
 		
 		/* Timing */ st= Timer.milliTime();
+		val rootpid = here.id();
 		finish ateach (Dist.makeUnique()) {
 			//
 			val bsA = A.handleBS();
@@ -125,7 +140,8 @@ public class DistDistMult {
 			bsA.buildBlockMap();
 			bsB.buildBlockMap();
 			bsC.buildBlockMap();
-			BlockBlockMult.multTrans(bsA.blockMap, bsB.blockMap, bsC.blockMap, plus);
+			if (here.id() != rootpid || plus==false) bsC.reset();
+			BlockBlockMult.multTrans(bsA.blockMap, bsB.blockMap, bsC.blockMap, true);
 			//BlockBlockMult.multTrans(bsA.blocklist, bsB.blocklist, bsC, plus);
 		}
 		/* Timing */ C.calcTime += Timer.milliTime() - st;

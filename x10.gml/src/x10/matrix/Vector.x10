@@ -129,7 +129,7 @@ public class Vector(M:Int) implements (Int) => Double {
 	public  def clone():Vector(M) {
 		val nv = new Array[Double](M);
 		Array.copy(this.d, 0, nv, 0, M);
-		return new Vector(M, nv);
+		return new Vector(M, nv) as Vector(M);
 	}
 	
 	//======================================================================
@@ -276,54 +276,54 @@ public class Vector(M:Int) implements (Int) => Double {
 	// Using Blas routines: self = op(A)* b, self += op(A) * b,
 	//-------------------------------------------------------------------
 	public def mult(A:Matrix(M), B:Vector(A.N), plus:Boolean): Vector(this) =
-		VectorMult.mult(A, B, this, plus);
+		VectorMult.comp(A, B, this, plus);
  
 	public def transMult(A:Matrix{self.N==this.M}, B:Vector(A.M), plus:Boolean) =
-		VectorMult.mult(B, A, this, plus);
+		VectorMult.comp(B, A, this, plus);
 	
 	//------------------------
 	public def mult(B:Vector, A:Matrix(B.M,this.M), plus:Boolean)      = 
-		VectorMult.mult(B, A, this, plus);
+		VectorMult.comp(B, A, this, plus);
 	public def multTrans(B:Vector, A:Matrix(this.M,B.M), plus:Boolean) = 
-		VectorMult.mult(A, B, this, plus);
+		VectorMult.comp(A, B, this, plus);
 	
 	//-------------------------------------------------------------------
 	// Dense-vector multiply
 	//-------------------------------------------------------------------
 	public def mult(A:DenseMatrix(this.M), B:Vector(A.N), plus:Boolean) = 
-		VectorMult.mult(A, B, this, plus);	
+		VectorMult.comp(A, B, this, plus);	
 	public  def transMult(A:DenseMatrix{self.N==this.M}, B:Vector(A.M), plus:Boolean) = 
-		VectorMult.mult(B, A, this, plus);
+		VectorMult.comp(B, A, this, plus);
 	
 	//-----------------------------
 	public def mult(B:Vector, A:DenseMatrix(B.M,this.M), plus:Boolean)      = 
-		VectorMult.mult(B, A, this, plus);
+		VectorMult.comp(B, A, this, plus);
 	public def multTrans(B:Vector, A:DenseMatrix(this.M,B.M), plus:Boolean) = 
-		VectorMult.mult(A, B, this, plus);
+		VectorMult.comp(A, B, this, plus);
 		
 	//-------------------------------------------------------------------
 	// Symmetric-vector multiply
 	//-------------------------------------------------------------------
 	public  def mult(A:SymMatrix(this.M), B:Vector(A.N), plus:Boolean) =
-		VectorMult.mult(A, B, this, plus);
+		VectorMult.comp(A, B, this, plus);
 	
 	public  def transMult(A:SymMatrix(this.M), B:Vector(A.N), plus:Boolean) =
-		VectorMult.mult(B, A, this, plus);
+		VectorMult.comp(B, A, this, plus);
 	//--------------
 	public def mult(B:Vector, A:SymMatrix(B.M,this.M), plus:Boolean)      = 
-		VectorMult.mult(B, A, this, plus);
+		VectorMult.comp(B, A, this, plus);
 	public def multTrans(B:Vector, A:SymMatrix(this.M,B.M), plus:Boolean) = 
-		VectorMult.mult(A, B, this, plus);
+		VectorMult.comp(A, B, this, plus);
 
 	//-------------------------------------------------------------------
 	// Triangular-vector multiply
 	//-------------------------------------------------------------------
 	// this = A * this
 	public  def mult(A:TriMatrix(this.M)) =
-		VectorMult.mult(A, this);
+		VectorMult.comp(A, this);
 	
 	public  def transMult(A:TriMatrix(this.M)) =
-		VectorMult.mult(this, A);
+		VectorMult.comp(this, A);
 	
 
 	//======================================================
@@ -349,23 +349,23 @@ public class Vector(M:Int) implements (Int) => Double {
 
 	//Righ-side Operand overload
 	public  operator this % (that:Matrix(M)) = 
-		VectorMult.mult(this, that, Vector.make(that.N), false) as Vector(that.N);
+		VectorMult.comp(this, that, Vector.make(that.N), false) as Vector(that.N);
 	public  operator this % (that:DenseMatrix(M)) =
-		VectorMult.mult(this, that, Vector.make(that.N), false) as Vector(that.N);
+		VectorMult.comp(this, that, Vector.make(that.N), false) as Vector(that.N);
 	public  operator this % (that:SymMatrix(M)) =
-		VectorMult.mult(this, that, Vector.make(that.N), false) as Vector(that.N);
+		VectorMult.comp(this, that, Vector.make(that.N), false) as Vector(that.N);
 	public  operator this % (that:TriMatrix(M)) =
-		VectorMult.mult(this.clone(), that) as Vector(that.N);
+		VectorMult.comp(this.clone(), that) as Vector(that.N);
 
 	//Left-side operand overload
  	public  operator (that:Matrix{self.N==this.M}) % this =
- 		VectorMult.mult(that, this, Vector.make(that.M), false) as Vector(that.M);
+ 		VectorMult.comp(that, this, Vector.make(that.M), false) as Vector(that.M);
  	public  operator (that:DenseMatrix{self.N==this.M}) % this =
- 		VectorMult.mult(that, this, Vector.make(that.M), false) as Vector(that.M);
+ 		VectorMult.comp(that, this, Vector.make(that.M), false) as Vector(that.M);
  	public  operator (that:SymMatrix{self.N==this.M}) % this =
- 		VectorMult.mult(that, this, Vector.make(that.M), false) as Vector(that.M);
+ 		VectorMult.comp(that, this, Vector.make(that.M), false) as Vector(that.M);
  	public  operator (that:TriMatrix{self.N==this.M}) % this =
- 		VectorMult.mult(that, this.clone()) as Vector(that.M);
+ 		VectorMult.comp(that, this.clone()) as Vector(that.M);
  
  	//========================================================================
  	// Matrix multiflies with part of vector and store result in part of vector
@@ -427,6 +427,16 @@ public class Vector(M:Int) implements (Int) => Double {
  	}
  	
 	//-------------------------------------------------------------------
+ 	public  def equals(dval:Double):Boolean {
+ 		for (var c:Int=0; c< M; c++)
+ 			if (MathTool.isZero(this.d(c) - dval) == false) {
+ 				Console.OUT.println("Diff found [" + c + "] : "+ 
+ 						this.d(c) + " <> "+ dval);
+ 				return false;
+ 			}
+ 		return true;
+ 	}
+ 	
 	public  def equals(v:Vector(M)):Boolean {
 		for (var c:Int=0; c< M; c++)
 			if (MathTool.isZero(this.d(c) - v.d(c)) == false) {
@@ -460,16 +470,6 @@ public class Vector(M:Int) implements (Int) => Double {
 			return true;
 		}
 		return false;		
-	}
-	
-	public  def equals(v:Double):Boolean {
-		for (var c:Int=0; c< M; c++)
-			if (MathTool.isZero(this.d(c) - v) == false) {
-				Console.OUT.println("Diff found [" + c + "] : "+ 
-						this.d(c) + " <> "+ v);
-				return false;
-			}
-		return true;
 	}
 	
 	//======================================================

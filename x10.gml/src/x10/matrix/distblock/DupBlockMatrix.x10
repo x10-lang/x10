@@ -43,13 +43,13 @@ public class DupBlockMatrix extends Matrix {
 	public val local:PlaceLocalHandle[BlockMatrix(M,N)]; //Repackage blocks in BlockSet to BlockMatrix 
 	//===================================================================================
 	public val tmpDB:PlaceLocalHandle[BlockSet];
-	private var tmpReady:Boolean;
+	private transient var tmpReady:Boolean;
 	//===================================================================================
 	/*
 	 * Time profiling
 	 */
-	var commTime:Long = 0;
-	var calcTime:Long = 0;
+	transient var commTime:Long = 0;
+	transient var calcTime:Long = 0;
 	
 	//===================================================================================
 	/**
@@ -614,14 +614,14 @@ public class DupBlockMatrix extends Matrix {
 		DistDistMult.mult(A, B, this, plus);
 
 	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N),plus:Boolean):DupBlockMatrix(this) =
-		DistDistMult.transMult(A, B, this, plus);
+		DistDistMult.compTransMult(A, B, this, plus);
 	
 	public def multTrans(A:DistBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N),plus:Boolean):DupBlockMatrix(this) =
-		DistDistMult.multTrans(A, B, this, plus);
+		DistDistMult.compMultTrans(A, B, this, plus);
 	//------------------
 	public def mult(A:DistBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N))              = DistDistMult.mult(A, B, this, false);
-	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N)) = DistDistMult.transMult(A, B, this, false);
-	public def multTrans(A:DistBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N))        = DistDistMult.multTrans(A, B, this, false);
+	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N)) = DistDistMult.compTransMult(A, B, this, false);
+	public def multTrans(A:DistBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N))        = DistDistMult.compMultTrans(A, B, this, false);
 	//===========================================================
 	/**
 	 * Operator % performs duplicated dense matrix multiplication

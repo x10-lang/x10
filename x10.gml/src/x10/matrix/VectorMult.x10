@@ -27,15 +27,15 @@ public class VectorMult {
 	/**
 	 * Matrix-vector multiply, C = A * B, where A is matrix, B and C are vectors.
 	 */
-	public static def mult(A:Matrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean): Vector(C) {
+	public static def comp(A:Matrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean): Vector(C) {
 		if (A instanceof DenseMatrix) 
-			mult(A as DenseMatrix, B, C, plus);
+			comp(A as DenseMatrix, B, C, plus);
 		else if (A instanceof SparseCSC) 
-			mult(A as SparseCSC, B, C, plus);
+			comp(A as SparseCSC, B, C, plus);
 		else if (A instanceof SymMatrix) 
-			mult(A as SymMatrix, B, C, plus);
+			comp(A as SymMatrix, B, C, plus);
 		else if (A instanceof TriMatrix)
-			mult(A as TriMatrix, B, C, plus);
+			comp(A as TriMatrix, B, C, plus);
 		//else if (A instanceof Diagonal)
 		//	this.mult(A as Diagonal, B, plus);
 		else
@@ -47,34 +47,57 @@ public class VectorMult {
 	/**
 	 * Matrix-vector multiply, C = B * A, where A is matrix, B and C are vectors.
 	 */
-	public static def mult(B:Vector, A:Matrix(B.M), C:Vector(A.N), plus:Boolean): Vector(C) {
+	public static def comp(B:Vector, A:Matrix(B.M), C:Vector(A.N), plus:Boolean): Vector(C) {
 		if (A instanceof DenseMatrix) 
-			mult(B, A as DenseMatrix, C, plus);
+			comp(B, A as DenseMatrix, C, plus);
 		else if (A instanceof SparseCSC) 
-			mult(B, A as SparseCSC, C, plus);
+			comp(B, A as SparseCSC, C, plus);
 		else if (A instanceof SymMatrix) 
-			mult(B, A as SymMatrix, C, plus);
+			comp(B, A as SymMatrix, C, plus);
 		else if (A instanceof TriMatrix)
-			mult(B, A as TriMatrix, C, plus);
+			comp(B, A as TriMatrix, C, plus);
 		else
 			throw new UnsupportedOperationException("Operation not supported in vector multiply: " +
 					B.typeName() + " * " + A.typeName()+" = "+C.typeName() );
 		return C;
 	}
 	
+	//----------------------	
+	public static def comp(A:Matrix, B:Vector, offB:Int, C:Vector, offC:Int, plus:Boolean): Vector(C) {
+		if (A instanceof DenseMatrix) 
+			comp(A as DenseMatrix, B, offB, C, offC, plus);
+		else if (A instanceof SparseCSC) 
+			comp(A as SparseCSC, B, offB, C, offC, plus);
+		else
+			throw new UnsupportedOperationException("Operation not supported in vector multiply: " +
+					A.typeName() + " * " + B.typeName()+" = "+C.typeName() );
+		return C;
+	}
+	
+	public static def comp(B:Vector, offB:Int, A:Matrix, C:Vector, offC:Int, plus:Boolean): Vector(C) {
+		if (A instanceof DenseMatrix) 
+			comp(B, offB, A as DenseMatrix, C, offC, plus);
+		else if (A instanceof SparseCSC) 
+			comp(B, offB, A as SparseCSC, C, offC, plus);
+		else 
+			throw new UnsupportedOperationException("Operation not supported in vector multiply: " +
+					B.typeName() + " * " + A.typeName()+" = "+C.typeName() );
+		return C;
+	}
+
 	//=================================================================================
 	// X10 driver for Dense multiplies vector
 	//=================================================================================
 	public static def x10Mult(A:DenseMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean) =
-		mult(A, B, 0, C, 0, plus);
+		comp(A, B, 0, C, 0, plus);
 	
-	public static def mult(A:SparseCSC, B:Vector(A.N), C:Vector(A.M), plus:Boolean)=
-		mult(A, B, 0, C, 0, plus);
+	public static def comp(A:SparseCSC, B:Vector(A.N), C:Vector(A.M), plus:Boolean)=
+		comp(A, B, 0, C, 0, plus);
 	
 	/**
 	 * Multiply matrix with a segment of vector and store result in a segment of output vector
 	 */
-	public static def mult(A:SparseCSC, B:Vector, var offsetB:Int, C:Vector(A.M), offsetC:Int, plus:Boolean):Vector(C) {
+	public static def comp(A:SparseCSC, B:Vector, var offsetB:Int, C:Vector, offsetC:Int, plus:Boolean):Vector(C) {
 		
 		Debug.assure(offsetB+A.N<=B.M, "Input vector overflow");
 		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow");
@@ -97,9 +120,9 @@ public class VectorMult {
 	/**
 	 * Multiply matrix with a segment of vector and store result in a segment of output vector
 	 */
-	public static def mult(A:DenseMatrix, B:Vector, var offsetB:Int, C:Vector(A.M), offsetC:Int, plus:Boolean):Vector(C) {
+	public static def comp(A:DenseMatrix, B:Vector, var offsetB:Int, C:Vector, offsetC:Int, plus:Boolean):Vector(C) {
 		
-		Debug.assure(offsetB+A.N<=B.M, "Input vector overflow");
+		Debug.assure(offsetB+A.N<=B.M, "Second input vector overflow, offset:"+offsetB+" A.N:"+A.N+" B.M:"+B.M);
 		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow");
 		if (!plus) {
 			for (var i:Int=offsetC; i< offsetC+A.M; i++) C.d(i) =0;
@@ -117,12 +140,12 @@ public class VectorMult {
 
 	//==========================================================
 	public static def x10Mult(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean) =
-		mult(B, 0, A, C, 0, plus);
+		comp(B, 0, A, C, 0, plus);
 	
-	public static def mult(B:Vector, A:SparseCSC(B.M), C:Vector(A.N), plus:Boolean)=
-		mult(B, 0, A, C, 0, plus);
+	public static def comp(B:Vector, A:SparseCSC(B.M), C:Vector(A.N), plus:Boolean)=
+		comp(B, 0, A, C, 0, plus);
 
-	public static def mult(B:Vector, var offsetB:Int, A:DenseMatrix, C:Vector, var offsetC:Int, plus:Boolean):Vector(C) {
+	public static def comp(B:Vector, var offsetB:Int, A:DenseMatrix, C:Vector, var offsetC:Int, plus:Boolean):Vector(C) {
 		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow");
 		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow");
 		if (!plus) {
@@ -135,12 +158,12 @@ public class VectorMult {
 			for (var r:Int=0; r<A.M; r++, idxB++, idxA++) {
 				v += B.d(idxB) * A.d(idxA);
 			}
-			C.d(offsetC) = v;
+			C.d(offsetC) += v;
 		}
 		return C;
 	}
 
-	public static def mult(B:Vector, var offsetB:Int, A:SparseCSC, C:Vector, var offsetC:Int, plus:Boolean):Vector(C) {
+	public static def comp(B:Vector, var offsetB:Int, A:SparseCSC, C:Vector, var offsetC:Int, plus:Boolean):Vector(C) {
 		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow");
 		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow");
 		if (!plus) {
@@ -154,7 +177,7 @@ public class VectorMult {
 				val v2= colA.getValue(idxA);
 				v += B.d(offsetB+r) * v2;
 			}
-			C.d(offsetC) = v;
+			C.d(offsetC) += v;
 		}
 		return C;
 	}
@@ -167,7 +190,7 @@ public class VectorMult {
 	/**
 	 * Using BLAS routine: C = A * B or C = A * B + C
 	 */
-	public static def mult(A:DenseMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
+	public static def comp(A:DenseMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
 		DenseMatrixBLAS.comp(A, B, C, plus);
 		return C;
 	}
@@ -175,13 +198,13 @@ public class VectorMult {
 	/**
 	 * Using BLAS routine: C = B * A or C = B * A + C
 	 */
-	public static def mult(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) {
+	public static def comp(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) {
 		DenseMatrixBLAS.compTransMult(A, B, C, plus);
 		return C;
 	}
 
 	//-------------
-	public static def mult(A:SymMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
+	public static def comp(A:SymMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
 		val beta = plus?1.0:0.0;
 		BLAS.compSymMultVec(A.d, B.d, C.d, 
 				[A.M, A.N],
@@ -189,16 +212,16 @@ public class VectorMult {
 		return C;
 	}
 	
-	public static def mult(B:Vector, A:SymMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) =
-		mult(A, B as Vector(A.N), C, plus);
+	public static def comp(B:Vector, A:SymMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) =
+		comp(A, B as Vector(A.N), C, plus);
 
 	//-------------
-	public static def mult(A:TriMatrix, C:Vector(A.M)):Vector(C) {
+	public static def comp(A:TriMatrix, C:Vector(A.M)):Vector(C) {
 		BLAS.compTriMultVec(A.d, C.d, C.M, 0); 
 		return C;
 	}
 	
-	public static def mult(C:Vector, A:TriMatrix(C.M)):Vector(C) {
+	public static def comp(C:Vector, A:TriMatrix(C.M)):Vector(C) {
 		BLAS.compTriMultVec(A.d, C.d, C.M, 1); 
 		return C;
 	}

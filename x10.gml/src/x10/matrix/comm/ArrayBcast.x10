@@ -36,13 +36,6 @@ import x10.matrix.sparse.CompressArray;
 public class ArrayBcast extends ArrayRemoteCopy {
 
 	
-	//====================================
-	// Constructor
-	//====================================
-	public def this() {
-		super();
-	}
-
 	//=================================================
 	//=================================================
 	// Broadcast array data in place local handle
@@ -146,6 +139,16 @@ public class ArrayBcast extends ArrayRemoteCopy {
 			if (lfcnt > 1) async {
 				binaryTreeCast(dmlist, dataCnt, lfcnt); 
 			}
+		}
+	}
+	//=================================================
+	/**
+	 * Bcast a segment of data to specified list of places
+	 */
+	public static def bcast(duplist:DataArrayPLH, offset:Int, datCnt:Int, plcList:Array[Int](1){rail}) {
+		for (var i:Int=0; i<plcList.size; i++) {
+			val pid = plcList(i);
+			copy(duplist(), offset, duplist, pid, offset, datCnt);
 		}
 	}
 

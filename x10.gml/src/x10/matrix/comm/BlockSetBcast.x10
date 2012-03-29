@@ -116,7 +116,7 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 					WrapMPI.world.bcast(den.d, 0, datasz, rootpid);
 				}
 			}
-			datcnt = distBS().getAllBlocksDataSize();
+			datcnt = distBS().getAllBlocksDataCount();
 		}
 		return datcnt;
 	}
@@ -128,7 +128,7 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 	protected static def mpiBcastSparse(distBS:BlocksPLH, rootpid:Int):Int {
 		var datcnt:Int = 0;
 
-		@Ifdef("MPI_COMMU") {
+		@Ifdef("MPI_COMMU")	{
 			if (rootpid != here.id()) {
 				at (Dist.makeUnique()(rootpid)) {
 					mpiBcastSparse(distBS, rootpid);
@@ -139,7 +139,7 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 				val szlist = new Array[Int](distBS().blocklist.size());
 				while (blkitr.hasNext()) {
 					val blk = blkitr.next();
-					szlist(i) = blk.getDataSize();
+					szlist(i) = blk.getDataCount();
 					datcnt += szlist(i);
 					i++;
 				}

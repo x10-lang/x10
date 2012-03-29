@@ -55,8 +55,8 @@ public class DistBlockMatrix extends Matrix{
 	/**
 	 * Time profiling
 	 */
-	var commTime:Long =0 ;
-	var calcTime:Long =0;
+	transient var commTime:Long =0;
+	transient var calcTime:Long =0;
 	
 	//==============================================
 	
@@ -662,44 +662,44 @@ public class DistBlockMatrix extends Matrix{
 	//=============================================	
 	
 	public def mult(A:DistBlockMatrix(this.M),B:DupBlockMatrix(A.N,this.N), plus:Boolean):DistBlockMatrix(this) =
-		DistDupMult.mult(A, B, this, plus);
+		DistDupMult.comp(A, B, this, plus);
 
 	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DupBlockMatrix(A.M,this.N),plus:Boolean):DistBlockMatrix(this) =
-		DistDupMult.transMult(A, B, this, plus);
+		DistDupMult.compTransMult(A, B, this, plus);
 	
 	public def multTrans(A:DistBlockMatrix(this.M),B:DupBlockMatrix(this.N, A.N),plus:Boolean):DistBlockMatrix(this) =
-		DistDupMult.multTrans(A, B, this, plus);
+		DistDupMult.compMultTrans(A, B, this, plus);
 
 	//---- simplified version, no self plus
 	public def mult(A:DistBlockMatrix(this.M),B:DupBlockMatrix(A.N,this.N)):DistBlockMatrix(this) =
-		DistDupMult.mult(A, B, this, false);
+		DistDupMult.comp(A, B, this, false);
 
 	public def transMult(A:DistBlockMatrix{self.N==this.M},B:DupBlockMatrix(A.M,this.N)):DistBlockMatrix(this) =
-		DistDupMult.transMult(A, B, this, false);
+		DistDupMult.compTransMult(A, B, this, false);
 	
 	public def multTrans(A:DistBlockMatrix(this.M),B:DupBlockMatrix(this.N, A.N)):DistBlockMatrix(this) =
-		DistDupMult.multTrans(A, B, this, false);
+		DistDupMult.compMultTrans(A, B, this, false);
 
 	
 	//-----------------------------
 	public def mult(A:DupBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N), plus:Boolean):DistBlockMatrix(this) =
-		DistDupMult.mult(A, B, this, plus);
+		DistDupMult.comp(A, B, this, plus);
 
 	public def transMult(A:DupBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N),plus:Boolean):DistBlockMatrix(this) =
-		DistDupMult.transMult(A, B, this, plus);
+		DistDupMult.compTransMult(A, B, this, plus);
 	
 	public def multTrans(A:DupBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N),plus:Boolean):DistBlockMatrix(this) =
-		DistDupMult.multTrans(A, B, this, plus);
+		DistDupMult.compMultTrans(A, B, this, plus);
 	
 	//---
 	public def mult(A:DupBlockMatrix(this.M),B:DistBlockMatrix(A.N,this.N)):DistBlockMatrix(this) =
-		DistDupMult.mult(A, B, this, false);
+		DistDupMult.comp(A, B, this, false);
 
 	public def transMult(A:DupBlockMatrix{self.N==this.M},B:DistBlockMatrix(A.M,this.N)):DistBlockMatrix(this) =
-		DistDupMult.transMult(A, B, this, false);
+		DistDupMult.compTransMult(A, B, this, false);
 	
 	public def multTrans(A:DupBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N)):DistBlockMatrix(this) =
-		DistDupMult.multTrans(A, B, this, false);
+		DistDupMult.compMultTrans(A, B, this, false);
 	
 	//=============================================
 	public def mult(A:Matrix(this.M),B:Matrix(A.N,this.N), plus:Boolean):Matrix(this) {

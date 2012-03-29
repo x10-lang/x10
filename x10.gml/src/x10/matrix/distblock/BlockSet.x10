@@ -1,4 +1,4 @@
-/*ls
+/*
  * 
  *  This file is part of the X10 project (http://x10-lang.org).
  *
@@ -7,7 +7,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix.distblock;
@@ -38,16 +38,15 @@ public class BlockSet  {
 	protected val grid:Grid;
 	protected val dmap:DistMap;
 	//---------------
-	 
-	/**
-	 * This is available for fast access after is built.
-	 */
-	protected var blockMap:Array[MatrixBlock](2);
-	
 	//-----------------------------------------
 	
 	public val blocklist:ArrayList[MatrixBlock];
 	
+	/**
+	 * This is available for fast access.
+	 */
+	protected var blockMap:Array[MatrixBlock](2);
+		
 	//-----------------------------------------
 	public var rowCastPlaceMap:CastPlaceMap;
 	public var colCastPlaceMap:CastPlaceMap; 
