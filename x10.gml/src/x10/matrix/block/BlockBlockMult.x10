@@ -101,6 +101,7 @@ public class BlockBlockMult  {
 			plus:Boolean):BlockMatrix(C) {
 		
 		val grid = C.grid;
+		if (!plus) C.reset();
 		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
 			val blist = findColBlockList(B, cb);
 
@@ -111,7 +112,6 @@ public class BlockBlockMult  {
 				Debug.assure(alist.size()==blist.size(), 
 						"Partition mismatch! Number of partition not same.");
 				val cblk = C.findBlock(rb, cb);
-				if (!plus) cblk.reset();
 
 				while (ait.hasNext()) {
 					val ablk = ait.next();
@@ -133,6 +133,7 @@ public class BlockBlockMult  {
 			plus:Boolean):BlockMatrix(C) {
 		
 		val grid = C.grid;
+		if (!plus) C.reset();
 		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
 			val blist = findColBlockList(B, cb);
 			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
@@ -142,7 +143,6 @@ public class BlockBlockMult  {
 				Debug.assure(alist.size()==blist.size(), 
 						"Partition mismatch! Numbers of partition blocks not same");
 				val cblk = C.findBlock(rb, cb);
-				if (!plus) cblk.reset();
 
 				while (ait.hasNext()) {
 					val ablk = ait.next();
@@ -163,6 +163,7 @@ public class BlockBlockMult  {
 			plus:Boolean):BlockMatrix(C) {
 		
 		val grid = C.grid;
+		if (!plus) C.reset();
 		for (var cb:Int=0; cb < grid.numColBlocks; cb++) {
 			val blist = findRowBlockList(B, cb);
 			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
@@ -173,7 +174,7 @@ public class BlockBlockMult  {
 						"Partition mismatch! Number of partitions not same");
 
 				val cblk = C.findBlock(rb, cb);
-				if (!plus) cblk.reset();
+				//if (!plus) cblk.reset();
 
 				while (ait.hasNext()) {
 					val ablk = ait.next();

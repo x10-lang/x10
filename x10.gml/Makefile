@@ -140,6 +140,10 @@ dist_src=\
 	x10/matrix/distblock/DistDistMult.x10 \
 	x10/matrix/distblock/CastPlaceMap.x10 \
 	x10/matrix/distblock/DistDupMult.x10 \
+	x10/matrix/distblock/DistVector.x10 \
+	x10/matrix/distblock/DupVector.x10 \
+	x10/matrix/distblock/BlockVectorMult.x10 \
+	x10/matrix/distblock/DistDupVectorMult.x10 \
 	x10/matrix/distblock/summa/SummaMult.x10 \
 	x10/matrix/distblock/summa/AllGridCast.x10 \
 	x10/matrix/distblock/summa/BlockGridCast.x10 \

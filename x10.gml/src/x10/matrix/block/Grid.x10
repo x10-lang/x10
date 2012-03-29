@@ -10,6 +10,7 @@
  */
 package x10.matrix.block;
 
+import x10.compiler.Inline;
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
 
@@ -218,6 +219,7 @@ public class Grid(M:Int, N:Int,numRowBlocks:Int, numColBlocks:Int) {
 
 		Debug.assure(bs>0, "Partition has 0 size");
 		for (var i:Int=0; i< b; i++) {
+			//bdim(i) = compBlockSize(n, b, i);
 		    bdim(i) = bs;
 			if (k>0) {
 				bdim(i)++; 
@@ -227,6 +229,12 @@ public class Grid(M:Int, N:Int,numRowBlocks:Int, numColBlocks:Int) {
 		return bdim;
 	}
 
+	@Inline
+	public static def compBlockSize(nTotal:Int, blkNum:Int, blkId:Int):Int {
+		var sz:Int = (blkId < nTotal % blkNum)?1:0;
+		sz += nTotal / blkNum;
+		return sz;
+	}
 	//--------------------------------------
 	// Mapping 1D->2D
 	//--------------------------------------
@@ -367,13 +375,15 @@ public class Grid(M:Int, N:Int,numRowBlocks:Int, numColBlocks:Int) {
    	/**
    	 * Compute the starting column for a given column block id;
    	 */
-   	public def startColumn(cid:Int):Int {
+   	public def startCol(cid:Int):Int {
    		var sttcol:Int=0;
    		for (var i:Int=0; i<cid; i++)
    			sttcol += colBs(i);
    		return sttcol;
    	}  	
    	
+   	public def startColumn(cid:Int) = startCol(cid);
+
 	//-----------------------------------------------------
 	/**
 	 * Return a grid partition for the transposed matrix.

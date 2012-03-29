@@ -17,6 +17,7 @@ import x10.util.Timer;
 
 import x10.matrix.Matrix;
 import x10.matrix.Debug;
+import x10.matrix.MathTool;
 
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
@@ -346,7 +347,11 @@ public class DistVector(M:Int) {
 	}
 	public def equals(that:Vector(this.M)):Boolean {
 		var ret:Boolean = true;
-		for (var i:Int=0; i<M&&ret; i++) ret &= this(i)==that(i);
+		var i:Int=0;
+		for (; i<M&&ret; i++) ret &= MathTool.isZero(this(i)-that(i));
+		if (!ret) {
+			Debug.flushln("Diff found at index:"+i+" value: "+this(i)+" <> "+that(i));
+		}
 		return ret;
 	}
 	
@@ -365,7 +370,7 @@ public class DistVector(M:Int) {
 	
 	//==================================================================================
 	public def toString() :String {
-		var output:String = "---Distributed Vector:["+M+"], local copy---\n[ ";
+		var output:String = "---Distributed Vector:["+M+"], ---\n[ ";
 		for (var i:Int=0; i<M-1; i++) output += this(i).toString()+",";
 		
 		output += this(M-1).toString()+" ]\n--------------------------------------------------\n";
