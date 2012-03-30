@@ -12,20 +12,17 @@
 package x10.ast;
 
 import polyglot.ast.AbstractDelFactory_c;
-import polyglot.ast.Conditional;
 import polyglot.ast.JL;
 import polyglot.ast.Node;
-import polyglot.types.SemanticException;
-import polyglot.types.Type;
-import polyglot.types.Types;
 import polyglot.util.CodeWriter;
+import polyglot.util.OptimalCodeWriter;
 import polyglot.visit.Translator;
-import polyglot.visit.TypeChecker;
+import x10.X10CompilerOptions;
 import x10.extension.X10Del_c;
 import x10.extension.X10Ext;
-import polyglot.types.TypeSystem;
 import x10.visit.X10DelegatingVisitor;
 import x10.visit.X10PrettyPrinterVisitor;
+import x10c.visit.DebugCodeWriter;
 
 /**
  * @author Christian Grothoff
@@ -50,6 +47,9 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 				if (ext != null && ext.comment() != null)
 					w.writeln(ext.comment());
 			}
+			if (((X10CompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG_CODEGEN
+			        && w.getClass() != DebugCodeWriter.class)
+			    w = new DebugCodeWriter(w, tr.job());
 			makeCodeGenerator(w, tr).visitAppropriate(jl());
 		}
 	};

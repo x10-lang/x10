@@ -119,6 +119,10 @@ public final class Configuration extends x10.config.Configuration {
     public boolean COPY_PROPAGATION = false;
     private static final String COPY_PROPAGATION_desc = "Enable copy propagation pass after optimizer. Use together with -O -EXPERIMENTAL -ELIMINATE_DEAD_VARIABLES";
 
+    public boolean DEBUG_CODEGEN = false;
+    private static final String DEBUG_CODEGEN_desc = "Enable HTML version of the generated source code for codegen debugging";
+
+
 //    public final boolean MULTI_NODE = true;
 //    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
 

@@ -14,6 +14,7 @@ import polyglot.ast.Node;
 import polyglot.types.Type;
 import polyglot.util.CodeWriter;
 import polyglot.visit.Translator;
+import x10.X10CompilerOptions;
 import x10.visit.X10PrettyPrinterVisitor;
 
 public class CastExpander extends Expander {
@@ -24,13 +25,28 @@ public class CastExpander extends Expander {
 	private final Node node;
 	private boolean boxConversion;     // flag requesting explicit boxing conversion
 	private boolean unboxConversion;   // flag requesting explicit unboxing conversion
+	private String location;
+	private boolean debug = false;
 
+	private void setLocation(Emitter er) {
+	    debug = ((X10CompilerOptions)er.tr.job().extensionInfo().getOptions()).x10_config.DEBUG_CODEGEN;
+	    if (!debug) return;
+	    StackTraceElement[] stackTrace = new Exception().getStackTrace();
+        StringBuffer sb = new StringBuffer();
+        for (int i = Math.min(3, stackTrace.length); i >= 3; i--) {
+            sb.append(" ");
+            sb.append(stackTrace[i].toString());
+        }
+        location = sb.toString();
+	}
+	
 	public CastExpander(CodeWriter w, Emitter er, TypeExpander typeExpander, Expander child) {
 		super(er);
 		this.w = w;
 		this.typeExpander = typeExpander;
 		this.child = child;
 		this.node = null;
+		setLocation(er);
 	}
 
 	public CastExpander(CodeWriter w, Emitter er, Node node) {
@@ -39,6 +55,7 @@ public class CastExpander extends Expander {
 		this.typeExpander = null;
 		this.child = null;
 		this.node = node;
+		setLocation(er);
 	}
 	
 	private CastExpander setBoxConversion(boolean b) {
@@ -110,7 +127,10 @@ public class CastExpander extends Expander {
 		} else {
 		    Type type = typeExpander.type();
 		    if (type.isAny() || type.isParameterType() || boxConversion) {
-		        w.write("(");
+                if (debug) 
+                    w.write("/*location:" + location + "*/(");
+                else
+                    w.write("(");
 		        er.printBoxConversion(type);
 		        w.write("(");         // required by printBoxConversion
 		        expandChild(tr);
@@ -122,7 +142,10 @@ public class CastExpander extends Expander {
 		        if (closeParen) w.write(")");
 		        w.write(")");
 		    } else {
-		        w.write("((");
+                if (debug)
+                    w.write("/*location:" + location + "*/((");
+                else
+                    w.write("((");
 		        typeExpander.expand(tr);
 		        w.write(")(");
     			expandChild(tr);
