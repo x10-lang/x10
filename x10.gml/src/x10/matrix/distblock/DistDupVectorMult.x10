@@ -45,11 +45,13 @@ public class DistDupVectorMult  {
 			val pid = p;
 			val offsetB = offb;
 			async at (Dist.makeUnique()(pid)) {
+				//Debug.flushln("stating offset of B at for place "+here.id()+" is "+offsetB);
 				if (here.id() != rootpid || plus == false) vC.local().reset();
 				BlockVectorMult.comp(mA.handleBS(), vB.distV(), offsetB, vC.local(), 0, true);
 			}
 		}
 		vC.calcTime += Timer.milliTime() - stt;
+		//vC.printAllCopies();
 		vC.reduceSum();
 		return vC;
 	}
@@ -62,6 +64,7 @@ public class DistDupVectorMult  {
 		finish for (var p:Int=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
 			val pid = p;
 			val offsetC = offc;
+			//Debug.flushln("stating offset of C at for place "+here.id()+" is "+offsetC);
 			async at (Dist.makeUnique()(pid)) {
 				BlockVectorMult.comp(mA.handleBS(), vB.local(), 0, vC.distV(), offsetC, plus);
 			}

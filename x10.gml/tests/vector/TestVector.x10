@@ -31,15 +31,15 @@ public class TestVector{
 
 class VectorTest {
 
-	public val N:Int;
+	public val M:Int;
 
-	public def this(n:Int) {
-		N = n;
+	public def this(m:Int) {
+		M = m;
 	}
 
     public def run (): void {
 		Console.OUT.println("Starting vector clone/add/sub/scaling tests on "+
-							N+ "-vectors");
+							M + "-vectors");
 		var ret:Boolean = true;
  		// Set the matrix function
 		ret &= (testClone());
@@ -62,7 +62,7 @@ class VectorTest {
 	public def testClone():Boolean{
 
 		Console.OUT.println("Starting vector clone test");
-		val dm = Vector.make(N);
+		val dm = Vector.make(M);
 		dm.initRandom(); // same as  val dm = Vector.make(N).initRandom(); 
 		
 		val dm1 = dm.clone();
@@ -88,10 +88,10 @@ class VectorTest {
 
 	public def testScale():Boolean{
 		Console.OUT.println("Starting vector scaling test");
-		val dm = Vector.make(N).initRandom();
+		val dm = Vector.make(M).initRandom();
 		val dm1  = dm * 2.5;
 		dm1.scale(1.0/2.5);
-		val ret = dm.equals(dm1 as Vector(dm.N));
+		val ret = dm.equals(dm1 as Vector(dm.M));
 		if (ret)
 			Console.OUT.println("Vector scaling test passed!");
 		else
@@ -101,8 +101,8 @@ class VectorTest {
 
 	public def testAdd():Boolean {
 		Console.OUT.println("Starting vector addition test");
-		val dm = Vector.make(N).initRandom();
-		val dm1:Vector(N) = -1 * dm;
+		val dm = Vector.make(M).initRandom();
+		val dm1:Vector(M) = -1 * dm;
 		val dm0 = dm + dm1;
 		val ret = dm0.equals(0.0);
 		if (ret)
@@ -114,8 +114,8 @@ class VectorTest {
 
 	public def testAddSub():Boolean {
 		Console.OUT.println("Starting Vectoradd-sub test");
-		val dm = Vector.make(N).initRandom();
-		val dm1= Vector.make(N).initRandom();
+		val dm = Vector.make(M).initRandom();
+		val dm1= Vector.make(M).initRandom();
 		//sp.print("Input:");
 		val dm2= dm  + dm1;
 		//sp2.print("Add result:");
@@ -133,9 +133,9 @@ class VectorTest {
 	public def testAddAssociative():Boolean {
 		Console.OUT.println("Starting Vector associative test");
 
-		val a = Vector.make(N).init(1.0);
-		val b = Vector.make(N).initRandom(1, 10);
-		val c = Vector.make(N).initRandom(10, 100);
+		val a = Vector.make(M).init(1.0);
+		val b = Vector.make(M).initRandom(1, 10);
+		val c = Vector.make(M).initRandom(10, 100);
 		val c1 = a + b + c;
 		val c2 = a + (b + c);
 		val ret = c1.equals(c2);
@@ -149,12 +149,12 @@ class VectorTest {
 	public def testScaleAdd():Boolean {
 		Console.OUT.println("Starting vector scaling-add test");
 
-		val a:Vector(N) = Vector.make(N).initRandom();
-		val b:Vector(N) = Vector.make(N).initRandom();
-		val a1:Vector(a.N)= a * 0.2;
-		val a2:Vector(a.N)= a * 0.8;
+		val a:Vector(M) = Vector.make(M).initRandom();
+		val b:Vector(M) = Vector.make(M).initRandom();
+		val a1:Vector(a.M)= a * 0.2;
+		val a2:Vector(a.M)= a * 0.8;
 		val a3= a1 + a2;
-		val ret = a.equals(a3 as Vector(a.N));
+		val ret = a.equals(a3 as Vector(a.M));
 		if (ret)
 			Console.OUT.println("Vector scaling-add test passed!");
 		else
@@ -165,8 +165,8 @@ class VectorTest {
 	public def testCellMult():Boolean {
 		Console.OUT.println("Starting vector cellwise mult test");
 
-		val a = Vector.make(N).initRandom(1, 10);
-		val b = Vector.make(N).initRandom(10, 100);
+		val a = Vector.make(M).initRandom(1, 10);
+		val b = Vector.make(M).initRandom(10, 100);
 		val c = (a + b) * a;
 		val d = a * a + b * a;
 		val ret = c.equals(d);
@@ -180,8 +180,8 @@ class VectorTest {
 	public def testCellDiv():Boolean {
 		Console.OUT.println("Starting vector cellwise mult-div test");
 
-		val a = Vector.make(N).init(1);
-		val b = Vector.make(N).init(1);
+		val a = Vector.make(M).init(1);
+		val b = Vector.make(M).init(1);
 		//a.print();
 		val c = (a + b) * a;
 		//c.print();
@@ -198,7 +198,7 @@ class VectorTest {
     public def testNorm():Boolean {
         Console.OUT.println("Starting dense Matrix norm test");
 
-        val a = Vector.make(N).initRandom();
+        val a = Vector.make(M).initRandom();
         val alpha = 2.5;
         val b = a * alpha;
         val aNorm = a.norm();

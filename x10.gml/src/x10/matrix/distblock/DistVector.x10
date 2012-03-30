@@ -68,7 +68,7 @@ public class DistVector(M:Int) {
 	//===================================================================================
 	//====================================================================================
 
-	public static def make(m:Int, segNum:Int) {
+	public static def make(m:Int, segNum:Int):DistVector(m) {
 		val hdv = PlaceLocalHandle.make[Vector](Dist.makeUnique(),
 							()=>Vector.make(Grid.compBlockSize(m, segNum, here.id())));
 		val slst = new Array[Int](segNum, (i:Int)=>Grid.compBlockSize(m, segNum, i));
@@ -77,10 +77,25 @@ public class DistVector(M:Int) {
 	
 	public static def make(m:Int) = make (m, Place.MAX_PLACES);
 
-	public static def make(m:Int, segsz:Array[Int](1){rail}) {
+	public static def make(m:Int, segsz:Array[Int](1){rail}):DistVector(m) {
 		val hdv = PlaceLocalHandle.make[Vector](Dist.makeUnique(), ()=>Vector.make(segsz(here.id())));
 		return new DistVector(m, hdv, segsz) as DistVector(m);
 	}
+
+	// public static def make(m:Int, numBlk:Int, numPlz:Int):DistVector(m) {
+	// 	Debug.assure(m>=numBlk&&numBlk>=numPlz, "Creating dist vector fails. Unsatisfied Vsize <= num blocks < num places");
+	// 	val szlst = new Array[Int](numPlz, (i:Int)=>0);
+	// 	
+	// 	var bcnt:Int = 0;
+	// 	for (var p:Int=0; p<numPlz; p++) {
+	// 		val nblk = Grid.compBlockSize(numBlk, numPlz, p);
+	// 		for (var b:Int=0; b<nblk; b++, bcnt++) {
+	// 			szlst(p) += Grid.compBlockSize(m, numBlk, bcnt);
+	// 		}
+	// 	}
+	// 	Debug.flushln("DistVector size:"+szlst.toString());
+	// 	return make(m, szlst);
+	// }
 	//====================================================================================
 	
 	public def alloc(m:Int):DistVector(m) = make(m);

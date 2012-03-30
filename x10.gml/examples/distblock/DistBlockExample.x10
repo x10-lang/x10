@@ -127,7 +127,7 @@ class RunExample {
 	public def exampleCellDiv():Boolean {
 		Console.OUT.println("Starting DistBlockMatrix cellwise mult-div example");
 		val grid = new Grid(M, N, bM, bN);
-		val dmap = DistGrid.makeHorizon(grid).dmap; 
+		val dmap = DistGrid.makeHorizontal(grid).dmap; 
 
 		val a = DistBlockMatrix.makeDense(grid, dmap).initRandom();
 		val b = DistBlockMatrix.makeDense(grid, dmap).initRandom();

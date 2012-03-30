@@ -43,7 +43,7 @@ public class BlockSet  {
 	public val blocklist:ArrayList[MatrixBlock];
 	
 	/**
-	 * This is available for fast access.
+	 * This is used for fast access when distribution is DistGrid.
 	 */
 	protected var blockMap:Array[MatrixBlock](2);
 		
@@ -80,11 +80,12 @@ public class BlockSet  {
 	 * @param  rowCs  number of group of blocks in row of grid distribution
 	 * @param  colCs  number of group of blocks in column of grid distribution
 	 */
-	public static def make(m:Int, n:Int, rowBs:Int, colBs:Int, rowCs:Int, colCs:Int) {
-		val gd = new Grid(m, n, rowBs, colBs);
-		Debug.assure(rowCs*colCs == Place.MAX_PLACES, 
+	public static def make(m:Int, n:Int, rowBs:Int, colBs:Int, rowPs:Int, colPs:Int) {
+		//val gd = new Grid(m, n, rowBs, colBs); not balanced when considering distribution among rowPs and colPs
+		val gd = DistGrid.makeGrid(m, n, rowBs, colBs, rowPs, colPs);
+		Debug.assure(rowPs*colPs == Place.MAX_PLACES,
 				"number of distributions groups of blocks must equal to number of places");
-		val dp = new DistGrid(gd, rowCs, colCs);
+		val dp = new DistGrid(gd, rowPs, colPs);
 		return new BlockSet(gd, dp.dmap);
 	}
 
@@ -116,11 +117,11 @@ public class BlockSet  {
 		return this;
 	}
 	//--------------
-	public static def makeDense(m:Int, n:Int, rowBs:Int, colBs:Int, rowCs:Int, colCs:Int) =
-		make(m, n, rowBs, colBs, rowCs, colCs).allocDenseBlocks();
+	public static def makeDense(m:Int, n:Int, rowBs:Int, colBs:Int, rowPs:Int, colPs:Int) =
+		make(m, n, rowBs, colBs, rowPs, colPs).allocDenseBlocks();
 	
-	public static def makeSparse(m:Int, n:Int, rowBs:Int, colBs:Int, rowCs:Int, colCs:Int, nzd:Double) =
-		make(m, n, rowBs, colBs, rowCs, colCs).allocSparseBlocks(nzd);
+	public static def makeSparse(m:Int, n:Int, rowBs:Int, colBs:Int, rowPs:Int, colPs:Int, nzd:Double) =
+		make(m, n, rowBs, colBs, rowPs, colPs).allocSparseBlocks(nzd);
 	//--------------------
 	
 	public static def makeDense(g:Grid, d:DistMap) {

@@ -52,6 +52,33 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 			}
 		}
 	}
+	//============================================================
+	
+	public static def compPartition(num:Int,blks:Int, plcs:Int) : Array[Int](1){rail} {
+		Debug.assure(num>=blks&&blks>=plcs, 
+				"Unsatisfied partitioning - Total:"+num+" >= Blocks:"+blks+" >= Places:"+plcs);
+		val szlist:Array[Int](1){rail} = new Array[Int](blks);
+		var cnt:Int =0;
+		for (var p:Int=0; p<plcs; p++) {
+			val tt = Grid.compBlockSize(num, plcs, p);
+			val nb = Grid.compBlockSize(blks, plcs, p);
+			for (var b:Int=0; b<nb; b++, cnt++){
+				szlist(cnt) = Grid.compBlockSize(tt, nb, b);
+			}
+		}
+		//Debug.flushln("Partition "+num+" to "+blks+" segs : " + szlist.toString());
+		return szlist;
+	}
+	
+	/**
+	 * Creat grid partitioning with balanced number of rows and columns among places.
+	 */
+	public static def makeGrid(M:Int, N:Int, blkM:Int, blkN:Int, plcM:Int, plcN:Int): Grid {
+		val rowBs = compPartition(M, blkM, plcM);
+		val colBs = compPartition(N, blkN, plcN);
+		
+		return new Grid(M, N, rowBs, colBs);
+	}
 	
 	//=================================================
 	//
@@ -93,7 +120,7 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 		return new DistGrid(matgrid, rowCs, colCs);
 	}
 	
-	public static def makeHorizon(g:Grid) = makeMaxRow(g, 1, Place.MAX_PLACES);
+	public static def makeHorizontal(g:Grid) = makeMaxRow(g, 1, Place.MAX_PLACES);
 	
 	public static def makeVertical(g:Grid) = makeMaxRow(g, Place.MAX_PLACES, Place.MAX_PLACES);
 	//-------------------------------------------------------------
@@ -148,7 +175,7 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 		}
 		return coltt;
 	}
-	
+	//------------
 	public static def getAggRowBs(grid:Grid, distgrid:DistGrid):Array[Int](1){rail}{
 		val rbs = new Array[Int](distgrid.numRowPlaces, (i:Int)=>compLocalRows(grid, distgrid.dmap, i));
 		return rbs;
@@ -158,5 +185,16 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 		val cbs = new Array[Int](distgrid.numColPlaces, (i:Int)=>compLocalCols(grid, distgrid.dmap, i));
 		return cbs;
 	}
+	//-------------
+	public static def getAggRowBs(numRowPlaces:Int, grid:Grid, dmap:DistMap):Array[Int](1){rail}{
+		val rbs = new Array[Int](numRowPlaces, (i:Int)=>compLocalRows(grid, dmap, i));
+		return rbs;
+	}
+	
+	public static def getAggColBs(numColPlaces:Int, grid:Grid, dmap:DistMap):Array[Int](1){rail}{
+		val cbs = new Array[Int](numColPlaces, (i:Int)=>compLocalCols(grid, dmap, i));
+		return cbs;
+	}
+	
 	
 }

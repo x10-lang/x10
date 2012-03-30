@@ -70,6 +70,7 @@ class RunDDVectorMult {
 		ret &= (testDistMatDupVecMult());
 		ret &= (testDupVecDistMatMult());
 		ret &= (testDistDupDupMult());
+		ret &= (testDupDistDupMult());
 		
 		if (ret)
 			Console.OUT.println("Dist block matrix - vector multiply test passed!");
@@ -78,13 +79,15 @@ class RunDDVectorMult {
 	}
 	
 	public def testDistMatDistVecMult():Boolean{
-		Console.OUT.println("Starting DistBlockMatrix - DistVector -> DupVector multiply test");
-		val mA = DistBlockMatrix.makeDense(M, N, bM, bN, 1, Place.MAX_PLACES) as DistBlockMatrix(M,N);
-		val vB = DistVector.make(N, bN);
+		Console.OUT.println("Starting DistBlockMatrix * DistVector -> DupVector multiply test");
+		val pM = 1, pN=Place.MAX_PLACES; //Horizontal distribution
+		val mA = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN) as DistBlockMatrix(M,N);
+		// Better: val vB = DistVector.make(N, mA.getAggColBs());
+		val vB = DistVector.make(N, pN);
 		val vC = DupVector.make(M);
 		
-		mA.init((r:Int,c:Int)=>1.0*(r+c));
-		vB.init((r:Int)=>1.0*(r+1));
+		mA.init((r:Int,c:Int)=>1.0+c);
+		vB.init((r:Int)=>1.0);
 		
 		DistDupVectorMult.comp(mA, vB, vC, false);
 		//A.printMatrix();
@@ -95,41 +98,43 @@ class RunDDVectorMult {
 		val vb = vB.toVector() as Vector(N);
 		val vc = dA % vb;
 		if ( vc.equals(vC.local() as Vector(vc.M)))
-			Console.OUT.println("DistBlockMatrix - DistVector multiply test passed!");
+			Console.OUT.println("DistBlockMatrix * DistVector multiply test passed!");
 		else {
-			Console.OUT.println("--------DistBlockMatrix - DistVector multiply test failed!--------");
+			Console.OUT.println("--------DistBlockMatrix * DistVector multiply test failed!--------");
 			return false;
 		}
 		return true;
 	}
 	
 	public def testDistVecDistMatMult() {
-		Console.OUT.println("Starting DistVector - DistBlockMatrix -> DupVector multiply test");
-		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, Place.MAX_PLACES, 1) as DistBlockMatrix(M,N);
-		val vA = DistVector.make(M, bM);
-
+		Console.OUT.println("Starting DistVector * DistBlockMatrix -> DupVector multiply test");
+		val pM = Place.MAX_PLACES, pN= 1;//Vertical distribution
+		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN) as DistBlockMatrix(M,N);
+		val vA = DistVector.make(M, pM);
 		vA.initRandom();
 		mB.initRandom();
 		val vC = vA % mB;
 		val vc = vA.toVector() % mB.toDense();
 
 		if (vc.equals(vC.local() as Vector(vc.M)))
-			Console.OUT.println("DistVector - DistBlockMatrix  multiply test passed!");
+			Console.OUT.println("DistVector * DistBlockMatrix  multiply test passed!");
 		else {
-			Console.OUT.println("--------DistVector - DistBlockMatrix multiply test failed!--------");
+			Console.OUT.println("--------DistVector * DistBlockMatrix multiply test failed!--------");
 			return false;
 		}
 		return true;
 	}
 
 	public def testDistMatDupVecMult():Boolean{
-		Console.OUT.println("Starting DistBlockMatrix - DupVector -> DistVector multiply test");
-		val mA = DistBlockMatrix.makeDense(M, N, bM, bN, Place.MAX_PLACES, 1) as DistBlockMatrix(M,N);
+		Console.OUT.println("Starting DistBlockMatrix * DupVector -> DistVector multiply test");
+		val pM = Place.MAX_PLACES, pN= 1;//Vertical distribution		
+		val mA = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN) as DistBlockMatrix(M,N);
 		val vB = DupVector.make(N);
-		val vC = DistVector.make(M, bM);
-		
-		mA.init((r:Int,c:Int)=>1.0+r);
-		vB.init((r:Int)=>1.0+r);
+		val vC = DistVector.make(M, pM); //Be careful, keep partition same
+		//Better: val vC = DistVector.make(M, DistGrid.getAggRowBs(M, mA.getGrid(), mA.getMap()));
+		//Better: val vC = DistVector.make(M, mA.getAggRowBs());
+		mA.initRandom();
+		vB.initRandom();
 		
 		DistDupVectorMult.comp(mA, vB, vC, false);
 		
@@ -137,17 +142,18 @@ class RunDDVectorMult {
 		//vc.print();
 		
 		if ( vC.equals(vc as Vector(vC.M)))
-			Console.OUT.println("DistBlockMatrix - DupVector multiply test passed!");
+			Console.OUT.println("DistBlockMatrix * DupVector multiply test passed!");
 		else {
-			Console.OUT.println("--------DistBlockMatrix - DupVector multiply test failed!--------");
+			Console.OUT.println("--------DistBlockMatrix * DupVector multiply test failed!--------");
 			return false;
 		}
 		return true;
 	}
 	
 	public def testDupVecDistMatMult() : Boolean {
-		Console.OUT.println("Starting DupVector - DistBlockMatrix -> DistVector multiply test");
-		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, 1, Place.MAX_PLACES) as DistBlockMatrix(M,N);
+		Console.OUT.println("Starting DupVector * DistBlockMatrix -> DistVector multiply test");
+		val pM = 1, pN=Place.MAX_PLACES; //Horizontal distribution
+		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN) as DistBlockMatrix(M,N);
 		val vA = DupVector.make(M);
 		
 		vA.initRandom();//((r:Int)=>1.0+r);
@@ -157,9 +163,9 @@ class RunDDVectorMult {
 		val vc = vA.local() % mB.toDense();
 		//vc.print();
 		if ( vC.equals(vc as Vector(vC.M)))			
-			Console.OUT.println("DupVector - DistBlockMatrix multiply test passed!");
+			Console.OUT.println("DupVector * DistBlockMatrix multiply test passed!");
 		else {
-			Console.OUT.println("--------DupVector - DistBlockMatrix multiply test failed!--------");
+			Console.OUT.println("--------DupVector * DistBlockMatrix multiply test failed!--------");
 			return false;
 		}
 		return true;
@@ -190,9 +196,41 @@ class RunDDVectorMult {
 		ret &= vc.equals(vC.local() as Vector(vc.M));
 
 		if (ret)
-			Console.OUT.println("DistBlockMatrix x DupVector = DupVector multiply test passed!");
+			Console.OUT.println("DistBlockMatrix * DupVector = DupVector multiply test passed!");
 		else
-			Console.OUT.println("--------DistBlockMatrix x DupVector = DupVector multiply test failed!--------");
+			Console.OUT.println("--------DistBlockMatrix * DupVector = DupVector multiply test failed!--------");
+		return ret;
+	}
+	
+	
+	public def testDupDistDupMult():Boolean{
+		var ret:Boolean = true;
+		val pM:Int = MathTool.sqrt(Place.MAX_PLACES);
+		val pN:Int = Place.MAX_PLACES / pM;
+		Console.OUT.printf("Starting DupVector * DistBlockMatrix = DupVector multiply test on %d x %d places\n", pM, pN);
+		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN) as DistBlockMatrix(M,N);
+		val vA = DupVector.make(M);
+		val vC = DupVector.make(N);
+		
+		vA.initRandom();
+		mB.initRandom();
+		
+		DistDupVectorMult.comp(vA, mB, vC, false);
+		//A.printMatrix();
+		//B.printMatrix();
+		//C.printMatrix();
+		
+		val dB = mB.toDense() as DenseMatrix(M,N);
+		val va = vA.local() as Vector(M);
+		val vc = va % dB;
+		//dC.printMatrix();
+		
+		ret &= vc.equals(vC.local());
+
+		if (ret)
+			Console.OUT.println("DupVector * DistBlockMatrix = DupVector multiply test passed!");
+		else
+			Console.OUT.println("--------DupVector * DistBlockMatrix = DupVector multiply test failed!--------");
 		return ret;
 	}
 

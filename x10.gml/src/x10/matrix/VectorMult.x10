@@ -91,6 +91,28 @@ public class VectorMult {
 	public static def x10Mult(A:DenseMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean) =
 		comp(A, B, 0, C, 0, plus);
 	
+	/**
+	 * Multiply matrix with a segment of vector and store result in a segment of output vector
+	 */
+	public static def comp(A:DenseMatrix, B:Vector, var offsetB:Int, C:Vector, offsetC:Int, plus:Boolean):Vector(C) {
+		
+		Debug.assure(offsetB+A.N<=B.M, "Second input vector overflow, offset:"+offsetB+" A.N:"+A.N+" > B.M:"+B.M);
+		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow, offset:"+offsetC+" A.M:"+A.M+" C.M:"+C.M);
+		if (!plus) {
+			for (var i:Int=offsetC; i< offsetC+A.M; i++) C.d(i) =0;
+		}
+		var idxA:Int=0;
+		for (var c:Int=0; c<A.N; c++, offsetB++) {
+			val  v2  = B.d(offsetB);
+			for (var r:Int=0; r < A.M; r++, idxA++) {
+				val v1 = A.d(idxA);
+				C.d(r+offsetC) += v1 * v2;
+			}
+		}
+		return C;
+	}
+
+	//--------------------------------
 	public static def comp(A:SparseCSC, B:Vector(A.N), C:Vector(A.M), plus:Boolean)=
 		comp(A, B, 0, C, 0, plus);
 	
@@ -117,27 +139,6 @@ public class VectorMult {
 		return C;
 	}
 	
-	/**
-	 * Multiply matrix with a segment of vector and store result in a segment of output vector
-	 */
-	public static def comp(A:DenseMatrix, B:Vector, var offsetB:Int, C:Vector, offsetC:Int, plus:Boolean):Vector(C) {
-		
-		Debug.assure(offsetB+A.N<=B.M, "Second input vector overflow, offset:"+offsetB+" A.N:"+A.N+" B.M:"+B.M);
-		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow");
-		if (!plus) {
-			for (var i:Int=offsetC; i< offsetC+A.M; i++) C.d(i) =0;
-		};
-		var idxA:Int=0;
-		for (var c:Int=0; c<A.N; c++, offsetB++) {
-			val  v2  = B.d(offsetB);
-			for (var r:Int=0; r < A.M; r++, idxA++) {
-				val v1 = A.d(idxA);
-				C.d(r+offsetC) += v1 * v2;
-			}
-		}
-		return C;
-	}
-
 	//==========================================================
 	public static def x10Mult(B:Vector, A:DenseMatrix(B.M), C:Vector(A.N), plus:Boolean) =
 		comp(B, 0, A, C, 0, plus);

@@ -17,6 +17,8 @@ import x10.util.Timer;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Debug;
+import x10.matrix.MathTool;
+
 import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.DenseBlock;
@@ -48,9 +50,7 @@ public type DistBlockMatrix(C:DistBlockMatrix)=DistBlockMatrix{self==C};
  */
 public class DistBlockMatrix extends Matrix{
 
-	//public val grid:Grid;
 	public val handleBS:PlaceLocalHandle[BlockSet];
-	//public val local:PlaceLocalHandle[BlockMatrix(M,N)]; //Repackaged in blockmatrix
 	//================================================================================
 	/**
 	 * Time profiling
@@ -133,8 +133,9 @@ public class DistBlockMatrix extends Matrix{
 	 * @return DistBlockMatrix instance
 	 */
 	public static def make(m:Int, n:Int):DistBlockMatrix(m,n) {
-		var colBs:Int = Math.sqrt(Place.MAX_PLACES) as Int;
-		while (Place.MAX_PLACES % colBs !=0) colBs--;
+		//var colBs:Int = Math.sqrt(Place.MAX_PLACES) as Int;
+		//while (Place.MAX_PLACES % colBs !=0) colBs--;
+		val colBs = MathTool.sqrt(Place.MAX_PLACES);
 		val rowBs = Place.MAX_PLACES / colBs;
 		return make(m, n, rowBs, colBs, rowBs, colBs);
 		//val grid    = Grid.make(m, n);
@@ -753,6 +754,21 @@ public class DistBlockMatrix extends Matrix{
 	}
 	
 	public def getTotalNonZeroCount() = getAllDataCount();
+	//---------------
+	/**
+	 * Works correctly only when DistGrid is used to distributed blocks.
+	 * It returs array of integers. Each value is the total number of rows in the place of its indexing value.
+	 * This method is used to create a DistVector corresponding to the rows of this DistBlockMatrix instance, 
+	 * while DistVector dose not use blocking, meaning each place is assigned with only one vector segment which
+	 * is same as the total rows of the block set of DistBlockMatrix in that place.
+	 */
+	public def getAggRowBs():Array[Int](1){rail} = DistGrid.getAggRowBs(M, getGrid(), getMap());
+	
+	/**
+	 * Returns array of ingers. Each value is the total number of columns in the place of its indexing value.
+	 * This method is used to create a DistVector corresponding to the columns of this DistBlockMatrix instance.
+	 */
+	public def getAggColBs():Array[Int](1){rail} = DistGrid.getAggColBs(N, getGrid(), getMap());
 	
 	// public def buildRowCastPlaceMap() {
 	// 	finish ateach (Dist.makeUnique()) {

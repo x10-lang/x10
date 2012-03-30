@@ -317,12 +317,18 @@ public class DupVector(M:Int) {
 	public def mult(vB:DistVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DupVector(this) =
 		DistDupVectorMult.comp(vB, mA, this, plus);
 	
+	public def mult(mA:DistBlockMatrix(this.M), vB:DupVector(mA.N), plus:Boolean):DupVector(this) =
+		DistDupVectorMult.comp(mA, vB, this, plus);
+	
+	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DupVector(this) =
+		DistDupVectorMult.comp(vB, mA, this, plus);
+
 	//-------------------------
 	public operator this % (that:DistBlockMatrix(M)) = 
-		DistDupVectorMult.comp(this, that, DistVector.make(that.N, that.getGrid().colBs), false);
+		DistDupVectorMult.comp(this, that, DistVector.make(that.N, that.getAggColBs()), true);
 
 	public operator (that:DistBlockMatrix{self.N==this.M}) % this = 
-		DistDupVectorMult.comp(that , this, DistVector.make(that.M,that.getGrid().rowBs), false);
+		DistDupVectorMult.comp(that , this, DistVector.make(that.M, that.getAggRowBs()), true);
 
 	//==================================================================================
 	public def sync():void {

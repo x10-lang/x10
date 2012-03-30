@@ -122,10 +122,10 @@ public class ArrayReduce extends ArrayRemoteCopy {
 		val lfcnt  = pcnt - rtcnt;
 		val rtroot = root + lfcnt;
 		finish {
-			if (lfcnt > 1) async {
+			if (lfcnt > 0) async {
 				x10ReduceToHere(dat, tmp, datCnt, lfcnt, opFunc);
 			}
-			if (rtcnt > 2 ) {
+			if (rtcnt > 1 ) {
 				at (new Place(rtroot)) async {
 					x10ReduceToHere(dat, tmp, datCnt, rtcnt, opFunc);
 				}
@@ -134,9 +134,7 @@ public class ArrayReduce extends ArrayRemoteCopy {
 		val dstbuf = dat();
 		val rcvbuf = tmp();
 		x10Copy(dat, rtroot, 0, rcvbuf, 0, datCnt);
-		for (var i:Int=0; i<datCnt; i++) { 
-			dstbuf(i) += rcvbuf(i);
-		}
+		opFunc(rcvbuf, dstbuf, datCnt);
 	}
 
 	//=============================================================

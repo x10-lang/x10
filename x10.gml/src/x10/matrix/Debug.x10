@@ -40,7 +40,7 @@ public class Debug {
 	//
 	public static def assure(v:Boolean, msg:String) {
 		if (!v) {
-			val fmsg = "Assertion fail! " + msg;
+			val fmsg = "Assertion fail at P" + here.id()+" - "+msg;
 			console.flush();
 			throw new UnsupportedOperationException(fmsg);
 		}
