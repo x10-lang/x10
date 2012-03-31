@@ -54,7 +54,7 @@ class RunDistDupMult {
 	val gC:Grid;
 	//val A:BlockMatrix(M,K), B:BlockMatrix(K,N), C:BlockMatrix(M,N);
 	val dA:DistMap, dTransA:DistMap;
-	val dC:DistMap;
+	val dC:DistMap, dTransC:DistMap;
 	
     public def this(args:Array[String](1)) {
 		M = args.size > 0 ?Int.parse(args(0)):20;
@@ -70,12 +70,13 @@ class RunDistDupMult {
 
 		gTransA = new Grid(K, M, bK, bM);
 		dTransA = (new DistGrid(gTransA, 1, Place.MAX_PLACES)).dmap;
-
+		
 		gB = new Grid(K, N, bK, bN);
 		gTransB = new Grid(N, K, bN, bK);
 		
 		gC = new Grid(M, N, bM, bN);
 		dC = (new DistGrid(gC, Place.MAX_PLACES, 1)).dmap;
+		dTransC = DistGrid.makeHorizontal(gC).dmap;
 	}
 
     public def run (): void {
@@ -135,9 +136,10 @@ class RunDistDupMult {
 	public def testTransMult():Boolean{
 		var ret:Boolean = true;
 		Console.OUT.println("Starting Dist-Dup block matrix trans-multiply test (transpose 1st operand)");
-		val A = DistBlockMatrix.makeDense(gTransA, dTransA) as DistBlockMatrix(K,M);
-		val B = DupBlockMatrix.makeDense(gB) as DupBlockMatrix(K,N);
-		val C = DistBlockMatrix.makeDense(gC, dC) as DistBlockMatrix(M,N);
+		
+		val A = DistBlockMatrix.makeDense(K, M, bK, bM, 1, Place.MAX_PLACES);
+		val B = DupBlockMatrix.makeDense(K, N, bK, bN);
+		val C = DistBlockMatrix.makeDense(M, N, bM, bN, Place.MAX_PLACES, 1) as DistBlockMatrix(M,N);
 		
 		A.init((r:Int,c:Int)=>1.0*(r+c));
 		B.init((r:Int,c:Int)=>1.0*(r+c));
