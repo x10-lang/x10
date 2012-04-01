@@ -42,9 +42,9 @@ public class DistDistMult {
 		var st:Long;
 		
 		//Global.assure(A.flagTranspose == true);
-		Debug.assure(DistGrid.isHorizontal(gA, A.getMap()), 
+		Debug.assure(A.isDistHorizontal(), 
 				"First operand of dist block matrix must have horizon distribution");
-		Debug.assure(DistGrid.isVertical(gB, B.getMap()), 
+		Debug.assure(B.isDistVertical(), 
 				"Second operand of dist block matrix must have veritical distribution");
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
 				"Row partition of first and result matrix mismatch");
@@ -80,9 +80,9 @@ public class DistDistMult {
 		val gC = C.getGrid();
 		var st:Long;
 
-		Debug.assure(DistGrid.isVertical(gA, A.getMap()), 
+		Debug.assure(A.isDistVertical(), 
 				"First dist block matrix must have veritical distribution");
-		Debug.assure(DistGrid.isVertical(gB, B.getMap()), 
+		Debug.assure(B.isDistVertical(),
 				"Second dist block matrix must have veritical distribution");
 	
 		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
@@ -121,9 +121,9 @@ public class DistDistMult {
 		val gC = C.getGrid();
 		var st:Long;
 		
-		Debug.assure(DistGrid.isHorizontal(gA, A.getMap()), 
+		Debug.assure(A.isDistHorizontal(), 
 				"First dist block matrix must have horiontl distribution");
-		Debug.assure(DistGrid.isHorizontal(gB, B.getMap()), 
+		Debug.assure(B.isDistHorizontal(), 
 				"Second dist block matrix must have horizontal distribution");
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
 				"Row partition of first and result matrix mismatch");

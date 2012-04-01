@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix.distblock;
@@ -17,44 +17,47 @@ import x10.matrix.MathTool;
 import x10.matrix.block.Grid;
 
 /**
- * A DistGrid instance specifies how blocks are distributed among places in a grid-like square.
+ * A DistGrid instance specifies how blocks are distributed among places in a grid.
  * DistGrid uses integer array to map block IDs to place IDs.
+ * DistGrid is a special case of distribution map, in which matrix blocks in a partition
+ * grid is distributed in places of grid. Blocks neighoring in partitioning grid are
+ * either in the same place or neighering places.
  */
 public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
-	public val dmap:DistMap;
 	
-	public def this(nrp:Int, ncp:Int, dm:DistMap) {
-		property(nrp, ncp);
-		dmap = dm;
+	//==================================
+	public val dmap:DistMap;
+	public val placeGrid:Grid;
+	
+	//===================================
+	public def this(plzGrid:Grid,dp:DistMap) {
+		property(plzGrid.numRowBlocks, plzGrid.numColBlocks);
+		placeGrid = plzGrid;
+		dmap = dp;
 	}
+	
+	public def this(matgrid:Grid, nRowPs:Int, nColPs:Int) {
+		property(nRowPs, nColPs);
+		dmap = new DistMap(matgrid.size, nRowPs*nColPs);
 
-	public def this(matgrid:Grid, rowPs:Int, colPs:Int) {
-		property(rowPs, colPs);
-		val nps   = rowPs * colPs;
-		dmap  = new DistMap(matgrid.size, nps);
-		
-		Debug.assure(rowPs <= matgrid.numRowBlocks && 
-				colPs <= matgrid.numColBlocks, 
+		Debug.assure(
+				nRowPs <= matgrid.numRowBlocks && nColPs <= matgrid.numColBlocks, 
 				"Cannot distribute ("+matgrid.numRowBlocks+" x "+matgrid.numColBlocks+") blocks"+
-				" over ("+rowPs+" x "+colPs+") places");
-		//Remove this check for duplicated block matrix
-		//Debug.assure(nps == Place.MAX_PLACES, 
-		//		"Partitioning blocks error! Number of clusters "+nps+" is not same as places "+Place.MAX_PLACES);
+				" over ("+nRowPs+" x "+nColPs+") places");
+		placeGrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, nRowPs, nColPs);
 		
-		val blkgrid = new Grid(matgrid.numRowBlocks, matgrid.numColBlocks, rowPs, colPs);
-				
 		//This is not an efficient method, 
 		for (var cb:Int=0; cb<matgrid.numColBlocks; cb++) { 
 			for (var rb:Int=0; rb<matgrid.numRowBlocks; rb++) {
-				val pid = blkgrid.findBlock(rb, cb); 
+				val pid = placeGrid.findBlock(rb, cb); 
 				val bid = matgrid.getBlockId(rb, cb);
-				dmap.set(bid, pid);
+				dmap.blockmap(bid) = pid;
 			}
 		}
 	}
 	//============================================================
 	
-	public static def compPartition(num:Int,blks:Int, plcs:Int) : Array[Int](1){rail} {
+	public static def compPartition(num:Int, blks:Int, plcs:Int) : Array[Int](1){rail} {
 		Debug.assure(num>=blks&&blks>=plcs, 
 				"Unsatisfied partitioning - Total:"+num+" >= Blocks:"+blks+" >= Places:"+plcs);
 		val szlist:Array[Int](1){rail} = new Array[Int](blks);
@@ -102,22 +105,22 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 	 * @param totalClusters    the total clusters used in partitioning blocks
 	 * @return                 the map of block IDs to place IDs.
 	 */	
-	public static def makeMaxRow(matgrid:Grid, maxRowCs:Int, totalCs:Int) {
+	public static def makeMaxRow(matgrid:Grid, maxRowPs:Int, totalPs:Int) {
 		val nRowBs    = matgrid.numRowBlocks;
-		var rowCs:Int = nRowBs < maxRowCs ? nRowBs : maxRowCs;
-		while (totalCs % rowCs != 0) { rowCs--; }
-		if (rowCs == 0) rowCs = 1;
-		val colCs = totalCs/rowCs;
-		return new DistGrid(matgrid, rowCs, colCs);
+		var rowPs:Int = nRowBs < maxRowPs ? nRowBs : maxRowPs;
+		while (totalPs % rowPs != 0) { rowPs--; }
+		if (rowPs == 0) rowPs = 1;
+		val colPs = totalPs/rowPs;
+		return new DistGrid(matgrid, rowPs, colPs);
 	}
 	
-	public static def makeMaxCol(matgrid:Grid, maxColCs:Int, totalCs:Int) {
+	public static def makeMaxCol(matgrid:Grid, maxColPs:Int, totalPs:Int) {
 		val nColBs    = matgrid.numColBlocks;
-		var colCs:Int = nColBs < maxColCs ? nColBs : maxColCs;
-		while (totalCs % colCs != 0) { colCs--; }
-		if (colCs == 0) colCs = 1;
-		val rowCs = totalCs/colCs;
-		return new DistGrid(matgrid, rowCs, colCs);
+		var colPs:Int = nColBs < maxColPs ? nColBs : maxColPs;
+		while (totalPs % colPs != 0) { colPs--; }
+		if (colPs == 0) colPs = 1;
+		val rowPs = totalPs/colPs;
+		return new DistGrid(matgrid, rowPs, colPs);
 	}
 	
 	public static def makeHorizontal(g:Grid) = makeMaxRow(g, 1, Place.MAX_PLACES);
@@ -152,49 +155,40 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 		}
 		return true;
 	}
-	
+	//==================================================================
 	/**
 	 * Aggregate all segments in the same place to one segment,
 	 * when computing the number of rows or columns within a place
 	 */
-	public static def compLocalRows(grid:Grid, blkmap:DistMap, pid:Int):Int {
+	private def compLocalRows(matGrid:Grid, rowPid:Int):Int {
+		//val rowPid = placeGrid.getRowBlockId(pid);
+		val sttRowBlk = placeGrid.startRow(rowPid);
 		var rowtt:Int = 0;
-		
-		for (var rid:Int=0; rid<grid.numRowBlocks; rid++) {
-			val bid = grid.getBlockId(rid, 0);
-			if (blkmap.findPlace(bid) == pid) rowtt += grid.rowBs(rid);
+		for (var rowbid:Int=0; rowbid<placeGrid.rowBs(rowPid); rowbid++) {
+			rowtt += matGrid.rowBs(rowbid+sttRowBlk);
 		}
 		return rowtt;
 	}
 
-	public static def compLocalCols(grid:Grid, blkmap:DistMap, pid:Int):Int {
+	private def compLocalCols(matGrid:Grid, colPid:Int):Int {
+		//val colPid = placeGrid.getColBlockId(pid);
+		val sttColBlk = placeGrid.startCol(colPid);
 		var coltt:Int = 0;
-		for (var cid:Int=0; cid<grid.numColBlocks; cid++) {
-			val bid = grid.getBlockId(0, cid);
-			if (blkmap.findPlace(bid) == pid) coltt += grid.colBs(cid);
+		for (var colbid:Int=0; colbid<placeGrid.colBs(colPid); colbid++) {
+			coltt += matGrid.colBs(colbid+sttColBlk);
 		}
 		return coltt;
 	}
+	//=================================
+	
 	//------------
-	public static def getAggRowBs(grid:Grid, distgrid:DistGrid):Array[Int](1){rail}{
-		val rbs = new Array[Int](distgrid.numRowPlaces, (i:Int)=>compLocalRows(grid, distgrid.dmap, i));
+	public def getAggRowBs(grid:Grid):Array[Int](1){rail}{
+		val rbs = new Array[Int](numRowPlaces, (i:Int)=>compLocalRows(grid, i));
 		return rbs;
 	}
 	
-	public static def getAggColBs(grid:Grid, distgrid:DistGrid):Array[Int](1){rail}{
-		val cbs = new Array[Int](distgrid.numColPlaces, (i:Int)=>compLocalCols(grid, distgrid.dmap, i));
+	public def getAggColBs(grid:Grid):Array[Int](1){rail}{
+		val cbs = new Array[Int](numColPlaces, (i:Int)=>compLocalCols(grid, i));
 		return cbs;
 	}
-	//-------------
-	public static def getAggRowBs(numRowPlaces:Int, grid:Grid, dmap:DistMap):Array[Int](1){rail}{
-		val rbs = new Array[Int](numRowPlaces, (i:Int)=>compLocalRows(grid, dmap, i));
-		return rbs;
-	}
-	
-	public static def getAggColBs(numColPlaces:Int, grid:Grid, dmap:DistMap):Array[Int](1){rail}{
-		val cbs = new Array[Int](numColPlaces, (i:Int)=>compLocalCols(grid, dmap, i));
-		return cbs;
-	}
-	
-	
 }

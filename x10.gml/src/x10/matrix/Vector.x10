@@ -160,7 +160,7 @@ public class Vector(M:Int) implements (Int) => Double {
 	//----------------------------------
 	// Copy all data from vector v to local at dst_off
 	public static def copyTo(src:Vector, soff:Int, dst:Vector, doff:Int, len:Int) {
-		Debug.assure(soff+len<src.M && doff+len<dst.M, "Buffer overflow in vector copy");
+		Debug.assure(soff+len<=src.M && doff+len<=dst.M, "Buffer overflow in vector copy");
 		Array.copy(src.d, soff, dst.d, doff, len);
 	}
 	
@@ -269,6 +269,12 @@ public class Vector(M:Int) implements (Int) => Double {
 		for(var i:Int=0; i<M; i++) d += this.d(i) * v.d(i);
 		return d;
 	}
+	
+	public def mult(v:Vector(M), dv:Double):Vector(this) {
+		v.copyTo(this);
+		return scale(dv);
+	}
+	
 	//======================================================
 	
 	

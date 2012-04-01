@@ -624,7 +624,7 @@ public class DupBlockMatrix extends Matrix {
 	public def multTrans(A:DistBlockMatrix(this.M),B:DistBlockMatrix(this.N, A.N))        = DistDistMult.compMultTrans(A, B, this, false);
 	//===========================================================
 	/**
-	 * Operator % performs duplicated dense matrix multiplication
+	 * Operator % performs duplicated block matrix multiplication
 	 */
 	public operator this % (that:DupBlockMatrix{self.M==this.N}) =
 		DupBlockMatrix.makeDense(this.M, that.N, this.local().grid.numRowBlocks, 

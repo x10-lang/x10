@@ -57,14 +57,22 @@ public class DistBlockMatrix extends Matrix{
 	 */
 	transient var commTime:Long =0;
 	transient var calcTime:Long =0;
-	
+	//-------------
+	//This feild only defined when DistGrid is used in block distribution
+	transient var gdist:DistGrid = null;
 	//==============================================
 	
 	public def this(bs:PlaceLocalHandle[BlockSet]) {
 		super(bs().grid.M, bs().grid.N);
-		handleBS  = bs;
-
+		handleBS  = bs;	
 	}
+	
+	public def this(gridDist:DistGrid, bs:PlaceLocalHandle[BlockSet]) {
+		super(bs().grid.M, bs().grid.N);
+		handleBS  = bs;	
+		gdist = gridDist;
+	}
+	
 	//==============================================
 	
 	/**
@@ -80,6 +88,13 @@ public class DistBlockMatrix extends Matrix{
 		//Remote capture: g, dmap
 		val bs = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), ()=>(new BlockSet(g, dmap)));//Remote capture
 		return new DistBlockMatrix(bs) as DistBlockMatrix(g.M,g.N);
+	}
+
+	public static def make(g:Grid, gridDist:DistGrid) : DistBlockMatrix(g.M, g.N){
+		//Remote capture: g, dmap
+		val dmap = gridDist.dmap;
+		val bs = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), ()=>(new BlockSet(g, dmap)));//Remote capture
+		return new DistBlockMatrix(gridDist, bs) as DistBlockMatrix(g.M,g.N);
 	}
 	
 	/**
@@ -98,10 +113,10 @@ public class DistBlockMatrix extends Matrix{
 			rowBs:Int, colBs:Int, 
 			rowPs:Int, colPs:Int):DistBlockMatrix(m,n) {
 		Debug.assure(rowPs*colPs==Place.MAX_PLACES, "Block partitioning error");
-		
 		val blks = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
 				()=>(BlockSet.make(m,n,rowBs,colBs,rowPs,colPs)));
-		return new DistBlockMatrix(blks) as DistBlockMatrix(m,n);
+		val gdist = new DistGrid(blks().getGrid(), rowPs, colPs);
+		return new DistBlockMatrix(gdist, blks) as DistBlockMatrix(m,n);
 		
 		//val grid = new Grid(m, n, rowBs, colBs);		
 		//val dstgrid = new DistGrid(grid, rowPs, colPs);
@@ -173,11 +188,23 @@ public class DistBlockMatrix extends Matrix{
 		val sblks = d.handleBS;
 		val dblks = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
 				()=>(BlockSet.makeDense(sblks().grid, sblks().dmap)));
-
-		val nm = new DistBlockMatrix(dblks);
-		return nm as DistBlockMatrix(d.M,d.N);
+		
+		return  new DistBlockMatrix(d.gdist, dblks) as DistBlockMatrix(d.M,d.N);
 	}
 	//---------------------------
+	public static def makeDense(g:Grid, gd:DistGrid):DistBlockMatrix(g.M,g.N) {
+		val bs = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
+				()=>(BlockSet.makeDense(g, gd.dmap)));//Remote capture
+		return new DistBlockMatrix(gd, bs) as DistBlockMatrix(g.M,g.N);		
+	}
+	
+	public static def makeSparse(g:Grid, gd:DistGrid, nzp:Double):DistBlockMatrix(g.M,g.N) {
+		val bs = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
+				()=>(BlockSet.makeSparse(g, gd.dmap, nzp)));//Remote capture
+		return new DistBlockMatrix(gd, bs) as DistBlockMatrix(g.M,g.N);		
+	}
+	//----------------------------
+	
 	public static def makeDense(g:Grid, d:DistMap):DistBlockMatrix(g.M,g.N) {
 		val bs = PlaceLocalHandle.make[BlockSet](Dist.makeUnique(), 
 				()=>(BlockSet.makeDense(g, d)));//Remote capture
@@ -762,32 +789,29 @@ public class DistBlockMatrix extends Matrix{
 	 * while DistVector dose not use blocking, meaning each place is assigned with only one vector segment which
 	 * is same as the total rows of the block set of DistBlockMatrix in that place.
 	 */
-	public def getAggRowBs():Array[Int](1){rail} = DistGrid.getAggRowBs(M, getGrid(), getMap());
+	public def getAggRowBs():Array[Int](1){rail} = gdist.getAggRowBs(getGrid());
 	
 	/**
-	 * Returns array of ingers. Each value is the total number of columns in the place of its indexing value.
+	 * Returns array of integers. Each value is the total number of columns in the place of its indexing value.
 	 * This method is used to create a DistVector corresponding to the columns of this DistBlockMatrix instance.
 	 */
-	public def getAggColBs():Array[Int](1){rail} = DistGrid.getAggColBs(N, getGrid(), getMap());
-	
-	// public def buildRowCastPlaceMap() {
-	// 	finish ateach (Dist.makeUnique()) {
-	// 		val bs = handleBS();
-	// 		if (bs.rowCastPlaceMap == null) {
-	// 			bs.rowCastPlaceMap = CastPlaceMap.buildRowCastMap(bs.grid, bs.dmap);				
-	// 		}
-	// 	}
-	// }
-	// 
-	// public def buildColCastPlaceMap() {
-	// 	finish ateach (Dist.makeUnique()) {
-	// 		val bs = handleBS();
-	// 		if (bs.colCastPlaceMap == null) {
-	// 			bs.colCastPlaceMap = CastPlaceMap.buildColCastMap(bs.grid, bs.dmap);
-	// 		}
-	// 	}
-	// }	
-	
+	public def getAggColBs():Array[Int](1){rail} = gdist.getAggColBs(getGrid());
+	//===============================================
+	public def isDistHorizontal():Boolean {
+		if (gdist != null) {
+			return (gdist.numRowPlaces==1);
+		} else {
+			return DistGrid.isHorizontal(getGrid(), getMap());
+		}
+	}
+
+	public def isDistVertical():Boolean {
+		if (gdist != null) {
+			return (gdist.numColPlaces == 1);
+		} else {
+			return DistGrid.isVertical(getGrid(), getMap());
+		}
+	}
 	//===============================================
 	public def likeMe(A:Matrix):Boolean {
 		if (A instanceof DistBlockMatrix) {

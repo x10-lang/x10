@@ -124,13 +124,13 @@ public class MatMatMult {
     	//val gPartB = new Grid(K, N, bK, bN); may not be balanced in column-wise partitioning
     	val gPartB = DistGrid.makeGrid(K, N, bK, bN, Place.MAX_PLACES, 1);
     	val gDistB = DistGrid.makeVertical(gPartB);
-    	val B = DistBlockMatrix.makeDense(gPartB, gDistB.dmap).initRandom() as DistBlockMatrix(K,N);
+    	val B = DistBlockMatrix.makeDense(gPartB, gDistB).initRandom() as DistBlockMatrix(K,N);
 
     	val C = DupBlockMatrix.makeDense(M, N, bM, bN);
     	
     	DistDistMult.mult(A, B, C, false);
 
-    	val A1 = DistBlockMatrix.makeDense(gPartA, gDistA.dmap);
+    	val A1 = DistBlockMatrix.makeDense(gPartA, gDistA);
     	
     	if (vrf) {
     		val c = A.toDense() % B.toDense();

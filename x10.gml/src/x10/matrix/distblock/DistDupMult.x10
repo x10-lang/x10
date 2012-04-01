@@ -47,9 +47,9 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		
-		Debug.assure(DistGrid.isVertical(gA, A.getMap()), 
+		Debug.assure(A.isDistVertical(), 
 				"First dist block matrix must has vertical distribution");
-		Debug.assure(DistGrid.isVertical(gC, C.getMap()), 
+		Debug.assure(C.isDistVertical(), 
 				"Output dist block matrix must has vertical distribution");
 
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
@@ -81,9 +81,9 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		
-		Debug.assure(DistGrid.isHorizontal(gA, A.getMap()), 
+		Debug.assure(A.isDistHorizontal(),
 				"First dist block matrix must have horizontal distribution");
-		Debug.assure(DistGrid.isVertical(gC, C.getMap()), 
+		Debug.assure(C.isDistVertical(), 
 				"Output dist block matrix must have vertical distribution");
 
 		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
@@ -114,9 +114,9 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 
-		Debug.assure(DistGrid.isVertical(gA, A.getMap()), 
+		Debug.assure(A.isDistVertical(), 
 				"First dist block matrix must have vertical distribution");
-		Debug.assure(DistGrid.isVertical(gC, C.getMap()), 
+		Debug.assure(C.isDistVertical(), 
 				"Output dist block matrix must have vertical distribution");
 
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
@@ -153,9 +153,9 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 		
-		Debug.assure(DistGrid.isHorizontal(gB, B.getMap()), 
+		Debug.assure(B.isDistHorizontal(), 
 				"Second dist block matrix must have horizontal distribution");
-		Debug.assure(DistGrid.isHorizontal(gC, C.getMap()), 
+		Debug.assure(C.isDistHorizontal(), 
 				"Output dist block matrix must have horizontal distribution");
 		
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
@@ -187,9 +187,9 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 
-		Debug.assure(DistGrid.isHorizontal(gB, B.getMap()), 
+		Debug.assure(B.isDistHorizontal(), 
 				"Second dist block matrix must have horizontal distribution");
-		Debug.assure(DistGrid.isHorizontal(gC, C.getMap()), 
+		Debug.assure(C.isDistHorizontal(), 
 				"Output dist block matrix must have horizontal distribution");
 		
 		Debug.assure(Grid.match(gA.colBs, gC.rowBs),
@@ -222,9 +222,9 @@ public class DistDupMult {
 		val gB = B.getGrid();
 		val gC = C.getGrid();
 
-		Debug.assure(DistGrid.isVertical(gB, B.getMap()), 
+		Debug.assure(B.isDistVertical(), 
 				"Second dist block matrix must have vertical distribution");
-		Debug.assure(DistGrid.isHorizontal(gC, C.getMap()), 
+		Debug.assure(C.isDistVertical(), 
 				"Output dist block matrix must have horizontal distribution");
 
 		Debug.assure(Grid.match(gA.rowBs, gC.rowBs),
@@ -248,6 +248,4 @@ public class DistDupMult {
 		return C;
 		
 	}
-	
-
 }

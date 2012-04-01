@@ -127,14 +127,14 @@ public class MatVecMult {
 		val distg = new DistGrid(gPart, pM, pN);
 		
 		Console.OUT.printf("Creating Matrix in sparse format for the given partitioning and distribution\n");
-		val mA = DistBlockMatrix.makeSparse(gPart, distg.dmap, nzd) as DistBlockMatrix(M,N);
+		val mA = DistBlockMatrix.makeSparse(gPart, distg, nzd) as DistBlockMatrix(M,N);
 		
 		Console.OUT.printf("Creating duplicated vector(%d), synchronized among %d places\n", N, pN*pM);
 		val vB = DupVector.make(N);
 		
 		Console.OUT.printf("Creating output DistVector(%d) using row-wise partitioning in %d places\n", M, pM*pN);
 		val vC = DistVector.make(M, mA.getAggRowBs()); //Be careful, keep partition same
-		//Same: val vC = DistVector.make(M, DistGrid.getAggRowBs(M, mA.getGrid(), mA.getMap()));
+		//Same: val vC = DistVector.make(M, DistGrid.getAggRowBs(mA.getGrid(), mA.gdist));
 		//Same: val vC = DistVector.make(M, pM);
 		//Wrong val vC = DistVector.make(M, bM);
 

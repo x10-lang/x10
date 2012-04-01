@@ -35,8 +35,7 @@ import x10.matrix.block.MatrixBlock;
 public class DistDupVectorMult  { 
 
 	public static def comp(mA:DistBlockMatrix, vB:DistVector(mA.N), vC:DupVector(mA.M), plus:Boolean):DupVector(vC) {
-		Debug.assure(DistGrid.isHorizontal(mA.getGrid(), mA.getMap()),
-				"First dist block matrix must have horizontal distribution");
+		Debug.assure(mA.isDistHorizontal(),	"First dist block matrix must have horizontal distribution");
 
 		val stt = Timer.milliTime();
 		var offb:Int = 0;
@@ -57,8 +56,7 @@ public class DistDupVectorMult  {
 	}
 	
 	public static def comp(mA:DistBlockMatrix, vB:DupVector(mA.N), vC:DistVector(mA.M), plus:Boolean):DistVector(vC) {
-		Debug.assure(DistGrid.isVertical(mA.getGrid(), mA.getMap()),
-				"First dist block matrix must have vertical distribution");
+		Debug.assure(mA.isDistVertical(), "First dist block matrix must have vertical distribution");
 		val stt = Timer.milliTime();
 		var offc:Int = 0;
 		finish for (var p:Int=0; p<Place.MAX_PLACES; offc+=vC.segSize(p), p++) {
@@ -76,7 +74,7 @@ public class DistDupVectorMult  {
 	//-------------
 
 	public static def comp(vB:DistVector, mA:DistBlockMatrix(vB.M), vC:DupVector(mA.N), plus:Boolean):DupVector(vC) {
-		Debug.assure(DistGrid.isVertical(mA.getGrid(), mA.getMap()),
+		Debug.assure(mA.isDistVertical(),
 				"Second operand dist block matrix must have vertical distribution");
 
 		val stt = Timer.milliTime();
@@ -97,7 +95,7 @@ public class DistDupVectorMult  {
 	}
 	
 	public static def comp(vB:DupVector, mA:DistBlockMatrix(vB.M), vC:DistVector(mA.N), plus:Boolean):DistVector(vC) {
-		Debug.assure(DistGrid.isHorizontal(mA.getGrid(), mA.getMap()),
+		Debug.assure(mA.isDistHorizontal(),
 				"Second operand dist block matrix must have horizontal distribution");
 		val stt = Timer.milliTime();
 		var offc:Int = 0;

@@ -104,7 +104,7 @@ public class VecMatMult {
 		val gPart = new Grid(M, N, bM, bN); //May not be balanced when dist over (pM x pN) places;
 		//use new Grid(M, N, bM, bN, pM, pN) to get better balanced 
 		val distG = new DistGrid(gPart, pM, pN);
-		val mB = DistBlockMatrix.makeSparse(gPart, distG.dmap, nzd).initRandom() as DistBlockMatrix(M,N);
+		val mB = DistBlockMatrix.makeSparse(gPart, distG, nzd).initRandom() as DistBlockMatrix(M,N);
 
 		val vC = vA % mB;
 
