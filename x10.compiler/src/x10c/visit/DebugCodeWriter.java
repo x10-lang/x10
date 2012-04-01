@@ -49,7 +49,7 @@ public class DebugCodeWriter extends CodeWriter {
         		"  }\n" + 
         		"}\n" + 
         		"\n" + 
-        		"function onload() {\n" + 
+        		"function setup() {\n" + 
         		"  elements = document.getElementsByTagName('a')\n" + 
         		"  for (var i = 0; i < elements.length; i++) {\n" + 
         		"    elt = elements[i];\n" + 
@@ -60,7 +60,7 @@ public class DebugCodeWriter extends CodeWriter {
         		"\n" + 
         		"</script>\n" + 
         		"");
-        html.println("</head><body>");
+        html.println("</head><body onload='setup();'>");
         html.println("<pre>");
         this.w = w;
     }
