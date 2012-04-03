@@ -24,20 +24,20 @@ public class DebugCodeWriter extends CodeWriter {
         }
         html.println("<html><head>");
         //html.println("<meta http-equiv='Refresh' content='20'/>");
-        html.println("<style type='text/css'>\n" + 
+        html.println("<style type='text/css'>\n" +
                 "  a:hover {\n" +
-                "    background-color: #DDF;\n" +
+                "    background-color: #ccccff;\n" +
                 "  }\n" +
                 "  a.a { position: relative; }\n" +
-        		"  a.a span {\n" + 
-        		"    border: dotted 2px #CCC;\n" + 
-        		"    background-color: #AEF;\n" + 
-        		"    display: none;\n" +
-        		"    z-index: 1;\n" +
-        		"    position: absolute; top: 1em; left: 0px;\n" +
-        		"    font-size: smaller;" +
-        		"  }\n" + 
-        		"</style>");
+                "  a.a span {\n" +
+                "    border: dotted 2px #cccccc;\n" +
+                "    background-color: #00ffff;\n" +
+                "    display: none;\n" +
+                "    z-index: 1;\n" +
+                "    position: absolute; top: 1em; left: 0px;\n" +
+                "    font-size: smaller;\n" +
+                "  }\n" +
+                "</style>");
         html.println("<script type='text/javascript'>\n" + 
         		"\n" + 
         		"function toggle() {\n" + 
