@@ -12,11 +12,11 @@ import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.Vector;
 import x10.matrix.VerifyTools;
 //
 import x10.matrix.block.Grid;
-import x10.matrix.dist.DistDenseMatrix;
-import x10.matrix.dist.DistSparseMatrix;
+import x10.matrix.distblock.DistBlockMatrix;
 //
 
 import logreg.SeqLogReg;
@@ -34,19 +34,21 @@ public class RunLogReg {
 		
 		val mX = args.size > 0 ? Int.parse(args(0)):1000; //
 		val nX = args.size > 1 ? Int.parse(args(1)):1000; //
-		val nzd= args.size > 2 ? Double.parse(args(2)):0.5;
-		val it = args.size > 3 ? Int.parse(args(3)):3;
-		val tV = args.size > 4 ? Int.parse(args(4)):0;
+		val mB = args.size > 2 ? Int.parse(args(2)):5;
+		val nB = args.size > 3 ? Int.parse(args(3)):5;
+
+		val nzd= args.size > 4 ? Double.parse(args(4)):0.5;
+		val it = args.size > 5 ? Int.parse(args(5)):3;
+		val tV = args.size > 6 ? Int.parse(args(6)):0;
 
 
 		Console.OUT.println("Set X row:"+mX+ " col:"+nX);
 		if ((mX<=0) ||(nX<=0) ||(tV<0))
 			Console.OUT.println("Error in settings");
 		else {
-			val prt:Grid = new Grid(mX, nX, Place.MAX_PLACES, 1);
-			val X:DistSparseMatrix(mX, nX) = DistSparseMatrix.make(prt, nzd) as DistSparseMatrix(mX, nX);
-			val y:DenseMatrix(X.M, 1) = DenseMatrix.make(X.M, 1);
-			val w:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1);
+			val X:DistBlockMatrix(mX, nX) = DistBlockMatrix.makeSparse(mX, nX, mB, nB, Place.MAX_PLACES, 1, nzd);
+			val y:Vector(X.M) = Vector.make(X.M);
+			val w:Vector(X.N) = Vector.make(X.N);
 			
 			//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
 			X.initRandom(1, 10);
@@ -71,7 +73,7 @@ public class RunLogReg {
 				val seq = new SeqLogReg(denX, yt, wt, it, it);
 				seq.run();
 				
-				if (w.equals(wt as Matrix(w.M, w.N))) {
+				if (w.equals(wt as Vector(w.M))) {
 					Console.OUT.println("Verification passed!");
 				} else {
 					Console.OUT.println("-------------- Verification failed!!!!---------------");

@@ -11,6 +11,7 @@ import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.Vector;
 //
 //import x10.matrix.dist.DupDenseMatrix;
 import x10.matrix.dist.DistDenseMatrix;
@@ -36,12 +37,12 @@ public class RunPageRank {
 
 	public static def main(args:Array[String](1)): void {
 		
-		val mG = args.size > 0 ? Int.parse(args(0)):10000; // Rows and columns of G
-		val iT = args.size > 1 ? Int.parse(args(1)):20;//Iterations
-		val rG = args.size > 2 ? Int.parse(args(2)):Place.MAX_PLACES;
-		val cG = args.size > 3 ? Int.parse(args(3)):1;
-		val vf = args.size > 4 ? Int.parse(args(4)):0; //Verify result or not
-		val nZ = args.size > 5 ? Double.parse(args(5)):0.001; //G's nonzero density
+		val mG = args.size > 0 ? Int.parse(args(0)):100; // Rows and columns of G
+		val rG = args.size > 1 ? Int.parse(args(1)):Place.MAX_PLACES;
+		val cG = args.size > 2 ? Int.parse(args(2)):1;
+		val nZ = args.size > 3 ? Double.parse(args(3)):0.9001; //G's nonzero density
+		val iT = args.size > 4 ? Int.parse(args(4)):2;//Iterations
+		val vf = args.size > 5 ? Int.parse(args(5)):0; //Verify result or not
 		val pP = args.size > 6 ? Int.parse(args(6)):0; //Print out input and output matrices
 
 		Console.OUT.println("Set row/col G:"+mG+" density:"+nZ+" iteration:"+iT);
@@ -54,21 +55,22 @@ public class RunPageRank {
 
 			paraPR.printInfo();
 
-			val orgP = paraPR.P.local().toDense(); //for verification purpose
+			val orgP = paraPR.P.local().clone();//for verification purpose
 
 			val paraP = paraPR.run();
 			
 			if (pP > 0) {
 				paraPR.G.printMatrix("Input G sparse matrix");
-				paraPR.P.printMatrix("Output matrix P");
+				paraPR.P.print("Output vector P");
 			}
 			
 			if (vf > 0){
 				val g = paraPR.G;
+				
 				val seqPR = new SeqPageRank(g.toDense(), orgP, 
-						paraPR.E.toDense(), paraPR.U.toDense(), iT, nZ);
+						paraPR.E, paraPR.U, iT, nZ);
 				val seqP = seqPR.run();
-				if (paraP.equals(seqP as Matrix{self.M==paraP.M, self.N==paraP.N})) 
+				if (paraP.equals(seqP as Vector(paraP.M))) 
 					Console.OUT.println("Result reverified");
 				else
 					Console.OUT.println("Verification failed!!!!");

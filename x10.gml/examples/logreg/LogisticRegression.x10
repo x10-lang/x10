@@ -12,16 +12,15 @@ import x10.util.Timer;
 import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
-import x10.matrix.DenseMatrix;
+import x10.matrix.Vector;
 import x10.matrix.blas.DenseMatrixBLAS;
 //
 import x10.matrix.block.Grid;
-import x10.matrix.dist.DistDenseMatrix;
-import x10.matrix.dist.DistSparseMatrix;
-import x10.matrix.dist.DupDenseMatrix;
+import x10.matrix.distblock.DistVector;
+import x10.matrix.distblock.DupVector;
+import x10.matrix.distblock.DistBlockMatrix;
+import x10.matrix.distblock.DupBlockMatrix;
 
-import x10.matrix.dist.DistMultDupToDist;
-import x10.matrix.dist.DistMultDistToDup;
 
 /**
    <p>
@@ -36,25 +35,19 @@ public class LogisticRegression {
 	val maxinneriter:Int; 
 	
 	//X = Rand(rows = 1000, cols = 1000, min = 1, max = 10, pdf = "uniform");
-	val X:DistSparseMatrix;
-	//N = nrow(X)
-	//D = ncol(X)
-	//y = Rand(rows = 1000, cols = 1, min = 1, max = 10, pdf = "uniform");
-	val y:DenseMatrix(X.M,1);
+	val X:DistBlockMatrix;
+	val y:Vector(X.M);
 	//w = Rand(rows=D, cols=1, min=0.0, max=0.0);
-	val w:DenseMatrix(X.N,1);
+	val w:Vector(X.N);
 	
 	//==========================================
-	val prt_y:Grid; 
-	val dup_w:DupDenseMatrix(X.N, 1); 
-	//val dup_w_:DupDenseMatrix(X.N, 1); 
-	val dst_y:DistDenseMatrix(X.M, 1);
+	val dup_w:DupVector(X.N); 
+	val dst_y:DistVector(X.M);
 	
-	val tmp_w:DenseMatrix(X.N,1);
-	val tmp_y:DenseMatrix(X.M,1);
+	val tmp_w:Vector(X.N);
+	val tmp_y:Vector(X.M);
 	
-	val prt_ty:Grid;
-	val dst_ty:DistDenseMatrix(1, X.M);
+	val dst_ty:DistVector(X.M);
 	
 	//===========================================
 	val eta0 = 0.0;
@@ -68,20 +61,16 @@ public class LogisticRegression {
 	public var paraRunTime:Long=0;
 	public var commUseTime:Long=0;
 	
-	public def this(x_:DistSparseMatrix, y_:DenseMatrix, w_:DenseMatrix,
-					it:Int, nit:Int) {
-		X=x_; y=y_ as DenseMatrix(X.M, 1);	w=w_ as DenseMatrix(X.N, 1);
+	public def this(x_:DistBlockMatrix, y_:Vector, w_:Vector, it:Int, nit:Int) {
+		X=x_; y=y_ as Vector(X.M);	w=w_ as Vector(X.N);
 		
-		prt_y = new Grid(X.M, 1, Place.MAX_PLACES, 1);
-		dst_y  = DistDenseMatrix.make(prt_y) as DistDenseMatrix(X.M, 1);
-		dup_w  = DupDenseMatrix.make(X.N, 1);
-		//dup_w_ = DupDenseMatrix.make(X.N,1);
+		dst_y  = DistVector.make(X.M, X.getAggRowBs()) as DistVector(X.M);
+		dup_w  = DupVector.make(X.N);
 		
-		prt_ty = new Grid(1, X.M, 1, Place.MAX_PLACES);
-		dst_ty = DistDenseMatrix.make(prt_ty) as DistDenseMatrix(1, X.M);
+		dst_ty = DistVector.make(X.M, X.getAggRowBs());
 
-		tmp_w  = DenseMatrix.make(X.N,1);
-		tmp_y  = DenseMatrix.make(X.M,1);
+		tmp_w  = Vector.make(X.N);
+		tmp_y  = Vector.make(X.M);
 		maxiter = it;
 		maxinneriter =nit;
 	}
@@ -89,10 +78,10 @@ public class LogisticRegression {
 	public def run() {
 		Debug.flushln("Starting logistic regression");
 		//o = X %*% w
-		val o = DenseMatrix.make(X.M, 1);
+		val o = Vector.make(X.M);
 		compute_XmultB(o, w);
 		//logistic = 1.0/(1.0 + exp( -y * o))
-		val logistic:DenseMatrix(X.M, 1) = y.clone();
+		val logistic:Vector(X.M) = y.clone();
 		logistic.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
 		//logistic.print("Parallel logistic value:");
 
@@ -100,14 +89,14 @@ public class LogisticRegression {
 		val obj = 0.5 * w.norm(w) + C*logistic.sum(); 
 		
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		val grad:DenseMatrix(X.N ,1) = DenseMatrix.make(X.N, 1);//w.clone();
+		val grad:Vector(X.N) = Vector.make(X.N);//w.clone();
 		compute_grad(grad, logistic);
 		
 		//Additional memory space allocation
-		val Xd:DenseMatrix(X.M,1)=DenseMatrix.make(X.M, 1);
+		val Xd:Vector(X.M)=Vector.make(X.M);
 		
 		//logisticD = logistic*(1-logistic)
-		val logisticD:DenseMatrix(X.M, 1) = DenseMatrix.make(logistic);
+		val logisticD:Vector(X.M) = logistic.clone();//Vector.make(logistic);
 		logisticD.cellSubFrom(1.0).cellMult(logistic);
 
 		//delta = sqrt(sum(grad*grad))
@@ -121,7 +110,7 @@ public class LogisticRegression {
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
-		val zeros_D:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1, 0.0);
+		val zeros_D:Vector(X.N) = Vector.make(X.N);
 		//# boolean for convergence check
 		//converge = (delta < tol) | (iter > maxiter)
 		var converge:Boolean = (delta < tol) | (iter > maxiter);
@@ -130,13 +119,13 @@ public class LogisticRegression {
 		//alpha = t(w) %*% w
 		var alpha:Double = w.norm(w);
 		// Add temp memory space
-		val s:DenseMatrix(X.N,1) = DenseMatrix.make(X.N,1);
-		val r:DenseMatrix(X.N, 1)= DenseMatrix.make(X.N,1);
-		val d:DenseMatrix(X.N, 1)= DenseMatrix.make(X.N,1);
-		val Hd:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N,1);
-		val onew:DenseMatrix(X.M, 1) = DenseMatrix.make(X.M, 1);
-		val wnew:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1);
-		val logisticnew:DenseMatrix(X.M,1) = DenseMatrix.make(X.M, 1);		
+		val s:Vector(X.N) = Vector.make(X.N);
+		val r:Vector(X.N) = Vector.make(X.N);
+		val d:Vector(X.N) = Vector.make(X.N);
+		val Hd:Vector(X.N) = Vector.make(X.N);
+		val onew:Vector(X.M) = Vector.make(X.M);
+		val wnew:Vector(X.N) = Vector.make(X.N);
+		val logisticnew:Vector(X.M) = Vector.make(X.M);		
 		Debug.flushln("Done initialization. Starting converging iteration");
 		while(!converge) {
 			
@@ -216,7 +205,7 @@ public class LogisticRegression {
 					// 					beta = norm_r2/old_norm_r2
 					val beta = norm_r2/old_norm_r2;
 					// 					d = r + beta*d
-					d.cellMult(beta).cellAdd(r);
+					d.scale(beta).cellAdd(r);
 					// 					innerconverge = (sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter)
 					innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);
 				}
@@ -283,13 +272,14 @@ public class LogisticRegression {
 	
 	//=======================================================
 	
-	private def compute_XmultB(result:DenseMatrix(X.M, 1), opB:DenseMatrix(X.N, 1)):void {
+	private def compute_XmultB(result:Vector(X.M), opB:Vector(X.N)):void {
 		//o = X %*% w
 		//Debug.flushln("Start X * nw ");
 		val stt:Long=Timer.milliTime();
 		opB.copyTo(dup_w.local());
 		dup_w.sync();
-		DistMultDupToDist.comp(X, dup_w, dst_y);
+		dst_y.mult(X,  dup_w, false);
+		//DistMultDupToDist.comp(X, dup_w, dst_y);
 		
 		val ctt:Long = Timer.milliTime();
 		dst_y.copyTo(result); //gather single column matrix
@@ -299,19 +289,20 @@ public class LogisticRegression {
 		//result.print("paralle X % B result:");
 	}
 	
-	private def compute_tXmultB(result:DenseMatrix(X.N,1), opB:DenseMatrix(X.M,1)):void {
+	private def compute_tXmultB(result:Vector(X.N), opB:Vector(X.M)):void {
 		
 		val stt = Timer.milliTime();
 		dst_y.copyFrom(opB);//Scattering
 		//opB.print("Scatter data source:");
 		//dst_y.print("Scatterring data:");
-		DistMultDistToDup.compTransMult(X, dst_y, dup_w, false);
+		//DistMultDistToDup.compTransMult(X, dst_y, dup_w, false);
+		dup_w.mult(dst_y, X, false);
 		dup_w.local().copyTo(result);
 		//result.print("Parallel X^t % B:");
 		paraRunTime += Timer.milliTime() - stt;
 	}
 	
-	private def compute_grad(grad:DenseMatrix(X.N, 1), logistic:DenseMatrix(X.M, 1)):void {
+	private def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
 		//Debug.flushln("Start computing grad");
 		logistic.copyTo(tmp_y);
@@ -323,9 +314,7 @@ public class LogisticRegression {
 		//grad.print("Parallel grad:");
 	}
 	
-	private def compute_Hd(Hd:DenseMatrix(X.N, 1), 
-							 logistricD:DenseMatrix(X.M, 1), 
-							 d:DenseMatrix(X.N, 1)):void {
+	private def compute_Hd(Hd:Vector(X.N), logistricD:Vector(X.M), d:Vector(X.N)):void {
 		// 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
 		//Debug.flushln("Start computing Hd");
 		compute_XmultB(tmp_y, d);

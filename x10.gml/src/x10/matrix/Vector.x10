@@ -185,7 +185,20 @@ public class Vector(M:Int) implements (Int) => Double {
 			this.d(i) = a * this.d(i);
 		return this;
     }
-        
+    //===============================
+    /**
+     * this = V * dv + this
+     */
+    public def scaleAdd(V:Vector(M), dv:Double): Vector(this) {
+    	for (var i:Int=0; i < M; ++i) 
+    		this.d(i) += dv * V.d(i);	
+    	return this;
+    }
+
+    public def scaleAdd(dv:Double, V:Vector(M)) = scaleAdd(V, dv);
+
+    //===============================
+
 	/**
 	 * Cell-wise mulitply of two vectors
 	 */
@@ -194,8 +207,7 @@ public class Vector(M:Int) implements (Int) => Double {
 			this.d(i) *= V.d(i);
         return this;
     }
-	    
-    
+	 
 	//======================================================
 	/**
 	 * Addition of two vectors: Mx1 + Mx1
@@ -264,7 +276,7 @@ public class Vector(M:Int) implements (Int) => Double {
 		BLAS.compDotProd(this.M, this.d, x.d);
 	
 
-	public def mult(v:Vector(M)):Double {
+	public def dotProd(v:Vector(M)):Double {
 		var d:Double = 0.0;
 		for(var i:Int=0; i<M; i++) d += this.d(i) * v.d(i);
 		return d;
@@ -287,11 +299,17 @@ public class Vector(M:Int) implements (Int) => Double {
 	public def transMult(A:Matrix{self.N==this.M}, B:Vector(A.M), plus:Boolean) =
 		VectorMult.comp(B, A, this, plus);
 	
+	public def mult(A:Matrix(M), B:Vector(A.N)): Vector(this) = VectorMult.comp(A, B, this, false);
+	public def transMult(A:Matrix{self.N==this.M}, B:Vector(A.M)) =	VectorMult.comp(B, A, this, false);
+
 	//------------------------
 	public def mult(B:Vector, A:Matrix(B.M,this.M), plus:Boolean)      = 
 		VectorMult.comp(B, A, this, plus);
 	public def multTrans(B:Vector, A:Matrix(this.M,B.M), plus:Boolean) = 
 		VectorMult.comp(A, B, this, plus);
+
+	public def mult(B:Vector, A:Matrix(B.M,this.M))      = VectorMult.comp(B, A, this, false);
+	public def multTrans(B:Vector, A:Matrix(this.M,B.M)) = VectorMult.comp(A, B, this, false);
 	
 	//-------------------------------------------------------------------
 	// Dense-vector multiply
@@ -301,12 +319,17 @@ public class Vector(M:Int) implements (Int) => Double {
 	public  def transMult(A:DenseMatrix{self.N==this.M}, B:Vector(A.M), plus:Boolean) = 
 		VectorMult.comp(B, A, this, plus);
 	
+	public def mult(A:DenseMatrix(this.M), B:Vector(A.N))               = VectorMult.comp(A, B, this, false);	
+	public def transMult(A:DenseMatrix{self.N==this.M}, B:Vector(A.M)) = VectorMult.comp(B, A, this, false);
+
 	//-----------------------------
 	public def mult(B:Vector, A:DenseMatrix(B.M,this.M), plus:Boolean)      = 
 		VectorMult.comp(B, A, this, plus);
 	public def multTrans(B:Vector, A:DenseMatrix(this.M,B.M), plus:Boolean) = 
 		VectorMult.comp(A, B, this, plus);
 		
+	public def mult(B:Vector, A:DenseMatrix(B.M,this.M))      =VectorMult.comp(B, A, this, false);
+	public def multTrans(B:Vector, A:DenseMatrix(this.M,B.M)) =VectorMult.comp(A, B, this, false);
 	//-------------------------------------------------------------------
 	// Symmetric-vector multiply
 	//-------------------------------------------------------------------
@@ -315,11 +338,18 @@ public class Vector(M:Int) implements (Int) => Double {
 	
 	public  def transMult(A:SymMatrix(this.M), B:Vector(A.N), plus:Boolean) =
 		VectorMult.comp(B, A, this, plus);
+
+	public  def mult(A:SymMatrix(this.M), B:Vector(A.N))      = VectorMult.comp(A, B, this, false);
+	public  def transMult(A:SymMatrix(this.M), B:Vector(A.N)) = VectorMult.comp(B, A, this, false);
+
 	//--------------
 	public def mult(B:Vector, A:SymMatrix(B.M,this.M), plus:Boolean)      = 
 		VectorMult.comp(B, A, this, plus);
 	public def multTrans(B:Vector, A:SymMatrix(this.M,B.M), plus:Boolean) = 
 		VectorMult.comp(A, B, this, plus);
+
+	public def mult(B:Vector, A:SymMatrix(B.M,this.M))      = VectorMult.comp(B, A, this, false);
+	public def multTrans(B:Vector, A:SymMatrix(this.M,B.M)) = VectorMult.comp(A, B, this, false);
 
 	//-------------------------------------------------------------------
 	// Triangular-vector multiply
@@ -477,6 +507,19 @@ public class Vector(M:Int) implements (Int) => Double {
 		}
 		return false;		
 	}
+	
+	//======================================================
+	/**
+	 * Compute exponential of each all elements in matrix.
+	 * 
+	 * @return 		result ("this" instance)
+	 */
+	public def exp(): Vector(this) {
+		for (var i:Int=0; i<M; i++)
+			Math.exp(d(i));
+		return this;
+	}
+	
 	
 	//======================================================
 	public def toString():String {

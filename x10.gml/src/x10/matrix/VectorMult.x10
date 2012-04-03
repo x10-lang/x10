@@ -121,8 +121,8 @@ public class VectorMult {
 	 */
 	public static def comp(A:SparseCSC, B:Vector, var offsetB:Int, C:Vector, offsetC:Int, plus:Boolean):Vector(C) {
 		
-		Debug.assure(offsetB+A.N<=B.M, "Input vector overflow");
-		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow");
+		Debug.assure(offsetB+A.N<=B.M, "Input vector overflow, offsetB:"+offsetB+" len:"+A.N+" B size:"+B.M);
+		Debug.assure(offsetC+A.M<=C.M, "Output vector overflow, offset:"+offsetC+" len:"+A.M+" output size:"+C.M);
 		if (!plus) {
 			for (var i:Int=offsetC; i< offsetC+A.M; i++) C.d(i) =0;		
 		}
@@ -147,8 +147,8 @@ public class VectorMult {
 		comp(B, 0, A, C, 0, plus);
 
 	public static def comp(B:Vector, var offsetB:Int, A:DenseMatrix, C:Vector, var offsetC:Int, plus:Boolean):Vector(C) {
-		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow");
-		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow");
+		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M);
+		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M);
 		if (!plus) {
 			for (var i:Int=offsetC; i<offsetC+A.N; i++) C.d(i) =0;
 		}
@@ -165,8 +165,8 @@ public class VectorMult {
 	}
 
 	public static def comp(B:Vector, var offsetB:Int, A:SparseCSC, C:Vector, var offsetC:Int, plus:Boolean):Vector(C) {
-		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow");
-		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow");
+		Debug.assure(offsetB+A.M<=B.M, "Input vector overflow, offset:"+offsetB+" len:"+A.M+" length:"+B.M);
+		Debug.assure(offsetC+A.N<=C.M, "Output vector overflow, output offset:"+offsetC+" A.N:"+A.N+" C.M:"+C.M);
 		if (!plus) {
 			for (var i:Int=offsetC; i<offsetC+A.N; i++) C.d(i) =0;
 		}

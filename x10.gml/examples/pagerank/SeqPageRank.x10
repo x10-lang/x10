@@ -13,6 +13,7 @@ import x10.matrix.Debug;
 //
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.Vector;
 import x10.matrix.blas.DenseMatrixBLAS;
 //
 
@@ -24,7 +25,6 @@ import x10.matrix.blas.DenseMatrixBLAS;
 public class SeqPageRank {
 
 	val rowG:Int;
-	val colP:Int;
 
 	public val iteration:Int;
 	val nzDensity:Double;
@@ -32,39 +32,37 @@ public class SeqPageRank {
 
 	// Input and output data
 	public val G:DenseMatrix(rowG, rowG);
-	public val P:DenseMatrix(rowG, colP);
-	public val E:DenseMatrix(rowG, colP);
-	public val U:DenseMatrix(colP, rowG);
+	public val P:Vector(rowG);
+	public val E:Vector(rowG);
+	public val U:Vector(rowG);
 	
 	// Temp data and matrix 
-	val GP:DenseMatrix(rowG, colP);
-	val UP:DenseMatrix(colP, colP);
+	val GP:Vector(rowG);
 	
-	public def this(g:DenseMatrix, p:DenseMatrix, 
-					e:DenseMatrix, u:DenseMatrix, 
+	public def this(g:DenseMatrix, p:Vector, 
+					e:Vector, u:Vector, 
 					it:Int, nz:Double) {
-		rowG = g.M;  colP = p.N;
+		rowG = g.M;
 		//
 		G = g as DenseMatrix(rowG, rowG); 
-		P = p as DenseMatrix(rowG, colP); 
-		E = e as DenseMatrix(rowG, colP); 
-		U = u as DenseMatrix(colP, rowG);
+		P = p as Vector(rowG); 
+		E = e as Vector(rowG); 
+		U = u as Vector(rowG);
 		//
 		iteration = it;
 		nzDensity = nz;
 		//
-		GP = DenseMatrix.make(rowG, colP);
-		UP = DenseMatrix.make(colP, colP);
+		GP = Vector.make(rowG);
 	}
 	
-	public def run():DenseMatrix {
+	public def run():Vector {
 		Debug.flushln("Start sequential PageRank");
 		for (var i:Int=0; i<iteration; i++) {
-			GP.mult(G, P).scale(alpha);			
+			GP.mult(G, P, false).scale(alpha);			
 			//DenseMultBLAS.comp(G, P, GP);
 			//GP.scale(alpha);
 			//
-			P.mult(E, UP.mult(U, P)).scale(1-alpha).cellAdd(GP);
+			P.mult(E, U.dotProd(P)).scale(1-alpha).cellAdd(GP);
 			//DenseMultBLAS.comp(U, P, UP);
 			//DenseMultBLAS.comp(E, UP, P);
 			//P.scale(1-alpha);

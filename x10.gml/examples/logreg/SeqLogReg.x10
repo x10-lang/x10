@@ -11,8 +11,8 @@ import x10.util.Timer;
 //
 import x10.matrix.Debug;
 //
-import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.Vector;
 import x10.matrix.blas.DenseMatrixBLAS;
 //
 
@@ -33,9 +33,9 @@ public class SeqLogReg {
 	//N = nrow(X)
 	//D = ncol(X)
 	//y = Rand(rows = 1000, cols = 1, min = 1, max = 10, pdf = "uniform");
-	val y:DenseMatrix(X.M,1);
+	val y:Vector(X.M);
 	//w = Rand(rows=D, cols=1, min=0.0, max=0.0);
-	val w:DenseMatrix(X.N,1);
+	val w:Vector(X.N);
 	
 	val eta0 = 0.0;
 	val eta1 = 0.25;
@@ -45,17 +45,17 @@ public class SeqLogReg {
 	val sigma3 = 4.0;
 	val psi = 0.1; 	
 	
-	val tmp_w:DenseMatrix(X.N, 1);
-	val tmp_y:DenseMatrix(X.M, 1);
+	val tmp_w:Vector(X.N);
+	val tmp_y:Vector(X.M);
 	
-	public def this(x_:DenseMatrix, y_:DenseMatrix(x_.M,1), w_:DenseMatrix(x_.N,1),
+	public def this(x_:DenseMatrix, y_:Vector(x_.M), w_:Vector(x_.N),
 					it:Int, nit:Int) {
 		X=x_; 
-		y=y_ as DenseMatrix(X.M, 1);
-		w=w_ as DenseMatrix(X.N, 1);
+		y=y_ as Vector(X.M);
+		w=w_ as Vector(X.N);
 		
-		tmp_w = DenseMatrix.make(X.N, 1);
-		tmp_y = DenseMatrix.make(X.M, 1);
+		tmp_w = Vector.make(X.N);
+		tmp_y = Vector.make(X.M);
 		
 		maxiter = it;
 		maxinneriter=nit;
@@ -64,21 +64,21 @@ public class SeqLogReg {
 	public def run() {
 		Debug.flushln("Starting logistic regression");
 		//o = X %*% w
-		val o:DenseMatrix(X.M,1)=DenseMatrix.make(X.M, 1);
+		val o:Vector(X.M)=Vector.make(X.M, 1);
 		compute_XmultB(o, w);
 		//logistic = 1.0/(1.0 + exp( -y * o))
-		val logistic:DenseMatrix(X.M, 1) = y.clone();
+		val logistic:Vector(X.M) = y.clone();
 		logistic.scale(-1).cellMult(o).exp().cellAdd(1.0).cellDivBy(1.0);
 		//logistic.print("Sequential logistic:");
 		//obj = 0.5 * t(w) %*% w + C*sum(logistic)
 		val obj = 0.5 * w.norm(w) + C*logistic.sum(); 
 		
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
-		val grad:DenseMatrix(X.N,1) = DenseMatrix.make(X.N, 1);
+		val grad:Vector(X.N) = Vector.make(X.N, 1);
 		compute_grad(grad, logistic);
 				
 		//logisticD = logistic*(1-logistic)
-		val logisticD:DenseMatrix(X.M, 1) = DenseMatrix.make(logistic);
+		val logisticD:Vector(X.M) = logistic.clone();//Vector.make(logistic);
 		logisticD.cellSubFrom(1.0).cellMult(logistic);
 
 		//delta = sqrt(sum(grad*grad))
@@ -92,7 +92,7 @@ public class SeqLogReg {
 		
 		//# starting point for CG
 		//zeros_D = Rand(rows = D, cols = 1, min = 0.0, max = 0.0);
-		val zeros_D:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1, 0.0);
+		val zeros_D:Vector(X.N) = Vector.make(X.N);
 		//# boolean for convergence check
 		//converge = (delta < tol) | (iter > maxiter)
 		var converge:Boolean = (delta < tol) | (iter > maxiter);
@@ -101,13 +101,13 @@ public class SeqLogReg {
 		//alpha = t(w) %*% w
 		var alpha:Double = w.norm(w);
 		// Add temp memory space
-		val s:DenseMatrix(X.N,1) = DenseMatrix.make(X.N,1);
-		val r:DenseMatrix(X.N, 1)= DenseMatrix.make(X.N,1);
-		val d:DenseMatrix(X.N, 1)= DenseMatrix.make(X.N,1);
-		val Hd:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N,1);
-		val onew:DenseMatrix(X.M, 1) = DenseMatrix.make(X.M, 1);
-		val wnew:DenseMatrix(X.N, 1) = DenseMatrix.make(X.N, 1);
-		val logisticnew:DenseMatrix(X.M,1) = DenseMatrix.make(X.M, 1);		
+		val s:Vector(X.N) = Vector.make(X.N);
+		val r:Vector(X.N)= Vector.make(X.N);
+		val d:Vector(X.N)= Vector.make(X.N);
+		val Hd:Vector(X.N) = Vector.make(X.N);
+		val onew:Vector(X.M) = Vector.make(X.M);
+		val wnew:Vector(X.N) = Vector.make(X.N);
+		val logisticnew:Vector(X.M) = Vector.make(X.M);		
 		Debug.flushln("Done initialization. Starting converging iteration");
 		while(!converge) {
 			
@@ -188,7 +188,7 @@ public class SeqLogReg {
 // 					beta = norm_r2/old_norm_r2
  					val beta = norm_r2/old_norm_r2;
 // 					d = r + beta*d
- 					d.cellMult(beta).cellAdd(r);
+ 					d.scale(beta).cellAdd(r);
 // 					innerconverge = (sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter)
  					innerconverge = (Math.sqrt(norm_r2) <= psi * norm_grad) | (inneriter < maxinneriter);
  				}				
@@ -252,7 +252,7 @@ public class SeqLogReg {
 	
 	//==================================================
 	
-	protected def compute_XmultB(result:DenseMatrix(X.M, 1), opB:DenseMatrix(X.N, 1)):void {
+	protected def compute_XmultB(result:Vector(X.M), opB:Vector(X.N)):void {
 		//o = X %*% w
 		Debug.flushln("Start sequential X * nw ");
 		result.mult(X, opB);
@@ -261,15 +261,15 @@ public class SeqLogReg {
 
 	}
 	
-	protected def compute_tXmultB(result:DenseMatrix(X.N, 1), 
-								  opB:DenseMatrix(X.M,1)):void {
+	protected def compute_tXmultB(result:Vector(X.N), 
+								  opB:Vector(X.M)):void {
 		Debug.flushln("Start sequential X^t * b ");
 		result.transMult(X, opB);
 		Debug.flushln("Done");
 		//result.print("Sequental X^t % B result:");
 	}
 	
-	protected def compute_grad(grad:DenseMatrix(X.N, 1), logistic:DenseMatrix(X.M, 1)):void {
+	protected def compute_grad(grad:Vector(X.N), logistic:Vector(X.M)):void {
 		//grad = w + C*t(X) %*% ((logistic - 1)*y)
 		//Debug.flushln("Start sequential computing grad");
 		logistic.copyTo(tmp_y);
@@ -281,9 +281,9 @@ public class SeqLogReg {
 		//grad.print("Sequential grad:");
 	}
 	
-	protected def compute_Hd(Hd:DenseMatrix(X.N, 1), 
-							logistricD:DenseMatrix(X.M, 1), 
-							d:DenseMatrix(X.N, 1)):void {
+	protected def compute_Hd(Hd:Vector(X.N), 
+							logistricD:Vector(X.M), 
+							d:Vector(X.N)):void {
 		// 				Hd = d + C*(t(X) %*% (logisticD*(X %*% d)))
 		//Debug.flushln("Start sequential computing Hd");
 		compute_XmultB(tmp_y, d);

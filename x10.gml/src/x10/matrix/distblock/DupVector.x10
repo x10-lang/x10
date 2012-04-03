@@ -323,6 +323,11 @@ public class DupVector(M:Int) {
 	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DupVector(this) =
 		DistDupVectorMult.comp(vB, mA, this, plus);
 
+	public def mult(mA:DistBlockMatrix(this.M), vB:DistVector(mA.N)) = DistDupVectorMult.comp(mA, vB, this, false);
+	public def mult(vB:DistVector, mA:DistBlockMatrix(vB.M, this.M)) = DistDupVectorMult.comp(vB, mA, this, false);
+	public def mult(mA:DistBlockMatrix(this.M), vB:DupVector(mA.N))  = DistDupVectorMult.comp(mA, vB, this, false);
+	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M))  = DistDupVectorMult.comp(vB, mA, this, false);
+	
 	//-------------------------
 	public operator this % (that:DistBlockMatrix(M)) = 
 		DistDupVectorMult.comp(this, that, DistVector.make(that.N, that.getAggColBs()), true);

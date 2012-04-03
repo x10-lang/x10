@@ -330,7 +330,10 @@ public class DistVector(M:Int) {
 	
 	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M), plus:Boolean):DistVector(this) =
 		DistDupVectorMult.comp(vB, mA, this, plus);
-	
+
+	public def mult(mA:DistBlockMatrix(M), vB:DupVector(mA.N))      = DistDupVectorMult.comp(mA, vB, this, false);
+	public def mult(vB:DupVector, mA:DistBlockMatrix(vB.M, this.M)) = DistDupVectorMult.comp(vB, mA, this, false);
+
 	//------------
 	public operator this % (that:DistBlockMatrix(this.M)) = 
 	 	DistDupVectorMult.comp(this, that, DupVector.make(that.N), false);
