@@ -64,7 +64,13 @@ public class PreLoader {
 		// N.B. we must return false for all x10 classes since they need preloading to make static initialization work properly
 		boolean isSystemClass = false;
 		
-		if (!supportExecutableJar) {
+        boolean precisePreload = false;
+        String property = System.getProperty("x10.PRECISE_PRELOAD_TEST");
+        if (property != null) {
+            precisePreload = Boolean.getBoolean(property);
+        }
+        
+		if (!precisePreload && !supportExecutableJar) {
 			
 	    isSystemClass = c.getClassLoader() == bootstrap;
 	    
