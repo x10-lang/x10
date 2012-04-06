@@ -627,9 +627,12 @@ public class X10CPPTranslator extends Translator {
 			        arCmd.add(ccb.targetFilePath().getPath());
 			        
 			        ArrayList<String> objFiles = new ArrayList<String>();
-			        for (String file : compilationUnits) {
-			            if (file.endsWith(".cc")) {
-			                objFiles.add(file.substring(file.lastIndexOf(File.separatorChar)+1, file.length()-2)+"o");
+			        for (String file : compiler.flatOutputFiles()) {
+			            int lastPeriod = file.lastIndexOf('.');
+			            if (-1 == lastPeriod) continue;
+			            String suffix = file.substring(lastPeriod+1, file.length());
+			            if (suffix.equals("cc") || suffix.equals("c") || suffix.equals("cpp") || suffix.equals("cxx")) {
+                            objFiles.add(file.substring(file.lastIndexOf(File.separatorChar)+1, lastPeriod)+".o");   
 			            }
 			        }
 			        if (!objFiles.isEmpty()) {
