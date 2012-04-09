@@ -197,6 +197,9 @@ public class CXXCommandBuilder {
      * @param cxxCmd the container to which to append the arguments.
      */
     public void addPostArgs(ArrayList<String> cxxCmd) {
+        if (sharedLibProps.staticLib && !usingXLC()) {
+            cxxCmd.add("-Wl,--start-group");
+        }
         for (PrecompiledLibrary pcl:options.x10libs) {
             
             if (options.x10_config.DEBUG && !options.x10_config.DEBUG_APP_ONLY) {
@@ -207,7 +210,10 @@ public class CXXCommandBuilder {
             cxxCmd.addAll(pcl.ldFlags);
             cxxCmd.addAll(pcl.libs);
         }
-            
+        if (sharedLibProps.staticLib && !usingXLC()) {
+            cxxCmd.add("-Wl,--end-group");
+        }
+
         // x10rt
         cxxCmd.add("-L"+options.distPath()+"/lib");
         cxxCmd.addAll(x10rt.ldFlags);
