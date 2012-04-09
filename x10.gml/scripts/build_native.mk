@@ -53,11 +53,16 @@ $(target)_pami	: $(x10src) $(depend_src) $(gml_inc)
 		$(XC) -x10rt pami $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
 		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
 
+$(target)_bgp	: $(x10src) $(depend_src) $(gml_inc)
+		$(XC) -x10rt pgas_bgp $(GML_NAT_OPT) $(X10_FLAG) $< -o $@ \
+		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
+
 
 ###
 sock		: $(target)_sock
 lapi		: $(target)_lapi
 pami		: $(target)_pami
+bgp		: $(target)_bgp
 
 ###
 all_sock	:
