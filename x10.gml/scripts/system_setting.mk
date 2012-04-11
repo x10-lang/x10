@@ -16,7 +16,7 @@
 server		=triloka
 
 #Comment following line, if do not want build with lapack library.
-#add_lapack	= yes
+add_lapack	= yes
 
 ###################################################
 ## Compiler settings
@@ -33,6 +33,12 @@ XDOC= x10doc
 
 ## JAVA include
 JNI_inc     =$(JAVA_HOME)/include
+
+##-------------------------------------
+## BlueGene/P post link options. BLAS and LAPACK settings are not used for BG/P build
+BGP_CC =/bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
+BGP_OPT=-L/opt/ibmmath/lib -L/opt/ibmcmp/xlf/bg/11.1/lib -L/opt/ibmcmp/xlsmp/bg/1.7/lib -L/opt/ibmcmp/vac/bg/9.0/lib -lx10 -lesslbg -lxlf90_r -lxl -lxlsmp -lrt
+
 
 #---------------------------------------------------------------
 # Two different systems support: 
@@ -94,7 +100,7 @@ ifdef add_lapack
 POST_PATH	+= -L$(lapack_path)
 POST_LIBS	+= -l$(lapack_name)
 
-LAPACK_CFLAG = -define ENABLE_LAPACK -cxx-prearg -DENABLE_LAPACK
+LAPACK_CFLAG = -cxx-prearg -DENABLE_LAPACK
 
 add_jlapack =chk_jlapack
 

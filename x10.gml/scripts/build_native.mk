@@ -60,7 +60,9 @@ $(target)_bgp	: $(x10src) $(depend_src) $(gml_inc)
 
 ###
 sock		: $(target)_sock
+#build in native for lapi transport
 lapi		: $(target)_lapi
+#build in native for pami transport
 pami		: $(target)_pami
 bgp		: $(target)_bgp
 
@@ -74,6 +76,8 @@ all_lapi	:
 all_pami	:
 			$(foreach src, $(target_list), $(MAKE) target=$(src) pami; )
 
+all_bgp		:
+			$(foreach src, $(target_list), $(MAKE) target=$(src) bgp; )
 
 ##--------
 ## clean

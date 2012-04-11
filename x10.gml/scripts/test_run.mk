@@ -55,7 +55,7 @@ run_lapi	: lapi
 			$(Srsv) -n $(numplaces) $(Xrun) ./$(target)_lapi $(test_args)
 
 run_pami	: pami
-			MP_PROCS=$(numplaces) MP_EUILIB=ip ./$(target)_sock $(test_args)
+			MP_PROCS=$(numplaces) MP_EUILIB=ip ./$(target)_pami $(test_args)
 
 
 ##----- Run all tests in one transport or java backend

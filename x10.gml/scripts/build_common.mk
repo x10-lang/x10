@@ -52,7 +52,7 @@ clean	::
 		
 clean_all:: 
 		rm -rf $(build_path)
-		$(foreach f, $(target_list), rm -f $(f)_mpi $(f)_sock $(f)_lapi $(f)_pami; )
+		$(foreach f, $(target_list), rm -f $(f)_mpi $(f)_sock $(f)_lapi $(f)_pami $(f)_bgp;)
 
 ###-----------------------------------------
 ##  build library
