@@ -31,11 +31,11 @@ ifeq ($(X10RT_PLATFORM), aix_xlc)
   APP_LDFLAGS_PAMI   += -Wl,-binitfini:poe_remote_main 
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pe1200/pempi/gnu/lib64
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pe1200/pempi/gnu/lib
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
@@ -44,11 +44,11 @@ ifeq ($(X10RT_PLATFORM), aix_gcc)
   APP_LDFLAGS_PAMI   += -Wl,-binitfini:poe_remote_main 
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pe1200/pempi/gnu/lib64
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pe1200/pempi/gnu/lib64
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 
@@ -58,17 +58,17 @@ LIBS += $(LIB_FILE_PAMI)
 PROPERTIES += etc/x10rt_pami.properties
 
 %.pami: %.cc $(LIB_FILE_PAMI)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI) $(X10RT_TEST_LDFLAGS)
+	mpCC $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI) $(X10RT_TEST_LDFLAGS)
 
 pami/x10rt_pami.o: pami/x10rt_pami.cc
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
+	mpCC $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 
 $(LIB_FILE_PAMI): pami/x10rt_pami.o $(COMMON_OBJS)
 ifdef X10_STATIC_LIB
 	$(CP) pami/x10rt_pami.o $@
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
-	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PAMI) $(SO_LDLIBS_PAMI) -o $@ $^
+	mpCC $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PAMI) $(SO_LDLIBS_PAMI) -o $@ $^
 endif
 
 etc/x10rt_pami.properties:
