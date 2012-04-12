@@ -159,6 +159,8 @@ public class PreLoader {
 					preLoad(toFileName(nm), c, intern);
 				} catch (ClassNotFoundException e) {
 //					System.err.println(i+": "+nm+" not found");
+				} catch (NoClassDefFoundError e) {
+					System.out.println("Preloader: could not load " + e.getMessage() + " (ignored).");
 				}
 			}
 		} catch (IOException e) { e.printStackTrace(System.err); assert false; }
