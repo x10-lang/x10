@@ -109,11 +109,11 @@ final public class Double extends Number implements StructI,
     public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Double)b).$value); }
     public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Double)b).$value); }
     public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Double)b).$value); }
-    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(java.lang.Object b, Type t) { return $value < ((Double)b).$value; }
-    public boolean $gt$O(java.lang.Object b, Type t) { return $value > ((Double)b).$value; }
-    public boolean $le$O(java.lang.Object b, Type t) { return $value <= ((Double)b).$value; }
-    public boolean $ge$O(java.lang.Object b, Type t) { return $value >= ((Double)b).$value; }
+    // for X10PrettyPrinterVisitor.generateSpecialDispatcher
+    public boolean $lt$Z(java.lang.Object b, Type t) { return $value < ((Double)b).$value; }
+    public boolean $gt$Z(java.lang.Object b, Type t) { return $value > ((Double)b).$value; }
+    public boolean $le$Z(java.lang.Object b, Type t) { return $value <= ((Double)b).$value; }
+    public boolean $ge$Z(java.lang.Object b, Type t) { return $value >= ((Double)b).$value; }
 
     // extends abstract class java.lang.Number
     @Override

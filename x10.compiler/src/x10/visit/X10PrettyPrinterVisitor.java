@@ -204,9 +204,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final int NO_QUALIFIER = 8;
 
     public static final boolean isSelfDispatch = true;
-    // WIP XTENLANG-2993
-//    public static final boolean returnSpecialTypeFromDispatcher = true;
-    public static final boolean returnSpecialTypeFromDispatcher = false;
+    // XTENLANG-2993
+    public static final boolean generateSpecialDispatcher = true;
+    public static final boolean generateSpecialDispatcherNotUse = false;  // TODO to be removed
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean supportConstructorInlining = true;
@@ -2440,9 +2440,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
 
             // call
-            // WIP XTENLANG-2993
-//            er.printMethodName(md, invokeInterface, isDispatchMethod, isSpecialReturnType, isParamReturnType);
-            er.printMethodName(md, invokeInterface, isDispatchMethod && !(returnSpecialTypeFromDispatcher && isSpecialReturnType), isSpecialReturnType, isParamReturnType);
+            // XTENLANG-2993
+            er.printMethodName(md, invokeInterface, isDispatchMethod, generateSpecialDispatcher && !generateSpecialDispatcherNotUse, md.returnType().get(), isSpecialReturnType, isParamReturnType);
         }
 
         // print the argument list
@@ -4676,6 +4675,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static boolean isPrimitiveGenericMethod(MethodInstance mi) {
         if (mi.container().fullName().toString().equals("x10.interop.Java.array")) return true;
         return false;
+    }
+
+    public static boolean isSpecialTypeForDispatcher(Type type) {
+        // XTENLANG-2993
+        return isSpecialType(type) || type.isVoid();
     }
 
     public static boolean hasParams(Type t) {

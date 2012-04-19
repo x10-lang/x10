@@ -139,11 +139,11 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,((UShort)a).$value)); }
     public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,((UShort)a).$value)); }
     public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,((UShort)a).$value)); }
-    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(java.lang.Object a, Type t) { return Unsigned.lt($value,((UShort)a).$value); }
-    public boolean $gt$O(java.lang.Object a, Type t) { return Unsigned.gt($value,((UShort)a).$value); }
-    public boolean $le$O(java.lang.Object a, Type t) { return Unsigned.le($value,((UShort)a).$value); }
-    public boolean $ge$O(java.lang.Object a, Type t) { return Unsigned.ge($value,((UShort)a).$value); }
+    // for X10PrettyPrinterVisitor.generateSpecialDispatcher
+    public boolean $lt$Z(java.lang.Object a, Type t) { return Unsigned.lt($value,((UShort)a).$value); }
+    public boolean $gt$Z(java.lang.Object a, Type t) { return Unsigned.gt($value,((UShort)a).$value); }
+    public boolean $le$Z(java.lang.Object a, Type t) { return Unsigned.le($value,((UShort)a).$value); }
+    public boolean $ge$Z(java.lang.Object a, Type t) { return Unsigned.ge($value,((UShort)a).$value); }
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         serializer.write($value);

@@ -148,11 +148,11 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     public java.lang.Object $gt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value > ((Int)b).$value); }
     public java.lang.Object $le(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value <= ((Int)b).$value); }
     public java.lang.Object $ge(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value >= ((Int)b).$value); }
-    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(java.lang.Object b, Type t) { return $value < ((Int)b).$value; }
-    public boolean $gt$O(java.lang.Object b, Type t) { return $value > ((Int)b).$value; }
-    public boolean $le$O(java.lang.Object b, Type t) { return $value <= ((Int)b).$value; }
-    public boolean $ge$O(java.lang.Object b, Type t) { return $value >= ((Int)b).$value; }
+    // for X10PrettyPrinterVisitor.generateSpecialDispatcher
+    public boolean $lt$Z(java.lang.Object b, Type t) { return $value < ((Int)b).$value; }
+    public boolean $gt$Z(java.lang.Object b, Type t) { return $value > ((Int)b).$value; }
+    public boolean $le$Z(java.lang.Object b, Type t) { return $value <= ((Int)b).$value; }
+    public boolean $ge$Z(java.lang.Object b, Type t) { return $value >= ((Int)b).$value; }
 
     // extends abstract class java.lang.Number
     @Override

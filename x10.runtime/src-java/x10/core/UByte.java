@@ -156,11 +156,11 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.gt($value,((UByte)a).$value)); }
     public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.le($value,((UByte)a).$value)); }
     public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(Unsigned.ge($value,((UByte)a).$value)); }
-    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
-    public boolean $lt$O(java.lang.Object a, Type t) { return Unsigned.lt($value,((UByte)a).$value); }
-    public boolean $gt$O(java.lang.Object a, Type t) { return Unsigned.gt($value,((UByte)a).$value); }
-    public boolean $le$O(java.lang.Object a, Type t) { return Unsigned.le($value,((UByte)a).$value); }
-    public boolean $ge$O(java.lang.Object a, Type t) { return Unsigned.ge($value,((UByte)a).$value); }
+    // for X10PrettyPrinterVisitor.generateSpecialDispatcher
+    public boolean $lt$Z(java.lang.Object a, Type t) { return Unsigned.lt($value,((UByte)a).$value); }
+    public boolean $gt$Z(java.lang.Object a, Type t) { return Unsigned.gt($value,((UByte)a).$value); }
+    public boolean $le$Z(java.lang.Object a, Type t) { return Unsigned.le($value,((UByte)a).$value); }
+    public boolean $ge$Z(java.lang.Object a, Type t) { return Unsigned.ge($value,((UByte)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

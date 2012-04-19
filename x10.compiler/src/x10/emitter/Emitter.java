@@ -420,19 +420,62 @@ public class Emitter {
 		return Name.make(mangleIdentifier(name.toString().replace(".", "$")));
 	}
 
-	private static final String PRIMITIVE_PREFIX = "$";
-	private static final Name BYTE_NAME = Name.make(PRIMITIVE_PREFIX + "B");
-        private static final Name SHORT_NAME = Name.make(PRIMITIVE_PREFIX + "S");
-        private static final Name INT_NAME = Name.make(PRIMITIVE_PREFIX + "I");
-        private static final Name LONG_NAME = Name.make(PRIMITIVE_PREFIX + "J");
-        private static final Name FLOAT_NAME = Name.make(PRIMITIVE_PREFIX + "F");
-        private static final Name DOUBLE_NAME = Name.make(PRIMITIVE_PREFIX + "D");
-        private static final Name CHAR_NAME = Name.make(PRIMITIVE_PREFIX + "C");
-        private static final Name BOOLEAN_NAME = Name.make(PRIMITIVE_PREFIX + "Z");
-        private static final Name UBYTE_NAME = Name.make(PRIMITIVE_PREFIX + "b");
-        private static final Name USHORT_NAME = Name.make(PRIMITIVE_PREFIX + "s");
-        private static final Name UINT_NAME = Name.make(PRIMITIVE_PREFIX + "i");
-        private static final Name ULONG_NAME = Name.make(PRIMITIVE_PREFIX + "j");
+	private static final String SPECIALTYPE_PREFIX = "$";
+        private static final String BYTE_SUFFIX = SPECIALTYPE_PREFIX + "B";
+        private static final String SHORT_SUFFIX = SPECIALTYPE_PREFIX + "S";
+        private static final String INT_SUFFIX = SPECIALTYPE_PREFIX + "I";
+        private static final String LONG_SUFFIX = SPECIALTYPE_PREFIX + "J";
+        private static final String FLOAT_SUFFIX = SPECIALTYPE_PREFIX + "F";
+        private static final String DOUBLE_SUFFIX = SPECIALTYPE_PREFIX + "D";
+        private static final String CHAR_SUFFIX = SPECIALTYPE_PREFIX + "C";
+        private static final String BOOLEAN_SUFFIX = SPECIALTYPE_PREFIX + "Z";
+        private static final String UBYTE_SUFFIX = SPECIALTYPE_PREFIX + "b";
+        private static final String USHORT_SUFFIX = SPECIALTYPE_PREFIX + "s";
+        private static final String UINT_SUFFIX = SPECIALTYPE_PREFIX + "i";
+        private static final String ULONG_SUFFIX = SPECIALTYPE_PREFIX + "j";
+        private static final String STRING_SUFFIX = SPECIALTYPE_PREFIX + "t";
+        private static final String VOID_SUFFIX = SPECIALTYPE_PREFIX + "V";
+	private static final Name BYTE_NAME = Name.make(BYTE_SUFFIX);
+        private static final Name SHORT_NAME = Name.make(SHORT_SUFFIX);
+        private static final Name INT_NAME = Name.make(INT_SUFFIX);
+        private static final Name LONG_NAME = Name.make(LONG_SUFFIX);
+        private static final Name FLOAT_NAME = Name.make(FLOAT_SUFFIX);
+        private static final Name DOUBLE_NAME = Name.make(DOUBLE_SUFFIX);
+        private static final Name CHAR_NAME = Name.make(CHAR_SUFFIX);
+        private static final Name BOOLEAN_NAME = Name.make(BOOLEAN_SUFFIX);
+        private static final Name UBYTE_NAME = Name.make(UBYTE_SUFFIX);
+        private static final Name USHORT_NAME = Name.make(USHORT_SUFFIX);
+        private static final Name UINT_NAME = Name.make(UINT_SUFFIX);
+        private static final Name ULONG_NAME = Name.make(ULONG_SUFFIX);
+        public static final String specialTypeSuffixForDispatcher(Type type0) {
+            Type type = Types.baseType(type0);
+            assert isSpecialTypeForDispatcher(type);
+            String name = "";
+            if (type.isSignedNumeric()) {
+                if (type.isByte()) name = BYTE_SUFFIX;
+                else if (type.isShort()) name = SHORT_SUFFIX;
+                else if (type.isInt()) name = INT_SUFFIX;
+                else /*if (type.isLong())*/ name = LONG_SUFFIX;
+            } else if (type.isUnsignedNumeric()) {
+                if (type.isUByte()) name = UBYTE_SUFFIX; 
+                else if (type.isUShort()) name = USHORT_SUFFIX;
+                else if (type.isUInt()) name = UINT_SUFFIX;
+                else /*if (type.isULong())*/ name = ULONG_SUFFIX;
+            } else if (type.isFloat()) {
+                return FLOAT_SUFFIX;
+            } else if (type.isDouble()) {
+                return DOUBLE_SUFFIX;
+            } else if (type.isChar()) {
+                return CHAR_SUFFIX;
+            } else if (type.isBoolean()) {
+                return BOOLEAN_SUFFIX;
+            } else if (type.isString()) {
+                return STRING_SUFFIX;
+            } else if (type.isVoid()) {
+                return VOID_SUFFIX;
+            }
+            return name;
+        }
 //        private static final String X10_LANG_PREFIX = "$L$";
         private static final String X10_LANG_PREFIX = "$";
 //        private static final String X10_ARRAY_PREFIX = "$A$";
@@ -445,9 +488,7 @@ public class Emitter {
                     if (type.isByte()) name = BYTE_NAME;
                     else if (type.isShort()) name = SHORT_NAME;
                     else if (type.isInt()) name = INT_NAME;
-                    else if (type.isLong()) name = LONG_NAME;
-                    else if (type.isFloat()) name = FLOAT_NAME;
-                    else /*if (type.isDouble())*/ name = DOUBLE_NAME;
+                    else /*if (type.isLong())*/ name = LONG_NAME;
                     return name;
                 } else if (type.isUnsignedNumeric()) {
                     Name name = null;
@@ -456,6 +497,10 @@ public class Emitter {
                     else if (type.isUInt()) name = UINT_NAME;
                     else /*if (type.isULong())*/ name = ULONG_NAME;
                     return name;
+                } else if (type.isFloat()) {
+                    return FLOAT_NAME;
+                } else if (type.isDouble()) {
+                    return DOUBLE_NAME;
                 } else if (type.isChar()) {
                     return CHAR_NAME;
                 } else if (type.isBoolean()) {
@@ -1134,8 +1179,6 @@ public class Emitter {
 
     public void generateMethodDecl(X10MethodDecl_c n, boolean boxPrimitives) {
         
-        boolean isSpecialReturnType = isSpecialType(n.returnType().type());
-
         Context c = tr.context();
         boolean isInterface = c.currentClass().flags().isInterface();
 
@@ -1154,7 +1197,9 @@ public class Emitter {
         }
 
         boolean isDispatcher = X10PrettyPrinterVisitor.isSelfDispatch && isInterface && isDispatcher(n);
-        boolean generateReturnSpecialTypeFromDispatcher = isDispatcher && (X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher && isSpecialReturnType);
+        // XTENLANG-2993
+        boolean isSpecialTypeForDispatcher = isSpecialTypeForDispatcher(n.returnType().type());
+        boolean needSpecialDispatcher = isDispatcher && (X10PrettyPrinterVisitor.generateSpecialDispatcher && isSpecialTypeForDispatcher);
 
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
         boolean canMangleMethodName = canMangleMethodName(n.methodDef());
@@ -1164,9 +1209,9 @@ public class Emitter {
         boolean isFirst = false;
 
         
-        // WIP XTENLANG-2993
+        // XTENLANG-2993
         // stop generating interface of dispatcher method returning j.l.Object if the return type is special type
-        if (!generateReturnSpecialTypeFromDispatcher) {
+        if (X10PrettyPrinterVisitor.generateSpecialDispatcherNotUse || !needSpecialDispatcher) {
         
         w.begin(0);
         w.write(javaFlags.translate());
@@ -1185,7 +1230,7 @@ public class Emitter {
         
         // decl
         // print the method name
-        printMethodName(n.methodDef(), isInterface, isDispatcher);
+        printMethodName(n.methodDef(), isInterface, isDispatcher, false, null);
         
         // print formals
         w.write("(");
@@ -1317,14 +1362,14 @@ public class Emitter {
             }
         }
         
-        // WIP XTENLANG-2993
+        // XTENLANG-2993
         // stop generating interface of dispatcher method returning j.l.Object if the return type is special type
         }
 
         
-        // WIP XTENLANG-2993
+        // XTENLANG-2993
         // dispatcher method returing special type
-        if (generateReturnSpecialTypeFromDispatcher) {
+        if (needSpecialDispatcher) {
 
             w.begin(0);
             w.write(javaFlags.translate());
@@ -1332,13 +1377,13 @@ public class Emitter {
             // print the method type parameters
             printTypeParams(n, c, n.typeParameters());
 
-            // WIP XTENLANG-2993
+            // XTENLANG-2993
 //            // print the return type
 //            if (isDispatcher) {
 //                w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 //            } else {
                 printType(n.returnType().type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-                // WIP XTENLANG-2993
+                // XTENLANG-2993
 //            }
 
             
@@ -1346,9 +1391,8 @@ public class Emitter {
 
             // decl
             // print the method name
-            // WIP XTENLANG-2993
-//            printMethodName(n.methodDef(), isInterface, isDispatcher);
-            printMethodName(n.methodDef(), isInterface, false/*isDispatcher*/);
+            // XTENLANG-2993
+            printMethodName(n.methodDef(), isInterface, isDispatcher, true, n.returnType().type());
             
             // print formals
             w.write("(");
@@ -1397,7 +1441,13 @@ public class Emitter {
                 
                 Type type = f.type().type();
                 if (isDispatcher && containsTypeParam(type)) {
-                    printType(type, 0);
+                    // XTENLANG-2998
+                    // Java backend erases type parameters of interface and merge multiple instantiations of the same generic interface (e.g. I[Int] and I[Float]) into a single Java generic interface (I).
+                    if (type instanceof ParameterType) {
+                        w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
+                    } else {
+                        printType(type, 0);
+                    }
                     w.write(" ");
                     Name name = f.name().id();
                     if (name.toString().equals("")) {
@@ -1480,14 +1530,18 @@ public class Emitter {
         
     }
 
-	// decl and call
-    private void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher) {
-    	Type returnType = def.returnType().get();
-    	printMethodName(def, isInterface, isDispatcher, isSpecialType(returnType), tr.typeSystem().isParameterType(returnType));
+    // decl and call
+    private void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean useSpecialDispatcher, Type returnTypeForDispatcher) {
+        Type returnType = def.returnType().get();
+        printMethodName(def, isInterface, isDispatcher, useSpecialDispatcher, returnTypeForDispatcher, isSpecialType(returnType), tr.typeSystem().isParameterType(returnType));
     }
 
     private static boolean isSpecialType(Type type) {
         return X10PrettyPrinterVisitor.isSpecialType(type);
+    }
+
+    private static boolean isSpecialTypeForDispatcher(Type type) {
+        return X10PrettyPrinterVisitor.isSpecialTypeForDispatcher(type);
     }
 
     public static final boolean canMangleMethodName(MethodDef def) {
@@ -1534,6 +1588,38 @@ public class Emitter {
 //        }
         
         return true;
+    }
+    
+    public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean useSpecialDispatcher, Type returnTypeForDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
+        // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+        // WIP XTENLANG-2680 (ComparableTest.x10)
+        // enable it after enhancing canMangleMethodName with parameter list
+        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def)) {
+            w.write(getMangledMethodName(def, !isInterface));
+        }
+        else {
+            w.write(mangleToJava(def.name()));
+        }
+        if (!isDispatcher) {
+            if (isSpecialReturnType) {
+                if (canMangleMethodName(def)) {
+                    w.write(RETURN_SPECIAL_TYPE_SUFFIX);
+                }
+            }
+            // print $G
+            else if (isParamReturnType) {
+                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+            }
+        }
+        else {
+            // XTENLANG-2993
+            // isDispatcher
+            if (useSpecialDispatcher && isSpecialTypeForDispatcher(returnTypeForDispatcher)) {
+                if (canMangleMethodName(def)) {
+                    w.write(specialTypeSuffixForDispatcher(returnTypeForDispatcher));
+                }
+            }
+        }
     }
     
     public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
@@ -2198,7 +2284,7 @@ public class Emitter {
 
 	    // decl
 	    // print the method name
-	    printMethodName(def, isInterface, false);
+	    printMethodName(def, isInterface, false, false, null);
 	    
 	    // print the formals
 	    w.write("(");
@@ -2292,7 +2378,7 @@ public class Emitter {
 	    }
 
         // call
-        printMethodName(impl.def(), isInterface2, false);
+        printMethodName(impl.def(), isInterface2, false, false, null);
 
         // print the argument list
 	    w.write("(");
@@ -2412,7 +2498,7 @@ public class Emitter {
     	    w.write("super.");
     	    
     	    // call
-    	    printMethodName(def, false, false);
+    	    printMethodName(def, false, false, false, null);
 
     	    // print the argument list
     	    w.write("(");
@@ -2756,10 +2842,8 @@ public class Emitter {
         return isContain;
     }
 
-    private void printDispatchMethod(MethodInstance dispatch, List<MethodInstance> mis) {
-
-        boolean isSpecialReturnType = isSpecialType(dispatch.returnType());
-        boolean generateReturnSpecialTypeFromDispatcher = X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher && isSpecialReturnType;
+    
+    private void printDispatchMethod(MethodInstance dispatch, List<MethodInstance> mis, boolean isSpecialTypeForDispatcher, Type returnTypeForDispatcher) {
         
         MethodDef def = dispatch.def();
         Flags flags = dispatch.flags();
@@ -2767,8 +2851,6 @@ public class Emitter {
         Name[] names = null;
         boolean first = false;
 
-        
-        
         w.write("// dispatcher for " + def);
         w.newline();
         
@@ -2776,17 +2858,19 @@ public class Emitter {
         w.write(flags.clearAbstract().clear(Flags.NATIVE).translateJava());
         
         // print return type
-        if (true) {
+	// XTENLANG-2993
+        if (!isSpecialTypeForDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         } else {
-            printType(dispatch.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+            printType(returnTypeForDispatcher, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
         }
         
         w.write(" ");
         
         // decl
-        // print the method name
-        printMethodName(def, true, true);
+        // print method name
+	// XTENLANG-2993
+        printMethodName(def, true, true, isSpecialTypeForDispatcher, returnTypeForDispatcher);
         
         w.write("(");
         
@@ -2889,7 +2973,8 @@ public class Emitter {
             }
             
             boolean needParen = false;
-            if (true) {
+	    // XTENLANG-2993
+            if (!isSpecialTypeForDispatcher) {
             // this dispatch methods returns Object, so box if the underlying type is not boxed
             if (!isBoxedType(mi.returnType()) && !mi.returnType().isVoid()) {
                 printBoxConversion(mi.returnType());
@@ -2899,7 +2984,7 @@ public class Emitter {
             }
             
             // call
-            printMethodName(mi.def(), false, false);
+            printMethodName(mi.def(), false, false, false, null);
             
             // print the argument list
             w.write("(");
@@ -2944,8 +3029,11 @@ public class Emitter {
                 w.write(")");
             }
             w.write(";");
+            // XTENLANG-2993
+            if (!isSpecialTypeForDispatcher) {
             if (mi.returnType().isVoid()) {
                 w.write("return null;");
+            }
             }
             if (mis.size() != 1) {
                 w.write("}");
@@ -2960,205 +3048,34 @@ public class Emitter {
         w.write("}");
         w.newline();
         
-
-        // WIP XTENLANG-2993
-        // dispatcher method returing special type
-        if (generateReturnSpecialTypeFromDispatcher) {
-            
-            w.write("// dispatcher for " + def);
-            w.newline();
-            
-            w.begin(0);
-            w.write(flags.clearAbstract().clear(Flags.NATIVE).translateJava());
-            
-            // print return type
-            // WIP XTENLANG-2993
-//            w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
-            printType(dispatch.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-
-            w.write(" ");
-            
-            // decl
-            // print the method name
-            // WIP XTENLANG-2993
-//            printMethodName(def, true, true);
-            printMethodName(def, true, false/*true*/);
-            
-            w.write("(");
-  
-            first = true;
-            for (ParameterType p : x10def.typeParameters()) {
-                if (!first) {
-                    w.write(", ");
-                } else {
-                    first = false;
-                }
-                w.write("final ");
-                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
-                w.write(" ");
-                w.write(mangleParameterType(p));
-            }
-            
-            names = new Name[def.formalTypes().size()];
-            for (int i = 0; i < def.formalTypes().size(); i++) {
-                Type f = dispatch.formalTypes().get(i);
-                if (!first || i != 0) {
-                    w.write(", ");
-                }
-                Type type = def.formalTypes().get(i).get();
-                if (containsTypeParam(type)) {
-                    w.write("final ");
-                    if (type instanceof ParameterType) {
-                        w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
-                    } else {
-                        printType(type, 0);
-                    }
-                    
-                    w.write(" ");
-                    
-                    Name name = Name.make("a" + (i + 1));
-                    w.write(name.toString());
-                    
-                    w.write(", ");
-                    w.write("final ");
-                    w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
-                    w.write(" ");
-                    Name name1 = Name.make("t" + (i + 1));
-                    w.write(name1.toString());
-                    
-                    names[i] = name1;
-                } else {
-                    w.write("final ");
-                    printType(f, 0);
-                    
-                    w.write(" ");
-                    
-                    Name name = Name.make("a" + (i + 1));
-                    w.write(name.toString());
-                }
-            }
-            
-            w.end();
-            w.write(")");
-
-//            // Remove throw types support
-//            if (!dispatch.throwTypes().isEmpty()) {
-//                w.allowBreak(6);
-//                w.write("throws ");
-//                for (Iterator<Type> i = dispatch.throwTypes().iterator(); i.hasNext();) {
-//                    Type t = i.next();
-//                    printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
-//                    if (i.hasNext()) {
-//                        w.write(",");
-//                        w.allowBreak(4, " ");
-//                    }
-//                }
-//            }
-            
-            w.write(" {");
-            w.newline();
-            
-            for (MethodInstance mi : mis) {
-                if (mis.size() != 1) {
-                    boolean first3 = true;
-                    for (int i = 0; i < names.length; i++) {
-                        Name name = names[i];
-                        if (name == null) continue;
-                        if (first3) {
-                            w.write("if (");
-                            first3 = false;
-                        }
-                        else {
-                            w.write(" && ");
-                        }
-                        
-                        w.write(name.toString());
-                        w.write(".equals(");
-                        new RuntimeTypeExpander(this, mi.formalTypes().get(i)).expand();
-                        w.write(")");
-                    }
-                    w.write(") {");
-                }
-                
-                if (!mi.returnType().isVoid()) {
-                    w.write("return ");
-                }
-
-                boolean needParen = false;
-                // WIP XTENLANG-2993
-//                // this dispatch methods returns Object, so box if the underlying type is not boxed
-//                if (!isBoxedType(mi.returnType()) && !mi.returnType().isVoid()) {
-//                    printBoxConversion(mi.returnType());
-//                    w.write("(");
-//                    needParen = true;
-//                }
-                
-                // call
-                printMethodName(mi.def(), false, false);
-                
-                // print the argument list
-                w.write("(");
-                
-                boolean first2 = true;
-                MethodInstance x10mi = mi;
-                assert (x10mi.typeParameters().size() == x10def.typeParameters().size());
-                for (Type t : x10def.typeParameters()) {
-                    if (!first2) {
-                        w.write(", ");
-                    }
-                    first2 = false;
-                    new RuntimeTypeExpander(this, t).expand(tr);
-                }
-                
-                for (int i = 0; i < mi.formalTypes().size(); i++) {
-                    Type f = mi.formalTypes().get(i);
-                    if (!first2 || i != 0) {
-                        w.write(", ");
-                    }
-                    boolean closeParen = false;
-                    if (isBoxedType(def.formalTypes().get(i).get())) {
-                        Type bf = Types.baseType(f);
-                        if (!isBoxedType(f)) {
-                            closeParen = printUnboxConversion(f);
-                        } else if (!isMethodParameter(bf, mi, tr.context())) {
-                            // TODO:CAST
-                            w.write("(");
-                            printType(f, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                            w.write(")");
-                        }
-                    }
-                    
-                    Name name = Name.make("a" + (i + 1));
-                    w.write(name.toString());
-                    if (closeParen)
-                        w.write(")");
-                }
-                w.write(")");
-                if (needParen) {
-                    w.write(")");
-                }
-                w.write(";");
-                if (mi.returnType().isVoid()) {
-                    w.write("return null;");
-                }
-                if (mis.size() != 1) {
-                    w.write("}");
-                }
-                w.newline();
-            }
-            
-            if (mis.size() != 1) {
-                w.write("throw new x10.lang.Error(\"not implemented dispatch mechanism based on contra-variant type completely\");");
-            }
-            
-            w.write("}");
-            w.newline();
-
-            
-            
-        }
-
     }
+
+    
+    // N.B. return type of dispatch is one of the return types which are merged into this dispatch method
+    private void printDispatchMethod(MethodInstance dispatch, List<MethodInstance> mis) {
+	printDispatchMethod(dispatch, mis, false, null);
+
+	// XTENLANG-2993
+	if (X10PrettyPrinterVisitor.generateSpecialDispatcher) {
+	    Map<Type,List<MethodInstance>> specialTypeDispatchers = new HashMap<Type,List<MethodInstance>>();
+	    for (MethodInstance mi : mis) {
+	        Type type = Types.baseType(mi.returnType());
+	        if (isSpecialTypeForDispatcher(type)) {
+	            List<MethodInstance> specialTypeMethods = specialTypeDispatchers.get(type);
+	            if (specialTypeMethods == null) {
+	                specialTypeMethods = new ArrayList<MethodInstance>();
+	                specialTypeDispatchers.put(type, specialTypeMethods);
+	            }
+	            specialTypeMethods.add(mi);
+	        }
+	    }
+	    for (Map.Entry<Type, List<MethodInstance>> entry : specialTypeDispatchers.entrySet()) {
+                printDispatchMethod(dispatch, entry.getValue(), true, entry.getKey());
+	    }
+	}
+	
+    }
+
 
     private static boolean isMethodParameter(Type bf, MethodInstance mi, Context context) {
         if (bf instanceof ParameterType) {

@@ -64,15 +64,15 @@ final public class String extends x10.core.Ref implements
     public java.lang.Object $ge(final java.lang.Object a1, final Type t1) {
         return x10.core.Boolean.$box($ge$O((java.lang.String) a1));
     }
-    // for X10PrettyPrinterVisitor.returnSpecialTypeFromDispatcher
+    // for X10PrettyPrinterVisitor.generateSpecialDispatcher
     // dispatcher for method abstract public x10.util.Ordered.operator<(that:T):x10.lang.Boolean
-    public boolean $lt$O(java.lang.Object a1, Type t1) { return $lt$O((java.lang.String) a1); }
+    public boolean $lt$Z(java.lang.Object a1, Type t1) { return $lt$O((java.lang.String) a1); }
     // dispatcher for method abstract public x10.util.Ordered.operator>(that:T):x10.lang.Boolean
-    public boolean $gt$O(java.lang.Object a1, Type t1) { return $gt$O((java.lang.String) a1); }
+    public boolean $gt$Z(java.lang.Object a1, Type t1) { return $gt$O((java.lang.String) a1); }
     // dispatcher for method abstract public x10.util.Ordered.operator<=(that:T):x10.lang.Boolean
-    public boolean $le$O(java.lang.Object a1, Type t1) { return $le$O((java.lang.String) a1); }
+    public boolean $le$Z(java.lang.Object a1, Type t1) { return $le$O((java.lang.String) a1); }
     // dispatcher for method abstract public x10.util.Ordered.operator>=(that:T):x10.lang.Boolean
-    public boolean $ge$O(java.lang.Object a1, Type t1) { return $ge$O((java.lang.String) a1); }
+    public boolean $ge$Z(java.lang.Object a1, Type t1) { return $ge$O((java.lang.String) a1); }
 
 
     public java.lang.String $value;
