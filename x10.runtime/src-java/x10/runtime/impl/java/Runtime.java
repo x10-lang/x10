@@ -377,23 +377,24 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     	return ba;
     }
 
-    public static <T> byte[] serializeUsingReflection(T body) throws IOException {
-    	long start = PROF_SER ? System.nanoTime() : 0;
-    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
-    	DataOutputStream oos = new DataOutputStream(baos);
-    	X10JavaSerializer serializer = new X10JavaSerializer(oos);
-    	serializer.writeObjectUsingReflection(body);
-    	oos.close();
-    	byte[] ba = baos.toByteArray();
-    	if (PROF_SER) {
-    		long stop = System.nanoTime();
-    		long duration = stop-start;
-    		if (duration >= PROF_SER_FILTER) {
-    			System.out.println("Serialization took "+(((double)duration)/1e6)+" ms.");
-    		}
-    	}
-    	return ba;
-    }
+    // not used
+//    public static <T> byte[] serializeUsingReflection(T body) throws IOException {
+//    	long start = PROF_SER ? System.nanoTime() : 0;
+//    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
+//    	DataOutputStream oos = new DataOutputStream(baos);
+//    	X10JavaSerializer serializer = new X10JavaSerializer(oos);
+//    	serializer.writeObjectUsingReflection(body);
+//    	oos.close();
+//    	byte[] ba = baos.toByteArray();
+//    	if (PROF_SER) {
+//    		long stop = System.nanoTime();
+//    		long duration = stop-start;
+//    		if (duration >= PROF_SER_FILTER) {
+//    			System.out.println("Serialization took "+(((double)duration)/1e6)+" ms.");
+//    		}
+//    	}
+//    	return ba;
+//    }
 
 
 	private static Class<? extends Object> hadoopWritableClass = getHadoopClass();
