@@ -53,6 +53,7 @@ namespace x10aux {
     inline x10_boolean is_spe (place p)       { return x10rt_is_spe(p); }
     inline x10_boolean is_cuda (place p)      { return x10rt_is_cuda(p); }
     inline void event_probe (void)            { x10rt_probe(); }
+    inline void blocking_probe (void)         { x10rt_blocking_probe(); }
 
     extern const int cuda_cfgs[];
     void blocks_threads (place p, msg_type t, int shm, x10_ubyte &bs, x10_ubyte &ts, const int *cfgs=cuda_cfgs);

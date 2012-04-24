@@ -100,6 +100,14 @@ public class X10RT {
     }
 
     /**
+     * This is a blocking call.
+     */
+    public static void blockingProbe() {
+        assert isBooted();
+        if (!forceSinglePlace) x10rt_blocking_probe();
+    }
+
+    /**
      * Return the numeric id of the current Place.
      * @return the numeric id of the current Place.
      */
@@ -153,4 +161,5 @@ public class X10RT {
      */
     private static native void x10rt_probe();
     
+    private static native void x10rt_blocking_probe();
 }

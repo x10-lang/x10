@@ -510,6 +510,13 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     /**
+     * @MultiVM: mapped to Runtime.x10 -> blocking_probe(): void
+     */
+    public static void blockingProbe() {
+        X10RT.blockingProbe();
+    }
+
+    /**
      * Load environment variables.
      */
     public static x10.util.HashMap<String, String> loadenv() {
