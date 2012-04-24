@@ -656,17 +656,22 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	
 	private X10ClassDoc findInImports(X10Doc holder, String startingName) {
 		X10ClassDoc classDoc = null;
-		if (holderClass(holder).source != null) {
+		X10ClassDoc holderClass = holderClass(holder);
+		if (holderClass != null && holderClass.source != null) {
 			for (Import i : holderClass(holder).source.imports()) {
-				
 				if ((classDoc = isName(i.name().toString(), startingName)) != null) {
 					return classDoc;
 				}
 			}
 		}
 
+		// x10.lang and x10.array are auto-imported.
 		String lang = "x10.lang." + startingName;
 		classDoc = (X10ClassDoc) this.classNamed(lang);
+		if (classDoc == null) {
+	        String array = "x10.array." + startingName;
+	        classDoc = (X10ClassDoc) this.classNamed(array);
+		}
 		return classDoc;
 	}
 	
