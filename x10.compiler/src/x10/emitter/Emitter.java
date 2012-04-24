@@ -2263,19 +2263,16 @@ public class Emitter {
 	    
 	    // e.g int m() overrides or implements T m()
 	    boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
+	    int intflags = boxReturnValue || instantiateReturnType ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0;
+	    if (!X10PrettyPrinterVisitor.isGenericOverloading) intflags |= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
 	    if (boxReturnValue) {
 	        if (X10PrettyPrinterVisitor.isString(impl.returnType())) {
 	            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        } else {
-                printType(impl.returnType(), (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	            printType(impl.returnType(), intflags);
 	        }
 	    } else {
-	        if (instantiateReturnType) {
-	            printType(impl.returnType(), (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-	        }
-	        else {
-	            printType(impl.returnType(), (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) );
-	        }
+	        printType(impl.returnType(), intflags);
 	    }
 
 	    boolean isInterface = st.isClass() && st.toClass().flags().isInterface();
@@ -2530,9 +2527,8 @@ public class Emitter {
         }
     
         X10ClassType ct = cd.asType();
-        List<MethodInstance> methods;
         for (MethodDef md : cd.methods()) {
-            methods = getOverriddenMethods(ct, md.asInstance());
+            List<MethodInstance> methods = getOverriddenMethods(ct, md.asInstance());
             for (MethodInstance mi : methods) {
                 printBridgeMethod(ct, md.asInstance(), mi.def(), true);
             }
