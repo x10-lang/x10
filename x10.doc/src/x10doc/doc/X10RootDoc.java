@@ -610,15 +610,20 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	}
 	
 	private X10ClassDoc findInCurrentClass(X10Doc holder, String startingName) {
-		String newClassName = holderClass(holder).classDef.fullName().toString()
-				+ "." + startingName;
+	    X10ClassDoc holderClass = holderClass(holder);
+	    String newClassName = startingName;
+	    if (holderClass != null) {
+	        newClassName = holderClass.classDef.fullName().toString()+ "." + startingName;
+	    }
 		X10ClassDoc classDoc = (X10ClassDoc) this.classNamed(newClassName);
 		return classDoc;
 	}
 	
 	private X10ClassDoc findInEnclosingAndSuperClasses(X10Doc holder, String startingName)
 	{
-		ClassType ct = holderClass(holder).classDef.asType();
+	    X10ClassDoc holderClass = holderClass(holder);
+	    if (null == holderClass) return null;
+		ClassType ct = holderClass.classDef.asType();
 		for(ClassType superType : HierarchyUtils.getSuperTypes(ct))
 		{
 			String superName = superType.fullName().toString();
@@ -634,7 +639,17 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 	
 	private X10ClassDoc findInCurrentPackage(X10Doc holder, String startingName)
 	{
-		String newClassName = holderClass(holder).classDef.package_().toString() + "." + startingName;
+	    String pack = null;
+	    if (holder instanceof X10PackageDoc) {
+	        pack = holder.name();
+	    } else {
+	        X10ClassDoc holderClass = holderClass(holder);
+	        if (holderClass != null) {
+	            pack = holderClass.classDef.package_().toString();
+	        }
+	    }
+	    
+		String newClassName = (pack != null ? pack + "." : "") + startingName;
 		X10ClassDoc classDoc = (X10ClassDoc) this.classNamed(newClassName);
 		return classDoc;
 	}
