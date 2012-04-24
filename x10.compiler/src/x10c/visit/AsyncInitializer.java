@@ -215,6 +215,19 @@ public class AsyncInitializer extends ContextVisitor {
                     BackingArrayAccessAssign ba = (BackingArrayAccessAssign) n;
                     if (checkInitValList((Local)((ArrayAccess_c)ba.left()).array()) != null) {
                         // should not visit backing array which is created by myself (already done)
+                        // except that if a variable is referenced in the RHS, it may need to be added
+                        Expr right = ba.right();
+                        if (right instanceof X10Local_c) {
+                            X10Local_c l = (X10Local_c)right;
+                            Flags flags = l.localInstance().flags();
+                            if (flags == null || !flags.equals(Flags.FINAL)) {
+                                VarDef var = checkIfIncluded(l, asyncVar);
+                                if (var == null) {
+                                    asyncVar.add(new LocalDef_c(ts, right.position(), flags,
+                                        Types.ref(l.localInstance().type()), l.name().id()){});
+                                }
+                            }
+                        }
                         return n;
                     }
                 }
@@ -623,8 +636,7 @@ public class AsyncInitializer extends ContextVisitor {
             Name name2 = ((LocalDef_c)var).name();
             Flags flags2 = ((LocalDef_c)var).flags();
             Type t2 = ts.createLocalInstance(lv.position(), Types.ref((LocalDef_c)var)).type();
-            if (name1.toString().equals(name2.toString()) && flags1.equals(flags2) && t1.typeEquals(t2, context))
-                // found the match
+            if (name1.toString().equals(name2.toString()) && t1.typeEquals(t2, context))
                 return var;
         }
         return null;
