@@ -201,6 +201,9 @@ public abstract class InitDispatcher {
         }
         byte [] ba = baos.toByteArray();
 
+        // [GlobalGC] Add speculative increment of remoteCounts of serialized GlobalRefs since the serialized data is used more than once
+        x10.core.GlobalRef.adjustRemoteCountsInMap(serializer.getGrefMap(), Runtime.MAX_PLACES-1 -1);
+        
         // Invoke the closure at all places except here
         Runtime.runAtAll(false, ba, static_broadcast__serialization_id);
     }

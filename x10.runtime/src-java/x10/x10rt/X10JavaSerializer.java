@@ -42,6 +42,10 @@ public class X10JavaSerializer {
     X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
     DataOutputStream out;
     int counter = 0;
+    // [GlobalGC] Table to remember serialized GlobalRefs, set and used in GlobalRef.java and InitDispatcher.java
+    X10IdentityHashMap<GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<GlobalRef<?>, Integer>(); // for GlobalGC
+    public void addToGrefMap(GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
+    public java.util.Map<GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
 
     public X10JavaSerializer(DataOutputStream out) {
         this.out = out;

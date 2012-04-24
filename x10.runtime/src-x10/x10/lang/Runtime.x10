@@ -720,6 +720,40 @@ public final class Runtime {
         }
     }
 
+    /*
+     * [GlobalGC] Special version of runAt, which does not use activity, clock, exceptions
+     *            Used in GlobalRef.java to implement changeRemoteCount
+     */
+    public static def runAtSimple(place:Place, body:()=>void, toWait:Boolean):void {
+        //Console.ERR.println("Runtime.runAtSimple: place=" + place + " toWait=" + toWait);
+        if (place.id == hereInt()) {
+                deepCopy(body)(); // deepCopy and apply
+                return;
+        }
+      if (toWait) { // synchronous exec
+        @StackAllocate val me = @StackAllocate new RemoteControl();
+        val box:GlobalRef[RemoteControl] = GlobalRef(me as RemoteControl);
+        val latchedBody = () => @x10.compiler.RemoteInvocation {
+                body();
+                val closure = ()=> @x10.compiler.RemoteInvocation { 
+                    val me2 = (box as GlobalRef[RemoteControl]{home==here})();
+                    me2.release();
+                };
+                x10rtSendMessage(box.home.id, closure);
+                dealloc(closure);
+            };
+        x10rtSendMessage(place.id, latchedBody);
+        dealloc(latchedBody);
+        me.await(); // wait until body is executed at remote place
+      } else { // asynchronous exec
+        val simpleBody = () => @x10.compiler.RemoteInvocation { body(); };
+        x10rtSendMessage(place.id, simpleBody);
+        dealloc(simpleBody);
+        // *not* wait until body is executed at remote place
+      }
+        dealloc(body);
+    }
+
     /**
      * a latch with a place for an exception and return value
      */
