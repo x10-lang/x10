@@ -49,18 +49,19 @@ public class X10RootDoc extends X10Doc implements RootDoc {
     
 	X10ClassDoc[] includedClasses; 
 	private String outputDir;
+	private String accessModifier;
 	
 	public static final boolean printSwitch = false;
-	public static final String ACCESSMODFILTER = "-protected"; 
 	  // access modifier filter specified as a command-line option (RootDoc.options()) to the standard doclet; 
 	  // show only public and protected classes and class members
 
 	private static X10RootDoc globalRootDoc;
-	public static X10RootDoc getRootDoc(String outputDir) {
+	public static X10RootDoc getRootDoc(String outputDir, String accessModifier) {
 		if (globalRootDoc != null) {
 			assert (globalRootDoc.outputDir.equals(outputDir)) : "getRootDoc called with a different output directory";
+			assert (globalRootDoc.accessModifier.equals(accessModifier)) : "getRootDoc called with a different output directory";
 		} else {
-			globalRootDoc = new X10RootDoc(outputDir);
+			globalRootDoc = new X10RootDoc(outputDir, accessModifier);
 		}
 		return globalRootDoc;
 	}
@@ -82,7 +83,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		return globalRootDoc;
 	}
 
-	public X10RootDoc(String outputDir) {
+	public X10RootDoc(String outputDir, String accessModifier) {
 
 		this.specClasses = CollectionFactory.newHashMap();
 		this.specPackages = CollectionFactory.newHashMap();
@@ -90,6 +91,7 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		this.otherPackages = CollectionFactory.newHashMap();
 		this.primitiveTypes = CollectionFactory.newHashMap();
 		this.outputDir = outputDir;
+		this.accessModifier = accessModifier;
 		super.processComment("");
 	}
 
@@ -430,14 +432,14 @@ public class X10RootDoc extends X10Doc implements RootDoc {
 		// System.out.println("RootDoc.options() called.");
 		String[][] result = new String[][] {
 				{ "-d", outputDir },
-				{ ACCESSMODFILTER, ""}
+				{ accessModifier, ""}
 		};
 		return result;
 	}
 	
 	public String accessModFilter() {
 		// this method is intended to be called from X10*Doc.isIncluded(), X10ClassDoc.{methods(), fields()} etc.
-		return ACCESSMODFILTER;
+		return accessModifier;
 	}
 
 	/**

@@ -7,6 +7,7 @@ import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.Job;
 import polyglot.frontend.Scheduler;
+import x10.X10CompilerOptions;
 import x10doc.doc.X10ClassDoc;
 import x10doc.doc.X10RootDoc;
 import x10doc.goals.ASTTraversalGoal;
@@ -24,6 +25,14 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 		this.root = root;
 	}
 	
+    protected X10DocOptions createOptions() {
+    	return new X10DocOptions(this);
+    }
+    
+    public X10DocOptions getOptions() {
+        return (X10DocOptions) super.getOptions();
+    }
+
 	@Override
 	protected Scheduler createScheduler() {
 		System.setErr(System.out);
