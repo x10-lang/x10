@@ -17,15 +17,15 @@ using namespace x10::lang;
 using namespace x10::io;
 
 x10aux::ref<FileWriter__FileOutputStream>
-FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name) {
+FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name, bool append) {
     x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream ();
-    this_->_constructor(name);
+    this_->_constructor(name, append);
     return this_;
 }
 
-void FileWriter__FileOutputStream::_constructor(x10aux::ref<x10::lang::String> file) {
+void FileWriter__FileOutputStream::_constructor(x10aux::ref<x10::lang::String> file, bool append) {
     this->OutputStreamWriter__OutputStream::_constructor();
-    x10aux::io::FILEPtrOutputStream fpos(x10aux::io::FILEPtrStream::open_file(file, "w"));
+    x10aux::io::FILEPtrOutputStream fpos(x10aux::io::FILEPtrStream::open_file(file, (append ? "a" : "w")));
     _outputStream = fpos;
 }
 

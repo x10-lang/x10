@@ -154,10 +154,12 @@ FileSystem operations
     = openRead().bytes();
     public def openRead():FileReader //throws IOException 
     = new FileReader(this);
-    public def openWrite():FileWriter //throws IOException 
-    = new FileWriter(this);
-    public def printer():Printer //throws IOException 
-    = new Printer(openWrite());
+    public def openWrite() = openWrite(false);
+    public def openWrite(append:Boolean):FileWriter //throws IOException 
+    = new FileWriter(this, true);
+    public def printer() = printer(false);
+    public def printer(append:Boolean):Printer //throws IOException 
+    = new Printer(openWrite(append));
 
     public def getName(): String = name;
     public def getParentFile(): File = parent;

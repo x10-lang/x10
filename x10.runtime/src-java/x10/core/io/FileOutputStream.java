@@ -24,9 +24,9 @@ public class FileOutputStream extends OutputStream {
         super($dummy);
     }
 
-    public FileOutputStream $init(String name) {
+    public FileOutputStream $init(String name, boolean append) {
         try {
-            super.$init(new java.io.FileOutputStream(name));
+            super.$init(new java.io.FileOutputStream(name, append));
             return this;
         } catch (java.io.FileNotFoundException e) {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
@@ -34,13 +34,13 @@ public class FileOutputStream extends OutputStream {
     }
 
     // creation method for java code (factory method)
-    public static FileOutputStream $make(String name) {
-        return new FileOutputStream((java.lang.System[]) null).$init(name);
+    public static FileOutputStream $make(String name, boolean append) {
+        return new FileOutputStream((java.lang.System[]) null).$init(name, append);
     }
     // creation method for java code (1-phase java constructor)
-    public FileOutputStream(String name) {
+    public FileOutputStream(String name, boolean append) {
         this((java.lang.System[]) null);
-        $init(name);
+        $init(name, append);
     }
 
 

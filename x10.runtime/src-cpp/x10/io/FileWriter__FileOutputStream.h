@@ -29,9 +29,9 @@ namespace x10 {
             FileWriter__FileOutputStream(FILE *f): _outputStream(f) { }
             FileWriter__FileOutputStream(): _outputStream(NULL) { }
 
-            static x10aux::ref<FileWriter__FileOutputStream> _make(x10aux::ref<x10::lang::String> name);
+            static x10aux::ref<FileWriter__FileOutputStream> _make(x10aux::ref<x10::lang::String> name, bool append);
 
-            void _constructor (x10aux::ref<x10::lang::String> file);
+            void _constructor (x10aux::ref<x10::lang::String> file, bool append);
             void _constructor (FILE* file);
             void _constructor ();
 
