@@ -122,8 +122,6 @@ public class Emitter {
     
 //    private static final boolean manglePrimitivesAsShortName = true;
     private static final boolean manglePrimitivesAsShortName = false;
-//    private static final boolean mangleDefaultOnDemandImportsAsShortName = true;
-    private static final boolean mangleDefaultOnDemandImportsAsShortName = false;
     
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
@@ -505,19 +503,6 @@ public class Emitter {
                     return CHAR_NAME;
                 } else if (type.isBoolean()) {
                     return BOOLEAN_NAME;
-                }
-            }
-            if (mangleDefaultOnDemandImportsAsShortName) {
-                String name = type.fullName().toString().replace(".", "$"); // x10$lang$Any etc.
-                String packageName;
-                // not sure x10.lang and x10.array packages has a type of the same name.
-//                packageName = "x10$lang$";
-//                if (name.startsWith(packageName)) {
-//                    return Name.make(X10_LANG_PREFIX + mangleIdentifier(name.substring(packageName.length())));
-//                }
-                packageName = "x10$array$";
-                if (name.startsWith(packageName)) {
-                    return Name.make(X10_ARRAY_PREFIX + mangleIdentifier(name.substring(packageName.length())));
                 }
             }
             if (type.isNull()) {
