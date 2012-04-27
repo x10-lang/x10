@@ -25,12 +25,18 @@ static FDFDLoader dummy;
 
 #include <dlfcn.h>
 
+extern bool getBoolEnvVar(const char*);
+
 FDFDLoader::FDFDLoader() {
     void *handle;
 
     handle = dlopen("libderdFD2.so", RTLD_NOW);
-    if (!handle) {
-        fprintf(stderr, "FD2 lib not loaded (continuing): %s\n", dlerror());
+    if (getBoolEnvVar("X10_TRACE_FD2_LOAD")) {
+        if (!handle) {
+            fprintf(stderr, "FD2 lib not loaded (continuing): %s\n", dlerror());
+        } else {
+            fprintf(stderr, "FD2 lib loaded\n");
+        }
     }
 }
 
