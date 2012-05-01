@@ -101,7 +101,7 @@
  * of these implement the symbols in x10rt_net.h so they cannot currently be used simultaneously.
  * However one can link against whichever implementation is preferred for inter-host communication.
  * Details on the available implementations of the Core Networking Layer can be found <a
- * href=http://x10.codehaus.org/X10RT+Implementations>here</a>.
+ * href=http://x10-lang.org/documentation/practical-x10-programming/x10rt-implementations.html>here</a>.
  *
  * In addition to the Core Networking Layer x10rt_net.h there is a layer for CUDA, which is intended
  * to wrap the NVidia CUDA API in a way that provides an interface that is very similar to
