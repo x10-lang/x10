@@ -839,7 +839,7 @@ bool probe (bool onlyProcessAccept, bool block)
 	if (pthread_mutex_lock(&state.readLock) < 0)
 		return false;
 	uint32_t whichPlaceToHandle = state.nextSocketToCheck;
-	int ret = poll(state.socketLinks, state.numPlaces, block?-1:(state.linkAtStartup?100:0));
+	int ret = poll(state.socketLinks, state.numPlaces, (block && state.pendingWrites == NULL)?-1:(state.linkAtStartup?100:0));
 	if (ret > 0)
 	{ // There is at least one socket with something interesting to look at
 
