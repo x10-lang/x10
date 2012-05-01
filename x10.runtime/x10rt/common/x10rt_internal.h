@@ -152,7 +152,7 @@ X10RT_C void x10rt_emu_allreduce (x10rt_team team, x10rt_place role,
 
 
 
-X10RT_C void x10rt_emu_coll_probe (void);
+X10RT_C bool x10rt_emu_coll_probe (void);
 
 
 #endif

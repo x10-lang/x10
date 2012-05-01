@@ -416,7 +416,7 @@ namespace {
         const x10rt_place role;
         CollOp (x10rt_team team_, x10rt_place role_)
           : team(team_), role(role_) { }
-        void progress (void);
+        bool progress (void);
     };
 }
 
@@ -496,13 +496,14 @@ static void init_barrier (x10rt_msg_type *counter)
     x10rt_net_register_msg_receiver(BARRIER_P_TO_C_UPDATE_ID = (*counter)++, barrier_p_to_c_update_recv);
 }
 
-void CollOp::progress (void)
+bool CollOp::progress (void)
 {
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
     if (m.barrier.childToReceive > 0) {
         // still waiting for message from children, do nothing
         gtdb.fifo_push_back(this);
+        return false;
     } else if (m.barrier.parentToSend > 0) {
         // received messages from children, will now send to parent
         x10rt_place parent_role = get_parent(role);
@@ -528,9 +529,11 @@ void CollOp::progress (void)
         }
         m.barrier.parentToSend--;
         gtdb.fifo_push_back(this);
+        return true;
     } else if (m.barrier.parentToReceive > 0) {
         // still waiting for message from parent, do nothing
         gtdb.fifo_push_back(this);
+        return false;
     } else {
         x10rt_place left, right;
         x10rt_place num_children = get_children(role, t.memberc, left, right);
@@ -559,6 +562,7 @@ void CollOp::progress (void)
         }
         safe_free(this);
         m.barrier.ch(m.barrier.arg);
+        return true;
     }
 }
 
@@ -612,16 +616,18 @@ static void init_barrier (x10rt_msg_type *counter)
     x10rt_net_register_msg_receiver(BARRIER_UPDATE_ID = (*counter)++, barrier_update_recv);
 }
 
-void CollOp::progress (void)
+bool CollOp::progress (void)
 {
     TeamObj &t = *gtdb[team];
     MemberObj &m = *t[role];
     if (m.barrier.wait > 0) { // cannot use != 0, see below
         gtdb.fifo_push_back(this);
+        return false;
     } else {
         safe_free(this);
         //if (x10rt_net_here()==0) fprintf(stderr,"before callback\n");
         m.barrier.ch(m.barrier.arg);
+        return true;
     }
 }
 
@@ -1333,13 +1339,14 @@ void x10rt_emu_coll_finalize (void)
     gtdb.releaseTeam(0);
 }
 
-void x10rt_emu_coll_probe (void)
+bool x10rt_emu_coll_probe (void)
 {
     unsigned iterations = gtdb.fifo_size();
+    bool progressing = false;
     for (unsigned i=0 ; i<iterations ; ++i) {
         CollOp *op = gtdb.fifo_pop();
         if (op == NULL) break; // can happen if the queue shrinks while we're in the loop
-        op->progress();
-
+        progressing = op->progress() || progressing;
     }
+    return progressing;
 }
