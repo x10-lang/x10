@@ -124,4 +124,18 @@ public class System {
             return false;
         }
     }
+
+    /**
+     * Sleep for the specified number of milliseconds.
+     * @param millis the number of milliseconds to sleep
+     * @return true if completed normally, false if interrupted
+     */
+    public static def threadSleep(millis:long):Boolean {
+        try {
+            Thread.sleep(millis);
+            return true;
+        } catch (e:InterruptedException) {
+            return false;
+        }
+    }
 }
