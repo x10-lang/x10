@@ -796,11 +796,13 @@ void x10rt_lgl_probe (void)
 
 void x10rt_lgl_blocking_probe (void)
 {
-    x10rt_lgl_probe();
 #if !defined(__bgp__)
-    // Compatibility hack with pgas_bgp; treat blocking probe as just a probe
     x10rt_net_blocking_probe();
+#else
+    // Compatibility hack with pgas_bgp; treat blocking probe as just a probe
+    x10rt_lgl_probe();
 #endif
+    x10rt_emu_coll_probe();
 }
 
 

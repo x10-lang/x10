@@ -827,15 +827,13 @@ void x10rt_net_probe ()
 
 void x10rt_net_blocking_probe ()
 {
-	// first, call the regular x10rt_net_probe(), which loops, to pull in everything that may already be in the network
-	x10rt_net_probe();
-	// The network is likely empty now.  Call the blocking form of probe, returning after the one (likely blocking) call.
+	// Call the blocking form of probe, returning after the one call.
 	probe(false, true);
 	// then, loop again to gather everything from the network before returning.
 	while (probe(false, false)) { }
 }
 
-// return T if data was processed, F if not
+// return T if data was processed or sent, F if not
 bool probe (bool onlyProcessAccept, bool block)
 {
 	if (pthread_mutex_lock(&state.readLock) < 0)
@@ -1089,10 +1087,10 @@ bool probe (bool onlyProcessAccept, bool block)
 	else
 	{
 		pthread_mutex_unlock(&state.readLock);
-		flushPendingData();
+		bool dataRemains = flushPendingData();
 		if (state.yieldAfterProbe) // This would be a good time for a yield in some systems.
 			sched_yield();
-		return false;
+		return dataRemains && block;
 	}
 }
 
