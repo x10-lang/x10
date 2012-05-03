@@ -31,6 +31,7 @@
     <property name="X10RT_PAMI" value="false" />
     <property name="X10RT_PGAS" value="true" />
     <property name="X10RT_CUDA" value="false" />
+    <property name="GCC_SYMBOLS" value="false" />
     <path id="project.classpath">
         <path refid="mainproject.classpath"/>
         <path refid="x10.constraints.classpath"/>
@@ -130,6 +131,9 @@
     <condition property="cppmake.x10rt_cuda" value="ENABLE_X10RT_CUDA=1" else="DISABLE_X10RT_CUDA=1">
         <istrue value="${X10RT_CUDA}" />
     </condition>
+    <condition property="cppmake.gcc_symbols" value="ENABLE_GCC_SYMBOLS=1" else="DISABLE_GCC_SYMBOLS=1">
+        <istrue value="${GCC_SYMBOLS}" />
+    </condition>
     <condition property="cppmake.cross_compile_bgp" value="ENABLE_CROSS_COMPILE_BGP=1" else="DISABLE_CROSS_COMPILE_BGP=1">
         <istrue value="${CROSS_COMPILE_BGP}" />
     </condition>
@@ -199,6 +203,7 @@
             <arg value="install" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
@@ -222,6 +227,7 @@
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
@@ -235,6 +241,7 @@
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
@@ -247,6 +254,7 @@
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.cross_compile_bgp}" />
         </exec>
@@ -362,6 +370,7 @@
             <arg value="-j1" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
             <arg value="${cppmake.x10rt_pgas}" />
@@ -378,6 +387,7 @@
             <arg value="${cppmake.experimental}" />
             <arg value="${cppmake.optimize}" />
             <arg value="${cppmake.debug}" />
+            <arg value="${cppmake.gcc_symbols}" />
             <arg value="${cppmake.no_checks}" />
             <arg value="${cppmake.x10rt_mpi}" />
        	    <arg value="${cppmake.x10rt_pami}" />
