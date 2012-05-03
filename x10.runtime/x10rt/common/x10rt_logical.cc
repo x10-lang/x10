@@ -791,17 +791,26 @@ void x10rt_lgl_probe (void)
             abort();
         }
     }
+    // advance collectives as much as possible
     while (x10rt_emu_coll_probe());
 }
 
 void x10rt_lgl_blocking_probe (void)
 {
+    // first attempt to make progress on collectives
+    if (x10rt_emu_coll_probe()) {
+        // unsafe to block if collectives have made progress
+        x10rt_lgl_probe();
+        return;
+    }
 #if !defined(__bgp__)
+    // blocking probe
     x10rt_net_blocking_probe();
 #else
     // Compatibility hack with pgas_bgp; treat blocking probe as just a probe
     x10rt_lgl_probe();
 #endif
+    // advance collectives as much as possible
     while (x10rt_emu_coll_probe());
 }
 
