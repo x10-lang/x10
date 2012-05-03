@@ -55,10 +55,6 @@ int main (int argc, char ** argv)
 	// this method will not return for launcher processes.
 	Launcher::Setup(argc, argv);
 
-    if (checkBoolEnvVar(getenv(X10_SCRATCH_CWD))) {
-        Launcher::enterRandomScratchDir(0);
-    }
-
 	// if we're here, then this is a runtime process.  We simply want to exec whatever was passed at the command line after our executable.
 	if (execvp(argv[commandPosition], &argv[commandPosition]))
 		return 1; // can't get here, if the exec succeeded

@@ -154,14 +154,14 @@ void Launcher::enterRandomScratchDir (uint32_t _myproc)
     // rolling my own here
 
     // this tries to avoid collisions
-    srand((unsigned int)getpid() ^ _myproc);
+    srand((unsigned int)getpid());
 
     int max_attempts = 1000;
     for (int attempts = 0 ; attempts<max_attempts ; attempts++) {
 
         char random_path[PATH_MAX];
 
-        int r = snprintf(random_path, sizeof random_path, "%s/x10_scratch_%08x", P_tmpdir, (unsigned int)rand());
+        int r = snprintf(random_path, sizeof random_path, "%s/x10_scratch%d_%08x", P_tmpdir, _myproc, (unsigned int)rand());
         if ((size_t)r >= sizeof random_path) {
             DIE("Launcher %u: while trying to create a scratch directory string buffer (%Z bytes) overflowed.", _myproc, sizeof random_path);
         }

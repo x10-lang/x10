@@ -45,10 +45,16 @@ void Launcher::Setup(int argc, char ** argv)
 	assert (_singleton == NULL);
 
 	// check to see if we need to launch stuff, or if we need to execute the runtime.
+	if ((!getenv(X10_LAUNCHER_RUNLAUNCHER) && getenv(X10_LAUNCHER_PLACE))) return;
 	// we just skip the launcher and run the program if the user hasn't set X10LAUNCHER_NPROCS
-	if ((!getenv(X10_LAUNCHER_RUNLAUNCHER) && getenv(X10_LAUNCHER_PLACE)) || !getenv(X10_NPLACES) ||
-			(strcmp(getenv(X10_NPLACES), "1")==0 && !getenv(X10_HOSTFILE) && !getenv(X10_HOSTLIST)))
+    if (!getenv(X10_NPLACES) || (strcmp(getenv(X10_NPLACES), "1")==0 && !getenv(X10_HOSTFILE) && !getenv(X10_HOSTLIST))) {
+        if (checkBoolEnvVar(getenv(X10_SCRATCH_CWD))) {
+            Launcher::enterRandomScratchDir(0);
+        }
 		return;
+    }
+
+
 
 	_singleton = (Launcher *) malloc(sizeof(Launcher));
 	if (!_singleton) DIE("memory allocation failure in Initializer");
