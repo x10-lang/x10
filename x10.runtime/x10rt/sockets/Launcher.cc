@@ -18,6 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/stat.h>
 #include <sys/param.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -141,6 +142,53 @@ int Launcher::lookupPlace(uint32_t myPlace, uint32_t destPlace, char* response, 
 }
 
 /* *********************************************************************** */
+/*     Create a new empty directory at this place and change to it         */
+/* *********************************************************************** */
+
+void Launcher::enterRandomScratchDir (uint32_t _myproc)
+{
+    // [DC] Deciding not to use mkdtemp as it is too recent (posix 2008)
+    // Although tmpnam may return a fresh path that then becomes occupied
+    // before the mkdir, we detect this and retry tmpnam so this should be safe.
+    // [DC] Since tmpnam seems to generate an irritating warning from GNU ld,
+    // rolling my own here
+
+    // this tries to avoid collisions
+    srand((unsigned int)getpid() ^ _myproc);
+
+    int max_attempts = 1000;
+    for (int attempts = 0 ; attempts<max_attempts ; attempts++) {
+
+        char random_path[PATH_MAX];
+
+        int r = snprintf(random_path, sizeof random_path, "%s/x10_scratch_%08x", P_tmpdir, (unsigned int)rand());
+        if ((size_t)r >= sizeof random_path) {
+            DIE("Launcher %u: while trying to create a scratch directory string buffer (%Z bytes) overflowed.", _myproc, sizeof random_path);
+        }
+
+        // attempt to mkdir the random_path
+        r = mkdir(random_path, S_IRWXU);
+        if (r==-1) {
+            if (errno==EEXIST) continue; // try again
+            // some other sort of error...
+            DIE("Launcher %u: cannot create scratch directory \"%s\"", _myproc, random_path);
+        }
+
+        // successfully made random_path
+
+        r = chdir(random_path);
+        if (r==-1) {
+            DIE("Launcher %u: cannot chdir to scratch directory \"%s\"", _myproc, random_path);
+        }
+
+        return;
+    }
+
+    // if we didn't return already, attempts exceeded
+    DIE("Launcher %u: after %d attempts, could not make a fresh scratch directory", _myproc, max_attempts);
+}
+
+/* *********************************************************************** */
 /*     start all children. If there are no children, nothing is done       */
 /* *********************************************************************** */
 
@@ -172,7 +220,8 @@ void Launcher::startChildren()
 	if (!getenv(X10_LAUNCHER_CWD))
 	{
 		char dir[1024];
-		getcwd(dir, sizeof(dir));
+		char *r = getcwd(dir, sizeof(dir));
+        if (r==NULL) DIE("Launcher %u: getcwd failed", _myproc);
 		setenv(X10_LAUNCHER_CWD, dir, 1);
 	}
 
@@ -218,7 +267,14 @@ void Launcher::startChildren()
 				unsetenv(X10_LAUNCHER_SSH);
 				unsetenv(X10_LAUNCHER_RUNLAUNCHER);
 				setenv(X10_LAUNCHER_PARENT, masterPort, 1);
-				chdir(getenv(X10_LAUNCHER_CWD));
+                if (checkBoolEnvVar(getenv(X10_SCRATCH_CWD))) {
+                    enterRandomScratchDir(_myproc);
+                } else {
+                    int r = chdir(getenv(X10_LAUNCHER_CWD));
+                    if (r==-1) {
+                        DIE("Launcher %d: could not chdir to indicated working directory \"%s\"", _myproc, getenv(X10_LAUNCHER_CWD));
+                    }
+                }
 				unsetenv(X10_LAUNCHER_CWD);
 
 				// check to see if we want to launch this in a debugger
@@ -947,7 +1003,8 @@ bool Launcher::handleChildCout(int childNo)
 		return handleDeadChild(childNo, 1);
 	else
 	{
-		write(fileno(stdout), buf, n);
+		int r = write(fileno(stdout), buf, n);
+        if (r==-1) DIE("Launcher %d could not write child process stdout buffer to launcher stdout", _myproc);
 		fflush(stdout);
 	}
 	return true;
@@ -964,7 +1021,8 @@ bool Launcher::handleChildCerror(int childNo)
 		return handleDeadChild(childNo, 2);
 	else
 	{
-		write(fileno(stderr), buf, n);
+		int r = write(fileno(stderr), buf, n);
+        if (r==-1) DIE("Launcher %d could not write child process stderr buffer to launcher stderr", _myproc);
 		fflush(stderr);
 	}
 	return true;
