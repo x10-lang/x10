@@ -123,6 +123,7 @@ public final class Runtime {
     @PerProcess public static MAX_THREADS = Configuration.max_threads();
     @PerProcess public static STATIC_THREADS = Configuration.static_threads();
     @PerProcess public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
+    @PerProcess public static BUSY_WAITING = Configuration.busy_waiting();
 
     // Runtime state
 
@@ -163,64 +164,166 @@ public final class Runtime {
      */
     public interface Mortal {}
 
-    static class Semaphore {
-        private val lock = new Lock();
+    static final class Workers {
+        val lock = new Lock(); // master lock for all thread pool adjustments
 
-        private val threads = new Array[Worker](MAX_THREADS);
-        private var size:Int = 0;
+        // every x10 thread (including promoted native threads)
+        val workers = new Array[Worker](MAX_THREADS);
 
-        private var permits:Int;
+        // parked x10 threads (parkedCount == spareCount + idleCount)
+        val parkedWorkers = new Array[Worker](MAX_THREADS);
 
-        def this(n:Int) {
-            permits = n;
-        }
+        var count:Int = 0; // count every x10 threads (including promoted native threads)
+        var spareCount:Int = 0; // spare thread count
+        var idleCount:Int = 0; // idle thread count
+        var deadCount:Int = 0; // dead thread count
+        var spareNeeded:Int = 0; // running threads - NTHREADS
 
-        private static def min(i:Int, j:Int):Int = i<j ? i : j;
-
-        def release(n:Int):void {
-            lock.lock();
-            permits += n;
-            val m = min(permits, min(n, size));
-            for (var i:Int = 0; i<m; i++) {
-                threads(--size).unpark();
-                threads(size) = null;
-            }
-            lock.unlock();
-        }
-
-        def release():void {
-            release(1);
-        }
-
+        // reduce permits by n
         def reduce(n:Int):void {
             lock.lock();
-            permits -= n;
+            spareNeeded += n;
             lock.unlock();
         }
 
-        def acquire(worker:Worker):void {
+        // increase live thread count
+        // return allocated thread index if any
+        def increase():Int {
             lock.lock();
-            while (permits <= 0) {
-                val s = size;
-                threads(size++) = worker;
-                while (threads(s) == worker) {
-                    lock.unlock();
-                    Worker.park();
-                    lock.lock();
-                }
+            if (spareNeeded > 0) {
+                spareNeeded--;
+                lock.unlock();
+                return 0;
+            } else if (spareCount > 0) {
+                // resume spare thread
+                val i = --spareCount + idleCount;
+                val worker = parkedWorkers(i);
+                parkedWorkers(i) = null;
+                lock.unlock();
+                worker.unpark();
+                return 0;
+            } else {
+                // start new thread
+                val i = count++;
+                lock.unlock();
+                check(i);
+                return i;
             }
-            --permits;
+        }
+
+        // promote native thread
+        // return thread index
+        def promote():Int {
+            lock.lock();
+            val i = count++;
+            deadCount++; // native threads should terminate on their own
+            lock.unlock();
+            check(i);
+            return i;
+        }
+
+        // check max thread count has not been reached
+        def check(i:Int):void {
+            if (i >= MAX_THREADS) {
+                println(here+": TOO MANY THREADS... ABORTING");
+                System.exit(1);
+            }
+            if (WARN_ON_THREAD_CREATION) {
+                println(here+": WARNING: A new OS-level thread was discovered (there are now "+i+" threads).");
+            }
+        }
+
+        // convert idle threads to spare as needed
+        def convert() {
+            while (spareNeeded > 0 && idleCount > 0) {
+                spareNeeded--;
+                idleCount--;
+                spareCount++;
+            }
+        }
+
+        // park if spare needed -> spare thread
+        def yield(worker:Worker):Activity {
+            if (spareNeeded <= 0) return null;
+            lock.lock();
+            convert();
+            if (spareNeeded <= 0) {
+                lock.unlock();
+                return null;
+            }
+            spareNeeded--;
+            val i = spareCount++ + idleCount;
+            parkedWorkers(i) = worker;
+            while (parkedWorkers(i) == worker) {
+                lock.unlock();
+                Worker.park();
+                lock.lock();
+            }
+            lock.unlock();
+            return worker.activity;
+        }
+
+        // park until given work to do -> idle thread
+        def take(worker:Worker):Activity {
+            if (BUSY_WAITING) return null;
+            if (idleCount - spareNeeded >= NTHREADS - 1) return null; // better safe than sorry
+            lock.lock();
+            convert();
+            if (idleCount >= NTHREADS - 1) {
+                lock.unlock();
+                return null;
+            }
+            val i = spareCount + idleCount++;
+            parkedWorkers(i) = worker;
+            while (parkedWorkers(i) == worker) {
+                lock.unlock();
+                Worker.park();
+                lock.lock();
+            }
+            lock.unlock();
+            return worker.activity;
+        }
+
+        // deal to idle worker if any
+        // return true on success
+        def give(activity:Activity):Boolean {
+            if (BUSY_WAITING) return false;
+            if (idleCount - spareNeeded <= 0) return false;
+            lock.lock();
+            convert();
+            if (idleCount <= 0) {
+                lock.unlock();
+                return false;
+            }
+            val i = spareCount + --idleCount;
+            val worker = parkedWorkers(i);
+            worker.activity = activity;
+            parkedWorkers(i) = null;
+            lock.unlock();
+            worker.unpark();
+            return true;
+        }
+
+        // account for terminated thread
+        def reclaim():void {
+            lock.lock();
+            deadCount++;
+            while (idleCount > 0) {
+                val i = spareCount + --idleCount;
+                val worker = parkedWorkers(i);
+                parkedWorkers(i) = null;
+                worker.unpark();
+            }
+            if (spareCount > 0) {
+                val worker = parkedWorkers(--spareCount);
+                parkedWorkers(spareCount) = null;
+                worker.unpark();
+            }
             lock.unlock();
         }
 
-        def yield(worker:Worker):void {
-            if (permits < 0) {
-                release(1);
-                acquire(worker);
-            }
-        }
-
-        def available():Int = permits;
+        public operator this(i:Int) = workers(i);
+        public operator this(i:Int)=(worker:Worker) { workers(i) = worker; }
     }
 
     public final static class Worker extends Thread implements CustomSerialization {
@@ -228,7 +331,7 @@ public final class Runtime {
         private static BOUND = 100;
 
         // activity (about to be) executed by this worker
-        private var activity:Activity = null;
+        var activity:Activity = null;
 
         // pending activities
         private val queue = new Deque();
@@ -372,24 +475,13 @@ public final class Runtime {
         val latch = new SimpleLatch();
         
         var wsEnd:Boolean = false;
-        
-        private var size:Int; // the number of workers in the pool
 
-        private var spares:Int = 0; // the number of spare workers in the pool
-
-        private var dead:Int = 0; // the number of dead workers in the pool
-
-        private val lock = new Lock();
-
-        private val semaphore = new Semaphore(0);
+        private val workers = new Workers();
 
         var wsBlockedContinuations:Deque = null;
 
-        // the workers in the pool
-        private val workers = new Array[Worker](MAX_THREADS);
-
         operator this(n:Int):void {
-            size = n;
+            workers.count = n;
             workers(0) = worker();
             for (var i:Int = 1; i<n; i++) {
                 workers(i) = new Worker(i);
@@ -398,46 +490,23 @@ public final class Runtime {
                 workers(i).start();
             }
             workers(0)();
-            while (size > dead) Worker.park();
+            while (workers.count > workers.deadCount) Worker.park();
         }
 
         // notify the pool a worker is about to execute a blocking operation
         def increase():void {
-            lock.lock();
-            if (spares > 0) {
-                // if a spare is available increase parallelism
-                spares--;
-                lock.unlock();
-                semaphore.release();
-            } else {
-                // allocate and start a new worker
-                val i = size++;
-                lock.unlock();
-                if (i >= MAX_THREADS) {
-                    println(here+": TOO MANY THREADS... ABORTING");
-                    System.exit(1);
-                }
-                if (WARN_ON_THREAD_CREATION) {
-                    println(here+": WARNING: A new OS-level thread was created (there are now "+size+" threads).");
-                }
+            val i = workers.increase();
+            if (i > 0) {
+                // if no spare thread is available allocate and start a new thread
                 val worker = new Worker(i);
                 workers(i) = worker;
                 worker.start();
             }
         }
 
+        // create pseudo X10 worker for native thread
         public def wrapNativeThread():Worker {
-            lock.lock();
-            val i = size++;
-            dead++; // native threads should terminate on their own
-            lock.unlock();
-            if (i >= MAX_THREADS) {
-                println(here+": TOO MANY THREADS... ABORTING");
-                System.exit(1);
-            }
-            if (WARN_ON_THREAD_CREATION) {
-                println(here+": WARNING: A new OS-level thread was discovered (there are now "+size+" threads).");
-            }
+            val i = workers.promote();
             val worker = new Worker(i, false);
             workers(i) = worker;
             return worker;
@@ -445,31 +514,27 @@ public final class Runtime {
 
         // notify the pool a worker resumed execution after a blocking operation
         def decrease(n:Int):void {
-            // increase number or spares
-            lock.lock();
-            spares += n;
-            lock.unlock();
-            // reduce parallelism
-            semaphore.reduce(n);
+            workers.reduce(n);
         }
 
+        // attempt to deal activity to idle worker
+        def deal(activity:Activity):Boolean = workers.give(activity);
+
         // release permit (called by worker upon termination)
-        def release() {
-            semaphore.release();
-            lock.lock();
-            dead++;
-            if (size == dead) workers(0).unpark();
-            lock.unlock();
+        def release():void {
+            workers.reclaim();
+            if (workers.count == workers.deadCount) workers(0).unpark();
         }
 
         // scan workers and network for pending activities
         def scan(random:Random, worker:Worker):Activity {
             var activity:Activity = null;
-            var next:Int = random.nextInt(size);
+            var next:Int = random.nextInt(workers.count);
+            var i:Int = 2;
             for (;;) {
                 if (null != activity || latch()) return activity;
                 // go to sleep if too many threads are running
-                semaphore.yield(worker);
+                activity = workers.yield(worker);
                 if (null != activity || latch()) return activity;
                 // try network
                 x10rtProbe();
@@ -479,11 +544,16 @@ public final class Runtime {
                 if (next < MAX_THREADS && null != workers(next)) { // avoid race with increase method
                     activity = workers(next).steal();
                 }
-                if (++next == size) next = 0;
+                if (++next == workers.count) next = 0;
+                if (i-- == 0) {
+                    if (null != activity || latch()) return activity;
+                    activity = workers.take(worker);
+                    i = 2;
+                }
             }
         }
 
-        def size() = size;
+        def size() = workers.count;
     }
 
 
@@ -541,7 +611,7 @@ public final class Runtime {
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
                 // in place 0 schedule the execution of the static initializers fby main activity
-                execute(new Activity(()=>{finish init(); body();}, rootFinish));
+                executeLocal(new Activity(()=>{finish init(); body();}, rootFinish));
 
                 // wait for thread pool to die
                 // (happens when main activity terminates)
@@ -584,7 +654,7 @@ public final class Runtime {
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), state, clockPhases));
+            executeLocal(new Activity(deepCopy(body), state, clockPhases));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, state, clockPhases)); };
             x10rtSendMessage(place.id, closure);
@@ -601,7 +671,7 @@ public final class Runtime {
         val state = a.finishState();
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), state));
+            executeLocal(new Activity(deepCopy(body), state));
         } else {
             x10rtSendAsync(place.id, body, state); // optimized case
         }
@@ -619,7 +689,7 @@ public final class Runtime {
         val state = a.finishState();
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(here);
-        execute(new Activity(body, state, clockPhases));
+        executeLocal(new Activity(body, state, clockPhases));
     }
 
     public static def runAsync(body:()=>void):void {
@@ -629,7 +699,7 @@ public final class Runtime {
         
         val state = a.finishState();
         state.notifySubActivitySpawn(here);
-        execute(new Activity(body, state));
+        executeLocal(new Activity(body, state));
     }
 
 	public static def runFinish(body:()=>void):void {
@@ -645,7 +715,7 @@ public final class Runtime {
         a.ensureNotInAtomic();
         
         if (place.id == hereInt()) {
-            execute(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH));
+            executeLocal(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH)); };
             x10rtSendMessage(place.id, closure);
@@ -662,7 +732,7 @@ public final class Runtime {
         val a = activity();
         a.ensureNotInAtomic();
         
-        execute(new Activity(body, new FinishState.UncountedFinish()));
+        executeLocal(new Activity(body, new FinishState.UncountedFinish()));
     }
 
     /**
@@ -949,6 +1019,10 @@ public final class Runtime {
     // submit an activity to the pool
     static def execute(activity:Activity):void {
         worker().push(activity);
+    }
+
+    static def executeLocal(activity:Activity):void {
+        if (!pool.deal(activity)) worker().push(activity);
     }
 
     // submit 
