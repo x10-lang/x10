@@ -34,18 +34,18 @@ class Activity {
 
         // next statement
         def advanceAll() {
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeInternal(entry);
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().advanceInternal(entry);
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeUnsafe();
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().advanceUnsafe();
         }
 
         // resume all clocks
         def resumeAll() {
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeInternal(entry);
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().resumeUnsafe();
         }
 
         // drop all clocks
         def drop() {
-            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().dropInternal(entry);
+            for(entry:Map.Entry[Clock,Int] in entries()) entry.getKey().dropInternal();
             clear();
         }
 
