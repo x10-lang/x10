@@ -2095,7 +2095,7 @@ public class Emitter {
             }
             else {
                 for (Type t : ct.interfaces()) {
-                    if (existMethodInterfaces(t, ti, impled, mi)) {
+                    if (existMethodInterface(t, ti, impled, mi)) {
                         methods.add(impled);
                         break;
                     }
@@ -2109,7 +2109,7 @@ public class Emitter {
         return Types.baseType(sup) instanceof ParameterType && !(Types.baseType(t) instanceof ParameterType);
     }
 
-    private boolean existMethodInterfaces(Type t, Type type, MethodInstance mi, MethodInstance mdi) {
+    private boolean existMethodInterface(Type t, Type type, MethodInstance mi, MethodInstance mdi) {
 	    if (t.typeEquals(type, tr.context())) {
 	        Type returnType = mdi.returnType();
 	        if (isInstantiated(mi.def().returnType().get(), returnType)) {
@@ -2144,7 +2144,7 @@ public class Emitter {
 	    t = Types.baseType(t);
 	    if (t.isClass()) {
 	        for (Type ti : t.toClass().interfaces()) {
-	            if (existMethodInterfaces(ti, type, mi, mdi)) {
+	            if (existMethodInterface(ti, type, mi, mdi)) {
 	                return true;
 	            }
 	        }
@@ -2343,7 +2343,7 @@ public class Emitter {
 	    }
 
         boolean closeParen = false;
-        if (boxReturnString|| (instantiateReturnType && !isBoxedType(impl.returnType()))) {
+        if (boxReturnString || (instantiateReturnType && !isBoxedType(impl.returnType()))) {
         	printBoxConversion(impl.returnType());
         	w.write("(");
             closeParen = true;
@@ -2523,13 +2523,13 @@ public class Emitter {
         List<MethodInstance> overrides = new ArrayList<MethodInstance>();
         getInheritedMethods(ct, inheriteds, overrides);
         for (MethodInstance mi : inheriteds) {
-//            if (isOverriddenCovReturn(mi.def().returnType().get(), mi.returnType())) {
+//            if (isCovariantOverride(mi.def().returnType().get(), mi.returnType())) {
 //                printBridgeForInheritedMethod(ct, mi);
 //                continue;
 //            }
             List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
             List<Type> interfaces = ct.interfaces();
-            getImplMethods2(mi, implMethods, interfaces);
+            getImplMethodsForCovariantOverride(mi, implMethods, interfaces);
             for (MethodInstance mi2 : implMethods) {
                 printBridgeMethod(ct, mi, mi2.def(), true);
             }
@@ -2564,7 +2564,7 @@ public class Emitter {
                 }
             }
             else {
-                if (containsOverriddenMethod(methods, impled)) continue;
+                if (containsCovariantOverridingMethod(methods, impled)) continue;
             }
     
             Type ti = impled.container();
@@ -2576,7 +2576,7 @@ public class Emitter {
                         || (ti.typeEquals(ct.superClass(), tr.context()) || (ct.isMember() && ti.typeEquals(ct.container(), tr.context())))
                 ) {
                     Type returnType = mi.returnType();
-                    if (isOverriddenCovReturn(impled.def().returnType().get(), returnType)) {
+                    if (isCovariantOverride(impled.def().returnType().get(), returnType)) {
                         methods.add(impled);
                         continue;
                     }
@@ -2584,7 +2584,7 @@ public class Emitter {
             }
             else {
                 for (Type t : ct.interfaces()) {
-                    if (existMethodInterfaces2(t, ti, impled, mi)) {
+                    if (existMethodInterfaceForCovariantOverride(t, ti, impled, mi)) {
                         methods.add(impled);
                         break;
                     }
@@ -2594,30 +2594,30 @@ public class Emitter {
         return methods;
     }
 
-    private boolean isOverriddenCovReturn(Type sup, Type returnType) {
+    private boolean isCovariantOverride(Type sup, Type returnType) {
         return !sup.typeSystem().isParameterType(sup) && !Types.baseType(sup).typeEquals(Types.baseType(returnType), tr.context()) && isSpecialType(Types.baseType(returnType));
     }
 
-    private boolean containsOverriddenMethod(List<MethodInstance> methods, MethodInstance impled) {
+    private boolean containsCovariantOverridingMethod(List<MethodInstance> methods, MethodInstance impled) {
         for (MethodInstance mi : methods) {
-            if (isOverriddenCovReturn(impled.def().returnType().get(), mi.returnType())) {
+            if (isCovariantOverride(impled.def().returnType().get(), mi.returnType())) {
                 return true;
             }
         }
         return false;
     }
 
-    private boolean existMethodInterfaces2(Type t, Type type, MethodInstance mi, MethodInstance mdi) {
+    private boolean existMethodInterfaceForCovariantOverride(Type t, Type type, MethodInstance mi, MethodInstance mdi) {
         if (t.typeEquals(type, tr.context())) {
             Type returnType = mdi.returnType();
-            if (isOverriddenCovReturn(mi.def().returnType().get(), returnType)) {
+            if (isCovariantOverride(mi.def().returnType().get(), returnType)) {
                     return true;
             }
         }
         t = Types.baseType(t);
         if (t.isClass()) {
             for (Type ti : t.toClass().interfaces()) {
-                if (existMethodInterfaces2(ti, type, mi, mdi)) {
+                if (existMethodInterfaceForCovariantOverride(ti, type, mi, mdi)) {
                     return true;
                 }
             }
@@ -2625,18 +2625,18 @@ public class Emitter {
         return false;
     }
 
-    private void getImplMethods2(MethodInstance mi, List<MethodInstance> implMethods, List<Type> interfaces) {
+    private void getImplMethodsForCovariantOverride(MethodInstance mi, List<MethodInstance> implMethods, List<Type> interfaces) {
         for (Type type : interfaces) {
             if (type.isClass()) {
                 List<MethodInstance> imis = type.toClass().methods();
                 for (MethodInstance imi : imis) {
                     if (!(imi.name().equals(mi.name()) && imi.formalTypes().size() == mi.formalTypes().size())) continue;
 
-                    if (containsOverriddenMethod(implMethods, imi)) continue;
+                    if (containsCovariantOverridingMethod(implMethods, imi)) continue;
                     
                     Type returnType = mi.returnType();
                     if (X10PrettyPrinterVisitor.isGenericOverloading) {
-                        if (isOverriddenCovReturn(imi.def().returnType().get(), returnType)) {
+                        if (isCovariantOverride(imi.def().returnType().get(), returnType)) {
                             boolean containsParam = false;
                             List<Ref<? extends Type>> types = imi.def().formalTypes();
                             for (int i = 0;i < types.size(); ++i) {
@@ -2654,13 +2654,13 @@ public class Emitter {
                             }
                         }
                     } else {
-                        if (isOverriddenCovReturn(imi.def().returnType().get(), returnType)) {
+                        if (isCovariantOverride(imi.def().returnType().get(), returnType)) {
                             implMethods.add(imi);
                             break;
                         }
                     }
                 }
-                getImplMethods2(mi, implMethods, type.toClass().interfaces());
+                getImplMethodsForCovariantOverride(mi, implMethods, type.toClass().interfaces());
             }
         }
     }    
