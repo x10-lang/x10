@@ -91,6 +91,7 @@ import polyglot.types.JavaArrayType_c;
 import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
+import polyglot.types.Package;
 import polyglot.types.QName;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
@@ -1739,11 +1740,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return methodSuffix;
     }
     private static String asTypeName(Type containerType, String methodSuffix) {
-        if (containerType.fullName().toString().length() + 1/*$*/ + methodSuffix.length() + 6/*.class*/> longestTypeName) {
-            // use hashcode to avoid too long class (=file) name
-            // DEBUG
-//            System.out.println("asTypeName: " + containerType.fullName().toString() + " " + methodSuffix);
-            return "$_" + Integer.toHexString(methodSuffix.hashCode());            
+        X10ClassDef def = containerType.toClass().def();
+        String name = def.fullName().toString(); // x10.array.DistArray.LocalState
+        Ref<? extends Package> pkg = def.package_();
+        if (pkg != null) {
+            String packageName = pkg.toString(); // x10.array
+            int packageNameLength = packageName.length();
+            if (packageNameLength > 0) packageNameLength += 1; // x10.array.
+            name = name.substring(packageNameLength); // DistArray.LocalState
+        }        
+        if (name.length() + 1/*$*/ + methodSuffix.length() + 6/*.class*/> longestTypeName) {
+            // if method suffix is too long for file name, replace it with hash code representation of it to avoid post-compilation error. 
+            String typeName = "$_" + Integer.toHexString(methodSuffix.hashCode());
+//            System.out.println("asTypeName: " + name + ": " + methodSuffix + " -> " + typeName);
+            return typeName;            
         } else {
             return methodSuffix;            
         }
