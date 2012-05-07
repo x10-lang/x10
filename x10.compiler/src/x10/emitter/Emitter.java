@@ -2214,7 +2214,11 @@ public class Emitter {
         return false;
     }
 
-    private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean boxReturnValue) {
+    /*
+     * given interface I { f():Any; } and class C implements I { f():String; }, C.f() returns x10.core.String.
+     * given interface I[T] { f():T; } and class C[T] implements I[T] { f():String; }, C.f() returns java.lang.String.
+     */
+    private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean isCovariantOverride) {
         // bridge method should not be needed for unmangled method
     	if (!canMangleMethodName(def)) return;
     	
@@ -2247,18 +2251,15 @@ public class Emitter {
 	    }
 	    
 	    // e.g int m() overrides or implements T m()
-	    boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
-	    int intflags = boxReturnValue || instantiateReturnType ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0;
-	    if (!X10PrettyPrinterVisitor.isGenericOverloading) intflags |= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
-	    if (boxReturnValue) {
-	        if (X10PrettyPrinterVisitor.isString(impl.returnType())) {
-	            w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
-	        } else {
-	            printType(impl.returnType(), intflags);
-	        }
-	    } else {
-	        printType(impl.returnType(), intflags);
-	    }
+            boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
+            int intflags = instantiateReturnType ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0;
+            if (!X10PrettyPrinterVisitor.isGenericOverloading) intflags |= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
+            boolean boxReturnString = isCovariantOverride && X10PrettyPrinterVisitor.isString(impl.returnType());
+            if (boxReturnString) {
+                w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+            } else {
+                printType(impl.returnType(), intflags);
+            }
 
 	    boolean isInterface = st.isClass() && st.toClass().flags().isInterface();
 	    
@@ -2342,8 +2343,7 @@ public class Emitter {
 	    }
 
         boolean closeParen = false;
-        if ((boxReturnValue && X10PrettyPrinterVisitor.isString(impl.returnType()))
-                || (instantiateReturnType && !isBoxedType(impl.returnType()))) {
+        if (boxReturnString|| (instantiateReturnType && !isBoxedType(impl.returnType()))) {
         	printBoxConversion(impl.returnType());
         	w.write("(");
             closeParen = true;
@@ -2506,7 +2506,7 @@ public class Emitter {
     	    w.newline();
     }
 
-    private void generateBridgeMethodsToOverrideWithCovReturn(X10ClassDef cd) {
+    private void generateBridgeMethodsForCovariantOverride(X10ClassDef cd) {
         if (cd.flags().isInterface()) {
             return;
         }
@@ -2538,7 +2538,7 @@ public class Emitter {
     
     public void generateBridgeMethods(X10ClassDef cd) {
         generateBridgeMethodsForGenerics(cd);
-        generateBridgeMethodsToOverrideWithCovReturn(cd);
+        generateBridgeMethodsForCovariantOverride(cd);
     }
 
     private List<MethodInstance> getOverriddenMethods(X10ClassType ct, MethodInstance mi) {
