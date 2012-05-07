@@ -934,9 +934,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (isSelfDispatch) {
             er.generateDispatchMethods(def);
         }
-        er.generateBridgeMethodsForGenerics(def);
-
-        er.generateBridgeMethodsToOverrideWithCovReturn(def);
+        er.generateBridgeMethods(def);
 
         // print the fields for the type params
         if (typeParameters.size() > 0) {

@@ -1910,7 +1910,7 @@ public class Emitter {
         return false;
     }
 
-    public void generateBridgeMethodsForGenerics(X10ClassDef cd) {
+    private void generateBridgeMethodsForGenerics(X10ClassDef cd) {
 	    if (cd.flags().isInterface()) {
 	        return;
 	    }
@@ -2506,7 +2506,7 @@ public class Emitter {
     	    w.newline();
     }
 
-    public void generateBridgeMethodsToOverrideWithCovReturn(X10ClassDef cd) {
+    private void generateBridgeMethodsToOverrideWithCovReturn(X10ClassDef cd) {
         if (cd.flags().isInterface()) {
             return;
         }
@@ -2534,6 +2534,11 @@ public class Emitter {
                 printBridgeMethod(ct, mi, mi2.def(), true);
             }
         }
+    }
+    
+    public void generateBridgeMethods(X10ClassDef cd) {
+        generateBridgeMethodsForGenerics(cd);
+        generateBridgeMethodsToOverrideWithCovReturn(cd);
     }
 
     private List<MethodInstance> getOverriddenMethods(X10ClassType ct, MethodInstance mi) {
