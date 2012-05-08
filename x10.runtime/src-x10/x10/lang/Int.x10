@@ -354,7 +354,6 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    // @Native("java", "x10.core.Signed.parseInt(#s, #radix)")
     @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parseInt(s:String, radix:Int): Int; //throwsNumberFormatException;
@@ -362,7 +361,6 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    // @Native("java", "x10.core.Signed.parseInt(#s)")
     @Native("java", "java.lang.Integer.parseInt(#s)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parseInt(s:String): Int; //throwsNumberFormatException;
@@ -374,7 +372,6 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the Int represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    // @Native("java", "x10.core.Signed.parseInt(#s, #radix)")
     @Native("java", "java.lang.Integer.parseInt(#s, #radix)")
     @Native("c++", "x10aux::int_utils::parseInt(#1, #2)")
     public native static def parse(s:String, radix:Int): Int; //throwsNumberFormatException;
@@ -385,7 +382,6 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the Int represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable Int.
      */
-    // @Native("java", "x10.core.Signed.parseInt(#s)")
     @Native("java", "java.lang.Integer.parseInt(#s)")
     @Native("c++", "x10aux::int_utils::parseInt(#1)")
     public native static def parse(s:String): Int; //throwsNumberFormatException;

@@ -474,10 +474,6 @@ public class Emitter {
             }
             return name;
         }
-//        private static final String X10_LANG_PREFIX = "$L$";
-        private static final String X10_LANG_PREFIX = "$";
-//        private static final String X10_ARRAY_PREFIX = "$A$";
-        private static final String X10_ARRAY_PREFIX = "$";
         private static final Name NULLTYPE_NAME = Name.make("$null"); // for NullType
         public static Name mangleAndFlattenQName(Type type) {
             if (manglePrimitivesAsShortName) {
@@ -898,12 +894,13 @@ public class Emitter {
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
 	    }
-	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type)) {
+	    else if (X10PrettyPrinterVisitor.isString(type)) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
 	    }
 	    else {
+                // type == T comes here
 	        // FIXME: maybe this is not needed at all? -- boxing of non-boxable types
 	        w.write("(");
 	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
@@ -926,7 +923,7 @@ public class Emitter {
 	        */
 	        return true;
 	    }
-	    else if (!type.isParameterType() && X10PrettyPrinterVisitor.isString(type)) {
+	    else if (X10PrettyPrinterVisitor.isString(type)) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        return true;
@@ -3198,7 +3195,7 @@ public class Emitter {
 	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
 	            prettyPrint(e, tr);
 	        }
-	        else if (!(actual instanceof ParameterType) && X10PrettyPrinterVisitor.isString(actual) &&
+	        else if (X10PrettyPrinterVisitor.isString(actual) &&
 	        		!(expectedBase instanceof ParameterType) && !X10PrettyPrinterVisitor.isString(expectedBase)) {
 	        	expander = expander.boxTo(actual).castTo(expectedBase);
 	        	expander.expand(tr);
