@@ -11,6 +11,8 @@ optimize=""
 if [ "$CROSS_COMPILE_BGP" = "true" ]; then
     x10rt_impl="pgas_bgp"
     args="$args -STATEMENT_EXPR_GCC_WORKAROUND=true"
+elif [ "$CROSS_COMPILE_BGQ" = "true" ]; then
+    x10rt_impl="pami"
 else
     x10rt_impl="sockets"
 fi

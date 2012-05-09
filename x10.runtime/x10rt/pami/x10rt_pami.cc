@@ -21,7 +21,9 @@
 #include <pthread.h> // for lock on the team mapping table
 #include <x10rt_net.h>
 #include <pami.h>
+#if !defined(__bgq__)
 #include <pami_ext_hfi.h>
+#endif
 
 //#define DEBUG 1
 
@@ -142,8 +144,10 @@ struct x10rt_pami_state
 	uint32_t lastTeamIndex;
 	pthread_mutex_t stateLock; // used when creating a new context or a new team
 	int numParallelContexts; // When X10_STATIC_THREADS=true, this is set to the value of X10_NTHREADS. Otherwise it's 0.
+#if !defined(__bgq__)
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
+#endif
 	pami_extension_t async_extension; // for async progress
 	bool blockingSend; // flag based on X10RT_PAMI_BLOCKING_SEND
 } state;
@@ -942,6 +946,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
 	#endif
 
+#if !defined(__bgq__)
 	// see if HFI should be used
 	if (checkBoolEnvVar(getenv(X10RT_PAMI_DISABLE_HFI)))
 		state.hfi_update = NULL;
@@ -969,6 +974,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			}
 		}
 	}
+#endif
 
 	// create the world geometry
 	if (pthread_mutex_init(&state.stateLock, NULL) != 0) error("Unable to initialize the team lock");
@@ -1398,11 +1404,13 @@ void x10rt_net_finalize()
 		fprintf(stderr, "Place %u shutting down\n", state.myPlaceId);
 	#endif
 
+#if !defined(__bgq__)
 	if (state.hfi_update != NULL)
 	{
 		PAMI_Extension_close (state.hfi_extension);
 		state.hfi_update = NULL;
 	}
+#endif
 
 	if (state.async_extension != NULL)
 	{
@@ -1451,6 +1459,7 @@ void x10rt_net_internal_barrier (){} // DEPRECATED
 void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_type type, unsigned long long value)
 {
 	pami_result_t status = PAMI_ERROR;
+#if !defined(__bgq__)
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
@@ -1482,6 +1491,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 		}
 	}
 	else
+#endif
 	{
 		pami_rmw_t operation;
 		memset(&operation, 0, sizeof(pami_rmw_t));
@@ -1511,6 +1521,7 @@ void x10rt_net_remote_op (x10rt_place place, x10rt_remote_ptr victim, x10rt_op_t
 void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 {
 	pami_result_t status = PAMI_ERROR;
+#if !defined(__bgq__)
 	if (state.hfi_update != NULL)
 	{
 		// use HFI remote operations
@@ -1537,6 +1548,7 @@ void x10rt_net_remote_ops (x10rt_remote_op_params *ops, size_t numOps)
 		}
 	}
 	else
+#endif
 	{
 		pami_rmw_t operation;
 		memset(&operation, 0, sizeof(pami_rmw_t));

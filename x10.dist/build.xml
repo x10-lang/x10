@@ -41,6 +41,7 @@
     <property name="x10.doc.location" location="${x10.home}/x10.doc"/>
     <property name="bash.exe" value="bash"/>
     <property name="CROSS_COMPILE_BGP" value="false" />
+    <property name="CROSS_COMPILE_BGQ" value="false" />
     <path id="project.classpath"/>
     <!-- get the environment variables -->
     <property environment="env"/>
@@ -520,6 +521,7 @@ WALA3_JAR='${wala3.jar}'
 WALA4_JAR='${wala4.jar}'
 MATH_JAR='${math.jar}'
 CROSS_COMPILE_BGP='${CROSS_COMPILE_BGP}'
+CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 
 </echo>
     </target>
