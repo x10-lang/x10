@@ -119,12 +119,14 @@ public class Equality {
         if (a instanceof RefI || b instanceof RefI) return false;
         
         // equality of structs are follows
-        if (a instanceof Boolean && b instanceof Boolean)
-            return (boolean) (Boolean) a == (boolean) (Boolean) b;
-        if (a instanceof Character && b instanceof Character)
-            return (char) (Character) a == (char) (Character) b;
+        // short cuts for primitives
+        if (a instanceof x10.core.Boolean && b instanceof x10.core.Boolean)
+            return x10.core.Boolean.$unbox((x10.core.Boolean) a) == x10.core.Boolean.$unbox((x10.core.Boolean) b);
+        if (a instanceof x10.core.Char && b instanceof x10.core.Char)
+            return x10.core.Char.$unbox((x10.core.Char) a) == x10.core.Char.$unbox((x10.core.Char) b);
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers((Number) a, (Number) b);
+        // for general structs. it also works with primitives.
         if (a instanceof StructI) return ((StructI) a)._struct_equals$O(b);
         
         return false;
