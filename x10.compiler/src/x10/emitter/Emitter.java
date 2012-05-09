@@ -2528,9 +2528,77 @@ public class Emitter {
         }
     }
     
+    // Fix for XTENLANG-3035
+    // old and buggy code
+//    public void generateBridgeMethods(X10ClassDef cd) {
+//        generateBridgeMethodsForGenerics(cd);
+//        generateBridgeMethodsForCovariantOverride(cd);
+//    }
     public void generateBridgeMethods(X10ClassDef cd) {
-        generateBridgeMethodsForGenerics(cd);
-        generateBridgeMethodsForCovariantOverride(cd);
+        if (cd.flags().isInterface()) return;
+
+        List<MethodDef> methoddefs = cd.methods();
+
+        X10ClassType ct = cd.asType();
+        List<Type> interfaces = ct.interfaces();
+        List<MethodInstance> inheriteds = new ArrayList<MethodInstance>();
+        List<MethodInstance> overrides = new ArrayList<MethodInstance>();
+        getInheritedMethods(ct, inheriteds, overrides);
+
+        // first half
+      for (MethodDef md : methoddefs) {
+          MethodInstance impl = md.asInstance();
+//          generateBridgeMethodsForGenerics(cd);
+          List<MethodInstance> instantiatedMethods = getInstantiatedMethods(ct, impl);
+          for (MethodInstance instantiatedMethod : instantiatedMethods) {
+              printBridgeMethod(ct, impl, instantiatedMethod.def(), false);
+          }
+//          generateBridgeMethodsForCovariantOverride(cd);
+          List<MethodInstance> overriddenMethods = getCovarientOverriddenMethods(ct, impl);
+          alreadyGenerated: for (MethodInstance overriddenMethod : overriddenMethods) {
+              // N.B. skip already generated bridge method
+              if (!isString(impl.returnType())) {
+                  MethodDef overriddenMethodDef = overriddenMethod.def();
+                  for (MethodInstance instantiatedMethod : instantiatedMethods) {
+                      if (hasSameSignature(overriddenMethodDef, instantiatedMethod.def())) continue alreadyGenerated;
+                  }
+              }
+              printBridgeMethod(ct, impl, overriddenMethod.def(), true);
+          }
+      }
+
+      // second half        
+//        generateBridgeMethodsForGenerics(cd);
+        for (MethodInstance mi : inheriteds) {
+            if (isInstantiated(mi.def().returnType().get(), mi.returnType())) {
+                printBridgeMethodForInheritedMethod(ct, mi);
+                continue;
+            }
+            for (int i = 0; i < mi.formalTypes().size(); ++i) {
+                if (isPrimitive(mi.formalTypes().get(i)) && isInstantiated(mi.def().formalTypes().get(i).get(), mi.formalTypes().get(i))) {
+                    printBridgeMethodForInheritedMethod(ct, mi);
+                    break;
+                }
+            }
+            List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
+            getImplMethods(mi, implMethods, interfaces);
+            for (MethodInstance mi2 : implMethods) {
+                printBridgeMethod(ct, mi, mi2.def(), false);
+            }
+        }
+//        generateBridgeMethodsForCovariantOverride(cd);
+        for (MethodInstance mi : inheriteds) {
+//            if (isCovariantOverride(mi.def().returnType().get(), mi.returnType())) {
+//                printBridgeMethodForInheritedMethod(ct, mi);
+//                continue;
+//            }
+            List<MethodInstance> implMethods = new ArrayList<MethodInstance>();
+            getImplMethodsForCovariantOverride(mi, implMethods, interfaces);
+            for (MethodInstance mi2 : implMethods) {
+                printBridgeMethod(ct, mi, mi2.def(), true);
+            }
+        }
+        
     }
 
     private List<MethodInstance> getCovarientOverriddenMethods(X10ClassType ct, MethodInstance mi) {
@@ -2733,35 +2801,48 @@ public class Emitter {
         }
     }
 
-    private void add(Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods, MethodInstance myMethod,
-                      List<MethodInstance> targets) {
+    private static boolean hasSameSignature(MethodDef md, MethodDef td) {
+        if (!md.name().equals(td.name())) return false;
+        if (md.formalTypes().size() != td.formalTypes().size()) return false;
+        List<Ref<? extends Type>> formalTypes = md.formalTypes();
+        for (int i = 0; i < formalTypes.size(); ++i) {
+            Type ft = formalTypes.get(i).get();
+            Type tt = td.formalTypes().get(i).get();
+            if ((ft instanceof ParameterType && td.formalTypes().get(i).get() instanceof ParameterType)) {}
+            else if (ft.isClass() && tt.isClass() && ft.toClass().name().toString().equals(tt.toClass().name().toString())) {}
+            else {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void add(Map<MethodInstance, List<MethodInstance>> dispatcherToMyMethods, MethodInstance myMethod, List<MethodInstance> targets) {
         for (MethodInstance target : targets) {
-            boolean isContainsSameSignature = false;
+            boolean containsSameSignature = false;
             Set<Entry<MethodInstance, List<MethodInstance>>> entrySet = dispatcherToMyMethods.entrySet();
             for (Entry<MethodInstance, List<MethodInstance>> entry : entrySet) {
-                
                 MethodDef md = entry.getKey().def();
                 MethodDef td = target.def();
                 if (md.name().equals(td.name()) && md.formalTypes().size() == td.formalTypes().size()) {
                     List<Ref<? extends Type>> formalTypes = md.formalTypes();
-                    isContainsSameSignature = true;
+                    containsSameSignature = true;
                     for (int i = 0; i < formalTypes.size(); ++i) {
                         Type ft = formalTypes.get(i).get();
                         Type tt = td.formalTypes().get(i).get();
                         if ((ft instanceof ParameterType && td.formalTypes().get(i).get() instanceof ParameterType)) {}
                         else if (ft.isClass() && tt.isClass() && ft.toClass().name().toString().equals(tt.toClass().name().toString())) {}
                         else {
-                            isContainsSameSignature = false;
+                            containsSameSignature = false;
                             break;
                         }
                     }
-                    if (isContainsSameSignature) {
+                    if (containsSameSignature) {
                         entry.getValue().add(myMethod);
                     }
                 }
             }
-            if (isContainsSameSignature) break;
-            
+            if (containsSameSignature) break;
             ArrayList<MethodInstance> mis = new ArrayList<MethodInstance>();
             mis.add(myMethod);
             dispatcherToMyMethods.put(target, mis);
