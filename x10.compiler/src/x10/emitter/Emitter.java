@@ -927,11 +927,6 @@ public class Emitter {
             if (needExplicitBoxing(type)) {
 	    	printType(type, BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
-	        /*
-	        w.write("(");
-	    	printType(type, BOX_PRIMITIVES);
-	        w.write(")");
-	        */
 	        return true;
 	    }
 	    else if (isString(type)) {
@@ -3161,7 +3156,7 @@ public class Emitter {
 	        prettyPrint(e, tr);
 	    }
 	    // for primitive
-	    else if (actual.isBoolean() || needExplicitBoxing(actual)) {
+	    else if (needExplicitBoxing(actual)) {
 	        if (actual.typeEquals(expectedBase, tr.context())) {
 	            if (e instanceof X10Call && isBoxedType(Types.baseType(((X10Call) e).methodInstance().def().returnType().get()))) {
 	                expander = expander.unboxTo(expectedBase);
@@ -3171,7 +3166,6 @@ public class Emitter {
 	                prettyPrint(e, tr);
 	            }
 	        } else {
-
 	            if (isBoxedType(expectedBase)) {
 	                // when expected type is T or Any, include an explicit boxing transformation
 	                expander = expander.boxTo(actual).castTo(expectedBase);
