@@ -112,7 +112,13 @@ public class CXXCommandBuilder {
     }
     
     protected final boolean bluegene() {
+        return bluegeneP() || bluegeneQ();
+    }
+    protected final boolean bluegeneP() {
         return platform.contains("bgp");
+    }
+    protected final boolean bluegeneQ() {
+        return platform.contains("bgq");
     }
 
     /** 
@@ -375,8 +381,9 @@ public class CXXCommandBuilder {
         } else if (platform.startsWith("freebsd_")) {
         	cbb = new FreeBSD_CXXCommandBuilder();
         } else if (platform.startsWith("bgp")) {
-            // TODO: define specialized CXXCommandBuilder for bgp?
         	cbb = new Linux_CXXCommandBuilder();            
+        } else if (platform.startsWith("bgq")) {
+            cbb = new Linux_CXXCommandBuilder();            
         } else {   
             eq.enqueue(ErrorInfo.WARNING,
                        "Unknown platform '"+platform+"'; using the default post-compiler (g++)");
