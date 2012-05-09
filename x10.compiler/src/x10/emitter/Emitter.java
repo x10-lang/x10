@@ -107,6 +107,22 @@ import x10c.types.BackingArrayType;
 import x10c.visit.ClosureRemover;
 import x10c.visit.StaticInitializer;
 
+// static methods
+import static x10.visit.X10PrettyPrinterVisitor.hasParams;
+import static x10.visit.X10PrettyPrinterVisitor.isBoxedType;
+import static x10.visit.X10PrettyPrinterVisitor.isIndexedMemoryChunk;
+import static x10.visit.X10PrettyPrinterVisitor.isPrimitive;
+import static x10.visit.X10PrettyPrinterVisitor.isPrimitiveGenericMethod;
+import static x10.visit.X10PrettyPrinterVisitor.isSpecialType;
+import static x10.visit.X10PrettyPrinterVisitor.isSpecialTypeForDispatcher;
+import static x10.visit.X10PrettyPrinterVisitor.isString;
+import static x10.visit.X10PrettyPrinterVisitor.needExplicitBoxing;
+// constants
+import static x10.visit.X10PrettyPrinterVisitor.BOX_PRIMITIVES;
+import static x10.visit.X10PrettyPrinterVisitor.NO_QUALIFIER;
+import static x10.visit.X10PrettyPrinterVisitor.NO_VARIANCE;
+import static x10.visit.X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
+
 public class Emitter {
 
     private static final String RETURN_PARAMETER_TYPE_SUFFIX = "$G";
@@ -567,7 +583,7 @@ public class Emitter {
                 pos = endpos - 1;
                 start = pos + 1;
                 if (component instanceof Expr && !isNoArgumentType((Expr) component)) {
-                    component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    component = new CastExpander(w, this, (Node) component).castTo(((Expr) component).type(), BOX_PRIMITIVES);
                 }
                 prettyPrint(component, tr);
             } else if (regex.charAt(pos) == '`') {
@@ -642,11 +658,6 @@ public class Emitter {
 		return null;
 	}
 	
-	// TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
-	// return all X10 types that are mapped to Java primitives and require explicit boxing
-	private static boolean needExplicitBoxing(Type t) {
-	    return X10PrettyPrinterVisitor.needExplicitBoxing(t);
-	}
 	private static final HashMap<String,String> boxedPrimitives = new HashMap<String,String>();
 	static {
 		boxedPrimitives.put("x10.lang.Boolean", "x10.core.Boolean");
@@ -831,9 +842,9 @@ public class Emitter {
 	}
 
 	private boolean printRepType(Type type, int flags) {
-		boolean printTypeParams = (flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0;
-		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
-//		boolean inSuper = (flags & X10PrettyPrinterVisitor.NO_VARIANCE) != 0;
+		boolean printTypeParams = (flags & PRINT_TYPE_PARAMS) != 0;
+		boolean boxPrimitives = (flags & BOX_PRIMITIVES) != 0;
+//		boolean inSuper = (flags & NO_VARIANCE) != 0;
 
 		if (type.isVoid()) {
 			w.write("void");
@@ -866,10 +877,10 @@ public class Emitter {
                     } else {
                         name = null;
                     }
-                    component = new TypeExpander(this, at, flags & ~X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    component = new TypeExpander(this, at, flags & ~BOX_PRIMITIVES);
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name, component); }
-					component = new TypeExpander(this, at, flags | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+					component = new TypeExpander(this, at, flags | BOX_PRIMITIVES);
 					components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     component = new RuntimeTypeExpander(this, at);
@@ -890,11 +901,11 @@ public class Emitter {
 	public void printBoxConversion(Type type) {
 	    // treat unsigned types specially
 	    if (needExplicitBoxing(type)) {
-	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	    	printType(type, BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
 	    }
-	    else if (X10PrettyPrinterVisitor.isString(type)) {
+	    else if (isString(type)) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
@@ -903,7 +914,7 @@ public class Emitter {
                 // type == T comes here
 	        // FIXME: maybe this is not needed at all? -- boxing of non-boxable types
 	        w.write("(");
-	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        printType(type, BOX_PRIMITIVES);
 	        w.write(")");
 	    }
 	}
@@ -914,16 +925,16 @@ public class Emitter {
 	 */
 	public boolean printUnboxConversion(Type type) {
             if (needExplicitBoxing(type)) {
-	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	    	printType(type, BOX_PRIMITIVES);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        /*
 	        w.write("(");
-	    	printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	    	printType(type, BOX_PRIMITIVES);
 	        w.write(")");
 	        */
 	        return true;
 	    }
-	    else if (X10PrettyPrinterVisitor.isString(type)) {
+	    else if (isString(type)) {
 	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        return true;
@@ -931,17 +942,17 @@ public class Emitter {
 	    else {
 	        // FIXME: maybe this is not needed at all? -- unboxing of non-boxable types
 	        w.write("(");
-	        printType(type, X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+	        printType(type, BOX_PRIMITIVES);
 	        w.write(")");
 	        return false;
 	    }
 	}
 
 	public void printType(Type type, int flags) {
-		boolean printTypeParams = (flags & X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) != 0;
-//		boolean boxPrimitives = (flags & X10PrettyPrinterVisitor.BOX_PRIMITIVES) != 0;
-		boolean inSuper = (flags & X10PrettyPrinterVisitor.NO_VARIANCE) != 0;
-		boolean ignoreQual = (flags & X10PrettyPrinterVisitor.NO_QUALIFIER) != 0;
+		boolean printTypeParams = (flags & PRINT_TYPE_PARAMS) != 0;
+//		boolean boxPrimitives = (flags & BOX_PRIMITIVES) != 0;
+		boolean inSuper = (flags & NO_VARIANCE) != 0;
+		boolean ignoreQual = (flags & NO_QUALIFIER) != 0;
 
 		type = Types.baseType(type);
 
@@ -987,11 +998,11 @@ public class Emitter {
 				for (Type a : args) {
 					w.write(sep);
 					sep = ",";
-					printType(a, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+					printType(a, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
 				}
 				if (!ret.isVoid()) {
 					w.write(sep);
-					printType(ret, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+					printType(ret, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
 				}
 				w.write(">");
 			}
@@ -1001,7 +1012,7 @@ public class Emitter {
 		// Shouldn't get here.
 		if (type instanceof MacroType) {
 			MacroType mt = (MacroType) type;
-			printType(mt.definedType(),	X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+			printType(mt.definedType(), PRINT_TYPE_PARAMS);
 			return;
 		}
 
@@ -1051,17 +1062,13 @@ public class Emitter {
 							break;
 						}
 					}
-					printType(a, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+					printType(a, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
 				}
 				if (typeArgs.size() > 0)
 					w.write(">");
 			}
 		}
 	}
-
-	private static boolean isIndexedMemoryChunk(Type type) {
-	    return X10PrettyPrinterVisitor.isIndexedMemoryChunk(type);
-        }
 
     // See comments in Native.x10
     /**
@@ -1112,10 +1119,10 @@ public class Emitter {
           } else {
         	  name = null;
           }
-          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+          component = new TypeExpander(this, at, PRINT_TYPE_PARAMS);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
-          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+          component = new TypeExpander(this, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
@@ -1146,10 +1153,10 @@ public class Emitter {
           } else {
         	  name = null;
           }
-          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+          component = new TypeExpander(this, at, PRINT_TYPE_PARAMS);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
-          component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+          component = new TypeExpander(this, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
@@ -1205,7 +1212,7 @@ public class Emitter {
         if (isDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         } else {
-            printType(n.returnType().type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+            printType(n.returnType().type(), PRINT_TYPE_PARAMS);
         }
         
         w.allowBreak(2, 2, " ", 1);
@@ -1284,9 +1291,9 @@ public class Emitter {
             else {
                 printType(
                     type,
-                    (n.flags().flags().isStatic() ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS : 0) |
+                    (n.flags().flags().isStatic() ? PRINT_TYPE_PARAMS : 0) |
                     // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-                    (boxPrimitives || forceBoxing ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0)
+                    (boxPrimitives || forceBoxing ? BOX_PRIMITIVES : 0)
                 );
                 w.write(" ");
                 Name name = f.name().id();
@@ -1310,7 +1317,7 @@ public class Emitter {
 //                // vj 09/26/08: Changed to print out translated version of throw type
 //                // tr.print(n, tn, w);
 //                // TODO: Nate to check.
-//                printType(tn.type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//                printType(tn.type(), PRINT_TYPE_PARAMS);
 //                
 //                if (i.hasNext()) {
 //                    w.write(",");
@@ -1364,7 +1371,7 @@ public class Emitter {
 //            if (isDispatcher) {
 //                w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 //            } else {
-                printType(n.returnType().type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                printType(n.returnType().type(), PRINT_TYPE_PARAMS);
                 // XTENLANG-2993
 //            }
 
@@ -1446,9 +1453,9 @@ public class Emitter {
                 else {
                     printType(
                         type,
-                        (n.flags().flags().isStatic() ? X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS : 0) |
+                        (n.flags().flags().isStatic() ? PRINT_TYPE_PARAMS : 0) |
                         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-                        (boxPrimitives || forceBoxing ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0)
+                        (boxPrimitives || forceBoxing ? BOX_PRIMITIVES : 0)
                     );
                     w.write(" ");
                     Name name = f.name().id();
@@ -1472,7 +1479,7 @@ public class Emitter {
 //                    // vj 09/26/08: Changed to print out translated version of throw type
 //                    // tr.print(n, tn, w);
 //                    // TODO: Nate to check.
-//                    printType(tn.type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//                    printType(tn.type(), PRINT_TYPE_PARAMS);
 //                    
 //                    if (i.hasNext()) {
 //                        w.write(",");
@@ -1516,14 +1523,6 @@ public class Emitter {
     private void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean useSpecialDispatcher, Type returnTypeForDispatcher) {
         Type returnType = def.returnType().get();
         printMethodName(def, isInterface, isDispatcher, useSpecialDispatcher, returnTypeForDispatcher, isSpecialType(returnType), tr.typeSystem().isParameterType(returnType));
-    }
-
-    private static boolean isSpecialType(Type type) {
-        return X10PrettyPrinterVisitor.isSpecialType(type);
-    }
-
-    private static boolean isSpecialTypeForDispatcher(Type type) {
-        return X10PrettyPrinterVisitor.isSpecialTypeForDispatcher(type);
     }
 
     public static final boolean canMangleMethodName(MethodDef def) {
@@ -1733,7 +1732,7 @@ public class Emitter {
                     Type type = sups.get(i);
                     if (!alreadyPrinted(alreadyPrintedTypes, type)) {
                         if (alreadyPrintedTypes.size() != 0) w.write(" & ");
-                        printType(sups.get(i), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                        printType(sups.get(i), BOX_PRIMITIVES);
                         alreadyPrintedTypes.add(type);
                     }
                 }
@@ -1749,7 +1748,7 @@ public class Emitter {
             w.write("<");
             for (Iterator<? extends Type> i = methodTypeParams.iterator(); i.hasNext();) {
                 final Type at = i.next();
-                printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                 if (i.hasNext()) {
                     w.write(",");
                     w.allowBreak(0, " ");
@@ -2155,11 +2154,6 @@ public class Emitter {
 	    return false;
 	}
 
-    // TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
-    private static boolean isPrimitive(Type type) {
-	    return X10PrettyPrinterVisitor.isPrimitive(type);
-	}
-
     // old and potentially buggy code
 //	private boolean containsInstantiatedMethod(List<MethodInstance> methods, MethodInstance impled) {
 //        for (MethodInstance mi : methods) {
@@ -2255,9 +2249,9 @@ public class Emitter {
 	    
 	    // e.g int m() overrides or implements T m()
             boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
-            int intflags = instantiateReturnType ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0;
-            if (!X10PrettyPrinterVisitor.isGenericOverloading) intflags |= X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
-            boolean boxReturnString = isCovariantOverride && X10PrettyPrinterVisitor.isString(impl.returnType());
+            int intflags = instantiateReturnType ? BOX_PRIMITIVES : 0;
+            if (!X10PrettyPrinterVisitor.isGenericOverloading) intflags |= PRINT_TYPE_PARAMS;
+            boolean boxReturnString = isCovariantOverride && isString(impl.returnType());
             if (boxReturnString) {
                 w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
             } else {
@@ -2299,10 +2293,10 @@ public class Emitter {
 	            w.allowBreak(0, " ");
 	        }
 	        if (Types.baseType(def.formalTypes().get(i).get()) instanceof ParameterType) {
-                printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS) | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES);
 
 	        } else {
-                printType(f, X10PrettyPrinterVisitor.isGenericOverloading ? 0 : X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                printType(f, X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS);
 
 	        }
 	        w.write(" ");
@@ -2320,7 +2314,7 @@ public class Emitter {
 	        w.write("throws ");
 	        for (Iterator<Type> i = impl.throwTypes().iterator(); i.hasNext();) {
 	            Type t = i.next();
-	            printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+	            printType(t, PRINT_TYPE_PARAMS);
 	            if (i.hasNext()) {
 	                w.write(",");
 	                w.allowBreak(4, " ");
@@ -2419,7 +2413,7 @@ public class Emitter {
     	        .translateJava()
     	    );
     
-    	    printType(mi.returnType(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+    	    printType(mi.returnType(), PRINT_TYPE_PARAMS);
 
     	    w.allowBreak(2, 2, " ", 1);
     
@@ -2433,7 +2427,7 @@ public class Emitter {
     	            w.write(",");
     	            w.allowBreak(0, " ");
     	        }
-                printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS));
+                printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS));
     	        w.write(" ");
     
     	        Name name = Name.make("a" + (i + 1));
@@ -2449,7 +2443,7 @@ public class Emitter {
     	        w.write("throws ");
     	        for (Iterator<Type> i = mi.throwTypes().iterator(); i.hasNext();) {
     	            Type t = i.next();
-    	            printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+    	            printType(t, PRINT_TYPE_PARAMS);
     	            if (i.hasNext()) {
     	                w.write(",");
     	                w.allowBreak(4, " ");
@@ -2851,7 +2845,7 @@ public class Emitter {
         if (!isSpecialTypeForDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         } else {
-            printType(returnTypeForDispatcher, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+            printType(returnTypeForDispatcher, PRINT_TYPE_PARAMS);
         }
         
         w.write(" ");
@@ -2924,7 +2918,7 @@ public class Emitter {
 //            w.write("throws ");
 //            for (Iterator<Type> i = dispatch.throwTypes().iterator(); i.hasNext();) {
 //                Type t = i.next();
-//                printType(t, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//                printType(t, PRINT_TYPE_PARAMS);
 //                if (i.hasNext()) {
 //                    w.write(",");
 //                    w.allowBreak(4, " ");
@@ -3113,8 +3107,7 @@ public class Emitter {
 
 	public void printFormal(Translator tr, Node n, Formal f, boolean mustBox) {
 		tr.print(n, f.flags(), w);
-		printType(f.type().type(), X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS
-				| (mustBox ? X10PrettyPrinterVisitor.BOX_PRIMITIVES : 0));
+		printType(f.type().type(), PRINT_TYPE_PARAMS | (mustBox ? BOX_PRIMITIVES : 0));
 		w.write(" ");
 
 		Name name = f.name().id();
@@ -3195,8 +3188,7 @@ public class Emitter {
 	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
 	            prettyPrint(e, tr);
 	        }
-	        else if (X10PrettyPrinterVisitor.isString(actual) &&
-	        		!(expectedBase instanceof ParameterType) && !X10PrettyPrinterVisitor.isString(expectedBase)) {
+	        else if (isString(actual) && !(expectedBase instanceof ParameterType) && !isString(expectedBase)) {
 	        	expander = expander.boxTo(actual).castTo(expectedBase);
 	        	expander.expand(tr);
 	        }
@@ -3207,7 +3199,7 @@ public class Emitter {
 	            else {
 	            	// java primitive arrays do not use boxed types
 	            	final boolean isJavaArray = tr.typeSystem().isJavaArray(expectedBase);
-    	            expander = expander.castTo(expectedBase, isJavaArray ? 0 : X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+    	            expander = expander.castTo(expectedBase, isJavaArray ? 0 : BOX_PRIMITIVES);
 	            }
 	            expander.expand(tr);
 	        }
@@ -3284,7 +3276,7 @@ public class Emitter {
 
 	    w.write("public static final x10.rtt.RuntimeType");
         w.write("<");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
         w.write("> " + X10PrettyPrinterVisitor.RTT_NAME + " = ");
         if (isStaticFunType) {
             // Option for closures
@@ -3300,7 +3292,7 @@ public class Emitter {
             w.write("x10.rtt.NamedType");
         }
         w.write(".<");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
         w.write(">");
         w.write(" make(");
         w.newline();
@@ -3309,7 +3301,7 @@ public class Emitter {
             w.write("\"" + def.asType() + "\", ");
         }
         w.write("/* base class */");
-        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
         w.write(".class");
         
         if (def.variances().size() > 0) {
@@ -3469,7 +3461,7 @@ public class Emitter {
                 int i = 0;
                 Object component;
                 String name;
-                component = new TypeExpander(this, x10Type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                component = new TypeExpander(this, x10Type, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                 components.put(String.valueOf(i++), component);
                 components.put("class", component);
                 for (final Type at : classTypeArgs) {
@@ -3479,11 +3471,11 @@ public class Emitter {
                         name = null;
                     }
                     // XTENLANG-3010 : runtime type of Java.array[T] is defined as "Types.getRTT(#T[].class)" 
-                    component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                    component = new TypeExpander(this, at, PRINT_TYPE_PARAMS);
                     // Note: to avoid changing number based key, we only register this with name based key 
 //                    components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name, component); }
-                    component = new TypeExpander(this, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    component = new TypeExpander(this, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
@@ -3671,13 +3663,13 @@ public class Emitter {
         w.newline();
         w.write("private Object readResolve() { return ");
 	if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-	    printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+	    printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
 	    w.write(".");
 	    w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
 	} else {
 	    assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
 	    w.write("new ");
-	    printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+	    printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
 	}
         w.write("(");
         for (ParameterType type : def.typeParameters()) {
@@ -3796,7 +3788,7 @@ public class Emitter {
         w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
         for (ParameterType at : def.typeParameters()) {
             w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
-            printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+            printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
             w.write(" = ( " + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ) ");
             w.writeln("$deserializer.readRef();");
             params.add(mangleParameterType(at));
@@ -3805,16 +3797,16 @@ public class Emitter {
         // XTENLANG-2974
         // N.B. we cannot reinstantiating $_obj since it may have already been serialized (and thus registered).
 //        w.write("$_obj = (");
-//        printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+//        printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
 //        w.write(") ");
 //        if (X10PrettyPrinterVisitor.generateFactoryMethod) {
-//            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+//            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
 //            w.write(".");
 //            w.write(X10PrettyPrinterVisitor.CREATION_METHOD_NAME);
 //        } else {
 //            assert X10PrettyPrinterVisitor.generateOnePhaseConstructor;
 //            w.write("new ");
-//            printType(def.asType(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.NO_QUALIFIER);
+//            printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
 //        }
 //        String paramNames = "";
 //        for (String param : params) {
@@ -3917,7 +3909,7 @@ public class Emitter {
                     superClassNode.type().toString().equals("x10.lang.Any"))) {
                 if (superClassNode.type().toClass().isJavaType()) {
                     w.write("$serializer.serializeClassUsingReflection(this, ");
-                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    printType(superClassNode.type(), BOX_PRIMITIVES);
                     w.writeln(".class);");
                 } else {
                     w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
@@ -3937,10 +3929,10 @@ public class Emitter {
                 // If the super class is a pure java class we need to deserialize it using reflection
                 if (superClassNode.type().toClass().isJavaType()) {
                     w.write("$deserializer.deserializeClassUsingReflection(");
-                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    printType(superClassNode.type(), BOX_PRIMITIVES);
                     w.writeln(".class, $_obj, 0);");
                 } else {
-                    printType(superClassNode.type(), X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    printType(superClassNode.type(), BOX_PRIMITIVES);
                     w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
                 }
             }
@@ -4029,7 +4021,7 @@ public class Emitter {
                     // for struct a.b.S[T], "new a.b.S(T, (java.lang.System) null);"
                     w.write(lhs); lhs = "";
                     w.write("new ");
-                    printType(type, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+                    printType(type, PRINT_TYPE_PARAMS);
                     w.write("(");
                     X10ParsedClassType_c pcType = (X10ParsedClassType_c) type;
                     if (pcType.typeArguments() != null) {
@@ -4119,7 +4111,7 @@ public class Emitter {
         if (!isIndexedMemoryChunk(ttype)) {
             return false;
         }
-        if (!X10PrettyPrinterVisitor.hasParams(ttype)) {
+        if (!hasParams(ttype)) {
             return true;
         }
         List<Type> ta = ttype.toClass().typeArguments();
@@ -4136,10 +4128,10 @@ public class Emitter {
     	if (pat != null) {
             Receiver target = c.target();
             Type t = target.type();
-    	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);
+    	    boolean cast = xts.isParameterType(t) || hasParams(t);
     		CastExpander targetArg = new CastExpander(w, this, target);
     		if (cast) {
-    		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+    		    targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES | PRINT_TYPE_PARAMS);
     		    // in native methods of numerics (Int etc), the #this argument is expected to be unboxed
     		    if (needExplicitBoxing(mi.container()))
     		        targetArg = targetArg.unboxTo(mi.container());
@@ -4162,10 +4154,10 @@ public class Emitter {
     		    params.add(mi.def().formalNames().get(i).name().toString());
     		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
-    		    if (X10PrettyPrinterVisitor.isPrimitive(at) && xts.isParameterType(ft) && !isPrimitiveGenericMethod(mi)) {
+    		    if (isPrimitive(at) && xts.isParameterType(ft) && !isPrimitiveGenericMethod(mi)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).boxTo(at));
     		    }
-    		    else if (X10PrettyPrinterVisitor.isPrimitive(at)) {
+    		    else if (isPrimitive(at)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
     		    }
     		    else {
@@ -4179,10 +4171,6 @@ public class Emitter {
     	return false;
     }
     
-    public static boolean isPrimitiveGenericMethod(MethodInstance mi) {
-        return X10PrettyPrinterVisitor.isPrimitiveGenericMethod(mi);
-    }
-
     public boolean printNativeNew(X10New_c c, X10ConstructorInstance mi) {
         String pat = getJavaImplForDef(mi.x10Def());
         if (pat != null) {
@@ -4203,10 +4191,10 @@ public class Emitter {
     		    params.add(mi.def().formalNames().get(i).name().toString());
                 Type ft = c.constructorInstance().def().formalTypes().get(i).get();
                 Type at = arguments.get(i).type();
-                if (X10PrettyPrinterVisitor.isPrimitive(at) && Types.baseType(ft) instanceof ParameterType) {
-                    args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+                if (isPrimitive(at) && Types.baseType(ft) instanceof ParameterType) {
+                    args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
                 }
-                else if (X10PrettyPrinterVisitor.isPrimitive(at)) {
+                else if (isPrimitive(at)) {
                     args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
                 }
                 else {
@@ -4233,10 +4221,10 @@ public class Emitter {
 ////            Receiver target = c.target();
 ////            Type t = target.type();
 //    		Type t = mi.container();
-//    	    boolean cast = xts.isParameterType(t) || X10PrettyPrinterVisitor.hasParams(t);
+//    	    boolean cast = xts.isParameterType(t) || hasParams(t);
 //    		CastExpander targetArg = new CastExpander(w, this, target);
 //    		if (cast) {
-//    		    targetArg = targetArg.castTo(mi.container(), X10PrettyPrinterVisitor.BOX_PRIMITIVES | X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+//    		    targetArg = targetArg.castTo(mi.container(), BOX_PRIMITIVES | PRINT_TYPE_PARAMS);
 //    		}
     		String targetArg = null;
     		if (!mi.flags().isStatic()) {
@@ -4263,10 +4251,10 @@ public class Emitter {
     		    /*
     		    Type ft = mi.def().formalTypes().get(i).get();
     		    Type at = arguments.get(i).type();
-    		    if (X10PrettyPrinterVisitor.isPrimitive(at) && xts.isParameterType(ft)) {
-    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, X10PrettyPrinterVisitor.BOX_PRIMITIVES));
+    		    if (isPrimitive(at) && xts.isParameterType(ft)) {
+    		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
     		    }
-    		    else if (X10PrettyPrinterVisitor.isPrimitive(at)) {
+    		    else if (isPrimitive(at)) {
     		        args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, 0));
     		    }
     		    else {
@@ -4355,7 +4343,4 @@ public class Emitter {
         return false;
     }
     
-    private static boolean isBoxedType(Type t) {
-        return X10PrettyPrinterVisitor.isBoxedType(t);
-    }
 }

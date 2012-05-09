@@ -29,6 +29,10 @@ import x10.types.X10FieldInstance;
 import polyglot.types.TypeSystem;
 import x10.visit.X10PrettyPrinterVisitor;
 
+// constants
+import static x10.visit.X10PrettyPrinterVisitor.BOX_PRIMITIVES;
+import static x10.visit.X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS;
+
 final public class RuntimeTypeExpander extends Expander {
 
 	// XTENLANG-2488
@@ -177,7 +181,7 @@ final public class RuntimeTypeExpander extends Expander {
             	int i = 0;
             	Object component;
             	String name;
-            	component =  new TypeExpander(er, ct, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+            	component =  new TypeExpander(er, ct, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
             	components.put(String.valueOf(i++), component);
             	components.put("class", component);
             	for (Type at : classTypeArgs) {
@@ -186,10 +190,10 @@ final public class RuntimeTypeExpander extends Expander {
                     } else {
                         name = null;
                     }
-            		component = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS);
+            		component = new TypeExpander(er, at, PRINT_TYPE_PARAMS);
 //                	components.put(String.valueOf(i++), component); // N.B. don't use number index to avoid breaking existing code
                     if (name != null) { components.put(name, component); }
-            		component = new TypeExpander(er, at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+            		component = new TypeExpander(er, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                 	components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+Emitter.NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
             		component = new RuntimeTypeExpander(er, at);

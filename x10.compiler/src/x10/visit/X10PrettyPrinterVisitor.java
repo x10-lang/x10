@@ -2280,6 +2280,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     	return allMethodsFinal(def) || doesNotHaveMethodBody(def);
     }
     
+    // TODO consolidate isPrimitive(Type) and needExplicitBoxing(Type).
+    // return all X10 types that are mapped to Java primitives and require explicit boxing
     public static boolean needExplicitBoxing(Type t) {
         return isPrimitive(t);
     }
@@ -4664,7 +4666,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return Types.baseType(type).isIndexedMemoryChunk();
     }
 
-    // TODO consolidate X10PrettyPrinterVisitor.isPrimitive(Type), Emitter.isPrimitive(Type) and Emitter.needExplicitBoxing(Type).
+    // TODO consolidate isPrimitive(Type) and needExplicitBoxing(Type).
     public static boolean isPrimitive(Type t) {
         return t.isBoolean() || t.isChar()  || t.isNumeric();
     }

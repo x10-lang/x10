@@ -17,6 +17,9 @@ import polyglot.visit.Translator;
 import x10.X10CompilerOptions;
 import x10.visit.X10PrettyPrinterVisitor;
 
+// constants
+import static x10.visit.X10PrettyPrinterVisitor.BOX_PRIMITIVES;
+
 public class CastExpander extends Expander {
 
 	private final CodeWriter w;
@@ -86,7 +89,7 @@ public class CastExpander extends Expander {
 	}
 	
 	public CastExpander boxTo(Type castType) {
-	    return new CastExpander(w, er, new TypeExpander(er, castType, X10PrettyPrinterVisitor.BOX_PRIMITIVES), this)
+	    return new CastExpander(w, er, new TypeExpander(er, castType, BOX_PRIMITIVES), this)
 	        .setBoxConversion(true);
 	}
 	
