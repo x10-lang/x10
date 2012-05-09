@@ -26,11 +26,14 @@ while [ $# != 0 ]; do
 
     -x10dt_hosts)
         hosts=$x10dt_hosts
-	shift
     ;;
 
     -nodebug)
 	debug_arg="-nodebug"
+    ;;
+
+    -skip_source)
+        pushed_source="done"       
     ;;
 
    esac
@@ -68,13 +71,14 @@ do
 	echo "transfering from localhost to orquesta"
 	scp x10-$version*.tar.bz2 orquesta.watson.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version
 	rm x10-$version*.tar.bz2
+
+	echo "Packaging benchmarks"
+	./packageBenchmarks.sh -dir /tmp/x10-bench-$USER -version $version -tag $tag
+	echo "transfering benchmarks tar to orquesta"
+	scp /tmp/x10-bench-$USER/x10-benchmarks-$version.tar.bz2 orquesta.watson.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version 
+
 	export pushed_source="done"
     fi
 
     #ssh $host rm -rf /tmp/x10-rc-$USER 
 done
-
-echo "Packaging benchmarks"
-./packageBenchmarks.sh -dir /tmp/x10-bench-$USER -version $version -tag $tag
-echo "transfering benchmarks tar to orquesta"
-scp /tmp/x10-bench-$USER/x10-benchmarks-$version.tar.bz2 orquesta.watson.ibm.com:/var/www/localhost/htdocs/x10dt/x10-rc-builds/$version 
