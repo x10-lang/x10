@@ -165,6 +165,23 @@ static void team_create_dispatch (pami_context_t context, void* cookie, const vo
 
 
 /*
+ * Encapsulate PAMI_Context_advance calls to work around observed difference in 
+ *  return code behavior on BG/Q
+ */
+pami_result_t x10rt_PAMI_Context_advance(pami_context_t context, size_t maximum) {
+#if defined(__bgq__) 
+  // Temporary workaround observed behavior on BG/Q.  
+  // PAMI_Context_advance seems to always return PAMI_SUCCESS
+  // So convert SUCCESS to EAGAIN and rely on higher-level looping to drain the network
+  pami_result_t tmp = PAMI_Context_advance(context, maximum == 1 ? 100 : maximum);
+  return (tmp == PAMI_SUCCESS) ? PAMI_EAGAIN : PAMI_SUCCESS;
+#else
+  return PAMI_Context_advance(context, maximum);
+#endif
+}
+
+
+/*
  * The error method prints out serious errors, then immediately exits
  */
 void error(const char* msg, ...)
@@ -1145,7 +1162,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 				while(sendActive)
-					PAMI_Context_advance(context, 1);
+					x10rt_PAMI_Context_advance(context, 1);
 			}
 			else
 			{
@@ -1155,7 +1172,7 @@ void x10rt_net_send_msg (x10rt_msg_params *p)
 					error("Unable to send a message from %u to %u: %i\n", state.myPlaceId, p->dest_place, status);
 
 				while(sendActive)
-					PAMI_Context_advance(state.context[0], 1);
+					x10rt_PAMI_Context_advance(state.context[0], 1);
 
 				PAMI_Context_unlock(state.context[0]);
 			}
@@ -1370,7 +1387,7 @@ void x10rt_net_probe()
 	if (state.numParallelContexts)
 	{
 		pami_context_t context = getConcurrentContext();
-		do { status = PAMI_Context_advance(context, 1);
+		do { status = x10rt_PAMI_Context_advance(context, 1);
 		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
 		if (status == PAMI_ERROR) error ("Problem advancing the current context");
 	}
@@ -1380,7 +1397,7 @@ void x10rt_net_probe()
 		if (status == PAMI_EAGAIN) return; // context is already in use
 		if (status != PAMI_SUCCESS) error ("Unable to lock the PAMI context");
 
-		do { status = PAMI_Context_advance(state.context[0], 1);
+		do { status = x10rt_PAMI_Context_advance(state.context[0], 1);
 		} while (status == PAMI_SUCCESS); // PAMI_Context_advance returns PAMI_EAGAIN when no messages were processed
 		if (status == PAMI_ERROR) error ("Problem advancing the context");
 
