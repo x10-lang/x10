@@ -367,7 +367,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public void visit(X10CBackingArrayNewArray_c n) {
         Type base = ((JavaArrayType) n.type()).base();
-        if (base instanceof ParameterType) {
+        if (base.isParameterType()) {
             w.write("(");
             er.printType(n.type(), 0);
             w.write(")");
@@ -383,7 +383,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             return;
         }
         w.write("new ");
-        er.printType(((JavaArrayType) n.type()).base(), 0);
+        er.printType(base, 0);
         for (Expr dim : n.dims()) {
             w.write("[");
             er.prettyPrint(dim, tr);
@@ -1213,7 +1213,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             for (Ref<? extends Type> ref : formalTypes) {
                 Type t = ref.get();
                 Type bt = Types.baseType(t);
-                if (bt instanceof ParameterType || hasParams(t) || bt.isUnsignedNumeric()) {
+                if (bt.isParameterType() || hasParams(t) || bt.isUnsignedNumeric()) {
                     containsParamOrParameterized = true;
                     break;
                 }
@@ -2427,16 +2427,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             boolean instantiatesReturnType = false;
             List<MethodInstance> list = mi.implemented(tr.context());
             for (MethodInstance mj : list) {
-                if (mj.container().typeEquals(containerType, tr.context())
-                        && Types.baseType(mj.def().returnType().get()) instanceof ParameterType) {
+                if (mj.container().typeEquals(containerType, tr.context()) && mj.def().returnType().get().isParameterType()) {
                     instantiatesReturnType = true;
                     break;
                 }
             }
 
             MethodDef md = mi.def();
-            boolean isParamReturnType = Types.baseType(md.returnType().get()) instanceof ParameterType
-                    || instantiatesReturnType;
+            boolean isParamReturnType = md.returnType().get().isParameterType() || instantiatesReturnType;
 
             boolean isSpecialReturnType = isSpecialType(md.returnType().get());
 
@@ -2872,7 +2870,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (target instanceof TypeNode) {
             TypeNode tn = (TypeNode) target;
-            if (targetType instanceof ParameterType) {
+            if (targetType.isParameterType()) {
                 // Rewrite to the class declaring the field.
                 FieldDef fd = fi.def();
                 targetType = Types.get(fd.container());
@@ -3161,7 +3159,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write("makeArrayFromJavaArray(");
         new RuntimeTypeExpander(er, t).expand();
         w.write(", ");
-        if (Types.baseType(t) instanceof ParameterType) {
+        if (t.isParameterType()) {
             new RuntimeTypeExpander(er, t).expand();
             w.write(".makeArray(");
             new Join(er, ", ", c.arguments()).expand();
@@ -3405,7 +3403,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write("return ");
             }
 
-            er.printApplyMethodName(n, Types.baseType(n.returnType().type()) instanceof ParameterType);
+            er.printApplyMethodName(n, n.returnType().type().isParameterType());
 
             w.write("(");
             String delim = "";
@@ -3437,7 +3435,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         w.write(" ");
 
-        er.printApplyMethodName(n, Types.baseType(n.returnType().type()) instanceof ParameterType);
+        er.printApplyMethodName(n, n.returnType().type().isParameterType());
 
         w.write("(");
         for (int i = 0; i < formals.size(); i++) {
@@ -3615,8 +3613,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     private boolean needBridge(final Closure_c n) {
-        return containsPrimitive(n) || !n.returnType().type().isVoid()
-                && !(Types.baseType(n.returnType().type()) instanceof ParameterType);
+        return containsPrimitive(n) || !n.returnType().type().isVoid() && !n.returnType().type().isParameterType();
     }
 
     // private boolean throwException(List<Stmt> statements) {

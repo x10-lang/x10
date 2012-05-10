@@ -971,7 +971,7 @@ public class Emitter {
 		if (printRepType(type, flags))
 			return;
 
-		if (type instanceof ParameterType) {
+		if (type.isParameterType()) {
 			w.write(mangleParameterType((ParameterType) type));
 			return;
 		}
@@ -1265,7 +1265,7 @@ public class Emitter {
             if (isDispatcher && containsTypeParam(type)) {
                 // XTENLANG-2998
                 // Java backend erases type parameters of interface and merge multiple instantiations of the same generic interface (e.g. I[Int] and I[Float]) into a single Java generic interface (I).
-                if (type instanceof ParameterType) {
+                if (type.isParameterType()) {
                     w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
                 } else {
                     printType(type, 0);
@@ -1427,7 +1427,7 @@ public class Emitter {
                 if (isDispatcher && containsTypeParam(type)) {
                     // XTENLANG-2998
                     // Java backend erases type parameters of interface and merge multiple instantiations of the same generic interface (e.g. I[Int] and I[Float]) into a single Java generic interface (I).
-                    if (type instanceof ParameterType) {
+                    if (type.isParameterType()) {
                         w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
                     } else {
                         printType(type, 0);
@@ -1688,7 +1688,7 @@ public class Emitter {
             Type supClassType = null;
             for (Iterator<Type> it = sups.iterator(); it.hasNext();) {
                 Type type = Types.baseType(it.next());
-                if (type instanceof ParameterType) {
+                if (type.isParameterType()) {
                     it.remove();
                 }
                 if (type.isClass()) {
@@ -1842,7 +1842,7 @@ public class Emitter {
                 sb.append("$2"); // "$2" means "]"
             }
         }
-        else if (printIncludingGeneric && t instanceof ParameterType) {
+        else if (printIncludingGeneric && t.isParameterType()) {
             // class I[T] { def foo(t:T) {...} }
             //  -> class I<T> { foo__0I$$T(T t) {...} }   ("I$$T" means T of I)
             sb.append(FORMAL_MARKER(i));
@@ -1868,7 +1868,7 @@ public class Emitter {
                 }
             }
         }
-        else if (t instanceof ParameterType) {
+        else if (t.isParameterType()) {
             appendParameterType(ct, sb, (ParameterType) t);
         }
         else {
@@ -1885,7 +1885,7 @@ public class Emitter {
     }
 
 	public static boolean containsTypeParam(Type type) {
-	    if (type instanceof ParameterType) {
+	    if (type.isParameterType()) {
 	        return true;
 	    }
 	    else if (type.isClass()) {
@@ -2103,7 +2103,7 @@ public class Emitter {
     }
 
     private static boolean isInstantiated(Type sup, Type t) {
-        return Types.baseType(sup) instanceof ParameterType && !(Types.baseType(t) instanceof ParameterType);
+        return sup.isParameterType() && !t.isParameterType();
     }
 
     private boolean existMethodInterface(Type t, Type type, MethodInstance mi, MethodInstance mdi) {
@@ -2154,8 +2154,8 @@ public class Emitter {
 //        for (MethodInstance mi : methods) {
 //            if (
 //                !(
-//                    (Types.baseType(mi.def().returnType().get()) instanceof ParameterType && Types.baseType(impled.def().returnType().get()) instanceof ParameterType)
-//                    || (!(Types.baseType(mi.def().returnType().get()) instanceof ParameterType) && !(Types.baseType(impled.def().returnType().get()) instanceof ParameterType))
+//                    (mi.def().returnType().get().isParameterType() && impled.def().returnType().get().isParameterType())
+//                    || (!mi.def().returnType().get().isParameterType() && !impled.def().returnType().get().isParameterType())
 //                )
 //            ) {
 //                continue;
@@ -2165,8 +2165,8 @@ public class Emitter {
 //            for (int i = 0;i < types.size(); ++i) {
 //                if (
 //                    !(
-//                        (Types.baseType(types.get(i).get()) instanceof ParameterType && Types.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
-//                        || (!(Types.baseType(types.get(i).get()) instanceof ParameterType) && !(Types.baseType(impled.def().formalTypes().get(i).get()) instanceof ParameterType))
+//                        (types.get(i).get().isParameterType() && impled.def().formalTypes().get(i).get().isParameterType()))
+//                        || (!types.get(i).get().isParameterType() && !impled.def().formalTypes().get(i).get().isParameterType())
 //                ) {
 //                    continue;
 ////                    return false;
@@ -2287,12 +2287,10 @@ public class Emitter {
 	            w.write(",");
 	            w.allowBreak(0, " ");
 	        }
-	        if (Types.baseType(def.formalTypes().get(i).get()) instanceof ParameterType) {
-                printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES);
-
+	        if (def.formalTypes().get(i).get().isParameterType()) {
+	            printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES);
 	        } else {
-                printType(f, X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS);
-
+	            printType(f, X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS);
 	        }
 	        w.write(" ");
 
@@ -2803,12 +2801,13 @@ public class Emitter {
 
     private static boolean hasSameSignature(MethodDef md, MethodDef td) {
         if (!md.name().equals(td.name())) return false;
-        if (md.formalTypes().size() != td.formalTypes().size()) return false;
-        List<Ref<? extends Type>> formalTypes = md.formalTypes();
-        for (int i = 0; i < formalTypes.size(); ++i) {
-            Type ft = formalTypes.get(i).get();
-            Type tt = td.formalTypes().get(i).get();
-            if ((ft instanceof ParameterType && td.formalTypes().get(i).get() instanceof ParameterType)) {}
+        List<Ref<? extends Type>> mdFormalTypes = md.formalTypes();
+        List<Ref<? extends Type>> tdFormalTypes = td.formalTypes();
+        if (mdFormalTypes.size() != tdFormalTypes.size()) return false;
+        for (int i = 0; i < mdFormalTypes.size(); ++i) {
+            Type ft = mdFormalTypes.get(i).get();
+            Type tt = tdFormalTypes.get(i).get();
+            if (ft.isParameterType() && tt.isParameterType()) {}
             else if (ft.isClass() && tt.isClass() && ft.toClass().name().toString().equals(tt.toClass().name().toString())) {}
             else {
                 return false;
@@ -2824,13 +2823,14 @@ public class Emitter {
             for (Entry<MethodInstance, List<MethodInstance>> entry : entrySet) {
                 MethodDef md = entry.getKey().def();
                 MethodDef td = target.def();
-                if (md.name().equals(td.name()) && md.formalTypes().size() == td.formalTypes().size()) {
-                    List<Ref<? extends Type>> formalTypes = md.formalTypes();
+                List<Ref<? extends Type>> mdFormalTypes = md.formalTypes();
+                List<Ref<? extends Type>> tdFormalTypes = td.formalTypes();
+                if (md.name().equals(td.name()) && mdFormalTypes.size() == tdFormalTypes.size()) {
                     containsSameSignature = true;
-                    for (int i = 0; i < formalTypes.size(); ++i) {
-                        Type ft = formalTypes.get(i).get();
-                        Type tt = td.formalTypes().get(i).get();
-                        if ((ft instanceof ParameterType && td.formalTypes().get(i).get() instanceof ParameterType)) {}
+                    for (int i = 0; i < mdFormalTypes.size(); ++i) {
+                        Type ft = mdFormalTypes.get(i).get();
+                        Type tt = tdFormalTypes.get(i).get();
+                        if (ft.isParameterType() && tt.isParameterType()) {}
                         else if (ft.isClass() && tt.isClass() && ft.toClass().name().toString().equals(tt.toClass().name().toString())) {}
                         else {
                             containsSameSignature = false;
@@ -2885,16 +2885,25 @@ public class Emitter {
         List<Type> formalTypes1 = mi1.formalTypes();
         List<Type> formalTypes2 = mi2.formalTypes();
         if (formalTypes1.size() != formalTypes2.size()) return false;
+        // FIXME should this be replaced with the following code?
         boolean contains = false;
         for (int i = 0; i < formalTypes1.size(); ++i) {
             Type type1 = formalTypes1.get(i);
             Type type2 = formalTypes2.get(i);
-            if (type1.typeEquals(type2, tr.context()) || (type1 instanceof ParameterType && type2 instanceof ParameterType)) {
+            if (type1.typeEquals(type2, tr.context()) || (type1.isParameterType() && type2.isParameterType())) {
                 contains = true;
                 break;
             }
         }
         return contains;
+        // FIXME this is correct code
+//        for (int i = 0; i < formalTypes1.size(); ++i) {
+//            Type type1 = formalTypes1.get(i);
+//            Type type2 = formalTypes2.get(i);
+//            if (!(type1.typeEquals(type2, tr.context()) || (type1.isParameterType() && type2.isParameterType())))
+//                return false;
+//        }
+//        return true;
     }
     private boolean containsSameSignature(List<MethodInstance> targets, MethodInstance mi1) {
         for (MethodInstance mi2 : targets) {
@@ -2956,7 +2965,7 @@ public class Emitter {
             Type type = def.formalTypes().get(i).get();
             if (containsTypeParam(type)) {
                 w.write("final ");
-                if (type instanceof ParameterType) {
+                if (type.isParameterType()) {
                     w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
                 } else {
                     printType(type, 0);
@@ -3138,7 +3147,7 @@ public class Emitter {
 
 
     private static boolean isMethodParameter(Type bf, MethodInstance mi, Context context) {
-        if (bf instanceof ParameterType) {
+        if (bf.isParameterType()) {
             Def def = ((ParameterType) bf).def().get();
             if (def instanceof MethodDef) {
                 if (((MethodDef) def).container().get().typeEquals(mi.container(), context)) {
@@ -3233,8 +3242,7 @@ public class Emitter {
 	        actual = ((ConstrainedType) actual).baseType().get();
 	    }
 	    CastExpander expander = new CastExpander(w, this, e);
-	    if (actual.isNull() || e.isConstant() && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)
-	            && (!isBoxedType(expectedBase))) {
+	    if (actual.isNull() || e.isConstant() && !expectedBase.isParameterType() && !actual.isParameterType() && !isBoxedType(expectedBase)) {
 	        prettyPrint(e, tr);
 	    }
 	    // for primitive
@@ -3261,10 +3269,10 @@ public class Emitter {
 	        }
 	    }
 	    else {
-	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !(expectedBase instanceof ParameterType) && !(actual instanceof ParameterType)) {
+	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !expectedBase.isParameterType() && !actual.isParameterType()) {
 	            prettyPrint(e, tr);
 	        }
-	        else if (isString(actual) && !(expectedBase instanceof ParameterType) && !isString(expectedBase)) {
+	        else if (isString(actual) && !expectedBase.isParameterType() && !isString(expectedBase)) {
 	        	expander = expander.boxTo(actual).castTo(expectedBase);
 	        	expander.expand(tr);
 	        }
@@ -3556,7 +3564,7 @@ public class Emitter {
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
                         component = "x10.rtt.UnresolvedType.THIS";
-                    } else if (Types.baseType(at) instanceof ParameterType) {
+                    } else if (at.isParameterType()) {
                         component = "x10.rtt.UnresolvedType.PARAM(" + getIndex(def.typeParameters(), (ParameterType) Types.baseType(at)) + ")";
                     } else {
                         component = new Expander(this) {
@@ -3602,7 +3610,7 @@ public class Emitter {
                     Type ta = Types.baseType(x10Type.typeArguments().get(i));
                     if (ta.typeEquals(def.asType(), tr.context())) {
                         w.write("x10.rtt.UnresolvedType.THIS");
-                    } else if (ta instanceof ParameterType) {
+                    } else if (ta.isParameterType()) {
                         w.write("x10.rtt.UnresolvedType.PARAM(" + getIndex(def.typeParameters(), (ParameterType) ta) + ")");
                     } else {
                         printRTT(def, ta);
@@ -4267,7 +4275,7 @@ public class Emitter {
     		    params.add(mi.def().formalNames().get(i).name().toString());
                 Type ft = c.constructorInstance().def().formalTypes().get(i).get();
                 Type at = arguments.get(i).type();
-                if (isPrimitive(at) && Types.baseType(ft) instanceof ParameterType) {
+                if (isPrimitive(at) && ft.isParameterType()) {
                     args.add(new CastExpander(w, this, arguments.get(i)).castTo(at, BOX_PRIMITIVES));
                 }
                 else if (isPrimitive(at)) {
