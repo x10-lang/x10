@@ -2885,25 +2885,22 @@ public class Emitter {
         List<Type> formalTypes1 = mi1.formalTypes();
         List<Type> formalTypes2 = mi2.formalTypes();
         if (formalTypes1.size() != formalTypes2.size()) return false;
-        // FIXME should this be replaced with the following code?
-        boolean contains = false;
-        for (int i = 0; i < formalTypes1.size(); ++i) {
-            Type type1 = formalTypes1.get(i);
-            Type type2 = formalTypes2.get(i);
-            if (type1.typeEquals(type2, tr.context()) || (type1.isParameterType() && type2.isParameterType())) {
-                contains = true;
-                break;
-            }
-        }
-        return contains;
-        // FIXME this is correct code
+        // old and potentially buggy code
 //        for (int i = 0; i < formalTypes1.size(); ++i) {
 //            Type type1 = formalTypes1.get(i);
 //            Type type2 = formalTypes2.get(i);
-//            if (!(type1.typeEquals(type2, tr.context()) || (type1.isParameterType() && type2.isParameterType())))
-//                return false;
+//            if (type1.typeEquals(type2, tr.context()) || (type1.isParameterType() && type2.isParameterType()))
+//                return true;
 //        }
-//        return true;
+//        return false;
+        // correct code
+        for (int i = 0; i < formalTypes1.size(); ++i) {
+            Type type1 = formalTypes1.get(i);
+            Type type2 = formalTypes2.get(i);
+            if (!(type1.typeEquals(type2, tr.context()) || (type1.isParameterType() && type2.isParameterType())))
+                return false;
+        }
+        return true;
     }
     private boolean containsSameSignature(List<MethodInstance> targets, MethodInstance mi1) {
         for (MethodInstance mi2 : targets) {
