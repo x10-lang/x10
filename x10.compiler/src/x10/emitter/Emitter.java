@@ -2758,28 +2758,28 @@ public class Emitter {
                     }
                 }
                 
-                boolean isContainsTypeParams = false;
+                boolean containsTypeParam = false;
                 List<Ref<? extends Type>> formalTypes = implemented.def().formalTypes();
                 for (Ref<? extends Type> ref : formalTypes) {
                     Type type = ref.get();
                     if (containsTypeParam(type)) {
-                        isContainsTypeParams = true;
+                        containsTypeParam = true;
                         break;
                     }
                 }
-                if (!isContainsTypeParams) continue;
+                if (!containsTypeParam) continue;
                 
                 // only implements by itself not super class's
-                boolean isContainInterfaces = false;
+                boolean containsInterface = false;
                 for (Type type : allInterfaces) {
                     if (type.typeEquals(implemented.container(), tr.context())) {
-                        isContainInterfaces = true;
+                        containsInterface = true;
                         break;
                     }
                 }
-                if (!isContainInterfaces) continue;
+                if (!containsInterface) continue;
                 
-                if (!isContainSameSignature(targets, implemented)) {
+                if (!containsSameSignature(targets, implemented)) {
                     targets.add(implemented);
                 }
             }
@@ -2855,7 +2855,7 @@ public class Emitter {
                 List<MethodInstance> imis = type.toClass().methods();
                 for (MethodInstance imi : imis) {
                     if (!(imi.name().equals(mi.name()) && imi.formalTypes().size() == mi.formalTypes().size())) continue;
-                    if (isContainSameSignature(implMethods, imi)) continue;
+                    if (containsSameSignature(implMethods, imi)) continue;
                     List<Ref<? extends Type>> types = imi.def().formalTypes();
                     for (int i = 0;i < types.size(); ++i) {
                         if (containsTypeParam(types.get(i).get()) ) {
@@ -2880,27 +2880,28 @@ public class Emitter {
         }
     }
 
-    private boolean isContainSameSignature(List<MethodInstance> targets, MethodInstance mi1) {
-        boolean isContain = false;
-        for (MethodInstance mi2 : targets) {
-            if (mi2.name().equals(mi1.name())) {
-                List<Type> formalTypes1 = mi1.formalTypes();
-                List<Type> formalTypes2 = mi2.formalTypes();
-                if (formalTypes1.size() == formalTypes2.size()) {
-                    for (int i = 0; i < formalTypes1.size(); ++i) {
-                        Type type1 = formalTypes1.get(i);
-                        Type type2 = formalTypes2.get(i);
-                        if (type1.typeEquals(type2, tr.context()) || (type1 instanceof ParameterType && type2 instanceof ParameterType)) {
-                            isContain = true;
-                            break;
-                        }
-                    }
-                }
+    private boolean hasSameSignature(MethodInstance mi2, MethodInstance mi1) {
+        if (!mi2.name().equals(mi1.name())) return false;
+        List<Type> formalTypes1 = mi1.formalTypes();
+        List<Type> formalTypes2 = mi2.formalTypes();
+        if (formalTypes1.size() != formalTypes2.size()) return false;
+        boolean contains = false;
+        for (int i = 0; i < formalTypes1.size(); ++i) {
+            Type type1 = formalTypes1.get(i);
+            Type type2 = formalTypes2.get(i);
+            if (type1.typeEquals(type2, tr.context()) || (type1 instanceof ParameterType && type2 instanceof ParameterType)) {
+                contains = true;
+                break;
             }
         }
-        return isContain;
+        return contains;
     }
-
+    private boolean containsSameSignature(List<MethodInstance> targets, MethodInstance mi1) {
+        for (MethodInstance mi2 : targets) {
+            if (hasSameSignature(mi2, mi1)) return true;
+        }
+        return false;
+    }
     
     private void printDispatchMethod(MethodInstance dispatch, List<MethodInstance> mis, boolean isSpecialTypeForDispatcher, Type returnTypeForDispatcher) {
         
