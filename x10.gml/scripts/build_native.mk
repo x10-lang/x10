@@ -58,13 +58,15 @@ $(target)_bgp	: $(x10src) $(depend_src) $(gml_inc)
 		-post '$(CPP) # $(POST_PATH) # $(POST_LIBS)'
 
 
-###
+###short-keys
+#Build in native for socket transport
 sock		: $(target)_sock
 #build in native for lapi transport
 lapi		: $(target)_lapi
 #build in native for pami transport
 pami		: $(target)_pami
-bgp		: $(target)_bgp
+#build in native for pgas blue gene/P
+bgp			: $(target)_bgp 
 
 ###
 all_sock	:
@@ -96,6 +98,8 @@ help	::
 	@echo " make all_lapi   : build all targets [ $(target_list) ] for native backend running on socket transport";
 	@echo " make pami       : build default target $(target) for native backend running on pami transport";
 	@echo " make all_pami   : build all targets [ $(target_list) ] for native backend running on pami transport";
+	@echo " make bgp        : build default target $(target) for native backend running on BlueGene/P system";
+	@echo " make all_bgp    : build all targets [ $(target_list) ] for native backend running on BlueGene/P system";
 	@echo " make clean      : remove default built binary $(target)_sock $(target)_lapi";
 	@echo " make clean_all  : remove all builds for the list of tragets";
 	@echo "";
