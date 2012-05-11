@@ -115,6 +115,8 @@ ifdef ENABLE_CROSS_COMPILE_BGP
   export X10_STATIC_LIB=1
   export X10RT_PLATFORM=bgp
   export CROSS_COMPILE_BLUEGENE=true
+
+  override MPICXX=/bgsys/drivers/ppcfloor/comm/bin/mpicxx
   ifdef USE_GCC
     override CXX = /bgsys/drivers/ppcfloor/gnu-linux/bin/powerpc-bgp-linux-g++
     override LDFLAGS += -lpthread
