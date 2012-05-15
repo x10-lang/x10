@@ -224,7 +224,26 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 			}
 		}
 	}
-	
+
+	//-------------------------------------------------------
+	private static def castToBranch(distBS:BlocksPLH, 
+			srcblk:MatrixBlock,	datCnt:Int,	plcnt:Int) {
+
+		val lfroot = here.id();
+		val lfcnt  = (plcnt+1) / 2; // make sure left part is larger, if cnt is odd 
+		val rtcnt  = plcnt - lfcnt;
+		val rtroot = lfroot + lfcnt;
+		
+		finish {
+			if (rtcnt > 0) async {
+				copyCastToBranch(distBS, srcblk, datCnt, rtroot, rtcnt);
+			}
+			if (lfcnt > 1) async {//Here is counted in
+				castToBranch(distBS, srcblk, datCnt, lfcnt);
+			}
+		}
+	}
+
 	private static def copyCastToBranch(distBS:BlocksPLH, 
 			srcblk:MatrixBlock, datCnt:Int,
 			sttpl:Int, plcnt:Int): void {
@@ -243,7 +262,7 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 				}
 				if (plcnt > 1)
 					castToBranch(distBS, dstblk, datCnt, plcnt);
-			}			
+			}
 		} else if (srcblk.isSparse()) {
 			val srcspa = srcblk.getMatrix() as SparseCSC;
 			val idxbuf:Array[Int](1)    = srcspa.getIndex();
@@ -268,22 +287,4 @@ public class BlockSetBcast extends BlockSetRemoteCopy {
 			Debug.exit("Matrix block type is not supported");
 		}
 	}	
-	//-------------------------------------------------------
-	private static def castToBranch(distBS:BlocksPLH, 
-			srcblk:MatrixBlock,	datCnt:Int,	plcnt:Int) {
-
-		val lfroot = here.id();
-		val lfcnt  = (plcnt+1) / 2; // make sure left part is larger, if cnt is odd 
-		val rtcnt  = plcnt - lfcnt;
-		val rtroot = lfroot + lfcnt;
-	
-		finish {
-			if (rtcnt > 0) async {
-				copyCastToBranch(distBS, srcblk, datCnt, rtroot, rtcnt);
-			}
-			if (lfcnt > 1) async {//Here is counted in
-				castToBranch(distBS, srcblk, datCnt, lfcnt);
-			}
-		}
-	}
 }

@@ -166,21 +166,21 @@ protected class BinaryTreeCast  {
 			//Row and column-wise ringcast must NOT be carried out at the same
 			//time. This tag only allows ringcast be differed by root block id.
 			finish {
-				async at (Dist.makeUnique()(rmtpid)) {
+				 at (Dist.makeUnique()(rmtpid)) async {
 					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
 					val blk    = distBS().findFrontBlock(rootbid, select);
 					val dstden = blk.getMatrix() as DenseMatrix;
-					//Debug.flushln("Start recv data from "+srcpid);
+					//Debug.flushln("BinaryTree cast:Start recv data from "+srcpid);
 					WrapMPI.world.recv(dstden.d, 0, datCnt, srcpid, tag);
-					//Debug.flushln("Done recv data from "+srcpid);
+					//Debug.flushln("BinaryTree cast:Done recv data from "+srcpid);
 					if (plist.size > 0 )  {
 						castToPlaces(distBS, rootbid, datCnt, select, plist);
 					}
 				}
 				async {
-					//Debug.flushln("Start sending data to "+rmtpid);
+					//Debug.flushln("BinaryTree cast: start sending data to "+rmtpid);
 					WrapMPI.world.send(srcden.d, 0, datCnt, rmtpid, tag);
-					//Debug.flushln("Sending data to "+rmtpid+ " done");
+					//Debug.flushln("BinaryTree cast: Done sending data to "+rmtpid+ " done");
 				}
 			}
 		}
@@ -199,7 +199,7 @@ protected class BinaryTreeCast  {
 		{
 			finish {
 				
-				async at (Dist.makeUnique()(rmtpid)) {
+				at (Dist.makeUnique()(rmtpid)) async {
 					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
 					val blk    = distBS().findFrontBlock(rootbid, select);
 					val dstspa = blk.getMatrix() as SparseCSC;

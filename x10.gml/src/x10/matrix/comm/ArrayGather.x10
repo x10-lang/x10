@@ -70,15 +70,11 @@ public class ArrayGather extends ArrayRemoteCopy {
 
 			} else {
 
-				@Ifdef("MPI_COMMU") {
-					{ 
-						mpiCopy(src, bid, 0, dstbuf, 0, dstbuf.size);
-					}
+				@Ifdef("MPI_COMMU") { 
+					mpiCopy(src, bid, 0, dstbuf, 0, dstbuf.size);	
 				}
 				@Ifndef("MPI_COMMU") {
-					{
-						x10Copy(src, bid, 0, dstbuf, 0, dstbuf.size);
-					}
+					x10Copy(src, bid, 0, dstbuf, 0, dstbuf.size);
 				}
 			}
 			
@@ -174,6 +170,8 @@ public class ArrayGather extends ArrayRemoteCopy {
 			dstbuf:Array[Double](1),
 			gp:Array[Int](1)): void {
 
+		Debug.assure(gp.size <= Place.MAX_PLACES, 
+				"Number of segments "+gp.size+" exceeds number of places "+Place.MAX_PLACES);
 		val root = here.id();
 		var off:Int=0;
 		for (var cb:Int=0; cb<gp.size; cb++) {

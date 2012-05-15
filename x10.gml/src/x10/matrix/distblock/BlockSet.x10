@@ -26,7 +26,8 @@ import x10.matrix.block.SparseBlock;
 import x10.matrix.block.MatrixBlock;
 
 /**
- * This class defines list of matrix blocks which live in the same place
+ * This class provides implementation of list of matrix blocks stored in on place.
+ * 
  */
 public class BlockSet  { 
 

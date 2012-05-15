@@ -12,6 +12,8 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.util.Pair;
+import x10.util.StringBuilder;
 import x10.compiler.Inline;
 
 import x10.matrix.Debug;
@@ -72,7 +74,26 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
 	public static def makeConstant(numBlk:Int) = make(numBlk, (i:Int)=>0);
 	public static def makeConstant(numBlk:Int, p:Int) = make(numBlk, (i:Int)=>p); 
 
-	public static def makeRandom(numBlk:Int, numPlc:Int) = make(numBlk, (i:Int)=>RandTool.nextInt(numPlc));
+	//This method could leave emply block for some place
+	//public static def makeRandom(numBlk:Int, numPlc:Int) = make(numBlk, (i:Int)=>RandTool.nextInt(numPlc));
+	/**
+	 * Make random block distribution. Note, every place must have at least one block.
+	 */
+	public static def makeRandom(numBlk:Int, numPlc:Int) {
+		val bmap = new Array[Int](numBlk);
+		val plst = new ArrayList[Pair[Int,Int]](numPlc);
+		var i:Int = 0;
+		for (; i<numPlc; i++) 
+			plst(i) = Pair(i,RandTool.nextInt(numPlc * 10));
+		plst.sort((x:Pair[Int,Int], y:Pair[Int,Int])=>x.second-y.second);
+		
+		i=0;
+		for (; i<numPlc; i++) bmap(i) = plst(i).first;
+		for (; i<numBlk; i++) bmap(i) = RandTool.nextInt(numPlc);
+		
+		return new DistMap(bmap, numPlc);
+		//make(numBlk, (i:Int)=>RandTool.nextInt(numPlc));
+	}
 
 	//==========================================
 		
@@ -141,10 +162,11 @@ public class DistMap(numBlock:Int, numPlace:Int)  {
  	}
  	
  	public def toString():String {
- 		var mapstr:String="[";
+ 		var mapstr:StringBuilder=new StringBuilder();
+ 		mapstr.add(numBlock.toString()+" blocks"+ numPlace.toString()+"\n[");
  		for (var i:Int=0; i<blockmap.size; i++)
- 			mapstr += " b"+i+":"+blockmap(i)+",";
- 		
- 		return numBlock.toString()+" blocks"+ numPlace.toString()+"\n"+mapstr+"]\n";
+ 			mapstr.add (" b"+i+":"+blockmap(i)+",");
+ 		mapstr.add("]");
+ 		return mapstr.toString();
  	}
 }

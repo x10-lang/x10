@@ -74,8 +74,7 @@ public class WrapMPI {
 		// Distribution is unique;
 		dist = d;
 		@Ifdef("MPI_COMMU") {
-				
-			ateach(d) {
+			finish ateach(d) {
 				gml_new_commu();
 			}			
 			//---------------------------
@@ -105,7 +104,7 @@ public class WrapMPI {
 		//pidmap = new Array[Int](Place.MAX_PLACES, (i:Int)=>i);
 		//displs = new Array[Int](Place.MAX_PLACES, 0);
 		@Ifdef("MPI_COMMU") {
-			ateach (Dist.makeUnique()) {
+			finish ateach (Dist.makeUnique()) {
 				gml_new_commu();
 			}
 		}

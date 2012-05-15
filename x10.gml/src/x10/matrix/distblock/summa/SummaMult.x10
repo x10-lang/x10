@@ -151,7 +151,9 @@ public class SummaMult {
 			//Packing columns and rows and broadcast to same row and column block
 			/* TIMING */ 
 			st = Timer.milliTime();
+			//Debug.flushln("Start row ring-bcast. jj:"+jj+" iwrk:"+iwrk+" itcol:"+itCol);
 			AllGridCast.startRowCast(jj, iwrk, itCol, A, work1);
+			//Debug.flushln("Start col ring-bcast. ii:"+ii+" itRow:"+itRow);
 			AllGridCast.startColCast(ii, iwrk, itRow, B, work2);
 			/* TIMING */ 
 			commTime += Timer.milliTime() - st;
@@ -193,6 +195,7 @@ public class SummaMult {
 			 }
 			/* TIMING */ 
 			calcTime += Timer.milliTime() - st;
+			//Debug.flushln("Done all local matrix computation");
 
 			/* update icurcol, icurrow, ii, jj */
 			ii += iwrk;

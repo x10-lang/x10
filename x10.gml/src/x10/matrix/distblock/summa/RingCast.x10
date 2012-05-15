@@ -77,16 +77,20 @@ protected class RingCast  {
 					val nxtpid = (p==plsz-1)?root:plist(p+1); //Implicitly carry to next place
 					val prepid = (p==0)?root:plist(p-1); //Implicitly carry to next place
 					val curpid = plist(p);
-
 					async at (Dist.makeUnique()(curpid)) {
 						//Need: nxtpid, prepid, distBS, rootbid, datCnt
 						val srcblk = distBS().findFrontBlock(rootbid, select);
 						val matbuf = srcblk.getData();
 						val dtag = rootbid;
 						//receive data from pre-place
+						//Debug.flushln("Start recv data from "+prepid);
 						WrapMPI.world.recv(matbuf, 0, datCnt, prepid, dtag);
-						if (nxtpid != root) //send data to next-place
+						//Debug.flushln("Done recv data from "+prepid);
+						if (nxtpid != root) {//send data to next-place
+							//Debug.flushln("Start sending data to "+nxtpid);
 							WrapMPI.world.send(matbuf, 0, datCnt, nxtpid, dtag);
+							//Debug.flushln("Done sending data to "+nxtpid);
+						}
 					}
 				}
 				//At root
@@ -95,7 +99,9 @@ protected class RingCast  {
 					val den    = srcblk.getMatrix() as DenseMatrix;
 					val dtag   = rootbid;
 					val nxtpid = plist(0);
+					//Debug.flushln("Root start sending data to "+nxtpid);
 					WrapMPI.world.send(den.d, 0, datCnt, nxtpid, dtag);
+					//Debug.flushln("Root send done");
 				}
 			}
 		}

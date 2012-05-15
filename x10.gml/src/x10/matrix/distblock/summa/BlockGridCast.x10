@@ -102,6 +102,7 @@ public class BlockGridCast  {
 				spa.finalizeRemoteCopyAtSource();
 			} else {
 				//binaryTreeCastTo(distBS, rootbid, datCnt, select, plst);
+				//Debug.flushln("Binary tree cast to places:"+plst.toString());
 				BinaryTreeCast.castToPlaces(distBS, rootbid, datCnt, select, plst);
 			}
 		}

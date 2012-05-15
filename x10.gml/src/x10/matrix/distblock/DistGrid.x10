@@ -101,7 +101,7 @@ public class DistGrid(numRowPlaces:Int, numColPlaces:Int) {
 	 * Partitioning all blocks to clusters, while maximizing number of groups (cluster) in row.
 	 * 
 	 * @param matgrid          the partitioning matrix in blocks specified by Grid
-	 * @param maxRowClusters   the max number clusters in a row
+	 * @param maxRowClusters   the maximum number clusters in a row
 	 * @param totalClusters    the total clusters used in partitioning blocks
 	 * @return                 the map of block IDs to place IDs.
 	 */	

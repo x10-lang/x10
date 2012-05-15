@@ -132,8 +132,7 @@ public class DistBlockMatrix extends Matrix{
 	 * @return DistBlockMatrix instance without memory allocation for matrix data
 	 */
 	public static def make(m:Int, n:Int, rowBs:Int, colBs:Int):DistBlockMatrix(m,n) {
-		var colPs:Int = Math.sqrt(Place.MAX_PLACES) as Int;
-		while (Place.MAX_PLACES % colPs !=0) colPs--;
+		val colPs:Int = MathTool.sqrt(Place.MAX_PLACES);//Math.sqrt(Place.MAX_PLACES) as Int;
 		val rowPs = Place.MAX_PLACES / colPs;
 		return make(m, n, rowBs, colBs, rowPs, colPs);
 		//val grid = new Grid(m, n, rowBs, colBs);

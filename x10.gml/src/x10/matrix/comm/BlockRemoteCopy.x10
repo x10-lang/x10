@@ -26,6 +26,7 @@ public type BlocksPLH  =PlaceLocalHandle[BlockSet];
 
 
 /**
+ * Implementation of send-receive matrix block across places, including x10 remote array copy and mpi send-receive implementations.
  */
 public class BlockRemoteCopy {
 	protected static val baseTagCopyTo:Int=100000;
@@ -60,12 +61,19 @@ public class BlockRemoteCopy {
 	// Remote array copy matrix to/from 
 	//------------------------------------------
 		
+	/**
+	 * Copy matrix to block of specified block ID 
+	 */
 	public static def copy(src:Matrix, dstBS:BlocksPLH, dstbid:Int):Int =
 		copy(src, 0, dstBS, dstBS().findPlace(dstbid), dstbid, 0, src.N);
 
+	/**
+	 * Copy matrix block of specified block ID to specified matrix.
+	 */
 	public static def copy(srcBS:BlocksPLH, srcbid:Int, dst:Matrix):Int =
 		copy(srcBS, srcBS().findPlace(srcbid), srcbid, 0, dst, 0, dst.N);
 	//---------------------
+	
 	public static def copy(src:Matrix, dstBS:BlocksPLH, dstpid:Int, dstbid:Int):Int =
 		copy(src, 0, dstBS, dstpid, dstbid, 0, src.N);
 
@@ -111,7 +119,8 @@ public class BlockRemoteCopy {
 	protected static def copyOffset(src:DenseMatrix, srcIdxOff:Int, 
 			dst:BlocksPLH, dstpid:Int, bid:Int, dstIdxOff:Int, datCnt:Int): void {
 		
-		Debug.assure(srcIdxOff+datCnt<=src.d.size, "Number of columns copied exceeds data buffer");
+		Debug.assure(srcIdxOff+datCnt<=src.d.size, "Source starting offset:"+srcIdxOff+" plus data count:"+datCnt+
+				" is larger source matrix data buffer size:"+src.d.size);
 		
 		if (here.id() == dstpid) {
 			val blk = dst().find(bid);
@@ -149,7 +158,8 @@ public class BlockRemoteCopy {
 					val dstden = blk.getMatrix() as DenseMatrix;
 			
 					Debug.assure(dstIdxOff+datCnt<=dstden.d.size, 
-					"Copy receiving side data overflow");
+							"Receive buffer offset:"+dstIdxOff+" plus data count:"+datCnt+
+							" is larger than receive buffer size:"+dstden.d.size);
 					val tag    = srcpid * baseTagCopyTo + here.id()+bid;
 					WrapMPI.world.recv(dstden.d, dstIdxOff, datCnt, srcpid, tag);
 				}
@@ -167,7 +177,9 @@ public class BlockRemoteCopy {
 			//Remote copy: dst, srcbuf, srcIdxOff, dstIdxOff, datCnt,
 			val blk = dstBS().find(bid);
 			val dstden = blk.getMatrix() as DenseMatrix;
-			Debug.assure(dstIdxOff+datCnt <= dstden.d.size, "Copy receiving side data overflow");
+			Debug.assure(dstIdxOff+datCnt<=dstden.d.size, 
+					"Receive buffer offset:"+dstIdxOff+" plus data count:"+datCnt+
+					                        " is larger than receive buffer size:"+dstden.d.size);
 			finish Array.asyncCopy[Double](srcbuf, srcIdxOff, dstden.d, dstIdxOff, datCnt);
 		}
 	}
@@ -194,7 +206,8 @@ public class BlockRemoteCopy {
 			dst:DenseMatrix, dstIdxOff:Int, datCnt:Int): void {
 
 		Debug.assure(dstIdxOff+datCnt<=dst.d.size, 
-		"Number of column for copying at receiving side exceeds matrix data buffer");
+				"Receive buffer offset:"+dstIdxOff+" plus data count:"+datCnt+
+                " is larger than receive buffer size:"+dst.d.size);
 		
 		if (here.id() == srcpid) {
 			val blk = srcBS().find(srcbid);
@@ -227,7 +240,8 @@ public class BlockRemoteCopy {
 					val tag = here.id() * baseTagCopyFrom + dstpid + bid;
 					
 					Debug.assure(srcIdxOff + datCnt <= srcden.d.size, 
-							"Sending side data referencing overflow");
+							"Sending offset:"+srcIdxOff+" plus data count:"+datCnt+
+ 		                    " is larger than sending matrix size:"+srcden.d.size);
 					WrapMPI.world.send(srcden.d, srcIdxOff, datCnt, dstpid, tag);
 				}
 				async {
@@ -250,7 +264,8 @@ public class BlockRemoteCopy {
 			val srcden = blk.getMatrix() as DenseMatrix;
 			
 			Debug.assure(srcIdxOff + datCnt <= srcden.d.size, 
-					"Sending side matrix data referencing overflow");
+					"Sending offset:"+srcIdxOff+" plus data count:"+datCnt+
+					                 " is larger than sending matrix size:"+srcden.d.size);
 			new DenseRemoteSourceInfo(srcden.d, srcIdxOff, datCnt)
 
 		};
@@ -268,7 +283,9 @@ public class BlockRemoteCopy {
 	protected static def copy(src:SparseCSC, srcColOff:Int, 
 			dstBS:BlocksPLH, dstpid:Int, dstbid:Int, dstColOff:Int, colCnt:Int): Int {
 		
-		Debug.assure(srcColOff+colCnt <= src.N, "At source, number of columns exceeds matrix dimension ");
+		Debug.assure(srcColOff+colCnt <= src.N, 
+				"Source column offset:"+srcColOff+" column colunt:"+colCnt+
+			    " larger than source column size:"+src.N);
 		
 		if (here.id() == dstpid) {
 			val blk = dstBS().find(dstbid);
@@ -301,7 +318,9 @@ public class BlockRemoteCopy {
 					// Need: srcpid, dstColOff, datasz;
 					val blk = dstBS().find(bid);
 					val dstspa = blk.getMatrix() as SparseCSC;
-					Debug.assure(dstColOff+colCnt<=dstspa.N, "At destination, number of columns exceeds matrix dimension");
+					Debug.assure(dstColOff+colCnt<=dstspa.N, 
+							"Receive offset:"+dstColOff+" plus column count:"+colCnt+
+							" larger than receiving matrix column size:"+dstspa.N);
 					
 					val dstoff = dstspa.getNonZeroOffset(dstColOff);
 					val idxtag    = baseTagCopyIdxTo + srcpid * 10000 + here.id();
@@ -368,8 +387,8 @@ public class BlockRemoteCopy {
 	protected static def copy(srcBS:BlocksPLH, srcpid:Int, srcbid:Int, srcColOff:Int,
 			dst:SparseCSC, dstColOff:Int, colCnt:Int): Int {
 
-		Debug.assure(dstColOff+colCnt<=dst.N, 
-				"The range of columns exceeds receiving side matrix dimension");
+		Debug.assure(dstColOff+colCnt<=dst.N, "Receive offset:"+dstColOff+" plus column count:"+colCnt+
+				" larger than receive matrix column size:"+dst.N);
 		
 		if (here.id() == srcpid) {
 			val blk = srcBS().find(srcbid);
