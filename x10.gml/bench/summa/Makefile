@@ -26,10 +26,10 @@
 ###################################################
 
 #defalt target
-target		= DistBlockMult
+target		= DistDenseBench
 
 #List of all targets
-target_list = DistDenseBench DistSparseBench DistBlockMult
+target_list = DistDenseBench DistSparseBench 
 ##SummaMPIBench
 
 #-------------------------------------

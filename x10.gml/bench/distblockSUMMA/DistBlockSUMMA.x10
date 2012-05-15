@@ -29,7 +29,7 @@ public class DistBlockSUMMA {
 		val N   = args.size > 2 ?Int.parse(args(2)):100;
 		val nzd = args.size > 3 ?Double.parse(args(3)):1.0;//Default is dense block matrix
 		val pnl = args.size > 4 ?Int.parse(args(4)):64;
-		val bMN = args.size > 5 ?Int.parse(args(5)):-1;
+		val bMN = args.size > 5 ?Int.parse(args(5)):1;
 		val it  = args.size > 6 ?Int.parse(args(6)):4;
 
 		val testcase = new BenchRunSumma(M,K,N,nzd,it,pnl,bMN);
@@ -64,15 +64,14 @@ class BenchRunSumma {
 
 		itnum = it;	panel = pnl; 
 		M = m; K=k; N=n;
-		bM = blkmn<0?pM:blkmn;
-		bN = blkmn<0?pN:blkmn;
+		bM = blkmn<1?pM:blkmn*pM;
+		bN = blkmn<1?pN:blkmn*pN;
 			
 		A = (nzd<0.9)? DistBlockMatrix.makeSparse(M, K, bM, bN, pM, pN, nzd):
 			DistBlockMatrix.makeDense(M, K, bM, bN, pM, pN);
 		B = (nzd<0.9)? DistBlockMatrix.makeSparse(K, N, bM, bN, pM, pN, nzd):
 			DistBlockMatrix.makeDense(K, N, bM, bN, pM, pN);
-		C = (nzd<0.9)? DistBlockMatrix.makeSparse(M, N, bM, bN, pM, pN, nzd):
-			DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN);
+		C = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN);
 		
 		tB= (nzd<0.9)? DistBlockMatrix.makeSparse(N, K, bM, bN, pM, pN, nzd):
 			DistBlockMatrix.makeDense(N, K, bM, bN, pM, pN);
@@ -91,10 +90,12 @@ class BenchRunSumma {
 		//-----------------------------------------
 		Console.OUT.printf("Input matrix  A:(%d,%d) partitioned in (%dx%d) blocks, distr (%dx%d) places\n",
 				M, K, bM, bN, pM, pN);
+		Console.OUT.flush();
 		Console.OUT.printf("Input matrix  B:(%d,%d) partitioned in (%dx%d) blocks, distr (%dx%d) places\n",
 				K, N, bM, bN, pM, pN);
 		Console.OUT.printf("Output matrix C:(%d,%d) partitioned in (%dx%d) blocks, distr (%dx%d) places\n",
 				M, N, bM, bN, pM, pN);
+		Console.OUT.flush();
 		Console.OUT.printf("SUMMA panel size:%d\n", panel);
 
 		Console.OUT.printf("Start initialization dist matrices\n", panel);
@@ -121,6 +122,7 @@ class BenchRunSumma {
     
 	public def benchMult(){
 		Console.OUT.println("Starting SUMMA on dist block matrix multiplication benchmark");
+		Console.OUT.flush();
 		val stt:Long = Timer.milliTime();
 		for (1..itnum) {
 			summa.parallelMult();
@@ -137,6 +139,7 @@ class BenchRunSumma {
 
 	public def benchMultTrans() {
 		Console.OUT.println("Starting SUMMA on dist block matrix of multiply-Transpose benchmark");
+		Console.OUT.flush();
 		val stt:Long = Timer.milliTime();
 		for (1..itnum) {
 			summaT.parallelMultTrans();
