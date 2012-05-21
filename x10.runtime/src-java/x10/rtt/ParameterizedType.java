@@ -40,8 +40,8 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
         this.rawType = rawType;
         this.actualTypeArguments = actualTypeArguments;
     }
-    // FIXME recursive type is not supported. see XTENLANG_423.W[U], which extends Z[W[U]], causes NPE for hashCode.
-    private static final boolean useCache = false;
+    // (fixed) recursive type is not supported. see XTENLANG_423.W[U], which extends Z[W[U]], causes NPE for hashCode.
+    private static final boolean useCache = true;
     private static final ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>> typeCache1 = new ConcurrentHashMap<RuntimeType<?>, ConcurrentHashMap<Type<?>, ParameterizedType<?>>>();
     public static <T> ParameterizedType/*<T>*/ make(RuntimeType<T> rawType, Type<?> actualTypeArgument0) {
         if (useCache && rawType != null && actualTypeArgument0 != null) {
@@ -51,6 +51,10 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
                 typeCache10_ = new ConcurrentHashMap<Type<?>, ParameterizedType<?>>();
                 typeCache10 = typeCache1.putIfAbsent(rawType, typeCache10_);
                 if (typeCache10 == null) typeCache10 = typeCache10_;
+            }
+            // N.B. guard from NPE with recursive type. see XTENLANG_423.W[U], which extends Z[W[U]], causes NPE for hashCode.
+            if (actualTypeArgument0 instanceof ParameterizedType && ((ParameterizedType<?>) actualTypeArgument0).rawType == null) {                
+                return new ParameterizedType<T>(rawType, actualTypeArgument0);
             }
             ParameterizedType type = typeCache10.get(actualTypeArgument0);
             if (type == null) {
@@ -75,12 +79,20 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
                 typeCache20 = typeCache2.putIfAbsent(rawType, typeCache20_);
                 if (typeCache20 == null) typeCache20 = typeCache20_;
             }
+            // N.B. guard from NPE with recursive type. see XTENLANG_423.W[U], which extends Z[W[U]], causes NPE for hashCode.
+            if (actualTypeArgument0 instanceof ParameterizedType && ((ParameterizedType<?>) actualTypeArgument0).rawType == null) {
+                return new ParameterizedType<T>(rawType, actualTypeArgument0, actualTypeArgument1);
+            }
             ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache21 = typeCache20.get(actualTypeArgument0);
             if (typeCache21 == null) {
                 ConcurrentHashMap<Type<?>, ParameterizedType<?>> typeCache21_;
                 typeCache21_ = new ConcurrentHashMap<Type<?>, ParameterizedType<?>>();
                 typeCache21 = typeCache20.putIfAbsent(actualTypeArgument0, typeCache21_);
                 if (typeCache21 == null) typeCache21 = typeCache21_;
+            }
+            // N.B. guard from NPE with recursive type. see XTENLANG_423.W[U], which extends Z[W[U]], causes NPE for hashCode.
+            if (actualTypeArgument1 instanceof ParameterizedType && ((ParameterizedType<?>) actualTypeArgument1).rawType == null) {
+                return new ParameterizedType<T>(rawType, actualTypeArgument0, actualTypeArgument1);
             }
             ParameterizedType type = typeCache21.get(actualTypeArgument1);
             if (type == null) {
