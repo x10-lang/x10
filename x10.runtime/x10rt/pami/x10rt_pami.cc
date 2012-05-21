@@ -132,7 +132,6 @@ struct x10rt_buffered_data
 struct x10rt_pami_state
 {
 	uint32_t numPlaces;
-	uint32_t numEndpoints; // per place, all places have the same number of endpoints
 	uint32_t myPlaceId;
 	uint32_t sendImmediateLimit;
 	x10rtCallback* callBackTable;
@@ -906,12 +905,23 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			error("Unable to initialize the PAMI client: %i\n", status);
 	}
 
+	pami_configuration_t configuration[3];
+	configuration[0].name = PAMI_CLIENT_TASK_ID;
+	configuration[1].name = PAMI_CLIENT_NUM_TASKS;
+	configuration[2].name = PAMI_CLIENT_NUM_CONTEXTS;
+
+	if ((status = PAMI_Client_query(state.client, configuration, 3)) != PAMI_SUCCESS)
+		error("Unable to query the PAMI_CLIENT: %i\n", status);
+	state.myPlaceId = configuration[0].value.intval;
+	state.numPlaces = configuration[1].value.intval;
+	state.numParallelContexts = configuration[2].value.intval;
+
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
-	if (nthreads && checkBoolEnvVar(value))
+	if (nthreads && checkBoolEnvVar(value) && state.numParallelContexts == atoi(nthreads))
 	{
-		state.numParallelContexts = atoi(nthreads);
+		// We have as many endpoints as we have X10_NTHREADS
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
 		memset(state.context, 0, state.numParallelContexts*sizeof(pami_context_t));
@@ -921,9 +931,16 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 				error("Unable to initialize the PAMI context: %i\n", status);
 			registerHandlers(state.context[0], true);
 		}
+		else
+		{
+			if (pthread_key_create(&state.contextLookupTable, NULL) != 0)
+				error("Unable to allocate the thread-local-storage context lookup table");
+			getConcurrentContext(); // associate this thread with context 0
+		}
 	}
 	else
 	{
+		// We have multiple threads sharing a single endpoint/context
 		state.numParallelContexts = 0;
 		state.context = (pami_context_t*)malloc(sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
@@ -934,30 +951,6 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 			error("Unable to initialize the PAMI context: %i\n", status);
 		registerHandlers(state.context[0], true);
 	}
-
-	if (pthread_key_create(&state.contextLookupTable, NULL) != 0)
-		error("Unable to allocate the thread-local-storage context lookup table");
-
-	pami_configuration_t configuration[2];
-	configuration[0].name = PAMI_CLIENT_TASK_ID;
-	configuration[1].name = PAMI_CLIENT_NUM_TASKS;
-
-	if ((status = PAMI_Client_query(state.client, configuration, 2)) != PAMI_SUCCESS)
-		error("Unable to query the PAMI_CLIENT: %i\n", status);
-	state.myPlaceId = configuration[0].value.intval;
-	state.numPlaces = configuration[1].value.intval;
-
-	// TODO - this endpoint code is for the "silver" version of pami endpoint support
-	// it needs to change to the real version when that becomes available
-	char * endpointVar = getenv("MP_ENDPOINTS");
-	if (endpointVar)
-	{
-		state.numEndpoints = atoi(endpointVar);
-		if (state.numEndpoints <= 0)
-			state.numEndpoints = 1;
-	}
-	else
-		state.numEndpoints = 1;
 
 	#ifdef DEBUG
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
@@ -2097,4 +2090,3 @@ void x10rt_net_allreduce (x10rt_team team, x10rt_place role, const void *sbuf, v
 	if (!state.numParallelContexts)
 		PAMI_Context_unlock(context);
 }
-// vim: tabstop=4:shiftwidth=4:expandtab:textwidth=100
