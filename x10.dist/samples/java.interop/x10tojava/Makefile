@@ -10,9 +10,11 @@
 #
 
 X10C	?= x10c
-X10J	?= x10j
+X10J	?= java -jar "$(PKG_CONF_LIB)/ecj.jar" -1.5 -nowarn -encoding utf-8 -classpath "$(PKG_CONF_STDLIB)/x10.jar$(PATH_SEP)$(PKG_CONF_LIB)/commons-math-2.2.jar"
 X10	?= x10
 PATH_SEP=$(if $(filter CYGWIN%, $(shell uname -s)),;,:)
+PKG_CONF_LIB:=$(shell $(X10) -pkg-conf=lib)
+PKG_CONF_STDLIB:=$(shell $(X10) -pkg-conf=stdlib)
 
 all:	bin/XClass.class
 
