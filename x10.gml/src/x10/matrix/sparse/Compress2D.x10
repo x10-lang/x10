@@ -13,6 +13,7 @@ package x10.matrix.sparse;
 
 import x10.io.Console;
 import x10.util.Pair;
+import x10.util.StringBuilder;
 import x10.matrix.Debug;
 
 /**

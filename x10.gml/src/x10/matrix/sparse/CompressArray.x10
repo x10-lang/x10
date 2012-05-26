@@ -19,6 +19,7 @@ import x10.matrix.RandTool;
 
 import x10.util.Pair;
 import x10.util.Random;
+import x10.util.StringBuilder;
 
 /**
  * Stores <tt>n</tt> elements, <tt>A(a1)=v1, ..., A(in)=an</tt>,
@@ -620,13 +621,13 @@ s	 * has different original size (uncompress data array size) from the source.
 	// Util methods
 	//=========================================================
 	public def toString():String {
-		var outstr:String="Compressd Array (" + this.storageSize() 
-							   + ") NZ "+count+"  [";
+		val outstr = new StringBuilder();
+		outstr.add("Compressd Array (" + this.storageSize()+ ") NZ "+count+"  [");
 		for (var i:Int=0; i<this.count; i++) {
-			outstr += " "+getIndex(i)+":"+getValue(i)+" ";
+			outstr.add(" "+getIndex(i)+":"+getValue(i)+" ");
 		}
-		outstr += " ]";
-		return outstr;
+		outstr.add(" ]");
+		return outstr.toString();
 	}
 
 	public def print(msg:String) {

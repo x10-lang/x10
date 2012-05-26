@@ -6,13 +6,14 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix.sparse;
 
 import x10.io.Console;
 import x10.util.Pair;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -931,16 +932,50 @@ public class SparseCSC extends Matrix {
 		return new SparseCSR(this.N, this.M, this.ccdata);
 	}
 	
-	/**
-	 * Transpose matrix. Expensive.
-	 * This sparse matrix is converted to CSR using
-	 * the provided storage of CSC. 
-	 */	
-	public def T(tm:SparseCSC(N,M)):void {
-		val csr = new SparseCSR(M, N, tm.ccdata);
-		toCSR(csr);		
+	// /**
+	//  * Transpose matrix. Expensive.
+	//  * This sparse matrix is converted to CSR using
+	//  * the provided storage of CSC. 
+	//  */	
+	// public def T(tm:SparseCSC(N,M)):void {
+	// 	val csr = new SparseCSR(M, N, tm.ccdata);
+	// 	toCSR(csr);		
+	// }
+	
+	/*
+	 * Tranpose sparse matrix and put result back to the origninal compress array storage space.
+	 * The return instance is a new SparseCSC using the original storage, and original (this) instance
+	 * is no longer valid sparse matrix instance.
+	 * "this instance" is no longer a valid sparse matrix instance. This method uses less memory space
+	 * tha T().
+	 * Using SparseCSCBuilder is more efficient than converting to CSR format
+	 */
+	public def selfT() : SparseCSC(N,M) {
+		val nspa = new SparseCSC(N,M, this.getStorage());
+		T(nspa);
+		return nspa;
+	}
+	
+	/*
+	 * Transpose matrix and put the result in a new sparse matrix instance.
+	 * The original (this) instance is not changed. 
+	 */
+	public def T():SparseCSC(N,M) {
+		val nspa = SparseCSC.make(N,M, this.getStorage().count());
+		T(nspa);
+		return nspa;
 	}
 
+	/*
+	 * Tranpose the sparse matrix data and store it in provided SparseCSC
+	 * instance.  The original matrix instance (this) is not changed 
+	 * (if "this" is not used as the input)
+	 */
+	public def T(spa:SparseCSC(N,M)) : void {
+		val spabld = SparseCSCBuilder.makeTranspose(this);
+		spabld.toSparseCSC(spa);
+	}
+	
 	//=====================================================================
 	// Cell-wise operation methods
 	//=====================================================================
@@ -1346,7 +1381,7 @@ public class SparseCSC extends Matrix {
 
 	//
 	//---------------------------
-	// X10 Int MAX_VALUE is 2*10^10, change M*N to Double, in case
+	// X10 Int MAX_VALUE, change M*N to Double, in case
 	// exceeding MAX_VALUE
 	public static def compAllocSize(m:Int, n:Int, nz:Double):Int {
 		var nzd:Double = nz;

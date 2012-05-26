@@ -13,6 +13,7 @@ package x10.matrix.sparse;
 
 import x10.io.Console;
 import x10.util.Pair;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
@@ -470,12 +471,13 @@ public class Compress1D {
 	// Util methods
 	//=========================================================
 	public def toString():String {
-		var outstr:String="Compress 1D off:"+offset+" len:"+this.length+" [ ";
+		val outstr = new StringBuilder();
+		outstr.add("Compress 1D off:"+offset+" len:"+this.length+" [ ");
 		for (var i:Int=0; i<this.length; i++) {
-			outstr += " "+getIndex(i)+":"+getValue(i)+" ";
+			outstr.add(" "+getIndex(i)+":"+getValue(i)+" ");
 		}
-		outstr += " ]";
-		return outstr;
+		outstr.add(" ]");
+		return outstr.toString();
 	}
 
 	public def print(msg:String) {
