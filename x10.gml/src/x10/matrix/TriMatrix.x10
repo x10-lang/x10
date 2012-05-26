@@ -14,6 +14,7 @@ package x10.matrix;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 import x10.matrix.blas.DenseMatrixBLAS;
 
@@ -25,53 +26,51 @@ public type TriMatrix(C:Matrix)=TriMatrix{self==C};
 
 /**
  * The symmetric matrix in X10 stores the lower part of matrix data in column based.
- * However, the full matrix storage needs to be allocated, which compiles with
+ * However, the full matrix storage needs to be allocated, which complies with
  * BLAS symmetric matrix.
- * Currently, there is no distributed structure for symmetric matrix. 
+ * Currently, there is no distributed structure for triangular matrix. 
  */
-public class TriMatrix extends Matrix{self.M==self.N} {
+public class TriMatrix extends DenseMatrix{self.M==self.N} {
 	
 	//================================================================
 	// Base data structure
 	//================================================================
-	public val d:Array[Double](1){rail};
+	/*
+	 * Upper or lower triangular matrix flag. If true, upper triangular.
+	 * Default false, lower triangular.
+	 */
+	public var uplo:Boolean= false;
 	
 	//================================================================
 	// Constructor, maker, and clone method
 	//================================================================	
 	public def this(n:Int, x:Array[Double](1){rail}) : TriMatrix(n){
-		super(n,n);
-		this.d = x;
-		Debug.assure( n*n <= x.size, "Storage of array cannot hold all matrix data"); 
+		super(n, n, x);
 	}
 	
+	public def this(up:Boolean, n:Int, x:Array[Double](1){rail}) : TriMatrix(n){
+		super(n, n, x);
+		uplo = up;
+	}	
 	//----------------------------------------------------------------
-	public static def make(n:Int):TriMatrix(n) {
+	public static def make(up:Boolean, n:Int):TriMatrix(n) {
 		val x = new Array[Double](n*n);
-		return new TriMatrix(n, x);
+		return new TriMatrix(up, n, x);
 	}
-
+	
+	public static def make(n:Int) = make(false, n);
+ 
 	public static def make(src:TriMatrix) {
 		val n = src.N;
 		val newd = new Array[Double](n*n);
 		Array.copy(src.d, newd);
-		return new TriMatrix(n, newd);
+		return new TriMatrix(src.uplo, n, newd);
 	}
 	
-	/**
-	 * Create triangular matrix object from dense matrix's lower triangular  part
-	 */
-	public static def make(src:DenseMatrix):TriMatrix(src.N) {
-		val nd = new Array[Double](src.N*src.N);
-		var colstt:Int=0;
-		for (var len:Int=src.N; len>0; len--, colstt+=src.M+1)
-			Array.copy(src.d, colstt, nd, colstt, len);
-		return new TriMatrix(src.N, nd);
-	}
-	
+
 	public def clone():TriMatrix(M,N){
 		val nd = new Array[Double](this.d) as Array[Double](1){rail};
-		val nm = new TriMatrix(M, nd);
+		val nm = new TriMatrix(uplo, M, nd);
 		return nm as TriMatrix(M,N);
 	}
 	
@@ -84,28 +83,22 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	
 	public def alloc() = alloc(this.M, this.M);
 	
-	//======================================================================
-	// Data copy and reset 
-	//======================================================================
-	
-	public def copyTo(dm:DenseMatrix(M,N)):void {
-		var colstt:Int=0;
-		for (var len:Int=N; len > 0; len--, colstt+=M+1) {
-			Array.copy(this.d, colstt, dm.d, colstt, len);		
-		}
-	}
-	
-	public def toDense():DenseMatrix(M,N) {
-		val dm = DenseMatrix.make(M,N);
-		copyTo(dm);
-		return dm;
-	}
-	
+// 	//======================================================================
+// 	// Data copy and reset 
+// 	//======================================================================
+
 	public def copyTo(tmat:TriMatrix(N)): void {
 		var colstt:Int=0;
-		for (var len:Int=N; len > 0; len--, colstt+=M+1) {
-			Array.copy(this.d, colstt, tmat.d, colstt, len);		
+		if (uplo) {
+			for (var len:Int=1; len <= M; len++, colstt+=M) {
+				Array.copy(this.d, colstt, tmat.d, colstt, len);		
+			}			
+		} else {
+			for (var len:Int=N; len > 0; len--, colstt+=M+1) {
+				Array.copy(this.d, colstt, tmat.d, colstt, len);		
+			}
 		}
+		tmat.uplo = this.uplo;
 	}
 	
 	public def copyTo(mat:Matrix(M,N)): void {
@@ -117,33 +110,19 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 			Debug.exit("CopyTo: matrix type does not compatible");
 	}
 	
-	public def castToDense():DenseMatrix(M,N) {
-		return new DenseMatrix(M, N, this.d);
-	}
-	
-	//========================================================================
-	/**
-	 * Reset lower part of triangular matrix. No touch on upper part.
-	 */
-	public  def reset():void {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)
-				this.d(i)=0.0;
-	}	
 	
 	//-------------------------------------------------------------------
 	// Data initialization
 	//-------------------------------------------------------------------
 	/**
-	 * Initialize all elements of the symmetric matrix with a constant value.
+	 * Initialize all elements of the triangular matrix with a constant value.
 	 * @param  iv 	the constant value
 	 */	
 	public def init(iv:Double): TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)
-				this.d(i) = iv;
+		if (uplo)
+			super.init((r:Int,c:Int)=>(r>c)?0.0:iv);
+		else
+			super.init((r:Int,c:Int)=>(r<c)?0.0:iv);
 		return this;
 	}
 
@@ -155,8 +134,10 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	 * @return this object
 	 */
 	public def init(f:(Int)=>Double): TriMatrix(this) {
-		for (var i:Int=0; i<M*N; i++)
-			this.d(i) = f(i);
+		if (uplo)
+			super.init((r:Int,c:Int)=>(r>c)?0.0:f(c*M+r));
+		else
+			super.init((r:Int,c:Int)=>(r<c)?0.0:f(c*M+r));
 		return this;
 	}
 	
@@ -167,11 +148,11 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	 * @return this object
 	 */
 	public def init(f:(Int,Int)=>Double): TriMatrix(this) {
-		var i:Int=0;
-		for (var c:Int=0; c<N; c++, i+=c+M-N)
-			for (var r:Int=c; r<M; r++, i++)
-				this.d(i) = f(r, c);
-		return this;
+		if (uplo)
+			super.init((r:Int,c:Int)=>(r>c)?0.0:f(r,c));
+		else
+			super.init((r:Int,c:Int)=>(r<c)?0.0:f(r,c));
+		return this;		
 	}
 	
 	/**
@@ -180,10 +161,12 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	 */	
 	public def initRandom(): TriMatrix(this) {
 		val rgen = RandTool.getRandGen();
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)
-				this.d(i) = rgen.nextDouble();
+
+		if (uplo)
+			super.init((r:Int,c:Int)=>(r>c)?0.0:rgen.nextDouble());
+		else
+			super.init((r:Int,c:Int)=>(r<c)?0.0:rgen.nextDouble());
+		
 		return this;
 	}
 	
@@ -195,204 +178,213 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	 * @param up	upper bound of random values
 	 */	
 	public def initRandom(lb:Int, ub:Int): TriMatrix(this) {
+	
 		val rgen = RandTool.getRandGen();
 		val l = Math.abs(ub-lb)+1;
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)
-				this.d(i) = rgen.nextInt(l)+lb;
+
+		if (uplo)
+			super.init((r:Int,c:Int)=>(r>c)?0.0:(rgen.nextInt(l)+lb as Double));
+		else
+			super.init((r:Int,c:Int)=>(r<c)?0.0:(rgen.nextInt(l)+lb as Double));
+		
 		return this;
+		
 	}
 	
 	//======================================================================
 	// Data access and set
 	//======================================================================
 	
-	public  operator this(x:Int, y:Int):Double {
-		if (y <= x)
-			return this.d(y*M+x);
-		else
-			return 0;
-	}
 	
-	public  operator this(x:Int,y:Int) = (v:Double):Double {
-		if (y <= x) 
-			this.d(y*M +x) = v;
-		else
-			Debug.exit("Error in assigning triangular matrix");
-		return v;
-	}	
-
 	//=====================================================================
-	// Cellwise operations. Only lower triangular part is modified.
+	// Transpose
 	//=====================================================================
-	public  def scale(a:Double):TriMatrix(this)  {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) = this.d(i) * a;
-		return this;
-	}
-	
-	public def sum():Double {
-		var tt:Double = 0.0;
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1) 
-			for (var i:Int=colstt; i<colstt+len; i++)
-				tt += this.d(i);
-		return tt;
-	}
-	
-	//------------------------
-	// Add operation
-	//------------------------
-	public def cellAdd(v:Double):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) += v;
-		return this;
-	}
-	
-	public def cellAdd(x:Matrix(M,N)):TriMatrix(this)   {
-		throw new UnsupportedOperationException("Cell-wise addition does not support using TriMatrix as output matrix");
-	}
-	
-	public def cellAdd(x:TriMatrix(M)):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) += x.d(i);
-		return this;
-	}	
-	
-	public def cellAddTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1) {
-			for (var i:Int=colstt; i<colstt+len; i++) {		
-				x.d(i) += this.d(i);
+	public def selfT() {
+		var src_idx:Int =0;
+		var dst_idx:Int =0;
+		var swaptmp:Double = 0;
+		for (var c:Int=0; c < this.M; c++) {
+			dst_idx = (c+1)*this.M+c;
+			src_idx = c * this.M + c + 1;
+			for (var r:Int=c+1; r < this.M; r++, dst_idx+=M, src_idx++) {
+				swaptmp = this.d(dst_idx);
+				this.d(dst_idx) = this.d(src_idx);
+				this.d(src_idx) = swaptmp;
 			}
 		}
-		return x;
 	}
 	
-	//----------------------------------
-	// Cell-wise matrix multiplication
-	//----------------------------------
-	
-	public def cellSub(v:Double):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) -= v;
-		return this;
-	}
 
-	public def cellSubFrom(v:Double):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) = v-this.d(i);
-		return this;
-	}
-	
-	public def cellSub(x:Matrix(M,N)):TriMatrix(this)   {
-		throw new UnsupportedOperationException("Cell-wise subtract does not support using TriMatrix as output matrix");
-	}
-	
-	public def cellSub(x:TriMatrix(M)):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) -= x.d(i);
-		return this;
-	}	
-	
-	/**
-	 * x = x - this;
-	 */
-	public def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1) {
-			for (var i:Int=colstt; i<colstt+len; i++) {		
-				x.d(i) -= this.d(i);
-			}
-		}
-		return x;
-	}
-	
-	//----------------------------------
-	// Cell-wise matrix multiplication
-	//----------------------------------
-	public def cellMult(v:Double):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) *= v;
-		return this;
-	}
-	
-	public def cellMult(x:Matrix(M,N)):TriMatrix(this)   {
-		throw new UnsupportedOperationException("Cell-wise multiply does not support using TriMatrix as output matrix");
-	}
-	
-	public def cellMult(x:TriMatrix(M)):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)		
-				this.d(i) *= x.d(i);
-		return this;
-	}	
-	
-	public def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1) {
-			for (var i:Int=colstt; i<colstt+len; i++) {	
-				x.d(i) *= this.d(i);
-			}
-		}
-		return x;
-	}
-	//-------------------------
-	// Cellwise division
-	//-------------------------
-	public def cellDiv(v:Double):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)	
-				this.d(i) /= v;
-		return this;
-	}
-	public def cellDivBy(v:Double):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)	
-				this.d(i) = v/this.d(i);
-		return this;
-	}	
-	
-	public def cellDiv(x:Matrix(M,N)):TriMatrix(this)   {
-		throw new UnsupportedOperationException("Cell-wise division does not support using TriMatrix as output matrix");
-	}
-	
-	public def cellDiv(x:TriMatrix(M)):TriMatrix(this) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1)
-			for (var i:Int=colstt; i<colstt+len; i++)	
-				this.d(i) /= x.d(i);
-		return this;
-	}	
-	
-	public def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x) {
-		var colstt:Int=0;
-		for (var len:Int=N; len>0; len--, colstt+=M+1) {
-			for (var i:Int=colstt; i<colstt+len; i++) {	
-				x.d(i) /= this.d(i);
-			}
-		}
-		return x;
-	}
-	
+// 	//=====================================================================
+// 	// Cellwise operations. Only lower triangular part is modified.
+// 	//=====================================================================
+// 	public  def scale(a:Double):TriMatrix(this)  {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) = this.d(i) * a;
+// 		return this;
+// 	}
+// 	
+// 	public def sum():Double {
+// 		var tt:Double = 0.0;
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1) 
+// 			for (var i:Int=colstt; i<colstt+len; i++)
+// 				tt += this.d(i);
+// 		return tt;
+// 	}
+// 	
+// 	//------------------------
+// 	// Add operation
+// 	//------------------------
+// 	public def cellAdd(v:Double):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) += v;
+// 		return this;
+// 	}
+// 	
+// 	public def cellAdd(x:Matrix(M,N)):TriMatrix(this)   {
+// 		throw new UnsupportedOperationException("Cell-wise addition does not support using TriMatrix as output matrix");
+// 	}
+// 	
+// 	public def cellAdd(x:TriMatrix(M)):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) += x.d(i);
+// 		return this;
+// 	}	
+// 	
+// 	public def cellAddTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1) {
+// 			for (var i:Int=colstt; i<colstt+len; i++) {		
+// 				x.d(i) += this.d(i);
+// 			}
+// 		}
+// 		return x;
+// 	}
+// 	
+// 	//----------------------------------
+// 	// Cell-wise matrix multiplication
+// 	//----------------------------------
+// 	
+// 	public def cellSub(v:Double):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) -= v;
+// 		return this;
+// 	}
+// 
+// 	public def cellSubFrom(v:Double):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) = v-this.d(i);
+// 		return this;
+// 	}
+// 	
+// 	public def cellSub(x:Matrix(M,N)):TriMatrix(this)   {
+// 		throw new UnsupportedOperationException("Cell-wise subtract does not support using TriMatrix as output matrix");
+// 	}
+// 	
+// 	public def cellSub(x:TriMatrix(M)):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) -= x.d(i);
+// 		return this;
+// 	}	
+// 	
+// 	/**
+// 	 * x = x - this;
+// 	 */
+// 	public def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1) {
+// 			for (var i:Int=colstt; i<colstt+len; i++) {		
+// 				x.d(i) -= this.d(i);
+// 			}
+// 		}
+// 		return x;
+// 	}
+// 	
+// 	//----------------------------------
+// 	// Cell-wise matrix multiplication
+// 	//----------------------------------
+// 	public def cellMult(v:Double):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) *= v;
+// 		return this;
+// 	}
+// 	
+// 	public def cellMult(x:Matrix(M,N)):TriMatrix(this)   {
+// 		throw new UnsupportedOperationException("Cell-wise multiply does not support using TriMatrix as output matrix");
+// 	}
+// 	
+// 	public def cellMult(x:TriMatrix(M)):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)		
+// 				this.d(i) *= x.d(i);
+// 		return this;
+// 	}	
+// 	
+// 	public def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1) {
+// 			for (var i:Int=colstt; i<colstt+len; i++) {	
+// 				x.d(i) *= this.d(i);
+// 			}
+// 		}
+// 		return x;
+// 	}
+// 	//-------------------------
+// 	// Cellwise division
+// 	//-------------------------
+// 	public def cellDiv(v:Double):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)	
+// 				this.d(i) /= v;
+// 		return this;
+// 	}
+// 	public def cellDivBy(v:Double):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)	
+// 				this.d(i) = v/this.d(i);
+// 		return this;
+// 	}	
+// 	
+// 	public def cellDiv(x:Matrix(M,N)):TriMatrix(this)   {
+// 		throw new UnsupportedOperationException("Cell-wise division does not support using TriMatrix as output matrix");
+// 	}
+// 	
+// 	public def cellDiv(x:TriMatrix(M)):TriMatrix(this) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1)
+// 			for (var i:Int=colstt; i<colstt+len; i++)	
+// 				this.d(i) /= x.d(i);
+// 		return this;
+// 	}	
+// 	
+// 	public def cellDivBy(x:DenseMatrix(M,N)):DenseMatrix(x) {
+// 		var colstt:Int=0;
+// 		for (var len:Int=N; len>0; len--, colstt+=M+1) {
+// 			for (var i:Int=colstt; i<colstt+len; i++) {	
+// 				x.d(i) /= this.d(i);
+// 			}
+// 		}
+// 		return x;
+// 	}
+// 	
 	//================================================================
 	// Matrix multiply operations: self this<- op(A)*op(B) + (plus?1:0) * C
 	// Default is using BLAS driver
@@ -441,24 +433,23 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	public operator (alpha:Int) * this    = this * alpha;
 	
 	
-	public operator this + (that:TriMatrix(M)):TriMatrix(M,N) = this.clone().cellAdd(that);
-	public operator this - (that:TriMatrix(M)):TriMatrix(M,N) = this.clone().cellSub(that);
-	public operator this * (that:TriMatrix(M)):TriMatrix(M,N) = this.clone().cellMult(that);
-	public operator this / (that:TriMatrix(M)):TriMatrix(M,N) = this.clone().cellDiv(that);
+	public operator this + (that:TriMatrix(M)) = this.clone().cellAdd(that as DenseMatrix(M,N)) as DenseMatrix(M,N);
+	public operator this - (that:TriMatrix(M)) = this.clone().cellSub(that as DenseMatrix(M,N)) as DenseMatrix(M,N);
+	public operator this * (that:TriMatrix(M)) = this.clone().cellMult(that as DenseMatrix(M,N)) as DenseMatrix(M,N);
+	public operator this / (that:TriMatrix(M)) = this.clone().cellDiv(that as DenseMatrix(M,N)) as DenseMatrix(M,N);
 
 	/**
 	 * Operation with dense matrix and store result in dense format
 	 */
-	public operator this + (that:DenseMatrix(M,N)):DenseMatrix(M,N) = this.cellAddTo(that.clone() as DenseMatrix(M,N));
-	public operator this - (that:DenseMatrix(M,N)):DenseMatrix(M,N) = this.toDense().cellSub(that) as DenseMatrix(M,N);
-	public operator this * (that:DenseMatrix(M,N)):DenseMatrix(M,N) = this.cellMultTo(that.clone()) as DenseMatrix(M,N);
-	public operator this / (that:DenseMatrix(M,N)):DenseMatrix(M,N) = this.toDense().cellDiv(that) as DenseMatrix(M,N);
+	// public operator this + (that:DenseMatrix(M,N)) = this.cellAddTo(that.clone() as DenseMatrix(M,N));
+	// public operator this - (that:DenseMatrix(M,N)) = this.toDense().cellSub(that) as DenseMatrix(M,N);
+	// public operator this * (that:DenseMatrix(M,N)) = this.cellMultTo(that.clone()) as DenseMatrix(M,N);
+	// public operator this / (that:DenseMatrix(M,N)) = this.toDense().cellDiv(that) as DenseMatrix(M,N);
 	
-	
-	public operator (that:DenseMatrix(M,N)) + this = this + that;
-	public operator (that:DenseMatrix(M,N)) - this = this.cellSubFrom(that.clone());
-	public operator (that:DenseMatrix(M,N)) * this = this * that;
-	public operator (that:DenseMatrix(M,N)) / this = this.cellDivBy(that.clone()) as DenseMatrix(M,N);
+	// public operator (that:DenseMatrix(M,N)) + this = this + that;
+	// public operator (that:DenseMatrix(M,N)) - this = this.cellSubFrom(that.clone());
+	// public operator (that:DenseMatrix(M,N)) * this = this * that;
+	// public operator (that:DenseMatrix(M,N)) / this = this.cellDivBy(that.clone()) as DenseMatrix(M,N);
 	
 	
 	/**
@@ -495,16 +486,16 @@ public class TriMatrix extends Matrix{self.M==self.N} {
 	
 	public def toString():String {
 		var idx:Int=0;
-		var outstr:String ="--------- Triangular Matrix "+M+" x "+N+" lower part data ---------\n";
+		val outstr=new StringBuilder();
+		outstr.add("--------- Triangular Matrix "+M+" x "+N+" lower part data ---------\n");
 		for (var r:Int=0; r<M; r++) {
-			var rowstr:String=r.toString()+"\t[ ";
+			outstr.add(r+"\t[ ");
 			for (var c:Int=0; c<=r; c++)
-				rowstr += this(r,c).toString()+" ";
-			rowstr +="]\n";
-			outstr += rowstr;
+				outstr.add(this(r,c).toString()+" ");
+			outstr.add("]\n");
 		}
-		outstr += "---------------------------------------\n";
-		return outstr; 	
+		outstr.add("---------------------------------------\n");
+		return outstr.toString();	
 	}
 	
 	public def print(msg:String): void {

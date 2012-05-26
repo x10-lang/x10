@@ -12,6 +12,7 @@
 package x10.matrix.block;
 
 import x10.io.Console;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -702,12 +703,13 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	 * Convert matrix data into string
 	 */
 	public def toString():String {
-		var output:String="---------- Dense-block Matrix ["+M+"x"+N+"] ----------\n";;
+		val output = new StringBuilder();
+		output.add("---------- Dense-block Matrix ["+M+"x"+N+"] ----------\n");
 		for (val [p] :Point in listBs) {
-			output+= "--- Dense block("+p+") ---\n"+listBs(p).toString();
+			output.add( "--- Dense block("+p+") ---\n"+listBs(p).toString());
 		}
-		output += "----------------------------------------------------\n";
-		return output;
+		output.add("----------------------------------------------------\n");
+		return output.toString();
 	}
 	
 	//-------------------------

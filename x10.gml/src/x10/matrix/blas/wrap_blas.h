@@ -51,7 +51,7 @@ void matrix_vector_mult(double* A, double* x, double* y,
 void sym_vector_mult(double* x, double* A, double* y,
 					 int* dim, double* scale);
 //   A*x = b,   or   A'*x = b,
-void tri_vector_mult(double* A, double* bx, int lda, int transA);
+void tri_vector_mult(double* A, int uplo, double* bx, int lda, int transA);
 
 //  B := alpha*op( A )*B, A is lower-non-unit triangular
 void tri_matrix_mult(double* A, double* B, int* dim, int tranB);

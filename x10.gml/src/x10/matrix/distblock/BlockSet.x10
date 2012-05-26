@@ -13,6 +13,7 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.util.StringBuilder;
 import x10.compiler.Inline;
 
 import x10.matrix.Matrix;
@@ -759,26 +760,27 @@ public class BlockSet  {
 	public def toString() :String {
 		
 		val blkitr = this.iterator();
-		var outstr:String = "At place "+here.id()+" blocks:\n";
+		val outstr = new StringBuilder();
+		outstr.add("At place "+here.id()+" block set contains:\n");
 		while (blkitr.hasNext()) {
 			val blk = blkitr.next();
-			outstr += blk.toString();
+			outstr.add(blk.toString());
 		}
-		return outstr;	
+		return outstr.toString();	
 	}
 	
 	public def printBlockMap() {
-		var outstr:String="";
+		val outstr = new StringBuilder();
 		
 		if (blockMap==null) buildBlockMap();
 		for (var r:Int=blockMap.region.min(0); r<=blockMap.region.max(0); r++) {
 			for (var c:Int=blockMap.region.min(1); c<=blockMap.region.max(1); c++) {
 				val b = blockMap(r, c);
-				outstr +=("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
+				outstr.add("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
 			}
-			outstr += "\n";
+			outstr.add("\n");
 		}
-		Console.OUT.println(outstr);
+		Console.OUT.println(outstr.toString());
 		Console.OUT.flush();
 	}
 	

@@ -14,6 +14,7 @@ package x10.matrix.block;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;

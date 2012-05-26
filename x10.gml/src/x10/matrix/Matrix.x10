@@ -12,6 +12,7 @@
 package x10.matrix;
 
 import x10.io.Console;
+import x10.util.StringBuilder;
 
 public type Matrix(M:Int)=Matrix{self.M==M};
 public type Matrix(M:Int, N:Int)=Matrix{self.M==M, self.N==N};
@@ -471,16 +472,16 @@ public abstract class Matrix(M:Int, N:Int) {
 	 * Convert all elements in the matrix into a string
 	 */
 	public def dataToString():String {
-		var dstr:String="--------- Matrix "+M+" x "+N+" ---------\n";
+		val dstr = new StringBuilder();
+		dstr.add("--------- Matrix "+M+" x "+N+" ---------\n");
 		for (var r:Int=0; r<M; r++) {
-			var rstr:String=r.toString()+"\t[ ";
+			dstr.add(r.toString()+"\t[ ");
 			for (var c:Int=0; c<N; c++)
-				rstr += this(r,c).toString()+" ";
-			rstr +="]\n";
-			dstr += rstr;
+				dstr.add(this(r,c).toString()+" ");
+			dstr.add("]\n");
 		}
-		dstr += "---------------------------------------";
-		return dstr; 
+		dstr.add("---------------------------------------");
+		return dstr.toString(); 
 	}
 	
 	/**

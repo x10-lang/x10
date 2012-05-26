@@ -208,7 +208,7 @@ int solve_linear_equation(double* A, double* B, int* IPIV, int* dim)
 	printf("LAPACK is not added in GML build.\n");
 	printf("Uncomment the line: add_lapack = yes in system_setting.mk, and make sure lapack lib and path names are correct\n");
 	fflush(stdout);
-	exit();
+	exit(1);
 #endif
 	return INFO;
 }
@@ -216,7 +216,7 @@ int solve_linear_equation(double* A, double* B, int* IPIV, int* dim)
 int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
 {
 	char JOBZ = 'N';   //Compute eigenvalues
-	char UPLO = 'L';
+	char UPLO = dim[1]?'U':'L';
 	int  N    = dim[0]; //order of A
 	int  LDA  = N; //leading dimension of A
 	//double* A;// Input, on exit, A is destroyed.
@@ -237,7 +237,7 @@ int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
 	printf("LAPACK is not added in GML build.\n");
 	printf("Uncomment the line: add_lapack = yes in system_setting.mk, and make sure lapack lib and path names are correct\n");
 	fflush(stdout);
-	exit();
+	exit(1);
 #endif
 
 	return INFO;
@@ -246,7 +246,7 @@ int comp_eigenvalue(double* A, double* W, double* WORK, int* dim)
 int comp_eigenvector(double* A, double* W, double* WORK, int* dim)
 {
 	char JOBZ = 'V';    //Compute eigenvalues and eigenvectors
-	char UPLO = 'L';
+	char UPLO = dim[1]?'U':'L';
 	int  N    = dim[0]; //order of A
 	int  LDA  = N; //leading dimension of A
 	//double* A;// On exit, if INFO = 0, A contains the orthonormal eigenvectors of the matrix A.
@@ -267,7 +267,7 @@ int comp_eigenvector(double* A, double* W, double* WORK, int* dim)
 	printf("LAPACK is not added in GML build.\n");
 	printf("Uncomment the line: add_lapack = yes in system_setting.mk, and make sure lapack lib and path names are correct\n");
 	fflush(stdout);
-	exit();
+	exit(1);
 #endif
 	return INFO;
 }

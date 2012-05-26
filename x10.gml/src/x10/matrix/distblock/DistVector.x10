@@ -13,6 +13,7 @@ package x10.matrix.distblock;
 
 import x10.util.Pair;
 import x10.util.ArrayList;
+import x10.util.StringBuilder;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -388,11 +389,12 @@ public class DistVector(M:Int) {
 	
 	//==================================================================================
 	public def toString() :String {
-		var output:String = "---Distributed Vector:["+M+"], ---\n[ ";
-		for (var i:Int=0; i<M-1; i++) output += this(i).toString()+",";
+		val output=new StringBuilder();
+		output.add("---Distributed Vector:["+M+"], ---\n[ ");
+		for (var i:Int=0; i<M-1; i++) output.add(this(i).toString()+",");
 		
-		output += this(M-1).toString()+" ]\n--------------------------------------------------\n";
-		return output;
+		output.add(this(M-1).toString()+" ]\n--------------------------------------------------\n");
+		return output.toString();
 	}
 	//
 	public def print()  { this.print("");}
@@ -402,14 +404,15 @@ public class DistVector(M:Int) {
 		Console.OUT.flush();
 	}
 	public def printAllCopies() {
-		var output:String = "-------- Distributed vector :["+M+"] ---------\n";
+		val output = new StringBuilder();
+		output.add( "-------- Distributed vector :["+M+"] ---------\n");
 		for (p in Place.places()) {
-			output += "Segment vector at place " + p.id() +"\n";
-			output += at (p) { distV().toString()};
+			output.add("Segment vector at place " + p.id() +"\n");
+			output.add(at (p) { distV().toString()});
 		}
-		output += "--------------------------------------------------\n";
-		Console.OUT.print(output);
+		output.add("--------------------------------------------------\n");
+		Console.OUT.print(output.toString());
 		Console.OUT.flush();
-	}	
+	}
 }
 

@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix.block;
@@ -14,6 +14,7 @@ package x10.matrix.block;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 import x10.compiler.Inline;
 
 import x10.matrix.Debug;
@@ -22,8 +23,8 @@ import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 
 /**
- * Matrix block provides an abstraction of matrix block classes, which serves as
- * the base classes for dense block matrix and sparse block matrix class. It can be used to build
+ * Matrix block class serves as
+ * the base class for dense block matrix and sparse block matrix class. It can be used to build
  * dense-sparse mixed matrix blocks too.
  */
 public abstract class MatrixBlock {

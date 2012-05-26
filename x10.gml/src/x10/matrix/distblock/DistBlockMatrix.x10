@@ -13,6 +13,7 @@ package x10.matrix.distblock;
 
 import x10.util.ArrayList;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
@@ -870,12 +871,13 @@ public class DistBlockMatrix extends Matrix{
 	
 	//==================================================================================
 	public def toStringBlock() :String {
-		var output:String = "-------- Dist Matrix Block size:["+M+" x "+N+"] ---------\n";
+		val output = new StringBuilder();
+		output.add("-------- Dist Matrix Block size:["+M+" x "+N+"] ---------\n");
 		for (p in Place.places()) {
-			output += at (p) { handleBS().toString()};
+			output.add(at (p) { handleBS().toString()});
 		}
-		output += "--------------------------------------------------\n";
-		return output;
+		output.add("--------------------------------------------------\n");
+		return output.toString();
 	}
 	
 	public def print() : void { 

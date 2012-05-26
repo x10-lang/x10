@@ -12,6 +12,7 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.util.StringBuilder;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -691,10 +692,11 @@ public class DupBlockMatrix extends Matrix {
 	
 	//==================================================================================
 	public def toString() :String {
-		var output:String = "---Duplicated block Matrix size:["+M+"x"+N+"]---\n";
-		output += handleDB().toString();
-		output += "--------------------------------------------------\n";
-		return output;
+		val output=new StringBuilder();
+		output.add( "---Duplicated block Matrix size:["+M+"x"+N+"]---\n");
+		output.add(handleDB().toString());
+		output.add( "--------------------------------------------------\n");
+		return output.toString();
 	}
 	//
 	public def print()  { this.print("");}
@@ -704,24 +706,26 @@ public class DupBlockMatrix extends Matrix {
 		Console.OUT.flush();
 	}
 	public def printAllCopies() {
-		var output:String = "-------- Duplicate block matrix :["+M+" x "+N+"] ---------\n";
+		val output=new StringBuilder();
+		output.add("-------- Duplicate block matrix :["+M+" x "+N+"] ---------\n");
 		for (p in Place.places()) {
-			output += "Copy at place " + p.id() +"\n";
-			output += at (p) { handleDB().toString()};
+			output.add("Copy at place " + p.id() +"\n");
+			output.add(at (p) { handleDB().toString()});
 		}
-		output += "--------------------------------------------------\n";
-		Console.OUT.print(output);
+		output.add("--------------------------------------------------\n");
+		Console.OUT.print(output.toString());
 		Console.OUT.flush();
 	}
 	
 	public def printAllMatrixCopies() {
-		var output:String = "-------- Duplicate block matrix:["+M+" x "+N+"] ---------\n";
+		val output = new StringBuilder();
+		output.add("-------- Duplicate block matrix:["+M+" x "+N+"] ---------\n");
 		for (p in Place.places()) {
-			output += "Copy at place " + p.id() +"\n";
-			output += at (p) {(local() as Matrix).dataToString()};
+			output.add("Copy at place " + p.id() +"\n");
+			output.add(at (p) {(local() as Matrix).dataToString()});
 		}
-		output += "--------------------------------------------------\n";
-		Console.OUT.print(output);
+		output.add("--------------------------------------------------\n");
+		Console.OUT.print(output.toString());
 		Console.OUT.flush();
 	}
 }

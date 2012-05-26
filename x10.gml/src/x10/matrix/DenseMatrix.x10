@@ -6,14 +6,15 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix;
 
+import x10.compiler.Inline;
 import x10.io.Console;
-import x10.util.Random;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 //----------------------------------------------
 //import x10.matrix.blas.DriverBLAS; 
@@ -472,6 +473,61 @@ public class DenseMatrix extends Matrix {
 		}
 	}
 
+	/*
+	 * Transpose matrix data into a new dense matrix. 
+	 * For dense matrix, it is quite complex to use source data storage to hold
+	 * tranposed result. We only provide tranpose method of using
+	 * additional space to store the result
+	 */
+	public def T(): DenseMatrix(N,M) {
+		val nm = DenseMatrix.make(N,M);
+		T(nm);
+		return nm;
+	}
+//	
+//	Transpose using the same memory space is very complex.
+// 	public def T():DenseMatrix(N,M) {
+// 		if (M==1||N==1) return new DenseMatrix(N, M, this.d);
+// 		if (M==N) return squareSelfT() as DenseMatrix(N,M);
+// 		
+// 		for (var len:Int=1; len<M; len++) {
+// 			val sttidx:Int=len;
+// 			val sttval:Double = this.d(sttidx);
+// 			val endidx:Int = (sttidx%M)*N+ sttidx/M;
+// 			var srcidx:Int=sttidx;
+// 			var preidx:Int=0;
+// 
+// 			while (endidx != srcidx) {
+// 				preidx = (srcidx % N) * M + srcidx/N;
+// 				this.d(srcidx) = this.d(preidx);
+// 				srcidx = preidx;
+// 			}
+// 			this.d(endidx) = sttval;
+// 		}
+// 		return new DenseMatrix(N,M,this.d);
+// 	}
+	
+	/*
+	 * For square matrix, we can use the original storage to hold transpose result.
+	 * This method is destructive for source matrix.
+	 */
+	public def squareT(): DenseMatrix(this) {
+		var src_idx:Int =0;
+		var dst_idx:Int =0;
+		var swaptmp:Double = 0;
+		Debug.assure(this.M==this.N, "Cannot perform transpose for non-square matrix");
+		for (var c:Int=0; c < this.M; c++) {
+			dst_idx = (c+1)*this.M+c;
+			src_idx = c * this.M + c + 1;
+			for (var r:Int=c+1; r < this.M; r++, dst_idx+=M, src_idx++) {
+				swaptmp = this.d(dst_idx);
+				this.d(dst_idx) = this.d(src_idx);
+				this.d(src_idx) = swaptmp;
+			}
+		}
+		return this;
+	}
+	
  	//------------------------------------------------------------------
 	// Cell-wise operations
 	//------------------------------------------------------------------
@@ -1081,9 +1137,7 @@ public class DenseMatrix extends Matrix {
 	//=======================================================
 	// Utils
 	//=======================================================
-// 	public def copyFrom(src:DenseMatrix(M,N)) {
-// 		Array.copy(src.d, 0, this.d, 0, this.M*this.N);
-// 	}
+
 	/**
 	 * Check matrix type and dimensions
 	 * 
@@ -1099,16 +1153,16 @@ public class DenseMatrix extends Matrix {
 	 * Convert the whole dense matrix into a string
 	 */
 	public def toString() : String {
-		var outstr:String ="--------- Dense Matrix "+M+" x "+N+" ---------\n";
+		val outstr = new StringBuilder();
+		outstr.add("--------- Dense Matrix "+M+" x "+N+" ---------\n");
 		for (var r:Int=0; r<M; r++) {
-			var rowstr:String=r.toString()+"\t[ ";
+			outstr.add(r.toString()+"\t[ ");
 			for (var c:Int=0; c<N; c++)
-				rowstr += this(r,c).toString()+" ";
-			rowstr +="]\n";
-			outstr += rowstr;
+				outstr.add(this(r,c).toString()+" ");
+			outstr.add("]\n");
 		}
-		outstr += "---------------------------------------\n";
-		return outstr; 		
+		outstr.add( "---------------------------------------\n");
+		return outstr.toString(); 		
 	}
 
 	public def print(msg:String): void {
@@ -1120,5 +1174,3 @@ public class DenseMatrix extends Matrix {
 	}
 
 }
-
-

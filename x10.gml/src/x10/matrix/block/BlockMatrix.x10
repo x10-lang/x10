@@ -13,6 +13,7 @@ package x10.matrix.block;
 
 import x10.io.Console;
 import x10.util.ArrayList;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -753,12 +754,13 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 
 
 	public def toString():String {
-		var output:String="---------- Block Matrix ["+M+"x"+N+"] ----------\n";;
+		val output = new StringBuilder();
+		output.add("---------- Block Matrix ["+M+"x"+N+"] ----------\n");
 		for (var p :Int=0; p<grid.size; p++) {
-			output+= "--- Block("+p+") ---\n"+this.listBs(p).toString();
+			output.add("--- Block("+p+") ---\n"+this.listBs(p).toString());
 		}
-		output += "----------------------------------------------------\n";
-		return output;
+		output.add( "----------------------------------------------------\n");
+		return output.toString();
 	}
 	//
 	public def printBlock() { printBlock("");}
@@ -776,17 +778,17 @@ public class BlockMatrix(grid:Grid) extends Matrix  {
 	}
 
 	public def printBlockMap() {
-		var outstr:String="";
+		val outstr = new StringBuilder();
 		
 		if (blockMap==null) buildBlockMap();
 		for (var r:Int=blockMap.region.min(0); r<=blockMap.region.max(0); r++) {
 			for (var c:Int=blockMap.region.min(1); c<=blockMap.region.max(1); c++) {
 				val b = blockMap(r, c);
-				outstr +=("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
+				outstr.add("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
 			}
-			outstr += "\n";
+			outstr.add("\n");
 		}
-		Console.OUT.println(outstr);
+		Console.OUT.println(outstr.toString());
 		Console.OUT.flush();
 	}
 	

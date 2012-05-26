@@ -14,6 +14,7 @@ package x10.matrix;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
@@ -185,6 +186,7 @@ public class Vector(M:Int) implements (Int) => Double {
 			this.d(i) = a * this.d(i);
 		return this;
     }
+    
     //===============================
     /**
      * this = V * dv + this
@@ -523,11 +525,12 @@ public class Vector(M:Int) implements (Int) => Double {
 	
 	//======================================================
 	public def toString():String {
-		var output:String="Vector("+this.M+") [ ";
+		val output=new StringBuilder();
+		output.add("Vector("+this.M+") [ ");
 		for (var i:Int=0; i<M; i++)
-			output += this.d(i).toString()+" ";
-		output += "]\n";
-		return output;
+			output.add(this.d(i).toString()+" ");
+		output.add("]\n");
+		return output.toString();
 	}
 	/**
 	   Print out all elements in vector
