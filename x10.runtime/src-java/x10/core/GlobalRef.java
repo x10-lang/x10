@@ -453,7 +453,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         obj = null;
     }
 
-    @Override
     public GlobalRef<T> $init() {
         GlobalGCDebug(3, "GlobalRef.$init() called");
         T = null;

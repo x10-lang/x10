@@ -23,7 +23,8 @@ public abstract class Struct implements StructI {
     // constructor just for allocation
     public Struct(java.lang.System[] $dummy) {}
 	
-    public Struct $init() {return this;}
+    // not used
+//    public Struct $init() {return this;}
 	
     public Struct() {}
 
