@@ -189,7 +189,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         }
 
         // build up Array[String] for args
-        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).$init(args.length);
+        // XTENLANG-3063
+//        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).$init(args.length);
+        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).x10$array$Array$$init$S(args.length);
         for (int i = 0; i < args.length; i++) {
             // for !Emitter.mangleDefaultOnDemandImportsAsShortName
             aargs.$set__1x10$array$Array$$T$G(i, args[i]);
@@ -521,7 +523,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      */
     public static x10.util.HashMap<String, String> loadenv() {
         Map<String, String> env = System.getenv();
-        x10.util.HashMap<String, String> map = new x10.util.HashMap<String, String>((java.lang.System[]) null, Types.STRING, Types.STRING).$init();
+        // XTENLANG-3063
+//        x10.util.HashMap<String, String> map = new x10.util.HashMap<String, String>((java.lang.System[]) null, Types.STRING, Types.STRING).$init();
+        x10.util.HashMap<String, String> map = new x10.util.HashMap<String, String>((java.lang.System[]) null, Types.STRING, Types.STRING).x10$util$HashMap$$init$S();
         for (Map.Entry<String, String> e : env.entrySet()) {
             map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V(e.getKey(), e.getValue());
         }

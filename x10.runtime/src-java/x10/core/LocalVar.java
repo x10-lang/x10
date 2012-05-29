@@ -57,7 +57,9 @@ public class LocalVar<T> extends x10.core.Ref {
     }
 
     public LocalVar<T> $init(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
-        super.$init();
+        // XTENLANG-3063
+//        super.$init();
+        super.x10$lang$Object$$init$S();
         this.T = T;
         long temp = lastId.getAndIncrement();
         while (idToObject.containsKey(temp)) {

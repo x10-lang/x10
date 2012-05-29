@@ -64,27 +64,35 @@ public final class Vec<T> extends x10.core.Struct {
     public Vec<T> $init(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
+        // XTENLANG-3063
+//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(size);
         return this;
     }
 
     public Vec(final Type<T> T, final int s) {
         this.T = T;
         this.size = s;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
+        // XTENLANG-3063
+//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(size);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(size);
     }
 
     public Vec<T> $init(final Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
+        // XTENLANG-3063
+//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
         return this;
     }
 
     public Vec(final Type<T> T, Vec<T> other) {
         this.T = T;
         this.size = other.size;
-        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
+        // XTENLANG-3063
+//        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).$init(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
+        this.backing = new x10.array.Array<T>((java.lang.System[]) null, T).x10$array$Array$$init$S(other.backing, (x10.array.Array.__0$1x10$array$Array$$T$2) null);
     }
 
     // zero value constructor

@@ -65,9 +65,14 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     public PlaceLocalHandle(java.lang.System[] $dummy, Type<T> T) {
     }
     
-    public PlaceLocalHandle $init() {
+    public final PlaceLocalHandle x10$runtime$impl$java$PlaceLocalHandle$$init$S() {
         id = nextId();
-        return this;
+        return this;        
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public PlaceLocalHandle $init() {
+        return x10$runtime$impl$java$PlaceLocalHandle$$init$S();
     }
 
     // not used

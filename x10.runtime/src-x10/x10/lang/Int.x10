@@ -547,7 +547,9 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @param upper the upper bound
      * @return a range from lower to upper, inclusive.
      */
-    @Native("java", "new x10.lang.IntRange((java.lang.System[]) null).$init(#x, #y)")
+    // XTENLANG-3063
+    // @Native("java", "new x10.lang.IntRange((java.lang.System[]) null).$init(#x, #y)")
+    @Native("java", "new x10.lang.IntRange((java.lang.System[]) null).x10$lang$IntRange$$init$S(#x, #y)")
     @Native("c++", "x10::lang::IntRange::_make(#1, #2)")
     public native static operator (x:Int) .. (y:Int):IntRange{min==x,max==y};
 }

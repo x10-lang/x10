@@ -27,7 +27,9 @@ public class Object {
      * Default constructor.
      */
     // (for java) Note: new x10.lang.Object() returns x10.core.Ref instead of java.lang.Object
-    @Native("java", "new x10.core.Ref((java.lang.System[]) null).$init()")
+    // XTENLANG-3063
+	// @Native("java", "new x10.core.Ref((java.lang.System[]) null).$init()")
+    @Native("java", "new x10.core.Ref((java.lang.System[]) null).x10$lang$Object$$init$S()")
     public native def this();
 
     /**

@@ -210,15 +210,15 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean generateSpecialDispatcherNotUse = false;  // TODO to be removed
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
-    public static final boolean supportConstructorInlining = true;
+    public static final boolean supportConstructorInlining = true;  // prereq for XTENLANG-3063
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
     // XTENLANG-2871
     public static final boolean supportJavaThrowables = true;
     public static final boolean useRethrowBlock = true;
     // WIP XTENLANG-3063
-    // call super bridge rather than $init for potential override of $init by $init with throws clause
-    public static final boolean supportConstructorWithThrows = false;  // TODO to be removed
+    public static final boolean supportConstructorWithThrows = supportConstructorInlining && false;  // TODO to be removed
+//    public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;  // TODO to be removed
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -248,6 +248,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String GETPARAM_NAME = "$getParam";
     public static final String INITPARAMS_NAME = "$initParams";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
+    public static final String CONSTRUCTOR_METHOD_NAME(ClassDef cd) {
+        if (supportConstructorWithThrows) {
+            // call super bridge rather than $init for potential override of $init by $init with throws clause
+            return (InlineHelper.makeSuperBridgeName(cd, Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
+        } else {
+            return CONSTRUCTOR_METHOD_NAME;
+        }
+    }
     public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
     public static final String CREATION_METHOD_NAME = "$make";
     public static final String BOX_METHOD_NAME = "$box";
@@ -1402,7 +1410,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (isSplittable) {
             printAllocationCall(type, typeParameters);                
             w.write(".");
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(type.def()));
         } else {
             w.write("new ");
             w.write(n.name().toString());
@@ -1471,12 +1479,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             
             w.write(";"); w.newline();
             
-            // WIP XTENLANG-3063
-            if (supportConstructorWithThrows) {
-            // invoke constructor for non-virtual call directly
-            w.write(InlineHelper.makeSuperBridgeName(type.toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
-            } else
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(type.toClass().def()));
         } else {
             w.write("this");
         }
@@ -3064,7 +3067,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             w.write(".");
 
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(type.toClass().def()));
             printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
 
             return;
@@ -4110,12 +4113,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             	if (isObject) w.write(")");
             }
             w.write(".");
-            // WIP XTENLANG-3063
-            if (supportConstructorWithThrows) {
-            // invoke constructor for non-virtual call directly
-            w.write(InlineHelper.makeSuperBridgeName(ct.toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
-            } else
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(ct.toClass().def()));
             printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
             w.write(";");
             return;
