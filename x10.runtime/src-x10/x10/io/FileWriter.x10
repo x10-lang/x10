@@ -22,7 +22,9 @@ public class FileWriter extends OutputStreamWriter {
     @NativeRep("java", "x10.core.io.FileOutputStream", null, "x10.core.io.FileOutputStream.$RTT")
     @NativeRep("c++", "x10aux::ref<x10::io::FileWriter__FileOutputStream>", "x10::io::FileWriter__FileOutputStream", null)
     protected final static class FileOutputStream extends OutputStream {
-        @Native("java", "new x10.core.io.FileOutputStream((java.lang.System[]) null).$init(#path, #append)")
+    	// XTENLANG-3063
+    	// @Native("java", "new x10.core.io.FileOutputStream((java.lang.System[]) null).$init(#path, #append)")
+        @Native("java", "new x10.core.io.FileOutputStream((java.lang.System[]) null).x10$io$FileReader$FileOutputStream$$init$S(#path, #append)")
         public native def this(path: String, append: Boolean); // throws IOException;
     }
 
