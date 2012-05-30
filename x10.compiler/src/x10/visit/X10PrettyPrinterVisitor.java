@@ -928,7 +928,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             w.write(") { ");
             w.newline();
-            if (!(superClassNode != null && (Emitter.isNativeRepedToJava(superClassNode.type()) || superClassNode.type().toClass().isJavaType()))) {
+            if (!flags.isStruct()/*call default constructor instead of "constructor just for allocation" for x10.core.Struct*/ &&
+                !(superClassNode != null && (Emitter.isNativeRepedToJava(superClassNode.type()) || superClassNode.type().toClass().isJavaType()))) {
                 w.write("super($dummy");
                 if (def.superType() != null) {
                     printArgumentsForTypeParamsPreComma(def.superType().get().toClass().typeArguments(), false);

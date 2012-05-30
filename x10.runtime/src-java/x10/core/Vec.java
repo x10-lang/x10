@@ -58,7 +58,8 @@ public final class Vec<T> extends x10.core.Struct {
     
     // constructor just for allocation
     public Vec(java.lang.System[] $dummy) {
-        super($dummy);
+        // call default constructor instead of "constructor just for allocation" for x10.core.Struct
+//        super($dummy);
     }
 
     public Vec<T> $init(final Type<T> T, final int s) {

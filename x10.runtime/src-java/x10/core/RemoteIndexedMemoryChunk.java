@@ -43,7 +43,8 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
     
     // constructor just for allocation
     public RemoteIndexedMemoryChunk(java.lang.System[] $dummy) {
-        super($dummy);
+        // call default constructor instead of "constructor just for allocation" for x10.core.Struct
+//        super($dummy);
     }
 
     public RemoteIndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {

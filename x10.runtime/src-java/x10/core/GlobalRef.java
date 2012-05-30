@@ -441,7 +441,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     
     // constructor just for allocation
     public GlobalRef(java.lang.System[] $dummy) {
-        super($dummy);
+        // call default constructor instead of "constructor just for allocation" for x10.core.Struct
+//        super($dummy);
         GlobalGCDebug(3, "GlobalRef.<init>($dummy) called");
     }
 
