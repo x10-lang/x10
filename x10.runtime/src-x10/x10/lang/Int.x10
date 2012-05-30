@@ -271,14 +271,31 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
     public native static operator (x:Double) as Int;
 
     /**
-     * Coerce a given UInt to an Int.
+     * Coerce a given UByte to an Int.
+     * @param x the given UByte
+     * @return the given UByte converted to an Int.
+     */
+    @Native("java", "((int)#x)")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:UByte): Int;
+
+    /**
+     * Coerce a given UShort to an Int.
+     * @param x the given UShort
+     * @return the given UShort converted to an Int.
+     */
+    @Native("java", "((int)#x)")
+    @Native("c++",  "((x10_int) (#1))")
+    public native static operator (x:UShort): Int;
+
+    /**
+     * Convert a given UInt to an Int.
      * @param x the given UInt
      * @return the given UInt converted to an Int.
      */
     @Native("java", "((int)#x)")
     @Native("c++",  "((x10_int) (#1))")
     public native static operator (x:UInt) as Int;
-
 
     /**
      * A constant holding the minimum value an Int can have, -2<sup>31</sup>.
