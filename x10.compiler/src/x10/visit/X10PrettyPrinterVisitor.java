@@ -216,9 +216,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // XTENLANG-2871
     public static final boolean supportJavaThrowables = true;
     public static final boolean useRethrowBlock = true;
-    // WIP XTENLANG-3063
-    public static final boolean supportConstructorWithThrows = supportConstructorInlining && false;  // TODO to be removed
-//    public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;  // TODO to be removed
+    // XTENLANG-3063
+    public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -248,7 +247,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String GETPARAM_NAME = "$getParam";
     public static final String INITPARAMS_NAME = "$initParams";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
-    public static final String CONSTRUCTOR_METHOD_NAME(ClassDef cd) {
+    public static String CONSTRUCTOR_METHOD_NAME(ClassDef cd) {
         if (supportConstructorWithThrows) {
             // call super bridge rather than $init for potential override of $init by $init with throws clause
             return (InlineHelper.makeSuperBridgeName(cd, Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
