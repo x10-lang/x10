@@ -75,30 +75,32 @@ final public class String extends x10.core.Ref implements
     public boolean $ge$Z(java.lang.Object a1, Type t1) { return $ge$O((java.lang.String) a1); }
 
 
-    public java.lang.String $value;
+    /*final*/ java.lang.String $value;
 
-    public String(java.lang.String value) {
+    private String(java.lang.String value) {
         $value = value;
     }
 
     // constructor just for allocation
-    public String(java.lang.System[] $dummy) {
+    private String(java.lang.System[] $dummy) {
         super($dummy);
     }
 
-    public String $init(java.lang.String value) {
-        $value = value;
-        return this;
-    }
+    // not used
+//    public String $init(java.lang.String value) {
+//        $value = value;
+//        return this;
+//    }
     
     public String() {
         $value = "";
     }
 
-    public String $init() {
-        $value = "";
-        return this;
-    }
+    // not used
+//    public String $init() {
+//        $value = "";
+//        return this;
+//    }
     
     public static String $box(java.lang.String value) {
         return value == null ? null : new String(value);
