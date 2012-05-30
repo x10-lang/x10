@@ -24,6 +24,7 @@ import polyglot.ast.LocalDecl_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.NullLit;
 import polyglot.ast.NullLit_c;
 import polyglot.ast.Return_c;
 import polyglot.frontend.Job;
@@ -250,33 +251,42 @@ public class CastInjector extends ContextVisitor {
     }
     
     private Expr upcastToFunctionType(Expr e, FunctionType castFType, boolean allowImplicitCasts) {
+        boolean exactMatch = false;
         FunctionType exprFType = null;
-        List<FunctionType> cands = Types.functionTypes(e.type());
-        for (FunctionType ft : cands) {
-            if (ft.argumentTypes().size() == castFType.argumentTypes().size()) {
-                exprFType = ft;
-                break;
-            }
-        }
-        if (exprFType == null) {
-            throw new InternalCompilerError("Can't find valid function type on upcast of "+e.type()+"to "+castFType);
-        }
 
-        boolean exactMatch = ts.typeDeepBaseEquals(exprFType.returnType(), castFType.returnType(), context);
-        if (exactMatch) {
-            for (int i=0; i<exprFType.argumentTypes().size(); i++) {
-                Type ea = exprFType.argumentTypes().get(i);
-                Type ca = castFType.argumentTypes().get(i);
-                if (!ts.typeDeepBaseEquals(ea, ca, context)) {
-                    exactMatch = false;
+        if (e instanceof NullLit) {
+            // can force exactMatch to be true because a NPE will be raised at runtime
+            // if the function is actually applied. Therefore we don't need to worry about
+            // a mismatch between expected and actual argument types.
+            exactMatch = true;
+        } else {
+            List<FunctionType> cands = Types.functionTypes(e.type());
+            for (FunctionType ft : cands) {
+                if (ft.argumentTypes().size() == castFType.argumentTypes().size()) {
+                    exprFType = ft;
                     break;
+                }
+            }
+            if (exprFType == null) {
+                throw new InternalCompilerError("Can't find valid function type on upcast of "+e.type()+"to "+castFType);
+            }
+
+            exactMatch = ts.typeDeepBaseEquals(exprFType.returnType(), castFType.returnType(), context);
+            if (exactMatch) {
+                for (int i=0; i<exprFType.argumentTypes().size(); i++) {
+                    Type ea = exprFType.argumentTypes().get(i);
+                    Type ca = castFType.argumentTypes().get(i);
+                    if (!ts.typeDeepBaseEquals(ea, ca, context)) {
+                        exactMatch = false;
+                        break;
+                    }
                 }
             }
         }
         
         if (exactMatch) {
             if (e instanceof Closure_c) {
-                // C++ code generated for the allocation of a closuure literal 
+                // C++ code generated for the allocation of a closure literal 
                 // already does an upcast to the appropriate function type        
                 return e;
             }
