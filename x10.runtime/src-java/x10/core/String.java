@@ -19,6 +19,7 @@ import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
+import java.util.WeakHashMap;
 
 final public class String extends x10.core.Ref implements
     x10.core.fun.Fun_0_1<x10.core.Int, x10.core.Char>,
@@ -92,9 +93,10 @@ final public class String extends x10.core.Ref implements
 //        return this;
 //    }
     
-    public String() {
-        $value = "";
-    }
+    // not used
+//    public String() {
+//        $value = "";
+//    }
 
     // not used
 //    public String $init() {
@@ -102,8 +104,27 @@ final public class String extends x10.core.Ref implements
 //        return this;
 //    }
     
+    private static final boolean useCache = true;
+    private static final WeakHashMap<java.lang.String,String> cache = new WeakHashMap<java.lang.String,String>();
+    private static String make(java.lang.String value) {
+        assert value != null;
+        if (useCache) {
+            String str;
+            synchronized (cache) {
+                str = cache.get(value);
+                if (str == null) {
+                    str = new String(value);
+                    cache.put(value,str);
+                }
+            }
+            return str;
+        } else {
+            return new String(value);
+        }
+    }
+
     public static String $box(java.lang.String value) {
-        return value == null ? null : new String(value);
+        return value == null ? null : make(value);
     }
     
     public static java.lang.String $unbox(String obj) {
