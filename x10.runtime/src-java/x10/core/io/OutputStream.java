@@ -19,7 +19,7 @@ import x10.rtt.Types;
 
 public class OutputStream extends Ref {
   
-	private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     // XTENLANG-2680
     /*private*/public java.io.OutputStream stream;
@@ -29,13 +29,22 @@ public class OutputStream extends Ref {
         super($dummy);
     }
 
-    public OutputStream $init(java.io.OutputStream stream) {
+    public final OutputStream x10$io$OutputStreamWriter$OutputStream$$init$S(java.io.OutputStream stream) {
         this.stream = stream;
         return this;
     }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public OutputStream $init(java.io.OutputStream stream) {
+        return x10$io$OutputStreamWriter$OutputStream$$init$S(stream);
+    }
     
+    // creation method for java code (1-phase java constructor)
     public OutputStream(java.io.OutputStream stream) {
-        this.stream = stream;
+        this((java.lang.System[]) null);
+        // XTENLANG-3063
+//        $init(stream);
+        x10$io$OutputStreamWriter$OutputStream$$init$S(stream);
     }
     
     public void close() {
@@ -166,10 +175,18 @@ public class OutputStream extends Ref {
             super($dummy);
         }
 
-        public void $init(x10.io.Writer w) {
+        public final WriterOutputStream x10$io$OutputStreamWriter$OutputStream$WriterOutputStream$$init$S(x10.io.Writer w) {
             // NOTE: since the backing stream is not set, all APIs of OutputStream must be overridden.
-            super.$init((java.io.OutputStream)null);
+            // XTENLANG-3063
+//            super.$init((java.io.OutputStream)null);
+            super.x10$io$OutputStreamWriter$OutputStream$$init$S((java.io.OutputStream)null);
             this.w = w;
+            return this;
+        }
+        // XTENLANG-3063
+        // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+        public WriterOutputStream $init(x10.io.Writer w) {
+            return x10$io$OutputStreamWriter$OutputStream$WriterOutputStream$$init$S(w);
         }
         
         public WriterOutputStream(x10.io.Writer w) {

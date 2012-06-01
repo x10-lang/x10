@@ -32,16 +32,24 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
         super();
     }
     
-    public AtomicLong $init() {return this;}
+    public final AtomicLong x10$util$concurrent$AtomicLong$$init$S() {return this;}
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public AtomicLong $init() {return x10$util$concurrent$AtomicLong$$init$S();}
 
     public AtomicLong() {
         super();
     }
     
-    public AtomicLong $init(long initialValue) {
+    public final AtomicLong x10$util$concurrent$AtomicLong$$init$S(long initialValue) {
         // TODO
         set(initialValue);
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public AtomicLong $init(long initialValue) {
+        return x10$util$concurrent$AtomicLong$$init$S(initialValue);
     }
     
     public AtomicLong(long initialValue) {

@@ -28,13 +28,22 @@ public class InputStream extends Ref {
         super($dummy);
     }
     
-    public InputStream $init(java.io.InputStream stream) {
+    public final InputStream x10$io$InputStreamReader$InputStream$$init$S(java.io.InputStream stream) {
         this.stream = stream;
         return this;
     }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public InputStream $init(java.io.InputStream stream) {
+        return x10$io$InputStreamReader$InputStream$$init$S(stream);
+    }
     
+    // creation method for java code (1-phase java constructor)
     public InputStream(java.io.InputStream stream) {
-        this.stream = stream;
+        this((java.lang.System[]) null);
+        // XTENLANG-3063
+//        $init(stream);
+        x10$io$InputStreamReader$InputStream$$init$S(stream);
     }
     
     public void close() {

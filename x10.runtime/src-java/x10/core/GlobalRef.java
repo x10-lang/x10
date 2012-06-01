@@ -454,7 +454,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         obj = null;
     }
 
-    public GlobalRef<T> $init() {
+    public final GlobalRef<T> x10$lang$GlobalRef$$init$S() {
         GlobalGCDebug(3, "GlobalRef.$init() called");
         T = null;
         home = null;
@@ -462,13 +462,23 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         obj = null;
         return this;
     }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public GlobalRef<T> $init() {
+        return x10$lang$GlobalRef$$init$S();
+    }
 
-    public GlobalRef<T> $init(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
+    public final GlobalRef<T> x10$lang$GlobalRef$$init$S(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
         GlobalGCDebug(3, "GlobalRef.$init(T=" + T + ", obj=" + obj + ", $dummy) called, isMortal=" + (obj instanceof Mortal));
         this.T = T;
         this.home = x10.lang.Runtime.home();
         this.obj = obj;
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public GlobalRef<T> $init(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
+        return x10$lang$GlobalRef$$init$S(T, obj, $dummy);
     }
 
     public GlobalRef(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
@@ -685,9 +695,22 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     
 	// constructor just for allocation
 	public LocalEval(final java.lang.System[] $dummy) { super($dummy);}
-	public LocalEval $init() {return this;}
-	// creation method for java code
-	public static LocalEval $make(){return new LocalEval((java.lang.System[])null).$init();}
+	
+        public final LocalEval x10$lang$GlobalRef$LocalEval$$init$S() {return this;}
+        // XTENLANG-3063
+        // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+	public LocalEval $init() {return x10$lang$GlobalRef$LocalEval$$init$S();}
+	
+	// creation method for java code (1-phase java constructor)
+        public LocalEval() {
+            this((java.lang.System[]) null);
+            // XTENLANG-3063
+//            $init();
+            x10$lang$GlobalRef$LocalEval$$init$S();
+        }
+        // not used
+//	// creation method for java code
+//	public static LocalEval $make(){return new LocalEval((java.lang.System[])null).$init();}
         
 
 	public static <$T, $U> $U evalAtHome(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval) {
@@ -745,10 +768,11 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
                 this.ref = ref;
                 this.eval = eval;
             }
-            // creation method for java code
-            public static <$T, $U> $Closure$Eval $make(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 $dummy){
-                return new $Closure$Eval($T, $U, ref, eval, $dummy);
-            }
+            // not used
+//            // creation method for java code
+//            public static <$T, $U> $Closure$Eval $make(Type $T, Type $U, x10.core.GlobalRef<$T> ref, x10.core.fun.Fun_0_1<$T,$U> eval, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 $dummy){
+//                return new $Closure$Eval($T, $U, ref, eval, $dummy);
+//            }
             // synthetic type for parameter mangling
             public abstract static class __0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2 {}
 
@@ -811,10 +835,11 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
                 this.$T = $T;
                 this.ref = ref;
             }
-            // creation method for java code
-            public static <$T> $Closure$Apply $make(Type $T, x10.core.GlobalRef<$T> ref, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 $dummy) {
-                return new $Closure$Apply($T, ref, $dummy);
-            }
+            // not used
+//            // creation method for java code
+//            public static <$T> $Closure$Apply $make(Type $T, x10.core.GlobalRef<$T> ref, __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 $dummy) {
+//                return new $Closure$Apply($T, ref, $dummy);
+//            }
 	    // synthetic type for parameter mangling
 	    public abstract static class __0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2 {}
 	

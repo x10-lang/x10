@@ -56,7 +56,7 @@ public class LocalVar<T> extends x10.core.Ref {
         super($dummy);
     }
 
-    public LocalVar<T> $init(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
+    public final LocalVar<T> x10$compiler$LocalVar$$init$S(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
         // XTENLANG-3063
 //        super.$init();
         super.x10$lang$Object$$init$S();
@@ -69,6 +69,12 @@ public class LocalVar<T> extends x10.core.Ref {
         idToObject.put(id, local == null ? nullObject : local);
         return this;
     }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public LocalVar<T> $init(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
+        return x10$compiler$LocalVar$$init$S(T, local, $dummy);
+    }
+
     public LocalVar(final Type<?> T, final T local, __0x10$compiler$LocalVar$$T $dummy) {
         super();
         this.T = T;

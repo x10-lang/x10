@@ -33,9 +33,14 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
         super();
     }
 	
-    public AtomicReference $init(Type<T> T) {
+    public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(Type<T> T) {
         this.T = T;
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public AtomicReference $init(Type<T> T) {
+        return x10$util$concurrent$AtomicReference$$init$S(T);
     }
 	
     public AtomicReference(Type<T> T) {
@@ -43,11 +48,16 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
         this.T = T;
     }
 
-    public AtomicReference $init(Type<T> T, T initialValue) {
+    public final AtomicReference x10$util$concurrent$AtomicReference$$init$S(Type<T> T, T initialValue) {
         // TODO
         set(initialValue);
         this.T = T;
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public AtomicReference $init(Type<T> T, T initialValue) {
+        return x10$util$concurrent$AtomicReference$$init$S(T, initialValue);
     }
     
     public AtomicReference(Type<T> T, T initialValue) {

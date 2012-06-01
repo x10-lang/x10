@@ -27,7 +27,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.ObjectOutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -45,15 +44,16 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
     private String[] args;
 
-    // constructor just for allocation
-    public Runtime(java.lang.System[] $dummy) {
-        // TODO
-        // super($dummy);
-    }
-
-    public Runtime $init() {
-        return this;
-    }
+    // not used
+//    // constructor just for allocation
+//    public Runtime(java.lang.System[] $dummy) {
+//        // TODO
+//        // super($dummy);
+//    }
+//
+//    public Runtime $init() {
+//        return this;
+//    }
 
     public Runtime() {}
 
@@ -193,10 +193,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 //        final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).$init(args.length);
         final x10.array.Array<String> aargs = new x10.array.Array<String>((java.lang.System[]) null, Types.STRING).x10$array$Array$$init$S(args.length);
         for (int i = 0; i < args.length; i++) {
-            // for !Emitter.mangleDefaultOnDemandImportsAsShortName
             aargs.$set__1x10$array$Array$$T$G(i, args[i]);
-//            // for Emitter.mangleDefaultOnDemandImportsAsShortName
-//            aargs.$set__1$Array$$T$G(i, args[i]);
         }
 
         // execute root x10 activity

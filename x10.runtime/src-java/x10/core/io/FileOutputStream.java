@@ -26,7 +26,9 @@ public class FileOutputStream extends OutputStream {
 
     public final FileOutputStream x10$io$FileReader$FileOutputStream$$init$S(String name, boolean append) {
         try {
-            super.$init(new java.io.FileOutputStream(name, append));
+            // XTENLANG-3063
+//            super.$init(new java.io.FileOutputStream(name, append));
+            super.x10$io$OutputStreamWriter$OutputStream$$init$S(new java.io.FileOutputStream(name, append));
             return this;
         } catch (java.io.FileNotFoundException e) {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
@@ -46,7 +48,9 @@ public class FileOutputStream extends OutputStream {
     // creation method for java code (1-phase java constructor)
     public FileOutputStream(String name, boolean append) {
         this((java.lang.System[]) null);
-        $init(name, append);
+        // XTENLANG-3063
+//        $init(name, append);
+        x10$io$FileReader$FileOutputStream$$init$S(name, append);
     }
 
 
