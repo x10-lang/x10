@@ -218,6 +218,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean useRethrowBlock = true;
     // XTENLANG-3063
     public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;
+    // XTENLANG-3058
+    public static final boolean supportTypeConstraintsWithErasure = true;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -4306,6 +4308,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         tr.print(n, n.flags(), w);
         if (printType) {
+            if (supportTypeConstraintsWithErasure) {
+                er.printType(n.type().type(), 0);
+            } else
             tr.print(n, n.type(), w);
             w.write(" ");
         }

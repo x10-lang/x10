@@ -1207,7 +1207,7 @@ public class Emitter {
         if (isDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         } else {
-            printType(n.returnType().type(), PRINT_TYPE_PARAMS);
+            printType(n.returnType().type(), X10PrettyPrinterVisitor.supportTypeConstraintsWithErasure ? 0 : PRINT_TYPE_PARAMS);
         }
         
         w.allowBreak(2, 2, " ", 1);
@@ -1366,7 +1366,7 @@ public class Emitter {
 //            if (isDispatcher) {
 //                w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 //            } else {
-                printType(n.returnType().type(), PRINT_TYPE_PARAMS);
+                printType(n.returnType().type(), X10PrettyPrinterVisitor.supportTypeConstraintsWithErasure ? 0 : PRINT_TYPE_PARAMS);
                 // XTENLANG-2993
 //            }
 
@@ -2928,7 +2928,7 @@ public class Emitter {
         if (!isSpecialTypeForDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         } else {
-            printType(returnTypeForDispatcher, PRINT_TYPE_PARAMS);
+            printType(returnTypeForDispatcher, X10PrettyPrinterVisitor.supportTypeConstraintsWithErasure ? 0 : PRINT_TYPE_PARAMS);
         }
         
         w.write(" ");
