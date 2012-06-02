@@ -167,6 +167,7 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
     endif
+    override CXXFLAGS += -g
   endif
   ifdef USE_XLC
       echo "FAILURE: haven't defined XLC rules for BGQ yet!"
