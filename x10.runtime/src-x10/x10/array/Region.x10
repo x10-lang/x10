@@ -466,10 +466,17 @@ public abstract class Region(
 
     public def contains(i0:int, i1:int, i2:int, i3:int){rank==4} = contains(Point.make(i0,i1,i2,i3));
 
-    protected @Inline def this(r: int, t: boolean, z: boolean)
-        :Region{self.rank==r, self.rect==t, self.zeroBased==z} {
+    protected @Inline def this(r:int, t:boolean, z:boolean):Region{self.rank==r,self.rect==t,self.zeroBased==z} {
         val isRail = (r == 1) && t && z;
         property(r, t, z, isRail);
+    }
+
+    // The purpose of this constructor is to simplify the analysis of 
+    // the common case of the zero-based RectRegion1D constructor such that
+    // the constraint solver can properly statically determine that the 
+    // constructed RectRegion1D has all the desirable properties
+    protected @Inline def this(r:int):Region{self.rank==r,self.zeroBased,self.rect,self.rail} {
+        property(r, true, true, true);
     }
 
     /**

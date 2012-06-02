@@ -231,9 +231,7 @@ public final class Array[T] (
      */
     public @Inline def this(backingStore:IndexedMemoryChunk[T])
     {
-        // FIXME: The cast is to hack around weaknesses in the constraint solver
-        val myReg = new RectRegion1D(backingStore.length()-1) 
- 	    as RectRegion1D{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
+        val myReg = new RectRegion1D(backingStore.length()-1);
         property(myReg, 1, true, true, true, backingStore.length());
 
 	layout_min0 = layout_stride1 = layout_min1 = 0;
@@ -247,9 +245,7 @@ public final class Array[T] (
      */
     public @Inline def this(size:int) {T haszero}
     {
-        // FIXME: The cast is to hack around weaknesses in the constraint solver
-        val myReg = new RectRegion1D(size-1) 
-             as RectRegion1D{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
+        val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
 
 	layout_min0 = layout_stride1 = layout_min1 = 0;
@@ -276,9 +272,7 @@ public final class Array[T] (
      */    
     public @Inline def this(size:int, init:(int)=>T)
     {
-        // FIXME: The cast is to hack around weaknesses in the constraint solver
-        val myReg = new RectRegion1D(size-1) 
-            as RectRegion1D{self.zeroBased, self.rail,self.rank==1,self.rect, self!=null};
+        val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
         
 	layout_min0 = layout_stride1 = layout_min1 = 0;
@@ -300,9 +294,7 @@ public final class Array[T] (
      */    
     public @Inline def this(size:int, init:T)
     {
-        // FIXME: The cast is to hack around weaknesses in the constraint solver
-        val myReg = new RectRegion1D(size-1)
-           as RectRegion1D{self.rank==1,self.zeroBased,self.rect,self.rail,self!=null};
+        val myReg = new RectRegion1D(size-1);
         property(myReg, 1, true, true, true, size);
         
 	layout_min0 = layout_stride1 = layout_min1 = 0;
