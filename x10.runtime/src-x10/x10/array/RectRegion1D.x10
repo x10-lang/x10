@@ -40,6 +40,22 @@ final class RectRegion1D extends Region{rect,rank==1} {
         max = maxArg;
     }
 
+    /**
+     * Create a 1-dim region 0..max.
+     */
+    def this(maxArg:int) {
+        super(1, true, true);
+
+        val s = (maxArg as long) +1L;
+        if (s > Int.MAX_VALUE as Long) {
+            size = -1; // encode overflow
+        } else {
+            size = s as Int;
+        }
+        min = 0;
+        max = maxArg;
+    }
+
     public def size():int {
       if (size < 0) throw new UnboundedRegionException("size exceeds capacity of int");
       return size;
