@@ -23,7 +23,7 @@
 #include <assert.h>
 
 // platform-specific min chunk alignment
-#if defined(_POWER) || defined(__bgp__)
+#if defined(_POWER) || defined(__bgp__) || defined(__bgq__)
 #define X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT 16
 #else
 #define X10_MIN_INDEXEDMEMORYCHUNK_ALIGNMENT ((x10_int)sizeof(x10_double))
