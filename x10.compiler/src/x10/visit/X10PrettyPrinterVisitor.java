@@ -4092,8 +4092,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (isObject || Emitter.isNativeRepedToJava(ct) || Emitter.isNativeClassToJava(ct)) {
                         return;
                     }
-                    w.write("super");
+                    // XTENLANG-3063
+                    // constructors (i.e. $init) are renamed so that they won't be overridden.
+                    if (supportConstructorWithThrows) {
+                        w.write("/*super.*/");
+                    } else
+                    w.write("super.");
                 } else {
+                    // XTENLANG-3063
+                    // constructors (i.e. $init) are renamed so that they won't be overridden.
+                    if (supportConstructorWithThrows) {
+                        w.write("/*this.*/");
+                    } else
                     w.write("this");
                 }
             } else {
@@ -4111,8 +4121,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);
             	if (isObject) w.write(")");
+                w.write(".");
             }
-            w.write(".");
             w.write(CONSTRUCTOR_METHOD_NAME(ct.toClass().def()));
             printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
             w.write(";");

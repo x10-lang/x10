@@ -23,6 +23,9 @@ public class JavaException3b extends x10Test {
 		def this():Sub @Throws[java.lang.Throwable] {
 			throw new java.lang.Throwable("I like Java.");          
 		}
+		def this(a:Int):Sub @Throws[java.lang.Throwable] {
+			this();
+		}
 	}
 	
     public def run(): Boolean {
