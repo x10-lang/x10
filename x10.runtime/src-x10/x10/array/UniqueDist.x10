@@ -116,7 +116,7 @@ final class UniqueDist extends Dist/*(1)*/ {
     public def maxOffset():int = 0;
 
     public def restriction(r:Region(rank)):Dist(rank) {
-	return new WrappedDistRegionRestricted(this, r);// as Dist(rank); // TODO: cast should not be needed
+	return new WrappedDistRegionRestricted(this, r);
     }
 
     public def restriction(p:Place):Dist(rank) {

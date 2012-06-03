@@ -82,8 +82,9 @@ public abstract class Region(
         val r = new PolyRow(normal, k);
         pmb.add(r);
         val pm = pmb.toSortedPolyMat(false);
-        return PolyRegion.make(pm);// as Region(normal.rank); // XXXX Why is this cast here?
+        return PolyRegion.make(pm);
     }
+
     //
     // rectangular factories
     //
@@ -157,7 +158,7 @@ public abstract class Region(
             r = r.product(regions(i));
         // To remove this cast, constraint solver needs to know that performing
         // +1 N times is the same as adding +N.
-    return r as Region(regions.size){self.rect};
+        return r as Region(regions.size){self.rect};
     }
 
 
