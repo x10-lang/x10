@@ -93,7 +93,7 @@ public class File {
         @Native("c++", "false")
         native def delete(): Boolean;
         @Native("java", "#this.listInternal()")
-        @Native("c++", "false")
+        @Native("c++", "null")
         native def list(): Rail[String];
         @Native("java", "#this.mkdir()")
         @Native("c++", "false")
