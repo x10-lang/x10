@@ -156,7 +156,7 @@ FileSystem operations
     = new FileReader(this);
     public def openWrite() = openWrite(false);
     public def openWrite(append:Boolean):FileWriter //throws IOException 
-    = new FileWriter(this, true);
+    = new FileWriter(this, append);
     public def printer() = printer(false);
     public def printer(append:Boolean):Printer //throws IOException 
     = new Printer(openWrite(append));
