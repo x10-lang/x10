@@ -87,6 +87,15 @@ public class File {
         @Native("java", "#this.setLastModified(#v)")
         @Native("c++", "(#this)->setLastModified(#v)")
         native def setLastModified(v:Long): Boolean;
+
+        @Native("java", "#this.mkdir()")
+        // TODO to be implemented
+        @Native("c++", "false")
+        native def mkdir(): Boolean;
+        @Native("java", "#this.mkdirs()")
+        // TODO to be implemented
+        @Native("c++", "false")
+        native def mkdirs(): Boolean;
     }
 
 /*
@@ -197,4 +206,7 @@ FileSystem operations
 
     public def canRead(): Boolean = nativeFile().canRead();
     public def canWrite(): Boolean = nativeFile().canWrite();
+
+    public def mkdir(): Boolean = nativeFile().mkdir();
+    public def mkdirs(): Boolean = nativeFile().mkdirs();
 }
