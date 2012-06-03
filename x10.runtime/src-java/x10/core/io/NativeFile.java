@@ -20,7 +20,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public class NativeFile extends java.io.File implements RefI {
+public final class NativeFile extends java.io.File implements RefI {
 
 	private static final long serialVersionUID = 1L;
 
@@ -38,6 +38,10 @@ public class NativeFile extends java.io.File implements RefI {
         } catch (java.io.IOException e) {
             throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
+    }
+
+    public x10.array.Array listInternal() {
+        return x10.core.ArrayFactory.makeArrayFromJavaArray(Types.STRING, list());
     }
 
     // Following workaround is no longer required.

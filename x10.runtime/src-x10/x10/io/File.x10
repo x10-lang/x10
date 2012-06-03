@@ -88,30 +88,33 @@ public class File {
         @Native("c++", "(#this)->setLastModified(#v)")
         native def setLastModified(v:Long): Boolean;
 
+        // TODO currently Java backend only
+        @Native("java", "#this.delete()")
+        @Native("c++", "false")
+        native def delete(): Boolean;
+        @Native("java", "#this.listInternal()")
+        @Native("c++", "false")
+        native def list(): Rail[String];
         @Native("java", "#this.mkdir()")
-        // TODO to be implemented
         @Native("c++", "false")
         native def mkdir(): Boolean;
         @Native("java", "#this.mkdirs()")
-        // TODO to be implemented
         @Native("c++", "false")
         native def mkdirs(): Boolean;
+        @Native("java", "#this.renameTo(#dest)")
+        @Native("c++", "false")
+        native def renameTo(dest:NativeFile): Boolean;
     }
 
 /*
 FileSystem operations
 
     public boolean createNewFile()       throws java.io.IOException;
-    public boolean delete();
     public void deleteOnExit();
-    public java.lang.String[] list();
     public java.lang.String[] list(java.io.FilenameFilter);
     public java.io.File[] listFiles();
     public java.io.File[] listFiles(java.io.FilenameFilter);
     public java.io.File[] listFiles(java.io.FileFilter);
-    public boolean mkdir();
-    public boolean mkdirs();
-    public boolean renameTo(java.io.File);
     public boolean setReadOnly();
     public static java.io.File[] listRoots();
     public static java.io.File createTempFile(java.lang.String, java.lang.String, java.io.File)       throws java.io.IOException;
@@ -207,6 +210,9 @@ FileSystem operations
     public def canRead(): Boolean = nativeFile().canRead();
     public def canWrite(): Boolean = nativeFile().canWrite();
 
+    public def delete(): Boolean = nativeFile().delete();
+    public def list(): Rail[String] = nativeFile().list();
     public def mkdir(): Boolean = nativeFile().mkdir();
     public def mkdirs(): Boolean = nativeFile().mkdirs();
+    public def renameTo(dest:File): Boolean = nativeFile().renameTo(dest.nativeFile());
 }
