@@ -123,11 +123,11 @@ final class ConstantDist(onePlace:Place) extends Dist {
     }
     
     public def restriction(r:Region(rank)):Dist(rank) {
-        return new WrappedDistRegionRestricted(this, r) as Dist(rank); // TODO: cast should not be needed
+        return new WrappedDistRegionRestricted(this, r);
     }
     
     public def restriction(p:Place):Dist(rank) {
-        return new WrappedDistPlaceRestricted(this, p) as Dist(rank); // TODO: cast should not be needed
+        return new WrappedDistPlaceRestricted(this, p);
     }
     
     public def equals(thatObj:Any):boolean {
