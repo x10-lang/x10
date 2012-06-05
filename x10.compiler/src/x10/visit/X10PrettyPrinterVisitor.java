@@ -930,8 +930,75 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             w.write(") { ");
             w.newline();
-            if (!flags.isStruct()/*call default constructor instead of "constructor just for allocation" for x10.core.Struct*/ &&
-                !(superClassNode != null && (Emitter.isNativeRepedToJava(superClassNode.type()) || superClassNode.type().toClass().isJavaType()))) {
+            // call super constructor
+            if (flags.isStruct()
+                || (superClassNode != null && Emitter.isNativeRepedToJava(superClassNode.type()))
+                ) {
+                // call default constructor instead of "constructor just for allocation"
+            }
+            else if (superClassNode != null && superClassNode.type().toClass().isJavaType()) {
+                boolean hasDefaultConstructor = false;
+                ConstructorDef ctorWithFewestParams = null;
+                for (ConstructorDef ctor : superClassNode.type().toClass().def().constructors()) {
+                    List<Ref<? extends Type>> formalTypes = ctor.formalTypes();
+                    if (formalTypes.size() == 0) {
+                        hasDefaultConstructor = true;
+                        break;
+                    }
+                    if (ctorWithFewestParams == null || ctor.formalTypes().size() < ctorWithFewestParams.formalTypes().size()) {
+                        ctorWithFewestParams = ctor;
+                    }
+                }
+                if (hasDefaultConstructor) {
+                    // call default constructor instead of "constructor just for allocation"
+                } else {
+                    // XTENLANG-3070
+                    // If super class does not have default constructor, call the constructor with the fewest parameters
+                    // with all the parameters null or zero.
+                    // FIXME This fixes post-compilation error but it may still cause runtime error.
+                    assert ctorWithFewestParams != null;
+                    w.write("super(");
+                    Iterator<Ref<? extends Type>> iter = ctorWithFewestParams.formalTypes().iterator();
+                    while (iter.hasNext()) {
+                        Type formalType = iter.next().get();
+                        if (formalType.isReference()) {
+                            w.write("(");
+                            er.printType(formalType, 0);
+                            w.write(") null");
+                        }
+                        else if (formalType.isByte() || formalType.isShort()) {
+                            w.write("(");
+                            er.printType(formalType, 0);
+                            w.write(") 0");
+                        }
+                        else if (formalType.isInt()) {
+                            w.write("0");
+                        }
+                        else if (formalType.isLong()) {
+                            w.write("0L");
+                        }
+                        else if (formalType.isFloat()) {
+                            w.write("0.0F");
+                        }
+                        else if (formalType.isDouble()) {
+                            w.write("0.0");
+                        }
+                        else if (formalType.isChar()) {
+                            w.write("'\\0'");
+                        }
+                        else if (formalType.isBoolean()) {
+                            w.write("false");
+                        }
+                        if (iter.hasNext()) {
+                            w.write(",");
+                        }
+                    }
+                    w.write(");");
+                    w.newline();
+                }
+            }
+            else {
+                // call "constructor just for allocation"
                 w.write("super($dummy");
                 if (def.superType() != null) {
                     printArgumentsForTypeParamsPreComma(def.superType().get().toClass().typeArguments(), false);
