@@ -15,7 +15,7 @@
 #if defined(DEBUG_SUPPORT)
 // Hook to trigger loading of FD2 component of debugger.
 
-#if defined (__linux__) && !defined(__bgp__) 
+#if defined (__linux__) && !defined(__bgp__) && !defined(__bgq__)
 class FDFDLoader {
 public:
     FDFDLoader();
@@ -40,7 +40,7 @@ FDFDLoader::FDFDLoader() {
     }
 }
 
-#endif // __linux__ && !__bgp__
+#endif // __linux__ && !__bgp__ && !__bgq__
 
 #endif // DEBUG_SUPPORT
 

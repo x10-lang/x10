@@ -267,7 +267,7 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
     public native static operator (x:Double) as Short;
 
     /**
-     * Coerce a given UShort to a Short.
+     * Convert a given UShort to a Short.
      * @param x the given UShort
      * @return the given UShort converted to a Short.
      */
@@ -275,6 +275,14 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
     @Native("c++",  "((x10_short) (#1))")
     public native static operator (x:UShort) as Short;
 
+    /**
+     * Coerce a given UByte to a Short.
+     * @param x the given UByte
+     * @return the given UByte converted to a Short.
+     */
+    @Native("java", "((short)(#x))")
+    @Native("c++",  "((x10_short) (#1))")
+    public native static operator (x:UByte): Short;
 
     /**
      * A constant holding the minimum value a Short can have, -2<sup>15</sup>.

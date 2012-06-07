@@ -27,7 +27,7 @@ final class RectRegion1D extends Region{rect,rank==1} {
     /**
      * Create a 1-dim region min..max.
      */
-    def this(minArg:int, maxArg:int) {
+    def this(minArg:int, maxArg:int):RectRegion1D{self.rank==1, self.rect} {
         super(1, true, minArg==0);
 
         val s = (maxArg as long) - (minArg as long) +1L;
@@ -37,6 +37,25 @@ final class RectRegion1D extends Region{rect,rank==1} {
             size = s as Int;
         }
         min = minArg;
+        max = maxArg;
+    }
+
+    /**
+     * Create a 1-dim region 0..max.
+     * Separate constructor so the constraint solver can correctly determine
+     * statically that the zeroBased and rail properties are true for all regions
+     * made via this constructor.
+     */
+    def this(maxArg:int):RectRegion1D{self.rank==1, self.rect, self.rail, self.zeroBased} {
+        super(1);
+
+        val s = (maxArg as long) +1L;
+        if (s > Int.MAX_VALUE as Long) {
+            size = -1; // encode overflow
+        } else {
+            size = s as Int;
+        }
+        min = 0;
         max = maxArg;
     }
 

@@ -20,11 +20,14 @@ public abstract class Struct implements StructI {
 
     private static final long serialVersionUID = 1L;
 
-    // constructor just for allocation
-    public Struct(java.lang.System[] $dummy) {}
+    // not used
+//    // constructor just for allocation
+//    public Struct(java.lang.System[] $dummy) {}
 	
-    public Struct $init() {return this;}
-	
+    // not used
+//    public Struct $init() {return this;}
+
+    // N.B. this is called implicitly by all subclasses of Struct	
     public Struct() {}
 
     // default implementation

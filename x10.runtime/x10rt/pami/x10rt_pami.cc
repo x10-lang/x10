@@ -167,7 +167,7 @@ pami_result_t x10rt_PAMI_Context_advance(pami_context_t context, size_t maximum)
   // PAMI_Context_advance seems to always return PAMI_SUCCESS
   // So convert SUCCESS to EAGAIN and rely on higher-level looping to drain the network
   pami_result_t tmp = PAMI_Context_advance(context, maximum == 1 ? 100 : maximum);
-  return (tmp == PAMI_SUCCESS) ? PAMI_EAGAIN : PAMI_SUCCESS;
+  return (tmp == PAMI_SUCCESS) ? PAMI_EAGAIN : tmp;
 #else
   return PAMI_Context_advance(context, maximum);
 #endif
@@ -910,8 +910,9 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
-	if (nthreads && checkBoolEnvVar(value) && state.numParallelContexts == atoi(nthreads))
+	if (nthreads && checkBoolEnvVar(value) && state.numParallelContexts >= atoi(nthreads))
 	{
+		state.numParallelContexts = atoi(nthreads); // use specified nthreads, not possible nthreads
 		// We have as many endpoints as we have X10_NTHREADS
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");

@@ -68,6 +68,14 @@ ifdef ENABLE_X10RT_PAMI
     override X10RT_PROPS_CXXFLAGS += -DX10RT_32BIT_MSG_IDS
 endif
 
+# Impacts inline functions in header files, so it has to be sticky in the properties file
+ifdef HOMOGENEOUS
+  CXXFLAGS += -DHOMOGENEOUS
+  override X10RT_PROPS_CXXFLAGS += -DHOMOGENEOUS
+  override XRX_PROPS_CXXFLAGS += -DHOMOGENEOUS
+endif
+
+
 ifndef JAVA_HOME
   ifeq ($(shell uname -s),Darwin)
     JAVA_HOME=$(shell /usr/libexec/java_home)
@@ -159,6 +167,7 @@ ifdef ENABLE_CROSS_COMPILE_BGQ
     ifdef OPTIMIZE
       override CXXFLAGS += -O2 -finline-functions
     endif
+    override CXXFLAGS += -g
   endif
   ifdef USE_XLC
       echo "FAILURE: haven't defined XLC rules for BGQ yet!"

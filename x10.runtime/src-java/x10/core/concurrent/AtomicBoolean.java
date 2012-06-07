@@ -32,16 +32,24 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
         super();
     }
     
-    public AtomicBoolean $init() {return this;}
+    public final AtomicBoolean x10$util$concurrent$AtomicBoolean$$init$S() {return this;}
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public AtomicBoolean $init() {return x10$util$concurrent$AtomicBoolean$$init$S();}
 
     public AtomicBoolean() {
         super();
     }
     
-    public AtomicBoolean $init(boolean initialValue) {
+    public final AtomicBoolean x10$util$concurrent$AtomicBoolean$$init$S(boolean initialValue) {
         // TODO
         set(initialValue);
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public AtomicBoolean $init(boolean initialValue) {
+        return x10$util$concurrent$AtomicBoolean$$init$S(initialValue);
     }
 
     public AtomicBoolean(boolean initialValue) {

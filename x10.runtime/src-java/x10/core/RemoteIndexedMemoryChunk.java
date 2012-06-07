@@ -43,10 +43,11 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
     
     // constructor just for allocation
     public RemoteIndexedMemoryChunk(java.lang.System[] $dummy) {
-        super($dummy);
+        // call default constructor instead of "constructor just for allocation" for x10.core.Struct
+//        super($dummy);
     }
 
-    public RemoteIndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {
+    public final RemoteIndexedMemoryChunk<T> x10$util$RemoteIndexedMemoryChunk$$init$S(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.home = x10.lang.Runtime.home();
@@ -61,6 +62,11 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
             this.id = tmpId;
         }
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public RemoteIndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {
+        return x10$util$RemoteIndexedMemoryChunk$$init$S(type, length, value);
     }
 
     private RemoteIndexedMemoryChunk(Type<T> type, int length, Object value) {

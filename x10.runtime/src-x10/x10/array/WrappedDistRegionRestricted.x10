@@ -77,7 +77,7 @@ final class WrappedDistRegionRestricted extends Dist {
     }
 
     public def restriction(p:Place):Dist(rank) {
-        return new WrappedDistPlaceRestricted(this as Dist(rank), p);  // TODO cast should not be needed.
+        return new WrappedDistPlaceRestricted(this, p);
     }
 
     public def equals(thatObj:Any):boolean {

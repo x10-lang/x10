@@ -47,14 +47,20 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 
     // constructor just for allocation
     public IndexedMemoryChunk(java.lang.System[] $dummy) {
-        super($dummy);
+        // call default constructor instead of "constructor just for allocation" for x10.core.Struct
+//        super($dummy);
     }
 
-    public IndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {
+    public final IndexedMemoryChunk<T> x10$util$IndexedMemoryChunk$$init$S(Type<T> type, int length, Object value) {
         this.length = length;
         this.type = type;
         this.value = value;
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public IndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {
+        return x10$util$IndexedMemoryChunk$$init$S(type, length, value);
     }
 
     public IndexedMemoryChunk(Type<T> type, int length, Object value) {
@@ -63,9 +69,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         this.value = value;
     }
 
-    public IndexedMemoryChunk<T> $init(Type<T> type) {
+    public final IndexedMemoryChunk<T> x10$util$IndexedMemoryChunk$$init$S(Type<T> type) {
         this.$init(type, 0, null);
         return this;
+    }
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public IndexedMemoryChunk<T> $init(Type<T> type) {
+        return x10$util$IndexedMemoryChunk$$init$S(type);
     }
     
     public IndexedMemoryChunk(Type<T> type) {

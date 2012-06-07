@@ -45,7 +45,7 @@ final class Configuration {
 
     static def warn_on_thread_creation():Boolean = envOrElse("X10_WARN_ON_THREAD_CREATION", false);
 
-    static def busy_waiting():Boolean = envOrElse("X10_BUSY_WAITING", true);
+    static def busy_waiting():Boolean = envOrElse("X10_BUSY_WAITING", false);
 
     static def nthreads():Int {
         var v:Int = 0;

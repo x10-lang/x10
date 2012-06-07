@@ -103,7 +103,7 @@ static inline size_t x10rt_serbuf_record (x10rt_serbuf *b)
 static inline void x10rt_swap_if_le (unsigned char *addr, size_t sz)
 {
     (void) addr; (void) sz;
-    #if defined(__i386__) || defined(__x86_64__)
+    #if !defined(HOMOGENEOUS) && (defined(__i386__) || defined(__x86_64__))
     for (size_t i=0,j=sz-1 ; i<j ; ++i,--j) {
         unsigned char tmp = addr[i];
         addr[i] = addr[j];

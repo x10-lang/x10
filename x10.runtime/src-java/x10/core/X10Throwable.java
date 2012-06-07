@@ -37,7 +37,10 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
         super();
     }
 
-    public X10Throwable $init() {return this;}
+    public final X10Throwable x10$lang$Throwable$$init$S() {return this;}
+    // XTENLANG-3063
+    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
+    public X10Throwable $init() {return x10$lang$Throwable$$init$S();}
     
     public X10Throwable() {
         super();
