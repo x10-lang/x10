@@ -15,20 +15,32 @@ import x10.interop.java.Throws;
 // MANAGED_X10_ONLY
 
 public class JavaException3b extends x10Test {
-    def this():JavaException3b @Throws[java.lang.Throwable] {
-        throw new java.lang.Throwable("I like Java.");          
+	static class Sup {
+		def this() {}		
+	}
+	
+	static class Sub extends Sup {
+		def this():Sub @Throws[java.lang.Throwable] {
+			throw new java.lang.Throwable("I like Java.");          
+		}
+		def this(a:Int):Sub @Throws[java.lang.Throwable] {
+			this();
+		}
+	}
+	
+    public def run(): Boolean {
+    	var pass: Boolean = false;
+    	try {
+    		new Sub();
+    	} catch (e:java.lang.Throwable) {
+    		pass = true;
+    		//e.printStackTrace();
+    	}
+    	chk(pass);
+    	return pass;
     }
 
-    public def run(): Boolean = true;
-
     public static def main(args: Array[String](1)) {
-        var pass: Boolean = false;
-        try {
-            new JavaException3b().execute();
-        } catch (e:java.lang.Throwable) {
-            pass = true;
-            //e.printStackTrace();
-        }
-        chk(pass);
+    	new JavaException3b().execute();
     }
 }

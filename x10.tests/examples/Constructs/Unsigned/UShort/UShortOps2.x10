@@ -26,7 +26,8 @@ public class UShortOps2 extends x10Test {
 	assert u1 == 1us;
 	assert u1 + 1 == 2us;
 	assert u1 + 1us == 2us;
-	assert 1 + u2 == 3us;
+	assert 1 + u2 == 3;
+	assert (1 + u2) as UShort == 3us;
 	assert 1us + u2 == 3us;
 	assert u2 - u1 == 1us;
 	assert u2 - u1 == u1;
@@ -35,7 +36,8 @@ public class UShortOps2 extends x10Test {
 	assert u1 - u2 == 0xFFFFus;
 	assert u1 * u2 == u2;
 	assert u2 * u1 == 2us;
-	assert 1 * u2 == 2us;
+	assert 1 * u2 == 2;
+	assert (1 * u2) as UShort == 2us;
 	assert u2 * 1 == 2us;
 	assert u2 / u1 == 2us;
 	assert u1 / u2 == 0us;

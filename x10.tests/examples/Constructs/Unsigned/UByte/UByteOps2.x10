@@ -26,7 +26,8 @@ public class UByteOps2 extends x10Test {
 	assert u1 == 1uy;
 	assert u1 + 1 == 2uy;
 	assert u1 + 1uy == 2uy;
-	assert 1 + u2 == 3uy;
+	assert ((1 + u2) as UByte) == 3uy;
+	assert 1 + u2 == 3;
 	assert 1uy + u2 == 3uy;
 	assert u2 - u1 == 1uy;
 	assert u2 - u1 == u1;
@@ -35,7 +36,8 @@ public class UByteOps2 extends x10Test {
 	assert u1 - u2 == 0xFFuy;
 	assert u1 * u2 == u2;
 	assert u2 * u1 == 2uy;
-	assert 1 * u2 == 2uy;
+	assert 1 * u2 == 2;
+	assert (1 * u2) as UByte == 2uy;
 	assert u2 * 1 == 2uy;
 	assert u2 / u1 == 2uy;
 	assert u1 / u2 == 0uy;
