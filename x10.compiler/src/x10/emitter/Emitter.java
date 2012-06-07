@@ -1207,7 +1207,7 @@ public class Emitter {
         if (isDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         } else {
-            printType(n.returnType().type(), PRINT_TYPE_PARAMS);
+            printType(n.returnType().type(), X10PrettyPrinterVisitor.supportTypeConstraintsWithErasure ? 0 : PRINT_TYPE_PARAMS);
         }
         
         w.allowBreak(2, 2, " ", 1);
@@ -1366,7 +1366,7 @@ public class Emitter {
 //            if (isDispatcher) {
 //                w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
 //            } else {
-                printType(n.returnType().type(), PRINT_TYPE_PARAMS);
+                printType(n.returnType().type(), X10PrettyPrinterVisitor.supportTypeConstraintsWithErasure ? 0 : PRINT_TYPE_PARAMS);
                 // XTENLANG-2993
 //            }
 
@@ -2928,7 +2928,7 @@ public class Emitter {
         if (!isSpecialTypeForDispatcher) {
             w.write(X10PrettyPrinterVisitor.JAVA_LANG_OBJECT);
         } else {
-            printType(returnTypeForDispatcher, PRINT_TYPE_PARAMS);
+            printType(returnTypeForDispatcher, X10PrettyPrinterVisitor.supportTypeConstraintsWithErasure ? 0 : PRINT_TYPE_PARAMS);
         }
         
         w.write(" ");
@@ -3898,7 +3898,7 @@ public class Emitter {
         for (String param : params) {
             w.writeln("$_obj." + param + " = " + param + ";");
         }
-        w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME + "(" + fieldName + ");");
+        w.writeln("$_obj." + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + fieldName + ");");
         
         w.writeln("return $_obj;");
         w.end();
@@ -3968,7 +3968,7 @@ public class Emitter {
         // XTENLANG-2974 generate dummy $init(SerialData) for non-splittable type to simplify above _deserialize_body method.
         if (!X10PrettyPrinterVisitor.isSplittable(def.asType())) {
             w.writeln("// dummy 2nd-phase constructor for non-splittable type");
-            w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME + "(" + X10PrettyPrinterVisitor.SERIAL_DATA +  " " + fieldName + ") {");
+            w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + X10PrettyPrinterVisitor.SERIAL_DATA +  " " + fieldName + ") {");
             w.newline(4);
             w.begin(0);
             w.writeln("throw new x10.lang.RuntimeException(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");

@@ -210,15 +210,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean generateSpecialDispatcherNotUse = false;  // TODO to be removed
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
-    public static final boolean supportConstructorInlining = true;
+    public static final boolean supportConstructorInlining = true;  // prereq for XTENLANG-3063
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
     // XTENLANG-2871
     public static final boolean supportJavaThrowables = true;
     public static final boolean useRethrowBlock = true;
-    // WIP XTENLANG-3063
-    // call super bridge rather than $init for potential override of $init by $init with throws clause
-    public static final boolean supportConstructorWithThrows = false;  // TODO to be removed
+    // XTENLANG-3063
+    public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;
+    // XTENLANG-3058
+    public static final boolean supportTypeConstraintsWithErasure = true;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -248,6 +249,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String GETPARAM_NAME = "$getParam";
     public static final String INITPARAMS_NAME = "$initParams";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
+    public static String CONSTRUCTOR_METHOD_NAME(ClassDef cd) {
+        if (supportConstructorWithThrows) {
+            // call super bridge rather than $init for potential override of $init by $init with throws clause
+            return (InlineHelper.makeSuperBridgeName(cd, Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
+        } else {
+            return CONSTRUCTOR_METHOD_NAME;
+        }
+    }
     public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
     public static final String CREATION_METHOD_NAME = "$make";
     public static final String BOX_METHOD_NAME = "$box";
@@ -921,7 +930,75 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             w.write(") { ");
             w.newline();
-            if (!(superClassNode != null && (Emitter.isNativeRepedToJava(superClassNode.type()) || superClassNode.type().toClass().isJavaType()))) {
+            // call super constructor
+            if (flags.isStruct()
+                || (superClassNode != null && Emitter.isNativeRepedToJava(superClassNode.type()))
+                ) {
+                // call default constructor instead of "constructor just for allocation"
+            }
+            else if (superClassNode != null && superClassNode.type().toClass().isJavaType()) {
+                boolean hasDefaultConstructor = false;
+                ConstructorDef ctorWithFewestParams = null;
+                for (ConstructorDef ctor : superClassNode.type().toClass().def().constructors()) {
+                    List<Ref<? extends Type>> formalTypes = ctor.formalTypes();
+                    if (formalTypes.size() == 0) {
+                        hasDefaultConstructor = true;
+                        break;
+                    }
+                    if (ctorWithFewestParams == null || ctor.formalTypes().size() < ctorWithFewestParams.formalTypes().size()) {
+                        ctorWithFewestParams = ctor;
+                    }
+                }
+                if (hasDefaultConstructor) {
+                    // call default constructor instead of "constructor just for allocation"
+                } else {
+                    // XTENLANG-3070
+                    // If super class does not have default constructor, call the constructor with the fewest parameters
+                    // with all the parameters null or zero.
+                    // FIXME This fixes post-compilation error but it may still cause runtime error.
+                    assert ctorWithFewestParams != null;
+                    w.write("super(");
+                    Iterator<Ref<? extends Type>> iter = ctorWithFewestParams.formalTypes().iterator();
+                    while (iter.hasNext()) {
+                        Type formalType = iter.next().get();
+                        if (formalType.isReference()) {
+                            w.write("(");
+                            er.printType(formalType, 0);
+                            w.write(") null");
+                        }
+                        else if (formalType.isByte() || formalType.isShort()) {
+                            w.write("(");
+                            er.printType(formalType, 0);
+                            w.write(") 0");
+                        }
+                        else if (formalType.isInt()) {
+                            w.write("0");
+                        }
+                        else if (formalType.isLong()) {
+                            w.write("0L");
+                        }
+                        else if (formalType.isFloat()) {
+                            w.write("0.0F");
+                        }
+                        else if (formalType.isDouble()) {
+                            w.write("0.0");
+                        }
+                        else if (formalType.isChar()) {
+                            w.write("'\\0'");
+                        }
+                        else if (formalType.isBoolean()) {
+                            w.write("false");
+                        }
+                        if (iter.hasNext()) {
+                            w.write(",");
+                        }
+                    }
+                    w.write(");");
+                    w.newline();
+                }
+            }
+            else {
+                // call "constructor just for allocation"
                 w.write("super($dummy");
                 if (def.superType() != null) {
                     printArgumentsForTypeParamsPreComma(def.superType().get().toClass().typeArguments(), false);
@@ -1402,7 +1479,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (isSplittable) {
             printAllocationCall(type, typeParameters);                
             w.write(".");
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(type.def()));
         } else {
             w.write("new ");
             w.write(n.name().toString());
@@ -1471,12 +1548,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             
             w.write(";"); w.newline();
             
-            // WIP XTENLANG-3063
-            if (supportConstructorWithThrows) {
-            // invoke constructor for non-virtual call directly
-            w.write(InlineHelper.makeSuperBridgeName(type.toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
-            } else
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(type.toClass().def()));
         } else {
             w.write("this");
         }
@@ -3064,7 +3136,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             w.write(".");
 
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(type.toClass().def()));
             printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
 
             return;
@@ -4089,8 +4161,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (isObject || Emitter.isNativeRepedToJava(ct) || Emitter.isNativeClassToJava(ct)) {
                         return;
                     }
-                    w.write("super");
+                    // XTENLANG-3063
+                    // constructors (i.e. $init) are renamed so that they won't be overridden.
+                    if (supportConstructorWithThrows) {
+                        w.write("/*super.*/");
+                    } else
+                    w.write("super.");
                 } else {
+                    // XTENLANG-3063
+                    // constructors (i.e. $init) are renamed so that they won't be overridden.
+                    if (supportConstructorWithThrows) {
+                        w.write("/*this.*/");
+                    } else
                     w.write("this");
                 }
             } else {
@@ -4108,14 +4190,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);
             	if (isObject) w.write(")");
+                w.write(".");
             }
-            w.write(".");
-            // WIP XTENLANG-3063
-            if (supportConstructorWithThrows) {
-            // invoke constructor for non-virtual call directly
-            w.write(InlineHelper.makeSuperBridgeName(ct.toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
-            } else
-            w.write(CONSTRUCTOR_METHOD_NAME);
+            w.write(CONSTRUCTOR_METHOD_NAME(ct.toClass().def()));
             printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
             w.write(";");
             return;
@@ -4298,6 +4375,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         tr.print(n, n.flags(), w);
         if (printType) {
+            if (supportTypeConstraintsWithErasure) {
+                er.printType(n.type().type(), 0);
+            } else
             tr.print(n, n.type(), w);
             w.write(" ");
         }
