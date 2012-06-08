@@ -2115,17 +2115,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 		use(r2());
 		use(r3());
 
-		at (r.home()) {
+		at (r.home) {
 			use(r()); 
 			use(r2());
 			use(r3());
 		}
-		at (r2.home()) {
+		at (r2.home) {
 			use(r());
 			use(r2()); 
 			use(r3());
 		}
-		at (r3.home()) {
+		at (r3.home) {
 			use(r());
 			use(r2());
 			use(r3());
@@ -2135,17 +2135,17 @@ class TestGlobalRefHomeAt { // see http://jira.codehaus.org/browse/XTENLANG-1905
 			use(r2()); // ERR
 			use(r3()); // ERR			
 			
-			at (r.home()) {
+			at (r.home) {
 				use(r()); 
 				use(r2());
 				use(r3());
 			}
-			at (r2.home()) {
+			at (r2.home) {
 				use(r());
 				use(r2()); 
 				use(r3());
 			}
-			at (r3.home()) {
+			at (r3.home) {
 				use(r());
 				use(r2());
 				use(r3());
