@@ -130,9 +130,9 @@ import x10.visit.CheckEscapingThis;
 //OPTIONS: -STATIC_CHECKS
  * then we run it with STATIC_CHECKS.
 
- * Some directories are permenantly excluded from the test suite
+ * Some directories are permanently excluded from the test suite
  * (see EXCLUDE_DIRS and EXCLUDE_FILES fields)
- * For example,  "AutoGen" direcotry contains really big files that takes a long time to compile,
+ * For example,  "AutoGen" directory contains really big files that takes a long time to compile,
  * or LangSpec contains some problematic files I can't fix because they are auto-generated.
 </ul>
  */
