@@ -148,7 +148,7 @@ public class XField<T> extends XVar {
         }
     }
     @Override
-	public XPromise nfp(XConstraint c) {
+	public XPromise nfp(XNativeConstraint c) {
 		assert c != null;
 		XPromise root =  receiver.nfp(c);
 		root.ensureFields();

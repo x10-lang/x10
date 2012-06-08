@@ -23,7 +23,7 @@ public abstract class XVar extends XTerm  {
 		return equals(x) ? y : super.subst(y, x, propagate);
 	}
 	@Override public boolean isAtomicFormula() {return false;}
-	@Override public XPromise internIntoConstraint(XConstraint c, XPromise last) {
+	@Override public XPromise internIntoConstraint(XNativeConstraint c, XPromise last) {
 		XVar[] vars = vars();
 		XVar baseVar = vars[0];
 		XPromise p = c.internBaseVar(baseVar, vars.length == 1, last);

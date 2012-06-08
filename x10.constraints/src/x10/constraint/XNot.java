@@ -22,7 +22,7 @@ public class XNot extends XFormula<String>  {
     private static final long serialVersionUID = -425560155692514682L;
 
     public XNot(XTerm arg) {super(XTerms.notName, XTerms.asExprNotName, false, arg);}
-	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
+	public XPromise internIntoConstraint(XNativeConstraint c, XPromise last)  {
 		assert false : "Should not intern " + this;
 		return super.internIntoConstraint(c, last);
 	}

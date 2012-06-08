@@ -14,7 +14,6 @@ package x10.constraint;
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 
 /**
  * Constraints constrain XTerms. Thus XTerms are the basic building blocks 
@@ -136,7 +135,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
        
        <p> Throw an XFailure if the resulting constraint is inconsistent.
 	 */
-	abstract XPromise internIntoConstraint(XConstraint constraint, XPromise last);
+	abstract XPromise internIntoConstraint(XNativeConstraint constraint, XPromise last);
 
 	public abstract int hashCode();
 	public abstract boolean equals(Object o);
@@ -174,7 +173,7 @@ public abstract class XTerm implements  Serializable, Cloneable {
      * @param c
      * @return
      */
-    public final XTerm nf(XConstraint c) {
+    public final XTerm nf(XNativeConstraint c) {
     	assert c != null;
     	return nfp(c).term();
     }
@@ -186,5 +185,5 @@ public abstract class XTerm implements  Serializable, Cloneable {
      * @param c
      * @return
      */
-    public abstract XPromise nfp(XConstraint c);
+    public abstract XPromise nfp(XNativeConstraint c);
 }

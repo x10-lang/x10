@@ -32,6 +32,7 @@ import polyglot.types.VarDef;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
+import x10.constraint.ConstraintManager;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XConstraint;
@@ -84,7 +85,7 @@ public class X10Local_c extends Local_c {
             if (origin!=null) { // origin = PlaceChecker.here();
                 final XConstrainedTerm placeTerm = context.currentPlaceTerm();
                 final XTerm currentPlace = placeTerm.term();
-                XConstraint constraint = new XConstraint();
+                XConstraint constraint = ConstraintManager.getConstraintSystem().mkConstraint();;
                 boolean isOk = false;
                 constraint.addBinding(origin,currentPlace);
                 if (placeTerm.constraint().entails(constraint)) {

@@ -14,7 +14,6 @@ package x10.constraint;
 import x10.util.CollectionFactory;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -136,7 +135,7 @@ public class XFormula<T> extends XTerm {
 	        return false;
 	    }
 	    
-	    public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
+	    public XPromise internIntoConstraint(XNativeConstraint c, XPromise last)  {
 	        assert last == null;
 	        // Evaluate left == right, if both are literals.
 	        XPromise result = nfp(c);
@@ -208,7 +207,7 @@ public class XFormula<T> extends XTerm {
 
 	    public XPromise toPromise() {throw new Error("Not implemented yet.");}
 	    public boolean okAsNestedTerm() { return false;}
-	    @Override public XPromise nfp(XConstraint c) {
+	    @Override public XPromise nfp(XNativeConstraint c) {
 	    	assert c!=null;
 	    	XPromise p;
 	    	if (c.roots == null) {

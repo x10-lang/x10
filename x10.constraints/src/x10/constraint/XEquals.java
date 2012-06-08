@@ -23,7 +23,7 @@ public class XEquals extends XFormula<String>  {
 		super(XTerms.equalsName, XTerms.asExprEqualsName, false, left, right);
 	}
 	
-	public XPromise internIntoConstraint(XConstraint c, XPromise last)  {
+	public XPromise internIntoConstraint(XNativeConstraint c, XPromise last)  {
 	    XPromise p = c.intern(left());
 	    if (p == null) return null;
 	    XPromise q = c.intern(right());

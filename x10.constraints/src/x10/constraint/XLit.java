@@ -12,13 +12,7 @@
 package x10.constraint;
 
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import x10.constraint.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
 
 /**
@@ -38,7 +32,7 @@ public class XLit extends XVar  {
 	/**
 	 * Pro-actively intern literals since they may end up having fields.
 	 */
-	public XPromise nfp(XConstraint c) {
+	public XPromise nfp(XNativeConstraint c) {
 		assert c != null;
 		XPromise p = null;
 		if (c.roots == null) {

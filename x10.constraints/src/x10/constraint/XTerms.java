@@ -155,7 +155,7 @@ public class XTerms {
 	 * Return the constraint true.
 	 * @return
 	 */
-	public static XConstraint makeTrueConstraint() {return new XConstraint();}
+	//public static XConstraint makeTrueConstraint() {return new XNativeConstraint();}
 	
 	//*************************************** Implementation
 	/**

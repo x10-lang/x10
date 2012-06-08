@@ -47,6 +47,7 @@ import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
+import x10.constraint.XNativeConstraint;
 import x10.constraint.XPromise;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
@@ -79,7 +80,7 @@ import x10.types.constraints.visitors.CEntailsVisitor;
  * @author vj
  *
  */
-public class CConstraint extends XConstraint  implements ThisVar {
+public class CConstraint extends XNativeConstraint  implements ThisVar {
 
     /** Variable to use for self in the constraint. */
     XVar self;

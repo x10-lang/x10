@@ -47,6 +47,7 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
+import x10.constraint.ConstraintManager;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
@@ -161,7 +162,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         boolean isFinishPlace = false;
         AtDef def = atDef();
         if (null != def.finishPlaceTerm()) {
-            XConstraint constraint = new XConstraint();
+        	XConstraint constraint = ConstraintManager.getConstraintSystem().mkConstraint();;
             constraint.addBinding(def.finishPlaceTerm().term(),def.placeTerm().term());
             if (def.placeTerm().constraint().entails(constraint)) {
                 isFinishPlace = true;

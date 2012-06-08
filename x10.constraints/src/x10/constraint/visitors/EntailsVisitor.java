@@ -1,12 +1,12 @@
 package x10.constraint.visitors;
 
-import x10.constraint.XConstraint;
+import x10.constraint.XNativeConstraint;
 import x10.constraint.XTerm;
 
 public class EntailsVisitor extends XGraphVisitor{
-    XConstraint c1;
+    XNativeConstraint c1;
     boolean result=true;
-    public EntailsVisitor(boolean hideEQV, boolean hideFake, XConstraint c1) {
+    public EntailsVisitor(boolean hideEQV, boolean hideFake, XNativeConstraint c1) {
     	super(hideEQV, hideFake);
         this.c1=c1;
     }

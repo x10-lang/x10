@@ -1,16 +1,16 @@
 package x10.constraint.visitors;
 
-import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XNativeConstraint;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
 
 public class AddInVisitor extends XGraphVisitor {
-    XConstraint c2;
+    XNativeConstraint c2;
     XTerm newSelf;
     XVar cSelf;
-    public AddInVisitor(boolean hideEQV, boolean hideFake, XConstraint c2) {
+    public AddInVisitor(boolean hideEQV, boolean hideFake, XNativeConstraint c2) {
     	super(hideEQV, hideFake);
         this.c2=c2;
     }

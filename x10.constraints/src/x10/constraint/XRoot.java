@@ -3,8 +3,6 @@
  */
 package x10.constraint;
 
-import java.util.Map;
-
 import x10.util.CollectionFactory;
 
 /**
@@ -19,7 +17,7 @@ public abstract class XRoot extends XVar {
     private static final long serialVersionUID = -8464916210710432790L;
     public XRoot() {}
 
-    @Override public XPromise nfp(XConstraint c) {
+    @Override public XPromise nfp(XNativeConstraint c) {
         assert c != null;
         XPromise p = null;
         if (c.roots == null) {
