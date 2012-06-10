@@ -990,7 +990,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write("false");
                         }
                         if (iter.hasNext()) {
-                            w.write(",");
+                            w.write(", ");
                         }
                     }
                     w.write(");");

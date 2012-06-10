@@ -365,6 +365,15 @@ public class X10Translator extends Translator {
                     	propFileWriter.close();
                     }
                 }
+                // XTENLANG-2126
+                if (!options.keep_output_files) {
+                    java.util.ArrayList<String> rmCmd = new java.util.ArrayList<String>();
+                    rmCmd.add("rm");
+                    rmCmd.add("-rf");
+                    rmCmd.add(options.output_directory.getAbsolutePath()); // N.B. output_directory is a temporary directory
+//                    System.out.println(java.util.Arrays.toString(rmCmd.toArray(strarray)));
+                    runtime.exec(rmCmd.toArray(strarray));
+                }
             }
             catch(Exception e) {
                 eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage());
