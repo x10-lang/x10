@@ -35,7 +35,7 @@ public class BenchmarkArrayListSort extends x10Test {
             a.sort();
         }
         var stop : Long = System.nanoTime();
-        Console.OUT.printf("sort ArrayList of size %i: %g ms\n", N, ((stop-start) as Double) / 1e6);
+        Console.OUT.printf("sort ArrayList of size %d: %g ms\n", N, ((stop-start) as Double) / 1e6);
 
         // functional check
         var current:Double = -Double.MAX_VALUE;
