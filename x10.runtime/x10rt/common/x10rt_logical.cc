@@ -264,7 +264,7 @@ namespace {
         blocking_barrier();
 
         // Spread the knowledge of accelerators around
-        
+#ifdef ENABLE_CUDA        
         g.naccels[x10rt_lgl_here()] = cfgc;
 
         x10rt_place finish_counter = x10rt_lgl_nhosts()-1;
@@ -281,6 +281,10 @@ namespace {
         for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
             g.nplaces += g.naccels[i];
         }
+#else
+        g.nplaces = x10rt_lgl_nhosts();
+        memset(g.naccels, 0, sizeof(x10rt_place)*g.nplaces);
+#endif
 
 
         // now assign the node ids and populate the datastructure that represents
@@ -313,7 +317,7 @@ namespace {
         }
 
         // set up the type information
-
+#ifdef ENABLE_CUDA
         finish_counter = (x10rt_lgl_nhosts()-1) * cfgc;
 
         for (x10rt_place j=0 ; j<g.naccels[x10rt_lgl_here()] ; ++j) {
@@ -330,9 +334,11 @@ namespace {
         }
 
         while (finish_counter!=0) x10rt_net_probe();
-
+#else
+        for (x10rt_place j=0; j<g.naccels[x10rt_lgl_here()]; ++j)
+            g.type[g.child[x10rt_lgl_here()][j]] = cfgv[j].cat;
+#endif
         blocking_barrier();
-
     }
 
 }
