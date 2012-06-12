@@ -910,8 +910,9 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	// determine the level of parallelism we need to support
 	char* value = getenv("X10_STATIC_THREADS");
 	char* nthreads = getenv("X10_NTHREADS");
-	if (nthreads && checkBoolEnvVar(value) && state.numParallelContexts == atoi(nthreads))
+	if (nthreads && checkBoolEnvVar(value) && state.numParallelContexts >= atoi(nthreads))
 	{
+		state.numParallelContexts = atoi(nthreads); // use specified nthreads, not possible nthreads
 		// We have as many endpoints as we have X10_NTHREADS
 		state.context = (pami_context_t*)malloc(state.numParallelContexts*sizeof(pami_context_t));
 		if (state.context == NULL) error("Unable to allocate memory for the context map");
