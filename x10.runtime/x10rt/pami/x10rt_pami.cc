@@ -117,12 +117,6 @@ struct x10rt_pami_team_destroy
 	int teamid;
 };
 
-struct x10rt_pami_team_databuffer
-{
-	uint32_t teamId;
-	void* cookie;
-};
-
 struct x10rt_buffered_data
 {
 	void* header;
@@ -779,17 +773,17 @@ static void team_create_dispatch_part2 (pami_context_t   context,
 	if (result != PAMI_SUCCESS)
 		error("Error detected in team_create_dispatch_part2");
 
-	x10rt_pami_team_databuffer *data = (x10rt_pami_team_databuffer *)cookie;
+	uint32_t newTeamId = *((uint32_t*)cookie);
 
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
 
 	#ifdef DEBUG
-		fprintf(stderr, "Creating a new team %u at place %u of size %u\n", data->teamId, state.myPlaceId, state.teams[data->teamId].size);
+		fprintf(stderr, "Creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
 	#endif
 
 	pami_result_t   status = PAMI_ERROR;
-	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[data->teamId].geometry, state.teams[0].geometry, data->teamId, state.teams[data->teamId].places, state.teams[data->teamId].size, context, team_creation_complete, data->cookie);
+	status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &state.teams[newTeamId].geometry, state.teams[0].geometry, newTeamId, state.teams[newTeamId].places, state.teams[newTeamId].size, context, team_creation_complete_nocallback, &state.teams[newTeamId]);
 	if (status != PAMI_SUCCESS) error("Unable to create a new team");
 
 	free(cookie);
@@ -826,12 +820,9 @@ static void team_create_dispatch (
 			fprintf(stderr, "Place %u waiting on a partially delivered team creation message, len=%lu\n", state.myPlaceId, pipe_size);
 		#endif
 
-		x10rt_pami_team_databuffer *data = (x10rt_pami_team_databuffer *)malloc(sizeof(x10rt_pami_team_databuffer));
-		data->cookie = cookie;
-		data->teamId = newTeamId;
-
 		recv->local_fn = team_create_dispatch_part2;
-		recv->cookie   = data;
+		recv->cookie   = malloc(sizeof(uint32_t));
+		memcpy(recv->cookie, &newTeamId, sizeof(uint32_t));
 		recv->type     = PAMI_TYPE_BYTE;
 		recv->addr     = state.teams[newTeamId].places;
 		recv->offset   = 0;
