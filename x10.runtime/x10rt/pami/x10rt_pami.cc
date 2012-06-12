@@ -167,7 +167,7 @@ pami_result_t x10rt_PAMI_Context_advance(pami_context_t context, size_t maximum)
   // PAMI_Context_advance seems to always return PAMI_SUCCESS
   // So convert SUCCESS to EAGAIN and rely on higher-level looping to drain the network
   pami_result_t tmp = PAMI_Context_advance(context, maximum == 1 ? 100 : maximum);
-  return (tmp == PAMI_SUCCESS) ? PAMI_EAGAIN : PAMI_SUCCESS;
+  return (tmp == PAMI_SUCCESS) ? PAMI_EAGAIN : tmp;
 #else
   return PAMI_Context_advance(context, maximum);
 #endif
