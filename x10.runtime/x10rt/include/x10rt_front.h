@@ -498,6 +498,14 @@ X10RT_C void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_s
  */
 X10RT_C void x10rt_probe (void);
 
+
+/** Handle outstanding incoming messages, and block on the network if nothing is available.
+ * This method operates like x10rt_probe(), but this version will attempt to block if nothing was
+ * available from the network.  This mechanism allows an X10 program to go idle on the CPU.  The
+ * network probe will attempt to block if possible, but this is not guaranteed.
+ */
+X10RT_C void x10rt_blocking_probe (void);
+
 /** \} */
 
 

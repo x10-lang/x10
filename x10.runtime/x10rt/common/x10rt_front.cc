@@ -122,6 +122,10 @@ void x10rt_blocks_threads (x10rt_place d, x10rt_msg_type type, int dyn_shm,
 void x10rt_probe (void)
 { x10rt_lgl_probe(); }
 
+void x10rt_blocking_probe (void)
+{ x10rt_lgl_blocking_probe(); }
+
+
 void x10rt_finalize (void)
 { x10rt_lgl_finalize(); }
 

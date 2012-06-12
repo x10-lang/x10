@@ -94,6 +94,13 @@ X10RT_C void x10rt_net_send_put (x10rt_msg_params *p, void *buf, x10rt_copy_sz l
  */
 X10RT_C void x10rt_net_probe (void);
 
+
+/** Handle any oustanding message from the network by calling the registered callbacks, blocking if nothing is available.
+ * \see #x10rt_lgl_probe
+ */
+X10RT_C void x10rt_net_blocking_probe (void);
+
+
 /** \see #x10rt_lgl_remote_op
  * \param place As in #x10rt_lgl_remote_op
  * \param remote_addr As in #x10rt_lgl_remote_op

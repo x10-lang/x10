@@ -1382,6 +1382,12 @@ void x10rt_net_probe()
 	}
 }
 
+void x10rt_net_blocking_probe (void)
+{
+	// TODO: make this blocking.  For now, just call probe.
+	x10rt_net_probe();
+}
+
 /** Shut down the network layer.  \see #x10rt_lgl_finalize
  */
 void x10rt_net_finalize()
