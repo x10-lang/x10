@@ -39,7 +39,7 @@ public abstract class Reader {
      * Fill len bytes of the argument array starting at off.
      * Throws IOException if not enough elements.
      * This is significantly faster than read(Marshal.BYTE,r,off,len)
-     * since it reads multiple bytes at once.
+     * since this reads multiple bytes at once if possible.
      */
     public abstract def read(r:Rail[Byte], off:Int, len:Int): void; //throws IOException
 
