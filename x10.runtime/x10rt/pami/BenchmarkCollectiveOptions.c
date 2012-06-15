@@ -195,18 +195,34 @@ int test(int collective, int teamSize, int algorithmId, int dataId, pami_algorit
 		operation.cookie = (void*)&waitForCompletion;
 		operation.cb_done = cookie_decrement;
 
+		// warmup
+		// test
 		if (state.myPlaceId == 0)
 		{
-			printf("Testing Collective %s, team size %u, algorithm %u (%s), per-place datasize %u....", collectiveNames[collective], teamSize, algorithmId, algName, dataSizes[dataId]);
+			printf("Testing Collective %s, team size %u, algorithm %u (%s), per-place datasize %u\n", collectiveNames[collective], teamSize, algorithmId, algName, dataSizes[dataId]);
+			printf("   Run #1: ");
 			fflush(stdout);
 			time = -nano_time();
 		}
-
-		// test
 		status = PAMI_Collective(state.context, &operation);
 		if (status != PAMI_SUCCESS) error("Unable to issue a barrier on teamsize %u", teamSize);
 		while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+		if (state.myPlaceId == 0)
+		{
+			time+=nano_time();
+			printf(" %lu ns\n", time);
+		}
 
+		// test
+		if (state.myPlaceId == 0)
+		{
+			printf("   Run #2: ");
+			fflush(stdout);
+			time = -nano_time();
+		}
+		status = PAMI_Collective(state.context, &operation);
+		if (status != PAMI_SUCCESS) error("Unable to issue a barrier on teamsize %u", teamSize);
+		while (waitForCompletion) PAMI_Context_advance(state.context, 100);
 		if (state.myPlaceId == 0)
 		{
 			time+=nano_time();
@@ -342,10 +358,6 @@ int main(int argc, char ** argv) {
 				error("Unable to query the supported algorithm %s", collectiveNames[collective]);
 
 			if (state.myPlaceId == 0) printf("found %u algorithms\n", num_algorithms[0]+num_algorithms[1]);
-
-			if (state.myPlaceId == 0) printf("WARMUP...");
-			test(collective, teamSize, 0, 0, always_works_alg[0], must_query_md[0].name, dataSnd, dataRcv);
-			if (state.myPlaceId == 0) printf("Warmup complete\n\n");
 
 			int j;
 			if (collectives[collective] == PAMI_XFER_BARRIER) // barrier does not transfer data
