@@ -440,9 +440,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10ClassDecl_c n) {
-        String className = n.classDef().name().toString();
         X10CContext_c context = (X10CContext_c) tr.context();
-        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(className + ".x10")
+
+        // class name and source file name is different. this is the case when StringHelper is defined in String.x10.
+        if (n.classDef().isTopLevel() && !n.classDef().sourceFile().name().equals(n.classDef().name().toString() + ".x10")
                 && !context.containsGeneratedClasses(n.classDef())) {
             context.addGeneratedClasses(n.classDef());
             // not include import
@@ -454,6 +455,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             tr.translate(sf);
             return;
         }
+
         TypeSystem xts = tr.typeSystem();
         X10ClassDef def = n.classDef();
 
