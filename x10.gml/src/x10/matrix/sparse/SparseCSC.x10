@@ -144,7 +144,7 @@ public class SparseCSC extends Matrix {
 	 * @param m     Number of rows in the CSC sparse matrix
 	 * @param n     Number of columns in the CSC sparse matrix
 	 */
-	public static def make(m:Int, n:Int) = SparseCSC.make(m, n, m*n);
+	//public static def make(m:Int, n:Int) = SparseCSC.make(m, n, m*n);
 									   
 	//--------------------------------------------------------------
 	/**
@@ -196,7 +196,7 @@ public class SparseCSC extends Matrix {
 		val cnt = ccdata.initConst(M, v, sp);
 		return this;
 		//sparsity = 1.0 * cnt/M/N;
-	} 
+	}
 	
 
 	/**
@@ -265,7 +265,7 @@ public class SparseCSC extends Matrix {
 		for (var c:Int=0; c<N; c++) {
 			val ccol = ccdata.cLine(c);
 			ccol.offset = offset;
-			for (var r:Int=0; r<M; r++) {
+			for (var r:Int=0; r<M&&offset<ca.index.size; r++) {
 				val nzval:Double = f(r, c);
 				if (! MathTool.isZero(nzval)) {
 					ca.index(offset)=r;
@@ -407,7 +407,7 @@ public class SparseCSC extends Matrix {
 	 * Return the matrix element value at the r-th row and c-th column.
 	 */
 	public operator this(r:Int, c:Int):Double = ccdata(c, r);
-	public operator this(a:Int):Double = ccdata(a%M,a/M);
+	public operator this(a:Int):Double = ccdata(a/M,a%M);
 	
 	//
 	//========================================================
@@ -951,8 +951,10 @@ public class SparseCSC extends Matrix {
 	 * Using SparseCSCBuilder is more efficient than converting to CSR format
 	 */
 	public def selfT() : SparseCSC(N,M) {
-		val nspa = new SparseCSC(N,M, this.getStorage());
-		T(nspa);
+		val nspa = new SparseCSC(N,M, this.getStorage()) as SparseCSC(N,M);
+		val sbdr = SparseCSCBuilder.make(N,M);
+		sbdr.initTransposeFrom(this).toSparseCSC(nspa);
+
 		return nspa;
 	}
 	
@@ -972,8 +974,8 @@ public class SparseCSC extends Matrix {
 	 * (if "this" is not used as the input)
 	 */
 	public def T(spa:SparseCSC(N,M)) : void {
-		val spabld = SparseCSCBuilder.makeTranspose(this);
-		spabld.toSparseCSC(spa);
+		val sbdr = SparseCSCBuilder.make(N,M);
+		sbdr.initTransposeFrom(this as SparseCSC(sbdr.N,sbdr.M)).toSparseCSC(spa);
 	}
 	
 	//=====================================================================
@@ -990,8 +992,8 @@ public class SparseCSC extends Matrix {
 		val ca = getStorage();
 		for (var c:Int=0; c<N; c++) {
 			val cl = getCol(c);
-			for (var e:Int=0; e<cl.length; e++)
-				ca.value(cl.offset+e) *= alpha;
+			for (var e:Int=cl.offset; e<cl.offset+cl.length; e++)
+				ca.value(e) *= alpha;
 		}
 		return this;
 	}
@@ -1004,6 +1006,18 @@ public class SparseCSC extends Matrix {
      */
 	public def scale(alpha:Int) = scale(alpha as Double);
 
+	public def sum():Double {
+		var tt:Double=0.0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val cl = getCol(c);
+			for (var e:Int=cl.offset; e<cl.offset+cl.length; e++)
+				tt += ca.value(e);
+		}	
+		
+		return tt;
+	}
+	
 	//--------------------------
 	// Cellwise addition
 	//--------------------------

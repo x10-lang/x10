@@ -136,9 +136,6 @@ public class DistBlockMatrix extends Matrix{
 		val colPs:Int = MathTool.sqrt(Place.MAX_PLACES);//Math.sqrt(Place.MAX_PLACES) as Int;
 		val rowPs = Place.MAX_PLACES / colPs;
 		return make(m, n, rowBs, colBs, rowPs, colPs);
-		//val grid = new Grid(m, n, rowBs, colBs);
-		//val dstgrid = DistGrid.make(grid);
-		//return DistBlockMatrix.make(grid, dstgrid.dmap);
 	}
 	
 	/**
@@ -148,14 +145,9 @@ public class DistBlockMatrix extends Matrix{
 	 * @return DistBlockMatrix instance
 	 */
 	public static def make(m:Int, n:Int):DistBlockMatrix(m,n) {
-		//var colBs:Int = Math.sqrt(Place.MAX_PLACES) as Int;
-		//while (Place.MAX_PLACES % colBs !=0) colBs--;
 		val colBs = MathTool.sqrt(Place.MAX_PLACES);
 		val rowBs = Place.MAX_PLACES / colBs;
 		return make(m, n, rowBs, colBs, rowBs, colBs);
-		//val grid    = Grid.make(m, n);
-		//val dstgrid = DistGrid.make(grid);
-		//return DistBlockMatrix.make(grid, dstgrid.dmap);
 	}
 	
 	/**
@@ -331,9 +323,7 @@ public class DistBlockMatrix extends Matrix{
 			val blkitr = blks.iterator();
 			while (blkitr.hasNext()) {
 				val blk = blkitr.next();
-				val strow = grid.startRow(blk.myRowId);
-				val stcol = grid.startColumn(blk.myColId);
-				blk.init(strow, stcol, f);
+				blk.init(f);
 			}
 		}
 		return this;

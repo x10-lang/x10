@@ -139,9 +139,9 @@ public class DenseBlockMatrix(grid:Grid) extends Matrix  {
 	public def init(f:(Int, Int)=>Double):DenseBlockMatrix(this) {
 		var roff:Int=0;
 		var coff:Int=0;
-		for (var cb:Int=0; cb<grid.numColBlocks; coff+=grid.colBs(cb), roff=0, cb++)
-			for (var rb:Int=0; rb<grid.numRowBlocks; roff+=grid.rowBs(rb), rb++ ) {
-				listBs(grid.getBlockId(rb, cb)).init(roff, coff, f);
+		for (var cb:Int=0; cb<grid.numColBlocks; cb++)
+			for (var rb:Int=0; rb<grid.numRowBlocks; rb++ ) {
+				listBs(grid.getBlockId(rb, cb)).init(f);
 			}		
 		return this;
 	}

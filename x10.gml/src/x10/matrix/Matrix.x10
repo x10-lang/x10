@@ -473,11 +473,12 @@ public abstract class Matrix(M:Int, N:Int) {
 	 */
 	public def dataToString():String {
 		val dstr = new StringBuilder();
+		
 		dstr.add("--------- Matrix "+M+" x "+N+" ---------\n");
 		for (var r:Int=0; r<M; r++) {
 			dstr.add(r.toString()+"\t[ ");
 			for (var c:Int=0; c<N; c++)
-				dstr.add(this(r,c).toString()+" ");
+				dstr.add(String.format("%03.3f ", [this(r,c) as Any]));
 			dstr.add("]\n");
 		}
 		dstr.add("---------------------------------------");

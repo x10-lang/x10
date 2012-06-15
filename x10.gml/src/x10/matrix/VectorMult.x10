@@ -32,10 +32,10 @@ public class VectorMult {
 			comp(A as DenseMatrix, B, C, plus);
 		else if (A instanceof SparseCSC) 
 			comp(A as SparseCSC, B, C, plus);
-		else if (A instanceof SymMatrix) 
-			comp(A as SymMatrix, B, C, plus);
-		else if (A instanceof TriMatrix)
-			comp(A as TriMatrix, B, C, plus);
+		else if (A instanceof SymDense) 
+			comp(A as SymDense, B, C, plus);
+		else if (A instanceof TriDense)
+			comp(A as TriDense, B, C, plus);
 		//else if (A instanceof Diagonal)
 		//	this.mult(A as Diagonal, B, plus);
 		else
@@ -52,10 +52,10 @@ public class VectorMult {
 			comp(B, A as DenseMatrix, C, plus);
 		else if (A instanceof SparseCSC) 
 			comp(B, A as SparseCSC, C, plus);
-		else if (A instanceof SymMatrix) 
-			comp(B, A as SymMatrix, C, plus);
-		else if (A instanceof TriMatrix)
-			comp(B, A as TriMatrix, C, plus);
+		else if (A instanceof SymDense) 
+			comp(B, A as SymDense, C, plus);
+		else if (A instanceof TriDense)
+			comp(B, A as TriDense, C, plus);
 		else
 			throw new UnsupportedOperationException("Operation not supported in vector multiply: " +
 					B.typeName() + " * " + A.typeName()+" = "+C.typeName() );
@@ -205,7 +205,7 @@ public class VectorMult {
 	}
 
 	//-------------
-	public static def comp(A:SymMatrix, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
+	public static def comp(A:SymDense, B:Vector(A.N), C:Vector(A.M), plus:Boolean):Vector(C) {
 		val beta = plus?1.0:0.0;
 		BLAS.compSymMultVec(A.d, B.d, C.d, 
 				[A.M, A.N],
@@ -213,16 +213,16 @@ public class VectorMult {
 		return C;
 	}
 	
-	public static def comp(B:Vector, A:SymMatrix(B.M), C:Vector(A.N), plus:Boolean):Vector(C) =
+	public static def comp(B:Vector, A:SymDense(B.M), C:Vector(A.N), plus:Boolean):Vector(C) =
 		comp(A, B as Vector(A.N), C, plus);
 
 	//-------------
-	public static def comp(A:TriMatrix, C:Vector(A.M)):Vector(C) {
+	public static def comp(A:TriDense, C:Vector(A.M)):Vector(C) {
 		BLAS.compTriMultVec(A.d, A.uplo, C.d, C.M, 0);
 		return C;
 	}
 	
-	public static def comp(C:Vector, A:TriMatrix(C.M)):Vector(C) {
+	public static def comp(C:Vector, A:TriDense(C.M)):Vector(C) {
 		BLAS.compTriMultVec(A.d, A.uplo, C.d, C.M, 1); 
 		return C;
 	}

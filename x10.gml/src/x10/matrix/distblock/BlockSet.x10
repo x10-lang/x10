@@ -99,7 +99,9 @@ public class BlockSet  {
 			val colbid = grid.getColBlockId(bid);
 			val m      = grid.rowBs(rowbid);
 			val n      = grid.colBs(colbid);
-			add(DenseBlock.make(rowbid, colbid, m, n));
+			val roff   = grid.startRow(rowbid);
+			val coff   = grid.startCol(colbid);
+			add(DenseBlock.make(rowbid, colbid, roff, coff, m, n));
 		}
 		assignNeighborPlaces();
 		return this;
@@ -113,7 +115,9 @@ public class BlockSet  {
 			val colbid = grid.getColBlockId(bid);
 			val m      = grid.rowBs(rowbid);
 			val n      = grid.colBs(colbid);
-			add(SparseBlock.make(rowbid, colbid, m, n, nzd));
+			val roff   = grid.startRow(rowbid);
+			val coff   = grid.startCol(colbid);
+			add(SparseBlock.make(rowbid, colbid, roff, coff, m, n, nzd));
 		}
 		assignNeighborPlaces();		
 		return this;
@@ -203,7 +207,7 @@ public class BlockSet  {
 			val srcmat = srcblk.getMatrix();
 			val m = select(srcmat.M, cnt);
 			val n = select(cnt, srcmat.N);
-			val nblk = DenseBlock.make(srcblk.myRowId, srcblk.myColId, m, n) as MatrixBlock;//srcblk.allocFull(m, n);
+			val nblk = DenseBlock.make(srcblk.myRowId, srcblk.myColId, srcblk.rowOffset, srcblk.colOffset, m, n) as MatrixBlock;//srcblk.allocFull(m, n);
 			blst.add(nblk);
 		}
 		return blst;

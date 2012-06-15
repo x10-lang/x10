@@ -103,28 +103,27 @@ public class CompressArray {
 	 * @param nzd             Percentage of nonzero entries or sparsity
 	 * @return                number of non-zero added 
 	 */
-	protected def init(offset:Int, 
-					   maxIndex:Int, 
-					   init:(ci:Int,rg:Random)=>Double, 
-					   nzd:Double):Int {
-	    val size = storageSize();
-		if (offset >= size) 
-		    return 0; 
+	protected def init(offset:Int, maxIndex:Int, init:(ci:Int,rg:Random)=>Double, nzd:Double) =
+		init(offset, 0, maxIndex, init, nzd);
+
+	protected def init(offset:Int, sttIndex:Int, maxIndex:Int, init:(ci:Int,rg:Random)=>Double, nzd:Double):Int {
+		val size = storageSize();
+		if (offset >= size)	return 0; 
 		val rg = RandTool.getRandGen();  
 		var ci:Int= offset;
-		for (var i:Int=0; i<maxIndex; i++) {
+		for (var i:Int=sttIndex; i<maxIndex; i++) {
 			if (rg.nextDouble() < nzd) {
-			    this(ci)=Pair(i,init(ci,rg));
+				this(ci)=Pair(i,init(ci,rg));
 				ci++;
 				if (ci == size)
-				    break;
+					break;
 			}
 		}
 		val c = ci - offset;
 		count += c;
 		return c;
 	}
-
+	
 	/**
 	 * Initialize compress array with a constant values.  This method is used
 	 * for testing purpose.
@@ -136,12 +135,11 @@ public class CompressArray {
 	 * @param nzd            nonzero density
 	 * @param return         number of nonzeros added
 	 */
-	public def initConstValue(offset:Int, 
-							  maxIndex:Int, 
-							  v:Double, 
-							  nzd:Double) : Int =
+	public def initConstValue(offset:Int, maxIndex:Int, v:Double, nzd:Double) : Int =
 		init(offset, maxIndex, (ci:Int, rg:Random)=>(v), nzd);
-
+	public def initConstValue(offset:Int, sttIndex:Int, maxIndex:Int, v:Double,	nzd:Double) : Int =
+		init(offset, sttIndex, (ci:Int, rg:Random)=>(v), nzd);
+	
 	/**
 	 * Initialize compress array using nonzero indexing generating function and value
 	 * generating function.
@@ -152,13 +150,14 @@ public class CompressArray {
 	 * @param fval          nonzero value generating function given [0..maxIndex) range If zero, ignored.                     
 	 * @return number of nonzero values
 	 */
-	public def init(offset:Int, maxIndex:Int, 
-			fidx:(Int)=>Int, 
-			fval:(Int)=>Double):Int {
+	public def init(offset:Int, maxIndex:Int, fidx:(Int)=>Int, fval:(Int)=>Double):Int =
+		init(offset, 0, maxIndex, fidx, fval);
+
+	public def init(offset:Int, sttIndex:Int, maxIndex:Int, fidx:(Int)=>Int, fval:(Int)=>Double):Int {
 		var nzidx:Int=0;
 		var stidx:Int=offset;
 		var stval:Double=0;
-		for (var i:Int=0; i<maxIndex&&stidx<index.size; i++) {
+		for (var i:Int=sttIndex; i<maxIndex&&stidx<index.size; i++) {
 			nzidx = fidx(i);
 			if (nzidx >= maxIndex) break;
 			stval = fval(nzidx);
@@ -179,12 +178,15 @@ public class CompressArray {
 	 * @param maxIndex     the maximum surface index
 	 * @param f            value generating function, given [0..maxIndex) range.
 	 */
-	public def init(offset:Int, maxIndex:Int, f:(Int)=>Double):Int {
+	public def init(offset:Int, maxIndex:Int, f:(Int)=>Double):Int =
+		init(offset, 0, maxIndex, f);
+	
+	public def init(offset:Int, sttIndex:Int, maxIndex:Int, f:(Int)=>Double):Int {
 	
 		var nzidx:Int=0;
 		var stidx:Int=offset;
 		var stval:Double=0;
-		for (var i:Int=0; i<maxIndex&&stidx<index.size; i++, stidx++) {
+		for (var i:Int=sttIndex; i<maxIndex&&stidx<index.size; i++) {
 			stval = f(i);
 			if (! MathTool.isZero(stval)) {
 				this.index(stidx)=i;
@@ -207,10 +209,11 @@ public class CompressArray {
 	 * @param nzd            nonzero density
 	 * @param return         number of non-zeros added 
 	 */
-	public def initRandom(offset:Int, 
-						  maxIndex:Int, 
-						  nzd:Double): Int =
-	    init(offset, maxIndex, (ci:Int, rg:Random)=>rg.nextDouble(), nzd);
+	public def initRandom(offset:Int, maxIndex:Int, nzd:Double): Int =
+	    init(offset, 0, maxIndex, (ci:Int, rg:Random)=>rg.nextDouble(), nzd);
+
+	public def initRandom(offset:Int, sttIndex:Int, maxIndex:Int, nzd:Double): Int =
+		init(offset, sttIndex, maxIndex, (ci:Int, rg:Random)=>rg.nextDouble(), nzd);
 
 	/**
 	 * Fast initialize method. Distance between two adjacent surface indices is randomly created
@@ -224,31 +227,31 @@ public class CompressArray {
 	 * @param ub		-- upper random value bound
 	 * @param return   	-- number of nonzeros added
 	 */
-	public def initRandomFast(offset:Int, maxIndex:Int, nzd:Double, 
-							lb:Int, ub:Int): Int { 
+	public def initRandomFast(offset:Int, maxIndex:Int, nzd:Double, lb:Int, ub:Int): Int =
+		initRandomFast(offset, 0, maxIndex, nzd, lb, ub);
+	
+	public def initRandomFast(offset:Int, sttIndex:Int, maxIndex:Int, nzd:Double, lb:Int, ub:Int): Int { 
 		val sts = storageSize();
-		val cnt = maxIndex*nzd > sts ? sts: ((maxIndex*nzd) as Int);
-	    
+		//val cnt = maxIndex*nzd > sts ? sts: ((maxIndex*nzd) as Int); 
 		if (offset >=  sts) return 0;
 
 		//val rg = RandTool.getRandGen();
 		var ci:Int= offset;   
-		val avgDst:Double = 1.0/nzd;    
+		val avgDst:Double = 1.0/nzd;
 		val dstMax:Double = 2.0*avgDst - 1; 
 		
-		var i:Int = 0;
-		var nextDst:Int=avgDst as Int;
+		var i:Int = sttIndex;
+		var nextDst:Int;
 		// Set the starting posistion, taking half of avg distance
 		if (avgDst > 1.0) {
-			//nextDst = RandTool.nextNormalRandDst(avgDst)/2; 
+			i += RandTool.nextDouble()* avgDst/2; 
 			// Generate nonzero indexes
 			while (ci < sts) {
-				nextDst = (RandTool.nextDouble() * dstMax) as Int; 
-				i += nextDst; 
 				if (i >= maxIndex) break;
 				this.index(ci) = i;
-				ci ++; i++;
-				//nextDst = RandTool.nextUniRandDst(dstMax);
+				ci ++;
+				nextDst = (RandTool.nextDouble() * dstMax) as Int; 
+				i += nextDst + 1; 
 			}
 		} else {
 			//Special case for full dense matrix
@@ -284,7 +287,7 @@ public class CompressArray {
 	 * @param return   	-- number of nonzeros added
 	 */
 	public def initRandomFast(offset:Int, maxIndex:Int, nzd:Double) =
-		initRandomFast(offset, maxIndex, nzd, 0, -1);
+		initRandomFast(offset, 0, maxIndex, nzd, 0, -1);
 
 	/**
 	 * Make a copy of myself
@@ -472,13 +475,18 @@ s	 * has different original size (uncompress data array size) from the source.
 	public static def copy(src:CompressArray, var srcoff:Int,
 						   dst:CompressArray, var dstoff:Int, len:Int, idxchg:Int) : void {
 		if (len <= 0) return;
-		val srcend = srcoff + len;
+		//val srcend = srcoff + len;
 		//Size test should be performed before calling this method for better performance
 		dst.testIncStorage(dstoff, len);
 
-		for (;srcoff < srcend; srcoff++, dstoff++){
-		    dst(dstoff) = Pair(src.getIndex(srcoff)-idxchg, src.getValue(srcoff));
+		//for (;srcoff < srcend; srcoff++, dstoff++){
+		//    dst(dstoff) = Pair(src.getIndex(srcoff)-idxchg, src.getValue(srcoff));
+		//}
+		Array.copy[Int   ](src.index, srcoff, dst.index, dstoff, len);
+		if (idxchg!=0) {
+			for (var i:Int=dstoff; i<dstoff+len; i++)	dst.index(i) -= idxchg;
 		}
+		Array.copy[Double](src.value, srcoff, dst.value, dstoff, len);
 		dst.count += len;
 	}
 
@@ -496,14 +504,12 @@ s	 * has different original size (uncompress data array size) from the source.
 	public static def copy(src:CompressArray, var srcoff:Int, 
 						   dst:CompressArray, var dstoff:Int, len:Int) : void {
 		if (len <= 0) return;
-		//Size test should be performed ahead of copying for better performance
+		//Size test should be performed before calling this method for better performance
 		dst.testIncStorage(dstoff, len);
 
-		val srcend = srcoff + len;
-		for (;srcoff < srcend; srcoff++, dstoff++){
-		    dst(dstoff) = Pair(src.getIndex(srcoff), src.getValue(srcoff));
-		}
-		dst.count += len;
+		Array.copy[Int   ](src.index, srcoff, dst.index, dstoff, len);
+		Array.copy[Double](src.value, srcoff, dst.value, dstoff, len);
+		dst.count += len;	
 	}
 
 	//--------------------------------------------------------------------

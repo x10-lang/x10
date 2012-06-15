@@ -158,9 +158,11 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 			val cid = gp.getColBlockId(p);
 			val m   = gp.rowBs(rid);
 			val n   = gp.colBs(cid);
+			val roff= gp.startRow(rid);
+			val coff= gp.startCol(cid);
 			at (ddb.dist(p)) async {
 				val sps = new SparseCSC(m, n, da(p));
-				ddb(p) = new SparseBlock(rid, cid, sps);
+				ddb(p) = new SparseBlock(rid, cid, roff, coff, sps);
 			}
 		}
 		return new DistSparseMatrix(gp, ddb) ;		
@@ -179,9 +181,11 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 			val cid = gp.getColBlockId(p);
 			val m   = gp.rowBs(rid);
 			val n   = gp.colBs(cid);
+			val roff= gp.startRow(rid);
+			val coff= gp.startCol(cid);
 			at (ddb.dist(p)) async {
 				val sps = new SparseCSC(m, n, da());
-				ddb(p) = new SparseBlock(rid, cid, sps);
+				ddb(p) = new SparseBlock(rid, cid, roff, coff, sps);
 			}
 		}
 		return new DistSparseMatrix(gp, ddb) ;		
@@ -256,16 +260,12 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	 * a given initial function.
 	 */
 	public def init(f:(Int,Int)=>Double): DistSparseMatrix(this) {
-		var coloff:Int=0;
-		var rowoff:Int=0;
-		finish for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), cb++) {
-			rowoff = 0;
-			for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+		finish for (var cb:Int=0; cb<grid.numColBlocks; cb++) {
+			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
 				val pid = grid.getBlockId(rb, cb);
-				val roff:Int = rowoff;
-				val coff:Int = coloff;
+
 				async at(distBs.dist(pid)) {
-					distBs(pid).init(roff, coff, f);
+					distBs(pid).init(f);
 				}
 			}
 		}
@@ -464,8 +464,10 @@ public class DistSparseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix/*(g
 	public def setBlock(i:Int, dm:SparseCSC) : void {
 		val r = grid.getRowBlockId(i);
 		val c = grid.getColBlockId(i);
+		val roff = grid.startRow(r);
+		val coff = grid.startCol(c);
 		at (this.distBs.dist(i)) {
-			distBs(here.id()) = new SparseBlock(r, c, dm);
+			distBs(here.id()) = new SparseBlock(r, c, roff, coff, dm);
 		}
 	}
 

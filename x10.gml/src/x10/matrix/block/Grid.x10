@@ -11,6 +11,8 @@
 package x10.matrix.block;
 
 import x10.compiler.Inline;
+import x10.util.StringBuilder;
+
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
 
@@ -37,7 +39,7 @@ import x10.matrix.MathTool;
  * grid-partitioning.
  */
 public type Grid(bM:Int,bN:Int)=Grid{self.numRowBlocks==bM, self.numColBlocks==bN};
-public type Grid(m:Int,n:Int,bM:Int,bN:Int)=Grid{self.M==M,self.N==N,self.numRowBlocks==bM,self.numColBlocks==bN};
+public type Grid(m:Int,n:Int,bM:Int,bN:Int)=Grid{self.M==m,self.N==n,self.numRowBlocks==bM,self.numColBlocks==bN};
 
 public class Grid(M:Int, N:Int,numRowBlocks:Int, numColBlocks:Int) {
 	/**
@@ -463,14 +465,15 @@ public class Grid(M:Int, N:Int,numRowBlocks:Int, numColBlocks:Int) {
 	//=========================================================
 	//
 	public def toString() : String {
-
-		var output:String="\t";
-		for (var i:Int=0; i<numColBlocks; i++)
-			output += "["+ colBs(i) + "] ";
-		output += "\n";
-		for (var i:Int=0; i<numRowBlocks; i++)
-			output += "["+rowBs(i)+"]\n";
-		return output;
+		val strbld = new StringBuilder();
+		strbld.add("Partition "+M+" rows into "+numRowBlocks+" [");
+		for (var i:Int=0; i<numColBlocks; i++, strbld.add(","))
+			strbld.add(rowBs(i));
+		strbld.add("]\nPartition "+N+" cols into "+numColBlocks+" [");
+		for (var i:Int=0; i<numRowBlocks; i++, strbld.add(","))
+			strbld.add(colBs(i));
+		strbld.add("]\n");
+		return strbld.toString();
 	}
 	//
 	public def print() {

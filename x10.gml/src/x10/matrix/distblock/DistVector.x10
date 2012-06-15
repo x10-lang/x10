@@ -83,20 +83,6 @@ public class DistVector(M:Int) {
 		return new DistVector(m, hdv, segsz) as DistVector(m);
 	}
 
-	// public static def make(m:Int, numBlk:Int, numPlz:Int):DistVector(m) {
-	// 	Debug.assure(m>=numBlk&&numBlk>=numPlz, "Creating dist vector fails. Unsatisfied Vsize <= num blocks < num places");
-	// 	val szlst = new Array[Int](numPlz, (i:Int)=>0);
-	// 	
-	// 	var bcnt:Int = 0;
-	// 	for (var p:Int=0; p<numPlz; p++) {
-	// 		val nblk = Grid.compBlockSize(numBlk, numPlz, p);
-	// 		for (var b:Int=0; b<nblk; b++, bcnt++) {
-	// 			szlst(p) += Grid.compBlockSize(m, numBlk, bcnt);
-	// 		}
-	// 	}
-	// 	Debug.flushln("DistVector size:"+szlst.toString());
-	// 	return make(m, szlst);
-	// }
 	//====================================================================================
 	
 	public def alloc(m:Int):DistVector(m) = make(m);

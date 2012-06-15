@@ -19,6 +19,7 @@ import x10.compiler.Inline;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.MatrixBuilder;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 
@@ -27,18 +28,24 @@ import x10.matrix.sparse.SparseCSC;
  * the base class for dense block matrix and sparse block matrix class. It can be used to build
  * dense-sparse mixed matrix blocks too.
  */
-public abstract class MatrixBlock {
+public abstract class MatrixBlock(myRowId:Int, myColId:Int) {
 
 	//-------------------------------
 	// Block indexing fields:
-	/**
-	 * Row block index id.
-	 */
-	public val myRowId:Int;
-	/**
-	 * Column block index id.
-	 */
-	public val myColId:Int;
+	// /**
+	//  * Row block index id.
+	//  */
+	// public val myRowId:Int;
+	// /**
+	//  * Column block index id.
+	//  */
+	// public val myColId:Int;
+	// 
+	// /**
+	//  * Starting row and column
+	//  */
+	public val rowOffset:Int;
+	public val colOffset:Int;
 	
 	//----------------------------
 
@@ -73,9 +80,10 @@ public abstract class MatrixBlock {
 	 * @param rid    row block index in partitioning grid
 	 * @param cid    column block index in partitioning grid
 	 */
-	public def this(rid:Int, cid:Int) {
-		myRowId = rid;
-		myColId = cid;
+	public def this(rid:Int, cid:Int, roff:Int, coff:Int) {
+		property(rid, cid);
+		rowOffset=roff;
+		colOffset=coff;
 	}
 
 	/**
@@ -95,15 +103,15 @@ public abstract class MatrixBlock {
 	 * @param yoff      the column index of block matrix in the global matrix
 	 * @param f         function given global row and column indexes returns a double value
 	 */
-	abstract public def init(xoff:Int, yoff:Int, f:(Int,Int)=>Double) : void;
+	abstract public def init(f:(Int,Int)=>Double) : void;
 	
-	/**
-	 * Initial block matrix data using function, which maps (block ID, block row index, block column index]
-	 * to a double value.
-	 */
-	public def init(f:(Int, Int)=>Double):void {
-		getMatrix().init(f); 
-	}
+	// /**
+	//  * Initial block matrix data using function, which maps (block ID, block row index, block column index]
+	//  * to a double value.
+	//  */
+	// public def init(f:(Int, Int)=>Double):void {
+	// 	getMatrix().init(f); 
+	// }
 
 	/**
 	 * For testing purpose.
@@ -120,7 +128,12 @@ public abstract class MatrixBlock {
 	 * @param up         upper bound for random value
 	 */
 	abstract public def initRandom(lo:Int, up:Int) : void;
-
+	
+	abstract public def getBuilder() : MatrixBuilder;
+	abstract public def initRandom(nonzeroDensity:Double) : void;
+	abstract public def initRandomSym(halfDensity:Double) : void;
+	abstract public def initRandomTri(halfDensity:Double, up:Boolean) : void;
+	
 	//===================================================
 	/**
 	 * Allocate memory space for the same matrix block of this
@@ -215,6 +228,11 @@ public abstract class MatrixBlock {
 		calcTime += Timer.milliTime() - st;
 	}
 	//============================================================
+	//Transpose methods
+	//abstract public def transposeFrom(srcblk:MatrixBlock):void;
+	//abstract public def transposeTo(dstblk:MatrixBlock):void;
+	abstract public def transposeFrom(srcmat:Matrix):void ;
+
 	
 	//--------------------------------
 	
@@ -247,8 +265,8 @@ public abstract class MatrixBlock {
 	
 	//--------------------------------
 	public def toString() : String {
-		val output:String = "Matrix Block ("+myRowId+","+myColId+") : " +
-							   getMatrix().toString();
+		val output:String = "Matrix Block ("+myRowId+","+myColId+") " +
+		"Offset:"+rowOffset+","+colOffset+") "+getMatrix().toString();
 		return output;
 	}
 	//
@@ -264,7 +282,8 @@ public abstract class MatrixBlock {
 		Debug.println(msg+this.toString());
 	}
 	public def printMatrix(msg:String) {
-		getMatrix().printMatrix("Block ("+myRowId+","+myColId+") : "+msg);
+		getMatrix().printMatrix("Block ("+myRowId+","+myColId+") "+
+				"Offset:"+rowOffset+","+colOffset+") "+msg);
 	}
 
 }

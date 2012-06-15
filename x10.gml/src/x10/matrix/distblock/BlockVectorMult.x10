@@ -49,8 +49,8 @@ public class BlockVectorMult  {
 		while (itr.hasNext()) {
 			val ablk = itr.next();
 			//No need to comput row and column offset for every block, when dist is DistGrid.
-			val rowOff = grid.startRow(ablk.myRowId)-offsetC;
-			val colOff = grid.startCol(ablk.myColId)-offsetB;
+			val rowOff = ablk.rowOffset - offsetC;//grid.startRow(ablk.myRowId)-offsetC;
+			val colOff = ablk.colOffset - offsetB;//grid.startCol(ablk.myColId)-offsetB;
 			//val rowCnt = grid.rowBs(ablk.myRowId);
 			//val colCnt = grid.colBs(ablk.myColId);
 			val mA = ablk.getMatrix();
@@ -77,11 +77,11 @@ public class BlockVectorMult  {
 		//		val ablk = blockMap(rb, cb);
 		while (itr.hasNext()) {
 			val ablk = itr.next();
-			val rowOff = grid.startRow(ablk.myRowId) - offsetB;
-			val colOff = grid.startCol(ablk.myColId) - offsetC;
+			val rowOff = ablk.rowOffset - offsetB;//grid.startRow(ablk.myRowId) - offsetB;
+			val colOff = ablk.colOffset - offsetC;//grid.startCol(ablk.myColId) - offsetC;
 			//val rowCnt = grid.rowBs(ablk.myRowId);
 			//val colCnt = grid.colBs(ablk.myColId);
-			val mA = ablk.getMatrix() as Matrix(bV.M);
+			val mA = ablk.getMatrix();
 			//Debug.flushln("Vector:"+rowOff+" * block:"+ablk.myRowId+","+ablk.myColId+"=>Vector:"+colOff);
 			VectorMult.comp(bV, rowOff, mA, cV, colOff, true);
 		}

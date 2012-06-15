@@ -12,6 +12,7 @@
 package x10.matrix.sparse;
 
 import x10.io.Console;
+import x10.compiler.Inline;
 import x10.util.Pair;
 import x10.util.StringBuilder;
 import x10.matrix.Debug;
@@ -102,8 +103,7 @@ public class Compress2D {
 	 * @param count     Number of lines
 	 * @param lineSize     Array of sizes of lines.
 	 */
-	public static def make(ca:CompressArray, start:Int, count:Int,
-						   lineSize:Array[Int](1)):Compress2D {
+	public static def make(ca:CompressArray, start:Int, count:Int, lineSize:Array[Int](1)):Compress2D {
 		Debug.assure(start+count <= lineSize.size);
 		val cd = new Array[Compress1D](count);
 		var sourceLine:Int = start;
@@ -131,11 +131,25 @@ public class Compress2D {
 		var offset:Int=0;
 		val ca = getStorage();
 		for (var l:Int=0; l<cLine.size; l++) {
-			cLine(l).initConst(ldm, v, nzp, offset, ca);
+			cLine(l).initConst(0, ldm, v, nzp, offset, ca);
 			offset += cLine(l).length;
 		}
 		return offset;
 	}
+	
+	public def initConst(up:Boolean, ldm:Int, v:Double, nzp:Double):Int {
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var l:Int=0; l<cLine.size; l++) {
+			if (up) 
+				cLine(l).initConst(0, l>ldm?ldm:l, v, nzp, offset, ca);
+			else
+				cLine(l).initConst(l, ldm, v, nzp, offset, ca);
+			offset += cLine(l).length;
+		}
+		return offset;
+	}
+	
 	/**
 	 * Initialize Compress2D with random values.
 	 *
@@ -147,13 +161,33 @@ public class Compress2D {
 		var offset:Int=0;
 		val ca = getStorage();
 		for (var l:Int=0; l<cLine.size; l++) {
-			cLine(l).initRandom(ldm, nzp, offset, ca);
+			cLine(l).initRandom(0, ldm, nzp, offset, ca);
 			offset += cLine(l).length;
 		}
 		return offset;
 	}
 	
-	
+	/**
+	 * Initialize half triangular part of Compress2D with random values.
+	 * 
+	 * @param up	  Upper part or lower part 
+	 * @param ldm     Leading dimension of compress lines or the original size
+	 * @param nzp     Nonzero sparsity 
+	 * @return        number of nonzero count;
+	 */
+	public def initRandom(up:Boolean, ldm:Int, nzp:Double): Int {
+		var offset:Int=0;
+		val ca = getStorage();
+		for (var l:Int=0; l<cLine.size; l++) {
+			if (up)
+				cLine(l).initRandom(0, l>ldm?ldm:l, nzp, offset, ca);
+			else
+				cLine(l).initRandom(l, ldm, nzp, offset, ca);
+
+			offset += cLine(l).length;
+		}
+		return offset;
+	}
 	
 	/**
 	 * Initialize with random values 
@@ -173,9 +207,23 @@ public class Compress2D {
 			//Debug.flushln("Random initial compress line "+l);
 			cLine(l).initRandomFast(ldm, nzp, offset, ca, lb, ub);
 			offset += cLine(l).length;
-			// if (here.id()==0) {
-			// 	Console.OUT.print(".");Console.OUT.flush();
-			// }
+		}
+		return offset;
+	}
+	
+	public def initRandomFast(up:Boolean, ldm:Int, nzp:Double, lb:Int, ub:Int):Int {
+		var offset:Int=0;
+		val ca = getStorage();
+		val nl:Int = cLine.size;
+		//val ll:Int = nl /100 >0?nl/100:1;
+		for (var l:Int=0; l<nl; l++) {
+			//Debug.flushln("Random initial compress line "+l);
+			if (up)
+				cLine(l).initRandomFast(0, l>ldm?ldm:l, nzp, offset, ca, lb, ub);
+			else
+				cLine(l).initRandomFast(l, ldm, nzp, offset, ca, lb, ub);
+
+			offset += cLine(l).length;
 		}
 		return offset;
 	}
@@ -189,6 +237,8 @@ public class Compress2D {
 	public def initRandomFast(ldm:Int, nzp:Double) =
 		initRandomFast(ldm, nzp, 0, 0);
 
+	public def initRandomFast(up:Boolean, ldm:Int, nzp:Double) =
+		initRandomFast(up, ldm, nzp, 0, 0);
 	
 	//-------------------------------------------------------------
 	/**
@@ -199,11 +249,7 @@ public class Compress2D {
 	 * @param nzp          Nonzero sparsity
 	 * @param ca           The data storage for compress array.
 	 */
-	public static def makeRand(n:Int,
-							   maxIndex:Int, 
-							   nzp:Double,
-							   ca:CompressArray
-							   ):Compress2D {
+	public static def makeRand(n:Int, maxIndex:Int, nzp:Double, ca:CompressArray):Compress2D {
 		val c2d = Compress2D.make(n, ca);
 		c2d.initRandom(maxIndex, nzp);
 		return c2d;
@@ -216,11 +262,7 @@ public class Compress2D {
 	 * @param nzp          Nonzero percentage
 	 * @param ca           The data storage for compress array.
 	 */
-	public static def makeRandomFast(n:Int,
-									 maxIndex:Int, 
-									 nzp:Double,
-									 ca:CompressArray
-									 ):Compress2D {
+	public static def makeRandomFast(n:Int, maxIndex:Int, nzp:Double, ca:CompressArray):Compress2D {
 		val c2d = Compress2D.make(n, ca);
 		c2d.initRandomFast(maxIndex, nzp);
 		return c2d;

@@ -11,6 +11,7 @@
 
 package x10.matrix.block;
 
+import x10.compiler.Inline;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
@@ -26,6 +27,10 @@ import x10.matrix.sparse.Compress1D;
 import x10.matrix.sparse.Compress2D;
 //
 import x10.matrix.sparse.SparseCSC;
+import x10.matrix.sparse.SymSparseCSC;
+import x10.matrix.sparse.SparseCSCBuilder;
+import x10.matrix.sparse.SymSparseBuilder;
+import x10.matrix.sparse.TriSparseBuilder;
 
 // Sparse matrix multiplication
 //import x10.matrix.sparse.SparseMultToCSCol;
@@ -38,6 +43,7 @@ import x10.matrix.sparse.SparseCSC;
 public class SparseBlock extends MatrixBlock {
 	//
 	public val sparse:SparseCSC;
+	public var builder:SparseCSCBuilder(sparse.M,sparse.N) = null;
 	//
 	//--------- Profiling ---------
 	public var calcTime:Long=0;
@@ -51,8 +57,8 @@ public class SparseBlock extends MatrixBlock {
 	 * @param  cid      block's column id
 	 * @param  m        the sparse matrix in CSC format
 	 */
-	public def this(rid:Int, cid:Int, m:SparseCSC) {
-		super(rid, cid);
+	public def this(rid:Int, cid:Int, roff:Int, coff:Int, m:SparseCSC) {
+		super(rid, cid, roff, coff);
 		sparse = m;
 	}
 
@@ -72,7 +78,7 @@ public class SparseBlock extends MatrixBlock {
 		val m = gp.rowBs(rid);
 		val n = gp.colBs(cid);
 		val smat = new SparseCSC(m, n, cdat);
-		return new SparseBlock(rid, cid, smat);
+		return new SparseBlock(rid, cid, gp.startRow(rid), gp.startCol(cid), smat);
 	}
 	
 	/**
@@ -89,7 +95,7 @@ public class SparseBlock extends MatrixBlock {
 		val m = gp.rowBs(rid);
 		val n = gp.colBs(cid);
 		val smat = SparseCSC.make(m, n, nzcnt);
-		return new SparseBlock(rid, cid, smat);
+		return new SparseBlock(rid, cid, gp.startRow(rid), gp.startCol(cid), smat);
 	}
 	
 	/**
@@ -107,7 +113,7 @@ public class SparseBlock extends MatrixBlock {
 		val n = gp.colBs(cid);
 		val nzcnt:Int = (nzd*m*n) as Int;
 		val smat = SparseCSC.make(m, n, nzcnt);
-		return new SparseBlock(rid, cid, smat);
+		return new SparseBlock(rid, cid, gp.startRow(rid), gp.startCol(cid), smat);
 	}
 	
 	/**
@@ -121,11 +127,11 @@ public class SparseBlock extends MatrixBlock {
 	 * @param  n        columns in block
 	 * @param  nzd      sparsity in block
 	 */
-	public static def make(rid:Int, cid:Int, m:Int, n:Int, nzd:Double
+	public static def make(rid:Int, cid:Int, roff:Int, coff:Int, m:Int, n:Int, nzd:Double
 	) : SparseBlock {
 		val nzcnt:Int = (nzd*m*n) as Int;
 		val smat = SparseCSC.make(m, n, nzcnt);
-		return new SparseBlock(rid, cid, smat);
+		return new SparseBlock(rid, cid, roff, coff, smat);
 	}
 	
 	/**
@@ -138,11 +144,17 @@ public class SparseBlock extends MatrixBlock {
 	 * @param  n        columns in block
 	 * @param  nzcnt    nonzero count
 	 */
-	public static def make(rid:Int, cid:Int, m:Int, n:Int, nzcnt:Int
+	public static def make(rid:Int, cid:Int, roff:Int, coff:Int, m:Int, n:Int, nzcnt:Int
 	) : SparseBlock {
 		val smat = SparseCSC.make(m, n, nzcnt);
-		return new SparseBlock(rid, cid, smat);
+		return new SparseBlock(rid, cid, roff, coff, smat);
 	}	
+	
+	public def getBuilder():SparseCSCBuilder(sparse.M,sparse.N) {
+		if (builder == null)
+			return SparseCSCBuilder.make(sparse.M, sparse.N);
+		return builder;
+	}
 	
 	//----------------------------------------------------
 	//Initialization
@@ -162,8 +174,8 @@ public class SparseBlock extends MatrixBlock {
 	 * Initialize matrix block data with input function, given offset on 
 	 * row and column.
 	 */
-	public def init(x_off:Int, y_off:Int, f:(Int, Int)=>Double):void {
-		sparse.init(x_off, y_off, f);
+	public def init(f:(Int, Int)=>Double):void {
+		sparse.init(rowOffset, colOffset, f);
 	}
 	
 	/**
@@ -180,7 +192,22 @@ public class SparseBlock extends MatrixBlock {
 	 * @param  nzd      sparsity of the block
 	 */
 	public def initRandom(nzd:Double):void {
-		sparse.initRandom(nzd);
+		val bdr = getBuilder();
+		bdr.initRandom(nzd);
+	}
+
+	public def initRandomSym(halfNZDensity:Double):void {
+		val bdr = getBuilder();
+		Debug.assure(sparse.M==sparse.N, "Not square matrix block");
+		val symbdr = new SymSparseBuilder(bdr as SparseCSCBuilder(sparse.M));
+		symbdr.initRandom(halfNZDensity).toSparseCSC(sparse as SparseCSC(symbdr.M,symbdr.M));
+	}
+
+	public def initRandomTri(halfNZDensity:Double,up:Boolean):void {
+		val bdr = getBuilder();
+		Debug.assure(sparse.M==sparse.N, "Not square matrix block");
+		val tribdr = new TriSparseBuilder(up, bdr as SparseCSCBuilder(sparse.M));
+		tribdr.initRandom(halfNZDensity).toSparseCSC(sparse as SparseCSC(tribdr.M,tribdr.M));
 	}
 	
 	/**
@@ -214,7 +241,6 @@ public class SparseBlock extends MatrixBlock {
 	 */
 	public def getIndex():Array[Int](1)     = sparse.getIndex();
 
-	
 	//-------------------------------------------------------------------
 	//
 	public operator this(r:Int, c:Int) = sparse(r, c);
@@ -222,20 +248,17 @@ public class SparseBlock extends MatrixBlock {
 	//-------------------------------------------------------------------
 	// Overwrite MatrixBlock methods
 
-	public def alloc(m:Int, n:Int) =
-		new SparseBlock(myRowId, myColId, sparse.alloc(m, n));	
-	public def alloc() =
-		new SparseBlock(myRowId, myColId, sparse.alloc(sparse.M, sparse.N));
+	public def alloc(m:Int, n:Int) = new SparseBlock(myRowId, myColId, rowOffset, colOffset, sparse.alloc(m, n));	
+	public def alloc() = new SparseBlock(myRowId, myColId, rowOffset, colOffset, sparse.alloc(sparse.M, sparse.N));
 	
 	public def allocFull(m:Int, n:Int) = 
-		make(myRowId, myColId, m, n, 1.0);
-		
+		make(myRowId, myColId, rowOffset, colOffset, m, n, 1.0);
 	
 	
 	/**
 	 * Make a copy of myself
 	 */
-	public def clone() = new SparseBlock(myRowId, myColId, sparse.clone());
+	public def clone() = new SparseBlock(myRowId, myColId, rowOffset, colOffset, sparse.clone());
 	
 	/**	
 	 * Reset block fields 
@@ -348,6 +371,30 @@ public class SparseBlock extends MatrixBlock {
 // 		else 
 // 			Debug.exit("Error in input block matrix types");
 // 	}
+	//==================================================================
+	// Transpose
+	public def transposeFrom(srcblk:SparseBlock) {
+		val src = srcblk.sparse as SparseCSC(sparse.N,sparse.M);
+		val bdr = getBuilder();
+		bdr.initTransposeFrom(src);
+		bdr.toSparseCSC(sparse);
+	}
+	
+	public def transposeTo(spablk:SparseBlock) {
+		spablk.transposeFrom(this);
+	}
+	
+	public def transposeFrom(srcmat:Matrix) {
+		if (srcmat instanceof SparseCSC) {
+			val src = srcmat as SparseCSC(sparse.N,sparse.M);
+			val bdr = getBuilder();
+			bdr.initTransposeFrom(src);
+			bdr.toSparseCSC(sparse);
+		} else {
+			Debug.exit("Matrix types are not supported in transpose method");
+		}
+	}
+
 	//==================================================================
 	// Utils
 	//==================================================================

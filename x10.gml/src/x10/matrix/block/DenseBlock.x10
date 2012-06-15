@@ -11,6 +11,7 @@
 
 package x10.matrix.block;
 
+import x10.compiler.Inline;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
@@ -19,6 +20,9 @@ import x10.util.StringBuilder;
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
+import x10.matrix.SymDense;
+import x10.matrix.TriDense;
+import x10.matrix.DenseBuilder;
 
 /**
  * Dense block is used to build dense block matrix (at single place) or 
@@ -26,11 +30,12 @@ import x10.matrix.DenseMatrix;
  * 
  */
 public class DenseBlock extends MatrixBlock {
-	//
+	
 	/**
 	 * Dense matrix field
 	 */
 	public val dense:DenseMatrix;
+	public val builder:DenseBuilder(dense.M,dense.N);
 	//
 	//--------- Profiling ---------
 	//public var calcTime:Long=0;
@@ -46,23 +51,12 @@ public class DenseBlock extends MatrixBlock {
 	 * @param  cid      block's column id
 	 * @param  m        the dense matrix
 	 */
-	public def this(rid:Int, cid:Int, m:DenseMatrix) {
-		super(rid, cid);
+	public def this(rid:Int, cid:Int, roff:Int, coff:Int, m:DenseMatrix) {
+		super(rid, cid, roff, coff);
 		dense = m;
+		builder = new DenseBuilder(dense);
 	}
-	/**
-	 * Construct a dense-matrix block instance with specified row index, column index and
-	 * dense matrix object.
-	 * 
-	 * @param  rid      block's row id
-	 * @param  cid      block's column id
-	 * @param  m, n     matrix demensions
-	 * @param  d        the dense matrix data storage
-	 */
-	public def this(rid:Int, cid:Int, m:Int, n:Int, d:Array[Double](1){rail}) {
-		super(rid, cid);
-		dense = new DenseMatrix(m, n, d);
-	}
+
 	//---------------------------------------------------
 	/**
 	 * Create a dense matrix block in a grid partition.
@@ -72,9 +66,9 @@ public class DenseBlock extends MatrixBlock {
 	 * @param m       block rows
 	 * @param n       block columns
 	 */
-	public static def make(rid:Int, cid:Int, m:Int, n:Int):DenseBlock {
+	public static def make(rid:Int, cid:Int, roff:Int, coff:Int, m:Int, n:Int):DenseBlock {
 		val dmat = DenseMatrix.make(m, n);
-		return new DenseBlock(rid, cid, dmat);	
+		return new DenseBlock(rid, cid, roff, coff, dmat);	
 	}
 	
 	/**
@@ -93,7 +87,7 @@ public class DenseBlock extends MatrixBlock {
 		val m = gp.rowBs(rid);
 		val n = gp.colBs(cid);
 		val dmat = new DenseMatrix(m, n, da);
-		return new DenseBlock(rid, cid, dmat);
+		return new DenseBlock(rid, cid, gp.startRow(rid), gp.startCol(cid), dmat);
 	}
 	//
 	/**
@@ -107,7 +101,7 @@ public class DenseBlock extends MatrixBlock {
 		val m = gp.rowBs(rid);
 		val n = gp.colBs(cid);
 		val dmat = DenseMatrix.make(m, n);
-		return new DenseBlock(rid, cid, dmat);	
+		return new DenseBlock(rid, cid, gp.startRow(rid), gp.startCol(cid), dmat);	
 	}
 
 	//
@@ -125,8 +119,8 @@ public class DenseBlock extends MatrixBlock {
 	 * Initialize matrix block data with input function, given offset on 
 	 * row and column.
 	 */
-	public def init(x_off:Int, y_off:Int, f:(Int, Int)=>Double):void {
-		dense.init(x_off, y_off, f);
+	public def init(f:(Int, Int)=>Double):void {
+		dense.init(rowOffset, colOffset, f);
 	}
 	
 	/**
@@ -136,7 +130,20 @@ public class DenseBlock extends MatrixBlock {
 	public def initRandom(): void {
 		dense.initRandom();
 	}
-	//
+	
+	public def getBuilder():DenseBuilder(dense.M,dense.N) = builder;
+	
+	public def initRandom(nonZeroDensity:Double) : void {
+		builder.initRandom(nonZeroDensity);
+	}
+	
+	public def initRandomSym(halfDensity:Double) : void {
+		builder.initRandomSym(halfDensity);
+	}
+	
+	public def initRandomTri(halfDensity:Double, up:Boolean) : void {
+		builder.initRandomTri(halfDensity, up);
+	}
 	
 	/**
 	 * Initialize matrix block data with random values between given
@@ -149,6 +156,9 @@ public class DenseBlock extends MatrixBlock {
 		dense.initRandom(lb, ub);
 	}
 	
+	public def initRandomSym(lb:Int, ub:Int) {
+		dense.initRandom(lb, ub);
+	}
 	//==================================================================
 	// Data access
 	//==================================================================
@@ -174,14 +184,14 @@ public class DenseBlock extends MatrixBlock {
 	// Some short-keys for matrix functions
 	//======================================
 
-	public def alloc(m:Int, n:Int) = new DenseBlock(myRowId, myColId, dense.alloc(m, n));	
+	public def alloc(m:Int, n:Int) = new DenseBlock(myRowId, myColId, rowOffset, colOffset, dense.alloc(m, n));	
 
-	public def alloc()             = new DenseBlock(myRowId, myColId, dense.alloc(dense.M, dense.N));
-	public def allocFull(m:Int, n:Int) = new DenseBlock(myRowId, myColId, dense.alloc(m, n));
+	public def alloc()             = new DenseBlock(myRowId, myColId, rowOffset, colOffset, dense.alloc(dense.M, dense.N));
+	public def allocFull(m:Int, n:Int) = new DenseBlock(myRowId, myColId, rowOffset, colOffset, dense.alloc(m, n));
 
 	public def clone() {
 		//Debug.flushln("Clone dense block");
-		val ndb = new DenseBlock(myRowId, myColId, dense.clone());
+		val ndb = new DenseBlock(myRowId, myColId, rowOffset, colOffset, dense.clone());
 		return ndb;
 	}
 	
@@ -288,6 +298,31 @@ public class DenseBlock extends MatrixBlock {
 	}
 	
 	public def compColDataSize(colOff:Int, colCnt:Int) :Int = dense.M*colCnt;
+	//==================================================================
+	// Transpose methods
+	
+	public def transposeFrom(srcblk:DenseBlock) {
+		val src = srcblk.dense;
+		val dst = this.dense as DenseMatrix(src.N,src.M); 
+		src.T(dst);
+	}
+	
+	public def transposeTo(dstblk:DenseBlock) {
+		val src = this.dense;
+		val dst = dstblk.dense as DenseMatrix(src.N,src.M); 
+		src.T(dst);
+	}
+	
+	public def transposeFrom(srcmat:Matrix) {
+		if (srcmat instanceof DenseMatrix) {
+			val src = srcmat as DenseMatrix;
+			val dst = dense as DenseMatrix(src.N,src.M);
+			src.T(dst);
+		} else {
+			Debug.exit("Matrix types are not supported in transpose method");
+		}
+	}		
+
 
 	//==================================================================
 	public def getStorageSize():Int = dense.M*dense.N;
