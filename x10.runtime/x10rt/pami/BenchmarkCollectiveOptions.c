@@ -309,7 +309,7 @@ int main(int argc, char ** argv) {
 	   int teamSize = state.numPlaces;
 	   {
 			if (state.myPlaceId == 0) printf("New team size = %u\n", teamSize);
-			if (teamSize > state.numPlaces) // handle teams that aren't a power of 2 in size
+			if (teamSize >= state.numPlaces) // handle teams that aren't a power of 2 in size
 			{
 				teamSize = state.numPlaces;
 				currentGeometry = state.world_geometry;
@@ -349,7 +349,7 @@ int main(int argc, char ** argv) {
 
 			// test the algorithms
 			for (j=0; j<num_algorithms[0]; j++)
-				test(collective, teamSize, j, dataSize, always_works_alg[j], must_query_md[j].name, dataSnd, dataRcv);
+				test(collective, teamSize, j, dataSize, always_works_alg[j], always_works_md[j].name, dataSnd, dataRcv);
 			for (j=0; j<num_algorithms[1]; j++)
 				test(collective, teamSize, j+num_algorithms[0], dataSize, must_query_alg[j], must_query_md[j].name, dataSnd, dataRcv);
 
