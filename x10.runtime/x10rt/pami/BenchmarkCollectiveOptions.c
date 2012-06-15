@@ -300,17 +300,14 @@ int main(int argc, char ** argv) {
 	char* dataRcv = (char*)malloc(DATASIZE);
 	if (dataRcv == NULL) error("Not enough memory!\n");
 
-/*	replaced this bit with fixed values, for all-to-all testing
    for (int collective = 0; collective < NUM_COLLECTIVES; collective++) {
-		for (int team=0; team<numTeams; team++) {
+/*		for (int team=0; team<numTeams; team++) {
 			int teamSize = 1;
 			for (int i=0; i<team; i++)
 				teamSize = teamSize << 1;
 */
-	int collective = 3;
-	int teamSize = state.numPlaces;
-	{{
-
+	   int teamSize = state.numPlaces;
+	   {
 			if (state.myPlaceId == 0) printf("New team size = %u\n", teamSize);
 			if (teamSize > state.numPlaces) // handle teams that aren't a power of 2 in size
 			{
