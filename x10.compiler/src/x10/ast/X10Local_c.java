@@ -32,7 +32,6 @@ import polyglot.types.VarDef;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 
-import x10.constraint.ConstraintManager;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XConstraint;
@@ -45,6 +44,7 @@ import polyglot.types.TypeSystem;
 import x10.types.X10LocalDef_c;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10Local_c extends Local_c {

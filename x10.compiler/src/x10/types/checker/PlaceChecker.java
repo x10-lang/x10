@@ -34,7 +34,7 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.errors.Errors;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.FunctionType_c;
@@ -60,7 +60,7 @@ import x10.util.Synthesizer;
  */
 public class PlaceChecker {
 
-	static final XVar HERE = XTerms.makeUQV("synthetic here");
+	static final XVar HERE = ConstraintManager.getConstraintSystem().makeUQV("synthetic here");
 	//public static final XLit GLOBAL_PLACE = new XLit_c("globalPlace");
 
 	public static XVar here() {
@@ -74,7 +74,7 @@ public class PlaceChecker {
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
 	public static XTerm makePlace() {
-		XTerm place = XTerms.makeUQV(PLACE_HAME);
+		XTerm place = ConstraintManager.getConstraintSystem().makeUQV(PLACE_HAME);
 
 		return place;
 	}
@@ -156,7 +156,7 @@ public class PlaceChecker {
 		XVar selfVar = Types.selfVar(type1);
 		assert selfVar != null;
 		/*if (selfVar == null) {
-		    selfVar = XTerms.makeEQV("self");
+		    selfVar = ConstraintManager.getConstraintSystem().makeEQV("self");
 		    try {
 		        type = X10TypeMixin.setSelfVar(type, selfVar);
 		    } catch (SemanticException e) {
@@ -240,7 +240,7 @@ public class PlaceChecker {
 			c.addBinding(here(), placeTerm.term());
 	}
 
-	static XConstrainedTerm firstPlace = XConstrainedTerm.make(XTerms.makeUQV("FIRST_PLACE"));
+	static XConstrainedTerm firstPlace = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV("FIRST_PLACE"));
 	public static XConstrainedTerm firstPlace(TypeSystem xts) {
 		return firstPlace;
 	}

@@ -39,7 +39,7 @@ import polyglot.util.Transformation;
 import polyglot.util.TransformingList;
 import polyglot.util.TypedList;
 import x10.constraint.XConstraint;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 
 public abstract class ParametrizedType_c extends ReferenceType_c implements ParametrizedType {

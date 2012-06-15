@@ -12,8 +12,6 @@
 package x10.util;
 
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.*;
 
 import polyglot.ast.*;
@@ -31,9 +29,9 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.visit.TypeBuilder;
 import x10.ast.*;
 import x10.constraint.XVar;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.types.*;
-import x10.types.constraints.CTerms;
+
 import x10.extension.X10Ext;
 import x10cpp.visit.SharedVarsMethods;
 
@@ -75,7 +73,7 @@ public class Struct {
        //String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";
      //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-       XVar thisVar = CTerms.makeThis(ct); // CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+       XVar thisVar = ConstraintManager.getConstraintSystem().makeThis(ct); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
 
 

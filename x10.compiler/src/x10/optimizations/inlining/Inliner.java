@@ -77,7 +77,8 @@ import x10.types.X10LocalDef;
 import x10.types.X10ProcedureDef;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
+
 import x10.util.AltSynthesizer;
 import x10.util.AnnotationUtils;
 import x10.visit.ConstantPropagator;
@@ -591,7 +592,7 @@ public class Inliner extends ContextVisitor {
 
     private void tieLocalDef(LocalDef d, LocalDef o) {
         Type type = Types.get(d.type());
-        type = Types.addSelfBinding(type, CTerms.makeLocal((X10LocalDef) o));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLocal((X10LocalDef) o));
         ((Ref<Type>) d.type()).update(type);
     }
 

@@ -71,7 +71,7 @@ import x10.ast.X10New_c.MatcherMaker;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Warnings;
@@ -92,8 +92,8 @@ import polyglot.types.TypeSystem;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 
@@ -253,7 +253,7 @@ public class Converter {
 				// Therefore substitute transformedYs.get(k) for the original CLoc. 
 				for (int k=0; k < j; k++) {
 				    toType = Subst.subst(toType, transformedYs.get(k),
-				            CTerms.makeLocal((X10LocalDef) smi.formalNames().get(k).def()));
+				            ConstraintManager.getConstraintSystem().makeLocal((X10LocalDef) smi.formalNames().get(k).def()));
 				}
 
                 // In DYNAMIC_CHECKS we can't just insert a cast for each argument due to dependencies between arguments, e.g.,
@@ -287,7 +287,7 @@ public class Converter {
 					continue METHOD;
 				Type nType = e2Type;
 				for (int k = 0; k < j; k++) {
-				    nType = Subst.subst(nType, XTerms.makeEQV(), transformedYs.get(k));
+				    nType = Subst.subst(nType, ConstraintManager.getConstraintSystem().makeEQV(), transformedYs.get(k));
 				}
 				if (!nType.typeEquals(e2Type, argtc.context())) {
 				    // Do not add e2. This may contain some of the new variables
@@ -305,7 +305,7 @@ public class Converter {
 					Ref<Type> ref = new LazyRef_c<Type>(e2Type);
 					X10LocalDef def = X10LocalDef_c.makeHidden(ts, Position.COMPILER_GENERATED, Flags.FINAL, ref,
 							Name.makeFresh("arg"));
-					XVar y = CTerms.makeLocal(def);
+					XVar y = ConstraintManager.getConstraintSystem().makeLocal(def);
 					ref.update(Types.addSelfBinding(e2Type, y));
 					transformedYs.add(y);
 					argtc.context().addVariable(def.asInstance());

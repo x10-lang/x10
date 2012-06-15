@@ -63,7 +63,8 @@ import x10.types.X10ProcedureDef;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.QualifiedVar;
+import x10.types.constraints.CQualifiedVar;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -441,7 +442,8 @@ public class Context implements Resolver, Cloneable
             XVar base = outers.get(i).thisVar();
             for (int j=i+1; j < outers.size(); j++ ) {
                 X10ClassDef y = outers.get(j);
-                result.addBinding(y.thisVar(), new QualifiedVar(y.asType(), base));
+                result.addBinding(y.thisVar(), 
+                			      ConstraintManager.getConstraintSystem().makeQualifiedVar(y.asType(), base));
         }
         }
         return result;

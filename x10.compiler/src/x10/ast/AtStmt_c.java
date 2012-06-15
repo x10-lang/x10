@@ -47,7 +47,6 @@ import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.TypeBuilder;
-import x10.constraint.ConstraintManager;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
@@ -65,6 +64,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
 
 /**

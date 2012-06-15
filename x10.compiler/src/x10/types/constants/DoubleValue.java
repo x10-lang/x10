@@ -16,7 +16,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
+
 
 /**
  * A class to represent a constant of type DOuble.
@@ -41,7 +42,7 @@ public final class DoubleValue extends ConstantValue {
 
     @Override
     public FloatLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
         return (FloatLit)nf.FloatLit(pos, FloatLit.DOUBLE, val).type(type);
     }
 

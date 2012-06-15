@@ -19,7 +19,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.types.MethodInstance;
 import x10.types.ParameterType;
@@ -27,7 +27,7 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
-import x10.types.constraints.CTerms;
+
 import x10.types.matcher.Subst;
 
 public class TypeRewriter extends TypeTransformer {
@@ -58,12 +58,12 @@ public class TypeRewriter extends TypeTransformer {
                 Name m = renamingMap.get(n);
                 X10LocalDef ld = (X10LocalDef) localDefMap.get(n);
                 
-                x[i] = CTerms.makeLocal(ld, n.toString());
-                y[i] = CTerms.makeLocal(ld, m.toString());
+                x[i] = ConstraintManager.getConstraintSystem().makeLocal(ld, n.toString());
+                y[i] = ConstraintManager.getConstraintSystem().makeLocal(ld, m.toString());
                 ++i;
             }
-            x[i] = XTerms.makeUQV(); // to force substitution
-            y[i] = XTerms.makeUQV();
+            x[i] = ConstraintManager.getConstraintSystem().makeUQV(); // to force substitution
+            y[i] = ConstraintManager.getConstraintSystem().makeUQV();
             type = Subst.subst(type, y, x);
         } catch (SemanticException e) {
             throw new InternalCompilerError("Cannot alpha-rename locals in type " + type, e);

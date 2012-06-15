@@ -16,7 +16,6 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.XConstrainedTerm;
 
@@ -53,9 +52,10 @@ import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+
 import x10.types.matcher.Subst;
 
 
@@ -248,7 +248,8 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			StringBuilder sb = new StringBuilder();
 			Type base = baseType.getCached();
 			CConstraint c = constraint.getCached();
-			if (c != null && ! c.valid() && (!c.consistent() || !c.extConstraintsHideFake().isEmpty())) {
+			if (c != null && ! c.valid() && (!c.consistent() || 
+					!(c.extConstraintsHideFake().length == 0))) {
 				sb.append(c);
 			}
 			return sb.toString();
@@ -295,7 +296,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			// Get or make a name tt for self.
 			XTerm t = c.bindingForVar(c.self());
 			if (t == null) {
-				t = XTerms.makeEQV();
+				t = ConstraintManager.getConstraintSystem().makeEQV();
 
 			}
 			final XTerm tt = t;
@@ -434,13 +435,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		 * @return
 		 */
 		public ConstrainedType addRank(int x) {
-		    return addRank(CTerms.makeLit(x, ts.Int()));
+		    return addRank(ConstraintManager.getConstraintSystem().makeLit(x, ts.Int()));
 		}
 		public ConstrainedType addSize(int x) {
 		    return addIntProperty(x, Name.make("size"));
 		}
 		public ConstrainedType addIntProperty(int x, Name name) {
-		    return addProperty(CTerms.makeLit(x, ts.Int()), name);
+		    return addProperty(ConstraintManager.getConstraintSystem().makeLit(x, ts.Int()), name);
 		}
 
 		/**
@@ -650,7 +651,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    ConstrainedType result=this;
 		    XTerm xt = findOrSynthesize(Name.make("rect"));
 		    if (xt != null)
-		        result = addBinding(xt, XTerms.TRUE);
+		        result = addBinding(xt, ConstraintManager.getConstraintSystem().xtrue());
 		    return result;
 		}
 		
@@ -662,11 +663,11 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    ConstrainedType result = this;
 		    XTerm xt = findOrSynthesize(Name.make("zeroBased"));
 		    if (xt != null)
-		        result =  addBinding(xt, XTerms.TRUE);
+		        result =  addBinding(xt, ConstraintManager.getConstraintSystem().xtrue());
 		    return result;
 		}
 		public ConstrainedType addNonNull() {
-		    return addSelfDisBinding(XTerms.NULL);
+		    return addSelfDisBinding(ConstraintManager.getConstraintSystem().xnull());
 		}
 		
 		/**

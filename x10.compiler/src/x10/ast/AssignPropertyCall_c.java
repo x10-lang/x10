@@ -43,7 +43,7 @@ import polyglot.visit.TypeBuilder;
 
 import x10.Configuration;
 import x10.constraint.XFailure;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -62,8 +62,9 @@ import x10.types.X10TypeEnv_c;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
+import x10.types.constraints.ConstraintManager;
+
 import x10.types.matcher.Matcher;
 
 /**
@@ -226,11 +227,11 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
             }
             XVar symbol = Types.selfVarBinding(yType);
             if (symbol==null) {
-                symbol = XTerms.makeUQV();
+                symbol = ConstraintManager.getConstraintSystem().makeUQV();
                 CConstraint c = Types.xclause(yType);
                 curr.addIn(symbol, c);
             } 
-            curr.addBinding(CTerms.makeField(thisVar, props.get(i).def()), symbol);
+            curr.addBinding(ConstraintManager.getConstraintSystem().makeField(thisVar, props.get(i).def()), symbol);
 
             if (! curr.consistent()) {
                 Errors.issue(tc.job(),

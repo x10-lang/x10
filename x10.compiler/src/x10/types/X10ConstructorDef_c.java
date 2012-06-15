@@ -29,9 +29,10 @@ import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+
 
 /**
  * An X10ConstructorDef_c varies from a ConstructorDef_c only in that it
@@ -118,7 +119,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis(); // Why #this instead of this?
+        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;

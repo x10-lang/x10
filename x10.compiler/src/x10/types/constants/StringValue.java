@@ -16,7 +16,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
+
 
 /**
  * A constant value that represents a String constant
@@ -40,7 +41,7 @@ public class StringValue extends ConstantValue {
 
     @Override
     public StringLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
         return (StringLit)nf.StringLit(pos, val).type(type);
     }
 

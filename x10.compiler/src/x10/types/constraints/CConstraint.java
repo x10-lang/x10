@@ -39,20 +39,15 @@ import polyglot.types.SemanticException;
 
 
 import x10.constraint.XConstraint;
-import x10.constraint.XDisEquals;
 import x10.constraint.XEQV;
-import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
-import x10.constraint.XNativeConstraint;
-import x10.constraint.XPromise;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.constraint.visitors.XGraphVisitor;
 import x10.types.X10ClassDef;
@@ -80,15 +75,19 @@ import x10.types.constraints.visitors.CEntailsVisitor;
  * @author vj
  *
  */
-public class CConstraint extends XNativeConstraint  implements ThisVar {
+public class CConstraint implements XConstraint, ThisVar {
 
     /** Variable to use for self in the constraint. */
     XVar self;
     XVar thisVar;
-    public CConstraint(XVar self) {this.self = self;}
+    XConstraint constraint;
+    public CConstraint(XVar self) {
+    	this.self = self;
+    	constraint = ConstraintManager.getConstraintSystem().mkConstraint();
+    }
 
     public CConstraint() {
-        this(CTerms.makeSelf());
+        this(ConstraintManager.getConstraintSystem().makeSelf());
     }
 
     /**
@@ -103,8 +102,9 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
     public XVar selfVarBinding() {return  bindingForVar(self());}
     public XVar thisVar() {return thisVar;}
     public boolean hasPlaceTerm() {
-        if (roots==null) return false;
-        for (XTerm t : roots.keySet()) if (PlaceChecker.isGlobalPlace(t)) return true;
+    	XTerm[] terms = constraint.getTerms(); 
+        if (terms==null) return false;
+        for (XTerm t : terms) if (PlaceChecker.isGlobalPlace(t)) return true;
         return false;
     }
 
@@ -117,14 +117,13 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
      * as the selfVar for the original constraint.
      * <p> Always returns a non-null constraint.
      */
-    @Override
     public CConstraint copy() {
         CConstraint result = new CConstraint();
         result.self = this.self();
         result.thisVar = this.thisVar();
+        result.constraint = ConstraintManager.getConstraintSystem().mkConstraint(); 
         result.addIn(this);
         return result;
-        //return copyInto(result);
     }
 
 
@@ -242,7 +241,6 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
      * Substitute y for x in this, returning a new constraint.
      * // Redeclare with the right return type
      */
-    @Override
     public CConstraint substitute(XTerm y, XVar x) throws XFailure {
         return substitute(new XTerm[] { y }, new XVar[] { x });
     }
@@ -262,7 +260,7 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
      */
     public CConstraint instantiateSelf(XTerm newSelf) {
         CConstraint result = new CConstraint();
-        List<XTerm> terms = constraints();
+        XTerm[] terms = constraints();
         for (XTerm term : terms) {
             XTerm t = term.subst(newSelf,self);
             try {
@@ -288,7 +286,7 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
         assert other.consistent();
 
         CConstraint result = new CConstraint();
-        if (! consistent) return result;
+        if (! consistent()) return result;
 
         for (XTerm term : other.constraints()) {
             try {
@@ -322,8 +320,6 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
     public CConstraint substitute(XTerm[] ys, XVar[] xs) throws XFailure {
         assert (ys != null && xs != null);
         assert xs.length == ys.length;
-        //for (XVar x : xs)
-        //    assert x != self;
 
         boolean eq = true;
         for (int i = 0; i < ys.length; i++) {
@@ -333,7 +329,7 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
         }
         if (eq) return this;
 
-        if (! consistent) return this;
+        if (! consistent()) return this;
 
         // Don't do the quick occurrence check; x might occur in a self constraint.
         //		XPromise last = lookupPartialOk(x);
@@ -341,7 +337,7 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
 
         CConstraint result = new CConstraint();
         //result.self = self(); // the resulting constraint should share the same self.
-        List<XTerm> terms = constraints();
+        XTerm[] terms = constraints();
         for (XTerm term : terms) {
             XTerm t = term;
 
@@ -356,10 +352,10 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
             for (int i = 0; i < ys.length; i++) {
                 XTerm y = ys[i];
                 XVar x = xs[i];
-                t = t.subst(y, x, true);
+                t = t.subst(y, x);
             }
 
-            t = t.subst(result.self(), self(), true);
+            t = t.subst(result.self(), self());
 
             try {
                 result.addTerm(t);
@@ -388,16 +384,21 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
         return ev.result();
     }
 
-    @Override
     protected XTerm bindingForRootField(XVar root, Object field) {
-        XTerm term;
-        if (field instanceof FieldDef) term = new CField(root, (FieldDef) field);
-        else if (field instanceof MethodDef) term = new CField(root, (MethodDef) field);
-        else { assert false; term = null;}
-        XPromise p = term.nfp(this);
-        if (p == null) return null;
-        return p.term();
+        XVar term;
+        if (field instanceof FieldDef) 
+        	term = ConstraintManager.getConstraintSystem().makeField(root, (FieldDef) field);
+        else 
+        if (field instanceof MethodDef) 
+        	term = ConstraintManager.getConstraintSystem().makeField(root, (MethodDef) field);
+        else { 
+        	assert false; 
+        	term = null;
+        }
+        // TODO: make sure this is the same as before
+        return constraint.bindingForVar(term);
     }
+    
     public XTerm bindingForSelfField(FieldDef fd) {
         return bindingForRootField(self(), fd);
     }
@@ -443,10 +444,10 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
      */
 
     public CConstraint project(XVar v)  {
-        if (! consistent) return this;
+        if (! consistent()) return this;
         CConstraint result = null;
         try {
-            XVar eqv = XTerms.makeEQV();
+            XVar eqv = ConstraintManager.getConstraintSystem().makeEQV();
             result = substitute(eqv, v); 
         } catch (XFailure c) {
             // should not happen
@@ -462,7 +463,9 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
      * the self var of this.
      * @return
      */
-    public CConstraint exists() { return instantiateSelf(XTerms.makeEQV());}
+    public CConstraint exists() { 
+    	return instantiateSelf(ConstraintManager.getConstraintSystem().makeEQV());
+    }
     /**
      * Add in the constraint c, and all the constraints associated with the
      * types of the terms referenced in t.
@@ -650,5 +653,93 @@ public class CConstraint extends XNativeConstraint  implements ThisVar {
         }
         return result;
     }
+
+	public boolean consistent() {
+		return constraint.consistent(); 
+	}
+
+	public boolean valid() {
+		return constraint.valid();
+	}
+
+	public void addBinding(XTerm left, XTerm right) {
+		constraint.addBinding(left, right);
+	}
+
+	public void addDisBinding(XTerm left, XTerm right) {
+		constraint.addDisBinding(left, right);
+	}
+
+	public void addAtom(XTerm t) throws XFailure {
+		constraint.addAtom(t);
+	}
+
+	public void addTerm(XTerm t) throws XFailure {
+		constraint.addTerm(t);
+	}
+
+	public boolean entails(XConstraint other) {
+		return constraint.entails(other);
+	}
+
+	public boolean entails(XTerm term) {
+		return constraint.entails(term);
+	}
+
+	public boolean disEntails(XTerm left, XTerm right) {
+		return constraint.disEntails(left, right);
+	}
+
+	public boolean entails(XTerm left, XTerm right) {
+		return constraint.entails(left, right);
+	}
+
+	public XConstraint leastUpperBound(XConstraint other) {
+		return constraint.leastUpperBound(other);
+	}
+
+	public XConstraint residue(XConstraint other) {
+		return constraint.residue(other);
+	}
+
+	public XTerm[] constraints() {
+		return constraint.constraints(); 
+	}
+
+	public XFormula<?>[] atoms() {
+		return constraint.atoms();
+	}
+
+	public void visit(XGraphVisitor xg) {
+		constraint.visit(xg);
+	}
+
+	public XVar bindingForVar(XVar v) {
+		return constraint.bindingForVar(v);
+	}
+
+	public XTerm[] getTerms() {
+		return constraint.getTerms(); 
+	}
+
+	public void setInconsistent() {
+		constraint.setInconsistent(); 
+	}
+
+	public XVar[] vars() {
+		return constraint.vars(); 
+	}
+
+	public XTerm[] extConstraintsHideFake() {
+		return constraint.extConstraintsHideFake(); 
+	}
+
+	public XTerm[] extConstraints() {
+		return constraint.extConstraints(); 
+	}
+	
+	public String toString() {
+		return constraint.toString(); 
+	}
 }
 

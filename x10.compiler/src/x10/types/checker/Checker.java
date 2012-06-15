@@ -54,7 +54,7 @@ import x10.ast.X10ProcedureCall;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
@@ -78,7 +78,7 @@ import polyglot.types.NoMemberException;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CTerms;
+
 import x10.types.matcher.Subst;
 import x10.visit.X10TypeChecker;
 import static polyglot.ast.Assign.*;
@@ -250,7 +250,7 @@ public class Checker {
 		} catch (IllegalConstraint z) {
 		}
 		if (receiver == null)
-			receiver = XTerms.makeEQV();
+			receiver = ConstraintManager.getConstraintSystem().makeEQV();
 		try {
 			t = Subst.subst(t, 
 					(new XVar[] { receiver }), 
@@ -289,7 +289,7 @@ public class Checker {
 			XVar receiver = Types.selfVarBinding(target.type());
 			XVar root = null;
 			if (receiver == null) {
-				receiver = root = XTerms.makeUQV();
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
 			}
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
@@ -325,7 +325,7 @@ public class Checker {
 			XVar receiver = Types.selfVarBinding(target.type());
 			XVar root = null;
 			if (receiver == null) {
-				receiver = root = XTerms.makeUQV();
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
 			}
 			xc = xc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))

@@ -19,7 +19,8 @@ import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
+
 
 /**
  * A class to represent that various kinds of Integral constants.
@@ -115,7 +116,7 @@ public final class IntegralValue extends ConstantValue {
     
     @Override
     public IntLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
         return (IntLit)nf.IntLit(pos, kind, val).type(type);
     }
 

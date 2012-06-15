@@ -22,6 +22,8 @@ import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.types.constraints.XTypeLit;
+
 import x10.errors.Errors;
 import x10.types.AsyncDef;
 import x10.types.AsyncDef_c;
@@ -72,13 +74,13 @@ import x10.types.X10TypeEnv_c;
 
 import x10.types.XTypeTranslator;
 import x10.types.X10ProcedureInstance;
-import x10.types.XTypeTranslator.XTypeLit;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+
 import x10.types.matcher.*;
 import x10.util.ClosureSynthesizer;
 import x10.util.CollectionFactory;
@@ -417,7 +419,7 @@ public class TypeSystem_c implements TypeSystem
     
     public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
        // String fullNameWithThis = "<init>#this";
-        XVar thisVar = CTerms.makeThis(); // XTerms.makeLocal(thisName);
+        XVar thisVar = ConstraintManager.getConstraintSystem().makeThis(); // XTerms.makeLocal(thisName);
 
         return initializerDef(pos, container, flags, thisVar);
     }
@@ -4502,6 +4504,7 @@ public class TypeSystem_c implements TypeSystem
             }
             
             for (XFormula x : c.atoms()) {
+            	//assert x != null;
                 if (hasUnknown(x, visited)) {
                     return true;
                 }

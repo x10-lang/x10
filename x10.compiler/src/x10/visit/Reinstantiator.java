@@ -46,7 +46,8 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalDef;
 import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
-import x10.types.constraints.CTerms;
+
+import x10.types.constraints.ConstraintManager;
 import x10.types.matcher.Subst;
 
 public class Reinstantiator extends TypeParamSubstTransformer {
@@ -61,8 +62,8 @@ public class Reinstantiator extends TypeParamSubstTransformer {
             XLocal[] Y = new XLocal[X.length];
             int i = 0;
             for (X10LocalDef ld : map.keySet()) {
-                X[i] = CTerms.makeLocal(ld);
-                Y[i] = CTerms.makeLocal(map.get(ld));
+                X[i] = ConstraintManager.getConstraintSystem().makeLocal(ld);
+                Y[i] = ConstraintManager.getConstraintSystem().makeLocal(map.get(ld));
                 i++;
             }
             return new Pair<XLocal[], XLocal[]>(X, Y);

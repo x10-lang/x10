@@ -49,8 +49,9 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
+
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected transient Source fromSource;
@@ -92,7 +93,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis(); // Why #this instead of this?
+        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;
