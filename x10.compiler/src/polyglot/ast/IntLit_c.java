@@ -22,6 +22,7 @@ import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 
@@ -126,7 +127,7 @@ public class IntLit_c extends NumLit_c implements IntLit
         default:
             throw new InternalCompilerError("bad integer literal kind", position());
         }
-        CConstraint c = new CConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
         try {
          XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
          c.addSelfBinding(term);

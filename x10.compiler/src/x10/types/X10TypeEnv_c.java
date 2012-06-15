@@ -762,8 +762,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return t2;
     }
     public CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
-        final XTerm[] terms = originalConst.constraints();
-        final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.length);
+        final List<? extends XTerm> terms = originalConst.constraints();
+        final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.size());
         boolean wasNew = false;
         for (XTerm xTerm : terms) {
             final XTerm.TermVisitor visitor = new XTerm.TermVisitor() {
@@ -777,7 +777,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             newTerms.add(newXterm);
         }
         if (wasNew) {
-            final CConstraint newConstraint = new CConstraint(originalConst.self());
+            final CConstraint newConstraint = ConstraintManager.getConstraintSystem().makeCConstraint(originalConst.self());
             newConstraint.setThisVar(originalConst.thisVar());
             for (XTerm xTerm : newTerms) {
                 try {
@@ -1578,7 +1578,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             
             XLit val = ConstraintManager.getConstraintSystem().makeLit(value, base);
 
-            CConstraint c = new CConstraint();
+            CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
             c.addSelfBinding(val);
             return entails(c, Types.realX(toType));
     }

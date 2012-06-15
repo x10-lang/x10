@@ -489,7 +489,7 @@ public class Matcher {
 				env = env.instantiateSelf(ythis);
 		}
 		if (env == null)
-			env = new CConstraint();
+			env = ConstraintManager.getConstraintSystem().makeCConstraint();
 
 	    for (int i = 0; i < actuals.size(); i++) { // conjoin ytype's realX
 	    		Type ytype = actuals.get(i);
@@ -527,7 +527,7 @@ public class Matcher {
 				env = env.instantiateSelf(ythis);
 		}
 		if (env == null)
-			env = new CConstraint();
+			env = ConstraintManager.getConstraintSystem().makeCConstraint();
 	
 		//To do: Not sure these need to be added to Gamma. Constraint projection will retrieve them
 		// from the types of the variables.

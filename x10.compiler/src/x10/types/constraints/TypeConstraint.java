@@ -169,13 +169,13 @@ public class TypeConstraint implements Copy, Serializable {
         TypeSystem xts = (TypeSystem) me.typeSystem();
 
         TypeConstraint tenv = new TypeConstraint();
-        CConstraint env = new CConstraint();
+        CConstraint env = ConstraintManager.getConstraintSystem().makeCConstraint();
 
         XVar ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
 
         if (ythis == null) {
             CConstraint c = Types.xclause(thisType);
-            c = (c == null) ? new CConstraint() : c.copy();
+            c = (c == null) ? ConstraintManager.getConstraintSystem().makeCConstraint() : c.copy();
 
             ythis = ConstraintManager.getConstraintSystem().makeUQV();  
             c.addSelfBinding(ythis);

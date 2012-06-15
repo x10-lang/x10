@@ -33,6 +33,7 @@ import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 
 /**
  * 
@@ -108,7 +109,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                 }
                 else {
                     CConstraint rc = Types.xclause(t);
-                    rc = rc==null ? new CConstraint() : rc.copy();
+                    rc = rc==null ? ConstraintManager.getConstraintSystem().makeCConstraint() : rc.copy();
                     XTerm receiver;
 
                     if (flags.isStatic()) {

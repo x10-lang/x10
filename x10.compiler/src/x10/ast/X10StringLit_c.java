@@ -28,6 +28,7 @@ import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 
 /**
  * @author vj
@@ -46,7 +47,7 @@ public class X10StringLit_c extends StringLit_c {
 		TypeSystem xts= (TypeSystem) tc.typeSystem();
 		Type Type = xts.String();
 
-		CConstraint c = new CConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		  try {
 		    	XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), tc.context());
 		    	c.addSelfBinding(term);

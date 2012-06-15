@@ -403,7 +403,7 @@ public class XTypeTranslator {
 
 
   /*  public CConstraint normalize(CConstraint c, Context xc) {
-        CConstraint result = new CConstraint();
+        CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint();
         for (XTerm term : c.extConstraints()) {
             try {
                 if (term instanceof XEquals) {
@@ -442,7 +442,7 @@ public class XTypeTranslator {
      * @throws SemanticException
      */
     public CConstraint constraint(List<Formal> ignore, Expr term, Context xc) throws SemanticException {
-        CConstraint c = new CConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
         if (term == null)
             return c;
 

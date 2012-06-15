@@ -123,14 +123,14 @@ public class Types {
 	public static Type addBinding(Type t, XTerm t1, XTerm t2) {
 		//assert (! (t instanceof UnknownType));
 	    CConstraint c = Types.xclause(t);
-	    c = c == null ? new CConstraint() :c.copy();
+	    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint() :c.copy();
 	    c.addBinding(t1, t2);
 	    return Types.xclause(Types.baseType(t), c);
 	}
 
 	public static Type addBinding(Type t, XTerm t1, XConstrainedTerm t2) {
 	 	assert (! (t instanceof UnknownType));
-	 	CConstraint c = new CConstraint();
+	 	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	 	c.addBinding(t1, t2);
 	 	return Types.xclause(t, c);
 	}
@@ -138,7 +138,7 @@ public class Types {
 	public static Type addSelfBinding(Type t, XTerm t1) {
 	    assert (! (t instanceof UnknownType));
 	    CConstraint c = Types.xclause(t);
-	    c = c == null ? new CConstraint() :c.copy();
+	    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint() :c.copy();
 	    c.addSelfBinding(t1);
 	    return Types.xclause(Types.baseType(t), c); 
 	}
@@ -154,7 +154,7 @@ public class Types {
 	public static Type addDisBinding(Type t, XTerm t1, XTerm t2) {
 	 	assert (! (t instanceof UnknownType));
 	 	CConstraint c = Types.xclause(t);
-	 	c = c == null ? new CConstraint() :c.copy();
+	 	c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint() :c.copy();
 	 	c.addDisBinding(t1, t2);
 	 	return Types.xclause(Types.baseType(t), c);
 	}
@@ -175,7 +175,7 @@ public class Types {
 	public static Type addTerm(Type t, XTerm term) {
 	    try {
 	        CConstraint c = Types.xclause(t);
-	        c = c == null ? new CConstraint() :c.copy();
+	        c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint() :c.copy();
 	        c.addTerm(term);
 	        return Types.xclause(Types.baseType(t), c);
 	    }
@@ -288,21 +288,21 @@ public class Types {
 	public static boolean entails(Type t, XTerm t1, XTerm t2) {
 		 CConstraint c = Types.realX(t);
 		 if (c==null) 
-			 c = new CConstraint();
+			 c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		 return c.entails(t1, t2);
 	  }
 
 	public static boolean disEntails(Type t, XTerm t1, XTerm t2) {
 		 CConstraint c = Types.realX(t);
 		 if (c==null) 
-			 c = new CConstraint();
+			 c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		 return c.disEntails(t1, t2);
 	  }
 
 	public static boolean disEntailsSelf(Type t, XTerm t2) {
 		 CConstraint c = Types.realX(t);
 		 if (c==null) 
-			 c = new CConstraint();
+			 c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		 return c.disEntails(c.self(), t2);
 	  }
 
@@ -341,7 +341,7 @@ public class Types {
 	 */
 //	public static CConstraint allowNull(CConstraint c) {
 //	    final XVar self = c.self();
-//	    CConstraint res = new CConstraint(self);
+//	    CConstraint res = ConstraintManager.getConstraintSystem().makeCConstraint(self);
 //	    assert !res.disEntails(self,ConstraintManager.getConstraintSystem().NULL);
 //	    for (XTerm term : c.constraints()) {
 //	        CConstraint copy = res.copy();
@@ -653,7 +653,7 @@ public class Types {
 	        // X10ClassDecl_c.classInvariant is fine, 
 	        // but  X10ClassDef_c.classInvariant is wrong
 	        final Ref<CConstraint> ref = x10ClassDef.classInvariant();
-	        if (ref!=null && ref.get().constraints().length>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
+	        if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
 	
 	        // We use ts.structHaszero to prevent infinite recursion such as in the case of:
 	        // struct U(u:U) {}
@@ -706,7 +706,7 @@ public class Types {
 	    if (zeroLit == null) return false;
 	    if (!isConstrained(t)) return true;
 	    final CConstraint constraint = Types.xclause(t);
-	    final CConstraint zeroCons = new CConstraint(constraint.self());
+	    final CConstraint zeroCons = ConstraintManager.getConstraintSystem().makeCConstraint(constraint.self());
 	    // make sure the zeroLit is not in the constraint
 	    zeroCons.addSelfBinding(zeroLit);
 	    return zeroCons.entails(constraint);
@@ -853,7 +853,7 @@ public class Types {
 	public static Type makeArrayRailOf(Type type, Position pos) {
 	    TypeSystem ts = type.typeSystem();
 	    X10ClassType t = ts.Array(type);
-	    CConstraint c = new CConstraint();
+	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    FieldInstance regionField = t.fieldNamed(Name.make("region"));
 	    if (regionField == null)
 	        throw new InternalCompilerError("Could not find region field of " + t, pos);
@@ -927,7 +927,7 @@ public class Types {
 	 */
 	public static CConstraint realX(Type t) {
 	if (t instanceof ParameterType) {
-	    return new CConstraint();
+	    return ConstraintManager.getConstraintSystem().makeCConstraint();
 	}
 	else if (t instanceof ConstrainedType) {
 	        return ((ConstrainedType) t).getRealXClause().copy();
@@ -948,7 +948,7 @@ public class Types {
 		    return c;
 		}
 	
-		return new CConstraint();
+		return ConstraintManager.getConstraintSystem().makeCConstraint();
 	}
 
 	/**
@@ -1036,7 +1036,7 @@ public class Types {
 	public static Type setSelfVar(Type t, XVar v) throws SemanticException {
 		CConstraint c = Types.xclause(t);
 		if (c == null) {
-			c = new CConstraint();
+			c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		}
 		else {
 			c = c.copy();
@@ -1048,7 +1048,7 @@ public class Types {
 	public static Type setThisVar(Type t, XVar v) throws SemanticException {
 	    CConstraint c = Types.xclause(t);
 	    if (c == null) {
-	        c = new CConstraint();
+	        c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    }
 	    else {
 	        c = c.copy();
@@ -1601,7 +1601,7 @@ public class Types {
 
 	public static CConstraint tryAddingConstraint(Type t, CConstraint xc)  {
 		 CConstraint c = Types.xclause(t);
-	     c = c == null ? new CConstraint() :c.copy();
+	     c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint() :c.copy();
 	     c.addIn(xc);
 	     return c;
 	}
@@ -1611,7 +1611,7 @@ public class Types {
 		if (t instanceof ConstrainedType) {
 			result=(ConstrainedType) t;
 		} else {
-			result = constrainedType(t, new CConstraint());
+			result = constrainedType(t, ConstraintManager.getConstraintSystem().makeCConstraint());
 		}
 		return result;
 	}
@@ -1801,10 +1801,10 @@ public class Types {
 	 * @return
 	 */
 	public static CConstraint removeLocals(Context cxt, CConstraint c0) {
-	    CConstraint c = new CConstraint();
+	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    c.addIn(c0); // ensure that this has a different selfVar.
-	    XTerm[] roots = c.getTerms();
-	    if (roots.length > 0) {
+	    Set<? extends XTerm> roots = c.getTerms();
+	    if (roots.size() > 0) {
 	        for (XTerm term : roots) {
 	            if (term instanceof XVar) {
 	                XVar[] vars = ((XVar) term).vars();
@@ -1890,10 +1890,10 @@ public class Types {
     	CConstraint c0 = xclause(t);
     	if (c0==null)
     		return t;
-    	CConstraint c = new CConstraint();
+    	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
     	c.addIn(c0); // ensure that this has a different selfVar.
-    	XTerm[] roots = c.getTerms();
-    	if (roots.length > 0) {
+    	Set<? extends XTerm> roots = c.getTerms();
+    	if (roots.size() > 0) {
     		CodeDef def = cxt.currentCode();
     		List<LocalDef> formals = null;
     		if (def instanceof ProcedureDef) {
@@ -1920,7 +1920,7 @@ public class Types {
         CConstraint xclause = Types.xclause(outer);
         if (xclause != null && ! xclause.valid()) {
             // there is some information to transfer.
-            CConstraint result = new CConstraint();
+            CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint();
             XVar qvar = new QualifiedVar(Types.baseType(outer), result.self());
             xclause = xclause.instantiateSelf(qvar);
             result.addIn(xclause);

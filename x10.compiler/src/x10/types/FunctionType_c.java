@@ -97,7 +97,7 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
     }
 
     protected static String guardToString(CConstraint guard) {
-        if (guard == null || guard.constraints().length == 0) return "";
+        if (guard == null || guard.constraints().size() == 0) return "";
         return guard.toString();
     }
 

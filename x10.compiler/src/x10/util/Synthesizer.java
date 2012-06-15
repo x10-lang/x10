@@ -235,7 +235,7 @@ public class Synthesizer {
 	public Type addRectConstraintToSelf(Type type) {
 	    XVar receiver = Types.self(type);
 	    if (receiver == null) {
-	        CConstraint c = new CConstraint();
+	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	        type = Types.xclause(type, c);
 	        receiver = c.self();
 	    }
@@ -253,7 +253,7 @@ public class Synthesizer {
 	public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
 	    XVar receiver = X10TypeMixin.self(type);
 	    if (receiver == null) {
-	        CConstraint c = new CConstraint();
+	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	        type = X10TypeMixin.xclause(type, c);
 	        receiver = c.self();
 	    }
@@ -760,7 +760,7 @@ public class Synthesizer {
 	}
 
 	public Field firstPlace() {
-		CConstraint c = new CConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		try {
 			c.addBinding(id, ConstraintManager.getConstraintSystem().makeLit(0, xts.Int()));
@@ -1422,7 +1422,7 @@ public class Synthesizer {
             // nothing to check
             return res;
         } 
-        XTerm[] terms  = c.extConstraints();
+        List<? extends XTerm> terms  = c.extConstraints();
         for (XTerm t : terms)
             res.addAll(getLocals(t));
         return res;
@@ -1684,7 +1684,7 @@ public class Synthesizer {
         List<Expr> es = new ArrayList<Expr>();
         if (c == null)
             return es;
-        XTerm[] terms = c.extConstraints();
+        List<? extends XTerm> terms = c.extConstraints();
 
         for (XTerm term : terms) {
             Expr e = makeExpr(term, null, pos);

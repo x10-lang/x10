@@ -215,7 +215,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         // Accumulate in curr constraint the bindings {arg1==this.prop1,..argi==this.propi}.
         // If argi does not have a name, make up a name, and add the constraint from typei
         // into curr, with argi/self.
-        CConstraint curr = new CConstraint();
+        CConstraint curr = ConstraintManager.getConstraintSystem().makeCConstraint();
 
         for (int i=0; i < args.size() && i < props.size(); ++i) {
             Type yType = args.get(i).type();
@@ -266,7 +266,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         {
             Type supType = thisConstructor.supType();
             CConstraint known = Types.realX(supType);
-            known = (known==null ? new CConstraint() : known.copy());
+            known = (known==null ? ConstraintManager.getConstraintSystem().makeCConstraint() : known.copy());
             try {
                 known.addIn(Types.get(thisConstructor.guard()));
 

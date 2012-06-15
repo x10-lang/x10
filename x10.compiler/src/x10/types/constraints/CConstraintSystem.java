@@ -41,4 +41,7 @@ public interface CConstraintSystem extends XConstraintSystem {
     public XTypeLit makeTypeLit(Type type);
     
     public IntLit.Kind getIntLitKind(Type type);
+    public CConstraint makeCConstraint(); 
+    public CConstraint makeCConstraint(XVar self); 
+
 }

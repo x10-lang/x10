@@ -9,9 +9,11 @@ import x10.constraint.XVar;
 import x10.constraint.xnative.XNativeConstraintSystem;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CAtom;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraintSystem;
 import x10.types.constraints.CField;
 import x10.types.constraints.CLocal;
+import x10.types.constraints.CNativeConstraint;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
@@ -99,5 +101,8 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
         if (type.isULong())  return IntLit.ULONG;
         return null;
     }
+        
+    public CConstraint makeCConstraint() { return new CNativeConstraint(); }
+    public CConstraint makeCConstraint(XVar self) { return new CNativeConstraint(self); }
 
 }

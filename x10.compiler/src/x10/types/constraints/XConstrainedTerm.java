@@ -64,7 +64,7 @@ public class XConstrainedTerm  {
      */
     public static XConstrainedTerm make(XTerm t) {
         try {
-            return instantiate(new CConstraint(), t);
+            return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(), t);
         } catch (XFailure r) {
             throw new InternalCompilerError("Cannot constrain " + t);
         }
@@ -114,7 +114,7 @@ public class XConstrainedTerm  {
      */
     public CConstraint xconstraint() {
         CConstraint s = constraint();
-        s = s == null ? new CConstraint() : s.copy();
+        s = s == null ? ConstraintManager.getConstraintSystem().makeCConstraint() : s.copy();
         s = s.instantiateSelf(term());
         return s;
     }

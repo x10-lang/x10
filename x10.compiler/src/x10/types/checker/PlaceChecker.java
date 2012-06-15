@@ -136,7 +136,7 @@ public class PlaceChecker {
 	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, TypeSystem ts) {
 
 		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = new CConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		if (h != null) {
 			c.addBinding(h, here());
 		}
@@ -280,7 +280,7 @@ public class PlaceChecker {
 	}
 
 	public static XConstrainedTerm methodPlaceTerm(MethodDef md) {
-	    CConstraint d = new CConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
 	    XTerm term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
@@ -292,7 +292,7 @@ public class PlaceChecker {
 	}
 
 	public static XConstrainedTerm constructorPlaceTerm(ConstructorDef cd) {
-	    CConstraint d = new CConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    XTerm term = homeVar(cd.thisVar(), cd.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -302,7 +302,7 @@ public class PlaceChecker {
 	}
 	
 	public static XConstrainedTerm closurePlaceTerm(ClosureDef cd) {
-	    CConstraint d = new CConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    XTerm term = makePlace();
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -381,7 +381,7 @@ public class PlaceChecker {
 	public static XConstrainedTerm computePlaceTerm(Expr place, Context xc, TypeSystem ts) throws SemanticException {
 		Type placeType = place.type();
 		CConstraint d = Types.xclause(placeType);
-		d = (d==null) ? new CConstraint() : d.copy();
+		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint() : d.copy();
 		CConstraint pc = null;
 		XTerm term = null;
 		XConstrainedTerm pt = null;

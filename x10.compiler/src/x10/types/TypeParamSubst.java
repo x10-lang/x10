@@ -327,7 +327,7 @@ public class TypeParamSubst {
 			result = c.substitute(ys, xs);
 		}
 		catch (XFailure e) {
-			result = new CConstraint();
+			result = ConstraintManager.getConstraintSystem().makeCConstraint();
 			result.setInconsistent();
 		}
 

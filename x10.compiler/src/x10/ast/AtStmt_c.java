@@ -243,7 +243,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	if (def.placeTerm() == null) {
             XConstrainedTerm placeTerm;
             XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
-            CConstraint d = new CConstraint();
+            CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
             XTerm term = PlaceChecker.makePlace();
             try {
                 placeTerm = XConstrainedTerm.instantiate(d, term);

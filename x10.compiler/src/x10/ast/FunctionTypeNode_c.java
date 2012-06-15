@@ -52,6 +52,7 @@ import x10.types.X10ClassType;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.visit.X10TypeChecker;
 
 public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
@@ -106,7 +107,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		}
 		FunctionType result = ts.functionType(position(), returnType.typeRef(),
 		        typeParams, formalTypes, formalNames,
-		        guard != null ? guard.valueConstraint() : Types.lazyRef(new CConstraint())
+		        guard != null ? guard.valueConstraint() : Types.lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint())
 		        // guard != null ? guard.typeConstraint() : null,
 		);
 

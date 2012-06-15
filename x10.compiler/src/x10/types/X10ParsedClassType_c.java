@@ -47,6 +47,7 @@ import x10.util.CollectionFactory;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.matcher.Subst;
 
 /** 08/11/09 
@@ -494,7 +495,7 @@ implements X10ParsedClassType
 	
 	public CConstraint getXClause() {
 		if (xClause == null) {
-			xClause = new CConstraint();
+			xClause = ConstraintManager.getConstraintSystem().makeCConstraint();
 			try {
 			xClause.setThisVar(Types.getThisVar(typeArguments()));
 			} catch (XFailure f) {

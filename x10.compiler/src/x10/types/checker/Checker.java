@@ -243,7 +243,7 @@ public class Checker {
 
 		TypeSystem ts = (TypeSystem) t.typeSystem();
 		try {
-			XTerm r=ts.xtypeTranslator().translate(new CConstraint(), target,  c);
+			XTerm r=ts.xtypeTranslator().translate(ConstraintManager.getConstraintSystem().makeCConstraint(), target,  c);
 			if (r instanceof XVar) {
 				receiver = (XVar) r;
 			}
@@ -275,7 +275,7 @@ public class Checker {
      * @throws IllegalConstraint
      */
 	public static Type expandCall(Type type, Call t,  Context c) throws IllegalConstraint {
-		CConstraint cs = new CConstraint();
+		CConstraint cs = ConstraintManager.getConstraintSystem().makeCConstraint();
 		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Receiver target = t.target();
 		XTerm body = xt.translate(cs, t, c);
@@ -294,7 +294,7 @@ public class Checker {
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
 			CConstraint ttc = Types.xclause(target.type());
-			ttc = ttc == null ? new CConstraint() : ttc.copy();
+			ttc = ttc == null ? ConstraintManager.getConstraintSystem().makeCConstraint() : ttc.copy();
 			ttc = ttc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))
 				x.addIn(ttc);

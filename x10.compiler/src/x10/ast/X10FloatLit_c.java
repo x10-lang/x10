@@ -27,6 +27,7 @@ import polyglot.types.Context;
 import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 
 
 /**
@@ -50,7 +51,7 @@ public class X10FloatLit_c extends FloatLit_c {
 	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    Type type = (kind == FLOAT ? xts.Float() : xts.Double());
 
-	    CConstraint c = new CConstraint();
+	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    try {
 	    	XTerm term = xts.xtypeTranslator().translate(c, this.type(type),  tc.context());
 	    	 c.addSelfBinding(term);
