@@ -240,8 +240,6 @@ int main(int argc, char ** argv) {
 	const char    *name = "X10";
 	setenv("MP_MSG_API", name, 1);
 
-	thread_bind_cpu();
-
 	pami_result_t status = PAMI_Client_create(name, &state.client, NULL, 0);
 	if (status != PAMI_SUCCESS)
 		error("Unable to initialize PAMI client\n");
@@ -255,6 +253,7 @@ int main(int argc, char ** argv) {
 	state.myPlaceId = configuration[0].value.intval;
 	state.numPlaces = configuration[1].value.intval;
 
+	thread_bind_cpu();
 
 	if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context, 1)) != PAMI_SUCCESS)
 		error("Unable to initialize the PAMI context: %i\n", status);
