@@ -11,29 +11,42 @@
 
 package x10.constraint;
 
-import java.util.List;
-
 import x10.constraint.visitors.XGraphVisitor;
 
 public interface XConstraint {
 	public boolean consistent(); 
     public boolean valid(); 
     
-    // TODO: clean up interface
     public void addBinding(XTerm left, XTerm right);
     public void addDisBinding(XTerm left, XTerm right);
     public void addAtom(XTerm t) throws XFailure;
+    public void addTerm(XTerm t) throws XFailure; 
+
     public boolean entails(XConstraint other);
-    
-    // TODO: clean up interface
+    public boolean entails(XTerm term);
     public boolean disEntails(XTerm left, XTerm right);
     public boolean entails(XTerm left, XTerm right);
     
     public XConstraint leastUpperBound(XConstraint other);
     public XConstraint residue(XConstraint other);
-    public List<XTerm> constraints();	
-    public List<XFormula<?>> atoms();
+    /**
+     * Returns a list of the conjuncts in the constraint
+     * @return
+     */
+
+    // TODO: make sure returning these arrays is not a terrible idea
+    
+    public XTerm[] constraints();	
+    public XFormula<?>[] atoms();
     public void visit(XGraphVisitor xg);
     public String toString();
 	public XConstraint copy();
+	
+	// CCConstraint interface:
+	public XVar bindingForVar(XVar v);
+	public XTerm[] getTerms();
+	public void setInconsistent();
+	public XVar[] vars(); 
+	public XTerm[] extConstraintsHideFake();
+	public XTerm[] extConstraints();
 }

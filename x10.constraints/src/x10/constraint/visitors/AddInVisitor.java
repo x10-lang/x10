@@ -1,9 +1,9 @@
 package x10.constraint.visitors;
 
 import x10.constraint.XFailure;
-import x10.constraint.XNativeConstraint;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.constraint.xnative.XNativeConstraint;
 
 
 public class AddInVisitor extends XGraphVisitor {

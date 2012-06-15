@@ -1,50 +1,64 @@
 package x10.constraint;
 
+import java.util.List;
+
 
 public interface XConstraintSystem {
-	XConstraint mkConstraint(); 
-	XConstraint makeTrueConstraint();
-/*	public static final String SELF_VAR_PREFIX="self";
-    public static final String THIS_VAR_PREFIX="this";
-    public static final CThis THIS_THIS = makeThis();
-    public static final XLit NULL = XTerms.NULL;
-    public static final XLit TRUE = XTerms.TRUE;
-    public static final XLit FALSE = XTerms.FALSE;
-    public static final XLit OPERATOR = XTerms.OPERATOR; 
-    static int selfId = 0;
-    public static final CSelf makeSelf() {return new CSelf(selfId++);}
-    static int thisId = 1;
-    public static final CThis makeThis() {return makeThis(null);}
-    public static final CThis makeThis(Type t) {return new CThis(thisId++, t);}
-    public static final XVar makeQualifiedThis(Type qualifier, Type base) {
-        return makeQualifiedVar(qualifier, makeThis(base)); 
-    }
-    public static final XVar makeQualifiedVar(Type qualifier, XVar var) {return new QualifiedVar(qualifier, var); }
-    public static final CField makeField(XVar var, MethodDef mi) {return new CField(var, mi);}
-    public static final CField makeField(XVar var, FieldDef mi) {return new CField(var, mi);}
-    public static final CLocal makeLocal(X10LocalDef ld) {return new CLocal(ld);}
-    public static final CLocal makeLocal(X10LocalDef ld, String s) {return new CLocal(ld, s);}
-    public static final CAtom makeAtom(MethodDef md, XTerm... t ) {return new CAtom(md, md, t);}
-    public static final CAtom makeAtom(MethodDef md, MethodDef mdAsExpr, XTerm... t ) {return new CAtom(md, mdAsExpr, t);}
-    public static final CAtom makeAtom(MethodDef md, List<XTerm> t ) {return new CAtom(md, md, t);}
-    public static final CAtom makeAtom(FieldDef md, XTerm... t ) {return new CAtom(md, md, t);}
-    public static final CAtom makeAtom(FieldDef md, FieldDef mdAsExpr, XTerm... t ) {return new CAtom(md, mdAsExpr, t);}
-    public static final CAtom makeAtom(FieldDef md, List<XTerm> t ) {return new CAtom(md, md, t);}
-    public static XLit makeLit(Object val, Type type) {
-        if (val == null) return NULL;
-        if (val.equals(true)) return TRUE;
-        if (val.equals(false)) return FALSE;
-        return new CLit(val, type);
-    }
-    public static XLit makeZero(Type type) {
-        TypeSystem ts = type.typeSystem();
-        if (type.isBoolean()) return FALSE;
-        else if (type.isChar()) return new CLit(Character.valueOf('\0'), type);
-        else if (type.isIntOrLess() || type.isUInt()) return new CLit(0, type);
-        else if (type.isLongOrLess()) return new CLit(0L, type);
-        else if (type.isFloat()) return new CLit(0.0f, type);
-        else if (type.isDouble())return new CLit(0.0, type);
-        else if (ts.isObjectOrInterfaceType(type, ts.emptyContext())) return XTerms.NULL;
-        else return null;
-    }
-*/}
+	public XConstraint mkConstraint(); 
+	public XConstraint makeTrueConstraint();
+	public XLit xtrue(); 
+	public XLit xfalse(); 
+	public XLit xnull(); 
+	
+	/**
+	 * Make a fresh EQV with a system chosen name. 
+	 * @return
+	 */
+	public XEQV makeEQV();
+	/**
+	 * Make a fresh UQV with a system chosen name. 
+	 * @return
+	 */
+	public XUQV makeUQV();
+
+	/**
+	 * Make a fresh UQV whose name starts with prefix.
+	 * @param prefix -- a prefix of the name for the returned UQV
+	 * @return
+	 */
+	public XUQV makeUQV(String prefix);
+
+	/**
+	 * Make and return <code>receiver.field</code>.
+	 * @param receiver
+	 * @param field
+	 * @return
+	 */
+	public <T> XField<T> makeField(XVar receiver, T field);
+	public XField<Object> makeFakeField(XVar receiver, Object field);
+
+
+    /** Make and return a literal containing o. null, true and false are
+     * interned.
+     */
+	public XLit makeLit(Object o);
+	
+	public XFormula<Object> makeAtom(Object op, XTerm... terms);
+	public XFormula<Object> makeAtom(Object op, boolean isAtomicFormula, XTerm... terms);
+	
+	public XTerm makeEquals(XTerm left, XTerm right);
+	public XTerm makeDisEquals(XTerm left, XTerm right);
+	public XTerm makeAnd(XTerm left, XTerm right);
+	public XTerm makeNot(XTerm arg);
+
+	//*************************************** Implementation
+	/**
+    Make and return op(terms1,..., termsn) -- an expression 
+    with operator op and arguments terms. If atomicFormula is true
+    then this is marked as an atomicFormula, else it is considered a term 
+    (a function application term).
+	 */
+
+	
+	public <T> XLocal<T> makeLocal(T name); 
+}

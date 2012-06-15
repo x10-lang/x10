@@ -9,18 +9,28 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.constraint;
+package x10.constraint.xnative;
 
+import x10.constraint.xnative.XAnd;
+import x10.constraint.XConstraint;
+import x10.constraint.xnative.XDisEquals;
+import x10.constraint.xnative.XEquals;
+import x10.constraint.XFailure;
+import x10.constraint.XField;
+import x10.constraint.XFormula;
+import x10.constraint.XTerm;
+import x10.constraint.xnative.XNativeTerm;
+import x10.constraint.XVar;
 import x10.constraint.visitors.AddInVisitor;
 import x10.constraint.visitors.ConstraintGenerator;
 import x10.constraint.visitors.EntailsVisitor;
 import x10.constraint.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.Set;
@@ -53,7 +63,7 @@ import java.util.Set;
  *   equals u</code>
  *   <li> it is always the case that <code>s equals s</code>
  * </uline>
- * <p>Terms are created using the static API in XTerms. The <code>==</code> 
+ * <p>Terms are created using the static API in XNativeTerms. The <code>==</code> 
  * relation on terms at the level of the constraint system is translated into 
  * the <code>equals</code> relation on the Java representation of the terms.
  * 
@@ -84,23 +94,23 @@ import java.util.Set;
  *
  */
 public class XNativeConstraint implements Cloneable, XConstraint {
-    protected Map<XTerm, XPromise> roots;
+    protected Map<XNativeTerm, XPromise> roots;
     protected boolean consistent = true;
     protected boolean valid = true;
 
     public XNativeConstraint() {}
     
-    public Map<XTerm, XPromise> roots() { return roots;}
+    public Map<XNativeTerm, XPromise> roots() { return roots;}
     
     /**
 	 * Return the list of existentially quantified variables in this constraint.
 	 * @return
 	 */
-    public List<XVar> eqvs() {
-    	List<XVar> xvars = new LinkedList<XVar>();
+    public List<XNativeVar> eqvs() {
+    	List<XNativeVar> xvars = new LinkedList<XNativeVar>();
     	if (roots==null) return xvars;
-    	for (XTerm xt : roots.keySet()) {
-    		if (xt.isEQV()) xvars.add((XVar) xt);
+    	for (XNativeTerm xt : roots.keySet()) {
+    		if (xt.isEQV()) xvars.add((XNativeVar) xt);
     	}
     	return xvars;
     }
@@ -109,18 +119,18 @@ public class XNativeConstraint implements Cloneable, XConstraint {
      * Return the set of terms occurring in this constraint.
      * @return
      */
-    public Set<XTerm> rootTerms() {
-    	return roots == null ? Collections.<XTerm> emptySet() : roots.keySet();
+    public Set<XNativeTerm> rootTerms() {
+    	return roots == null ? Collections.<XNativeTerm> emptySet() : roots.keySet();
     }
    
   
     /*
-    private void addTerm(XTerm term, Set<XVar> result) {
+    private void addTerm(XNativeTerm term, Set<XVar> result) {
         if (term==null)
             return;
         if (term instanceof XFormula) {
             XFormula form = (XFormula) term;
-            for (XTerm arg : form.arguments())
+            for (XNativeTerm arg : form.arguments())
                 addTerm(arg, result);
             return;
         } 
@@ -136,9 +146,9 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         }
     }
     public Set<XVar> vars() {
-        List<XTerm> terms = constraints();
+        List<XNativeTerm> terms = constraints();
         Set <XVar> result = CollectionFactory.newHashSet();
-        for (XTerm term : terms) {
+        for (XNativeTerm term : terms) {
            addTerm(term, result);
         }
         return result;   
@@ -181,10 +191,10 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         c.consistent = consistent;
         c.valid = valid;
         if (roots !=null) {
-            c.roots = CollectionFactory.<XTerm, XPromise>newHashMap(roots.size());
+            c.roots = CollectionFactory.<XNativeTerm, XPromise>newHashMap(roots.size());
             Map<XPromise, XPromise> redirects =  CollectionFactory.<XPromise, XPromise>newHashMap(roots.size());
-            for (Map.Entry<XTerm, XPromise> entry : roots.entrySet()) {
-                XTerm xt = entry.getKey();
+            for (Map.Entry<XNativeTerm, XPromise> entry : roots.entrySet()) {
+                XNativeTerm xt = entry.getKey();
                 XPromise p = entry.getValue();
                 XPromise np = p.cloneShallow();
                 c.roots.put(xt, np);
@@ -205,15 +215,15 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * if there is no such term. This term will be distinct from v.
 	 * */
     public XVar bindingForVar(XVar v) {
-    	XPromise p = v.nfp(this);
+    	XPromise p = ((XNativeVar)v).nfp(this);
     	if (p != null && p.term() instanceof XVar && ! p.term().equals(v)) {
-    		return (XVar) p.term().nf(this);
+    		return (XNativeVar)p.term().nf(this);
     	}
     	return null;
     }
     
-    protected XTerm bindingForRootField(XVar root, Object field) {
-    	XTerm term = new XField<Object>(root, field);
+    protected XNativeTerm bindingForRootField(XVar root, Object field) {
+    	XNativeTerm term = new XNativeField<Object>(root, field);
     	XPromise p = term.nfp(this);
     	if (p == null) return null;
     	return p.term();
@@ -223,38 +233,39 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * Return the list of atoms (atomic formulas) in this constraint.
 	 * @return
 	 */
-    public List<XFormula<?>> atoms() {
-    	List<XFormula<?>> r = new LinkedList<XFormula<?>>();
-    	if (roots == null) return r;
-    	for (XTerm t : roots.keySet()) {
+    public XFormula<?>[] atoms() {
+    	List<XFormula<?>> r = new ArrayList<XFormula<?>>(5);
+    	if (roots == null) return r.toArray(new XFormula<?>[0]);
+    	for (XNativeTerm t : roots.keySet()) {
     		if (t instanceof XFormula<?>) {
-    			r.add((XFormula<?>) t);
+    			r.add((XFormula<?>)t);
     		}
     	}
-    	return r;
+    	return r.toArray(new XFormula<?>[0]);
     }
     /**
      * Return the set of XVars mentioned in this constraint.
      * @return
      */
-    public Set<XVar> vars() {
-        Set <XVar> result = CollectionFactory.newHashSet();
-        for (XTerm term : constraints()) addTerm(term, result);
-        return result;   
+    public XNativeVar[] vars() {
+        Set <XNativeVar> result = CollectionFactory.newHashSet();
+        for (XNativeTerm term : constraints()) addTerm(term, result);
+        return result.toArray(new XNativeVar[0]);   
     }
-    private void addTerm(XTerm term, Set<XVar> result) {
+    
+    private void addTerm(XNativeTerm term, Set<XNativeVar> result) {
         if (term==null) return;
-        if (term instanceof XFormula) {
-            XFormula<?> form = (XFormula<?>) term;
-            for (XTerm arg : form.arguments()) addTerm(arg, result);
+        if (term instanceof XNativeFormula) {
+            XNativeFormula<?> form = (XNativeFormula<?>) term;
+            for (XNativeTerm arg : form.arguments()) addTerm(arg, result);
             return;
         } 
-        if (term instanceof XVar) addVar((XVar) term, result);
+        if (term instanceof XVar) addVar((XNativeVar) term, result);
     }
-    private void addVar(XVar var, Set<XVar> result) {
+    private void addVar(XNativeVar var, Set<XNativeVar> result) {
         if (var == null) return;
         result.add(var);
-        if (var instanceof XField) addVar(((XField)var).receiver(), result);
+        if (var instanceof XField) addVar(((XNativeField<?>)var).receiver, result);
     }
    
     /**
@@ -270,25 +281,25 @@ public class XNativeConstraint implements Cloneable, XConstraint {
      */
     public boolean valid() { return consistent && valid;}
 
-    private boolean flatten(boolean isEq, XTerm left, XTerm right)  {
+    private boolean flatten(boolean isEq, XNativeTerm left, XNativeTerm right)  {
 
         // handle several special cases:
         // (X==Y)==true     ---> X==Y
         // (X!=Y)==true     ---> X!=Y
         // (X==Y)==false    ---> X!=Y
         // (X!=Y)==false    ---> X==Y
-        XTerm boolLit = XTerms.isBoolean(left) ? left : XTerms.isBoolean(right) ? right : null;
+        XNativeTerm boolLit = left.isBoolean() ? left : right.isBoolean() ? right : null;
         if (boolLit!=null) {
-            XTerm other = boolLit==left ? right : left;
+            XNativeTerm other = boolLit==left ? right : left;
             boolean isEquals = other instanceof XEquals;
             boolean isDisEquals = other instanceof XDisEquals;
             if (isEquals || isDisEquals) {
-                XFormula<?> formula = (XFormula<?>) other;
-                List<XTerm> args = formula.arguments();
-                assert args.size()==2;
-                left = args.get(0);
-                right = args.get(1);
-                boolean isLitTrue = boolLit==XTerms.TRUE;
+                XNativeFormula<?> formula = (XNativeFormula<?>) other;
+                XNativeTerm[] args = formula.arguments();
+                assert args.length==2;
+                left = args[0];
+                right = args[1];
+                boolean isLitTrue = boolLit==XNativeLit.TRUE;
                 if (isLitTrue==isEquals) {}           // ok
                 else isEq = !isEq;
                 if (isEq) addBinding(left, right);
@@ -304,13 +315,15 @@ public class XNativeConstraint implements Cloneable, XConstraint {
      * @param nodeLabel -- t1
      * @param val -- t2
      */
-    public void addBinding(XTerm left, XTerm right)  {
-    	assert left != null;
-        assert right != null;
-
+    public void addBinding(XTerm l, XTerm r)  {
+    	assert l != null;
+        assert r != null;
+        XNativeTerm left = (XNativeTerm) l;
+        XNativeTerm right = (XNativeTerm) r;
+        
         if (flatten(true,left, right)) return;
         if (!consistent) return;
-        if (roots == null) roots = CollectionFactory.<XTerm, XPromise> newHashMap();
+        if (roots == null) roots = CollectionFactory.<XNativeTerm, XPromise> newHashMap();
 
         XPromise p1 = intern(left);
         if (p1==null) { setInconsistent(); return;}
@@ -330,13 +343,15 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * @param nodeLabel
 	 * @param t
 	 */
-    public void addDisBinding(XTerm left, XTerm right)  {
-    	assert left != null;
-    	assert right !=null;
+    public void addDisBinding(XTerm l, XTerm r)  {
+    	assert l != null;
+        assert r != null;
+        XNativeTerm left = (XNativeTerm) l;
+        XNativeTerm right = (XNativeTerm) r;
 
         if (flatten(false,left, right)) return;
     	if (! consistent) return;
-    	if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+    	if (roots == null) roots = CollectionFactory.<XNativeTerm,XPromise> newHashMap();
     	XPromise p1 = intern(left);
     	if (p1 == null)    {setInconsistent();return;}
     	XPromise p2 = intern(right);
@@ -345,7 +360,8 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     	try {
     	    valid &= ! p1.disBind(p2);
     	    if (left instanceof XField<?> && right instanceof XField<?>) {
-    	    	XField<?> lf = (XField<?>) left, rf = (XField<?>) right;
+    	    	XField<?> lf = (XField<?>) left, 
+    	    			  rf = (XField<?>) right;
     	    	if (lf.field()==rf.field()) addDisBinding(lf.receiver(), rf.receiver()); 	    	
     	    }
     	} catch (XFailure z) {
@@ -362,10 +378,11 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * @return
 	 * @throws XFailure
 	 */
-    public void addAtom(XTerm t) throws XFailure {
+    public void addAtom(XTerm term) throws XFailure {
         if (!consistent) return;
         valid = false;
-        if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+        if (roots == null) roots = CollectionFactory.<XNativeTerm,XPromise> newHashMap();
+        XNativeTerm t = (XNativeTerm) term;
         XPromise p = t.nfp(this);
         if (p != null) return;           // nothing to do    
         p = intern(t);
@@ -377,11 +394,8 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * @return
 	 */
     public boolean entails(XConstraint other)  {
-    	// FIXME: sketchy code? why does this fail?
-        // assert other instanceof XNativeConstraint; 
     	if (!consistent) return true;
         if (other == null || other.valid()) return true;
-        System.out.println(other.toString());
         EntailsVisitor ev = new EntailsVisitor(true, false, this);
         other.visit(ev);
         return ev.result();
@@ -404,7 +418,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         if (valid)                return this;
         if (other.valid())        return other;
        	XNativeConstraint result = new XNativeConstraint();
-       	for (XTerm term : other.constraints()) {
+       	for (XNativeTerm term : ((XNativeConstraint)other).constraints()) {
        		try {
        			if (entails(term)) result.addTerm(term);
        		} catch (XFailure z) {
@@ -425,7 +439,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         assert other.consistent();
         XNativeConstraint result = new XNativeConstraint();
         if (! consistent) return result;
-        for (XTerm term : other.constraints()) {
+        for (XTerm term : ((XNativeConstraint)other).constraints()) {
             try {
                 if (! entails(term)) result.addTerm(term);
             } catch (XFailure z) {
@@ -443,11 +457,11 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * 
 	 * @return
 	 */
-    public List<XTerm> constraints() {
-        if (roots == null) return new ArrayList<XTerm>(0);
+    public XNativeTerm[] constraints() {
+        if (roots == null) return new XNativeTerm[0];
         ConstraintGenerator cg = new ConstraintGenerator(true, false);
         visit(cg);
-        return cg.result();
+        return cg.result().toArray(new XNativeTerm[0]);
     }
     
 
@@ -477,15 +491,15 @@ public class XNativeConstraint implements Cloneable, XConstraint {
      * 
      * @return
      */
-    public List<XTerm> extConstraints() {
+    public XNativeTerm[] extConstraints() {
         ConstraintGenerator cg = new ConstraintGenerator(true, false);
         visit(cg);
-        return cg.result();
+        return cg.result().toArray(new XNativeTerm[0]);
     }
-    public List<XTerm> extConstraintsHideFake() {
+    public XNativeTerm[] extConstraintsHideFake() {
         ConstraintGenerator cg = new ConstraintGenerator(true, true);
         visit(cg);
-        return cg.result();
+        return cg.result().toArray(new XNativeTerm[0]);
     }
 
 	/**
@@ -494,7 +508,10 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * @param b
 	 * @return this |- a != b
 	 */
-    public boolean disEntails(XTerm t1, XTerm t2)  {
+    public boolean disEntails(XTerm term1, XTerm term2)  {
+    	XNativeTerm t1 = (XNativeTerm)term1;
+    	XNativeTerm t2 = (XNativeTerm)term2;
+    	
     	if (! consistent) return true;
     	XPromise p1 = t1.nfp(this);
     	if (p1 == null) return false; // this constraint knows nothing about t1.
@@ -523,7 +540,10 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * @param b
 	 * @return true iff this |- a==b
 	 */
-    public boolean entails(XTerm t1, XTerm t2)  {
+    public boolean entails(XTerm term1, XTerm term2)  {
+    	XNativeTerm t1 = (XNativeTerm)term1;
+    	XNativeTerm t2 = (XNativeTerm)term2;
+
         if (!consistent) return true;
         XPromise p1 = t1.nfp(this);
         XPromise p2 = t2.nfp(this);
@@ -546,40 +566,43 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     public boolean entails(XTerm t) {
         if (t instanceof XEquals) {
             XEquals f = (XEquals) t;
-            XTerm left = f.left();
-            XTerm right = f.right();
+            XNativeTerm left = f.left();
+            XNativeTerm right = f.right();
             
             if (entails(left, right)) return true;
             if (right instanceof XEquals) {
             	XEquals r = (XEquals) right;
-            	if (entails(r.left(), r.right())) return entails(left, XTerms.TRUE);
+            	if (entails(r.left(), r.right())) 
+            		return entails(left, XNativeLit.TRUE);
             	if (disEntails(r.left(), r.right())) {
-            		return entails(left, XTerms.FALSE);
+            		return entails(left, XNativeLit.FALSE);
             	}
             }
             if (right instanceof XDisEquals) {
             	XDisEquals r = (XDisEquals) right;
-            	if (entails(r.left(), r.right())) return entails(left, XTerms.FALSE);
-            	if (disEntails(r.left(), r.right())) return entails(left, XTerms.TRUE);
+            	if (entails(r.left(), r.right())) 
+            		return entails(left, XNativeLit.FALSE);
+            	if (disEntails(r.left(), r.right())) 
+            		return entails(left, XNativeLit.TRUE);
             }
             
         } else if (t instanceof XDisEquals) {
             XDisEquals f = (XDisEquals) t;
-            XTerm left = f.left();
-            XTerm right = f.right();
+            XNativeTerm left = f.left();
+            XNativeTerm right = f.right();
             if (disEntails(left, right)) return true;
         }
-        else if (t instanceof XFormula) {
-        	XFormula<?> f = (XFormula<?>) t;
+        else if (t instanceof XNativeFormula) {
+        	XNativeFormula<?> f = (XNativeFormula<?>) t;
         	Object op = f.operator();
-        	List<XTerm> args = f.arguments();
-        	int n = args.size();
+        	XNativeTerm[] args = f.arguments();
+        	int n = args.length;
         	for (XFormula<?> x : atoms()) {
         		if (x.operator().equals(op)) {
-        			List<XTerm> xargs = x.arguments();
-        			if (n!= xargs.size()) continue;
+        			XTerm[] xargs = x.arguments();
+        			if (n!= xargs.length) continue;
         			int i=0;
-        			while(i < n && entails(args.get(i), xargs.get(i))) i++;
+        			while(i < n && entails(args[i], xargs[i])) i++;
         			if (i==n) return true;
         		}
         	}
@@ -592,10 +615,10 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     public String toString() {
         XNativeConstraint c = this;
         if (! c.consistent) return "{inconsistent}";
-        String str ="";
+        String str ="{";
         final boolean exists_toString = false;
         if (exists_toString) {
-            List<XVar> eqvs = eqvs();
+            List<XNativeVar> eqvs = eqvs();
             if (!eqvs.isEmpty()) {
                 String temp = eqvs.toString();
                 str = "exists " + temp.substring(1, temp.length() - 1) + ".";
@@ -604,13 +627,14 @@ public class XNativeConstraint implements Cloneable, XConstraint {
             str += constr.substring(1, constr.length() - 1);
         }
         else {
-        	List<XTerm> l = c.extConstraintsHideFake();
-            String constr = l.toString();
-            String ls = constr.substring(1, constr.length() - 1);
-            if (ls !=null)
-            	str += ls;
+        	
+        	XNativeTerm[] l = c.extConstraintsHideFake();
+        	for (XNativeTerm t : l) {
+        		str += t.toString() + ", " ;
+        	}
+       		str = str.length() >= 2? str.substring(0, str.length() - 2) : str;
         }
-        return "{" + str + "}";
+        return str + "}";
     }
 
     
@@ -618,11 +642,11 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * Perform substitute y for x for every binding x -> y in bindings.
 	 * 
 	 */
-    public XNativeConstraint substitute(Map<XVar, XTerm> subs) throws XFailure {
+    public XNativeConstraint substitute(Map<XNativeVar, XNativeTerm> subs) throws XFailure {
         XNativeConstraint c = this;
-        for (Map.Entry<XVar,XTerm> e : subs.entrySet()) {
-            XVar x = e.getKey();
-            XTerm y = e.getValue();
+        for (Map.Entry<XNativeVar,XNativeTerm> e : subs.entrySet()) {
+            XNativeVar x = e.getKey();
+            XNativeTerm y = e.getValue();
             c = c.substitute(y, x);            
         }
         return c;
@@ -634,10 +658,10 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * 
 	 * 
 	 */
-    public XNativeConstraint substitute(XTerm y, XVar x) throws XFailure {
-        return substitute(new XTerm[] { y }, new XVar[] { x });
+    public XNativeConstraint substitute(XNativeTerm y, XNativeVar x) throws XFailure {
+        return substitute(new XNativeTerm[] { y }, new XNativeVar[] { x });
     }
-     public XNativeConstraint substitute(XTerm[] ys, XVar[] xs, boolean propagate) throws XFailure {
+     public XNativeConstraint substitute(XNativeTerm[] ys, XNativeVar[] xs, boolean propagate) throws XFailure {
     	return substitute(ys, xs);
     }
     
@@ -646,14 +670,14 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * xs[i]) for each i < xs.length.
 	 */
 
-    public XNativeConstraint substitute(XTerm[] ys, XVar[] xs) throws XFailure {
+    public XNativeConstraint substitute(XNativeTerm[] ys, XNativeVar[] xs) throws XFailure {
     	assert (ys != null && xs != null);
     	assert xs.length == ys.length;
     	
     	boolean eq = true;
 		for (int i = 0; i < ys.length; i++) {
-			XTerm y = ys[i];
-			XVar x = xs[i];
+			XNativeTerm y = ys[i];
+			XNativeVar x = xs[i];
 
 			if (! y.equals(x)) eq = false;
 		}
@@ -666,21 +690,21 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     	
     	XNativeConstraint result = new XNativeConstraint();
     	
-    	for (XTerm term : constraints()) {
-    		XTerm t = term;
+    	for (XNativeTerm term : constraints()) {
+    		XNativeTerm t = term;
     		
     		// if term is y==x.f, the subst will produce y==y.f, which is a cycle--bad!
     		//		    if (term instanceof XEquals_c) {
     		//		        XEquals_c eq = (XEquals_c) term;
-    		//		        XTerm l = eq.left();
-    		//		        XTerm r = eq.right();
+    		//		        XNativeTerm l = eq.left();
+    		//		        XNativeTerm r = eq.right();
     		//		        if (y.equals(l) || y.equals(r))
     		//		            continue;
     		//		    }
     		for (int i = 0; i < ys.length; i++) {
-    			XTerm y = ys[i];
-    			XVar x = xs[i];
-    			t = t.subst(y, x, true);
+    			XNativeTerm y = ys[i];
+    			XNativeVar x = xs[i];
+    			t = t.subst(y, x);
     		}
     		
     		// t = t.subst(result.self(), self(), true);
@@ -716,11 +740,12 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     // Each atom should be a root.
     public void addTerm(XTerm term) throws XFailure {
         if (term.isAtomicFormula())    addAtom(term);
-        else if (term instanceof XVar) addBinding(term, XTerms.TRUE);
+        else if (term instanceof XNativeVar) 
+        	addBinding(term, XNativeLit.TRUE);
         /*else if (term instanceof XNot) {
             XNot t = (XNot) term;
             if (t.unaryArg() instanceof XVar)
-                addBinding(t.unaryArg(), XTerms.FALSE);
+                addBinding(t.unaryArg(), XNativeTerms.FALSE);
             if (t.unaryArg() instanceof XNot)
                 addTerm(((XNot) t.unaryArg()).unaryArg());
         }*/
@@ -731,13 +756,13 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         }
         else if (term instanceof XEquals) {
             XEquals eq = (XEquals) term;
-            XTerm left = eq.left();
-            XTerm right = eq.right();
+            XNativeTerm left = eq.left();
+            XNativeTerm right = eq.right();
             addBinding(left, right);
         } else if (term instanceof XDisEquals) {
         	XDisEquals dq = (XDisEquals) term;
-        	   XTerm left = dq.left();
-               XTerm right = dq.right();
+        	   XNativeTerm left = dq.left();
+               XNativeTerm right = dq.right();
                addDisBinding(left, right);
         }
         else {
@@ -767,7 +792,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
 	 * @throws XFailure
 	 */
 
-    XPromise intern(XTerm term)  { return intern(term, null);}
+    XPromise intern(XNativeTerm term)  { return intern(term, null);}
     
     /**
      * Used to implement substitution:  if last != null, term, is substituted for 
@@ -781,13 +806,13 @@ public class XNativeConstraint implements Cloneable, XConstraint {
      * @param last
      * @return
      */
-    XPromise intern(XTerm term, XPromise last)  {
+    XPromise intern(XNativeTerm term, XPromise last)  {
     	assert term != null;
         return term.internIntoConstraint(this, last);
     }
 
-    XPromise internBaseVar(XVar baseVar, boolean replaceP, XPromise last)  {
-        if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+    XPromise internBaseVar(XNativeVar baseVar, boolean replaceP, XPromise last)  {
+        if (roots == null) roots = CollectionFactory.<XNativeTerm,XPromise> newHashMap();
         XPromise p =  roots.get(baseVar);
         if (p == null) {
             p = (replaceP && last != null) ? last : new XPromise(baseVar);
@@ -796,9 +821,13 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         return p;
     }
     
-    void addPromise(XTerm p, XPromise node) {
-        if (roots == null) roots = CollectionFactory.<XTerm,XPromise> newHashMap();
+    void addPromise(XNativeTerm p, XPromise node) {
+        if (roots == null) roots = CollectionFactory.<XNativeTerm,XPromise> newHashMap();
         roots.put(p, node);
     }
-
+    public XNativeTerm[] getTerms() {
+    	if (roots == null)
+    		return new XNativeTerm[0];
+    	return roots.keySet().toArray(new XNativeTerm[0]); 
+    }
 }

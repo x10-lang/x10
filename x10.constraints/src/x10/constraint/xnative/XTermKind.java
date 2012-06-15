@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.constraint;
+package x10.constraint.xnative;
 
 /**
  * Represents the Kind of XTerm.

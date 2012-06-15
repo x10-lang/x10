@@ -1,10 +1,16 @@
 package x10.constraint;
 
+import x10.constraint.xnative.XNativeConstraintSystem;
 
-
-public class ConstraintManager {
+public class XConstraintManager {
 	static XConstraintSystem constraint_factory = null;
 	static String env_variable = "CONSTRAINT_SYSTEM";
+	
+	public static final String asExprEqualsName = "==";
+	public static final String asExprDisEqualsName = "!=";
+	public static final String asExprAndName = "&&";
+	public static final String asExprNotName = "!";
+
 	
 	public static XConstraintSystem getConstraintSystem() {
 		// instantiate the constraint system if this has not been done before
@@ -19,4 +25,5 @@ public class ConstraintManager {
 		
 		return constraint_factory; 
 	}
+
 }

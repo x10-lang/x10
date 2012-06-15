@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.constraint;
+package x10.constraint.xnative;
 
 import java.io.Serializable;
 import java.util.Collection;
@@ -17,6 +17,13 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
+import x10.constraint.xnative.XNativeConstraint;
+import x10.constraint.XFailure;
+import x10.constraint.XTerm;
+import x10.constraint.xnative.XNativeField;
+import x10.constraint.xnative.XNativeLit;
+import x10.constraint.xnative.XNativeTerm;
+import x10.constraint.xnative.XNativeVar;
 import x10.constraint.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
 
@@ -55,7 +62,7 @@ public class XPromise implements Cloneable, Serializable{
      * The externally visible XTerm that this node represents in the constraint
      * graph. May be null, if this promise corresponds to an internal node.
      */
-    protected XTerm nodeLabel;
+    protected XNativeTerm nodeLabel;
 
     /**
      * This node may have been equated to another node, n. If so, value contains
@@ -83,7 +90,7 @@ public class XPromise implements Cloneable, Serializable{
      * Create a new promise labeled with the external term c.
      * @param c -- the term labeling the promise.
      */
-    public XPromise(XTerm term) {
+    public XPromise(XNativeTerm term) {
         super();
         value = null;
         nodeLabel = term;
@@ -102,7 +109,7 @@ public class XPromise implements Cloneable, Serializable{
      * @param fields -- the fields of the promise
      * @param term -- the term labeling the promise
      */
-    public XPromise(Map<Object, XPromise> fields, XTerm term) {
+    public XPromise(Map<Object, XPromise> fields, XNativeTerm term) {
         this(term, null, fields);
     }
 
@@ -113,7 +120,7 @@ public class XPromise implements Cloneable, Serializable{
      * @param value -- the XTerm that this promise points to
      * @param fields -- the fields of the promise.
      */
-    public XPromise(XTerm var, XPromise value, Map<Object, XPromise> fields) {
+    public XPromise(XNativeTerm var, XPromise value, Map<Object, XPromise> fields) {
         assert value==null || fields == null;
         this.nodeLabel = var;
         this.value = value;
@@ -133,7 +140,7 @@ public class XPromise implements Cloneable, Serializable{
      * not the term corresponding to the target promise.
      * @return null if this promise is an internal promise.
      */
-    public XTerm term() {return nodeLabel;}
+    public XNativeTerm term() {return nodeLabel;}
     /** Map from field names f to promises term().f */
     public Map<Object, XPromise> fields() {return fields;}
 
@@ -144,24 +151,24 @@ public class XPromise implements Cloneable, Serializable{
      * nodes that are used just for implementation efficiency.
      * @param term
      */
-    public void setTerm(XTerm term) {
+    public void setTerm(XNativeTerm term) {
         Set<XPromise> visited = CollectionFactory.newHashSet();
         visited.add(this);
         setTerm(term, visited);
     }
 
-    public void setTerm(XTerm term, Set<XPromise> visited) {
-        nodeLabel = term;
+    public void setTerm(XNativeTerm term, Set<XPromise> visited) {
+        nodeLabel = (XNativeTerm)term;
         if (nodeLabel != null && fields != null) {
             for (Map.Entry<Object, XPromise> entry : fields.entrySet()) {
                 Object key = entry.getKey();
                 XPromise p = entry.getValue();
                 if (visited.contains(p)) continue;
                 visited.add(p);
-                assert p.term() instanceof XField : term + "." + key + " = " + p + " (not a field)";
-                XField<?> f = (XField<?>) p.term();
+                assert p.term() instanceof XNativeField : term + "." + key + " = " + p + " (not a field)";
+                XNativeField<?> f = (XNativeField<?>) p.term();
                 assert f.field().equals(key) : term + "." + key + " = " + p + " (different field)";
-                p.setTerm(f.copyReceiver((XVar) term), visited);
+                p.setTerm((XNativeTerm)f.copyReceiver((XNativeVar)term), visited);
             }
         }
     }
@@ -176,7 +183,7 @@ public class XPromise implements Cloneable, Serializable{
      * A node cannot both have children and be forwarded.
      */
     public boolean hasChildren() {return fields != null;}
-    public void setLabel(XVar v) {nodeLabel = v;}
+    public void setLabel(XNativeVar v) {nodeLabel = v;}
     protected XPromise clone() {
         XPromise result = null;
         try {
@@ -211,7 +218,7 @@ public class XPromise implements Cloneable, Serializable{
      * @return the node at the end of the path. This must not be a forwarded node.
      * @throws XFailure 
      */
-    public XPromise intern(XVar[] vars, int index) throws XFailure {
+    public XPromise intern(XNativeVar[] vars, int index) throws XFailure {
         return intern(vars, index, null);
     }
 
@@ -222,7 +229,7 @@ public class XPromise implements Cloneable, Serializable{
      * @return
      * @throws XFailure 
      */
-    public XPromise intern(XVar[] vars, int index, XPromise last)  {
+    public XPromise intern(XNativeVar[] vars, int index, XPromise last)  {
         assert index >= 1;
 
         // follow the eq link if there is one.
@@ -230,15 +237,15 @@ public class XPromise implements Cloneable, Serializable{
         if (index == vars.length)return this;
         // if not, we need to add this path here. Ensure fields is initialized.
         if (fields == null) fields = CollectionFactory.<Object, XPromise>newHashMap();
-        assert vars[index] instanceof XField;
-        XField<?> f = (XField<?>) vars[index];
+        assert vars[index] instanceof XNativeField;
+        XNativeField<?> f = (XNativeField<?>) vars[index];
         Object s = f.field();
         // check this edge already exists.
         XPromise p = (XPromise) fields.get(s);
         if (p == null) {
             // no edge. Create a new promise and add this edge.
             p = (index == vars.length - 1 && last != null) 
-            ? last : new XPromise(nodeLabel instanceof XVar ? f.copyReceiver((XVar) nodeLabel) : f);
+            ? last : new XPromise(nodeLabel instanceof XNativeVar ? (XNativeTerm)f.copyReceiver((XNativeVar)nodeLabel) : f);
             fields.put(s, p);
         }
         // recursively, intern the rest of the path on the child.
@@ -254,7 +261,7 @@ public class XPromise implements Cloneable, Serializable{
      * @param s -- the name of the field
      * @param child -- the s child of the source of the eq link.
      */
-    public void addIn(Object s, XPromise orphan, XConstraint parent) throws XFailure {
+    public void addIn(Object s, XPromise orphan, XNativeConstraint parent) throws XFailure {
         if (value != null) {
             // Alternative is to fwd it blindly, that would be correct, but i
             // want to know
@@ -284,10 +291,7 @@ public class XPromise implements Cloneable, Serializable{
      * false otherwise.
      * @param target
      */
-    public boolean bind(/* @nonnull */XPromise target, XConstraint parent) throws XFailure {
-        if (target.value() == null) {
-            int q =1;
-        }
+    public boolean bind(/* @nonnull */XPromise target, XNativeConstraint parent) throws XFailure {
         assert target.value() == null;
 
         if (disEquals != null) 
@@ -311,15 +315,15 @@ public class XPromise implements Cloneable, Serializable{
                 throw new XFailure("Binding " + this + " to " + target + " creates a cycle.");
             int pref = term().prefersBeingBound();
             int opref = target.term().prefersBeingBound();
-            if (pref == XTerm.TERM_MUST_NOT_BE_BOUND) {
-                if (opref == XTerm.TERM_MUST_NOT_BE_BOUND) {
+            if (pref == XNativeTerm.TERM_MUST_NOT_BE_BOUND) {
+                if (opref == XNativeTerm.TERM_MUST_NOT_BE_BOUND) {
                     if (term().equals(target.term())) return true;
                         throw new XFailure("Cannot bind literal " + term() + " to " + target.term());
                     } 
                 return target.bind(this, parent);
             }
-            if (pref == XTerm.TERM_SHRUGS_ABOUT_BEING_BOUND &&
-                    opref == XTerm.TERM_PREFERS_BEING_BOUND)
+            if (pref == XNativeTerm.TERM_SHRUGS_ABOUT_BEING_BOUND &&
+                    opref == XNativeTerm.TERM_PREFERS_BEING_BOUND)
                 return target.bind(this, parent);
             value = target; // bind
         }
@@ -327,13 +331,13 @@ public class XPromise implements Cloneable, Serializable{
             for (Map.Entry<Object, XPromise> i : fields.entrySet()) {
                 XPromise val = i.getValue();
                 // Need to find out the value down this path.
-                XTerm t = val.term();
-                if (t instanceof XField) {
-                    XField<?> thisTerm = (XField<?>) t;
-                    XVar root = thisTerm.rootVar();
+                XNativeTerm t = val.term();
+                if (t instanceof XNativeField) {
+                    XNativeField<?> thisTerm = (XNativeField<?>) t;
+                    XNativeVar root = thisTerm.rootVar();
                     if (root == this.term()) {
                         // Need to relabel, recursively, because this --> target
-                        val.setTerm(thisTerm.copyReceiver((XVar) target.term()));
+                        val.setTerm((XNativeTerm)thisTerm.copyReceiver((XNativeVar) target.term()));
                     }
                 }
                 target.addIn(i.getKey(), val, parent);
@@ -393,13 +397,13 @@ public class XPromise implements Cloneable, Serializable{
      * @param result
      * @param oldSelf 
      */
-    public boolean visit(XVar path, XGraphVisitor xg, XConstraint parent) {
-        XTerm t1 = path == null? term() : path;
+    public boolean visit(XNativeVar path, XGraphVisitor xg, XNativeConstraint parent) {
+        XNativeTerm t1 = path == null? term() : path;
         if (t1 == null) return true;
         if (t1.isAtomicFormula()) return xg.rawVisitAtomicFormula(t1);
 
         if (value != null) {
-            XTerm t2 = lookup().term(); //canonical term for this
+            XNativeTerm t2 = lookup().term(); //canonical term for this
             boolean result = xg.rawVisitEquals(t1, t2);
             if (! result) return result;
             // Continue processing the target node if the target is an eqv.
@@ -410,20 +414,20 @@ public class XPromise implements Cloneable, Serializable{
         }
 
         if (fields != null) {
-            XVar v = t1 instanceof XVar ? (XVar) t1 : null;
+            XNativeVar v = t1 instanceof XNativeVar ? (XNativeVar) t1 : null;
             // If t1 is not an XVar, it is an atomic formula, and the fields 
             // are its sub-terms. Hence v should be null.
             for (Map.Entry<Object,XPromise> m : fields.entrySet()) {
                 XPromise p=m.getValue();
-                XTerm t=p.term();  
-                XVar path2=v==null? null : ((XField<?>) t).copyReceiver(v);
+                XNativeTerm t=p.term();  
+                XNativeVar path2=v==null? null : (XNativeVar)((XNativeField<?>) t).copyReceiver(v);
                 boolean result=p.visit(path2,xg, parent);
                 if (!result) return result;
             }
         }
         if (disEquals != null) {
             for (XPromise i:disEquals) {
-                XTerm nf=i.lookup().term(); 
+                XNativeTerm nf=i.lookup().term(); 
                 boolean result = xg.rawVisitDisEquals(t1, nf);
                 if (! result) return result;
             }
@@ -471,10 +475,10 @@ public class XPromise implements Cloneable, Serializable{
      * @return
      */
     public boolean isDisBoundTo(XPromise other) {
-        if (term() instanceof XLit) {
-            XLit term = (XLit) term();
-            XTerm o = other.term();
-            if (o instanceof XLit) return ! (term.equals(o));
+        if (term() instanceof XNativeLit) {
+            XNativeLit term = (XNativeLit) term();
+            XNativeTerm o = other.term();
+            if (o instanceof XNativeLit) return ! (term.equals(o));
         }
         if (disEquals == null) return false;
         for (XPromise p : disEquals) 
