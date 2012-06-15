@@ -14,7 +14,7 @@
  * for each collective used by X10.  It queries the world geometry only.
  *
  * This is a stand-alone program, which only needs PAMI, not X10.  Compile with
- * "g++ -lpami BenchmarkCollectiveOptions.c"
+ * "mpCC BenchmarkCollectiveOptions.c"
  */
 
 #define _GNU_SOURCE
@@ -32,6 +32,7 @@
 #define X10RT_PAMI_MAX_DATASIZE "X10RT_PAMI_MAX_DATASIZE"
 #define numCollectives 6
 #define numDataSizes 2
+#define REPEAT 3
 pami_xfer_type_t collectives[] = {PAMI_XFER_BROADCAST, PAMI_XFER_BARRIER, PAMI_XFER_SCATTER, PAMI_XFER_ALLTOALL, PAMI_XFER_ALLREDUCE, PAMI_XFER_ALLGATHER};
 const char* collectiveNames[] = {"PAMI_XFER_BROADCAST", "PAMI_XFER_BARRIER", "PAMI_XFER_SCATTER", "PAMI_XFER_ALLTOALL", "PAMI_XFER_ALLREDUCE", "PAMI_XFER_ALLGATHER"};
 const int dataSizes[] = {1000000, 100000};
@@ -195,38 +196,26 @@ int test(int collective, int teamSize, int algorithmId, int dataId, pami_algorit
 		operation.cookie = (void*)&waitForCompletion;
 		operation.cb_done = cookie_decrement;
 
-		// warmup
-		// test
 		if (state.myPlaceId == 0)
-		{
 			printf("Testing Collective %s, team size %u, algorithm %u (%s), per-place datasize %u\n", collectiveNames[collective], teamSize, algorithmId, algName, dataSizes[dataId]);
-			printf("   Run #1: ");
-			fflush(stdout);
-			time = -nano_time();
-		}
-		status = PAMI_Collective(state.context, &operation);
-		if (status != PAMI_SUCCESS) error("Unable to issue a barrier on teamsize %u", teamSize);
-		while (waitForCompletion) PAMI_Context_advance(state.context, 100);
-		if (state.myPlaceId == 0)
-		{
-			time+=nano_time();
-			printf(" %lu ns\n", time);
-		}
 
-		// test
-		if (state.myPlaceId == 0)
+		for (int i=1; i<=REPEAT; i++)
 		{
-			printf("   Run #2: ");
-			fflush(stdout);
-			time = -nano_time();
-		}
-		status = PAMI_Collective(state.context, &operation);
-		if (status != PAMI_SUCCESS) error("Unable to issue a barrier on teamsize %u", teamSize);
-		while (waitForCompletion) PAMI_Context_advance(state.context, 100);
-		if (state.myPlaceId == 0)
-		{
-			time+=nano_time();
-			printf(" %lu ns\n", time);
+			waitForCompletion = 1;
+			if (state.myPlaceId == 0)
+			{
+				printf("   Run #%i: ", i);
+				fflush(stdout);
+				time = -nano_time();
+			}
+			status = PAMI_Collective(state.context, &operation);
+			if (status != PAMI_SUCCESS) error("Unable to issue a barrier on teamsize %u", teamSize);
+			while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+			if (state.myPlaceId == 0)
+			{
+				time+=nano_time();
+				printf(" %lu ns\n", time);
+			}
 		}
 	}
 
