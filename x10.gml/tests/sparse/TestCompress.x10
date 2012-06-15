@@ -36,7 +36,7 @@ class CompArrayTest {
 	public val nzp:Double;
 
     public def this(args:Array[String](1)) {
-		M = args.size > 0 ?Int.parse(args(0)):50;
+		M = args.size > 0 ?Int.parse(args(0)):32;
 		nzp = args.size > 1 ?Double.parse(args(1)):0.5;
 	}
 
@@ -211,7 +211,7 @@ class CompArrayTest {
 		val ca = new CompressArray(M*ldm);
 		val cd = Compress2D.makeRand(M, ldm, nzp, ca);
 		val c2 = cd.clone();
-		//c2.print();			 
+		//cd.print();			 
 		//ca.print();
 		val cnt = cd.serializeIndex(ldm, 0, M);
 		//ca.print();

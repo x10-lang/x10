@@ -42,6 +42,7 @@ class TestRunSumma {
 	public val bM:Int;
 	public val bN:Int;
 	public val nzd:Double;
+	public val panel:Int;
 	
 	//-------------
 	//Matrix block partitioning
@@ -59,7 +60,8 @@ class TestRunSumma {
 		N = args.size > 2 ?Int.parse(args(2)):4;
 		bM = args.size > 3 ?Int.parse(args(3)):2;
 		bN = args.size > 4 ?Int.parse(args(4)):2;
-		nzd =  args.size > 5 ?Double.parse(args(5)):1.0;
+		panel = args.size > 5 ?Int.parse(args(5)):2;
+		nzd =  args.size > 6 ?Double.parse(args(6)):1.0;
 		
 		gA = new Grid(M, K, bM, bN);
 		gB = new Grid(K, N, bM, bN);
@@ -82,10 +84,11 @@ class TestRunSumma {
 		ret &= (testMultTrans());
 		ret &= (testSparseMult());
 		ret &= (testSparseMultTrans());
-		ret &= (testCylicDistMult());
-		ret &= (testCylicDistMultTrans());
-		ret &= (testRandomDistMult());
-		ret &= (testRandomDistMultTrans());
+		
+		//ret &= (testCylicDistMult());
+		//ret &= (testCylicDistMultTrans());
+		//ret &= (testRandomDistMult());
+		//ret &= (testRandomDistMultTrans());
 
 		if (ret)
 			Console.OUT.println("Test passed!");
@@ -99,10 +102,10 @@ class TestRunSumma {
 				M, K, K, N, bM, bN);
 		Console.OUT.printf("distributed in (%dx%d) places\n", gdA.numRowPlaces, gdA.numColPlaces);
 		var ret:Boolean = true;
-		val a = DistBlockMatrix.makeDense(gA, dA).init((r:Int,c:Int)=>1.0*(r+c+1));
+		val a = DistBlockMatrix.makeDense(gA, dA).init((r:Int,c:Int)=>1.0*(r+c+10));
 		val b = DistBlockMatrix.makeDense(gB, dB).init((r:Int,c:Int)=>2.0*(r*c+1));
 		val c = DistBlockMatrix.makeDense(gC, dC);
-		SummaMult.mult(a, b, c, false);
+		SummaMult.mult(panel, 0.0, a, b, c);
 		//a.printMatrix();
 		//b.printMatrix();
 		//c.printMatrix();
@@ -130,7 +133,7 @@ class TestRunSumma {
 		val c = DistBlockMatrix.makeDense(gC, dC);
 		//a.printMatrix("A=");
 		//b.printMatrix("B=");
-		SummaMult.mult(a, b, c, false);
+		SummaMult.mult(panel, 0.0, a, b, c);
 		Debug.flushln("Done SUMMA mult");
 		//c.printMatrix("Summa result:");
 		val da= a.toDense() as DenseMatrix(a.M, a.N);

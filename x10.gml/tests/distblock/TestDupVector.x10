@@ -9,8 +9,6 @@ import x10.io.Console;
 
 import x10.matrix.Matrix;
 import x10.matrix.Vector;
-import x10.matrix.SymMatrix;
-import x10.matrix.TriMatrix;
 import x10.matrix.distblock.DupVector;
 
 /**

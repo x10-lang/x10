@@ -53,7 +53,7 @@ class TestDB {
 		
 		grid = new Grid(M, N, bM, bN);
 		dmap = DistGrid.make(grid).dmap; 
-		Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) \n", M, N, K, bM, bN);
+		Console.OUT.printf("Matrix M:%d K:%d N:%d, blocks(%d, %d) on %d places\n", M, N, K, bM, bN, Place.MAX_PLACES);
 		
 	}
 

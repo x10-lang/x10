@@ -64,17 +64,17 @@ class BlockP2PTest {
 
     public def this(m:Int, n:Int, bm:Int, bn:Int, d:Double) {
 
-		M=m; N=n;
+		M=m * bm; N=n * bn;
 		nzdensity = d;
 		bM = bm; bN = bn;
 		
-		dbmat = DistBlockMatrix.makeDense(m, n, bm, bn);
-		sbmat = DistBlockMatrix.makeSparse(m, n, bm, bn, nzdensity);
+		dbmat = DistBlockMatrix.makeDense(M, N, bm, bn);
+		sbmat = DistBlockMatrix.makeSparse(M, N, bm, bn, nzdensity);
 		
-		srcden = DenseMatrix.make(m/bm, n/bn).init((x:Int, y:Int)=>(1.0+x+y));
+		srcden = DenseMatrix.make(m, n).init((x:Int, y:Int)=>(1.0+x+y));
 		dstden = DenseMatrix.make(srcden.M, srcden.N);
 		
-		srcspa = SparseCSC.make(m/bm, n/bn, nzdensity).init((x:Int, y:Int)=>1.0*(x+y)*((x+y)%2));
+		srcspa = SparseCSC.make(m, n, nzdensity).init((x:Int, y:Int)=>1.0*(x+y)*((x+y)%2));
 		dstspa = SparseCSC.make(srcspa.M, srcspa.N, nzdensity);
 		
 		rmtcp     = new BlockRemoteCopy();

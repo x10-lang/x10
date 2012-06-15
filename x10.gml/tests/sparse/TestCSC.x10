@@ -33,8 +33,8 @@ class AddSubCSC {
 	public val N:Int;
 
     public def this(args:Array[String](1)) {
-		M = args.size > 0 ?Int.parse(args(0)):10;
-		N = args.size > 1 ?Int.parse(args(1)):10;
+		M = args.size > 0 ?Int.parse(args(0)):8;
+		N = args.size > 1 ?Int.parse(args(1)):8;
 		nzp = args.size > 2 ?Double.parse(args(2)):0.99;
 	}
 
@@ -48,7 +48,8 @@ class AddSubCSC {
 		ret &= (testAddSub());
 		ret &= (testAddAssociative());
 		ret &= (testScaleAdd());
-		ret &= (testExtraction());
+		//ret &= (testExtraction());
+		ret &= (testCopy());
 
 		if (ret)
 			Console.OUT.println("CSC Test passed!");
@@ -87,8 +88,10 @@ class AddSubCSC {
 		Console.OUT.println("CSC Add test");
 		//val sp = SparseCSC.makeRand(M, N, nzp);
 		val sp = SparseCSC.make(M, N, nzp);
-		sp.initRandom(nzp);
+		sp.initRandom();
+		//sp.print();
 		val nsp= sp * (-1.0);
+		//nsp.printMatrix();
 		val sp0 = sp + nsp;
 
 		val ret = sp0.equals(0.0);
@@ -188,7 +191,7 @@ class AddSubCSC {
  		ret &= s2.equals(s2);
 		if (ret) Console.OUT.println("Full copy all columns passed");
 		
-		val s3 = SparseCSC.make(M-2, N);
+		val s3 = SparseCSC.make(M-2, N, nzp);
 		//sm.copyRowsToSparse(1, M-2, s3);
 		SparseCSC.copyRows(sm, 1, s3, 0, M-2);
 		for (var c:Int=0; c<s3.N; c++)
@@ -196,7 +199,7 @@ class AddSubCSC {
 				ret &= sm(r+1, c)==s3(r, c); 
 		if (ret) Console.OUT.println("Partial rows copy passed");
 
-		val s4 = SparseCSC.make(M, N-2);
+		val s4 = SparseCSC.make(M, N-2, nzp);
  		//sm.copyColsToSparse(1, N-2, s4);
 		SparseCSC.copyCols(sm, 1, s4, 0, N-2);
 		for (var c:Int=0; c<s4.N; c++)
@@ -210,5 +213,27 @@ class AddSubCSC {
 		else
 			Console.OUT.println("--------CSC submatrix and data extraction failed!--------");
 		return ret;		
+	}
+	
+	public def testCopy():Boolean {
+
+		Console.OUT.println("CSC start testing copying for CSC to another CSC");
+		Console.OUT.flush();
+		var retval:Boolean = true;
+		val sm = SparseCSC.make(M, N, nzp).initRandom();
+		val dm = SparseCSC.make(M, N, nzp);
+		
+		SparseCSC.copyCols(sm, N-1, dm, 0, 1);
+		for (var r:Int=0; r<M; r++)
+			retval &= (sm(r, N-1)== dm(r, 0));
+		sm.printMatrix();
+		dm.printMatrix();
+		
+		if (retval)
+			Console.OUT.println("CSC copy test passed!");
+		else
+			Console.OUT.println("--------CSC copy test failed!--------");
+		return retval;
+		
 	}
 }
