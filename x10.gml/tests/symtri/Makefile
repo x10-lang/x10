@@ -10,9 +10,9 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list = TestTriMat TestSymMat
+target_list = TestTriDense TestSymDense TestTriSparse TestSymSparse
 
-target		= TestSymMat
+target		= TestSymSparse
 
 # build path
 build_path	= build
