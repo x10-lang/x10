@@ -11,6 +11,9 @@
 
 package x10.constraint;
 
+import java.util.List;
+import java.util.Set;
+
 import x10.constraint.visitors.XGraphVisitor;
 
 public interface XConstraint {
@@ -36,17 +39,17 @@ public interface XConstraint {
 
     // TODO: make sure returning these arrays is not a terrible idea
     
-    public XTerm[] constraints();	
-    public XFormula<?>[] atoms();
+    public List<? extends XTerm> constraints();	
+    public List<? extends XFormula<?>> atoms();
     public void visit(XGraphVisitor xg);
     public String toString();
 	public XConstraint copy();
 	
 	// CCConstraint interface:
 	public XVar bindingForVar(XVar v);
-	public XTerm[] getTerms();
+	public Set<? extends XTerm> getTerms();
 	public void setInconsistent();
-	public XVar[] vars(); 
-	public XTerm[] extConstraintsHideFake();
-	public XTerm[] extConstraints();
+	public Set<? extends XVar> vars(); 
+	public List<? extends XTerm> extConstraintsHideFake();
+	public List<? extends XTerm> extConstraints();
 }

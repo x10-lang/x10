@@ -31,7 +31,7 @@ public interface XTerm extends  Serializable, Cloneable {
 	 * @param x
 	 * @return
 	 */
-	public XTerm subst(XTerm y, XVar x); 
+	public XTerm subst(XTerm y, XVar x);
 	
 	/**
 	 * Returns true only if this term is allowed to occur inside a constraint.
