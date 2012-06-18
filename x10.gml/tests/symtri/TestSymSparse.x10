@@ -10,8 +10,8 @@ import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.TriDense;
 import x10.matrix.sparse.SparseCSC;
-import x10.matrix.sparse.SparseCSCBuilder;
-import x10.matrix.sparse.SymSparseBuilder;
+import x10.matrix.builder.SparseCSCBuilder;
+import x10.matrix.builder.SymSparseBuilder;
 
 
 /**
