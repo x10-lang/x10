@@ -101,6 +101,21 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
         if (type.isULong())  return IntLit.ULONG;
         return null;
     }
+    /**
+     *  Creates a field access term corresponding to an @Opaque declaration. Currently 
+     *  this is handled in a rather naive way, by modeling it as a field access where
+     *  the field consists of the opaque method name and arguments
+     */
+    public XTerm makeOpaque(Object op, XTerm target, List<XTerm> args) {
+    	// constructing the fake field name
+    	// TODO: can handle this as nested field dereferencing
+    	StringBuilder sb = new StringBuilder();
+    	sb.append(op.toString());
+    	for (XTerm arg : args) {
+    		sb.append(arg.toString());
+    	}
+    	return makeField((XVar)target, sb.toString()); 
+    }
         
     public CConstraint makeCConstraint() { return new CNativeConstraint(); }
     public CConstraint makeCConstraint(XVar self) { return new CNativeConstraint(self); }

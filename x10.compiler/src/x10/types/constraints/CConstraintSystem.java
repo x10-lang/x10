@@ -43,5 +43,6 @@ public interface CConstraintSystem extends XConstraintSystem {
     public IntLit.Kind getIntLitKind(Type type);
     public CConstraint makeCConstraint(); 
     public CConstraint makeCConstraint(XVar self); 
-
+    
+    public XTerm makeOpaque(Object op, XTerm target, List<XTerm> args); 
 }
