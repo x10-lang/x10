@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix;
@@ -52,14 +52,8 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		return new SymDense(n, x);
 	}
 
-	public static def make(src:SymDense):SymDense(src.M) {
-		val n = src.M;
-		val newd = new Array[Double](n*n);
-		Array.copy(src.d, newd);
-		return new SymDense(n, newd);
-	}
+	//================================================================
 
-	
 	public def clone():SymDense(M){
 		val nd = new Array[Double](this.d) as Array[Double](1){rail};
 		val nm = new SymDense(M, nd);
@@ -86,7 +80,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		for (var len:Int=N; len > 0; len--, colstt+=M+1) {
 			Array.copy(this.d, colstt, dm.d, colstt, len);		
 		}
-		mirrorLowerToUpper(dm);
+		mirrorToUpper(dm);
 	}
 	
 	public def copyTo(smat:SymDense(N)): void {
@@ -106,7 +100,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	/**
 	 *  Copy lower triangular part to upper part.
 	 */
-	public static def mirrorLowerToUpper(dm:DenseMatrix) :void {
+	public static def mirrorToUpper(dm:DenseMatrix) :void {
 		var colstt:Int=0;
 		var len:Int = (dm.M>dm.N)?dm.N:dm.M;
 		for (; len > 0; len--, colstt+=dm.M+1) {
@@ -119,7 +113,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	/**
 	 * Copy upper part to lower
 	 */
-	public static def mirrorUpperToLower(dm:DenseMatrix) :void {
+	public static def mirrorToLower(dm:DenseMatrix) :void {
 		var colstt:Int=0;
 		var len:Int = (dm.M>dm.N)?dm.N:dm.M;
 		for (; len > 0; len--, colstt+=dm.M+1) {
@@ -159,7 +153,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		for (var c:Int=0; c<N; c++, i+=c)
 			for (var r:Int=c; r<M; r++, i++)
 				this.d(i) = f(r, c);
-		mirrorLowerToUpper(this as DenseMatrix);
+		mirrorToUpper(this as DenseMatrix);
 		return this;
 	}
 	
@@ -172,7 +166,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		for (var len:Int=N; len>0; len--, colstt+=M+1)
 			for (var i:Int=colstt; i<colstt+len; i++)
 				this.d(i) = rgen.nextDouble();
-		mirrorLowerToUpper(this);
+		mirrorToUpper(this);
 		return this;
 	}
 	
@@ -190,7 +184,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		for (var len:Int=N; len>0; len--, colstt+=M+1)
 			for (var i:Int=colstt; i<colstt+len; i++)
 				this.d(i) = rgen.nextInt(l)+lb;
-		mirrorLowerToUpper(this);
+		mirrorToUpper(this);
 		return this;
 	}
 	
@@ -426,6 +420,7 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 	//=======================================================
 	// Utils
 	//=======================================================
+	
 	public def likeMe(m:Matrix):Boolean {
 		if ((m instanceof SymDense) && m.M==M && m.N==N) return true;
 		return false;
@@ -440,6 +435,8 @@ public class SymDense extends DenseMatrix{self.M==self.N} {
 		return true;
 	}
 	
+	public def checkSymmetric():Boolean = test(this as DenseMatrix);
+			
 	public def toString():String {
 		var idx:Int=0;
 		val outstr = new StringBuilder();

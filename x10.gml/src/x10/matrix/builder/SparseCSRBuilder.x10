@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.matrix.sparse;
+package x10.matrix.builder;
 
 import x10.compiler.Inline;
 import x10.io.Console;
@@ -26,7 +26,11 @@ import x10.matrix.VerifyTools;
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;
 import x10.matrix.sparse.SparseCSC;
+import x10.matrix.sparse.SparseCSR;
 
+/**
+ * Incomplete
+ */
 public class SparseCSRBuilder {
 	
 	static struct NonZeroEntry(col:Int, value:Double) {

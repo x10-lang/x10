@@ -110,11 +110,7 @@ sparse_src=\
     	x10/matrix/sparse/SparseSubToDense.x10 \
     	x10/matrix/sparse/CompressArray.x10  \
     	x10/matrix/sparse/SparseCSC.x10  \
-	x10/matrix/sparse/SparseCSCBuilder.x10 \
-	x10/matrix/sparse/SparseCSRBuilder.x10 \
-    	x10/matrix/sparse/SparseMultDenseToDense.x10 \
-	x10/matrix/sparse/TriSparseBuilder.x10 \
-        x10/matrix/sparse/SymSparseBuilder.x10 
+    	x10/matrix/sparse/SparseMultDenseToDense.x10 
 
 
 block_src=\
@@ -142,7 +138,6 @@ dist_src=\
 	x10/matrix/distblock/DistGrid.x10 \
 	x10/matrix/distblock/BlockSet.x10 \
 	x10/matrix/distblock/DistBlockMatrix.x10 \
-	x10/matrix/distblock/DistMatrixBuilder.x10 \
 	x10/matrix/distblock/DupBlockMatrix.x10  \
 	x10/matrix/distblock/DistDistMult.x10 \
 	x10/matrix/distblock/CastPlaceMap.x10 \
@@ -162,6 +157,15 @@ dist_src=\
 	x10/matrix/distblock/summa/RingReduce.x10 \
 	x10/matrix/distblock/summa/SummaMultTrans.x10
 
+builder_src=\
+	x10/matrix/builder/MatrixBuilder.x10 \
+	x10/matrix/builder/DenseBuilder.x10 \
+	x10/matrix/builder/SymDenseBuilder.x10 \
+	x10/matrix/builder/TriDenseBuilder.x10 \
+	x10/matrix/builder/SparseCSCBuilder.x10 \
+	x10/matrix/builder/SymSparseBuilder.x10 \
+	x10/matrix/builder/TriSparseBuilder.x10 \
+#	x10/matrix/builder/DistMatrixBuilder.x10
 
 summa_src=\
 	x10/matrix/dist/summa/SummaDenseMultSparse.x10 \
@@ -184,7 +188,7 @@ seq_src		= $(base_src) $(bwrap_src) $(lapack_src) $(sparse_src) $(block_src)
 ## lib src parallel/dist version 
 ##
 mpi_wrap	= $(comm_mpi_src) $(summa_mpi_src)
-lib_src     = $(seq_src) $(dist_src) $(comm_src) $(summa_src)
+lib_src     = $(seq_src) $(dist_src) $(builder_src) $(comm_src) $(summa_src)
 
 #--------------------------------------------------
 VPATH		=$(bwrap_path):$(lwrap_path):$(src_path)

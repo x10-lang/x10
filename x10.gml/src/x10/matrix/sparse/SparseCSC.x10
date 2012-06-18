@@ -20,6 +20,7 @@ import x10.matrix.Matrix;
 import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
+import x10.matrix.builder.SparseCSCBuilder;
 
 
 public type SparseCSC(M:Int)=SparseCSC{self.M==M};

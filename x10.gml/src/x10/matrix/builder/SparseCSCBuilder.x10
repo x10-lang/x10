@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.matrix.sparse;
+package x10.matrix.builder;
 
 import x10.compiler.Inline;
 import x10.io.Console;
@@ -23,7 +23,6 @@ import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
 import x10.matrix.RandTool;
-import x10.matrix.MatrixBuilder;
 
 import x10.matrix.sparse.CompressArray;
 import x10.matrix.sparse.Compress2D;
@@ -38,7 +37,7 @@ public type SparseCSCBuilder(m:Int)=SparseCSCBuilder{self.M==self.N,self.M==m};
  */
 public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	
-	static struct NonZeroEntry(row:Int, value:Double) {
+	public static struct NonZeroEntry(row:Int, value:Double) {
 
 		def this(r:Int, v:Double) { 
 			property(r, v);
@@ -63,6 +62,15 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	//=======================================================
 	public def this(leadDim:Int, cols:Array[ArrayList[NonZeroEntry]](1){rail}) {
 		property(leadDim, cols.size);
+		nzcol = cols;
+	}
+	public def this(sbld:SparseCSCBuilder) {
+		property(sbld.M, sbld.N);
+		nzcol = sbld.nzcol;
+	}
+	
+	public def this(leadDim:Int, ncols:Int, cols:Array[ArrayList[NonZeroEntry]](1){rail}) {
+		property(leadDim, ncols);
 		nzcol = cols;
 	}
 	
@@ -215,7 +223,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	/*
 	 * Add new nonzero entry at the ordered nonzero list of the specified column
 	 */
-	
+	@Inline
 	public def insert(r:Int, c:Int, v:Double):Boolean {
 		val nz = NonZeroEntry(r, v);
 		
@@ -235,6 +243,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	/*
 	 * Append nonzero at the end of nonzero list of the specified column. 
 	 */
+	@Inline
 	public def append(r:Int, c:Int, v:Double) {
 		if (MathTool.isZero(v)) return;
 		val nz = NonZeroEntry(r, v);
@@ -245,6 +254,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	/*
 	 * Return the value at given row and column; If not found in nonzero list, 0 is returned.
 	 */
+	@Inline
 	public def get(r:Int, c:Int) : Double {
 		val foundnz = findEntry(r, c);
 		return foundnz.value;
@@ -317,7 +327,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	}
 
 	//=========================================
-	
+	@Inline
 	public def remove(r:Int, c:Int): Boolean {
 		val idx = findIndex(r, c);
 		if (idx < 0) return false;		//Not found

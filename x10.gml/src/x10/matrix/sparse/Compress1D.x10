@@ -320,7 +320,7 @@ public class Compress1D {
 		return Pair[Int,Int](startPos, count);
 	}
 	
-	def countIndexRangeBefore(mid:Int) : Int { 
+	public def countIndexRangeBefore(mid:Int) : Int { 
 		// Special case: empty line case
 		if (this.length == 0) return 0;
 		
@@ -335,7 +335,7 @@ public class Compress1D {
 		return count;
 	}
 	
-	def countIndexRangeAfter(mid:Int, end:Int) : Int { 
+	public def countIndexRangeAfter(mid:Int, end:Int) : Int { 
 		// Special case: empty line case
 		if (this.length == 0) return 0;
 		

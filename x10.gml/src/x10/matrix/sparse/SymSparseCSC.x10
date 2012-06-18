@@ -22,7 +22,8 @@ import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.MathTool;
 
-//public type SymSparseCSC(m:Int, n:Int)  =SymSparseCSC{m==n, self.M==m, m==n};
+import x10.matrix.builder.SymSparseBuilder;
+
 public type SymSparseCSC(m:Int)         =SymSparseCSC{self.M==m,self.N==m};
 public type SymSparseCSC(C:SymSparseCSC)=SymSparseCSC{self==C};
 public type SymSparseCSC(C:Matrix)      =SymSparseCSC{self==C};

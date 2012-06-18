@@ -48,8 +48,9 @@ public class CompressArray {
 	public var value:Array[Double](1){rail};//{self.size==index.size,rail}; // the values v1,..., vn
 
 	
-	protected var count:Int=0; // n
+	public var count:Int=0; // n
 	public def count()=count;
+
 
 	//===========================================================
 	// Constructor

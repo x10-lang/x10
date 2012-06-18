@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.matrix.distblock;
+package x10.matrix.builder.distblock;
 
 import x10.compiler.Inline;
 import x10.io.Console;
@@ -17,29 +17,38 @@ import x10.util.Timer;
 import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
-import x10.matrix.MatrixBuilder;
+import x10.matrix.RandTool;
 import x10.matrix.DenseMatrix;
+import x10.matrix.SymDense;
+
 import x10.matrix.Debug;
 import x10.matrix.block.Grid;
-import x10.matrix.block.MatrixBlock;
 import x10.matrix.block.SymGrid;
+import x10.matrix.block.MatrixBlock;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.comm.BlockSetRemoteCopy;
+import x10.matrix.distblock.DistBlockMatrix;
+import x10.matrix.distblock.DistMap;
+import x10.matrix.distblock.DistGrid;
+import x10.matrix.distblock.BlockSet;
 
-public type DistMatrixBuilder(b:DistMatrixBuilder)=DistMatrixBuilder{self==b};
-public type DistMatrixBuilder(m:Int,n:Int)=DistMatrixBuilder{self.M==m,self.N==n};
+import x10.matrix.builder.MatrixBuilder;
+
+public type DistSymMatrixBuilder(b:DistMatrixBuilder)=DistSymMatrixBuilder{self==b};
+public type DistSymMatrixBuilder(m:Int)=DistSymMatrixBuilder{self.M==m,self.N==m};
 
 /*
  * 
  */
-public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
+public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} implements MatrixBuilder {
  
-	public val dmat:DistBlockMatrix(M,N);
-
 	//-------------------------------------
-	public def this(dm:DistBlockMatrix) {
-		property(dm.M,dm.N);
-		dmat = dm;
+	public def this(dm:DistBlockMatrix{self.M==self.N}) {
+		super(dm);
+	}
+	
+	public def this(bld:DistMatrixBuilder{self.M==self.N}) {
+		super(bld.dmat as DistBlockMatrix{self.M==self.N});
 	}
 	
 	//=====================================
@@ -47,39 +56,23 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 	 * Creat distributed block matrix builder with given partitioning and block distribution map. 
 	 * The actual memory spaces are not allocated.
 	 */
-	public static def make(pg:Grid, dp:DistMap):DistMatrixBuilder(pg.M,pg.N) {
+	public static def make(pg:SymGrid, dp:DistMap):DistSymMatrixBuilder(pg.M) {
 		//Remote capture: partitioning and distribution
-		val dm = DistBlockMatrix.make(pg, dp);
-		val bld =  new DistMatrixBuilder(dm);
-		return bld as DistMatrixBuilder(pg.M,pg.N);
+		val bld = DistMatrixBuilder.make(pg as Grid, dp);
+		return bld as DistSymMatrixBuilder;
 	}
 	
 	/**
 	 * Creat symmetric distributed block matrix with given leading dimension and its partitioning blocks.
 	 */
-	public static def makeSym(m:Int, bM:Int):DistMatrixBuilder(m,m) {
+	public static def make(m:Int, bM:Int):DistSymMatrixBuilder(m) {
 		val sgrid = new SymGrid(m, bM);
 		val dgrid = DistGrid.make(sgrid as Grid);
 		val bdr = make(sgrid, dgrid.dmap);
-		return bdr as DistMatrixBuilder(m,m);
+		return bdr as DistSymMatrixBuilder(m);
 	}
 	
 	//===============================
-	public def allocDense(): DistMatrixBuilder(this) {
-		finish ateach (d:Point in Dist.makeUnique()) {
-			dmat.handleBS().allocDenseBlocks();
-		}
-		return this;
-	}
-	
-	public def allocSparse(nzd:Double): DistMatrixBuilder(this) {
-		finish ateach (d:Point in Dist.makeUnique()) {
-			dmat.handleBS().allocSparseBlocks(nzd);
-		}
-		return this;
-	}
-
-	//======================
 	public def init(initFun:(Int,Int)=>Double) : DistMatrixBuilder(this) {
 		finish ateach (d:Point in Dist.makeUnique()) {
 			val itr = dmat.handleBS().iterator();
@@ -92,15 +85,6 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 		return this;
 	}
 	
-	public def initRandom(nonZeroDensity:Double):DistMatrixBuilder(this) {
-		finish ateach (d:Point in Dist.makeUnique()) {
-			val itr = dmat.handleBS().iterator();
-			while (itr.hasNext()) {
-				itr.next().initRandom(nonZeroDensity);
-			}
-		}
-		return this;
-	}
 	//==============================
 	public def initRandom() : DistMatrixBuilder(this) {
 		finish ateach (d:Point in Dist.makeUnique()) {
@@ -112,16 +96,17 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 		return this;
 	}
 
-	public def initRandomSym(halfDensity:Double) : DistMatrixBuilder(this) {
+	public def initRandom(halfDensity:Double, f:(Int,Int)=>Double) : DistMatrixBuilder(this) {
 		finish ateach (d:Point in Dist.makeUnique()) {
 			val itr = dmat.handleBS().iterator();
 			while (itr.hasNext()) {
 				val blk = itr.next();
 				//Only init the lower part
 				if (blk.myRowId > blk.myColId)
-					blk.initRandom(halfDensity);
+					blk.initRandom(halfDensity, f);
 				else if (blk.myRowId == blk.myColId) {
-					blk.initRandomSym(halfDensity);
+					val bld = blk.getSymBuilder();
+					bld.initRandom(halfDensity, f);
 				}
 			}
 		}
@@ -130,40 +115,29 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 	}
 
 
-	public def initRandomTri(halfNZD:Double, up:Boolean) : DistMatrixBuilder(this){
-		finish ateach (d:Point in Dist.makeUnique()) {
-			val itr = dmat.handleBS().iterator();
-			while (itr.hasNext()) {
-				val blk = itr.next();
-				//Only init the lower part
-				if (blk.myRowId > blk.myColId)
-					blk.initRandom(halfNZD);
-				else if (blk.myRowId == blk.myColId) {
-					blk.initRandomTri(halfNZD, up);
-				}
-			}
-		}
-		return this;
-	}
 	//=========================
 	public def mirror(toUpper:Boolean) {
 		finish ateach (d:Point in Dist.makeUnique()) {
 			val blkitr = dmat.handleBS().iterator();
 			while (blkitr.hasNext()) {
 				val blk = blkitr.next();
-				//Only init the lower part
 				if (toUpper) { 
-					if (blk.myRowId >= blk.myColId) continue; //source
+					if (blk.myRowId > blk.myColId) continue; //source
 				} else {
-					if (blk.myRowId <= blk.myColId) continue;
+					if (blk.myRowId < blk.myColId) continue;
 				}
 				//copy remote block to dstblk at here
 				val srcbid = dmat.handleBS().getGrid().getBlockId(blk.myColId, blk.myRowId);
 				val dstmat:Matrix = blk.getMatrix();
 			
 				if (dstmat instanceof DenseMatrix) {
-					if (dstmat.M==dstmat.N) {
-						val dst = dstmat as DenseMatrix;
+					val dst = dstmat as DenseMatrix;
+					if (blk.myRowId == blk.myColId) {
+						if (toUpper)
+							SymDense.mirrorToUpper(dst);
+						else
+							SymDense.mirrorToLower(dst);
+					} else if (dstmat.M==dstmat.N) {
 						BlockSetRemoteCopy.copy(dmat.handleBS, srcbid, dst);
 						dst.selfT();
 					} else { 
@@ -173,8 +147,15 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 					}
 				} else if (dstmat instanceof SparseCSC) {
 					val dst = dstmat as SparseCSC;
-					BlockSetRemoteCopy.copy(dmat.handleBS, srcbid, dst); 
-					dst.selfT();
+					if (blk.myRowId == blk.myColId) {
+						if (toUpper)
+							SymSparse.mirrorToUpper(dst);
+						else
+							SymSparse.mirrorToLower(dst);
+					} else {
+						BlockSetRemoteCopy.copy(dmat.handleBS, srcbid, dst); 
+						dst.selfT();
+					}
 				} else {
 					throw new UnsupportedOperationException("Matrix type not supported in transpose");
 				}
@@ -193,39 +174,15 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 	}
 	//=====================================
 	public def set(r:Int, c:Int, value:Double): void{
-		val grid = dmat.handleBS().grid;
-		val loc = grid.find(r, c);
-		val bid = grid.getBlockId(loc(0), loc(1));
-		val bx  = loc(2);
-		val by  = loc(3);
-		val pid = dmat.handleBS().dmap.findPlace(bid);
-		//Remote capture: bid, bx, by, 
-		at (Place.place(pid)) {
-			val blkset:BlockSet = dmat.handleBS();
-			val blk:MatrixBlock = blkset.find(bid);
-			if (blk == null) 
-				Debug.exit("Error in search blocks in block set");
-			
-			blk.getBuilder().set(bx, by, value);
-		}
+		super.set(r, c, value);
+		if (r != c)
+			super.set(c, r, value);
 	}
 	
 	public def reset(r:Int, c:Int):Boolean {
-		val grid = dmat.handleBS().grid;
-		val loc = grid.find(r, c);
-		val bid = grid.getBlockId(loc(0), loc(1));
-		val bx  = loc(2);
-		val by  = loc(3);
-		val pid = dmat.handleBS().dmap.findPlace(bid);
-		//Remote capture: bid, bx, by, 
-		val ret = at (Place.place(pid)) {
-			val blkset:BlockSet = dmat.handleBS();
-			val blk:MatrixBlock = blkset.find(bid);
-			if (blk == null) 
-				Debug.exit("Error in search blocks in block set");
-			
-			blk.getBuilder().reset(bx, by)
-		};
+		var ret:Boolean= super.reset(r, c);
+		if (r != c)
+			ret &= super.reset(c, r);
 		return ret;
 	}
 	

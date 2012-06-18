@@ -9,20 +9,25 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.matrix.sparse;
+package x10.matrix.builder;
 
+import x10.compiler.Inline;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
-import x10.util.Pair;
+import x10.util.ArrayList;
 import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Debug;
-import x10.matrix.MatrixBuilder;
 import x10.matrix.MathTool;
 import x10.matrix.RandTool;
+
+import x10.matrix.sparse.SparseCSC;
+import x10.matrix.sparse.SymSparseCSC;
+import x10.matrix.sparse.CompressArray;
+import x10.matrix.sparse.Compress1D;
 
 public type SymSparseBuilder(bld:SymSparseBuilder)=SymSparseBuilder{self==bld};
 public type SymSparseBuilder(m:Int)=SymSparseBuilder{self.M==m};
@@ -32,13 +37,13 @@ public type SymSparseBuilder(m:Int)=SymSparseBuilder{self.M==m};
  * <p>
  * 
  */
-public class SymSparseBuilder(M:Int) implements MatrixBuilder {
-	val builder:SparseCSCBuilder(M);
-	
+//public class SymSparseBuilder(M:Int) implements MatrixBuilder {
+//public val builder:SparseCSCBuilder(M,M);
+public class SymSparseBuilder extends SparseCSCBuilder{self.M==self.N} implements MatrixBuilder {
 	//===================================
-	public def this(sbldr:SparseCSCBuilder{self.M==self.N}) {
-		property(sbldr.M);
-		builder = sbldr;
+
+	public def this(sbld:SparseCSCBuilder{self.M==self.N}) {
+		super(sbld);
 	}
 	
 	//=====================================
@@ -53,11 +58,11 @@ public class SymSparseBuilder(M:Int) implements MatrixBuilder {
 	 * Initialize symmetric sparse builder using matrix data generator function.
 	 */
 	public def init(fval:(Int, Int)=>Double) :SymSparseBuilder(this) {
-		for (var c:Int=0; c<M; c++) {
+		for (var c:Int=0; c<N; c++) {
 			for (var r:Int=c; r<M; r++) {
 				val v = fval(r, c);
 				if (! MathTool.isZero(v)) {
-					append(r, c, v);
+					this.append(r, c, v);
 				}
 			}
 		}
@@ -122,43 +127,79 @@ public class SymSparseBuilder(M:Int) implements MatrixBuilder {
 	/**
 	 * Add new nonzero entry. Keep the new nonzero entry in order
 	 */
+	@Inline
 	public def add(r:Int, c:Int, v:Double) {
-		builder.insert(r, c, v);
+		super.insert(r, c, v);
 		if (r!=c)
-			builder.insert(c, r, v);
+			super.insert(c, r, v);
 	}
 	
 	/**
 	 * Append nonzero at the end of nonzero list of the specified column. 
 	 */
+	@Inline
 	public def append(r:Int, c:Int, v:Double) {
-		builder.append(r, c, v);
+		super.append(r, c, v);
 		if (r!= c)
-			builder.append(c, r, v);
+			super.append(c, r, v);
 	}
 	
 	/*
 	 * Return the value at given row and column; If not found in nonzero list, 0 is returned.
 	 */
-	public def get(r:Int, c:Int) : Double = builder.findEntry(r,c).value;
+	public def get(r:Int, c:Int) : Double = findEntry(r,c).value;
 	
 	/*
 	 * Set the entry of given row and column to value, if it is found. Otherwise append
 	 * new nonzero entry at the end of nonzero list;
 	 */
+	@Inline
 	public def set(r:Int, c:Int, v:Double) : void {
-		builder.set(r, c, v);
+		super.set(r, c, v);
 		if (r != c)
-			builder.set(c, r, v);
+			super.set(c, r, v);
 	}
 	
-	public def reset(r:Int, c:Int) : Boolean = builder.remove(r,c);
-
+	public def reset(r:Int, c:Int) : Boolean = super.remove(r,c);
+	//================================
+	/**
+	 * Copy upper triangular part to lower. The lower part must contain none nonzero entries.
+	 * The original builder must be a upper triangular 
+	 */
+	public def mirrorToLower() {
+		var r:Int =0;
+		for (var c:Int=1; c<N; c++) {
+			val nzc = nzcol(c);
+			val itr = nzc.iterator();
+			while (itr.hasNext()){
+				val nz = itr.next();
+				r = nz.row;
+				super.append(c, r, nz.value);
+				// This is efficient, but do not replace the old nonzero value, 
+			}
+		}
+	}
+	
+	/**
+	 * Copy lower triangular part to upper. Upper part must contains none nonzero entries.
+	 */
+	public def mirrorToUpper() {
+		var r:Int =0;
+		for (var c:Int=1; c<N; c++) {
+			val nzc = nzcol(c);
+			val itr = nzc.iterator();
+			while (itr.hasNext()){
+				val nz = itr.next();
+				r = nz.row;
+				super.insert(c, r, nz.value); //Not efficient.
+			}
+		}
+	}
 	//================================
 	public def checkSymmetric():Boolean {
 		var ret:Boolean = true;
-		for (var c:Int=0; c<builder.N&&ret; c++)
-			for (var r:Int=0; r<builder.M&&ret; r++) {
+		for (var c:Int=0; c<N&&ret; c++)
+			for (var r:Int=0; r<M&&ret; r++) {
 				ret &= get(r,c) == get(c,r);
 			}
 				
@@ -166,22 +207,17 @@ public class SymSparseBuilder(M:Int) implements MatrixBuilder {
 	}
 	//=================================
 	public def toSymSparseCSC() : SymSparseCSC(M) {
-		val spa = builder.toSparseCSC();
+		val spa = toSparseCSC();
 		val bdr = new SymSparseCSC(M, spa.ccdata);
 		return bdr as SymSparseCSC(M);
 	}
 	
-	public def toSparseCSC() : SparseCSC(M,M) = builder.toSparseCSC();
+	//public def toSparseCSC() : SparseCSC(M,M) = toSparseCSC() as SparseCSC(M,M);
 	
-	public def toSparseCSC(spa:SparseCSC(M,M)) {
-		builder.toSparseCSC(spa);
-	}
-	
-	public def toMatrix():Matrix(M,M) = toSparseCSC() as Matrix(M,M);
+
+	//public def toMatrix():Matrix(M,M) = toSparseCSC() as Matrix(M,M);
 
 	
 	//===============================
-	public def toString() = builder.toString();
-	public def print(msg:String) { builder.print(msg);}
-	public def print() { builder.print();}
+	public def toString() :String = "Symmetric sparse builder\n"+toString();
 }

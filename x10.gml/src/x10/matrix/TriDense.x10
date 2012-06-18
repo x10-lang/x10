@@ -44,7 +44,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 * Upper or lower triangular matrix flag. If true, upper triangular.
 	 * Default is false, lower triangular.
 	 */
-	public var uplo:Boolean= false; 
+	public var upper:Boolean= false; 
 	
 	//================================================================
 	// Constructor, maker, and clone method
@@ -55,7 +55,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	
 	public def this(up:Boolean, n:Int, x:Array[Double](1){rail}) : TriDense(n){
 		super(n, n, x);
-		uplo = up;
+		upper = up;
 	}	
 	//----------------------------------------------------------------
 	public static def make(up:Boolean, n:Int):TriDense(n) {
@@ -69,7 +69,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		val n = src.N;
 		val newd = new Array[Double](n*n);
 		Array.copy(src.d, newd);
-		return new TriDense(src.uplo, n, newd);
+		return new TriDense(src.upper, n, newd);
 	}
 	
 	public static def make(up:Boolean, src:DenseMatrix) : TriDense(src.M){
@@ -85,7 +85,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 
 	public def clone():TriDense(M,N){
 		val nd = new Array[Double](this.d) as Array[Double](1){rail};
-		val nm = new TriDense(uplo, M, nd);
+		val nm = new TriDense(upper, M, nd);
 		return nm as TriDense(M,N);
 	}
 	
@@ -104,7 +104,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 
 	public def copyTo(tmat:TriDense(N)): void {
 		var colstt:Int=0;
-		if (uplo) {
+		if (upper) {
 			for (var len:Int=1; len <= M; len++, colstt+=M) {
 				Array.copy(this.d, colstt, tmat.d, colstt, len);		
 			}			
@@ -113,7 +113,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 				Array.copy(this.d, colstt, tmat.d, colstt, len);		
 			}
 		}
-		tmat.uplo = this.uplo;
+		tmat.upper = this.upper;
 	}
 	
 	public def copyTo(mat:Matrix(M,N)): void {
@@ -150,7 +150,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 * @param  iv 	the constant value
 	 */	
 	public def init(iv:Double): TriDense(this) {
-		if (uplo)
+		if (upper)
 			super.init((r:Int,c:Int)=>(r>c)?0.0:iv);
 		else
 			super.init((r:Int,c:Int)=>(r<c)?0.0:iv);
@@ -165,7 +165,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 * @return this object
 	 */
 	public def init(f:(Int)=>Double): TriDense(this) {
-		if (uplo)
+		if (upper)
 			super.init((r:Int,c:Int)=>(r>c)?0.0:f(c*M+r));
 		else
 			super.init((r:Int,c:Int)=>(r<c)?0.0:f(c*M+r));
@@ -179,7 +179,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 * @return this object
 	 */
 	public def init(f:(Int,Int)=>Double): TriDense(this) {
-		if (uplo)
+		if (upper)
 			super.init((r:Int,c:Int)=>(r>c)?0.0:f(r,c));
 		else
 			super.init((r:Int,c:Int)=>(r<c)?0.0:f(r,c));
@@ -193,7 +193,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public def initRandom(): TriDense(this) {
 		val rgen = RandTool.getRandGen();
 
-		if (uplo)
+		if (upper)
 			super.init((r:Int,c:Int)=>(r>c)?0.0:rgen.nextDouble());
 		else
 			super.init((r:Int,c:Int)=>(r<c)?0.0:rgen.nextDouble());
@@ -213,7 +213,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		val rgen = RandTool.getRandGen();
 		val l = Math.abs(ub-lb)+1;
 
-		if (uplo)
+		if (upper)
 			super.init((r:Int,c:Int)=>(r>c)?0.0:(rgen.nextInt(l)+lb as Double));
 		else
 			super.init((r:Int,c:Int)=>(r<c)?0.0:(rgen.nextInt(l)+lb as Double));
@@ -227,17 +227,17 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	//======================================================================
 	
 	public  operator this(x:Int, y:Int):Double {
-		if (uplo && x<=y)
+		if (upper && x<=y)
 			return this.d(y*M+x);
-		if (uplo==false && x >= y)
+		if (upper==false && x >= y)
 			return this.d(y*M+x);
 		return 0;
 	}
 	
 	public  operator this(x:Int,y:Int) = (v:Double):Double {
-		if (uplo && x<=y)
+		if (upper && x<=y)
 			this.d(y*M +x) = v;
-		if (uplo==false && x>=y)
+		if (upper==false && x>=y)
 			this.d(y*M +x) = v;
 		return v;
 	}	
@@ -267,7 +267,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	//=====================================================================
 	public  def scale(a:Double):TriDense(this)  {
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			// Lower part
 			for (var len:Int=M; len>0; len--, colstt+=M+1)
 				for (var i:Int=colstt; i<colstt+len; i++)		
@@ -284,7 +284,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public def sum():Double {
 		var tt:Double = 0.0;
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			// lower part
 			for (var len:Int=M; len>0; len--, colstt+=M+1) 
 				for (var i:Int=colstt; i<colstt+len; i++)
@@ -306,7 +306,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	
 	public def cellAddTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var len:Int=M; len>0; len--, colstt+=M+1) 
 				for (var i:Int=colstt; i<colstt+len; i++) 		
 					x.d(i) += this.d(i);
@@ -325,7 +325,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public def cellSubFrom(v:Double):TriDense(this) {
 		
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var len:Int=M; len>0; len--, colstt+=M+1)
 				for (var i:Int=colstt; i<colstt+len; i++)		
 					this.d(i) = v-this.d(i);
@@ -344,7 +344,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	 */
 	public def cellSubFrom(x:DenseMatrix(M,N)):DenseMatrix(x) {
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var len:Int=M; len>0; len--, colstt+=M+1) 
 				for (var i:Int=colstt; i<colstt+len; i++) 		
 					x.d(i) -= this.d(i);
@@ -361,7 +361,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	//----------------------------------
 	public def cellMult(v:Double):TriDense(this) {
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var len:Int=M; len>0; len--, colstt+=M+1)
 				for (var i:Int=colstt; i<colstt+len; i++)		
 					this.d(i) *= v;
@@ -374,12 +374,12 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	}
 
 	public def cellMult(x:TriDense(M,N)):TriDense(this) {
-		if (x.uplo != this.uplo) {
+		if (x.upper != this.upper) {
 			reset();
 			return this;
 		}
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var len:Int=M; len>0; len--, colstt+=M+1)
 				for (var i:Int=colstt; i<colstt+len; i++)		
 					this.d(i) *= x.d(i);
@@ -394,7 +394,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public def cellMult(x:DenseMatrix(M,N)):TriDense(this) {
 
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var len:Int=M; len>0; len--, colstt+=M+1)
 				for (var i:Int=colstt; i<colstt+len; i++)		
 					this.d(i) *= x.d(i);
@@ -409,7 +409,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	public def cellMultTo(x:DenseMatrix(M,N)):DenseMatrix(x) {
 
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var c:Int=0; c<N; c++, colstt+=M){
 				var i:Int = colstt;
 				for (; i<colstt+c; i++)	x.d(i) = 0.0;
@@ -430,7 +430,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 	//-------------------------
 	public def cellDiv(v:Double):TriDense(this) {
 		var colstt:Int=0;
-		if (uplo==false) {
+		if (upper==false) {
 			for (var len:Int=N; len>0; len--, colstt+=M+1)
 			for (var i:Int=colstt; i<colstt+len; i++)	
 				this.d(i) /= v;
@@ -555,7 +555,7 @@ public class TriDense extends DenseMatrix{self.M==self.N} {
 		var idx:Int=0;
 		val outstr=new StringBuilder();
 		outstr.add("--------- Triangular Matrix "+M+" x "+N);
-		if (uplo)
+		if (upper)
 			outstr.add(" upper part data ---------\n");
 		else
 			outstr.add(" lower part data ---------\n");

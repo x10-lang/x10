@@ -9,8 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.matrix.sparse;
+package x10.matrix.builder;
 
+import x10.compiler.Inline;
 import x10.io.Console;
 import x10.util.ArrayList;
 import x10.util.Random;
@@ -22,7 +23,10 @@ import x10.matrix.Debug;
 import x10.matrix.MathTool;
 import x10.matrix.RandTool;
 import x10.matrix.DenseMatrix;
-import x10.matrix.MatrixBuilder;
+
+import x10.matrix.sparse.CompressArray;
+import x10.matrix.sparse.Compress2D;
+import x10.matrix.sparse.SparseCSC;
 
 public type TriSparseBuilder(bld:TriSparseBuilder)=TriSparseBuilder{self==bld};
 public type TriSparseBuilder(m:Int)=TriSparseBuilder{self.M==m};
@@ -30,15 +34,13 @@ public type TriSparseBuilder(m:Int)=TriSparseBuilder{self.M==m};
 /**
  * 
  */
-public class TriSparseBuilder(M:Int) implements MatrixBuilder {
+public class TriSparseBuilder extends SparseCSCBuilder{self.M==self.N} implements MatrixBuilder {
 	
-	val builder:SparseCSCBuilder(M);
 	val up:Boolean;
 	
-	public def this(uptri:Boolean, spbd:SparseCSCBuilder{self.M==self.N}) {
-		property(spbd.M);
+	public def this(uptri:Boolean, sbuilder:SparseCSCBuilder{self.M==self.N}) {
+		super(sbuilder);
 		up = uptri;
-		builder = spbd;
 	}
 
 	public static def make(up:Boolean, m:Int):TriSparseBuilder(m) {
@@ -64,9 +66,7 @@ public class TriSparseBuilder(M:Int) implements MatrixBuilder {
 	
 	public static def countUpperNZ(spa:SparseCSC):Int = countHalfNZ(true, spa);
 	public static def countLowerNZ(spa:SparseCSC):Int = countHalfNZ(false, spa);
-	
-	//=======================================
-	
+		
 	public static def copyHalf(up:Boolean, srcspa:SparseCSC, dstspa:SparseCSC(srcspa.M,srcspa.N)) {
 		val src = srcspa.getStorage();
 		val dst = dstspa.getStorage();
@@ -94,12 +94,12 @@ public class TriSparseBuilder(M:Int) implements MatrixBuilder {
 	 * Initialize symmetric sparse builder using matrix data generator function.
 	 */
 	public def init(fval:(Int, Int)=>Double) :TriSparseBuilder(this) {
-		for (var c:Int=0; c<builder.N; c++) {
+		for (var c:Int=0; c<N; c++) {
 			val stt = up?0:c;
 			val end = up?c:M;
 			for (var r:Int=stt; r<end; r++) {
 				val v = fval(r, c);
-				if (! MathTool.isZero(v)) builder.append(r, c, v);
+				if (! MathTool.isZero(v)) append(r, c, v);
 			}
 		}
 		return this;
@@ -120,9 +120,9 @@ public class TriSparseBuilder(M:Int) implements MatrixBuilder {
 		while (true) {
 			if (r < M){
 				if (up)
-					builder.append(c, r, fval(c, r));
+					append(c, r, fval(c, r));
 				else 
-					builder.append(r, c, fval(r, c));
+					append(r, c, fval(r, c));
 				r+= rgen.nextInt(maxdst) + 1;
 			} else {
 				c++;
@@ -142,7 +142,7 @@ public class TriSparseBuilder(M:Int) implements MatrixBuilder {
 	 * This is not best way to creat triangulor matrix.  It is more fast using
 	 * copyHalf method.
 	 */
-	public def init(src:SparseCSC{self.M==self.N}) : TriSparseBuilder(this) {
+	public def init(src:SparseCSC(M,N)) : TriSparseBuilder(this) {
 		val srcca = src.getStorage();
 		for (var c:Int=0; c<src.N; c++) {
 			val srcln = src.ccdata.cLine(c);
@@ -152,9 +152,9 @@ public class TriSparseBuilder(M:Int) implements MatrixBuilder {
 			for (var idx:Int=off; idx<off+cpylen; idx++) {
 				val r = srcca.index(idx);
 				val v = srcca.value(idx);
-				builder.append(r, c, v);
+				append(r, c, v);
 			}
-		}	
+		}
 		return this;
 	}
 	
@@ -162,15 +162,16 @@ public class TriSparseBuilder(M:Int) implements MatrixBuilder {
 	/**
 	 * Return the value at given row and column; If not found in nonzero list, 0 is returned.
 	 */
+	@Inline
 	public def get(r:Int, c:Int) : Double {
 		if (up) {
 			if ( r <= c)
-				return builder.findEntry(r,c).value;
+				return findEntry(r,c).value;
 			else
 				return 0.0;
 		} else {
 			if ( r >= c)
-				return builder.findEntry(r,c).value;
+				return findEntry(r,c).value;
 			else
 				return 0.0;
 		}
@@ -180,36 +181,41 @@ public class TriSparseBuilder(M:Int) implements MatrixBuilder {
 	 * Set the entry of given row and column to value, if it is found. Otherwise append
 	 * new nonzero entry at the end of nonzero list;
 	 */
+	@Inline
 	public def set(r:Int, c:Int, v:Double) : void {
 		if ((up && r <= c) || (up==false && r >= c))
-			builder.set(r, c, v);
+			set(r, c, v);
 		else {
 			Debug.flushln("Error is in setting triangular matrix");
 		}
 	}
-	
+	@Inline
 	public def reset(r:Int, c:Int) : Boolean {
 		if ((up && r <= c) || (up==false && r >= c))
-			return builder.reset(r, c);
+			return reset(r, c);
 		else {
 			return false;
 		}
 	}
 
 	//====================================
-	
-	public def toSparseCSC():SparseCSC(M,M) = builder.toSparseCSC() as SparseCSC(M,M);
-	
-	public def toSparseCSC(spa:SparseCSC(M,M)){
-		builder.toSparseCSC(spa);
+	/**
+	 * Convert to symmetrix sparse builder using the same memory space.
+	 */
+	public def toSymSparseBuilder():SymSparseBuilder(M) {
+		val symbld = new SymSparseBuilder(this as SparseCSCBuilder{self.M==self.N});
+		if (up) 
+			symbld.mirrorToLower();
+		else
+			symbld.mirrorToUpper();
+		return symbld as SymSparseBuilder(M);
 	}
+	
+	//====================================
 
-	public def toMatrix():Matrix(M,M) = toSparseCSC() as Matrix(M,M);
+	public def toMatrix():Matrix(M,M) = super.toSparseCSC() as Matrix(M,M);
 	
 	//===============================
-	public def toString() = builder.toString();
-	public def print(msg:String) { builder.print(msg);}
-	public def print() { builder.print();}
-	
+	public def toString() = "Triangular sparse builder\n"+super.toString();
 	
 }
