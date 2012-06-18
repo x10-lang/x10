@@ -22,6 +22,7 @@ import polyglot.ast.Field;
 import polyglot.ast.Formal;
 import polyglot.ast.Lit;
 import polyglot.ast.Local;
+import polyglot.ast.Node;
 import polyglot.ast.Receiver;
 import polyglot.ast.Term;
 import polyglot.ast.TypeNode;
@@ -36,7 +37,9 @@ import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
 import polyglot.types.LocalDef;
 import polyglot.types.LocalInstance;
+import polyglot.types.MethodDef;
 import polyglot.types.Name;
+import polyglot.types.QName;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.Types;
@@ -46,6 +49,7 @@ import polyglot.types.Ref;
 import polyglot.types.ClassType;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
+import polyglot.visit.ContextVisitor;
 import x10.ast.Closure_c;
 import x10.ast.Here;
 import x10.ast.ParExpr;
@@ -65,9 +69,11 @@ import x10.constraint.XTerm;
 import x10.constraint.XField;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
+import x10.extension.X10Ext;
 import x10.types.checker.PlaceChecker;
 import x10.types.constants.ClosureValue;
 import x10.types.constants.ConstantValue;
+import x10.types.constants.StringValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintManager;
@@ -447,7 +453,7 @@ public class XTypeTranslator {
             return c;
 
         if (! term.type().isBoolean())
-            throw new SemanticException("Cannot build constraint from expression |" 
+            throw new SemanticException("Cannot build constraint from expression (1)|" 
             		+ term + "| of type " + term.type() + "; not a boolean.", term.position());
 
         // TODO: handle the formals.
@@ -455,7 +461,7 @@ public class XTypeTranslator {
         
 
         if (t == null)
-            throw new SemanticException("Cannot build constraint from expression |" + term + "|.", term.position());
+            throw new SemanticException("Cannot build constraint from expression (2)|" + term + "|.", term.position());
 
         try {
             c.addTerm(t);
@@ -472,7 +478,7 @@ public class XTypeTranslator {
             return c;
 
         if (! term.type().isBoolean())
-            throw new SemanticException("Cannot build constraint from expression |"
+            throw new SemanticException("Cannot build constraint from expression (3)|"
             		+ term + "| of type " + term.type() + "; not a boolean.",
             		term.position());
 
@@ -648,7 +654,30 @@ public class XTypeTranslator {
         return ConstraintManager.getConstraintSystem().makeAtom("tuple", terms.toArray(new XTerm[0]));
     }
 
-    /**
+	private Type getType(TypeSystem ts, String name) throws SemanticException {
+		return ts.systemResolver().findOne(QName.make(name));
+	}
+
+	private String nodeHasOpaqueAnnotation(TypeSystem ts, MethodDef d) {
+		List<Type> anns;
+		try {
+			anns = d.annotationsMatching(getType(ts, "x10.compiler.Opaque"));
+		} catch (SemanticException e) {
+			// in case Opaque.x10 does not exist
+			return null;
+		}
+		if (anns.size() == 0) return null;
+		Type the_ann = anns.get(0);
+		X10ClassType the_ann2 = the_ann.toClass();
+	
+        Expr e = the_ann2.propertyInitializer(0);
+        if (e.isConstant()) {
+            return (String) ConstantValue.toJavaObject(e.constantValue());
+        }
+	    return null;
+	}
+	
+/**
      * This used to be a key routine that contained special code for handling at constraints.
      * It translates a call t into what the body of the called method would translate to,
      * assuming that the method represents a property.
@@ -686,6 +715,18 @@ public class XTypeTranslator {
                     body = body.subst(y, x);
                 }
                 return body;
+            } else {
+            	String n = nodeHasOpaqueAnnotation(xc.typeSystem(), xmi.def());
+            	if (n != null) {
+	            	System.out.println("making atom \""+n+"\" for "+t);
+	            	// translating arguments
+	            	List<XTerm> args = new ArrayList<XTerm>(); 
+	            	for (Expr arg : t.arguments()) {
+	            		XTerm x = translate(c, arg, xc, tl); 
+	            		args.add(x);
+	            	}
+	            	return ConstraintManager.getConstraintSystem().makeOpaque(xmi.def(), r, args);
+            	}
             }
 
             if (t.arguments().size() == 0) {
