@@ -41,7 +41,7 @@ import java.util.Set;
  * 
  *  A constraint solver for the following constraint system. Note terms in this 
  *  constraint system are untyped.
- * <verbatim>
+ * <pre>
  * t ::= x                  -- variable
  *       | t.f              -- field access
  *       | g(t1,..., tn)    -- uninterpreted function symbol
@@ -50,7 +50,7 @@ import java.util.Set;
  *       | t != t           -- dis-equality
  *       | c,c              -- conjunction
  *       | p(t1,..., tn)    -- atomic formula
- * </verbatim>  
+ * </pre>  
  * 
  * The constraint system implements the usual congruence rules for equality. 
  * That is, if <code>s1,...,sn</code> and 

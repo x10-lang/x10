@@ -51,14 +51,6 @@ public interface XConstraintSystem {
 	public XTerm makeAnd(XTerm left, XTerm right);
 	public XTerm makeNot(XTerm arg);
 
-	//*************************************** Implementation
-	/**
-    Make and return op(terms1,..., termsn) -- an expression 
-    with operator op and arguments terms. If atomicFormula is true
-    then this is marked as an atomicFormula, else it is considered a term 
-    (a function application term).
-	 */
+	public <T> XLocal<T> makeLocal(T name);
 
-	
-	public <T> XLocal<T> makeLocal(T name); 
 }

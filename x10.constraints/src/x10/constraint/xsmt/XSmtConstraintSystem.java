@@ -96,12 +96,17 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 		return null;
 	}
 
-	public XLocal<Object> makeLocal(Object name) {
+	public XFormula<Object> makeAtom(Object op, XTerm... terms) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public XFormula<Object> makeAtom(Object op, XTerm... terms) {
+	public <T> XLocal<T> makeLocal(T name) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public XTerm makeOpaque(Object op, XTerm... terms) {
 		// TODO Auto-generated method stub
 		return null;
 	}

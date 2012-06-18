@@ -2,6 +2,8 @@ package x10.constraint.xnative;
 
 
 
+import java.util.List;
+
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraintSystem;
 import x10.constraint.XEQV;
@@ -159,5 +161,5 @@ public class XNativeConstraintSystem implements XConstraintSystem {
 	
 	public <T> XLocal<T> makeLocal(T name) {
 		return new XNativeLocal<T>(name);
-	} 
+	}
 }
