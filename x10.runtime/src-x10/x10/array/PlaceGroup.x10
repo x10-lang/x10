@@ -12,6 +12,8 @@
 
 package x10.array;
 
+import x10.compiler.PerProcess;
+
 /**
  * <p> A PlaceGroup represents an ordered set of Places.
  * PlaceGroups are represented by a specialized set of classes (instead of using
@@ -31,7 +33,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
    * A PlaceGroup that represents exactly Place.places().
    * All places, in order of increasing Place.id.
    */
-  public static val WORLD = new WorldPlaceGroup();
+  @PerProcess public static val WORLD = new WorldPlaceGroup();
 
   /**
    * The size of the PlaceGroup is equal to the value returned by numPlaces()
