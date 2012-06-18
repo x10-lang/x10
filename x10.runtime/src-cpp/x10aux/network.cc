@@ -481,7 +481,7 @@ namespace x10aux {
 }
 
 void *x10aux::coll_enter2(void *arg) {
-    struct pointer_pair *p = x10aux::alloc<struct pointer_pair>();
+    struct pointer_pair *p = x10aux::system_alloc<struct pointer_pair>();
     p->fst = x10aux::coll_enter();
     p->snd = arg;
     return p;
@@ -492,7 +492,7 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     x10::lang::FinishState *fs = (x10::lang::FinishState*)p->fst;
     x10rt_team *t = (x10rt_team*)p->snd;
     *t = id;
-    x10aux::dealloc(p);
+    x10aux::system_dealloc(p);
     fs->notifyActivityTermination();
 }
 

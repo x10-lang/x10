@@ -133,6 +133,28 @@ public final class Array[T] (
     }   
 
 
+    /*
+     * Construct an Array over the region reg.
+     * 
+     * @param reg The region over which to construct the array.
+     */
+    private @Inline def this(zeroed:boolean, reg:Region) {T haszero}
+    {
+    	property(reg as Region{self != null}, reg.rank, reg.rect, reg.zeroBased, reg.rail, reg.size());
+    	val crh = new LayoutHelper(reg);
+    	layout_min0 = crh.min0;
+    	layout_stride1 = crh.stride1;
+    	layout_min1 = crh.min1;
+    	layout = crh.layout;
+    	val n = crh.size;
+    	if (zeroed) {
+    		raw = IndexedMemoryChunk.allocateZeroed[T](n);
+    	} else {
+    		raw = IndexedMemoryChunk.allocateUninitialized[T](n);    		
+    	}
+    }   
+
+
     /**
      * Construct an Array over the region reg whose
      * values are initialized as specified by the init function.
@@ -254,6 +276,24 @@ public final class Array[T] (
     }
     
     
+    /*
+     * Construct Array over the region 0..(size-1).
+     */
+    private @Inline def this(zeroed:boolean, size:int) {T haszero}
+    {
+    	val myReg = new RectRegion1D(size-1);
+    	property(myReg, 1, true, true, true, size);
+
+    	layout_min0 = layout_stride1 = layout_min1 = 0;
+    	layout = null;
+    	if (zeroed) {
+    		raw = IndexedMemoryChunk.allocateZeroed[T](size);
+    	} else {
+    		raw = IndexedMemoryChunk.allocateUninitialized[T](size);    		
+    	}
+    }
+
+
     /**
      * Construct Array over the region 0..(size-1) whose
      * values are initialized as specified by the init function.
@@ -831,7 +871,7 @@ public final class Array[T] (
      * @see #reduce((U,T)=>U,U)
      */
     public @Inline def scan[U](op:(U,T)=>U, unit:U) {U haszero}
-    = scan(new Array[U](region), op, unit); // TODO: private constructor to avoid useless zeroing
+    = scan(new Array[U](false,region), op, unit);
     
     
     /**

@@ -23,7 +23,7 @@ class GetLocalOrCopy extends x10Test {
         at (here.next()) {
             val y = globalX.getLocalOrCopy();
             chk( x().equals( y() ) );
-            if (globalX.home() == here) {
+            if (globalX.home == here) {
                 chk(globalX() == y);
             }
         }

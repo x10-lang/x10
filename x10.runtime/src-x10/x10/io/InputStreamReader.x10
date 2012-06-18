@@ -70,6 +70,9 @@ public class InputStreamReader extends Reader {
         return n as Byte;
     }
     
+    public def read(r:Rail[Byte], off:Int, len:Int): void //throws IOException 
+    { stream.read(r,off,len); }
+
     public def available(): Int //throws IOException 
     = stream.available();
 
