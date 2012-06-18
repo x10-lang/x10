@@ -1634,7 +1634,7 @@ public class Errors {
 	public static class InconsistentType extends EqualByTypeAndPosException {
 		private static final long serialVersionUID = 3896496971389234633L;
 		public InconsistentType(Type t, Position p) {
-			super("Type is inconsistent." +
+			super("Inconsistent type." +
 					"\n\t Type: " + t, p);
         }
     }

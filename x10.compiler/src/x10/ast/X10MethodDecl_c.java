@@ -219,7 +219,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		for (Formal f1 : n.formals()) {
 		    formalTypes.add(f1.type().typeRef());
 		}
-
+		
+		// check for opaque property and enrich type 
+		/*
+		TypeNode return_type = n.returnType();
+		if (return_type instanceof AmbDepTypeNode) {
+			List<Expr> constraint = ((AmbDepTypeNode) return_type).constraint().condition();
+			
+		}
+		*/
 
 		mi.setReturnType(n.returnType().typeRef());
 		mi.setFormalTypes(formalTypes);
@@ -509,6 +517,24 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			        new Errors.PropertyMethodCannotBeStatic(position()));
 		}
 	}
+	
+	private Type getType(ContextVisitor tc, String name) throws SemanticException {
+		return tc.typeSystem().systemResolver().findOne(QName.make(name));
+	}
+	private boolean nodeHasOneAnnotation(ContextVisitor tc, Node n, String ann_name) {
+		X10Ext ext = (X10Ext) n.ext();
+		try {
+			List<X10ClassType> anns = ext.annotationMatching(getType(tc, ann_name));
+			if (anns.size() == 0) return false;
+			if (anns.size() > 1) {
+				Errors.issue(tc.job(), new SemanticException("Cannot have more than one @Opaque annotation", n.position()));
+			}
+			return true;
+		} catch (SemanticException e) {
+			assert false : e;
+			return false; // in case asserts are off
+		}
+	}
 
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
@@ -533,7 +559,9 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			if (xf.isAbstract() || xf.isNative()) {
 				ok = true;
 			}
-			if (n.body != null && n.body.statements().size() == 1) {
+			if (nodeHasOneAnnotation(tc,n,"x10.compiler.Opaque")) {
+				ok = true;
+			} else if (n.body != null && n.body.statements().size() == 1) {
 				Stmt s = n.body.statements().get(0);
 				if (s instanceof Return) {
 					Return r = (Return) s;
@@ -560,6 +588,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                                 }
                             } catch (IllegalConstraint z) {
                             	Errors.issue(tc.job(),z);
+                            	ok = true;
                             }
                            
                         }
