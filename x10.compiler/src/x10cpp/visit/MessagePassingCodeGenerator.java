@@ -1790,13 +1790,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             h.end(); h.newline();
             h.writeln("}");
             
-            // define the field and force it to be initialized during C++ static init time
-            // by initializing the field with the result of calling the accessor method.
+            // define the field but do not initialize
             emitter.printType(dec.type().type(), sw);
             sw.allowBreak(2, " ");
             sw.write(container+"::");
             sw.write(mangled_field_name(dec.name().id().toString()));
-            sw.writeln(" = "+accessor+"();");
+            sw.writeln(";");
             
             // define the status flag:
             sw.write("volatile bool "+container+"::"+status+";");
