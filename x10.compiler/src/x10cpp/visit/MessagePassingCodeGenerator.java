@@ -1755,6 +1755,85 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.newline(); sw.forceNewline(0);
 	}
 
+	private void generatePerProcessStaticFieldInitializer(FieldDecl_c dec, String container, StreamWrapper sw) {
+	    String name = dec.name().id().toString();
+	    String fname = mangled_field_name(name);
+	    String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
+	    String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
+	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
+	    String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
+	    ClassifiedStream h = sw.header();
+	    // declare the actual field initializer
+	    h.write("static void ");
+	    h.write(init_nb);
+	    h.writeln("();");
+	    
+	    // declare the on-demand field initializer
+	    h.write("static void ");
+	    h.write(init);
+	    h.writeln("();");
+	    
+	    // define the actual field initializer
+	    sw.write("void ");
+	    sw.write(container + "::" + init_nb);
+	    sw.write("() {");
+	    sw.newline(4); sw.begin(0);
+	    // set the status (ok to do here because either we are in single-threaded
+	    // mode, or we will have already set the status to INITIALIZING atomically)
+	    sw.writeln(status + " = " + STATIC_FIELD_INITIALIZING + ";");
+	    // initialize the field
+	    sw.write("_SI_(\"Doing static PerProcess initialisation for field: "+container+"."+name+"\");"); sw.newline();
+	    String val = getId();
+	    emitter.printType(dec.type().type(), sw);
+	    sw.allowBreak(2, 2, " ", 1);
+	    sw.write(val + " =");
+	    sw.allowBreak(2, 2, " ", 1);
+	    dec.print(dec.init(), sw, tr);
+	    sw.writeln(";");
+	    // copy into the field
+	    sw.writeln(fname + " = " + val + ";");
+	    // update the status
+	    sw.write(status + " = " + STATIC_FIELD_INITIALIZED + ";");
+	    sw.end(); sw.newline();
+	    sw.writeln("}");
+	    // define the on-demand field initializer
+	    sw.write("void ");
+	    sw.write(container + "::" + init);
+	    sw.write("() {");
+	    sw.newline(4); sw.begin(0);
+	    sw.write("{");
+	    sw.newline(4); sw.begin(0);
+	    sw.newline();
+	    // (atomically) check that the field is uninitialized
+	    String tmp = getId();
+	    sw.write("x10aux::status " + tmp + " =");
+	    sw.allowBreak(2, 2, " ", 1);
+	    sw.writeln("(x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)&" +
+	               status + ", (x10_int)" + STATIC_FIELD_UNINITIALIZED +
+	               ", (x10_int)" + STATIC_FIELD_INITIALIZING + ");");
+	    sw.writeln("if (" + tmp + " != " + STATIC_FIELD_UNINITIALIZED + ") goto WAIT;");
+	    // invoke the initializer
+	    sw.writeln(init_nb + "();");
+	    // broadcast the new value
+	    sw.writeln("// Notify all waiting threads");
+        sw.writeln(STATIC_INIT_LOCK + "();");;
+	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
+	    sw.end(); sw.newline();
+	    sw.writeln("}");
+	    sw.writeln("WAIT:");
+	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.newline(4); sw.begin(0); 
+        sw.writeln(STATIC_INIT_LOCK + "();");
+	    sw.writeln("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");");
+	    sw.writeln("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();");
+	    sw.writeln("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
+        sw.write(STATIC_INIT_UNLOCK + "();"); sw.end(); sw.newline();
+	    sw.write("}");
+	    sw.end(); sw.newline();
+	    sw.writeln("}");
+	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() + " " + UNUSED + " = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
+	    sw.newline(); sw.forceNewline(0);
+	}
+
 	/**
 	 * Generates the accessor method and the initialization flag for a given
 	 * field declaration.
@@ -1766,51 +1845,60 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         boolean perProcess = isPerProcess((X10Def) dec.fieldDef());
 	    
         if (perProcess) {
-            String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
-            String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
-            String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
-
-            // declare the field initializer method
-            h.writeln("static void "+init_nb+"();");
-            
-            // declare the initialization status flag
-            h.writeln("static volatile bool "+status+";");;
-            
-            // Always generate the field accessor method.
-            // Accesses from the current compilation will see the PerProcess annotation,
-            // but accesses from other compilations may not.
-            h.write("static inline ");
-            emitter.printType(dec.type().type(), h);
-            h.write(" ");
-            h.write(accessor);
-            h.write("() { ");
-            h.newline(4); h.begin(0);
-            h.writeln("if (!"+status+") { "+init_nb+"(); }");
-            h.write("return "+mangled_field_name(dec.name().id().toString())+";");
-            h.end(); h.newline();
-            h.writeln("}");
-            
-            // define the field but do not initialize
+	        String fname = mangled_field_name(name);
+	        String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
+	        String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
+	        String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
+	        
+            // define the field.
             emitter.printType(dec.type().type(), sw);
             sw.allowBreak(2, " ");
             sw.write(container+"::");
             sw.write(mangled_field_name(dec.name().id().toString()));
             sw.writeln(";");
-            
-            // define the status flag:
-            sw.write("volatile bool "+container+"::"+status+";");
- 
-            // define the field initializer method
-            sw.write("void "+container + "::" + init_nb);
-            sw.write("() {");
-            sw.newline(4); sw.begin(0);
-            sw.writeln(status + " = true;"); // Mark field initialized (do it first to prevent hangs in presence of incorrect cyclic code)
-            sw.write(mangled_field_name(dec.name().id().toString())+ " = ");
-            dec.print(dec.init(), sw, tr);
-            sw.write(";");
-            sw.end(); sw.newline();
-            sw.writeln("}");
-            sw.forceNewline();
+
+            generatePerProcessStaticFieldInitializer(dec, container, sw);
+	        
+	        // declare the initialization flag
+	        h.writeln("static volatile x10aux::status "+status+";");;
+
+	        // declare the accessor method
+	        h.write("static ");
+	        emitter.printType(dec.type().type(), h);
+	        h.allowBreak(2, 2, " ", 1);
+	        h.write(accessor);
+	        h.writeln("();");
+	        
+	        // define the accessor method
+	        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+	        ClassifiedStream gh = context.genericFunctions;
+	        gh.write("inline ");
+	        emitter.printType(dec.type().type(), gh);
+	        gh.allowBreak(2, 2, " ", 1);
+	        gh.write(container+"::"+accessor);
+	        gh.write("() {");
+	        gh.newline(4); gh.begin(0);
+
+	        gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
+	        gh.newline(4); gh.begin(0);
+	        gh.write(init + "();");
+	        gh.end(); gh.newline();
+	        gh.write("}");
+	        gh.newline();
+
+	        gh.write("return ");
+	        gh.write(container+"::");
+	        gh.write(fname);
+	        gh.write(";");
+	        gh.end(); gh.newline();
+	        gh.write("}");
+	        gh.newline(); gh.forceNewline();
+
+	        // define the initialization flag
+	        sw.write("volatile x10aux::status ");
+	        sw.write(container+"::");
+	        sw.write(status);
+	        sw.writeln(";");
 	    } else {
 	        String fname = mangled_field_name(name);
 	        String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);

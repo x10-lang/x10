@@ -42,6 +42,7 @@ x10aux::itable_entry BootStrapClosure::_itables[2] = {
 };
 
 void x10aux::initialize_xrx() {
+    x10::lang::Runtime::FMGL(staticMonitor__do_init)();
     x10::lang::Place::FMGL(places__do_init)();
     x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
 }
