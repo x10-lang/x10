@@ -13,7 +13,7 @@
     <property name="lib" location="${x10.dist.location}/lib"/>
     <property name="stdlib" location="${x10.dist.location}/stdlib"/>
     <property name="jar" value="x10.jar"/>
-    <property name="math.jar" value="${lib}/commons-math-2.2.jar"/>
+    <property name="math.jar" value="${lib}/commons-math3-3.0.jar"/>
     <property name="bdwgc.dir" location="${basedir}/src-cpp/bdwgc"/>
     <property name="bdwgc.tar" value="bdwgc-7.1.tar.gz"/>
     <property name="bdwgc.url" value="http://x10.sourceforge.net/dependencies/${bdwgc.tar}"/>

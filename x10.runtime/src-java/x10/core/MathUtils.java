@@ -15,14 +15,18 @@ public abstract class MathUtils {
     
     public static double erf(double a) {
         try {
-            return org.apache.commons.math.special.Erf.erf(a);
-        } catch (org.apache.commons.math.MathException e) {
+            return org.apache.commons.math3.special.Erf.erf(a);
+        } catch (org.apache.commons.math3.exception.MaxCountExceededException e) {
             throw ThrowableUtilities.getCorrespondingX10Throwable(e);
         }
     }
     
     public static double erfc(double a) {
-        return 1.0 - erf(a);
+        try {
+            return org.apache.commons.math3.special.Erf.erfc(a);
+        } catch (org.apache.commons.math3.exception.MaxCountExceededException e) {
+            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
+        }
     }
     
 }
