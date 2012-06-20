@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
@@ -40,6 +41,7 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
@@ -219,16 +221,25 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		for (Formal f1 : n.formals()) {
 		    formalTypes.add(f1.type().typeRef());
 		}
-		
-		// check for opaque property and enrich type 
 		/*
+		// check for opaque property and enrich type 
 		TypeNode return_type = n.returnType();
 		if (return_type instanceof AmbDepTypeNode) {
-			List<Expr> constraint = ((AmbDepTypeNode) return_type).constraint().condition();
-			
+			List<Expr> conditions = ((AmbDepTypeNode) return_type).constraint().condition();
+			Expr c = conditions.get(0); 
+			//FIXME: is position good?
+			Expr self_ = new X10Special_c(position(), Special.Kind.SELF, null);
+			Expr this_ = new X10Special_c(position(), Special.Kind.THIS, null);
+			List<Expr> args = new ArrayList<Expr>();
+			for(Formal f : this.formals){
+				Expr arg = f
+			} 
+			Expr method = new X10Call_c(position(), this_, name(), null, n.formals);
+			Expr constr = new X10Binary_c(position(), self_, Binary.EQ, null); 
+			//constraints.add(arg0);
 		}
 		*/
-
+		
 		mi.setReturnType(n.returnType().typeRef());
 		mi.setFormalTypes(formalTypes);
 

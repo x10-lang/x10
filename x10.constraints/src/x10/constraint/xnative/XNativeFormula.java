@@ -86,8 +86,8 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	    public XNativeTerm subst(XTerm y, XVar x) {
 	    	return subst((XNativeTerm)y, x, true);
 	    }
-	    
-	    public XNativeTerm subst(XNativeTerm y, XVar x, boolean propagate) {
+	    @Override
+	    public XNativeTerm subst(XTerm y, XVar x, boolean propagate) {
 	        XNativeTerm[] newArgs = new XNativeTerm[this.arguments().length];
 	        boolean changed = false;
 	        for (int i = 0; i < arguments().length; ++i) {

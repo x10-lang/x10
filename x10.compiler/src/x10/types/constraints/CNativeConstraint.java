@@ -243,7 +243,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * // Redeclare with the right return type
      */
     public CNativeConstraint substitute(XTerm y, XVar x) throws XFailure {
-        return substitute(new XTerm[] { y }, new XVar[] { x });
+    	return substitute(new XTerm[] { y }, new XVar[] { x });
     }
 
     /**

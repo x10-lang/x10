@@ -31,7 +31,9 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
     public CSelf makeSelf() {return new CNativeSelf(selfId++);}
     static int thisId = 1;
     public CThis makeThis() {return makeThis(null);}
-    public CThis makeThis(Type t) {return new CNativeThis(thisId++, t);}
+    public CThis makeThis(Type t) {
+    	return new CNativeThis(thisId++, t);
+    }
     public XVar makeQualifiedThis(Type qualifier, Type base) {
         return makeQualifiedVar(qualifier, makeThis(base)); 
     }
