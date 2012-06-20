@@ -43,14 +43,14 @@ managed		: managed_gml
 ###################################################
 ## Source files
 ###################################################
-bwrap_path	=$(src_path)/x10/matrix/blas
+bwrap_path =$(src_path)/x10/matrix/blas
 lwrap_path =$(src_path)/x10/matrix/lapack
 
 base_src=\
 	x10/matrix/Debug.x10 \
 	x10/matrix/DenseMultXTen.x10 \
-	x10/matrix/SymMatrix.x10 \
-	x10/matrix/TriMatrix.x10 \
+	x10/matrix/SymDense.x10 \
+	x10/matrix/TriDense.x10 \
 	x10/matrix/Vector.x10 \
 	x10/matrix/MathTool.x10 \
 	x10/matrix/Matrix.x10 \
@@ -110,7 +110,8 @@ sparse_src=\
     	x10/matrix/sparse/SparseSubToDense.x10 \
     	x10/matrix/sparse/CompressArray.x10  \
     	x10/matrix/sparse/SparseCSC.x10  \
-    	x10/matrix/sparse/SparseMultDenseToDense.x10
+    	x10/matrix/sparse/SparseMultDenseToDense.x10 
+
 
 block_src=\
 	x10/matrix/block/BlockMatrix.x10  \
@@ -120,7 +121,8 @@ block_src=\
 	x10/matrix/block/DenseBlockMatrix.x10 \
 	x10/matrix/block/Grid.x10 \
 	x10/matrix/block/SparseBlockMatrix.x10 \
-	x10/matrix/block/BlockBlockMult.x10
+	x10/matrix/block/BlockBlockMult.x10 \
+	x10/matrix/block/SymGrid.x10
 
 dist_src=\
 	x10/matrix/dist/DistDenseMatrix.x10 \
@@ -155,6 +157,15 @@ dist_src=\
 	x10/matrix/distblock/summa/RingReduce.x10 \
 	x10/matrix/distblock/summa/SummaMultTrans.x10
 
+builder_src=\
+	x10/matrix/builder/MatrixBuilder.x10 \
+	x10/matrix/builder/DenseBuilder.x10 \
+	x10/matrix/builder/SymDenseBuilder.x10 \
+	x10/matrix/builder/TriDenseBuilder.x10 \
+	x10/matrix/builder/SparseCSCBuilder.x10 \
+	x10/matrix/builder/SymSparseBuilder.x10 \
+	x10/matrix/builder/TriSparseBuilder.x10 \
+#	x10/matrix/builder/DistMatrixBuilder.x10
 
 summa_src=\
 	x10/matrix/dist/summa/SummaDenseMultSparse.x10 \
@@ -177,7 +188,7 @@ seq_src		= $(base_src) $(bwrap_src) $(lapack_src) $(sparse_src) $(block_src)
 ## lib src parallel/dist version 
 ##
 mpi_wrap	= $(comm_mpi_src) $(summa_mpi_src)
-lib_src     = $(seq_src) $(dist_src) $(comm_src) $(summa_src)
+lib_src     = $(seq_src) $(dist_src) $(builder_src) $(comm_src) $(summa_src)
 
 #--------------------------------------------------
 VPATH		=$(bwrap_path):$(lwrap_path):$(src_path)
@@ -189,7 +200,7 @@ include scripts/system_setting.mk
 
 
 #X10_FLAG	= -d $(build_path) -report postcompile=2 -v -errors 5 -VERBOSE_CHECKS #-O -NO_CHECKS
-X10_FLAG	= -VERBOSE_CHECKS -O -NO_CHECKS  
+X10_FLAG	= -VERBOSE_CHECKS #-O -NO_CHECKS  
 #-define ENABLE_RING_COMM
 
 MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU 
@@ -197,6 +208,10 @@ MPI_CFLAG   = -define MPI_COMMU -cxx-prearg -DMPI_COMMU
 POST_CPP	= $(LAPACK_CFLAG) -post $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
 POST_MPI	= $(MPI_CFLAG) $(LAPACK_CFLAG) -post $(MCC) \# $(POST_PATH) \# $(POST_LIBS)
 
+###
+# __bgp__ should be defined on Blue gene env
+
+POST_CPP_SLNK = $(LAPACK_CFLAG) -cxx-postarg $(CPP) \# $(POST_PATH) \# $(POST_LIBS)
 
 ###################################################
 # X10 file built rules

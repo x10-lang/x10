@@ -13,7 +13,7 @@ package x10.matrix.lapack;
 
 
 /**
- * This Java class provide wrap JNI for BLAS library
+ * This Java class defines routine in x10 calling JNI wrap for corresponding lapack routine
  */
 public class WrapLAPACK {
 

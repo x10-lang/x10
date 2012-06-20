@@ -15,8 +15,8 @@ package x10.matrix.blas;
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
-import x10.matrix.SymMatrix;
-import x10.matrix.TriMatrix;
+import x10.matrix.SymDense;
+import x10.matrix.TriDense;
 
 /**
  * This class provides static methods to perform matrix 
@@ -69,7 +69,7 @@ public class DenseMatrixBLAS {
 	// Symmetric multiply vector
 	//===============================================================
 	public static def comp(
-			A:SymMatrix,
+			A:SymDense,
             B:Vector(A.N), 
             C:Vector(A.N), 
             plus:Boolean) :void {
@@ -84,7 +84,7 @@ public class DenseMatrixBLAS {
 	// Symmetric multiply dense
 	//===============================================================
 	public static def comp(
-			A:SymMatrix, 
+			A:SymDense, 
 			B:DenseMatrix{A.N==B.M}, 
 			C:DenseMatrix{A.M==C.M&&B.N==C.N},
 			plus:Boolean  ):void {
@@ -98,7 +98,7 @@ public class DenseMatrixBLAS {
 
 	public static def comp(
 			A:DenseMatrix, 
-			B:SymMatrix{A.N==B.M}, 
+			B:SymDense{A.N==B.M}, 
 			C:DenseMatrix{A.M==C.M&&B.N==C.N},
 			plus:Boolean  ):void {
 		val scal = new Array[Double](2);
@@ -113,20 +113,32 @@ public class DenseMatrixBLAS {
 	// Triangular dense matrix multiply
 	//===============================================================
 
-	public static def comp(A:TriMatrix, B:DenseMatrix{A.N==B.M}):void  {
-		DriverBLAS.tri_matrix_mult(A.d, B.d, [B.M, B.N], 0);
+	/**
+	 * B = A &#42 B;
+ 	 */
+	public static def comp(A:TriDense, B:DenseMatrix{A.N==B.M}):void  {
+		DriverBLAS.tri_matrix_mult(A.d, B.d, [B.M, B.N, A.upper?1:0], 0);
+	}
+	
+	/**
+	 * B = A &#42 B<sup>T<sup> ;
+	 */
+	public static def compMultTrans(A:TriDense, B:DenseMatrix{A.N==B.M}):void  {
+		DriverBLAS.tri_matrix_mult(A.d, B.d, [B.M, B.N, A.upper?1:0], 1);
 	}
 
-	public static def compTransMult(A:TriMatrix, B:DenseMatrix{A.N==B.M}):void  {
-		DriverBLAS.tri_matrix_mult(A.d, B.d, [B.M, B.N], 1);
+	/**
+	 * B = B &#42 A;
+	 */
+	public static def comp(B:DenseMatrix, A:TriDense{B.N==A.M}):void  {
+		DriverBLAS.matrix_tri_mult(B.d, A.d, [B.M, B.N, A.upper?1:0], 0);
 	}
 
-	public static def comp(B:DenseMatrix, A:TriMatrix{B.N==A.M}):void  {
-		DriverBLAS.matrix_tri_mult(B.d, A.d, [B.M, B.N], 0);
-	}
-
-	public static def compMultTrans(B:DenseMatrix, A:TriMatrix{B.N==A.M}):void  {
-		DriverBLAS.matrix_tri_mult(B.d, A.d, [B.M, B.N], 1);
+	/**
+	 * B = B<sup>T<sup> &#42 A;
+	 */
+	public static def compTransMult(B:DenseMatrix, A:TriDense{B.N==A.M}):void  {
+		DriverBLAS.matrix_tri_mult(B.d, A.d, [B.M, B.N, A.upper?1:0], 1);
 	}
 	
 	//================================================================
@@ -348,31 +360,31 @@ public class DenseMatrixBLAS {
 	/**
 	 * Triangular solver  A &#42  x = b
 	 */	
-	public static def solveTriMultVec(A:TriMatrix, bx:Vector(A.N)) : void {
-		DriverBLAS.tri_vector_solve(A.d, bx.d, [A.M, A.N], 0);
+	public static def solveTriMultVec(A:TriDense, bx:Vector(A.N)) : void {
+		DriverBLAS.tri_vector_solve(A.d, bx.d, [A.M, A.N, A.upper?1:0], 0);
 	}
 	//-------------------------------------------------------------
 	/**
 	 * Solve matrix A &#42  X = B
 	 */
-	public static def solveTriMultMat(A:TriMatrix, BX:DenseMatrix(A.N)) : void {
-		DriverBLAS.tri_matrix_solve(A.d, BX.d, [BX.M, BX.N], 0);
+	public static def solveTriMultMat(A:TriDense, BX:DenseMatrix(A.N)) : void {
+		DriverBLAS.tri_matrix_solve(A.d, BX.d, [BX.M, BX.N, A.upper?1:0], 0);
 	}
 
-	public static def solveTriTransMultMat(A:TriMatrix, BX:DenseMatrix(A.M,A.N)) : void {
-		DriverBLAS.tri_matrix_solve(A.d, BX.d, [BX.M, BX.N], 1);
+	public static def solveTriTransMultMat(A:TriDense, BX:DenseMatrix(A.M,A.N)) : void {
+		DriverBLAS.tri_matrix_solve(A.d, BX.d, [BX.M, BX.N, A.upper?1:0], 1);
 	}
 	
 	//-------------------------------------------------------------
 	/**
 	 * Solve matrix X &#42 op(A) = B 
 	 */
-	public static def solveMatMultTri(BX:DenseMatrix, A:TriMatrix(BX.N)) : void {
-		DriverBLAS.matrix_tri_solve(BX.d, A.d, [BX.M, BX.N], 0);
+	public static def solveMatMultTri(BX:DenseMatrix, A:TriDense(BX.N)) : void {
+		DriverBLAS.matrix_tri_solve(BX.d, A.d, [BX.M, BX.N, A.upper?1:0], 0);
 	}
 	
-	public static def solveMatMultTransTri(BX:DenseMatrix, A:TriMatrix(BX.M)) : void {
-		DriverBLAS.matrix_tri_solve(BX.d, A.d, [BX.M, BX.N], 1);
+	public static def solveMatMultTransTri(BX:DenseMatrix, A:TriDense(BX.M)) : void {
+		DriverBLAS.matrix_tri_solve(BX.d, A.d, [BX.M, BX.N, A.upper?1:0], 1);
 	}	
 
 }

@@ -61,8 +61,8 @@ public class MathTool {
 	}
 	
 	/**
-	 * Return an integer value which is no bigger than the square root of a specified integer, which
-	 * is evenly divisble.
+	 * Return an integer value which is no bigger than the square root of the specified integer, and
+	 * can is evenly divisble.
 	 */
 	public static def sqrt(n:Int):Int {
 		var rt:Int = Math.sqrt(n) as Int;

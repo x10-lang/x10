@@ -11,25 +11,26 @@
 
 package x10.io;
 
+import x10.compiler.PerProcess;
 import x10.util.StringBuilder;
 
 public interface Marshal[T] {
     public def read(r: Reader): T; //throws IOException;
     public def write(w: Writer, T): void; //throws IOException;
     
-    public static BOOLEAN = new BooleanMarshal();
-    public static BYTE = new ByteMarshal();
-    public static UBYTE = new UByteMarshal();
-    public static CHAR = new CharMarshal();
-    public static SHORT = new ShortMarshal();
-    public static USHORT = new UShortMarshal();
-    public static INT = new IntMarshal();
-    public static UINT = new UIntMarshal();
-    public static LONG = new LongMarshal();
-    public static ULONG = new ULongMarshal();
-    public static FLOAT = new FloatMarshal();
-    public static DOUBLE = new DoubleMarshal();
-    public static LINE = new LineMarshal();
+    @PerProcess public static BOOLEAN = new BooleanMarshal();
+    @PerProcess public static BYTE = new ByteMarshal();
+    @PerProcess public static UBYTE = new UByteMarshal();
+    @PerProcess public static CHAR = new CharMarshal();
+    @PerProcess public static SHORT = new ShortMarshal();
+    @PerProcess public static USHORT = new UShortMarshal();
+    @PerProcess public static INT = new IntMarshal();
+    @PerProcess public static UINT = new UIntMarshal();
+    @PerProcess public static LONG = new LongMarshal();
+    @PerProcess public static ULONG = new ULongMarshal();
+    @PerProcess public static FLOAT = new FloatMarshal();
+    @PerProcess public static DOUBLE = new DoubleMarshal();
+    @PerProcess public static LINE = new LineMarshal();
     
     public static class LineMarshal implements Marshal[String] {
         public def read(r: Reader):String {

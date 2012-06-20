@@ -98,8 +98,10 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			val cid = g.getColBlockId(p);
 			val m   = g.rowBs(rid);
 			val n   = g.colBs(cid);
+			val roff= g.startRow(rid);
+			val coff= g.startCol(cid);
 			at (ddb.dist(p)) async {
-				ddb(p) = DenseBlock.make(rid, cid, m, n);
+				ddb(p) = DenseBlock.make(rid, cid, roff, coff, m, n);
 			}
 		}
 		return new DistDenseMatrix(g, ddb) ;
@@ -172,9 +174,11 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			val cid = gp.getColBlockId(p);
 			val m   = gp.rowBs(rid);
 			val n   = gp.colBs(cid);
+			val roff= gp.startRow(rid);
+			val coff= gp.startCol(cid);
 			at (ddb.dist(p)) async {
 				val den = new DenseMatrix(m, n, da(p) as Array[Double](1){rail});
-				ddb(p) = new DenseBlock(rid, cid, den);
+				ddb(p) = new DenseBlock(rid, cid, roff, coff, den);
 			}
 		}
 		return new DistDenseMatrix(gp, ddb) ;		
@@ -194,9 +198,11 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 			val cid = gp.getColBlockId(p);
 			val m   = gp.rowBs(rid);
 			val n   = gp.colBs(cid);
+			val roff= gp.startRow(rid);
+			val coff= gp.startCol(cid);
 			at (ddb.dist(p)) async {
 				val den = new DenseMatrix(m, n, da() as Array[Double](1){rail});
-				ddb(p) = new DenseBlock(rid, cid, den);
+				ddb(p) = new DenseBlock(rid, cid, roff, coff, den);
 			}
 		}
 		return new DistDenseMatrix(gp, ddb) ;		
@@ -225,16 +231,12 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	 * @return this object
 	 */
 	public def init(f:(Int,Int)=>Double): DistDenseMatrix(this) {
-		var coloff:Int=0;
-		var rowoff:Int=0;
-		finish for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), cb++) {
-			rowoff = 0;
-			for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+	
+		finish for (var cb:Int=0; cb<grid.numColBlocks; cb++) {
+			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
 				val pid = grid.getBlockId(rb, cb);
-				val roff:Int = rowoff;
-				val coff:Int = coloff;
 				async at(distBs.dist(pid)) {
-					distBs(pid).init(roff, coff, f);
+					distBs(pid).init(f);
 				}
 			}
 		}
@@ -435,8 +437,10 @@ public class DistDenseMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix {
 	public def setBlock(i:Int, dm:DenseMatrix) : void {
 		val r = grid.getRowBlockId(i);
 		val c = grid.getColBlockId(i);
+		val roff = grid.startRow(r);
+		val coff = grid.startCol(c);
 		at (this.distBs.dist(i)) {
-			distBs(i) = new DenseBlock(r, c, dm);
+			distBs(i) = new DenseBlock(r, c, roff, coff, dm);
 		}
 	}
 	

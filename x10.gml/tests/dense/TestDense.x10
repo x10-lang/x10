@@ -20,8 +20,8 @@ import x10.matrix.MathTool;
 public class TestDense{
 
     public static def main(args:Array[String](1)) {
-		val m = (args.size > 0) ? Int.parse(args(0)):50;
-		val n = (args.size > 1) ? Int.parse(args(1)):51;
+		val m = (args.size > 0) ? Int.parse(args(0)):5;
+		val n = (args.size > 1) ? Int.parse(args(1)):6;
 		val testcase = new AddScalTest(m, n);
 		testcase.run();
 		val propertiesTest = new PropertiesTest(m, n);
@@ -46,6 +46,7 @@ class AddScalTest {
  		// Set the matrix function
 		ret &= (testClone());
 		ret &= (testInit());
+		ret &= (testTrans());
 		ret &= (testScale());
 		ret &= (testAdd());
 		ret &= (testAddSub());
@@ -75,9 +76,10 @@ class AddScalTest {
 		else
 			Console.OUT.println("--------Dense Matrix Clone test failed!--------");
 		
-		dm(1, 1) = dm(2,2) = 10.0;
-		
-		if ((dm(1,1)==dm(2,2)) && (dm(1,1)==10.0)) {
+		dm(1, 1) = dm(M-1,N-1) = 10.0;
+		//dm.printMatrix();
+		//dm.print();
+		if ((dm(1,1)==dm(M-1,N-1)) && (dm(1,1)==10.0)) {
 			ret &= true;
 			Console.OUT.println("Dense Matrix chain assignment test passed!");
 		} else {
@@ -101,6 +103,24 @@ class AddScalTest {
 			Console.OUT.println("Dense matrix initialization func test passed!");
 		else
 			Console.OUT.println("--------Dense matrix initialization func failed!--------");	
+		return ret;
+	}
+	
+	public def testTrans():Boolean {
+		Console.OUT.println("Starting dense Matrix transpose test");
+		var ret:Boolean = true;
+		val src = DenseMatrix.make(M,N).init((r:Int,c:Int)=>1.0+r+c*M);
+		src.print();
+		val srcT = src.T();
+		srcT.print();
+		for (var c:Int=0; c<N; c++)
+			for (var r:Int=0; r<M; r++)
+				ret &= (src(r,c) == srcT(c,r));
+		
+		if (ret)
+			Console.OUT.println("Dense matrix transpose func test passed!");
+		else
+			Console.OUT.println("--------Dense matrix transpose func failed!--------");	
 		return ret;
 	}
 	

@@ -66,7 +66,7 @@ public class BLAS {
 		DriverBLAS.tri_matrix_mult(mA, mB, dim, tranA);
 	}
 
-	public static @NoInline def compMatMultTri(mB:Array[Double](1),mA:Array[Double](1),
+	public static @NoInline def compMatMultTri(mB:Array[Double](1), mA:Array[Double](1),
 			dim:Array[Int](1),tranB:Int):void {
 		DriverBLAS.matrix_tri_mult(mB, mA, dim, tranB);
 	}
@@ -83,9 +83,9 @@ public class BLAS {
 		DriverBLAS.sym_vector_mult(mA, x, y, dim, scale);
 	}
 	
-	public static @NoInline def compTriMultVec(mA:Array[Double](1), bx:Array[Double](1), 
+	public static @NoInline def compTriMultVec(mA:Array[Double](1), uplo:Boolean, bx:Array[Double](1), 
 			lda:Int, tA:Int):void {
-		DriverBLAS.tri_vector_mult(mA, bx, lda, tA);
+		DriverBLAS.tri_vector_mult(mA, uplo?1:0, bx, lda, tA);
 	}
 	//-------------------------------------------------------------
 	//-------------------------------------------------------------

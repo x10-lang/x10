@@ -13,6 +13,7 @@ package x10.matrix.distblock;
 
 import x10.util.ArrayList;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 import x10.matrix.Matrix;
 import x10.matrix.Debug;
@@ -409,10 +410,11 @@ public class DupVector(M:Int) {
 	//==================================================================================
 	
 	public def toString() :String {
-		var output:String = "---Duplicated Vector:["+M+"], local copy---\n";
-		output += dupV().toString();
-		output += "--------------------------------------------------\n";
-		return output;
+		val output = new StringBuilder();
+		output.add("---Duplicated Vector:["+M+"], local copy---\n");
+		output.add(dupV().toString());
+		output.add("--------------------------------------------------\n");
+		return output.toString();
 	}
 	//
 	public def print()  { this.print("");}
@@ -422,14 +424,15 @@ public class DupVector(M:Int) {
 		Console.OUT.flush();
 	}
 	public def printAllCopies() {
-		var output:String = "-------- Duplicate vector :["+M+"] ---------\n";
+		val output = new StringBuilder();
+		output.add("-------- Duplicate vector :["+M+"] ---------\n");
 		for (p in Place.places()) {
-			output += "Copy at place " + p.id() +"\n";
-			output += at (p) { dupV().toString()};
+			output.add("Copy at place " + p.id() +"\n");
+			output.add(at (p) { dupV().toString()});
 		}
-		output += "--------------------------------------------------\n";
-		Console.OUT.print(output);
+		output.add("--------------------------------------------------\n");
+		Console.OUT.print(output.toString());
 		Console.OUT.flush();
-	}	
+	}
 }
 

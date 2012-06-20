@@ -205,16 +205,11 @@ public class DistMatrix(grid:Grid){grid.M==M,grid.N==N} extends Matrix{
 	 * @return this object
 	 */
 	public def init(f:(Int,Int)=>Double): DistMatrix(this) {
-		var coloff:Int=0;
-		var rowoff:Int=0;
-		finish for (var cb:Int=0; cb<grid.numColBlocks; coloff+=grid.colBs(cb), cb++) {
-			rowoff = 0;
-			for (var rb:Int=0; rb<grid.numRowBlocks; rowoff+=grid.rowBs(rb), rb++) {
+		finish for (var cb:Int=0; cb<grid.numColBlocks; cb++) {
+			for (var rb:Int=0; rb<grid.numRowBlocks; rb++) {
 				val pid = grid.getBlockId(rb, cb);
-				val roff:Int = rowoff;
-				val coff:Int = coloff;
 				async at(distBs.dist(pid)) {
-					distBs(pid).init(roff, coff, f);
+					distBs(pid).init(f);
 				}
 			}
 		}

@@ -11,8 +11,10 @@
 
 package x10.matrix.sparse;
 
+import x10.compiler.Inline;
 import x10.io.Console;
 import x10.util.Pair;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.MathTool;
@@ -51,15 +53,16 @@ public class Compress1D {
 	 * @param off     Offset of storage data
 	 * @param ca     The storage for the compressed data
 	 */
-	public def initConst(ldm:Int, 
-						 v:Double, 
-						 nzp:Double,
-						 off:Int, 
-						 ca:CompressArray):void {
-		val cnt = ca.initConstValue(off, ldm, v, nzp);
+	@Inline
+	public def initConst(ldm:Int, v:Double, nzp:Double, off:Int, ca:CompressArray):void {
+		initConst(0, ldm, v, nzp, off, ca);
+	}
+	public def initConst(sttIndex:Int, ldm:Int, v:Double, nzp:Double, off:Int, ca:CompressArray):void {
+		val cnt = ca.initConstValue(sttIndex, off, ldm, v, nzp);
 		this.offset = off;
 		this.length = cnt;
 	}
+	
 	/**
 	 * Initialize the Compress1D instance with random values
 	 *
@@ -68,11 +71,12 @@ public class Compress1D {
 	 * @param off     Offset for the storage
 	 * @param ca     The storage of compressed array
 	 */
-	public def initRandom(maxIndex:Int, 
-						  nzp:Double, 
-						  offset:Int,
-						  ca:CompressArray):void {
-		val cnt=ca.initRandom(offset, maxIndex, nzp);
+	@Inline	public def initRandom(maxIndex:Int, nzp:Double, offset:Int, ca:CompressArray):void {
+		initRandom(0, maxIndex, nzp, offset, ca);
+	}
+	
+	public def initRandom(sttIndex:Int, maxIndex:Int, nzp:Double, offset:Int, ca:CompressArray):void {
+		val cnt=ca.initRandom(offset, sttIndex, maxIndex, nzp);
 		this.offset = offset;
 		this.length = cnt;		
 	}
@@ -107,10 +111,22 @@ public class Compress1D {
 							  off:Int,      // Offset for the storage
 							  ca:CompressArray, // The shared storage 
 							  lb:Int, ub:Int):void {
-		val cnt = ca.initRandomFast(off, ldm, nzp, lb, ub); 
+		val cnt = ca.initRandomFast(off, 0, ldm, nzp, lb, ub); 
 		this.offset = off;
 		this.length = cnt;
 	}
+	
+	public def initRandomFast(sttIndex:Int, //Starting index value,
+			ldm:Int,      // Maximum index
+			nzp:Double,   // Nonzero percentage
+			off:Int,      // Offset for the storage
+			ca:CompressArray, // The shared storage 
+			lb:Int, ub:Int):void {
+		val cnt = ca.initRandomFast(off, sttIndex, ldm, nzp, lb, ub); 
+		this.offset = off;
+		this.length = cnt;
+	}
+	
 	/**
 	 * Initialize the Compress1D instance with random values with
 	 * uniform distributed distance between two nonzero indexes. 
@@ -121,9 +137,12 @@ public class Compress1D {
 	 * @param ca      The shared storage
 	 */
 	public def initRandomFast(ldm:Int, nzp:Double, off:Int, ca:CompressArray):void {
-		initRandomFast(ldm, nzp, off, ca, 0, 0);
+		initRandomFast(0, ldm, nzp, off, ca, 0, 0);
 	}
 	
+	public def initRandomFast(sttIndex:Int, ldm:Int, nzp:Double, off:Int, ca:CompressArray):void {
+		initRandomFast(sttIndex, ldm, nzp, off, ca, 0, 0);
+	}
 	/**
 	 * Short version of make and initialize with random values fast function
 	 * @see this()
@@ -300,7 +319,36 @@ public class Compress1D {
 		}
 		return Pair[Int,Int](startPos, count);
 	}
-
+	
+	public def countIndexRangeBefore(mid:Int) : Int { 
+		// Special case: empty line case
+		if (this.length == 0) return 0;
+		
+		val startPos = offset;
+		val endPos   = findIndex(mid);
+		//val foundStart = cArray.getIndex(startPos);
+		val foundEnd   = cArray.getIndex(endPos);
+		
+		// Get the actual nonzero index length
+		val count = endPos - startPos + (foundEnd <= mid?1:0);
+		
+		return count;
+	}
+	
+	public def countIndexRangeAfter(mid:Int, end:Int) : Int { 
+		// Special case: empty line case
+		if (this.length == 0) return 0;
+		
+		val startPos = findIndex(mid);
+		val endPos   = offset+length-1;
+		val foundStart = cArray.getIndex(startPos);
+		//val foundEnd   = cArray.getIndex(endPos);
+		// Get the actual nonzero index length
+		val count = endPos - startPos + (mid <= foundStart?1:0);
+		
+		return count;
+	}
+	
 	//-----------------------------------------------------
 	/** obsolete
 	 * Copy length entries from startIndex.
@@ -470,12 +518,13 @@ public class Compress1D {
 	// Util methods
 	//=========================================================
 	public def toString():String {
-		var outstr:String="Compress 1D off:"+offset+" len:"+this.length+" [ ";
+		val outstr = new StringBuilder();
+		outstr.add("Compress 1D off:"+offset+" len:"+this.length+" [ ");
 		for (var i:Int=0; i<this.length; i++) {
-			outstr += " "+getIndex(i)+":"+getValue(i)+" ";
+			outstr.add(" "+getIndex(i)+":"+getValue(i)+" ");
 		}
-		outstr += " ]";
-		return outstr;
+		outstr.add(" ]");
+		return outstr.toString();
 	}
 
 	public def print(msg:String) {

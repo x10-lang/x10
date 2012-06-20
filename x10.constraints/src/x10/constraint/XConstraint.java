@@ -17,9 +17,8 @@ import java.util.Set;
 import x10.constraint.visitors.XGraphVisitor;
 
 public interface XConstraint {
-	public boolean consistent(); 
+    public boolean consistent(); 
     public boolean valid(); 
-    
     public void addBinding(XTerm left, XTerm right);
     public void addDisBinding(XTerm left, XTerm right);
     public void addAtom(XTerm t) throws XFailure;

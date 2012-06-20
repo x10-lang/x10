@@ -202,11 +202,11 @@ protected class DriverBLAS {
 
 	//================================================================================
 	/**
-	 * Compute mB =  op( mA ) &#42 mB, mA is lower-non-unit triangular matrix.
+	 * Compute mB =  op( mA ) &#42 mB, mA is non-unit triangular matrix.
 	 *
 	 * @param mA     Double precision array storing triangular matrix mA.
 	 * @param mB     Double precision array storing matrix mB, which also is the output.
-	 * @param dim    dimension array [M, N], which are rows of mB and columns of mB.
+	 * @param dim    dimension array [M, N], which are rows of mB and columns of mB. Lower/upper triangular flag sets the last value.
 	 * @param tranA  transpose option for mA
 	 *
 	 */
@@ -220,7 +220,7 @@ protected class DriverBLAS {
 
 	// A =  A * op( B ), B is lower-non-unit triangular
 	/**
-	 * Compute mB =  mA &#42 op( mB ), mB is lower-non-unit triangular matrix.
+	 * Compute mB =  mA &#42 op( mB ), mB is non-unit triangular matrix.
 	 *
 	 * @param mA     Double precision array storing matrix mA and output matrix.
 	 * @param mB     Double precision array storing triangular matrix mB.
@@ -292,10 +292,11 @@ protected class DriverBLAS {
 	 * @param tA     transpose option for mA
 	 * 
 	 */	
-	@Native("java","WrapBLAS.trivecMult((#1).raw().getDoubleArray(),(#2).raw().getDoubleArray(),#3,#4)")
-	@Native("c++","tri_vector_mult((#1)->raw()->raw(),(#2)->raw()->raw(),#3,#4)")
+	@Native("java","WrapBLAS.trivecMult((#1).raw().getDoubleArray(),#2,(#3).raw().getDoubleArray(),#4,#5)")
+	@Native("c++","tri_vector_mult((#1)->raw()->raw(),#2,(#3)->raw()->raw(),#4,#5)")
 	public static native def tri_vector_mult(
 			mA:Array[Double](1), 
+			uplo:Int,
 			bx:Array[Double](1), 
 			lda:Int, tA:Int):void;
 

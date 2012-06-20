@@ -13,6 +13,7 @@ package x10.array;
 
 import x10.compiler.NoInline;
 import x10.compiler.NoReturn;
+import x10.compiler.PerProcess;
 
 /**
  * A distributution supports distributed arrays by providing a mapping
@@ -52,7 +53,7 @@ public abstract class Dist(
         return UNIQUE as Dist(1);        
     }
     // Cache pre-allocated UniqueDist to optimize makeUnique calls.
-    private static val UNIQUE = new UniqueDist();
+    @PerProcess private static val UNIQUE = new UniqueDist();
 
     /**
      * Create a distribution over the specified region that maps

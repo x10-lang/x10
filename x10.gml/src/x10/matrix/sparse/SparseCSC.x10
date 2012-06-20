@@ -6,19 +6,21 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix.sparse;
 
 import x10.io.Console;
 import x10.util.Pair;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
 import x10.matrix.MathTool;
 import x10.matrix.DenseMatrix;
 import x10.matrix.VerifyTools;
+import x10.matrix.builder.SparseCSCBuilder;
 
 
 public type SparseCSC(M:Int)=SparseCSC{self.M==M};
@@ -143,7 +145,7 @@ public class SparseCSC extends Matrix {
 	 * @param m     Number of rows in the CSC sparse matrix
 	 * @param n     Number of columns in the CSC sparse matrix
 	 */
-	public static def make(m:Int, n:Int) = SparseCSC.make(m, n, m*n);
+	//public static def make(m:Int, n:Int) = SparseCSC.make(m, n, m*n);
 									   
 	//--------------------------------------------------------------
 	/**
@@ -195,7 +197,7 @@ public class SparseCSC extends Matrix {
 		val cnt = ccdata.initConst(M, v, sp);
 		return this;
 		//sparsity = 1.0 * cnt/M/N;
-	} 
+	}
 	
 
 	/**
@@ -264,7 +266,7 @@ public class SparseCSC extends Matrix {
 		for (var c:Int=0; c<N; c++) {
 			val ccol = ccdata.cLine(c);
 			ccol.offset = offset;
-			for (var r:Int=0; r<M; r++) {
+			for (var r:Int=0; r<M&&offset<ca.index.size; r++) {
 				val nzval:Double = f(r, c);
 				if (! MathTool.isZero(nzval)) {
 					ca.index(offset)=r;
@@ -406,7 +408,7 @@ public class SparseCSC extends Matrix {
 	 * Return the matrix element value at the r-th row and c-th column.
 	 */
 	public operator this(r:Int, c:Int):Double = ccdata(c, r);
-	public operator this(a:Int):Double = ccdata(a%M,a/M);
+	public operator this(a:Int):Double = ccdata(a/M,a%M);
 	
 	//
 	//========================================================
@@ -931,16 +933,52 @@ public class SparseCSC extends Matrix {
 		return new SparseCSR(this.N, this.M, this.ccdata);
 	}
 	
-	/**
-	 * Transpose matrix. Expensive.
-	 * This sparse matrix is converted to CSR using
-	 * the provided storage of CSC. 
-	 */	
-	public def T(tm:SparseCSC(N,M)):void {
-		val csr = new SparseCSR(M, N, tm.ccdata);
-		toCSR(csr);		
+	// /**
+	//  * Transpose matrix. Expensive.
+	//  * This sparse matrix is converted to CSR using
+	//  * the provided storage of CSC. 
+	//  */	
+	// public def T(tm:SparseCSC(N,M)):void {
+	// 	val csr = new SparseCSR(M, N, tm.ccdata);
+	// 	toCSR(csr);		
+	// }
+	
+	/*
+	 * Tranpose sparse matrix and put result back to the origninal compress array storage space.
+	 * The return instance is a new SparseCSC using the original storage, and original (this) instance
+	 * is no longer valid sparse matrix instance.
+	 * "this instance" is no longer a valid sparse matrix instance. This method uses less memory space
+	 * tha T().
+	 * Using SparseCSCBuilder is more efficient than converting to CSR format
+	 */
+	public def selfT() : SparseCSC(N,M) {
+		val nspa = new SparseCSC(N,M, this.getStorage()) as SparseCSC(N,M);
+		val sbdr = SparseCSCBuilder.make(N,M);
+		sbdr.initTransposeFrom(this).toSparseCSC(nspa);
+
+		return nspa;
+	}
+	
+	/*
+	 * Transpose matrix and put the result in a new sparse matrix instance.
+	 * The original (this) instance is not changed. 
+	 */
+	public def T():SparseCSC(N,M) {
+		val nspa = SparseCSC.make(N,M, this.getStorage().count());
+		T(nspa);
+		return nspa;
 	}
 
+	/*
+	 * Tranpose the sparse matrix data and store it in provided SparseCSC
+	 * instance.  The original matrix instance (this) is not changed 
+	 * (if "this" is not used as the input)
+	 */
+	public def T(spa:SparseCSC(N,M)) : void {
+		val sbdr = SparseCSCBuilder.make(N,M);
+		sbdr.initTransposeFrom(this as SparseCSC(sbdr.N,sbdr.M)).toSparseCSC(spa);
+	}
+	
 	//=====================================================================
 	// Cell-wise operation methods
 	//=====================================================================
@@ -955,8 +993,8 @@ public class SparseCSC extends Matrix {
 		val ca = getStorage();
 		for (var c:Int=0; c<N; c++) {
 			val cl = getCol(c);
-			for (var e:Int=0; e<cl.length; e++)
-				ca.value(cl.offset+e) *= alpha;
+			for (var e:Int=cl.offset; e<cl.offset+cl.length; e++)
+				ca.value(e) *= alpha;
 		}
 		return this;
 	}
@@ -969,6 +1007,18 @@ public class SparseCSC extends Matrix {
      */
 	public def scale(alpha:Int) = scale(alpha as Double);
 
+	public def sum():Double {
+		var tt:Double=0.0;
+		val ca = getStorage();
+		for (var c:Int=0; c<N; c++) {
+			val cl = getCol(c);
+			for (var e:Int=cl.offset; e<cl.offset+cl.length; e++)
+				tt += ca.value(e);
+		}	
+		
+		return tt;
+	}
+	
 	//--------------------------
 	// Cellwise addition
 	//--------------------------
@@ -1346,7 +1396,7 @@ public class SparseCSC extends Matrix {
 
 	//
 	//---------------------------
-	// X10 Int MAX_VALUE is 2*10^10, change M*N to Double, in case
+	// X10 Int MAX_VALUE, change M*N to Double, in case
 	// exceeding MAX_VALUE
 	public static def compAllocSize(m:Int, n:Int, nz:Double):Int {
 		var nzd:Double = nz;

@@ -6,14 +6,15 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.matrix;
 
+import x10.compiler.Inline;
 import x10.io.Console;
-import x10.util.Random;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 //----------------------------------------------
 //import x10.matrix.blas.DriverBLAS; 
@@ -265,7 +266,16 @@ public class DenseMatrix extends Matrix {
 		Debug.assure(likeMe(mat), "Copy destination matrix type mismatch");
 		copyTo(mat as DenseMatrix(M,N));
 	}
-	                                        
+	/**
+	 * 
+	 */
+	public def toDense() : DenseMatrix(M,N) {
+		val dm = DenseMatrix.make(M,N);
+		//Do NOT use clone().  clone() could be override by derive class
+		copyTo(dm);
+		return dm;
+	}
+	
 	
 	/**
 	 * Reset all element to 0.0
@@ -452,7 +462,7 @@ public class DenseMatrix extends Matrix {
 
 
     //------------------------------------------------------------------
-	// Transpose marking operation
+	// Transpose
 	//------------------------------------------------------------------
 
 	/**
@@ -463,6 +473,8 @@ public class DenseMatrix extends Matrix {
 	public def T(m:DenseMatrix(N,M)) : void {
 		var src_idx:Int =0;
 		var dst_idx:Int =0;
+		//Need to be more efficient
+		//Possible idea is to tranpose or copy small block each time.
 		//Debug.assure(this.M==m.N&&this.N==m.M);
 		for (var c:Int=0; c < this.N; c++) {
 			dst_idx = c;
@@ -472,6 +484,61 @@ public class DenseMatrix extends Matrix {
 		}
 	}
 
+	/*
+	 * Transpose matrix data into a new dense matrix. 
+	 * For dense matrix, it is quite complex to use source data storage to hold
+	 * tranposed result. We only provide tranpose method of using
+	 * additional space to store the result
+	 */
+	public def T(): DenseMatrix(N,M) {
+		val nm = DenseMatrix.make(N,M);
+		T(nm);
+		return nm;
+	}
+
+//	Transpose using the same memory space is very complex.
+// 	public def T():DenseMatrix(N,M) {
+// 		if (M==1||N==1) return new DenseMatrix(N, M, this.d);
+// 		if (M==N) return squareSelfT() as DenseMatrix(N,M);
+// 		
+// 		for (var len:Int=1; len<M; len++) {
+// 			val sttidx:Int=len;
+// 			val sttval:Double = this.d(sttidx);
+// 			val endidx:Int = (sttidx%M)*N+ sttidx/M;
+// 			var srcidx:Int=sttidx;
+// 			var preidx:Int=0;
+// 
+// 			while (endidx != srcidx) {
+// 				preidx = (srcidx % N) * M + srcidx/N;
+// 				this.d(srcidx) = this.d(preidx);
+// 				srcidx = preidx;
+// 			}
+// 			this.d(endidx) = sttval;
+// 		}
+// 		return new DenseMatrix(N,M,this.d);
+// 	}
+	
+	/*
+	 * Only apply to square matrix, using the same memory space to transpose dense matrix.
+	 * This method is destructive for source matrix.
+	 */
+	public def selfT(): DenseMatrix(this) {
+		var src_idx:Int =0;
+		var dst_idx:Int =0;
+		var swaptmp:Double = 0;
+		Debug.assure(this.M==this.N, "Cannot perform transpose for non-square matrix");
+		for (var c:Int=0; c < this.M; c++) {
+			dst_idx = (c+1)*this.M+c;
+			src_idx = c * this.M + c + 1;
+			for (var r:Int=c+1; r < this.M; r++, dst_idx+=M, src_idx++) {
+				swaptmp = this.d(dst_idx);
+				this.d(dst_idx) = this.d(src_idx);
+				this.d(src_idx) = swaptmp;
+			}
+		}
+		return this;
+	}
+	
  	//------------------------------------------------------------------
 	// Cell-wise operations
 	//------------------------------------------------------------------
@@ -638,7 +705,13 @@ public class DenseMatrix extends Matrix {
 	 	for (var i:Int=0; i < this.N*this.M; i++) this.d(i) += x.d(i);
 	 	return this;
 	}
-	
+
+    public def cellAdd(x:TriDense(M,N)):DenseMatrix(this)  = 
+    	x.cellAddTo(this);
+
+    public def cellAdd(x:SymDense(M,N)):DenseMatrix(this)  = 
+    	x.cellAddTo(this);
+    
 	/**
 	 * Perform cell-wise add: x = this + x
      * 
@@ -710,6 +783,16 @@ public class DenseMatrix extends Matrix {
 		return x;
 	}
 
+	/**
+	 * this = this - x, where x is triangular matrix
+	 */
+	public def cellSub(x:TriDense(M,N)):DenseMatrix(this)   =
+		x.cellSubFrom(this);
+
+	public def cellSub(x:SymDense(M,N)):DenseMatrix(this)   =
+		x.cellSubFrom(this);
+
+	
 	//------------------------------
 	// Cellwise multiplication
 	//------------------------------
@@ -757,6 +840,13 @@ public class DenseMatrix extends Matrix {
 		return x;
 	}
 
+	public def cellMult(x:TriDense(M,N)):DenseMatrix(this)   =
+		x.cellMultTo(this);//Double-dispatch
+
+	public def cellMult(x:SymDense(M,N)):DenseMatrix(this)   =
+		x.cellMultTo(this);//Double-dispatch
+
+	
 	//-------------------------
 	// Cellwise division
 	//-------------------------
@@ -822,6 +912,9 @@ public class DenseMatrix extends Matrix {
 		return x;
 	}
 
+	public  def cellDiv(x:SymDense(M,N)):DenseMatrix(this) =
+		x.cellDivBy(this);
+	
 	//================================================================
 	// Matrix multiply operations: self this<- op(A)*op(B) + (plus?1:0) * C
 	// Default is using BLAS driver
@@ -941,7 +1034,7 @@ public class DenseMatrix extends Matrix {
 		DenseMatrixBLAS.comp(A, B, this, plus); //BLAS driver
 		return this;
 	}
-
+	
 	/**
 	 * Multiply two dense matrix and return this = A<sup>T<sup> &#42 B 
 	 * where the first matrix in transposed for multiplication.
@@ -969,7 +1062,7 @@ public class DenseMatrix extends Matrix {
 	}
 
 	/**
-	 * Multiply two dense matrices and return this = A * T(B) or this += A * T(B) if plus is true
+	 * Multiply two dense matrices and return this = A  &#42 T(B) or this += A  &#42 T(B) if plus is true
 	 * using BLAS drivers, where the second matrix is in transposed format.
 	 * 
 	 * @param  A 	first matrix
@@ -992,6 +1085,43 @@ public class DenseMatrix extends Matrix {
 	 */
 	public def multTrans(A:DenseMatrix(this.M), B:DenseMatrix(this.N,A.N)) = 
 		multTrans(A, B, false);
+	
+	//==================================================================
+	// Multiply with triangular matrix
+	//==================================================================
+	
+	/**
+	 * this =this &#42 A
+	 */
+	public def mult(A:TriDense(this.N)):DenseMatrix(this) {
+		DenseMatrixBLAS.comp(this, A); //BLAS driver
+		return this;
+	}
+	
+	/**
+	 * this = A &#42 this
+	 */
+	public def multBy(A:TriDense(this.M)):DenseMatrix(this) {
+		DenseMatrixBLAS.comp(A, this); //BLAS driver
+		return this;
+	}
+
+	/**
+	 * this =this<sup>T<sup> &#42 A
+	 */
+	public def transMult(A:TriDense(this.N)):DenseMatrix(this) {
+		DenseMatrixBLAS.compTransMult(this, A); //BLAS driver
+		return this;
+	}
+	
+	/**
+	 * this = A &#42 this<sup>T<sup>
+	 */
+	public def multTransBy(A:TriDense(this.M)):DenseMatrix(this) {
+		DenseMatrixBLAS.compMultTrans(A,  this); //BLAS driver
+		return this;
+	}
+
 	
 	//==================================================================
 	// Sparse multiply to Dense
@@ -1032,11 +1162,11 @@ public class DenseMatrix extends Matrix {
 	/**
 	 * Operator overloading for cell-wise matrix subtraction, and return this - that in a new dense format
 	 */
-	public operator - this = clone().scale(-1.0) as DenseMatrix(M,N);
+	public operator - this = clone().scale(-1.0)                as DenseMatrix(M,N);
 	public operator (v:Double) + this = this.clone().cellAdd(v) as DenseMatrix(M,N);
 	public operator this + (v:Double) = this.clone().cellAdd(v) as DenseMatrix(M,N);
 
-	public operator this - (v:Double) = this.clone().cellAdd(-v) as DenseMatrix(M,N);
+	public operator this - (v:Double) = this.clone().cellAdd(-v)    as DenseMatrix(M,N);
 	public operator (v:Double) - this = this.clone().cellSubFrom(v) as DenseMatrix(M,N);
 	
 	public operator this / (v:Double) = this.clone().scale(1.0/v) as DenseMatrix(M,N);
@@ -1081,9 +1211,7 @@ public class DenseMatrix extends Matrix {
 	//=======================================================
 	// Utils
 	//=======================================================
-// 	public def copyFrom(src:DenseMatrix(M,N)) {
-// 		Array.copy(src.d, 0, this.d, 0, this.M*this.N);
-// 	}
+
 	/**
 	 * Check matrix type and dimensions
 	 * 
@@ -1099,16 +1227,16 @@ public class DenseMatrix extends Matrix {
 	 * Convert the whole dense matrix into a string
 	 */
 	public def toString() : String {
-		var outstr:String ="--------- Dense Matrix "+M+" x "+N+" ---------\n";
+		val outstr = new StringBuilder();
+		outstr.add("--------- Dense Matrix "+M+" x "+N+" ---------\n");
 		for (var r:Int=0; r<M; r++) {
-			var rowstr:String=r.toString()+"\t[ ";
+			outstr.add(r.toString()+"\t[ ");
 			for (var c:Int=0; c<N; c++)
-				rowstr += this(r,c).toString()+" ";
-			rowstr +="]\n";
-			outstr += rowstr;
+				outstr.add(this(r,c).toString()+" ");
+			outstr.add("]\n");
 		}
-		outstr += "---------------------------------------\n";
-		return outstr; 		
+		outstr.add( "---------------------------------------\n");
+		return outstr.toString(); 		
 	}
 
 	public def print(msg:String): void {
@@ -1120,5 +1248,3 @@ public class DenseMatrix extends Matrix {
 	}
 
 }
-
-

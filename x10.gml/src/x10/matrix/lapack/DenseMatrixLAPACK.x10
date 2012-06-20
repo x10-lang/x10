@@ -14,11 +14,9 @@ package x10.matrix.lapack;
 import x10.matrix.Debug;
 import x10.matrix.DenseMatrix;
 import x10.matrix.Vector;
-import x10.matrix.SymMatrix;
-import x10.matrix.TriMatrix;
 
 /**
- * This class provides static methods to perform LAPACK routines throug dense
+ * This class provides static methods to perform LAPACK routines using dense
  * matrix and vector:
  * 
  * 1) Solve linear equations

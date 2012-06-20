@@ -13,6 +13,7 @@
 package x10.matrix.distblock;
 
 import x10.util.ArrayList;
+import x10.util.StringBuilder;
 import x10.compiler.Inline;
 
 import x10.matrix.Matrix;
@@ -98,7 +99,9 @@ public class BlockSet  {
 			val colbid = grid.getColBlockId(bid);
 			val m      = grid.rowBs(rowbid);
 			val n      = grid.colBs(colbid);
-			add(DenseBlock.make(rowbid, colbid, m, n));
+			val roff   = grid.startRow(rowbid);
+			val coff   = grid.startCol(colbid);
+			add(DenseBlock.make(rowbid, colbid, roff, coff, m, n));
 		}
 		assignNeighborPlaces();
 		return this;
@@ -112,7 +115,9 @@ public class BlockSet  {
 			val colbid = grid.getColBlockId(bid);
 			val m      = grid.rowBs(rowbid);
 			val n      = grid.colBs(colbid);
-			add(SparseBlock.make(rowbid, colbid, m, n, nzd));
+			val roff   = grid.startRow(rowbid);
+			val coff   = grid.startCol(colbid);
+			add(SparseBlock.make(rowbid, colbid, roff, coff, m, n, nzd));
 		}
 		assignNeighborPlaces();		
 		return this;
@@ -202,7 +207,7 @@ public class BlockSet  {
 			val srcmat = srcblk.getMatrix();
 			val m = select(srcmat.M, cnt);
 			val n = select(cnt, srcmat.N);
-			val nblk = DenseBlock.make(srcblk.myRowId, srcblk.myColId, m, n) as MatrixBlock;//srcblk.allocFull(m, n);
+			val nblk = DenseBlock.make(srcblk.myRowId, srcblk.myColId, srcblk.rowOffset, srcblk.colOffset, m, n) as MatrixBlock;//srcblk.allocFull(m, n);
 			blst.add(nblk);
 		}
 		return blst;
@@ -759,26 +764,27 @@ public class BlockSet  {
 	public def toString() :String {
 		
 		val blkitr = this.iterator();
-		var outstr:String = "At place "+here.id()+" blocks:\n";
+		val outstr = new StringBuilder();
+		outstr.add("At place "+here.id()+" block set contains:\n");
 		while (blkitr.hasNext()) {
 			val blk = blkitr.next();
-			outstr += blk.toString();
+			outstr.add(blk.toString());
 		}
-		return outstr;	
+		return outstr.toString();	
 	}
 	
 	public def printBlockMap() {
-		var outstr:String="";
+		val outstr = new StringBuilder();
 		
 		if (blockMap==null) buildBlockMap();
 		for (var r:Int=blockMap.region.min(0); r<=blockMap.region.max(0); r++) {
 			for (var c:Int=blockMap.region.min(1); c<=blockMap.region.max(1); c++) {
 				val b = blockMap(r, c);
-				outstr +=("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
+				outstr.add("Block("+r+","+c+"):["+b.myRowId+","+b.myColId+"] ");
 			}
-			outstr += "\n";
+			outstr.add("\n");
 		}
-		Console.OUT.println(outstr);
+		Console.OUT.println(outstr.toString());
 		Console.OUT.flush();
 	}
 	

@@ -13,6 +13,7 @@ package x10.matrix.sparse;
 
 import x10.io.Console;
 import x10.util.Pair;
+import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
@@ -929,7 +930,7 @@ public class SparseCSR extends Matrix {
 	/**
 	   Print the sparse matrix in CSR format
 	*/
-	public def printSparse(msg:String) {
+	public def print(msg:String) {
 		val outstr:String = msg + 
 			"------- Sparse Matrix in CSR "+M+"x"+N+"-------\n"+
 			this.toString() +
@@ -938,7 +939,7 @@ public class SparseCSR extends Matrix {
 		Console.OUT.flush();
 	}
 
-	public def printSparse() { printSparse("");}
+	public def print() { print("");}
 	public def debugPrint(msg:String) {
 		if (Debug.disable) return;
 		Debug.println(msg+this.toString());	

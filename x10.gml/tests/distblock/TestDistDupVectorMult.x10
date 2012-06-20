@@ -90,10 +90,10 @@ class RunDDVectorMult {
 		vB.init((r:Int)=>1.0);
 		
 		DistDupVectorMult.comp(mA, vB, vC, false);
+		Debug.flushln("Here out");
 		//A.printMatrix();
 		//B.printMatrix();
 		//C.printMatrix();
-		
 		val dA = mA.toDense() as DenseMatrix(M,N);
 		val vb = vB.toVector() as Vector(N);
 		val vc = dA % vb;
@@ -153,11 +153,12 @@ class RunDDVectorMult {
 	public def testDupVecDistMatMult() : Boolean {
 		Console.OUT.println("Starting DupVector * DistBlockMatrix -> DistVector multiply test");
 		val pM = 1, pN=Place.MAX_PLACES; //Horizontal distribution
-		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN) as DistBlockMatrix(M,N);
 		val vA = DupVector.make(M);
+		val mB = DistBlockMatrix.makeDense(M, N, bM, bN, pM, pN) as DistBlockMatrix(M,N);
 		
 		vA.initRandom();//((r:Int)=>1.0+r);
 		mB.initRandom();//((r:Int,c:Int)=>1.0+c);
+		
 		val vC = vA % mB;
 		//vC.print();
 		val vc = vA.local() % mB.toDense();

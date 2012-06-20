@@ -315,9 +315,9 @@ public class BlockBlockMult  {
 				val ablk = A(k,r);
 				val bblk = B(k,c);
 				
-				Debug.assure(ablk.myColId==cblk.myRowId);
-				Debug.assure(bblk.myColId==cblk.myColId);
-				Debug.assure(ablk.myRowId==bblk.myRowId);
+				Debug.assure(ablk.myColId==cblk.myRowId, "First operand and output matrix block dismatch");
+				Debug.assure(bblk.myColId==cblk.myColId, "Second operand and output matrix block dismatch" );
+				Debug.assure(ablk.myRowId==bblk.myRowId, "First and second operand matrix block dismatch");
 				val amat = ablk.getMatrix() as Matrix{self.N==cmat.M};
 				val bmat = bblk.getMatrix() as Matrix(amat.M, cmat.N);
 				
@@ -343,9 +343,9 @@ public class BlockBlockMult  {
 				val ablk = A(r,k);
 				val bblk = B(c,k);
 				
-				Debug.assure(ablk.myRowId==cblk.myRowId, "");
-				Debug.assure(bblk.myRowId==cblk.myColId, "");
-				Debug.assure(ablk.myColId==bblk.myColId, "");
+				Debug.assure(ablk.myRowId==cblk.myRowId, "First operand and output matrix block dismatch");
+				Debug.assure(bblk.myRowId==cblk.myColId, "Second operand and output matrix block dismatch");
+				Debug.assure(ablk.myColId==bblk.myColId, "First and second operand matrix block dismatch");
 				val amat = A(r,k).getMatrix() as Matrix(cmat.M);
 				val bmat = B(c,k).getMatrix() as Matrix(cmat.N, amat.N);
 				

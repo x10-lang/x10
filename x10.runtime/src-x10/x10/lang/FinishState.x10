@@ -243,7 +243,7 @@ abstract class FinishState {
         public def simpleLatch():SimpleLatch = null;
     }
     
-    static UNCOUNTED_FINISH = new UncountedFinish();
+    @PerProcess static UNCOUNTED_FINISH = new UncountedFinish();
 
     // a mapping from finish refs to local finish objects
     static class FinishStates {

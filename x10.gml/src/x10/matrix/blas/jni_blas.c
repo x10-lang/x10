@@ -130,14 +130,14 @@ extern "C" {
   //--------------------------------------------------------------
   // public static native void trivecMult(double[] A, double[] bx, int lda, int tranA);
   JNIEXPORT void JNICALL Java_x10_matrix_blas_WrapBLAS_trivecMult
-  (JNIEnv *env, jobject obj, jdoubleArray A, jdoubleArray bx, jint lda, jint tranA) {
+  (JNIEnv *env, jobject obj, jdoubleArray A, jint uplo, jdoubleArray bx, jint lda, jint tranA) {
 
     jboolean isCopy;
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bxvec = env->GetDoubleArrayElements(bx, &isCopy);
-    jint dimlist[2];
+    //jint dimlist[3];
 
-	tri_vector_mult(amat, bxvec, lda, tranA);
+	tri_vector_mult(amat, uplo, bxvec, lda, tranA);
 
 	if (isCopy == JNI_TRUE) {
 	  //printf("Copying data from c library back to original data in JVM\n");
@@ -246,10 +246,10 @@ extern "C" {
     jboolean isCopy;
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bmat = env->GetDoubleArrayElements(B, &isCopy);
-    jint dimlist[2];
+    jint dimlist[3];
     // This line is necessary, since Java arrays are not guaranteed 
     // to have a continuous memory layout like C arrays.
-    env->GetIntArrayRegion(dim, 0, 2, dimlist);
+    env->GetIntArrayRegion(dim, 0, 3, dimlist);
 
 	tri_matrix_mult(amat, bmat, dimlist, tranA);
 
@@ -266,10 +266,10 @@ extern "C" {
     jboolean isCopy;
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bmat = env->GetDoubleArrayElements(B, &isCopy);
-    jint dimlist[2];
+    jint dimlist[3];
     // This line is necessary, since Java arrays are not guaranteed 
     // to have a continuous memory layout like C arrays.
-    env->GetIntArrayRegion(dim, 0, 2, dimlist);
+    env->GetIntArrayRegion(dim, 0, 3, dimlist);
 
 	matrix_tri_mult(bmat, amat, dimlist, tranA);
 
@@ -290,8 +290,8 @@ extern "C" {
     jboolean isCopy;
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bxvec = env->GetDoubleArrayElements(bx, &isCopy);
-    jint dimlist[2];
-    env->GetIntArrayRegion(dim, 0, 2, dimlist);
+    jint dimlist[3];
+    env->GetIntArrayRegion(dim, 0, 3, dimlist);
 
 	tri_vector_solve(amat, bxvec, dimlist, tranA);
 
@@ -307,9 +307,9 @@ extern "C" {
     jboolean isCopy;
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bxmat = env->GetDoubleArrayElements(BX, &isCopy);
-    jint dimlist[2];
+    jint dimlist[3];
 
-    env->GetIntArrayRegion(dim, 0, 2, dimlist);
+    env->GetIntArrayRegion(dim, 0, 3, dimlist);
 
     tri_matrix_solve(amat, bxmat, dimlist, tranA);
 
@@ -325,8 +325,8 @@ extern "C" {
     jboolean isCopy;
     jdouble* amat = env->GetDoubleArrayElements(A, NULL);
     jdouble* bxmat = env->GetDoubleArrayElements(BX, &isCopy);
-    jint dimlist[2];
-    env->GetIntArrayRegion(dim, 0, 2, dimlist);
+    jint dimlist[3];
+    env->GetIntArrayRegion(dim, 0, 3, dimlist);
 
 	matrix_tri_solve(bxmat, amat, dimlist, tranA);
 

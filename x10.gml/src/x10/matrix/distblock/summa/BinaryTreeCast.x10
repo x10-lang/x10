@@ -170,17 +170,17 @@ protected class BinaryTreeCast  {
 					//Remote capture:distBS, rootbid, datCnt, rtplist, tag
 					val blk    = distBS().findFrontBlock(rootbid, select);
 					val dstden = blk.getMatrix() as DenseMatrix;
-					//Debug.flushln("BinaryTree cast:Start recv data from "+srcpid);
+					Debug.flushln("BinaryTree cast:Start recv data from "+srcpid);
 					WrapMPI.world.recv(dstden.d, 0, datCnt, srcpid, tag);
-					//Debug.flushln("BinaryTree cast:Done recv data from "+srcpid);
+					Debug.flushln("BinaryTree cast:Done recv data from "+srcpid);
 					if (plist.size > 0 )  {
 						castToPlaces(distBS, rootbid, datCnt, select, plist);
 					}
 				}
 				async {
-					//Debug.flushln("BinaryTree cast: start sending data to "+rmtpid);
+					Debug.flushln("BinaryTree cast: start sending data to "+rmtpid);
 					WrapMPI.world.send(srcden.d, 0, datCnt, rmtpid, tag);
-					//Debug.flushln("BinaryTree cast: Done sending data to "+rmtpid+ " done");
+					Debug.flushln("BinaryTree cast: Done sending data to "+rmtpid+ " done");
 				}
 			}
 		}

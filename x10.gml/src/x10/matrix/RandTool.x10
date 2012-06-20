@@ -11,6 +11,7 @@
 
 package x10.matrix;
 
+import x10.compiler.Inline;
 import x10.util.Random;
 import x10.util.Timer;
 import x10.lang.Math;
@@ -36,6 +37,11 @@ public class RandTool {
 	 */
 	public static def getRandGen(): Random {
 		tool.reSeed();
+		return tool.randomGen;
+	}
+	
+	public static def reSeed(seed:Long): Random {
+		tool.randomGen.init(seed);
 		return tool.randomGen;
 	}
 

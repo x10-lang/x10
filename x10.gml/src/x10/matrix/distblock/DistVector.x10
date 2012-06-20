@@ -13,6 +13,7 @@ package x10.matrix.distblock;
 
 import x10.util.Pair;
 import x10.util.ArrayList;
+import x10.util.StringBuilder;
 import x10.util.Timer;
 
 import x10.matrix.Matrix;
@@ -82,20 +83,6 @@ public class DistVector(M:Int) {
 		return new DistVector(m, hdv, segsz) as DistVector(m);
 	}
 
-	// public static def make(m:Int, numBlk:Int, numPlz:Int):DistVector(m) {
-	// 	Debug.assure(m>=numBlk&&numBlk>=numPlz, "Creating dist vector fails. Unsatisfied Vsize <= num blocks < num places");
-	// 	val szlst = new Array[Int](numPlz, (i:Int)=>0);
-	// 	
-	// 	var bcnt:Int = 0;
-	// 	for (var p:Int=0; p<numPlz; p++) {
-	// 		val nblk = Grid.compBlockSize(numBlk, numPlz, p);
-	// 		for (var b:Int=0; b<nblk; b++, bcnt++) {
-	// 			szlst(p) += Grid.compBlockSize(m, numBlk, bcnt);
-	// 		}
-	// 	}
-	// 	Debug.flushln("DistVector size:"+szlst.toString());
-	// 	return make(m, szlst);
-	// }
 	//====================================================================================
 	
 	public def alloc(m:Int):DistVector(m) = make(m);
@@ -388,11 +375,12 @@ public class DistVector(M:Int) {
 	
 	//==================================================================================
 	public def toString() :String {
-		var output:String = "---Distributed Vector:["+M+"], ---\n[ ";
-		for (var i:Int=0; i<M-1; i++) output += this(i).toString()+",";
+		val output=new StringBuilder();
+		output.add("---Distributed Vector:["+M+"], ---\n[ ");
+		for (var i:Int=0; i<M-1; i++) output.add(this(i).toString()+",");
 		
-		output += this(M-1).toString()+" ]\n--------------------------------------------------\n";
-		return output;
+		output.add(this(M-1).toString()+" ]\n--------------------------------------------------\n");
+		return output.toString();
 	}
 	//
 	public def print()  { this.print("");}
@@ -402,14 +390,15 @@ public class DistVector(M:Int) {
 		Console.OUT.flush();
 	}
 	public def printAllCopies() {
-		var output:String = "-------- Distributed vector :["+M+"] ---------\n";
+		val output = new StringBuilder();
+		output.add( "-------- Distributed vector :["+M+"] ---------\n");
 		for (p in Place.places()) {
-			output += "Segment vector at place " + p.id() +"\n";
-			output += at (p) { distV().toString()};
+			output.add("Segment vector at place " + p.id() +"\n");
+			output.add(at (p) { distV().toString()});
 		}
-		output += "--------------------------------------------------\n";
-		Console.OUT.print(output);
+		output.add("--------------------------------------------------\n");
+		Console.OUT.print(output.toString());
 		Console.OUT.flush();
-	}	
+	}
 }
 

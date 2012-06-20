@@ -1075,9 +1075,9 @@ void sym_vector_mult(double* A, double* x, double* y, int* dim, double* scale)
 
 //SUBROUTINE DTRMV(UPLO,TRANS,DIAG,N,A,LDA,X,INCX)
 //   A*x = b,   or   A'*x = b,
-void tri_vector_mult(double* A, double* bx, int lda, int transA)
+void tri_vector_mult(double* A, int ul, double* bx, int lda, int transA)
 {
-	char uplo = 'L';
+	char uplo = ul?'U':'L';
 	char trnA = transA?'T':'N';
 	char diag = 'N';
 	int  N  = lda;
@@ -1187,7 +1187,7 @@ void matrix_sym_mult(double* B, double* A, double* C, int* dim, double* scale)
 void tri_matrix_mult(double* A, double* B, int* dim, int tranA)
 {
   char side = 'L'; //alpha * op(A) * B;
-  char uplo = 'L'; //A is lower triangular
+  char uplo = dim[2]?'U':'L'; //A is lower triangular
   char diag = 'N'; //Non-unit triagnular
   char tran = (tranA)?'T':'N';
   double alpha = 1.0;
@@ -1207,7 +1207,7 @@ void tri_matrix_mult(double* A, double* B, int* dim, int tranA)
 void matrix_tri_mult(double* B, double* A, int* dim, int tranB)
 {
   char side = 'R'; //alpha * A * op(B);
-  char uplo = 'L'; //A is lower triangular
+  char uplo = dim[2]?'U':'L'; //A is lower triangular
   char diag = 'N'; //Non-unit triagnular
   char tTri = (tranB)?'T':'N';
   double alpha = 1.0;
@@ -1230,7 +1230,7 @@ void matrix_tri_mult(double* B, double* A, int* dim, int tranB)
 // A*x = b
 void tri_vector_solve(double* A, double* bx, int* dim, int tranA)
 {
-  char uplo = 'L';
+  char uplo = dim[2]?'U':'L';
   char trans= (tranA)?'T':'N';
   char diag = 'N';
   int incx = 1;
@@ -1251,7 +1251,7 @@ void tri_vector_solve(double* A, double* bx, int* dim, int tranA)
 void tri_matrix_solve(double* A, double* BX, int* dim, int tranA)
 {
 	char side = 'L'; //op(A) X = B
-	char uplo = 'L';
+	char uplo = dim[2]?'U':'L';
 	char trans= (tranA)?'T':'N';
 	char diag = 'N';
 	int  m   = dim[0]; //number of rows in B
@@ -1276,7 +1276,7 @@ void tri_matrix_solve(double* A, double* BX, int* dim, int tranA)
 void matrix_tri_solve(double* BX, double* A, int* dim, int tranA)
 {
 	char side = 'R'; //X op(A) = B
-	char uplo = 'L';
+	char uplo = dim[2]?'U':'L';
 	char trans= (tranA)?'T':'N';
 	char diag = 'N';
 	int  m   = dim[0]; //number of rows in B

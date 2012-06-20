@@ -14,6 +14,7 @@ package x10.matrix;
 import x10.io.Console;
 import x10.util.Random;
 import x10.util.Timer;
+import x10.util.StringBuilder;
 
 import x10.matrix.blas.BLAS;
 import x10.matrix.blas.DenseMatrixBLAS;
@@ -185,6 +186,7 @@ public class Vector(M:Int) implements (Int) => Double {
 			this.d(i) = a * this.d(i);
 		return this;
     }
+    
     //===============================
     /**
      * this = V * dv + this
@@ -333,32 +335,32 @@ public class Vector(M:Int) implements (Int) => Double {
 	//-------------------------------------------------------------------
 	// Symmetric-vector multiply
 	//-------------------------------------------------------------------
-	public  def mult(A:SymMatrix(this.M), B:Vector(A.N), plus:Boolean) =
+	public  def mult(A:SymDense(this.M), B:Vector(A.N), plus:Boolean) =
 		VectorMult.comp(A, B, this, plus);
 	
-	public  def transMult(A:SymMatrix(this.M), B:Vector(A.N), plus:Boolean) =
+	public  def transMult(A:SymDense(this.M), B:Vector(A.N), plus:Boolean) =
 		VectorMult.comp(B, A, this, plus);
 
-	public  def mult(A:SymMatrix(this.M), B:Vector(A.N))      = VectorMult.comp(A, B, this, false);
-	public  def transMult(A:SymMatrix(this.M), B:Vector(A.N)) = VectorMult.comp(B, A, this, false);
+	public  def mult(A:SymDense(this.M), B:Vector(A.N))      = VectorMult.comp(A, B, this, false);
+	public  def transMult(A:SymDense(this.M), B:Vector(A.N)) = VectorMult.comp(B, A, this, false);
 
 	//--------------
-	public def mult(B:Vector, A:SymMatrix(B.M,this.M), plus:Boolean)      = 
+	public def mult(B:Vector, A:SymDense(B.M,this.M), plus:Boolean)      = 
 		VectorMult.comp(B, A, this, plus);
-	public def multTrans(B:Vector, A:SymMatrix(this.M,B.M), plus:Boolean) = 
+	public def multTrans(B:Vector, A:SymDense(this.M,B.M), plus:Boolean) = 
 		VectorMult.comp(A, B, this, plus);
 
-	public def mult(B:Vector, A:SymMatrix(B.M,this.M))      = VectorMult.comp(B, A, this, false);
-	public def multTrans(B:Vector, A:SymMatrix(this.M,B.M)) = VectorMult.comp(A, B, this, false);
+	public def mult(B:Vector, A:SymDense(B.M,this.M))      = VectorMult.comp(B, A, this, false);
+	public def multTrans(B:Vector, A:SymDense(this.M,B.M)) = VectorMult.comp(A, B, this, false);
 
 	//-------------------------------------------------------------------
 	// Triangular-vector multiply
 	//-------------------------------------------------------------------
 	// this = A * this
-	public  def mult(A:TriMatrix(this.M)) =
+	public  def mult(A:TriDense(this.M)) =
 		VectorMult.comp(A, this);
 	
-	public  def transMult(A:TriMatrix(this.M)) =
+	public  def transMult(A:TriDense(this.M)) =
 		VectorMult.comp(this, A);
 	
 
@@ -388,9 +390,9 @@ public class Vector(M:Int) implements (Int) => Double {
 		VectorMult.comp(this, that, Vector.make(that.N), false) as Vector(that.N);
 	public  operator this % (that:DenseMatrix(M)) =
 		VectorMult.comp(this, that, Vector.make(that.N), false) as Vector(that.N);
-	public  operator this % (that:SymMatrix(M)) =
+	public  operator this % (that:SymDense(M)) =
 		VectorMult.comp(this, that, Vector.make(that.N), false) as Vector(that.N);
-	public  operator this % (that:TriMatrix(M)) =
+	public  operator this % (that:TriDense(M)) =
 		VectorMult.comp(this.clone(), that) as Vector(that.N);
 
 	//Left-side operand overload
@@ -398,17 +400,15 @@ public class Vector(M:Int) implements (Int) => Double {
  		VectorMult.comp(that, this, Vector.make(that.M), false) as Vector(that.M);
  	public  operator (that:DenseMatrix{self.N==this.M}) % this =
  		VectorMult.comp(that, this, Vector.make(that.M), false) as Vector(that.M);
- 	public  operator (that:SymMatrix{self.N==this.M}) % this =
+ 	public  operator (that:SymDense{self.N==this.M}) % this =
  		VectorMult.comp(that, this, Vector.make(that.M), false) as Vector(that.M);
- 	public  operator (that:TriMatrix{self.N==this.M}) % this =
+ 	public  operator (that:TriDense{self.N==this.M}) % this =
  		VectorMult.comp(that, this.clone()) as Vector(that.M);
  
  	//========================================================================
  	// Matrix multiflies with part of vector and store result in part of vector
  	//========================================================================
- 	
- 	
- 	
+ 	 	
  	
  	//======================================================
  	/**
@@ -452,7 +452,7 @@ public class Vector(M:Int) implements (Int) => Double {
  	 * @param A   Triangular matrix
  	 * @return    this object, overwritten by solution vector.
  	 */
- 	public def solveTriMultSelf(A:TriMatrix(M,M)):Vector(this) {
+ 	public def solveTriMultSelf(A:TriDense(M,M)):Vector(this) {
  		DenseMatrixBLAS.solveTriMultVec(A, this);
  		return this;
  	}
@@ -523,11 +523,12 @@ public class Vector(M:Int) implements (Int) => Double {
 	
 	//======================================================
 	public def toString():String {
-		var output:String="Vector("+this.M+") [ ";
+		val output=new StringBuilder();
+		output.add("Vector("+this.M+") [ ");
 		for (var i:Int=0; i<M; i++)
-			output += this.d(i).toString()+" ";
-		output += "]\n";
-		return output;
+			output.add(this.d(i).toString()+" ");
+		output.add("]\n");
+		return output.toString();
 	}
 	/**
 	   Print out all elements in vector
