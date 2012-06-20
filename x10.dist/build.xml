@@ -84,7 +84,7 @@
                 <include name="defs"/>
                 <include name="x10"/>
                 <include name="x10c"/>
-                <include name="x10j"/>
+                <include name="x10cj"/>
             </fileset>
         </delete>
     </target>
@@ -385,7 +385,7 @@
         <antcall target="apgas"/>
         <antcall target="x10"/>
         <antcall target="x10c"/>
-        <antcall target="x10j"/>
+        <antcall target="x10cj"/>
         <antcall target="precommit"/>
     </target>
 
@@ -416,9 +416,9 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10c.in"/>
         </uptodate>
-        <uptodate property="x10j.up-to-date" targetfile="${bin}/x10j">
+        <uptodate property="x10cj.up-to-date" targetfile="${bin}/x10cj">
             <srcfiles file="${ant.file}"/>
-            <srcfiles file="${bin}/x10j.in"/>
+            <srcfiles file="${bin}/x10cj.in"/>
         </uptodate>
         <uptodate property="precommit.up-to-date" targetfile="${bin}/precommit">
             <srcfiles file="${ant.file}"/>
@@ -430,7 +430,7 @@
                 <isset property="precommit.up-to-date"/>
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
-                <isset property="x10j.up-to-date"/>
+                <isset property="x10cj.up-to-date"/>
             </and>
         </condition>
     </target>
@@ -542,18 +542,18 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
         <delete file="${bin}/defs"/>
     </target>
 
-    <target name="x10j" unless="x10j.up-to-date"
+    <target name="x10cj" unless="x10cj.up-to-date"
             depends="executable-defs"
-            description="creates the executable script x10j">
-        <echo message="Creating ${bin}/x10j"/>
-        <concat destfile="${bin}/x10j" append="no">
+            description="creates the executable script x10cj">
+        <echo message="Creating ${bin}/x10cj"/>
+        <concat destfile="${bin}/x10cj" append="no">
             <filelist dir="${bin}" files="defs"/>
         </concat>
-        <concat destfile="${bin}/x10j" append="yes">
-            <filelist dir="${bin}" files="x10j.in"/>
+        <concat destfile="${bin}/x10cj" append="yes">
+            <filelist dir="${bin}" files="x10cj.in"/>
         </concat>
 
-        <chmod perm="+x" file="${bin}/x10j"/>
+        <chmod perm="+x" file="${bin}/x10cj"/>
 
         <delete file="${bin}/defs"/>
     </target>
@@ -647,7 +647,7 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
     <target name="tar" depends="set-version,set-tar-location,dist">
         <tar destfile="${tar.location}/x10-${tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,INSTALL"/>
-            <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c,x10j"/>
+            <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c,x10cj"/>
             <tarfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
             <tarfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <tarfileset prefix="lib" dir="${lib}" includes="*.jar"/>
@@ -723,10 +723,10 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 
     	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
-            <fileset dir="." includes="bin/x10c,bin/x10j,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
+            <fileset dir="." includes="bin/x10c,bin/x10cj,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
         </copy>
         <chmod file="${targetDir}/bin/x10c" perm="u+x"/>
-        <chmod file="${targetDir}/bin/x10j" perm="u+x"/>
+        <chmod file="${targetDir}/bin/x10cj" perm="u+x"/>
         <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
 
