@@ -33,10 +33,13 @@ public class CNativeLocal extends XNativeLocal<X10LocalDef> implements CLocal,Ty
         super(ld);
         this.s=s;
     }
+    @Override
     public X10LocalDef localDef() {return name;}
     /** Return the type of this variable.
      * 
      */
+    @Override
     public Type type() {return Types.get(name.type());}
-    @Override public String toString() {return s;}
+    @Override 
+    public String toString() {return s;}
 }

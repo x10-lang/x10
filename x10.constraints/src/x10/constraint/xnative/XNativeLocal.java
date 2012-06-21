@@ -42,8 +42,11 @@ public class XNativeLocal<T> extends XRoot implements XLocal<T>  {
 		return false;
 	}
 
+	@Override
 	public T name() {return name;}
+    @Override
     public boolean okAsNestedTerm() {return true;}
+	@Override
 	public String toString() {
 		String s = name.toString();
 		// This could should not belong here.

@@ -15,22 +15,21 @@ import x10.constraint.XUQV;
 import x10.constraint.XVar;
 
 
-
+/**
+ * Factory class producing XNativeTerms to be used with XNativeConstraints. 
+ * @author lshadare
+ *
+ */
 public class XNativeConstraintSystem implements XConstraintSystem {
-
-	public XConstraint mkConstraint() {
+	@Override
+	public XConstraint makeConstraint() {
 		return new XNativeConstraint();
 	}
-	
+	@Override
 	public XConstraint makeTrueConstraint() {
 		return new XNativeConstraint(); 
 	}
 	
-	private static final XNativeLit ZERO_FLOAT = new XNativeLit(new Float(0.0f));
-	private static final XNativeLit ZERO_DOUBLE = new XNativeLit(new Double(0.0));
-	private static final XNativeLit ZERO_INT = new XNativeLit(0);
-	private static final XNativeLit ZERO_LONG = new XNativeLit(new Long(0));
-	private static final XNativeLit ZERO_CHAR = new XNativeLit(Character.valueOf('\0'));
 	private static final XNativeLit NULL = new XNativeLit(null);
 	private static final XNativeLit TRUE = new XNativeLit(true);
 	private static final XNativeLit FALSE = new XNativeLit(false);
@@ -38,25 +37,24 @@ public class XNativeConstraintSystem implements XConstraintSystem {
 	
     // used in generating a new name or variable
 	static int nextId = 0;
-	
+	@Override
 	public XNativeLit xtrue() {return TRUE;} 
+	@Override
 	public XNativeLit xfalse() {return FALSE;}
-	public XNativeLit zeroFloat() {return ZERO_FLOAT; }
-	public XNativeLit zeroDouble() {return ZERO_DOUBLE; }
-	public XNativeLit zeroInt() {return ZERO_INT; }
-	public XNativeLit zeroLong() {return ZERO_LONG; }
-	public XNativeLit zeroChar() {return ZERO_CHAR; }
+	@Override
 	public XNativeLit xnull() {return NULL; }
 	
 	/**
 	 * Make a fresh EQV with a system chosen name. 
 	 * @return
 	 */
+	@Override
 	public XEQV makeEQV() {return new XNativeEQV(nextId++);}
 	/**
 	 * Make a fresh UQV with a system chosen name. 
 	 * @return
 	 */
+	@Override
 	public XUQV makeUQV() {return new XNativeUQV(nextId++);}
 
 	/**
@@ -64,6 +62,7 @@ public class XNativeConstraintSystem implements XConstraintSystem {
 	 * @param prefix -- a prefix of the name for the returned UQV
 	 * @return
 	 */
+	@Override
 	public XUQV makeUQV(String prefix) {return new XNativeUQV(prefix, nextId++);}
 
 	/**
@@ -72,9 +71,11 @@ public class XNativeConstraintSystem implements XConstraintSystem {
 	 * @param field
 	 * @return
 	 */
+	@Override
 	public <T> XField<T> makeField(XVar receiver, T field) {
 		return new XNativeField<T>((XNativeVar)receiver, field);
 	}
+	@Override
 	public XField<Object> makeFakeField(XVar receiver, Object field) {
 		return new XNativeField<Object>((XNativeVar)receiver, field, true);
 	}
@@ -82,6 +83,7 @@ public class XNativeConstraintSystem implements XConstraintSystem {
     /** Make and return a literal containing o. null, true and false are
      * interned.
      */
+	@Override
 	public XNativeLit makeLit(Object o) {
 		if (o == null) return NULL;
 		if (o.equals(true)) return TRUE;
@@ -93,6 +95,7 @@ public class XNativeConstraintSystem implements XConstraintSystem {
     Make and return op(terms1,..., termsn) -- an atomic formula
     with operator op and terms terms. Uses varargs.
 	 */
+	@Override
 	public XFormula<Object> makeAtom(Object op, XTerm... terms) {
 		return makeAtom(op, true, terms);
 	}
@@ -100,6 +103,7 @@ public class XNativeConstraintSystem implements XConstraintSystem {
     /**
        Make and return left == right.
      */
+	@Override
 	public XTerm makeEquals(XTerm left, XTerm right) {
 		assert left != null;
 		assert right != null;
@@ -115,6 +119,7 @@ public class XNativeConstraintSystem implements XConstraintSystem {
 	 * @param right
 	 * @return
 	 */
+	@Override
 	public XTerm makeDisEquals(XTerm left, XTerm right) {
 		assert left != null;
 		assert right != null;
@@ -128,11 +133,13 @@ public class XNativeConstraintSystem implements XConstraintSystem {
        Make and return left,right -- the logical conjunction.
        left and right should be boolean terms. (not checked.)
      */
+	@Override
 	public XTerm makeAnd(XTerm left, XTerm right) {
 		assert left != null;
 		assert right != null;
 		return new XAnd((XNativeTerm)left, (XNativeTerm)right);
 	}
+	@Override
 	public XTerm makeNot(XTerm arg) {
 		assert arg != null;
 		return new XNot((XNativeTerm)arg);

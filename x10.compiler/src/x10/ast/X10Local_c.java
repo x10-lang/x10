@@ -85,7 +85,7 @@ public class X10Local_c extends Local_c {
             if (origin!=null) { // origin = PlaceChecker.here();
                 final XConstrainedTerm placeTerm = context.currentPlaceTerm();
                 final XTerm currentPlace = placeTerm.term();
-                XConstraint constraint = ConstraintManager.getConstraintSystem().mkConstraint();;
+                XConstraint constraint = ConstraintManager.getConstraintSystem().makeConstraint();;
                 boolean isOk = false;
                 constraint.addBinding(origin,currentPlace);
                 if (placeTerm.constraint().entails(constraint)) {

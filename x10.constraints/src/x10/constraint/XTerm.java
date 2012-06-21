@@ -15,8 +15,9 @@ import java.io.Serializable;
 
 /**
  * Constraints constrain XTerms. Thus XTerms are the basic building blocks 
- * of constraints.This class is the root class of constraint terms.
- * Class should not have any state.
+ * of constraints.This interface should be implemented by the terms specific to 
+ * all constraint systems. Two different implementations of XTerm should *never* 
+ * be mixed. 
  * 
  * @author njnystrom
  * @author vj

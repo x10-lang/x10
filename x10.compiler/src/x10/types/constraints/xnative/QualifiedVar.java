@@ -37,7 +37,9 @@ public class QualifiedVar extends XNativeField<Type> implements XVar, CQualified
      * is A.
      * @return
      */
+    @Override
     public Type type() {return field;}
+    @Override
     public XVar var() {return receiver;}
 
     @Override 
@@ -46,6 +48,7 @@ public class QualifiedVar extends XNativeField<Type> implements XVar, CQualified
             ? copyReceiver((XVar) y) : super.subst(y, x, propagate);
     }
 
+    @Override
     public boolean equals(Object x) {
         if (! (x instanceof QualifiedVar)) return false;
         QualifiedVar o = (QualifiedVar) x;

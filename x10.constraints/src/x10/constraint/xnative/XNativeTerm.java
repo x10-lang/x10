@@ -41,6 +41,7 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 	 * @param x
 	 * @return
 	 */
+	@Override
 	public XNativeTerm subst(XTerm y, XVar x) {
 		return subst(y, x, true);
 	}
@@ -50,6 +51,7 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 	 * Terms a&&b, a||b, a==b etc must return false.
 	 * @return
 	 */
+	@Override
 	public abstract boolean okAsNestedTerm();
 
 	// int nextId = 0;
@@ -84,6 +86,7 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 	 * Default no; should be overridden by subclasses representing eqvs.
 	 * @return true if it is, false if it isn't.
 	 */
+	@Override
 	public boolean hasEQV() {return false;}
 	
 	/**
@@ -124,6 +127,7 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 	 * 
 	 * @return true -- if this term represents an atomic formula
 	 */
+	@Override
 	public boolean isAtomicFormula() {return false;}
 
 
@@ -132,6 +136,7 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 	 * @param v -- the variable being checked.
 	 * @return true if v occurs in this
 	 */
+	@Override
 	public boolean hasVar(XVar v) {return true;}
 
 	/**
@@ -142,7 +147,9 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 	 */
 	abstract XPromise internIntoConstraint(XNativeConstraint constraint, XPromise last);
 
+	@Override
 	public abstract int hashCode();
+	@Override
 	public abstract boolean equals(Object o);
 
     /**
@@ -151,6 +158,7 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
      * @return If the visitor didn't return any new child, then we return "this"
      *  (otherwise we create a clone with the new children)
      */
+	@Override
     public XNativeTerm accept(TermVisitor visitor) {
         // The default implementation for "leave" terms (that do not have any children)
         XNativeTerm res = (XNativeTerm)visitor.visit(this);
@@ -182,13 +190,19 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
      */
     public abstract XPromise nfp(XNativeConstraint c);
     
+    @Override
     public boolean isLit()   {return false;} 
+    @Override
     public boolean isSelf()  {return false;}
+    @Override
     public boolean isThis()  {return false;}
+    @Override
     public boolean isField() {return false;}
+    @Override
     public boolean isBoolean() {
     	return this == XNativeLit.TRUE || this == XNativeLit.FALSE;
     }
+    @Override
     public String toString() {
     	return "Native term !!" + this.toString(); 
     }

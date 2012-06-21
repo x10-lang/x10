@@ -36,10 +36,12 @@ public class XNativeLit extends XNativeVar implements XLit  {
     public static XNativeLit NULL = new XNativeLit(null);
 
 	public XNativeLit(Object l) {val = l;}
+	@Override
 	public Object val() {return val;}
 	/**
 	 * Pro-actively intern literals since they may end up having fields.
 	 */
+	@Override
 	public XPromise nfp(XNativeConstraint c) {
 		assert c != null;
 		XPromise p = null;
@@ -54,12 +56,16 @@ public class XNativeLit extends XNativeVar implements XLit  {
 	}
 	// public boolean hasDisBindings() { return false; }
 
+	@Override
 	public XTermKind kind()  {return XTermKind.LITERAL;}
+	@Override
 	public List<XNativeEQV> eqvs() {return Collections.emptyList();}
 
 	@Override
 	public int prefersBeingBound() {return XNativeTerm.TERM_MUST_NOT_BE_BOUND;}
+	
 	public String toString(String prefix) {return toString();}
+	@Override
 	public String toString() {
 	    if (val == null)              return "null";
 	    if (val instanceof String)    return "\"" + val.toString() + "\"";
@@ -69,10 +75,14 @@ public class XNativeLit extends XNativeVar implements XLit  {
 	    return val.toString();
 	}
 
+	@Override
 	public int hashCode() {return ((val == null) ? 0 : val.hashCode());}
+	@Override
 	public boolean okAsNestedTerm() { return true;}
+	@Override
 	public boolean hasVar(XVar v) { return v.equals(this);}
 
+	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
 	    if (!(o instanceof XNativeLit)) return false;
@@ -84,10 +94,13 @@ public class XNativeLit extends XNativeVar implements XLit  {
 	public XNativeTerm subst(XTerm y, XVar x, boolean propagate) {
 	    return super.subst(y, x, propagate);
 	}
+	
+	@Override
 	public String instance() {return toString();}
 
 	XNativeVar[] vars;
 	/** In case this is a field selection x.f1...fn, return x, x.f1, x.f1.f2, ... x.f1.f2...fn */
+	@Override
 	public XNativeVar[] vars() {
 	    if (vars==null) vars = new XNativeVar[]{this};
 	    return vars;

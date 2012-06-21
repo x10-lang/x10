@@ -22,15 +22,17 @@ public class XNativeTypeLit extends XNativeLit implements XTypeLit {
 	public XNativeTypeLit(Type l) {
 		super(l);
 	}
-
+	@Override
 	public Type type() {
 		return (Type) val;
 	}
 
+	@Override
 	public boolean hasVar(XVar v) {
 		return Types.hasVar(type(), v);
 	}
 
+	@Override
 	public XNativeTypeLit subst(XTerm y, XVar x, boolean propagate) {
 		XNativeTypeLit n = (XNativeTypeLit) super.subst(y, x, propagate);
 		Type newVal = n.type();

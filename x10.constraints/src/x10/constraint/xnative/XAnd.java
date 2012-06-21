@@ -29,9 +29,10 @@ public class XAnd extends XNativeFormula<String> implements x10.constraint.XAnd 
     public XAnd(XNativeTerm left, XNativeTerm right) {
     	super(name, asExprName, false, left, right);
     }
-    
+    @Override
 	public XPromise internIntoConstraint(XNativeConstraint c, XPromise last) {
 	    return super.internIntoConstraint(c, last);
 	}
-	@Override public String toString() {return left() + "&&" + right();}
+	@Override
+	public String toString() {return left() + "&&" + right();}
 }

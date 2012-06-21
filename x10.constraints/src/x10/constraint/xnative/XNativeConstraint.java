@@ -405,15 +405,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     
     public void setInconsistent() { this.consistent = false; }  
    
-    /**
-	 * Return the least upper bound of this and other. That is, the resulting 
-	 * constraint has precisely the constraints entailed by both this and other.
-	 * (Note: An inconsistent constraint entails every constraint, and 
-	 * a valid constraint entails only those constraints such as x=x that 
-	 * every constraint entails.)
-	 * @param other
-	 * @return
-	 */
+
     public XConstraint leastUpperBound(XConstraint other) {
         if (! consistent)         return other;
         if (! other.consistent()) return this;
@@ -430,13 +422,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
        	return result;
        }
     
-    /**
-     * Return those subset of constraints in the base set of other that are 
-     * <em>not</em> implied by this. That is, return the residue
-     * r such that (r and this) implies other.
-     * @param other -- must be checked for consistency before call is made
-     * @return
-     */
+
     public XConstraint residue(XConstraint other) {
         assert other.consistent();
         XNativeConstraint result = new XNativeConstraint();
@@ -467,15 +453,6 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     }
     
 
-	/**
-	 * Return a list of bindings t1-> t2 equivalent to the current
-	 * constraint except that equalities involving only EQV variables are 
-	 * ignored if dumpEQV is false, an equalities involving only fake fields
-	 * are ignored if hideFake is true.
-	 * 
-	 * @return
-	 */
-
     public void visit( XGraphVisitor xg) {
         if (roots == null) return;
         Collection<XPromise> values = roots.values();
@@ -498,6 +475,14 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         visit(cg);
         return cg.result();
     }
+	/**
+	 * Return a list of bindings t1-> t2 equivalent to the current
+	 * constraint except that equalities involving only EQV variables are 
+	 * ignored if dumpEQV is false, and equalities involving only fake fields
+	 * are ignored if hideFake is true.
+	 * 
+	 * @return
+	 */
     public List<XTerm> extConstraintsHideFake() {
         ConstraintGenerator cg = new ConstraintGenerator(true, true);
         visit(cg);

@@ -32,7 +32,9 @@ public class XNativeUQV extends XRoot implements XUQV {
         return false;
     }
 
+    @Override
     public boolean okAsNestedTerm() {return true;}
+    @Override
     public boolean hasVar(XVar v) {return equals(v);}
     @Override public String toString() {return str == null ? "uqv#" + num: str;}
 }

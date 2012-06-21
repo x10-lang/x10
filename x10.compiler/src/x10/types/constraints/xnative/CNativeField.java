@@ -64,7 +64,9 @@ public class CNativeField extends XNativeField<Def> implements CField, Typed {
      * Return the Def associated with this field.
      * @return
      */
+    @Override
     public Def def() {return field;}
+    @Override
     public XVar thisVar() {
         if (field instanceof X10FieldDef)
             return ((X10ClassDef) Types.get(((X10FieldDef) field).container()).toClass().def()).thisVar();
@@ -74,6 +76,7 @@ public class CNativeField extends XNativeField<Def> implements CField, Typed {
      * Return the type of this field.
      * @return
      */
+    @Override
     public Type type() {
         if (field instanceof MethodDef) return Types.get(((MethodDef) field).returnType());
         if (field instanceof VarDef)    return Types.get(((VarDef) field).type());

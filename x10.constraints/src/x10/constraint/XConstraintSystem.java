@@ -2,9 +2,13 @@ package x10.constraint;
 
 import java.util.List;
 
-
+/**
+ * Interface for the factory class for XConstraints and XTerms. 
+ * @author lshadare
+ *
+ */
 public interface XConstraintSystem {
-	public XConstraint mkConstraint(); 
+	public XConstraint makeConstraint(); 
 	public XConstraint makeTrueConstraint();
 	public XLit xtrue(); 
 	public XLit xfalse(); 
@@ -50,7 +54,10 @@ public interface XConstraintSystem {
 	public XTerm makeDisEquals(XTerm left, XTerm right);
 	public XTerm makeAnd(XTerm left, XTerm right);
 	public XTerm makeNot(XTerm arg);
-
+	/**
+	 * Make a local variable with the given name
+	 * @param  name variable name
+	 */
 	public <T> XLocal<T> makeLocal(T name);
 
 }

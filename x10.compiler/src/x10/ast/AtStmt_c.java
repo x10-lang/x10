@@ -162,7 +162,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         boolean isFinishPlace = false;
         AtDef def = atDef();
         if (null != def.finishPlaceTerm()) {
-        	XConstraint constraint = ConstraintManager.getConstraintSystem().mkConstraint();;
+        	XConstraint constraint = ConstraintManager.getConstraintSystem().makeConstraint();;
             constraint.addBinding(def.finishPlaceTerm().term(),def.placeTerm().term());
             if (def.placeTerm().constraint().entails(constraint)) {
                 isFinishPlace = true;

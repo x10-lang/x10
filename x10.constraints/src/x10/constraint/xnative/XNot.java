@@ -27,7 +27,7 @@ public class XNot extends XNativeFormula<String> implements x10.constraint.XNot 
     public XNot(XNativeTerm arg) {
     	super(name, asExprName, false, arg);
     }
-    
+    @Override
 	public XPromise internIntoConstraint(XNativeConstraint c, XPromise last)  {
 		assert false : "Should not intern " + this;
 		return super.internIntoConstraint(c, last);

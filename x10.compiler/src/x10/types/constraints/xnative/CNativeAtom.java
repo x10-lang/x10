@@ -31,7 +31,9 @@ public class CNativeAtom extends XNativeFormula<MemberDef> implements CAtom {
      * Return the MemberDef that this CAtom is built on.
      * @return
      */
+    @Override
     public MemberDef def() {return op;}
+    @Override
     public MemberDef exprDef() {return asExprOp;}
  
 }

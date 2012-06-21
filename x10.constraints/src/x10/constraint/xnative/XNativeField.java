@@ -33,7 +33,7 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
     // used by XPromise_c to determine if this field should occur in the output
     // representation of a constraint or not. hidden true for fake fields.
     private boolean hidden;
-
+    @Override
     public XNativeTerm accept(TermVisitor visitor) {
         XNativeTerm res = (XNativeTerm)visitor.visit(this);
         if (res!=null) return res;
@@ -55,8 +55,11 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
         this.hasEQV = this.receiver.hasEQV();
     }
 
+    
     public boolean isHidden() { return hidden; }
-    @Override public boolean hasEQV(){ return hasEQV;}
+    @Override 
+    public boolean hasEQV(){ return hasEQV;}
+    @Override
     public XTermKind kind() { return XTermKind.FIELD_ACCESS; }
     
     @Override
@@ -77,8 +80,11 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
         return result;
     }
 
+    @Override
     public boolean okAsNestedTerm() { return true; }
+    @Override
     public List<XNativeEQV> eqvs() { return receiver.eqvs();}
+    @Override
     public T field() { return field;}
 
     /** 
@@ -86,7 +92,7 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
      * @param newReceiver
      * @return
      */
-    
+    @Override
     public XNativeField<T> copyReceiver(XVar newReceiver) {
     	if (newReceiver == receiver) return this;
         return new XNativeField<T>(newReceiver, field, hidden);
@@ -106,11 +112,15 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
     }
     */
     public String name() { return field.toString();}
+    @Override
     public boolean hasVar(XVar v) { return equals(v) || receiver.hasVar(v);}
+    @Override
     public XNativeVar receiver() { return receiver; }
+    @Override
     public int hashCode() { return receiver.hashCode() + field.hashCode(); }
 
     @SuppressWarnings("unchecked")
+    @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof XNativeField) {
@@ -119,7 +129,7 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
         }
         return false;
     }
-
+    @Override
     public String toString() {
         return (receiver == null ? "" : receiver.toString() + ".") + field;
     }
@@ -135,11 +145,13 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
 
     // memoize rootVar and path.
     protected XNativeVar[] vars;
+    @Override
     public XNativeVar[] vars() {
         if (vars == null) initVars();
         return vars;
     }
 
+    @Override
     public XNativeVar rootVar() {
         if (vars == null) initVars();
         return vars[0];

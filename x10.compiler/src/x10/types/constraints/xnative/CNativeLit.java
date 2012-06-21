@@ -15,7 +15,7 @@ import polyglot.util.Position;
 import x10.constraint.XLit;
 import x10.constraint.xnative.XNativeLit;
 import x10.types.constraints.CLit;
-
+import x10.types.constraints.ConstraintManager;
 
 /**
  * An optimized representation of literals.
@@ -33,6 +33,7 @@ public class CNativeLit extends XNativeLit implements CLit, Typed {
     /**
      * Return the type of the literal.
      */
+    @Override
     public Type type() {return type;}
 
     @Override
@@ -46,19 +47,14 @@ public class CNativeLit extends XNativeLit implements CLit, Typed {
         return ts.typeEquals(Types.baseType(type), Types.baseType(other.type), ts.emptyContext());
     }
 
-    @Override public String toString() {
+    @Override 
+    public String toString() {
         if (type != null && type.isUnsignedNumeric()) {
             return new IntLit_c(Position.COMPILER_GENERATED, 
-            					getIntLitKind(type), ((Number) val).longValue()).toString();
+            					ConstraintManager.getConstraintSystem().getIntLitKind(type), 
+            					((Number) val).longValue()).toString();
         }
         return super.toString();
     }
-    // FIXME!!
-	private Kind getIntLitKind(Type type2) {
-		assert false; 
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 
 }

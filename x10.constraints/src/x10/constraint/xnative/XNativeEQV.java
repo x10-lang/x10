@@ -38,13 +38,13 @@ public class XNativeEQV extends XRoot implements XEQV {
     
     @Override public XTermKind kind() { return XTermKind.LOCAL;}
     @Override public int prefersBeingBound() {return XNativeTerm.TERM_PREFERS_BEING_BOUND;}
-    public boolean hasVar(XVar v) {return equals(v);}
+    @Override public boolean hasVar(XVar v) {return equals(v);}
     @Override public boolean hasEQV() {return true;}
     @Override public boolean isEQV() {return true;}
     @Override public List<XNativeEQV> eqvs() {return Collections.<XNativeEQV>singletonList(this);}
 
 
-    public boolean okAsNestedTerm() {return true;}
+    @Override public boolean okAsNestedTerm() {return true;}
     @Override public int hashCode() {return num;}
     @Override
     public boolean equals(Object o) {

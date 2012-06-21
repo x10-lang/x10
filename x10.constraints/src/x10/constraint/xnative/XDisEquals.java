@@ -27,6 +27,7 @@ public class XDisEquals extends XNativeFormula<String> implements x10.constraint
     public XDisEquals(XNativeTerm left, XNativeTerm right) {
 		super(name, asExprName, false, left, right);
 	}
+    @Override
 	public XPromise internIntoConstraint(XNativeConstraint c, XPromise last)  {
 	    XPromise p = c.intern((XNativeTerm)left());
 	    if (p == null) return null;
@@ -44,7 +45,8 @@ public class XDisEquals extends XNativeFormula<String> implements x10.constraint
 	    }
 	}
 	
-	@Override public String toString() {return left() + "!=" + right();}
+	@Override 
+	public String toString() {return left() + "!=" + right();}
 
 }
 

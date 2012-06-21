@@ -33,6 +33,7 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	    public XNativeTerm[] arguments;
 	    public final boolean isAtomicFormula;
 
+	    @Override
         public XNativeTerm accept(TermVisitor visitor) {
             XNativeTerm res = (XNativeTerm)visitor.visit(this);
             if (res!=null) return res;
@@ -68,12 +69,13 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	        }
 	        this.arguments = newargs; 
 	    }
-	    
+	    @Override
 	    public boolean isAtomicFormula() {
 	        return isAtomicFormula;
 	    }
-	    
+	    @Override
 	    public XTermKind kind() { return XTermKind.FN_APPLICATION;}
+	    @Override
 	    public List<XNativeEQV> eqvs() {
 	        List<XNativeEQV> eqvs = new ArrayList<XNativeEQV>();
 	        for (XNativeTerm arg : arguments) {
@@ -106,41 +108,47 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	        n.arguments = newArgs;
 	        return n;
 	    }
-
+	    @Override
 	    public T operator() {
 	        return op;
 	    }
-	    
+	    @Override
 	    public boolean isUnary() {
 	        return arguments.length == 1;
 	    }
+	    @Override
 	    public boolean isBinary() {
 	        return arguments.length == 2;
 	    }
+	    @Override
 	    public XNativeTerm unaryArg() {
 	        if (isUnary())
 	            return arguments[0];
 	        return null;
 	    }
+	    @Override
 	    public XNativeTerm left() {
 	        if (isBinary())
 	            return arguments[0];
 	        return null;
 	    }
+	    @Override
 	    public XNativeTerm right() {
 	        if (isBinary())
 	            return arguments[1];
 	        return null;
 	    }
-
+	    
+	    @Override
 	    public XNativeTerm[] arguments() { return arguments; }
 
+	    @Override
 	    public boolean hasVar(XVar v) {
 	        for (XNativeTerm arg : arguments) 
 	            if (arg.hasVar(v)) return true;
 	        return false;
 	    }
-	    
+	    @Override
 	    public XPromise internIntoConstraint(XNativeConstraint c, XPromise last)  {
 	        assert last == null;
 	        // Evaluate left == right, if both are literals.
@@ -164,6 +172,7 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	        return result;
 	    }
 
+	    @Override
 	    public String toString() {
 	        StringBuilder sb = new StringBuilder();
 	        sb.append(op);
@@ -177,7 +186,7 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	        sb.append(")");
 	        return sb.toString();
 	    }
-
+	    @Override
 	    public int hashCode() {
 	        int hash = 29;
 	        for (XNativeTerm arg: arguments)
@@ -185,6 +194,7 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	        return hash;
 	    }
 	    
+	    @Override
 	    public boolean hasEQV() {
 	        for (XNativeTerm arg: arguments) if (arg.hasEQV()) return true;
 	        return false;
@@ -194,6 +204,7 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	     * An XFormula is equal t another object if it is == to it, or the other object
 	     * is an XFormula with equal ops and equal args.
 	     */
+	    @Override
 	    public boolean equals(Object o) {
 	        if (this == o) return true;
 	        if (o instanceof XNativeFormula) {
@@ -210,10 +221,11 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	        }
 	        return false;
 	    }
-
-	    public XPromise toPromise() {throw new Error("Not implemented yet.");}
+	    
+	    @Override
 	    public boolean okAsNestedTerm() { return false;}
-	    @Override public XPromise nfp(XNativeConstraint c) {
+	    @Override 
+	    public XPromise nfp(XNativeConstraint c) {
 	    	assert c!=null;
 	    	XPromise p;
 	    	if (c.roots == null) {
@@ -231,7 +243,7 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 			}
 			return p.lookup();
 	    }
-
+	    @Override
 		public T asExprOperator() {
 			return asExprOp; 
 		}

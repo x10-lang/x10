@@ -35,5 +35,6 @@ public class CNativeSelf extends XRoot implements CSelf {
         if (o instanceof CNativeSelf) return num == ((CNativeSelf) o).num;
         return false;
     }
+    @Override
     public String toString() {return SELF_VAR_PREFIX;}
 }

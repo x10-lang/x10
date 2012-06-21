@@ -20,14 +20,16 @@ public abstract class XNativeVar extends XNativeTerm implements XVar  {
     /** In case this is a field selection x.f1...fn, return x, 
 	 * x.f1, x.f1.f2, ... x.f1.f2...fn 
 	 * */
+    @Override
 	public XNativeVar[] vars() {return new XNativeVar[] { this };}
 	public XNativeVar() {super();}
+	@Override
 	public XTermKind kind() { return XTermKind.LOCAL;}
 	
 	@Override public XNativeTerm subst(XTerm y, XVar x, boolean propagate) {
 		return equals(x) ? (XNativeTerm)y : super.subst(y, x, propagate);
 	}
-	
+	@Override
 	public String toString() {
 		return this.toString(); 
 	}

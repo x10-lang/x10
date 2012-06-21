@@ -15,7 +15,7 @@ import x10.constraint.XVar;
 
 public class XSmtConstraintSystem implements XConstraintSystem {
 
-	public XConstraint mkConstraint() {
+	public XConstraint makeConstraint() {
 		// TODO Auto-generated method stub
 		return null;
 	}

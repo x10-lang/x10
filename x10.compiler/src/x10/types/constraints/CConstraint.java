@@ -70,9 +70,9 @@ import x10.types.constraints.visitors.CEntailsVisitor;
  * the self variable and the this variable.
  * 
  * <p>Further, the XTerms occurring in an XConstraint are created using static 
- * methods on the class XTerms. In particular they carry type information in 
- * their internal XName. This information is used to recursively materialize 
- * more constraints from the given constraint. 
+ * methods on the class CConstraintSystem, accessed through the ConstraintManager. 
+ * In particular they carry type information in their internal XName. This information 
+ * is used to recursively materialize more constraints from the given constraint. 
  * 
  * @author vj
  *
@@ -89,6 +89,7 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @return
      */
     public XVar selfVarBinding(); 
+    @Override
     public XVar thisVar(); 
     public boolean hasPlaceTerm();
 
@@ -101,6 +102,7 @@ public interface CConstraint extends XConstraint, ThisVar {
      * as the selfVar for the original constraint.
      * <p> Always returns a non-null constraint.
      */
+    @Override
     public CConstraint copy();
 
 
@@ -235,14 +237,6 @@ public interface CConstraint extends XConstraint, ThisVar {
      */
     public CConstraint substitute(XTerm[] ys, XVar[] xs) throws XFailure;
 
-    /** If other is not inconsistent, and this is consistent,
-     * checks that each binding X=t in other also exists in this.
-     * TODO: Improve performance by doing entailment in place
-     * without getting other term's extConstraints.
-     * @param other
-     * @return
-     */
-
     public boolean entails(CConstraint other, ConstraintMaker sigma);
 
     public XTerm bindingForSelfField(FieldDef fd);
@@ -261,7 +255,7 @@ public interface CConstraint extends XConstraint, ThisVar {
     public XTerm bindingForSelfField(FieldInstance f);
 
 
-    /* Return the least upper bound of this and other. That is, the resulting constraint has precisely
+    /** Return the least upper bound of this and other. That is, the resulting constraint has precisely
      * the constraints entailed by both this and other.
      * @param other
      * @return
