@@ -953,8 +953,8 @@ public class SparseCSC extends Matrix {
 	 */
 	public def selfT() : SparseCSC(N,M) {
 		val nspa = new SparseCSC(N,M, this.getStorage()) as SparseCSC(N,M);
-		val sbdr = SparseCSCBuilder.make(N,M);
-		sbdr.initTransposeFrom(this).toSparseCSC(nspa);
+		val sbdr = new SparseCSCBuilder(nspa);
+		sbdr.initTransposeFrom(this).toSparseCSC();
 
 		return nspa;
 	}
@@ -975,8 +975,8 @@ public class SparseCSC extends Matrix {
 	 * (if "this" is not used as the input)
 	 */
 	public def T(spa:SparseCSC(N,M)) : void {
-		val sbdr = SparseCSCBuilder.make(N,M);
-		sbdr.initTransposeFrom(this as SparseCSC(sbdr.N,sbdr.M)).toSparseCSC(spa);
+		val sbdr = new SparseCSCBuilder(spa);
+		sbdr.initTransposeFrom(this as SparseCSC(sbdr.N,sbdr.M)).toSparseCSC();
 	}
 	
 	//=====================================================================

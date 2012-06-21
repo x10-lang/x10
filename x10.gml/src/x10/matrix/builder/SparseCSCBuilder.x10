@@ -33,7 +33,7 @@ public type SparseCSCBuilder(m:Int,n:Int)=SparseCSCBuilder{self.M==m,self.N==n};
 public type SparseCSCBuilder(m:Int)=SparseCSCBuilder{self.M==self.N,self.M==m};
 
 /**
- * 
+ * Sparse matrix builder uses different memory space from SparseCSC instance. 
  */
 public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	
@@ -58,25 +58,41 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	//=======================================================
 	public var nzcount:Int=0;
 	public val nzcol:Array[ArrayList[NonZeroEntry]](1){rail};
+	public val output:SparseCSC(M,N);
 
 	//=======================================================
-	public def this(leadDim:Int, cols:Array[ArrayList[NonZeroEntry]](1){rail}) {
+	public def this(leadDim:Int, cols:Array[ArrayList[NonZeroEntry]](1){rail}, spa:SparseCSC(leadDim, cols.size)) {
 		property(leadDim, cols.size);
 		nzcol = cols;
+		output = spa;//SparseCSC.make(M, N, 0); 
 	}
-	public def this(sbld:SparseCSCBuilder) {
-		property(sbld.M, sbld.N);
-		nzcol = sbld.nzcol;
+
+	
+	
+	/**
+	 * Creating sparse builder and using the input sparse to store the output.
+	 * @param spa    SparseCSC instance to store the output
+	 */
+	public def this(spa:SparseCSC) {
+		property(spa.M, spa.N);
+		nzcol =  new Array[ArrayList[NonZeroEntry]](spa.N, (i:Int)=>new ArrayList[NonZeroEntry]());
+		output = spa;
 	}
 	
-	public def this(leadDim:Int, ncols:Int, cols:Array[ArrayList[NonZeroEntry]](1){rail}) {
-		property(leadDim, ncols);
-		nzcol = cols;
+	/**
+	 * Construct a sparse builder from the given sparse builder instance.
+	 * This constructor is used in constructing super class of a symmetric or triangular sparse matrix builder
+	 * which are derived from Sparse builder.
+	 */
+	public def this(bdr:SparseCSCBuilder) {
+		property(bdr.M, bdr.N);
+		nzcol = bdr.nzcol;
+		output = bdr.output;
 	}
 	
 	public static def make(m:Int, n:Int):SparseCSCBuilder(m,n) {
 		val cols = new Array[ArrayList[NonZeroEntry]](n, (i:Int)=>new ArrayList[NonZeroEntry]());
-		return new SparseCSCBuilder(m, cols);
+		return new SparseCSCBuilder(m, cols,  SparseCSC.make(m, n, 0));
 	}
 	//=======================================================
 
@@ -390,17 +406,16 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 	 * sorted in column-major first, which could be time-consuming if nonzero entries
 	 * are added in a different order other then column-major.
 	 */
-	public def toSparseCSC() : SparseCSC(M,N) {
-		val spa = SparseCSC.make(M, N, nzcount);
-		toSparseCSC(spa);
-		return spa;
-	}
-	
-	public def toSparseCSC(spa:SparseCSC(M,N)) {
+	public def toSparseCSC() : SparseCSC(output) {
+		//val spa = SparseCSC.make(M, N, nzcount);
 		//sortColMajor();
 		
-		val ca  = spa.getStorage();
-		val c2d = spa.ccdata;
+		val ca  = output.getStorage();
+		val c2d = output.ccdata;
+		// How to deal about when sparse compressed array is not big enough
+		if (ca.storageSize() < nzcount) {
+			output.testIncStorage(nzcount);
+		}
 		
 		var cnt:Int = 0;  //dest count at CompressArray
 		for (var l:Int=0; l<N; l++) {
@@ -419,6 +434,7 @@ public class SparseCSCBuilder(M:Int, N:Int) implements MatrixBuilder {
 			cline.length = cnt - cline.offset;
 		}
 		ca.count = cnt;
+		return output;
 	}
 	
 	public def toMatrix():Matrix(M,N) = toSparseCSC() as Matrix(M,N);

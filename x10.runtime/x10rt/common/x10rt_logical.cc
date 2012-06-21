@@ -872,6 +872,7 @@ void x10rt_lgl_finalize (void)
 
     /* discard global node database */
     for (x10rt_place i=0 ; i<x10rt_lgl_nhosts() ; ++i) {
+        free(g.child[i]);
     }
     free(g.child);
     free(g.type);

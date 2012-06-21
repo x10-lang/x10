@@ -25,6 +25,10 @@ public type DenseBuilder(m:Int,n:Int)=DenseBuilder{self.M==m,self.N==n};
 public class DenseBuilder(M:Int, N:Int) implements MatrixBuilder {
 	public val dense:DenseMatrix;
 	
+	/**
+	 * Creat dense matrix builder and using specified dense as output.
+	 * @param  den    Output dense matrix instance
+	 */
 	public def this(den:DenseMatrix) {
 		property(den.M,den.N);
 		dense = den;

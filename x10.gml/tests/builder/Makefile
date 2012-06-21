@@ -10,7 +10,7 @@
 ###################################################
 # Source and target file
 ###################################################
-target_list = TestTriBuilder TestSymBuilder
+target_list = TestTriBuilder TestSymBuilder TestDistBuilder TestDistSymBuilder
 
 target		= TestSymBuilder
 

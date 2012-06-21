@@ -69,7 +69,7 @@ public class X10CCompilerOptions extends x10.X10CompilerOptions {
         String libdir = x10_dist + File.separator + "lib";        
         String stdlibdir = x10_dist + File.separator + "stdlib";
         String x10_jar = "x10.jar"; // FIXME: is this overridable?
-        String math_jar = System.getProperty("x10c.math.jar", "commons-math-2.2.jar");
+        String math_jar = System.getProperty("x10c.math.jar", "commons-math3-3.0.jar");
         default_output_classpath = stdlibdir + File.separator + x10_jar + File.pathSeparator +
             libdir + File.separator + math_jar;
         output_classpath = default_output_classpath;

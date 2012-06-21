@@ -138,12 +138,12 @@ public class SymDenseBuilder extends DenseBuilder{self.M==self.N} implements Mat
 	public def checkSymmetric():Boolean =
 		SymDense.test(dense);
 	
-	public def toMatrix():Matrix = dense as Matrix;
 	public def toSymDense() : SymDense(M) {
 		val sym = new SymDense(M, dense.d);
 		return sym as SymDense(M);
 	}
 	
-	
+	public def toMatrix():Matrix = dense as Matrix;
+
 	
 }
