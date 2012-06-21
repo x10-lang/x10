@@ -12,7 +12,7 @@
     <property name="lpg.jar" value="lpg.jar"/>
     <property name="lpg.jar.url" value="http://x10.sourceforge.net/dependencies/lpg.runtime.java_2.0.22.jar"/>
     <property name="ecj.jar" value="ecj.jar"/>
-    <property name="ecj.jar.url" value="http://x10.sourceforge.net/dependencies/ecj-3.5.1.jar"/>
+    <property name="ecj.jar.url" value="http://x10.sourceforge.net/dependencies/ecj-3.7.2.jar"/>
     <property name="wala.jar" value="com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala.jar.url" value="http://x10.sourceforge.net/dependencies/com.ibm.wala.cast.java_1.0.0.201101071300.jar"/>
     <property name="wala2.jar" value="com.ibm.wala.cast_1.0.0.201101071300.jar"/>
