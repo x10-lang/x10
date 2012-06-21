@@ -41,9 +41,17 @@ public type SymSparseBuilder(m:Int)=SymSparseBuilder{self.M==m};
 //public val builder:SparseCSCBuilder(M,M);
 public class SymSparseBuilder extends SparseCSCBuilder{self.M==self.N} implements MatrixBuilder {
 	//===================================
-
+	
+	/**
+	 * Cast Sparse matrix builder to symmetric sparse matrix, while using the 
+	 * same memory allocation space.
+	 */
 	public def this(sbld:SparseCSCBuilder{self.M==self.N}) {
 		super(sbld);
+	}
+	
+	public def this(spa:SparseCSC{self.M==self.N}) {
+		super(spa);
 	}
 	
 	//=====================================

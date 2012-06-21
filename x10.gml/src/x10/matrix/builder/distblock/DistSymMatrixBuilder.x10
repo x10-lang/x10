@@ -34,7 +34,7 @@ import x10.matrix.distblock.BlockSet;
 
 import x10.matrix.builder.MatrixBuilder;
 
-public type DistSymMatrixBuilder(b:DistMatrixBuilder)=DistSymMatrixBuilder{self==b};
+public type DistSymMatrixBuilder(b:DistSymMatrixBuilder)=DistSymMatrixBuilder{self==b};
 public type DistSymMatrixBuilder(m:Int)=DistSymMatrixBuilder{self.M==m,self.N==m};
 
 /*
@@ -59,7 +59,8 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 	public static def make(pg:SymGrid, dp:DistMap):DistSymMatrixBuilder(pg.M) {
 		//Remote capture: partitioning and distribution
 		val bld = DistMatrixBuilder.make(pg as Grid, dp);
-		return bld as DistSymMatrixBuilder;
+		val sbd = new DistSymMatrixBuilder(bld as DistMatrixBuilder{self.M==self.N});
+		return sbd as DistSymMatrixBuilder(pg.M);
 	}
 	
 	/**
@@ -73,40 +74,49 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 	}
 	
 	//===============================
-	public def init(initFun:(Int,Int)=>Double) : DistMatrixBuilder(this) {
+	/**
+	 * Initialize distributed symmetric matrix using symmetric initial function.
+	 * @param initFun   Matrix entry value generator function, mapping row-column to double. 
+	 */
+	public def init(initFun:(Int,Int)=>Double) : DistSymMatrixBuilder(this) {
 		finish ateach (d:Point in Dist.makeUnique()) {
 			val itr = dmat.handleBS().iterator();
 			val pgrid = dmat.handleBS().getGrid();
 			while (itr.hasNext()) {
 				val blk = itr.next();
-				blk.init(initFun);
+				if (blk.myRowId != blk.myColId) {
+					val bdr = blk.getBuilder();
+					bdr.init(initFun);
+				} else  {
+					val bdr = blk.getSymBuilder();
+					bdr.init(initFun);
+				}
 			}
 		}
 		return this;
 	}
 	
 	//==============================
-	public def initRandom() : DistMatrixBuilder(this) {
-		finish ateach (d:Point in Dist.makeUnique()) {
-			val itr = dmat.handleBS().iterator();
-			while (itr.hasNext()) {
-				itr.next().initRandom();
-			}
-		}
-		return this;
-	}
 
-	public def initRandom(halfDensity:Double, f:(Int,Int)=>Double) : DistMatrixBuilder(this) {
+	/**
+	 * Used for testing purpose. Initialize distributed symmetric matrix in random locations with value generator function and
+	 * sparsity 
+	 * @param halfDensity       nonzero sparsity
+	 * @param f                 nonzero value generator function.
+	 */
+	public def initRandom(nzDensity:Double, f:(Int,Int)=>Double) : DistSymMatrixBuilder(this) {
+		
 		finish ateach (d:Point in Dist.makeUnique()) {
 			val itr = dmat.handleBS().iterator();
 			while (itr.hasNext()) {
 				val blk = itr.next();
-				//Only init the lower part
-				if (blk.myRowId > blk.myColId)
-					blk.initRandom(halfDensity, f);
-				else if (blk.myRowId == blk.myColId) {
-					val bld = blk.getSymBuilder();
-					bld.initRandom(halfDensity, f);
+				//Only init the lower triangular blocks
+				if (blk.myRowId > blk.myColId) {
+					val bdr = blk.getBuilder();
+					bdr.initRandom(nzDensity, f);
+				} else if (blk.myRowId == blk.myColId) {
+					val bdr = blk.getSymBuilder();
+					bdr.initRandom(nzDensity, f);
 				}
 			}
 		}
@@ -122,9 +132,9 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 			while (blkitr.hasNext()) {
 				val blk = blkitr.next();
 				if (toUpper) { 
-					if (blk.myRowId > blk.myColId) continue; //source
+					if (blk.myRowId >= blk.myColId) continue; //source
 				} else {
-					if (blk.myRowId < blk.myColId) continue;
+					if (blk.myRowId <= blk.myColId) continue;
 				}
 				//copy remote block to dstblk at here
 				val srcbid = dmat.handleBS().getGrid().getBlockId(blk.myColId, blk.myRowId);
@@ -132,12 +142,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 			
 				if (dstmat instanceof DenseMatrix) {
 					val dst = dstmat as DenseMatrix;
-					if (blk.myRowId == blk.myColId) {
-						if (toUpper)
-							SymDense.mirrorToUpper(dst);
-						else
-							SymDense.mirrorToLower(dst);
-					} else if (dstmat.M==dstmat.N) {
+					if (dstmat.M==dstmat.N) {
 						BlockSetRemoteCopy.copy(dmat.handleBS, srcbid, dst);
 						dst.selfT();
 					} else { 
@@ -147,15 +152,10 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 					}
 				} else if (dstmat instanceof SparseCSC) {
 					val dst = dstmat as SparseCSC;
-					if (blk.myRowId == blk.myColId) {
-						if (toUpper)
-							SymSparse.mirrorToUpper(dst);
-						else
-							SymSparse.mirrorToLower(dst);
-					} else {
-						BlockSetRemoteCopy.copy(dmat.handleBS, srcbid, dst); 
-						dst.selfT();
-					}
+					
+					BlockSetRemoteCopy.copy(dmat.handleBS, srcbid, dst); 
+					dst.selfT();
+					
 				} else {
 					throw new UnsupportedOperationException("Matrix type not supported in transpose");
 				}
@@ -168,6 +168,7 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 	public def mirrorToUpper() {
 		mirror(true);
 	}
+	
 	@Inline	
 	public def mirrorToLower() {
 		mirror(false);
@@ -198,11 +199,20 @@ public class DistSymMatrixBuilder extends DistMatrixBuilder{self.M==self.N} impl
 	public def checkSymmetric():Boolean = checkSymmetric(this.dmat);
 	//=====================================
 
-	public def toDistBlockMatrix():DistBlockMatrix(M,N) = dmat;
-		
-	
-	public def toMatrix():Matrix(M,N) = dmat as Matrix(M,N);
-		
+	//public def toDistBlockMatrix():DistBlockMatrix(M,N) = dmat;
+	public def toDistBlockMatrix():DistBlockMatrix(M,N) {
+		finish ateach (d:Point in Dist.makeUnique()) {
+			val itr = dmat.handleBS().iterator();
+			while (itr.hasNext()) {
+				val blk = itr.next();
+				val bdr =blk.getBuilder();
+				bdr.toMatrix();
+			}
+		}
+		return dmat;
+	}
 
 	
+	public def toMatrix():Matrix(M,N) = toDistBlockMatrix() as Matrix(M,N);
+
 }

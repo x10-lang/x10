@@ -19,10 +19,14 @@ import x10.util.StringBuilder;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
+import x10.matrix.RandTool;
+
 import x10.matrix.DenseMatrix;
-import x10.matrix.SymDense;
-import x10.matrix.TriDense;
-import x10.matrix.DenseBuilder;
+//import x10.matrix.SymDense;
+//import x10.matrix.TriDense;
+import x10.matrix.builder.DenseBuilder;
+import x10.matrix.builder.SymDenseBuilder;
+import x10.matrix.builder.TriDenseBuilder;
 
 /**
  * Dense block is used to build dense block matrix (at single place) or 
@@ -37,11 +41,7 @@ public class DenseBlock extends MatrixBlock {
 	public val dense:DenseMatrix;
 	public val builder:DenseBuilder(dense.M,dense.N);
 	//
-	//--------- Profiling ---------
-	//public var calcTime:Long=0;
-	//public var commTime:Long=0;
 
-	//public val block:DenseMatrix;
 	//===================================================================
 	/**
 	 * Construct a dense-matrix block instance with specified row index, column index and
@@ -54,7 +54,7 @@ public class DenseBlock extends MatrixBlock {
 	public def this(rid:Int, cid:Int, roff:Int, coff:Int, m:DenseMatrix) {
 		super(rid, cid, roff, coff);
 		dense = m;
-		builder = new DenseBuilder(dense);
+		builder = new DenseBuilder(dense);//
 	}
 
 	//---------------------------------------------------
@@ -115,13 +115,6 @@ public class DenseBlock extends MatrixBlock {
 	public def init(ival:Double):void {
 		dense.init(ival);
 	}
-	/**
-	 * Initialize matrix block data with input function, given offset on 
-	 * row and column.
-	 */
-	public def init(f:(Int, Int)=>Double):void {
-		dense.init(rowOffset, colOffset, f);
-	}
 	
 	/**
 	 * Initialize all elements in the matrix block with random values.
@@ -132,18 +125,24 @@ public class DenseBlock extends MatrixBlock {
 	}
 	
 	public def getBuilder():DenseBuilder(dense.M,dense.N) = builder;
-	
+	public def getSymBuilder():DenseBuilder{self.M==self.N} = new SymDenseBuilder(dense as DenseMatrix{self.M==self.N});
+	public def getTriBuilder(up:Boolean):DenseBuilder{self.M==self.N} = new TriDenseBuilder(up, dense as DenseMatrix{self.M==self.N});
+
 	public def initRandom(nonZeroDensity:Double) : void {
-		builder.initRandom(nonZeroDensity);
+		getBuilder().initRandom(nonZeroDensity, (Int,Int)=>RandTool.getRandGen().nextDouble());
 	}
 	
-	public def initRandomSym(halfDensity:Double) : void {
-		builder.initRandomSym(halfDensity);
-	}
-	
-	public def initRandomTri(halfDensity:Double, up:Boolean) : void {
-		builder.initRandomTri(halfDensity, up);
-	}
+
+	// 
+	// public def initRandomSym(halfDensity:Double) : void {
+	// 	val symbld = new SymDenseBuilder(dense as DenseMatrix{self.M==self.N});
+	// 	symbld.initRandom(halfDensity);
+	// }
+	// 
+	// public def initRandomTri(up:Boolean, halfDensity:Double) : void {
+	// 	val tribld = new TriDenseBuilder(up, dense as DenseMatrix{self.M==self.N});
+	// 	tribld.initRandom(halfDensity);
+	// }
 	
 	/**
 	 * Initialize matrix block data with random values between given

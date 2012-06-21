@@ -19,7 +19,7 @@ import x10.compiler.Inline;
 
 import x10.matrix.Debug;
 import x10.matrix.Matrix;
-import x10.matrix.MatrixBuilder;
+import x10.matrix.builder.MatrixBuilder;
 import x10.matrix.DenseMatrix;
 import x10.matrix.sparse.SparseCSC;
 
@@ -99,27 +99,31 @@ public abstract class MatrixBlock(myRowId:Int, myColId:Int) {
 	 * Initialize block matrix data using function, which maps global row and column
 	 * indexes within block to a double value.
 	 * 
-	 * @param xoff      the starting row index of block matrix in the global matrix
-	 * @param yoff      the column index of block matrix in the global matrix
 	 * @param f         function given global row and column indexes returns a double value
 	 */
-	abstract public def init(f:(Int,Int)=>Double) : void;
+	public def init(f:(Int,Int)=>Double) : void {
+		getBuilder().init(f);
+	}
 	
-	// /**
-	//  * Initial block matrix data using function, which maps (block ID, block row index, block column index]
-	//  * to a double value.
-	//  */
-	// public def init(f:(Int, Int)=>Double):void {
-	// 	getMatrix().init(f); 
-	// }
+	/**
+	 * Initial block matrix with given function in nonzero density randomly
+	 * @param nzDensity    Nonzero density, which is used to control row index distance between two adjacent nonzero  entries in the same column.
+	 * @param f:(Int,Int)=>Double   Matrix entry value generator function, mapping row and column to a double value.
+	 */
+	public def initRandom(nzDensity:Double, f:(Int,Int)=>Double) : void {
+		getBuilder().initRandom(nzDensity, f);
+	}                                      
 
 	/**
-	 * For testing purpose.
+	 * For testing purpose. Obsolete
 	 *
 	 * <p> Initial matrix data in blocks with random values.
 	 */
-	abstract public def initRandom() : void;
+	abstract public def initRandom() : void ;
+	abstract public def initRandom(nzDensity:Double) : void;
 	
+
+
 	/**
 	 * Initialize matrix block data with random values between given
 	 * range.
@@ -130,9 +134,10 @@ public abstract class MatrixBlock(myRowId:Int, myColId:Int) {
 	abstract public def initRandom(lo:Int, up:Int) : void;
 	
 	abstract public def getBuilder() : MatrixBuilder;
-	abstract public def initRandom(nonzeroDensity:Double) : void;
-	abstract public def initRandomSym(halfDensity:Double) : void;
-	abstract public def initRandomTri(halfDensity:Double, up:Boolean) : void;
+	abstract public def getSymBuilder() : MatrixBuilder;
+	abstract public def getTriBuilder(up:Boolean) : MatrixBuilder;
+	//abstract public def initRandomSym(halfDensity:Double) : void;
+	//abstract public def initRandomTri(up:Boolean, halfDensity:Double) : void;
 	
 	//===================================================
 	/**

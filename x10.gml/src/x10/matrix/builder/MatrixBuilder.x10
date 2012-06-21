@@ -33,6 +33,7 @@ public interface MatrixBuilder {
 	//public def makeTranspose(mat:Matrix):void;
 	
 	public def toMatrix():Matrix;
+
 	//-----------------------------------------------------------------
 
 }

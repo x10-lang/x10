@@ -46,11 +46,9 @@ public class CompressArray {
 
 	public var index:Array[Int](1){rail}; // the indices i1,..., in; indices must be positive
 	public var value:Array[Double](1){rail};//{self.size==index.size,rail}; // the values v1,..., vn
-
 	
 	public var count:Int=0; // n
 	public def count()=count;
-
 
 	//===========================================================
 	// Constructor
@@ -339,8 +337,8 @@ public class CompressArray {
 		val cursz = storageSize();
 		val chksz = off + cnt;
 		if (chksz > cursz) {
-			Debug.flushln("Test storage size fail! Compress data offset:"+off+" add cnt:"+cnt+
-							" storage size:"+cursz+" Re-allocation increase to "+chksz);
+			//Debug.flushln("Test storage size fail! Compress data offset:"+off+" add cnt:"+cnt+
+			//				" storage size:"+cursz+" Re-allocation increase to "+chksz);
 			retval = true;
 			incStorage(chksz - cursz);
 		}	

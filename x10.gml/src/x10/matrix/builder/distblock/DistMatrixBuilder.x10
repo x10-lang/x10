@@ -24,6 +24,7 @@ import x10.matrix.SymDense;
 import x10.matrix.Debug;
 import x10.matrix.block.Grid;
 import x10.matrix.block.MatrixBlock;
+import x10.matrix.block.SparseBlock;
 import x10.matrix.sparse.SparseCSC;
 import x10.matrix.comm.BlockSetRemoteCopy;
 import x10.matrix.distblock.DistBlockMatrix;
@@ -44,6 +45,10 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 	public val dmat:DistBlockMatrix(M,N);
 
 	//-------------------------------------
+	/**
+	 * Creat distributed block matrix and using specified to store output
+	 * @param  dm    Distributed block matrix to store the output
+	 */
 	public def this(dm:DistBlockMatrix) {
 		property(dm.M,dm.N);
 		dmat = dm;
@@ -170,11 +175,20 @@ public class DistMatrixBuilder(M:Int,N:Int) implements MatrixBuilder {
 	//=====================================
 	//=====================================
 
-	public def toDistBlockMatrix():DistBlockMatrix(M,N) = dmat;
+	public def toDistBlockMatrix():DistBlockMatrix(M,N) {
+		finish ateach (d:Point in Dist.makeUnique()) {
+			val itr = dmat.handleBS().iterator();
+			while (itr.hasNext()) {
+				val blk = itr.next();
+				val bdr = blk.getBuilder();
+				//if (blk instanceof SparseBlock)
+				bdr.toMatrix();	//Output is written back dense/sparse
+			}
+		}
+		return dmat;
+	}
 		
 	
-	public def toMatrix():Matrix(M,N) = dmat as Matrix(M,N);
-		
-
-	
+	public def toMatrix():Matrix(M,N) = 
+		toDistBlockMatrix() as Matrix(M,N);	
 }

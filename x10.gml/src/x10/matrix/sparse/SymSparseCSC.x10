@@ -63,9 +63,9 @@ public class SymSparseCSC extends SparseCSC{self.M==self.N} {
 
 	//============================================
 	public def init(uplo:Boolean, src:SparseCSC(M,M)): SymSparseCSC(this) {
-		val bdr = SymSparseBuilder.make(M);
+		val bdr = new SymSparseBuilder(this);
 		bdr.init(uplo, src);
-		bdr.toSparseCSC(this);
+		bdr.toSparseCSC();
 		return this;
 	}
 	

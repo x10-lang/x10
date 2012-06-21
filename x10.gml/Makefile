@@ -165,7 +165,8 @@ builder_src=\
 	x10/matrix/builder/SparseCSCBuilder.x10 \
 	x10/matrix/builder/SymSparseBuilder.x10 \
 	x10/matrix/builder/TriSparseBuilder.x10 \
-#	x10/matrix/builder/DistMatrixBuilder.x10
+	x10/matrix/builder/distblock/DistMatrixBuilder.x10 \
+	x10/matrix/builder/distblock/DistSymMatrixBuilder.x10
 
 summa_src=\
 	x10/matrix/dist/summa/SummaDenseMultSparse.x10 \

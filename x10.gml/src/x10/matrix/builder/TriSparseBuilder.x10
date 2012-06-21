@@ -43,6 +43,11 @@ public class TriSparseBuilder extends SparseCSCBuilder{self.M==self.N} implement
 		up = uptri;
 	}
 
+	public def this(uptri:Boolean, spa:SparseCSC{self.M==self.N}) {
+		super(spa);
+		up = uptri;
+	}
+	
 	public static def make(up:Boolean, m:Int):TriSparseBuilder(m) {
 		val sbd = SparseCSCBuilder.make(m,m) as SparseCSCBuilder{self.M==self.N};
 		val bdr = new TriSparseBuilder(up, sbd);
@@ -210,6 +215,8 @@ public class TriSparseBuilder extends SparseCSCBuilder{self.M==self.N} implement
 			symbld.mirrorToUpper();
 		return symbld as SymSparseBuilder(M);
 	}
+	
+	// No TriSparse defined;
 	
 	//====================================
 
