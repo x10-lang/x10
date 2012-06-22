@@ -23,6 +23,7 @@ import x10.errors.Errors.IllegalConstraint;
 import x10.types.XTypeTranslator;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 
 /**
  * A <code>BooleanLit</code> represents a boolean literal expression.
@@ -53,7 +54,7 @@ public class BooleanLit_c extends Lit_c implements BooleanLit
       TypeSystem xts =  tc.typeSystem();
 	  Type Boolean =  xts.Boolean();
 	 
-	  CConstraint c = new CConstraint();
+	  CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	  try {
 		  XTerm term = xts.xtypeTranslator().translate(c, this.type(Boolean),  tc.context());
 		  c.addSelfBinding(term);

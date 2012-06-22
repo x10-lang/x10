@@ -79,7 +79,8 @@ import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
+
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
 import polyglot.util.CollectionUtil;
@@ -125,8 +126,8 @@ public class TypeTransformer extends NodeTransformer {
                 if (newld == null || newld == ld) continue;
                 oldvars.add(v);
                 //if (!l.s.endsWith("!!!")) l.s+="!!!"; // validation
-                //newvars.add(CTerms.makeLocal(newld, newld.name().toString())); // validation
-                newvars.add(CTerms.makeLocal(newld, v.toString()));
+                //newvars.add(ConstraintManager.getConstraintSystem().makeLocal(newld, newld.name().toString())); // validation
+                newvars.add(ConstraintManager.getConstraintSystem().makeLocal(newld, v.toString()));
             }
         }
         try {

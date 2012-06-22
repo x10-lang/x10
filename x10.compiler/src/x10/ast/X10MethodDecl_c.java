@@ -22,6 +22,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import polyglot.ast.AmbExpr_c;
+import polyglot.ast.Binary;
 import polyglot.ast.Block;
 import polyglot.ast.Call;
 import polyglot.ast.CanonicalTypeNode;
@@ -40,6 +42,7 @@ import polyglot.ast.New;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.ast.Return;
+import polyglot.ast.Special;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeCheckFragmentGoal;
 import polyglot.ast.TypeNode;
@@ -91,7 +94,7 @@ import polyglot.visit.TypeChecker;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
@@ -219,7 +222,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		for (Formal f1 : n.formals()) {
 		    formalTypes.add(f1.type().typeRef());
 		}
-
 
 		mi.setReturnType(n.returnType().typeRef());
 		mi.setFormalTypes(formalTypes);

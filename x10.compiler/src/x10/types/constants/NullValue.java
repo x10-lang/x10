@@ -19,7 +19,8 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
+
 
 /**
  * A constant value the represents the constant null.
@@ -33,7 +34,7 @@ public final class NullValue extends ConstantValue {
     
     @Override
     public NullLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, CTerms.makeLit(toJavaObject(), getLitType(ts)));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
         return (NullLit)nf.NullLit(pos).type(type);
     }
 

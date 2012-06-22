@@ -8,7 +8,6 @@ import polyglot.types.Types;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 

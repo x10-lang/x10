@@ -24,11 +24,11 @@ import polyglot.types.TypeSystem;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+
 
 public class X10InitializerDef_c extends InitializerDef_c implements X10InitializerDef {
     private static final long serialVersionUID = 8967174982510527953L;
@@ -40,7 +40,7 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis(); // Why #this instead of this?
+        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;

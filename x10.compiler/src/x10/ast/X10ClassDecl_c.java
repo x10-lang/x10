@@ -97,6 +97,7 @@ import x10.types.X10ParsedClassType;
 import x10.types.X10TypeEnv_c;
 
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
 import x10.util.Synthesizer;
 import x10.visit.ChangePositionVisitor;
@@ -613,12 +614,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
         n = (X10ClassDecl_c) n.classInvariant(ci);
 
-        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(new CConstraint());
+        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint());
 
         final X10ClassDecl_c nn = n;
         c.setResolver(new Runnable() {
         	public void run() {
-        	    CConstraint x = new CConstraint();
+        	    CConstraint x = ConstraintManager.getConstraintSystem().makeCConstraint();
         	    if (ci != null) {
         	        CConstraint xi = ci.valueConstraint().get();
         	        if (xi != null && ! xi.valid())

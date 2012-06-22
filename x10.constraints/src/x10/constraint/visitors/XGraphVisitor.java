@@ -3,6 +3,8 @@ package x10.constraint.visitors;
 import java.util.HashMap;
 import java.util.Map;
 import x10.constraint.XField;
+import x10.constraint.xnative.XNativeField;
+import x10.constraint.xnative.XNativeTerm;
 import x10.constraint.XTerm;
 import x10.constraint.XTerm.TermVisitor;
 import x10.constraint.XVar;
@@ -60,9 +62,9 @@ public abstract class XGraphVisitor {
         if (eqv instanceof XField<?> ) {
             XField<?> t = (XField<?>) eqv;
             XTerm rt = t.receiver();
-            XTerm tz =nf(rt);
+            XTerm tz =nf((XTerm)rt);
             if (tz == null) return null;
-            return t.copyReceiver((XVar) tz);
+            return (XTerm)t.copyReceiver((XVar) tz);
         }
         return null;
     }
@@ -103,7 +105,7 @@ public abstract class XGraphVisitor {
             for ( Map.Entry<XTerm,XTerm> t: eqvVarRep.entrySet()) {
                 XTerm src = t.getKey();
                 XTerm dest = t.getValue();
-                XTerm tp = src.accept(tv);
+                XTerm tp = (XTerm)src.accept(tv);
                 if ((! tp.hasEQV()) && (! dest.hasEQV())) visitEquals(tp, dest);   
             }
         }
@@ -123,8 +125,8 @@ public abstract class XGraphVisitor {
             if (t1.hasEQV()) {addEQVBinding(t1, t2);return true;}
             if (t2.hasEQV()) {addEQVBinding(t2, t1);return true;}
         }
-        if (hideFake && t1 instanceof XField && ((XField<?>) t1).isHidden()) return true;
-        if (hideFake && t2 instanceof XField && ((XField<?>) t2).isHidden()) return true;
+        if (hideFake && t1 instanceof XNativeField && ((XNativeField<?>) t1).isHidden()) return true;
+        if (hideFake && t2 instanceof XNativeField && ((XNativeField<?>) t2).isHidden()) return true;
         return visitEquals(t1, t2);
     }
 
@@ -166,8 +168,8 @@ public abstract class XGraphVisitor {
                 return true;
             }
         }
-        if (hideFake && t1 instanceof XField && ((XField<?>) t1).isHidden()) return true;
-        if (hideFake && t2 instanceof XField && ((XField<?>) t2).isHidden()) return true;
+        if (hideFake && t1 instanceof XNativeField && ((XNativeField<?>) t1).isHidden()) return true;
+        if (hideFake && t2 instanceof XNativeField && ((XNativeField<?>) t2).isHidden()) return true;
         return visitDisEquals(t1, t2);
     }
 

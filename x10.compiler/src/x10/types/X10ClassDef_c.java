@@ -49,8 +49,9 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
+
 
 public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     protected transient Source fromSource;
@@ -92,7 +93,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis(); // Why #this instead of this?
+        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -170,7 +171,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     Ref<CConstraint> realClauseWithThis = setRealClauseWithThis();
     
     private Ref<CConstraint> setRealClauseWithThis() {
-        final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(new CConstraint());
+        final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint());
         final Runnable runnable = new Runnable() {
             public void run() {
                 CConstraint c = X10ClassDef_c.this.realClause.get();
@@ -196,7 +197,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * 
      */
     private Ref<CConstraint> setRealClause() {
-    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(new CConstraint());
+    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint());
     	Runnable runnable = new Runnable() {
     		boolean computing = false;
     		public void run() {
@@ -204,7 +205,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				return;
     		    }
     		    computing = true;
-    		    CConstraint result = new CConstraint();
+    		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint();
     		    try {
     			    List<X10FieldDef> properties = properties();
     			    XVar oldThis = thisVar(); // xts.xtypeTranslator().translateThisWithoutTypeConstraint();
@@ -302,7 +303,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     			    }*/
     		    }
     		  /*  catch (XFailure e) {
-    		    	CConstraint result = new CConstraint();
+    		    	CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint();
     			    result.setInconsistent();
     			    this.rootClause = Types.ref(result);
     			    this.rootClauseInvalid = new SemanticException(e.getMessage(), position());

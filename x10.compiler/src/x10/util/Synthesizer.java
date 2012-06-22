@@ -82,7 +82,7 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XNot;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.extension.X10Del;
@@ -104,10 +104,9 @@ import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
 import x10.types.constraints.CLit;
 import x10.types.constraints.CLocal;
+import x10.types.constraints.CQualifiedVar;
 import x10.types.constraints.CSelf;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.CThis;
-import x10.types.constraints.QualifiedVar;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 import x10.types.constants.StringValue;
@@ -213,7 +212,7 @@ public class Synthesizer {
 	    X10FieldInstance fi = Types.getProperty(type, Name.make(name));
 	    if (fi == null)
 	        return null;
-	    return CTerms.makeField(receiver, fi.def());
+	    return ConstraintManager.getConstraintSystem().makeField(receiver, fi.def());
 	}
 
 	public XTerm makePointRankTerm(XVar receiver) {
@@ -236,7 +235,7 @@ public class Synthesizer {
 	public Type addRectConstraintToSelf(Type type) {
 	    XVar receiver = Types.self(type);
 	    if (receiver == null) {
-	        CConstraint c = new CConstraint();
+	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	        type = Types.xclause(type, c);
 	        receiver = c.self();
 	    }
@@ -254,7 +253,7 @@ public class Synthesizer {
 	public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
 	    XVar receiver = X10TypeMixin.self(type);
 	    if (receiver == null) {
-	        CConstraint c = new CConstraint();
+	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	        type = X10TypeMixin.xclause(type, c);
 	        receiver = c.self();
 	    }
@@ -761,10 +760,10 @@ public class Synthesizer {
 	}
 
 	public Field firstPlace() {
-		CConstraint c = new CConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		try {
-			c.addBinding(id, CTerms.makeLit(0, xts.Int()));
+			c.addBinding(id, ConstraintManager.getConstraintSystem().makeLit(0, xts.Int()));
 			Type type = Types.xclause(xts.Place(), c);
 			assert Types.consistent(type);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
@@ -1423,7 +1422,7 @@ public class Synthesizer {
             // nothing to check
             return res;
         } 
-        List<XTerm> terms  = c.extConstraints();
+        List<? extends XTerm> terms  = c.extConstraints();
         for (XTerm t : terms)
             res.addAll(getLocals(t));
         return res;
@@ -1478,8 +1477,8 @@ public class Synthesizer {
             return makeExpr((XEQV) t, baseType, pos); // this must occur before XLocal_c
         if (t instanceof XUQV)
             return makeExpr((XUQV) t, baseType, pos); // this must occur before XLocal_c
-        if (t instanceof QualifiedVar) {
-            return makeExpr((QualifiedVar) t, baseType, pos);
+        if (t instanceof CQualifiedVar) {
+            return makeExpr((CQualifiedVar) t, baseType, pos);
         }
         if (t instanceof CLocal)
             return makeExpr((CLocal) t, baseType, pos);
@@ -1546,7 +1545,7 @@ public class Synthesizer {
             return newReceiver;
         return nf.Call(pos,newReceiver, nf.Id(pos,X10ClassDecl_c.getThisMethod(newReceiverDef.fullName(),ct.fullName())));
     }*/
-    Expr makeExpr(QualifiedVar v, Type baseType, Position pos) {
+    Expr makeExpr(CQualifiedVar v, Type baseType, Position pos) {
         TypeNode tn = null;
         ClassType ct = v.type().toClass();
         XVar var = v.receiver();
@@ -1597,7 +1596,7 @@ public class Synthesizer {
     }
 
     Expr makeExpr(XNot t, Type baseType, Position pos) {
-        Expr expr = makeExpr(t.arguments().get(0), baseType, pos);
+        Expr expr = makeExpr(t.arguments()[0], baseType, pos);
         if (expr == null)
             return null;
         return xnf.Unary(pos, expr, Unary.NOT);
@@ -1617,9 +1616,9 @@ public class Synthesizer {
         if (val instanceof String)
             return xnf.StringLit(pos, (String) val);
         if (val instanceof Integer)
-            return xnf.IntLit(pos, CLit.getIntLitKind(baseType), ((Integer) val).intValue());
+            return xnf.IntLit(pos, ConstraintManager.getConstraintSystem().getIntLitKind(baseType), ((Integer) val).intValue());
         if (val instanceof Long)
-            return xnf.IntLit(pos, CLit.getIntLitKind(baseType), ((Long) val).longValue());
+            return xnf.IntLit(pos, ConstraintManager.getConstraintSystem().getIntLitKind(baseType), ((Long) val).longValue());
         if (val instanceof Boolean)
             return xnf.BooleanLit(pos, ((Boolean) val).booleanValue());
         if (val instanceof Character)
@@ -1635,16 +1634,16 @@ public class Synthesizer {
     }
 
     Expr makeExpr(XEquals t, Type baseType, Position pos) {
-        Expr left = makeExpr(t.arguments().get(0), baseType, pos);
-        Expr right = makeExpr(t.arguments().get(1), baseType, pos);
+        Expr left = makeExpr(t.arguments()[0], baseType, pos);
+        Expr right = makeExpr(t.arguments()[1], baseType, pos);
         if (left == null || right == null)
             return null;
         return xnf.Binary(pos, left, Binary.EQ, right);
     }
 
     Expr makeExpr(XDisEquals t, Type baseType, Position pos) {
-        Expr left = makeExpr(t.arguments().get(0), baseType, pos);
-        Expr right = makeExpr(t.arguments().get(1), baseType, pos);
+        Expr left = makeExpr(t.arguments()[0], baseType, pos);
+        Expr right = makeExpr(t.arguments()[1], baseType, pos);
         if (left == null || right == null)
             return null;
         return xnf.Binary(pos, left, Binary.NE, right);
@@ -1659,16 +1658,16 @@ public class Synthesizer {
             args.add(e);
         }
         String op = t.asExprOperator().toString();
-        if (op.equals(XTerms.asExprAndName.toString())) {
+        if (op.equals(ConstraintManager.asExprAndName.toString())) {
             return xnf.Binary(pos, args.get(0), Binary.COND_AND, args.get(1));
         }
-        if (op.equals(XTerms.asExprEqualsName.toString())) {
+        if (op.equals(ConstraintManager.asExprEqualsName.toString())) {
             return xnf.Binary(pos, args.get(0), Binary.EQ, args.get(1));
         }
-        if (op.equals(XTerms.asExprDisEqualsName.toString())) {
+        if (op.equals(ConstraintManager.asExprDisEqualsName.toString())) {
             return xnf.Binary(pos, args.get(0), Binary.NE, args.get(1));
         }
-        if (op.equals(XTerms.asExprNotName.toString())) {
+        if (op.equals(ConstraintManager.asExprNotName.toString())) {
             return xnf.Unary(pos, Unary.NOT, args.get(0));
         }
 
@@ -1685,7 +1684,7 @@ public class Synthesizer {
         List<Expr> es = new ArrayList<Expr>();
         if (c == null)
             return es;
-        List<XTerm> terms = c.extConstraints();
+        List<? extends XTerm> terms = c.extConstraints();
 
         for (XTerm term : terms) {
             Expr e = makeExpr(term, null, pos);

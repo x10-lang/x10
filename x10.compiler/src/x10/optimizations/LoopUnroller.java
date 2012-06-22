@@ -457,9 +457,9 @@ public class LoopUnroller extends ContextVisitor {
 
     private boolean constraintEq1(XTerm term) {
         XEquals eq= (XEquals) term;
-        List<XTerm> args= eq.arguments();
-        XTerm left= args.get(0);
-        XTerm right= args.get(1);
+        XTerm[] args= eq.arguments();
+        XTerm left= args[0];
+        XTerm right= args[1];
 
         if (right instanceof XLit) {
             XLit lit= (XLit) right;

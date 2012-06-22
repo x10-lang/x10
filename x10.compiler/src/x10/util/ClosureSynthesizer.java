@@ -59,7 +59,7 @@ import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CTerms;
+
 import x10.types.matcher.Subst;
 import x10.extension.X10Ext;
 

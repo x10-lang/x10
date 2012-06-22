@@ -47,7 +47,7 @@ import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
@@ -418,7 +418,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                 else {
                     CConstraint rc = Types.xclause(t);
                     if (rc == null)
-                        rc = new CConstraint();
+                        rc = ConstraintManager.getConstraintSystem().makeCConstraint();
 
                     XTerm receiver;
 

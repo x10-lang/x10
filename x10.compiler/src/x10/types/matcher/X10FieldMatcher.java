@@ -23,7 +23,7 @@ import polyglot.util.Position;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.ParameterType;
@@ -47,7 +47,7 @@ public class X10FieldMatcher {
         XVar v = Types.selfVarBinding(container);
         XVar vv = null;
         if (v == null) {
-        	v = vv =XTerms.makeUQV();
+        	v = vv =ConstraintManager.getConstraintSystem().makeUQV();
         }
         if (oldThis != null && v == null && vv==null)
         	assert false;
@@ -71,7 +71,7 @@ public class X10FieldMatcher {
                             new Type[] {}, new ParameterType[] {});
             if (vv != null) { // Hide vv, i.e. substitute in an anonymous EQV
                 t = Subst.subst(t,
-                                new XVar[] {XTerms.makeEQV()},
+                                new XVar[] {ConstraintManager.getConstraintSystem().makeEQV()},
                                 new XVar[] {vv},
                                 new Type[] {}, new ParameterType[] {});
             }
@@ -106,7 +106,7 @@ public class X10FieldMatcher {
         XVar v = Types.selfVarBinding(ct);
         XVar vv = null;
         if (v == null) {
-        	v = vv =XTerms.makeUQV();
+        	v = vv =ConstraintManager.getConstraintSystem().makeUQV();
         }
         XVar oldThis = fi.x10Def().thisVar();
         if (oldThis != null && v == null && vv==null)

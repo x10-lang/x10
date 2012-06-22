@@ -43,7 +43,7 @@ import polyglot.visit.ContextVisitor;
 
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.types.ParameterType;
 import x10.types.ParametrizedType_c;

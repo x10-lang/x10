@@ -31,6 +31,7 @@ import x10.constraint.XTerm;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 
 /**
  * @author vj
@@ -85,7 +86,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         // If the local variable is final, replace T by T{self==t}, 
         // do this even if depclause==null.
         CConstraint c = Types.xclause(rightType);
-        c = c==null? new CConstraint() : c.copy();
+        c = c==null? ConstraintManager.getConstraintSystem().makeCConstraint() : c.copy();
 
         XLocal var = xts.xtypeTranslator().translate(this.type(rightType));
         c.addSelfBinding(var);

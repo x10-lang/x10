@@ -59,7 +59,7 @@ import polyglot.util.Transformation;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.errors.Errors;
@@ -69,7 +69,6 @@ import polyglot.types.TypeSystem_c.Kind;
 import polyglot.ast.Expr;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -77,6 +76,7 @@ import x10.types.constraints.CField;
 import x10.types.constraints.CAtom;
 import x10.types.constraints.CThis;
 import x10.types.constraints.CSelf;
+
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
 import x10.visit.Desugarer;
@@ -195,7 +195,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     
  /*   public void checkOverride(ClassType ct, MethodInstance mi, MethodInstance mj) throws SemanticException {
-         XVar thisVar =  XTerms.makeUQV(); // XTerms.makeUQV(XTerms.makeFreshName("this")); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+         XVar thisVar =  ConstraintManager.getConstraintSystem().makeUQV(); // ConstraintManager.getConstraintSystem().makeUQV(ConstraintManager.getConstraintSystem().makeFreshName("this")); // ConstraintManager.getConstraintSystem().makeLocal(ConstraintManager.getConstraintSystem().makeFreshName("this"));
 
          List<XVar> ys = new ArrayList<XVar>(2);
          List<XVar> xs = new ArrayList<XVar>(2);
@@ -699,7 +699,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     }
      
     public boolean isSubtype(XVar x, Type t1, Type t2) {
-        return isOldSubtype(x, t1,t2);
+        boolean res = isOldSubtype(x, t1,t2);
+ /*       if (res == false && x != null && t1 != null && t2 != null) {
+        	System.out.println("XVar "+x.toString());
+        	System.out.println("type1 "+t1.toString());
+        	System.out.println("type2 "+t2.toString());
+        }*/
+        return res; 
         /*
         boolean old = isOldSubtype(x, t1,t2);
         boolean newEq = isNewSubtype(x, t1,t2);
@@ -756,7 +762,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return t2;
     }
     public CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
-        final List<XTerm> terms = originalConst.constraints();
+        final List<? extends XTerm> terms = originalConst.constraints();
         final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.size());
         boolean wasNew = false;
         for (XTerm xTerm : terms) {
@@ -771,7 +777,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             newTerms.add(newXterm);
         }
         if (wasNew) {
-            final CConstraint newConstraint = new CConstraint(originalConst.self());
+            final CConstraint newConstraint = ConstraintManager.getConstraintSystem().makeCConstraint(originalConst.self());
             newConstraint.setThisVar(originalConst.thisVar());
             for (XTerm xTerm : newTerms) {
                 try {
@@ -925,7 +931,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			x = c2.selfVarBinding();
     		}*/
     		if (x == null) {
-    			x =  XTerms.makeUQV(); 
+    			x =  ConstraintManager.getConstraintSystem().makeUQV(); 
     		}
     		t2 = Types.instantiateSelf(x, t2);
     		c2 = Types.xclause(t2);
@@ -938,6 +944,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     		CConstraint c = null;
     		c = xcontext.constraintProjection(c1, c2);
+    		
 //  		c1 = xcontext.constraintProjection(c1);
 //  		c2 = xcontext.constraintProjection(c2);
 
@@ -966,6 +973,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     				throw new InternalCompilerError("Unexpected failure ", z);
     			}
     		}
+
     		if (! c.entails(c2))
     			return false;
 
@@ -1236,7 +1244,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 // Rename formals
                 XTerm[] ys = new XTerm[ft1.formalNames().size()];
                 for (int i = 0; i < ys.length; i++) {
-                    ys[i] = XTerms.makeUQV();
+                    ys[i] = ConstraintManager.getConstraintSystem().makeUQV();
                 }
                 try {
                     XVar[] xs1 = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
@@ -1282,7 +1290,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
-        XVar temp = XTerms.makeUQV();
+        XVar temp = ConstraintManager.getConstraintSystem().makeUQV();
         // instantiateSelf ensures that Int{self123==3} and A{self456==3} are equal.
         if (c1 != null) {
             c1 = c1.instantiateSelf(temp);
@@ -1568,9 +1576,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     
             // Check if adding self==value makes the constraint on t inconsistent.
             
-            XLit val = CTerms.makeLit(value, base);
+            XLit val = ConstraintManager.getConstraintSystem().makeLit(value, base);
 
-            CConstraint c = new CConstraint();
+            CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
             c.addSelfBinding(val);
             return entails(c, Types.realX(toType));
     }
@@ -1933,7 +1941,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = CTerms.makeThis();  
+            thisVar = ConstraintManager.getConstraintSystem().makeThis();  
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -1970,7 +1978,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         MethodInstance mi = (MethodInstance) jmi;
         XVar thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = CTerms.makeThis();  
+            thisVar = ConstraintManager.getConstraintSystem().makeThis();  
         return implemented(mi, mi.container(), thisVar);
     }
 
@@ -2019,7 +2027,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	XVar[] result = new XVar[n];
     	//String prefix = "arg";
     	for (int i =0; i < n; ++i) {
-    		result[i] = XTerms.makeUQV();
+    		result[i] = ConstraintManager.getConstraintSystem().makeUQV();
     	}
     	return result;
     }
@@ -2210,7 +2218,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (mi.name().equals(mj.name())) {
            // String fullNameWithThis = mi.x10Def().thisVar().toString();
           //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            XVar thisVar = mi.x10Def().thisVar(); // CTerms.makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+            XVar thisVar = mi.x10Def().thisVar(); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // ConstraintManager.getConstraintSystem().makeLocal(thisName);
 
             List<XVar> ys = new ArrayList<XVar>(2);
             List<XVar> xs = new ArrayList<XVar>(2);

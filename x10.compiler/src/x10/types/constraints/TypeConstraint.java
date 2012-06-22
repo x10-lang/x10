@@ -20,7 +20,6 @@ import polyglot.util.Copy;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
@@ -170,15 +169,15 @@ public class TypeConstraint implements Copy, Serializable {
         TypeSystem xts = (TypeSystem) me.typeSystem();
 
         TypeConstraint tenv = new TypeConstraint();
-        CConstraint env = new CConstraint();
+        CConstraint env = ConstraintManager.getConstraintSystem().makeCConstraint();
 
         XVar ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
 
         if (ythis == null) {
             CConstraint c = Types.xclause(thisType);
-            c = (c == null) ? new CConstraint() : c.copy();
+            c = (c == null) ? ConstraintManager.getConstraintSystem().makeCConstraint() : c.copy();
 
-            ythis = XTerms.makeUQV();  
+            ythis = ConstraintManager.getConstraintSystem().makeUQV();  
             c.addSelfBinding(ythis);
             c.setThisVar(ythis);
 
@@ -222,7 +221,7 @@ public class TypeConstraint implements Copy, Serializable {
             if (yi == null) {
                 // This must mean that yi was not final, hence it cannot occur in 
                 // the dependent clauses of downstream yi's.
-                yi = XTerms.makeUQV(); // xts.xtypeTranslator().genEQV(ytype, false);
+                yi = ConstraintManager.getConstraintSystem().makeUQV(); // xts.xtypeTranslator().genEQV(ytype, false);
             }
             tenv.addTypeParameterBindings(xtype, ytype, false);
             // CConstraint xc = X10TypeMixin.realX(xtype).copy();
@@ -235,7 +234,7 @@ public class TypeConstraint implements Copy, Serializable {
         XVar xthis = null;  
 
         if (me.def() instanceof X10ProcedureDef) xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
-        if (xthis == null) xthis = CTerms.makeThis();  
+        if (xthis == null) xthis = ConstraintManager.getConstraintSystem().makeThis();  
         try {expandTypeConstraints(tenv, context);
         } catch (XFailure f) {}
 

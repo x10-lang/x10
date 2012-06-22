@@ -11,9 +11,6 @@
 
 package x10.constraint;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 /**
  * The representation of a local variable reference in the constraint system.
@@ -23,33 +20,6 @@ import java.util.Map;
  * @author vj
  * 
  */
-public class XLocal<T> extends XRoot  {
-    private static final long serialVersionUID = 4760673161489125816L;
-    public final T name;
-	public XLocal(T name) {
-	    assert name != null;
-		this.name = name;
-	}
-	
-	@Override public int hashCode() {return name.hashCode();}
-	public boolean hasVar(XVar v) {return equals(v);}
-	public boolean equals(Object o) {
-		if (this == o) return true;
-		if (o instanceof XLocal) {
-			XLocal<?> other = (XLocal<?>) o;
-			return name.equals(other.name());
-		}
-		return false;
-	}
-
-	public T name() {return name;}
-    public boolean okAsNestedTerm() {return true;}
-	public String toString() {
-		String s = name.toString();
-		// This could should not belong here.
-		if (s.startsWith("self")) return "self";
-		if (s.startsWith("this")) return "this";
-		return s;
-	}
-	
+public interface XLocal<T> extends XVar  {
+	public T name(); 
 }

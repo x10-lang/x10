@@ -34,7 +34,7 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.errors.Errors;
 import x10.errors.Errors.PlaceTypeErrorMethodShouldBeLocalOrGlobal;
 import x10.types.FunctionType_c;
@@ -60,7 +60,7 @@ import x10.util.Synthesizer;
  */
 public class PlaceChecker {
 
-	static final XVar HERE = XTerms.makeUQV("synthetic here");
+	static final XVar HERE = ConstraintManager.getConstraintSystem().makeUQV("synthetic here");
 	//public static final XLit GLOBAL_PLACE = new XLit_c("globalPlace");
 
 	public static XVar here() {
@@ -74,7 +74,7 @@ public class PlaceChecker {
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
 	public static XTerm makePlace() {
-		XTerm place = XTerms.makeUQV(PLACE_HAME);
+		XTerm place = ConstraintManager.getConstraintSystem().makeUQV(PLACE_HAME);
 
 		return place;
 	}
@@ -136,7 +136,7 @@ public class PlaceChecker {
 	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, TypeSystem ts) {
 
 		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = new CConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		if (h != null) {
 			c.addBinding(h, here());
 		}
@@ -156,7 +156,7 @@ public class PlaceChecker {
 		XVar selfVar = Types.selfVar(type1);
 		assert selfVar != null;
 		/*if (selfVar == null) {
-		    selfVar = XTerms.makeEQV("self");
+		    selfVar = ConstraintManager.getConstraintSystem().makeEQV("self");
 		    try {
 		        type = X10TypeMixin.setSelfVar(type, selfVar);
 		    } catch (SemanticException e) {
@@ -240,7 +240,7 @@ public class PlaceChecker {
 			c.addBinding(here(), placeTerm.term());
 	}
 
-	static XConstrainedTerm firstPlace = XConstrainedTerm.make(XTerms.makeUQV("FIRST_PLACE"));
+	static XConstrainedTerm firstPlace = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV("FIRST_PLACE"));
 	public static XConstrainedTerm firstPlace(TypeSystem xts) {
 		return firstPlace;
 	}
@@ -280,7 +280,7 @@ public class PlaceChecker {
 	}
 
 	public static XConstrainedTerm methodPlaceTerm(MethodDef md) {
-	    CConstraint d = new CConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
 	    XTerm term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
@@ -292,7 +292,7 @@ public class PlaceChecker {
 	}
 
 	public static XConstrainedTerm constructorPlaceTerm(ConstructorDef cd) {
-	    CConstraint d = new CConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    XTerm term = homeVar(cd.thisVar(), cd.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -302,7 +302,7 @@ public class PlaceChecker {
 	}
 	
 	public static XConstrainedTerm closurePlaceTerm(ClosureDef cd) {
-	    CConstraint d = new CConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    XTerm term = makePlace();
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -381,7 +381,7 @@ public class PlaceChecker {
 	public static XConstrainedTerm computePlaceTerm(Expr place, Context xc, TypeSystem ts) throws SemanticException {
 		Type placeType = place.type();
 		CConstraint d = Types.xclause(placeType);
-		d = (d==null) ? new CConstraint() : d.copy();
+		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint() : d.copy();
 		CConstraint pc = null;
 		XTerm term = null;
 		XConstrainedTerm pt = null;

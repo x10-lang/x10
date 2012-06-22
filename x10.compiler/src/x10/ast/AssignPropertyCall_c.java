@@ -43,7 +43,7 @@ import polyglot.visit.TypeBuilder;
 
 import x10.Configuration;
 import x10.constraint.XFailure;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -62,8 +62,9 @@ import x10.types.X10TypeEnv_c;
 import x10.types.checker.ThisChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
+import x10.types.constraints.ConstraintManager;
+
 import x10.types.matcher.Matcher;
 
 /**
@@ -214,7 +215,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         // Accumulate in curr constraint the bindings {arg1==this.prop1,..argi==this.propi}.
         // If argi does not have a name, make up a name, and add the constraint from typei
         // into curr, with argi/self.
-        CConstraint curr = new CConstraint();
+        CConstraint curr = ConstraintManager.getConstraintSystem().makeCConstraint();
 
         for (int i=0; i < args.size() && i < props.size(); ++i) {
             Type yType = args.get(i).type();
@@ -226,11 +227,11 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
             }
             XVar symbol = Types.selfVarBinding(yType);
             if (symbol==null) {
-                symbol = XTerms.makeUQV();
+                symbol = ConstraintManager.getConstraintSystem().makeUQV();
                 CConstraint c = Types.xclause(yType);
                 curr.addIn(symbol, c);
             } 
-            curr.addBinding(CTerms.makeField(thisVar, props.get(i).def()), symbol);
+            curr.addBinding(ConstraintManager.getConstraintSystem().makeField(thisVar, props.get(i).def()), symbol);
 
             if (! curr.consistent()) {
                 Errors.issue(tc.job(),
@@ -265,7 +266,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         {
             Type supType = thisConstructor.supType();
             CConstraint known = Types.realX(supType);
-            known = (known==null ? new CConstraint() : known.copy());
+            known = (known==null ? ConstraintManager.getConstraintSystem().makeCConstraint() : known.copy());
             try {
                 known.addIn(Types.get(thisConstructor.guard()));
 

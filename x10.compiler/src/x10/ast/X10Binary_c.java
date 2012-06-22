@@ -59,7 +59,7 @@ import polyglot.visit.PrettyPrinter;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.errors.Errors;
 import x10.errors.Warnings;
 import x10.types.MethodInstance;

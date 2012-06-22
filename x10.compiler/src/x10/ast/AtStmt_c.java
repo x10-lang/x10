@@ -64,6 +64,7 @@ import x10.types.X10ProcedureDef;
 import x10.types.checker.Converter;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
 
 /**
@@ -161,7 +162,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
         boolean isFinishPlace = false;
         AtDef def = atDef();
         if (null != def.finishPlaceTerm()) {
-            XConstraint constraint = new XConstraint();
+        	XConstraint constraint = ConstraintManager.getConstraintSystem().makeConstraint();;
             constraint.addBinding(def.finishPlaceTerm().term(),def.placeTerm().term());
             if (def.placeTerm().constraint().entails(constraint)) {
                 isFinishPlace = true;
@@ -242,7 +243,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
     	if (def.placeTerm() == null) {
             XConstrainedTerm placeTerm;
             XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
-            CConstraint d = new CConstraint();
+            CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
             XTerm term = PlaceChecker.makePlace();
             try {
                 placeTerm = XConstrainedTerm.instantiate(d, term);

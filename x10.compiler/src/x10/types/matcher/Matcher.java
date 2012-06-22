@@ -33,10 +33,9 @@ import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.errors.Errors;
 
-import x10.types.constraints.QualifiedVar;
 import x10.types.ConstrainedType;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
@@ -51,11 +50,11 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+
 import x10.X10CompilerOptions;
 
 
@@ -222,12 +221,12 @@ public class Matcher {
 				xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
 
 			if (xthis == null)
-				xthis = CTerms.makeThis(); 
+				xthis = ConstraintManager.getConstraintSystem().makeThis(); 
 		}
 
 		final XVar codePlace = Types.getPlaceTerm(me);
 		XConstrainedTerm currentPlaceTerm = context.currentPlaceTerm();
-		final XTerm currentPlace = currentPlaceTerm != null ? currentPlaceTerm.term() : XTerms.makeEQV();
+		final XTerm currentPlace = currentPlaceTerm != null ? currentPlaceTerm.term() : ConstraintManager.getConstraintSystem().makeEQV();
 
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
 		final Type[] Y = new Type[typeFormals.size()];
@@ -275,7 +274,7 @@ public class Matcher {
 	        				            XVar[] outerThis = new XVar[outers.size()-1];
 	        				            XVar[] outerYs = new XVar[outers.size()-1];
 	        				            for (int i=1; i < outers.size(); ++i) {
-	        				                outerYs[i-1] = new QualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
+	        				                outerYs[i-1] = ConstraintManager.getConstraintSystem().makeQualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
 	        				                outerThis[i-1]= outers.get(i).thisVar();
 	        				            }
 	        				            newReturnType = Subst.subst(newReturnType, outerYs, outerThis);
@@ -490,7 +489,7 @@ public class Matcher {
 				env = env.instantiateSelf(ythis);
 		}
 		if (env == null)
-			env = new CConstraint();
+			env = ConstraintManager.getConstraintSystem().makeCConstraint();
 
 	    for (int i = 0; i < actuals.size(); i++) { // conjoin ytype's realX
 	    		Type ytype = actuals.get(i);
@@ -528,7 +527,7 @@ public class Matcher {
 				env = env.instantiateSelf(ythis);
 		}
 		if (env == null)
-			env = new CConstraint();
+			env = ConstraintManager.getConstraintSystem().makeCConstraint();
 	
 		//To do: Not sure these need to be added to Gamma. Constraint projection will retrieve them
 		// from the types of the variables.
@@ -557,7 +556,7 @@ public class Matcher {
 	 private static XVar getSymbolVar(Type type) {
    	  XVar symbol = Types.selfVarBinding(type);
          if (symbol == null) {
-       	  symbol = XTerms.makeUQV();  
+       	  symbol = ConstraintManager.getConstraintSystem().makeUQV();  
          }
          return symbol;
    }

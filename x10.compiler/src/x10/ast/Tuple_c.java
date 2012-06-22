@@ -39,7 +39,7 @@ import polyglot.visit.PrettyPrinter;
 import polyglot.visit.Translator;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.types.X10ClassType;
 import x10.types.checker.Converter;

@@ -39,6 +39,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 import x10.types.ClosureDef;
 import x10.types.constants.ConstantValue;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.CConstraint;
 import polyglot.types.Context;
@@ -141,7 +142,7 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
     	    XConstrainedTerm placeTerm;
-    	    CConstraint d = new CConstraint();
+    	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
     	    XTerm term = PlaceChecker.makePlace();
     	    try {
     	        placeTerm = XConstrainedTerm.instantiate(d, term);

@@ -28,10 +28,10 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+
 
 public class ThisDef_c extends VarDef_c implements ThisDef {
     private static final long serialVersionUID = 8939235355633300017L;
@@ -41,9 +41,9 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
                      Ref<? extends ClassType> baseType) {
         super(ts, pos, Flags.FINAL, baseType, ThisDef.THIS);
         ClassType bt = Types.get(baseType);
-        XVar baseVar = CTerms.makeThis(bt);  
+        XVar baseVar = ConstraintManager.getConstraintSystem().makeThis(bt);  
         thisVar =  qType==null?  baseVar
-                : CTerms.makeQualifiedVar(qType.get(), baseVar);
+                : ConstraintManager.getConstraintSystem().makeQualifiedVar(qType.get(), baseVar);
     }
 
     public String toString() {

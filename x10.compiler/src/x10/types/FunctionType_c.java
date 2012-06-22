@@ -47,7 +47,7 @@ import polyglot.util.Position;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
+
 import x10.types.matcher.Subst;
 
 /**
@@ -97,7 +97,7 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
     }
 
     protected static String guardToString(CConstraint guard) {
-        if (guard == null || guard.constraints().isEmpty()) return "";
+        if (guard == null || guard.constraints().size() == 0) return "";
         return guard.toString();
     }
 

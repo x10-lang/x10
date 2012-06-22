@@ -27,10 +27,10 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
+
 
 public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     private static final long serialVersionUID = 6359052056959695361L;
@@ -50,7 +50,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis(); // Why #this instead of this?
+        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
     }
 
     ThisDef thisDef;

@@ -36,6 +36,7 @@ import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
 
 
@@ -86,7 +87,7 @@ public class Here_c extends Expr_c implements Here {
         if (h == null) {
             Errors.issue(tc.job(), new Errors.CannotUseHereInThisContext(position()));
             try {
-                CConstraint d = new CConstraint();
+                CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
                 XTerm term = PlaceChecker.here(); // to avoid further errors
                 h = XConstrainedTerm.instantiate(d, term);
             } catch (XFailure e) {
@@ -94,7 +95,7 @@ public class Here_c extends Expr_c implements Here {
             }
         }
         if (h != null) {
-            CConstraint cc = new CConstraint();
+            CConstraint cc = ConstraintManager.getConstraintSystem().makeCConstraint();
             cc.addSelfBinding(h);
             tt = Types.xclause(Types.baseType(tt), cc);
         }

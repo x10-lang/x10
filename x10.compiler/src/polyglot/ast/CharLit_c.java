@@ -19,6 +19,7 @@ import polyglot.visit.PrettyPrinter;
 import x10.types.XTypeTranslator;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XTerm;
 import x10.constraint.XFailure;
 import x10.errors.Errors;
@@ -51,7 +52,7 @@ public class CharLit_c extends NumLit_c implements CharLit
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		Type charType = xts.Char();
 
-		CConstraint c = new CConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 		try {
 			XTerm term = xts.xtypeTranslator().translate(c, this.type(charType),  tc.context());
 			c.addSelfBinding(term);

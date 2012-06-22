@@ -39,7 +39,7 @@ import x10.ast.X10Loop.LoopKind;
 
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.errors.Errors;
 import polyglot.types.Context;
 import x10.types.AtDef;

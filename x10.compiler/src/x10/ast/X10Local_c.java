@@ -44,6 +44,7 @@ import polyglot.types.TypeSystem;
 import x10.types.X10LocalDef_c;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
 
 public class X10Local_c extends Local_c {
@@ -84,7 +85,7 @@ public class X10Local_c extends Local_c {
             if (origin!=null) { // origin = PlaceChecker.here();
                 final XConstrainedTerm placeTerm = context.currentPlaceTerm();
                 final XTerm currentPlace = placeTerm.term();
-                XConstraint constraint = new XConstraint();
+                XConstraint constraint = ConstraintManager.getConstraintSystem().makeConstraint();;
                 boolean isOk = false;
                 constraint.addBinding(origin,currentPlace);
                 if (placeTerm.constraint().entails(constraint)) {

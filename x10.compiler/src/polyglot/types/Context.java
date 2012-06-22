@@ -63,7 +63,8 @@ import x10.types.X10ProcedureDef;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.QualifiedVar;
+import x10.types.constraints.CQualifiedVar;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -434,14 +435,15 @@ public class Context implements Resolver, Cloneable
     
 
     CConstraint outerThisEquivalences() {
-        CConstraint result = new CConstraint();
+        CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint();
         Type curr = currentClass();
         List<X10ClassDef> outers = Types.outerTypes(curr); 
         for (int i=0; i < outers.size(); i++) {
             XVar base = outers.get(i).thisVar();
             for (int j=i+1; j < outers.size(); j++ ) {
                 X10ClassDef y = outers.get(j);
-                result.addBinding(y.thisVar(), new QualifiedVar(y.asType(), base));
+                result.addBinding(y.thisVar(), 
+                			      ConstraintManager.getConstraintSystem().makeQualifiedVar(y.asType(), base));
         }
         }
         return result;
@@ -452,7 +454,7 @@ public class Context implements Resolver, Cloneable
     public CConstraint currentConstraint() {
         CConstraint result = currentConstraint;
         if (result == null) {
-            result = new CConstraint();
+            result = ConstraintManager.getConstraintSystem().makeCConstraint();
             if (! inStaticContext()) {
                 result.setThisVar(thisVar());
                 CConstraint d = outerThisEquivalences();
@@ -575,7 +577,7 @@ public class Context implements Resolver, Cloneable
                 return r;
         }
         if (r == null) 
-            r = new CConstraint();
+            r = ConstraintManager.getConstraintSystem().makeCConstraint();
         // fold in the current constraint
         r.addSigma(currentConstraint(), m);
         r.addSigma(currentPlaceTerm, m);

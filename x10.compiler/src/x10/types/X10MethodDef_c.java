@@ -40,14 +40,14 @@ import polyglot.util.TypedList;
 import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+
 import x10.ast.X10Call_c;
 
 public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
@@ -108,7 +108,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public XVar thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return CTerms.makeThis();
+        return ConstraintManager.getConstraintSystem().makeThis();
     }
 
     ThisDef thisDef;

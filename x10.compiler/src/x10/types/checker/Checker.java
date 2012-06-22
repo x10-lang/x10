@@ -54,7 +54,7 @@ import x10.ast.X10ProcedureCall;
 import x10.constraint.XFailure;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
@@ -78,7 +78,7 @@ import polyglot.types.NoMemberException;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CTerms;
+
 import x10.types.matcher.Subst;
 import x10.visit.X10TypeChecker;
 import static polyglot.ast.Assign.*;
@@ -243,14 +243,14 @@ public class Checker {
 
 		TypeSystem ts = (TypeSystem) t.typeSystem();
 		try {
-			XTerm r=ts.xtypeTranslator().translate(new CConstraint(), target,  c);
+			XTerm r=ts.xtypeTranslator().translate(ConstraintManager.getConstraintSystem().makeCConstraint(), target,  c);
 			if (r instanceof XVar) {
 				receiver = (XVar) r;
 			}
 		} catch (IllegalConstraint z) {
 		}
 		if (receiver == null)
-			receiver = XTerms.makeEQV();
+			receiver = ConstraintManager.getConstraintSystem().makeEQV();
 		try {
 			t = Subst.subst(t, 
 					(new XVar[] { receiver }), 
@@ -275,7 +275,7 @@ public class Checker {
      * @throws IllegalConstraint
      */
 	public static Type expandCall(Type type, Call t,  Context c) throws IllegalConstraint {
-		CConstraint cs = new CConstraint();
+		CConstraint cs = ConstraintManager.getConstraintSystem().makeCConstraint();
 		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Receiver target = t.target();
 		XTerm body = xt.translate(cs, t, c);
@@ -289,12 +289,12 @@ public class Checker {
 			XVar receiver = Types.selfVarBinding(target.type());
 			XVar root = null;
 			if (receiver == null) {
-				receiver = root = XTerms.makeUQV();
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
 			}
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
 			CConstraint ttc = Types.xclause(target.type());
-			ttc = ttc == null ? new CConstraint() : ttc.copy();
+			ttc = ttc == null ? ConstraintManager.getConstraintSystem().makeCConstraint() : ttc.copy();
 			ttc = ttc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))
 				x.addIn(ttc);
@@ -325,7 +325,7 @@ public class Checker {
 			XVar receiver = Types.selfVarBinding(target.type());
 			XVar root = null;
 			if (receiver == null) {
-				receiver = root = XTerms.makeUQV();
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
 			}
 			xc = xc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))

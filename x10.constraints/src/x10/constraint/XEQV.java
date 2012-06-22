@@ -11,11 +11,6 @@
 
 package x10.constraint;
 
-import java.util.Collections;
-import java.util.List;
-
-
-
 
 /**
  * A representation of logical variables. 
@@ -28,27 +23,5 @@ import java.util.List;
  * @see XUQV
  *
  */
-public class XEQV extends XRoot  {
-    private static final long serialVersionUID = -5701688546973148631L;
-    public final int num;
-    public XEQV(int n) {this.num=n;}
-    
-    @Override public XTermKind kind() { return XTermKind.LOCAL;}
-    @Override public int prefersBeingBound() {return XTerm.TERM_PREFERS_BEING_BOUND;}
-    public boolean hasVar(XVar v) {return equals(v);}
-    @Override public boolean hasEQV() {return true;}
-    @Override public boolean isEQV() {return true;}
-    @Override public List<XEQV> eqvs() {return Collections.<XEQV>singletonList(this);}
-
-
-    public boolean okAsNestedTerm() {return true;}
-    @Override public int hashCode() {return num;}
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o instanceof XEQV) return num == ((XEQV) o).num;
-        return false;
-    }
-    
-    @Override public String toString() {return "eqv#" + num;}
+public interface XEQV extends XVar {
 }

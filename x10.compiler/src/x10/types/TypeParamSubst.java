@@ -29,7 +29,7 @@ import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
@@ -317,7 +317,7 @@ public class TypeParamSubst {
 				xs[i] = (XVar) p;
 			}
 			else {
-				xs[i] = XTerms.makeLit("error");
+				xs[i] = ConstraintManager.getConstraintSystem().makeLit("error");
 			}
 		}
 
@@ -327,7 +327,7 @@ public class TypeParamSubst {
 			result = c.substitute(ys, xs);
 		}
 		catch (XFailure e) {
-			result = new CConstraint();
+			result = ConstraintManager.getConstraintSystem().makeCConstraint();
 			result.setInconsistent();
 		}
 
