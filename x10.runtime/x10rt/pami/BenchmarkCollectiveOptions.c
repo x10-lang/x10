@@ -27,12 +27,15 @@
 #include <errno.h>
 #include <sys/time.h>
 #include <sched.h>
+#include <math.h>
+//#include <unistd.h> // for sleep
 #include <pami.h>
 #include <pami_ext_hfi.h>
 
 #define NUM_COLLECTIVES 6
 // datasize is fixed at 3Gb per process, which is chopped up into bits based on nplaces
-#define DATASIZE 1610612736
+//#define DATASIZE 1610612736
+#define DATASIZE 10240000
 // how many times to repeat each test
 #define REPEAT 3
 // the smallest team worth testing.  If MP_PROCS is less than this value, we test just one team size: MP_PROCS
@@ -49,6 +52,7 @@ struct pami_state
 	pami_context_t context; // PAMI context associated with the client
 	pami_geometry_t world_geometry;
 	pami_algorithm_t world_barrier;
+	unsigned int geometryId; // each new team gets a unique id
 //	struct result *results; // this is used only at task 0
 #if !defined(__bgq__)
 	pami_extension_t hfi_extension;
@@ -141,6 +145,203 @@ static void cookie_decrement (pami_context_t   context,
 	--*value;
 }
 
+unsigned long long testBroadcastAlg(int teamSize, int dataSize, int root, pami_algorithm_t algorithm, char* dataSnd)
+{
+	pami_xfer_t operation;
+	memset(&operation, 0, sizeof(operation));
+	volatile unsigned waitForCompletion = 1;
+	unsigned long long time;
+	pami_result_t status = PAMI_ERROR;
+
+	operation.algorithm = algorithm;
+	operation.cookie = (void*)&waitForCompletion;
+	operation.cb_done = cookie_decrement;
+	operation.cmd.xfer_broadcast.buf = dataSnd;
+	operation.cmd.xfer_broadcast.root = root;
+	operation.cmd.xfer_broadcast.type = PAMI_TYPE_BYTE;
+	operation.cmd.xfer_broadcast.typecount = dataSize;
+
+	// run the actual test.  Only place 0 is timed
+	if (state.myPlaceId == 0)
+		time = -nano_time();
+
+	status = PAMI_Collective(state.context, &operation);
+	if (status != PAMI_SUCCESS) error("Unable to issue %s on teamsize %u", collectiveNames[0], teamSize);
+	while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+
+	// wait here, until all tasks, including those not in the team under test, complete
+	waitForCompletion = 1;
+	operation.algorithm = state.world_barrier;
+	operation.cookie = (void*)&waitForCompletion;
+	operation.cb_done = cookie_decrement;
+	status = PAMI_Collective(state.context, &operation);
+	if (status != PAMI_SUCCESS) error("Unable to issue a barrier\n");
+	while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+
+	// the barrier above is included in the broadcast time because we can't tell if a chosen
+	// team from the many teams is faster or slower than the others
+	if (state.myPlaceId == 0)
+		time+=nano_time();
+
+	return time;
+}
+
+void testBroadcast(char* dataSnd)
+{
+	volatile unsigned waitForCompletion = 1;
+	pami_result_t status;
+
+	int teamSize = MIN_TEAM_SIZE;
+	if (teamSize > state.numPlaces)
+		teamSize = state.numPlaces;
+
+	do {
+		// broadcast divides up the buffer into parallel concurrent operations, of rows and columns
+		int rowlen = sqrt(teamSize);
+		if (state.myPlaceId == 0) printf("Broadcast team size = %u\n", rowlen);
+		int myrow = state.myPlaceId/rowlen;
+		int mycolumn = state.myPlaceId-(myrow*rowlen);
+		int dataSize = DATASIZE/teamSize;
+		char* myDataSegment = dataSnd+(myrow*rowlen*dataSize);
+
+		pami_task_t rowTeams[rowlen][rowlen];
+		pami_task_t columnTeams[rowlen][rowlen];
+		pami_task_t task = 0;
+		for (int i=0; i<rowlen; i++) {
+			for (int j=0; j<rowlen; j++) {
+				rowTeams[i][j] = task;
+				columnTeams[j][i] = task;
+				task++;
+			}
+		}
+
+/*		if (state.myPlaceId == 2) {
+			printf("Row teams: \n");
+			for (int i=0; i<rowlen; i++) {
+				printf("[");
+				for (int j=0; j<rowlen; j++) {
+					printf("%u,", rowTeams[i][j]);
+				}
+				printf("]\n");
+			}
+
+			printf("Column teams: \n");
+			for (int i=0; i<rowlen; i++) {
+				printf("[");
+				for (int j=0; j<rowlen; j++) {
+					printf("%u,", columnTeams[i][j]);
+				}
+				printf("]\n");
+			}
+		}
+		sleep(1);
+*/
+
+		// create the geometries
+		pami_geometry_t myRowGeometry;
+		pami_geometry_t myColumnGeometry;
+		pami_configuration_t config;
+		config.name = PAMI_GEOMETRY_OPTIMIZE;
+		for (int i=0; i<rowlen; i++) {
+			// create the row team
+			waitForCompletion = 1;
+			status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, i==myrow?&myRowGeometry:NULL, state.world_geometry, ++state.geometryId, rowTeams[i], rowlen, state.context, cookie_decrement, (void*)&waitForCompletion);
+			if (status != PAMI_SUCCESS) error("Unable to create a new team");
+			while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+
+			// create the column team
+			waitForCompletion = 1;
+			status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, i==mycolumn?&myColumnGeometry:NULL, state.world_geometry, ++state.geometryId, columnTeams[i], rowlen, state.context, cookie_decrement, (void*)&waitForCompletion);
+			if (status != PAMI_SUCCESS) error("Unable to create a new team");
+			while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+		}
+		if (state.myPlaceId == 0) printf("created %u X %u %s geometries\n", rowlen, rowlen, collectiveNames[0]);
+
+
+		// query the algorithms available to me
+		size_t num_row_algorithms[2];
+		size_t num_column_algorithms[2];
+		status = PAMI_Geometry_algorithms_num(myRowGeometry, PAMI_XFER_BROADCAST, num_row_algorithms);
+		if (status != PAMI_SUCCESS || num_row_algorithms[0] == 0)
+			error("Unable to query the row algorithm counts\n");
+		status = PAMI_Geometry_algorithms_num(myColumnGeometry, PAMI_XFER_BROADCAST, num_column_algorithms);
+		if (status != PAMI_SUCCESS || num_column_algorithms[0] == 0)
+			error("Unable to query the column algorithm counts\n");
+
+		// query what the different algorithms are
+		pami_algorithm_t *always_works_row_alg = (pami_algorithm_t*) alloca(sizeof(pami_algorithm_t)*num_row_algorithms[0]);
+		pami_metadata_t	*always_works_row_md = (pami_metadata_t*) alloca(sizeof(pami_metadata_t)*num_row_algorithms[0]);
+		pami_algorithm_t *must_query_row_alg = (pami_algorithm_t*) alloca(sizeof(pami_algorithm_t)*num_row_algorithms[1]);
+		pami_metadata_t	*must_query_row_md = (pami_metadata_t*) alloca(sizeof(pami_metadata_t)*num_row_algorithms[1]);
+		status = PAMI_Geometry_algorithms_query(myRowGeometry, PAMI_XFER_BROADCAST, always_works_row_alg,
+				always_works_row_md, num_row_algorithms[0], must_query_row_alg, must_query_row_md, num_row_algorithms[1]);
+		if (status != PAMI_SUCCESS)
+			error("Unable to query the supported row algorithms for PAMI_XFER_BROADCAST\n");
+
+		pami_algorithm_t *always_works_column_alg = (pami_algorithm_t*) alloca(sizeof(pami_algorithm_t)*num_column_algorithms[0]);
+		pami_metadata_t	*always_works_column_md = (pami_metadata_t*) alloca(sizeof(pami_metadata_t)*num_column_algorithms[0]);
+		pami_algorithm_t *must_query_column_alg = (pami_algorithm_t*) alloca(sizeof(pami_algorithm_t)*num_column_algorithms[1]);
+		pami_metadata_t	*must_query_column_md = (pami_metadata_t*) alloca(sizeof(pami_metadata_t)*num_column_algorithms[1]);
+		status = PAMI_Geometry_algorithms_query(myColumnGeometry, PAMI_XFER_BROADCAST, always_works_column_alg,
+				always_works_column_md, num_column_algorithms[0], must_query_column_alg, must_query_column_md, num_column_algorithms[1]);
+		if (status != PAMI_SUCCESS)
+			error("Unable to query the supported column algorithms for PAMI_XFER_BROADCAST\n");
+
+		if (state.myPlaceId == 0)
+			printf("found %u row algorithms, and %u column algorithms\n", num_row_algorithms[0]+num_row_algorithms[1], num_column_algorithms[0]+num_column_algorithms[1]);
+
+		// check that the algorithms match between columns and rows
+		int j;
+		for (j=0; j<2; j++) {
+			if (num_row_algorithms[j] == num_column_algorithms[j]) {
+				for (int i=0; i<num_row_algorithms[j]; i++) {
+					if (strcmp(always_works_row_md[i].name, always_works_column_md[i].name) != 0)
+						error("Algorithm mismatch");
+				}
+			}
+			else
+				error("Algorithm mismatch in count");
+		}
+
+		// test the algorithms, cycling between row-broadcast and column-broadcast phases
+		unsigned long long result;
+		if (state.myPlaceId == 0) printf("Testing parallel PAMI_XFER_BROADCAST operations.  Time includes a barrier after each test\n");
+		for (j=0; j<num_row_algorithms[0]; j++) {
+			if (state.myPlaceId == 0) printf("Testing PAMI_XFER_BROADCAST, %u teams of size %u, algorithm %u (%s), per-place datasize %u\n", teamSize, teamSize, j, always_works_row_md[j].name, dataSize);
+			for (int i=1; i<=REPEAT; i++)
+			{
+				result = testBroadcastAlg(rowlen, dataSize, rowTeams[j][0], always_works_row_alg[j], myDataSegment);
+				if (state.myPlaceId == 0) printf("  Run #%i row: %lu ns, ", i, result);
+				result = testBroadcastAlg(rowlen, dataSize, columnTeams[j][0], always_works_column_alg[j], myDataSegment);
+				if (state.myPlaceId == 0) printf("column: %lu ns\n", result);
+			}
+		}
+
+		for (j=0; j<num_row_algorithms[1]; j++) {
+			if (state.myPlaceId == 0) printf("Testing PAMI_XFER_BROADCAST, %u teams of size %u, algorithm %u (%s), per-place datasize %u\n", teamSize, teamSize, num_row_algorithms[0]+j, must_query_row_md[j].name, dataSize);
+			for (int i=1; i<=REPEAT; i++)
+			{
+				result = testBroadcastAlg(rowlen, dataSize, rowTeams[j][0], must_query_row_alg[j], myDataSegment);
+				if (state.myPlaceId == 0) printf("  Run #%i row: %lu ns, ", i, result);
+				result = testBroadcastAlg(rowlen, dataSize, columnTeams[j][0], must_query_column_alg[j], myDataSegment);
+				if (state.myPlaceId == 0) printf("column: %lu ns\n", result);
+			}
+		}
+
+
+		if (state.myPlaceId == 0) printf("destroying %u X %u %s teams\n", rowlen, rowlen, collectiveNames[0]);
+		waitForCompletion = 1;
+		status = PAMI_Geometry_destroy(state.client, &myRowGeometry, state.context, cookie_decrement, (void*)&waitForCompletion);
+		if (status != PAMI_SUCCESS) error("Unable to destroy row geometry");
+		while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+		waitForCompletion = 1;
+		status = PAMI_Geometry_destroy(state.client, &myColumnGeometry, state.context, cookie_decrement, (void*)&waitForCompletion);
+		if (status != PAMI_SUCCESS) error("Unable to destroy column geometry");
+		while (waitForCompletion) PAMI_Context_advance(state.context, 100);
+
+		teamSize = teamSize << 1;
+	} while (teamSize <= state.numPlaces);
+}
 
 void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algorithm_t algorithm, char* algName, char* dataSnd, char* dataRcv)
 {
@@ -155,12 +356,6 @@ void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algo
 		// prepare the data structures
 		switch(collectives[collective])
 		{
-			case PAMI_XFER_BROADCAST:
-				operation.cmd.xfer_broadcast.root = 0;
-				operation.cmd.xfer_broadcast.buf = dataSnd;
-				operation.cmd.xfer_broadcast.type = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_broadcast.typecount = dataSize;
-			break;
 			case PAMI_XFER_SCATTER:
 				operation.cmd.xfer_scatter.root = 0;
 				operation.cmd.xfer_scatter.rcvbuf = dataRcv;
@@ -198,6 +393,9 @@ void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algo
 				operation.cmd.xfer_allgather.sndbuf = dataSnd;
 				operation.cmd.xfer_allgather.stype = PAMI_TYPE_BYTE;
 				operation.cmd.xfer_allgather.stypecount = dataSize;
+			break;
+			default:
+				error("Invalid collective submitted to test");
 			break;
 		}
 		operation.algorithm = algorithm;
@@ -238,12 +436,11 @@ void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algo
 }
 
 int main(int argc, char ** argv) {
-	size_t num_algorithms[2];
 	pami_extension_t hfi_extension;
 	hfi_remote_update_fn hfi_update;
 	volatile unsigned waitForCompletion;
-	pami_geometry_t currentGeometry;
-	unsigned int geometryId = 0;
+	state.geometryId = 0;
+	size_t num_algorithms[2];
 	int j;
 
 	const char    *name = "X10";
@@ -293,22 +490,29 @@ int main(int argc, char ** argv) {
 		state.world_barrier = always_works_alg[0];
 	}
 
-	// prepare a list of members for the teams that we create
-	pami_task_t* teamMembers = (pami_task_t *)malloc(sizeof(pami_task_t)*state.numPlaces);
-	for (int i=0; i<state.numPlaces; i++)
-		teamMembers[i] = i;
+	// data array for transfers
+	char* dataSnd = (char*)malloc(DATASIZE);
+	if (dataSnd == NULL) error("Not enough memory!\n");
+
+	// test broadcast
+	testBroadcast(dataSnd);
 
 	int teamSize = MIN_TEAM_SIZE;
 	if (teamSize > state.numPlaces)
 		teamSize = state.numPlaces;
 
-	// data array for transfers
-	char* dataSnd = (char*)malloc(DATASIZE);
+	// prepare a list of members for the teams that we create
+	pami_task_t* teamMembers = (pami_task_t *)malloc(sizeof(pami_task_t)*state.numPlaces);
+	for (int i=0; i<state.numPlaces; i++)
+		teamMembers[i] = i;
+
 	char* dataRcv = (char*)malloc(DATASIZE);
 	if (dataRcv == NULL) error("Not enough memory!\n");
 
-   for (int collective = 0; collective < NUM_COLLECTIVES; collective++) {
+	for (int collective = 1; collective < NUM_COLLECTIVES; collective++) {
 		do {
+			pami_geometry_t currentGeometry;
+			size_t num_algorithms[2];
 			if (state.myPlaceId == 0) printf("New team size = %u\n", teamSize);
 			if (teamSize >= state.numPlaces) // handle teams that aren't a power of 2 in size
 			{
@@ -322,11 +526,11 @@ int main(int argc, char ** argv) {
 				waitForCompletion = 1;
 				pami_configuration_t config;
 				config.name = PAMI_GEOMETRY_OPTIMIZE;
-				pami_result_t status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &currentGeometry, state.world_geometry, ++geometryId, teamMembers, teamSize, state.context, cookie_decrement, (void*)&waitForCompletion);
+				pami_result_t status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &currentGeometry, state.world_geometry, ++state.geometryId, teamMembers, teamSize, state.context, cookie_decrement, (void*)&waitForCompletion);
 				if (status != PAMI_SUCCESS) error("Unable to create a new team");
 				while (waitForCompletion) PAMI_Context_advance(state.context, 100);
 
-				if (state.myPlaceId == 0) printf("created geometry %u\n", geometryId);
+				if (state.myPlaceId == 0) printf("created geometry %u\n", state.geometryId);
 			}
 
 			// query the algorithms
@@ -358,7 +562,7 @@ int main(int argc, char ** argv) {
 			// destroy the team
 			if (teamSize < state.numPlaces)
 			{
-				if (state.myPlaceId == 0) printf("destroying team %u\n", geometryId);
+				if (state.myPlaceId == 0) printf("destroying team %u\n", state.geometryId);
 				waitForCompletion = 1;
 				status = PAMI_Geometry_destroy(state.client, &currentGeometry, state.context, cookie_decrement, (void*)&waitForCompletion);
 				if (status != PAMI_SUCCESS) error("Unable to destroy geometry");
@@ -375,5 +579,10 @@ int main(int argc, char ** argv) {
 		fprintf(stderr, "Error closing PAMI context: %i\n", status);
 	if ((status = PAMI_Client_destroy(&state.client)) != PAMI_SUCCESS)
 		fprintf(stderr, "Error closing PAMI client: %i\n", status);
+
+	free(teamMembers);
+	free(dataSnd);
+	free(dataRcv);
+
 	return 0;
 }
