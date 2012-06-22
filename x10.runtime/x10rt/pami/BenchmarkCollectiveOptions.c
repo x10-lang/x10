@@ -32,14 +32,19 @@
 #include <pami.h>
 #include <pami_ext_hfi.h>
 
-#define NUM_COLLECTIVES 6
 // datasize is fixed at 3Gb per process, which is chopped up into bits based on nplaces
-//#define DATASIZE 1610612736
-#define DATASIZE 10240000
+#define DATASIZE 1610612736
+//#define DATASIZE 1024000
 // how many times to repeat each test
 #define REPEAT 3
 // the smallest team worth testing.  If MP_PROCS is less than this value, we test just one team size: MP_PROCS
 #define MIN_TEAM_SIZE 2048
+// these are known to hang on triloka
+const char* knownBadAllReduce[] = {"I1:ShortAllreduce:P2P:P2P", "I1:HybridShortAllreduce:SHMEM:CAU"};
+const char* knownBadBroadcast[] = {"I0:Binomial:P2P:P2P", "I0:BinomialSingleTh:P2P:P2P", "I0:Sync2-nary:P2P:P2P", "I0:BinomialSingleTh:P2P:P2P", "I0:SequenceBased_Binomial:P2P:P2P",
+									"I0:2-nomial:P2P:P2P", "I0:3-nomial:P2P:P2P", "I0:4-nomial:P2P:P2P", "I0:2-nary:P2P:P2P", "I0:3-nary:P2P:P2P", "I0:4-nary:P2P:P2P",
+									"I0:RankBased_Binomial:P2P:P2P", "I0:MultiCastComposite:SHMEM:CAU", "X0:Ring:P2P:P2P", "X0:RingSingleTh:P2P:P2P"};
+
 
 pami_xfer_type_t collectives[] = {PAMI_XFER_BROADCAST, PAMI_XFER_BARRIER, PAMI_XFER_SCATTER, PAMI_XFER_ALLTOALL, PAMI_XFER_ALLREDUCE, PAMI_XFER_ALLGATHER};
 const char* collectiveNames[] = {"PAMI_XFER_BROADCAST", "PAMI_XFER_BARRIER", "PAMI_XFER_SCATTER", "PAMI_XFER_ALLTOALL", "PAMI_XFER_ALLREDUCE", "PAMI_XFER_ALLGATHER"};
@@ -82,6 +87,23 @@ void error(const char* msg, ...) {
 
 	fflush(stderr);
 	exit(EXIT_FAILURE);
+}
+
+int checkIfKnownBad(pami_xfer_type_t collective, char* alg)
+{
+	switch (collective)
+	{
+	case PAMI_XFER_ALLREDUCE:
+		for (int i=0; i<(sizeof(knownBadAllReduce)/sizeof(char*)); i++)
+			if (strcmp(knownBadAllReduce[i], alg) == 0) return 1;
+	break;
+	case PAMI_XFER_BROADCAST:
+		for (int i=0; i<(sizeof(knownBadBroadcast)/sizeof(char*)); i++)
+			if (strcmp(knownBadBroadcast[i], alg) == 0) return 1;
+	break;
+	}
+
+	return 0;
 }
 
 // method to bind the process to a single processor
@@ -132,7 +154,6 @@ void thread_bind_cpu()
 	fprintf(stderr, "X10RT_CPUMAP is not supported on this platform.  Continuing without cpu binding....\n");
 #endif
 }
-
 
 /*
  * This small method is used to hold-up some calls until the data transmission is complete, by simply decrementing a counter
@@ -198,11 +219,18 @@ void testBroadcast(char* dataSnd)
 	do {
 		// broadcast divides up the buffer into parallel concurrent operations, of rows and columns
 		int rowlen = sqrt(teamSize);
+
+		// skip any sizes that don't fit perfectly into a NxN matrix
+		if (rowlen*rowlen < teamSize) {
+			teamSize = teamSize << 1;
+			continue;
+		}
+
 		if (state.myPlaceId == 0) printf("Broadcast team size = %u\n", rowlen);
 		int myrow = state.myPlaceId/rowlen;
 		int mycolumn = state.myPlaceId-(myrow*rowlen);
-		int dataSize = DATASIZE/teamSize;
-		char* myDataSegment = dataSnd+(myrow*rowlen*dataSize);
+		int dataSize = DATASIZE/rowlen;
+		char* myDataSegment = dataSnd+(myrow*rowlen);
 
 		pami_task_t rowTeams[rowlen][rowlen];
 		pami_task_t columnTeams[rowlen][rowlen];
@@ -214,28 +242,6 @@ void testBroadcast(char* dataSnd)
 				task++;
 			}
 		}
-
-/*		if (state.myPlaceId == 2) {
-			printf("Row teams: \n");
-			for (int i=0; i<rowlen; i++) {
-				printf("[");
-				for (int j=0; j<rowlen; j++) {
-					printf("%u,", rowTeams[i][j]);
-				}
-				printf("]\n");
-			}
-
-			printf("Column teams: \n");
-			for (int i=0; i<rowlen; i++) {
-				printf("[");
-				for (int j=0; j<rowlen; j++) {
-					printf("%u,", columnTeams[i][j]);
-				}
-				printf("]\n");
-			}
-		}
-		sleep(1);
-*/
 
 		// create the geometries
 		pami_geometry_t myRowGeometry;
@@ -256,7 +262,6 @@ void testBroadcast(char* dataSnd)
 			while (waitForCompletion) PAMI_Context_advance(state.context, 100);
 		}
 		if (state.myPlaceId == 0) printf("created %u X %u %s geometries\n", rowlen, rowlen, collectiveNames[0]);
-
 
 		// query the algorithms available to me
 		size_t num_row_algorithms[2];
@@ -290,41 +295,36 @@ void testBroadcast(char* dataSnd)
 		if (state.myPlaceId == 0)
 			printf("found %u row algorithms, and %u column algorithms\n", num_row_algorithms[0]+num_row_algorithms[1], num_column_algorithms[0]+num_column_algorithms[1]);
 
-		// check that the algorithms match between columns and rows
-		int j;
-		for (j=0; j<2; j++) {
-			if (num_row_algorithms[j] == num_column_algorithms[j]) {
-				for (int i=0; i<num_row_algorithms[j]; i++) {
-					if (strcmp(always_works_row_md[i].name, always_works_column_md[i].name) != 0)
-						error("Algorithm mismatch");
-				}
-			}
-			else
-				error("Algorithm mismatch in count");
-		}
-
 		// test the algorithms, cycling between row-broadcast and column-broadcast phases
 		unsigned long long result;
 		if (state.myPlaceId == 0) printf("Testing parallel PAMI_XFER_BROADCAST operations.  Time includes a barrier after each test\n");
-		for (j=0; j<num_row_algorithms[0]; j++) {
-			if (state.myPlaceId == 0) printf("Testing PAMI_XFER_BROADCAST, %u teams of size %u, algorithm %u (%s), per-place datasize %u\n", teamSize, teamSize, j, always_works_row_md[j].name, dataSize);
-			for (int i=1; i<=REPEAT; i++)
-			{
-				result = testBroadcastAlg(rowlen, dataSize, rowTeams[j][0], always_works_row_alg[j], myDataSegment);
-				if (state.myPlaceId == 0) printf("  Run #%i row: %lu ns, ", i, result);
-				result = testBroadcastAlg(rowlen, dataSize, columnTeams[j][0], always_works_column_alg[j], myDataSegment);
-				if (state.myPlaceId == 0) printf("column: %lu ns\n", result);
+		for (int j=0; j<num_row_algorithms[0]; j++) {
+			if (checkIfKnownBad(PAMI_XFER_BROADCAST, always_works_row_md[j].name)) continue;
+			for (int k=0; k<num_column_algorithms[0]; k++) {
+				if (checkIfKnownBad(PAMI_XFER_BROADCAST, always_works_column_md[k].name)) continue;
+				if (state.myPlaceId == 0) printf("Testing PAMI_XFER_BROADCAST, %u teams of size %u, row algorithm %u (%s), column algorithm %u (%s), per-place datasize %u\n", rowlen, rowlen, j, always_works_row_md[j].name, k, always_works_column_md[k].name, dataSize);
+				for (int i=1; i<=REPEAT; i++)
+				{
+					result = testBroadcastAlg(rowlen, dataSize, rowTeams[j][0], always_works_row_alg[j], myDataSegment);
+					if (state.myPlaceId == 0) printf("  Run #%i row: %lu ns, ", i, result);
+					result = testBroadcastAlg(rowlen, dataSize, columnTeams[j][0], always_works_column_alg[k], myDataSegment);
+					if (state.myPlaceId == 0) printf("column: %lu ns\n", result);
+				}
 			}
 		}
 
-		for (j=0; j<num_row_algorithms[1]; j++) {
-			if (state.myPlaceId == 0) printf("Testing PAMI_XFER_BROADCAST, %u teams of size %u, algorithm %u (%s), per-place datasize %u\n", teamSize, teamSize, num_row_algorithms[0]+j, must_query_row_md[j].name, dataSize);
-			for (int i=1; i<=REPEAT; i++)
-			{
-				result = testBroadcastAlg(rowlen, dataSize, rowTeams[j][0], must_query_row_alg[j], myDataSegment);
-				if (state.myPlaceId == 0) printf("  Run #%i row: %lu ns, ", i, result);
-				result = testBroadcastAlg(rowlen, dataSize, columnTeams[j][0], must_query_column_alg[j], myDataSegment);
-				if (state.myPlaceId == 0) printf("column: %lu ns\n", result);
+		for (int j=0; j<num_row_algorithms[1]; j++) {
+			if (checkIfKnownBad(PAMI_XFER_BROADCAST, must_query_row_md[j].name)) continue;
+			for (int k=0; k<num_column_algorithms[1]; k++) {
+				if (checkIfKnownBad(PAMI_XFER_BROADCAST, must_query_column_md[k].name)) continue;
+				if (state.myPlaceId == 0) printf("Testing PAMI_XFER_BROADCAST, %u teams of size %u, algorithm %u (%s), column algorithm %u (%s), per-place datasize %u\n", rowlen, rowlen, num_row_algorithms[0]+j, must_query_row_md[j].name, num_column_algorithms[0]+k, must_query_column_md[k].name, dataSize);
+				for (int i=1; i<=REPEAT; i++)
+				{
+					result = testBroadcastAlg(rowlen, dataSize, rowTeams[j][0], must_query_row_alg[j], myDataSegment);
+					if (state.myPlaceId == 0) printf("  Run #%i row: %lu ns, ", i, result);
+					result = testBroadcastAlg(rowlen, dataSize, columnTeams[j][0], must_query_column_alg[k], myDataSegment);
+					if (state.myPlaceId == 0) printf("column: %lu ns\n", result);
+				}
 			}
 		}
 
@@ -345,6 +345,8 @@ void testBroadcast(char* dataSnd)
 
 void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algorithm_t algorithm, char* algName, char* dataSnd, char* dataRcv)
 {
+	if (checkIfKnownBad(collectives[collective], algName)) return;
+
 	pami_xfer_t operation;
 	memset(&operation, 0, sizeof(operation));
 	volatile unsigned waitForCompletion = 1;
@@ -356,6 +358,8 @@ void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algo
 		// prepare the data structures
 		switch(collectives[collective])
 		{
+			case PAMI_XFER_BARRIER:
+			break;
 			case PAMI_XFER_SCATTER:
 				operation.cmd.xfer_scatter.root = 0;
 				operation.cmd.xfer_scatter.rcvbuf = dataRcv;
@@ -381,10 +385,6 @@ void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algo
 				operation.cmd.xfer_allreduce.stype = PAMI_TYPE_UNSIGNED_LONG_LONG;
 				operation.cmd.xfer_allreduce.stypecount = dataSize/8;
 				operation.cmd.xfer_allreduce.op = PAMI_DATA_MAX;
-
-				// known to segfault on triloka4
-				if (strcmp("I1:ShortAllreduce:P2P:P2P", algName) == 0 || strcmp("I1:HybridShortAllreduce:SHMEM:CAU", algName) == 0)
-					return;
 			break;
 			case PAMI_XFER_ALLGATHER:
 				operation.cmd.xfer_allgather.rcvbuf = dataRcv;
@@ -509,11 +509,11 @@ int main(int argc, char ** argv) {
 	char* dataRcv = (char*)malloc(DATASIZE);
 	if (dataRcv == NULL) error("Not enough memory!\n");
 
-	for (int collective = 1; collective < NUM_COLLECTIVES; collective++) {
+	for (int collective = 1; collective < (sizeof(collectives)/sizeof(pami_xfer_type_t)); collective++) {
 		do {
 			pami_geometry_t currentGeometry;
 			size_t num_algorithms[2];
-			if (state.myPlaceId == 0) printf("New team size = %u\n", teamSize);
+			if (state.myPlaceId == 0) printf("Testing %s at team size = %u\n", collectiveNames[collective], teamSize);
 			if (teamSize >= state.numPlaces) // handle teams that aren't a power of 2 in size
 			{
 				teamSize = state.numPlaces;
