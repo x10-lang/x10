@@ -223,7 +223,7 @@ PGAS_EXECUTABLES = bin/launcher bin/manager bin/daemon
 EXECUTABLES += $(PGAS_EXECUTABLES)
 
 %.pgas_sockets: %.cc $(LIB_FILE_PGAS_SOCKETS)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PGAS_SOCKETS) $(APP_LDLIBS_PGAS_SOCKETS) $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< $(APP_LDFLAGS_PGAS_SOCKETS) $(APP_LDLIBS_PGAS_SOCKETS) $(X10RT_TEST_LDFLAGS) -o $@
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_sockets.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_sockets.a include/pgasrt.h
@@ -252,7 +252,7 @@ $(LIB_FILE_PGAS_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
 	$(AR) $(ARFLAGS) $@ $(DARWIN_EXTRA_LIB) $(COMMON_OBJS)
 else
 $(LIB_FILE_PGAS_SOCKETS): $(COMMON_OBJS) lib/libxlpgas_sockets.a
-	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PGAS_SOCKETS) $(SO_LDLIBS_PGAS_SOCKETS) -o $@ $^
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $^ $(SO_LDFLAGS_PGAS_SOCKETS) $(SO_LDLIBS_PGAS_SOCKETS) -o $@
 endif
 
 
@@ -280,7 +280,7 @@ LIBS += $(LIB_FILE_PGAS_PANE)
 PROPERTIES += etc/x10rt_pgas_pane.properties
 
 %.pgas_pane: %.cc $(LIB_FILE_PGAS_PANE)
-	$(CXX) $(CXXFLAGS) $< -o $@ -DX10RT_PANE_HACK $(APP_LDFLAGS_PGAS_PANE) $(APP_LDLIBS_PGAS_PANE) $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) -DX10RT_PANE_HACK $< $(APP_LDFLAGS_PGAS_PANE) $(APP_LDLIBS_PGAS_PANE) $(X10RT_TEST_LDFLAGS) -o $@
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_pane.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_pane.a include/pgasrt.h
@@ -295,7 +295,7 @@ $(LIB_FILE_PGAS_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(LIB_FILE_PGAS_PANE): $(COMMON_OBJS) lib/libxlpgas_pane.a
-	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PGAS_PANE) $(SO_LDLIBS_PGAS_PANE) -o $@ $(COMMON_OBJS) -Wl,-bexpfull lib/libxlpgas_pane.a 
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(COMMON_OBJS) $(SO_LDFLAGS_PGAS_PANE) $(SO_LDLIBS_PGAS_PANE) -Wl,-bexpfull lib/libxlpgas_pane.a -o $@
 endif
 
 etc/x10rt_pgas_pane.properties:
@@ -331,7 +331,7 @@ HACK=$(shell echo "Your platform supports LAPI but we could not find the poe exe
 endif
 
 %.pgas_lapi: %.cc $(LIB_FILE_PGAS_LAPI)
-	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PGAS_LAPI) $(APP_LDLIBS_PGAS_LAPI) $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< $(APP_LDFLAGS_PGAS_LAPI) $(APP_LDLIBS_PGAS_LAPI) $(X10RT_TEST_LDFLAGS) -o $@
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_lapi.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_lapi.a include/pgasrt.h
@@ -352,7 +352,7 @@ $(LIB_FILE_PGAS_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
 	$(AR) $(ARFLAGS) $@ $(COMMON_OBJS)
 else
 $(LIB_FILE_PGAS_LAPI): $(COMMON_OBJS) lib/libxlpgas_lapi.a
-	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PGAS_LAPI) $(SO_LDLIBS_PGAS_LAPI) -o $@ $^
+	$(LINKER_PROG) $(CXXFLAGS) $(CXXFLAGS_SHARED) $^ $(SO_LDFLAGS_PGAS_LAPI) $(SO_LDLIBS_PGAS_LAPI) -o $@
 endif
 
 etc/x10rt_pgas_lapi.properties:
@@ -379,7 +379,7 @@ LIBS += lib/libx10rt_pgas_bgp.a
 PROPERTIES += etc/x10rt_pgas_bgp.properties
 
 %.pgas_bgp: %.cc lib/libx10rt_pgas_bgp.a
-	$(CXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PGAS_BGP) $(APP_LDLIBS_PGAS_BGP) $(X10RT_TEST_LDFLAGS)
+	$(CXX) $(CXXFLAGS) $< $(APP_LDFLAGS_PGAS_BGP) $(APP_LDLIBS_PGAS_BGP) $(X10RT_TEST_LDFLAGS) -o $@
 
 ifdef CUSTOM_PGAS
 lib/libxlpgas_bgp.a: $(COMMON_OBJS) $(CUSTOM_PGAS)/lib/libxlpgas_bgp.a include/pgasrt.h

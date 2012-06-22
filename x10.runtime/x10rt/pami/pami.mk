@@ -67,16 +67,16 @@ LIBS += $(LIB_FILE_PAMI)
 PROPERTIES += etc/x10rt_pami.properties
 
 %.pami: %.cc $(LIB_FILE_PAMI)
-	$(PAMI_MPCC) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI) $(X10RT_TEST_LDFLAGS)
+	$(PAMI_MPCC) $(CXXFLAGS) $< $(APP_LDFLAGS_PAMI) $(APP_LDLIBS_PAMI) $(X10RT_TEST_LDFLAGS) -o $@
 
 pami/x10rt_pami.o: pami/x10rt_pami.cc
-	$(PAMI_MPCC) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
+	$(PAMI_MPCC) $(CXXFLAGS) $(CXXFLAGS_SHARED) $< -c -o $@
 
 $(LIB_FILE_PAMI): pami/x10rt_pami.o $(COMMON_OBJS)
 ifdef X10_STATIC_LIB
 	$(AR) $(ARFLAGS) $@ $^
 else
-	$(PAMI_MPCC) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_PAMI) $(SO_LDLIBS_PAMI) -o $@ $^
+	$(PAMI_MPCC) $(CXXFLAGS) $(CXXFLAGS_SHARED) $^ $(SO_LDFLAGS_PAMI) $(SO_LDLIBS_PAMI) -o $@
 endif
 
 etc/x10rt_pami.properties:

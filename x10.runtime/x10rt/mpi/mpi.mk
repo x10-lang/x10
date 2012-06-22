@@ -32,16 +32,16 @@ else
 endif
 
 %.mpi: %.cc $(LIB_FILE_MPI)
-	$(MPICXX) $(CXXFLAGS) $< -o $@ $(APP_LDFLAGS_MPI) $(APP_LDLIBS_MPI) $(X10RT_TEST_LDFLAGS)
+	$(MPICXX) $(CXXFLAGS) $< $(APP_LDFLAGS_MPI) $(APP_LDLIBS_MPI) $(X10RT_TEST_LDFLAGS) -o $@
 
 mpi/x10rt_mpi.o: mpi/x10rt_mpi.cc
-	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
+	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $< -c -o $@
 
 $(LIB_FILE_MPI): mpi/x10rt_mpi.o $(COMMON_OBJS)
 ifdef X10_STATIC_LIB
 	$(AR) $(ARFLAGS) $@ $^
 else
-	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $(SO_LDFLAGS_MPI) $(SO_LDLIBS_MPI) -o $@ $^
+	$(MPICXX) $(CXXFLAGS) $(CXXFLAGS_SHARED) $^ $(SO_LDFLAGS_MPI) $(SO_LDLIBS_MPI) -o $@
 endif
 
 etc/x10rt_mpi.properties:
