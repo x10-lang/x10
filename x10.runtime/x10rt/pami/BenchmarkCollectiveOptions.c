@@ -17,7 +17,9 @@
  * "mpCC BenchmarkCollectiveOptions.c"
  */
 
-#define _GNU_SOURCE
+#ifndef _GNU_SOURCE
+	#define _GNU_SOURCE
+#endif
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdarg.h>
@@ -28,14 +30,16 @@
 #include <pami.h>
 #include <pami_ext_hfi.h>
 
-// environment variable to limit the size of data structures under test
-#define X10RT_PAMI_MAX_DATASIZE "X10RT_PAMI_MAX_DATASIZE"
-#define numCollectives 6
-#define numDataSizes 2
+#define NUM_COLLECTIVES 6
+// datasize is fixed at 3Gb per process, which is chopped up into bits based on nplaces
+#define DATASIZE 1610612736
+// how many times to repeat each test
 #define REPEAT 3
+// the smallest team worth testing.  If MP_PROCS is less than this value, we test just one team size: MP_PROCS
+#define MIN_TEAM_SIZE 2048
+
 pami_xfer_type_t collectives[] = {PAMI_XFER_BROADCAST, PAMI_XFER_BARRIER, PAMI_XFER_SCATTER, PAMI_XFER_ALLTOALL, PAMI_XFER_ALLREDUCE, PAMI_XFER_ALLGATHER};
 const char* collectiveNames[] = {"PAMI_XFER_BROADCAST", "PAMI_XFER_BARRIER", "PAMI_XFER_SCATTER", "PAMI_XFER_ALLTOALL", "PAMI_XFER_ALLREDUCE", "PAMI_XFER_ALLGATHER"};
-const int dataSizes[] = {1000000, 100000};
 
 struct pami_state
 {
@@ -138,7 +142,7 @@ static void cookie_decrement (pami_context_t   context,
 }
 
 
-int test(int collective, int teamSize, int algorithmId, int dataId, pami_algorithm_t algorithm, char* algName, char* dataSnd, char* dataRcv)
+void test(int collective, int teamSize, int algorithmId, int dataSize, pami_algorithm_t algorithm, char* algName, char* dataSnd, char* dataRcv)
 {
 	pami_xfer_t operation;
 	memset(&operation, 0, sizeof(operation));
@@ -149,47 +153,51 @@ int test(int collective, int teamSize, int algorithmId, int dataId, pami_algorit
 	if (state.myPlaceId < teamSize)
 	{
 		// prepare the data structures
-		switch(collective)
+		switch(collectives[collective])
 		{
 			case PAMI_XFER_BROADCAST:
 				operation.cmd.xfer_broadcast.root = 0;
 				operation.cmd.xfer_broadcast.buf = dataSnd;
 				operation.cmd.xfer_broadcast.type = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_broadcast.typecount = dataSizes[dataId];
+				operation.cmd.xfer_broadcast.typecount = dataSize;
 			break;
 			case PAMI_XFER_SCATTER:
 				operation.cmd.xfer_scatter.root = 0;
 				operation.cmd.xfer_scatter.rcvbuf = dataRcv;
 				operation.cmd.xfer_scatter.rtype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_scatter.rtypecount = dataSizes[dataId];
+				operation.cmd.xfer_scatter.rtypecount = dataSize;
 				operation.cmd.xfer_scatter.sndbuf = dataSnd;
 				operation.cmd.xfer_scatter.stype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_scatter.stypecount = dataSizes[dataId];
+				operation.cmd.xfer_scatter.stypecount = dataSize;
 			break;
 			case PAMI_XFER_ALLTOALL:
 				operation.cmd.xfer_alltoall.rcvbuf = dataRcv;
 				operation.cmd.xfer_alltoall.rtype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_alltoall.rtypecount = dataSizes[dataId];
+				operation.cmd.xfer_alltoall.rtypecount = dataSize;
 				operation.cmd.xfer_alltoall.sndbuf = dataSnd;
 				operation.cmd.xfer_alltoall.stype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_alltoall.stypecount = dataSizes[dataId];
+				operation.cmd.xfer_alltoall.stypecount = dataSize;
 			break;
 			case PAMI_XFER_ALLREDUCE:
 				operation.cmd.xfer_allreduce.rcvbuf = dataRcv;
-				operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_allreduce.rtypecount = dataSizes[dataId];
+				operation.cmd.xfer_allreduce.rtype = PAMI_TYPE_UNSIGNED_LONG_LONG;
+				operation.cmd.xfer_allreduce.rtypecount = dataSize/8;
 				operation.cmd.xfer_allreduce.sndbuf = dataSnd;
-				operation.cmd.xfer_allreduce.stype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_allreduce.stypecount = dataSizes[dataId];
-				operation.cmd.xfer_allreduce.op = PAMI_DATA_SUM;
+				operation.cmd.xfer_allreduce.stype = PAMI_TYPE_UNSIGNED_LONG_LONG;
+				operation.cmd.xfer_allreduce.stypecount = dataSize/8;
+				operation.cmd.xfer_allreduce.op = PAMI_DATA_MAX;
+
+				// known to segfault on triloka4
+				if (strcmp("I1:ShortAllreduce:P2P:P2P", algName) == 0 || strcmp("I1:HybridShortAllreduce:SHMEM:CAU", algName) == 0)
+					return;
 			break;
 			case PAMI_XFER_ALLGATHER:
 				operation.cmd.xfer_allgather.rcvbuf = dataRcv;
 				operation.cmd.xfer_allgather.rtype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_allgather.rtypecount = dataSizes[dataId];
+				operation.cmd.xfer_allgather.rtypecount = dataSize;
 				operation.cmd.xfer_allgather.sndbuf = dataSnd;
 				operation.cmd.xfer_allgather.stype = PAMI_TYPE_BYTE;
-				operation.cmd.xfer_allgather.stypecount = dataSizes[dataId];
+				operation.cmd.xfer_allgather.stypecount = dataSize;
 			break;
 		}
 		operation.algorithm = algorithm;
@@ -197,7 +205,7 @@ int test(int collective, int teamSize, int algorithmId, int dataId, pami_algorit
 		operation.cb_done = cookie_decrement;
 
 		if (state.myPlaceId == 0)
-			printf("Testing Collective %s, team size %u, algorithm %u (%s), per-place datasize %u\n", collectiveNames[collective], teamSize, algorithmId, algName, dataSizes[dataId]);
+			printf("Testing Collective %s, team size %u, algorithm %u (%s), per-place datasize %u\n", collectiveNames[collective], teamSize, algorithmId, algName, dataSize);
 
 		for (int i=1; i<=REPEAT; i++)
 		{
@@ -209,7 +217,7 @@ int test(int collective, int teamSize, int algorithmId, int dataId, pami_algorit
 				time = -nano_time();
 			}
 			status = PAMI_Collective(state.context, &operation);
-			if (status != PAMI_SUCCESS) error("Unable to issue a barrier on teamsize %u", teamSize);
+			if (status != PAMI_SUCCESS) error("Unable to issue %s on teamsize %u", collectiveNames[collective], teamSize);
 			while (waitForCompletion) PAMI_Context_advance(state.context, 100);
 			if (state.myPlaceId == 0)
 			{
@@ -236,6 +244,7 @@ int main(int argc, char ** argv) {
 	volatile unsigned waitForCompletion;
 	pami_geometry_t currentGeometry;
 	unsigned int geometryId = 0;
+	int j;
 
 	const char    *name = "X10";
 	setenv("MP_MSG_API", name, 1);
@@ -284,38 +293,28 @@ int main(int argc, char ** argv) {
 		state.world_barrier = always_works_alg[0];
 	}
 
-	// count the number of team sizes we'll test
-	int numTeams = 1;
-	while (state.numPlaces = (state.numPlaces >> 1))
-		numTeams++;
-	state.numPlaces = configuration[1].value.intval; // restore the value
-
 	// prepare a list of members for the teams that we create
 	pami_task_t* teamMembers = (pami_task_t *)malloc(sizeof(pami_task_t)*state.numPlaces);
 	for (int i=0; i<state.numPlaces; i++)
 		teamMembers[i] = i;
 
+	int teamSize = MIN_TEAM_SIZE;
+	if (teamSize > state.numPlaces)
+		teamSize = state.numPlaces;
+
 	// data array for transfers
-	char* dataSnd = (char*)malloc((state.numPlaces+1) * dataSizes[0]);
-	char* dataRcv = (char*)malloc((state.numPlaces+1) * dataSizes[0]);
+	char* dataSnd = (char*)malloc(DATASIZE);
+	char* dataRcv = (char*)malloc(DATASIZE);
 	if (dataRcv == NULL) error("Not enough memory!\n");
 
-/*	replaced this bit with fixed values, for all-to-all testing
-   for (int collective = 0; collective < numCollectives; collective++) {
-		for (int team=0; team<numTeams; team++) {
-			int teamSize = 1;
-			for (int i=0; i<team; i++)
-				teamSize = teamSize << 1;
-*/
-	int collective = 3;
-	int teamSize = state.numPlaces;
-	{{
-
+   for (int collective = 0; collective < NUM_COLLECTIVES; collective++) {
+		do {
 			if (state.myPlaceId == 0) printf("New team size = %u\n", teamSize);
-			if (teamSize > state.numPlaces) // handle teams that aren't a power of 2 in size
+			if (teamSize >= state.numPlaces) // handle teams that aren't a power of 2 in size
 			{
 				teamSize = state.numPlaces;
 				currentGeometry = state.world_geometry;
+				if (state.myPlaceId == 0) printf("using world geometry\n");
 			}
 			else
 			{
@@ -326,9 +325,9 @@ int main(int argc, char ** argv) {
 				pami_result_t status = PAMI_Geometry_create_tasklist(state.client, 0, &config, 1, &currentGeometry, state.world_geometry, ++geometryId, teamMembers, teamSize, state.context, cookie_decrement, (void*)&waitForCompletion);
 				if (status != PAMI_SUCCESS) error("Unable to create a new team");
 				while (waitForCompletion) PAMI_Context_advance(state.context, 100);
-			}
 
-			if (state.myPlaceId == 0) printf("created geometry %u\n", geometryId);
+				if (state.myPlaceId == 0) printf("created geometry %u\n", geometryId);
+			}
 
 			// query the algorithms
 			status = PAMI_Geometry_algorithms_num(currentGeometry, collectives[collective], num_algorithms);
@@ -347,25 +346,14 @@ int main(int argc, char ** argv) {
 
 			if (state.myPlaceId == 0) printf("found %u algorithms\n", num_algorithms[0]+num_algorithms[1]);
 
-			int j;
-			if (collectives[collective] == PAMI_XFER_BARRIER) // barrier does not transfer data
-			{
-				for (j=0; j<num_algorithms[0]; j++)
-					test(collective, teamSize, j, 0, always_works_alg[j], must_query_md[j].name, NULL, NULL);
-				for (j=0; j<num_algorithms[1]; j++)
-					test(collective, teamSize, j+num_algorithms[0], 0, must_query_alg[j], must_query_md[j].name, NULL, NULL);
-			}
-			else
-			{
-				for (int dataSizeIndex=0; dataSizeIndex<numDataSizes; dataSizeIndex++)
-				{
-					// test the algorithms
-					for (j=0; j<num_algorithms[0]; j++)
-						test(collective, teamSize, j, dataSizeIndex, always_works_alg[j], must_query_md[j].name, dataSnd, dataRcv);
-					for (j=0; j<num_algorithms[1]; j++)
-						test(collective, teamSize, j+num_algorithms[0], dataSizeIndex, must_query_alg[j], must_query_md[j].name, dataSnd, dataRcv);
-				}
-			}
+			// calculate the amount of data to shuffle around
+			int dataSize = DATASIZE/teamSize;
+
+			// test the algorithms
+			for (j=0; j<num_algorithms[0]; j++)
+				test(collective, teamSize, j, dataSize, always_works_alg[j], always_works_md[j].name, dataSnd, dataRcv);
+			for (j=0; j<num_algorithms[1]; j++)
+				test(collective, teamSize, j+num_algorithms[0], dataSize, must_query_alg[j], must_query_md[j].name, dataSnd, dataRcv);
 
 			// destroy the team
 			if (teamSize < state.numPlaces)
@@ -376,7 +364,9 @@ int main(int argc, char ** argv) {
 				if (status != PAMI_SUCCESS) error("Unable to destroy geometry");
 				while (waitForCompletion) PAMI_Context_advance(state.context, 100);
 			}
-		}
+			
+			teamSize = teamSize << 1;
+		} while (teamSize <= state.numPlaces);
 	}
 
 	PAMI_Extension_close (hfi_extension);
