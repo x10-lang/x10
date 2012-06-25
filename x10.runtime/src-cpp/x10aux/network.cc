@@ -123,7 +123,7 @@ void x10aux::blocks_threads (place p, msg_type t, x10_int shm, x10_long &bs, x10
 
 void *kernel_put_finder (const x10rt_msg_params *p, x10rt_copy_sz)
 {
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     buf.read<x10_ulong>();
     x10_ulong remote_addr = buf.read<x10_ulong>();
     assert(buf.consumed() <= p->len);
@@ -133,7 +133,7 @@ void *kernel_put_finder (const x10rt_msg_params *p, x10rt_copy_sz)
 
 void kernel_put_notifier (const x10rt_msg_params *p, x10rt_copy_sz)
 {
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     bool *finished = (bool*)(size_t)buf.read<x10_ulong>();
     *finished = true;
 }
@@ -278,7 +278,7 @@ void x10aux::send_put (x10aux::place place, x10aux::serialization_id_t id_,
 
 static void receive_async (const x10rt_msg_params *p) {
     _X_(ANSI_X10RT<<"Receiving an async, id ("<<p->type<<"), deserialising..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     _X_(ANSI_X10RT<<"async sid: ("<<sid<<ANSI_RESET);
@@ -310,7 +310,7 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
                       size_t *argc, char **argv, size_t *cmemc, char **cmemv)
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     buf.read<x10aux::ref<x10::lang::FinishState> >();
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
@@ -325,12 +325,12 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
     _X_(ANSI_X10RT<<"Receiving a kernel post callback, deserialising..."<<ANSI_RESET);
     {
         serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
-        x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+        x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
         x10aux::CUDAPost post = x10aux::DeserializationDispatcher::getCUDAPost(sid);
         post(buf, p->dest_place, blocks, threads, shm, argc, argv, cmemc, cmemv);
     }
     {
-        x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+        x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
         x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
         fs->notifyActivityCreation();
         fs->notifyActivityTermination();
@@ -348,7 +348,7 @@ x10aux::msg_type x10aux::register_async_handler (const char *cubin, const char *
 
 static void *receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for buffer finder..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getPutBufferFinder(sid);
@@ -359,7 +359,7 @@ static void *receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
 
 static void *cuda_receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for cuda buffer finder..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getCUDAPutBufferFinder(sid);
@@ -370,7 +370,7 @@ static void *cuda_receive_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
 
 static void finished_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for notifier..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::Notifier n = x10aux::DeserializationDispatcher::getPutNotifier(sid);
@@ -381,7 +381,7 @@ static void finished_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
 
 static void cuda_finished_put (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a put, deserialising for cuda notifier..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::Notifier n = x10aux::DeserializationDispatcher::getCUDAPutNotifier(sid);
@@ -397,7 +397,7 @@ x10aux::msg_type x10aux::register_put_handler () {
 
 static void *receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for buffer finder..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getGetBufferFinder(sid);
@@ -409,7 +409,7 @@ static void *receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
 
 static void *cuda_receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for cuda buffer finder..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::BufferFinder bf = x10aux::DeserializationDispatcher::getCUDAGetBufferFinder(sid);
@@ -421,7 +421,7 @@ static void *cuda_receive_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
 
 static void finished_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for notifier..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::Notifier n = x10aux::DeserializationDispatcher::getGetNotifier(sid);
@@ -432,7 +432,7 @@ static void finished_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
 
 static void cuda_finished_get (const x10rt_msg_params *p, x10aux::copy_sz len) {
     _X_(ANSI_X10RT<<"Receiving a get, deserialising for cuda notifier..."<<ANSI_RESET);
-    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg));
+    x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::Notifier n = x10aux::DeserializationDispatcher::getCUDAGetNotifier(sid);

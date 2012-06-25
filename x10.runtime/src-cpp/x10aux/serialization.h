@@ -347,13 +347,16 @@ namespace x10aux {
     // A buffer from which we can deserialize x10 objects
     class deserialization_buffer {
     private:
-        const char* buffer;
+        char* buffer;
         const char* cursor;
         addr_map map;
+        size_t len;
     public:
+        char *getBuffer() { return buffer; }
+        size_t getLen() { return len; }
 
-        deserialization_buffer(const char *buffer_)
-            : buffer(buffer_), cursor(buffer_), map()
+        deserialization_buffer(char *buffer_, size_t len_)
+            : buffer(buffer_), cursor(buffer_), map(), len(len_)
         { }
 
         size_t consumed (void) { return cursor - buffer; }
@@ -500,7 +503,7 @@ namespace x10aux {
     template <class T> T deep_copy(T o) {
         serialization_buffer buf;
         buf.write(o);
-        deserialization_buffer buf2(buf.borrow());
+        deserialization_buffer buf2(buf.borrow(), buf.length());
         T res = buf2.read<T>();
         return res;
     }

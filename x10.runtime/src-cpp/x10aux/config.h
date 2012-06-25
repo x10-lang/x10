@@ -172,6 +172,8 @@ namespace x10aux {
 
     size_t get_remote_op_batch();
 
+    extern const bool static_broadcast_naive;
+
     size_t getMemSizeEnvVar(const char*, bool*);
     
     extern x10_int here;
