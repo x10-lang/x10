@@ -1,0 +1,53 @@
+help=""
+verbose=""
+extra_cp=""
+x10_args=""
+args=""
+
+parse=true
+while [ -n "${1}" ]; do
+    if [ -z "${parse}" ]; then
+        args="${args} '${1}'"
+        shift
+        continue
+    fi
+    case "${1}" in
+        -h|-help|--help) help="1"; break;;
+        -v|-verbose|--verbose) verbose="1";;
+        -classpath|-cp)
+            shift
+            if [ -z "$extra_cp" ] ; then
+                extra_cp="${1}"
+            else
+                extra_cp="${extra_cp}${PATH_SEP}${1}"
+            fi
+            ;;
+        --) parse=;;
+        -*) x10_args="${x10_args} '${1}'";;
+        *) args="${args} '${1}'"
+           parse=;;
+    esac
+    shift
+done
+
+
+if [ -n "$help" -o -z "${args}" ]; then
+    cat << EOF
+Usage: xjava [options] <java-main-class> [arg0 arg1 ...]
+where [options] includes all x10 options plus:
+    -EXTRA_PRELOAD_CLASSES=XClassA${PATH_SEP}XClassB${PATH_SEP}...${PATH_SEP}XClassZ
+                             X10-generated classes to be preloaded
+EOF
+    exit 1
+fi
+
+
+cp="${TOP}${FILE_SEP}lib${FILE_SEP}RunJava.jar"
+[ -n "${extra_cp}" ] && cp="${extra_cp}${PATH_SEP}${cp}"
+
+command="\"${TOP}${FILE_SEP}bin${FILE_SEP}x10\" ${x10_args} -classpath \"${cp}\" RunJava ${args}"
+
+[ -n "$verbose" ] && echo "$command"
+
+eval "$command"
+exit $?

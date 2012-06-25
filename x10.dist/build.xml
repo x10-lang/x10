@@ -85,6 +85,7 @@
                 <include name="x10"/>
                 <include name="x10c"/>
                 <include name="x10cj"/>
+                <include name="runjava"/>
             </fileset>
         </delete>
     </target>
@@ -154,7 +155,7 @@
         <ant antfile="${x10.bridge.location}/build.xml" target="clean" inheritAll="false" dir="${x10.bridge.location}"/>
     </target>
 
-    <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java"/>
+    <target name="dist-java" depends="init,build,common-jar,constraints-jar,compiler-jar,runtime-java,tools-java"/>
     <target name="dist-cpp" depends="dist-java,runtime-cpp"/>
     <target name="dist-x10rt" depends="runtime-x10rt"/>
     <target name="dist" depends="dist-java,dist-cpp,dist-bridge,dist-x10doc"/>
@@ -378,6 +379,15 @@
         </copy>
     </target>
 
+    <target name="tools-java" depends="build,compiler-jar,runtime-java">
+        <exec executable="${bin}/x10c" failonerror="true" dir="${basedir}/tools/runjava">
+            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-o" />
+            <arg value="${lib}/RunJava.jar" />
+            <arg value="RunJava.x10" />
+        </exec>
+    </target>
+
     <target name="bin"
             description="configure bin directory"
             depends="bin-deps"
@@ -386,6 +396,7 @@
         <antcall target="x10"/>
         <antcall target="x10c"/>
         <antcall target="x10cj"/>
+        <antcall target="runjava"/>
         <antcall target="precommit"/>
     </target>
 
@@ -420,6 +431,10 @@
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/x10cj.in"/>
         </uptodate>
+        <uptodate property="runjava.up-to-date" targetfile="${bin}/runjava">
+            <srcfiles file="${ant.file}"/>
+            <srcfiles file="${bin}/runjava.in"/>
+        </uptodate>
         <uptodate property="precommit.up-to-date" targetfile="${bin}/precommit">
             <srcfiles file="${ant.file}"/>
             <srcfiles file="${bin}/precommit.in"/>
@@ -431,6 +446,7 @@
                 <isset property="x10.up-to-date"/>
                 <isset property="x10c.up-to-date"/>
                 <isset property="x10cj.up-to-date"/>
+                <isset property="runjava.up-to-date"/>
             </and>
         </condition>
     </target>
@@ -558,6 +574,22 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
         <delete file="${bin}/defs"/>
     </target>
 
+    <target name="runjava" unless="runjava.up-to-date"
+            depends="executable-defs"
+            description="creates the executable script runjava">
+        <echo message="Creating ${bin}/runjava"/>
+        <concat destfile="${bin}/runjava" append="no">
+            <filelist dir="${bin}" files="defs"/>
+        </concat>
+        <concat destfile="${bin}/runjava" append="yes">
+            <filelist dir="${bin}" files="runjava.in"/>
+        </concat>
+
+        <chmod perm="+x" file="${bin}/runjava"/>
+
+        <delete file="${bin}/defs"/>
+    </target>
+
     <target name="precommit" unless="precommit.up-to-date"
             depends="executable-defs"
             description="creates the executable script precommit">
@@ -647,7 +679,7 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
     <target name="tar" depends="set-version,set-tar-location,dist">
         <tar destfile="${tar.location}/x10-${tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES,INSTALL"/>
-            <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c,x10cj"/>
+            <tarfileset prefix="bin" dir="${basedir}/bin" includes="x10,x10c,x10cj,runjava"/>
             <tarfileset prefix="doc" dir="${basedir}/doc" excludes="releng/**,**/.*.swp"/>
             <tarfileset prefix="etc" dir="${etc}" includes="${config}"/>
             <tarfileset prefix="lib" dir="${lib}" includes="*.jar"/>
@@ -723,10 +755,11 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
 
     	<echo message="Copying bin, etc, include, lib and stdlib files to ${targetDir}..."/>
         <copy todir="${targetDir}">
-            <fileset dir="." includes="bin/x10c,bin/x10cj,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
+            <fileset dir="." includes="bin/x10c,bin/x10cj,bin/runjava,bin/x10c++,bin/X10Launcher,etc/*.properties,include/**,lib/**,samples/HelloWorld.x10,stdlib/**"/>
         </copy>
         <chmod file="${targetDir}/bin/x10c" perm="u+x"/>
         <chmod file="${targetDir}/bin/x10cj" perm="u+x"/>
+        <chmod file="${targetDir}/bin/runjava" perm="u+x"/>
         <chmod file="${targetDir}/bin/x10c++" perm="u+x"/>
         <chmod file="${targetDir}/bin/X10Launcher" perm="u+x"/>
 
