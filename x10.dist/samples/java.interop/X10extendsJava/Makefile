@@ -10,8 +10,9 @@
 #
 
 X10C	?= x10c
-X10CJ	?= x10cj
 X10	?= x10
+X10CJ	?= x10cj
+RUNJAVA	?= runjava
 PATH_SEP=$(if $(filter CYGWIN%, $(shell uname -s)),;,:)
 
 all:	bin/XC.class

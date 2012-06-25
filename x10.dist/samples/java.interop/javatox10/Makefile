@@ -10,8 +10,9 @@
 #
 
 X10C	?= x10c
-X10CJ	?= x10cj
 X10	?= x10
+X10CJ	?= x10cj
+RUNJAVA	?= runjava
 PATH_SEP=$(if $(filter CYGWIN%, $(shell uname -s)),;,:)
 
 all:	bin-java/JClass.class
@@ -23,10 +24,10 @@ bin-java/JClass.class:	src-java/JClass.java bin/XClass.class
 	$(X10CJ) -d bin-java -cp bin src-java/JClass.java
 
 run:	bin-java/JClass.class
-	$(X10) -cp "../runjava/RunJava.jar$(PATH_SEP)bin$(PATH_SEP)bin-java" -Dx10.EXTRA_PRELOAD_CLASSES=XClass RunJava JClass
+	$(RUNJAVA) -cp "bin$(PATH_SEP)bin-java" -EXTRA_PRELOAD_CLASSES=XClass JClass
 
 runmulti:	bin-java/JClass.class
-	X10_NPLACES=4 $(X10) -cp "../runjava/RunJava.jar$(PATH_SEP)bin$(PATH_SEP)bin-java" -Dx10.EXTRA_PRELOAD_CLASSES=XClass RunJava JClass
+	X10_NPLACES=4 $(RUNJAVA) -cp "bin$(PATH_SEP)bin-java" -EXTRA_PRELOAD_CLASSES=XClass JClass
 
 clean:
 	rm -f bin-java/* bin/*
