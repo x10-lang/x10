@@ -172,7 +172,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             java.util.ArrayList<String> extraClasses;
             if (extraClassesString != null) {
                 extraClasses = new java.util.ArrayList<String>();
-                java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(extraClassesString, ",");
+                java.util.StringTokenizer tokenizer = new java.util.StringTokenizer(extraClassesString, java.io.File.pathSeparator);
                 while (tokenizer.hasMoreTokens()) {
                     String name = tokenizer.nextToken();
                     extraClasses.add(name);
