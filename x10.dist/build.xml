@@ -381,7 +381,8 @@
 
     <target name="tools-java" depends="build,compiler-jar,runtime-java">
         <exec executable="${bin}/x10c" failonerror="true" dir="${basedir}/tools/runjava">
-            <env key="ANT_JAVA_HOME" value="${java.home}" />
+            <arg value="-O" />
+            <arg value="-NO_CHECKS" />
             <arg value="-o" />
             <arg value="${lib}/RunJava.jar" />
             <arg value="RunJava.x10" />
