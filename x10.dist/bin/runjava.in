@@ -33,7 +33,7 @@ done
 
 if [ -n "$help" -o -z "${args}" ]; then
     cat << EOF
-Usage: xjava [options] <java-main-class> [arg0 arg1 ...]
+Usage: runjava [options] <java-main-class> [arg0 arg1 ...]
 where [options] includes all x10 options plus:
     -EXTRA_PRELOAD_CLASSES=XClassA${PATH_SEP}XClassB${PATH_SEP}...${PATH_SEP}XClassZ
                              X10-generated classes to be preloaded
