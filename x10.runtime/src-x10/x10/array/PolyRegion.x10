@@ -13,7 +13,6 @@ package x10.array;
 
 import x10.io.Printer;
 import x10.compiler.Incomplete;
-import x10.compiler.PerProcess;
 
 /**
  * A PolyRegion represents a polyhedral region represented as the
@@ -242,8 +241,8 @@ class PolyRegion extends Region {
      * col-row <= colMin-rowMin + (upper-1)
      */
 
-    @PerProcess private static ROW: int = PolyMatBuilder.X(0);
-    @PerProcess private static COL: int = PolyMatBuilder.X(1);
+    private static ROW: int = PolyMatBuilder.X(0);
+    private static COL: int = PolyMatBuilder.X(1);
 
     public static def makeBanded(rowMin: int, colMin: int, rowMax: int, colMax: int, upper: int, lower: int): Region(2) {
         val pmb = new PolyMatBuilder(2);

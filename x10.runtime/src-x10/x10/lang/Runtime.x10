@@ -12,7 +12,6 @@
 package x10.lang;
 
 import x10.compiler.Native;
-import x10.compiler.PerProcess;
 import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
 
@@ -116,21 +115,21 @@ public final class Runtime {
 
     // Environment variables
 
-    @PerProcess static env = Configuration.loadEnv();
+    static env = Configuration.loadEnv();
 
-    @PerProcess public static STRICT_FINISH = Configuration.strict_finish();
-    @PerProcess public static NTHREADS = Configuration.nthreads();
-    @PerProcess public static MAX_THREADS = Configuration.max_threads();
-    @PerProcess public static STATIC_THREADS = Configuration.static_threads();
-    @PerProcess public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
-    @PerProcess public static BUSY_WAITING = Configuration.busy_waiting();
+    public static STRICT_FINISH = Configuration.strict_finish();
+    public static NTHREADS = Configuration.nthreads();
+    public static MAX_THREADS = Configuration.max_threads();
+    public static STATIC_THREADS = Configuration.static_threads();
+    public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
+    public static BUSY_WAITING = Configuration.busy_waiting();
 
     // Runtime state
 
-    @PerProcess static staticMonitor = new Monitor();
-    @PerProcess public static atomicMonitor = new Monitor();
-    @PerProcess static pool = new Pool();
-    @PerProcess static finishStates = new FinishState.FinishStates();
+    static staticMonitor = new Monitor();
+    public static atomicMonitor = new Monitor();
+    static pool = new Pool();
+    static finishStates = new FinishState.FinishStates();
 
     // Work-stealing runtime
     
@@ -611,7 +610,7 @@ public final class Runtime {
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
                 // in place 0 schedule the execution of the static initializers fby main activity
-                executeLocal(new Activity(()=>{finish init(); body();}, rootFinish));
+                executeLocal(new Activity(body, rootFinish));
 
                 // wait for thread pool to die
                 // (happens when main activity terminates)

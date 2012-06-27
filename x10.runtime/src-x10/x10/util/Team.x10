@@ -13,7 +13,6 @@ package x10.util;
 
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
-import x10.compiler.PerProcess;
 import x10.compiler.StackAllocate;
 
 /** Interface to low level collective operations.  A team is a collection of
@@ -32,7 +31,7 @@ public struct Team {
 
     /** A team that has one member at each place.
      */
-    @PerProcess public static WORLD = Team(0);
+    public static WORLD = Team(0);
 
     /** The underlying representation of a team's identity.
      */

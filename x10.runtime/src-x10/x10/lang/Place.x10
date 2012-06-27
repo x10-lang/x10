@@ -13,7 +13,6 @@ package x10.lang;
 
 import x10.compiler.Native;
 import x10.compiler.CompilerFlags;
-import x10.compiler.PerProcess;
 
 /**
  * Representation of a place within the APGAS model.
@@ -40,7 +39,7 @@ public final struct Place(id: Int)  {
     public static MAX_PLACES: Int = 4;
 
     /** The number of accelerators. */
-    @PerProcess public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
+    public static NUM_ACCELS = ALL_PLACES - MAX_PLACES;
 
     /**
      * Find number of children under a place.
@@ -91,11 +90,11 @@ public final struct Place(id: Int)  {
     @Native("c++", "x10aux::child_index(#id)")
     public static def childIndex(id:Int):Int { throw new BadPlaceException(); }
 
-    @PerProcess private static childrenArray = 
+    private static childrenArray = 
         new Array[Array[Place](1)](ALL_PLACES,
                                    (p: Int) => new Array[Place](numChildren(p), (i:Int) => Place(child(p,i))));
 
-    @PerProcess private static places:Array[Place](1) = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
+    private static places:Array[Place](1) = new Array[Place](MAX_PLACES, ((id:Int) => Place(id)));
 
     /**
      * A convenience for iterating over all host places.
@@ -105,12 +104,12 @@ public final struct Place(id: Int)  {
     /**
      * A convenience for iterating over all accelerators.
      */
-    @PerProcess public static children = childrenArray.values();
+    public static children = childrenArray.values();
 
     /**
      * The place that runs 'main'.
      */
-    @PerProcess public static FIRST_PLACE:Place(0) = Place(0);
+    public static FIRST_PLACE:Place(0) = Place(0);
 
     /**
      * Creates a Place struct from an integer place id.

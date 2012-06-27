@@ -248,15 +248,15 @@ public class StaticInitializer extends ContextVisitor {
                 }
 
                 // gen new deserialize method and add in the bottom of the member list
-                md = makeDeserializeMethod(CG, fName, fieldInfo, fdCond.fieldDef(), classDef);
-                classDef.addMethod(md.methodDef());
-                members.add(md);
+//                md = makeDeserializeMethod(CG, fName, fieldInfo, fdCond.fieldDef(), classDef);
+//                classDef.addMethod(md.methodDef());
+//                members.add(md);
 
                 // gen new initialize method
                 md = makeInitMethod(CG, fName, fieldInfo, fdCond.fieldDef(), fdId.fieldDef(), fdPLH, classDef);
 
                 // register in the table for x10-level static initialization later
-                initStmts.add(makeAddInitializer(CG, fieldInfo.fieldDef.name(), fdId.fieldDef(), classDef));
+//                initStmts.add(makeAddInitializer(CG, fieldInfo.fieldDef.name(), fdId.fieldDef(), classDef));
 
             } else {
                 // gen a fake initialization method
@@ -882,7 +882,7 @@ public class StaticInitializer extends ContextVisitor {
         stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmt(pos, name, classDef)));
         // If the type is a java type we can do plain java serialization
 
-        stmts.add(broadcastCustomSerializationBlock);
+//        stmts.add(broadcastCustomSerializationBlock);
 
         stmts.add(xnf.Eval(pos, genStatusSet(pos, receiver, fdCond)));
         stmts.add(xnf.Eval(pos, genLock(pos)));
@@ -910,7 +910,7 @@ public class StaticInitializer extends ContextVisitor {
 //        stmts.add(xnf.If(pos, placeCheck, xnf.If(pos, ifCond, initBody)));
 //        stmts.add(xnf.If(pos, initCheckCond, waitBody));
         // optimized
-        stmts.add(xnf.If(pos, xnf.Binary(pos, placeCheck, Binary.Operator.COND_AND, ifCond), initBody, xnf.If(pos, initCheckCond, waitBody)));
+        stmts.add(xnf.If(pos, ifCond, initBody, xnf.If(pos, initCheckCond, waitBody)));
         Expr returnVal = (fdPLH == null) ? left : genApplyPLH(pos, receiver, fdPLH, right.type(), stmts); 
         stmts.add(xnf.X10Return(pos, returnVal, false));
         Block body = xnf.Block(pos, stmts);
