@@ -380,12 +380,9 @@
     </target>
 
     <target name="tools-java" depends="build,compiler-jar,runtime-java">
-        <exec executable="${bin}/x10c" failonerror="true" dir="${basedir}/tools/runjava">
-            <arg value="-O" />
-            <arg value="-NO_CHECKS" />
-            <arg value="-o" />
-            <arg value="${lib}/RunJava.jar" />
-            <arg value="RunJava.x10" />
+        <exec executable="${bash.exe}" failonerror="true" dir="${basedir}/tools/runjava">
+	    <arg value="-c" />
+	    <arg value="'${x10.home}/x10.dist/bin/x10c' -O -NO_CHECKS -o '${lib}/RunJava.jar' RunJava.x10" />
         </exec>
     </target>
 
