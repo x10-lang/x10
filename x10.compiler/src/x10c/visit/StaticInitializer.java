@@ -134,7 +134,7 @@ public class StaticInitializer extends ContextVisitor {
 
     public static final String initializerPrefix = "getInitialized$";
     public static final String deserializerPrefix = "getDeserialized$";
-    private static final String nestedShadowClass4Interface = "Shadow";
+    private static final String nestedShadowClass4Interface = "$Shadow";
 
     // mapping static field and corresponding initializer method
     private Map<Pair<Type,Name>, StaticFieldInfo> staticFinalFields = 
