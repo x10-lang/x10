@@ -133,7 +133,7 @@ public class StaticInitializer extends ContextVisitor {
     private final WeakHashMap<Block,Boolean> procBodyCache;
 
     // N.B. must be sync with StaticInitializer.java and InitDispatcher.java
-    public static final String initializerPrefix = "getInitialized$";
+    public static final String initializerPrefix = "get$";
     public static final String deserializerPrefix = "getDeserialized$";
 
     private static final String nestedShadowClass4Interface = "$Shadow";

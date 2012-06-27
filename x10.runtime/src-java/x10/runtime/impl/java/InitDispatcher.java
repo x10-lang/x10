@@ -39,7 +39,7 @@ public abstract class InitDispatcher {
     private static short fieldId = 0;
 
     // N.B. must be sync with StaticInitializer.java and InitDispatcher.java
-    private static final String initializerPrefix = "getInitialized$";
+    private static final String initializerPrefix = "get$";
     private static final String deserializerPrefix = "getDeserialized$";
 
     static final short static_broadcast__serialization_id = init();
