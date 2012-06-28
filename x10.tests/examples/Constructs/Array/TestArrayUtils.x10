@@ -43,18 +43,59 @@ public class TestArrayUtils extends x10Test {
 
         val key = 0.4;
         val index = ArrayUtils.binarySearch(a, key);
+
         if (index >= 0) {
             // key found (unlikely)
             chk(a(index) == key);
         } else {
             // key not found - check insertion index
-            chk(a(-index) > key);
-            chk(a(-index-1) < key);
+            val insertion = -(index+1);
+            chk(a(insertion-1) < key);
+            chk(a(insertion) > key);
         }
 
         // search for the value that was previously seeded
         val indexMagic = ArrayUtils.binarySearch(a, magicValue);
         chk(a(indexMagic) == magicValue);
+
+
+        // same tests as above, but with ArrayList
+        val aList = new ArrayList[Double](N);
+        for (i in 0..(N-1)) {
+            aList.add(r.nextDouble());
+        }
+
+        aList(2) = magicValue;
+
+        aList.sort();
+
+        current = -Double.MAX_VALUE;
+        for (i in 0..(N-1)) {
+            chk(current <= aList(i));
+            current = aList(i);
+        }
+
+        val index2 = aList.binarySearch(key);
+        if (index2 >= 0) {
+            chk(aList(index2) == key);
+        } else {
+            val insertion = -(index2+1);
+            chk(aList(insertion-1) < key);
+            chk(aList(insertion) > key);
+        }
+
+        val indexMagic2 = aList.binarySearch(magicValue);
+        chk(aList(indexMagic2) == magicValue);
+
+        // search for index before first, after last and in empty list
+        val indexOfMin = aList.binarySearch(Double.MIN_VALUE);
+        chk(-(indexOfMin+1) == 0);
+
+        val indexOfMax = aList.binarySearch(Double.MAX_VALUE);
+        chk(-(indexOfMax+1) == aList.size());
+
+        val emptyArray = new Array[Double](0);
+        chk(ArrayUtils.binarySearch[Double](emptyArray, 1.0) == -1);
 
         return true;
 	}

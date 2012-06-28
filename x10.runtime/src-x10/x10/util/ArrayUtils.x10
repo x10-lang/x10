@@ -93,20 +93,21 @@ public class ArrayUtils {
         return binarySearch[T](a.raw(), key, 0, a.size, (x:T,y:T) => x.compareTo(y));
     }
 
-    static def binarySearch[T](a:IndexedMemoryChunk[T], key:T, var min:Int, var max:Int, cmp:(T,T)=>Int):Int {
-        while (min < max) {
-            var mid:Int = (min + max) / 2;
-            if(cmp(a(mid), key) < 0) {
-                min = mid + 1;
+    static def binarySearch[T](a:IndexedMemoryChunk[T], key:T, min:Int, max:Int, cmp:(T,T)=>Int):Int {
+        var low:Int = min;
+        var high:Int = max-1;
+        while (low <= high) {
+            var mid:Int = (low + high) / 2;
+            val compare = cmp(a(mid), key);
+            if(compare < 0) {
+                low = mid + 1;
+            } else if (compare > 0) {
+                high = mid - 1;
             } else {
-                max = mid;
+                return mid;
             }
         }
 
-        if((max == min) && (a(min).equals(key))) {
-            return min;
-        } else {
-            return -max;
-        }
+        return -(low + 1);
     }
 }
