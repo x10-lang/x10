@@ -44,7 +44,12 @@ x10aux::itable_entry BootStrapClosure::_itables[2] = {
 void x10aux::initialize_xrx() {
     x10::lang::Runtime::FMGL(staticMonitor__do_init)();
 //    x10::lang::Runtime::FMGL(env__do_init)();
+    x10::lang::Runtime::FMGL(STRICT_FINISH__do_init)();
+    x10::lang::Runtime::FMGL(NTHREADS__do_init)();
+    x10::lang::Runtime::FMGL(MAX_THREADS__do_init)();
     x10::lang::Runtime::FMGL(STATIC_THREADS__do_init)();
+    x10::lang::Runtime::FMGL(WARN_ON_THREAD_CREATION__do_init)();
+    x10::lang::Runtime::FMGL(BUSY_WAITING__do_init)();
 //    x10::lang::Place::FMGL(places__do_init)();
 //    x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
 }
