@@ -172,9 +172,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         // try { Class.forName("x10.lang.Place"); } catch
         // (ClassNotFoundException e) { }
 
-        // preload classes by default
-        if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
-            // System.out.println("start preloading of classes");
+        // no preloading classes by default
+        if (Boolean.getBoolean("x10.PRELOAD_CLASSES")) {
+//            System.out.println("Start preloading classes.");
             Class<?> userMain = this.getClass().getEnclosingClass();
             String extraClassesString = System.getProperty("x10.EXTRA_PRELOAD_CLASSES");
             java.util.ArrayList<String> extraClasses;
@@ -189,6 +189,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 extraClasses = null;
             }
             x10.runtime.impl.java.PreLoader.preLoad(userMain, extraClasses, Boolean.getBoolean("x10.PRELOAD_STRINGS"));
+//            System.out.println("Finished preloading classes.");
         }
 
         // Obtain message ID's for each async
