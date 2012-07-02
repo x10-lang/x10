@@ -1649,17 +1649,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	private static final String STATIC_FIELD_STATUS_SUFFIX = "__status";
 	private static final String STATIC_FIELD_INITIALIZER_SUFFIX = "__init";
 	private static final String STATIC_FIELD_REAL_INIT_SUFFIX = "__do_init";
-	private static final String STATIC_FIELD_BROADCASTID_SUFFIX = "__id";
-	private static final String STATIC_FIELD_DESERIALIZER_SUFFIX = "__deserialize";
 	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::UNINITIALIZED";
 	private static final String STATIC_FIELD_INITIALIZING = "x10aux::INITIALIZING";
 	private static final String STATIC_FIELD_INITIALIZED = "x10aux::INITIALIZED";
-    private static final String STATIC_INIT_LOCK = "x10aux::StaticInitBroadcastDispatcher::lock";
-    private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
-	private static final String STATIC_INIT_UNLOCK = "x10aux::StaticInitBroadcastDispatcher::unlock";
-	private static final String STATIC_INIT_NOTIFY_ALL = "x10aux::StaticInitBroadcastDispatcher::notify";
-
-	private static final String UNUSED = "X10_PRAGMA_UNUSED";
+	private static final String STATIC_FIELD_EXCEPTIONAL = "x10aux::EXCEPTION_RAISED";
 
 	/**
 	 * Generate an initializer method for a given field declaration.
@@ -1670,7 +1663,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
 	    String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
 	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
-	    String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
 	    ClassifiedStream h = sw.header();
 	    // declare the actual field initializer
 	    h.write("static void ");
@@ -1683,6 +1675,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    h.writeln("();");
 	    
 	    // define the actual field initializer
+	    // This method is mainly called indirectly from the on-demand field initializer,
+	    // but for a few fields is also called from initialize_xrx in bootstrap.cc
 	    sw.write("void ");
 	    sw.write(container + "::" + init_nb);
 	    sw.write("() {");
@@ -1691,7 +1685,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // mode, or we will have already set the status to INITIALIZING atomically)
 	    sw.writeln(status + " = " + STATIC_FIELD_INITIALIZING + ";");
 	    // initialize the field
-	    sw.write("_SI_(\"Doing static initialisation for field: "+container+"."+name+"\");"); sw.newline();
+	    sw.write("_SI_(\"Doing static initialization for field: "+container+"."+name+"\");"); sw.newline();
 	    String val = getId();
 	    emitter.printType(dec.type().type(), sw);
 	    sw.allowBreak(2, 2, " ", 1);
@@ -1705,43 +1699,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(status + " = " + STATIC_FIELD_INITIALIZED + ";");
 	    sw.end(); sw.newline();
 	    sw.writeln("}");
+	    
 	    // define the on-demand field initializer
 	    sw.write("void ");
 	    sw.write(container + "::" + init);
 	    sw.write("() {");
 	    sw.newline(4); sw.begin(0);
-	    sw.write("{");
-	    sw.newline(4); sw.begin(0);
-	    sw.newline();
-	    // (atomically) check that the field is uninitialized
-	    String tmp = getId();
-	    sw.write("x10aux::status " + tmp + " =");
-	    sw.allowBreak(2, 2, " ", 1);
-	    sw.writeln("(x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)&" +
-	               status + ", (x10_int)" + STATIC_FIELD_UNINITIALIZED +
-	               ", (x10_int)" + STATIC_FIELD_INITIALIZING + ");");
-	    sw.writeln("if (" + tmp + " != " + STATIC_FIELD_UNINITIALIZED + ") goto WAIT;");
-	    // invoke the initializer
-	    sw.writeln(init_nb + "();");
-	    // broadcast the new value
-	    sw.writeln("// Notify all waiting threads");
-        sw.writeln(STATIC_INIT_LOCK + "();");;
-	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
+	    sw.writeln("x10aux::StaticInitController::initField(&" + status+", &"+init_nb+", \""+container+"."+name+"\");");
 	    sw.end(); sw.newline();
 	    sw.writeln("}");
-	    sw.writeln("WAIT:");
-	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.newline(4); sw.begin(0); 
-        sw.writeln(STATIC_INIT_LOCK + "();");
-	    sw.writeln("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");");
-	    sw.writeln("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();");
-	    sw.writeln("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
-        sw.write(STATIC_INIT_UNLOCK + "();"); sw.end(); sw.newline();
-	    sw.write("}");
-	    sw.end(); sw.newline();
-	    sw.writeln("}");
-	    //sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() + " " + UNUSED + " = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
-	    //sw.newline();
-	    sw.forceNewline(0);
 	}
 
 	/**
