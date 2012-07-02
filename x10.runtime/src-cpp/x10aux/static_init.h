@@ -18,18 +18,27 @@
 #include <x10aux/serialization.h>
 #include <x10aux/network.h>
 
-namespace x10aux {
+namespace x10 {
+    namespace lang {
+        class Throwable;
+    }
+}
 
-    enum status {
-        UNINITIALIZED = 0,
-        INITIALIZING,
-        INITIALIZED,
-        EXCEPTION_RAISED
-    };
+namespace x10aux {
 
     class StaticInitController {
       public:
-        static void initField(volatile x10aux::status* flag, void (*init_func)(void), const char* fname);
+        enum status {
+            UNINITIALIZED = 0,
+            INITIALIZING,
+            INITIALIZED,
+            EXCEPTION_RAISED
+        };
+
+        static void initField(volatile status* flag,
+                              void (*init_func)(void),
+                              x10aux::ref<x10::lang::Throwable>*,
+                              const char* fname);
 
       private:
         static void lock();

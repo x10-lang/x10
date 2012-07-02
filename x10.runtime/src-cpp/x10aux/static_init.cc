@@ -15,41 +15,72 @@
 #include <x10aux/network.h>
 
 #include <x10/lang/Runtime.h>
+#include <x10/lang/ExceptionInInitializer.h>
 
 #include <assert.h>
 
 using namespace x10aux;
 using namespace x10::lang;
 
-void StaticInitController::initField(volatile x10aux::status* flag, void (*init_func)(void), const char* fname) {
+void StaticInitController::initField(volatile status* flag,
+                                     void (*init_func)(void),
+                                     x10aux::ref<x10::lang::Throwable> *exceptionHolder,
+                                     const char* fname) {
     {
-        x10aux::status __var1__ = (x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)flag, (x10_int)x10aux::UNINITIALIZED, (x10_int)x10aux::INITIALIZING);
-        if (__var1__ != x10aux::UNINITIALIZED) goto WAIT;
+        status __var1__ = (status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)flag, (x10_int)UNINITIALIZED, (x10_int)INITIALIZING);
+        if (__var1__ != UNINITIALIZED) goto WAIT;
 
-        // I changed *flag from UNINITIALIZED to INITIALIZING, so I call the init_func
-        // init_func will initialize the field and set *flag to INITIALIZED.
-        (*init_func)();
+        try {
+            // I changed *flag from UNINITIALIZED to INITIALIZING, so I call the init_func.
+            // init_func will evalute the field init expr, store the value in the field and set *flag to INITIALIZED.
+            (*init_func)();
+        } catch (x10aux::__ref& exceptObj) {
+            x10aux::ref<x10::lang::Throwable>& throwableExceptObj = (x10aux::ref<x10::lang::Throwable>&)(exceptObj);
+            *exceptionHolder = throwableExceptObj;
 
+            *flag = EXCEPTION_RAISED;
+            
+            // Notify all threads that are waiting on static fields to be initialized.
+            lock();
+            notify();
+
+            throw;
+        }
+            
         // Notify all threads that are waiting on static fields to be initialized.
         lock();
         notify();
     }
 
 WAIT:
-    if (*flag != x10aux::INITIALIZED) {
+    if (*flag != INITIALIZED) {
         // Wait for the field to be initialized by some other thread
         char buffer[256];
         lock();
 
         if (x10aux::trace_static_init) {
-            snprintf(buffer, 255, "WAITING for field: %s to be initialized\0", fname);
+            snprintf(buffer, 255, "WAITING for field: %s to be initialized", fname);
             _SI_(buffer);
         }
 
-        while (*flag != x10aux::INITIALIZED) await();
+        while (*flag != INITIALIZED) {
+            if (*flag == EXCEPTION_RAISED) {
+                if (x10aux::trace_static_init) {
+                    snprintf(buffer, 255, "Rethrowing ExceptionInInitializer for field: %s", fname);
+                    _SI_(buffer);
+                }
+                unlock();
+                if (!exceptionHolder->isNull()) {
+                    x10aux::throwException(x10::lang::ExceptionInInitializer::_make(*exceptionHolder));
+                } else {
+                    x10aux::throwException(x10::lang::ExceptionInInitializer::_make());
+                }
+            }
+            await();
+        }
 
         if (x10aux::trace_static_init) {
-            snprintf(buffer, 255, "CONTINUING because field: %s has been initialized\0", fname);
+            snprintf(buffer, 255, "CONTINUING because field: %s has been initialized", fname);
             _SI_(buffer);
         }
 

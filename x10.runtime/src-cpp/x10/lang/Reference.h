@@ -27,6 +27,7 @@ namespace x10 {
         class String;
         class Any;
         class Object;
+        class Throwable;
         
         /**
          * This is a class that exists only at the C++ implementation level,

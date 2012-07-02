@@ -1647,12 +1647,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	private static final String STATIC_FIELD_ACCESSOR_SUFFIX = "__get";
 	private static final String STATIC_FIELD_STATUS_SUFFIX = "__status";
+	private static final String STATIC_FIELD_EXCEPTION_SUFFIX = "__exception";
 	private static final String STATIC_FIELD_INITIALIZER_SUFFIX = "__init";
 	private static final String STATIC_FIELD_REAL_INIT_SUFFIX = "__do_init";
-	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::UNINITIALIZED";
-	private static final String STATIC_FIELD_INITIALIZING = "x10aux::INITIALIZING";
-	private static final String STATIC_FIELD_INITIALIZED = "x10aux::INITIALIZED";
-	private static final String STATIC_FIELD_EXCEPTIONAL = "x10aux::EXCEPTION_RAISED";
+	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::StaticInitController::UNINITIALIZED";
+	private static final String STATIC_FIELD_INITIALIZING = "x10aux::StaticInitController::INITIALIZING";
+	private static final String STATIC_FIELD_INITIALIZED = "x10aux::StaticInitController::INITIALIZED";
+	private static final String STATIC_FIELD_EXCEPTIONAL = "x10aux::StaticInitController::EXCEPTION_RAISED";
 
 	/**
 	 * Generate an initializer method for a given field declaration.
@@ -1661,9 +1662,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String name = dec.name().id().toString();
 	    String fname = mangled_field_name(name);
 	    String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
+	    String except = mangled_field_name(name+STATIC_FIELD_EXCEPTION_SUFFIX);
 	    String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
 	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
 	    ClassifiedStream h = sw.header();
+	    
 	    // declare the actual field initializer
 	    h.write("static void ");
 	    h.write(init_nb);
@@ -1705,7 +1708,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(container + "::" + init);
 	    sw.write("() {");
 	    sw.newline(4); sw.begin(0);
-	    sw.writeln("x10aux::StaticInitController::initField(&" + status+", &"+init_nb+", \""+container+"."+name+"\");");
+	    sw.writeln("x10aux::StaticInitController::initField(&" + status+", &"+init_nb+", &"+except+", \""+container+"."+name+"\");");
 	    sw.end(); sw.newline();
 	    sw.writeln("}");
 	}
@@ -1722,6 +1725,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
         String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
         String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
+        String except = mangled_field_name(name+STATIC_FIELD_EXCEPTION_SUFFIX);
         
         // define the field.
         emitter.printType(dec.type().type(), sw);
@@ -1733,7 +1737,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         generateStaticFieldInitializer(dec, container, sw);
         
         // declare the initialization flag
-        h.writeln("static volatile x10aux::status "+status+";");;
+        h.writeln("static volatile x10aux::StaticInitController::status "+status+";");;
+
+        // declare the exception holder
+        h.writeln("static x10aux::ref<x10::lang::Throwable> "+except+";");;
 
         // declare the accessor method
         h.write("static ");
@@ -1768,10 +1775,17 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         gh.newline(); gh.forceNewline();
 
         // define the initialization flag
-        sw.write("volatile x10aux::status ");
+        sw.write("volatile x10aux::StaticInitController::status ");
         sw.write(container+"::");
         sw.write(status);
         sw.writeln(";");
+        
+        // define the exception holder flag
+        sw.write("x10aux::ref<x10::lang::Throwable> ");
+        sw.write(container+"::");
+        sw.write(except);
+        sw.writeln(";");
+
 	}
 
 	public void visit(PropertyDecl_c n) {
