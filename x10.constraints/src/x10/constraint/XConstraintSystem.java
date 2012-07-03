@@ -38,7 +38,7 @@ public interface XConstraintSystem {
 	 * @param field
 	 * @return
 	 */
-	public <T> XField<T> makeField(XVar receiver, T field);
+	//public <T> XField<T> makeField(XVar receiver, T field);
 	public XField<Object> makeFakeField(XVar receiver, Object field);
 
 

@@ -24,5 +24,5 @@ public interface XLit extends XVar  {
 	public String instance(); 
 
 	/** In case this is a field selection x.f1...fn, return x, else this. */
-	public XVar rootVar(); 
+	//public XVar rootVar(); 
 }

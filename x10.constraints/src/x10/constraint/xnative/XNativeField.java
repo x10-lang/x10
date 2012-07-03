@@ -151,7 +151,6 @@ public class XNativeField<T> extends XNativeVar implements XField<T> {
         return vars;
     }
 
-    @Override
     public XNativeVar rootVar() {
         if (vars == null) initVars();
         return vars[0];

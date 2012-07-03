@@ -71,10 +71,10 @@ public class XNativeConstraintSystem implements XConstraintSystem {
 	 * @param field
 	 * @return
 	 */
-	@Override
-	public <T> XField<T> makeField(XVar receiver, T field) {
-		return new XNativeField<T>((XNativeVar)receiver, field);
-	}
+//	@Override
+//	public <T> XField<T> makeField(XVar receiver, T field) {
+//		return new XNativeField<T>((XNativeVar)receiver, field);
+//	}
 	@Override
 	public XField<Object> makeFakeField(XVar receiver, Object field) {
 		return new XNativeField<Object>((XNativeVar)receiver, field, true);

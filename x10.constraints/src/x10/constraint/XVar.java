@@ -12,6 +12,12 @@
 package x10.constraint;
 
 public interface XVar extends XTerm {
+	/**
+	 * Returns the variables present in this variable. For nested field dereferences such as
+	 *  a.f.g return an array consisting of all intermediate dereferences: [a, a.f, a.f.g].
+	 *  The order matters, code in x10.compiler.x10cpp.visit.Emitter depends on this. 
+	 * @return
+	 */
 	public XVar[] vars(); 
 }
 

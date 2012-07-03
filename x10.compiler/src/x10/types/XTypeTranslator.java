@@ -636,7 +636,7 @@ public class XTypeTranslator {
         	v = ConstraintManager.getConstraintSystem().makeAnd(lt, rt);
         }
         else  {
-            v = ConstraintManager.getConstraintSystem().makeAtom(t.operator(), lt, rt);
+            //v = ConstraintManager.getConstraintSystem().makeAtom(t.operator(), lt, rt);
             throw new IllegalConstraint(t);
            // return null;
         }
@@ -723,9 +723,12 @@ public class XTypeTranslator {
 	            	List<XTerm> args = new ArrayList<XTerm>(); 
 	            	for (Expr arg : t.arguments()) {
 	            		XTerm x = translate(c, arg, xc, tl); 
+	            		if (x== null)
+	            			throw new IllegalConstraint(t); 
 	            		args.add(x);
 	            	}
-	            	return ConstraintManager.getConstraintSystem().makeOpaque(xmi.def(), r, args);
+	            	boolean isatom = xmi.returnType().isBoolean();
+	            	return ConstraintManager.getConstraintSystem().makeOpaque(xmi.def().name(), isatom, r, args);
             	}
             }
 

@@ -506,10 +506,12 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			Errors.issue(tc.job(),
 			        new Errors.NonAbstractPropertyMethodMustBeFinal(position()));
 		}
+		/*
 		if (xf.isProperty() && xf.isStatic()) {
 			Errors.issue(tc.job(),
 			        new Errors.PropertyMethodCannotBeStatic(position()));
 		}
+		*/
 	}
 	
 	private Type getType(ContextVisitor tc, String name) throws SemanticException {

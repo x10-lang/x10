@@ -1,5 +1,7 @@
 package x10.constraint.xsmt;
 
+import java.util.List;
+
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraintSystem;
 import x10.constraint.XEQV;
@@ -76,22 +78,22 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 		return null;
 	}
 
-	public XTerm makeEquals(XTerm left, XTerm right) {
+	public XSmtTerm makeEquals(XTerm left, XTerm right) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public XTerm makeDisEquals(XTerm left, XTerm right) {
+	public XSmtTerm makeDisEquals(XTerm left, XTerm right) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public XTerm makeAnd(XTerm left, XTerm right) {
+	public XSmtTerm makeAnd(XTerm left, XTerm right) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
-	public XTerm makeNot(XTerm arg) {
+	public XSmtTerm makeNot(XTerm arg) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -106,9 +108,27 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 		return null;
 	}
 
-	public XTerm makeOpaque(Object op, XTerm... terms) {
+	public XSmtTerm makeOpaque(Object op, XTerm... terms) {
 		// TODO Auto-generated method stub
 		return null;
 	}
 
+	/**
+	 * Factory methods specific to the SmtConstraint System 
+	 */
+
+	public XSmtTerm makeAnd(List<? extends XTerm> conjuncts) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	public XSmtTerm makeAnd(XTerm... conjuncts) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	public XSmtTerm makeImpl(XTerm a, XTerm b) {
+		return null; 
+	}
+	
 }

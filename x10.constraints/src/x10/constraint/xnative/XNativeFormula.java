@@ -65,6 +65,7 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	        this.isAtomicFormula = isAtomicFormula;
 	        XNativeTerm[] newargs = new XNativeTerm[args.length];
 	        for (int i = 0; i < args.length; ++i) {
+	        	assert args[i]!= null; 
 	        	newargs[i] = (XNativeTerm)args[i];
 	        }
 	        this.arguments = newargs; 
@@ -90,7 +91,8 @@ public class XNativeFormula<T> extends XNativeTerm implements XFormula<T> {
 	    }
 	    @Override
 	    public XNativeTerm subst(XTerm y, XVar x, boolean propagate) {
-	        XNativeTerm[] newArgs = new XNativeTerm[this.arguments().length];
+	    	// TODO: do not use substitution but let binding in the future
+	    	XNativeTerm[] newArgs = new XNativeTerm[this.arguments().length];
 	        boolean changed = false;
 	        for (int i = 0; i < arguments().length; ++i) {
 	        	XNativeTerm arg = arguments[i];

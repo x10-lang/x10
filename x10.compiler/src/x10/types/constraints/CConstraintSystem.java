@@ -44,5 +44,5 @@ public interface CConstraintSystem extends XConstraintSystem {
     public CConstraint makeCConstraint(); 
     public CConstraint makeCConstraint(XVar self); 
     
-    public XTerm makeOpaque(Object op, XTerm target, List<XTerm> args); 
+    public XTerm makeOpaque(Object op, boolean isatom, XTerm target, List<XTerm> args); 
 }
