@@ -2724,7 +2724,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write(Emitter.translateType(target.type()));
 				sw.write("::");
 				sw.allowBreak(2, 3, "", 0);
-				sw.write(mangled_field_name(name));
+	            sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
 				sw.write(")");
 				sw.end();
 				return;
