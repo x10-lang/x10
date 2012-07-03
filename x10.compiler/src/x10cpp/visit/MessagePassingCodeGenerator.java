@@ -338,10 +338,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    return cd.asType().typeArguments(args);
 	}
 
-	private boolean isPerProcess(X10Def fd) {
-	    return !fd.annotationsMatching(tr.typeSystem().PerProcess()).isEmpty();
-	}
-	
     private void extractGenericStaticDecls(X10ClassDef cd, ClassifiedStream h) {
 		if (cd.typeParameters().size() == 0) return;
 
@@ -1651,19 +1647,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
 	private static final String STATIC_FIELD_ACCESSOR_SUFFIX = "__get";
 	private static final String STATIC_FIELD_STATUS_SUFFIX = "__status";
+	private static final String STATIC_FIELD_EXCEPTION_SUFFIX = "__exception";
 	private static final String STATIC_FIELD_INITIALIZER_SUFFIX = "__init";
 	private static final String STATIC_FIELD_REAL_INIT_SUFFIX = "__do_init";
-	private static final String STATIC_FIELD_BROADCASTID_SUFFIX = "__id";
-	private static final String STATIC_FIELD_DESERIALIZER_SUFFIX = "__deserialize";
-	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::UNINITIALIZED";
-	private static final String STATIC_FIELD_INITIALIZING = "x10aux::INITIALIZING";
-	private static final String STATIC_FIELD_INITIALIZED = "x10aux::INITIALIZED";
-    private static final String STATIC_INIT_LOCK = "x10aux::StaticInitBroadcastDispatcher::lock";
-    private static final String STATIC_INIT_AWAIT = "x10aux::StaticInitBroadcastDispatcher::await";
-	private static final String STATIC_INIT_UNLOCK = "x10aux::StaticInitBroadcastDispatcher::unlock";
-	private static final String STATIC_INIT_NOTIFY_ALL = "x10aux::StaticInitBroadcastDispatcher::notify";
-
-	private static final String UNUSED = "X10_PRAGMA_UNUSED";
+	private static final String STATIC_FIELD_UNINITIALIZED = "x10aux::StaticInitController::UNINITIALIZED";
+	private static final String STATIC_FIELD_INITIALIZING = "x10aux::StaticInitController::INITIALIZING";
+	private static final String STATIC_FIELD_INITIALIZED = "x10aux::StaticInitController::INITIALIZED";
+	private static final String STATIC_FIELD_EXCEPTIONAL = "x10aux::StaticInitController::EXCEPTION_RAISED";
 
 	/**
 	 * Generate an initializer method for a given field declaration.
@@ -1672,10 +1662,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String name = dec.name().id().toString();
 	    String fname = mangled_field_name(name);
 	    String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
+	    String except = mangled_field_name(name+STATIC_FIELD_EXCEPTION_SUFFIX);
 	    String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
 	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
-	    String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
 	    ClassifiedStream h = sw.header();
+	    
 	    // declare the actual field initializer
 	    h.write("static void ");
 	    h.write(init_nb);
@@ -1687,6 +1678,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    h.writeln("();");
 	    
 	    // define the actual field initializer
+	    // This method is mainly called indirectly from the on-demand field initializer,
+	    // but for a few fields is also called from initialize_xrx in bootstrap.cc
 	    sw.write("void ");
 	    sw.write(container + "::" + init_nb);
 	    sw.write("() {");
@@ -1695,7 +1688,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    // mode, or we will have already set the status to INITIALIZING atomically)
 	    sw.writeln(status + " = " + STATIC_FIELD_INITIALIZING + ";");
 	    // initialize the field
-	    sw.write("_SI_(\"Doing static initialisation for field: "+container+"."+name+"\");"); sw.newline();
+	    sw.write("_SI_(\"Doing static initialization for field: "+container+"."+name+"\");"); sw.newline();
 	    String val = getId();
 	    emitter.printType(dec.type().type(), sw);
 	    sw.allowBreak(2, 2, " ", 1);
@@ -1709,129 +1702,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    sw.write(status + " = " + STATIC_FIELD_INITIALIZED + ";");
 	    sw.end(); sw.newline();
 	    sw.writeln("}");
+	    
 	    // define the on-demand field initializer
 	    sw.write("void ");
 	    sw.write(container + "::" + init);
 	    sw.write("() {");
 	    sw.newline(4); sw.begin(0);
-	    sw.write("if (x10aux::here == 0) {");
-	    sw.newline(4); sw.begin(0);
-	    sw.newline();
-	    // (atomically) check that the field is uninitialized
-	    String tmp = getId();
-	    sw.write("x10aux::status " + tmp + " =");
-	    sw.allowBreak(2, 2, " ", 1);
-	    sw.writeln("(x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)&" +
-	               status + ", (x10_int)" + STATIC_FIELD_UNINITIALIZED +
-	               ", (x10_int)" + STATIC_FIELD_INITIALIZING + ");");
-	    sw.writeln("if (" + tmp + " != " + STATIC_FIELD_UNINITIALIZED + ") goto WAIT;");
-	    // invoke the initializer
-	    sw.writeln(init_nb + "();");
-	    // broadcast the new value
-	    sw.write("x10aux::StaticInitBroadcastDispatcher::broadcastStaticField(");
-	    sw.begin(0);
-	    sw.write(fname);
-	    sw.write(",");
-	    sw.allowBreak(0, 2, " ", 1);
-	    sw.write(id);
-	    sw.end();
-	    sw.writeln(");");
-	    sw.writeln("// Notify all waiting threads");
-        sw.writeln(STATIC_INIT_LOCK + "();");;
-	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
+	    sw.writeln("x10aux::StaticInitController::initField(&" + status+", &"+init_nb+", &"+except+", \""+container+"."+name+"\");");
 	    sw.end(); sw.newline();
 	    sw.writeln("}");
-	    sw.writeln("WAIT:");
-	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.newline(4); sw.begin(0); 
-        sw.writeln(STATIC_INIT_LOCK + "();");
-	    sw.writeln("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");");
-	    sw.writeln("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();");
-	    sw.writeln("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
-        sw.write(STATIC_INIT_UNLOCK + "();"); sw.end(); sw.newline();
-	    sw.write("}");
-	    sw.end(); sw.newline();
-	    sw.writeln("}");
-	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() + " " + UNUSED + " = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
-	    sw.newline(); sw.forceNewline(0);
-	}
-
-	private void generatePerProcessStaticFieldInitializer(FieldDecl_c dec, String container, StreamWrapper sw) {
-	    String name = dec.name().id().toString();
-	    String fname = mangled_field_name(name);
-	    String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
-	    String init_nb = mangled_field_name(name+STATIC_FIELD_REAL_INIT_SUFFIX);
-	    String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
-	    String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
-	    ClassifiedStream h = sw.header();
-	    // declare the actual field initializer
-	    h.write("static void ");
-	    h.write(init_nb);
-	    h.writeln("();");
-	    
-	    // declare the on-demand field initializer
-	    h.write("static void ");
-	    h.write(init);
-	    h.writeln("();");
-	    
-	    // define the actual field initializer
-	    sw.write("void ");
-	    sw.write(container + "::" + init_nb);
-	    sw.write("() {");
-	    sw.newline(4); sw.begin(0);
-	    // set the status (ok to do here because either we are in single-threaded
-	    // mode, or we will have already set the status to INITIALIZING atomically)
-	    sw.writeln(status + " = " + STATIC_FIELD_INITIALIZING + ";");
-	    // initialize the field
-	    sw.write("_SI_(\"Doing static PerProcess initialisation for field: "+container+"."+name+"\");"); sw.newline();
-	    String val = getId();
-	    emitter.printType(dec.type().type(), sw);
-	    sw.allowBreak(2, 2, " ", 1);
-	    sw.write(val + " =");
-	    sw.allowBreak(2, 2, " ", 1);
-	    dec.print(dec.init(), sw, tr);
-	    sw.writeln(";");
-	    // copy into the field
-	    sw.writeln(fname + " = " + val + ";");
-	    // update the status
-	    sw.write(status + " = " + STATIC_FIELD_INITIALIZED + ";");
-	    sw.end(); sw.newline();
-	    sw.writeln("}");
-	    // define the on-demand field initializer
-	    sw.write("void ");
-	    sw.write(container + "::" + init);
-	    sw.write("() {");
-	    sw.newline(4); sw.begin(0);
-	    sw.write("{");
-	    sw.newline(4); sw.begin(0);
-	    sw.newline();
-	    // (atomically) check that the field is uninitialized
-	    String tmp = getId();
-	    sw.write("x10aux::status " + tmp + " =");
-	    sw.allowBreak(2, 2, " ", 1);
-	    sw.writeln("(x10aux::status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)&" +
-	               status + ", (x10_int)" + STATIC_FIELD_UNINITIALIZED +
-	               ", (x10_int)" + STATIC_FIELD_INITIALIZING + ");");
-	    sw.writeln("if (" + tmp + " != " + STATIC_FIELD_UNINITIALIZED + ") goto WAIT;");
-	    // invoke the initializer
-	    sw.writeln(init_nb + "();");
-	    // broadcast the new value
-	    sw.writeln("// Notify all waiting threads");
-        sw.writeln(STATIC_INIT_LOCK + "();");;
-	    sw.write(STATIC_INIT_NOTIFY_ALL + "();");
-	    sw.end(); sw.newline();
-	    sw.writeln("}");
-	    sw.writeln("WAIT:");
-	    sw.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {"); sw.newline(4); sw.begin(0); 
-        sw.writeln(STATIC_INIT_LOCK + "();");
-	    sw.writeln("_SI_(\"WAITING for field: "+container+"."+name+" to be initialized\");");
-	    sw.writeln("while ("+status+" != " + STATIC_FIELD_INITIALIZED + ") " + STATIC_INIT_AWAIT + "();");
-	    sw.writeln("_SI_(\"CONTINUING because field: "+container+"."+name+" has been initialized\");");
-        sw.write(STATIC_INIT_UNLOCK + "();"); sw.end(); sw.newline();
-	    sw.write("}");
-	    sw.end(); sw.newline();
-	    sw.writeln("}");
-	    sw.write("static " + VOID_PTR + " __init__"+getUniqueId_() + " " + UNUSED + " = x10aux::InitDispatcher::addInitializer(" + container + "::" + init + ")"+ ";");
-	    sw.newline(); sw.forceNewline(0);
 	}
 
 	/**
@@ -1842,150 +1721,71 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         String name = dec.name().id().toString();
         TypeSystem xts = tr.typeSystem();
         ClassifiedStream h = sw.header();
-        boolean perProcess = isPerProcess((X10Def) dec.fieldDef());
-	    
-        if (perProcess) {
-	        String fname = mangled_field_name(name);
-	        String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
-	        String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
-	        String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
-	        
-            // define the field.
-            emitter.printType(dec.type().type(), sw);
-            sw.allowBreak(2, " ");
-            sw.write(container+"::");
-            sw.write(mangled_field_name(dec.name().id().toString()));
-            sw.writeln(";");
+        String fname = mangled_field_name(name);
+        String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
+        String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
+        String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
+        String except = mangled_field_name(name+STATIC_FIELD_EXCEPTION_SUFFIX);
+        
+        // define the field.
+        emitter.printType(dec.type().type(), sw);
+        sw.allowBreak(2, " ");
+        sw.write(container+"::");
+        sw.write(mangled_field_name(dec.name().id().toString()));
+        sw.writeln(";");
 
-            generatePerProcessStaticFieldInitializer(dec, container, sw);
-	        
-	        // declare the initialization flag
-	        h.writeln("static volatile x10aux::status "+status+";");;
+        generateStaticFieldInitializer(dec, container, sw);
+        
+        // declare the initialization flag
+        h.writeln("static volatile x10aux::StaticInitController::status "+status+";");;
 
-	        // declare the accessor method
-	        h.write("static ");
-	        emitter.printType(dec.type().type(), h);
-	        h.allowBreak(2, 2, " ", 1);
-	        h.write(accessor);
-	        h.writeln("();");
-	        
-	        // define the accessor method
-	        X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	        ClassifiedStream gh = context.genericFunctions;
-	        gh.write("inline ");
-	        emitter.printType(dec.type().type(), gh);
-	        gh.allowBreak(2, 2, " ", 1);
-	        gh.write(container+"::"+accessor);
-	        gh.write("() {");
-	        gh.newline(4); gh.begin(0);
+        // declare the exception holder
+        h.writeln("static x10aux::ref<x10::lang::Throwable> "+except+";");;
 
-	        gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
-	        gh.newline(4); gh.begin(0);
-	        gh.write(init + "();");
-	        gh.end(); gh.newline();
-	        gh.write("}");
-	        gh.newline();
+        // declare the accessor method
+        h.write("static ");
+        emitter.printType(dec.type().type(), h);
+        h.allowBreak(2, 2, " ", 1);
+        h.write(accessor);
+        h.writeln("();");
+        
+        // define the accessor method
+        X10CPPContext_c context = (X10CPPContext_c) tr.context();
+        ClassifiedStream gh = context.genericFunctions;
+        gh.write("inline ");
+        emitter.printType(dec.type().type(), gh);
+        gh.allowBreak(2, 2, " ", 1);
+        gh.write(container+"::"+accessor);
+        gh.write("() {");
+        gh.newline(4); gh.begin(0);
 
-	        gh.write("return ");
-	        gh.write(container+"::");
-	        gh.write(fname);
-	        gh.write(";");
-	        gh.end(); gh.newline();
-	        gh.write("}");
-	        gh.newline(); gh.forceNewline();
+        gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
+        gh.newline(4); gh.begin(0);
+        gh.write(init + "();");
+        gh.end(); gh.newline();
+        gh.write("}");
+        gh.newline();
 
-	        // define the initialization flag
-	        sw.write("volatile x10aux::status ");
-	        sw.write(container+"::");
-	        sw.write(status);
-	        sw.writeln(";");
-	    } else {
-	        String fname = mangled_field_name(name);
-	        String status = mangled_field_name(name+STATIC_FIELD_STATUS_SUFFIX);
-	        String accessor = mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX);
-	        String init = mangled_field_name(name+STATIC_FIELD_INITIALIZER_SUFFIX);
-	        String deserializer = mangled_field_name(name+STATIC_FIELD_DESERIALIZER_SUFFIX);
-	        String id = mangled_field_name(name+STATIC_FIELD_BROADCASTID_SUFFIX);
-	        
-            // define the field.
-            emitter.printType(dec.type().type(), sw);
-            sw.allowBreak(2, " ");
-            sw.write(container+"::");
-            sw.write(mangled_field_name(dec.name().id().toString()));
-            sw.writeln(";");
+        gh.write("return ");
+        gh.write(container+"::");
+        gh.write(fname);
+        gh.write(";");
+        gh.end(); gh.newline();
+        gh.write("}");
+        gh.newline(); gh.forceNewline();
 
-            generateStaticFieldInitializer(dec, container, sw);
-	        
-	        // declare the initialization flag
-	        h.writeln("static volatile x10aux::status "+status+";");;
+        // define the initialization flag
+        sw.write("volatile x10aux::StaticInitController::status ");
+        sw.write(container+"::");
+        sw.write(status);
+        sw.writeln(";");
+        
+        // define the exception holder flag
+        sw.write("x10aux::ref<x10::lang::Throwable> ");
+        sw.write(container+"::");
+        sw.write(except);
+        sw.writeln(";");
 
-	        // declare the accessor method
-	        h.write("static ");
-	        emitter.printType(dec.type().type(), h);
-	        h.allowBreak(2, 2, " ", 1);
-	        h.write(accessor);
-	        h.writeln("();");
-	        
-	        // define the accessor method
-	        X10CPPContext_c context = (X10CPPContext_c) tr.context();
-	        ClassifiedStream gh = context.genericFunctions;
-	        gh.write("inline ");
-	        emitter.printType(dec.type().type(), gh);
-	        gh.allowBreak(2, 2, " ", 1);
-	        gh.write(container+"::"+accessor);
-	        gh.write("() {");
-	        gh.newline(4); gh.begin(0);
-
-	        gh.write("if ("+status+" != " + STATIC_FIELD_INITIALIZED + ") {");
-	        gh.newline(4); gh.begin(0);
-	        gh.write(init + "();");
-	        gh.end(); gh.newline();
-	        gh.write("}");
-	        gh.newline();
-
-	        gh.write("return ");
-	        gh.write(container+"::");
-	        gh.write(fname);
-	        gh.write(";");
-	        gh.end(); gh.newline();
-	        gh.write("}");
-	        gh.newline(); gh.forceNewline();
-
-	        // declare the deserializer method
-	        h.write("static "+make_ref("x10::lang::Reference"));
-	        h.allowBreak(2, 2, " ", 1);
-	        h.writeln(deserializer + "(" + DESERIALIZATION_BUFFER + " &buf);");
-	        
-	        // declare the broadcast id
-	        h.writeln("static const x10aux::serialization_id_t "+id+";");
-
-	        // define the initialization flag
-	        sw.write("volatile x10aux::status ");
-	        sw.write(container+"::");
-	        sw.write(status);
-	        sw.writeln(";");
-	        
-	        // define the deserializer method
-	        sw.write("// extract value from a buffer"); sw.newline();
-	        sw.write(make_ref("x10::lang::Reference"));
-	        sw.allowBreak(2, 2, " ", 1);
-	        sw.write(container + "::" + deserializer + "(" + DESERIALIZATION_BUFFER + " &buf) {");
-	        sw.newline(4); sw.begin(0);
-	        sw.write(fname+" =");
-	        sw.allowBreak(2, 2, " ", 1);
-	        sw.writeln("buf.read"+chevrons(Emitter.translateType(dec.type().type(), true))+"();");
-	        sw.writeln(container+"::"+status+" = " + STATIC_FIELD_INITIALIZED + ";");
-	        sw.writeln("// Notify all waiting threads");
-	        sw.writeln(STATIC_INIT_LOCK + "();");
-	        sw.writeln(STATIC_INIT_NOTIFY_ALL + "();");
-	        sw.write("return X10_NULL;");
-	        sw.end(); sw.newline();
-	        sw.writeln("}");
-	        // define the broadcast id
-	        sw.write("const x10aux::serialization_id_t " + container + "::"+id + " =");
-	        sw.allowBreak(2, 2, " ", 1);
-	        sw.writeln("x10aux::StaticInitBroadcastDispatcher::addRoutine(" + container + "::" + deserializer + ");");
-	    }
 	}
 
 	public void visit(PropertyDecl_c n) {
@@ -2924,7 +2724,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 				sw.write(Emitter.translateType(target.type()));
 				sw.write("::");
 				sw.allowBreak(2, 3, "", 0);
-				sw.write(mangled_field_name(name));
+	            sw.write(mangled_field_name(name+STATIC_FIELD_ACCESSOR_SUFFIX) + "()");
 				sw.write(")");
 				sw.end();
 				return;

@@ -77,6 +77,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         // X10RT.init explicitly from here.
         X10RT.init();
 
+        x10.lang.Runtime.get$staticMonitor();
+        x10.lang.Runtime.get$STRICT_FINISH();
+        x10.lang.Runtime.get$NTHREADS();
+        x10.lang.Runtime.get$MAX_THREADS();
+        x10.lang.Runtime.get$STATIC_THREADS();
+        x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
+        x10.lang.Runtime.get$BUSY_WAITING();
+
         java.lang.Runtime.getRuntime().addShutdownHook(new java.lang.Thread() {
             public void run() {
                 System.out.flush();

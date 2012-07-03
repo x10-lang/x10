@@ -43,10 +43,15 @@ x10aux::itable_entry BootStrapClosure::_itables[2] = {
 
 void x10aux::initialize_xrx() {
     x10::lang::Runtime::FMGL(staticMonitor__do_init)();
-    x10::lang::Runtime::FMGL(env__do_init)();
+//    x10::lang::Runtime::FMGL(env__do_init)();
+    x10::lang::Runtime::FMGL(STRICT_FINISH__do_init)();
+    x10::lang::Runtime::FMGL(NTHREADS__do_init)();
+    x10::lang::Runtime::FMGL(MAX_THREADS__do_init)();
     x10::lang::Runtime::FMGL(STATIC_THREADS__do_init)();
-    x10::lang::Place::FMGL(places__do_init)();
-    x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
+    x10::lang::Runtime::FMGL(WARN_ON_THREAD_CREATION__do_init)();
+    x10::lang::Runtime::FMGL(BUSY_WAITING__do_init)();
+//    x10::lang::Place::FMGL(places__do_init)();
+//    x10::lang::Place::FMGL(FIRST_PLACE__do_init)();
 }
 
 struct x10_main_args {
@@ -109,12 +114,12 @@ static void* real_x10_main_inner(void* _main_args) {
 #endif
         x10aux::place_local::initialize();
 
+        // Initialize a few key fields of XRX that must be set before any X10 code can execute
+        x10aux::initialize_xrx();
+
         // Initialise enough state to make this 'main' thread look like a normal x10 thread
         // (e.g. make Thread::CurrentThread work properly).
         x10::lang::Runtime__Worker::_make((x10_int)0);
-
-        // Initialize a few key fields of XRX that must be set before any X10 code can execute
-        x10aux::initialize_xrx();
 
         // Get the args into an X10 Array[String]
         x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = x10aux::convert_args(main_args->ac, main_args->av);

@@ -13,7 +13,7 @@ import harness.x10Test;
 
 public class ArrayStaticPlusEqual extends x10Test {
 
-    static val v  = GlobalRef[Rail[int]](new Rail[int](2, (x:int)=>0));
+    val v  = GlobalRef[Rail[int]](new Rail[int](2, (x:int)=>0));
 
     public def run() {
 	    at (v) {

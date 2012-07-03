@@ -237,9 +237,9 @@ public class ArrayList[T] extends AbstractCollection[T] implements List[T] {
      * @param key the value to find
      * @param cmp the comparison function to use
      */
-    public def binarySearch(key:T, cmp:(T,T)=>Int) = ArrayUtils.binarySearch[T](a.imc(), key, 0, a.length()-1, cmp);
+    public def binarySearch(key:T, cmp:(T,T)=>Int) = ArrayUtils.binarySearch[T](a.imc(), key, 0, a.length(), cmp);
     public def binarySearch(key:T){T <: Comparable[T]} { 
-        return ArrayUtils.binarySearch[T](a.imc(), key, 0, a.length()-1, (x:T, y:T) => (x as Comparable[T]).compareTo(y));
+        return ArrayUtils.binarySearch[T](a.imc(), key, 0, a.length(), (x:T, y:T) => (x as Comparable[T]).compareTo(y));
     }
 
     /**

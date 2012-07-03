@@ -12,7 +12,6 @@
 package x10.io;
 
 import x10.compiler.Native;
-import x10.compiler.PerProcess;
 
 public class Console {
         @Native("java", "new x10.core.io.OutputStream(java.lang.System.out)")
@@ -27,11 +26,8 @@ public class Console {
         @Native("c++", "x10::io::InputStreamReader__InputStream::STANDARD_IN()")
         private native static def realIn(): InputStreamReader.InputStream;
     
-        @PerProcess
         public static OUT:Printer{self!=null} = new Printer(new OutputStreamWriter(realOut()));
-        @PerProcess
         public static ERR:Printer{self!=null} = new Printer(new OutputStreamWriter(realErr()));
-        @PerProcess
         public static IN:Reader{self!=null}  = new InputStreamReader(realIn());
         
    /*

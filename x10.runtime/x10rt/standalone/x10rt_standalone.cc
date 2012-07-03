@@ -31,7 +31,7 @@
 
 //#define DEBUG // uncomment to turn on debug messages
 #define X10_NPLACES "X10_NPLACES" // environment variable
-#define X10RT_DATABUFFERSIZE 524300 // the size, in bytes, of the shared memory segment used for communications, per place
+#define X10RT_DATABUFFERSIZE 10000000 // the size, in bytes, of the shared memory segment used for communications, per place
 
 
 // mechanisms for the callback functions used in the register and probe methods
@@ -418,6 +418,10 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 	// find a free slot to put the message into
 	while (entry == NULL)
 	{
+		#ifdef DEBUG
+			printf("X10rt.Standalone: Place %lu thread %lu locking place %lu's buffer.\n", state.myPlaceId, pthread_self(), p->dest_place);
+			fflush(stdout);
+		#endif
 		// lock destination
 		if (pthread_mutex_lock(&dest->messageQueueLock) != 0) error("Unable to lock the message queue to insert a message");
 
@@ -489,7 +493,7 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 		dest->messageQueueHead = 0;
 
 	#ifdef DEBUG
-		printf("X10rt.Standalone: Place %lu added a message of length %lu to place %lu's buffer.  Head=%u, Tail=%u\n", state.myPlaceId, entrySize, p->dest_place,
+		printf("X10rt.Standalone: Place %lu thread %lu added a message of length %lu to place %lu's buffer.  Head=%u, Tail=%u\n", state.myPlaceId, pthread_self(), entrySize, p->dest_place,
 				dest->messageQueueHead, dest->messageQueueTail);
 		fflush(stdout);
 	#endif
@@ -497,6 +501,10 @@ void insertNewMessage(MSGTYPE mt, x10rt_msg_params *p, void *dataPtr, x10rt_copy
 
 	// unlock destination
 	if (pthread_mutex_unlock(&dest->messageQueueLock) != 0) error("Unable to unlock the message queue after inserting a message");
+	#ifdef DEBUG
+		printf("X10rt.Standalone: Place %lu thread %lu unlocked place %lu's buffer.\n", state.myPlaceId, pthread_self(), p->dest_place);
+		fflush(stdout);
+	#endif
 }
 
 /******************************************************
@@ -707,6 +715,10 @@ void x10rt_net_probe (void)
 
 	x10StandalonePlaceState *myPlace = state.perPlaceState[state.myPlaceId]; // pointer to make this more readable
 
+	#ifdef DEBUG
+		printf("X10rt.Standalone: Place %lu thread %lu locking local buffer.\n", state.myPlaceId, pthread_self());
+		fflush(stdout);
+	#endif
 	if (pthread_mutex_lock(&myPlace->messageQueueLock) != 0) error("Unable to lock the message queue to get a message");
 
 	while(true) // loop as long as we have incoming messages to process in the buffer
@@ -714,6 +726,11 @@ void x10rt_net_probe (void)
 		// check the buffer to see if we have a message in it
 		if (myPlace->messageQueueHead == X10RT_DATABUFFERSIZE) // empty queue
 		{
+			#ifdef DEBUG
+				printf("X10rt.Standalone: Place %lu thread %lu unlocking local buffer (empty).\n", state.myPlaceId, pthread_self());
+				fflush(stdout);
+			#endif
+
 			if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after finding it empty");
 			sched_yield(); // to help prevent the constant probes from preventing anything else from getting done.
 			return;
@@ -736,6 +753,11 @@ void x10rt_net_probe (void)
 			// check to see if we're at the tail.  If so, there's nothing to do
 			if (myPlace->messageQueueTail == myPlace->messageQueueHead + skippedMsgs)
 			{
+				#ifdef DEBUG
+					printf("X10rt.Standalone: Place %lu thread %lu unlocking local buffer (at tail).\n", state.myPlaceId, pthread_self());
+					fflush(stdout);
+				#endif
+
 				if (pthread_mutex_unlock(&myPlace->messageQueueLock) != 0) error("Unable to unlock the message queue after finding it empty");
 				return;
 			}
@@ -749,7 +771,7 @@ void x10rt_net_probe (void)
 		entry->status = INPROCESS;
 
 		#ifdef DEBUG
-			printf("X10rt.Standalone: place %lu picked up a message from place %lu with type=%d len=%lu and payloadLen=%lu, poistion=%u Head=%u, Tail=%u\n", state.myPlaceId, entry->from, entry->standaloneMessageType, entrySize, entry->payloadLen, myPlace->messageQueueHead + skippedMsgs, myPlace->messageQueueHead, myPlace->messageQueueTail);
+			printf("X10rt.Standalone: place %lu thread %lu picked up a message from place %lu with type=%d len=%lu and payloadLen=%lu, position=%u Head=%u, Tail=%u\n", state.myPlaceId, pthread_self(), entry->from, entry->standaloneMessageType, entrySize, entry->payloadLen, myPlace->messageQueueHead + skippedMsgs, myPlace->messageQueueHead, myPlace->messageQueueTail);
 			fflush(stdout);
 		#endif
 
@@ -822,6 +844,10 @@ void x10rt_net_probe (void)
 			break;
 		}
 
+		#ifdef DEBUG
+			printf("X10rt.Standalone: Place %lu thread %lu locking local buffer to remove processed message.\n", state.myPlaceId, pthread_self());
+			fflush(stdout);
+		#endif
 		if (pthread_mutex_lock(&myPlace->messageQueueLock) != 0) error("Unable to lock the message queue after processing a message");
 
 		entry->status = COMPLETED;
@@ -830,7 +856,7 @@ void x10rt_net_probe (void)
 		if (origPosition != myPlace->messageQueueHead)
 		{
 			#ifdef DEBUG
-				printf("X10rt.Standalone: Place %lu finished processing a message of size %lu. Not moving head. Head=%u, Tail=%u\n", state.myPlaceId, entrySize, myPlace->messageQueueHead, myPlace->messageQueueTail);
+				printf("X10rt.Standalone: Place %lu thread %lu finished processing a message of size %lu. Not moving head. Head=%u, Tail=%u\n", state.myPlaceId, pthread_self(), entrySize, myPlace->messageQueueHead, myPlace->messageQueueTail);
 				fflush(stdout);
 			#endif
 
@@ -851,7 +877,7 @@ void x10rt_net_probe (void)
 				myPlace->messageQueueHead = X10RT_DATABUFFERSIZE;
 				myPlace->messageQueueTail = 0;
 				#ifdef DEBUG
-					printf("X10rt.Standalone: Place %lu finished processing a message of size %lu. Buffer empty. Head=%u, Tail=%u\n", state.myPlaceId, entrySize,
+					printf("X10rt.Standalone: Place %lu thread %lu finished processing a message of size %lu. Buffer empty. Head=%u, Tail=%u\n", state.myPlaceId, pthread_self(), entrySize,
 							myPlace->messageQueueHead, myPlace->messageQueueTail);
 					fflush(stdout);
 				#endif
@@ -869,10 +895,12 @@ void x10rt_net_probe (void)
 		}
 
 		#ifdef DEBUG
-			printf("X10rt.Standalone: Place %lu finished processing a message of size %lu. Head=%u, Tail=%u\n", state.myPlaceId, entrySize,
+			printf("X10rt.Standalone: Place %lu thread %lu finished processing a message of size %lu. Head=%u, Tail=%u\n", state.myPlaceId, pthread_self(), entrySize,
 					myPlace->messageQueueHead, myPlace->messageQueueTail);
 			fflush(stdout);
 		#endif
+
+		// we still have the messageQueueLock locked here, for our loop back around
 	}
 }
 

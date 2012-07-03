@@ -18,56 +18,33 @@
 #include <x10aux/serialization.h>
 #include <x10aux/network.h>
 
+namespace x10 {
+    namespace lang {
+        class Throwable;
+    }
+}
+
 namespace x10aux {
 
-    class StaticInitBroadcastDispatcher {
-        protected:
-        static DeserializationDispatcher *it;
+    class StaticInitController {
+      public:
+        enum status {
+            UNINITIALIZED = 0,
+            INITIALIZING,
+            INITIALIZED,
+            EXCEPTION_RAISED
+        };
 
-        static serialization_id_t const STATIC_BROADCAST_NAIVE_ID;
-        static void doBroadcastNaive(char* the_buf, x10_uint sz);
+        static void initField(volatile status* flag,
+                              void (*init_func)(void),
+                              x10aux::ref<x10::lang::Throwable>*,
+                              const char* fname);
 
-        static serialization_id_t const STATIC_BROADCAST_TREE_ID;
-        static void doBroadcastTree(char* the_buf, x10_uint sz);
-
-        public:
-        static serialization_id_t addRoutine(Deserializer init);
-
-        static ref<x10::lang::Reference> dispatchNaive(deserialization_buffer& buf);
-
-        static ref<x10::lang::Reference> dispatchTree(deserialization_buffer& buf);
-
-        template<class C> static void broadcastStaticField(C f, serialization_id_t id);
-
+      private:
         static void lock();
         static void await();
         static void unlock();
         static void notify();
-    };
-
-    template<class C>
-    void StaticInitBroadcastDispatcher::broadcastStaticField(C f, serialization_id_t id) {
-        if (num_hosts == 1) return;
-        serialization_buffer buf;
-        buf.write(id);
-        buf.write(f);
-        x10_uint sz = buf.length();
-        serialized_bytes += sz; asyncs_sent++;
-        if (x10aux::static_broadcast_naive) {
-            doBroadcastNaive(buf.borrow(), sz);
-        } else {
-            doBroadcastTree(buf.borrow(), sz);
-        }
-        // buffer cleaned up when buf destructed
-    }
-
-    template<> inline const char *typeName<StaticInitBroadcastDispatcher>()
-    { return "StaticInitBroadcastDispatcher"; }
-
-    enum status {
-        UNINITIALIZED = 0,
-        INITIALIZING,
-        INITIALIZED
     };
 }
 

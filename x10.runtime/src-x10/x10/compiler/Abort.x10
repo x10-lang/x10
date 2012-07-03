@@ -8,7 +8,7 @@ package x10.compiler;
  * @author tardieu
  */
 public class Abort extends x10.lang.Throwable {
-    @PerProcess public static ABORT = new Abort();
+    public static ABORT = new Abort();
 
     private def this() {}
 }
