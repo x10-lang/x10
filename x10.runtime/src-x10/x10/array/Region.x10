@@ -476,7 +476,7 @@ public abstract class Region(
     // the common case of the zero-based RectRegion1D constructor such that
     // the constraint solver can properly statically determine that the 
     // constructed RectRegion1D has all the desirable properties
-    protected @Inline def this(r:int):Region{self.rank==r,self.zeroBased,self.rect,self.rail} {
+    protected @Inline def this(r:int{self==1}):Region{self.rank==r,self.zeroBased,self.rect,self.rail} {
         property(r, true, true, true);
     }
 
