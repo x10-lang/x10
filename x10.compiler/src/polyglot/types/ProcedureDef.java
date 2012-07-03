@@ -59,4 +59,9 @@ public interface ProcedureDef extends CodeDef, X10CodeDef, X10MemberDef
     void setFormalNames(List<LocalDef> formalNames);
 
     Ref<? extends Type> offerType();
+
+    List<Ref<? extends Type>> throwTypes();
+    void setThrowTypes(List<Ref<? extends Type>> l);
+
+
 }

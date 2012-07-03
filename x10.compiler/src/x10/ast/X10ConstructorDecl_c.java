@@ -183,7 +183,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
 
     protected ConstructorDef createConstructorDef(TypeSystem ts, ClassDef ct, Flags flags) {
     	X10ConstructorDef ci = (X10ConstructorDef) ((TypeSystem) ts).constructorDef(position(), name().position(), Types.ref(ct.asType()), flags,
-                Collections.<Ref<? extends Type>>emptyList(), 
+    	        Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList(), 
                 offerType == null ? null : offerType.typeRef());
         
         ci.setThisDef(((X10ClassDef) ct).thisDef());

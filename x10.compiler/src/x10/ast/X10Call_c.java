@@ -876,4 +876,19 @@ public class X10Call_c extends Call_c implements X10Call {
         c.nonVirtual = nv;
         return c;
     }
+
+    public List<Type> throwTypes(TypeSystem ts) {
+        List<Type> l = new ArrayList<Type>();
+
+        assert mi != null : "null mi for " + this;
+
+        l.addAll(mi.throwTypes());
+        l.addAll(ts.uncheckedExceptions());
+
+        if (target instanceof Expr && ! (target instanceof Special)) {
+            l.add(ts.NullPointerException());
+        }
+
+        return l;
+    }
 }

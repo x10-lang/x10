@@ -662,7 +662,7 @@ public class StaticInitializer extends ContextVisitor {
         Position CG = Position.compilerGenerated(null);
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
         MethodDef md = xts.methodDef(CG, CG, Types.ref(receiver), 
-                                     Flags.STATIC, Types.ref(returnType), name, argTypes);
+                                     Flags.STATIC, Types.ref(returnType), name, argTypes, Collections.<Ref<? extends Type>>emptyList());
         return md;
     }
 
@@ -769,7 +769,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref(classDef.asType()), 
-                                     Flags.STATIC, Types.ref(xts.Void()), name, argTypes);
+                                     Flags.STATIC, Types.ref(xts.Void()), name, argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // X10JavaDeserializer argument definition
@@ -830,7 +830,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -972,7 +972,7 @@ public class StaticInitializer extends ContextVisitor {
         // make instance call
         ObjectType targetType = (ObjectType)target.type();
         MethodDef md = xts.methodDef(pos, pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Object()), name, 
-                                     Collections.<Ref<? extends Type>>emptyList());
+                                     Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr applyCall = xnf.X10Call(pos, target, xnf.Id(pos, name), Collections.<TypeNode>emptyList(), 
                                      Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Object());
@@ -994,7 +994,7 @@ public class StaticInitializer extends ContextVisitor {
         Id name = xnf.Id(pos, Name.make("hereInt"));
 
         MethodDef md = xts.methodDef(pos, pos, Types.ref(type), Flags.STATIC, Types.ref(xts.Int()), name.id(),
-                                     Collections.<Ref<? extends Type>>emptyList());
+                                     Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr here = xnf.X10Call(pos, xnf.X10CanonicalTypeNode(pos, type), name, 
                                 Collections.<TypeNode>emptyList(), 
@@ -1012,7 +1012,7 @@ public class StaticInitializer extends ContextVisitor {
         argTypes.add(Types.ref(xts.Int()));
         argTypes.add(Types.ref(xts.Int()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType) xts.AtomicInteger()),
-                Flags.NONE, Types.ref(xts.Boolean()), cs.id(), argTypes);
+                Flags.NONE, Types.ref(xts.Boolean()), cs.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = new ArrayList<Expr>();
@@ -1033,7 +1033,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Int()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
-                                     Flags.NONE, Types.ref(xts.Void()), name.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), name.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = new ArrayList<Expr>();
@@ -1071,7 +1071,7 @@ public class StaticInitializer extends ContextVisitor {
         argTypes.add(Types.ref(xts.Short()));
         Type returnType = (fdPLH == null) ? xts.Void() : PlaceLocalHandle();
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()),
-                Flags.NONE, Types.ref(returnType), id.id(), argTypes);
+                Flags.NONE, Types.ref(returnType), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -1098,7 +1098,7 @@ public class StaticInitializer extends ContextVisitor {
 
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
         MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
-                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = Collections.<Expr>emptyList();
@@ -1115,7 +1115,7 @@ public class StaticInitializer extends ContextVisitor {
 
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
         MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
-                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = Collections.<Expr>emptyList();
@@ -1146,7 +1146,7 @@ public class StaticInitializer extends ContextVisitor {
         Id id = xnf.Id(pos, methodName);
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -1242,7 +1242,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // create MethodDef
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // get full path class name
@@ -1285,7 +1285,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // create MethodDef
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()),
-                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos,Types.ref(md));
 
         // actual arguments

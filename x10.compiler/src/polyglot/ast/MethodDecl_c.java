@@ -183,47 +183,29 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         return n;
     }
 
-    /** Type check the method. */
-    public Node typeCheck(ContextVisitor tc) {
-        TypeSystem ts = tc.typeSystem();
-/*
-        for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
-            TypeNode tn = (TypeNode) i.next();
-            Type t = tn.type();
-            if (! t.isThrowable()) {
-                throw new SemanticException("Type \"" + t +
-                    "\" is not a subclass of \"" + ts.Throwable() + "\".",
-                    tn.position());
-            }
-        }
-*/
-
-	return this;
-    }
-    
     @Override
     public Node conformanceCheck(ContextVisitor tc) {
-	// Get the mi flags, not the node flags since the mi flags
-	// account for being nested within an interface.
-	Flags flags = mi.flags();
-	checkFlags(tc, flags);
-	
-	overrideMethodCheck(tc);
-	
-	return this;
+        // Get the mi flags, not the node flags since the mi flags
+        // account for being nested within an interface.
+        Flags flags = mi.flags();
+        checkFlags(tc, flags);
+
+        overrideMethodCheck(tc);
+
+        return this;
     }
 
     protected void checkFlags(ContextVisitor tc, Flags flags) {
-	TypeSystem ts = tc.typeSystem();
+        TypeSystem ts = tc.typeSystem();
 
-	if (tc.context().currentClass().flags().isInterface()) {
+        if (tc.context().currentClass().flags().isInterface()) {
             if (flags.isProtected() || flags.isPrivate()) {
                 Errors.issue(tc.job(), 
-                		new Errors.InterfaceMethodsMustBePublic(name().position()));
+                        new Errors.InterfaceMethodsMustBePublic(name().position()));
             }
-            
+
             if (flags.isStatic()) {
-        	Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotBeStatic(name().position()));
+                Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotBeStatic(name().position()));
             }
         }
 
@@ -237,21 +219,21 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         Type container = Types.get(methodDef().container());
         ClassType ct = container.toClass();
 
-	if (body == null && ! (flags.isAbstract() || flags.isNative())) {
-	    Errors.issue(tc.job(), new Errors.MissingMethodBody(name().position()));
-	}
-
-        if (body != null && ct.flags().isInterface()) {
-	    Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotHaveBody(name().position()));
+        if (body == null && ! (flags.isAbstract() || flags.isNative())) {
+            Errors.issue(tc.job(), new Errors.MissingMethodBody(name().position()));
         }
 
-	if (body != null && flags.isAbstract()) {
-	    Errors.issue(tc.job(), new Errors.AbstractMethodCannotHaveBody(name().position()));
-	}
+        if (body != null && ct.flags().isInterface()) {
+            Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotHaveBody(name().position()));
+        }
 
-	if (body != null && flags.isNative()) {
-	    Errors.issue(tc.job(), new Errors.NativeMethodCannotHaveBody(name().position()));
-	}
+        if (body != null && flags.isAbstract()) {
+            Errors.issue(tc.job(), new Errors.AbstractMethodCannotHaveBody(name().position()));
+        }
+
+        if (body != null && flags.isNative()) {
+            Errors.issue(tc.job(), new Errors.NativeMethodCannotHaveBody(name().position()));
+        }
 
         // check that inner classes do not declare static methods
         if (ct != null && flags.isStatic() && (ct.isInnerClass() || ct.isLocal() || ct.isAnonymous())) {
@@ -278,10 +260,10 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         }
     }
 
-  /*  public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
         return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature())).push(methodDef().asInstance().throwTypes());
     }
-*/
+
     public abstract String toString();
 
     /** Write the method to an output file. */

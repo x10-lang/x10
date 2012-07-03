@@ -46,7 +46,7 @@ public class JavaArrayType_c extends ReferenceType_c implements JavaArrayType
                                         ts.Public(),
                                         Types.<Type>ref(ts.Object()),
                                         Name.make("clone"),
-                                        Collections.<Ref<? extends Type>>emptyList());
+                                        Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
             methods.add(mi);
         }
 

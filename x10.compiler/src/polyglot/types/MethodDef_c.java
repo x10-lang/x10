@@ -31,8 +31,8 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     protected MethodDef_c(TypeSystem ts, Position pos, Position errorPos,
 	 		    Ref<? extends ContainerType> container,
 	                    Flags flags, Ref<? extends Type> returnType, Name name,
-			    List<Ref<? extends Type>> formalTypes) {
-        super(ts, pos, errorPos, container, flags, formalTypes);
+			    List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> throwTypes) {
+        super(ts, pos, errorPos, container, flags, formalTypes, throwTypes);
 	this.returnType = returnType;
 	this.name = name;
     }
@@ -97,4 +97,5 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     public String designator() {
         return "method";
     }
+    
 }

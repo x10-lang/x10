@@ -179,7 +179,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 	protected X10MethodDef createMethodDef(TypeSystem ts, X10ClassDef ct, Flags flags) {
 		X10MethodDef mi = (X10MethodDef) ts.methodDef(position(), name().position(), Types.ref(ct.asType()), flags, returnType.typeRef(), name.id(),
-				Collections.<Ref<? extends Type>>emptyList(), 
+				Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList(), 
 				offerType == null ? null : offerType.typeRef());
 
 		mi.setThisDef(ct.thisDef());
@@ -204,17 +204,17 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		X10MethodDecl_c n = this;
 
-		X10MethodDef mi = createMethodDef(ts, ct, flags);
-		ct.addMethod(mi);
+		X10MethodDef md = createMethodDef(ts, ct, flags);
+		ct.addMethod(md);
 
-		TypeBuilder tbChk = tb.pushCode(mi);
+		TypeBuilder tbChk = tb.pushCode(md);
 
 		final TypeBuilder tbx = tb;
-		final MethodDef mix = mi;
+		final MethodDef mdx = md;
 
 		n = (X10MethodDecl_c) n.visitSignature(new NodeVisitor() {
 		    public Node override(Node n) {
-		        return X10MethodDecl_c.this.visitChild(n, tbx.pushCode(mix));
+		        return X10MethodDecl_c.this.visitChild(n, tbx.pushCode(mdx));
 		    }
 		});
 
@@ -223,47 +223,47 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 		    formalTypes.add(f1.type().typeRef());
 		}
 
-		mi.setReturnType(n.returnType().typeRef());
-		mi.setFormalTypes(formalTypes);
+		md.setReturnType(n.returnType().typeRef());
+		md.setFormalTypes(formalTypes);
 
 		n = (X10MethodDecl_c) X10Del_c.visitAnnotations(n, tb);
-
+				
 		List<AnnotationNode> as = ((X10Del) n.del()).annotations();
 		if (as != null) {
 			List<Ref<? extends Type>> ats = new ArrayList<Ref<? extends Type>>(as.size());
 			for (AnnotationNode an : as) {
 				ats.add(an.annotationType().typeRef());
 			}
-			mi.setDefAnnotations(ats);
+			md.setDefAnnotations(ats);
 		}
 
 		// Enable return type inference for this method declaration.
 		if (n.returnType() instanceof UnknownTypeNode) {
-			mi.inferReturnType(true);
+			md.inferReturnType(true);
 		}
 
 		if (n.guard() != null) {
-			mi.setGuard(n.guard().valueConstraint());
-			mi.setTypeGuard(n.guard().typeConstraint());
+			md.setGuard(n.guard().valueConstraint());
+			md.setTypeGuard(n.guard().typeConstraint());
 		}
 
 		List<ParameterType> typeParameters = new ArrayList<ParameterType>(n.typeParameters().size());
 		for (TypeParamNode tpn : n.typeParameters()) {
 			typeParameters.add(tpn.type());
 		}
-		mi.setTypeParameters(typeParameters);
+		md.setTypeParameters(typeParameters);
 
 		List<LocalDef> formalNames = new ArrayList<LocalDef>(n.formals().size());
 		for (Formal f : n.formals()) {
 			formalNames.add(f.localDef());
 		}
-		mi.setFormalNames(formalNames);
+		md.setFormalNames(formalNames);
 
-		Flags xf = mi.flags();
+		Flags xf = md.flags();
 		if (xf.isProperty()) {
 			final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
 			bodyRef.setResolver(new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
-			mi.body(bodyRef);
+			md.body(bodyRef);
 		}
 
 		// property implies public, final
@@ -273,15 +273,15 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			else
 				xf = xf.Public().Final();
 
-			mi.setFlags(xf);
+			md.setFlags(xf);
 			n = (X10MethodDecl_c) n.flags(n.flags().flags(xf));
 		}
 
 		Block body = (Block) n.visitChild(n.body, tbChk);
 
-		n = (X10MethodDecl_c) n.body(body);
+        n = (X10MethodDecl_c) n.body(body);
 
-		return n.methodDef(mi);
+		return n.methodDef(md);
 	}
 
 	@Override
@@ -506,10 +506,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			Errors.issue(tc.job(),
 			        new Errors.NonAbstractPropertyMethodMustBeFinal(position()));
 		}
-		if (xf.isProperty() && xf.isStatic()) {
-			Errors.issue(tc.job(),
-			        new Errors.PropertyMethodCannotBeStatic(position()));
-		}
+		//if (xf.isProperty() && xf.isStatic()) {
+		//	Errors.issue(tc.job(),
+		//	        new Errors.PropertyMethodCannotBeStatic(position()));
+		//}
 	}
 	
 	private Type getType(ContextVisitor tc, String name) throws SemanticException {
@@ -1134,9 +1134,16 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			((Ref<Type>) nn.returnType().typeRef()).update(t);
 			nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), t));
 		}
+		
+        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
+        for (Type t : AnnotationUtils.getThrowsTypes(this)) {
+            throw_types.add(Types.ref(t));
+        }
+        nn.methodDef().setThrowTypes(throw_types);
 
-		List<AnnotationNode> bodyAnnotations = AnnotationUtils.annotationNodesMatching(nn.body(), xts.Throws());
-		List<AnnotationNode> rtypeAnnotations = AnnotationUtils.annotationNodesMatching(nn.returnType(), xts.Throws());
+        // [DC] cannot use annotationNodesMatching as it does not handle the [T] in Throws[T]
+        List<AnnotationNode> bodyAnnotations = AnnotationUtils.annotationNodesNamed(nn.body(), xts.Throws().fullName());
+		List<AnnotationNode> rtypeAnnotations = AnnotationUtils.annotationNodesNamed(nn.returnType(), xts.Throws().fullName());
 		if ((bodyAnnotations != null && !bodyAnnotations.isEmpty()) ||
 			(rtypeAnnotations != null && !rtypeAnnotations.isEmpty()))
 		{
@@ -1147,7 +1154,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			for (AnnotationNode an : rtypeAnnotations) {
 				annotations.add(an.annotationType().typeRef());
 			}
-			nn.methodDef().setDefAnnotations(annotations);
+            nn.methodDef().setDefAnnotations(annotations);
 		}
 
 		return nn;

@@ -86,7 +86,7 @@ public class AnnotationNode_c extends Node_c implements AnnotationNode {
 	
 	@Override
 	public Node typeCheck(ContextVisitor tc) {
-//		System.out.println("Type checking " + this);
+		//System.out.println("Type checking " + this);
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		if (!xts.hasUnknown(tn.type()) && Types.error(tn.type())==null && !(tn.type().isClass() && tn.type().toClass().flags().isInterface())) {
 			Errors.issue(tc.job(), new Errors.AnnotationMustBeInterfacetype(position()));

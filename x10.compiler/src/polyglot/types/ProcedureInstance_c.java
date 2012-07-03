@@ -157,22 +157,50 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
     }
     
     public String signature() {
-	StringBuilder sb = new StringBuilder();
-	List<String> formals = new ArrayList<String>();
-	if (formalTypes != null) {
-	    for (int i = 0; i < formalTypes.size(); i++) {
-		String s = formalTypes.get(i).toString();
-		formals.add(s);
-	    }
-	}
-	else {
-	    for (int i = 0; i < def().formalTypes().size(); i++) {
-		formals.add(def().formalTypes().get(i).toString());
-	    }
-	}
-	sb.append("(");
-	sb.append(CollectionUtil.listToString(formals));
-	sb.append(")");
-	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        List<String> formals = new ArrayList<String>();
+        if (formalTypes != null) {
+            for (int i = 0; i < formalTypes.size(); i++) {
+                String s = formalTypes.get(i).toString();
+                formals.add(s);
+            }
+        }
+        else {
+            for (int i = 0; i < def().formalTypes().size(); i++) {
+                formals.add(def().formalTypes().get(i).toString());
+            }
+        }
+        sb.append("(");
+        sb.append(CollectionUtil.listToString(formals));
+        sb.append(")");
+        return sb.toString();
     }
+
+    public List<Type> throwTypes() {
+        if (this.throwTypes == null) {
+            return new TransformingList<Ref<? extends Type>, Type>(def().throwTypes(), new DerefTransform<Type>());
+        }
+        return this.throwTypes;
+    }
+
+    /** Returns true iff <code>this</code> throws fewer exceptions than
+     * <code>p</code>. */
+    public boolean throwsSubset(ProcedureInstance<T> p) {
+        SubtypeSet s1 = new SubtypeSet(ts.Throwable());
+        SubtypeSet s2 = new SubtypeSet(ts.Throwable());
+
+        s1.addAll(this.throwTypes());
+        s2.addAll(p.throwTypes());
+
+        for (Iterator<Type> i = s1.iterator(); i.hasNext(); ) {
+            Type t = (Type) i.next();
+            if (! ts.isUncheckedException(t) && ! s2.contains(t)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+   
 }

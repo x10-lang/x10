@@ -128,10 +128,14 @@ public class InlineHelper extends ContextVisitor {
                                                 for (Type ft : smi.formalTypes()) {
                                                     formalTypes.add(Types.ref(ft));
                                                 }
+                                                List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(smi.throwTypes().size());
+                                                for (Type tt : smi.throwTypes()) {
+                                                    formalTypes.add(Types.ref(tt));
+                                                }
                                                 X10MethodDef nmd = xts.methodDef(smi.position(), smi.errorPosition(), Types.ref(cd.asType()),
                                                         Flags.PUBLIC, Types.ref(smi.returnType()),
                                                         makeSuperBridgeName(ct.def(), smi.name()), md.typeParameters(),
-                                                        formalTypes, cd.thisDef(), Types.toLocalDefList(smi.formalNames()), Types.ref(smi.guard()),
+                                                        formalTypes, throwTypes, cd.thisDef(), Types.toLocalDefList(smi.formalNames()), Types.ref(smi.guard()),
                                                         Types.ref(smi.typeGuard()), smi.offerType(), null);
                                                 superBridges.put(smi, nmd);
                                                 superDecls.put(smi, mdcl);
@@ -189,10 +193,10 @@ public class InlineHelper extends ContextVisitor {
         if (!md.flags().isStatic()) {
             argTypes.add(Types.ref(ct));
         }
-        
+
         X10MethodDef nmd = (X10MethodDef) xts.methodDef(md.position(), md.errorPosition(), Types.ref(cd.asType()),
                 md.flags().clearPrivate().clearProtected().clearNative().Public().Static(),
-                Types.ref(md.returnType().get()), pmn, argTypes);
+                Types.ref(md.returnType().get()), pmn, argTypes, md.throwTypes());
         // check
         List<ParameterType> rts = new ArrayList<ParameterType>();
         rts.addAll(md.typeParameters());

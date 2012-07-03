@@ -468,7 +468,7 @@ public class WSUtil {
                 methodDef.flags(), 
                 methodDef.returnType(), 
                 Name.make(WSUtil.getMethodFastPathName(methodDef)), 
-                formalTypes);
+                formalTypes, Collections.<Ref<? extends Type>>emptyList());
         mDef.setTypeParameters(methodDef.typeParameters());
 
         List<LocalDef> formalNames = new ArrayList<LocalDef>();

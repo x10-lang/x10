@@ -156,7 +156,7 @@ public class FieldInitializerMover extends ContextVisitor {
             MethodDecl method = nf.MethodDecl(p,nf.FlagsNode(p, flags),returnType, nameId,
                     Collections.<Formal>emptyList(), nf.Block(p,assignments));
             method = (MethodDecl) method.visit( new LocalClassRemover.MarkReachable() );
-            MethodDef md = ts.methodDef(p, p, Types.ref(cdecl.classDef().asType()), flags, returnType.typeRef(), name, Collections.<Ref<? extends Type>>emptyList());
+            MethodDef md = ts.methodDef(p, p, Types.ref(cdecl.classDef().asType()), flags, returnType.typeRef(), name, Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
             method = method.methodDef(md);
             members.add(method);
 

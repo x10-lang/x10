@@ -102,7 +102,12 @@ public abstract class Type_c extends TypeObject_c implements Type
      * Return true if a subclass of Throwable.
      */
     public final boolean isThrowable() {
-	    return ts.isThrowable(this);
+        return ts.isThrowable(this);
+    }
+
+
+    public final boolean isJavaThrowable() {
+        return ts.isJavaThrowable(this);
     }
 
     /**

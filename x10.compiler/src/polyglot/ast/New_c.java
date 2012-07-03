@@ -407,4 +407,12 @@ public abstract class New_c extends Expr_c implements X10New
         return succs;
     }
 
+    public List<Type> throwTypes(TypeSystem ts) {
+        List<Type> l = new ArrayList<Type>();
+        assert ci != null : "null ci for " + this;
+        l.addAll(ci.throwTypes());
+        l.addAll(ts.uncheckedExceptions());
+        return l;
+    }
+    
 }

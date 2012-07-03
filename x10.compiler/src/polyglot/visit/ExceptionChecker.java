@@ -122,9 +122,11 @@ public class ExceptionChecker extends ErrorHandlingVisitor
      */
     protected Node leaveCall(Node old, Node n, NodeVisitor v)
 	throws SemanticException {
-        
         if (v instanceof PruningVisitor) {
-            return n;
+            // [DC] it seems this means no children were visited
+            // this means we are probably in a try, but we must visit the try
+            // doing the following to force that... probably wrong...
+            return n.del().exceptionCheck(this);
         }
         
         ExceptionChecker inner = (ExceptionChecker) v;

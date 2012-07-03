@@ -99,4 +99,19 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
     /** The type of offer statements permitted in the body.
 	 * May be null -- no offers are permitted.*/
 	Ref<? extends Type> offerType();
+
+	/**
+	 * List of declared exception types thrown.
+	 * @return A list of <code>Type</code>.
+	 * @see polyglot.types.Type
+	 */
+	List<Type> throwTypes();
+	ProcedureInstance<T> throwTypes(List<Type> throwTypes);
+
+	/**
+	 * Returns true if the procedure throws a subset of the exceptions
+	 * thrown by <code>pi</code>.
+	 */
+	boolean throwsSubset(ProcedureInstance<T> pi);
+	
 }

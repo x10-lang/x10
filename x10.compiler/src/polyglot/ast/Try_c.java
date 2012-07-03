@@ -120,7 +120,8 @@ public class Try_c extends Stmt_c implements Try
      * will handle visiting children.
      */
     public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
-        ec = (ExceptionChecker) super.exceptionCheckEnter(ec);
+        //ec = (ExceptionChecker) super.exceptionCheckEnter(ec);
+        //System.out.println("pruning at "+this+" "+this.position());
         return new PruningVisitor();
     }
 

@@ -44,7 +44,7 @@ import x10.ast.X10Call;
  */
 public abstract class Call_c extends Expr_c implements Call  // todo: delete me! and rename X10Call_c to Call_c
 {
-  public Call_c(Position pos) {
-    super(pos);
-  }
+    public Call_c(Position pos) {
+        super(pos);
+    }
 }

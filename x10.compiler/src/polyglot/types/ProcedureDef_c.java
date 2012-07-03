@@ -21,15 +21,17 @@ public abstract class ProcedureDef_c extends MemberDef_c implements ProcedureDef
     private static final long serialVersionUID = 7146402627770404357L;
 
     protected List<Ref<? extends Type>> formalTypes;
+    protected List<Ref<? extends Type>> throwTypes;
 
     /** Used for deserializing types. */
     protected ProcedureDef_c() { }
 
     public ProcedureDef_c(TypeSystem ts, Position pos, Position errorPos,
             Ref<? extends ContainerType> container,
-			       Flags flags, List<Ref<? extends Type>> formalTypes) {
+			       Flags flags, List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> throwTypes) {
         super(ts, pos, errorPos, container, flags);
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
+        this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
     }
     
     public List<Ref<? extends Type>> formalTypes() {
@@ -42,4 +44,16 @@ public abstract class ProcedureDef_c extends MemberDef_c implements ProcedureDef
     public void setFormalTypes(List<Ref<? extends Type>> formalTypes) {
         this.formalTypes = TypedList.copyAndCheck(formalTypes, Ref.class, true);
     }
+
+    public List<Ref<? extends Type>> throwTypes() {
+        return Collections.unmodifiableList(throwTypes);
+    }
+
+    /**
+     * @param throwTypes The throwTypes to set.
+     */
+    public void setThrowTypes(List<Ref<? extends Type>> throwTypes) {
+        this.throwTypes = TypedList.copyAndCheck(throwTypes, Ref.class, true);
+    }
+
 }
