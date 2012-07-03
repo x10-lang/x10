@@ -38,23 +38,6 @@ namespace x10aux {
         char *strdup(const char*);
         char *strndup(const char*, x10_int len);
     }
-
-    /*
-     * Wrapers around to_string to translate null to "null"
-     */
-    template<class T> ref<x10::lang::String> safe_to_string(ref<T> v) {
-        if (v.isNull()) return string_utils::lit("null");
-        return to_string(v);
-    }
-    template<class T> ref<x10::lang::String> safe_to_string(captured_ref_lval<T> v) {
-        return safe_to_string(*v);
-    }
-    template<class T> ref<x10::lang::String> safe_to_string(captured_struct_lval<T> v) {
-        return to_string(*v);
-    }
-    template<class T> ref<x10::lang::String> safe_to_string(T v) {
-        return to_string(v);
-    }
 }
 
     

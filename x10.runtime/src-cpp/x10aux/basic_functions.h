@@ -363,6 +363,23 @@ namespace x10aux {
     ref<x10::lang::String> to_string(x10_char v);
 
 
+    /*
+     * Wrapers around to_string to translate null to "null"
+     */
+    template<class T> ref<x10::lang::String> safe_to_string(ref<T> v) {
+        if (v.isNull()) return string_utils::lit("null");
+        return to_string(v);
+    }
+    template<class T> ref<x10::lang::String> safe_to_string(captured_ref_lval<T> v) {
+        return safe_to_string(*v);
+    }
+    template<class T> ref<x10::lang::String> safe_to_string(captured_struct_lval<T> v) {
+        return to_string(*v);
+    }
+    template<class T> ref<x10::lang::String> safe_to_string(T v) {
+        return to_string(v);
+    }
+    
     /******* zeroValue ********/
     template<class T> struct Zero {
         static T _() {
