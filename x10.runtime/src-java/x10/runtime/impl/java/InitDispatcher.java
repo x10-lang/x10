@@ -33,6 +33,7 @@ public abstract class InitDispatcher {
     public static final int UNINITIALIZED = 0;
     public static final int INITIALIZING = 1;
     public static final int INITIALIZED = 2;
+    public static final int EXCEPTION_RAISED = 3;
 
     private static List<Method> initializeMethods = new ArrayList<Method>();
     private static List<Method> deserializeMethods = new ArrayList<Method>();
