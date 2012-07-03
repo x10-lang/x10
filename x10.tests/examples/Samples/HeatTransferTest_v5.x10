@@ -26,7 +26,7 @@ public class HeatTransferTest_v5 extends x10Test {
         // condition is that the rate of change is less than epsilon.
         val pt = Point.make(2,2);
         at (HeatTransfer_v5.BigD(pt)) {
-            val tmp = HeatTransfer_v5.A(pt);
+            val tmp = s.A(pt);
             Console.OUT.println("The value of A(2,2) is "+tmp);
             chk(tmp > 0.249);
             chk(tmp < 0.251);
