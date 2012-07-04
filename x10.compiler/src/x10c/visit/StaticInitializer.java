@@ -876,12 +876,40 @@ public class StaticInitializer extends ContextVisitor {
         LocalDef excDef = xts.localDef(pos, Flags.NONE, Types.ref(excType), excName);
         Formal excFormal = xnf.Formal(pos, xnf.FlagsNode(pos, excDef.flags()), xnf.CanonicalTypeNode(pos, excDef.type()), xnf.Id(pos, excDef.name())).localDef(excDef);
 
-        List<Ref<? extends Type>> newExceptTypes = new ArrayList<Ref<? extends Type>>();
-        newExceptTypes.add(Types.ref(xts.String()));
-        ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptTypes, Collections.<Ref<? extends Type>>emptyList());
+        List<Ref<? extends Type>> newExceptArgTypes = new ArrayList<Ref<? extends Type>>();
+        newExceptArgTypes.add(Types.ref(xts.Throwable()));
+        ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptArgTypes, Collections.<Ref<? extends Type>>emptyList());
         ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
         List<Expr> newExceptArgs = new ArrayList<Expr>();
-        // create MethodDef
+        Expr excExpr = xnf.Local(pos, xnf.Id(pos, excDef.name())).localInstance(excDef.asInstance()).type(excDef.asInstance().type());
+        newExceptArgs.add(excExpr);
+        Expr newExceptExpr = xnf.New(pos, xnf.CanonicalTypeNode(pos, fdExcept.asInstance().type()), newExceptArgs).constructorInstance(ci).type(fdExcept.asInstance().type());
+        Stmt storeExceptStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdExcept.name()), Assign.ASSIGN, newExceptExpr).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type()));
+
+        List<Stmt> catchStmts = new ArrayList<Stmt>();
+        // gen exception = new x10.lang.ExceptionInInitializer(e.getMessage());
+        catchStmts.add(storeExceptStmt);
+        // gen AtomicInteger.set(EXCEPTION_RAISED)
+        catchStmts.add(xnf.Eval(pos, genStatusSetExcept(pos, receiver, fdCond)));
+        // gen lockInitialized()
+        catchStmts.add(xnf.Eval(pos, genLock(pos)));
+        // gen notifyInitialized()
+        catchStmts.add(xnf.Eval(pos, genNotify(pos)));
+        // gen throw exception;
+        catchStmts.add(throwExceptStmt);
+        
+        return xnf.Catch(pos, excFormal, xnf.Block(pos, catchStmts));
+    }
+    
+    private Catch genCatchWithMessage(Position pos, FieldDef fdExcept, FieldDef fdCond, Name excName, X10ClassType excType, TypeNode receiver, Stmt throwExceptStmt) {
+        LocalDef excDef = xts.localDef(pos, Flags.NONE, Types.ref(excType), excName);
+        Formal excFormal = xnf.Formal(pos, xnf.FlagsNode(pos, excDef.flags()), xnf.CanonicalTypeNode(pos, excDef.type()), xnf.Id(pos, excDef.name())).localDef(excDef);
+
+        List<Ref<? extends Type>> newExceptArgTypes = new ArrayList<Ref<? extends Type>>();
+        newExceptArgTypes.add(Types.ref(xts.String()));
+        ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptArgTypes, Collections.<Ref<? extends Type>>emptyList());
+        ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
+        List<Expr> newExceptArgs = new ArrayList<Expr>();
         MethodDef md = xts.methodDef(pos, pos, (Ref<? extends ContainerType>) excDef.type(), Flags.NONE, Types.ref(xts.String()), Name.make("getMessage"), Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr excExpr = xnf.Local(pos, xnf.Id(pos, excDef.name())).localInstance(excDef.asInstance()).type(excDef.asInstance().type());
@@ -963,7 +991,7 @@ public class StaticInitializer extends ContextVisitor {
             // gen catch (x10.core.X10Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
             catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.Throwable(), receiver, throwExceptStmt));
             // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
-            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
+            catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
             stmts.add(xnf.Try(pos, xnf.Block(pos, fieldAssignStmt), catchBlocks));
         } else {
             stmts.add(fieldAssignStmt);
