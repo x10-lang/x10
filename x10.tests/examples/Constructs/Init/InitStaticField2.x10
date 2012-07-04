@@ -41,9 +41,11 @@ public class InitStaticField2 extends x10Test {
         	Console.OUT.println("BUG: no exception was thrown!");
         } catch (e:ExceptionInInitializer) {
         	// check ExceptionInInitializer is thrown
+        	// e.printStackTrace();
         } catch (e:Throwable) {
         	ok = false;
         	Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown!");
+        	// e.printStackTrace();
         }
         
         try {
@@ -52,9 +54,11 @@ public class InitStaticField2 extends x10Test {
         	Console.OUT.println("BUG: no exception was thrown!");
         } catch (e:ExceptionInInitializer) {
         	// check ExceptionInInitializer is thrown
+        	// e.printStackTrace();
         } catch (e:Throwable) {
         	ok = false;
         	Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown!");
+        	// e.printStackTrace();
         }
         
         // check atmost once semantics
