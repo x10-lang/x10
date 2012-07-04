@@ -30,6 +30,7 @@ import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Context;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -49,8 +50,6 @@ import x10.visit.X10PrettyPrinterVisitor;
 
 public class TryCatchExpander extends Expander {
     
-    private static final String TEMPORARY_EXCEPTION_VARIABLE_NAME = "$exc$";
-
     private class CatchBlock {
         private final String exClass;
         private final int convRequired;
@@ -161,6 +160,8 @@ public class TryCatchExpander extends Expander {
 
         if (additionalTryCatchForConversion != NO_CONVERSION) {
             w.write("}");
+
+            String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
 
             w.write("catch (" + X10PrettyPrinterVisitor.X10_CORE_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
             w.write("throw " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ";");
