@@ -43,12 +43,14 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil; import x10.util.AnnotationUtils;
+import x10.util.CollectionFactory;
 import polyglot.util.ErrorInfo;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.TypedList;
 import polyglot.visit.ContextVisitor;
+import polyglot.visit.ExceptionChecker;
 import polyglot.visit.NodeVisitor;
 import polyglot.visit.PrettyPrinter;
 import polyglot.visit.TypeBuilder;
@@ -640,8 +642,35 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 }
             }
         }
+        
+        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
+        for (Type t : AnnotationUtils.getThrowsTypes(this)) {
+            throw_types.add(Types.ref(t));
+        }
+        nn.constructorDef().setThrowTypes(throw_types);
+
+        // [DC] cannot use annotationNodesMatching as it does not handle the [T] in Throws[T]
+        List<AnnotationNode> bodyAnnotations = AnnotationUtils.annotationNodesNamed(nn.body(), xts.Throws().fullName());
+        List<AnnotationNode> rtypeAnnotations = AnnotationUtils.annotationNodesNamed(nn.returnType(), xts.Throws().fullName());
+        if ((bodyAnnotations != null && !bodyAnnotations.isEmpty()) ||
+            (rtypeAnnotations != null && !rtypeAnnotations.isEmpty()))
+        {
+            List<Ref<? extends Type>> annotations = new ArrayList<Ref<? extends Type>>(nn.constructorDef().defAnnotations());
+            for (AnnotationNode an : bodyAnnotations) {
+                annotations.add(an.annotationType().typeRef());
+            }
+            for (AnnotationNode an : rtypeAnnotations) {
+                annotations.add(an.annotationType().typeRef());
+            }
+            nn.constructorDef().setDefAnnotations(annotations);
+        }
 
         return nn;
+    }
+
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
+        return ec.push(new ExceptionChecker.CodeTypeReporter("Constructor " + ci.signature()))
+                 .push(constructorDef().asInstance().throwTypes());
     }
     
     @Override

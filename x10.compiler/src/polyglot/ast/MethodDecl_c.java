@@ -261,7 +261,8 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
     }
 
     public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
-        return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature())).push(methodDef().asInstance().throwTypes());
+        return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature()))
+                 .push(methodDef().asInstance().throwTypes());
     }
 
     public abstract String toString();
