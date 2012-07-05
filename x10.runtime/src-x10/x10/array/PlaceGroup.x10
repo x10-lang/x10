@@ -12,6 +12,8 @@
 
 package x10.array;
 
+import x10.compiler.Pragma;
+
 /**
  * <p> A PlaceGroup represents an ordered set of Places.
  * PlaceGroups are represented by a specialized set of classes (instead of using
@@ -31,7 +33,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
    * A PlaceGroup that represents exactly Place.places().
    * All places, in order of increasing Place.id.
    */
-  public static val WORLD = new WorldPlaceGroup();
+  public static val WORLD = new SimplePlaceGroup(Place.numPlaces());
 
   /**
    * The size of the PlaceGroup is equal to the value returned by numPlaces()
@@ -106,17 +108,48 @@ public abstract class PlaceGroup implements Sequence[Place] {
     return true;
   }
 
-  private static class WorldPlaceGroup extends PlaceGroup {
-    public operator this(i:int):Place = Place.place(i);
-    public def iterator() = Place.places().iterator();
-    public def numPlaces() = Place.numPlaces();
-    public def contains(id:int) = id >= 0 && id < Place.numPlaces();
-    public def indexOf(id:int) = contains(id) ? id : -1;
-    public def equals(thatObj:Any):Boolean {
-      return (thatObj instanceof WorldPlaceGroup) ? true : super.equals(thatObj);
+  public def broadcastFlat(cl:()=>void) {
+    @Pragma(Pragma.FINISH_SPMD) finish for (p in this) {
+      at (p) async cl();
     }
-    public def hashCode() = Place.numPlaces().hashCode();
-  }  
-}
- 
+  }
 
+  public static class SimplePlaceGroup extends PlaceGroup {
+    private val numPlaces:Int;
+    def this(numPlaces:Int) { this.numPlaces = numPlaces; }
+    public operator this(i:int):Place = Place(i);
+    public def numPlaces() = numPlaces;
+    public def contains(id:int) = id >= 0 && id < numPlaces;
+    public def indexOf(id:int) = contains(id) ? id : -1;
+    public def iterator() = new Iterator[Place](){
+      private var i:Int = 0;
+      public def hasNext() = i < numPlaces;
+      public def next() = Place(i++);
+    };
+    public def equals(thatObj:Any):Boolean {
+        if (thatObj instanceof SimplePlaceGroup) {
+            return numPlaces() == (thatObj as PlaceGroup).numPlaces();
+        } else {
+            return super.equals(thatObj);
+        }
+    }
+    public def hashCode() = numPlaces.hashCode();
+    public def broadcastFlat(cl:()=>void) {
+        if (numPlaces() >= 1024) {
+            @Pragma(Pragma.FINISH_SPMD) finish for(var i:Int=numPlaces()-1; i>=0; i-=32) {
+                at (Place(i)) async {
+                    val max = Runtime.hereInt();
+                    val min = Math.max(max-31, 0);
+                    @Pragma(Pragma.FINISH_SPMD) finish for (var j:Int=min; j<=max; ++j) {
+                        at (Place(j)) async cl();
+                    }
+                }
+            }
+        } else {
+            super.broadcastFlat(cl);
+        }
+    }
+  }
+
+  public static make(numPlaces:Int) = new SimplePlaceGroup(numPlaces);
+}
