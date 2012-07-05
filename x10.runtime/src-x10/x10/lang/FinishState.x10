@@ -340,7 +340,7 @@ abstract class FinishState {
         protected var count:Int = 1;
         protected var exceptions:Stack[Throwable]; // lazily initialized
         protected var counts:IndexedMemoryChunk[Int];
-        protected var seen:IndexedMemoryChunk[Boolean];
+//        protected var seen:IndexedMemoryChunk[Boolean];
         def this() {
             latch = @Embed new SimpleLatch();
         }
@@ -357,7 +357,7 @@ abstract class FinishState {
             }
             if (counts.length() == 0) {
                 counts = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
-                seen = IndexedMemoryChunk.allocateZeroed[Boolean](Place.MAX_PLACES);
+//                seen = IndexedMemoryChunk.allocateZeroed[Boolean](Place.MAX_PLACES);
             }
             counts(p.id)++;
             latch.unlock();
@@ -394,6 +394,7 @@ abstract class FinishState {
                 Runtime.worker().join(latch);
             }
             latch.await();
+            /*
             if (counts.length() != 0) {
                 val root = ref();
                 val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
@@ -403,6 +404,7 @@ abstract class FinishState {
                 }
                 Runtime.dealloc(closure);
             }
+            */
             val t = MultipleExceptions.make(exceptions);
             if (null != t) throw t;
         }
@@ -413,7 +415,7 @@ abstract class FinishState {
             var b:Boolean = count == 0;
             for(var i:Int=0; i<Place.MAX_PLACES; i++) {
                 counts(i) += rail(i);
-                seen(i) |= counts(i) != 0;
+//                seen(i) |= counts(i) != 0;
                 if (counts(i) != 0) b = false;
             }
             if (b) latch.release();
@@ -428,7 +430,7 @@ abstract class FinishState {
         protected def process(rail:IndexedMemoryChunk[Pair[Int,Int]]):void {
             for(var i:Int=0; i<rail.length(); i++) {
                 counts(rail(i).first) += rail(i).second;
-                seen(rail(i).first) = true;
+//                seen(rail(i).first) = true;
             }
             count += counts(ref().home.id);
             counts(ref().home.id) = 0;
@@ -549,6 +551,7 @@ abstract class FinishState {
             lock.unlock();
             Runtime.x10rtSendMessage(ref.home.id, closure);
             Runtime.dealloc(closure);
+            Runtime.finishStates.remove(ref);
         }
     }
 
@@ -704,6 +707,7 @@ abstract class FinishState {
             lock.unlock();
             Runtime.x10rtSendMessage(ref.home.id, closure);
             Runtime.dealloc(closure);
+            Runtime.finishStates.remove(ref);
         }
     }
 }
