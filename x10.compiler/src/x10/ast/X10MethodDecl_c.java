@@ -1148,10 +1148,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			(rtypeAnnotations != null && !rtypeAnnotations.isEmpty()))
 		{
 			List<Ref<? extends Type>> annotations = new ArrayList<Ref<? extends Type>>(nn.methodDef().defAnnotations());
-			for (AnnotationNode an : bodyAnnotations) {
+			if (bodyAnnotations != null) for (AnnotationNode an : bodyAnnotations) {
 				annotations.add(an.annotationType().typeRef());
 			}
-			for (AnnotationNode an : rtypeAnnotations) {
+			if (rtypeAnnotations != null) for (AnnotationNode an : rtypeAnnotations) {
 				annotations.add(an.annotationType().typeRef());
 			}
             nn.methodDef().setDefAnnotations(annotations);
