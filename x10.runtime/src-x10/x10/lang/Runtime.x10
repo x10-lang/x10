@@ -621,8 +621,23 @@ public final class Runtime {
                     rootFinish.waitForFinish();
                 } finally {
                     // root finish has terminated, kill remote processes if any
-                    for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        x10rtSendMessage(i, ()=> @x10.compiler.RemoteInvocation {pool.latch.release();});
+                    if (Place.MAX_PLACES >= 1024) {
+                        val cl1 = ()=> @x10.compiler.RemoteInvocation {
+                            val h = hereInt();
+                            val cl = ()=> @x10.compiler.RemoteInvocation {pool.latch.release();};
+                            for (var j:Int=Math.max(1, h-31); j<h; ++j) {
+                                x10rtSendMessage(j, cl);
+                            }
+                            pool.latch.release();
+                        };
+                        for(var i:Int=Place.MAX_PLACES-1; i>0; i-=32) {
+                            x10rtSendMessage(i, cl1);
+                        }
+                    } else {
+                        val cl = ()=> @x10.compiler.RemoteInvocation {pool.latch.release();};
+                        for (var i:Int=Place.MAX_PLACES-1; i>0; --i) {
+                            x10rtSendMessage(i, cl);
+                        }
                     }
                 }
             } else {
