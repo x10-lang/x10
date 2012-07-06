@@ -110,6 +110,12 @@ public class ClosureRemover extends ContextVisitor {
             // closure -> static method
             cd = (ClassDecl) cd.visitChildren(createClosureToStaticMethodVisitor(def, nmembers));
 
+            // XTENLANG-3083
+            ClassBody body2 = cd.body();
+            nmembers.addAll(0, body2.members());
+            cd = cd.body(body2.members(nmembers));
+            nmembers.clear();
+
             // closure -> static nested class
             cd = (ClassDecl) cd.visitChildren(createClosureToStaticNestedClassVisitor(def, nmembers));
             
