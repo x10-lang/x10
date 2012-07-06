@@ -255,8 +255,16 @@ public class InlineHelper extends ContextVisitor {
                 for (ClassMember cm : members) {
                     if (cm instanceof FieldDecl) {
                         FieldDecl fdcl = (FieldDecl) cm;
-                        if (fdcl.flags().flags().isPrivate()) {
-                            fdcl = fdcl.flags(xnf.FlagsNode(pos, fdcl.flags().flags().clearPrivate().Public()));
+                        // XTENLANG-3076 make static fields private to avoid java programmers accidentally see uninitialized fields.
+                        if (fdcl.flags().flags().isStatic()) {
+                            // TODO uncomment this after generating accessor method for @PerPlace static fields (XTENLANG-3077)
+//                            if (fdcl.flags().flags().isPublic()) {
+//                                fdcl = fdcl.flags(xnf.FlagsNode(pos, fdcl.flags().flags().clearPublic().Private()));
+//                            }
+                        } else {
+                            if (fdcl.flags().flags().isPrivate()) {
+                                fdcl = fdcl.flags(xnf.FlagsNode(pos, fdcl.flags().flags().clearPrivate().Public()));
+                            }
                         }
                         nmembers.add(fdcl);
                     }
