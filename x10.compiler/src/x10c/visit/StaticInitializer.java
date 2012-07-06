@@ -130,8 +130,8 @@ import x10c.types.X10CTypeSystem_c;
 
 public class StaticInitializer extends ContextVisitor {
 
-    // WIP XTENLANG-3081
-    private static final boolean stickyExceptionSemantics = false;
+    // XTENLANG-3081
+    private static final boolean stickyExceptionSemantics = true;
 
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
