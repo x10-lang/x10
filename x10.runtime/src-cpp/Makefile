@@ -269,9 +269,14 @@ install: $(XRX_ARCHIVE) install_props
 %:%.c
 %:%.cc
 
-# want to make sure the x10 code has been compiled to cc,h since the
-# manually written code may #include some of the generated headers
+ifdef USE_XLC
+# temporary workaround for xlC v11 bug (fixed by xlC development, but fix won't GA until 4Q2012)
+gen/x10/util/Team.o: gen/x10/util/Team.cc gen/x10/util/Team.h $(GEN_DIR)/all-cpp-generated 
+	$(CXX) $(CXXFLAGS)  $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -qnoinline -c $< -o $@
+endif
 
+# depend on all-cpp-generated because we need to make sure the x10 code 
+# has been compiled to cc,h since the manually written code may include generated headers
 %.o: %.cc $(GEN_DIR)/all-cpp-generated 
 	$(CXX) $(CXXFLAGS) $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 %.o: %.cc %.h $(GEN_DIR)/all-cpp-generated 
