@@ -246,11 +246,13 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
     protected void overrideMethodCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
-        MethodInstance mi = this.mi.asInstance();
+        MethodInstance mi = methodDef().asInstance();
         for (MethodInstance mj : mi.implemented(tc.context()) ){
             if (! ts.isAccessible(mj, tc.context())) {
+                // [DC] presumably this will be raising an error somewhere else?
                 continue;
             }
+
             mj = X10ClassDecl_c.expandMacros(tc, ts, mi, mj);
             try {
                 ts.checkOverride(mi, mj, tc.context());

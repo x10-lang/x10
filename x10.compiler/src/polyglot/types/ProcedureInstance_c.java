@@ -186,8 +186,9 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
     /** Returns true iff <code>this</code> throws fewer exceptions than
      * <code>p</code>. */
     public boolean throwsSubset(ProcedureInstance<T> p) {
-        SubtypeSet s1 = new SubtypeSet(ts.Throwable());
-        SubtypeSet s2 = new SubtypeSet(ts.Throwable());
+
+        SubtypeSet s1 = new SubtypeSet(ts.JavaThrowable());
+        SubtypeSet s2 = new SubtypeSet(ts.JavaThrowable());
 
         s1.addAll(this.throwTypes());
         s2.addAll(p.throwTypes());

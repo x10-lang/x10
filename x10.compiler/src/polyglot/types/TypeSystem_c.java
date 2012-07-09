@@ -1917,7 +1917,7 @@ public class TypeSystem_c implements TypeSystem
     }
 
     public void checkOverride(MethodInstance mi, MethodInstance mj, Context context) throws SemanticException {
-	env(context).checkOverride(mi, mj);
+        env(context).checkOverride(mi, mj);
     }
 
    // public void checkOverride(MethodInstance mi, MethodInstance mj, boolean allowCovariantReturn, Context context) throws SemanticException {
@@ -4554,4 +4554,14 @@ public class TypeSystem_c implements TypeSystem
     public boolean consistent(Type t, Context context) {
         return env(context).consistent(t);
     }
+
+    /**
+     * Returns true iff <p1> throws fewer exceptions than <p2>.
+     */
+    public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2) {
+        assert_(p1);
+        assert_(p2);
+        return ((ProcedureInstance_c<T>) p1).throwsSubset(p2);
+    }
+
 }

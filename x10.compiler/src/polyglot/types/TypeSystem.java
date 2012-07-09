@@ -1280,4 +1280,6 @@ public interface TypeSystem {
     boolean isJavaThrowable(Type me);
     X10ClassType JavaException();
     X10ClassType JavaRuntimeException();
+
+    public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
 }

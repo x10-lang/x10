@@ -2170,6 +2170,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     @Override
     public void checkOverride(MethodInstance r, MethodInstance other, boolean allowCovariantReturn) throws SemanticException {
+
         MethodInstance mi = (MethodInstance) r;
         MethodInstance mj = (MethodInstance) other;
         XVar thisVar = mi.x10Def().thisVar(); 
@@ -2185,13 +2186,20 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         mi = fixThis(mi, y, x);
         mj = fixThis(mj, y, x);
 
+
         // Force evaluation to help debugging.
         mi.returnType();
         mj.returnType();
 
         superCheckOverride(mi, mj, allowCovariantReturn);
 
-       
+        if (!ts.throwsSubset(mi, mj)) {
+            if (reporter.should_report(Reporter.types, 3))
+                reporter.report(3, mi.throwTypes() + " not subset of " + mj.throwTypes());
+            throw new SemanticException(mi.signature() + " in " + mi.container() + " cannot override " + mj.signature() + " in " + mj.container()
+                    + "; the throw set " + mi.throwTypes() + " is not a subset of the " + "overridden method's throw set " + mj.throwTypes() + ".",
+                    mi.position());
+        }
 
         Flags miF = mi.flags();
         Flags mjF = mj.flags();
@@ -2338,7 +2346,6 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
 	public  MethodInstance fixThis(final MethodInstance mi, final XVar[] y, final XVar[] x) {
 	    MethodInstance mj = mi;
-	
 	    final TypeSystem ts = (TypeSystem) mi.typeSystem();
 	
 	    final MethodInstance zmj = mj;
@@ -2363,11 +2370,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	            }
 	        }
 	    });
-	
 	    mj =  (MethodInstance) mj.returnTypeRef(tref);
 	
 	    List<Type> newFormals = new ArrayList<Type>();
-	
 	    for (Type t : mj.formalTypes()) {
 	        try {
 	            Type newT;
@@ -2379,9 +2384,22 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	        }
 	    }
 	    mj = (MethodInstance) mj.formalTypes(newFormals);
+        
+        List<Type> newThrows = new ArrayList<Type>();
+        for (Type t : mj.throwTypes()) {
+            // DC i copied this code from the newFormals case above.  Hope it works.
+            try {
+                Type newT;
+                newT = Subst.subst(t, y, x, new Type[] { }, new ParameterType[] { });
+                newThrows.add(newT);
+            }
+            catch (SemanticException e) {
+                newThrows.add(t);
+            }
+        }
+        mj = (MethodInstance) mj.throwTypes(newThrows);
 	
 	    List<LocalInstance> newFormalNames = new ArrayList<LocalInstance>();
-	    
 	    for (LocalInstance li : mj.formalNames()) {
 	        try {
 	            LocalInstance newLI;
