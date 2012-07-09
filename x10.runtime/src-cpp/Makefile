@@ -75,12 +75,6 @@ xrx: $(XRX_ARCHIVE)
 
 .PHONY: xrx 
 
-export CXX
-export MPICXX
-export AR
-export CXXFLAGS
-export ARFLAGS
-
 ###################
 # Generated Files #
 ###################
