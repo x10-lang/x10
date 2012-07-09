@@ -130,7 +130,7 @@ public class InlineHelper extends ContextVisitor {
                                                 }
                                                 List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(smi.throwTypes().size());
                                                 for (Type tt : smi.throwTypes()) {
-                                                    formalTypes.add(Types.ref(tt));
+                                                    throwTypes.add(Types.ref(tt));
                                                 }
                                                 X10MethodDef nmd = xts.methodDef(smi.position(), smi.errorPosition(), Types.ref(cd.asType()),
                                                         Flags.PUBLIC, Types.ref(smi.returnType()),
