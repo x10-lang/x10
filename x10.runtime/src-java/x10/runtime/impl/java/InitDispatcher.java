@@ -28,6 +28,10 @@ import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
 
+// TODO: Code cleanup.  Much of this class is unused with the change to 
+//       per-place static initialization semantics.  Once new implementation
+//       stabilizes remove unused code from this class.
+
 public abstract class InitDispatcher {
 
     public static final int UNINITIALIZED = 0;

@@ -601,7 +601,7 @@ public final class Runtime {
      * @param init Static initializers
      * @param body Main activity
      */
-    public static def start(init:()=>void, body:()=>void):void {
+    public static def start(body:()=>void):void {
         try {
             // initialize thread pool for the current process
             // initialize runtime
@@ -609,7 +609,7 @@ public final class Runtime {
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
-                // in place 0 schedule the execution of the static initializers fby main activity
+                // in place 0 schedule the execution of the main activity
                 executeLocal(new Activity(body, rootFinish));
 
                 // wait for thread pool to die

@@ -105,30 +105,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         System.exit(exitCode);
     }
 
-    /**
-     * Body of main x10 thread
-     */
-    // static init activity
-    static class $Closure$Init implements x10.core.fun.VoidFun_0_0 {
-        private static final long serialVersionUID = 1L;
-        public void $apply() {
-            // execute X10-level static initialization
-            x10.runtime.impl.java.InitDispatcher.runInitializer();
-        }
-
-        public RuntimeType<?> $getRTT() { return $RTT; }
-
-        public Type<?> $getParam(int i) { return null; }
-
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
-        }
-
-        public short $_get_serialization_id() {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
-        }
-    }
-
     // body of main activity
     static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
@@ -208,8 +184,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         try {
             // start xrx
             x10.lang.Runtime.start(
-            // static init activity
-            new $Closure$Init(),
             // body of main activity
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
