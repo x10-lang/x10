@@ -777,7 +777,7 @@ public class StaticInitializer extends ContextVisitor {
             return xnf.FloatLit(pos, FloatLit.FLOAT, 0.0).type(type);
         else if (type.isDouble())
             return xnf.FloatLit(pos, FloatLit.DOUBLE, 0.0).type(type);
-        else if (type == xts.String())
+        else if (type.isString())
             return xnf.NullLit(pos).type(type);
         else
             return null;
@@ -1444,7 +1444,7 @@ public class StaticInitializer extends ContextVisitor {
     private boolean isGlobalInit(Expr e) {
         if (e.type().isNumeric() || e.type().isBoolean() || e.type().isChar() || e.type().isNull())
             return isConstantExpression(e);
-        if (e.type() == xts.String())
+        if (e.type().isString())
             return isStringConstant(e);
         return false;
     }
@@ -1515,7 +1515,7 @@ public class StaticInitializer extends ContextVisitor {
             Type targetType = call.target().type();
             if (targetType instanceof ConstrainedType)
                 targetType = ((ConstrainedType)targetType).baseType().get();
-            return targetType == xts.String();
+            return targetType.isString();
         }
         return false;
     }
