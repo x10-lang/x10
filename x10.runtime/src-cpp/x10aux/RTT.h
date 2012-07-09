@@ -254,8 +254,6 @@ namespace x10aux {
     #define TYPENAME(T) x10aux::typeName<T>()
     class BootStrapClosure;
     template<> inline const char *typeName<BootStrapClosure>() { return "BootStrapClosure"; }
-    class remote_ref;
-    template<> inline const char *typeName<remote_ref>() { return "remote_ref"; }
     template<> inline const char *typeName<reentrant_lock>() { return "reentrant_lock"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
     template<> inline const char *typeName<void*>() { return "void *"; }

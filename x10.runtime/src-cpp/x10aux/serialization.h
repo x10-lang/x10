@@ -281,7 +281,6 @@ namespace x10aux {
     PRIMITIVE_WRITE(x10_float)
     PRIMITIVE_WRITE(x10_double)
     //PRIMITIVE_WRITE(x10_addr_t) // already defined above
-    //PRIMITIVE_WRITE(remote_ref)
         
     PRIMITIVE_VOLATILE_WRITE(x10_int)
     PRIMITIVE_VOLATILE_WRITE(x10_long)
