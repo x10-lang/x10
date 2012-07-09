@@ -132,6 +132,8 @@ public class StaticInitializer extends ContextVisitor {
 
     // XTENLANG-3081
     private static final boolean stickyExceptionSemantics = true;
+    // WIP XTENLANG-3081
+    private static final boolean checkExceptionInConstantExpression = false; // should be true
 
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
@@ -412,53 +414,69 @@ public class StaticInitializer extends ContextVisitor {
                         // System.out.println("isGlobalInit true in checkFieldDeclRHS: "+(Expr)n);
                         return n;
                     }
-                }
-                if (n instanceof X10Call_c) {
-                    X10Call call = (X10Call)n;
-                    MethodInstance mi = call.methodInstance();
-                    if (!mi.container().isClass() || call.target().type().isNumeric()) { 
-                        // allow method calls on non-objects or numerics
-                    } else if (deep_analysis && mi.flags().isStatic()) {
-                        // found reference to static method
-                        X10MethodDecl mdecl = getMethodDeclaration(mi);
-                        if (mdecl == null || checkProcedureBody(mdecl.body(), 0)) {
-                            // unsafe method call
+                    if (n instanceof X10Call_c) {
+                        X10Call call = (X10Call)n;
+                        MethodInstance mi = call.methodInstance();
+                        if (!mi.container().isClass() || call.target().type().isNumeric()) { 
+                            // allow method calls on non-objects or numerics
+                            // WIP XTENLANG-3081
+                            // FIXME too conservative
+                            // exclude "1.operator/(0)"
+                            if (checkExceptionInConstantExpression) {
+                                found.set(true);
+                                return n;
+                            }
+                        } else if (deep_analysis && mi.flags().isStatic()) {
+                            // found reference to static method
+                            X10MethodDecl mdecl = getMethodDeclaration(mi);
+                            if (mdecl == null || checkProcedureBody(mdecl.body(), 0)) {
+                                // unsafe method call
+                                found.set(true);
+                                return n;
+                            }
+                        } else {
+                            // non-static method call or no deep analysis
                             found.set(true);
                             return n;
                         }
-                    } else {
-                        // non-static method call or no deep analysis
-                        found.set(true);
-                        return n;
+                    } else if (n instanceof X10Field_c) {
+                        X10Field_c f = (X10Field_c)n;
+                        if (f.flags().isFinal() && f.flags().isStatic()) {
+                            // found reference to static field
+                            if (checkFieldRefReplacementRequired(f)) {
+                                found.set(true);
+                                return n;
+                            }
+                        }
+                    } else if (n instanceof X10New_c) {
+                        if (deep_analysis) {
+                            X10New_c neu = (X10New_c)n;
+                            X10ConstructorInstance ci = neu.constructorInstance();
+                            // get declaration of constructor
+                            X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
+                            if (cdecl == null || checkProcedureBody(cdecl.body(), 0)) {
+                                // unsafe constructor
+                                found.set(true);
+                                return n;
+                            }
+                        } else {
+                            // deep analysis disabled
+                            found.set(true);
+                            return n;
+                        }
+//                        else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
+//                            found.set(true);
+//                        }
                     }
-                } else if (n instanceof X10Field_c) {
-                    X10Field_c f = (X10Field_c)n;
-                    if (f.flags().isFinal() && f.flags().isStatic()) {
-                        // found reference to static field
-                        if (checkFieldRefReplacementRequired(f)) {
+                    // WIP XTENLANG-3081
+                    else {
+                        // FIXME too conservative
+                        // exclude "1 as Any as Object"
+                        if (checkExceptionInConstantExpression) {
                             found.set(true);
                             return n;
                         }
                     }
-                } else if (n instanceof X10New_c) {
-                    if (deep_analysis) {
-                        X10New_c neu = (X10New_c)n;
-                        X10ConstructorInstance ci = neu.constructorInstance();
-                        // get declaration of constructor
-                        X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                        if (cdecl == null || checkProcedureBody(cdecl.body(), 0)) {
-                            // unsafe constructor
-                            found.set(true);
-                            return n;
-                        }
-                    } else {
-                        // deep analysis disabled
-                        found.set(true);
-                        return n;
-                    }
-//                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
-//                        found.set(true);
-//                    }
                 }
                 // continue traversal
                 return null;
