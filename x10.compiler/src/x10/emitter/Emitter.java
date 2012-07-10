@@ -43,6 +43,7 @@ import polyglot.ast.Node_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Typed;
 import polyglot.ast.Unary;
 import polyglot.types.ClassType;
 import polyglot.types.ContainerType;
@@ -84,6 +85,7 @@ import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
+import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
@@ -3227,6 +3229,27 @@ public class Emitter {
 		return true;
 	}
 
+	private static Type actualType(Type type) {
+	    if (type instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) type;
+	        XVar selfVarBinding = ct.constraint().get().selfVarBinding();
+                if (selfVarBinding != null && selfVarBinding instanceof Typed) {
+                    // x10.lang.Object{self=="abc"} -> x10.lang.String
+                    Type actualType = ((Typed) selfVarBinding).type();
+                    // N.B. stop infinite recursion with x10.lang.String{self=="abc"} 
+//                    actualType = actualType(actualType);
+                    if (actualType instanceof ConstrainedType) {
+                        actualType = ((ConstrainedType) actualType).baseType().get();
+                    }
+                    return actualType;
+                }
+                else {
+                    return ct.baseType().get();
+                }
+	    }
+	    return type;
+	}
+	
 	// TODO:CAST
 	public void coerce(Node parent, Expr e, Type expected) {
 	    Type actual = e.type();
@@ -3236,7 +3259,9 @@ public class Emitter {
 	        expectedBase = ((ConstrainedType) expectedBase).baseType().get();
 	    }
 	    if (actual instanceof ConstrainedType) {
-	        actual = ((ConstrainedType) actual).baseType().get();
+	        // XTENLANG-3085 if selfVarBinding is available, use its type
+//	        actual = ((ConstrainedType) actual).baseType().get();
+	        actual = actualType(actual);
 	    }
 	    CastExpander expander = new CastExpander(w, this, e);
 	    if (actual.isNull() || e.isConstant() && !expectedBase.isParameterType() && !actual.isParameterType() && !isBoxedType(expectedBase)) {
