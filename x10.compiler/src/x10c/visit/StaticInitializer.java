@@ -134,8 +134,8 @@ public class StaticInitializer extends ContextVisitor {
 
     // XTENLANG-3081
     private static final boolean stickyExceptionSemantics = true;
-    // WIP XTENLANG-3081
-    private static final boolean checkExceptionInConstantExpression = false; // should be true
+    // XTENLANG-3081(part2)
+    private static final boolean checkExceptionInConstantExpression = true; // should be true
 
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
@@ -423,8 +423,7 @@ public class StaticInitializer extends ContextVisitor {
 //                            // allow method calls on non-objects (including numerics, char and boolean)
                         if (call.target().type().isNumeric() || call.target().type().isChar() || call.target().type().isBoolean()) { 
                             // allow method calls on numerics, char or boolean
-                            // WIP XTENLANG-3081
-                            // FIXME too conservative
+                            // XTENLANG-3081(part2)
                             // exclude "1.operator/(0)"
                             if (checkExceptionInConstantExpression) {
                                 found.set(true);
@@ -473,9 +472,8 @@ public class StaticInitializer extends ContextVisitor {
                             return n;
                         }
                     }
-                    // WIP XTENLANG-3081
+                    // XTENLANG-3081(part2)
                     else {
-                        // FIXME too conservative
                         // exclude "1 as Any as Object"
                         if (checkExceptionInConstantExpression) {
                             found.set(true);
@@ -623,8 +621,7 @@ public class StaticInitializer extends ContextVisitor {
 //                            // allow method calls on non-objects (including numerics, char and boolean)
                         if (call.target().type().isNumeric() || call.target().type().isChar() || call.target().type().isBoolean()) { 
                             // allow method calls on numerics, char or boolean
-                            // WIP XTENLANG-3081
-                            // FIXME too conservative
+                            // XTENLANG-3081(part2)
                             // exclude "1.operator/(0)"
                             if (checkExceptionInConstantExpression) {
                                 found.set(true);
@@ -666,9 +663,8 @@ public class StaticInitializer extends ContextVisitor {
 //                            found.set(true);
 //                        }
                     }
-                    // WIP XTENLANG-3081
+                    // XTENLANG-3081(part2)
                     else {
-                        // FIXME too conservative
                         // exclude "1 as Any as Object"
                         if (checkExceptionInConstantExpression) {
                             found.set(true);
@@ -1467,6 +1463,9 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private boolean isGlobalInit(Expr e) {
+        // N.B. Process safe cast as constant  
+        if (e instanceof Cast)
+            return isConstantExpression(e);
         if (e.type().isNumeric() || e.type().isBoolean() || e.type().isChar() || e.type().isNull())
             return isConstantExpression(e);
         if (e.type().isString())
@@ -1478,6 +1477,14 @@ public class StaticInitializer extends ContextVisitor {
      * from x10cpp.visit.ASTQuery
      */
     private boolean isConstantExpression(Expr e) {
+        // N.B. Need to check first because NullLit_c.isConstant() returns false to workaround constant propagator's bug! 
+        if (e instanceof NullLit)
+            return true;
+        // N.B. Process safe cast as constant  
+        if (e instanceof Cast) {
+            Cast c = (Cast) e;
+            return isConstantExpression(c.expr()) && c.expr().type().isSubtype(c.castType().type(), context);
+        }
         if (!e.isConstant())
             return false;
         if (e instanceof BooleanLit)
@@ -1488,10 +1495,9 @@ public class StaticInitializer extends ContextVisitor {
             return true;
         if (e instanceof CharLit)
             return true;
-        if (e instanceof NullLit)
-            return true;
-        if (e instanceof Cast)
-            return isConstantExpression(((Cast) e).expr());
+        // N.B. Process safe cast as constant  
+//        if (e instanceof Cast)
+//            return isConstantExpression(((Cast) e).expr());
         if (e instanceof ParExpr)
             return isConstantExpression(((ParExpr) e).expr());
         if (e instanceof Unary)
