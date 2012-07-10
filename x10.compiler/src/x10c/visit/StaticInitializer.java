@@ -26,6 +26,7 @@ import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
 import polyglot.ast.Catch;
+import polyglot.ast.CharLit;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
@@ -46,6 +47,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.NullLit;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
@@ -1175,7 +1177,7 @@ public class StaticInitializer extends ContextVisitor {
     private Expr genBroadcastField(Position pos, Expr fieldVar, Expr fieldId, FieldDecl fdPLH, boolean customSerialization) {
         Id id;
         boolean usingReflection = false;
-        if (customSerialization && fieldVar.type().toClass().isJavaType()) {
+        if (customSerialization && fieldVar.type().toClass() != null && fieldVar.type().toClass().isJavaType()) {
             usingReflection = true;
             id = xnf.Id(pos, Name.make("broadcastStaticFieldUsingReflection"));
         } else {
@@ -1483,6 +1485,10 @@ public class StaticInitializer extends ContextVisitor {
         if (e instanceof IntLit)
             return true;
         if (e instanceof FloatLit)
+            return true;
+        if (e instanceof CharLit)
+            return true;
+        if (e instanceof NullLit)
             return true;
         if (e instanceof Cast)
             return isConstantExpression(((Cast) e).expr());
