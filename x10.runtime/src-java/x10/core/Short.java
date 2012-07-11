@@ -81,6 +81,11 @@ final public class Short extends Number implements StructI, java.lang.Comparable
         return obj;
     }
 
+    public static Short $box(Object obj) {
+        if (obj instanceof Short) return (Short) obj;
+        else return $box(((java.lang.Short)obj).shortValue());
+    }
+
     public static short $unbox(short value) {
         return value;
     }

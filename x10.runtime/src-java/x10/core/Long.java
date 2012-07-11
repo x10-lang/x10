@@ -76,6 +76,11 @@ final public class Long extends Number implements StructI, java.lang.Comparable<
         return obj;
     }
 
+    public static Long $box(Object obj) {
+        if (obj instanceof Long) return (Long) obj;
+        else return $box(((java.lang.Long)obj).longValue());
+    }
+
     public static long $unbox(long value) {
         return value;
     }

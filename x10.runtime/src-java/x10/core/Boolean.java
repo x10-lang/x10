@@ -61,6 +61,11 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
         return obj;
     }
 
+    public static Boolean $box(Object obj) {
+        if (obj instanceof Boolean) return (Boolean) obj;
+        else return $box(((java.lang.Boolean)obj).booleanValue());
+    }
+
     public static boolean $unbox(boolean value) {
         return value;
     }

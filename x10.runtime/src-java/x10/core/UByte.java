@@ -78,6 +78,11 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
         return obj;
     }
 
+    public static UByte $box(Object obj) {
+        if (obj instanceof UByte) return (UByte) obj;
+        else return $box(((java.lang.Byte)obj).byteValue());
+    }
+
     public static byte $unbox(byte value) {
         return value;
     }

@@ -80,6 +80,11 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
         return obj;
     }
 
+    public static UShort $box(Object obj) {
+        if (obj instanceof UShort) return (UShort) obj;
+        else return $box(((java.lang.Short)obj).shortValue());
+    }
+
     public static short $unbox(short value) {
         return value;
     }

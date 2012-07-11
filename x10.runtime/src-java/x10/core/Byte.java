@@ -79,6 +79,11 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
         return obj;
     }
 
+    public static Byte $box(Object obj) {
+        if (obj instanceof Byte) return (Byte) obj;
+        else return $box(((java.lang.Byte)obj).byteValue());
+    }
+
     public static byte $unbox(byte value) {
         return value;
     }
