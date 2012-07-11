@@ -30,6 +30,9 @@ public class InitStaticField3c extends x10Test {
 	static val xa = 1.0 / 0.0;
 	static val xb = -1.0 / 0.0;
 	static val xc = 0.0 / 0.0;
+	static val ya = 1.0 % 0.0;
+	static val yb = -1.0 % 0.0;
+	static val yc = 0.0 % 0.0;
 
 	static val za = 1.typeName();
 	static val zb = 1.equals(2);
@@ -42,9 +45,12 @@ public class InitStaticField3c extends x10Test {
         chk(e == 'b');
         chk(f.equals("b"));
         
-        chk(xa == Double.POSITIVE_INFINITY);
-        chk(xb == Double.NEGATIVE_INFINITY);
-        chk(xc != Double.NaN); // "NaN == NaN" is false.
+        chk(xa.isInfinite());
+        chk(xb.isInfinite());
+        chk(xc.isNaN());
+        chk(ya.isNaN());
+        chk(yb.isNaN());
+        chk(yc.isNaN());
         
         chk(za.equals("x10.lang.Int"));
         chk(zb == false);
