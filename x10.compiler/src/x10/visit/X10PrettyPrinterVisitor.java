@@ -2771,7 +2771,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             X10Call call = (X10Call)expr;
                             MethodInstance mi = call.methodInstance();
                             if ((isBoxedType(mi.def().returnType().get()) && !er.isInlinedCall(call)) && !isPrimitiveGenericMethod(mi)
-                                    || er.isDispatcher(call.methodInstance()))
+                                    || Emitter.isDispatcher(call.methodInstance()))
                                 closeParen = er.printUnboxConversion(castType);
                         } else if (expr instanceof ClosureCall) {
                             ClosureCall call = (ClosureCall)expr;
