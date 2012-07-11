@@ -61,81 +61,77 @@ namespace x10aux {
     }        
 
     /*
-     * Inner level of dispatching to cover combinations of:
-     *   ref
-     *   user-defined structs
-     *   built-in C types
+     *Inner level of dispatching to actually do the comparisons
      */
-
-    template<class T, class U> struct StructEquals { static inline GPUSAFE x10_boolean _(T x, U y) {
+    
+    inline x10_boolean struct_equals_inner(const x10_double x,  const x10_double y)  { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_float x,   const x10_float y)   { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_long x,    const x10_long y)    { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_int x,     const x10_int y)     { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_short x,   const x10_short y)   { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_byte x,    const x10_byte y)    { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_ulong x,   const x10_ulong y)   { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_uint x,    const x10_uint y)    { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_ushort x,  const x10_ushort y)  { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_ubyte x,   const x10_ubyte y)   { return x==y; }
+    inline x10_boolean struct_equals_inner(const x10_char x,    const x10_char y)    { return x.v==y.v; }
+    inline x10_boolean struct_equals_inner(const x10_boolean x, const x10_boolean y) { return x==y; }
+    
+    template<class T, class U> inline x10_boolean struct_equals_inner(T x, U y) {
         return x._struct_equals(y); // two structs
-    } };
+    }
 
-    template<class T, class U> struct StructEquals<ref<T>,U> { static inline GPUSAFE x10_boolean _(ref<T> x, U y) {
+    template<class T, class U> inline x10_boolean struct_equals_inner(ref<T> x, U y) {
         // ref and struct. The ref could be an IBox<U>, so we have to handle that special case
         ref<x10::lang::Reference> xAsRef(x);
         if (!x.isNull() && xAsRef->_type()->equals(getRTT<U>())) {
             ref<x10::lang::IBox<U> > xAsIBox(x);
-            return struct_equals(xAsIBox->value, y);
+            return struct_equals_inner(xAsIBox->value, y);
         } else {
             return false;
         }
-    } };
+    }
 
-    template<class T, class U> struct StructEquals<T,ref<U> > { static inline GPUSAFE x10_boolean _(T x, ref<U> y) {
+    template<class T, class U> inline x10_boolean struct_equals_inner(T x, ref<U> y) {
         // struct and ref. The ref could be an IBox<T>, so we have to handle that special case
         ref<x10::lang::Reference> yAsRef(y);
         if (!y.isNull() && yAsRef->_type()->equals(getRTT<T>())) {
             ref<x10::lang::IBox<T> > yAsIBox(y);
-            return struct_equals(x, yAsIBox->value);
+            return struct_equals_inner(x, yAsIBox->value);
         } else {
             return false;
         }
-    } };
+    }
 
-    template<class T, class U> struct StructEquals<ref<T>,ref<U> > { static inline GPUSAFE x10_boolean _(ref<T> x, ref<U> y) {
+    template<class T, class U> inline GPUSAFE x10_boolean struct_equals_inner(ref<T> x, ref<U> y) {
         return compare_references(x, y); // two refs
-    } };
-
+    }
 
     /*
      * Outer level of dispatching to cannonicalize to only rval types
      * and bound the explosion of possible combinations
      */
 
-    inline x10_boolean struct_equals(const x10_double x,  const x10_double y)  { return x==y; }
-    inline x10_boolean struct_equals(const x10_float x,   const x10_float y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_long x,    const x10_long y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_int x,     const x10_int y)     { return x==y; }
-    inline x10_boolean struct_equals(const x10_short x,   const x10_short y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_byte x,    const x10_byte y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_ulong x,   const x10_ulong y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_uint x,    const x10_uint y)     { return x==y; }
-    inline x10_boolean struct_equals(const x10_ushort x,  const x10_ushort y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
-    inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
-
     template<class T, class U> inline x10_boolean struct_equals(T x, U y) {
-        return StructEquals<T,U>::_(x, y);
+        return struct_equals_inner(x, y);
     }
     template<class T, class U> inline x10_boolean struct_equals(captured_ref_lval<T> x, U y) {
-        return StructEquals<ref<T>,U>::_(ref<T>(*x), y);
+        return struct_equals_inner(ref<T>(*x), y);
     }
     template<class T, class U> inline x10_boolean struct_equals(T x, captured_ref_lval<U> y) {
-        return StructEquals<T,ref<U> >::_(x, ref<U>(*y));
+        return struct_equals_inner(x, ref<U>(*y));
     }
     template<class T, class U> inline x10_boolean struct_equals(captured_ref_lval<T> x, captured_ref_lval<U> y) {
-        return StructEquals<ref<T>,ref<U> >::_(ref<T>(*x), ref<U>(*y));
+        return struct_equals_inner(ref<T>(*x), ref<U>(*y));
     }
     template<class T, class U> inline x10_boolean struct_equals(captured_struct_lval<T> x, U y) {
-        return struct_equals(*x, y);
+        return struct_equals_inner(*x, y);
     }
     template<class T, class U> inline x10_boolean struct_equals(T x, captured_struct_lval<U> y) {
-        return struct_equals(x, *y);
+        return struct_equals_inner(x, *y);
     }
     template<class T, class U> inline x10_boolean struct_equals(captured_struct_lval<T> x, captured_struct_lval<U> y) {
-        return struct_equals(*x, *y);
+        return struct_equals_inner(*x, *y);
     }
     
     /******* equals ********/
