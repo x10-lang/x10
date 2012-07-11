@@ -785,7 +785,7 @@ public class StaticInitializer extends ContextVisitor {
         if (type.isBoolean())
             return xnf.BooleanLit(pos, false).type(type);
         else if (type.isChar())
-            return xnf.CharLit(pos, ' ').type(type);
+            return xnf.CharLit(pos, '\0').type(type);
         else if (type.isByte() || type.isShort() || type.isInt())
             return xnf.IntLit(pos, IntLit.INT, 0).type(type);
         else if (type.isLong())
