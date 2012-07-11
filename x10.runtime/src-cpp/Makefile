@@ -157,6 +157,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/long_utils.o \
 	x10aux/network.o \
 	x10aux/place_local.o \
+	x10aux/processes.o \
 	x10aux/ref.o \
 	x10aux/reference_logger.o \
 	x10aux/RTT.o \

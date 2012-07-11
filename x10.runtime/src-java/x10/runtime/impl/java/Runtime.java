@@ -12,6 +12,12 @@
 package x10.runtime.impl.java;
 
 import x10.core.ThrowableUtilities;
+import x10.core.io.InputStream;
+import x10.core.io.OutputStream;
+import x10.io.InputStreamReader;
+import x10.io.OutputStreamWriter;
+import x10.io.Reader;
+import x10.io.Writer;
 import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -509,6 +515,28 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V(e.getKey(), e.getValue());
         }
         return map;
+    }
+
+    public static Reader execForRead(String command) {
+        try {
+            Process proc = java.lang.Runtime.getRuntime().exec(command);
+            return new x10.io.InputStreamReader(new x10.core.io.InputStream(proc.getInputStream()));
+        } catch (IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+            xe.printStackTrace();
+            throw xe;
+        }
+    }
+
+    public static Writer execForWrite(String command) {
+        try {
+            Process proc = java.lang.Runtime.getRuntime().exec(command);
+            return new x10.io.OutputStreamWriter(new x10.core.io.OutputStream(proc.getOutputStream()));
+        } catch (IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+            xe.printStackTrace();
+            throw xe;
+        }
     }
 
     /**

@@ -43,6 +43,7 @@
 
 #include <x10aux/math_utils.h>
 #include <x10aux/system_utils.h>
+#include <x10aux/processes.h>
 
 #include <x10aux/place_local.h>
 

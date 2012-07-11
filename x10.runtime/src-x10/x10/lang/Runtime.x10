@@ -17,6 +17,8 @@ import x10.compiler.StackAllocate;
 
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
+import x10.io.Reader;
+import x10.io.Writer;
 
 import x10.util.Random;
 import x10.util.Stack;
@@ -124,6 +126,26 @@ public final class Runtime {
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
 
+    // External process execution
+
+    /**
+     * Executes the specified command in a separate process.
+     * The returned InputStreamReader is connected to the standard output
+     * of the new process.
+     */
+    @Native("java","x10.runtime.impl.java.Runtime.execForRead(#command)")
+    @Native("c++", "x10aux::processes::execForRead(x10aux::to_string(#command)->c_str())")
+    public static native def execForRead(command:String):Reader{self!=null};
+
+    /**
+     * Executes the specified command in a separate process.
+     * The returned OutputStreamWriter is connected to the standard input
+     * of the new process.
+     */
+    @Native("java","x10.runtime.impl.java.Runtime.execForWrite(#command)")
+    @Native("c++", "x10aux::processes::execForWrite(x10aux::to_string(#command)->c_str())")
+    public static native def execForWrite(command:String):Writer{self!=null};
+            
     // Runtime state
 
     static staticMonitor = new Monitor();

@@ -29,6 +29,12 @@ void FileWriter__FileOutputStream::_constructor(x10aux::ref<x10::lang::String> f
     _outputStream = fpos;
 }
 
+void FileWriter__FileOutputStream::_constructor(FILE* file) {
+    this->OutputStreamWriter__OutputStream::_constructor();
+    x10aux::io::FILEPtrOutputStream fpos(file);
+    _outputStream = fpos;
+}
+
 void FileWriter__FileOutputStream::_constructor() {
     this->OutputStreamWriter__OutputStream::_constructor();
     x10aux::io::FILEPtrOutputStream fpos(NULL);
