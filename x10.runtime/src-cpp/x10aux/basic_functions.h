@@ -60,6 +60,19 @@ namespace x10aux {
         return compare_references_slow(x, y);
     }        
 
+    inline x10_boolean struct_equals(const x10_double x,  const x10_double y)  { return x==y; }
+    inline x10_boolean struct_equals(const x10_float x,   const x10_float y)   { return x==y; }
+    inline x10_boolean struct_equals(const x10_long x,    const x10_long y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_int x,     const x10_int y)     { return x==y; }
+    inline x10_boolean struct_equals(const x10_short x,   const x10_short y)   { return x==y; }
+    inline x10_boolean struct_equals(const x10_byte x,    const x10_byte y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_ulong x,   const x10_ulong y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_uint x,    const x10_uint y)     { return x==y; }
+    inline x10_boolean struct_equals(const x10_ushort x,  const x10_ushort y)   { return x==y; }
+    inline x10_boolean struct_equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
+    inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
+    inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
+
     /*
      * Inner level of dispatching to cover combinations of:
      *   ref
@@ -102,19 +115,6 @@ namespace x10aux {
      * Outer level of dispatching to cannonicalize to only rval types
      * and bound the explosion of possible combinations
      */
-
-    inline x10_boolean struct_equals(const x10_double x,  const x10_double y)  { return x==y; }
-    inline x10_boolean struct_equals(const x10_float x,   const x10_float y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_long x,    const x10_long y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_int x,     const x10_int y)     { return x==y; }
-    inline x10_boolean struct_equals(const x10_short x,   const x10_short y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_byte x,    const x10_byte y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_ulong x,   const x10_ulong y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_uint x,    const x10_uint y)     { return x==y; }
-    inline x10_boolean struct_equals(const x10_ushort x,  const x10_ushort y)   { return x==y; }
-    inline x10_boolean struct_equals(const x10_ubyte x,   const x10_ubyte y)    { return x==y; }
-    inline x10_boolean struct_equals(const x10_char x,    const x10_char y)    { return x.v==y.v; }
-    inline x10_boolean struct_equals(const x10_boolean x, const x10_boolean y) { return x==y; }
 
     template<class T, class U> inline x10_boolean struct_equals(T x, U y) {
         return StructEquals<T,U>::_(x, y);
