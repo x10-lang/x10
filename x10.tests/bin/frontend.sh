@@ -53,6 +53,8 @@ time nice "$JAVA" \
     -sourcepath "$TOP/x10.tests/examples/x10lib" \
     -sourcepath "$TOP/x10.dist/samples" \
     -sourcepath "$TOP/x10.dist/samples/tutorial" \
+    -sourcepath "$TOP/x10.dist/samples/cuda" \
+    -sourcepath "$TOP/x10.dist/samples/work-stealing" \
     -sourcepath "$TOP/x10.tests/tests/Annotations/dims"
 
 echo "Done."
