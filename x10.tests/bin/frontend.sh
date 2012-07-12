@@ -40,13 +40,19 @@ echo "Running the tests..."
 
 export X10_DIST="$TOP/x10.dist"
 
+if [ "$1" == "" ] ; then
+    TESTS="$TOP/x10.tests"
+else
+    TESTS="$1"
+fi
+
 time nice "$JAVA" \
     -Xmx1G \
     -ea \
     -cp "$TOP:$TOP/x10.dist/lib/x10c.jar:$TOP/x10.dist/lib/lpg.jar" \
     -Dx10.dist="$TOP/x10.dist" \
     x10.util.RunTestSuite \
-    "$TOP/x10.tests" \
+    "$TESTS" \
     -extclass x10c.ExtensionInfo \
     -d out \
     -sourcepath "$TOP/x10.dist/stdlib/x10.jar" \
