@@ -49,18 +49,18 @@ fi
 time nice "$JAVA" \
     -Xmx1G \
     -ea \
-    -cp "$TOP:$TOP/x10.dist/lib/x10c.jar:$TOP/x10.dist/lib/lpg.jar" \
+    -cp "$TOP:$X10_DIST/lib/x10c.jar:$X10_DIST/lib/lpg.jar" \
     -Dx10.dist="$TOP/x10.dist" \
     x10.util.RunTestSuite \
     "$TESTS" \
     -extclass x10c.ExtensionInfo \
     -d out \
-    -sourcepath "$TOP/x10.dist/stdlib/x10.jar" \
+    -sourcepath "$X10_DIST/stdlib/x10.jar" \
     -sourcepath "$TOP/x10.tests/examples/x10lib" \
-    -sourcepath "$TOP/x10.dist/samples" \
-    -sourcepath "$TOP/x10.dist/samples/tutorial" \
-    -sourcepath "$TOP/x10.dist/samples/CUDA" \
-    -sourcepath "$TOP/x10.dist/samples/work-stealing" \
+    -sourcepath "$X10_DIST/samples" \
+    -sourcepath "$X10_DIST/samples/tutorial" \
+    -sourcepath "$X10_DIST/samples/CUDA" \
+    -sourcepath "$X10_DIST/samples/work-stealing" \
     -sourcepath "$TOP/x10.tests/tests/Annotations/dims"
 
 echo "Done."
