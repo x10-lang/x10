@@ -75,6 +75,12 @@ public final class ReinstantiatedMethodInstance extends MethodInstance_c {
 	    if (ref==null) return null;
 	    return new Ref_c<Type>(this.typeParamSubst().reinstantiate(ref.get()));
 	}
+    @Override
+    public List<Type> throwTypes() {
+        if (throwTypes == null)
+            return this.typeParamSubst.reinstantiate(fi.throwTypes());
+        return throwTypes;
+    }
 
 	@Override
 	public CConstraint guard() {

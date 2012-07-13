@@ -82,6 +82,13 @@ public final class ReinstantiatedConstructorInstance extends X10ConstructorInsta
 	}
 
 	@Override
+	public List<Type> throwTypes() {
+	    if (throwTypes == null)
+	        return this.typeParamSubst.reinstantiate(fi.throwTypes());
+	    return throwTypes;
+	}
+	    
+    @Override
 	public CConstraint guard() {
 		if (guard == null)
 			return this.typeParamSubst().reinstantiate(fi.guard());

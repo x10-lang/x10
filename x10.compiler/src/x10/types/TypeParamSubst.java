@@ -381,7 +381,7 @@ public class TypeParamSubst {
 		    ci = (X10ConstructorInstance) ci.returnType(reinstantiate(ci.returnType()));
 		    ci = (X10ConstructorInstance) ci.formalNames(reinstantiate(ci.formalNames()));
 		    ci = (X10ConstructorInstance) ci.formalTypes(reinstantiate(ci.formalTypes()));
-		    //ci = (X10ConstructorInstance) ci.throwTypes(reinstantiate(ci.throwTypes()));
+		    ci = (X10ConstructorInstance) ci.throwTypes(reinstantiate(ci.throwTypes()));
 		    ci = (X10ConstructorInstance) ci.typeParameters(reinstantiate(ci.typeParameters()));
 		    ci = (X10ConstructorInstance) ci.container(reinstantiate(ci.container()));
 		    ci = (X10ConstructorInstance) ci.guard(reinstantiate(ci.guard()));
@@ -398,7 +398,7 @@ public class TypeParamSubst {
 		    mi = (MethodInstance) mi.returnType(reinstantiate(mi.returnType()));
 		    mi = (MethodInstance) mi.formalNames(reinstantiate(mi.formalNames()));
 		    mi = (MethodInstance) mi.formalTypes(reinstantiate(mi.formalTypes()));
-		    //mi = (X10MethodInstance) mi.throwTypes(reinstantiate(mi.throwTypes()));
+		    mi = (MethodInstance) mi.throwTypes(reinstantiate(mi.throwTypes()));
 		    mi = (MethodInstance) mi.container(reinstantiate(mi.container()));
 		    mi = (MethodInstance) mi.guard(reinstantiate(mi.guard()));
 		    mi = (MethodInstance) mi.typeGuard(reinstantiate(mi.typeGuard()));

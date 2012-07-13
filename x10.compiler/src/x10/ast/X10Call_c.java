@@ -635,6 +635,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		// First try to find the method without implicit conversions.
 		Pair<MethodInstance, List<Expr>> p = Checker.findMethod(tc, this, targetType, name, typeArgs, argTypes);
 		mi =  p.fst();
+        // [DC] surely p.snd() is the same as this.arguments() ???
 		args = p.snd();
 	    SemanticException error=mi.error();
 		if (error != null && !(error instanceof Errors.MultipleMethodDefsMatch)) {
