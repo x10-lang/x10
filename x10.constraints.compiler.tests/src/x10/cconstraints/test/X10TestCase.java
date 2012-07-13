@@ -49,7 +49,7 @@ public class X10TestCase extends TestCase {
     public void print(CConstraint c) {
         System.out.print("{");
         boolean notFirst=false;
-        List<XTerm> terms = c.constraints();
+        List<? extends XTerm> terms = c.constraints();
         for (XTerm x : terms) {
             System.out.print((notFirst? ",":"") + x);
             notFirst=true;

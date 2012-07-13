@@ -17,10 +17,10 @@ import java.util.List;
 
 import junit.framework.TestCase;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraintManager;
 import x10.constraint.XEquals;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class FormulaTest extends TestCase {
@@ -32,7 +32,7 @@ public class FormulaTest extends TestCase {
 	XVar makeUQV(String id) {
 		XVar v = vars.get(id);
 		if (v !=null) return v;
-		v = XTerms.makeUQV(id);
+		v = XConstraintManager.getConstraintSystem().makeUQV(id);
 		vars.put(id, v);
 		return v;
 	}
@@ -51,7 +51,7 @@ public class FormulaTest extends TestCase {
 			assert false : "cannot parse " + s;
 		}
 		
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 
 		Pair<Integer,XTerm> p = parse(buf, i);
 		XTerm t = p.snd;
@@ -165,7 +165,7 @@ public class FormulaTest extends TestCase {
 				String id = p.snd;
 
 				if (left != null) {
-					left = XTerms.makeField(left, id);
+					left = XConstraintManager.getConstraintSystem().makeField(left, id);
 				}
 				else {
 					left = makeUQV(id);
@@ -197,22 +197,22 @@ public class FormulaTest extends TestCase {
 		if (op.toString().equals("==")) {
 			XTerm left = terms.get(0);
 			for (int k = 1; k < terms.size(); k++) {
-				left = XTerms.makeEquals(left, terms.get(k));
+				left = XConstraintManager.getConstraintSystem().makeEquals(left, terms.get(k));
 			}
 			return new Pair<Integer,XTerm>(i, left);
 		}
 		if (op.toString().equals("&&")) {
 			XTerm left = terms.get(0);
 			for (int k = 1; k < terms.size(); k++) {
-				left = XTerms.makeAnd(left, terms.get(k));
+				left = XConstraintManager.getConstraintSystem().makeAnd(left, terms.get(k));
 			}
 			return new Pair<Integer,XTerm>(i, left);
 		}
 		if (op.toString().equals("!")) {
-			return new Pair<Integer,XTerm>(i, XTerms.makeNot(terms.get(0)));
+			return new Pair<Integer,XTerm>(i, XConstraintManager.getConstraintSystem().makeNot(terms.get(0)));
 		}
 
-		return new Pair<Integer,XTerm>(i, XTerms.makeAtom(op, terms.toArray(new XTerm[0])));
+		return new Pair<Integer,XTerm>(i, XConstraintManager.getConstraintSystem().makeAtom(op, terms.toArray(new XTerm[0])));
 	}
 
 	XConstraint c1 = parse("(== x y)");

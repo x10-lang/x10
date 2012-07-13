@@ -3,7 +3,7 @@ package x10.cconstraints.test;
 import x10.constraint.XVar;
 import x10.types.X10FieldDef;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
 
 public class QualifiedVarTests extends X10TestCase {
     X10FieldDef rank; 
@@ -12,13 +12,13 @@ public class QualifiedVarTests extends X10TestCase {
         rank = makeField("rank", ts.Int()); 
     }
     public void test1() throws Throwable {
-        CConstraint c = new CConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
     
-        XVar qv = CTerms.makeQualifiedThis(ts.Int(), ts.Int());
+        XVar qv = ConstraintManager.getConstraintSystem().makeQualifiedThis(ts.Int(), ts.Int());
         c.addBinding(c.self(), qv);
         System.out.print("(test1: Should print self==a.home) "); 
         print(c);
-        assertTrue(c.entails(CTerms.makeField(c.self(),rank) , CTerms.makeField(qv, rank)));
+        assertTrue(c.entails(ConstraintManager.getConstraintSystem().makeField(c.self(),rank) , ConstraintManager.getConstraintSystem().makeField(qv, rank)));
     }
 
 }

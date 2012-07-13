@@ -6,11 +6,10 @@ import polyglot.frontend.Compiler;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.TypeSystem;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 import x10.types.X10FieldDef;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.ConstraintManager;
 
 public class NestedExTest extends X10TestCase{
 
@@ -27,23 +26,23 @@ public class NestedExTest extends X10TestCase{
         
     }
     public void test1() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar a = XTerms.makeUQV("a");
-        XVar x = XTerms.makeUQV("x");
-        XVar b = XTerms.makeUQV("b");
-        XVar af = CTerms.makeField(a,f);
-        XVar afg = CTerms.makeField(af,g);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar a = ConstraintManager.getConstraintSystem().makeUQV("a");
+        XVar x = ConstraintManager.getConstraintSystem().makeUQV("x");
+        XVar b = ConstraintManager.getConstraintSystem().makeUQV("b");
+        XVar af = ConstraintManager.getConstraintSystem().makeField(a,f);
+        XVar afg = ConstraintManager.getConstraintSystem().makeField(af,g);
         
-        XVar xf = CTerms.makeField(x,f);
-        XVar xfg = CTerms.makeField(xf,g);
+        XVar xf = ConstraintManager.getConstraintSystem().makeField(x,f);
+        XVar xfg = ConstraintManager.getConstraintSystem().makeField(xf,g);
         
-        XVar bg = CTerms.makeField(b,g);
+        XVar bg = ConstraintManager.getConstraintSystem().makeField(b,g);
       
-        XVar u = XTerms.makeEQV();
+        XVar u = ConstraintManager.getConstraintSystem().makeEQV();
         c.addBinding(afg,xfg);
         c.addBinding(xf,b);
         c=c.substitute(u,x);
-        List<XTerm> xl = c.extConstraints();
+        List<? extends XTerm> xl = c.extConstraints();
         System.out.print("constraints:");
         for (XTerm z : xl) {
             System.out.print(" " + z);

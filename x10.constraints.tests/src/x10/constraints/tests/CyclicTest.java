@@ -13,29 +13,29 @@ package x10.constraints.tests;
 
 import junit.framework.TestCase;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraintManager;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class CyclicTest extends TestCase {
 	public CyclicTest() {
 		super("CyclicTest");
 	}
-	XTerm zero = XTerms.makeLit(new Integer(0));
-	XTerm one = XTerms.makeLit(new Integer(1));
-	XTerm two = XTerms.makeLit(new Integer(2));
-	XVar v0 = XTerms.makeUQV("v0");
-	XVar v1 = XTerms.makeUQV("v1");
-	XVar v2 = XTerms.makeUQV("v2");
-	XVar v0a = XTerms.makeField(v0, "a");
-	XVar v1b = XTerms.makeField(v1, "b");
+	XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
+	XTerm one = XConstraintManager.getConstraintSystem().makeLit(new Integer(1));
+	XTerm two = XConstraintManager.getConstraintSystem().makeLit(new Integer(2));
+	XVar v0 = XConstraintManager.getConstraintSystem().makeUQV("v0");
+	XVar v1 = XConstraintManager.getConstraintSystem().makeUQV("v1");
+	XVar v2 = XConstraintManager.getConstraintSystem().makeUQV("v2");
+	XVar v0a = XConstraintManager.getConstraintSystem().makeField(v0, "a");
+	XVar v1b = XConstraintManager.getConstraintSystem().makeField(v1, "b");
 	
 	/**
 	 * v0=v1,v1=v2 |- v0=v2
 	 * @throws Throwable
 	 */
 	public void test1() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addBinding(v0a, v1);
 		c.addBinding(v1b, v0);
 		System.out.println("c is|" + c+ "|");
