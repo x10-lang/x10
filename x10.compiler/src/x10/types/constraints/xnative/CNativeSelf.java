@@ -4,6 +4,8 @@ package x10.types.constraints.xnative;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.types.Type;
+
 import x10.constraint.XEQV;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -22,7 +24,8 @@ public class CNativeSelf extends XRoot implements CSelf {
     public static final String SELF_VAR_PREFIX="self";
     
     public final int num;
-    public CNativeSelf(int n) {this.num=n;}
+    public final Type type; 
+    public CNativeSelf(int n, Type t) {this.num=n; this.type = t;}
     @Override
     public int hashCode() {return num;}
     @Override
@@ -36,5 +39,6 @@ public class CNativeSelf extends XRoot implements CSelf {
         return false;
     }
     @Override
-    public String toString() {return SELF_VAR_PREFIX;}
+    public String toString() {return SELF_VAR_PREFIX + (type != null ? "(:" + type + ")" : "");}
+
 }

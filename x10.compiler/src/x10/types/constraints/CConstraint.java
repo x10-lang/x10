@@ -83,7 +83,14 @@ public interface CConstraint extends XConstraint, ThisVar {
      * Variable to use for self in the constraint.
      */
     public XVar self(); 
-
+    
+    /** 
+     * 
+     * @return
+     */
+    public Type baseType(); 
+    
+    public void setBaseType(Type t);
     /**
      * Return what, if anything, self is bound to in the current constraint.
      * @return
@@ -222,7 +229,16 @@ public interface CConstraint extends XConstraint, ThisVar {
      */
 
     public CConstraint residue(CConstraint other);
-    
+    /**
+     * Returns the thisVar of the two constraints if they have the same thisVar,
+     * and throws an XFailure if they have different thisVars. If both constraints
+     * are null returns null. 
+     * 
+     * @param t1
+     * @param t2
+     * @return 
+     * @throws XFailure t1, t2 have different this() var
+     */
     public XVar getThisVar(CConstraint t1, CConstraint t2) throws XFailure;
     
     /**
@@ -258,9 +274,10 @@ public interface CConstraint extends XConstraint, ThisVar {
     /** Return the least upper bound of this and other. That is, the resulting constraint has precisely
      * the constraints entailed by both this and other.
      * @param other
+     * @param t the least common ancestor of the base types of this and c2
      * @return
      */
-    public CConstraint leastUpperBound(CConstraint c2);
+    public CConstraint leastUpperBound(CConstraint c2, Type t);
     
     /**
      * Return the constraint obtained by existentially quantifying out the 
@@ -292,7 +309,7 @@ public interface CConstraint extends XConstraint, ThisVar {
      */
     public void addSigma(CConstraint c, Map<XTerm, CConstraint> m);
     
-    public void addSigma(XConstrainedTerm ct, Map<XTerm, CConstraint> m);
+    public void addSigma(XConstrainedTerm ct, Type t, Map<XTerm, CConstraint> m);
 
     /**
      * Return the constraint r generated from this by adding all the constraints
@@ -304,10 +321,8 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @return
      * @throws XFailure -- if r becomes inconsistent.
      */
-    public CConstraint constraintProjection(Map<XTerm,CConstraint> m);
-    public CConstraint constraintProjection(Map<XTerm,CConstraint> m, 
-                                            int depth /*Set<XTerm> ancestors*/);
-
+    public  CConstraint constraintProjection(Map<XTerm,CConstraint> m);
+    
 	public void addTerm(XTerm t) throws XFailure;
 
 	public XVar bindingForVar(XVar local_self);
@@ -324,6 +339,5 @@ public interface CConstraint extends XConstraint, ThisVar {
 
 	public Set<? extends XVar> vars();
 
- 
 }
 

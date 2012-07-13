@@ -95,7 +95,6 @@ public class XNativeLit extends XNativeVar implements XLit  {
 	    return super.subst(y, x, propagate);
 	}
 	
-	@Override
 	public String instance() {return toString();}
 
 	XNativeVar[] vars;

@@ -19,6 +19,7 @@ import java.util.HashSet;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
+import polyglot.types.VarDef;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
 import polyglot.types.ClassType;
@@ -49,6 +50,7 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
 
@@ -171,7 +173,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     Ref<CConstraint> realClauseWithThis = setRealClauseWithThis();
     
     private Ref<CConstraint> setRealClauseWithThis() {
-        final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint());
+    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(null));
         final Runnable runnable = new Runnable() {
             public void run() {
                 CConstraint c = X10ClassDef_c.this.realClause.get();
@@ -197,7 +199,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * 
      */
     private Ref<CConstraint> setRealClause() {
-    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint());
+    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(null));
     	Runnable runnable = new Runnable() {
     		boolean computing = false;
     		public void run() {
@@ -205,7 +207,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				return;
     		    }
     		    computing = true;
-    		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint();
+    		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(null);
     		    try {
     			    List<X10FieldDef> properties = properties();
     			    XVar oldThis = thisVar(); // xts.xtypeTranslator().translateThisWithoutTypeConstraint();
@@ -609,6 +611,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
 
     public void position(Position pos) {
 	this.position = pos;
+	assert pos != null;
     }
     
     public void errorPosition(Position pos) {

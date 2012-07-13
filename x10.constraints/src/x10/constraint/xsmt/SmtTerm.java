@@ -11,5 +11,7 @@ public interface SmtTerm {
 	public XSmtKind getKind(); 
 	
 	public SmtType getType(); 
-
+	
+	public String toSmt2(); 
+	
 }

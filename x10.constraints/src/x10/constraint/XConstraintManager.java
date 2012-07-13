@@ -29,12 +29,12 @@ public class XConstraintManager {
 	public static XConstraintSystem getConstraintSystem() {
 		// instantiate the constraint system if this has not been done before
 		if (constraint_factory == null ) {
-			String mode = System.getenv(env_variable);
-			if(mode== null || !mode.equals("SMT")) {
-				constraint_factory = new XNativeConstraintSystem();
-			} else {
+			//String mode = System.getenv(env_variable);
+			//if(mode== null || !mode.equals("SMT")) {
+			//	constraint_factory = new XNativeConstraintSystem();
+			//} else {
 				constraint_factory = new XSmtConstraintSystem(); 	
-			}
+			//}
 		}
 		
 		return constraint_factory; 

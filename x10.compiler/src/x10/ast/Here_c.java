@@ -87,7 +87,7 @@ public class Here_c extends Expr_c implements Here {
         if (h == null) {
             Errors.issue(tc.job(), new Errors.CannotUseHereInThisContext(position()));
             try {
-                CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
+                CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
                 XTerm term = PlaceChecker.here(); // to avoid further errors
                 h = XConstrainedTerm.instantiate(d, term);
             } catch (XFailure e) {
@@ -95,7 +95,7 @@ public class Here_c extends Expr_c implements Here {
             }
         }
         if (h != null) {
-            CConstraint cc = ConstraintManager.getConstraintSystem().makeCConstraint();
+            CConstraint cc = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
             cc.addSelfBinding(h);
             tt = Types.xclause(Types.baseType(tt), cc);
         }

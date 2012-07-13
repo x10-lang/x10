@@ -176,7 +176,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         // This ensures that multiple objects created at the same place
         // e.g. GlobalRef's, are treated as being at the same place by the 
         // type-checker.
-        c.visit(v);
+        ((XNativeConstraint)c).visit(v);
         // vj: What about thisVar for c? Should that be added?
         // thisVar = getThisVar(this, c);
         return;
@@ -399,7 +399,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
     	if (!consistent) return true;
         if (other == null || other.valid()) return true;
         EntailsVisitor ev = new EntailsVisitor(true, false, this);
-        other.visit(ev);
+        ((XNativeConstraint)other).visit(ev);
         return ev.result();
     }
     

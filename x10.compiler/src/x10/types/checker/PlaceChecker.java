@@ -132,11 +132,17 @@ public class PlaceChecker {
 		return cc==null ? null : cc.bindingForSelfField(GlobalRefHome(xts));
 	}
 
-
+	/**
+	 * The returned CConstraint has no type information for self, it is
+	 * the caller's responsibility to add this information. 
+	 * @param thisVar
+	 * @param ts
+	 * @return
+	 */
 	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, TypeSystem ts) {
 
 		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(null);
 		if (h != null) {
 			c.addBinding(h, here());
 		}
@@ -240,7 +246,9 @@ public class PlaceChecker {
 			c.addBinding(here(), placeTerm.term());
 	}
 
-	static XConstrainedTerm firstPlace = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV("FIRST_PLACE"));
+	// CONSTRAINT_QUESION!
+	static XConstrainedTerm firstPlace = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV("FIRST_PLACE"), (Type)null);
+	
 	public static XConstrainedTerm firstPlace(TypeSystem xts) {
 		return firstPlace;
 	}
@@ -249,7 +257,7 @@ public class PlaceChecker {
 	public static void setHereTerm(MethodDef md, Context c) {
 	    c = c.pushBlock();
 	    if (isGlobalCode(md)) {
-	        c.setPlace(XConstrainedTerm.make(makePlace()));
+	        c.setPlace(XConstrainedTerm.make(makePlace(), md.typeSystem().Place()));
 	    } else {
 	        setHereIsThisHome(c);
 	    }
@@ -262,7 +270,7 @@ public class PlaceChecker {
 			return;
 		}
 		if (Types.isX10Struct(fd.container().get())) {
-			c.setPlace(XConstrainedTerm.make(makePlace()));
+			c.setPlace(XConstrainedTerm.make(makePlace(), fd.typeSystem().Place()));
 			return;
 		}
 		TypeSystem xts = (TypeSystem) c.typeSystem();
@@ -275,15 +283,15 @@ public class PlaceChecker {
 			if ( ! xts.hasSameClassDef(Types.baseType(cd.asType()), xts.GlobalRef())) {
 				XTerm h =  homeVar(xc.thisVar(),xts);
 				if (h != null)  // null for structs.
-					c.setPlace(XConstrainedTerm.make(h));
+					c.setPlace(XConstrainedTerm.make(h, xts.Place()));
 			}
 	}
 
 	public static XConstrainedTerm methodPlaceTerm(MethodDef md) {
-	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
 	    XTerm term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(md.typeSystem().Place());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
 	    } catch (XFailure z) {
@@ -292,7 +300,7 @@ public class PlaceChecker {
 	}
 
 	public static XConstrainedTerm constructorPlaceTerm(ConstructorDef cd) {
-	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place());
 	    XTerm term = homeVar(cd.thisVar(), cd.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -302,7 +310,7 @@ public class PlaceChecker {
 	}
 	
 	public static XConstrainedTerm closurePlaceTerm(ClosureDef cd) {
-	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place());
 	    XTerm term = makePlace();
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -333,7 +341,7 @@ public class PlaceChecker {
 	public static void setHereIsThisHome(Context c) {
 		XTerm h = thisHomeVar(c);
 		if (h != null)  // null for structs.
-			c.setPlace(XConstrainedTerm.make(h)); 	
+			c.setPlace(XConstrainedTerm.make(h, c.typeSystem().Place())); 	
 	}
 
 
@@ -381,7 +389,7 @@ public class PlaceChecker {
 	public static XConstrainedTerm computePlaceTerm(Expr place, Context xc, TypeSystem ts) throws SemanticException {
 		Type placeType = place.type();
 		CConstraint d = Types.xclause(placeType);
-		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint() : d.copy();
+		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(placeType)) : d.copy();
 		CConstraint pc = null;
 		XTerm term = null;
 		XConstrainedTerm pt = null;

@@ -51,7 +51,7 @@ public class X10FloatLit_c extends FloatLit_c {
 	    TypeSystem xts = (TypeSystem) tc.typeSystem();
 	    Type type = (kind == FLOAT ? xts.Float() : xts.Double());
 
-	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(type));
 	    try {
 	    	XTerm term = xts.xtypeTranslator().translate(c, this.type(type),  tc.context());
 	    	 c.addSelfBinding(term);

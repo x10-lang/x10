@@ -115,7 +115,7 @@ public interface XConstraint {
      */
     public List<? extends XTerm> constraints();	
     public List<? extends XFormula<?>> atoms();
-    public void visit(XGraphVisitor xg);
+    //public void visit(XGraphVisitor xg);
     public String toString();
 	public XConstraint copy();
 	/**

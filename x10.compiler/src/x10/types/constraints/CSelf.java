@@ -4,6 +4,8 @@ package x10.types.constraints;
 import java.util.Collections;
 import java.util.List;
 
+import polyglot.types.Type;
+
 import x10.constraint.XVar;
 
 
@@ -15,4 +17,5 @@ import x10.constraint.XVar;
  *
  */
 public interface CSelf extends XVar {
+
 }

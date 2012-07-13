@@ -109,7 +109,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                 }
                 else {
                     CConstraint rc = Types.xclause(t);
-                    rc = rc==null ? ConstraintManager.getConstraintSystem().makeCConstraint() : rc.copy();
+                    rc = rc==null ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t)) : rc.copy();
                     XTerm receiver;
 
                     if (flags.isStatic()) {

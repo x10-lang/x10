@@ -235,7 +235,7 @@ public class Synthesizer {
 	public Type addRectConstraintToSelf(Type type) {
 	    XVar receiver = Types.self(type);
 	    if (receiver == null) {
-	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(type);
 	        type = Types.xclause(type, c);
 	        receiver = c.self();
 	    }
@@ -760,7 +760,7 @@ public class Synthesizer {
 	}
 
 	public Field firstPlace() {
-		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(xts.Place());
 		XTerm id = makeProperty(xts.Int(), c.self(), "id");
 		try {
 			c.addBinding(id, ConstraintManager.getConstraintSystem().makeLit(0, xts.Int()));

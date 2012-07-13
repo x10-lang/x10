@@ -18,6 +18,7 @@ public interface XVar extends XTerm {
 	 *  The order matters, code in x10.compiler.x10cpp.visit.Emitter depends on this. 
 	 * @return
 	 */
-	public XVar[] vars(); 
+	public XVar[] vars();
+
 }
 

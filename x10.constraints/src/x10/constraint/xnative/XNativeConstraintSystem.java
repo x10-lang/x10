@@ -2,8 +2,6 @@ package x10.constraint.xnative;
 
 
 
-import java.util.List;
-
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraintSystem;
 import x10.constraint.XEQV;
@@ -24,10 +22,6 @@ public class XNativeConstraintSystem implements XConstraintSystem {
 	@Override
 	public XConstraint makeConstraint() {
 		return new XNativeConstraint();
-	}
-	@Override
-	public XConstraint makeTrueConstraint() {
-		return new XNativeConstraint(); 
 	}
 	
 	private static final XNativeLit NULL = new XNativeLit(null);

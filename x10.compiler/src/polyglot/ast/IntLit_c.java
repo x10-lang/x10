@@ -127,7 +127,7 @@ public class IntLit_c extends NumLit_c implements IntLit
         default:
             throw new InternalCompilerError("bad integer literal kind", position());
         }
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(Type);
         try {
          XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
          c.addSelfBinding(term);

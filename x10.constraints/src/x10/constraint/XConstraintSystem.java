@@ -1,7 +1,5 @@
 package x10.constraint;
 
-import java.util.List;
-
 /**
  * Interface for the factory class for XConstraints and XTerms. 
  * @author lshadare
@@ -9,7 +7,6 @@ import java.util.List;
  */
 public interface XConstraintSystem {
 	public XConstraint makeConstraint(); 
-	public XConstraint makeTrueConstraint();
 	public XLit xtrue(); 
 	public XLit xfalse(); 
 	public XLit xnull(); 

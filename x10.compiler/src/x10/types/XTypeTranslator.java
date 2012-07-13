@@ -448,7 +448,7 @@ public class XTypeTranslator {
      * @throws SemanticException
      */
     public CConstraint constraint(List<Formal> ignore, Expr term, Context xc) throws SemanticException {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(null);
         if (term == null)
             return c;
 

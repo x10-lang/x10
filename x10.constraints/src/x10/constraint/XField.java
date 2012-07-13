@@ -26,5 +26,5 @@ public interface XField<T> extends XVar {
      */
     public XField<T> copyReceiver(XVar newReceiver);
     public XVar receiver(); 
-
+    boolean isHidden(); 
 }

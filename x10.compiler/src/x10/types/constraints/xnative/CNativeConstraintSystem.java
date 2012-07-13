@@ -7,13 +7,13 @@ import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.constraint.xnative.XNativeConstraintSystem;
+import x10.types.ConstrainedType;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CAtom;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraintSystem;
 import x10.types.constraints.CField;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CNativeConstraint;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
@@ -28,7 +28,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
     public static final XLit FALSE = ConstraintManager.getConstraintSystem().xfalse();
     static int selfId = 0;
 
-    public CSelf makeSelf() {return new CNativeSelf(selfId++);}
+    public CSelf makeSelf(Type t) {return new CNativeSelf(selfId++, t);}
     static int thisId = 1;
     public CThis makeThis() {return makeThis(null);}
     public CThis makeThis(Type t) {
@@ -55,18 +55,18 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
     public CAtom makeAtom(MethodDef md, XTerm... t ) {
     	return new CNativeAtom(md, md, t);
     }
-    public CAtom makeAtom(MethodDef md, MethodDef mdAsExpr, XTerm... t ) {
-    	return new CNativeAtom(md, mdAsExpr, t);
-    }
+    //public CAtom makeAtom(MethodDef md, MethodDef mdAsExpr, XTerm... t ) {
+    //	return new CNativeAtom(md, mdAsExpr, t);
+    //}
     public CAtom makeAtom(MethodDef md, List<XTerm> t ) {
     	return new CNativeAtom(md, md, t.toArray(new XTerm[0]));
     }
     public CAtom makeAtom(FieldDef md, XTerm... t ) {
     	return new CNativeAtom(md, md, t);
     }
-    public CAtom makeAtom(FieldDef md, FieldDef mdAsExpr, XTerm... t ) {
-    	return new CNativeAtom(md, mdAsExpr, t);
-    }
+   // public CAtom makeAtom(FieldDef md, FieldDef mdAsExpr, XTerm... t ) {
+   // 	return new CNativeAtom(md, mdAsExpr, t);
+   // }
     public CAtom makeAtom(FieldDef md, List<XTerm> t ) {
     	return new CNativeAtom(md, md, t.toArray(new XTerm[0]));
     }
@@ -92,7 +92,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
         else return null;
     }
     
-        public IntLit.Kind getIntLitKind(Type type) {
+    public IntLit.Kind getIntLitKind(Type type) {
         if (type.isByte())   return IntLit.BYTE;
         if (type.isUByte())  return IntLit.UBYTE;
         if (type.isShort())  return IntLit.SHORT;
@@ -113,7 +113,13 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
     	return makeAtom(op, isatom, args.toArray(new XTerm[0]));
     }
         
-    public CConstraint makeCConstraint() { return new CNativeConstraint(); }
-    public CConstraint makeCConstraint(XVar self) { return new CNativeConstraint(self); }
+    public CConstraint makeCConstraint(Type t) { 
+    	assert !(t instanceof ConstrainedType);
+    	return new CNativeConstraint(t); 
+    }
+    public CConstraint makeCConstraint(XVar self, Type t) {
+    	assert !(t instanceof ConstrainedType);
+    	return new CNativeConstraint(self, t); 
+    }
 
 }

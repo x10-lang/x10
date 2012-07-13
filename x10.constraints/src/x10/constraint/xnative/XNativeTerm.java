@@ -131,14 +131,6 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 	public boolean isAtomicFormula() {return false;}
 
 
-	/** 
-	 * Returns true if the variable v occurs in this term.
-	 * @param v -- the variable being checked.
-	 * @return true if v occurs in this
-	 */
-	@Override
-	public boolean hasVar(XVar v) {return true;}
-
 	/**
        Intern this term into constraint and return the promise
        representing the term. 

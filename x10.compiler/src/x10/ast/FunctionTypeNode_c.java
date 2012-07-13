@@ -107,7 +107,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		}
 		FunctionType result = ts.functionType(position(), returnType.typeRef(),
 		        typeParams, formalTypes, formalNames,
-		        guard != null ? guard.valueConstraint() : Types.lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint())
+		        guard != null ? guard.valueConstraint() : Types.lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint(null))
 		        // guard != null ? guard.typeConstraint() : null,
 		);
 

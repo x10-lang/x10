@@ -61,4 +61,5 @@ public class CNativeThis extends XRoot implements CThis, Typed {
     @Override public String toString() {
     	return THIS_VAR_PREFIX + (type != null ? "(:" + type + ")" : "");
     }
+    
 }

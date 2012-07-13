@@ -20,7 +20,7 @@ import x10.types.X10LocalDef;
  *
  */
 public interface CConstraintSystem extends XConstraintSystem {
-    public CSelf makeSelf(); 
+    public CSelf makeSelf(Type t); 
     public CThis makeThis(); 
     public CThis makeThis(Type t); 
     public XVar makeQualifiedThis(Type qualifier, Type base); 
@@ -31,18 +31,18 @@ public interface CConstraintSystem extends XConstraintSystem {
     public CLocal makeLocal(X10LocalDef ld, String s); 
  
     public CAtom makeAtom(MethodDef md, XTerm... t ); 
-    public CAtom makeAtom(MethodDef md, MethodDef mdAsExpr, XTerm... t ); 
+    //public CAtom makeAtom(MethodDef md, MethodDef mdAsExpr, XTerm... t ); 
     public CAtom makeAtom(MethodDef md, List<XTerm> t ); 
     public CAtom makeAtom(FieldDef md, XTerm... t ); 
-    public CAtom makeAtom(FieldDef md, FieldDef mdAsExpr, XTerm... t ); 
+    //public CAtom makeAtom(FieldDef md, FieldDef mdAsExpr, XTerm... t ); 
     public CAtom makeAtom(FieldDef md, List<XTerm> t ); 
     public XLit makeLit(Object val, Type type); 
     public XLit makeZero(Type type); 
     public XTypeLit makeTypeLit(Type type);
     
     public IntLit.Kind getIntLitKind(Type type);
-    public CConstraint makeCConstraint(); 
-    public CConstraint makeCConstraint(XVar self); 
+    public CConstraint makeCConstraint(Type type); 
+    public CConstraint makeCConstraint(XVar self, Type type); 
     
     public XTerm makeOpaque(Object op, boolean isatom, XTerm target, List<XTerm> args); 
 }

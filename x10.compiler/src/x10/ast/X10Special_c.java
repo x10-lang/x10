@@ -153,7 +153,7 @@ public class X10Special_c extends Special_c implements X10Special {
         if (kind == THIS) {
             Type tt = Types.baseType(t);
             CConstraint cc = Types.xclause(t);
-            cc = cc == null ? ConstraintManager.getConstraintSystem().makeCConstraint() : cc.copy();
+            cc = cc == null ? ConstraintManager.getConstraintSystem().makeCConstraint(tt) : cc.copy();
             try {
                 // In case there is a qualifier, bind self to
                 // both the thisVar of the corresponding outer context
@@ -185,7 +185,7 @@ public class X10Special_c extends Special_c implements X10Special {
             Type superClass =  Types.superClass(t);
             Type tt = Types.baseType(superClass);
             CConstraint cc = Types.xclause(superClass);
-            cc = cc == null ? ConstraintManager.getConstraintSystem().makeCConstraint() : cc.copy();
+            cc = cc == null ? ConstraintManager.getConstraintSystem().makeCConstraint(tt) : cc.copy();
             try {
                 XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
                 if (var != null) {

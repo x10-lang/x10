@@ -11,6 +11,7 @@
 
 package x10.types.constraints;
 
+import polyglot.types.Type;
 import polyglot.util.InternalCompilerError;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
@@ -62,9 +63,9 @@ public class XConstrainedTerm  {
      * @param t
      * @return
      */
-    public static XConstrainedTerm make(XTerm t) {
+    public static XConstrainedTerm make(XTerm t, Type type) {
         try {
-            return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(), t);
+            return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(type), t);
         } catch (XFailure r) {
             throw new InternalCompilerError("Cannot constrain " + t);
         }
@@ -112,9 +113,9 @@ public class XConstrainedTerm  {
      * Return the constraint, instantiated with the term.
      * @return
      */
-    public CConstraint xconstraint() {
+    public CConstraint xconstraint(Type t) {
         CConstraint s = constraint();
-        s = s == null ? ConstraintManager.getConstraintSystem().makeCConstraint() : s.copy();
+        s = s == null ? ConstraintManager.getConstraintSystem().makeCConstraint(t) : s.copy();
         s = s.instantiateSelf(term());
         return s;
     }

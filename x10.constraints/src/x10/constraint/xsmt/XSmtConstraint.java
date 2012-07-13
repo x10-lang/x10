@@ -1,24 +1,25 @@
 package x10.constraint.xsmt;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraintManager;
-import x10.constraint.XConstraintSystem;
 import x10.constraint.XFailure;
 import x10.constraint.XFormula;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.constraint.visitors.XGraphVisitor;
 
 public class XSmtConstraint implements XConstraint {
 	/**
 	 * The formula representing the constraint we are checking as the conjunction of XSmtTerms. 
-	 * This can be incrementally built. 
+	 * This can be incrementally built but has the invariant that none of the XSmtTerms in the formula
+	 * is a top level conjunction.  
 	 */
-	private List<XSmtTerm> formula; 
+	public List<XSmtTerm> formula; 
 	/**
 	 * The external SMT solver we are using to check the formula. 
 	 */
@@ -42,13 +43,30 @@ public class XSmtConstraint implements XConstraint {
 
 	public XSmtConstraint(XSmtTerm formula) {
 		this.formula = new ArrayList<XSmtTerm>();
-		this.formula.add(formula); 
+		flattenAnd(formula, this.formula);
 		inconsistent = false; 
 	}
+	
+	
 	public XSmtConstraint(List<XSmtTerm> formula) {
-		this.formula = formula;
+		this.formula = new ArrayList<XSmtTerm>();
+		for (XSmtTerm term : formula) {
+			flattenAnd(term, this.formula);
+		}
 		inconsistent = false; 
 	}	
+
+	private static void flattenAnd(XSmtTerm term, List<XSmtTerm> res) {
+		assert term != null; 
+		if(term instanceof XSmtAnd) {
+			XSmtAnd eq = (XSmtAnd) term; 
+			for (XSmtTerm t : eq.arguments()) {
+				flattenAnd(t, res);
+			}
+		} else {
+			res.add(term);
+		}
+	}
 
 	@Override
 	public boolean consistent() {
@@ -57,7 +75,7 @@ public class XSmtConstraint implements XConstraint {
 		if (formula.isEmpty())
 			return true;
 
-		return solver.checkSat(formula);
+		return solver.checkSat(cm.makeAnd(formula));
 	}
 
 	@Override
@@ -83,16 +101,19 @@ public class XSmtConstraint implements XConstraint {
 
 	@Override
 	public void addAtom(XTerm t) throws XFailure {
-		formula.add((XSmtTerm)t); 
+		flattenAnd((XSmtTerm)t, this.formula);
 	}
 
 	@Override
 	public void addTerm(XTerm t) throws XFailure {
-		formula.add((XSmtTerm)t);
+		flattenAnd((XSmtTerm)t, this.formula);
 	}
 
 	@Override
 	public boolean entails(XConstraint other) {
+		if (other == null)
+			return true; 
+		
 		XSmtTerm a = cm.makeAnd(formula); 
 		XSmtTerm b = cm.makeAnd(((XSmtConstraint)other).constraints());
 		XSmtTerm entailment = cm.makeImpl(a, b);
@@ -124,8 +145,20 @@ public class XSmtConstraint implements XConstraint {
 
 	@Override
 	public XConstraint leastUpperBound(XConstraint other) {
-		// TODO just return the disjunction of the two constraints? 
-		return null;
+		//FIXME this is not general enough 
+        if (! consistent())       return other;
+        if (! other.consistent()) return this;
+        if (valid())              return this;
+        if (other.valid())        return other;
+       	XSmtConstraint result = new XSmtConstraint();
+       	for (XTerm term : ((XSmtConstraint)other).constraints()) {
+       		try {
+       			if (entails(term)) result.addTerm(term);
+       		} catch (XFailure z) {
+       		    result.setInconsistent();
+       		}
+       	}
+       	return result;		
 	}
 
 	@Override
@@ -150,56 +183,105 @@ public class XSmtConstraint implements XConstraint {
 
 	@Override
 	public List<? extends XFormula<?>> atoms() {
-		// TODO Auto-generated method stub
-		return null;
+		List<XFormula<?>> res = new ArrayList<XFormula<?>>();
+		for (XSmtTerm form : formula) {
+			if (form instanceof XSmtFormula<?>) {
+				XSmtFormula<?> f = (XSmtFormula<?>) form; 
+				if (f.isAtomicFormula())
+					res.add(f); 
+			}
+		}
+		return res;
 	}
 
-	@Override
-	public void visit(XGraphVisitor xg) {
-		// TODO Auto-generated method stub
-		
-	}
 
 	@Override
 	public XConstraint copy() {
-		// TODO Auto-generated method stub
-		return null;
+		List<XSmtTerm> newformula = new ArrayList<XSmtTerm>(formula);
+		Collections.copy(newformula, formula);
+		return new XSmtConstraint(newformula);
 	}
 
 	@Override
 	public XVar bindingForVar(XVar v) {
-		// TODO Auto-generated method stub
+		// FIXME: naive check if v is equal to anything
+		for (XSmtTerm t : formula) {
+			if (t instanceof XSmtEquals) {
+				XSmtEquals eq = (XSmtEquals) t;
+				if (eq.get(0).equals(v)) {
+					return (XVar)eq.get(1); 
+				}
+				if (eq.get(1).equals(v)) {
+					return (XVar)eq.get(0); 
+				}
+			}
+		}
 		return null;
 	}
 
 	@Override
 	public Set<? extends XTerm> getTerms() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<XTerm> res = new HashSet<XTerm>(); 
+		for (XSmtTerm t : formula) {
+			res.add(t); 
+		}
+		return res; 
 	}
 
 	@Override
 	public void setInconsistent() {
-		// TODO Auto-generated method stub
-		
+		inconsistent = true; 
 	}
 
 	@Override
 	public Set<? extends XVar> vars() {
-		// TODO Auto-generated method stub
-		return null;
+		Set<XVar> res = new HashSet<XVar>(); 
+		for (XSmtTerm f : formula)
+			collectXVar(f, res); 
+		return res; 
 	}
 
+	private void collectXVar(XSmtTerm term, Set<XVar> result) {
+		if (term instanceof XSmtFormula<?>) {
+			XSmtFormula<?> f = (XSmtFormula<?>)term;
+			for (XSmtTerm t : f.arguments()) {
+				collectXVar(t, result);
+			}
+		}
+		if (term instanceof XVar)
+			result.add((XVar)term);
+		
+		if (term instanceof XSmtField<?>) {
+			XSmtField<?> field = (XSmtField<?>) term; 
+			collectXVar((XSmtTerm)field.receiver(), result);
+		}
+	}
+	
 	@Override
 	public List<? extends XTerm> extConstraints() {
-		// TODO Auto-generated method stub
-		return null;
+		List<XTerm> res = new ArrayList<XTerm>(); 
+		for (XSmtTerm f : formula) {
+			if (!f.hasEQV())
+				res.add(f); 
+		}
+		return res; 
 	}
 
 	@Override
 	public List<? extends XTerm> extConstraintsHideFake() {
-		// TODO Auto-generated method stub
-		return null;
+		// FIXME: hide fake fields
+		List<XTerm> res = new ArrayList<XTerm>(); 
+		for (XSmtTerm f : formula) {
+			if (!f.hasEQV() && !hasFakeField(f)) {
+				res.add(f); 
+			}
+		}
+		return res; 
+	}
+	
+	public boolean hasFakeField(XSmtTerm term) {
+		// TODO: implement this
+		return false;
 	}
 
 }

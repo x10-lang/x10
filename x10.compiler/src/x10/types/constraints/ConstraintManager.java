@@ -1,7 +1,7 @@
 package x10.types.constraints;
 
-import x10.constraint.XConstraintSystem;
 import x10.types.constraints.xnative.CNativeConstraintSystem;
+import x10.types.constraints.xsmt.CSmtConstraintSystem;
 
 
 
@@ -20,9 +20,9 @@ public class ConstraintManager {
 		if (constraint_factory == null ) {
 			//String mode = System.getenv(env_variable);
 			//if(mode.equals("smt")) {
-			//	constraint_factory = new XSmtConstraintSystem(); 	
+				constraint_factory = new CSmtConstraintSystem(); 	
 			//} else {
-				constraint_factory = new CNativeConstraintSystem();
+			//	constraint_factory = new CNativeConstraintSystem();
 			//}
 		}
 		

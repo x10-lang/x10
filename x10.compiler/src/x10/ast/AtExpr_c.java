@@ -142,7 +142,7 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	ClosureDef def = (ClosureDef) this.codeDef();
     	if (def.placeTerm() == null) {
     	    XConstrainedTerm placeTerm;
-    	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
+    	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
     	    XTerm term = PlaceChecker.makePlace();
     	    try {
     	        placeTerm = XConstrainedTerm.instantiate(d, term);

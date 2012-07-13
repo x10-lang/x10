@@ -18,7 +18,6 @@ import x10.types.constraints.ConstraintManager;
 
 public class QualifiedVar extends XNativeField<Type> implements XVar, CQualifiedVar {
     private static final long serialVersionUID = -407228981450822754L;
-    private XField<Type> xfield;
     // lazily initialized
     private String string;
     private String getString() {

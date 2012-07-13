@@ -8,15 +8,6 @@ public abstract class XSmtTerm implements XTerm, SmtTerm {
 	
 	
 	/**
-	 * Converts the given String to an SMT friendly identifier name
-	 * @param name 
-	 * @return 
-	 */
-	public static String mangle(String name) {
-		return "?" + name.replaceAll("[\\.\\(\\):#\\s]", "_");
-	}
-
-	/**
 	 * In the Smt Constraint system we allow arbitrarily nested terms. 
 	 */
 	@Override
@@ -74,4 +65,19 @@ public abstract class XSmtTerm implements XTerm, SmtTerm {
         return this;
     }
     
+	@Override
+	public SmtType getType() {
+		return SmtType.USort();
+	}
+	
+	/**
+	 * Sets the type of the XSmtTerm. Not all XSmtTerms need to
+	 * implement this, this is why the default is empty. 
+	 * @param t
+	 */
+	public void setType(SmtType t) {}
+	
+	public abstract boolean equals(Object x);
+	public abstract String toString();
+	public abstract int hashCode();
 }

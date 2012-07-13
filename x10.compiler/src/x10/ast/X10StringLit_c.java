@@ -47,7 +47,7 @@ public class X10StringLit_c extends StringLit_c {
 		TypeSystem xts= (TypeSystem) tc.typeSystem();
 		Type Type = xts.String();
 
-		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(Type);
 		  try {
 		    	XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), tc.context());
 		    	c.addSelfBinding(term);

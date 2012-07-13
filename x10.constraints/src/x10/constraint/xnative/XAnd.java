@@ -24,7 +24,6 @@ import x10.constraint.xnative.XPromise;
 public class XAnd extends XNativeFormula<String> implements x10.constraint.XAnd {
     private static final long serialVersionUID = 6884928193006059913L;
     public static final String name = "&&&";
-    public static final String asExprName = "&&";
     
     public XAnd(XNativeTerm left, XNativeTerm right) {
     	super(name, asExprName, false, left, right);

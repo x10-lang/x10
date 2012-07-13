@@ -495,7 +495,7 @@ implements X10ParsedClassType
 	
 	public CConstraint getXClause() {
 		if (xClause == null) {
-			xClause = ConstraintManager.getConstraintSystem().makeCConstraint();
+			xClause = ConstraintManager.getConstraintSystem().makeCConstraint(null);
 			try {
 			xClause.setThisVar(Types.getThisVar(typeArguments()));
 			} catch (XFailure f) {
