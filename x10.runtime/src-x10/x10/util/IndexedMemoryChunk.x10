@@ -33,6 +33,10 @@ import x10.compiler.NativeRep;
 @NativeRep("c++", "x10::util::IndexedMemoryChunk<#T >", "x10::util::IndexedMemoryChunk<#T >", null)
 public struct IndexedMemoryChunk[T] {
 
+    @Native("java", "false")
+    @Native("c++", "x10aux::congruent_huge")
+    public static native def hugePages():Boolean;
+
     @Native("java", "null")
     @Native("c++", "null")
     private native def this(); // unused; prevent instantiaton outside of native code
