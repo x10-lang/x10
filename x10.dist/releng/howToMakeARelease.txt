@@ -3,14 +3,13 @@ Notes on how to make an X10 Release.
 A number of artifacts are produced as part of making an X10 release.
 The main artifacts are:
 
-   1. Binary releases of the PGAS runtime (hosted on codehaus) 
-      for each supported OS/hardware target.
-   2. A source release of X10.
-   3. A source release of the X10 test suite.
-   4. A source release of the X10 benchmarks.
-   5. Binary platform-dependent releases that contain both the Java 
+   1. A source release of X10.
+   2. A source release of the X10 test suite.
+   3. A source release of the X10 benchmarks.
+   4. Binary platform-dependent releases that contain both the Java 
       and C++ backend and runtimes for each supported OS/hardware target.
-   6. PDF of the X10 language specification
+   5. PDF of the X10 language specification
+   6. Binary version of the PGAS runtime for BG/P (hosted on codehaus)
 
 The following is the procedure used to make a release of X10.
 Before creating the release branch (typically the day before)
@@ -20,7 +19,7 @@ Before creating the release branch (typically the day before)
    2. Update the plugin manifest version in all MANIFEST.MF files in 
       X10 core projects
 
-   3. Copy the current set of PGAS binaries found in the svn head sub dir of
+   3. Copy the current BG/P PGAS binary found in the svn head sub dir of
       http://dist.codehaus.org/x10/binaryReleases/ to a new subdirectory
       named with the release number and change
       x10.runtime/src-cpp/x10rt/pgas/pgas.mk to pull from the release
@@ -105,7 +104,8 @@ one can build the actual release artifacts:
 
    9. Create a release page for the new release on the web site.  
       Update the "X10 Releases" page to link to the new download version.
-      Update the "latest release" menu item in Downloads-submenu to point to the new release page.
+      Update the "latest release" menu item in Downloads-submenu to point to 
+      the new release page.
 
    10. Post release announcement in SF news and web page front-page news.
 
