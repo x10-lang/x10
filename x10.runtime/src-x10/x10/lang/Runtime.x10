@@ -1003,6 +1003,8 @@ public final class Runtime {
             f = new FinishState.FinishSPMD(); break;
         case Pragma.FINISH_LOCAL:
             f = new FinishState.LocalFinish(); break;
+        case Pragma.FINISH_DENSE:
+            f = new FinishState.DenseFinish(); break;
         default: 
             f = new FinishState.Finish();
         }

@@ -555,6 +555,128 @@ abstract class FinishState {
         }
     }
 
+    static class DenseFinish extends FinishSkeleton implements CustomSerialization {
+        protected def this(root:RootFinish) {
+            super(root);
+        }
+        def this(latch:SimpleLatch) {
+            this(new RootFinish(latch));
+        }
+        def this() {
+            this(new RootFinish());
+        }
+        protected def this(ref:GlobalRef[FinishState]) {
+            super(ref);
+        }
+        private def this(data:SerialData) { 
+            super(data.data as GlobalRef[FinishState]);
+            if (ref.home.id == Runtime.hereInt()) {
+                me = (ref as GlobalRef[FinishState]{home==here})();
+            } else {
+                val _ref = ref;
+                me = Runtime.finishStates(ref, ()=>new DenseRemoteFinish(_ref));
+            }
+        }
+    }
+
+    static class DenseRemoteFinish extends RemoteFinishSkeleton {
+        protected var exceptions:Stack[Throwable];
+        @Embed protected transient var lock:Lock = @Embed new Lock();
+        protected var count:Int = 0;
+        protected var counts:IndexedMemoryChunk[Int];
+        protected var places:IndexedMemoryChunk[Int];
+        protected var length:Int = 1;
+        @Embed protected val local = @Embed new AtomicInteger(0);
+        def this(ref:GlobalRef[FinishState]) {
+            super(ref);
+        }
+        public def notifyActivityCreation():void {
+            local.getAndIncrement();
+        }
+        public def notifySubActivitySpawn(place:Place):void {
+            val id = Runtime.hereInt();
+            lock.lock();
+            if (place.id == id) {
+                count++;
+                lock.unlock();
+                return;
+            }
+            if (counts.length() == 0) {
+                counts = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
+                places = IndexedMemoryChunk.allocateZeroed[Int](Place.MAX_PLACES);
+                places(0) = id;
+            }
+            val old = counts(place.id);
+            counts(place.id)++;
+            if (old == 0 && id != place.id) {
+                places(length++) = place.id;
+            }
+            lock.unlock();
+        }
+        public def pushException(t:Throwable):void {
+            lock.lock();
+            if (null == exceptions) exceptions = new Stack[Throwable]();
+            exceptions.push(t);
+            lock.unlock();
+        }
+        public def notifyActivityTermination():void {
+            lock.lock();
+            count--;
+            if (local.decrementAndGet() > 0) {
+                lock.unlock();
+                return;
+            }
+            val t = MultipleExceptions.make(exceptions);
+            val ref = this.ref();
+            val closure:()=>void;
+            if (counts.length() != 0) {
+                counts(Runtime.hereInt()) = count;
+                if (2*length > Place.MAX_PLACES) {
+                    val message = IndexedMemoryChunk.allocateUninitialized[Int](counts.length());
+                    IndexedMemoryChunk.copy(counts, 0, message, 0, counts.length());
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    }
+                } else {
+                    val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](length);
+                    for (i in 0..(length-1)) {
+                        message(i) = Pair[Int,Int](places(i), counts(places(i)));
+                    }
+                    if (null != t) {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                    } else {
+                        closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                    }
+                }
+                counts.clear(0, counts.length());
+                length = 1;
+            } else {
+                val message = IndexedMemoryChunk.allocateUninitialized[Pair[Int,Int]](1);
+                message(0) = Pair[Int,Int](Runtime.hereInt(), count);
+                if (null != t) {
+                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message, t); };
+                } else {
+                    closure = ()=>@RemoteInvocation { deref[RootFinish](ref).notify(message); };
+                }
+            }
+            count = 0;
+            exceptions = null;
+            lock.unlock();
+            val h = Runtime.hereInt();
+            if ((Place.MAX_PLACES < 1024) || (h%32 == 0) || (h-h%32 == ref.home.id)) {
+                Runtime.x10rtSendMessage(ref.home.id, closure);
+            } else {
+                val clx = ()=>@RemoteInvocation { Runtime.x10rtSendMessage(ref.home.id, closure); };
+                Runtime.x10rtSendMessage(h-h%32, clx);
+                Runtime.dealloc(clx);
+            }
+            Runtime.dealloc(closure);
+//            Runtime.finishStates.remove(ref);
+        }
+    }
+
     static class StatefulReducer[T] {
         val reducer:Reducible[T];
         var result:T;

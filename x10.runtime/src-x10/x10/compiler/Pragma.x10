@@ -26,6 +26,10 @@ public interface Pragma(pragma:Int) extends StatementAnnotation {
     // a finish without remote asyncs
     public static FINISH_LOCAL = 4;
 
+    // a finish implementation for large place counts
+    // using two hops for finish update messages
+    public static FINISH_DENSE = 5;
+
     public static FINISH_ASYNC_AND_BACK = FINISH_HERE;
     public static FINISH_ATEACH_UNIQUE = FINISH_SPMD;
 }
