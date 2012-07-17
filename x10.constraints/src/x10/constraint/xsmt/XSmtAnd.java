@@ -15,10 +15,12 @@ public class XSmtAnd extends XSmtFormula<String> implements XAnd{
 	
 	public XSmtAnd(List<XSmtTerm> args) {
 		super(name, true, args);
+		assert args.size() > 0; 
 	}
 	
 	public XSmtAnd(XSmtTerm... terms) {
 		this(new ArrayList<XSmtTerm>(Arrays.asList(terms)));
+		assert terms.length > 0;
 	}
 		
 	@Override

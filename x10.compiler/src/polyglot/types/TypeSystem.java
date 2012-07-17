@@ -50,6 +50,7 @@ import x10.types.X10TypeEnv;
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 /**
  * The <code>TypeSystem</code> defines the types of the language and
@@ -962,6 +963,8 @@ public interface TypeSystem {
     XLit TRUE();
 
     XLit NEG_ONE();
+    
+    XConstrainedTerm FIRST_PLACE();
 
     XLit ZERO();
 

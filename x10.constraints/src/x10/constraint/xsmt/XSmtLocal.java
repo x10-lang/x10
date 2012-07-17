@@ -73,7 +73,7 @@ public class XSmtLocal<T> extends XSmtVar implements XLocal<T>, SmtVariable {
 	
 	public String toString() {
 		String s = name.toString();
-		// This could should not belong here.
+		// This should not belong here.
 		if (s.startsWith("self")) return "self";
 		if (s.startsWith("this")) return "this";
 		return s;

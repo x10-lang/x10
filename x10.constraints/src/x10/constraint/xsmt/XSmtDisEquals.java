@@ -17,13 +17,13 @@ public class XSmtDisEquals extends XSmtFormula<String> implements XDisEquals {
 		assert t1 != null && t2!= null;
 		// Because we cannot always know the type of CSelf we use
 		// equalities to infer the type of the self variables
-		SmtType type1 = t1.getType();
-		SmtType type2 = t2.getType(); 
-		if (type1 == SmtType.USort() && type2 != SmtType.USort())
-			t1.setType(type2);
-
-		if (type1 != SmtType.USort() && type2 == SmtType.USort())
-			t2.setType(type1);
+//		SmtType type1 = t1.getType();
+//		SmtType type2 = t2.getType(); 
+//		if (type1 == SmtType.USort() && type2 != SmtType.USort())
+//			t1.setType(type2);
+//
+//		if (type1 != SmtType.USort() && type2 == SmtType.USort())
+//			t2.setType(type1);
 	
 	}
 		
@@ -46,9 +46,9 @@ public class XSmtDisEquals extends XSmtFormula<String> implements XDisEquals {
 	public String toSmt2() {
 		StringBuilder sb = new StringBuilder();
 		sb.append("(not (= ");
-		sb.append(get(0));
+		sb.append(get(0).toSmt2());
 		sb.append(" ");
-		sb.append(get(1)); 
+		sb.append(get(1).toSmt2()); 
 		sb.append("))"); 
 
 		return sb.toString();

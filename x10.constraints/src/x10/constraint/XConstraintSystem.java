@@ -44,8 +44,8 @@ public interface XConstraintSystem {
      */
 	public XLit makeLit(Object o);
 	
-	public XFormula<Object> makeAtom(Object op, XTerm... terms);
-	public XFormula<Object> makeAtom(Object op, boolean isAtomicFormula, XTerm... terms);
+	public <T> XFormula<T> makeAtom(T op, XTerm... terms);
+	public <T> XFormula<T> makeAtom(T op, boolean isAtomicFormula, XTerm... terms);
 	
 	public XTerm makeEquals(XTerm left, XTerm right);
 	public XTerm makeDisEquals(XTerm left, XTerm right);

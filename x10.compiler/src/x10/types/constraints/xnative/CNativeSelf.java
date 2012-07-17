@@ -24,7 +24,7 @@ public class CNativeSelf extends XRoot implements CSelf {
     public static final String SELF_VAR_PREFIX="self";
     
     public final int num;
-    public final Type type; 
+    public Type type; 
     public CNativeSelf(int n, Type t) {this.num=n; this.type = t;}
     @Override
     public int hashCode() {return num;}
@@ -40,5 +40,9 @@ public class CNativeSelf extends XRoot implements CSelf {
     }
     @Override
     public String toString() {return SELF_VAR_PREFIX + (type != null ? "(:" + type + ")" : "");}
+	@Override
+	public void setType(Type t) {
+		this.type = t; 
+	}
 
 }

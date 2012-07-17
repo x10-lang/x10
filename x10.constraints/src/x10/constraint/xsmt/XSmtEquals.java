@@ -17,13 +17,18 @@ public class XSmtEquals extends XSmtFormula<String> implements XEquals {
 		assert t1 != null && t2!= null;
 		// Because we cannot always know the type of CSelf we use
 		// equalities to infer the type of the self variables
-		SmtType type1 = t1.getType();
-		SmtType type2 = t2.getType(); 
-		if (type1 == SmtType.USort() && type2 != SmtType.USort())
-			t1.setType(type2);
-
-		if (type1 != SmtType.USort() && type2 == SmtType.USort())
-			t2.setType(type1);
+//		SmtType type1 = t1.getType();
+//		SmtType type2 = t2.getType(); 
+//
+//		if ((type1 == SmtType.USort() || type1 == null) && type2 != SmtType.USort())
+//			t1.setType(type2);
+//
+//		if (type1 != SmtType.USort() && (type2 == SmtType.USort() || type2 == null))
+//			t2.setType(type1);
+//		
+//		if (t1.getType() != t2.getType()) {
+//			throw new UnsupportedOperationException("Cannot compare terms of different types: " + t1.getType() +" and " + t2.getType()); 
+//		} 
 	}
 		
 	@Override

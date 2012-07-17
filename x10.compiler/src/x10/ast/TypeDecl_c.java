@@ -246,12 +246,13 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    final Formal f2 = f;
 		    // lshadare this leads to an infinite cycle, but we should be able to get
 		    // the baseType here without getting into a cycle
-		    //Type baseType = Types.baseType(f.type().type());
+		    
 		    final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint(null));
 		    ConstrainedType t = ConstrainedType.xclause(f.type().typeRef(), cref);
 		    cref.setResolver(new Runnable() {
 		        public void run() {
-		            CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(null);
+		        	Type baseType = Types.baseType(f2.type().type());
+		        	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType);
 		            c.addSelfBinding(ts.xtypeTranslator().translate(f2.localDef().asInstance()));
 		            cref.update(c);
 		        }

@@ -589,6 +589,9 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		            return new ConstrainedType(ts, tx.position(), tx.position(), t, c);
 		        }
 		        else {
+   			        oldc.setBaseType(Types.baseType(tx));
+   			        newc.setBaseType(Types.baseType(tx));
+
 		            newc = newc.copy();
 		            newc.addIn(oldc); //  may become inconsistent
 		            return new ConstrainedType(ts, tx.position(), tx.position(),

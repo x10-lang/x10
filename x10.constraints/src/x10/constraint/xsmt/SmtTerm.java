@@ -14,4 +14,7 @@ public interface SmtTerm {
 	
 	public String toSmt2(); 
 	
+	public int hashCode(); 
+	
+	public boolean equals(Object obj);
 }

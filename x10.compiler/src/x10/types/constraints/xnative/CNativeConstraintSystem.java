@@ -46,6 +46,10 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
     public CField makeField(XVar var, FieldDef mi) {
     	return new CNativeField(var, mi);
     }
+    @Override
+    public CField makeFakeField(XVar receiver, FieldDef field) {
+    	return new CNativeField(receiver, field);
+    }
     public CLocal makeLocal(X10LocalDef ld) {
     	return new CNativeLocal(ld);
     }

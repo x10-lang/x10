@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
+import java.lang.reflect.UndeclaredThrowableException;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -153,10 +154,9 @@ public class SmtSolver {
 			System.out.println("Exited with error code "+ exitVal + "\n" + output);
 			throw new IOException("SmtSolver Error");
 		}
-		// FIXME: handle this properly 
 		catch (Exception e) {
-			System.out.println(e); // UndeclaredThrowableException
-			throw new IllegalStateException(e); 
+			System.out.println(e); 
+			throw new UndeclaredThrowableException(e); 
 		}
 	}
 	

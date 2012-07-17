@@ -246,14 +246,6 @@ public class PlaceChecker {
 			c.addBinding(here(), placeTerm.term());
 	}
 
-	// CONSTRAINT_QUESION!
-	static XConstrainedTerm firstPlace = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV("FIRST_PLACE"), (Type)null);
-	
-	public static XConstrainedTerm firstPlace(TypeSystem xts) {
-		return firstPlace;
-	}
-
-
 	public static void setHereTerm(MethodDef md, Context c) {
 	    c = c.pushBlock();
 	    if (isGlobalCode(md)) {
@@ -266,7 +258,7 @@ public class PlaceChecker {
 	public static void setHereTerm(FieldDef fd, Context c) {
 		Flags flags = fd.flags();
 		if (flags.isStatic()) {
-			c.setPlace(firstPlace(fd.typeSystem()));
+			c.setPlace(fd.typeSystem().FIRST_PLACE());
 			return;
 		}
 		if (Types.isX10Struct(fd.container().get())) {

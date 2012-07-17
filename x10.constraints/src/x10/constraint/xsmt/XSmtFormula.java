@@ -3,6 +3,7 @@ package x10.constraint.xsmt;
 import java.util.ArrayList;
 import java.util.List;
 
+import x10.constraint.XConstraintManager;
 import x10.constraint.XFormula;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -12,12 +13,13 @@ public class XSmtFormula<T> extends XSmtTerm implements XFormula<T>, SmtExpr {
 	private static final long serialVersionUID = -1776737061201213218L;
 
 	private final List<XSmtTerm> children; 
-	public final T op; 
+	protected final T op; 
 	private final boolean atomic;
 
 	public XSmtFormula(T op, boolean atomic, XTerm... children) {
 		this.children =  new ArrayList<XSmtTerm>(children.length);
 		for (XTerm child : children) {
+			assert child != null; 
 			this.children.add((XSmtTerm)child); 
 		}
 		this.op = op; 
@@ -26,6 +28,9 @@ public class XSmtFormula<T> extends XSmtTerm implements XFormula<T>, SmtExpr {
 
 	
 	public XSmtFormula(T op, boolean atomic, List<XSmtTerm> children) {
+		for (XTerm ch : children)
+			assert ch!= null; 
+		
 		this.children = children; 
 		this.op = op; 
 		this.atomic = atomic; 
@@ -33,11 +38,14 @@ public class XSmtFormula<T> extends XSmtTerm implements XFormula<T>, SmtExpr {
 	
 	@Override
 	public XSmtTerm subst(XTerm y, XVar x) {
-		List<XSmtTerm> new_children = new ArrayList<XSmtTerm>(children.size());
-		for (XSmtTerm child : children) {
-			new_children.add(child.subst(y,x)); 
+		assert x != null; 
+		
+		XSmtTerm[] new_children = new XSmtTerm[children.size()];
+		for (int i = 0; i < children.size(); ++i ) {
+			XSmtTerm child = children.get(i);
+			new_children[i] = child.subst(y,x); 
 		}
-		return new XSmtFormula<T>(op, atomic, new_children);
+		return (XSmtTerm)XConstraintManager.getConstraintSystem().makeAtom(op, atomic, new_children);
 	}
 
 	@Override
@@ -60,7 +68,7 @@ public class XSmtFormula<T> extends XSmtTerm implements XFormula<T>, SmtExpr {
 		boolean changed = false; 
 		List<XSmtTerm> new_children = new ArrayList<XSmtTerm>(children.size());
 		for (XSmtTerm child : children) {
-			XSmtTerm new_child = (XSmtTerm) visitor.visit(child); 
+			XSmtTerm new_child = child.accept(visitor);
 			new_children.add(new_child); 
 			changed |= new_child != child; 
 		}

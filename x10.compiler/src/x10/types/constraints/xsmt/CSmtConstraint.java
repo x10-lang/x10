@@ -459,8 +459,9 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 
 	@Override
 	public void setBaseType(Type t) {
-		if (baseType != null && t != baseType)
-			throw new UnsupportedOperationException("The baseType has already been set.");
 		this.baseType = t; 
+		if (self instanceof CSelf) 
+			((CSelf)self).setType(t);
+
 	}
 }

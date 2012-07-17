@@ -2,6 +2,7 @@ package x10.types.constraints.xsmt;
 
 import java.util.List;
 
+import polyglot.ast.Field;
 import polyglot.ast.IntLit;
 import polyglot.ast.IntLit.Kind;
 import polyglot.types.FieldDef;
@@ -66,6 +67,12 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem implements CConst
 		return new CSmtField(var, mi);
 	}
 
+	@Override 
+	public CField makeFakeField(XVar receiver, FieldDef field) {
+		return new CSmtField(receiver, (FieldDef) field, true);
+	}
+	
+	
 	@Override
 	public CLocal makeLocal(X10LocalDef ld) {
 		return new CSmtLocal(ld);
@@ -162,5 +169,6 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem implements CConst
 			List<XTerm> args) {
 		throw new UnsupportedOperationException("unimplemented yet");
 	}
+	
 
 }

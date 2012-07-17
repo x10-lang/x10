@@ -67,7 +67,7 @@ public class XSmtLit<T> extends XSmtVar implements XLit, SmtConstant<T> {
 	@Override
 	public String toSmt2() {
 		if (value == null)
-			return "null";
+			return SmtUtil.mangle("null");
 		
 		return value.toString(); 
 	}

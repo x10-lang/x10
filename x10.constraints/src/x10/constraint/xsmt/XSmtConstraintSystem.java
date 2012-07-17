@@ -52,10 +52,6 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 		return new XSmtUQV(prefix, idCount++);
 	}
 
-	public <T> XField<T> makeField(XVar receiver, T field) {
-		return new XSmtField<T>((XSmtVar)receiver, field);
-	}
-
 	public XField<Object> makeFakeField(XVar receiver, Object field) {
 		return new XSmtField<Object>((XSmtVar)receiver, field, true);
 	}
@@ -64,12 +60,34 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 		return new XSmtLit<Object>(o); 
 	}
 
-	public XFormula<Object> makeAtom(Object op, boolean isAtomicFormula, XTerm... terms) {
+
+	public <T> XFormula<T> makeAtom(T op, boolean isAtomicFormula, XTerm... terms) {
 		List<XSmtTerm> args = new ArrayList<XSmtTerm>(); 
 		for (XTerm t: terms) 
 			args.add((XSmtTerm)t); 
-		
-		return new XSmtFormula<Object>(op, isAtomicFormula, args);
+
+		if (op instanceof String) {
+			String str_op = (String)op; 
+			if (str_op.equals("==")) {
+				assert terms.length == 2; 
+				return (XFormula<T>) new XSmtEquals((XSmtTerm)terms[0], (XSmtTerm)terms[1]);
+			}
+
+			if (str_op.equals("&&")) {
+				return (XFormula<T>)new XSmtAnd((XSmtTerm[])terms);
+			}
+
+			if (str_op.equals("!")) {
+				assert terms.length == 1; 
+				return (XFormula<T>)new XSmtNot((XSmtTerm)terms[0]);
+			}
+			if (str_op.equals("!=")) {
+				assert terms.length == 2; 
+				return (XFormula<T>)new XSmtDisEquals((XSmtTerm)terms[0], (XSmtTerm)terms[1]);
+			}
+
+		}
+		return new XSmtFormula<T>(op, isAtomicFormula, args);
 	}
 
 	public XSmtTerm makeEquals(XTerm left, XTerm right) {
@@ -89,7 +107,7 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 	}
 
 	public XFormula<Object> makeAtom(Object op, XTerm... terms) {
-		return new XSmtFormula<Object>(op, true, terms);
+		return makeAtom(op, true, terms);
 	}
 
 	public <T> XLocal<T> makeLocal(T name) {
@@ -105,10 +123,12 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 	 */
 
 	public XSmtTerm makeAnd(List<XSmtTerm> conjuncts) {
+		assert conjuncts.size() > 0; 
 		return new XSmtAnd(conjuncts);
 	}
 
 	public XSmtTerm makeAnd(XSmtTerm... conjuncts) {
+		assert conjuncts.length > 0; 
 		return new XSmtAnd(conjuncts);
 	}
 	
@@ -121,6 +141,7 @@ public class XSmtConstraintSystem implements XConstraintSystem {
 	}
 	
 	public XSmtTerm makeOr(XSmtTerm... disjuncts) {
+		assert disjuncts.length > 0; 
 		return new XSmtFormula<String>("||", true, disjuncts);
 	}
 	

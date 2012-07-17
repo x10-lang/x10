@@ -17,5 +17,5 @@ import x10.constraint.XVar;
  *
  */
 public interface CSelf extends XVar {
-
+	public void setType(Type t);
 }

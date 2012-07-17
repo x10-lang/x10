@@ -786,7 +786,8 @@ public class XTypeTranslator {
                 //throw new SemanticException("Cannot refer to self outside a dependent clause.");
                 return null;
             }
-            XVar v = (XVar) c.self().clone();
+            // lshadare why do we need to clone this?
+            XVar v = c.self();
          // Need to deal with qualified guy as well.
             TypeNode tn = t.qualifier();
             if (tn != null) {
@@ -833,7 +834,8 @@ public class XTypeTranslator {
                 //throw new SemanticException("Cannot refer to self outside a dependent clause.");
                 return null;
             }
-            XVar v = (XVar) c.self().clone();
+            // lshadare why did we need to clone self?
+            XVar v = c.self();
             // Need to deal with qualified guy as well.
             TypeNode tn = t.qualifier();
             if (tn != null) {

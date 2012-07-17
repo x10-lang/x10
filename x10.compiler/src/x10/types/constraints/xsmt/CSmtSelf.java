@@ -1,5 +1,6 @@
 package x10.types.constraints.xsmt;
 
+import polyglot.ast.Typed;
 import polyglot.types.Type;
 import x10.constraint.XVar;
 import x10.constraint.xsmt.SmtType;
@@ -9,7 +10,7 @@ import x10.constraint.xsmt.SmtVariable;
 import x10.constraint.xsmt.XSmtVar;
 import x10.types.constraints.CSelf;
 
-public class CSmtSelf extends XSmtVar implements CSelf, SmtVariable {
+public class CSmtSelf extends XSmtVar implements CSelf, SmtVariable, Typed {
 	private static final long serialVersionUID = -3619764732722758L;
 	private String smtName; 
 	private SmtType smtType; 
@@ -20,9 +21,14 @@ public class CSmtSelf extends XSmtVar implements CSelf, SmtVariable {
 	
     public static final String SELF_VAR_PREFIX="self";
     
-    public final int num;
-    public final Type type; 
-    public CSmtSelf(int n, Type t) {this.num=n; smtName = null; smtType = null; this.type = t; }
+    private final int num;
+    private Type type; 
+    public CSmtSelf(int n, Type t) {
+    	this.num=n; 
+    	smtName = null; 
+    	smtType = null; 
+    	this.type = t;
+    }
     @Override
     public int hashCode() {return num;}
     @Override
@@ -34,12 +40,12 @@ public class CSmtSelf extends XSmtVar implements CSelf, SmtVariable {
         return false;
     }
     @Override
-    public String toString() {return SELF_VAR_PREFIX;}
+    public String toString() {return SELF_VAR_PREFIX + type == null? "" : type.toString();}
 
     @Override
 	public String getName() {
     	if (smtName == null)
-    		smtName = SmtUtil.mangle(toString()+num);
+    		smtName = SmtUtil.mangle(SELF_VAR_PREFIX + num);
 		return smtName;  
 	}
 	@Override
@@ -50,11 +56,26 @@ public class CSmtSelf extends XSmtVar implements CSelf, SmtVariable {
 	@Override
 	public SmtType getType() {
 		if (smtType == null)
-			return smtType = CSmtUtil.toSmtType(type);
+			smtType = CSmtUtil.toSmtType(type());
 		return smtType; 
 	}
 
 	public void setType(SmtType t) {
 		smtType = t; 
+	}
+	
+	public void setType(Type t) {
+		if (t != type) {
+			type = t;
+			// the cached smtType will need to be recomputed 
+			smtType = null;
+		}
+	}
+	
+	@Override
+	public Type type() {
+		if (type == null) 
+			throw new UnsupportedOperationException("CSelf Type is null");
+		return type; 
 	}
 }

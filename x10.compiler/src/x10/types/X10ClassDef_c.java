@@ -173,10 +173,12 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     Ref<CConstraint> realClauseWithThis = setRealClauseWithThis();
     
     private Ref<CConstraint> setRealClauseWithThis() {
-    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(null));
+    	// 
+      	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(null));
         final Runnable runnable = new Runnable() {
             public void run() {
                 CConstraint c = X10ClassDef_c.this.realClause.get();
+                c.setBaseType(Types.baseType(asType()));
                 c = c.instantiateSelf(thisVar());
                 ref.update(c);
             }
@@ -207,7 +209,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				return;
     		    }
     		    computing = true;
-    		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(null);
+    		    Type selfType = Types.baseType(asType());
+    		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(selfType);
     		    try {
     			    List<X10FieldDef> properties = properties();
     			    XVar oldThis = thisVar(); // xts.xtypeTranslator().translateThisWithoutTypeConstraint();

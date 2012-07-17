@@ -114,6 +114,9 @@ public class XSmtConstraint implements XConstraint {
 		if (other == null)
 			return true; 
 		
+		if (formula.isEmpty())
+			return other.valid(); 
+		
 		XSmtTerm a = cm.makeAnd(formula); 
 		XSmtTerm b = cm.makeAnd(((XSmtConstraint)other).constraints());
 		XSmtTerm entailment = cm.makeImpl(a, b);
@@ -122,6 +125,10 @@ public class XSmtConstraint implements XConstraint {
 
 	@Override
 	public boolean entails(XTerm term) {
+		if (formula.isEmpty()) {
+			return solver.valid((SmtTerm)term);
+		}
+
 		XSmtTerm a = cm.makeAnd(formula); 
 		XSmtTerm entailment = cm.makeImpl(a, term);
 		return solver.valid(entailment);
@@ -129,16 +136,23 @@ public class XSmtConstraint implements XConstraint {
 
 	@Override
 	public boolean disEntails(XTerm left, XTerm right) {
-		XSmtTerm a = cm.makeAnd(formula); 
 		XSmtTerm b = cm.makeNot(cm.makeEquals(left, right));
+		if (formula.isEmpty())
+			return solver.valid((SmtTerm)b); 
+		
+		XSmtTerm a = cm.makeAnd(formula); 
 		XSmtTerm entailment = cm.makeImpl(a, b);
 		return solver.valid(entailment);
 	}
 
 	@Override
 	public boolean entails(XTerm left, XTerm right) {
-		XSmtTerm a = cm.makeAnd(formula); 
 		XSmtTerm b = cm.makeEquals(left, right);
+		
+		if (formula.isEmpty())
+			return solver.valid((SmtTerm)b); 
+
+		XSmtTerm a = cm.makeAnd(formula); 
 		XSmtTerm entailment = cm.makeImpl(a, b);
 		return solver.valid(entailment);
 	}

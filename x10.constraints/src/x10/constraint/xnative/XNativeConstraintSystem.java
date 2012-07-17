@@ -90,7 +90,7 @@ public class XNativeConstraintSystem implements XConstraintSystem {
     with operator op and terms terms. Uses varargs.
 	 */
 	@Override
-	public XFormula<Object> makeAtom(Object op, XTerm... terms) {
+	public<T> XFormula<T> makeAtom(T op, XTerm... terms) {
 		return makeAtom(op, true, terms);
 	}
 
@@ -153,10 +153,10 @@ public class XNativeConstraintSystem implements XConstraintSystem {
     (a function application term).
 	 */
 
-	public XFormula<Object> makeAtom(Object op, boolean isAtomicFormula, XTerm... terms) {
+	public <T> XFormula<T> makeAtom(T op, boolean isAtomicFormula, XTerm... terms) {
 		assert op != null;
 		assert terms != null;
-		XNativeFormula<Object> f = new XNativeFormula<Object>(op, op, isAtomicFormula, terms);
+		XNativeFormula<T> f = new XNativeFormula<T>(op, op, isAtomicFormula, terms);
 		return f;
 	}
 	

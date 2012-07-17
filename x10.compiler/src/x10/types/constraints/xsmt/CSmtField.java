@@ -7,10 +7,12 @@ import polyglot.types.MethodDef;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.constraint.xsmt.SmtTerm;
 import x10.constraint.xsmt.SmtType;
 import x10.constraint.xsmt.XSmtField;
+import x10.constraint.xsmt.XSmtTerm;
 import x10.constraint.xsmt.XSmtVar;
 import x10.types.X10ClassDef;
 import x10.types.X10FieldDef;
@@ -48,6 +50,22 @@ public class CSmtField extends XSmtField<Def> implements CField, Typed{
         return field instanceof MethodDef ? new CSmtField((XSmtVar)newReceiver, (MethodDef) field)
         : new CSmtField((XSmtVar)newReceiver, (FieldDef) field);
     }
+    
+	@Override
+	public CSmtField subst(XTerm x, XVar v) {
+		XSmtTerm newReceiver = receiver.subst(x, v);
+		if (receiver != newReceiver) {
+			if (field instanceof MethodDef)
+				return new CSmtField((XSmtVar)newReceiver, (MethodDef)field);
+			if (field instanceof FieldDef)
+				return new CSmtField((XSmtVar)newReceiver, (FieldDef)field);
+			
+			throw new UnsupportedOperationException("Field should be either a MethodDef or a FieldDef");
+		}
+			
+		return this; 
+	}
+    
 
     /**
      * Return the Def associated with this field.
@@ -77,7 +95,7 @@ public class CSmtField extends XSmtField<Def> implements CField, Typed{
     
     @Override
     public SmtType getType() {
-    	SmtType type = get(1).getType(); 
+    	SmtType type = get(0).getType(); 
     	return type.get(type.arity());
     }
     

@@ -183,7 +183,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 				offerType == null ? null : offerType.typeRef());
 
 		mi.setThisDef(ct.thisDef());
-		mi.setPlaceTerm(PlaceChecker.methodPlaceTerm(mi));
+		mi.setPlaceTerm(PlaceChecker.methodPlaceTerm(mi)); 
 		return mi;
 	}
 

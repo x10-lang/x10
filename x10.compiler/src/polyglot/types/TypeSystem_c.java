@@ -80,6 +80,7 @@ import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.XConstrainedTerm;
 
 import x10.types.matcher.*;
 import x10.util.ClosureSynthesizer;
@@ -3820,6 +3821,14 @@ public class TypeSystem_c implements TypeSystem
         return NEG_ONE;
     }
 
+    protected XConstrainedTerm FIRST_PLACE;
+    
+    public XConstrainedTerm FIRST_PLACE() {
+    	if (FIRST_PLACE == null)
+    		FIRST_PLACE = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV("FIRST_PLACE"), Place());
+    	return FIRST_PLACE;
+    }
+    
     protected XLit ZERO;
 
     public XLit ZERO() {

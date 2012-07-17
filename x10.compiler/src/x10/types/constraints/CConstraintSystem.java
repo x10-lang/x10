@@ -2,10 +2,12 @@ package x10.types.constraints;
 
 import java.util.List;
 
+import polyglot.ast.Field;
 import polyglot.ast.IntLit;
 import polyglot.types.FieldDef;
 import polyglot.types.LocalDef;
 import polyglot.types.MethodDef;
+import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraintSystem;
 import x10.constraint.XLit;
@@ -27,6 +29,7 @@ public interface CConstraintSystem extends XConstraintSystem {
     public XVar makeQualifiedVar(Type qualifier, XVar var); 
     public CField makeField(XVar var, MethodDef mi); 
     public CField makeField(XVar var, FieldDef mi); 
+    public CField makeFakeField(XVar receiver, FieldDef field);
     public CLocal makeLocal(X10LocalDef ld); 
     public CLocal makeLocal(X10LocalDef ld, String s); 
  
@@ -41,6 +44,7 @@ public interface CConstraintSystem extends XConstraintSystem {
     public XTypeLit makeTypeLit(Type type);
     
     public IntLit.Kind getIntLitKind(Type type);
+    //public CConstraint makeCConstraint( typeRef);
     public CConstraint makeCConstraint(Type type); 
     public CConstraint makeCConstraint(XVar self, Type type); 
     
