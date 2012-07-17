@@ -230,6 +230,7 @@ public class StaticInitializer extends ContextVisitor {
             MethodDecl md = null; 
             if (fieldInfo.right != null) {
                 FieldDecl fdPLH = null;
+                // TODO (to be removed) for collocated multi-place
 //                if (!opts.x10_config.MULTI_NODE) {
 //                    // create PlaceLocalHandle for SingleVM MultiPlace support
 //                    fdPLH = makeFieldVar4PLH(CG, fName, classDef);
@@ -463,6 +464,7 @@ public class StaticInitializer extends ContextVisitor {
                                 return n;
                             }
                         }
+                        // TODO (to be removed) for collocated multi-place
 //                        else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
 //                            found.set(true);
 //                        }
@@ -495,19 +497,20 @@ public class StaticInitializer extends ContextVisitor {
         return fieldInfo;
     }
 
-    private boolean checkMultiplexRequiredSingleVM(X10ConstructorInstance ci) {
-        X10ConstructorDef cd = ci.x10Def();
-        X10ClassType containerBase = (X10ClassType) Types.get(cd.container());
-        X10ClassDef container = containerBase.x10Def();
-        if (container == null)
-            return false;
-        String containerName = container.toString();
-        if (containerName.startsWith("x10.io"))
-            return false;
-        if (containerName.equals("x10.lang.PlaceLocalHandle") || containerName.endsWith("x10.lang.Place"))
-            return false;
-        return true;
-    }
+    // TODO (to be removed) for collocated multi-place
+//    private boolean checkMultiplexRequiredSingleVM(X10ConstructorInstance ci) {
+//        X10ConstructorDef cd = ci.x10Def();
+//        X10ClassType containerBase = (X10ClassType) Types.get(cd.container());
+//        X10ClassDef container = containerBase.x10Def();
+//        if (container == null)
+//            return false;
+//        String containerName = container.toString();
+//        if (containerName.startsWith("x10.io"))
+//            return false;
+//        if (containerName.equals("x10.lang.PlaceLocalHandle") || containerName.endsWith("x10.lang.Place"))
+//            return false;
+//        return true;
+//    }
 
     private X10ConstructorDecl getConstructorDeclaration(X10ConstructorInstance ci) {
         X10ConstructorDef cd = ci.x10Def();
@@ -659,6 +662,7 @@ public class StaticInitializer extends ContextVisitor {
                             found.set(true);
                             return n;
                         }
+                        // TODO (to be removed) for collocated multi-place
 //                        else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
 //                            found.set(true);
 //                        }
@@ -708,21 +712,22 @@ public class StaticInitializer extends ContextVisitor {
         return md;
     }
 
-    private FieldDecl makeFieldVar4PLH(Position pos, Name fName, X10ClassDef classDef) {
-        // make FieldDef of PlaceLocalHandle
-        ClassType type = PlaceLocalHandle();
-        Flags flags = Flags.PRIVATE.Static();
-
-        Name name = Name.make("plh$"+fName);
-        FieldDef fd = xts.fieldDef(pos, Types.ref(classDef.asType()), flags, Types.ref(type), name); 
-        FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fd));
-
-        // create the field declaration node
-        TypeNode tn = xnf.X10CanonicalTypeNode(pos, type);
-        FieldDecl result = xnf.FieldDecl(pos, xnf.FlagsNode(pos, flags), tn, xnf.Id(pos, name));
-        result = result.fieldDef(fd);
-        return result;
-    }
+    // TODO (to be removed) for collocated multi-place
+//    private FieldDecl makeFieldVar4PLH(Position pos, Name fName, X10ClassDef classDef) {
+//        // make FieldDef of PlaceLocalHandle
+//        ClassType type = PlaceLocalHandle();
+//        Flags flags = Flags.PRIVATE.Static();
+//
+//        Name name = Name.make("plh$"+fName);
+//        FieldDef fd = xts.fieldDef(pos, Types.ref(classDef.asType()), flags, Types.ref(type), name); 
+//        FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fd));
+//
+//        // create the field declaration node
+//        TypeNode tn = xnf.X10CanonicalTypeNode(pos, type);
+//        FieldDecl result = xnf.FieldDecl(pos, xnf.FlagsNode(pos, flags), tn, xnf.Id(pos, name));
+//        result = result.fieldDef(fd);
+//        return result;
+//    }
 
     private FieldDecl makeFieldVar4Guard(Position pos, Name fName, X10ClassDef classDef) {
         // make FieldDef of AtomicInteger
@@ -1473,6 +1478,9 @@ public class StaticInitializer extends ContextVisitor {
         return false;
     }
 
+    private static boolean isSafeCast(Cast c, Context context) {
+        return c.expr().type().isSubtype(c.castType().type(), context);
+    }
     /**
      * from x10cpp.visit.ASTQuery
      */
@@ -1483,7 +1491,7 @@ public class StaticInitializer extends ContextVisitor {
         // N.B. Process safe cast as constant  
         if (e instanceof Cast) {
             Cast c = (Cast) e;
-            return isConstantExpression(c.expr()) && c.expr().type().isSubtype(c.castType().type(), context);
+            return isConstantExpression(c.expr()) && isSafeCast(c, context);
         }
         if (!e.isConstant())
             return false;
