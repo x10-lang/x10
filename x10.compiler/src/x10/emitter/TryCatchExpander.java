@@ -213,7 +213,9 @@ public class TryCatchExpander extends Expander {
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        , "java.lang.Exception"
     ));
-    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError", "java.lang.AssertionError"
+    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError"
+        // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError
+//        , "java.lang.AssertionError"
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        , "java.lang.Error"
     ));
