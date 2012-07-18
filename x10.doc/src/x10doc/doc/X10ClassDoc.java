@@ -861,7 +861,7 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 			System.out.println("ClassDoc.name() called for "+classDef.name());
 		String contClassName = 
 			((containingClass == null) ? "" : (containingClass.name() + "."));
-		return (contClassName + classDef.name().toString());
+		return (contClassName + (classDef.isAnonymous() ? "<anonymous class>" : classDef.name().toString()));
 		// return (contClassName + classDef.name().toString() + 
 		// 		classDef.classInvariant().get() + classDef.typeBounds().get());		
 	}

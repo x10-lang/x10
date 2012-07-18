@@ -121,7 +121,7 @@ public abstract class PlaceGroup implements Sequence[Place] {
     public def numPlaces() = numPlaces;
     public def contains(id:int) = id >= 0 && id < numPlaces;
     public def indexOf(id:int) = contains(id) ? id : -1;
-    public def iterator() = new Iterator[Place](){
+    public def iterator():Iterator[Place]{self!=null} = new Iterator[Place](){
       private var i:Int = 0;
       public def hasNext() = i < numPlaces;
       public def next() = Place(i++);

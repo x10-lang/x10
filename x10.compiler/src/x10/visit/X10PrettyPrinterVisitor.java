@@ -4086,6 +4086,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(Assert_c n) {
+        if (!tr.job().extensionInfo().getOptions().assertions)
+            return;
+
         n.translate(w, tr);
     }
 

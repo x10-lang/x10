@@ -129,4 +129,14 @@ public class X10Throwable extends x10.core.Throwable implements RefI {
         return t;
     }
 
+    @Override
+    public X10Throwable fillInStackTrace() {
+        return (X10Throwable) super.fillInStackTrace();
+    }
+
+    @Override
+    public X10Throwable getCause() {
+        return (X10Throwable) super.getCause();
+    }
+
 }
