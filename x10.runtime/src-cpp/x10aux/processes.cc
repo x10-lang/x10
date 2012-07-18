@@ -10,7 +10,7 @@
  */
 
 #include <x10aux/processes.h>
-#include <x10/lang/RuntimeException.h>
+#include <x10/io/IOException.h>
 #include <x10/io/Reader.h>
 #include <x10/io/Writer.h>
 #include <x10/io/FileReader__FileInputStream.h>
@@ -27,7 +27,7 @@ x10aux::ref<x10::io::Reader> x10aux::processes::execForRead(const char *command)
 #ifndef NO_EXCEPTIONS
     if (inFd == NULL) {
         x10aux::ref<x10::lang::String> s = x10aux::string_utils::lit("execForRead: ") + x10aux::string_utils::lit(command);
-        throwException(x10::lang::RuntimeException::_make(s));
+        throwException(x10::io::IOException::_make(s));
     }
 #endif
     x10aux::ref<x10::io::InputStreamReader__InputStream> in_ = new (x10aux::alloc<x10::io::FileReader__FileInputStream>()) x10::io::FileReader__FileInputStream(inFd);
@@ -40,7 +40,7 @@ x10aux::ref<x10::io::Writer> x10aux::processes::execForWrite(const char *command
 #ifndef NO_EXCEPTIONS
     if (outFd == NULL) {
         x10aux::ref<x10::lang::String> s = x10aux::string_utils::lit("execForWrite: ") + x10aux::string_utils::lit(command);
-        throwException(x10::lang::RuntimeException::_make(s));
+        throwException(x10::io::IOException::_make(s));
     }
 #endif
     x10aux::ref<x10::io::OutputStreamWriter__OutputStream> out_ = new (x10aux::alloc<x10::io::FileWriter__FileOutputStream>()) x10::io::FileWriter__FileOutputStream(outFd);
