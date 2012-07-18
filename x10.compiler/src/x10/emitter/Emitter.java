@@ -3996,7 +3996,7 @@ public class Emitter {
             w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + X10PrettyPrinterVisitor.SERIAL_DATA +  " " + fieldName + ") {");
             w.newline(4);
             w.begin(0);
-            w.writeln("throw new x10.lang.RuntimeException(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
+            w.writeln("throw new x10.lang.Error(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
             w.end();
             w.newline();
             w.writeln("}");
