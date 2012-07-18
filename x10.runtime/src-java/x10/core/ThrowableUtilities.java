@@ -128,10 +128,11 @@ public abstract class ThrowableUtilities {
             x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
             x10Errors.put(javaClass, x10Class);
 
-            javaClass = java.lang.AssertionError.class;
-            x10Name = "x10.lang.AssertionError";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10Errors.put(javaClass, x10Class);
+            // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError
+//            javaClass = java.lang.AssertionError.class;
+//            x10Name = "x10.lang.AssertionError";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10Errors.put(javaClass, x10Class);
 
 	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //            javaClass = java.lang.Error.class;
