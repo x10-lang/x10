@@ -4106,7 +4106,10 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.write("throw new x10.lang.AssertionError(");
 
             if (errorMessage != null) {
+                w.write("(");
                 tr.print(n, errorMessage, w);
+                w.write(")");
+                w.write(".toString()");
             }
 
             w.write(");");
