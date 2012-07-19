@@ -995,7 +995,7 @@ public interface TypeSystem {
      * @param baseType
      * @return
      */
-    ThisDef thisDef(Position pos, Ref<? extends ClassType> qType, Ref<? extends ClassType> baseType);
+    //ThisDef thisDef(Position pos, Ref<? extends ClassType> qType, Ref<? extends ClassType> baseType);
 
     /**
      * Create a closure instance.

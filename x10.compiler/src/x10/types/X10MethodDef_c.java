@@ -44,6 +44,7 @@ import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.constraint.redesign.XType;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -271,5 +272,9 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 		    s += " = " + body;
 
 		return s;
+	}
+	@Override
+	public XType resultType() {
+		return returnType().get(); 
 	}
 }

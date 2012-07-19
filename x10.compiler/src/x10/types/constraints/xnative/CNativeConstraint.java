@@ -700,9 +700,6 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
 
 	@Override
 	public void setBaseType(Type t) {
-		// comparing references because equals for Type is not implemented
-		if (baseType != null && baseType != t)
-			throw new UnsupportedOperationException("The type is already set.");
 		baseType = t; 
 	}
     

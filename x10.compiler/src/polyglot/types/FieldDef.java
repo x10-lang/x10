@@ -7,10 +7,12 @@
 
 package polyglot.types;
 
+import x10.constraint.redesign.XDef;
+
 /**
  * A <code>FieldInstance</code> contains type information for a field.
  */
-public interface FieldDef extends VarDef, MemberDef
+public interface FieldDef extends VarDef, MemberDef, XDef
 {
     FieldInstance asInstance();
     

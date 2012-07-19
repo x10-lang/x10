@@ -3132,11 +3132,12 @@ public class TypeSystem_c implements TypeSystem
         assert_(baseType);
         return new ThisDef_c(this, pos, null, baseType);
     }
+    /*
     public ThisDef thisDef(Position pos, Ref<? extends ClassType> qType, 
                            Ref<? extends ClassType> baseType) {
         assert_(baseType);
         return new ThisDef_c(this, pos, qType, baseType);
-    }
+    }*/
     
     public InitializerInstance createInitializerInstance(Position pos, Ref<? extends InitializerDef> def) {
 	return new InitializerInstance_c(this, pos, def);

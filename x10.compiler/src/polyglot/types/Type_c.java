@@ -249,4 +249,5 @@ public abstract class Type_c extends TypeObject_c implements Type
     public void print(CodeWriter w) {
 	w.write(toString());
     }
+    
 }

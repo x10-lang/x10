@@ -9,6 +9,7 @@ import polyglot.types.Types;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.constraint.redesign.XDef;
 import x10.constraint.xnative.XNativeLocal;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CLocal;

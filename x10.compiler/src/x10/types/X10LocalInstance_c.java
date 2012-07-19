@@ -31,6 +31,7 @@ import x10.constraint.XTerm;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintManager;
 
 /**
@@ -88,7 +89,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         CConstraint c = Types.xclause(rightType);
         c = c==null? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(rightType)) : c.copy();
 
-        XLocal var = xts.xtypeTranslator().translate(this.type(rightType));
+        CLocal var = xts.xtypeTranslator().translate(this.type(rightType));
         c.addSelfBinding(var);
         rightType = Types.xclause(Types.baseType(rightType), c);
 

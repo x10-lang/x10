@@ -86,5 +86,7 @@ public interface XTerm extends  Serializable, Cloneable {
     public boolean isThis(); 
     public boolean isField(); 
     public boolean isBoolean(); 
-    public String toString(); 
+    public String toString();
+    
+    //public T type(); 
 }

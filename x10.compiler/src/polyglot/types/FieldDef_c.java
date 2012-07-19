@@ -10,6 +10,7 @@ package polyglot.types;
 import polyglot.frontend.*;
 import polyglot.main.Report;
 import polyglot.util.Position;
+import x10.constraint.redesign.XType;
 
 /**
  * A <code>FieldInstance</code> contains type information for a field.
@@ -119,4 +120,9 @@ public class FieldDef_c extends VarDef_c implements FieldDef
         return "field " + flags.translate() + type + " " +
         container + "." + name + cvStr;
     }
+
+	@Override
+	public XType resultType() {
+		return type().get(); 
+	}
 }

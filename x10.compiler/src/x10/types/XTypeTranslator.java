@@ -737,7 +737,6 @@ public class XTypeTranslator {
                 XTerm v;
                 if (r instanceof XVar) {
                     v = ConstraintManager.getConstraintSystem().makeField((XVar) r, xmi.def());
-                  
                 }
                 else {
                 	  if ((! tl))

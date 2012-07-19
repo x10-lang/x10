@@ -8,6 +8,7 @@
 
 package polyglot.types;
 
+import x10.constraint.redesign.XDef;
 import x10.types.MethodInstance;
 
 
@@ -15,7 +16,7 @@ import x10.types.MethodInstance;
  * A <code>MethodInstance</code> represents the type information for a Java
  * method.
  */
-public interface MethodDef extends FunctionDef, MemberDef, Def
+public interface MethodDef extends FunctionDef, MemberDef, Def, XDef
 {
     MethodInstance asInstance();
     

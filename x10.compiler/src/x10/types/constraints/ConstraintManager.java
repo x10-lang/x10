@@ -20,9 +20,9 @@ public class ConstraintManager {
 		if (constraint_factory == null ) {
 			//String mode = System.getenv(env_variable);
 			//if(mode.equals("smt")) {
-				constraint_factory = new CSmtConstraintSystem(); 	
+			//	constraint_factory = new CSmtConstraintSystem(); 	
 			//} else {
-			//	constraint_factory = new CNativeConstraintSystem();
+				constraint_factory = new CNativeConstraintSystem();
 			//}
 		}
 		

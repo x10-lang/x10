@@ -47,7 +47,7 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem implements CConst
 		return new CSmtThis(thisId++, t);
 	}
 
-	@Override
+	//@Override
 	public XVar makeQualifiedThis(Type qualifier, Type base) {
 		return makeQualifiedVar(qualifier, makeThis(base));
 	}

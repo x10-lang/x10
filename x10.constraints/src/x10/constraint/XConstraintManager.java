@@ -31,9 +31,9 @@ public class XConstraintManager {
 		if (constraint_factory == null ) {
 			//String mode = System.getenv(env_variable);
 			//if(mode== null || !mode.equals("SMT")) {
-			//	constraint_factory = new XNativeConstraintSystem();
+				constraint_factory = new XNativeConstraintSystem();
 			//} else {
-				constraint_factory = new XSmtConstraintSystem(); 	
+			//	constraint_factory = new XSmtConstraintSystem(); 	
 			//}
 		}
 		

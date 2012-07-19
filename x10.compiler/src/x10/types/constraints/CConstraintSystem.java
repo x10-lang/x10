@@ -25,7 +25,7 @@ public interface CConstraintSystem extends XConstraintSystem {
     public CSelf makeSelf(Type t); 
     public CThis makeThis(); 
     public CThis makeThis(Type t); 
-    public XVar makeQualifiedThis(Type qualifier, Type base); 
+    //public XVar makeQualifiedThis(Type qualifier, Type base); 
     public XVar makeQualifiedVar(Type qualifier, XVar var); 
     public CField makeField(XVar var, MethodDef mi); 
     public CField makeField(XVar var, FieldDef mi); 
