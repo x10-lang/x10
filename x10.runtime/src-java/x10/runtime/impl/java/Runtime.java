@@ -222,6 +222,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * The number of places in the system
      */
     public static int MAX_PLACES = X10RT.numPlaces();
+    
+    /**
+     * Disable Assertions
+     */
+    public static final boolean DISABLE_ASSERTIONS = Boolean.getBoolean("x10.DISABLE_ASSERTIONS");
+
 
     /**
      * Trace serialization

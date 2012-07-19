@@ -220,8 +220,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;
     // XTENLANG-3058
     public static final boolean supportTypeConstraintsWithErasure = true;
-    // XTENLANG-3090
-    private static final boolean useJavaAssertion = false;
+    // XTENLANG-3090 (switched back to use java assertion)
+    private static final boolean useJavaAssertion = true;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -4092,20 +4092,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (!tr.job().extensionInfo().getOptions().assertions)
             return;
 
-        Expr cond = ((Assert_c) n).cond();
-        Expr errorMessage = ((Assert_c) n).errorMessage();
-
         if (useJavaAssertion) {
-            w.write("assert ");
-            tr.print(n, cond, w);
-
-            if (errorMessage != null) {
-                w.write(": ");
-                tr.print(n, errorMessage, w);
-            }
-
-            w.write(";");
+            n.translate(w, tr);
         } else {
+            Expr cond = ((Assert_c) n).cond();
+            Expr errorMessage = ((Assert_c) n).errorMessage();
+
             w.write("if (!" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".DISABLE_ASSERTIONS && ");
             w.write("!(");
             tr.print(n, cond, w);
