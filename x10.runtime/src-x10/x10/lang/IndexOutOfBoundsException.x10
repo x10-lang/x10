@@ -6,24 +6,24 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.lang;
 
 /**
- * Thrown to indicate that a string has been accessed with an illegal index.
- * For example, the point is outside of the string's region.
+ * Thrown to indicate that an index of some sort (such as to an array, or to a
+ * string) is out of range.
  */
-public class StringIndexOutOfBoundsException extends IndexOutOfBoundsException {
+public class IndexOutOfBoundsException extends Exception {
 
     /**
-     * Construct a StringIndexOutOfBoundsException with no detail message.
+     * Construct an IndexOutOfBoundsException with no detail message.
      */
     public def this() { super(); }
 
     /**
-     * Construct a StringIndexOutOfBoundsException with the specified detail message.
+     * Construct an IndexOutOfBoundsException with the specified detail message.
      *
      * @param message the detail message
      */

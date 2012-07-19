@@ -48,6 +48,11 @@ public abstract class ThrowableUtilities {
             x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
             x10RuntimeExceptions.put(javaClass, x10Class);
             
+            javaClass = java.lang.IndexOutOfBoundsException.class;
+            x10Name = "x10.lang.IndexOutOfBoundsException";
+            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            x10RuntimeExceptions.put(javaClass, x10Class);
+            
             javaClass = java.lang.ClassCastException.class;
             x10Name = "x10.lang.ClassCastException";
             x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
