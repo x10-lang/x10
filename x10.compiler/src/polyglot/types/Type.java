@@ -8,7 +8,6 @@
 package polyglot.types;
 
 import polyglot.util.CodeWriter;
-import x10.constraint.redesign.xsmt.XSmtType;
 import x10.types.Annotated;
 import x10.types.X10ClassType;
 
@@ -16,7 +15,7 @@ import x10.types.X10ClassType;
  * A <code>Type</code> is the base type of all classes which represent
  * types.
  */
-public interface Type extends Qualifier, Annotated, Named, XSmtType
+public interface Type extends Qualifier, Annotated, Named
 {
     public void equals(Type t);
     

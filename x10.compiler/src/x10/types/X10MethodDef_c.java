@@ -273,8 +273,4 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 
 		return s;
 	}
-	@Override
-	public XType resultType() {
-		return returnType().get(); 
-	}
 }

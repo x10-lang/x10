@@ -121,8 +121,4 @@ public class FieldDef_c extends VarDef_c implements FieldDef
         container + "." + name + cvStr;
     }
 
-	@Override
-	public XType resultType() {
-		return type().get(); 
-	}
 }
