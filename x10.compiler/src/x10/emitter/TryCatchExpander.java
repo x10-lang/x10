@@ -205,7 +205,7 @@ public class TryCatchExpander extends Expander {
     }
 
     // N.B. ThrowableUtilities.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
-    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
+    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.IndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        ,"java.lang.RuntimeException"
     ));
