@@ -83,7 +83,8 @@ public class MethodSynth extends AbstractStateSynth implements IClassMemberSynth
                 flags, 
                 Types.ref(returnType), 
                 methodName, 
-                formalTypeRefs 
+                formalTypeRefs,
+                throwTypeRefs 
                 );//this constructor will not set formal names
         methodDef.setThisDef(((X10ClassDef) classDef).thisDef());
         methodDef.setFormalNames(formalNames);

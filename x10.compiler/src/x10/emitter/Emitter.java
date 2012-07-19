@@ -43,6 +43,7 @@ import polyglot.ast.Node_c;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
+import polyglot.ast.Typed;
 import polyglot.ast.Unary;
 import polyglot.types.ClassType;
 import polyglot.types.ContainerType;
@@ -84,6 +85,7 @@ import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
+import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
@@ -3227,6 +3229,27 @@ public class Emitter {
 		return true;
 	}
 
+	private static Type actualType(Type type) {
+	    if (type instanceof ConstrainedType) {
+	        ConstrainedType ct = (ConstrainedType) type;
+	        XVar selfVarBinding = ct.constraint().get().selfVarBinding();
+                if (selfVarBinding != null && selfVarBinding instanceof Typed) {
+                    // x10.lang.Object{self=="abc"} -> x10.lang.String
+                    Type actualType = ((Typed) selfVarBinding).type();
+                    // N.B. stop infinite recursion with x10.lang.String{self=="abc"} 
+//                    actualType = actualType(actualType);
+                    if (actualType instanceof ConstrainedType) {
+                        actualType = ((ConstrainedType) actualType).baseType().get();
+                    }
+                    return actualType;
+                }
+                else {
+                    return ct.baseType().get();
+                }
+	    }
+	    return type;
+	}
+	
 	// TODO:CAST
 	public void coerce(Node parent, Expr e, Type expected) {
 	    Type actual = e.type();
@@ -3236,7 +3259,9 @@ public class Emitter {
 	        expectedBase = ((ConstrainedType) expectedBase).baseType().get();
 	    }
 	    if (actual instanceof ConstrainedType) {
-	        actual = ((ConstrainedType) actual).baseType().get();
+	        // XTENLANG-3085 if selfVarBinding is available, use its type
+//	        actual = ((ConstrainedType) actual).baseType().get();
+	        actual = actualType(actual);
 	    }
 	    CastExpander expander = new CastExpander(w, this, e);
 	    if (actual.isNull() || e.isConstant() && !expectedBase.isParameterType() && !actual.isParameterType() && !isBoxedType(expectedBase)) {
@@ -3730,13 +3755,13 @@ public class Emitter {
         w.newline();
         w.write("private Object writeReplace() { ");
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" calling\"); ");
             w.write("} ");
         }
         w.write(fieldName + " = serialize(); ");
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"Serializer: serialize() of \" + this + \" returned \" + " + fieldName + "); ");
             w.write("} ");
         }
@@ -3860,7 +3885,7 @@ public class Emitter {
         w.begin(0);
 
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
             w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
             w.writeln("} ");
         }
@@ -3950,7 +3975,7 @@ public class Emitter {
         w.newline(4);
         w.begin(0);
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
-            w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+            w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
             w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
             w.writeln("} ");
         }
@@ -3971,7 +3996,7 @@ public class Emitter {
             w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + X10PrettyPrinterVisitor.SERIAL_DATA +  " " + fieldName + ") {");
             w.newline(4);
             w.begin(0);
-            w.writeln("throw new x10.lang.RuntimeException(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
+            w.writeln("throw new x10.lang.Error(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
             w.end();
             w.newline();
             w.writeln("}");
@@ -4386,7 +4411,7 @@ public class Emitter {
             }
 
             // SYNOPSIS: #2.main(#0) #1    #0=args #1=body #2=mainclass #3=throws
-            String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends x10.runtime.impl.java.Runtime {\n" +
+            String regex = "public static class " + X10PrettyPrinterVisitor.MAIN_CLASS + " extends " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + " {\n" +
                 "private static final long serialVersionUID = 1L;\n" +
                 "public static void main(java.lang.String[] args) #throws {\n" +
                     "// start native runtime\n" +

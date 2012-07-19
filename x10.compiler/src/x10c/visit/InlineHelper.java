@@ -128,10 +128,14 @@ public class InlineHelper extends ContextVisitor {
                                                 for (Type ft : smi.formalTypes()) {
                                                     formalTypes.add(Types.ref(ft));
                                                 }
+                                                List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>(smi.throwTypes().size());
+                                                for (Type tt : smi.throwTypes()) {
+                                                    throwTypes.add(Types.ref(tt));
+                                                }
                                                 X10MethodDef nmd = xts.methodDef(smi.position(), smi.errorPosition(), Types.ref(cd.asType()),
                                                         Flags.PUBLIC, Types.ref(smi.returnType()),
                                                         makeSuperBridgeName(ct.def(), smi.name()), md.typeParameters(),
-                                                        formalTypes, cd.thisDef(), Types.toLocalDefList(smi.formalNames()), Types.ref(smi.guard()),
+                                                        formalTypes, throwTypes, cd.thisDef(), Types.toLocalDefList(smi.formalNames()), Types.ref(smi.guard()),
                                                         Types.ref(smi.typeGuard()), smi.offerType(), null);
                                                 superBridges.put(smi, nmd);
                                                 superDecls.put(smi, mdcl);
@@ -189,10 +193,10 @@ public class InlineHelper extends ContextVisitor {
         if (!md.flags().isStatic()) {
             argTypes.add(Types.ref(ct));
         }
-        
+
         X10MethodDef nmd = (X10MethodDef) xts.methodDef(md.position(), md.errorPosition(), Types.ref(cd.asType()),
                 md.flags().clearPrivate().clearProtected().clearNative().Public().Static(),
-                Types.ref(md.returnType().get()), pmn, argTypes);
+                Types.ref(md.returnType().get()), pmn, argTypes, md.throwTypes());
         // check
         List<ParameterType> rts = new ArrayList<ParameterType>();
         rts.addAll(md.typeParameters());
@@ -251,8 +255,16 @@ public class InlineHelper extends ContextVisitor {
                 for (ClassMember cm : members) {
                     if (cm instanceof FieldDecl) {
                         FieldDecl fdcl = (FieldDecl) cm;
-                        if (fdcl.flags().flags().isPrivate()) {
-                            fdcl = fdcl.flags(xnf.FlagsNode(pos, fdcl.flags().flags().clearPrivate().Public()));
+                        // XTENLANG-3076 make static fields private to avoid java programmers accidentally see uninitialized fields.
+                        if (fdcl.flags().flags().isStatic()) {
+                            // TODO uncomment this after generating accessor method for @PerPlace static fields (XTENLANG-3077)
+//                            if (fdcl.flags().flags().isPublic()) {
+//                                fdcl = fdcl.flags(xnf.FlagsNode(pos, fdcl.flags().flags().clearPublic().Private()));
+//                            }
+                        } else {
+                            if (fdcl.flags().flags().isPrivate()) {
+                                fdcl = fdcl.flags(xnf.FlagsNode(pos, fdcl.flags().flags().clearPrivate().Public()));
+                            }
                         }
                         nmembers.add(fdcl);
                     }

@@ -365,6 +365,17 @@ public class Matcher {
 			// formal type. They type cannot be changed to the formal type before
 			// checking.
 		}
+		{ // set up throws types
+            List<Type> newThrowTypes = new ArrayList<Type>();
+            // [DC] don't think we allow constraints on throws types
+            for (Type t :  Types.expandTypes(me.throwTypes(), xts)) {
+                t = Subst.subst(t, y2eqv, x2, Y, X); 
+                // [DC] no idea what this place stuff is for
+                t = Subst.subst(t, currentPlace, codePlace);
+                newThrowTypes.add(t);
+            } 
+            newMe = (X10ProcedureInstance<?>) newMe.throwTypes(newThrowTypes);
+		}
 		{ // set up the guard.
 	        	CConstraint newWhere = Subst.subst(me.guard(), y2eqv, x2, Y, X); 
 	        	newWhere = Subst.subst(newWhere, currentPlace, codePlace);

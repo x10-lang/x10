@@ -110,6 +110,12 @@ public class ClosureRemover extends ContextVisitor {
             // closure -> static method
             cd = (ClassDecl) cd.visitChildren(createClosureToStaticMethodVisitor(def, nmembers));
 
+            // XTENLANG-3083
+            ClassBody body2 = cd.body();
+            nmembers.addAll(0, body2.members());
+            cd = cd.body(body2.members(nmembers));
+            nmembers.clear();
+
             // closure -> static nested class
             cd = (ClassDecl) cd.visitChildren(createClosureToStaticNestedClassVisitor(def, nmembers));
             
@@ -227,7 +233,7 @@ public class ClosureRemover extends ContextVisitor {
                         
                         ClassType ct = def.asType();
 
-                        X10MethodDef md = (X10MethodDef) xts.methodDef(pos, pos, Types.ref(ct), flags, cld.returnType(), name, rts, argTypes, ct.def().thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
+                        X10MethodDef md = (X10MethodDef) xts.methodDef(pos, pos, Types.ref(ct), flags, cld.returnType(), name, rts, argTypes, Collections.<Ref<? extends Type>>emptyList(), ct.def().thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
                         
                         X10MethodDecl mdcl = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, flags), cl.returnType(), xnf.Id(pos, name), tps, formals, null, null, body);
     
@@ -376,7 +382,7 @@ public class ClosureRemover extends ContextVisitor {
                     }
                     
                     // TODO handle "this" in type constraints
-                    X10MethodDef closureMethodDef = xts.methodDef(pos, pos, Types.ref(staticNestedClassDef.asType()), Flags.PUBLIC, cld.returnType(), ClosureCall.APPLY, Collections.<ParameterType>emptyList(), cld.formalTypes(), staticNestedClassDef.thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
+                    X10MethodDef closureMethodDef = xts.methodDef(pos, pos, Types.ref(staticNestedClassDef.asType()), Flags.PUBLIC, cld.returnType(), ClosureCall.APPLY, Collections.<ParameterType>emptyList(), cld.formalTypes(), Collections.<Ref<? extends Type>>emptyList(), staticNestedClassDef.thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
                     
                     staticNestedClassDef.setMethods(Collections.singletonList(closureMethodDef));
                     // create class decl
@@ -499,6 +505,7 @@ public class ClosureRemover extends ContextVisitor {
                                                               Flags.PRIVATE,
                                                               Types.ref(staticNestedClassType),
                                                               argTypes,
+                                                              Collections.<Ref<? extends Type>>emptyList(),
                                                               staticNestedClassDef.thisDef(),
                                                               formalNames, null, null, null);
                     

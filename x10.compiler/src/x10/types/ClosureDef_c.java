@@ -21,6 +21,7 @@ import polyglot.types.Def_c;
 import polyglot.types.LocalDef;
 import polyglot.types.QName;
 import polyglot.types.Ref;
+import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
@@ -335,4 +336,14 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
      public String toString() {
          return designator() + " " + signature() + " => " + returnType();
      }
+
+    @Override
+    public List<Ref<? extends Type>> throwTypes() {
+        return Collections.<Ref<? extends Type>>emptyList();
+    }
+
+    @Override
+    public void setThrowTypes(List<Ref<? extends Type>> l) {
+        throw new Error("Internal compiler error: X10 closures do not throw java checked exceptions.");
+    }
 }

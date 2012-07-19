@@ -73,6 +73,11 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
         return obj;
     }
 
+    public static Char $box(Object obj) {
+        if (obj instanceof Char) return (Char) obj;
+        else return $box(((java.lang.Character)obj).charValue());
+    }
+
     public static char $unbox(char value) {
         return value;
     }

@@ -59,6 +59,11 @@ final public class Double extends Number implements StructI,
         return obj;
     }
 
+    public static Double $box(Object obj) {
+        if (obj instanceof Double) return (Double) obj;
+        else return $box(((java.lang.Double)obj).doubleValue());
+    }
+
     public static double $unbox(double value) {
         return value;
     }

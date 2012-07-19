@@ -322,4 +322,12 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
     public X10ConstructorCall target(Expr target) {
         return (X10ConstructorCall) super.target(target);
     }
+
+    public List<Type> throwTypes(TypeSystem ts) {
+        List<Type> l = new ArrayList<Type>();
+        l.addAll(ci.throwTypes());
+        l.addAll(ts.uncheckedExceptions());
+        return l;
+    }
+
 }

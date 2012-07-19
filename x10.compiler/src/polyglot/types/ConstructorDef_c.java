@@ -1,8 +1,15 @@
 /*
- * This file is part of the Polyglot extensible compiler framework.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * Copyright (c) 2000-2006 Polyglot project group, Cornell University
- * 
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ * This file was originally derived from the Polyglot extensible compiler framework.
+ *
+ *  (C) Copyright 2000-2007 Polyglot project group, Cornell University
+ *  (C) Copyright IBM Corporation 2007-2012.
  */
 
 package polyglot.types;
@@ -26,8 +33,8 @@ public abstract class ConstructorDef_c extends ProcedureDef_c implements Constru
 
     protected ConstructorDef_c(TypeSystem ts, Position pos, Position errorPos,
 	                         Ref<? extends ContainerType> container,
-				 Flags flags, List<Ref<? extends Type>> formalTypes) {
-        super(ts, pos, errorPos, container, flags, formalTypes);
+				 Flags flags, List<Ref<? extends Type>> formalTypes, List<Ref<? extends Type>> throwTypes) {
+        super(ts, pos, errorPos, container, flags, formalTypes, throwTypes);
     }
     
     protected transient ConstructorInstance asInstance;

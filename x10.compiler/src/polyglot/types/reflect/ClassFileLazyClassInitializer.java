@@ -1,8 +1,15 @@
 /*
- * This file is part of the Polyglot extensible compiler framework.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * Copyright (c) 2000-2006 Polyglot project group, Cornell University
- * 
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ * This file was originally derived from the Polyglot extensible compiler framework.
+ *
+ *  (C) Copyright 2000-2007 Polyglot project group, Cornell University
+ *  (C) Copyright IBM Corporation 2007-2012.
  */
 
 package polyglot.types.reflect;
@@ -671,10 +678,19 @@ public class ClassFileLazyClassInitializer {
         Ref<? extends Type> returnType = typeForString(type.substring(index+1), bounds);
     
         List<Ref<? extends Type>> excTypes = new ArrayList<Ref<? extends Type>>();
-    
+        Exceptions exceptions = method.getExceptions();
+        if (exceptions != null) {
+            int[] throwTypes = exceptions.getThrowTypes();
+            for (int i = 0; i < throwTypes.length; i++) {
+                String s = clazz.classNameCP(throwTypes[i]);
+                excTypes.add(typeForName(s));
+            }
+        }
+
+                
         return ts.methodDef(ct.position(), ct.errorPosition(), Types.ref(ct.asType()),
                                  ts.flagsForBits(method.getModifiers()),
-                                 returnType, Name.make(name), argTypes);
+                                 returnType, Name.make(name), argTypes, excTypes);
     }
 
     /**
@@ -711,7 +727,7 @@ public class ClassFileLazyClassInitializer {
         }
         
         return ts.constructorDef(mi.position(), mi.errorPosition(), Types.ref(ct.asType()), mi.flags(),
-                                      formals);
+                                      formals, mi.throwTypes());
     }
 
     /**

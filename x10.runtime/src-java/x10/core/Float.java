@@ -59,6 +59,11 @@ final public class Float extends Number implements StructI,
         return obj;
     }
 
+    public static Float $box(Object obj) {
+        if (obj instanceof Float) return (Float) obj;
+        else return $box(((java.lang.Float)obj).floatValue());
+    }
+
     public static float $unbox(float value) {
         return value;
     }

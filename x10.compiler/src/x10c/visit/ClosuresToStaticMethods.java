@@ -12,6 +12,7 @@ package x10c.visit;
 
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -166,7 +167,7 @@ public class ClosuresToStaticMethods extends ContextVisitor {
                                 }
                                 
                                 
-                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes);
+                                X10MethodDef md = (X10MethodDef) xts.methodDef(cg, cg, Types.ref(ct), flags, closure.returnType().typeRef(), name, argTypes, Collections.<Ref<? extends Type>>emptyList());
                                 mdcl = mdcl.typeParameters(tps);
                                 nmembers.add(mdcl.methodDef(md));
                                 md.setTypeParameters(rts);

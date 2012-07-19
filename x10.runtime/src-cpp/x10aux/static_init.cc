@@ -44,7 +44,7 @@ void StaticInitController::initField(volatile status* flag,
             lock();
             notify();
 
-            throw;
+            x10aux::throwException(x10::lang::ExceptionInInitializer::_make(*exceptionHolder));
         }
             
         // Notify all threads that are waiting on static fields to be initialized.

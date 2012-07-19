@@ -1,9 +1,15 @@
 /*
- * This file is part of the Polyglot extensible compiler framework.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * Copyright (c) 2000-2007 Polyglot project group, Cornell University
- * Copyright (c) 2006-2007 IBM Corporation
- * 
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ * This file was originally derived from the Polyglot extensible compiler framework.
+ *
+ *  (C) Copyright 2000-2007 Polyglot project group, Cornell University
+ *  (C) Copyright IBM Corporation 2007-2012.
  */
 
 package polyglot.ast;
@@ -183,47 +189,29 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         return n;
     }
 
-    /** Type check the method. */
-    public Node typeCheck(ContextVisitor tc) {
-        TypeSystem ts = tc.typeSystem();
-/*
-        for (Iterator<TypeNode> i = throwTypes().iterator(); i.hasNext(); ) {
-            TypeNode tn = (TypeNode) i.next();
-            Type t = tn.type();
-            if (! t.isThrowable()) {
-                throw new SemanticException("Type \"" + t +
-                    "\" is not a subclass of \"" + ts.Throwable() + "\".",
-                    tn.position());
-            }
-        }
-*/
-
-	return this;
-    }
-    
     @Override
     public Node conformanceCheck(ContextVisitor tc) {
-	// Get the mi flags, not the node flags since the mi flags
-	// account for being nested within an interface.
-	Flags flags = mi.flags();
-	checkFlags(tc, flags);
-	
-	overrideMethodCheck(tc);
-	
-	return this;
+        // Get the mi flags, not the node flags since the mi flags
+        // account for being nested within an interface.
+        Flags flags = mi.flags();
+        checkFlags(tc, flags);
+
+        overrideMethodCheck(tc);
+
+        return this;
     }
 
     protected void checkFlags(ContextVisitor tc, Flags flags) {
-	TypeSystem ts = tc.typeSystem();
+        TypeSystem ts = tc.typeSystem();
 
-	if (tc.context().currentClass().flags().isInterface()) {
+        if (tc.context().currentClass().flags().isInterface()) {
             if (flags.isProtected() || flags.isPrivate()) {
                 Errors.issue(tc.job(), 
-                		new Errors.InterfaceMethodsMustBePublic(name().position()));
+                        new Errors.InterfaceMethodsMustBePublic(name().position()));
             }
-            
+
             if (flags.isStatic()) {
-        	Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotBeStatic(name().position()));
+                Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotBeStatic(name().position()));
             }
         }
 
@@ -237,21 +225,21 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         Type container = Types.get(methodDef().container());
         ClassType ct = container.toClass();
 
-	if (body == null && ! (flags.isAbstract() || flags.isNative())) {
-	    Errors.issue(tc.job(), new Errors.MissingMethodBody(name().position()));
-	}
-
-        if (body != null && ct.flags().isInterface()) {
-	    Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotHaveBody(name().position()));
+        if (body == null && ! (flags.isAbstract() || flags.isNative())) {
+            Errors.issue(tc.job(), new Errors.MissingMethodBody(name().position()));
         }
 
-	if (body != null && flags.isAbstract()) {
-	    Errors.issue(tc.job(), new Errors.AbstractMethodCannotHaveBody(name().position()));
-	}
+        if (body != null && ct.flags().isInterface()) {
+            Errors.issue(tc.job(), new Errors.InterfaceMethodsCannotHaveBody(name().position()));
+        }
 
-	if (body != null && flags.isNative()) {
-	    Errors.issue(tc.job(), new Errors.NativeMethodCannotHaveBody(name().position()));
-	}
+        if (body != null && flags.isAbstract()) {
+            Errors.issue(tc.job(), new Errors.AbstractMethodCannotHaveBody(name().position()));
+        }
+
+        if (body != null && flags.isNative()) {
+            Errors.issue(tc.job(), new Errors.NativeMethodCannotHaveBody(name().position()));
+        }
 
         // check that inner classes do not declare static methods
         if (ct != null && flags.isStatic() && (ct.isInnerClass() || ct.isLocal() || ct.isAnonymous())) {
@@ -264,11 +252,13 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
     protected void overrideMethodCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
-        MethodInstance mi = this.mi.asInstance();
+        MethodInstance mi = methodDef().asInstance();
         for (MethodInstance mj : mi.implemented(tc.context()) ){
             if (! ts.isAccessible(mj, tc.context())) {
+                // [DC] presumably this will be raising an error somewhere else?
                 continue;
             }
+
             mj = X10ClassDecl_c.expandMacros(tc, ts, mi, mj);
             try {
                 ts.checkOverride(mi, mj, tc.context());
@@ -278,10 +268,11 @@ public abstract class MethodDecl_c extends Term_c implements MethodDecl
         }
     }
 
-  /*  public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
-        return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature())).push(methodDef().asInstance().throwTypes());
+    public NodeVisitor exceptionCheckEnter(ExceptionChecker ec) {
+        return ec.push(new ExceptionChecker.CodeTypeReporter("Method " + mi.signature()))
+                 .push(methodDef().asInstance().throwTypes());
     }
-*/
+
     public abstract String toString();
 
     /** Write the method to an output file. */

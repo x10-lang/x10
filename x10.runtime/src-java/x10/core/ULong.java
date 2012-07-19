@@ -65,16 +65,21 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
         return obj.$value;
     }
     
+    public static long $unbox(Object obj) {
+        if (obj instanceof ULong) return ((ULong)obj).$value;
+        else return ((java.lang.Long)obj).longValue();
+    }
+
     // make $box/$unbox idempotent
     public static ULong $box(ULong obj) {
         return obj;
     }
 
-    public static long $unbox(Object obj) {
-    	if (obj instanceof ULong) return ((ULong)obj).$value;
-    	else return ((java.lang.Long)obj).longValue();
+    public static ULong $box(Object obj) {
+        if (obj instanceof ULong) return (ULong) obj;
+        else return $box(((java.lang.Long)obj).longValue());
     }
-    
+
     public static long $unbox(long value) {
         return value;
     }

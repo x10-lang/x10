@@ -89,6 +89,11 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
         return obj;
     }
 
+    public static Int $box(Object obj) {
+        if (obj instanceof Int) return (Int) obj;
+        else return $box(((java.lang.Integer)obj).intValue());
+    }
+
     public static int $unbox(int value) {
         return value;
     }

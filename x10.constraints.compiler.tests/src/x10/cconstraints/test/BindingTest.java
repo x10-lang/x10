@@ -11,15 +11,19 @@ import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.Position;
-import x10.constraint.XPromise;
+
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
+
 import x10.constraint.XVar;
+import x10.constraint.xnative.XPromise;
+import x10.constraint.xnative.XNativeVar;
 import x10.types.ThisDef;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldDef_c;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CTerms;
+import x10.types.constraints.CNativeConstraint;
+import x10.types.constraints.ConstraintManager;
+
 import x10c.ExtensionInfo;
 import junit.framework.TestCase;
 
@@ -27,12 +31,12 @@ public class BindingTest extends X10TestCase {
     public BindingTest() {
         super("BindingTest");
     }
-    XTerm zero = XTerms.makeLit(new Integer(0));
-    XTerm one = XTerms.makeLit(new Integer(1));
-    XTerm two = XTerms.makeLit(new Integer(2));
-    XTerm NULL = XTerms.makeLit(null);
+    XTerm zero = ConstraintManager.getConstraintSystem().makeLit(new Integer(0));
+    XTerm one = ConstraintManager.getConstraintSystem().makeLit(new Integer(1));
+    XTerm two = ConstraintManager.getConstraintSystem().makeLit(new Integer(2));
+    XTerm NULL = ConstraintManager.getConstraintSystem().makeLit(null);
 
-    XVar e0 = XTerms.makeEQV();
+    XVar e0 = ConstraintManager.getConstraintSystem().makeEQV();
 
     X10FieldDef home = makeField("home"); 
     X10FieldDef rank = makeField("rank"); 
@@ -43,23 +47,23 @@ public class BindingTest extends X10TestCase {
     X10FieldDef here= makeField("here"); 
 
 
-    XVar e0home = CTerms.makeField(e0, home);
-    XVar a = XTerms.makeUQV("a");
-    XVar u = XTerms.makeUQV("u");
-    XVar v = XTerms.makeUQV("v");
-    XVar s = XTerms.makeUQV("s");
+    XVar e0home = ConstraintManager.getConstraintSystem().makeField(e0, home);
+    XVar a = ConstraintManager.getConstraintSystem().makeUQV("a");
+    XVar u = ConstraintManager.getConstraintSystem().makeUQV("u");
+    XVar v = ConstraintManager.getConstraintSystem().makeUQV("v");
+    XVar s = ConstraintManager.getConstraintSystem().makeUQV("s");
 
     /**
      * self==e0.home, e0==a |- self==a.home
      * @throws Throwable
      */
     public void test1() throws Throwable {
-        CConstraint c = new CConstraint();
+        CNativeConstraint c = new CNativeConstraint();
         c.addSelfBinding(e0home);
         c.addBinding(e0, a);
-        XPromise xp  = c.self().nfp(c);
+        XPromise xp  = ((XNativeVar)c.self()).nfp(c);
         System.out.print("(test1: Should print self==a.home) "); print(c);
-        assertTrue(c.entails(c.self(), CTerms.makeField(a,home)));
+        assertTrue(c.entails(c.self(), ConstraintManager.getConstraintSystem().makeField(a,home)));
     }
 
     /**
@@ -67,17 +71,17 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test2() throws Throwable {
-        CConstraint c = new CConstraint();
-        c.addBinding(CTerms.makeField(c.self(), rank), one);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        c.addBinding(ConstraintManager.getConstraintSystem().makeField(c.self(), rank), one);
         c.addBinding(c.self(), a);
-        assertTrue(c.entails(CTerms.makeField(a, rank), one));
+        assertTrue(c.entails(ConstraintManager.getConstraintSystem().makeField(a, rank), one));
     }
     /**
      * a=u, v=u | a=v
      * @throws Throwable
      */
     public void test3() throws Throwable {
-        CConstraint c = new CConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
         c.addBinding(a,u);
         c.addBinding(v, u);
 
@@ -88,7 +92,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test4() throws Throwable {
-        CConstraint c = new CConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
         c.addBinding(a,u);
         c.addBinding(v,u);
         c=c.substitute(e0,u);
@@ -100,7 +104,7 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test5() throws Throwable {
-        CConstraint c = new CConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
         c.addBinding(u,a);
         c.addBinding(u,v);
         c=c.substitute(e0,u);
@@ -113,10 +117,10 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test6() throws Throwable {
-        CConstraint c = new CConstraint();
-        XTerm ar = CTerms.makeField(a, rank);
-        XTerm ur = CTerms.makeField(u, rank);
-        XTerm vr = CTerms.makeField(v, rank);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XTerm ar = ConstraintManager.getConstraintSystem().makeField(a, rank);
+        XTerm ur = ConstraintManager.getConstraintSystem().makeField(u, rank);
+        XTerm vr = ConstraintManager.getConstraintSystem().makeField(v, rank);
 
         c.addBinding(ar,ur);
         c.addBinding(vr,ur);
@@ -130,10 +134,10 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test7() throws Throwable {
-        CConstraint c = new CConstraint();
-        XTerm ar = CTerms.makeField(a, rank);
-        XTerm ur = CTerms.makeField(u, rank);
-        XTerm vr = CTerms.makeField(v, rank);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XTerm ar = ConstraintManager.getConstraintSystem().makeField(a, rank);
+        XTerm ur = ConstraintManager.getConstraintSystem().makeField(u, rank);
+        XTerm vr = ConstraintManager.getConstraintSystem().makeField(v, rank);
 
         c.addBinding(ur,ar);
         c.addBinding(ur,vr);
@@ -147,15 +151,15 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test8() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar aRegion = CTerms.makeField(a, region);
-        XVar aRegionRank = CTerms.makeField(aRegion, rank);
-        XVar uRegion = CTerms.makeField(u, region);
-        XVar uRegionRank = CTerms.makeField(uRegion, rank);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar aRegion = ConstraintManager.getConstraintSystem().makeField(a, region);
+        XVar aRegionRank = ConstraintManager.getConstraintSystem().makeField(aRegion, rank);
+        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
+        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
 
-        XVar vRank = CTerms.makeField(v, rank);
-        XVar sRegion = CTerms.makeField(s, region);
-        XVar sRegionRank = CTerms.makeField(sRegion, rank);
+        XVar vRank = ConstraintManager.getConstraintSystem().makeField(v, rank);
+        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(s, region);
+        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
         c.addBinding(sRegion, aRegion);
         c.addBinding(aRegionRank,uRegionRank);
         c.addBinding(vRank,uRegionRank);
@@ -170,11 +174,11 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test9() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar aRank = CTerms.makeField(a, rank);
-        XVar uRank = CTerms.makeField(u, rank);
-        XVar uSize = CTerms.makeField(u, size);
-        XVar aSize = CTerms.makeField(a, size);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar aRank = ConstraintManager.getConstraintSystem().makeField(a, rank);
+        XVar uRank = ConstraintManager.getConstraintSystem().makeField(u, rank);
+        XVar uSize = ConstraintManager.getConstraintSystem().makeField(u, size);
+        XVar aSize = ConstraintManager.getConstraintSystem().makeField(a, size);
 
         c.addBinding(aRank, one);
         c.addBinding(uSize,two);
@@ -191,13 +195,13 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test10() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar aRegion = CTerms.makeField(a, region);
-        XVar aRegionRank = CTerms.makeField(aRegion, rank);
-        XVar uRegion = CTerms.makeField(u, region);
-        XVar uRegionRank = CTerms.makeField(uRegion, rank);
-        XVar uSize = CTerms.makeField(u, size);
-        XVar aSize = CTerms.makeField(a, size);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar aRegion = ConstraintManager.getConstraintSystem().makeField(a, region);
+        XVar aRegionRank = ConstraintManager.getConstraintSystem().makeField(aRegion, rank);
+        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
+        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
+        XVar uSize = ConstraintManager.getConstraintSystem().makeField(u, size);
+        XVar aSize = ConstraintManager.getConstraintSystem().makeField(a, size);
 
         c.addBinding(aRegionRank, one);
         c.addBinding(uSize,two);
@@ -214,13 +218,13 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test11() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar aRegion = CTerms.makeField(a, region);
-        XVar aRegionRank = CTerms.makeField(aRegion, rank);
-        XVar uRegion = CTerms.makeField(u, region);
-        XVar uRegionRank = CTerms.makeField(uRegion, rank);
-        XVar uSize = CTerms.makeField(u, size);
-        XVar aSize = CTerms.makeField(a, size);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar aRegion = ConstraintManager.getConstraintSystem().makeField(a, region);
+        XVar aRegionRank = ConstraintManager.getConstraintSystem().makeField(aRegion, rank);
+        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
+        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
+        XVar uSize = ConstraintManager.getConstraintSystem().makeField(u, size);
+        XVar aSize = ConstraintManager.getConstraintSystem().makeField(a, size);
 
         c.addBinding(aRegionRank, one);
         c.addBinding(uSize,two);
@@ -235,23 +239,23 @@ public class BindingTest extends X10TestCase {
 
 
     public void test13() throws Throwable {
-        CConstraint c = new CConstraint();
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
         XTerm[] terms = new XTerm[]{
-                //  XTerms.makeEquals(CTerms.makeField(u,N), zero),
-                //XTerms.makeEquals(CTerms.makeField(CTerms.makeField(u,af), here), 
-                //	    				 CTerms.makeField(u, here)),
-                XTerms.makeDisEquals(CTerms.makeField(u,af), NULL),
-                XTerms.makeEquals(c.self(), CTerms.makeField(u,af))
-                //  XTerms.makeEquals(CTerms.makeField(v, here), CTerms.makeField(u,here)),
-                // XTerms.makeDisEquals(c.self(), NULL)
+                //  ConstraintManager.getConstraintSystem().makeEquals(ConstraintManager.getConstraintSystem().makeField(u,N), zero),
+                //ConstraintManager.getConstraintSystem().makeEquals(ConstraintManager.getConstraintSystem().makeField(ConstraintManager.getConstraintSystem().makeField(u,af), here), 
+                //	    				 ConstraintManager.getConstraintSystem().makeField(u, here)),
+                ConstraintManager.getConstraintSystem().makeDisEquals(ConstraintManager.getConstraintSystem().makeField(u,af), NULL),
+                ConstraintManager.getConstraintSystem().makeEquals(c.self(), ConstraintManager.getConstraintSystem().makeField(u,af))
+                //  ConstraintManager.getConstraintSystem().makeEquals(ConstraintManager.getConstraintSystem().makeField(v, here), ConstraintManager.getConstraintSystem().makeField(u,here)),
+                // ConstraintManager.getConstraintSystem().makeDisEquals(c.self(), NULL)
         };
         for (XTerm term : terms) {
             c.addTerm(term);
         }
-        CConstraint d = new CConstraint();
-        List<XTerm> terms1 = c.constraints();
+        CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
+        List<? extends XTerm> terms1 = c.constraints();
         for (XTerm term : terms1) {
-            term = term.subst((XVar) e0, (XVar) u, true);
+            term = term.subst((XVar) e0, (XVar) u);
             //	term = term.subst(d.self(), c.self(), true);
             d.addTerm(term);
             System.out.println("test13 (term= " + term + "): " + d);
@@ -261,9 +265,9 @@ public class BindingTest extends X10TestCase {
     }
 
     public void test14() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar sRegion = CTerms.makeField(c.self(), region);
-        XVar sRegionRank = CTerms.makeField(sRegion, rank);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(c.self(), region);
+        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
 
         c.addBinding(sRegionRank, zero); // self.region.rank==0
         c.addBinding(c.self(), u); // now we should have self==u, u.region.rank==0
@@ -275,12 +279,12 @@ public class BindingTest extends X10TestCase {
     }
 
     public void test15() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar uRegion = CTerms.makeField(u, region);
-        XVar uRegionRank = CTerms.makeField(uRegion, rank);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
+        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
 
-        XVar sRegion = CTerms.makeField(c.self(), region);
-        XVar sRegionRank = CTerms.makeField(sRegion, rank);
+        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(c.self(), region);
+        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
 
         c.addBinding(uRegionRank, zero); // u.region.rank -> 0
         c.addBinding(u,c.self()); // now we should have self -> u, u.region.rank -> 0
@@ -291,12 +295,12 @@ public class BindingTest extends X10TestCase {
         assertTrue(d.entails(sRegionRank,zero));
     }
     public void test16() throws Throwable {
-        CConstraint c = new CConstraint();
-        XVar eRegion = CTerms.makeField(e0, region);
-        XVar eRegionRank = CTerms.makeField(eRegion, rank);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
+        XVar eRegion = ConstraintManager.getConstraintSystem().makeField(e0, region);
+        XVar eRegionRank = ConstraintManager.getConstraintSystem().makeField(eRegion, rank);
 
-        XVar sRegion = CTerms.makeField(c.self(), region);
-        XVar sRegionRank = CTerms.makeField(sRegion, rank);
+        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(c.self(), region);
+        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
 
         c.addBinding(eRegionRank, zero); // e.region.rank -> 0
         c.addBinding(e0,c.self()); // now we should have self -> u, u.region.rank -> 0

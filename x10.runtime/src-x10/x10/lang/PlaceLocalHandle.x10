@@ -180,9 +180,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      */
     public static def makeFlat[T](pg:PlaceGroup, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
-        @Pragma(Pragma.FINISH_SPMD) finish for (p in pg) {
-            at (p) async handle.set(init());
-        }
+        pg.broadcastFlat( ()=>{ handle.set(init()); });
         return handle;
     }
 

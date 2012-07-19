@@ -58,11 +58,12 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
             Flags flags,
             Ref<? extends Type> returnType,
             List<Ref<? extends Type>> formalTypes,
+            List<Ref<? extends Type>> throwTypes,
             ThisDef thisDef,
             List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, 
             Ref<? extends Type> offerType) {
-        super(ts, pos, errorPos, container, flags, formalTypes);
+        super(ts, pos, errorPos, container, flags, formalTypes, throwTypes);
         this.returnType = returnType;
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
         this.guard = guard;

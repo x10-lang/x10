@@ -723,6 +723,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            ((X10MethodDef) mi.def()).typeParameters(),
     	            mi.name(),
     	            formalNames,
+    	            mi.throwTypes(),
     	            mi.returnType(), null);
     	}
     	return n;

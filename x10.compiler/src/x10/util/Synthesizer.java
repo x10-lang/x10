@@ -146,10 +146,10 @@ public class Synthesizer {
 	 * TODO: Ensure that a guard can be supplied as well.
 	 */
 	public X10ClassDecl_c addSyntheticMethod(X10ClassDecl_c ct, Flags flags, List<ParameterType> typeParameters,
-	        Name name, List<LocalDef> fmls, Type returnType, Block block)
+	        Name name, List<LocalDef> fmls, List<Type> throws_, Type returnType, Block block)
 	{
 	    assert ct.classDef() != null;
-	    MethodDecl result = makeSyntheticMethod(ct, flags, typeParameters,name, fmls, returnType, block);
+	    MethodDecl result = makeSyntheticMethod(ct, flags, typeParameters,name, fmls, throws_, returnType, block);
 	    ClassBody b = ct.body();
 	    b = b.addMember(result);
 	    ct.classDef().addMethod(result.methodDef());
@@ -173,7 +173,7 @@ public class Synthesizer {
 	 * TODO: Ensure that a guard can be supplied as well.
 	 */
 	public MethodDecl makeSyntheticMethod(X10ClassDecl_c ct, Flags flags, List<ParameterType> typeParameters,
-	        Name name, List<LocalDef> fmls, Type returnType, Block block)
+	        Name name, List<LocalDef> fmls, List<Type> throws_, Type returnType, Block block)
 	{
 	    Position CG = Position.compilerGenerated(ct.body().position());
 
@@ -197,12 +197,18 @@ public class Synthesizer {
 	    FlagsNode newFlags = xnf.FlagsNode(CG, flags);
 	    TypeNode rt = xnf.CanonicalTypeNode(CG, returnType);
 
+       List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
+       for (Type  t: throws_) {
+           Ref<Type> tref = Types.ref(t);
+           throwTypes.add(tref);
+       }
+
 	    // Create the method declaration node and the CI.
 	    MethodDecl result = 
 	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, block);
 
 	    MethodDef rmi = xts.methodDef(CG, CG, Types.ref(ct.classDef().asType()), 
-	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, ct.classDef().thisDef(), formalNames, null, null, null, null);
+	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, throwTypes, ct.classDef().thisDef(), formalNames, null, null, null, null);
 
 	    result = result.methodDef(rmi);
 	    return result;
@@ -966,7 +972,7 @@ public class Synthesizer {
         xd = xd.typeParameters(Collections.<TypeParamNode>emptyList());
         xd = xd.returnType(xnf.CanonicalTypeNode(p, cDef.asType()));
 
-        ConstructorDef xDef = xts.constructorDef(p, errorP, Types.ref(cDef.asType()), Flags.PRIVATE, ftList);
+        ConstructorDef xDef = xts.constructorDef(p, errorP, Types.ref(cDef.asType()), Flags.PRIVATE, ftList, Collections.<Ref<? extends Type>>emptyList());
         return (X10ConstructorDecl) xd.constructorDef(xDef);
     }
 
@@ -1027,7 +1033,8 @@ public class Synthesizer {
         ConstructorDef xDef = xts.constructorDef(p, errorP,
                 Types.ref(cDef.asType()),
                 Flags.PUBLIC,
-                frList                                         // formal types
+                frList,                                         // formal types
+                Collections.<Ref<? extends Type>>emptyList()
                 );  // throw types
 
         List<ClassMember> cm = new ArrayList<ClassMember>();
@@ -1224,7 +1231,7 @@ public class Synthesizer {
                 Types.ref(returnType), 
                 name, 
                 formalTypeRefs, 
-             
+                throwTypeRefs,
                 Types.ref(offerType));
         classDef.addMethod(mDef);
         return mDef;
@@ -1348,6 +1355,7 @@ public class Synthesizer {
         ConstructorDef xDef = xts.constructorDef(p, errorP,
                 Types.ref(cDef.asType()),
                 Flags.PRIVATE,
+                Collections.<Ref<? extends Type>>emptyList(),
                 Collections.<Ref<? extends Type>>emptyList());
 
         List<ClassMember> cm = new ArrayList<ClassMember>();

@@ -23,15 +23,6 @@ using namespace x10aux;
 
 volatile x10_int x10aux::exitCode = 0;
 
-x10::lang::VoidFun_0_0::itable<StaticInitClosure> StaticInitClosure::_itable(&StaticInitClosure::equals, &StaticInitClosure::hashCode,
-                                                                             &StaticInitClosure::__apply,
-                                                                             &StaticInitClosure::toString, &StaticInitClosure::typeName);
-
-x10aux::itable_entry StaticInitClosure::_itables[2] = {
-    x10aux::itable_entry(&x10aux::getRTT<x10::lang::VoidFun_0_0>, &_itable),
-    x10aux::itable_entry(NULL, NULL)
-};
-
 x10::lang::VoidFun_0_0::itable<BootStrapClosure> BootStrapClosure::_itable(&BootStrapClosure::equals, &BootStrapClosure::hashCode,
                                                                            &BootStrapClosure::__apply,
                                                                            &BootStrapClosure::toString, &BootStrapClosure::typeName);
@@ -124,11 +115,6 @@ static void* real_x10_main_inner(void* _main_args) {
         // Get the args into an X10 Array[String]
         x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = x10aux::convert_args(main_args->ac, main_args->av);
 
-        // Construct closure to invoke the static initialisers at place 0
-        x10aux::ref<x10::lang::VoidFun_0_0> init_closure =
-            x10aux::ref<StaticInitClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::StaticInitClosure)))
-                                           x10aux::StaticInitClosure());
-
         // Construct closure to invoke the user's "public static def main(Array[String]) : void"
         // if at place 0 otherwise wait for asyncs.
         x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
@@ -140,7 +126,7 @@ static void* real_x10_main_inner(void* _main_args) {
 
         // Actually start up the runtime and execute the program.
         // When this function returns, the program will have exited.
-        x10::lang::Runtime::start(init_closure, main_closure);
+        x10::lang::Runtime::start(main_closure);
 
 #ifndef NO_EXCEPTIONS
     } catch(int exitCode) {

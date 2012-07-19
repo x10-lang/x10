@@ -220,6 +220,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;
     // XTENLANG-3058
     public static final boolean supportTypeConstraintsWithErasure = true;
+    // XTENLANG-3090 (switched back to use java assertion)
+    private static final boolean useJavaAssertion = true;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -232,6 +234,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_STRING = "x10.core.String";
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
+    public static final String X10_RUNTIME_IMPL_JAVA_RUNTIME = "x10.runtime.impl.java.Runtime";
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
 
     public static final String X10_CORE_THROWABLE_UTILITIES = "x10.core.ThrowableUtilities";
@@ -642,8 +645,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.begin(0);
             
             if (!config.NO_TRACES && !config.OPTIMIZE) {
-                w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                w.write("x10.runtime.impl.java.Runtime.printTraceMessage(\"X10JavaSerializable for Hadoop Writable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                w.write("if (" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
+                w.write(X10_RUNTIME_IMPL_JAVA_RUNTIME + ".printTraceMessage(\"X10JavaSerializable for Hadoop Writable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
                 w.writeln("} ");
             }
             
@@ -694,7 +697,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (!config.NO_TRACES && !config.OPTIMIZE) {
                     // override to trace serialization
                     w.write("private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException { ");
-                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
+                    w.write("if (" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
                     w.write("java.lang.System.out.println(\"Serializer: writeObject(ObjectOutputStream) of \" + this + \" calling\"); ");
                     w.write("} ");
                     w.write("oos.defaultWriteObject(); }");
@@ -713,8 +716,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.begin(0);
 
                 if (!config.NO_TRACES && !config.OPTIMIZE) {
-                    w.write("if (x10.runtime.impl.java.Runtime.TRACE_SER) { ");
-                    w.write("x10.runtime.impl.java.Runtime.printTraceMessage(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+                    w.write("if (" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
+                    w.write(X10_RUNTIME_IMPL_JAVA_RUNTIME + ".printTraceMessage(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
                     w.writeln("} ");
                 }
 
@@ -2771,7 +2774,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             X10Call call = (X10Call)expr;
                             MethodInstance mi = call.methodInstance();
                             if ((isBoxedType(mi.def().returnType().get()) && !er.isInlinedCall(call)) && !isPrimitiveGenericMethod(mi)
-                                    || er.isDispatcher(call.methodInstance()))
+                                    || Emitter.isDispatcher(call.methodInstance()))
                                 closeParen = er.printUnboxConversion(castType);
                         } else if (expr instanceof ClosureCall) {
                             ClosureCall call = (ClosureCall)expr;
@@ -4086,7 +4089,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(Assert_c n) {
-        n.translate(w, tr);
+        if (!tr.job().extensionInfo().getOptions().assertions)
+            return;
+
+        if (useJavaAssertion) {
+            n.translate(w, tr);
+        } else {
+            Expr cond = ((Assert_c) n).cond();
+            Expr errorMessage = ((Assert_c) n).errorMessage();
+
+            w.write("if (!" + X10_RUNTIME_IMPL_JAVA_RUNTIME + ".DISABLE_ASSERTIONS && ");
+            w.write("!(");
+            tr.print(n, cond, w);
+            w.write(")");
+            w.write(") {");
+            w.write("throw new x10.lang.AssertionError(");
+
+            if (errorMessage != null) {
+                w.write("java.lang.String.valueOf(");
+                tr.print(n, errorMessage, w);
+                w.write(")");
+            }
+
+            w.write(");");
+            w.write("}");
+        }
+
     }
 
     @Override

@@ -87,6 +87,11 @@ final public class UInt extends Number implements StructI, java.lang.Comparable<
         return obj;
     }
 
+    public static UInt $box(Object obj) {
+        if (obj instanceof UInt) return (UInt) obj;
+        else return $box(((java.lang.Integer)obj).intValue());
+    }
+
     public static int $unbox(int value) {
         return value;
     }

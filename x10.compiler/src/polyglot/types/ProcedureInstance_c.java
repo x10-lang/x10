@@ -1,3 +1,17 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ * This file was originally derived from the Polyglot extensible compiler framework.
+ *
+ *  (C) Copyright 2000-2007 Polyglot project group, Cornell University
+ *  (C) Copyright IBM Corporation 2007-2012.
+ */
+
 package polyglot.types;
 
 import java.util.*;
@@ -157,22 +171,51 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
     }
     
     public String signature() {
-	StringBuilder sb = new StringBuilder();
-	List<String> formals = new ArrayList<String>();
-	if (formalTypes != null) {
-	    for (int i = 0; i < formalTypes.size(); i++) {
-		String s = formalTypes.get(i).toString();
-		formals.add(s);
-	    }
-	}
-	else {
-	    for (int i = 0; i < def().formalTypes().size(); i++) {
-		formals.add(def().formalTypes().get(i).toString());
-	    }
-	}
-	sb.append("(");
-	sb.append(CollectionUtil.listToString(formals));
-	sb.append(")");
-	return sb.toString();
+        StringBuilder sb = new StringBuilder();
+        List<String> formals = new ArrayList<String>();
+        if (formalTypes != null) {
+            for (int i = 0; i < formalTypes.size(); i++) {
+                String s = formalTypes.get(i).toString();
+                formals.add(s);
+            }
+        }
+        else {
+            for (int i = 0; i < def().formalTypes().size(); i++) {
+                formals.add(def().formalTypes().get(i).toString());
+            }
+        }
+        sb.append("(");
+        sb.append(CollectionUtil.listToString(formals));
+        sb.append(")");
+        return sb.toString();
     }
+
+    public List<Type> throwTypes() {
+        if (this.throwTypes == null) {
+            return new TransformingList<Ref<? extends Type>, Type>(def().throwTypes(), new DerefTransform<Type>());
+        }
+        return this.throwTypes;
+    }
+
+    /** Returns true iff <code>this</code> throws fewer exceptions than
+     * <code>p</code>. */
+    public boolean throwsSubset(ProcedureInstance<T> p) {
+
+        SubtypeSet s1 = new SubtypeSet(ts.JavaThrowable());
+        SubtypeSet s2 = new SubtypeSet(ts.JavaThrowable());
+
+        s1.addAll(this.throwTypes());
+        s2.addAll(p.throwTypes());
+
+        for (Iterator<Type> i = s1.iterator(); i.hasNext(); ) {
+            Type t = (Type) i.next();
+            if (! ts.isUncheckedException(t) && ! s2.contains(t)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+   
 }

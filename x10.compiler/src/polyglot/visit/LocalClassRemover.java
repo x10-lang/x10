@@ -1,3 +1,17 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ * This file was originally derived from the Polyglot extensible compiler framework.
+ *
+ *  (C) Copyright 2000-2007 Polyglot project group, Cornell University
+ *  (C) Copyright IBM Corporation 2007-2012.
+ */
+
 package polyglot.visit;
 
 import java.util.*;
@@ -364,7 +378,8 @@ public abstract class LocalClassRemover extends ContextVisitor {
 	// Build the list of formal parameters and list of arguments for the super call.
 	List<Formal> formals = new ArrayList<Formal>();
 	List<Expr> args = new ArrayList<Expr>();
-	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+    List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
 	int i = 1;
 
 	for (Expr e : neu.arguments()) {
@@ -384,6 +399,10 @@ public abstract class LocalClassRemover extends ContextVisitor {
 	    args.add(l);
 	    argTypes.add(li.type());
 	}
+	
+	for (Type t : superCI.throwTypes()) {
+	    throwTypes.add(Types.ref(t));
+	}
 
 	Position pos = cd.position().markCompilerGenerated();
 
@@ -398,7 +417,7 @@ public abstract class LocalClassRemover extends ContextVisitor {
 	// Create the constructor declaration node and the CI.
 	ConstructorDecl td = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PRIVATE), cd.name(), formals,  nf.Block(pos, statements));
     td = (ConstructorDecl) td.visit(new MarkReachable());
-	ConstructorDef ci = ts.constructorDef(pos, pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes);
+	ConstructorDef ci = ts.constructorDef(pos, pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes, throwTypes);
 	td = td.constructorDef(ci);
 
 	return td;

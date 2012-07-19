@@ -1,10 +1,17 @@
 /*
- * This file is part of the Polyglot extensible compiler framework.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * Copyright (c) 2000-2006 Polyglot project group, Cornell University
- * Copyright (c) 2007 IBM Corporation
- * 
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ * This file was originally derived from the Polyglot extensible compiler framework.
+ *
+ *  (C) Copyright 2000-2007 Polyglot project group, Cornell University
+ *  (C) Copyright IBM Corporation 2007-2012.
  */
+
 package polyglot.types;
 
 import x10.types.constraints.CConstraint;
@@ -99,4 +106,19 @@ public interface ProcedureInstance<T extends ProcedureDef> extends CodeInstance<
     /** The type of offer statements permitted in the body.
 	 * May be null -- no offers are permitted.*/
 	Ref<? extends Type> offerType();
+
+	/**
+	 * List of declared exception types thrown.
+	 * @return A list of <code>Type</code>.
+	 * @see polyglot.types.Type
+	 */
+	List<Type> throwTypes();
+	ProcedureInstance<T> throwTypes(List<Type> throwTypes);
+
+	/**
+	 * Returns true if the procedure throws a subset of the exceptions
+	 * thrown by <code>pi</code>.
+	 */
+	boolean throwsSubset(ProcedureInstance<T> pi);
+	
 }

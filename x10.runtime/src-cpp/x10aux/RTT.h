@@ -252,16 +252,8 @@ namespace x10aux {
     }
 
     #define TYPENAME(T) x10aux::typeName<T>()
-    class InitClosure;
-    template<> inline const char *typeName<InitClosure>() { return "InitClosure"; }
-    class InitDispatcher;
-    template<> inline const char *typeName<InitDispatcher>() { return "InitDispatcher"; }
-    class StaticInitClosure;
-    template<> inline const char *typeName<StaticInitClosure>() { return "StaticInitClosure"; }
     class BootStrapClosure;
     template<> inline const char *typeName<BootStrapClosure>() { return "BootStrapClosure"; }
-    class remote_ref;
-    template<> inline const char *typeName<remote_ref>() { return "remote_ref"; }
     template<> inline const char *typeName<reentrant_lock>() { return "reentrant_lock"; }
     template<> inline const char *typeName<void (*)()>() { return "void (*)()"; }
     template<> inline const char *typeName<void*>() { return "void *"; }

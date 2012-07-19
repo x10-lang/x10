@@ -14,17 +14,17 @@ package x10.constraints.tests;
 import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraintManager;
 import x10.constraint.XField;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class EQVEntailmentTests extends TestCase {
 	public EQVEntailmentTests() {
 		super("EQVEntailmentTests");
 	}
-	 XTerm zero = XTerms.makeLit(new Integer(0));
-	 XTerm one = XTerms.makeLit(new Integer(1));
+	 XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
+	 XTerm one = XConstraintManager.getConstraintSystem().makeLit(new Integer(1));
 
 	/**
 	 * |- exists X. X.a=X.b
@@ -33,13 +33,13 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test1() throws Throwable {
 		 System.out.println();
 		 System.out.println("test1: |- exists X. X.a=X.b");
-         XConstraint c = new XConstraint();
-         XConstraint d = new XConstraint();
-         XVar X = XTerms.makeEQV();
+         XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+         XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+         XVar X = XConstraintManager.getConstraintSystem().makeEQV();
          String fieldA = "a";
          String fieldB = "b";
-         XField<String> Xa = XTerms.makeField(X, fieldA);
-         XField<String> Xb = XTerms.makeField(X, fieldB);
+         XField<String> Xa = XConstraintManager.getConstraintSystem().makeField(X, fieldA);
+         XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, fieldB);
          d.addBinding(Xa, Xb); 
          System.out.println("c:" + c);
          System.out.println("d:" + d);
@@ -54,11 +54,11 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test2() throws Throwable {
 		 System.out.println();
 		 System.out.println("test2: |- exists X. X.a=0");
-         XConstraint c = new XConstraint();
-         XConstraint d = new XConstraint();
-         XVar X = XTerms.makeEQV();
-         XField<String> Xa = XTerms.makeField(X, "a");
-         XTerm zero = XTerms.makeLit(new Integer(0));
+         XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+         XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+         XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+         XField<String> Xa = XConstraintManager.getConstraintSystem().makeField(X, "a");
+         XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
          d.addBinding(Xa, zero); 
          System.out.println("c:" + c);
          System.out.println("d:" + d);
@@ -72,14 +72,14 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test3() throws Throwable {
 		 System.out.println();
 		 System.out.println("test3: Y=1 |- exists X. (X.a=0,Y=1)");
-		 XConstraint c = new XConstraint();
-		 XConstraint d = new XConstraint();
-		 XVar Y = XTerms.makeUQV("Y");
+		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar Y = XConstraintManager.getConstraintSystem().makeUQV("Y");
 		 c.addBinding(Y, one);
 		 System.out.println("c:" + c);
 		 
-		 XVar X = XTerms.makeEQV();
-		 XField<String> Xa = XTerms.makeField(X, "a");
+		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Xa = XConstraintManager.getConstraintSystem().makeField(X, "a");
 		 d.addBinding(Xa, zero); 
 		 d.addBinding(Y, one);
 		 System.out.println("d:" + d);
@@ -95,18 +95,18 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test4() throws Throwable {
 		 System.out.println();
 		 System.out.println("test4: Y.a=0, Y.b=1 |/- exists X. X=Y.a,X=Y.b)");
-		 XConstraint c = new XConstraint();
-		 XVar Y = XTerms.makeUQV("Y");
-		 XField<String> Ya = XTerms.makeField(Y, "a");
-		 XField<String> Yb = XTerms.makeField(Y, "b");
+		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar Y = XConstraintManager.getConstraintSystem().makeUQV("Y");
+		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
+		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
 		 c.addBinding(Ya, zero);
 		 c.addBinding(Yb, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = new XConstraint();
-		 XVar X = XTerms.makeEQV();
-		 XField<String> Yda = XTerms.makeField(Y, "a");
-		 XField<String> Ydb = XTerms.makeField(Y, "b");
+		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
+		 XField<String> Ydb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
 		 d.addBinding(X, Yda); 
 		 d.addBinding(X, Ydb);
 		 System.out.println("d:" + d);
@@ -122,17 +122,17 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test5() throws Throwable {
 		 System.out.println();
 		 System.out.println("test5: Y.a=0, Y.b=1 |- exists X. X=Y.a,X=0)");
-		 XConstraint c = new XConstraint();
-		 XVar Y = XTerms.makeEQV();
-		 XField<String> Ya = XTerms.makeField(Y, "a");
-		 XField<String> Yb = XTerms.makeField(Y, "b");
+		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar Y = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
+		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
 		 c.addBinding(Ya, zero);
 		 c.addBinding(Yb, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = new XConstraint();
-		 XVar X = XTerms.makeEQV();
-		 XField<String> Yda = XTerms.makeField(Y, "a");
+		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
 		 d.addBinding(X, Yda); 
 		 d.addBinding(X, zero);
 		 System.out.println("d:" + d);
@@ -148,21 +148,21 @@ public class EQVEntailmentTests extends TestCase {
 		 System.out.println();
 		 System.out.println("test6: Y.a.b=0, Y.b.c=1 |- exists X. X=Y.a,X.b=0)");
 		
-		 XConstraint c = new XConstraint();
-		 XVar Y = XTerms.makeEQV();
-		 XField<String> Ya = XTerms.makeField(Y, "a");
-		 XField<String> Yab = XTerms.makeField(Ya, "b");
-		 XField<String> Yb = XTerms.makeField(Y, "b");
-		 XField<String> Ybc = XTerms.makeField(Yb, "c");
+		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar Y = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
+		 XField<String> Yab = XConstraintManager.getConstraintSystem().makeField(Ya, "b");
+		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
+		 XField<String> Ybc = XConstraintManager.getConstraintSystem().makeField(Yb, "c");
 		 c.addBinding(Yab, zero);
 		 c.addBinding(Ybc, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = new XConstraint();
-		 XVar X = XTerms.makeEQV();
-		 XField<String> Yda = XTerms.makeField(Y, "a");
+		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
 		 d.addBinding(X, Yda); 
-		 XField<String> Xb = XTerms.makeField(X, "b");
+		 XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, "b");
 		 d.addBinding(Xb, zero);
 		 System.out.println("d:" + d);
 		 System.out.println("d.extConstraints() (Y.a.b=0):" + d.extConstraints());
@@ -177,21 +177,21 @@ public class EQVEntailmentTests extends TestCase {
 		 System.out.println();
 		 System.out.println("test7: Y.a.b=0, Y.b.c=1 |/- exists X. X=Y.a,X.b=1)");
 		
-		 XConstraint c = new XConstraint();
-		 XVar Y = XTerms.makeUQV();
-		 XField<String> Ya = XTerms.makeField(Y, "a");
-		 XField<String> Yab = XTerms.makeField(Ya, "b");
-		 XField<String> Yb = XTerms.makeField(Y, "b");
-		 XField<String> Ybc = XTerms.makeField(Yb, "c");
+		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar Y = XConstraintManager.getConstraintSystem().makeUQV();
+		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
+		 XField<String> Yab = XConstraintManager.getConstraintSystem().makeField(Ya, "b");
+		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
+		 XField<String> Ybc = XConstraintManager.getConstraintSystem().makeField(Yb, "c");
 		 c.addBinding(Yab, zero);
 		 c.addBinding(Ybc, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = new XConstraint();
-		 XVar X = XTerms.makeEQV();
-		 XField<String> Yda = XTerms.makeField(Y, "a");
+		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
 		 d.addBinding(X, Yda); 
-		 XField<String> Xb = XTerms.makeField(X, "b");
+		 XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, "b");
 		 d.addBinding(Xb, one);
 		 System.out.println("d:" + d);
 		 System.out.println("d.extConstraints() (Y.a.b=1):" + d.extConstraints());
@@ -210,20 +210,20 @@ public class EQVEntailmentTests extends TestCase {
 		 System.out.println();
 		 System.out.println("test8: " + cString + " |- " + dString);
 		
-		 XConstraint c = new XConstraint();
-		 XVar Y = XTerms.makeEQV();
-		 XVar Z = XTerms.makeEQV();
-		 XField<String> Ya = XTerms.makeField(Y, "a");
-		 XField<String> Zb = XTerms.makeField(Z, "b");
+		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar Y = XConstraintManager.getConstraintSystem().makeEQV();
+		 XVar Z = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
+		 XField<String> Zb = XConstraintManager.getConstraintSystem().makeField(Z, "b");
 		 c.addBinding(Ya, Z);
 		 c.addBinding(Zb, zero);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = new XConstraint();
-		 XVar X = XTerms.makeEQV();
-		 XField<String> Yda = XTerms.makeField(Y, "a");
+		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
 		 d.addBinding(X, Yda); 
-		 XField<String> Xb = XTerms.makeField(X, "b");
+		 XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, "b");
 		 d.addBinding(Xb, zero);
 		 System.out.println("d:" + d);
 		 System.out.println("d.extConstraints() (Y.a.b=0):" + d.extConstraints());

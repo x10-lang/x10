@@ -304,7 +304,12 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
     public String toString() {
         String s = designator() + " " + flags().prettyPrint() + containerString() + "." + signature();
 
-       
+
+        if (! throwTypes().isEmpty()) {
+            s += " throws " + CollectionUtil.listToString(throwTypes());
+        }
+
+
         if (body != null)
             s += " = " + body;
 

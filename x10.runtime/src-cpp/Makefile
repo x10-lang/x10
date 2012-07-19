@@ -75,12 +75,6 @@ xrx: $(XRX_ARCHIVE)
 
 .PHONY: xrx 
 
-export CXX
-export MPICXX
-export AR
-export CXXFLAGS
-export ARFLAGS
-
 ###################
 # Generated Files #
 ###################
@@ -153,7 +147,6 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/config.o \
 	x10aux/double_utils.o \
 	x10aux/int_utils.o \
-	x10aux/init_dispatcher.o \
 	x10aux/static_init.o \
 	x10aux/itables.o \
 	x10aux/io/FILEPtrInputStream.o \
@@ -164,6 +157,7 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/long_utils.o \
 	x10aux/network.o \
 	x10aux/place_local.o \
+	x10aux/processes.o \
 	x10aux/ref.o \
 	x10aux/reference_logger.o \
 	x10aux/RTT.o \
@@ -270,9 +264,14 @@ install: $(XRX_ARCHIVE) install_props
 %:%.c
 %:%.cc
 
-# want to make sure the x10 code has been compiled to cc,h since the
-# manually written code may #include some of the generated headers
+ifdef USE_XLC
+# temporary workaround for xlC v11 bug (fixed by xlC development, but fix won't GA until 4Q2012)
+gen/x10/util/Team.o: gen/x10/util/Team.cc gen/x10/util/Team.h $(GEN_DIR)/all-cpp-generated 
+	$(CXX) $(CXXFLAGS)  $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -qnoinline -c $< -o $@
+endif
 
+# depend on all-cpp-generated because we need to make sure the x10 code 
+# has been compiled to cc,h since the manually written code may include generated headers
 %.o: %.cc $(GEN_DIR)/all-cpp-generated 
 	$(CXX) $(CXXFLAGS) $(CXX_WARNING_FLAGS) $(CXXFLAGS_SHARED) -c $< -o $@
 %.o: %.cc %.h $(GEN_DIR)/all-cpp-generated 

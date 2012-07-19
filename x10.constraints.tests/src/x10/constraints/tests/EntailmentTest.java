@@ -14,32 +14,32 @@ package x10.constraints.tests;
 //import polyglot.ext.x10.types.X10TypeMixin;
 import junit.framework.TestCase;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraintManager;
 import x10.constraint.XField;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class EntailmentTest extends TestCase {
 	public EntailmentTest() {
 		super("EntailmentTest");
 	}
-	XTerm zero = XTerms.makeLit(new Integer(0));
-	XTerm one = XTerms.makeLit(new Integer(1));
-	XTerm two = XTerms.makeLit(new Integer(2));
-	XVar v0 = XTerms.makeUQV("v0");
-	XVar v1 = XTerms.makeUQV("v1");
-	XVar v2 = XTerms.makeUQV("v2");
+	XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
+	XTerm one = XConstraintManager.getConstraintSystem().makeLit(new Integer(1));
+	XTerm two = XConstraintManager.getConstraintSystem().makeLit(new Integer(2));
+	XVar v0 = XConstraintManager.getConstraintSystem().makeUQV("v0");
+	XVar v1 = XConstraintManager.getConstraintSystem().makeUQV("v1");
+	XVar v2 = XConstraintManager.getConstraintSystem().makeUQV("v2");
 
 	/**
 	 * v0=v1,v1=v2 |- v0=v2
 	 * @throws Throwable
 	 */
 	public void test1() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addBinding(v0, v1);
 		c.addBinding(v1, v2);
 
-		XConstraint d = new XConstraint();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
 		d.addBinding(v0, v2);
 		assertTrue(c.entails(d));
 	}
@@ -49,15 +49,15 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test2() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addBinding(v0,v1);
 		
-		XConstraint d = new XConstraint();
-		XVar x = XTerms.makeEQV();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x = XConstraintManager.getConstraintSystem().makeEQV();
 		d.addBinding(x, v2);
 		
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
-		//XTerm x1f = XTerms.makeField(x1, XTerms.makeUQV(new Object(), "f"));
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
+		//XTerm x1f = XConstraintManager.getConstraintSystem().makeField(x1, XConstraintManager.getConstraintSystem().makeUQV(new Object(), "f"));
 		assertTrue(c.entails(d));
 	}
 	
@@ -66,16 +66,16 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test3() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addBinding(v0,v1);
 		
-		XConstraint d = new XConstraint();
-		XVar x = XTerms.makeEQV();
-		XVar y = XTerms.makeEQV();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x = XConstraintManager.getConstraintSystem().makeEQV();
+		XVar y = XConstraintManager.getConstraintSystem().makeEQV();
 		d.addBinding(x, y);
 		
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
-		//XTerm x1f = XTerms.makeField(x1, XTerms.makeUQV(new Object(), "f"));
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
+		//XTerm x1f = XConstraintManager.getConstraintSystem().makeField(x1, XConstraintManager.getConstraintSystem().makeUQV(new Object(), "f"));
 		assertTrue(c.entails(d));
 	}
 	
@@ -84,15 +84,15 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test4() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addBinding(v0,v1);
 		
-		XConstraint d = new XConstraint();
-		XTerm v0f = XTerms.makeField(v0, "f");
-		XTerm v1f = XTerms.makeField(v1, "f");
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XTerm v0f = XConstraintManager.getConstraintSystem().makeField(v0, "f");
+		XTerm v1f = XConstraintManager.getConstraintSystem().makeField(v1, "f");
 		d.addBinding(v0f, v1f);
 		
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
 		boolean result = c.entails(d);
 		assertTrue(result);
 	}
@@ -101,17 +101,17 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test5() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
-			XTerm v0f = XTerms.makeField(v0, "f");
+			XTerm v0f = XConstraintManager.getConstraintSystem().makeField(v0, "f");
 			c.addBinding(v0f, v0);
 			assertFalse(c.consistent());
 		
 
-		XConstraint d = new XConstraint();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
 		d.addBinding(v1,v2);
 
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
 		boolean result = c.entails(d);
 		assertTrue(result);
 		
@@ -121,47 +121,47 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test6() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
 
-		XConstraint d = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
 		d.addBinding(v1,x1);
 		d.addBinding(v2,x1);
 
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
 		boolean result = c.entails(d);
 		assertFalse(result);
 		
 	}
 	public void test7() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
 
-		XConstraint d = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
-		XVar x2 = XTerms.makeEQV();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
+		XVar x2 = XConstraintManager.getConstraintSystem().makeEQV();
 		d.addBinding(v1,x1);
 		d.addBinding(x2,x1);
 		d.addBinding(v2,x2);
 
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
 		boolean result = c.entails(d);
 		assertFalse(result);
 		
 	}
 	public void test8() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
 
-		XConstraint d = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
-		XVar x2 = XTerms.makeEQV();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
+		XVar x2 = XConstraintManager.getConstraintSystem().makeEQV();
 		d.addBinding(x2,x1);
 		d.addBinding(v1,x1);
 		d.addBinding(v2,x2);
 
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
 		boolean result = c.entails(d);
 		assertFalse(result);
 		
@@ -171,15 +171,15 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test9() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
-		XConstraint d = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
-		XTerm x1f = XTerms.makeField(x1, "f");
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
+		XTerm x1f = XConstraintManager.getConstraintSystem().makeField(x1, "f");
 		d.addBinding(v1,x1);
 		d.addBinding(v2,x1f);
 
-		//XVar x1 = c0.genEQV(XTerms.makeUQV("x1"), true);
+		//XVar x1 = c0.genEQV(XConstraintManager.getConstraintSystem().makeUQV("x1"), true);
 		boolean result = c.entails(d);
 		assertFalse(result);
 		
@@ -189,13 +189,13 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test10() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
 
-		XConstraint d = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
-		XVar x2 = XTerms.makeEQV();
-		XTerm x1f = XTerms.makeField(x1, "f");
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
+		XVar x2 = XConstraintManager.getConstraintSystem().makeEQV();
+		XTerm x1f = XConstraintManager.getConstraintSystem().makeField(x1, "f");
 		d.addBinding(v1,x1);
 		d.addBinding(x2,x1f);
 		d.addBinding(x2,v2);
@@ -209,14 +209,14 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test11() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
 
-		XConstraint d = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
-		XVar x2 = XTerms.makeEQV();
-		XTerm v1f = XTerms.makeField(v1,  "f");
-		XTerm v2f = XTerms.makeField(v2, "f");
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
+		XVar x2 = XConstraintManager.getConstraintSystem().makeEQV();
+		XTerm v1f = XConstraintManager.getConstraintSystem().makeField(v1,  "f");
+		XTerm v2f = XConstraintManager.getConstraintSystem().makeField(v2, "f");
 		d.addBinding(v1,x1);
 		d.addBinding(x2,v1f);
 		d.addBinding(x2,v2f);
@@ -230,16 +230,16 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test12() throws Throwable {
-		XConstraint c = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
-		XVar x2 = XTerms.makeEQV();
-		XTerm v1f = XTerms.makeField(v1, "f");
-		XTerm v2f = XTerms.makeField(v2, "f");
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
+		XVar x2 = XConstraintManager.getConstraintSystem().makeEQV();
+		XTerm v1f = XConstraintManager.getConstraintSystem().makeField(v1, "f");
+		XTerm v2f = XConstraintManager.getConstraintSystem().makeField(v2, "f");
 		c.addBinding(v1,x1);
 		c.addBinding(x2,v1f);
 		c.addBinding(x2,v2f);
 		
-		XConstraint d = new XConstraint();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
 		d.addBinding(v1,v2);
 		
 		boolean result = c.entails(d);
@@ -252,12 +252,12 @@ public class EntailmentTest extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test13() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addBinding(v1,zero);
 		
 		
-		XConstraint d = new XConstraint();
-		XVar x1 = XTerms.makeEQV();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+		XVar x1 = XConstraintManager.getConstraintSystem().makeEQV();
 		d.addBinding(zero,x1);
 		d.addBinding(v1,x1);
 		
@@ -271,16 +271,16 @@ public class EntailmentTest extends TestCase {
          * @throws Throwable
         
         public void test14() throws Throwable {
-            final XVar v0 = XTerms.makeUQV("v0");
-            final XVar v1 = XTerms.makeUQV("v1");
+            final XVar v0 = XConstraintManager.getConstraintSystem().makeUQV("v0");
+            final XVar v1 = XConstraintManager.getConstraintSystem().makeUQV("v1");
 
-            final XConstraint s = new XConstraint();
+            final XConstraint s = XConstraintManager.getConstraintSystem().makeConstraint();
             s.addBinding(v1, v0);
 
-            XConstraint c = new XConstraint();
+            XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
             c.addTerm(v0);
             
-            XConstraint d = new XConstraint();
+            XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
             d.addBinding(v0, v1);
             System.out.println();
             System.out.println("EntailmentTest.test14: v0 : _{self=v1} |- v0=v1");
@@ -296,11 +296,11 @@ public class EntailmentTest extends TestCase {
          */
         public void test15() throws Throwable {
            
-            XConstraint c = new XConstraint();
-            XConstraint d = new XConstraint();
-            XVar X = XTerms.makeEQV();
-            XField<String> Xa = XTerms.makeField(X, "a");
-            XField<String> Xb = XTerms.makeField(X, "b");
+            XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+            XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
+            XVar X = XConstraintManager.getConstraintSystem().makeEQV();
+            XField<String> Xa = XConstraintManager.getConstraintSystem().makeField(X, "a");
+            XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, "b");
             d.addBinding(Xa, Xb); 
             assertTrue(c.entails(d));
         }

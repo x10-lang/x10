@@ -17,6 +17,8 @@ import x10.compiler.StackAllocate;
 
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
+import x10.io.Reader;
+import x10.io.Writer;
 
 import x10.util.Random;
 import x10.util.Stack;
@@ -124,6 +126,26 @@ public final class Runtime {
     public static WARN_ON_THREAD_CREATION = Configuration.warn_on_thread_creation();
     public static BUSY_WAITING = Configuration.busy_waiting();
 
+    // External process execution
+
+    /**
+     * Executes the specified command in a separate process.
+     * The returned InputStreamReader is connected to the standard output
+     * of the new process.
+     */
+    @Native("java","x10.runtime.impl.java.Runtime.execForRead(#command)")
+    @Native("c++", "x10aux::processes::execForRead(x10aux::to_string(#command)->c_str())")
+    public static native def execForRead(command:String):Reader{self!=null};
+
+    /**
+     * Executes the specified command in a separate process.
+     * The returned OutputStreamWriter is connected to the standard input
+     * of the new process.
+     */
+    @Native("java","x10.runtime.impl.java.Runtime.execForWrite(#command)")
+    @Native("c++", "x10aux::processes::execForWrite(x10aux::to_string(#command)->c_str())")
+    public static native def execForWrite(command:String):Writer{self!=null};
+            
     // Runtime state
 
     static staticMonitor = new Monitor();
@@ -601,7 +623,7 @@ public final class Runtime {
      * @param init Static initializers
      * @param body Main activity
      */
-    public static def start(init:()=>void, body:()=>void):void {
+    public static def start(body:()=>void):void {
         try {
             // initialize thread pool for the current process
             // initialize runtime
@@ -609,7 +631,7 @@ public final class Runtime {
 
             if (hereInt() == 0) {
                 val rootFinish = new FinishState.Finish(pool.latch);
-                // in place 0 schedule the execution of the static initializers fby main activity
+                // in place 0 schedule the execution of the main activity
                 executeLocal(new Activity(body, rootFinish));
 
                 // wait for thread pool to die
@@ -621,8 +643,23 @@ public final class Runtime {
                     rootFinish.waitForFinish();
                 } finally {
                     // root finish has terminated, kill remote processes if any
-                    for (var i:Int=1; i<Place.MAX_PLACES; i++) {
-                        x10rtSendMessage(i, ()=> @x10.compiler.RemoteInvocation {pool.latch.release();});
+                    if (Place.MAX_PLACES >= 1024) {
+                        val cl1 = ()=> @x10.compiler.RemoteInvocation {
+                            val h = hereInt();
+                            val cl = ()=> @x10.compiler.RemoteInvocation {pool.latch.release();};
+                            for (var j:Int=Math.max(1, h-31); j<h; ++j) {
+                                x10rtSendMessage(j, cl);
+                            }
+                            pool.latch.release();
+                        };
+                        for(var i:Int=Place.MAX_PLACES-1; i>0; i-=32) {
+                            x10rtSendMessage(i, cl1);
+                        }
+                    } else {
+                        val cl = ()=> @x10.compiler.RemoteInvocation {pool.latch.release();};
+                        for (var i:Int=Place.MAX_PLACES-1; i>0; --i) {
+                            x10rtSendMessage(i, cl);
+                        }
                     }
                 }
             } else {
@@ -966,6 +1003,8 @@ public final class Runtime {
             f = new FinishState.FinishSPMD(); break;
         case Pragma.FINISH_LOCAL:
             f = new FinishState.LocalFinish(); break;
+        case Pragma.FINISH_DENSE:
+            f = new FinishState.DenseFinish(); break;
         default: 
             f = new FinishState.Finish();
         }

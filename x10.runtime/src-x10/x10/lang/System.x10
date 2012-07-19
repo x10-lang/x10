@@ -96,6 +96,11 @@ public class System {
     public static def getenv():Map[String,String] = Runtime.env;
 
     /**
+     * Returns the value of the specified environment variable, or null if the variable is not defined.
+     */
+    public static def getenv(name:String):String = Runtime.env.getOrElse(name, null);
+
+    /**
      * Sets the system property with the given name to the given value.
      *
      * @param p the name of the system property.

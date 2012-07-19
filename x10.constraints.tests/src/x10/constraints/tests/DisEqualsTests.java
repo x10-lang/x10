@@ -14,32 +14,32 @@ package x10.constraints.tests;
 //import polyglot.ext.x10.types.X10TypeMixin;
 import junit.framework.TestCase;
 import x10.constraint.XConstraint;
+import x10.constraint.XConstraintManager;
 import x10.constraint.XField;
 import x10.constraint.XTerm;
-import x10.constraint.XTerms;
 import x10.constraint.XVar;
 
 public class DisEqualsTests extends TestCase {
 	public DisEqualsTests() {
 		super("EntailmentTest");
 	}
-	XTerm zero = XTerms.makeLit(new Integer(0));
-	XTerm one = XTerms.makeLit(new Integer(1));
-	XTerm two = XTerms.makeLit(new Integer(2));
-	XTerm NULL = XTerms.makeLit(null);
-	XVar v0 = XTerms.makeUQV();
-	XVar v1 = XTerms.makeUQV();
-	XVar v2 = XTerms.makeUQV();
-	XVar v3 = XTerms.makeUQV();
-	XVar v4 = XTerms.makeUQV();
-	XVar v5 = XTerms.makeUQV();
+	XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
+	XTerm one = XConstraintManager.getConstraintSystem().makeLit(new Integer(1));
+	XTerm two = XConstraintManager.getConstraintSystem().makeLit(new Integer(2));
+	XTerm NULL = XConstraintManager.getConstraintSystem().makeLit(null);
+	XVar v0 = XConstraintManager.getConstraintSystem().makeUQV();
+	XVar v1 = XConstraintManager.getConstraintSystem().makeUQV();
+	XVar v2 = XConstraintManager.getConstraintSystem().makeUQV();
+	XVar v3 = XConstraintManager.getConstraintSystem().makeUQV();
+	XVar v4 = XConstraintManager.getConstraintSystem().makeUQV();
+	XVar v5 = XConstraintManager.getConstraintSystem().makeUQV();
 	
 	/**
 	 * Test v0 != v1 |- v0 != v1
 	 * @throws Throwable
 	 */
 	public void test1() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addDisBinding(v0, v1);
 		//System.out.println("c=" + c);
 		boolean b = c.disEntails(v0, v1);
@@ -51,7 +51,7 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test2() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		boolean b = c.disEntails(v0,v1);
 		assertFalse(b);
 	}
@@ -61,9 +61,9 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test3() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		
-		XConstraint d = new XConstraint();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
 		d.addDisBinding(v0, v1);
 		boolean b = c.entails(v0,v1);
 		assertFalse(b);
@@ -74,11 +74,11 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test4() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addDisBinding(v0, v1);
 		c.addBinding(v1, v2);
 	
-		XConstraint d = new XConstraint();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
 		d.addDisBinding(v0, v2);
 		boolean b = c.entails(d);
 		assertTrue(b);
@@ -89,11 +89,11 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test5() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addDisBinding(v0, v1);
 		c.addBinding(v1, v2);
 	
-		XConstraint d = new XConstraint();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
 		d.addDisBinding(v1, v2);
 		boolean b = c.entails(d);
 		assertFalse(b);
@@ -104,11 +104,11 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test6() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addDisBinding(v0, v1);
 		c.addDisBinding(v1, v2);
 	
-		XConstraint d = new XConstraint();
+		XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
 		d.addDisBinding(v0, v2);
 		boolean b = c.entails(d);
 		assertFalse(b);
@@ -119,7 +119,7 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test7() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addBinding(v0, v1);
 		c.addDisBinding(v1, v2);
 		c.addBinding(v2, v3);
@@ -131,21 +131,21 @@ public class DisEqualsTests extends TestCase {
 	}
 	// |- 0 != 1
 	public void test8() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		boolean b = c.disEntails(zero,one);
 		assertTrue(b);
 	}
 	
 	// |/- 0 != 0
 	public void test9() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		boolean b = c.disEntails(zero,zero);
 		assertFalse(b);
 	}
 	
 	//  v != null |- v != null
 	public void test10() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addDisBinding(v0,NULL);
 		
 		boolean b = c.disEntails(v0, NULL);
@@ -155,7 +155,7 @@ public class DisEqualsTests extends TestCase {
 	//  v0 == v1, v0 != v1 |- v2==v3
 	public void test11() throws Throwable {
 
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		c.addDisBinding(v0,v1);
 		c.addBinding(v0, v1);
 		assertFalse(c.consistent());
@@ -166,10 +166,10 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test12() throws Throwable {
-		XConstraint c = new XConstraint();
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
 		Object field = new Object();
-		XField<Object> f = new XField<Object>(v0, field);
-		XField<Object> g = new XField<Object>(v1, field);
+		XField<Object> f = XConstraintManager.getConstraintSystem().makeField(v0, field);
+		XField<Object> g = XConstraintManager.getConstraintSystem().makeField(v1, field);
 		c.addDisBinding(f,g);
 		boolean result = c.disEntails(v0, v1);
 		assertTrue(result);
@@ -180,11 +180,11 @@ public class DisEqualsTests extends TestCase {
 	 * @throws Throwable
 	 */
 	public void test13() throws Throwable {
-		XConstraint c = new XConstraint();
-		XField<Object> f = new XField<Object>(v0, "0");
-		XField<Object> g = new XField<Object>(v1, "0");
-		c.addBinding(f,XTerms.makeLit(0));
-		c.addBinding(g,XTerms.makeLit(1));
+		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		XField<Object> f = XConstraintManager.getConstraintSystem().<Object>makeField(v0, "0");
+		XField<Object> g = XConstraintManager.getConstraintSystem().<Object>makeField(v1, "0");
+		c.addBinding(f,XConstraintManager.getConstraintSystem().makeLit(0));
+		c.addBinding(g,XConstraintManager.getConstraintSystem().makeLit(1));
 		
 		boolean result = c.disEntails(v0, v1);
 		assertTrue(result);

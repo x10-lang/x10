@@ -20,10 +20,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 
 import polyglot.ast.Assign;
 import polyglot.ast.Binary;
+import polyglot.ast.Binary.Operator;
 import polyglot.ast.Block;
 import polyglot.ast.BooleanLit;
 import polyglot.ast.Call;
 import polyglot.ast.Cast;
+import polyglot.ast.Catch;
+import polyglot.ast.CharLit;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl_c;
 import polyglot.ast.ClassMember;
@@ -44,6 +47,7 @@ import polyglot.ast.LocalDecl;
 import polyglot.ast.MethodDecl;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
+import polyglot.ast.NullLit;
 import polyglot.ast.ProcedureDecl;
 import polyglot.ast.Receiver;
 import polyglot.ast.Return;
@@ -57,6 +61,7 @@ import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorDef;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
@@ -127,8 +132,10 @@ import x10c.types.X10CTypeSystem_c;
 
 public class StaticInitializer extends ContextVisitor {
 
-    // WIP XTENLANG-3081
-    private static final boolean stickyExceptionSemantics = false;
+    // XTENLANG-3081
+    private static final boolean stickyExceptionSemantics = true;
+    // XTENLANG-3081(part2)
+    private static final boolean checkExceptionInConstantExpression = true; // should be true
 
     private final X10CTypeSystem_c xts;
     private final X10CNodeFactory_c xnf;
@@ -223,6 +230,7 @@ public class StaticInitializer extends ContextVisitor {
             MethodDecl md = null; 
             if (fieldInfo.right != null) {
                 FieldDecl fdPLH = null;
+                // TODO (to be removed) for collocated multi-place
 //                if (!opts.x10_config.MULTI_NODE) {
 //                    // create PlaceLocalHandle for SingleVM MultiPlace support
 //                    fdPLH = makeFieldVar4PLH(CG, fName, classDef);
@@ -409,53 +417,71 @@ public class StaticInitializer extends ContextVisitor {
                         // System.out.println("isGlobalInit true in checkFieldDeclRHS: "+(Expr)n);
                         return n;
                     }
-                }
-                if (n instanceof X10Call_c) {
-                    X10Call call = (X10Call)n;
-                    MethodInstance mi = call.methodInstance();
-                    if (!mi.container().isClass() || call.target().type().isNumeric()) { 
-                        // allow method calls on non-objects or numerics
-                    } else if (deep_analysis && mi.flags().isStatic()) {
-                        // found reference to static method
-                        X10MethodDecl mdecl = getMethodDeclaration(mi);
-                        if (mdecl == null || checkProcedureBody(mdecl.body(), 0)) {
-                            // unsafe method call
+                    if (n instanceof X10Call_c) {
+                        X10Call call = (X10Call)n;
+                        MethodInstance mi = call.methodInstance();
+//                        if (!mi.container().isSubtype(xts.Object(), context)) {
+//                            // allow method calls on non-objects (including numerics, char and boolean)
+                        if (call.target().type().isNumeric() || call.target().type().isChar() || call.target().type().isBoolean()) { 
+                            // allow method calls on numerics, char or boolean
+                            // XTENLANG-3081(part2)
+                            // exclude "1.operator/(0)"
+                            if (checkExceptionInConstantExpression) {
+                                found.set(true);
+                                return n;
+                            }
+                        } else if (deep_analysis && mi.flags().isStatic()) {
+                            // found reference to static method
+                            X10MethodDecl mdecl = getMethodDeclaration(mi);
+                            if (mdecl == null || checkProcedureBody(mdecl.body(), 0)) {
+                                // unsafe method call
+                                found.set(true);
+                                return n;
+                            }
+                        } else {
+                            // non-static method call or no deep analysis
                             found.set(true);
                             return n;
                         }
-                    } else {
-                        // non-static method call or no deep analysis
-                        found.set(true);
-                        return n;
-                    }
-                } else if (n instanceof X10Field_c) {
-                    X10Field_c f = (X10Field_c)n;
-                    if (f.flags().isFinal() && f.flags().isStatic()) {
-                        // found reference to static field
-                        if (checkFieldRefReplacementRequired(f)) {
+                    } else if (n instanceof X10Field_c) {
+                        X10Field_c f = (X10Field_c)n;
+                        if (f.flags().isFinal() && f.flags().isStatic()) {
+                            // found reference to static field
+                            if (checkFieldRefReplacementRequired(f)) {
+                                found.set(true);
+                                return n;
+                            }
+                        }
+                    } else if (n instanceof X10New_c) {
+                        if (deep_analysis) {
+                            X10New_c neu = (X10New_c)n;
+                            X10ConstructorInstance ci = neu.constructorInstance();
+                            // get declaration of constructor
+                            X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
+                            if (cdecl == null || checkProcedureBody(cdecl.body(), 0)) {
+                                // unsafe constructor
+                                found.set(true);
+                                return n;
+                            }
+                        }
+                        // TODO (to be removed) for collocated multi-place
+//                        else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
+//                            found.set(true);
+//                        }
+                        else {
+                            // deep analysis disabled
                             found.set(true);
                             return n;
                         }
                     }
-                } else if (n instanceof X10New_c) {
-                    if (deep_analysis) {
-                        X10New_c neu = (X10New_c)n;
-                        X10ConstructorInstance ci = neu.constructorInstance();
-                        // get declaration of constructor
-                        X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                        if (cdecl == null || checkProcedureBody(cdecl.body(), 0)) {
-                            // unsafe constructor
+                    // XTENLANG-3081(part2)
+                    else {
+                        // exclude "1 as Any as Object"
+                        if (checkExceptionInConstantExpression) {
                             found.set(true);
                             return n;
                         }
-                    } else {
-                        // deep analysis disabled
-                        found.set(true);
-                        return n;
                     }
-//                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
-//                        found.set(true);
-//                    }
                 }
                 // continue traversal
                 return null;
@@ -471,19 +497,20 @@ public class StaticInitializer extends ContextVisitor {
         return fieldInfo;
     }
 
-    private boolean checkMultiplexRequiredSingleVM(X10ConstructorInstance ci) {
-        X10ConstructorDef cd = ci.x10Def();
-        X10ClassType containerBase = (X10ClassType) Types.get(cd.container());
-        X10ClassDef container = containerBase.x10Def();
-        if (container == null)
-            return false;
-        String containerName = container.toString();
-        if (containerName.startsWith("x10.io"))
-            return false;
-        if (containerName.equals("x10.lang.PlaceLocalHandle") || containerName.endsWith("x10.lang.Place"))
-            return false;
-        return true;
-    }
+    // TODO (to be removed) for collocated multi-place
+//    private boolean checkMultiplexRequiredSingleVM(X10ConstructorInstance ci) {
+//        X10ConstructorDef cd = ci.x10Def();
+//        X10ClassType containerBase = (X10ClassType) Types.get(cd.container());
+//        X10ClassDef container = containerBase.x10Def();
+//        if (container == null)
+//            return false;
+//        String containerName = container.toString();
+//        if (containerName.startsWith("x10.io"))
+//            return false;
+//        if (containerName.equals("x10.lang.PlaceLocalHandle") || containerName.endsWith("x10.lang.Place"))
+//            return false;
+//        return true;
+//    }
 
     private X10ConstructorDecl getConstructorDeclaration(X10ConstructorInstance ci) {
         X10ConstructorDef cd = ci.x10Def();
@@ -589,46 +616,65 @@ public class StaticInitializer extends ContextVisitor {
                 if (found.get())
                     // already found
                     return n;
-                if (n instanceof X10Call) {
-                    X10Call call = (X10Call)n;
-                    MethodInstance mi = call.methodInstance();
-                    if (!mi.container().isClass() || call.target().type().isNumeric()) { 
-                        // allow method calls on non-objects or numerics
-                    } else if (mi.flags().isStatic()) {
-                        // found reference to special initializer method
-                        X10MethodDecl mdecl = getMethodDeclaration(mi);
-                        if (mdecl == null || checkProcedureBody(mdecl.body(), count+1)) {
-                            // target method is unsafe include static field references
+                if (n instanceof Expr) {
+                    if (n instanceof X10Call) {
+                        X10Call call = (X10Call)n;
+                        MethodInstance mi = call.methodInstance();
+//                        if (!mi.container().isSubtype(xts.Object(), context)) { 
+//                            // allow method calls on non-objects (including numerics, char and boolean)
+                        if (call.target().type().isNumeric() || call.target().type().isChar() || call.target().type().isBoolean()) { 
+                            // allow method calls on numerics, char or boolean
+                            // XTENLANG-3081(part2)
+                            // exclude "1.operator/(0)"
+                            if (checkExceptionInConstantExpression) {
+                                found.set(true);
+                                return n;
+                            }
+                        } else if (mi.flags().isStatic()) {
+                            // found reference to special initializer method
+                            X10MethodDecl mdecl = getMethodDeclaration(mi);
+                            if (mdecl == null || checkProcedureBody(mdecl.body(), count+1)) {
+                                // target method is unsafe include static field references
+                                found.set(true);
+                                return n;
+                            }
+                        } else {
+                            // we consider non-static method call as unsafe
                             found.set(true);
                             return n;
                         }
-                    } else {
-                        // we consider non-static method call as unsafe
-                        found.set(true);
-                        return n;
+                    } else if (n instanceof X10Field_c) {
+                        X10Field_c f = (X10Field_c)n;
+                        if (f.flags().isFinal() && f.flags().isStatic()) {
+                            if (checkFieldRefReplacementRequired(f)) {
+                                // found reference to static field to be replaced
+                                found.set(true);
+                                return n;
+                            }
+                        }
+                    } else if (n instanceof X10New_c) {
+                        X10New_c neu = (X10New_c)n;
+                        X10ConstructorInstance ci = neu.constructorInstance();
+                        // get declaration of constructor
+                        X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
+                        if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), count+1)) {
+                            // constructor include static field references to be replaced
+                            found.set(true);
+                            return n;
+                        }
+                        // TODO (to be removed) for collocated multi-place
+//                        else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
+//                            found.set(true);
+//                        }
                     }
-                } else if (n instanceof X10Field_c) {
-                    X10Field_c f = (X10Field_c)n;
-                    if (f.flags().isFinal() && f.flags().isStatic()) {
-                        if (checkFieldRefReplacementRequired(f)) {
-                            // found reference to static field to be replaced
+                    // XTENLANG-3081(part2)
+                    else {
+                        // exclude "1 as Any as Object"
+                        if (checkExceptionInConstantExpression) {
                             found.set(true);
                             return n;
                         }
                     }
-                } else if (n instanceof X10New_c) {
-                    X10New_c neu = (X10New_c)n;
-                    X10ConstructorInstance ci = neu.constructorInstance();
-                    // get declaration of constructor
-                    X10ConstructorDecl cdecl = getConstructorDeclaration(ci);
-                    if (cdecl != null && !cdecl.body().equals(body) && checkProcedureBody(cdecl.body(), count+1)) {
-                        // constructor include static field references to be replaced
-                        found.set(true);
-                        return n;
-                    }
-//                    else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
-//                        found.set(true);
-//                    }
                 }
                 // continue traversal
                 return null;
@@ -662,25 +708,26 @@ public class StaticInitializer extends ContextVisitor {
         Position CG = Position.compilerGenerated(null);
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
         MethodDef md = xts.methodDef(CG, CG, Types.ref(receiver), 
-                                     Flags.STATIC, Types.ref(returnType), name, argTypes);
+                                     Flags.STATIC, Types.ref(returnType), name, argTypes, Collections.<Ref<? extends Type>>emptyList());
         return md;
     }
 
-    private FieldDecl makeFieldVar4PLH(Position pos, Name fName, X10ClassDef classDef) {
-        // make FieldDef of PlaceLocalHandle
-        ClassType type = PlaceLocalHandle();
-        Flags flags = Flags.PRIVATE.Static();
-
-        Name name = Name.make("plh$"+fName);
-        FieldDef fd = xts.fieldDef(pos, Types.ref(classDef.asType()), flags, Types.ref(type), name); 
-        FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fd));
-
-        // create the field declaration node
-        TypeNode tn = xnf.X10CanonicalTypeNode(pos, type);
-        FieldDecl result = xnf.FieldDecl(pos, xnf.FlagsNode(pos, flags), tn, xnf.Id(pos, name));
-        result = result.fieldDef(fd);
-        return result;
-    }
+    // TODO (to be removed) for collocated multi-place
+//    private FieldDecl makeFieldVar4PLH(Position pos, Name fName, X10ClassDef classDef) {
+//        // make FieldDef of PlaceLocalHandle
+//        ClassType type = PlaceLocalHandle();
+//        Flags flags = Flags.PRIVATE.Static();
+//
+//        Name name = Name.make("plh$"+fName);
+//        FieldDef fd = xts.fieldDef(pos, Types.ref(classDef.asType()), flags, Types.ref(type), name); 
+//        FieldInstance fi = xts.createFieldInstance(pos, Types.ref(fd));
+//
+//        // create the field declaration node
+//        TypeNode tn = xnf.X10CanonicalTypeNode(pos, type);
+//        FieldDecl result = xnf.FieldDecl(pos, xnf.FlagsNode(pos, flags), tn, xnf.Id(pos, name));
+//        result = result.fieldDef(fd);
+//        return result;
+//    }
 
     private FieldDecl makeFieldVar4Guard(Position pos, Name fName, X10ClassDef classDef) {
         // make FieldDef of AtomicInteger
@@ -743,7 +790,7 @@ public class StaticInitializer extends ContextVisitor {
         if (type.isBoolean())
             return xnf.BooleanLit(pos, false).type(type);
         else if (type.isChar())
-            return xnf.CharLit(pos, ' ').type(type);
+            return xnf.CharLit(pos, '\0').type(type);
         else if (type.isByte() || type.isShort() || type.isInt())
             return xnf.IntLit(pos, IntLit.INT, 0).type(type);
         else if (type.isLong())
@@ -756,7 +803,7 @@ public class StaticInitializer extends ContextVisitor {
             return xnf.FloatLit(pos, FloatLit.FLOAT, 0.0).type(type);
         else if (type.isDouble())
             return xnf.FloatLit(pos, FloatLit.DOUBLE, 0.0).type(type);
-        else if (type == xts.String())
+        else if (type.isString())
             return xnf.NullLit(pos).type(type);
         else
             return null;
@@ -769,7 +816,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref(classDef.asType()), 
-                                     Flags.STATIC, Types.ref(xts.Void()), name, argTypes);
+                                     Flags.STATIC, Types.ref(xts.Void()), name, argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // X10JavaDeserializer argument definition
@@ -830,7 +877,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -869,6 +916,67 @@ public class StaticInitializer extends ContextVisitor {
         return result;
     }
 
+    private Catch genCatch(Position pos, FieldDef fdExcept, FieldDef fdCond, Name excName, X10ClassType excType, TypeNode receiver, Stmt throwExceptStmt) {
+        LocalDef excDef = xts.localDef(pos, Flags.NONE, Types.ref(excType), excName);
+        Formal excFormal = xnf.Formal(pos, xnf.FlagsNode(pos, excDef.flags()), xnf.CanonicalTypeNode(pos, excDef.type()), xnf.Id(pos, excDef.name())).localDef(excDef);
+
+        List<Ref<? extends Type>> newExceptArgTypes = new ArrayList<Ref<? extends Type>>();
+        newExceptArgTypes.add(Types.ref(xts.Throwable()));
+        ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptArgTypes, Collections.<Ref<? extends Type>>emptyList());
+        ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
+        List<Expr> newExceptArgs = new ArrayList<Expr>();
+        Expr excExpr = xnf.Local(pos, xnf.Id(pos, excDef.name())).localInstance(excDef.asInstance()).type(excDef.asInstance().type());
+        newExceptArgs.add(excExpr);
+        Expr newExceptExpr = xnf.New(pos, xnf.CanonicalTypeNode(pos, fdExcept.asInstance().type()), newExceptArgs).constructorInstance(ci).type(fdExcept.asInstance().type());
+        Stmt storeExceptStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdExcept.name()), Assign.ASSIGN, newExceptExpr).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type()));
+
+        List<Stmt> catchStmts = new ArrayList<Stmt>();
+        // gen exception = new x10.lang.ExceptionInInitializer(e.getMessage());
+        catchStmts.add(storeExceptStmt);
+        // gen AtomicInteger.set(EXCEPTION_RAISED)
+        catchStmts.add(xnf.Eval(pos, genStatusSetExcept(pos, receiver, fdCond)));
+        // gen lockInitialized()
+        catchStmts.add(xnf.Eval(pos, genLock(pos)));
+        // gen notifyInitialized()
+        catchStmts.add(xnf.Eval(pos, genNotify(pos)));
+        // gen throw exception;
+        catchStmts.add(throwExceptStmt);
+        
+        return xnf.Catch(pos, excFormal, xnf.Block(pos, catchStmts));
+    }
+    
+    private Catch genCatchWithMessage(Position pos, FieldDef fdExcept, FieldDef fdCond, Name excName, X10ClassType excType, TypeNode receiver, Stmt throwExceptStmt) {
+        LocalDef excDef = xts.localDef(pos, Flags.NONE, Types.ref(excType), excName);
+        Formal excFormal = xnf.Formal(pos, xnf.FlagsNode(pos, excDef.flags()), xnf.CanonicalTypeNode(pos, excDef.type()), xnf.Id(pos, excDef.name())).localDef(excDef);
+
+        List<Ref<? extends Type>> newExceptArgTypes = new ArrayList<Ref<? extends Type>>();
+        newExceptArgTypes.add(Types.ref(xts.String()));
+        ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptArgTypes, Collections.<Ref<? extends Type>>emptyList());
+        ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
+        List<Expr> newExceptArgs = new ArrayList<Expr>();
+        MethodDef md = xts.methodDef(pos, pos, (Ref<? extends ContainerType>) excDef.type(), Flags.NONE, Types.ref(xts.String()), Name.make("getMessage"), Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
+        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
+        Expr excExpr = xnf.Local(pos, xnf.Id(pos, excDef.name())).localInstance(excDef.asInstance()).type(excDef.asInstance().type());
+        Expr call = xnf.X10Call(pos, excExpr, xnf.Id(pos, mi.name()), Collections.<TypeNode>emptyList(), Collections.<Expr>emptyList()).methodInstance(mi).type(mi.returnType());
+        newExceptArgs.add(call);
+        Expr newExceptExpr = xnf.New(pos, xnf.CanonicalTypeNode(pos, fdExcept.asInstance().type()), newExceptArgs).constructorInstance(ci).type(fdExcept.asInstance().type());
+        Stmt storeExceptStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdExcept.name()), Assign.ASSIGN, newExceptExpr).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type()));
+
+        List<Stmt> catchStmts = new ArrayList<Stmt>();
+        // gen exception = new x10.lang.ExceptionInInitializer(e.getMessage());
+        catchStmts.add(storeExceptStmt);
+        // gen AtomicInteger.set(EXCEPTION_RAISED)
+        catchStmts.add(xnf.Eval(pos, genStatusSetExcept(pos, receiver, fdCond)));
+        // gen lockInitialized()
+        catchStmts.add(xnf.Eval(pos, genLock(pos)));
+        // gen notifyInitialized()
+        catchStmts.add(xnf.Eval(pos, genNotify(pos)));
+        // gen throw exception;
+        catchStmts.add(throwExceptStmt);
+        
+        return xnf.Catch(pos, excFormal, xnf.Block(pos, catchStmts));
+    }
+    
     private Block makeInitMethodBody(Position pos, StaticFieldInfo initInfo, FieldDef fdExcept, FieldDef fdCond,
                                      FieldDef fdId, FieldDecl fdPLH, X10ClassDef classDef) {
 
@@ -885,11 +993,13 @@ public class StaticInitializer extends ContextVisitor {
         Stmt shortCutBlock = xnf.If(pos, genCheckInitialized(pos, receiver, fdCond, true), xnf.Block(pos, stmts));
 
         Stmt shortCutBlockExcept = null;
+        Stmt throwExceptStmt = null;
         if (stickyExceptionSemantics) {
-        // gen if (AtomicInteger.get() == EXCEPTION_RAISED) { throw except; }
+        // gen if (AtomicInteger.get() == EXCEPTION_RAISED) { throw exception; }
         stmts = new ArrayList<Stmt>();
         stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmtExcept(pos, name, classDef)));
-        stmts.add(xnf.Throw(pos, xnf.Field(pos, receiver, xnf.Id(pos, fdExcept.name())).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type())));
+        throwExceptStmt = xnf.Throw(pos, xnf.Field(pos, receiver, xnf.Id(pos, fdExcept.name())).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type()));
+        stmts.add(throwExceptStmt);
         shortCutBlockExcept = xnf.If(pos, genCheckExceptionRaised(pos, receiver, fdCond, true), xnf.Block(pos, stmts));
         }
 
@@ -917,9 +1027,19 @@ public class StaticInitializer extends ContextVisitor {
         // make statement block of initialization
         stmts = new ArrayList<Stmt>();
 
-        // TODO if (stickyExceptionSemantics) surround with try
-        stmts.add(xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, 
-                                                right).fieldInstance(fi).type(right.type())));
+        // if (stickyExceptionSemantics) surround with try
+        Stmt fieldAssignStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, name), Assign.ASSIGN, right).fieldInstance(fi).type(right.type()));
+        if (stickyExceptionSemantics) {
+            Name excName = Name.makeFresh("exc$");
+            List<Catch> catchBlocks = new ArrayList<Catch>();
+            // gen catch (x10.core.X10Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.Throwable(), receiver, throwExceptStmt));
+            // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+            catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
+            stmts.add(xnf.Try(pos, xnf.Block(pos, fieldAssignStmt), catchBlocks));
+        } else {
+            stmts.add(fieldAssignStmt);
+        }
 
         stmts.add(xnf.If(pos, genPrintStmtCheckGuard(pos), makePrintStmt(pos, name, classDef)));
         // If the type is a java type we can do plain java serialization
@@ -932,7 +1052,7 @@ public class StaticInitializer extends ContextVisitor {
         Block initBody = xnf.Block(pos, stmts);
 
         // gen while(AtomicInteger.get() != INITIALIZED) { await(); }
-        Expr initCheckCond = genCheckInitialized(pos, receiver, fdCond, false);
+        Expr initCheckCond = genCheckInitialized(pos, receiver, fdCond, stickyExceptionSemantics ? Binary.LT : Binary.NE);
         Block whileBody = xnf.Block(pos, xnf.Eval(pos, genAwait(pos)));
 
         // make statement block for waiting
@@ -940,6 +1060,9 @@ public class StaticInitializer extends ContextVisitor {
         stmts.add(xnf.Eval(pos, genLock(pos)));
         stmts.add(xnf.While(pos, initCheckCond, whileBody));
         stmts.add(xnf.Eval(pos, genUnlock(pos)));
+        if (stickyExceptionSemantics) {
+        stmts.add(shortCutBlockExcept);
+        }
         Block waitBody = xnf.Block(pos, stmts);
 
         // gen x10.lang.Runtime.hereInt() == 0
@@ -972,7 +1095,7 @@ public class StaticInitializer extends ContextVisitor {
         // make instance call
         ObjectType targetType = (ObjectType)target.type();
         MethodDef md = xts.methodDef(pos, pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Object()), name, 
-                                     Collections.<Ref<? extends Type>>emptyList());
+                                     Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr applyCall = xnf.X10Call(pos, target, xnf.Id(pos, name), Collections.<TypeNode>emptyList(), 
                                      Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Object());
@@ -994,7 +1117,7 @@ public class StaticInitializer extends ContextVisitor {
         Id name = xnf.Id(pos, Name.make("hereInt"));
 
         MethodDef md = xts.methodDef(pos, pos, Types.ref(type), Flags.STATIC, Types.ref(xts.Int()), name.id(),
-                                     Collections.<Ref<? extends Type>>emptyList());
+                                     Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr here = xnf.X10Call(pos, xnf.X10CanonicalTypeNode(pos, type), name, 
                                 Collections.<TypeNode>emptyList(), 
@@ -1012,7 +1135,7 @@ public class StaticInitializer extends ContextVisitor {
         argTypes.add(Types.ref(xts.Int()));
         argTypes.add(Types.ref(xts.Int()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType) xts.AtomicInteger()),
-                Flags.NONE, Types.ref(xts.Boolean()), cs.id(), argTypes);
+                Flags.NONE, Types.ref(xts.Boolean()), cs.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = new ArrayList<Expr>();
@@ -1026,6 +1149,14 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private Expr genStatusSet(Position pos, TypeNode receiver, FieldDef fdCond) {
+        return genStatusSet(pos, "INITIALIZED", receiver, fdCond);
+    }
+
+    private Expr genStatusSetExcept(Position pos, TypeNode receiver, FieldDef fdCond) {
+        return genStatusSet(pos, "EXCEPTION_RAISED", receiver, fdCond);
+    }
+
+    private Expr genStatusSet(Position pos, String status, TypeNode receiver, FieldDef fdCond) {
         FieldInstance fi = fdCond.asInstance();
         Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fi).type(fi.type());
         Id name = xnf.Id(pos, Name.make("set")); // Intentionally not SettableAssign.SET because AtomicInteger is a NativeRep class
@@ -1033,11 +1164,11 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(xts.Int()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
-                                     Flags.NONE, Types.ref(xts.Void()), name.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), name.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = new ArrayList<Expr>();
-        args.add(getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int()));
+        args.add(getInitDispatcherConstant(pos, status).type(xts.Int()));
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Int()));
         Expr call = xnf.X10Call(pos, ai, name, typeParamNodes, args).methodInstance(mi).type(xts.Void());
@@ -1047,7 +1178,7 @@ public class StaticInitializer extends ContextVisitor {
     private Expr genBroadcastField(Position pos, Expr fieldVar, Expr fieldId, FieldDecl fdPLH, boolean customSerialization) {
         Id id;
         boolean usingReflection = false;
-        if (customSerialization && fieldVar.type().toClass().isJavaType()) {
+        if (customSerialization && fieldVar.type().toClass() != null && fieldVar.type().toClass().isJavaType()) {
             usingReflection = true;
             id = xnf.Id(pos, Name.make("broadcastStaticFieldUsingReflection"));
         } else {
@@ -1071,7 +1202,7 @@ public class StaticInitializer extends ContextVisitor {
         argTypes.add(Types.ref(xts.Short()));
         Type returnType = (fdPLH == null) ? xts.Void() : PlaceLocalHandle();
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()),
-                Flags.NONE, Types.ref(returnType), id.id(), argTypes);
+                Flags.NONE, Types.ref(returnType), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -1092,37 +1223,36 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private Expr genCheckInitialized(Position pos, TypeNode receiver, FieldDef fdCond, boolean positive) {
-        FieldInstance fi = fdCond.asInstance();
-        Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fi).type(fi.type());
-        Id name = xnf.Id(pos, Name.make("get"));
-
-        List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
-        MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
-                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes);
-        MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
-
-        List<Expr> args = Collections.<Expr>emptyList();
-        List<TypeNode> typeParamNodes = Collections.<TypeNode>emptyList();
-        Expr call = xnf.X10Call(pos, ai, name, typeParamNodes, args).methodInstance(mi).type(xts.Int());
-
-        return xnf.Binary(pos, call, positive ? Binary.EQ : Binary.NE, getInitDispatcherConstant(pos, "INITIALIZED").type(xts.Int())).type(xts.Boolean());
+        return genCheckInitialized(pos, receiver, fdCond, positive ? Binary.EQ : Binary.NE);
     }
 
     private Expr genCheckExceptionRaised(Position pos, TypeNode receiver, FieldDef fdCond, boolean positive) {
+        return genCheckExceptionRaised(pos, receiver, fdCond, positive ? Binary.EQ : Binary.NE);
+    }
+
+    private Expr genCheckInitialized(Position pos, TypeNode receiver, FieldDef fdCond, Operator op) {
+        return genCheck(pos, receiver, "INITIALIZED", fdCond, op);
+    }
+
+    private Expr genCheckExceptionRaised(Position pos, TypeNode receiver, FieldDef fdCond, Operator op) {
+        return genCheck(pos, receiver, "EXCEPTION_RAISED", fdCond, op);
+    }
+
+    private Expr genCheck(Position pos, TypeNode receiver, String fieldName, FieldDef fdCond, Operator op) {
         FieldInstance fi = fdCond.asInstance();
         Expr ai = xnf.Field(pos, receiver, xnf.Id(pos, fdCond.name())).fieldInstance(fi).type(fi.type());
         Id name = xnf.Id(pos, Name.make("get"));
 
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
         MethodDef md = xts.methodDef(pos, pos, Types.ref((ClassType)xts.AtomicInteger()), 
-                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Int()), name.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         List<Expr> args = Collections.<Expr>emptyList();
         List<TypeNode> typeParamNodes = Collections.<TypeNode>emptyList();
         Expr call = xnf.X10Call(pos, ai, name, typeParamNodes, args).methodInstance(mi).type(xts.Int());
 
-        return xnf.Binary(pos, call, positive ? Binary.EQ : Binary.NE, getInitDispatcherConstant(pos, "EXCEPTION_RAISED").type(xts.Int())).type(xts.Boolean());
+        return xnf.Binary(pos, call, op, getInitDispatcherConstant(pos, fieldName).type(xts.Int())).type(xts.Boolean());
     }
 
     private Expr genLock(Position pos) {
@@ -1146,7 +1276,7 @@ public class StaticInitializer extends ContextVisitor {
         Id id = xnf.Id(pos, methodName);
         List<Ref<? extends Type>> argTypes = Collections.<Ref<? extends Type>>emptyList();
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -1242,7 +1372,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // create MethodDef
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // get full path class name
@@ -1285,7 +1415,7 @@ public class StaticInitializer extends ContextVisitor {
 
         // create MethodDef
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()),
-                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes);
+                                     Flags.NONE, Types.ref(xts.Void()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos,Types.ref(md));
 
         // actual arguments
@@ -1338,17 +1468,31 @@ public class StaticInitializer extends ContextVisitor {
     }
 
     private boolean isGlobalInit(Expr e) {
+        // N.B. Process safe cast as constant  
+        if (e instanceof Cast)
+            return isConstantExpression(e);
         if (e.type().isNumeric() || e.type().isBoolean() || e.type().isChar() || e.type().isNull())
             return isConstantExpression(e);
-        if (e.type() == xts.String())
+        if (e.type().isString())
             return isStringConstant(e);
         return false;
     }
 
+    private static boolean isSafeCast(Cast c, Context context) {
+        return c.expr().type().isSubtype(c.castType().type(), context);
+    }
     /**
      * from x10cpp.visit.ASTQuery
      */
     private boolean isConstantExpression(Expr e) {
+        // N.B. Need to check first because NullLit_c.isConstant() returns false to workaround constant propagator's bug! 
+        if (e instanceof NullLit)
+            return true;
+        // N.B. Process safe cast as constant  
+        if (e instanceof Cast) {
+            Cast c = (Cast) e;
+            return isConstantExpression(c.expr()) && isSafeCast(c, context);
+        }
         if (!e.isConstant())
             return false;
         if (e instanceof BooleanLit)
@@ -1357,8 +1501,11 @@ public class StaticInitializer extends ContextVisitor {
             return true;
         if (e instanceof FloatLit)
             return true;
-        if (e instanceof Cast)
-            return isConstantExpression(((Cast) e).expr());
+        if (e instanceof CharLit)
+            return true;
+        // N.B. Process safe cast as constant  
+//        if (e instanceof Cast)
+//            return isConstantExpression(((Cast) e).expr());
         if (e instanceof ParExpr)
             return isConstantExpression(((ParExpr) e).expr());
         if (e instanceof Unary)
@@ -1411,7 +1558,7 @@ public class StaticInitializer extends ContextVisitor {
             Type targetType = call.target().type();
             if (targetType instanceof ConstrainedType)
                 targetType = ((ConstrainedType)targetType).baseType().get();
-            return targetType == xts.String();
+            return targetType.isString();
         }
         return false;
     }

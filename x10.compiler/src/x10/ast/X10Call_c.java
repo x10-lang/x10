@@ -635,6 +635,7 @@ public class X10Call_c extends Call_c implements X10Call {
 		// First try to find the method without implicit conversions.
 		Pair<MethodInstance, List<Expr>> p = Checker.findMethod(tc, this, targetType, name, typeArgs, argTypes);
 		mi =  p.fst();
+        // [DC] surely p.snd() is the same as this.arguments() ???
 		args = p.snd();
 	    SemanticException error=mi.error();
 		if (error != null && !(error instanceof Errors.MultipleMethodDefsMatch)) {
@@ -875,5 +876,20 @@ public class X10Call_c extends Call_c implements X10Call {
         X10Call_c c = (X10Call_c) copy();
         c.nonVirtual = nv;
         return c;
+    }
+
+    public List<Type> throwTypes(TypeSystem ts) {
+        List<Type> l = new ArrayList<Type>();
+
+        assert mi != null : "null mi for " + this;
+
+        l.addAll(mi.throwTypes());
+        l.addAll(ts.uncheckedExceptions());
+
+        if (target instanceof Expr && ! (target instanceof Special)) {
+            l.add(ts.NullPointerException());
+        }
+
+        return l;
     }
 }

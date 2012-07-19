@@ -3,11 +3,14 @@ verbose=""
 extra_cp=""
 x10_args=""
 args=""
+extra_preload=""
+java_main=""
 
 parse=true
 while [ -n "${1}" ]; do
     if [ -z "${parse}" ]; then
         args="${args} '${1}'"
+        [ -z "${java_main}" ] && java_main="${1}"
         shift
         continue
     fi
@@ -16,15 +19,24 @@ while [ -n "${1}" ]; do
         -v|-verbose|--verbose) verbose="1";;
         -classpath|-cp)
             shift
-            if [ -z "$extra_cp" ] ; then
+            if [ -z "${extra_cp}" ] ; then
                 extra_cp="${1}"
             else
                 extra_cp="${extra_cp}${PATH_SEP}${1}"
             fi
             ;;
+        -preload)
+            shift
+            if [ -z "${extra_preload}" ] ; then
+                extra_preload="${1}"
+            else
+                extra_preload="${extra_preload}${PATH_SEP}${1}"
+            fi
+            ;;
         --) parse=;;
         -*) x10_args="${x10_args} '${1}'";;
         *) args="${args} '${1}'"
+	   [ -z "${java_main}" ] && java_main="${1}"
            parse=;;
     esac
     shift
@@ -35,8 +47,7 @@ if [ -n "$help" -o -z "${args}" ]; then
     cat << EOF
 Usage: runjava [options] <java-main-class> [arg0 arg1 ...]
 where [options] includes all x10 options, and:
-    -EXTRA_PRELOAD_CLASSES=ClassA${PATH_SEP}ClassB${PATH_SEP}...${PATH_SEP}ClassZ
-                             X10-generated classes to be preloaded
+    -preload <class>         class to be preloaded
 EOF
     exit 1
 fi
@@ -44,6 +55,10 @@ fi
 
 cp="${TOP}${FILE_SEP}lib${FILE_SEP}RunJava.jar"
 [ -n "${extra_cp}" ] && cp="${extra_cp}${PATH_SEP}${cp}"
+
+preload="-EXTRA_PRELOAD_CLASSES=${java_main}"
+[ -n "${extra_preload}" ] && preload="${preload}${PATH_SEP}${extra_preload}"
+x10_args="${x10_args} ${preload}"
 
 command="\"${TOP}${FILE_SEP}bin${FILE_SEP}x10\" ${x10_args} -classpath \"${cp}\" RunJava ${args}"
 

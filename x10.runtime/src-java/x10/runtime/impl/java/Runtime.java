@@ -12,6 +12,12 @@
 package x10.runtime.impl.java;
 
 import x10.core.ThrowableUtilities;
+import x10.core.io.InputStream;
+import x10.core.io.OutputStream;
+import x10.io.InputStreamReader;
+import x10.io.OutputStreamWriter;
+import x10.io.Reader;
+import x10.io.Writer;
 import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -105,30 +111,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         System.exit(exitCode);
     }
 
-    /**
-     * Body of main x10 thread
-     */
-    // static init activity
-    static class $Closure$Init implements x10.core.fun.VoidFun_0_0 {
-        private static final long serialVersionUID = 1L;
-        public void $apply() {
-            // execute X10-level static initialization
-            x10.runtime.impl.java.InitDispatcher.runInitializer();
-        }
-
-        public RuntimeType<?> $getRTT() { return $RTT; }
-
-        public Type<?> $getParam(int i) { return null; }
-
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
-        }
-
-        public short $_get_serialization_id() {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
-        }
-    }
-
     // body of main activity
     static class $Closure$Main implements x10.core.fun.VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
@@ -208,8 +190,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         try {
             // start xrx
             x10.lang.Runtime.start(
-            // static init activity
-            new $Closure$Init(),
             // body of main activity
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
@@ -242,6 +222,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
      * The number of places in the system
      */
     public static int MAX_PLACES = X10RT.numPlaces();
+    
+    /**
+     * Disable Assertions
+     */
+    public static final boolean DISABLE_ASSERTIONS = Boolean.getBoolean("x10.DISABLE_ASSERTIONS");
+
 
     /**
      * Trace serialization
@@ -535,6 +521,28 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             map.put__0x10$util$HashMap$$K__1x10$util$HashMap$$V(e.getKey(), e.getValue());
         }
         return map;
+    }
+
+    public static Reader execForRead(String command) {
+        try {
+            Process proc = java.lang.Runtime.getRuntime().exec(command);
+            return new x10.io.InputStreamReader(new x10.core.io.InputStream(proc.getInputStream()));
+        } catch (IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+            xe.printStackTrace();
+            throw xe;
+        }
+    }
+
+    public static Writer execForWrite(String command) {
+        try {
+            Process proc = java.lang.Runtime.getRuntime().exec(command);
+            return new x10.io.OutputStreamWriter(new x10.core.io.OutputStream(proc.getOutputStream()));
+        } catch (IOException e) {
+            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+            xe.printStackTrace();
+            throw xe;
+        }
     }
 
     /**

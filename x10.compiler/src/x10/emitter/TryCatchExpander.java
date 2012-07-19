@@ -30,6 +30,7 @@ import polyglot.ast.Precedence;
 import polyglot.ast.Term;
 import polyglot.frontend.ExtensionInfo;
 import polyglot.types.Context;
+import polyglot.types.Name;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -49,8 +50,6 @@ import x10.visit.X10PrettyPrinterVisitor;
 
 public class TryCatchExpander extends Expander {
     
-    private static final String TEMPORARY_EXCEPTION_VARIABLE_NAME = "$exc$";
-
     private class CatchBlock {
         private final String exClass;
         private final int convRequired;
@@ -162,6 +161,8 @@ public class TryCatchExpander extends Expander {
         if (additionalTryCatchForConversion != NO_CONVERSION) {
             w.write("}");
 
+            String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
+
             w.write("catch (" + X10PrettyPrinterVisitor.X10_CORE_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
             w.write("throw " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ";");
             w.write("}");
@@ -204,7 +205,7 @@ public class TryCatchExpander extends Expander {
     }
 
     // N.B. ThrowableUtilities.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
-    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
+    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.IndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        ,"java.lang.RuntimeException"
     ));
@@ -212,7 +213,9 @@ public class TryCatchExpander extends Expander {
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        , "java.lang.Exception"
     ));
-    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError", "java.lang.AssertionError"
+    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError"
+        // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError (switched back to use java assertion)
+        , "java.lang.AssertionError"
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        , "java.lang.Error"
     ));

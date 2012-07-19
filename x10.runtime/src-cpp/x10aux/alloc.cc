@@ -170,6 +170,7 @@ static void ensure_init_congruent (size_t req_size) {
 
     char *size_ = x10aux::get_congruent_size();
     size_t size = size_!=NULL ? strtoull(size_,NULL,0) : 0;
+    size_t count = 0;
 
     long page = 0;
 
@@ -196,7 +197,12 @@ static void ensure_init_congruent (size_t req_size) {
                     if (val_c == NULL) { fprintf(stderr, "Formatting error in /proc/meminfo!!\n"); abort(); }
                     size_t val = strtoull(val_c,NULL,10);
                     page = val * 1024;
-                    break;
+                }
+                if (strcmp(key_c,"HugePages_Total") == 0) {
+                    const char *val_c   = strtok_r(NULL,"k",&saveptr);
+                    if (val_c == NULL) { fprintf(stderr, "Formatting error in /proc/meminfo!!\n"); abort(); }
+                    size_t val = strtoull(val_c,NULL,10);
+                    count = val;
                 }
             }
             ::free(lineptr);
@@ -225,6 +231,7 @@ static void ensure_init_congruent (size_t req_size) {
     }
 
     // if it's the first allocation, may as well make it big enough -- further allocations will fail
+    if (size == 0) size = count * page / 32;
     if (size < req_size) size = req_size;
 
     // round it up to the nearest page

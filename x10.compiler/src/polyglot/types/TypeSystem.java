@@ -1,8 +1,15 @@
 /*
- * This file is part of the Polyglot extensible compiler framework.
+ *  This file is part of the X10 project (http://x10-lang.org).
  *
- * Copyright (c) 2000-2006 Polyglot project group, Cornell University
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
+ * This file was originally derived from the Polyglot extensible compiler framework.
+ *
+ *  (C) Copyright 2000-2007 Polyglot project group, Cornell University
+ *  (C) Copyright IBM Corporation 2007-2012.
  */
 
 package polyglot.types;
@@ -136,10 +143,10 @@ public interface TypeSystem {
      * @param container Containing class of the constructor.
      * @param flags The constructor's flags.
      * @param argTypes The constructor's formal parameter types.
-     * @param excTypes The constructor's exception throw types.
+     * @param throwsTypes The constructor's exception throw types.
      */
     ConstructorDef constructorDef(Position pos, Position errorPos, Ref<? extends ClassType> container,
-                                            Flags flags, List<Ref<? extends Type>> argTypes);
+                                            Flags flags, List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes);
 
     /** Create a method instance.
      * @param pos Position of the method.
@@ -148,11 +155,11 @@ public interface TypeSystem {
      * @param returnType The method's return type.
      * @param name The method's name.
      * @param argTypes The method's formal parameter types.
-     * @param excTypes The method's exception throw types.
+     * @param throwsTypes The method's exception throw types.
      */
     MethodDef methodDef(Position pos, Position errorPos, Ref<? extends ContainerType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
-                                  List<Ref<? extends Type>> argTypes);
+                                  List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes);
 
     /** Create a default constructor instance.
      * @param pos Position of the constructor.
@@ -284,6 +291,7 @@ public interface TypeSystem {
      * returned by uncheckedExceptions().
      */
     boolean isUncheckedException(Type type);
+
 
     /**
      * Returns a collection of the Throwable types that need not be declared
@@ -1024,19 +1032,19 @@ public interface TypeSystem {
 
 
     X10ConstructorDef constructorDef(Position pos, Position errorPos, Ref<? extends ClassType> container,
-            Flags flags, List<Ref<? extends Type>> argTypes,
-            Ref<? extends Type> offerType);
+            Flags flags, List<Ref<? extends Type>> argTypes, 
+            List<Ref<? extends Type>> throwsTypes, Ref<? extends Type> offerType);
 
     X10ConstructorDef constructorDef(Position pos, Position errorPos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType,
-            List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard,
+            List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes, ThisDef thisDef, List<LocalDef> formalNames, Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType);
 
     X10MethodDef methodDef(Position pos, Position errorPos, Ref<? extends ContainerType> container,
             Flags flags, Ref<? extends Type> returnType, Name name,
-            List<Ref<? extends Type>> argTypes,  Ref<? extends Type> offerType);
+            List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes,  Ref<? extends Type> offerType);
 
     X10MethodDef methodDef(Position pos, Position errorPos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType, Name name,
-            List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, ThisDef thisDef, List<LocalDef> formalNames,
+            List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes, ThisDef thisDef, List<LocalDef> formalNames,
             Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
 
     X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name);
@@ -1282,4 +1290,6 @@ public interface TypeSystem {
     boolean isJavaThrowable(Type me);
     X10ClassType JavaException();
     X10ClassType JavaRuntimeException();
+
+    public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
 }
