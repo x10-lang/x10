@@ -3250,6 +3250,15 @@ public class Emitter {
 	    return type;
 	}
 	
+        private ClassType Comparable_String_;
+        private ClassType Comparable_String() {
+            if (Comparable_String_ == null) {
+                TypeSystem xts = tr.typeSystem();
+                Comparable_String_ = xts.load("x10.lang.Comparable").toClass().typeArguments(Arrays.asList(xts.String()));
+            }
+            return Comparable_String_;
+        }
+
 	// TODO:CAST
 	public void coerce(Node parent, Expr e, Type expected) {
 	    Type actual = e.type();
@@ -3294,18 +3303,23 @@ public class Emitter {
 	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !expectedBase.isParameterType() && !actual.isParameterType()) {
 	            prettyPrint(e, tr);
 	        }
-	        else if (isString(actual) && !expectedBase.isParameterType() && !isString(expectedBase)) {
-	        	expander = expander.boxTo(actual).castTo(expectedBase);
-	        	expander.expand(tr);
-	        }
+                else if (isString(actual)
+                    && !expectedBase.isAny() // Any is NativeRep'ed to j.l.Object
+                    && !expectedBase.isParameterType()
+                    && !expectedBase.typeEquals(Comparable_String(), tr.context()) // x.l.Comparable is NativeRep'ed to j.l.Comparable
+                    && !expectedBase.isString()
+                    ) {
+                    expander = expander.boxTo(actual).castTo(expectedBase);
+                    expander.expand(tr);
+                }
 	        else {
 	            //cast eagerly
 	            if (isBoxedType(actual) && !isBoxedType(expectedBase))
     	            expander = expander.unboxTo(expectedBase);
 	            else {
 	            	// java primitive arrays do not use boxed types
-	            	final boolean isJavaArray = tr.typeSystem().isJavaArray(expectedBase);
-    	            expander = expander.castTo(expectedBase, isJavaArray ? 0 : BOX_PRIMITIVES);
+	                boolean isJavaArray = tr.typeSystem().isJavaArray(expectedBase);
+	                expander = expander.castTo(expectedBase, isJavaArray ? 0 : BOX_PRIMITIVES);
 	            }
 	            expander.expand(tr);
 	        }
