@@ -1466,14 +1466,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         printConstructorFormals(n, true);
 
         boolean isFirst = true;
-        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+        for (Ref<? extends Type> _throws : n.constructorDef().throwTypes()) {
             if (isFirst) {
                 w.write(" throws ");
                 isFirst = false;
             } else {
                 w.write(", ");                
             }
-            er.printType(_throws, 0);
+            er.printType(_throws.get(), 0);
         }
 
         w.write("{");
@@ -1531,14 +1531,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         printConstructorFormals(n, true);
 
         boolean isFirst = true;
-        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+        for (Ref<? extends Type> _throws : n.constructorDef().throwTypes()) {
             if (isFirst) {
                 w.write(" throws ");
                 isFirst = false;
             } else {
                 w.write(", ");                
             }
-            er.printType(_throws, 0);
+            er.printType(_throws.get(), 0);
         }
 
 
@@ -1634,14 +1634,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         List<String> params = printConstructorFormals(n, false);
 
         boolean isFirst = true;
-        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+        for (Ref<? extends Type> _throws : n.constructorDef().throwTypes()) {
             if (isFirst) {
                 w.write(" throws ");
                 isFirst = false;
             } else {
                 w.write(", ");                
             }
-            er.printType(_throws, 0);
+            er.printType(_throws.get(), 0);
         }
 
         Block body = n.body();
@@ -1719,14 +1719,14 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             printConstructorFormals(n, false);
        
             isFirst = true;
-            for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            for (Ref<? extends Type> _throws : n.constructorDef().throwTypes()) {
                 if (isFirst) {
                     w.write(" throws ");
                     isFirst = false;
                 } else {
                     w.write(", ");                
                 }
-                er.printType(_throws, 0);
+                er.printType(_throws.get(), 0);
             }
 
             w.write("{");

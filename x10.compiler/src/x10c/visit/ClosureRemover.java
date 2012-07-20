@@ -235,7 +235,7 @@ public class ClosureRemover extends ContextVisitor {
 
                         X10MethodDef md = (X10MethodDef) xts.methodDef(pos, pos, Types.ref(ct), flags, cld.returnType(), name, rts, argTypes, Collections.<Ref<? extends Type>>emptyList(), ct.def().thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
                         
-                        X10MethodDecl mdcl = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, flags), cl.returnType(), xnf.Id(pos, name), tps, formals, null, null, body);
+                        X10MethodDecl mdcl = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, flags), cl.returnType(), xnf.Id(pos, name), tps, formals, null, null, Collections.<TypeNode>emptyList(), body);
     
                         nmembers.add(mdcl.methodDef(md));
                         

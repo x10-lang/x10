@@ -949,7 +949,6 @@ public interface TypeSystem {
     X10ClassType Uninitialized();
     X10ClassType SuppressTransientError();
     X10ClassType Embed();
-    X10ClassType Throws();
     X10ClassType PerProcess();
 
     //Type Value();

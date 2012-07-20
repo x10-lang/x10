@@ -313,7 +313,7 @@ public interface NodeFactory
             List<Formal> formals,  Block body);
     X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags,
             TypeNode returnType, Id name, List<TypeParamNode> typeParams,
-            List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, Block body);
+            List<Formal> formals, DepParameterExpr guard,  TypeNode offerType, List<TypeNode> throwsopt, Block body);
     SettableAssign SettableAssign(Position pos, Expr a, List<Expr> indices, Assign.Operator op, Expr rhs);
 
     Tuple Tuple(Position pos, List<Expr> args);
@@ -325,7 +325,7 @@ public interface NodeFactory
     
     X10ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags, Id name,
             TypeNode returnType, List<TypeParamNode> typeParams, List<Formal> formals, 
-            DepParameterExpr guard,  TypeNode offerType, Block body);
+            DepParameterExpr guard,  TypeNode offerType, List<TypeNode> throwTypes, Block body);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name);
     PropertyDecl PropertyDecl(Position pos, FlagsNode flags, TypeNode type, Id name, Expr init);
     X10Special Self(Position pos);

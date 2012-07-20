@@ -833,7 +833,7 @@ public class StaticInitializer extends ContextVisitor {
         TypeNode returnType = xnf.X10CanonicalTypeNode(pos, xts.Void());
         Block body = makeDeserializeMethodBody(pos, fieldInfo, fdCond, classDef, deserializerName);
         MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name), 
-                                              typeFormals, formals, null, null, body);
+                                              typeFormals, formals, null, null, Collections.<TypeNode>emptyList(), body);
         // associate methodDef with methodDecl
         result = result.methodDef(md);
         return result;
@@ -910,7 +910,7 @@ public class StaticInitializer extends ContextVisitor {
         TypeNode returnType = xnf.X10CanonicalTypeNode(pos, type);
         Block body = makeInitMethodBody(pos, fieldInfo, fdExcept, fdCond, fdId, fdPLH, classDef);
         MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name),
-                                              typeParamNodes, formals, null, null, body);
+                                              typeParamNodes, formals, null, null, Collections.<TypeNode>emptyList(), body);
         // associate methodDef with methodDecl
         result = result.methodDef(md);
         return result;
@@ -1321,7 +1321,7 @@ public class StaticInitializer extends ContextVisitor {
         // create method declaration
         TypeNode returnType = xnf.X10CanonicalTypeNode(pos, fi.type());
         MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name), 
-                                              typeParamNodes, formals, null, null, body);
+                                              typeParamNodes, formals, null, null, Collections.<TypeNode>emptyList(), body);
         // associate methodDef with methodDecl
         result = result.methodDef(md);
         return result;

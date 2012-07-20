@@ -44,4 +44,6 @@ public interface X10ConstructorDecl extends ConstructorDecl, Guarded {
 	X10ConstructorDecl formals(List<Formal> formals);
 	X10ConstructorDecl constructorDef(ConstructorDef ci);
 	X10ConstructorDef constructorDef();
+	List<TypeNode> throwsTypes();
+	X10ConstructorDecl throwsTypes(List<TypeNode> processedThrowsTypes);
 }

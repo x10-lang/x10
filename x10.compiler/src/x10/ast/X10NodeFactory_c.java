@@ -585,13 +585,13 @@ public class X10NodeFactory_c extends NodeFactory_c {
 			Id name,
 			List<Formal> formals,  Block body)
 	{
-		return X10MethodDecl(pos, flags, returnType, name, Collections.<TypeParamNode>emptyList(), formals, null,  null, body);
+		return X10MethodDecl(pos, flags, returnType, name, Collections.<TypeParamNode>emptyList(), formals, null,  null, Collections.<TypeNode>emptyList(), body);
 	}
 
 	public X10MethodDecl X10MethodDecl(Position pos, FlagsNode flags, TypeNode returnType, Id name, List<TypeParamNode> typeParams, List<Formal> formals,
-			DepParameterExpr guard,  TypeNode offerType, Block body) {
+			DepParameterExpr guard,  TypeNode offerType, List<TypeNode> throwsOpt, Block body) {
 		X10MethodDecl n = new X10MethodDecl_c(this, pos, flags, returnType, name, typeParams,
-				formals, guard,  offerType, body);
+				formals, guard,  offerType, throwsOpt, body);
 		n = (X10MethodDecl)n.ext(extFactory().extMethodDecl());
 		n = (X10MethodDecl)n.del(delFactory().delMethodDecl());
 		return n;
@@ -609,19 +609,19 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	}
 	
 	public X10ConstructorDecl ConstructorDecl(Position pos, FlagsNode flags, Id name, List<Formal> formals, Block body) {
-		return X10ConstructorDecl(pos, flags, name, null, Collections.<TypeParamNode>emptyList(), formals, null,  null, body);
+		return X10ConstructorDecl(pos, flags, name, null, Collections.<TypeParamNode>emptyList(), formals, null,  null, Collections.<TypeNode>emptyList(), body);
 	}
 
 	public X10ConstructorDecl X10ConstructorDecl(Position pos, FlagsNode flags,
 			Id name, TypeNode returnType,
 			List<TypeParamNode> typeParams, List<Formal> formals,
-			DepParameterExpr guard, TypeNode offerType, Block body)
+			DepParameterExpr guard, TypeNode offerType, List<TypeNode> throwTypes, Block body)
 	{
 		X10ConstructorDecl n =
 			new X10ConstructorDecl_c(pos, flags,
 					name, returnType,
 					typeParams, formals,
-					guard,  offerType, body);
+					guard,  offerType, throwTypes, body);
 		n = (X10ConstructorDecl)n.ext(extFactory().extConstructorDecl());
 		n = (X10ConstructorDecl)n.del(delFactory().delConstructorDecl());
 		return n;

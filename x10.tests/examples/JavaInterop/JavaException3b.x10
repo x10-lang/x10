@@ -10,7 +10,6 @@
  */
 
 import harness.x10Test;
-import x10.interop.java.Throws;
 
 // MANAGED_X10_ONLY
 
@@ -20,10 +19,10 @@ public class JavaException3b extends x10Test {
 	}
 	
 	static class Sub extends Sup {
-		def this():Sub @Throws[java.lang.Throwable] {
+		def this():Sub throws java.lang.Throwable {
 			throw new java.lang.Throwable("I like Java.");          
 		}
-		def this(a:Int):Sub @Throws[java.lang.Throwable] {
+		def this(a:Int):Sub throws java.lang.Throwable {
 			this();
 		}
 	}

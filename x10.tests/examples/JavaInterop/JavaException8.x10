@@ -10,15 +10,14 @@
  */
 
 import harness.x10Test;
-import x10.interop.java.Throws;
 
 // MANAGED_X10_ONLY
 
 public class JavaException8 extends x10Test {
 
     static class C[T] {T <: java.lang.Exception} {
-        def f() @Throws[T] {}
-        static def g[U]() {U <: java.lang.Error} @Throws[U] {} 
+        def f() throws T {}
+        static def g[U]() {U <: java.lang.Error} throws U {} 
     }
 
     public def run(): Boolean = true;

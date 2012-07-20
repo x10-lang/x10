@@ -1324,14 +1324,14 @@ public class Emitter {
 //        }
         
         isFirst = true;
-        for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+        for (Ref<? extends Type> _throws : n.methodDef().throwTypes()) {
             if (isFirst) {
                 w.write(" throws ");
                 isFirst = false;
             } else {
                 w.write(", ");
             }
-            printType(_throws, 0);
+            printType(_throws.get(), 0);
         }
         
         w.end();
@@ -1486,14 +1486,14 @@ public class Emitter {
 //            }
   
             isFirst = true;
-            for (Type _throws : AnnotationUtils.getThrowsTypes(n)) {
+            for (Ref<? extends Type> _throws : n.methodDef().throwTypes()) {
                 if (isFirst) {
                     w.write(" throws ");
                     isFirst = false;
                 } else {
                     w.write(", ");
                 }
-                printType(_throws, 0);
+                printType(_throws.get(), 0);
             }
             
             w.end();
@@ -2319,7 +2319,7 @@ public class Emitter {
 */
 
 	    boolean isFirst = true;
-	    for (Type _throws : AnnotationUtils.getThrowsTypes(impl.def())) {
+	    for (Type _throws : impl.throwTypes()) {
 	        if (isFirst) {
 	            w.write(" throws ");
 	            isFirst = false;
@@ -2448,7 +2448,7 @@ public class Emitter {
     */
 
     	    boolean isFirst = true;
-    	    for (Type _throws : AnnotationUtils.getThrowsTypes(mi.def())) {
+    	    for (Type _throws : mi.throwTypes()) {
     	        if (isFirst) {
     	            w.write(" throws ");
     	            isFirst = false;
@@ -3742,6 +3742,7 @@ public class Emitter {
                                                        formals,
                                                        guard, 
                                                        null, // offerType
+                                                       Collections.<TypeNode>emptyList(),
                                                        block);
         return cd;
     }
@@ -4401,11 +4402,11 @@ public class Emitter {
             }*/
 
             Expander throwsClause = new Inline(this, "");
-            List<Type> throwsTypes = AnnotationUtils.getThrowsTypes(n);
+            List<Ref<? extends Type>> throwsTypes = n.methodDef().throwTypes();
             if (throwsTypes.size() > 0) {
                 List<Expander> l = new ArrayList<Expander>(throwsTypes.size());
-                for (Type _throws : throwsTypes) {
-                    l.add(new TypeExpander(this, _throws, 0));
+                for (Ref<? extends Type> _throws : throwsTypes) {
+                    l.add(new TypeExpander(this, _throws.get(), 0));
                 }
                 throwsClause = new Join(this, "", "throws ", new Join(this, ", ", l));
             }

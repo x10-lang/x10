@@ -207,48 +207,6 @@ public abstract class AnnotationUtils {
         return null;
     }
 
-    /**
-     * @param d
-     * @return
-     */
-    public static List<Type> getThrowsTypes(ProcedureDecl d) {
-        Type throwsType = d.procedureInstance().typeSystem().Throws();
-        // Cannot use annotationsMatching, because that requires an exact type match.
-        List<X10ClassType> _throwss = annotationsNamed(d.returnType(), throwsType.fullName());
-        if (_throwss == null || _throwss.size()==0) {
-            _throwss = annotationsNamed(d.body(), throwsType.fullName());
-        }
-        if (_throwss == null) {
-            _throwss = Collections.<X10ClassType>emptyList();
-        }
-        List<Type> result = new ArrayList<Type>(_throwss.size());
-        for (X10ClassType _throws : _throwss) {
-            assert (_throws.typeArguments().size() == 1);
-            result.add(_throws.typeArguments().get(0));
-        }
-        return result;
-    }
-
-    /**
-     * @param pd
-     * @return
-     */
-    public static List<Type> getThrowsTypes(ProcedureDef pd) {
-        Type throwsType = pd.typeSystem().Throws();
-        // Cannot use annotationsMatching, because that requires an exact type match.
-        List<Type> _throwss = pd.annotationsNamed(throwsType.fullName());
-        if (_throwss == null) {
-            _throwss = Collections.<Type>emptyList();
-        }
-        List<Type> result = new ArrayList<Type>(_throwss.size());
-        for (Type t : _throwss) {
-            X10ClassType _throws = (X10ClassType) t;
-            assert (_throws.typeArguments().size() == 1);
-            result.add(_throws.typeArguments().get(0));
-        }
-        return result;
-    }
-
     private static final List<String> javaNativeStrings = Arrays.asList("java");
     private static final List<String> cudaNativeStrings = Arrays.asList("c++", "cuda");
     private static final List<String> cppNativeStrings  = Arrays.asList("c++");

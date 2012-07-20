@@ -1412,6 +1412,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
                 formals,
                 guard,
                 null, // offerType
+                Collections.<TypeNode>emptyList(),
                 block);
         return cd;
     }

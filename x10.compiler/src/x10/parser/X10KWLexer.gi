@@ -157,6 +157,7 @@
     switch
     this
     throw
+    throws
     transient
     true
     try
@@ -423,6 +424,11 @@
               | t h r o w
         /.$BeginAction
                 $setResult($_throw);
+          $EndAction
+        ./
+              | t h r o w s
+        /.$BeginAction
+                $setResult($_throws);
           $EndAction
         ./
               | t r a n s i e n t

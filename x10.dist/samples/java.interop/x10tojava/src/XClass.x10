@@ -12,7 +12,7 @@
 import x10.interop.java.Throws;
 
 public class XClass extends JClass {
-    static def testJThrows():void @Throws[java.lang.Throwable] {
+    static def testJThrows():void throws java.lang.Throwable {
         val x = new XClass();
         x.jthrows();
     }
