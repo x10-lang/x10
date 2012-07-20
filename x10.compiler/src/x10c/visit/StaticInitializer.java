@@ -354,9 +354,9 @@ public class StaticInitializer extends ContextVisitor {
                         // static final field
                         StaticFieldInfo fieldInfo = checkFieldDeclRHS((Expr)fd.init(), fd, cd);
                         if (fieldInfo.right != null) {
-                            // drop final
+                            // drop final and set private (XTENLANG-3076)
                             // System.out.println("RHS of FieldDecl replaced: "+ct.classDef()+"."+fd.fieldDef().name());
-                            FlagsNode fn = xnf.FlagsNode(fd.position(), flags.clearFinal());
+                            FlagsNode fn = xnf.FlagsNode(fd.position(), flags.clearFinal().clearPublic().clearProtected().Private());
                             // remove rhs: suppress java-level static initialization
                             Expr init = getDefaultValue(fd.position(), fd.init().type());
                             FieldDecl newDecl = xnf.FieldDecl(fd.position(), fn, fd.type(), fd.name(),
