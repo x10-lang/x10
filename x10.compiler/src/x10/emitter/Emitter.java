@@ -3294,10 +3294,7 @@ public class Emitter {
 	        if (actual.typeEquals(expected, tr.context()) && !(expected instanceof ConstrainedType) && !expectedBase.isParameterType() && !actual.isParameterType()) {
 	            prettyPrint(e, tr);
 	        }
-	        else if (isString(actual) && !expectedBase.isParameterType() && !isString(expectedBase)
-	            && !expectedBase.isAny()/*N.B. Any is NativeRep'ed to j.l.Object*/
-                    && !expectedBase.isComparable(tr.typeSystem().String())/*N.B. x.l.Comparable is NativeRep'ed to j.l.Comparable*/
-	            ) {
+	        else if (isString(actual) && !expectedBase.isParameterType() && !isString(expectedBase)) {
 	        	expander = expander.boxTo(actual).castTo(expectedBase);
 	        	expander.expand(tr);
 	        }
