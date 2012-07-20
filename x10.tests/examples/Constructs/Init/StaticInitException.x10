@@ -20,7 +20,7 @@ public class StaticInitException extends x10Test {
     static x:Int = f();
     static def f() {
         if (Math.sin(42) < 1000) { // should always happen
-            throw new RuntimeException("I will try to break things.");
+            throw new Exception("I will try to break things.");
         }
         return 42;
     }
