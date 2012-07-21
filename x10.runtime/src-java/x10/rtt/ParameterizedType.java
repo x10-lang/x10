@@ -129,6 +129,10 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
         return false;
     }
 
+    public boolean hasZero() {
+        return rawType.hasZero();
+    }
+
     public final boolean isInstance(Object o) {
         return rawType.isInstance(o, actualTypeArguments);
     }
