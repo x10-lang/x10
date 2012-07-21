@@ -505,13 +505,21 @@ public class Types {
     }
 
     public static <T> T cast(final java.lang.Object self, Type<?> rtt) {
-        if (self == null) return null;
+        // XTENLANG-3093
+        if (self == null) {
+            if (rtt == null || rtt.isAssignableTo(OBJECT)) return null;
+            throw new x10.lang.ClassCastException(rtt.typeName());
+        }
         if (rtt != null && !rtt.isInstance(self)) throw new x10.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
     public static <T> T castConversion(final java.lang.Object self, Type<?> rtt) {
-        if (self == null) return null;
+        // XTENLANG-3093
+        if (self == null) {
+            if (rtt == null || rtt.isAssignableTo(OBJECT)) return null;
+            throw new x10.lang.ClassCastException(rtt.typeName());
+        }
         T ret = (T) conversion(rtt, self, true);
         if (rtt != null && !rtt.isInstance(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
         return ret;
