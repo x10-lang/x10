@@ -29,4 +29,6 @@ public interface Type<T> extends java.io.Serializable, x10.x10rt.X10JavaSerializ
 
     Class<?> getJavaClass();
     String typeName();
+
+    boolean hasZero();
 }
