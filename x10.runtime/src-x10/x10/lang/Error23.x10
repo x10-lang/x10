@@ -15,29 +15,20 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 
-// TODO rename Error23 to Error
 @NativeRep("java", "java.lang.Error", null, "x10.rtt.Types.ERROR")
 @NativeRep("c++", "x10aux::ref<x10::lang::Error>", "x10::lang::Error", null)
 public class Error23 extends CheckedThrowable {
 
     @Native("java", "new java.lang.Error()")
-    public def this() {
-        super();
-    }
+    public def this() { super(); }
 
     @Native("java", "new java.lang.Error(#message)")
-    public def this(message: String) {
-        super(message);
-    }
+    public def this(message: String) { super(message); }
 
     @Native("java", "new java.lang.Error(#cause)")
-    public def this(cause: CheckedThrowable) {
-        super(cause);
-    }
+    public def this(cause: CheckedThrowable) { super(cause); }
 
     @Native("java", "new java.lang.Error(#message, #cause)")
-    public def this(message: String, cause: CheckedThrowable) {
-        super(message, cause);
-    }
+    public def this(message: String, cause: CheckedThrowable) { super(message, cause); }
     
 }

@@ -309,6 +309,127 @@ public class Types {
 	    return EXCEPTION;
 	}
     };
+    public static final RuntimeType<java.lang.NullPointerException> NULL_POINTER_EXCEPTION = new NamedType<java.lang.NullPointerException>(
+	"x10.lang.NullPointerException",
+	java.lang.NullPointerException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NULL_POINTER_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.ClassCastException> CLASS_CAST_EXCEPTION = new NamedType<java.lang.ClassCastException>(
+	"x10.lang.ClassCastException",
+	java.lang.ClassCastException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return CLASS_CAST_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.IndexOutOfBoundsException> INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.IndexOutOfBoundsException>(
+	"x10.lang.IndexOutOfBoundsException",
+	java.lang.IndexOutOfBoundsException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return INDEX_OUT_OF_BOUNDS_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.ArrayIndexOutOfBoundsException> ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.ArrayIndexOutOfBoundsException>(
+	"x10.lang.ArrayIndexOutOfBoundsException",
+	java.lang.ArrayIndexOutOfBoundsException.class,
+	null,
+	new Type[] { INDEX_OUT_OF_BOUNDS_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.StringIndexOutOfBoundsException> STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION = new NamedType<java.lang.StringIndexOutOfBoundsException>(
+	"x10.lang.StringIndexOutOfBoundsException",
+	java.lang.StringIndexOutOfBoundsException.class,
+	null,
+	new Type[] { INDEX_OUT_OF_BOUNDS_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.ArithmeticException> ARITHMETIC_EXCEPTION = new NamedType<java.lang.ArithmeticException>(
+	"x10.lang.ArithmeticException",
+	java.lang.ArithmeticException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ARITHMETIC_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.IllegalArgumentException> ILLEGAL_ARGUMENT_EXCEPTION = new NamedType<java.lang.IllegalArgumentException>(
+	"x10.lang.IllegalArgumentException",
+	java.lang.IllegalArgumentException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ILLEGAL_ARGUMENT_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.NumberFormatException> NUMBER_FORMAT_EXCEPTION = new NamedType<java.lang.NumberFormatException>(
+	"x10.lang.NumberFormatException",
+	java.lang.NumberFormatException.class,
+	null,
+	new Type[] { ILLEGAL_ARGUMENT_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NUMBER_FORMAT_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.UnsupportedOperationException> UNSUPPORTED_OPERATION_EXCEPTION = new NamedType<java.lang.UnsupportedOperationException>(
+	"x10.lang.UnsupportedOperationException",
+	java.lang.UnsupportedOperationException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return UNSUPPORTED_OPERATION_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.InterruptedException> INTERRUPTED_EXCEPTION = new NamedType<java.lang.InterruptedException>(
+	"x10.lang.InterruptedException",
+	java.lang.InterruptedException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return INTERRUPTED_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.util.NoSuchElementException> NO_SUCH_ELEMENT_EXCEPTION = new NamedType<java.util.NoSuchElementException>(
+	"x10.util.NoSuchElementException",
+	java.util.NoSuchElementException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NO_SUCH_ELEMENT_EXCEPTION;
+	}
+    };
     public static final RuntimeType<java.lang.Error> ERROR = new NamedType<java.lang.Error>(
 	"x10.lang.Error",
 	java.lang.Error.class,
@@ -318,6 +439,39 @@ public class Types {
 	// make sure deserialized RTT object is not duplicated
 	private Object readResolve() throws java.io.ObjectStreamException {
 	    return ERROR;
+	}
+    };
+    public static final RuntimeType<java.lang.AssertionError> ASSERTION_ERROR = new NamedType<java.lang.AssertionError>(
+	"x10.lang.AssertionError",
+	java.lang.AssertionError.class,
+	null,
+	new Type[] { ERROR }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ASSERTION_ERROR;
+	}
+    };
+    public static final RuntimeType<java.lang.StackOverflowError> STACK_OVERFLOW_ERROR = new NamedType<java.lang.StackOverflowError>(
+	"x10.lang.StackOverflowError",
+	java.lang.StackOverflowError.class,
+	null,
+	new Type[] { ERROR }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return STACK_OVERFLOW_ERROR;
+	}
+    };
+    public static final RuntimeType<java.lang.OutOfMemoryError> OUT_OF_MEMORY_ERROR = new NamedType<java.lang.OutOfMemoryError>(
+	"x10.lang.OutOfMemoryError",
+	java.lang.OutOfMemoryError.class,
+	null,
+	new Type[] { ERROR }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return OUT_OF_MEMORY_ERROR;
 	}
     };
 

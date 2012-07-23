@@ -85,8 +85,36 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                 RuntimeType<?> type0;
                 if (java.lang.String.class.equals(javaClass)) {
                     type0 = Types.STRING;
+                } else if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
+                    type0 = Types.OUT_OF_MEMORY_ERROR;
+                } else if (java.lang.StackOverflowError.class.equals(javaClass)) {
+                    type0 = Types.STACK_OVERFLOW_ERROR;
+                } else if (java.lang.AssertionError.class.equals(javaClass)) {
+                    type0 = Types.ASSERTION_ERROR;
                 } else if (java.lang.Error.class.equals(javaClass)) {
                     type0 = Types.ERROR;
+                } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
+                    type0 = Types.NO_SUCH_ELEMENT_EXCEPTION;
+                } else if (java.lang.InterruptedException.class.equals(javaClass)) {
+                    type0 = Types.INTERRUPTED_EXCEPTION;
+                } else if (java.lang.UnsupportedOperationException.class.equals(javaClass)) {
+                    type0 = Types.UNSUPPORTED_OPERATION_EXCEPTION;
+                } else if (java.lang.NumberFormatException.class.equals(javaClass)) {
+                    type0 = Types.NUMBER_FORMAT_EXCEPTION;
+                } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
+                    type0 = Types.ILLEGAL_ARGUMENT_EXCEPTION;
+                } else if (java.lang.ArithmeticException.class.equals(javaClass)) {
+                    type0 = Types.ARITHMETIC_EXCEPTION;
+                } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
+                    type0 = Types.STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
+                    type0 = Types.ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.IndexOutOfBoundsException.class.equals(javaClass)) {
+                    type0 = Types.INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.ClassCastException.class.equals(javaClass)) {
+                    type0 = Types.CLASS_CAST_EXCEPTION;
+                } else if (java.lang.NullPointerException.class.equals(javaClass)) {
+                    type0 = Types.NULL_POINTER_EXCEPTION;
                 } else if (java.lang.RuntimeException.class.equals(javaClass)) {
                     type0 = Types.EXCEPTION;
                 } else if (java.lang.Exception.class.equals(javaClass)) {
@@ -103,8 +131,36 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         } else {
             if (java.lang.String.class.equals(javaClass)) {
                 return Types.STRING;
+            } else if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
+                return Types.OUT_OF_MEMORY_ERROR;
+            } else if (java.lang.StackOverflowError.class.equals(javaClass)) {
+                return Types.STACK_OVERFLOW_ERROR;
+            } else if (java.lang.AssertionError.class.equals(javaClass)) {
+                return Types.ASSERTION_ERROR;
             } else if (java.lang.Error.class.equals(javaClass)) {
                 return Types.ERROR;
+            } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
+                return Types.NO_SUCH_ELEMENT_EXCEPTION;
+            } else if (java.lang.InterruptedException.class.equals(javaClass)) {
+                return Types.INTERRUPTED_EXCEPTION;
+            } else if (java.lang.UnsupportedOperationException.class.equals(javaClass)) {
+                return Types.UNSUPPORTED_OPERATION_EXCEPTION;
+            } else if (java.lang.NumberFormatException.class.equals(javaClass)) {
+                return Types.NUMBER_FORMAT_EXCEPTION;
+            } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
+                return Types.ILLEGAL_ARGUMENT_EXCEPTION;
+            } else if (java.lang.ArithmeticException.class.equals(javaClass)) {
+                return Types.ARITHMETIC_EXCEPTION;
+            } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
+                return Types.STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+            } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
+                return Types.ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+            } else if (java.lang.IndexOutOfBoundsException.class.equals(javaClass)) {
+                return Types.INDEX_OUT_OF_BOUNDS_EXCEPTION;
+            } else if (java.lang.ClassCastException.class.equals(javaClass)) {
+                return Types.CLASS_CAST_EXCEPTION;
+            } else if (java.lang.NullPointerException.class.equals(javaClass)) {
+                return Types.NULL_POINTER_EXCEPTION;
             } else if (java.lang.RuntimeException.class.equals(javaClass)) {
                 return Types.EXCEPTION;
             } else if (java.lang.Exception.class.equals(javaClass)) {
