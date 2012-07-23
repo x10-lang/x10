@@ -85,6 +85,14 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                 RuntimeType<?> type0;
                 if (java.lang.String.class.equals(javaClass)) {
                     type0 = Types.STRING;
+                } else if (java.lang.Error.class.equals(javaClass)) {
+                    type0 = Types.ERROR;
+                } else if (java.lang.RuntimeException.class.equals(javaClass)) {
+                    type0 = Types.EXCEPTION;
+                } else if (java.lang.Exception.class.equals(javaClass)) {
+                    type0 = Types.CHECKED_EXCEPTION;
+                } else if (java.lang.Throwable.class.equals(javaClass)) {
+                    type0 = Types.CHECKED_THROWABLE;
                 } else {
                     type0 = new RuntimeType<T>(javaClass, null, null);
                 }
@@ -95,6 +103,14 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         } else {
             if (java.lang.String.class.equals(javaClass)) {
                 return Types.STRING;
+            } else if (java.lang.Error.class.equals(javaClass)) {
+                return Types.ERROR;
+            } else if (java.lang.RuntimeException.class.equals(javaClass)) {
+                return Types.EXCEPTION;
+            } else if (java.lang.Exception.class.equals(javaClass)) {
+                return Types.CHECKED_EXCEPTION;
+            } else if (java.lang.Throwable.class.equals(javaClass)) {
+                return Types.CHECKED_THROWABLE;
             } else {
                 return new RuntimeType<T>(javaClass, null, null);
             }

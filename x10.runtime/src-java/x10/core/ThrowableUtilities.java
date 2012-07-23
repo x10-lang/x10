@@ -251,6 +251,21 @@ public abstract class ThrowableUtilities {
     	}
     }
 
+    public static java.lang.String toString(java.lang.Throwable e) {
+        java.lang.String typeName = x10.rtt.Types.typeName(e);
+        java.lang.String message = e.getMessage();
+        return message == null ? typeName : typeName + ": " + message;
+    }
+
+    public static x10.array.Array<java.lang.String> getStackTrace(java.lang.Throwable e) {
+        StackTraceElement[] elements = e.getStackTrace();
+        java.lang.String str[] = new java.lang.String[elements.length];
+        for (int i = 0; i < elements.length; ++i) {
+            str[i] = elements[i].toString();
+        }
+        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+    }
+
     public static <T> T UnsupportedOperationException(java.lang.String message) {
         try {
             throw createX10Throwable(x10UnsupportedOperationException, message, null);

@@ -276,6 +276,51 @@ public class Types {
         }
     };
 
+    public static final RuntimeType<java.lang.Throwable> CHECKED_THROWABLE = new NamedType<java.lang.Throwable>(
+	"x10.lang.CheckedThrowable",
+	java.lang.Throwable.class,
+	null,
+	new Type[] { ANY }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return CHECKED_THROWABLE;
+	}
+    };
+    public static final RuntimeType<java.lang.Exception> CHECKED_EXCEPTION = new NamedType<java.lang.Exception>(
+	"x10.lang.CheckedException",
+	java.lang.Exception.class,
+	null,
+	new Type[] { CHECKED_THROWABLE }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return CHECKED_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.RuntimeException> EXCEPTION = new NamedType<java.lang.RuntimeException>(
+	"x10.lang.Exception",
+	java.lang.RuntimeException.class,
+	null,
+	new Type[] { CHECKED_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return EXCEPTION;
+	}
+    };
+    public static final RuntimeType<java.lang.Error> ERROR = new NamedType<java.lang.Error>(
+	"x10.lang.Error",
+	java.lang.Error.class,
+	null,
+	new Type[] { CHECKED_THROWABLE }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return ERROR;
+	}
+    };
+
     public static final RuntimeType<x10.core.Boolean> BOOLEAN = new BooleanType();
     public static final RuntimeType<x10.core.Char> CHAR = new CharType();
     public static final RuntimeType<x10.core.Byte> BYTE = new ByteType();
