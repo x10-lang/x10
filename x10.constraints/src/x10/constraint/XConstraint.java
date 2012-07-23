@@ -1,26 +1,19 @@
-/*
- *  This file is part of the X10 project (http://x10-lang.org).
- *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2010.
- */
-
 package x10.constraint;
 
 import java.util.List;
 import java.util.Set;
-
-import x10.constraint.visitors.XGraphVisitor;
 /**
- * General interface for constraints. 
+ * Representation of a constraint over types. Constraints are not immutable and
+ * can be built incrementally by adding new terms (which must be of type Boolean). 
+ * The constraint essentially represents the conjunction of all the terms added in 
+ * the constraint. Note that the added terms can be either atoms, or have an arbitrary 
+ * Boolean structure (i.e. there is no guarantee on conjunctions being flatten).
+ *  
  * @author lshadare
  *
+ * @param <T> type of XTerms
  */
-public interface XConstraint {
+public interface XConstraint <T extends XType> {
 	/**
 	 * Check if the constraint is currently consistent. 
 	 * @return true if consistent.
@@ -31,47 +24,42 @@ public interface XConstraint {
      * @return true if valid. 
      */
     public boolean valid(); 
+
+     /**
+     * Strengthen the constraint by asserting the term t. The term t
+     * should always have Boolean type.   
+     * @param t
+     * @throws XFailure
+     */
+    public void addTerm(XTerm<T> t) throws XFailure;
+
     /**
      * Strengthen the constraint by adding in the equality
      * left == right. 
      * @param left
      * @param right
      */
-    public void addBinding(XTerm left, XTerm right);
+    public void addEquality(XTerm<T> left, XTerm<T> right);
     /**
      * Strengthen the constraint by adding in the disequality
      * left != right
      * @param left
      * @param right
      */
-    public void addDisBinding(XTerm left, XTerm right);
-    /**
-     * Strengthen the constraint by asserting the atom t.  
-     * @param t
-     * @throws XFailure
-     */
-    public void addAtom(XTerm t) throws XFailure;
+    public void addDisEquality(XTerm<T> left, XTerm<T> right);
     
     /**
-     * Strengthen the constraint by adding an general term.
-     * Note that the term t should be of Boolean type. 
-     * @param t
-     * @throws XFailure
-     */
-    public void addTerm(XTerm t) throws XFailure; 
-
-    /**
-     * Check if the current constraint entails other.
+     * Check if the current constraint entails the other constraint. 
      * @param other
-     * @return true if the entailment holds.
+     * @return true if the entailment holds
      */
-    public boolean entails(XConstraint other);
+    public boolean entails(XConstraint<T> other);
     /**
      * Check if the current constraint entails the term.
      * @param term
      * @return true if the entailment holds. 
      */
-    public boolean entails(XTerm term);
+    public boolean entails(XTerm<T> term);
     /**
      * Check if the current constraint entails the disequality
      * left != right 
@@ -79,7 +67,7 @@ public interface XConstraint {
      * @param right
      * @return true if the disequality is entailed 
      */
-    public boolean disEntails(XTerm left, XTerm right);
+    public boolean entailsDisEquality(XTerm<T> left, XTerm<T> right);
     /**
      * Check if the current constraint entails the equality
      * left != right 
@@ -87,7 +75,7 @@ public interface XConstraint {
      * @param right
      * @return true if the equality is entailed 
      */
-    public boolean entails(XTerm left, XTerm right);
+    public boolean entailsEquality(XTerm<T>left, XTerm<T> right);
     
     /**
 	 * Return the least upper bound of this and other. That is, the resulting 
@@ -98,7 +86,7 @@ public interface XConstraint {
 	 * @param other
 	 * @return
 	 */
-    public XConstraint leastUpperBound(XConstraint other);
+    public XConstraint<T> leastUpperBound(XConstraint<T> other);
     
      /**
      * Return those subset of constraints in the base set of other that are 
@@ -107,37 +95,60 @@ public interface XConstraint {
      * @param other -- must be checked for consistency before call is made
      * @return
      */
-    public XConstraint residue(XConstraint other);
+    public XConstraint<T> residue(XConstraint<T> other);
     /**
      * Returns a list of XTerms representing the conjuncts in the constraint. 
-     * This must not be flatten. 
+     * This is not necessarily flattened. 
      * @return
      */
-    public List<? extends XTerm> constraints();	
-    public List<? extends XFormula<?>> atoms();
-    //public void visit(XGraphVisitor xg);
-    public String toString();
-	public XConstraint copy();
+    public List<? extends XTerm<T>> constraints();	
+ 
+    /**
+     * Returns a list consisting of all the atoms in the constraint. 
+     * @return
+     */
+    public List<? extends XExpr<T>> atoms();
+
+   	/**
+	 * Collects all the XTerms occurring in the constraint, regardless
+	 * whether they are atoms or not. 
+	 * @return
+	 */
+	public Set<? extends XTerm<T>> getTerms();
+
+    /**
+     * Create a copy of the current constraint. 
+     * @return a copy of the current constraint
+     */
+	public XConstraint<T> copy();
 	/**
 	 * Return a term v is equal to in the constraint, and null if there
-	 * is no such term. 
+	 * is no "easy way" to compute such a term 
+	 * 
 	 * @param v
 	 * @return t such that this |- t = v
 	 */
-	public XVar bindingForVar(XVar v);
-	public Set<? extends XTerm> getTerms();
+	public XVar<T> bindingForVar(XVar<T> v);
+	
 	public void setInconsistent();
-	public Set<? extends XVar> vars(); 
 	
 	/**
+	 * FIXME: this is what returned the unrolled nested field dereferncing
+	 * @return
+	 */
+	public Set<? extends XVar<T>> vars(); 
+	
+	/**
+	 * FIXME: how to properly generalize this, remove atoms that contain EQVs?
      * Return a list of bindings t1-> t2 equivalent to 
      * the current constraint except that equalities involving EQV variables 
      * are ignored.
      * 
      * @return
      */
-	public List<? extends XTerm> extConstraints();
+	public List<? extends XTerm<T>> extConstraints();
 	/**
+	 * FIXME: how to properly generalize this, remove atoms that contain EQVs?
 	 * Return a list of bindings t1-> t2 equivalent to the current
 	 * constraint except that equalities involving only EQV variables are 
 	 * ignored if dumpEQV is false, and equalities involving only fake fields
@@ -145,5 +156,7 @@ public interface XConstraint {
 	 * 
 	 * @return
 	 */
-	public List<? extends XTerm> extConstraintsHideFake();
+	public List<? extends XTerm<T>> extConstraintsHideFake();
+	
+	public String toString();
 }

@@ -1,16 +1,11 @@
-/**
- * 
- */
 package x10.constraint;
-
 /**
- * An efficient representation of a universally
- * quantified variable that is permitted to occur in multiple constraints.
- * 
- * Such a variable may optionally have a string name.
- * @author vj
- * @see XEQV
+ * Representation of a universally quantified variable and its associated type
+ * information. 
+ * @author lshadare
  *
+ * @param <T> the type of the variable
  */
-public interface XUQV extends XVar {
+public interface XUQV<T extends XType> extends XVar <T> {
+
 }

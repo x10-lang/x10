@@ -9,6 +9,7 @@ import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
 
@@ -18,7 +19,7 @@ import x10.constraint.XVar;
  * @author lshadare
  *
  */
-public class XNativeConstraintSystem implements XConstraintSystem {
+public class XNativeConstraintSystem<T extends XType> implements XConstraintSystem<T> {
 	@Override
 	public XConstraint makeConstraint() {
 		return new XNativeConstraint();

@@ -1,7 +1,8 @@
 package x10.constraint;
 
 import x10.constraint.xnative.XNativeConstraintSystem;
-import x10.constraint.xsmt.XSmtConstraintSystem;
+import x10.constraint.smt.XSmtConstraintSystem;
+import x10.constraint.smt.XSmtType;
 
 /**
  * Static factory class that manages the constraint system currently in use.
@@ -13,31 +14,30 @@ import x10.constraint.xsmt.XSmtConstraintSystem;
  *
  */
 public class XConstraintManager {
-	static XConstraintSystem constraint_factory = null;
+	static XConstraintSystem<? extends XType> constraint_factory = null;
 	static String env_variable = "CONSTRAINT_SYSTEM";
 	
-	public static final String asExprEqualsName = "==";
-	public static final String asExprDisEqualsName = "!=";
-	public static final String asExprAndName = "&&";
-	public static final String asExprNotName = "!";
 
 	/**
 	 * Returns the current constraint system by either creating a new one or
 	 * returning the existing one.  
 	 * @return
 	 */
-	public static XConstraintSystem getConstraintSystem() {
+	
+	public static <T extends XType> XConstraintSystem<T> getConstraintSystem() {
 		// instantiate the constraint system if this has not been done before
 		if (constraint_factory == null ) {
 			//String mode = System.getenv(env_variable);
 			//if(mode== null || !mode.equals("SMT")) {
-				constraint_factory = new XNativeConstraintSystem();
+				constraint_factory = new XNativeConstraintSystem<T>();
 			//} else {
-			//	constraint_factory = new XSmtConstraintSystem(); 	
+				constraint_factory = new XSmtConstraintSystem<XSmtType>();
 			//}
 		}
 		
-		return constraint_factory; 
+		@SuppressWarnings("unchecked")
+		XConstraintSystem<T> res = (XConstraintSystem<T>)constraint_factory;
+		return res; 
 	}
 
 }

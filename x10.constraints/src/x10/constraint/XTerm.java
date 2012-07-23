@@ -1,92 +1,36 @@
-/*
- *  This file is part of the X10 project (http://x10-lang.org).
- *
- *  This file is licensed to You under the Eclipse Public License (EPL);
- *  You may not use this file except in compliance with the License.
- *  You may obtain a copy of the License at
- *      http://www.opensource.org/licenses/eclipse-1.0.php
- *
- *  (C) Copyright IBM Corporation 2006-2010.
- */
-
 package x10.constraint;
-
-import java.io.Serializable;
-
 /**
- * Constraints constrain XTerms. Thus XTerms are the basic building blocks 
- * of constraints.This interface should be implemented by the terms specific to 
- * all constraint systems. Two different implementations of XTerm should *never* 
- * be mixed. 
- * 
- * @author njnystrom
- * @author vj
+ * XTerms are used to represent the terms occurring in constraints. They
+ * are the building blocks of Constraints. This interface is the root of
+ * other XTerm interfaces. All XTerms contain type information represented 
+ * by the type parameter T. Note that the type associated with the XTerm cannot
+ * itself have constraints, and must be a base type. 
+ *  
+ * @author lshadare
  *
+ * @param <T>
  */
-public interface XTerm extends  Serializable, Cloneable {
-
+public interface XTerm<T extends XType> {
 	/**
-	 * Return the result of substituting the term y for x in this.
-	 * Should be overridden in subtypes.
-	 * @param y
-	 * @param x
-	 * @return
+	 * Returns the base type of this term. 
+	 * @return base type of term.
 	 */
-	public XTerm subst(XTerm y, XVar x);
+	T type();
 	
 	/**
-	 * Returns true only if this term is allowed to occur inside a constraint.
-	 * Terms a&&b, a||b, a==b etc must return false.
+	 * Returns a new XTerm that is identical with the current XTerm
+	 * but has all occurrences of t1 replaced by t2. The resulting 
+	 * XTerm will have no occurances of t1. 
+	 *  
+	 * @param t1 term to substitute out 
+	 * @param t2 term to substitute with 
 	 * @return
 	 */
-	public abstract boolean okAsNestedTerm();
-
-	public XTerm clone();
+	XTerm<T> subst(XTerm<T> t1, XTerm<T> t2); 
 	
-	/**
-	 * Returns true if this term is an atomic formula.
-	 *  == constraints are represented specially, and not considered atomic formulas.
-	 * 
-	 * @return true -- if this term represents an atomic formula
-	 */
-	public boolean isAtomicFormula(); 
-
-
-	/** 
-	 * Returns true if the variable v occurs in this term.
-	 * @param v -- the variable being checked.
-	 * @return true if v occurs in this
-	 */
-	public boolean hasVar(XVar v);
-	public abstract int hashCode();
-	public abstract boolean equals(Object o);
-
-    // Wrote my own visitor, cause the XGraphVisitor is too cumbersome
-    public interface TermVisitor {
-        /**
-         * Visit the term tree.
-         * @param term
-         * @return  A term if normal traversal is to stop, <code>null</code> if it
-         * is to continue.
-         */
-        XTerm visit(XTerm term);
-    }
-    /**
-     * Given a visitor, we traverse the entire term (which is like a tree).
-     * @param visitor
-     * @return If the visitor didn't return any new child, then we return "this"
-     *  (otherwise we create a clone with the new children)
-     */
-    public XTerm accept(TermVisitor visitor) ;
-    
-    public boolean hasEQV(); 
-
-    public boolean isLit(); 
-    public boolean isSelf(); 
-    public boolean isThis(); 
-    public boolean isField(); 
-    public boolean isBoolean(); 
-    public String toString();
-    
-    //public T type(); 
+	String toString();
+	
+	boolean equals(Object o);
+	
+	int hashCode();
 }
