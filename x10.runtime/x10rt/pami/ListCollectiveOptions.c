@@ -64,12 +64,15 @@ int main(int argc, char ** argv) {
 
 	const char    *name = "X10";
 	setenv("MP_MSG_API", name, 1);
+	pami_configuration_t config;
+	config.name = PAMI_GEOMETRY_OPTIMIZE;
+	config.value.intval = 1;
 
-	pami_result_t status = PAMI_Client_create(name, &client, NULL, 0);
+	pami_result_t status = PAMI_Client_create(name, &client, &config, 1);
 	if (status != PAMI_SUCCESS)
 		error("Unable to initialize PAMI client\n");
 
-	if ((status = PAMI_Context_createv(client, NULL, 0, &context, 1)) != PAMI_SUCCESS)
+	if ((status = PAMI_Context_createv(client, &config, 1, &context, 1)) != PAMI_SUCCESS)
 		error("Unable to initialize the PAMI context: %i\n", status);
 
 	status = PAMI_Extension_open (client, "EXT_hfi_extension", &hfi_extension);
