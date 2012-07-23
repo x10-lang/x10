@@ -93,6 +93,14 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                     type0 = Types.ASSERTION_ERROR;
                 } else if (java.lang.Error.class.equals(javaClass)) {
                     type0 = Types.ERROR;
+                } else if (x10.core.io.NotSerializableException.class.equals(javaClass)) {
+                    type0 = Types.NOT_SERIALIZABLE_EXCEPTION;
+                } else if (x10.core.io.EOFException.class.equals(javaClass)) {
+                    type0 = Types.EOF_EXCEPTION;
+                } else if (x10.core.io.FileNotFoundException.class.equals(javaClass)) {
+                    type0 = Types.FILE_NOT_FOUND_EXCEPTION;
+                } else if (x10.core.io.IOException.class.equals(javaClass)) {
+                    type0 = Types.IO_EXCEPTION;
                 } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
                     type0 = Types.NO_SUCH_ELEMENT_EXCEPTION;
                 } else if (java.lang.InterruptedException.class.equals(javaClass)) {
@@ -139,6 +147,14 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
                 return Types.ASSERTION_ERROR;
             } else if (java.lang.Error.class.equals(javaClass)) {
                 return Types.ERROR;
+            } else if (x10.core.io.NotSerializableException.class.equals(javaClass)) {
+                return Types.NOT_SERIALIZABLE_EXCEPTION;
+            } else if (x10.core.io.EOFException.class.equals(javaClass)) {
+                return Types.EOF_EXCEPTION;
+            } else if (x10.core.io.FileNotFoundException.class.equals(javaClass)) {
+                return Types.FILE_NOT_FOUND_EXCEPTION;
+            } else if (x10.core.io.IOException.class.equals(javaClass)) {
+                return Types.IO_EXCEPTION;
             } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
                 return Types.NO_SUCH_ELEMENT_EXCEPTION;
             } else if (java.lang.InterruptedException.class.equals(javaClass)) {

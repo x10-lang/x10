@@ -430,6 +430,50 @@ public class Types {
 	    return NO_SUCH_ELEMENT_EXCEPTION;
 	}
     };
+    public static final RuntimeType<x10.core.io.IOException> IO_EXCEPTION = new NamedType<x10.core.io.IOException>(
+	"x10.io.IOException",
+	x10.core.io.IOException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return IO_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<x10.core.io.FileNotFoundException> FILE_NOT_FOUND_EXCEPTION = new NamedType<x10.core.io.FileNotFoundException>(
+	"x10.io.FileNotFoundException",
+	x10.core.io.FileNotFoundException.class,
+	null,
+	new Type[] { IO_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return FILE_NOT_FOUND_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<x10.core.io.EOFException> EOF_EXCEPTION = new NamedType<x10.core.io.EOFException>(
+	"x10.io.EOFException",
+	x10.core.io.EOFException.class,
+	null,
+	new Type[] { IO_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return EOF_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<x10.core.io.NotSerializableException> NOT_SERIALIZABLE_EXCEPTION = new NamedType<x10.core.io.NotSerializableException>(
+	"x10.io.NotSerializableException",
+	x10.core.io.NotSerializableException.class,
+	null,
+	new Type[] { IO_EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return NOT_SERIALIZABLE_EXCEPTION;
+	}
+    };
     public static final RuntimeType<java.lang.Error> ERROR = new NamedType<java.lang.Error>(
 	"x10.lang.Error",
 	java.lang.Error.class,
