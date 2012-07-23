@@ -24,7 +24,7 @@ import x10.constraint.xnative.XNativeField;
 import x10.constraint.xnative.XNativeLit;
 import x10.constraint.xnative.XNativeTerm;
 import x10.constraint.xnative.XNativeVar;
-import x10.constraint.visitors.XGraphVisitor;
+import x10.constraint.xnative.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
 
 

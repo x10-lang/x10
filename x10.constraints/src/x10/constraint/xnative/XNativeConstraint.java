@@ -20,11 +20,11 @@ import x10.constraint.XField;
 import x10.constraint.XFormula;
 import x10.constraint.XTerm;
 import x10.constraint.xnative.XNativeTerm;
+import x10.constraint.xnative.visitors.AddInVisitor;
+import x10.constraint.xnative.visitors.ConstraintGenerator;
+import x10.constraint.xnative.visitors.EntailsVisitor;
+import x10.constraint.xnative.visitors.XGraphVisitor;
 import x10.constraint.XVar;
-import x10.constraint.visitors.AddInVisitor;
-import x10.constraint.visitors.ConstraintGenerator;
-import x10.constraint.visitors.EntailsVisitor;
-import x10.constraint.visitors.XGraphVisitor;
 import x10.util.CollectionFactory;
 
 import java.util.ArrayList;
