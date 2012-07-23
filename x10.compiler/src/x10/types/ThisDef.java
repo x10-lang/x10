@@ -18,7 +18,7 @@ import x10.constraint.XVar;
 
 public interface ThisDef extends VarDef, X10Def {
     ThisInstance asInstance();
-    XVar thisVar();
-    void setThisVar(XVar thisVar);
+    XVar<Type> thisVar();
+    void setThisVar(XVar<Type> thisVar);
     public static final Name THIS = Name.make("this");
 }

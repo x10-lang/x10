@@ -6,6 +6,7 @@ import java.util.List;
 
 import polyglot.types.Type;
 
+import x10.constraint.XType;
 import x10.constraint.XVar;
 
 
@@ -16,6 +17,5 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public interface CSelf extends XVar {
-	public void setType(Type t);
+public interface CSelf extends XVar<Type> {
 }

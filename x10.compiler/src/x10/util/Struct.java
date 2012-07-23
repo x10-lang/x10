@@ -73,7 +73,7 @@ public class Struct {
        //String fullNameWithThis = fullName + "#this";
        //String fullNameWithThis = "this";
      //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-       XVar thisVar = ConstraintManager.getConstraintSystem().makeThis(ct); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+       XVar<Type> thisVar = ConstraintManager.getConstraintSystem().makeThis(ct); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
 
 
 

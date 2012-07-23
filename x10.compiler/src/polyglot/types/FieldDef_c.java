@@ -17,7 +17,7 @@ package polyglot.types;
 import polyglot.frontend.*;
 import polyglot.main.Report;
 import polyglot.util.Position;
-import x10.constraint.redesign.XType;
+import x10.constraint.XType;
 
 /**
  * A <code>FieldInstance</code> contains type information for a field.

@@ -16,10 +16,11 @@ import polyglot.util.InternalCompilerError;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 
 /**
- * A representation of a constrained term: an XTerm t with a constraint c
- * on the XTerm (and possibly other variables). c is required to have a bound self
+ * A representation of a constrained term: an XTerm<Type> t with a constraint c
+ * on the XTerm<Type> (and possibly other variables). c is required to have a bound self
  * variable, and t cannot contain that variable.
  * 
  * @author vj 09/02/09
@@ -27,7 +28,7 @@ import x10.constraint.XTerm;
  */
 public class XConstrainedTerm  {
 
-    XTerm term;
+    XTerm<Type> term;
     CConstraint constraint;
 
     /**
@@ -39,7 +40,7 @@ public class XConstrainedTerm  {
      * @return
      * @throws XFailure
      */
-    public static XConstrainedTerm make(XTerm t, CConstraint c)  {
+    public static XConstrainedTerm make(XTerm<Type> t, CConstraint c)  {
         return new XConstrainedTerm(t, c);
     }
 
@@ -52,8 +53,8 @@ public class XConstrainedTerm  {
      * @return
      * @throws XFailure
      */
-    public static XConstrainedTerm instantiate(CConstraint c, XTerm t) throws XFailure {
-        c.addSelfBinding(t);
+    public static XConstrainedTerm instantiate(CConstraint c, XTerm<Type> t) throws XFailure {
+        c.addSelfEquality(t);
         // the self variable in c is now bound.
         return new XConstrainedTerm(t, c);
     }
@@ -63,7 +64,7 @@ public class XConstrainedTerm  {
      * @param t
      * @return
      */
-    public static XConstrainedTerm make(XTerm t, Type type) {
+    public static XConstrainedTerm make(XTerm<Type> t, Type type) {
         try {
             return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(type), t);
         } catch (XFailure r) {
@@ -76,7 +77,7 @@ public class XConstrainedTerm  {
      * @param c
      * @throws XFailure
      */
-    private XConstrainedTerm(XTerm t, CConstraint c)  {
+    private XConstrainedTerm(XTerm<Type> t, CConstraint c)  {
         assert t!= null;
         assert c!= null;
         assert c.consistent();
@@ -85,7 +86,7 @@ public class XConstrainedTerm  {
         this.constraint=c;
     }
 
-    public XTerm term(){return term;}
+    public XTerm<Type> term(){return term;}
     public CConstraint constraint() { return constraint;}
 
     /**
@@ -96,15 +97,16 @@ public class XConstrainedTerm  {
      */
     public boolean entails(XConstrainedTerm t) {
         assert t!= null;
-        return constraint.entails(term(), t.term()) && constraint.entails(t.constraint());
+        XTerm<Type> eq = ConstraintManager.getConstraintSystem().makeEquals(term(), t.term());
+        return constraint.entails(eq) && constraint.entails(t.constraint());
     }
     /**
      * Add t1==t2 to the underlying constraint.
      * @param t1
      * @param t2
      */
-    public void addBinding(XTerm t1, XTerm t2) {
-        constraint.addBinding(t1, t2);
+    public void addBinding(XTerm<Type> t1, XTerm<Type> t2) {
+        constraint.addEquality(t1, t2);
     }
     public XConstrainedTerm copy() {
         return new XConstrainedTerm(term(), constraint().copy());

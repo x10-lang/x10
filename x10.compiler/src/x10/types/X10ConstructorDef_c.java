@@ -117,7 +117,7 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
         this.returnType = r;
     }
 
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
         return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?

@@ -274,16 +274,16 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 			this.formalTypes = formalTypes;
 		}
 
-		public XVar transform(Integer i) {
+		public XVar<Type> transform(Integer i) {
 			final Ref<? extends Type> r = formalTypes.get(i);
 			X10LocalDef li = (X10LocalDef) formalNames.get(i);
-			XVar v = ConstraintManager.getConstraintSystem().makeLocal(li);
+			XVar<Type> v = ConstraintManager.getConstraintSystem().makeLocal(li);
 			return v;
 		}
 	}
 
 	public static class ParamToVarTransform implements Transformation<Ref<? extends Type>, XVar> {
-		public XVar transform(Ref<? extends Type> r) {
+		public XVar<Type> transform(Ref<? extends Type> r) {
 			Type t = r.get();
 			if (t instanceof ParameterType) {
 				ParameterType pt = (ParameterType) t;

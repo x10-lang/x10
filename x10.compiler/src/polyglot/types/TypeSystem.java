@@ -28,6 +28,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
+import x10.constraint.XTypeSystem;
 import x10.constraint.XVar;
 import x10.types.AsyncDef;
 import x10.types.AtDef;
@@ -63,7 +64,7 @@ import x10.types.constraints.XConstrainedTerm;
  * The <code>TypeSystem</code> defines the types of the language and
  * how they are related.
  */
-public interface TypeSystem {
+public interface TypeSystem extends XTypeSystem<Type> {
     public static final boolean SERIALIZE_MEMBERS_WITH_CONTAINER = false;
     public static final String CONSTRUCTOR_NAME = "this";
 
@@ -1269,7 +1270,7 @@ public interface TypeSystem {
                                     SemanticException error);
     List<LocalDef> dummyLocalDefs(List<Ref<? extends Type>> types);
     List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, 
-                                 XVar thisVar, XVar placeTerm, Context context);
+                                 XVar<Type> thisVar, XVar<Type> placeTerm, Context context);
     boolean equalsStruct(Type a, Type b);
     X10ClassType AtomicInteger();
     boolean isRemoteArray(Type t);

@@ -34,20 +34,20 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
     public CThis makeThis(Type t) {
     	return new CNativeThis(thisId++, t);
     }
-    public XVar makeQualifiedThis(Type qualifier, Type base) {
+    public XVar<Type> makeQualifiedThis(Type qualifier, Type base) {
         return makeQualifiedVar(qualifier, makeThis(base)); 
     }
-    public XVar makeQualifiedVar(Type qualifier, XVar var) {
+    public XVar<Type> makeQualifiedVar(Type qualifier, XVar<Type> var) {
     	return new QualifiedVar(qualifier, var); 
     }
-    public CField makeField(XVar var, MethodDef mi) {
+    public CField makeField(XVar<Type> var, MethodDef mi) {
     	return new CNativeField(var, mi);
     }
-    public CField makeField(XVar var, FieldDef mi) {
+    public CField makeField(XVar<Type> var, FieldDef mi) {
     	return new CNativeField(var, mi);
     }
     @Override
-    public CField makeFakeField(XVar receiver, FieldDef field) {
+    public CField makeFakeField(XVar<Type> receiver, FieldDef field) {
     	return new CNativeField(receiver, field);
     }
     public CLocal makeLocal(X10LocalDef ld) {
@@ -112,7 +112,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
      *  this is handled in a rather naive way, by modeling it as a field access where
      *  the field consists of the opaque method name and arguments
      */
-    public XTerm makeOpaque(Object op, boolean isatom, XTerm target, List<XTerm> args) {
+    public XTerm<Type> makeOpaque(Object op, boolean isatom, XTerm<Type> target, List<XTerm> args) {
       	args.add(0,target); 
     	return makeAtom(op, isatom, args.toArray(new XTerm[0]));
     }
@@ -121,7 +121,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem implements 
     	assert !(t instanceof ConstrainedType);
     	return new CNativeConstraint(t); 
     }
-    public CConstraint makeCConstraint(XVar self, Type t) {
+    public CConstraint makeCConstraint(XVar<Type> self, Type t) {
     	assert !(t instanceof ConstrainedType);
     	return new CNativeConstraint(self, t); 
     }

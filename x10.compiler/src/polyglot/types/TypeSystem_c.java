@@ -24,8 +24,6 @@ import polyglot.main.Reporter;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
-import x10.constraint.XField;
-import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -427,12 +425,12 @@ public class TypeSystem_c implements TypeSystem
     
     public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
        // String fullNameWithThis = "<init>#this";
-        XVar thisVar = ConstraintManager.getConstraintSystem().makeThis(); // XTerms.makeLocal(thisName);
+        XVar<Type> thisVar = ConstraintManager.getConstraintSystem().makeThis(); // XTerms.makeLocal(thisName);
 
         return initializerDef(pos, container, flags, thisVar);
     }
 
-    public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags, XVar thisVar) {
+    public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags, XVar<Type> thisVar) {
         assert_(container);
         return new X10InitializerDef_c(this, pos, container, flags, thisVar);
     }
@@ -3611,7 +3609,7 @@ public class TypeSystem_c implements TypeSystem
             return ts.typeEquals(Types.baseType(o), Types.baseType(p), context);
         }
     }
-    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar thisVar, XVar placeTerm, Context context) {
+    public List<MethodInstance> methods(ContainerType t, Name name, List<Type> typeParams, List<LocalInstance> formalNames, XVar<Type> thisVar, XVar<Type> placeTerm, Context context) {
         XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames), placeTerm);
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (MethodInstance mi : t.methodsNamed(name)) {
@@ -3650,7 +3648,7 @@ public class TypeSystem_c implements TypeSystem
                 formalTypes.add(li.type());
             }
             try {
-                XVar pt = Types.getPlaceTerm(mi);
+                XVar<Type> pt = Types.getPlaceTerm(mi);
                 XVar[] yvars = Types.toVarArray(Types.toLocalDefList(mi.formalNames()), pt);
                 formalTypes = Subst.subst(formalTypes, yvars, xvars);
             } catch (SemanticException e) {
@@ -3666,7 +3664,7 @@ public class TypeSystem_c implements TypeSystem
     }
     public MethodInstance findImplementingMethod(ClassType ct, MethodInstance mi, boolean includeAbstract, Context context) {
 
-        XVar thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
+        XVar<Type> thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -3676,7 +3674,7 @@ public class TypeSystem_c implements TypeSystem
         final XVar[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = new X10TypeEnv_c(context).fixThis( mi, y, x);
-        XVar placeTerm = Types.getPlaceTerm(mi);
+        XVar<Type> placeTerm = Types.getPlaceTerm(mi);
 
         context = context.pushBlock();
         CConstraint cc = context.currentConstraint();
@@ -4518,7 +4516,7 @@ public class TypeSystem_c implements TypeSystem
             }
             ConstrainedType ct = (ConstrainedType) t;
             CConstraint c = Types.xclause(ct);
-            for (XVar x : c.vars()) {
+            for (XVar<Type> x : c.vars()) {
                 if (hasUnknown(x, visited)) {
                     return true;
                 }
@@ -4535,13 +4533,13 @@ public class TypeSystem_c implements TypeSystem
     }
 
     private boolean hasUnknown(XFormula<?> x, HashSet<Type> visited) {
-        for (XTerm a : x.arguments()) {
+        for (XTerm<Type> a : x.arguments()) {
             if (hasUnknown(a, visited))
                 return true;
         }
         return false;
     }
-    private boolean hasUnknown(XTerm x, HashSet<Type> visited) {
+    private boolean hasUnknown(XTerm<Type> x, HashSet<Type> visited) {
         if (x instanceof XField<?>) {     
             if (hasUnknown(((XField<?>) x).receiver(),visited))
                 return true;

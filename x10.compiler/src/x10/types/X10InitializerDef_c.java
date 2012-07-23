@@ -33,11 +33,11 @@ import x10.types.constraints.XConstrainedTerm;
 public class X10InitializerDef_c extends InitializerDef_c implements X10InitializerDef {
     private static final long serialVersionUID = 8967174982510527953L;
 
-    public X10InitializerDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> container, Flags flags, XVar thisVar) {
+    public X10InitializerDef_c(TypeSystem ts, Position pos, Ref<? extends ClassType> container, Flags flags, XVar<Type> thisVar) {
         super(ts, pos, container, flags);
     }
 
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
         return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?

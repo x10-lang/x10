@@ -150,15 +150,15 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         return X10TypeObjectMixin.annotationsMatching(this, t);
     }
 
-    XTerm body;
+    XTerm<Type> body;
 
-    public XTerm body() {
+    public XTerm<Type> body() {
         if (this.body == null)
             return Types.get(x10Def().body());
         return body;
     }
 
-    public MethodInstance body(XTerm body) {
+    public MethodInstance body(XTerm<Type> body) {
         if (body == this.body) return this;
         MethodInstance_c n = (MethodInstance_c) copy();
         n.body = body;
@@ -231,8 +231,8 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         return n;
     }
 
-    public static void buildSubst(MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar thisVar) {
-    	XVar mdThisVar = mi.x10Def().thisVar();
+    public static void buildSubst(MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar<Type> thisVar) {
+    	XVar<Type> mdThisVar = mi.x10Def().thisVar();
         if (mdThisVar != null && mdThisVar != thisVar && ! xs.contains(mdThisVar)) {
             ys.add(thisVar);
             xs.add(mdThisVar);
@@ -241,11 +241,11 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         buildSubst(mi.container(), ys, xs, thisVar);
     }
 
-    public static void buildSubst(Type t, List<XVar> ys, List<XVar> xs, XVar thisVar) {
+    public static void buildSubst(Type t, List<XVar> ys, List<XVar> xs, XVar<Type> thisVar) {
         Type container = Types.baseType(t);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
-            XVar cdThisVar = cd.thisVar();
+            XVar<Type> cdThisVar = cd.thisVar();
             if (cdThisVar != null && cdThisVar != thisVar && ! xs.contains(cdThisVar) ) {
                 ys.add(thisVar);
                 xs.add(cdThisVar);
@@ -425,7 +425,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                     if (rc == null)
                         rc = ConstraintManager.getConstraintSystem().makeCConstraint(t);
 
-                    XTerm receiver;
+                    XTerm<Type> receiver;
 
                     if (flags.isStatic()) {
                         receiver = xts.xtypeTranslator().translate(container());
@@ -437,7 +437,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
 
                     // ### pass in the type rather than letting XField call fi.type();
                     // otherwise, we'll get called recursively.
-                    XTerm self = body();
+                    XTerm<Type> self = body();
 
                     CConstraint c = rc.copy();
 
@@ -447,7 +447,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                     }
 
                     if (self != null) {
-                        c.addSelfBinding(self);
+                        c.addSelfEquality(self);
                     }
                     if (! flags.isStatic()) {
                         c.setThisVar((XVar) receiver);
@@ -467,7 +467,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
 
     static private String toString( XVar[] ys) {
     	String s = "";
-    		for (XVar x : ys) s += x.toString() + " ";
+    		for (XVar<Type> x : ys) s += x.toString() + " ";
     		return s;
     }
 

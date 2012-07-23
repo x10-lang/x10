@@ -165,7 +165,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         throw new InternalCompilerError("Attempt to set type parameters on a closure def: "+this, position());
     }
     
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
         return ConstraintManager.getConstraintSystem().makeThis();

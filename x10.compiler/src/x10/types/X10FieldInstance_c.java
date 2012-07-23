@@ -110,22 +110,22 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                 else {
                     CConstraint rc = Types.xclause(t);
                     rc = rc==null ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t)) : rc.copy();
-                    XTerm receiver;
+                    XTerm<Type> receiver;
 
                     if (flags.isStatic()) {
                         receiver = xts.xtypeTranslator().translate(container());
                       // Do not add self binding for static fields. This information
                         // is any way going to get added in instantiateAccess.
-                        XTerm self = xts.xtypeTranslator().translate(receiver, this);
+                        XTerm<Type> self = xts.xtypeTranslator().translate(receiver, this);
                         // Add {self = receiver.field} clause.
-                      rc.addSelfBinding(self);
+                      rc.addSelfEquality(self);
                     }
                     else {
                         receiver = x10Def().thisVar();
                         assert receiver != null;
-                        XTerm self = xts.xtypeTranslator().translate(receiver, this);
+                        XTerm<Type> self = xts.xtypeTranslator().translate(receiver, this);
                         // Add {self = receiver.field} clause.
-                        rc.addSelfBinding(self);
+                        rc.addSelfEquality(self);
                         rc.setThisVar((XVar) receiver);
                     }
                     rightType = Types.xclause(Types.baseType(t), rc);

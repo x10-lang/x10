@@ -716,7 +716,7 @@ public class X10New_c extends New_c implements X10New {
                     CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(outerTB);
                     if (outerTB instanceof X10ClassType) {
                         X10ClassType outerct = (X10ClassType) outerTB;
-                        c.addSelfBinding(outerct.def().thisVar());
+                        c.addSelfEquality(outerct.def().thisVar());
                         outerT = Types.xclause(outerT, c);
                         type = Types.addInOuterClauses(type, outerT);
                     }

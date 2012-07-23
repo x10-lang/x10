@@ -191,10 +191,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
             // Add a self.rank=n clause, if the formal
             // has n components.
-            XVar self = Types.xclause(indexType).self();
+            XVar<Type> self = Types.xclause(indexType).self();
             Synthesizer synth = new Synthesizer(nf, ts);
-            XTerm v = synth.makePointRankTerm((XVar) self);
-            XTerm rank = ConstraintManager.getConstraintSystem().makeLit(length, ts.Int());
+            XTerm<Type> v = synth.makePointRankTerm((XVar) self);
+            XTerm<Type> rank = ConstraintManager.getConstraintSystem().makeLit(length, ts.Int());
             indexType = Types.addBinding(indexType, v, rank);
             r.update(indexType);
             return;
@@ -209,13 +209,13 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         Type base = Types.baseType(domainType);
 
 
-        XVar selfValue = Types.selfVarBinding(domainType);
+        XVar<Type> selfValue = Types.selfVarBinding(domainType);
         boolean generated = false;
         if (selfValue == null) {
             selfValue = ConstraintManager.getConstraintSystem().makeUQV();
             generated = true;
         }
-        XVar thisVar = base instanceof X10ClassType ?
+        XVar<Type> thisVar = base instanceof X10ClassType ?
                 ((X10ClassType) base).x10Def().thisVar() :null;
 
         // Now the problem is that indexType may
@@ -271,7 +271,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
 		if (ts.isSubtype(formalType, ts.Point(), context)) {
 		    ConstrainedType Region = Types.toConstrainedType(ts.Region());
-            final XTerm rankTerm = formalType.rank(context);
+            final XTerm<Type> rankTerm = formalType.rank(context);
             if (rankTerm!=null) {
                 Region = Region.addRank(rankTerm);
                 Expr newDomain = Converter.attemptCoercion(tc, domain, Region);

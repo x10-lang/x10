@@ -178,9 +178,9 @@ public class Matcher {
 
 		Type thisType = thisTypeArray[0];
 
-		final XVar ythiseqv =  ys[0] = getSymbolVar(thisType);
+		final XVar<Type> ythiseqv =  ys[0] = getSymbolVar(thisType);
 		
-		XVar st = Types.selfVarBinding(thisType);
+		XVar<Type> st = Types.selfVarBinding(thisType);
 		final boolean yeqvIsSymbol = (! isStatic) && (st !=null);
 		if (! isStatic) {
 			if (st == null)
@@ -214,7 +214,7 @@ public class Matcher {
 		final CConstraint returnEnv2 = computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, isStatic, xts);
 
 		// We'll subst selfVar for THIS.
-		XVar xthis = null;
+		XVar<Type> xthis = null;
 
 		if (! isStatic ) {
 			if (me.def() instanceof X10ProcedureDef)
@@ -224,9 +224,9 @@ public class Matcher {
 				xthis = ConstraintManager.getConstraintSystem().makeThis(); 
 		}
 
-		final XVar codePlace = Types.getPlaceTerm(me);
+		final XVar<Type> codePlace = Types.getPlaceTerm(me);
 		XConstrainedTerm currentPlaceTerm = context.currentPlaceTerm();
-		final XTerm currentPlace = currentPlaceTerm != null ? currentPlaceTerm.term() : ConstraintManager.getConstraintSystem().makeEQV();
+		final XTerm<Type> currentPlace = currentPlaceTerm != null ? currentPlaceTerm.term() : ConstraintManager.getConstraintSystem().makeEQV();
 
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
 		final Type[] Y = new Type[typeFormals.size()];
@@ -295,7 +295,7 @@ public class Matcher {
 	        				        if (xts.consistent(nrt, context))
 	        				            newReturnType = nrt;
 	        				        Type t = actualsIn.get(i-1);
-	        				        XVar self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
+	        				        XVar<Type> self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
 	        				        if (self != null) {
 	        				            nrt = Subst.project(newReturnType, self);
 	        				            if (xts.consistent(nrt, context))
@@ -490,7 +490,7 @@ public class Matcher {
 	 * @throws SemanticException
 	 */
 	private static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y, boolean isStatic, TypeSystem xts) 
+			XVar<Type> ythis, XVar[] y, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -528,7 +528,7 @@ public class Matcher {
 	 * @throws SemanticException
 	 */
 	private static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
-			XVar ythis, XVar[] y,  boolean isStatic, TypeSystem xts) 
+			XVar<Type> ythis, XVar[] y,  boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -564,8 +564,8 @@ public class Matcher {
 	 * @param prefix
 	 * @return
 	 */
-	 private static XVar getSymbolVar(Type type) {
-   	  XVar symbol = Types.selfVarBinding(type);
+	 private static XVar<Type> getSymbolVar(Type type) {
+   	  XVar<Type> symbol = Types.selfVarBinding(type);
          if (symbol == null) {
        	  symbol = ConstraintManager.getConstraintSystem().makeUQV();  
          }

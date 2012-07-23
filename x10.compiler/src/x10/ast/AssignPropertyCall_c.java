@@ -209,7 +209,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         TypeSystem xts =  tc.typeSystem();
         Context cxt = tc.context();
 
-        XVar thisVar = tc.context().thisVar();
+        XVar<Type> thisVar = tc.context().thisVar();
 
         Type thisType=null;
         // Accumulate in curr constraint the bindings {arg1==this.prop1,..argi==this.propi}.
@@ -227,13 +227,13 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 Errors.issue(tc.job(),
                              new Errors.TypeOfPropertyIsNotSubtypeOfPropertyType(args.get(i).type(), props, i, pos));
             }
-            XVar symbol = Types.selfVarBinding(yType);
+            XVar<Type> symbol = Types.selfVarBinding(yType);
             if (symbol==null) {
                 symbol = ConstraintManager.getConstraintSystem().makeUQV();
                 CConstraint c = Types.xclause(yType);
                 curr.addIn(symbol, c);
             } 
-            curr.addBinding(ConstraintManager.getConstraintSystem().makeField(thisVar, props.get(i).def()), symbol);
+            curr.addEquality(ConstraintManager.getConstraintSystem().makeField(thisVar, props.get(i).def()), symbol);
 
             if (! curr.consistent()) {
                 Errors.issue(tc.job(),
@@ -272,13 +272,13 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
             try {
                 known.addIn(Types.get(thisConstructor.guard()));
 
-                XVar thisVar = thisConstructor.thisVar();
+                XVar<Type> thisVar = thisConstructor.thisVar();
 
                 for (int i = 0; i < args.size() && i < definedProperties.size(); i++) {
                     Expr initializer = args.get(i);
                     Type initType = initializer.type();
                     final FieldInstance fii = definedProperties.get(i);
-                    XVar prop = (XVar) ts.xtypeTranslator().translate(known.self(), fii);
+                    XVar<Type> prop = (XVar) ts.xtypeTranslator().translate(known.self(), fii);
 
                     // Add in the real clause of the initializer with [self.prop/self]
                     CConstraint c = Types.realX(initType);
@@ -289,9 +289,9 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                     if (c != null)
                         known.addIn(c.instantiateSelf(prop));
                     try {
-                     XTerm initVar = ts.xtypeTranslator().translate(known, initializer, ctx, false); // it cannot be top-level, because the constraint will be "prop==initVar"
+                     XTerm<Type> initVar = ts.xtypeTranslator().translate(known, initializer, ctx, false); // it cannot be top-level, because the constraint will be "prop==initVar"
                      if (initVar != null)
-                         known.addBinding(prop, initVar);
+                         known.addEquality(prop, initVar);
                     } catch (IllegalConstraint z) {
                     	  Errors.issue(tc.job(), z);     
                     }
@@ -355,7 +355,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 	 CConstraint cc = Types.realX(intfc);
                      cc = cc.instantiateSelf(thisVar); // for some reason, the invariant has "self" instead of this, so I fix it here.
                 	 if (thisVar != null) {
-                		 XVar intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
+                		 XVar<Type> intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();
                 		 cc = cc.substitute(thisVar, intfcThisVar);
                 	 }
                 	 cc = X10TypeEnv_c.ifNull(env_c.expandProperty(true,ctype,cc),cc);  

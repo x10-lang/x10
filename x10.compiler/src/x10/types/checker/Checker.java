@@ -231,7 +231,7 @@ public class Checker {
 	}
 */
 	/**
-	 * Substitute the XTerm obtained by translating target (and an EQV if there is 
+	 * Substitute the XTerm<Type> obtained by translating target (and an EQV if there is 
 	 * no such term) for fi.thisVar() in t.
 	 */
 	public static Type rightType(Type t, X10MemberDef fi, Receiver target, Context c)  {
@@ -239,12 +239,12 @@ public class Checker {
 		// Do this even if x.valid()
 		if (fi.thisVar()==null || (! (target instanceof Expr)))
 			return t;
-		XVar receiver = null;
+		XVar<Type> receiver = null;
 
 		TypeSystem ts = (TypeSystem) t.typeSystem();
 		try {
 			Type targetType = Types.baseType(target.type());
-			XTerm r=ts.xtypeTranslator().translate(ConstraintManager.getConstraintSystem().makeCConstraint(targetType), target,  c);
+			XTerm<Type> r=ts.xtypeTranslator().translate(ConstraintManager.getConstraintSystem().makeCConstraint(targetType), target,  c);
 			if (r instanceof XVar) {
 				receiver = (XVar) r;
 			}
@@ -279,7 +279,7 @@ public class Checker {
 		CConstraint cs = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(type));
 		XTypeTranslator xt = ((TypeSystem) type.typeSystem()).xtypeTranslator();
 		Receiver target = t.target();
-		XTerm body = xt.translate(cs, t, c);
+		XTerm<Type> body = xt.translate(cs, t, c);
 		CConstraint x = Types.xclause(type);
 		X10MemberDef fi = (X10MemberDef) t.methodInstance().def();
 		if (x == null || fi.thisVar() == null || !(target instanceof Expr))
@@ -287,8 +287,8 @@ public class Checker {
 	
 		x = x.copy();
 		try {
-			XVar receiver = Types.selfVarBinding(target.type());
-			XVar root = null;
+			XVar<Type> receiver = Types.selfVarBinding(target.type());
+			XVar<Type> root = null;
 			if (receiver == null) {
 				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
 			}
@@ -301,7 +301,7 @@ public class Checker {
 			if (! Types.contextKnowsType(target))
 				x.addIn(ttc);
 			if (body != null)
-				x.addSelfBinding(body);
+				x.addSelfEquality(body);
 			x=x.substitute(receiver, fi.thisVar());
 			if (root != null) {
 				x = x.project(root);
@@ -324,8 +324,8 @@ public class Checker {
 		//xc = xc.copy();
 		x = x.copy();
 		try {
-			XVar receiver = Types.selfVarBinding(target.type());
-			XVar root = null;
+			XVar<Type> receiver = Types.selfVarBinding(target.type());
+			XVar<Type> root = null;
 			if (receiver == null) {
 				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
 			}
@@ -514,7 +514,7 @@ public class Checker {
 	    if (currentClass != null && xts.hasMethodNamed(currentClass, name)) {
 	        // Override to change the type from C to C{self==this}.
 	        Type t = currentClass;
-	        XVar thisVar = null;
+	        XVar<Type> thisVar = null;
 	        if (XTypeTranslator.THIS_VAR) {
 	            CodeDef cd = xc.currentCode();
 	            if (cd instanceof X10MemberDef) {

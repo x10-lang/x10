@@ -1588,7 +1588,7 @@ public class StaticInitializer extends ContextVisitor {
             ConstrainedType ct = (ConstrainedType)(type);
             if (ct.constraint().known()) {
                 CConstraint cc = ct.constraint().get();
-                XTerm selfVar = cc.selfVarBinding();
+                XTerm<Type> selfVar = cc.selfVarBinding();
                 if (selfVar != null && selfVar.isLit())
                     return true;
             }

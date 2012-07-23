@@ -25,9 +25,9 @@ public class QualifiedVar extends XSmtField<Type> implements XVar, CQualifiedVar
         if (string == null) string = field + "." + receiver;
         return string;
     }
-    public QualifiedVar(Type fi, XVar r) {super(r, fi, false);}
+    public QualifiedVar(Type fi, XVar<Type> r) {super(r, fi, false);}
     @Override
-    public QualifiedVar copyReceiver(XVar newReceiver) {
+    public QualifiedVar copyReceiver(XVar<Type> newReceiver) {
         if (newReceiver == receiver) return this;
         return new QualifiedVar(field, newReceiver);
     }
@@ -40,10 +40,10 @@ public class QualifiedVar extends XSmtField<Type> implements XVar, CQualifiedVar
     @Override
     public Type type() {return field;}
     @Override
-    public XVar var() {return receiver;}
+    public XVar<Type> var() {return receiver;}
 
     @Override 
-    public XSmtTerm subst(XTerm y, XVar x) {
+    public XSmtTerm subst(XTerm<Type> y, XVar<Type> x) {
         return equals(x) ? (XSmtTerm) y : receiver.equals(x) 
             ? copyReceiver((XVar) y) : super.subst(y, x);
     }

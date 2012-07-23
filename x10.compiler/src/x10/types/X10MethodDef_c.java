@@ -41,10 +41,10 @@ import polyglot.visit.NodeVisitor;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
 import x10.types.constraints.ConstraintManager;
+import x10.constraint.XType;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.constraint.redesign.XType;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -107,7 +107,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         this.offerType = offerType;
     }
 
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
         return ConstraintManager.getConstraintSystem().makeThis();
@@ -241,7 +241,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
         return sb.toString();
     }
 
-/*    public static boolean hasVar(Type type, XVar var) {
+/*    public static boolean hasVar(Type type, XVar<Type> var) {
 	    if (type instanceof ConstrainedType) {
 		    XConstraint rc = Types.realX(type);
 		    if (rc != null && rc.hasVar(var))
@@ -256,7 +256,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 			    if (hasVar(t, var))
 				    return true;
 		    }
-		    for (XVar v : mt.formals()) {
+		    for (XVar<Type> v : mt.formals()) {
 			    if (v.hasVar(var))
 				    return true;
 		    }

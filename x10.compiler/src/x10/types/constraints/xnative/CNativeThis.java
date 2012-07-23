@@ -47,12 +47,12 @@ public class CNativeThis extends XRoot implements CThis, Typed {
      * namely, A.
      */
     public Type type() {return type;}
-    public XNativeTerm subst(XTerm y, XVar x) {
+    public XNativeTerm subst(XTerm<Type> y, XVar<Type> x) {
        XNativeTerm r = super.subst(y, x);
        return r;
     }
     public boolean okAsNestedTerm() {return true;}
-    public boolean hasVar(XVar v) {return equals(v);}
+    public boolean hasVar(XVar<Type> v) {return equals(v);}
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o instanceof CNativeThis) return num == ((CNativeThis) o).num;

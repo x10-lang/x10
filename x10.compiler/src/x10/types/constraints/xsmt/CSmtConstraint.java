@@ -30,11 +30,11 @@ import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
 
 public class CSmtConstraint extends XSmtConstraint implements CConstraint {
-	XVar self;
-	XVar thisVar;
+	XVar<Type> self;
+	XVar<Type> thisVar;
 	Type baseType;
 	
-	public CSmtConstraint(XVar self, Type t) {
+	public CSmtConstraint(XVar<Type> self, Type t) {
 		this.self = self;
 		this.baseType = t; 
 	}
@@ -44,7 +44,7 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 	}
 	
 	@Override
-	public XVar self() {
+	public XVar<Type> self() {
 		return self;
 	}
 	
@@ -53,18 +53,18 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 		return baseType; 
 	}
 	@Override
-	public XVar selfVarBinding() {
+	public XVar<Type> selfVarBinding() {
 		return bindingForVar(self()); 
 	}
 
 	@Override
-	public XVar thisVar() {
+	public XVar<Type> thisVar() {
 		return thisVar; 
 	}
 
 	@Override
 	public boolean hasPlaceTerm() {
-		for (XTerm t : formula) {
+		for (XTerm<Type> t : formula) {
 			if(hasPlaceTermHelper(t))
 				return true;
 		}
@@ -77,10 +77,10 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 	 * @param term
 	 * @return
 	 */
-	private boolean hasPlaceTermHelper(XTerm term) {
+	private boolean hasPlaceTermHelper(XTerm<Type> term) {
 		if (term instanceof XFormula<?>) {
 			XFormula<?> form = (XFormula<?>) term; 
-			for (XTerm t : form.arguments()) {
+			for (XTerm<Type> t : form.arguments()) {
 				if (hasPlaceTermHelper(term))
 					return true; 
 			}
@@ -101,77 +101,77 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 	}
 
 	@Override
-	public void addIn(XTerm newSelf, CConstraint c) {
+	public void addIn(XTerm<Type> newSelf, CConstraint c) {
 		if (c == null) return; 
 		// with smt it's probably more efficient not to check for consistency now
 		if (! c.consistent()) {setInconsistent(); return;}
 		if (c.valid()) return; 
 		
-		for (XTerm term : c.constraints()) {
-			XTerm newterm = term.subst(newSelf, c.self());
+		for (XTerm<Type> term : c.constraints()) {
+			XTerm<Type> newterm = term.subst(newSelf, c.self());
 			assert newterm != null; 
 			this.formula.add((XSmtTerm)newterm);
 		}
 	}
 
 	@Override
-	public void addSelfBinding(XTerm var) {
-		addBinding(self(), var);
+	public void addSelfEquality(XTerm<Type> var) {
+		addEquality(self(), var);
 	}
 
 	@Override
-	public void addSelfDisBinding(XTerm term) {
+	public void addSelfDisEquality(XTerm<Type> term) {
 		addDisBinding(self(), term);
 	}
 
 	@Override
-	public void addSelfBinding(XConstrainedTerm var) {
-		addBinding(self(), var);
+	public void addSelfEquality(XConstrainedTerm var) {
+		addEquality(self(), var);
 		
 	}
 
 	@Override
-	public void addThisBinding(XTerm term) {
-		addBinding(thisVar(), term);
+	public void addThisEquality(XTerm<Type> term) {
+		addEquality(thisVar(), term);
 		
 	}
 
 	@Override
-	public void setThisVar(XVar var) {
+	public void setThisVar(XVar<Type> var) {
 		if (var == null)
 			return;
 		thisVar = var; 
 	}
 
 	@Override
-	public void addBinding(XTerm s, XConstrainedTerm t) {
-		addBinding(s, t.term());
+	public void addEquality(XTerm<Type> s, XConstrainedTerm t) {
+		addEquality(s, t.term());
 		addIn(s, t.constraint());
 	}
 
 	@Override
-	public void addBinding(XConstrainedTerm s, XTerm t) {
-		addBinding(t,s);
+	public void addEquality(XConstrainedTerm s, XTerm<Type> t) {
+		addEquality(t,s);
 	}
 
 	@Override
-	public void addBinding(XConstrainedTerm s, XConstrainedTerm t) {
-		addBinding(s.term(), t.term());
+	public void addEquality(XConstrainedTerm s, XConstrainedTerm t) {
+		addEquality(s.term(), t.term());
 		addIn(s.term(), s.constraint());
 		addIn(t.term(), t.constraint());
 	}
 
 	@Override
-	public CSmtConstraint substitute(XTerm y, XVar x) throws XFailure {
+	public CSmtConstraint substitute(XTerm<Type> y, XVar<Type> x) throws XFailure {
 		return (CSmtConstraint)substitute(new XTerm[] {y}, new XVar[] {x});
 	}
 
 	@Override
-	public CSmtConstraint instantiateSelf(XTerm newSelf) {
+	public CSmtConstraint instantiateSelf(XTerm<Type> newSelf) {
 		CSmtConstraint result = new CSmtConstraint(baseType()); 
 		try {
-			for (XTerm f : formula) {
-				XTerm newf = f.subst(newSelf, self);
+			for (XTerm<Type> f : formula) {
+				XTerm<Type> newf = f.subst(newSelf, self);
 				result.addTerm(newf); 
 			}
 		} catch (XFailure x) {
@@ -192,7 +192,7 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 		
 		CSmtConstraint result = new CSmtConstraint(baseType()); 
 		
-		for (XTerm term : other.constraints()) {
+		for (XTerm<Type> term : other.constraints()) {
 			if (!entails(term))
 				try {
 					result.addTerm(term);
@@ -209,8 +209,8 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 	}
 
 	@Override
-	public XVar getThisVar(CConstraint t1, CConstraint t2) throws XFailure {
-		XVar thisVar = t1 == null ? null : t1.thisVar();
+	public XVar<Type> getThisVar(CConstraint t1, CConstraint t2) throws XFailure {
+		XVar<Type> thisVar = t1 == null ? null : t1.thisVar();
         if (thisVar == null) return t2==null ? null : t2.thisVar();
         if (t2 != null && ! thisVar.equals( t2.thisVar()))
             throw new XFailure("Inconsistent this vars " + thisVar + " and "
@@ -226,8 +226,8 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 		boolean eq = false; 
 		// check if we are substituting the x for x
 		for (int i = 0; i < ys.length; ++i) {
-			XTerm y = ys[i];
-			XVar x = xs[i];
+			XTerm<Type> y = ys[i];
+			XVar<Type> x = xs[i];
 			if (! y.equals(x)) 
 				eq = false; 
 		}
@@ -237,11 +237,11 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 			return this; 
 		
 		CSmtConstraint result = new CSmtConstraint(baseType()); 
-		for (XTerm term : formula) {
-			XTerm t = term; 
+		for (XTerm<Type> term : formula) {
+			XTerm<Type> t = term; 
 			for (int i = 0; i < ys.length; ++i) {
-				XTerm y= ys[i];
-				XVar x = xs[i];
+				XTerm<Type> y= ys[i];
+				XVar<Type> x = xs[i];
 				t = t.subst(y, x);
 			}
 			t = t.subst(result.self(), self());
@@ -271,37 +271,37 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 	}
 
 	@Override
-	public XTerm bindingForSelfField(FieldDef fd) {
-		XVar field = ConstraintManager.getConstraintSystem().makeField(self(), fd);
+	public XTerm<Type> bindingForSelfField(FieldDef fd) {
+		XVar<Type> field = ConstraintManager.getConstraintSystem().makeField(self(), fd);
 		return bindingForVar(field);
 	}
 
 	@Override
-	public XTerm bindingForSelfField(MethodDef fd) {
-		XVar field = ConstraintManager.getConstraintSystem().makeField(self(), fd);
+	public XTerm<Type> bindingForSelfField(MethodDef fd) {
+		XVar<Type> field = ConstraintManager.getConstraintSystem().makeField(self(), fd);
 		return bindingForVar(field);
 	}
 
 	@Override
-	public XTerm bindingForSelfField(Field f) {
-		XVar field = ConstraintManager.getConstraintSystem().makeField(self(), f.fieldInstance().def());
+	public XTerm<Type> bindingForSelfField(Field f) {
+		XVar<Type> field = ConstraintManager.getConstraintSystem().makeField(self(), f.fieldInstance().def());
 		return bindingForVar(field);
 	}
 
 	@Override
-	public XTerm bindingForSelfField(FieldInstance f) {
-		XVar field = ConstraintManager.getConstraintSystem().makeField(self(), f.def());
+	public XTerm<Type> bindingForSelfField(FieldInstance f) {
+		XVar<Type> field = ConstraintManager.getConstraintSystem().makeField(self(), f.def());
 		return bindingForVar(field);
 	}
 
 	@Override
 	public CConstraint leastUpperBound(CConstraint other, Type t) {
 		//FIXME: this is a temporary sketchy solution to see how it gets called
-		XVar otherSelf = other.self(); 
+		XVar<Type> otherSelf = other.self(); 
 		CSmtConstraint result = new CSmtConstraint(t); 
-		XVar resultSelf = result.self(); 
+		XVar<Type> resultSelf = result.self(); 
 		try {
-			for (XTerm term : other.constraints()) {
+			for (XTerm<Type> term : other.constraints()) {
 				if (entails(term, otherSelf)) {
 					term = term.subst(resultSelf, otherSelf);
 					result.addTerm(term);
@@ -316,8 +316,8 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 	}
 
 	@Override
-	public CSmtConstraint project(XVar v) {
-		XVar eqv = ConstraintManager.getConstraintSystem().makeEQV();
+	public CSmtConstraint project(XVar<Type> v) {
+		XVar<Type> eqv = ConstraintManager.getConstraintSystem().makeEQV();
 		CSmtConstraint result = null;
 		try {
 			result = substitute(eqv, v);
@@ -357,7 +357,7 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 
 	private CSmtConstraint constraintProjection(Map<XTerm, CConstraint> m, int depth) {
 		CSmtConstraint result = new CSmtConstraint(baseType()); 
-		for (XTerm t : constraints()) {
+		for (XTerm<Type> t : constraints()) {
 			// note that the baseType field of termConstraint will be null
         	// but this does not matter as the constraint will be added in r, 
 			// and self will be substituted out
@@ -370,7 +370,7 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
 	
 	private static int MAX_DEPTH = 15;
 	
-	private static CSmtConstraint constraintProjection(XTerm t, Map<XTerm, CConstraint> m, int depth) {
+	private static CSmtConstraint constraintProjection(XTerm<Type> t, Map<XTerm, CConstraint> m, int depth) {
         if (t == null) return null;
         if (depth > MAX_DEPTH) {
         	// because the constraint returned by this method is in a sense "temporary"
@@ -404,7 +404,7 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
         } else if (t instanceof XField<?>) { // no new info to contribute
         } else if (t instanceof CField){
             CField f = (CField) t;
-            XTerm target = f.receiver();
+            XTerm<Type> target = f.receiver();
             CSmtConstraint targetConstraint = constraintProjection(target, m, depth+1); 
             
             Type baseType = f.type();
@@ -413,7 +413,7 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
             	res = targetConstraint;
             else {
                 ci = (CSmtConstraint)Types.realX(baseType);
-                XVar v = f.thisVar();
+                XVar<Type> v = f.thisVar();
                 res = new CSmtConstraint(null);
                 if (v != null) {
                 	try {
@@ -432,7 +432,7 @@ public class CSmtConstraint extends XSmtConstraint implements CConstraint {
             } 
         } else if (t instanceof XFormula<?>) {
             XFormula<?> f = (XFormula<?>) t;
-            for (XTerm a : f.arguments()) {
+            for (XTerm<Type> a : f.arguments()) {
                 CSmtConstraint argConstraint = constraintProjection(a, m, depth+1); //ancestors);
                 if (argConstraint != null) {
                     if (res == null) 

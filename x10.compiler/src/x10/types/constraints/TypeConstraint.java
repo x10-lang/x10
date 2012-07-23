@@ -12,19 +12,22 @@
 package x10.types.constraints;
 
 import java.io.Serializable;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Collection;
 
 import polyglot.util.Copy;
 import polyglot.util.InternalCompilerError;
+import polyglot.types.MemberDef;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.MacroType;
 import x10.types.ParameterType;
-
+import x10.types.X10MemberDef;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
 import polyglot.types.Context;
@@ -140,7 +143,7 @@ public class TypeConstraint implements Copy, Serializable {
      * @see x10.types.TypeConstraint#subst(x10.constraint.XTerm,
      * x10.constraint.XVar, boolean)
      */
-    public TypeConstraint subst(XTerm y, XVar x) {
+    public TypeConstraint subst(XTerm<Type> y, XVar<Type> x) {
         TypeConstraint c = new TypeConstraint();
         List<SubtypeConstraint> l = c.terms;
         for (SubtypeConstraint s : terms) l.add(s.subst(y, x));
@@ -149,7 +152,7 @@ public class TypeConstraint implements Copy, Serializable {
 
     @Override public String toString() {return terms.toString();}
 
-    public void checkTypeQuery( TypeConstraint query, XVar ythis, XVar xthis, XVar[] y, XVar[] x, 
+    public void checkTypeQuery( TypeConstraint query, XVar<Type> ythis, XVar<Type> xthis, XVar<Type>[] y, XVar<Type>[] x, 
                                 Context context) throws SemanticException {
         if (! consistent(context)) throw new SemanticException("Call invalid; type environment is inconsistent.");
         if (query != null) {
@@ -169,17 +172,15 @@ public class TypeConstraint implements Copy, Serializable {
         TypeSystem xts = (TypeSystem) me.typeSystem();
 
         TypeConstraint tenv = new TypeConstraint();
-        // lshadare this is not currently being used anywhere?
-        // CConstraint env = ConstraintManager.getConstraintSystem().makeCConstraint();
 
-        XVar ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
+        XVar<Type> ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
 
         if (ythis == null) {
             CConstraint c = Types.xclause(thisType);
             c = (c == null) ? ConstraintManager.getConstraintSystem().makeCConstraint(thisType) : c.copy();
 
-            ythis = ConstraintManager.getConstraintSystem().makeUQV();  
-            c.addSelfBinding(ythis);
+            ythis = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(thisType));  
+            c.addSelfEquality(ythis);
             c.setThisVar(ythis);
 
             thisType = Types.xclause(Types.baseType(thisType), c);
@@ -190,8 +191,11 @@ public class TypeConstraint implements Copy, Serializable {
         ParameterType[] X = new ParameterType[typeFormals.size()];
         Type[] Y = new Type[typeFormals.size()];
         Type[] Z = new Type[typeFormals.size()];
-        XVar[] x = new XVar[formals.size()];
-        XVar[] y = new XVar[formals.size()];
+        
+        @SuppressWarnings("unchecked")
+		XVar<Type>[] x = (XVar<Type>[])Array.newInstance(ConstraintManager.getConstraintSystem().makeEQV(null).getClass(), formals.size());
+        @SuppressWarnings("unchecked")
+        XVar<Type>[] y = (XVar<Type>[])Array.newInstance(ConstraintManager.getConstraintSystem().makeEQV(null).getClass(), formals.size());
 
         for (int i = 0; i < typeFormals.size(); i++) {
             Type xtype = typeFormals.get(i);
@@ -218,24 +222,29 @@ public class TypeConstraint implements Copy, Serializable {
             // in other constraints and don't want to conflate them if
             // realX returns the same constraint twice.
             final CConstraint yc = Types.realX(ytype).copy();
-            XVar yi = Types.selfVar(yc);
+            XVar<Type> yi = Types.selfVar(yc);
             if (yi == null) {
                 // This must mean that yi was not final, hence it cannot occur in 
                 // the dependent clauses of downstream yi's.
-                yi = ConstraintManager.getConstraintSystem().makeUQV(); // xts.xtypeTranslator().genEQV(ytype, false);
+                yi = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(ytype)); // xts.xtypeTranslator().genEQV(ytype, false);
             }
             tenv.addTypeParameterBindings(xtype, ytype, false);
             // CConstraint xc = X10TypeMixin.realX(xtype).copy();
-            XVar xi = xts.xtypeTranslator().translate(me.formalNames().get(i));
-            x[i] = xi;
-            y[i] = yi;
+            XVar<Type> xi = xts.xtypeTranslator().translate(me.formalNames().get(i));
+            x[i] = xi; 
+            y[i] = yi; 
         }
 
         // We'll subst selfVar for THIS.
-        XVar xthis = null;  
+        XVar<Type> xthis = null;  
 
-        if (me.def() instanceof X10ProcedureDef) xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
-        if (xthis == null) xthis = ConstraintManager.getConstraintSystem().makeThis();  
+        if (me.def() instanceof X10ProcedureDef) xthis = ((X10ProcedureDef) me.def()).thisVar();
+        if (xthis == null) {
+        	// lshadare this may not work as we are in the process of doing type inference
+        	// might need to modify XTerms to store Ref<? extends Type> rather than Types
+        	Type type = Types.baseType(((MemberDef)me.def()).container().get());
+        	xthis = ConstraintManager.getConstraintSystem().makeThis(type);
+        }
         try {expandTypeConstraints(tenv, context);
         } catch (XFailure f) {}
 
@@ -390,8 +399,8 @@ public class TypeConstraint implements Copy, Serializable {
             CConstraint g = xft.guard();
 
             if ( Tl.size() == Sl.size() && (T.isVoid() == S.isVoid())) { 
-                XVar[] ys = Types.toVarArray(Types.toLocalDefList(yft.formalNames()));
-                XVar[] xs = Types.toVarArray(Types.toLocalDefList(xft.formalNames()));
+				XVar<Type>[] ys = Types.toVarArray(Types.toLocalDefList(yft.formalNames()));
+				XVar<Type>[] xs = Types.toVarArray(Types.toLocalDefList(xft.formalNames()));
 
                 if (g != null) {
                     try {g = g.substitute(xs, ys);
@@ -544,7 +553,7 @@ public class TypeConstraint implements Copy, Serializable {
      * @throws SemanticException
      */
     private static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(Context context, PI me, TypeConstraint tenv,
-                                                                                ParameterType[] X, Type[] Y, Type[] Z, XVar[] x, XVar[] y, XVar ythis, XVar xthis) throws SemanticException
+                                                                                ParameterType[] X, Type[] Y, Type[] Z, XVar<Type>[] x, XVar<Type>[] y, XVar<Type> ythis, XVar<Type> xthis) throws SemanticException
                                                                                 {
         TypeSystem xts = (TypeSystem) me.typeSystem();
 

@@ -474,7 +474,7 @@ public class X10Call_c extends Call_c implements X10Call {
                 }
                 Type scope = c.findMethodScope(name.id());
                 if (!xts.typeEquals(scope, c.currentClass(), c)) {
-                    XVar thisVar = getThis(scope);
+                    XVar<Type> thisVar = getThis(scope);
                     if (thisVar != null)
                         scope = Types.setSelfVar(scope, thisVar);
                     return (Special) nf.This(prefixPos,
@@ -489,7 +489,7 @@ public class X10Call_c extends Call_c implements X10Call {
         }
     }
 
-	XVar getThis(Type t) {
+	XVar<Type> getThis(Type t) {
 	    t = Types.baseType(t);
 	    if (t instanceof X10ClassType) {
 	        return ((X10ClassType) t).x10Def().thisVar();

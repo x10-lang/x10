@@ -96,6 +96,6 @@ public interface MethodInstance
     /** Type to use in a RHS context rather than the return type. */
     Type rightType();
 
-    XTerm body();
-    MethodInstance body(XTerm body);
+    XTerm<Type> body();
+    MethodInstance body(XTerm<Type> body);
 }

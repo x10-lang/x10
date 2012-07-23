@@ -195,7 +195,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
     
  /*   public void checkOverride(ClassType ct, MethodInstance mi, MethodInstance mj) throws SemanticException {
-         XVar thisVar =  ConstraintManager.getConstraintSystem().makeUQV(); // ConstraintManager.getConstraintSystem().makeUQV(ConstraintManager.getConstraintSystem().makeFreshName("this")); // ConstraintManager.getConstraintSystem().makeLocal(ConstraintManager.getConstraintSystem().makeFreshName("this"));
+         XVar<Type> thisVar =  ConstraintManager.getConstraintSystem().makeUQV(); // ConstraintManager.getConstraintSystem().makeUQV(ConstraintManager.getConstraintSystem().makeFreshName("this")); // ConstraintManager.getConstraintSystem().makeLocal(ConstraintManager.getConstraintSystem().makeFreshName("this"));
 
          List<XVar> ys = new ArrayList<XVar>(2);
          List<XVar> xs = new ArrayList<XVar>(2);
@@ -698,10 +698,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return isSubtype(null, t1, t2);
     }
      
-    public boolean isSubtype(XVar x, Type t1, Type t2) {
+    public boolean isSubtype(XVar<Type> x, Type t1, Type t2) {
         boolean res = isOldSubtype(x, t1,t2);
  /*       if (res == false && x != null && t1 != null && t2 != null) {
-        	System.out.println("XVar "+x.toString());
+        	System.out.println("XVar<Type> "+x.toString());
         	System.out.println("type1 "+t1.toString());
         	System.out.println("type2 "+t2.toString());
         }*/
@@ -765,21 +765,21 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         final List<? extends XTerm> terms = originalConst.constraints();
         final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.size());
         boolean wasNew = false;
-        for (XTerm xTerm : terms) {
+        for (XTerm<Type> xTerm : terms) {
             final XTerm.TermVisitor visitor = new XTerm.TermVisitor() {
-                public XTerm visit(XTerm term) {
-                    XTerm res = XTypeTranslator.expandPropertyMethod(term,isMethod,ts,t1ClassType,context);
+                public XTerm<Type> visit(XTerm<Type> term) {
+                    XTerm<Type> res = XTypeTranslator.expandPropertyMethod(term,isMethod,ts,t1ClassType,context);
                     return res==term ? null : res;
                 }
             };
-            final XTerm newXterm = xTerm.accept(visitor);
+            final XTerm<Type> newXterm = xTerm.accept(visitor);
             wasNew |= newXterm!=xTerm;
             newTerms.add(newXterm);
         }
         if (wasNew) {
             final CConstraint newConstraint = ConstraintManager.getConstraintSystem().makeCConstraint(originalConst.self(), originalConst.baseType());
             newConstraint.setThisVar(originalConst.thisVar());
-            for (XTerm xTerm : newTerms) {
+            for (XTerm<Type> xTerm : newTerms) {
                 try {
                     newConstraint.addTerm(xTerm);
                 } catch (XFailure xFailure) {
@@ -795,7 +795,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#isSubtype(polyglot.types.Type, polyglot.types.Type, boolean)
      */
-    boolean isOldSubtype(XVar x, Type t1, Type t2) {
+    boolean isOldSubtype(XVar<Type> x, Type t1, Type t2) {
     	assert t1 != null;
     	assert t2 != null;
 
@@ -1105,7 +1105,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			for (Type parentType : l) {
     				boolean tryIt = false;
     				Type pt =  parentType;
-    				XVar thisVar = childRT.x10Def().thisVar();
+    				XVar<Type> thisVar = childRT.x10Def().thisVar();
     				try {
     					parentType = Subst.subst(parentType, x, thisVar);
     				} catch (SemanticException z) {
@@ -1290,7 +1290,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
-        XVar temp = ConstraintManager.getConstraintSystem().makeUQV();
+        XVar<Type> temp = ConstraintManager.getConstraintSystem().makeUQV();
         // instantiateSelf ensures that Int{self123==3} and A{self456==3} are equal.
         if (c1 != null) {
             c1 = c1.instantiateSelf(temp);
@@ -1428,7 +1428,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         // Allow assignment if the fromType's value can be represented as a toType
         if (c1 != null && ts.isNumeric(baseType1) && ts. isNumeric(baseType2)) {
-            XVar self = Types.selfVar(c1);
+            XVar<Type> self = Types.selfVar(c1);
             if (self instanceof XLit) {
                 Object val = ((XLit) self).val();
                 if (numericConversionValid(baseType2, baseType1, val)) {
@@ -1579,7 +1579,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             XLit val = ConstraintManager.getConstraintSystem().makeLit(value, base);
 
             CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(base);
-            c.addSelfBinding(val);
+            c.addSelfEquality(val);
             return entails(c, Types.realX(toType));
     }
 
@@ -1939,7 +1939,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         ContainerType rt = mi.container();
 
-        XVar thisVar = mi.x10Def().thisVar();
+        XVar<Type> thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
             thisVar = ConstraintManager.getConstraintSystem().makeThis();  
 
@@ -1952,7 +1952,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         mi = fixThis(mi, y, x);
 
-        XVar placeTerm = Types.getPlaceTerm(mi);
+        XVar<Type> placeTerm = Types.getPlaceTerm(mi);
 
         while (rt != null) {
             // add any method with the same name and formalTypes from rt
@@ -1976,13 +1976,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     @Override
     public List<MethodInstance> implemented(MethodInstance jmi) {
         MethodInstance mi = (MethodInstance) jmi;
-        XVar thisVar = mi.x10Def().thisVar();
+        XVar<Type> thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
             thisVar = ConstraintManager.getConstraintSystem().makeThis();  
         return implemented(mi, mi.container(), thisVar);
     }
 
-    protected List<MethodInstance> implemented(MethodInstance jmi, ContainerType st, XVar thisVar) {
+    protected List<MethodInstance> implemented(MethodInstance jmi, ContainerType st, XVar<Type> thisVar) {
         MethodInstance  mi = (MethodInstance) jmi;
         if (st == null) {
             return Collections.<MethodInstance>emptyList();
@@ -1997,7 +1997,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         mi = fixThis((MethodInstance) mi, y, x);
 
-        XVar placeTerm = Types.getPlaceTerm(mi);
+        XVar<Type> placeTerm = Types.getPlaceTerm(mi);
 
         List<MethodInstance> l = new LinkedList<MethodInstance>();
         l.addAll(ts.methods(st, mi.name(), mi.typeParameters(), mi.formalNames(), thisVar, placeTerm, context));
@@ -2057,9 +2057,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         XVar[] newSymbols = genSymbolicVars(mj.formalNames().size()+1);
         TypeSystem xts = (TypeSystem) mi.typeSystem();
         XVar[] miFormals = Matcher.getSymbolicNames(mi.formalNames(),xts);
-        XVar mipt = Types.getPlaceTerm(mi);
+        XVar<Type> mipt = Types.getPlaceTerm(mi);
         XVar[] mjFormals = Matcher.getSymbolicNames(mj.formalNames(),xts);
-        XVar mjpt = Types.getPlaceTerm(mj);
+        XVar<Type> mjpt = Types.getPlaceTerm(mj);
         XVar[] miSymbols = new XVar[miFormals.length+1];
         miSymbols[0] = mipt;
         System.arraycopy(miFormals, 0, miSymbols, 1, miFormals.length);
@@ -2173,7 +2173,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         MethodInstance mi = (MethodInstance) r;
         MethodInstance mj = (MethodInstance) other;
-        XVar thisVar = mi.x10Def().thisVar(); 
+        XVar<Type> thisVar = mi.x10Def().thisVar(); 
 
         List<XVar> ys = new ArrayList<XVar>(2);
         List<XVar> xs = new ArrayList<XVar>(2);
@@ -2226,7 +2226,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (mi.name().equals(mj.name())) {
            // String fullNameWithThis = mi.x10Def().thisVar().toString();
           //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-            XVar thisVar = mi.x10Def().thisVar(); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // ConstraintManager.getConstraintSystem().makeLocal(thisName);
+            XVar<Type> thisVar = mi.x10Def().thisVar(); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // ConstraintManager.getConstraintSystem().makeLocal(thisName);
 
             List<XVar> ys = new ArrayList<XVar>(2);
             List<XVar> xs = new ArrayList<XVar>(2);

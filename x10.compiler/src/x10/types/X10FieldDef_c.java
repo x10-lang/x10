@@ -47,7 +47,7 @@ public class X10FieldDef_c extends FieldDef_c implements X10FieldDef {
         this.thisDef = thisDef;
     }
     
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
         return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?

@@ -1,6 +1,7 @@
 package x10.types.constraints;
 
 import x10.constraint.XFailure;
+import x10.constraint.XType;
 
 /**
  * A ConstraintMaker is used in circumstances where a lazy or 

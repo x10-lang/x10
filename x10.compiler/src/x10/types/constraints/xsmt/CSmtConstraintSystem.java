@@ -48,27 +48,27 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem implements CConst
 	}
 
 	//@Override
-	public XVar makeQualifiedThis(Type qualifier, Type base) {
+	public XVar<Type> makeQualifiedThis(Type qualifier, Type base) {
 		return makeQualifiedVar(qualifier, makeThis(base));
 	}
 
 	@Override
-	public XVar makeQualifiedVar(Type qualifier, XVar var) {
+	public XVar<Type> makeQualifiedVar(Type qualifier, XVar<Type> var) {
 		return new QualifiedVar(qualifier, var);
 	}
 
 	@Override
-	public CField makeField(XVar var, MethodDef mi) {
+	public CField makeField(XVar<Type> var, MethodDef mi) {
 		return new CSmtField(var, mi);
 	}
 
 	@Override
-	public CField makeField(XVar var, FieldDef mi) {
+	public CField makeField(XVar<Type> var, FieldDef mi) {
 		return new CSmtField(var, mi);
 	}
 
 	@Override 
-	public CField makeFakeField(XVar receiver, FieldDef field) {
+	public CField makeFakeField(XVar<Type> receiver, FieldDef field) {
 		return new CSmtField(receiver, (FieldDef) field, true);
 	}
 	
@@ -160,12 +160,12 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem implements CConst
 	}
 
 	@Override
-	public CConstraint makeCConstraint(XVar self, Type t) {
+	public CConstraint makeCConstraint(XVar<Type> self, Type t) {
 		return new CSmtConstraint(self, t); 
 	}
 
 	@Override
-	public XTerm makeOpaque(Object op, boolean isatom, XTerm target,
+	public XTerm<Type> makeOpaque(Object op, boolean isatom, XTerm<Type> target,
 			List<XTerm> args) {
 		throw new UnsupportedOperationException("unimplemented yet");
 	}

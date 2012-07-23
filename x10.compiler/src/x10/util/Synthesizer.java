@@ -214,57 +214,57 @@ public class Synthesizer {
 	    return result;
 	}
 
-	public static XTerm makeProperty(Type type, XVar receiver, String name) {
+	public static XTerm<Type> makeProperty(Type type, XVar<Type> receiver, String name) {
 	    X10FieldInstance fi = Types.getProperty(type, Name.make(name));
 	    if (fi == null)
 	        return null;
 	    return ConstraintManager.getConstraintSystem().makeField(receiver, fi.def());
 	}
 
-	public XTerm makePointRankTerm(XVar receiver) {
+	public XTerm<Type> makePointRankTerm(XVar<Type> receiver) {
 	    return makeProperty(xts.Point(), receiver, "rank");
 	}
 
-	public XTerm makeRegionRankTerm(XVar receiver) {
+	public XTerm<Type> makeRegionRankTerm(XVar<Type> receiver) {
 	    return makeProperty(xts.Region(), receiver, "rank");
 	}
 
-	public XTerm makeRectTerm(XVar receiver) {
+	public XTerm<Type> makeRectTerm(XVar<Type> receiver) {
 	    return makeProperty(xts.Region(), receiver, "rect");
 	}
 
-	public Type addRectConstraint(Type type, XVar receiver) {
-	    XTerm v = makeRectTerm(receiver);
+	public Type addRectConstraint(Type type, XVar<Type> receiver) {
+	    XTerm<Type> v = makeRectTerm(receiver);
 	    return Types.addTerm(type, v);
 	}
 
 	public Type addRectConstraintToSelf(Type type) {
-	    XVar receiver = Types.self(type);
+	    XVar<Type> receiver = Types.self(type);
 	    if (receiver == null) {
 	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(type);
 	        type = Types.xclause(type, c);
 	        receiver = c.self();
 	    }
-	    XTerm v = makeRectTerm(receiver);
+	    XTerm<Type> v = makeRectTerm(receiver);
 	    return Types.addTerm(type, v);
 	}
 
 	/*
-	public Type addRankConstraint(Type type, XVar receiver, int n, X10TypeSystem ts) {
-	    XTerm v = makeRegionRankTerm(receiver);
-	    XTerm rank = XTerms.makeLit(new Integer(n));
+	public Type addRankConstraint(Type type, XVar<Type> receiver, int n, X10TypeSystem ts) {
+	    XTerm<Type> v = makeRegionRankTerm(receiver);
+	    XTerm<Type> rank = XTerms.makeLit(new Integer(n));
 	    return X10TypeMixin.addBinding(type, v, rank);
 	}
 
 	public Type addRankConstraintToSelf(Type type,  int n, X10TypeSystem ts) {
-	    XVar receiver = X10TypeMixin.self(type);
+	    XVar<Type> receiver = X10TypeMixin.self(type);
 	    if (receiver == null) {
 	        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
 	        type = X10TypeMixin.xclause(type, c);
 	        receiver = c.self();
 	    }
-	    XTerm v = makeRegionRankTerm(receiver);
-	    XTerm rank = XTerms.makeLit(new Integer(n));
+	    XTerm<Type> v = makeRegionRankTerm(receiver);
+	    XTerm<Type> rank = XTerms.makeLit(new Integer(n));
 	    return X10TypeMixin.addBinding(type, v, rank);
 	}
 	*/
@@ -767,9 +767,9 @@ public class Synthesizer {
 
 	public Field firstPlace() {
 		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(xts.Place());
-		XTerm id = makeProperty(xts.Int(), c.self(), "id");
+		XTerm<Type> id = makeProperty(xts.Int(), c.self(), "id");
 		try {
-			c.addBinding(id, ConstraintManager.getConstraintSystem().makeLit(0, xts.Int()));
+			c.addEquality(id, ConstraintManager.getConstraintSystem().makeLit(0, xts.Int()));
 			Type type = Types.xclause(xts.Place(), c);
 			assert Types.consistent(type);
 			return makeStaticField(Position.COMPILER_GENERATED, xts.Place(),
@@ -1431,16 +1431,16 @@ public class Synthesizer {
             return res;
         } 
         List<? extends XTerm> terms  = c.extConstraints();
-        for (XTerm t : terms)
+        for (XTerm<Type> t : terms)
             res.addAll(getLocals(t));
         return res;
     }        
-    private static java.util.Set<VarDef> getLocals(XTerm t) {
+    private static java.util.Set<VarDef> getLocals(XTerm<Type> t) {
         java.util.Set<VarDef> res = CollectionFactory.newHashSet();
         // FieldDef
         if (t instanceof CField) {
             final CField field = (CField) t;
-            final XVar receiver = field.receiver();
+            final XVar<Type> receiver = field.receiver();
             res.addAll(getLocals(receiver));
 
             if (receiver instanceof CThis && field.def() instanceof VarDef) {  
@@ -1451,7 +1451,7 @@ public class Synthesizer {
             res.add(local.localDef());
         } else if (t instanceof XFormula<?>) {
             final XFormula<?> xFormula = (XFormula<?>) t;
-            for (XTerm tt: xFormula.arguments())
+            for (XTerm<Type> tt: xFormula.arguments())
                 res.addAll(getLocals(tt));
         }
         return res;
@@ -1462,7 +1462,7 @@ public class Synthesizer {
      * @return the expression corresponding to the constraint
      * @seeAlso X10TypeTranslator.constraint(...): it generates a constraint from an AST.
      */
-    Expr makeExpr(XTerm t, Type baseType, Position pos) {
+    Expr makeExpr(XTerm<Type> t, Type baseType, Position pos) {
         if (t instanceof CField) 
             return makeExpr((CField) t, baseType, pos);
         if (t instanceof XLit)
@@ -1498,7 +1498,7 @@ public class Synthesizer {
         return null;
     }
 
-    TypeNode makeTypeNode(XVar receiver, Type baseType, Position pos) {
+    TypeNode makeTypeNode(XVar<Type> receiver, Type baseType, Position pos) {
         if (!(receiver instanceof XLit))
             return null;
         Object val = ((XLit) receiver).val();
@@ -1556,7 +1556,7 @@ public class Synthesizer {
     Expr makeExpr(CQualifiedVar v, Type baseType, Position pos) {
         TypeNode tn = null;
         ClassType ct = v.type().toClass();
-        XVar var = v.receiver();
+        XVar<Type> var = v.receiver();
         if (var instanceof CThis)  // use old code, but with type taken from v
             return makeExpr((CThis) var, v.type(), baseType, pos);
         if (! (var instanceof Typed || var instanceof CSelf))
@@ -1659,7 +1659,7 @@ public class Synthesizer {
 
     Expr makeExpr(XFormula<?> t, Type baseType, Position pos) {
         List<Expr> args = new ArrayList<Expr>();
-        for (XTerm a : t.arguments()) {
+        for (XTerm<Type> a : t.arguments()) {
             Expr e = makeExpr(a, baseType, pos);
             if (e == null)
                 return null;
@@ -1694,7 +1694,7 @@ public class Synthesizer {
             return es;
         List<? extends XTerm> terms = c.extConstraints();
 
-        for (XTerm term : terms) {
+        for (XTerm<Type> term : terms) {
             Expr e = makeExpr(term, null, pos);
             if (e != null)
                 es.add(e);

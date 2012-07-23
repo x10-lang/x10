@@ -290,8 +290,8 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                 ConstrainedType cType = Types.toConstrainedType(myType);
                 boolean okOrError = false;
                 if (isArray) {
-                    XTerm rank = cType.rank(c);
-                    XTerm size = cType.size(c);
+                    XTerm<Type> rank = cType.rank(c);
+                    XTerm<Type> size = cType.size(c);
                     if (rank instanceof XLit && size instanceof XLit) {
                         okOrError = true;
                         int r = (Integer) ((XLit) rank).val();
@@ -304,7 +304,7 @@ public class X10Formal_c extends Formal_c implements X10Formal {
                         }
                     }
                 } else {
-                    XTerm rank = cType.rank(c);
+                    XTerm<Type> rank = cType.rank(c);
                     if (rank instanceof XLit) {
                         okOrError = true;
                         int r = (Integer) ((XLit) rank).val();

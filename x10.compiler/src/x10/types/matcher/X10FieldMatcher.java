@@ -33,7 +33,7 @@ import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 
 public class X10FieldMatcher {
-    public static Type instantiateAccess(Type container, Type t, XVar oldThis, 
+    public static Type instantiateAccess(Type container, Type t, XVar<Type> oldThis, 
     		boolean contextKnowsReceiver) throws SemanticException {
         assert container!=null && t!=null;
         CConstraint c = Types.xclause(container);
@@ -44,8 +44,8 @@ public class X10FieldMatcher {
         // t = T{exists vv. (tc,this==vv),ct[vv/self]}
         // If c does have a selfVarBinding, v, then we want to set t to
         // t = T{exists v. (tc, this=v, ct)}
-        XVar v = Types.selfVarBinding(container);
-        XVar vv = null;
+        XVar<Type> v = Types.selfVarBinding(container);
+        XVar<Type> vv = null;
         if (v == null) {
         	v = vv =ConstraintManager.getConstraintSystem().makeUQV();
         }
@@ -103,12 +103,12 @@ public class X10FieldMatcher {
         // t = T{exists vv. (tc,this==vv),ct[vv/self]}
         // If c does have a selfVarBinding, v, then we want to set t to
         // t = T{exists v. (tc, this=v, ct)}
-        XVar v = Types.selfVarBinding(ct);
-        XVar vv = null;
+        XVar<Type> v = Types.selfVarBinding(ct);
+        XVar<Type> vv = null;
         if (v == null) {
         	v = vv =ConstraintManager.getConstraintSystem().makeUQV();
         }
-        XVar oldThis = fi.x10Def().thisVar();
+        XVar<Type> oldThis = fi.x10Def().thisVar();
         if (oldThis != null && v == null && vv==null)
         	assert false;
         /*if (c != null)

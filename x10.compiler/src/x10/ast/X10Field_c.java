@@ -101,8 +101,8 @@ public class X10Field_c extends Field_c {
             //// located in the current place. "this" is going to get quantified out by the FieldMatcher.
             //// therefore we temporarily replace this.home with a new UQV, currentPlace, and then on
             //// return from the matcher, substitute it back in.
-            //XTerm placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
-            //XVar currentPlace = XTerms.makeUQV("place");
+            //XTerm<Type> placeTerm = c.currentPlaceTerm()==null ? null: c.currentPlaceTerm().term();
+            //XVar<Type> currentPlace = XTerms.makeUQV("place");
             //Type tType2 = placeTerm==null ? targetType : Subst.subst(targetType, currentPlace, (XVar) placeTerm);
             //fi = (X10FieldInstance) ts.findField(targetType, tType2, name, c, receiverInContext);
             // IP: we may still need the above hack because "here" is this.home in field initializers
@@ -320,7 +320,7 @@ public class X10Field_c extends Field_c {
 //		Type thisType = tType;
 //		CConstraint rc = X10TypeMixin.realX(retType);
 //		if (rc != null) {
-//			XVar var= X10TypeMixin.selfVar(thisType);
+//			XVar<Type> var= X10TypeMixin.selfVar(thisType);
 //			if (var == null) 
 //				var = ts.xtypeTranslator().genEQV(rc, thisType);
 //			CConstraint newRC = rc.substitute(var, ts.xtypeTranslator().transThis(thisType));

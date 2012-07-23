@@ -31,7 +31,7 @@ public class CNativeSelf extends XRoot implements CSelf {
     @Override
     public boolean okAsNestedTerm() {return true;}
     @Override
-    public boolean hasVar(XVar v) {return equals(v);}
+    public boolean hasVar(XVar<Type> v) {return equals(v);}
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

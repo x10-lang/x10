@@ -3,23 +3,23 @@ package x10.types.constraints.visitors;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.constraint.visitors.XGraphVisitor;
+import x10.constraint.xnative.visitors.XGraphVisitor;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.ConstraintMaker;
 
 public class CEntailsVisitor extends XGraphVisitor{
     CConstraint c1;
     ConstraintMaker c2m;
-    XVar otherSelf;
+    XVar<Type> otherSelf;
     boolean result=true;
     public CEntailsVisitor(boolean hideEQV, boolean hideFake, CConstraint c1, ConstraintMaker c2m,
-    		XVar otherSelf) {
+    		XVar<Type> otherSelf) {
     	super(hideEQV, hideFake);
         this.c1=c1;
         this.c2m = c2m;
         this.otherSelf=otherSelf;
     }
-    public boolean visitAtomicFormula(XTerm t) {
+    public boolean visitAtomicFormula(XTerm<Type> t) {
         try {
             t = t.subst(c1.self(), otherSelf);
             boolean myResult = c1.entails(t);
@@ -39,7 +39,7 @@ public class CEntailsVisitor extends XGraphVisitor{
         }
         return result;
     }
-    public boolean visitEquals(XTerm t1, XTerm t2) {
+    public boolean visitEquals(XTerm<Type> t1, XTerm<Type> t2) {
         t1 = t1.subst(c1.self(), otherSelf);
         t2 = t2.subst(c1.self(), otherSelf);
         boolean myResult = c1.entails(t1, t2);
@@ -58,7 +58,7 @@ public class CEntailsVisitor extends XGraphVisitor{
         result &=myResult;   
         return result;
     }
-    public boolean visitDisEquals(XTerm t1, XTerm t2) {
+    public boolean visitDisEquals(XTerm<Type> t1, XTerm<Type> t2) {
         t1 = t1.subst(c1.self(), otherSelf);
         t2 = t2.subst(c1.self(), otherSelf);
         boolean myResult = c1.disEntails(t1, t2);

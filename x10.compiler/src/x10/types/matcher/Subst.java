@@ -107,7 +107,7 @@ public class Subst {
         return Types.xclause(base, c);
     }
 
-    public static Type project(Type t, XVar v) {
+    public static Type project(Type t, XVar<Type> v) {
         if (t == null)
             return null;
 
@@ -276,7 +276,7 @@ public class Subst {
         return t;
     }
 
-    public static Type subst(Type t, XTerm y, XVar x) throws SemanticException {
+    public static Type subst(Type t, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         return subst(t, new XTerm[] { y }, new XVar[] { x });
     }
 
@@ -284,7 +284,7 @@ public class Subst {
         return subst(t, new XTerm[] {}, new XVar[] { }, new Type[] { Y }, new ParameterType[] { X });
     }
 
-    public static CConstraint subst(CConstraint t, XTerm y, XVar x) throws SemanticException {
+    public static CConstraint subst(CConstraint t, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         return subst(t, new XTerm[] { y }, new XVar[] { x }, new Type[0], new ParameterType[0]);
     }
 
@@ -293,7 +293,7 @@ public class Subst {
         return t;
     }
 
-    public static TypeConstraint subst(TypeConstraint t, XTerm y, XVar x) throws SemanticException {
+    public static TypeConstraint subst(TypeConstraint t, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         if (t == null)
             return null;
         return t.subst(y, x);
@@ -372,7 +372,7 @@ public class Subst {
         return (X10FieldInstance) fi.type(ft, rt).container(ct);
     }
 
-    public static X10FieldInstance subst(X10FieldInstance fi, XTerm y, XVar x) throws SemanticException {
+    public static X10FieldInstance subst(X10FieldInstance fi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         return subst(fi, new XTerm[] { y }, new XVar[] { x });
     }
 
@@ -381,7 +381,7 @@ public class Subst {
         return li.type(ft);
     }
 
-    public static X10LocalInstance subst(X10LocalInstance li, XTerm y, XVar x) throws SemanticException {
+    public static X10LocalInstance subst(X10LocalInstance li, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         return subst(li, new XTerm[] { y }, new XVar[] { x });
     }
 
@@ -425,7 +425,7 @@ public class Subst {
         return ci;
     }
 
-    public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm y, XVar x) throws SemanticException {
+    public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         return subst(ci, new XTerm[] { y }, new XVar[] { x });
     }
 
@@ -469,7 +469,7 @@ public class Subst {
         return mi;
     }
 
-    public static MethodInstance subst(MethodInstance mi, XTerm y, XVar x) throws SemanticException {
+    public static MethodInstance subst(MethodInstance mi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         return subst(mi, new XTerm[] { y }, new XVar[] { x });
     }
 
@@ -522,7 +522,7 @@ public class Subst {
         return ci;
     }
 
-    public static ClosureInstance subst(ClosureInstance mi, XTerm y, XVar x) throws SemanticException {
+    public static ClosureInstance subst(ClosureInstance mi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
         return subst(mi, new XTerm[] { y }, new XVar[] { x });
     }
 

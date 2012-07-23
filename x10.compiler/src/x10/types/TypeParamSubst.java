@@ -308,8 +308,8 @@ public class TypeParamSubst {
 			ParameterType pt = typeParameters.get(i);
 			Type at = typeArguments.get(i);
 
-			XTerm p = ts.xtypeTranslator().translate(pt);
-			XTerm a = ts.xtypeTranslator().translate(at);
+			XTerm<Type> p = ts.xtypeTranslator().translate(pt);
+			XTerm<Type> a = ts.xtypeTranslator().translate(at);
 
 			ys[i] = a;
 
@@ -356,7 +356,7 @@ public class TypeParamSubst {
 		return c;
 	}
 
-	private XTerm reinstantiateTerm(XTerm t) {
+	private XTerm<Type> reinstantiateTerm(XTerm<Type> t) {
 		int n = typeParameters.size();
 		assert typeArguments.size() == n;
 
@@ -364,8 +364,8 @@ public class TypeParamSubst {
 			ParameterType pt = typeParameters.get(i);
 			Type at = typeArguments.get(0);
 
-			XTerm p = ts.xtypeTranslator().translate(pt);
-			XTerm a = ts.xtypeTranslator().translate(at);
+			XTerm<Type> p = ts.xtypeTranslator().translate(pt);
+			XTerm<Type> a = ts.xtypeTranslator().translate(at);
 
 			if (p instanceof XVar) {
 				t = t.subst(p, (XVar) a);

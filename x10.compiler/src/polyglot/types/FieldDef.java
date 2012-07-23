@@ -14,6 +14,7 @@
 
 package polyglot.types;
 
+import x10.constraint.XDef;
 
 /**
  * A <code>FieldInstance</code> contains type information for a field.

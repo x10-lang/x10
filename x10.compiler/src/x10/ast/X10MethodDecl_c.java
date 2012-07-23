@@ -568,7 +568,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                             Errors.issue(tc.job(), new SemanticException("Circular property method definition. Expanding the property method may result in an infinite loop.\n\tProperty:"+mi, position));
                         } else {
                             // while expanding this expression we might recursively type check the same method
-                            XTerm v = null;
+                            XTerm<Type> v = null;
                             try {
                                 Context cxt = tc.context();
                                 // Translate the body with the SpecialAsQualifiedVar 
@@ -1004,7 +1004,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 						Type newType =  ref.get();
 
 						// Fold the formal's constraint into the guard.
-						XVar var = xts.xtypeTranslator().translate(n.localDef().asInstance());
+						XVar<Type> var = xts.xtypeTranslator().translate(n.localDef().asInstance());
 						CConstraint dep = Types.xclause(newType);
 						if (dep != null) {
 							dep = dep.copy();
@@ -1027,7 +1027,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 					Type t =  tc.context().currentClass();
 					CConstraint dep = Types.xclause(t);
 					if (c != null && dep != null) {
-						XVar thisVar = methodDef().thisVar();
+						XVar<Type> thisVar = methodDef().thisVar();
 						if (thisVar != null)
 							dep = dep.substitute(thisVar, c.self());
 						//                                  dep = dep.copy();

@@ -33,7 +33,7 @@ public class CSmtThis extends XSmtVar implements CThis, SmtVariable {
 	public Type type() {return type;}
 	
 	@Override
-	public boolean hasVar(XVar v) {
+	public boolean hasVar(XVar<Type> v) {
 		return equals(v); 
 	}
 	

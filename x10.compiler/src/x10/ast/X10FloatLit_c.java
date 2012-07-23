@@ -53,8 +53,8 @@ public class X10FloatLit_c extends FloatLit_c {
 
 	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(type));
 	    try {
-	    	XTerm term = xts.xtypeTranslator().translate(c, this.type(type),  tc.context());
-	    	 c.addSelfBinding(term);
+	    	XTerm<Type> term = xts.xtypeTranslator().translate(c, this.type(type),  tc.context());
+	    	 c.addSelfEquality(term);
 	    } catch (IllegalConstraint z) {
 	    	Errors.issue(tc.job(), z);
 	    }

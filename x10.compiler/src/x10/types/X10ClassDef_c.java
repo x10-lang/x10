@@ -92,7 +92,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
         this.thisDef = null;
     }
     
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
         return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
@@ -213,7 +213,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(selfType);
     		    try {
     			    List<X10FieldDef> properties = properties();
-    			    XVar oldThis = thisVar(); // xts.xtypeTranslator().translateThisWithoutTypeConstraint();
+    			    XVar<Type> oldThis = thisVar(); // xts.xtypeTranslator().translateThisWithoutTypeConstraint();
     			    
     			    try {
     				    // Add in constraints from the supertypes.  This is
@@ -247,12 +247,12 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				    // add in the bindings from the property declarations.
     				    for (X10FieldDef fi : properties) {
     					    Type type = fi.asInstance().type();   // ### check for recursive call here
-    					    XVar fiThis = fi.thisVar();
+    					    XVar<Type> fiThis = fi.thisVar();
     					    CConstraint rs = Types.realX(type);
     					    if (rs != null) {
     						    // Given: f:C{c}
     						    // Add in: c[self.f/self,self/this]
-    						    XTerm newSelf = ts.xtypeTranslator().translate(result.self(), fi.asInstance());
+    						    XTerm<Type> newSelf = ts.xtypeTranslator().translate(result.self(), fi.asInstance());
     						    CConstraint rs1 = rs.instantiateSelf(newSelf);
     						    CConstraint rs2;
     						    if (fiThis != null)
@@ -266,7 +266,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				    // Finally, add in the class invariant.
     				    // It is important to do this last since we need avoid type-checking constraints
     				    // until after the base type of the supertypes are resolved.
-    				    XVar thisVar = thisVar();
+    				    XVar<Type> thisVar = thisVar();
     				    CConstraint ci = Types.get(classInvariant);
     				    if (ci != null && ! ci.valid()) {
     				    	ci = ci.substitute(ci.self(), oldThis);
@@ -296,7 +296,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     					    Type ftype = fi.asInstance().type();
     					    
     					    CConstraint c = X10TypeMixin.realX(ftype);
-    					    XTerm newSelf = xts.xtypeTranslator().trans(c, c.self(), fi.asInstance());
+    					    XTerm<Type> newSelf = xts.xtypeTranslator().trans(c, c.self(), fi.asInstance());
     					    c = c.substitute(newSelf, c.self());
     					    
     					    if (! result.entails(c, ((X10Context) ts.emptyContext()).constraintProjection(result, c))) {

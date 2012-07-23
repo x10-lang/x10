@@ -529,7 +529,7 @@ public class ForLoopOptimizer extends ContextVisitor {
      * binding is inconsistent
      * TODO: move into Synthesizer
      */
-    public static Type addSelfConstraint(Type type, XTerm value) {
+    public static Type addSelfConstraint(Type type, XTerm<Type> value) {
         return Types.addSelfBinding(type, value);
     }
 

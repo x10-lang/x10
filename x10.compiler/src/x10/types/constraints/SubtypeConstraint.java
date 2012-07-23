@@ -82,7 +82,7 @@ public class SubtypeConstraint implements Copy, Serializable {
         }
     }
 
-    public static Type subst(Type t, XTerm y, XVar x) {
+    public static Type subst(Type t, XTerm<Type> y, XVar<Type> x) {
         try { return Subst.subst(t, y, x);
         } catch (SemanticException e) {throw new InternalCompilerError(e);}
     }
@@ -93,7 +93,7 @@ public class SubtypeConstraint implements Copy, Serializable {
      * @see x10.types.TypeConstraint#subst(x10.constraint.XTerm,
      * x10.constraint.XVar, boolean)
      */
-    public SubtypeConstraint subst(XTerm y, XVar x) {
+    public SubtypeConstraint subst(XTerm<Type> y, XVar<Type> x) {
         Type l = subst(subtype, y, x);
         Type r = subst(supertype, y, x);
         if (l == subtype && r == supertype) return this;

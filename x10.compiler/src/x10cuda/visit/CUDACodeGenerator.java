@@ -806,7 +806,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (!(n.type() instanceof ConstrainedType)) return null;
 		ConstrainedType ct = (ConstrainedType) n.type();
 		CConstraint cc = ct.getRealXClause();
-		XVar local_self = Types.selfVarBinding(cc);
+		XVar<Type> local_self = Types.selfVarBinding(cc);
 		if (local_self==null) return null;
 		if (local_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+local_self.toString();
 		// resolve to another variable, keep going
@@ -814,7 +814,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (! projected.consistent())
 			return null;
 		
-		XVar closed_self = projected.bindingForVar(local_self);
+		XVar<Type> closed_self = projected.bindingForVar(local_self);
 		if (closed_self==null) return null;
 		if (closed_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+closed_self.toString();
 		return null;

@@ -53,7 +53,7 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	protected MacroType asType;
 	
 	public TypeDef_c(TypeSystem ts, Position pos, Position errorPos, Flags flags, Name name, Ref<? extends ClassType> container, List<ParameterType> typeParams,
-	        XVar thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
+	        XVar<Type> thisVar, List<LocalDef> formalNames, List<Ref<? extends Type>> formalTypes, Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> type) {
 
 		super(ts, pos, errorPos, container, flags);
 		this.name = name;
@@ -171,7 +171,7 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 		this.type = type;
 	}
 
-	public XVar thisVar() {
+	public XVar<Type> thisVar() {
 		if (this.thisDef != null)
 			return this.thisDef.thisVar();
 		return ConstraintManager.getConstraintSystem().makeThis(); 

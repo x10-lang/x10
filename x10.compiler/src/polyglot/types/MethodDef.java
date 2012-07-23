@@ -14,6 +14,7 @@
 
 package polyglot.types;
 
+import x10.constraint.XDef;
 import x10.types.MethodInstance;
 
 

@@ -20,6 +20,6 @@ public interface X10LocalDef extends LocalDef, X10Def {
     boolean isUnnamed();
     void setAsyncInit();
     boolean isAsyncInit();
-	XTerm placeTerm();
-	void setPlaceTerm(XTerm xt);
+	XTerm<Type> placeTerm();
+	void setPlaceTerm(XTerm<Type> xt);
 }

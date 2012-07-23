@@ -41,11 +41,11 @@ public class BuiltInTypeRules {
     public static Type adjustReturnTypeForIntRange(Expr left, Expr right, Type type, Context context) {
         TypeSystem ts = (TypeSystem) context.typeSystem();
         Type ltype = left.type();
-        XTerm selfTerm = Types.selfBinding(ltype);
+        XTerm<Type> selfTerm = Types.selfBinding(ltype);
         if (selfTerm != null && selfTerm.equals(ts.ZERO())) {
             if (!ts.isUnknown(type)) {
                 ConstrainedType result = Types.toConstrainedType(type);
-                XTerm zb = result.makeZeroBased();
+                XTerm<Type> zb = result.makeZeroBased();
                 if (zb != null) result = (ConstrainedType) Types.addTerm(result, zb);
                 result=result.addNonNull();
                 return result;
@@ -74,10 +74,10 @@ public class BuiltInTypeRules {
         TypeSystem ts =  context.typeSystem();
         ConstrainedType ltype = Types.toConstrainedType(left.type());
         ConstrainedType rtype = Types.toConstrainedType(right.type());
-        XTerm lrank = ltype.rank(context);
-        XTerm rrank = rtype.rank(context);
+        XTerm<Type> lrank = ltype.rank(context);
+        XTerm<Type> rrank = rtype.rank(context);
         ConstrainedType ct = Types.toConstrainedType(type);
-        XVar selfVar = ct.selfVar();
+        XVar<Type> selfVar = ct.selfVar();
 
         if (lrank instanceof XLit && rrank instanceof XLit) {
             int xr = (Integer) ((XLit) lrank).val();
@@ -110,7 +110,7 @@ public class BuiltInTypeRules {
         ConstrainedType ltype = Types.toConstrainedType(left.type());
         ConstrainedType rtype = Types.toConstrainedType(right.type());
         ConstrainedType ct = Types.toConstrainedType(type);
-        XVar selfVar = ct.selfVar();
+        XVar<Type> selfVar = ct.selfVar();
 
         ct = ct.addRank(2);
         ct = ct.addRect();
@@ -135,9 +135,9 @@ public class BuiltInTypeRules {
         // support for all operators.
         /*if (l.isBoolean() && r.isBoolean()) {
 
-			XTerm xt = Types.selfBinding(l);
+			XTerm<Type> xt = Types.selfBinding(l);
 			if (xt != null) {
-				XTerm yt = Types.selfBinding(r);
+				XTerm<Type> yt = Types.selfBinding(r);
 				if (yt != null) {
 				    result = Types.addSelfBinding(result, XTerms.makeAnd(xt, yt));
 				}

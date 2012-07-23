@@ -52,10 +52,10 @@ import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.constraint.visitors.XGraphVisitor;
 import x10.constraint.xnative.XNativeConstraint;
 import x10.constraint.xnative.XNativeTerm;
 import x10.constraint.xnative.XPromise;
+import x10.constraint.xnative.visitors.XGraphVisitor;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
@@ -92,11 +92,11 @@ import x10.types.constraints.visitors.CEntailsVisitor;
 public class CNativeConstraint extends XNativeConstraint  implements CConstraint {
 
     /** Variable to use for self in the constraint. */
-    XVar self;
-    XVar thisVar;
+    XVar<Type> self;
+    XVar<Type> thisVar;
     Type baseType; 
     
-    public CNativeConstraint(XVar self, Type t) {
+    public CNativeConstraint(XVar<Type> self, Type t) {
     	this.self = self; 
     	this.baseType = t; 
     }
@@ -108,17 +108,17 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
     /**
      * Variable to use for self in the constraint.
      */
-    public XVar self() {return self;}
+    public XVar<Type> self() {return self;}
 
     /**
      * Return what, if anything, self is bound to in the current constraint.
      * @return
      */
-    public XVar selfVarBinding() {return  bindingForVar(self());}
-    public XVar thisVar() {return thisVar;}
+    public XVar<Type> selfVarBinding() {return  bindingForVar(self());}
+    public XVar<Type> thisVar() {return thisVar;}
     public boolean hasPlaceTerm() {
         if (roots==null) return false;
-        for (XTerm t : roots.keySet()) if (PlaceChecker.isGlobalPlace(t)) return true;
+        for (XTerm<Type> t : roots.keySet()) if (PlaceChecker.isGlobalPlace(t)) return true;
         return false;
     }
 
@@ -167,7 +167,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * 
      * */
 
-    public void addIn(XTerm newSelf, CConstraint c) {
+    public void addIn(XTerm<Type> newSelf, CConstraint c) {
         if (c== null) return;
         if (! c.consistent()) {setInconsistent();return;}
         if (c.valid()) return;
@@ -189,7 +189,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * modifying it in place.
      * @param var
      */
-    public void addSelfBinding(XTerm var) {addBinding(self(), var);}
+    public void addSelfEquality(XTerm<Type> var) {addBinding(self(), var);}
 
     /**
      * 
@@ -197,27 +197,27 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * modifying it in place.
      * @param var
      */
-    public void addSelfDisBinding(XTerm term) {addDisBinding(self(), term);}
+    public void addSelfDisEquality(XTerm<Type> term) {addDisBinding(self(), term);}
     /**
      * Add the binding selfVar == var to this constraint, possibly
      * modifying it in place.
      * @param var
      */
-    public void addSelfBinding(XConstrainedTerm var) {addBinding(self(), var);}
+    public void addSelfEquality(XConstrainedTerm var) {addEquality(self(), var);}
 
     /**
      * Add the binding thisVar == term to this constraint, possibly
      * modifying it in place.
      * @param var
      */
-    public void addThisBinding(XTerm term) {addBinding(thisVar(), term);}
+    public void addThisEquality(XTerm<Type> term) {addBinding(thisVar(), term);}
 
     /**
      * Set thisVar to var (if var is non-null). To be used extremely carefully. Does not change
      * terms in the constraint. So there should not be terms referring to the old thisVar.
      * @param var
      */
-    public void setThisVar(XVar var) {
+    public void setThisVar(XVar<Type> var) {
         if (var == null) return;
         thisVar = var;
     }
@@ -228,7 +228,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * @param s
      * @param t
      */
-    public void addBinding(XTerm s, XConstrainedTerm t) {
+    public void addEquality(XTerm<Type> s, XConstrainedTerm t) {
         addBinding(s, t.term());
         addIn(s, t.constraint());
 
@@ -238,14 +238,14 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * @param s
      * @param t
      */
-    public void addBinding(XConstrainedTerm s, XTerm t) {addBinding(t,s);}
+    public void addEquality(XConstrainedTerm s, XTerm<Type> t) {addEquality(t,s);}
     /**
      * Add the binding s.term()=t.term() to this, and add in s.constraint() and t.constraint(). 
      * This constraint is possibly modified in place.
      * @param s
      * @param t
      */
-    public void addBinding(XConstrainedTerm s, XConstrainedTerm t) {
+    public void addEquality(XConstrainedTerm s, XConstrainedTerm t) {
         addBinding(s.term(), t.term());
         addIn(s.term(), s.constraint());
         addIn(t.term(), t.constraint());
@@ -255,7 +255,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * Substitute y for x in this, returning a new constraint.
      * // Redeclare with the right return type
      */
-    public CNativeConstraint substitute(XTerm y, XVar x) throws XFailure {
+    public CNativeConstraint substitute(XTerm<Type> y, XVar<Type> x) throws XFailure {
     	return substitute(new XTerm[] { y }, new XVar[] { x });
     }
 
@@ -272,11 +272,11 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * @param newSelf
      * @return
      */
-    public CNativeConstraint instantiateSelf(XTerm newSelf) {
+    public CNativeConstraint instantiateSelf(XTerm<Type> newSelf) {
         CNativeConstraint result = new CNativeConstraint(baseType());
         List<XTerm> terms = constraints();
-        for (XTerm term : terms) {
-            XTerm t = term.subst(newSelf,self);
+        for (XTerm<Type> term : terms) {
+            XTerm<Type> t = term.subst(newSelf,self);
             try {
                 result.addTerm(t);
             } catch (XFailure z) {
@@ -302,7 +302,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
         CNativeConstraint result = new CNativeConstraint(baseType());
         if (! consistent) return result;
 
-        for (XTerm term : other.constraints()) {
+        for (XTerm<Type> term : other.constraints()) {
             try {
                 if (! entails(term)) result.addTerm(term);
             } catch (XFailure z) {
@@ -313,8 +313,8 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
         return result;
     }
 
-    public XVar getThisVar(CConstraint t1, CConstraint t2) throws XFailure {
-        XVar thisVar = t1 == null ? null : t1.thisVar();
+    public XVar<Type> getThisVar(CConstraint t1, CConstraint t2) throws XFailure {
+        XVar<Type> thisVar = t1 == null ? null : t1.thisVar();
         if (thisVar == null) return t2==null ? null : t2.thisVar();
         if (t2 != null && ! thisVar.equals( t2.thisVar()))
             throw new XFailure("Inconsistent this vars " + thisVar + " and "
@@ -334,13 +334,13 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
     public CNativeConstraint substitute(XTerm[] ys, XVar[] xs) throws XFailure {
         assert (ys != null && xs != null);
         assert xs.length == ys.length;
-        //for (XVar x : xs)
+        //for (XVar<Type> x : xs)
         //    assert x != self;
 
         boolean eq = true;
         for (int i = 0; i < ys.length; i++) {
-            XTerm y = ys[i];
-            XVar x = xs[i];
+            XTerm<Type> y = ys[i];
+            XVar<Type> x = xs[i];
             if (! y.equals(x)) eq = false;
         }
         if (eq) return this;
@@ -354,20 +354,20 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
         CNativeConstraint result = new CNativeConstraint(baseType());
         //result.self = self(); // the resulting constraint should share the same self.
         List<XTerm> terms = constraints();
-        for (XTerm term : terms) {
-            XTerm t = term;
+        for (XTerm<Type> term : terms) {
+            XTerm<Type> t = term;
 
             // if term is y==x.f, the subst will produce y==y.f, which is a cycle--bad!
             //		    if (term instanceof XEquals_c) {
             //		        XEquals_c eq = (XEquals_c) term;
-            //		        XTerm l = eq.left();
-            //		        XTerm r = eq.right();
+            //		        XTerm<Type> l = eq.left();
+            //		        XTerm<Type> r = eq.right();
             //		        if (y.equals(l) || y.equals(r))
             //		            continue;
             //		    }
             for (int i = 0; i < ys.length; i++) {
-                XTerm y = ys[i];
-                XVar x = xs[i];
+                XTerm<Type> y = ys[i];
+                XVar<Type> x = xs[i];
                 t = t.subst(y, x);
             }
 
@@ -402,7 +402,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
 
     // Why not just use superclass method? 
     @Override
-    protected XNativeTerm bindingForRootField(XVar root, Object field) {
+    protected XNativeTerm bindingForRootField(XVar<Type> root, Object field) {
         XNativeTerm term;
         if (field instanceof FieldDef) 
         	term = (XNativeTerm)ConstraintManager.getConstraintSystem().makeField(root, (FieldDef) field);
@@ -414,10 +414,10 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
         return p.term();
     }
     
-    public XTerm bindingForSelfField(FieldDef fd) {
+    public XTerm<Type> bindingForSelfField(FieldDef fd) {
         return bindingForRootField(self(), fd);
     }
-    public XTerm bindingForSelfField(MethodDef fd) {
+    public XTerm<Type> bindingForSelfField(MethodDef fd) {
         return bindingForRootField(self(), fd);
     }
 
@@ -429,11 +429,11 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * @return
      * @throws XFailure
      */
-    public XTerm bindingForSelfField(Field f) {
+    public XTerm<Type> bindingForSelfField(Field f) {
         assert f != null;
         return bindingForSelfField(f.fieldInstance().def());
     }
-    public XTerm bindingForSelfField(FieldInstance f) {
+    public XTerm<Type> bindingForSelfField(FieldInstance f) {
         assert f != null;
         return bindingForSelfField(f.def());
     }
@@ -458,11 +458,11 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * @return
      */
 
-    public CNativeConstraint project(XVar v)  {
+    public CNativeConstraint project(XVar<Type> v)  {
         if (! consistent) return this;
         CNativeConstraint result = null;
         try {
-            XVar eqv = ConstraintManager.getConstraintSystem().makeEQV();
+            XVar<Type> eqv = ConstraintManager.getConstraintSystem().makeEQV();
             result = substitute(eqv, v); 
         } catch (XFailure c) {
             // should not happen
@@ -519,7 +519,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
                                             int depth) 
     {
         CNativeConstraint r = new CNativeConstraint(baseType());
-        for (XTerm t : constraints()) {
+        for (XTerm<Type> t : constraints()) {
         	// note that the type of the type field of tc will be null
         	// but this does not matter as it is added in r, and self will
         	// be substituted out
@@ -532,8 +532,8 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
 
     // ***************************************************************** Implementation
 
-    protected boolean entails(XTerm  term, XVar self) throws XFailure {
-        XTerm subst = term.subst(self(), self);
+    protected boolean entails(XTerm<Type>  term, XVar<Type> self) throws XFailure {
+        XTerm<Type> subst = term.subst(self(), self);
         return entails(subst);
     }
 
@@ -544,7 +544,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
     
     private static int MAX_DEPTH=15;
     /**
-     * Recursively collects the constraints on the types present in XTerm t
+     * Recursively collects the constraints on the types present in XTerm<Type> t
      * in a new constraint. Note that the returned CNativeConstrained will not
      * have the proper type information.  
      * @param t
@@ -552,7 +552,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
      * @param depth maximum depth of recursion
      * @return
      */
-    private static CNativeConstraint constraintProjection(XTerm t, Map<XTerm,CConstraint> m, int depth)  {
+    private static CNativeConstraint constraintProjection(XTerm<Type> t, Map<XTerm,CConstraint> m, int depth)  {
         if (t == null) return null;
         if (depth > MAX_DEPTH) {
             //System.err.println("(Warning) Reached threshold when checking constraints. If type-checking fails "
@@ -590,7 +590,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
 
         } else if (t instanceof CField){
             CField f = (CField) t;
-            XTerm target = f.receiver();
+            XTerm<Type> target = f.receiver();
 
             CNativeConstraint rt = constraintProjection(target, m, depth+1); 
             
@@ -601,7 +601,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
             else {
             	// collecting the constraints on the type of the field
                 ci = (CNativeConstraint)Types.realX(ty);
-                XVar v = f.thisVar();
+                XVar<Type> v = f.thisVar();
                 r = new CNativeConstraint(ty);
                 if (v != null) {
                     try {
@@ -626,7 +626,7 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
             } 
         } else if (t instanceof XFormula<?>) {
             XFormula<?> f = (XFormula<?>) t;
-            for (XTerm a : f.arguments()) {
+            for (XTerm<Type> a : f.arguments()) {
                 CNativeConstraint ca = constraintProjection(a, m, depth+1); 
                 if (ca != null) {
                     if (r == null) r = new CNativeConstraint(null);
@@ -647,12 +647,12 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
 
         // are these steps essentially weakening the constraints?
         // i.e. c1 => c1a
-        // because an XVar can be an XLit, XField etc
-        XVar x0 = c1.selfVarBinding();
+        // because an XVar<Type> can be an XLit, XField etc
+        XVar<Type> x0 = c1.selfVarBinding();
         if (x0 instanceof XVar)
             c1a = c1.project((XVar) x0);
         
-        XVar x =  c2.selfVarBinding();
+        XVar<Type> x =  c2.selfVarBinding();
         if (x instanceof XVar) 
         	c2a = c2.project((XVar) x);
 
@@ -677,10 +677,10 @@ public class CNativeConstraint extends XNativeConstraint  implements CConstraint
     
     // also, shoudn't this be symmetric? 
     private CNativeConstraint leastUpperBound0(CNativeConstraint other, Type t) {
-        XVar otherSelf = other.self();
+        XVar<Type> otherSelf = other.self();
         CNativeConstraint result = new CNativeConstraint(t);
-        XVar resultSelf = result.self();
-        for (XTerm term : other.constraints()) {
+        XVar<Type> resultSelf = result.self();
+        for (XTerm<Type> term : other.constraints()) {
             try {
                 if (entails(term, otherSelf)) {
                     term = term.subst(resultSelf, otherSelf);

@@ -60,8 +60,8 @@ public class CharLit_c extends NumLit_c implements CharLit
 
 		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(charType);
 		try {
-			XTerm term = xts.xtypeTranslator().translate(c, this.type(charType),  tc.context());
-			c.addSelfBinding(term);
+			XTerm<Type> term = xts.xtypeTranslator().translate(c, this.type(charType),  tc.context());
+			c.addSelfEquality(term);
 		} catch (IllegalConstraint z) {
 			Errors.issue(tc.job(), z);
 		}

@@ -346,7 +346,7 @@ public class AltSynthesizer {
         Type type     = fi.rightType();
         // propagate self binding (if any)
         CConstraint c = Types.realX(receiver.type());
-        XTerm term    = Types.selfVarBinding(c);  // the RHS of {self==x} in c
+        XTerm<Type> term    = Types.selfVarBinding(c);  // the RHS of {self==x} in c
         if (term != null) {
             type = addSelfConstraint(type, ts.xtypeTranslator().translate(term, fi));
             assert (null != type);
@@ -1025,7 +1025,7 @@ public class AltSynthesizer {
      * @return the type with the additional constraint {self==value}, or null if the proposed
      * binding is inconsistent
      */
-    public static Type addSelfConstraint(Type type, XTerm value) {
+    public static Type addSelfConstraint(Type type, XTerm<Type> value) {
         return Types.addSelfBinding(type, value);
     }
 

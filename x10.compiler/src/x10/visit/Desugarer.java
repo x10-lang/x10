@@ -641,7 +641,7 @@ public class Desugarer extends ContextVisitor {
             LocalInstance li = localDef.asInstance();
             Receiver r = new X10Local_c(pos, new Id_c(pos, localDef.name())).localInstance(li);
             r = ((X10Local_c) r).type(li.type());
-            XVar selfVar=null;
+            XVar<Type> selfVar=null;
             try {
                 selfVar = (XVar) localDef.typeSystem().xtypeTranslator().translate(constraint, r, context);
             } catch (IllegalConstraint z) {

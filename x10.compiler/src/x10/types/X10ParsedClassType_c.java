@@ -287,8 +287,8 @@ implements X10ParsedClassType
 	    Type sup = super.superClass();
 	    Type base = Types.baseType(sup);
 	    if (base instanceof X10ClassType) {
-	        XVar supVar = ((X10ClassType) base).x10Def().thisVar();
-	        XVar thisVar = x10Def().thisVar();
+	        XVar<Type> supVar = ((X10ClassType) base).x10Def().thisVar();
+	        XVar<Type> thisVar = x10Def().thisVar();
 	        try {
 	            sup = Subst.subst(sup, thisVar, supVar);
 	        }
@@ -306,8 +306,8 @@ implements X10ParsedClassType
 	    for (Type sup : interfaces) {
 	        Type base = Types.baseType(sup);
 	        if (base instanceof X10ClassType) {
-	            XVar supVar = ((X10ClassType) base).x10Def().thisVar();
-	            XVar thisVar = x10Def().thisVar();
+	            XVar<Type> supVar = ((X10ClassType) base).x10Def().thisVar();
+	            XVar<Type> thisVar = x10Def().thisVar();
 	            try {
 	                sup = Subst.subst(sup, thisVar, supVar);
 	            }
@@ -486,8 +486,8 @@ implements X10ParsedClassType
 		
 	}
 	
-	XVar thisVar;
-	public XVar thisVar() {
+	XVar<Type> thisVar;
+	public XVar<Type> thisVar() {
 		return thisVar;
 	}
 	

@@ -88,7 +88,7 @@ public class Here_c extends Expr_c implements Here {
             Errors.issue(tc.job(), new Errors.CannotUseHereInThisContext(position()));
             try {
                 CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
-                XTerm term = PlaceChecker.here(); // to avoid further errors
+                XTerm<Type> term = PlaceChecker.here(); // to avoid further errors
                 h = XConstrainedTerm.instantiate(d, term);
             } catch (XFailure e) {
                 throw new InternalCompilerError("Cannot construct a place term", position());
@@ -96,7 +96,7 @@ public class Here_c extends Expr_c implements Here {
         }
         if (h != null) {
             CConstraint cc = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
-            cc.addSelfBinding(h);
+            cc.addSelfEquality(h);
             tt = Types.xclause(Types.baseType(tt), cc);
         }
 

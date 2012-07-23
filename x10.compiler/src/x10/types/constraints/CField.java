@@ -11,7 +11,7 @@ import polyglot.types.Type;
 import polyglot.types.TypeObject;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
-import x10.constraint.XField;
+import x10.constraint.XExpr;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.X10ClassDef;
@@ -24,7 +24,7 @@ import x10.types.X10MethodDef;
  * 
  * @author vj
  */
-public interface CField extends XField<Def>, Typed {
+public interface CField extends XExpr<Type> {
     public Def def(); 
-    public XVar thisVar();
+    public XVar<Type> thisVar();
 }

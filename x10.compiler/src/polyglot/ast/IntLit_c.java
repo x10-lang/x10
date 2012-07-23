@@ -135,8 +135,8 @@ public class IntLit_c extends NumLit_c implements IntLit
         }
         CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(Type);
         try {
-         XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
-         c.addSelfBinding(term);
+         XTerm<Type> term = xts.xtypeTranslator().translate(c, this.type(Type), (Context) tc.context());
+         c.addSelfEquality(term);
         } catch (IllegalConstraint z) {
         	Errors.issue(tc.job(), z);
         }

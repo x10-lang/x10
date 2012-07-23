@@ -108,7 +108,7 @@ public class TypeTransformer extends NodeTransformer {
         VarDef currentLocal = this.visitor().context().varWhoseTypeIsBeingElaborated();
         List<XVar> oldvars = new ArrayList<XVar>();
         List<XVar> newvars = new ArrayList<XVar>();
-        for (XVar v : c.vars()) {
+        for (XVar<Type> v : c.vars()) {
             if (v instanceof CLocal) {
                 CLocal l = (CLocal) v;
                 X10LocalDef ld = l.name();

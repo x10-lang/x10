@@ -79,15 +79,15 @@ public class X10Local_c extends Local_c {
         if (!isInClosure) {
             // we check that usages inside an "at" are at the origin place if it is a "var" (for "val" we're fine, except when it's a write)
             final X10LocalDef_c localDef_c = (X10LocalDef_c) li.def();
-            XTerm origin = localDef_c.placeTerm();
+            XTerm<Type> origin = localDef_c.placeTerm();
             // origin maybe null when typechecking a method to get the return type (see XTENLANG-1902)
             // but we will type check that method again later (with correct placeTerm)
             if (origin!=null) { // origin = PlaceChecker.here();
                 final XConstrainedTerm placeTerm = context.currentPlaceTerm();
-                final XTerm currentPlace = placeTerm.term();
+                final XTerm<Type> currentPlace = placeTerm.term();
                 XConstraint constraint = ConstraintManager.getConstraintSystem().makeConstraint();;
                 boolean isOk = false;
-                constraint.addBinding(origin,currentPlace);
+                constraint.addEquality(origin,currentPlace);
                 if (placeTerm.constraint().entails(constraint)) {
                     //ok  origin == currentPlace
                     isOk = true;

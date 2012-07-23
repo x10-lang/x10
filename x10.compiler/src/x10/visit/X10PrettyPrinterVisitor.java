@@ -1238,7 +1238,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //                    // if (type has {self != null} constraint) return false;
 //                    x10.types.constraints.CConstraint constraint = constrainedType.constraint().get();
 //                    Set<x10.constraint.XTerm> terms = constraint.rootTerms();
-//                    for (x10.constraint.XTerm term : terms) {
+//                    for (x10.constraint.XTerm<Type> term : terms) {
 //                        System.out.println(term);
 //                    }
 //                }

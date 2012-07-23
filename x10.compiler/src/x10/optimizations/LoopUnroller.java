@@ -455,11 +455,11 @@ public class LoopUnroller extends ContextVisitor {
      
     }
 
-    private boolean constraintEq1(XTerm term) {
+    private boolean constraintEq1(XTerm<Type> term) {
         XEquals eq= (XEquals) term;
         XTerm[] args= eq.arguments();
-        XTerm left= args[0];
-        XTerm right= args[1];
+        XTerm<Type> left= args[0];
+        XTerm<Type> right= args[1];
 
         if (right instanceof XLit) {
             XLit lit= (XLit) right;
@@ -470,7 +470,7 @@ public class LoopUnroller extends ContextVisitor {
         } else if (right instanceof XField) {
             // Might we need to know what values flow into this RHS operand?
             XField rightField= (XField) right;
-            XVar rightRcvr= rightField.receiver();
+            XVar<Type> rightRcvr= rightField.receiver();
             //Object rightName= rightField.field();
 
             if (rightRcvr instanceof XLocal) {

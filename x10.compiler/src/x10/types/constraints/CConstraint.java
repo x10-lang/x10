@@ -14,6 +14,7 @@ package x10.types.constraints;
 import java.util.HashMap;
 
 import polyglot.ast.Field;
+import polyglot.types.Def;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
@@ -39,19 +40,16 @@ import polyglot.types.SemanticException;
 
 
 import x10.constraint.XConstraint;
-import x10.constraint.XDisEquals;
 import x10.constraint.XEQV;
-import x10.constraint.XEquals;
 import x10.constraint.XFailure;
-import x10.constraint.XField;
-import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
+import x10.constraint.XType;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.constraint.visitors.XGraphVisitor;
+import x10.constraint.xnative.visitors.XGraphVisitor;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
@@ -65,39 +63,36 @@ import x10.types.constraints.visitors.CEntailsVisitor;
 /**
  * The compiler's notion of a constraint. 
  * 
- * <p> A CConstraint is an XConstraint, together with machinery to track two
+ * <p> A CConstraint<T> is an XConstraint, together with machinery to track two
  * special variables of interest to the compiler for this constraint, namely 
  * the self variable and the this variable.
  * 
  * <p>Further, the XTerms occurring in an XConstraint are created using static 
- * methods on the class CConstraintSystem, accessed through the ConstraintManager. 
- * In particular they carry type information in their internal XName. This information 
- * is used to recursively materialize more constraints from the given constraint. 
+ * methods on the class CConstraintSystem, accessed through the ConstraintManager.
  * 
  * @author vj
  *
  */
-public interface CConstraint extends XConstraint, ThisVar {
+public interface CConstraint extends XConstraint<Type> {
 
     /**
      * Variable to use for self in the constraint.
      */
-    public XVar self(); 
-    
-    /** 
-     * 
-     * @return
+    public XVar<Type> self(); 
+    /**
+     * Variable to use for this in the constraint. 
      */
-    public Type baseType(); 
-    
-    public void setBaseType(Type t);
+    public XVar<Type> thisVar(); 
     /**
      * Return what, if anything, self is bound to in the current constraint.
      * @return
      */
-    public XVar selfVarBinding(); 
-    @Override
-    public XVar thisVar(); 
+    public XVar<Type> selfVarBinding(); 
+    
+    /**
+     * Return true if the constraint recursively contains a Place term. 
+     * @return
+     */
     public boolean hasPlaceTerm();
 
     /**
@@ -139,42 +134,44 @@ public interface CConstraint extends XConstraint, ThisVar {
      * 
      * */
 
-    public void addIn(XTerm newSelf, CConstraint c);
+    public void addIn(XTerm<Type> newSelf, CConstraint c);
 
     /**
      * Add the binding selfVar == var to this constraint, possibly
      * modifying it in place.
-     * @param var
+     * @param term
      */
-    public void addSelfBinding(XTerm var);
+    public void addSelfEquality(XTerm<Type> term);
 
     /**
      * 
      * Add the binding selfVar != term to this constraint, possibly
      * modifying it in place.
-     * @param var
+     * @param term
      */
-    public void addSelfDisBinding(XTerm term);
+    public void addSelfDisEquality(XTerm<Type> term);
     /**
      * Add the binding selfVar == var to this constraint, possibly
-     * modifying it in place.
+     * modifying it in place. Also adds in the constraints on the XConstraintedTerm
+     * var.
      * @param var
      */
-    public void addSelfBinding(XConstrainedTerm var);
+    public void addSelfEquality(XConstrainedTerm var);
 
     /**
      * Add the binding thisVar == term to this constraint, possibly
-     * modifying it in place.
-     * @param var
+     * modifying it in place. Also adds in the constraints on the XConstraintedTerm
+     * term.
+     * @param term
      */
-    public void addThisBinding(XTerm term);
+    public void addThisEquality(XTerm<Type> term);
 
     /**
      * Set thisVar to var (if var is non-null). To be used extremely carefully. Does not change
      * terms in the constraint. So there should not be terms referring to the old thisVar.
      * @param var
      */
-    public void setThisVar(XVar var);
+    public void setThisVar(XVar<Type> var);
     
     /**
      * Add the binding s=t.term(), and add in the constraints of t into this. This constraint
@@ -182,14 +179,14 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @param s
      * @param t
      */
-    public void addBinding(XTerm s, XConstrainedTerm t);
+    public void addEquality(XTerm<Type> s, XConstrainedTerm t);
     
     /**
      * Add the binding s=t to this. This constraint is possibly modified in place.
      * @param s
      * @param t
      */
-    public void addBinding(XConstrainedTerm s, XTerm t);
+    public void addEquality(XConstrainedTerm s, XTerm<Type> t);
     
     /**
      * Add the binding s.term()=t.term() to this, and add in s.constraint() and t.constraint(). 
@@ -197,13 +194,13 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @param s
      * @param t
      */
-    public void addBinding(XConstrainedTerm s, XConstrainedTerm t);
+    public void addEquality(XConstrainedTerm s, XConstrainedTerm t);
 
     /**
      * Substitute y for x in this, returning a new constraint.
      * // Redeclare with the right return type
      */
-    public CConstraint substitute(XTerm y, XVar x) throws XFailure;
+    public CConstraint substitute(XTerm<Type> y, XTerm<Type> x) throws XFailure;
 
     /**
      * Return a new constraint obtained from the current one by substituting
@@ -218,7 +215,7 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @param newSelf
      * @return
      */
-    public CConstraint instantiateSelf(XTerm newSelf);
+    public CConstraint instantiateSelf(XTerm<Type> newSelf);
     
     /**
      * Return those subset of constraints in the base set of other that are 
@@ -239,7 +236,7 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @return 
      * @throws XFailure t1, t2 have different this() var
      */
-    public XVar getThisVar(CConstraint t1, CConstraint t2) throws XFailure;
+    public XVar<Type> getThisVar(CConstraint t1, CConstraint t2) throws XFailure;
     
     /**
      * Return the result of substituting each yi for xi in this.
@@ -251,25 +248,18 @@ public interface CConstraint extends XConstraint, ThisVar {
      * Note: The only vars that need to be changed are in roots!
      * So doing constraints() and iterating over its terms is really bad.
      */
-    public CConstraint substitute(XTerm[] ys, XVar[] xs) throws XFailure;
+    public CConstraint substitute(XTerm<Type>[] ys, XVar<Type>[] xs) throws XFailure;
 
     public boolean entails(CConstraint other, ConstraintMaker sigma);
 
-    public XTerm bindingForSelfField(FieldDef fd);
-    
-    public XTerm bindingForSelfField(MethodDef fd);
-
     /**
-     * Return the term self.fieldName is bound to in the constraint, and null
+     * Return the term self.fd is bound to in the constraint, and null
      * if there is no such term.
      * 
      * @param fieldName -- Name of field
      * @return
-     * @throws XFailure
      */
-    public XTerm bindingForSelfField(Field f);
-    public XTerm bindingForSelfField(FieldInstance f);
-
+    public XTerm<Type> bindingForSelfProjection(Def fd);
 
     /** Return the least upper bound of this and other. That is, the resulting constraint has precisely
      * the constraints entailed by both this and other.
@@ -288,8 +278,7 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @param v
      * @return
      */
-
-    public CConstraint project(XVar v);
+    public CConstraint project(XVar<Type> v);
 
     /**
      * Return exists self.this. Guaranteed that the self var of the
@@ -307,9 +296,9 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @param m
      * @throws XFailure
      */
-    public void addSigma(CConstraint c, Map<XTerm, CConstraint> m);
+    public void addSigma(CConstraint c, Map<XTerm<Type>, CConstraint> m);
     
-    public void addSigma(XConstrainedTerm ct, Type t, Map<XTerm, CConstraint> m);
+    public void addSigma(XConstrainedTerm ct, Type t, Map<XTerm<Type>, CConstraint> m);
 
     /**
      * Return the constraint r generated from this by adding all the constraints
@@ -321,23 +310,23 @@ public interface CConstraint extends XConstraint, ThisVar {
      * @return
      * @throws XFailure -- if r becomes inconsistent.
      */
-    public  CConstraint constraintProjection(Map<XTerm,CConstraint> m);
+    public  CConstraint constraintProjection(Map<XTerm<Type>,CConstraint> m);
     
-	public void addTerm(XTerm t) throws XFailure;
+	public void addTerm(XTerm<Type> t) throws XFailure;
 
-	public XVar bindingForVar(XVar local_self);
+	public XVar<Type> bindingForVar(XVar<Type> local_self);
 
-	public boolean entails(XTerm t);
+	public boolean entails(XTerm<Type> t);
 
-	public List<? extends XTerm> extConstraints();
+	public List<? extends XTerm<Type>> extConstraints();
 
-	public List<? extends XTerm> extConstraintsHideFake();
+	public List<? extends XTerm<Type>> extConstraintsHideFake();
 
-	public Set<? extends XTerm> getTerms();
+	public Set<? extends XTerm<Type>> getTerms();
 
 	public void setInconsistent();
 
-	public Set<? extends XVar> vars();
+	public Set<? extends XVar<Type>> vars();
 
 }
 

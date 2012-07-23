@@ -5,6 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import polyglot.ast.Typed;
+import polyglot.types.Type;
+import x10.constraint.XType;
 import x10.constraint.XVar;
 
 /**
@@ -18,5 +20,5 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public interface CThis extends XVar, Typed {
+public interface CThis extends XVar<Type> {
 }

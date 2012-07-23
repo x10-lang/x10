@@ -32,7 +32,7 @@ public class CSmtSelf extends XSmtVar implements CSelf, SmtVariable, Typed {
     @Override
     public int hashCode() {return num;}
     @Override
-    public boolean hasVar(XVar v) {return equals(v);}
+    public boolean hasVar(XVar<Type> v) {return equals(v);}
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

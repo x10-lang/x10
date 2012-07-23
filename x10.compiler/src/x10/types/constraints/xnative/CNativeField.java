@@ -45,17 +45,17 @@ public class CNativeField extends XNativeField<Def> implements CField, Typed {
         }
         return string;
     }
-    public CNativeField(XVar r, MethodDef fi) {this(r, fi, false);}
-    public CNativeField(XVar r, MethodDef fi, boolean hidden) {super(r, fi, hidden);}
-    public CNativeField(XVar r, FieldDef fi) {this(r, fi, false);}
-    public CNativeField(XVar r, FieldDef fi, boolean hidden)  {super(r, fi, hidden);}
+    public CNativeField(XVar<Type> r, MethodDef fi) {this(r, fi, false);}
+    public CNativeField(XVar<Type> r, MethodDef fi, boolean hidden) {super(r, fi, hidden);}
+    public CNativeField(XVar<Type> r, FieldDef fi) {this(r, fi, false);}
+    public CNativeField(XVar<Type> r, FieldDef fi, boolean hidden)  {super(r, fi, hidden);}
 
     /**
      * Return a new CNativeField the same as the current one except that it has a new receiver.
      * (In particular the new CNativeField has the same Def information as the old CNativeField.)
      */
     @Override
-    public CNativeField copyReceiver(XVar newReceiver) {
+    public CNativeField copyReceiver(XVar<Type> newReceiver) {
         return field instanceof MethodDef ? new CNativeField(newReceiver, (MethodDef) field)
         : new CNativeField(newReceiver, (FieldDef) field);
     }
@@ -67,7 +67,7 @@ public class CNativeField extends XNativeField<Def> implements CField, Typed {
     @Override
     public Def def() {return field;}
     @Override
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (field instanceof X10FieldDef)
             return ((X10ClassDef) Types.get(((X10FieldDef) field).container()).toClass().def()).thisVar();
         return null;

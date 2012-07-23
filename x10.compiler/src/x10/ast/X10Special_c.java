@@ -160,8 +160,8 @@ public class X10Special_c extends Special_c implements X10Special {
                 // and to qualifier.this, where this is the current this
                 // variable
                 XTypeTranslator xt = xts.xtypeTranslator();
-                XVar var = (XVar)  xt.translate(cc, this, c);
-              /*  XVar qualifiedVar = (XVar)  xt.translateSpecialAsQualified(cc, this, c);
+                XVar<Type> var = (XVar)  xt.translate(cc, this, c);
+              /*  XVar<Type> qualifiedVar = (XVar)  xt.translateSpecialAsQualified(cc, this, c);
                 if (qualifiedVar != null && qualifiedVar != var
                         && qualifiedVar instanceof QualifiedVar) {
                     QualifiedVar qVar = (QualifiedVar) qualifiedVar;
@@ -170,7 +170,7 @@ public class X10Special_c extends Special_c implements X10Special {
                     }
                 }*/
                 if (var != null)  {
-                    cc.addSelfBinding(var);
+                    cc.addSelfEquality(var);
                 }
                 //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
             } catch (IllegalConstraint z) {
@@ -187,9 +187,9 @@ public class X10Special_c extends Special_c implements X10Special {
             CConstraint cc = Types.xclause(superClass);
             cc = cc == null ? ConstraintManager.getConstraintSystem().makeCConstraint(tt) : cc.copy();
             try {
-                XVar var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
+                XVar<Type> var = (XVar) xts.xtypeTranslator().translate(cc, this, c);
                 if (var != null) {
-                    cc.addSelfBinding(var);
+                    cc.addSelfEquality(var);
                     //PlaceChecker.AddThisHomeEqualsPlaceTerm(cc, var, c);
                 }
             } catch (IllegalConstraint z) {

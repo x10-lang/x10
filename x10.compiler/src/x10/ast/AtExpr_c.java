@@ -143,7 +143,7 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	if (def.placeTerm() == null) {
     	    XConstrainedTerm placeTerm;
     	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
-    	    XTerm term = PlaceChecker.makePlace();
+    	    XTerm<Type> term = PlaceChecker.makePlace();
     	    try {
     	        placeTerm = XConstrainedTerm.instantiate(d, term);
     	    } catch (XFailure z) {
@@ -151,7 +151,7 @@ public class AtExpr_c extends Closure_c implements AtExpr {
     	    }
     	    try {
     	        XConstrainedTerm realPlaceTerm = PlaceChecker.computePlaceTerm(place, tc.context(), ts);
-    	        d.addBinding(placeTerm, realPlaceTerm);
+    	        d.addEquality(placeTerm, realPlaceTerm);
     	    } catch (SemanticException se) { }
     	    def.setPlaceTerm(placeTerm);
     	}

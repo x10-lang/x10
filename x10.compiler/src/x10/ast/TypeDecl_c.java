@@ -212,7 +212,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		}
 
 		// FIXME: also check if the current method is static
-		XVar thisVar = ct == null ? null : ct.thisVar();
+		XVar<Type> thisVar = ct == null ? null : ct.thisVar();
 		Ref<X10ClassType> container = ct == null ? null : Types.ref(ct.asType());
 		Flags flags = local ? Flags.NONE : this.flags().flags();
 		if (topLevel)
@@ -253,7 +253,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		        public void run() {
 		        	Type baseType = Types.baseType(f2.type().type());
 		        	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType);
-		            c.addSelfBinding(ts.xtypeTranslator().translate(f2.localDef().asInstance()));
+		            c.addSelfEquality(ts.xtypeTranslator().translate(f2.localDef().asInstance()));
 		            cref.update(c);
 		        }
 		    });

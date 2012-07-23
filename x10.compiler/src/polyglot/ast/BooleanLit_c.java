@@ -63,8 +63,8 @@ public class BooleanLit_c extends Lit_c implements BooleanLit
 	 
 	  CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(Boolean);
 	  try {
-		  XTerm term = xts.xtypeTranslator().translate(c, this.type(Boolean),  tc.context());
-		  c.addSelfBinding(term);
+		  XTerm<Type> term = xts.xtypeTranslator().translate(c, this.type(Boolean),  tc.context());
+		  c.addSelfEquality(term);
 	  } catch (IllegalConstraint z) {
 		  Errors.issue(tc.job(), z);
 	  }

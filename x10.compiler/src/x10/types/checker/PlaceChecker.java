@@ -60,10 +60,10 @@ import x10.util.Synthesizer;
  */
 public class PlaceChecker {
 
-	static final XVar HERE = ConstraintManager.getConstraintSystem().makeUQV("synthetic here");
+	static final XVar<Type> HERE = ConstraintManager.getConstraintSystem().makeUQV("synthetic here");
 	//public static final XLit GLOBAL_PLACE = new XLit_c("globalPlace");
 
-	public static XVar here() {
+	public static XVar<Type> here() {
 		return HERE;
 	}
 
@@ -73,17 +73,17 @@ public class PlaceChecker {
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
-	public static XTerm makePlace() {
-		XTerm place = ConstraintManager.getConstraintSystem().makeUQV(PLACE_HAME);
+	public static XTerm<Type> makePlace() {
+		XTerm<Type> place = ConstraintManager.getConstraintSystem().makeUQV(PLACE_HAME);
 
 		return place;
 	}
 
-	public static boolean isGlobalPlace(XTerm term) {
+	public static boolean isGlobalPlace(XTerm<Type> term) {
 		return (term instanceof XEQV && term.toString().startsWith(PLACE_HAME));
 	}
 
-	static XTerm thisHomeVar(Context xc) {
+	static XTerm<Type> thisHomeVar(Context xc) {
 		return homeVar(((Context) xc).thisVar(), (TypeSystem) xc.typeSystem());
 	}
 	static FieldInstance GlobalRefHome(TypeSystem xts) {
@@ -119,14 +119,14 @@ public class PlaceChecker {
 	 * @param xts
 	 * @return
 	 */
-	static XTerm homeVar(XTerm target, TypeSystem xts)  {
+	static XTerm<Type> homeVar(XTerm<Type> target, TypeSystem xts)  {
 		return xts.xtypeTranslator().translateFakeField(target, HOME_NAME);
 	}
-	static XTerm globalRefHomeVar(XTerm target, TypeSystem xts)  {
+	static XTerm<Type> globalRefHomeVar(XTerm<Type> target, TypeSystem xts)  {
 		return xts.xtypeTranslator().translate(target, GlobalRefHome(xts));
 	}
 
-	public static XTerm placeTerm(Type t) {
+	public static XTerm<Type> placeTerm(Type t) {
 		TypeSystem xts = (TypeSystem) t.typeSystem();
 		CConstraint cc = Types.xclause(t);
 		return cc==null ? null : cc.bindingForSelfField(GlobalRefHome(xts));
@@ -139,12 +139,12 @@ public class PlaceChecker {
 	 * @param ts
 	 * @return
 	 */
-	public static CConstraint ThisHomeEqualsHere(XTerm thisVar, TypeSystem ts) {
+	public static CConstraint ThisHomeEqualsHere(XTerm<Type> thisVar, TypeSystem ts) {
 
-		XTerm h =  PlaceChecker.homeVar(thisVar, ts);
+		XTerm<Type> h =  PlaceChecker.homeVar(thisVar, ts);
 		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(null);
 		if (h != null) {
-			c.addBinding(h, here());
+			c.addEquality(h, here());
 		}
 		return c;
 	}
@@ -159,7 +159,7 @@ public class PlaceChecker {
 		if (Types.isX10Struct(type))
 			return type;
 		ConstrainedType type1 = Types.toConstrainedType(type);
-		XVar selfVar = Types.selfVar(type1);
+		XVar<Type> selfVar = Types.selfVar(type1);
 		assert selfVar != null;
 		/*if (selfVar == null) {
 		    selfVar = ConstraintManager.getConstraintSystem().makeEQV("self");
@@ -169,7 +169,7 @@ public class PlaceChecker {
 		        throw new InternalCompilerError("Cannot set self var for type "+type, e);
 		    }
 		}*/
-		XTerm locVar = homeVar(selfVar, (TypeSystem) cxt.typeSystem());
+		XTerm<Type> locVar = homeVar(selfVar, (TypeSystem) cxt.typeSystem());
 		XConstrainedTerm pt = (((Context) cxt).currentPlaceTerm());
 		if (locVar != null && pt != null)
 			type = Types.addBinding(type1, locVar, pt.term()); // here());// here, not pt); // pt, not PlaceChecker.here()
@@ -208,7 +208,7 @@ public class PlaceChecker {
 	 * @param term
 	 * @return
 	 */
-	public static Type ReplaceHereByPlaceTerm(Type type, XTerm term) {
+	public static Type ReplaceHereByPlaceTerm(Type type, XTerm<Type> term) {
 		// Do not replace for closure types. The ! in such types is 
 		// evaluated dynamically, i.e. at the point of evaluation of the closure.
 		if (type instanceof FunctionType_c)
@@ -227,7 +227,7 @@ public class PlaceChecker {
 		XConstrainedTerm h = ((Context) context).currentPlaceTerm();
 		if (h == null)
 			return type;
-		XTerm term = h.term();
+		XTerm<Type> term = h.term();
 		try {
 			if (term instanceof XVar)
 				type = Subst.subst(type,  here(), (XVar) term); 
@@ -243,7 +243,7 @@ public class PlaceChecker {
 			return;
 		XConstrainedTerm placeTerm = xc.currentPlaceTerm();
 		if (placeTerm != null)  
-			c.addBinding(here(), placeTerm.term());
+			c.addEquality(here(), placeTerm.term());
 	}
 
 	public static void setHereTerm(MethodDef md, Context c) {
@@ -273,7 +273,7 @@ public class PlaceChecker {
 		// This means that the types in GlobalRef cannot reference here.
 		if (cd != null)
 			if ( ! xts.hasSameClassDef(Types.baseType(cd.asType()), xts.GlobalRef())) {
-				XTerm h =  homeVar(xc.thisVar(),xts);
+				XTerm<Type> h =  homeVar(xc.thisVar(),xts);
 				if (h != null)  // null for structs.
 					c.setPlace(XConstrainedTerm.make(h, xts.Place()));
 			}
@@ -282,7 +282,7 @@ public class PlaceChecker {
 	public static XConstrainedTerm methodPlaceTerm(MethodDef md) {
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
-	    XTerm term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
+	    XTerm<Type> term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
 	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(md.typeSystem().Place());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -293,7 +293,7 @@ public class PlaceChecker {
 
 	public static XConstrainedTerm constructorPlaceTerm(ConstructorDef cd) {
 	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place());
-	    XTerm term = homeVar(cd.thisVar(), cd.typeSystem());
+	    XTerm<Type> term = homeVar(cd.thisVar(), cd.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
 	    } catch (XFailure z) {
@@ -303,7 +303,7 @@ public class PlaceChecker {
 	
 	public static XConstrainedTerm closurePlaceTerm(ClosureDef cd) {
 	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place());
-	    XTerm term = makePlace();
+	    XTerm<Type> term = makePlace();
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
 	    } catch (XFailure z) {
@@ -331,7 +331,7 @@ public class PlaceChecker {
 	 * obtained by setting the new place term to be this.home.
 	 */
 	public static void setHereIsThisHome(Context c) {
-		XTerm h = thisHomeVar(c);
+		XTerm<Type> h = thisHomeVar(c);
 		if (h != null)  // null for structs.
 			c.setPlace(XConstrainedTerm.make(h, c.typeSystem().Place())); 	
 	}
@@ -383,7 +383,7 @@ public class PlaceChecker {
 		CConstraint d = Types.xclause(placeType);
 		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(placeType)) : d.copy();
 		CConstraint pc = null;
-		XTerm term = null;
+		XTerm<Type> term = null;
 		XConstrainedTerm pt = null;
 		boolean placeIsPlace = ts.isImplicitCastValid(placeType, ts.Place(), xc);
 		if (placeIsPlace)  {

@@ -305,7 +305,7 @@ public class Converter {
 					Ref<Type> ref = new LazyRef_c<Type>(e2Type);
 					X10LocalDef def = X10LocalDef_c.makeHidden(ts, Position.COMPILER_GENERATED, Flags.FINAL, ref,
 							Name.makeFresh("arg"));
-					XVar y = ConstraintManager.getConstraintSystem().makeLocal(def);
+					XVar<Type> y = ConstraintManager.getConstraintSystem().makeLocal(def);
 					ref.update(Types.addSelfBinding(e2Type, y));
 					transformedYs.add(y);
 					argtc.context().addVariable(def.asInstance());
@@ -558,7 +558,7 @@ public class Converter {
 		if (ts.isSubtype(fromType, toType, context)) {
 		    // Add the clause self==x if the fromType's self binding is x,
 		    // since for these casts we know the result is identical to expr.
-		    //XTerm sv = Types.selfBinding(fromType);
+		    //XTerm<Type> sv = Types.selfBinding(fromType);
 		    //if (sv != null)
 		    //    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 		    X10Cast n =  cast.conversionType(ConversionType.SUBTYPE);
@@ -572,7 +572,7 @@ public class Converter {
 					&& ! ts.isParameterType(toType)
 					&& ts.isCastValid(fromType, toType, context)) {
 				X10Cast n = cast.conversionType(ConversionType.CHECKED);
-				XTerm sv = Types.selfBinding(fromType);
+				XTerm<Type> sv = Types.selfBinding(fromType);
 				if (sv != null)
 				    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 				return n.type(toType);
@@ -614,7 +614,7 @@ public class Converter {
 						&& ts.isCastValid(fromType, toType, context)) {
 					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);
 					X10Cast n = cast.conversionType(ConversionType.DESUGAR_LATER);
-					XVar sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
+					XVar<Type> sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
 					if (sv != null)
 					    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 					return n.type(toType);

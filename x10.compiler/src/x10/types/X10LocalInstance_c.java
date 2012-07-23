@@ -90,7 +90,7 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         c = c==null? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(rightType)) : c.copy();
 
         CLocal var = xts.xtypeTranslator().translate(this.type(rightType));
-        c.addSelfBinding(var);
+        c.addSelfEquality(var);
         rightType = Types.xclause(Types.baseType(rightType), c);
 
         assert rightType != null;

@@ -435,10 +435,10 @@ public class Context implements Resolver, Cloneable
         
         List<X10ClassDef> outers = Types.outerTypes(curr); 
         for (int i=0; i < outers.size(); i++) {
-            XVar base = outers.get(i).thisVar();
+            XVar<Type> base = outers.get(i).thisVar();
             for (int j=i+1; j < outers.size(); j++ ) {
                 X10ClassDef y = outers.get(j);
-                result.addBinding(y.thisVar(), 
+                result.addEquality(y.thisVar(), 
                 			      ConstraintManager.getConstraintSystem().makeQualifiedVar(y.asType(), base));
         }
         }
@@ -540,7 +540,7 @@ public class Context implements Resolver, Cloneable
     }
 
 
-    public XVar thisVar() {
+    public XVar<Type> thisVar() {
         if (this.inSuperTypeDeclaration()) {
             X10ClassDef t = this.supertypeDeclarationType();
             return t.thisVar();
@@ -1361,7 +1361,7 @@ public class Context implements Resolver, Cloneable
                             if (! ts.isUnknown(type)) {
                                 CConstraint env = rc.get();
                                 if (env !=null) {
-                                    XVar  containerThis = thisVar();
+                                    XVar<Type>  containerThis = thisVar();
                                     if (containerThis !=null)
                                         env=env.instantiateSelf(containerThis);
                                     if (! env.valid()) {

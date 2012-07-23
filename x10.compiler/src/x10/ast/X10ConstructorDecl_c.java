@@ -528,7 +528,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             				Type newType =  ref.get();
 
             				// Fold the formal's constraint into the guard.
-            				XVar var = xts.xtypeTranslator().translate(n.localDef().asInstance());
+            				XVar<Type> var = xts.xtypeTranslator().translate(n.localDef().asInstance());
             				CConstraint dep = Types.xclause(newType);
             				if (dep != null) {
             				    dep = dep.copy();
@@ -553,7 +553,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
             			Type t =  tc.context().currentClass();
             			CConstraint dep = Types.xclause(t);
             			if (c != null && dep != null) {
-            				XVar thisVar = constructorDef().thisVar();
+            				XVar<Type> thisVar = constructorDef().thisVar();
             				if (thisVar != null)
             				    dep = dep.substitute(thisVar, c.self());
 //            				dep = dep.copy();

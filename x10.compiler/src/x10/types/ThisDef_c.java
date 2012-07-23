@@ -41,7 +41,7 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
                      Ref<? extends ClassType> baseType) {
         super(ts, pos, Flags.FINAL, baseType, ThisDef.THIS);
         ClassType bt = Types.get(baseType);
-        XVar baseVar = ConstraintManager.getConstraintSystem().makeThis(bt);  
+        XVar<Type> baseVar = ConstraintManager.getConstraintSystem().makeThis(bt);  
         thisVar =  qType==null?  baseVar
                 : ConstraintManager.getConstraintSystem().makeQualifiedVar(qType.get(), baseVar);
     }
@@ -87,11 +87,11 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
         this.asInstance = null;
     }
 
-    private XVar thisVar;
-    public XVar thisVar() {
+    private XVar<Type> thisVar;
+    public XVar<Type> thisVar() {
         return this.thisVar;
     }
-    public void setThisVar(XVar thisVar) {
+    public void setThisVar(XVar<Type> thisVar) {
         this.thisVar = thisVar;
     }
 

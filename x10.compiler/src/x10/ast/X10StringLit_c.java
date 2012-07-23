@@ -49,8 +49,8 @@ public class X10StringLit_c extends StringLit_c {
 
 		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(Type);
 		  try {
-		    	XTerm term = xts.xtypeTranslator().translate(c, this.type(Type), tc.context());
-		    	c.addSelfBinding(term);
+		    	XTerm<Type> term = xts.xtypeTranslator().translate(c, this.type(Type), tc.context());
+		    	c.addSelfEquality(term);
 		    } catch (IllegalConstraint z) {
 		    	Errors.issue(tc.job(), z);
 		    }

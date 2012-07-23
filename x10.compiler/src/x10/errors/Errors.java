@@ -382,7 +382,7 @@ public class Errors {
 	}
 	public static class PlaceTypeErrorFieldShouldBeLocalOrGlobal extends PlaceTypeException {
 		private static final long serialVersionUID = 8839433155480902083L;
-		public PlaceTypeErrorFieldShouldBeLocalOrGlobal(Field f, XTerm place, XTerm targetPlace, Position pos) {
+		public PlaceTypeErrorFieldShouldBeLocalOrGlobal(Field f, XTerm<Type> place, XTerm<Type> targetPlace, Position pos) {
 			super("Place type error: either field target should be local or field should be global."
 					+ "\n\t Field: " + f.name()
 					+ "\n\t Field target: " + f.target()
@@ -403,7 +403,7 @@ public class Errors {
 	public static class PlaceTypeErrorMethodShouldBeLocalOrGlobal extends  PlaceTypeException {
 		private static final long serialVersionUID = 5212483087766572622L;
 
-		public PlaceTypeErrorMethodShouldBeLocalOrGlobal(Call c, XTerm place, XTerm targetPlace, Position pos) {
+		public PlaceTypeErrorMethodShouldBeLocalOrGlobal(Call c, XTerm<Type> place, XTerm<Type> targetPlace, Position pos) {
 			super("Place type error: either method target should be local or method should be global."
 					+ "\n\t Method target: " + c.target()
 					+ "\n\t Method target place: " + targetPlace
@@ -1912,7 +1912,7 @@ public class Errors {
         
 		private static final long serialVersionUID = -2272052142358768489L;
 
-		public InconsistentTypeSelf(Type toType, XTerm sv, Position p) {
+		public InconsistentTypeSelf(Type toType, XTerm<Type> sv, Position p) {
 			super("Inconsistent type." + 
 					"\n\t Expected type: " + toType +
 					"\n\t {self==" + sv+"}", p);
@@ -2172,7 +2172,7 @@ public class Errors {
 			super("Illegal constraint." +
 					"\n\t Term: " + t, t.position());
         }
-		public IllegalConstraint(Call c, XTerm t, Position p) {
+		public IllegalConstraint(Call c, XTerm<Type> t, Position p) {
 			super("Illegal constraint. The nested call expands into a term that is not permitted to be nested."
 					+ "\n\t Call: " + c
 					+ "\n\t Expansion: " + t, p);

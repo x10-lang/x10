@@ -28,12 +28,12 @@ public class XSmtTypeLit extends XNativeLit implements XTypeLit {
 	}
 
 	@Override
-	public boolean hasVar(XVar v) {
+	public boolean hasVar(XVar<Type> v) {
 		return Types.hasVar(type(), v);
 	}
 
 	@Override
-	public XSmtTypeLit subst(XTerm y, XVar x, boolean propagate) {
+	public XSmtTypeLit subst(XTerm<Type> y, XVar<Type> x, boolean propagate) {
 		XSmtTypeLit n = (XSmtTypeLit) super.subst(y, x, propagate);
 		Type newVal = n.type();
 		try {

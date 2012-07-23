@@ -271,8 +271,8 @@ public class Emitter {
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
 		CConstraint projected = cc; //context.constraintProjection(cc);
 		if (!projected.consistent()) return r;
-		for (XVar xvar : projected.vars()) {
-			XVar prefixes[] = xvar.vars();
+		for (XVar<Type> xvar : projected.vars()) {
+			XVar<Type> prefixes[] = xvar.vars();
 			if (prefixes.length!=2) continue;
 			if (!prefixes[0].toString().equals("self")) continue;
 			if (!(xvar instanceof CField)) continue;
@@ -283,7 +283,7 @@ public class Emitter {
 			if (!(xvarf.field() instanceof X10FieldDef)) continue; // only support # within @Native on property fields, not methods
 			String property_name = ((X10FieldDef)xvarf.field()).name().toString();
 			// resolve to another variable, keep going
-			XVar closed_xvar = projected.bindingForVar(xvar);
+			XVar<Type> closed_xvar = projected.bindingForVar(xvar);
 			if (closed_xvar!=null && closed_xvar instanceof XLit) {
 				r.put(property_name, closed_xvar.toString());
 			}
