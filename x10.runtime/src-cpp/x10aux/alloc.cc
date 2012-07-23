@@ -231,7 +231,7 @@ static void ensure_init_congruent (size_t req_size) {
     }
 
     // if it's the first allocation, may as well make it big enough -- further allocations will fail
-    if (size == 0) size = count * (page / 32);
+    if (size == 0) size = page * (count / 32);
     if (size < req_size) size = req_size;
 
     // round it up to the nearest page
