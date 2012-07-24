@@ -265,50 +265,58 @@ public class Types {
     public static RuntimeType/*<?>*/ getRTTForKnownType(Class<?> javaClass) {
         if (java.lang.String.class.equals(javaClass)) {
             return Types.STRING;
-        } else if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
-            return Types.OUT_OF_MEMORY_ERROR;
-        } else if (java.lang.StackOverflowError.class.equals(javaClass)) {
-            return Types.STACK_OVERFLOW_ERROR;
-        } else if (java.lang.AssertionError.class.equals(javaClass)) {
-            return Types.ASSERTION_ERROR;
-        } else if (java.lang.Error.class.equals(javaClass)) {
-            return Types.ERROR;
-        } else if (x10.core.io.NotSerializableException.class.equals(javaClass)) {
-            return Types.NOT_SERIALIZABLE_EXCEPTION;
-        } else if (x10.core.io.EOFException.class.equals(javaClass)) {
-            return Types.EOF_EXCEPTION;
-        } else if (x10.core.io.FileNotFoundException.class.equals(javaClass)) {
-            return Types.FILE_NOT_FOUND_EXCEPTION;
-        } else if (x10.core.io.IOException.class.equals(javaClass)) {
-            return Types.IO_EXCEPTION;
-        } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
-            return Types.NO_SUCH_ELEMENT_EXCEPTION;
-        } else if (java.lang.InterruptedException.class.equals(javaClass)) {
-            return Types.INTERRUPTED_EXCEPTION;
-        } else if (java.lang.UnsupportedOperationException.class.equals(javaClass)) {
-            return Types.UNSUPPORTED_OPERATION_EXCEPTION;
-        } else if (java.lang.NumberFormatException.class.equals(javaClass)) {
-            return Types.NUMBER_FORMAT_EXCEPTION;
-        } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
-            return Types.ILLEGAL_ARGUMENT_EXCEPTION;
-        } else if (java.lang.ArithmeticException.class.equals(javaClass)) {
-            return Types.ARITHMETIC_EXCEPTION;
-        } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
-            return Types.STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
-        } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
-            return Types.ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
-        } else if (java.lang.IndexOutOfBoundsException.class.equals(javaClass)) {
-            return Types.INDEX_OUT_OF_BOUNDS_EXCEPTION;
-        } else if (java.lang.ClassCastException.class.equals(javaClass)) {
-            return Types.CLASS_CAST_EXCEPTION;
-        } else if (java.lang.NullPointerException.class.equals(javaClass)) {
-            return Types.NULL_POINTER_EXCEPTION;
-        } else if (java.lang.RuntimeException.class.equals(javaClass)) {
-            return Types.EXCEPTION;
-        } else if (java.lang.Exception.class.equals(javaClass)) {
-            return Types.CHECKED_EXCEPTION;
-        } else if (java.lang.Throwable.class.equals(javaClass)) {
-            return Types.CHECKED_THROWABLE;
+        } else if (java.lang.Throwable.class.isAssignableFrom(javaClass)) {
+            if (java.lang.Exception.class.isAssignableFrom(javaClass)) {
+                if (java.lang.NullPointerException.class.equals(javaClass)) {
+                    return Types.NULL_POINTER_EXCEPTION;
+                } else if (java.lang.ClassCastException.class.equals(javaClass)) {
+                    return Types.CLASS_CAST_EXCEPTION;
+                } else if (java.lang.ArithmeticException.class.equals(javaClass)) {
+                    return Types.ARITHMETIC_EXCEPTION;
+                } else if (java.lang.InterruptedException.class.equals(javaClass)) {
+                    return Types.INTERRUPTED_EXCEPTION;
+                } else if (java.lang.UnsupportedOperationException.class.equals(javaClass)) {
+                    return Types.UNSUPPORTED_OPERATION_EXCEPTION;
+                } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
+                    return Types.NO_SUCH_ELEMENT_EXCEPTION;
+                } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
+                    return Types.ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
+                    return Types.STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.IndexOutOfBoundsException.class.equals(javaClass)) {
+                    return Types.INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                } else if (java.lang.NumberFormatException.class.equals(javaClass)) {
+                    return Types.NUMBER_FORMAT_EXCEPTION;
+                } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
+                    return Types.ILLEGAL_ARGUMENT_EXCEPTION;
+                } else if (x10.core.io.FileNotFoundException.class.equals(javaClass)) {
+                    return Types.FILE_NOT_FOUND_EXCEPTION;
+                } else if (x10.core.io.EOFException.class.equals(javaClass)) {
+                    return Types.EOF_EXCEPTION;
+                } else if (x10.core.io.NotSerializableException.class.equals(javaClass)) {
+                    return Types.NOT_SERIALIZABLE_EXCEPTION;
+                } else if (x10.core.io.IOException.class.equals(javaClass)) {
+                    return Types.IO_EXCEPTION;
+                } else if (java.lang.RuntimeException.class.equals(javaClass)) {
+                    return Types.EXCEPTION;
+                } else if (java.lang.Exception.class.equals(javaClass)) {
+                    return Types.CHECKED_EXCEPTION;
+                }
+            } else if (java.lang.Error.class.isAssignableFrom(javaClass)) {
+                if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
+                    return Types.OUT_OF_MEMORY_ERROR;
+                } else if (java.lang.StackOverflowError.class.equals(javaClass)) {
+                    return Types.STACK_OVERFLOW_ERROR;
+                } else if (java.lang.AssertionError.class.equals(javaClass)) {
+                    return Types.ASSERTION_ERROR;
+                } else if (java.lang.Error.class.equals(javaClass)) {
+                    return Types.ERROR;
+                }
+            } else {
+                if (java.lang.Throwable.class.equals(javaClass)) {
+                    return Types.CHECKED_THROWABLE;
+                }
+            }
         }
         return null;
     }
