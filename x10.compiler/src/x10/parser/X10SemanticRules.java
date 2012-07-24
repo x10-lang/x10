@@ -1760,6 +1760,11 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         TypeNode t1 = (TypeNode) _t1;
         setResult(nf.HasZeroTest(pos(), t1));
     }
+    // Production: IsRefConstraint ::= Type isref
+    void rule_IsRefConstraint0(Object _t1) {
+        TypeNode t1 = (TypeNode) _t1;
+        setResult(nf.IsRefTest(pos(), t1));
+    }
     // Production: FUTURE_ExistentialListopt ::= %Empty
     void rule_FUTURE_ExistentialListopt0() {
         setResult(new ArrayList<Formal>());

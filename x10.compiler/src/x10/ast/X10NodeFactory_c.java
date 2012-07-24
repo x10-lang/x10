@@ -818,4 +818,12 @@ public class X10NodeFactory_c extends NodeFactory_c {
 		n = (CUDAKernel)n.del(delFactory().delBlock());
 		return n;
 	}
+
+	@Override
+	public IsRefTest IsRefTest(Position pos, TypeNode t) {
+		IsRefTest n = new IsRefTest(pos, t);
+		n = (IsRefTest) n.ext(extFactory().extExpr());
+		n = (IsRefTest) n.del(delFactory().delExpr());
+		return n;
+	}
 }

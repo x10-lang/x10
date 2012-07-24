@@ -162,7 +162,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
             List<SubtypeConstraint> terms = c.terms();
             for (SubtypeConstraint t : terms) {
                 Type sub = t.subtype();
-                Type sup = t.isHaszero() ? null : t.supertype();
+                Type sup = t.supertype();
                 Type nsub = transformType(sub);
                 Type nsup = transformType(sup);
                 if (nsub != sub || nsup != sup) {

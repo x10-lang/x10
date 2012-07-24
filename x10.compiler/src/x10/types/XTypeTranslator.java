@@ -52,6 +52,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.ast.Closure_c;
 import x10.ast.Here;
+import x10.ast.IsRefTest;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
 import x10.ast.Tuple;
@@ -138,8 +139,9 @@ public class XTypeTranslator {
             return trans(c, (Variable) term, xc, tl);
         if (term instanceof X10Special)
             return trans(c, (X10Special) term, xc, tl);
-        if (term instanceof Expr && ts.isUnknown(term.type()))
+        if (term instanceof Expr && ts.isUnknown(term.type())) {
             return null;
+        }
         if (term instanceof Expr) {
             Expr e = (Expr) term;
             if (e.isConstant()) {
@@ -564,7 +566,9 @@ public class XTypeTranslator {
             transType(c, (SubtypeTest) t, xc);
         } else if (t instanceof HasZeroTest) {
             transType(c, (HasZeroTest) t, xc);
-        }
+	    } else if (t instanceof IsRefTest) {
+	        transType(c, (IsRefTest) t, xc);
+	    }
         else {
             throw new SemanticException("Cannot translate " + t 
             		+ " into a type constraint.", t.position());
@@ -575,6 +579,10 @@ public class XTypeTranslator {
     private void transType(TypeConstraint c, HasZeroTest t, Context xc) throws SemanticException {
         TypeNode left = t.parameter();
         c.addTerm(new SubtypeConstraint(left.type(), null, SubtypeConstraint.Kind.HASZERO));
+    }
+    private void transType(TypeConstraint c, IsRefTest t, Context xc) throws SemanticException {
+        TypeNode left = t.parameter();
+        c.addTerm(new SubtypeConstraint(left.type(), null, SubtypeConstraint.Kind.ISREF));
     }
     private void transType(TypeConstraint c, SubtypeTest t, Context xc) throws SemanticException {
         TypeNode left = t.subtype();

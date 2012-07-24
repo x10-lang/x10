@@ -365,4 +365,6 @@ public interface NodeFactory
     FinishExpr FinishExpr(Position p, Expr e, Stmt s);
 
 	CUDAKernel CUDAKernel(Position position, List<Stmt> statements, Block body);
+
+	public IsRefTest IsRefTest(Position pos, TypeNode t1);
 }

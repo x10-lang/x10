@@ -138,6 +138,7 @@
     in
     instanceof
     interface
+    isref
     native
     new
     null
@@ -329,6 +330,11 @@
               | i n t e r f a c e
         /.$BeginAction
                 $setResult($_interface);
+          $EndAction
+        ./
+              | i s r e f
+        /.$BeginAction
+                $setResult($_isref);
           $EndAction
         ./
               | n a t i v e

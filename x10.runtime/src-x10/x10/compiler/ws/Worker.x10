@@ -28,7 +28,7 @@ public final class Worker {
     public def migrate() {
         var k:RegularFrame;
         lock.lock();
-        while (null != (k = Frame.cast[Object,RegularFrame](deque.steal()))) {
+        while (null != (k = Frame.cast[Any,RegularFrame](deque.steal()))) {
             @Ifdef("__CPP__") {
                 k = k.remap();
             }
@@ -44,7 +44,7 @@ public final class Worker {
                 val k = find();
                 if (null == k) return;
                 try {
-                    unroll(Frame.cast[Object,Frame](k));
+                    unroll(Frame.cast[Any,Frame](k));
                 } catch (Abort) {}
             }
         } catch (t:Throwable) {
@@ -53,8 +53,8 @@ public final class Worker {
         }
     }
 
-    public def find():Object {
-        var k:Object;
+    public def find():Any {
+        var k:Any;
         //1) cur thread fifo
         k = fifo.steal();
         while (null == k) {
@@ -68,7 +68,7 @@ public final class Worker {
             if (victim.lock.tryLock()) {
                 k = victim.deque.steal();
                 if (null != k) {
-                    var r:RegularFrame = Frame.cast[Object,RegularFrame](k);
+                    var r:RegularFrame = Frame.cast[Any,RegularFrame](k);
                     @Ifdef("__CPP__") {
                         r = r.remap();
                         k = r;
@@ -91,7 +91,7 @@ public final class Worker {
             frame.wrapResume(this);
             up = frame.up;
             up.wrapBack(this, frame);
-            Runtime.deallocObject(frame);
+            Runtime.dealloc(frame);
             frame = up;
         }
     }

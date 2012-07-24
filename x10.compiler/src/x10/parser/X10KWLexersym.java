@@ -16,7 +16,7 @@ package x10.parser;
 
 public interface X10KWLexersym {
     public final static int
-      Char_a = 3,
+      Char_a = 4,
       Char_b = 19,
       Char_c = 7,
       Char_d = 15,
@@ -33,7 +33,7 @@ public interface X10KWLexersym {
       Char_o = 6,
       Char_p = 14,
       Char_q = 27,
-      Char_r = 4,
+      Char_r = 3,
       Char_s = 5,
       Char_t = 2,
       Char_u = 13,
@@ -74,8 +74,8 @@ public interface X10KWLexersym {
                  "",
                  "e",
                  "t",
-                 "a",
                  "r",
+                 "a",
                  "s",
                  "o",
                  "c",

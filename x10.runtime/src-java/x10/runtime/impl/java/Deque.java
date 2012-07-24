@@ -43,7 +43,7 @@ public class Deque extends Ref {
      * The work-stealing queue array. Size must be a power of two.
      * Initialized when thread starts, to improve memory locality.
      */
-    private RefI[] queue;
+    private Object[] queue;
 
     /**
      * Index (mod queue.length) of next queue slot to push to or pop
@@ -63,7 +63,7 @@ public class Deque extends Ref {
     public Deque(java.lang.System[] $dummy) {super($dummy);}
 
     public final Deque x10$lang$Deque$$init$S() {
-        queue = new RefI[INITIAL_QUEUE_CAPACITY];
+        queue = new Object[INITIAL_QUEUE_CAPACITY];
         return this;
     }
     // XTENLANG-3063
@@ -78,7 +78,7 @@ public class Deque extends Ref {
     public Deque() {
         // Allocate while starting to improve chances of thread-local
         // isolation
-        queue = new RefI[INITIAL_QUEUE_CAPACITY];
+        queue = new Object[INITIAL_QUEUE_CAPACITY];
     }
 
     // Intrinsics-based support for queue operations.  
@@ -87,7 +87,7 @@ public class Deque extends Ref {
      * Add in store-order the given task at given slot of q to
      * null. Caller must ensure q is nonnull and index is in range.
      */
-    private void setSlot(RefI[] q, int i, RefI t){
+    private void setSlot(Object[] q, int i, Object t){
     	// DAVE G: Egregious hack to get code running on IBM SDKs that don't have putOrderedObject.
         // _unsafe.putOrderedObject(q, (i << qShift) + qBase, t);
         _unsafe.putObject(q, (i << qShift) + qBase, t);
@@ -97,7 +97,7 @@ public class Deque extends Ref {
      * CAS given slot of q to null. Caller must ensure q is nonnull
      * and index is in range.
      */
-    private boolean casSlotNull(RefI[] q, int i, RefI t) {
+    private boolean casSlotNull(Object[] q, int i, Object t) {
         return _unsafe.compareAndSwapObject(q, (i << qShift) + qBase, t, null);
     }
 
@@ -116,8 +116,8 @@ public class Deque extends Ref {
      * Pushes a task. Called only by current thread.
      * @param t the task. Caller must ensure nonnull
      */
-    public final void push(RefI t) {
-        RefI[] q = queue;
+    public final void push(Object t) {
+        Object[] q = queue;
         int mask = q.length - 1;
         int s = sp;
         setSlot(q, s & mask, t);
@@ -133,9 +133,9 @@ public class Deque extends Ref {
      * either empty or contended.
      * @return a task, or null if none or contended.
      */
-    public final RefI steal() {
-        RefI t;
-        RefI[] q;
+    public final Object steal() {
+        Object t;
+        Object[] q;
         int i;
         int b;
         if (sp != (b = base) &&
@@ -152,13 +152,13 @@ public class Deque extends Ref {
      * Returns a popped task, or null if empty. Ensures active status
      * if nonnull. Called only by current thread.
      */
-    public final RefI poll() {
+    public final Object poll() {
         int s = sp;
         while (s != base) {
-        	RefI[] q = queue;
+        	Object[] q = queue;
             int mask = q.length - 1;
             int i = (s - 1) & mask;
-            RefI t = q[i];
+            Object t = q[i];
             if (t == null || !casSlotNull(q, i, t))
                 break;
             storeSp(s - 1);
@@ -170,8 +170,8 @@ public class Deque extends Ref {
     /**
      * Returns next task to pop.
      */
-    public final RefI peekTask() {
-        RefI[] q = queue;
+    public final Object peekTask() {
+        Object[] q = queue;
         return q == null? null : q[(sp - 1) & (q.length - 1)];
     }
 
@@ -181,12 +181,12 @@ public class Deque extends Ref {
      * new array.
      */
     private void growQueue() {
-        RefI[] oldQ = queue;
+        Object[] oldQ = queue;
         int oldSize = oldQ.length;
         int newSize = oldSize << 1;
         if (newSize > MAXIMUM_QUEUE_CAPACITY)
             throw new RuntimeException("Queue capacity exceeded");
-        RefI[] newQ = queue = new RefI[newSize];
+        Object[] newQ = queue = new Object[newSize];
 
         int b = base;
         int bf = b + oldSize;
@@ -194,7 +194,7 @@ public class Deque extends Ref {
         int newMask = newSize - 1;
         do {
             int oldIndex = b & oldMask;
-            RefI t = oldQ[oldIndex];
+            Object t = oldQ[oldIndex];
             if (t != null && !casSlotNull(oldQ, oldIndex, t))
                 t = null;
             setSlot(newQ, b & newMask, t);
@@ -240,8 +240,8 @@ public class Deque extends Ref {
                 (Deque.class.getDeclaredField("base"));
             spOffset = _unsafe.objectFieldOffset
                 (Deque.class.getDeclaredField("sp"));
-            qBase = _unsafe.arrayBaseOffset(RefI[].class);
-            int s = _unsafe.arrayIndexScale(RefI[].class);
+            qBase = _unsafe.arrayBaseOffset(Object[].class);
+            int s = _unsafe.arrayIndexScale(Object[].class);
             if ((s & (s-1)) != 0)
                 throw new Error("data type scale not a power of two");
             qShift = 31 - Integer.numberOfLeadingZeros(s);

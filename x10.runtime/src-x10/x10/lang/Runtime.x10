@@ -106,14 +106,12 @@ public final class Runtime {
 
     // Memory management
 
-    @Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#o.operator->())")
-    public static def deallocObject(o:Object):void {}
+    // [DC] didn't understand why this needs to call a destructor
+    //@Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#o.operator->())")
+    //public static def deallocObject(o:Object):void {}
 
     @Native("c++", "x10aux::dealloc(#o.operator->())")
-    public static def dealloc[T](o:()=>T):void {}
-
-    @Native("c++", "x10aux::dealloc(#o.operator->())")
-    public static def dealloc(o:()=>void):void {}
+    public static def dealloc[T](o:T){ T isref } :void {}
 
     // Environment variables
 
@@ -163,14 +161,14 @@ public final class Runtime {
         return worker().wsfifo;
     }
     
-    public static def wsBlock(k:Object) {
+    public static def wsBlock(k:Any) {
         pool.wsBlockedContinuations.push(k);
     }
 
     public static def wsUnblock() {
         val src = pool.wsBlockedContinuations;
         val dst = wsFIFO();
-        var k:Object;
+        var k:Any;
         while ((k = src.poll()) != null) dst.push(k);
     }
 
@@ -415,7 +413,7 @@ public final class Runtime {
                     if (activity == null) return false;
                 }
                 activity.run();
-                deallocObject(activity);
+                dealloc(activity);
             }
             return true;
         }
@@ -431,7 +429,7 @@ public final class Runtime {
                     return;
                 }
                 activity.run();
-                deallocObject(activity);
+                dealloc(activity);
             }
         }
 
@@ -453,7 +451,7 @@ public final class Runtime {
 //                    return false;
 //                }
                 activity.run();
-                deallocObject(activity);
+                dealloc(activity);
             }
             return true;
         }
@@ -1029,7 +1027,7 @@ public final class Runtime {
         val a = activity();
         val finishState = a.swapFinish(f);
         finishState.waitForFinish();
-        deallocObject(finishState);
+        dealloc(finishState);
     }
 
     /**

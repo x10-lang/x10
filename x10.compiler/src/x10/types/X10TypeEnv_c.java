@@ -238,37 +238,50 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     public boolean consistent(Type t) {
         if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
-            if (!consistent(Types.get(ct.baseType())))
+            if (!consistent(Types.get(ct.baseType()))) {
+            	System.out.println("INCONSISTENT: base type "+t);
                 return false;
-            if (!consistent(Types.get(ct.constraint())))
+            }
+            if (!consistent(Types.get(ct.constraint()))) {
+            	System.out.println("INCONSISTENT: constraint "+t);
                 return false;
+            }
         }
         if (t instanceof MacroType) {
             MacroType mt = (MacroType) t;
             for (Type ti : mt.typeParameters()) {
-                if (!consistent(ti))
+                if (!consistent(ti)) {
+                	System.out.println("INCONSISTENT: macrotype param "+t);
                     return false;
+                }
             }
             for (Type ti : mt.formalTypes()) {
-                if (!consistent(ti))
+                if (!consistent(ti)) {
+                	System.out.println("INCONSISTENT: macrotype formal "+t);
                     return false;
+                }
             }
         }
         if (t instanceof X10ParsedClassType) {
-            X10ParsedClassType ct = (X10ParsedClassType) t;
-            if (ct.typeArguments() != null) {
-            for (Type ti : ct.typeArguments()) {
-                if (!consistent(ti))
-                    return false;
-            }
-            final X10ClassDef def = ct.x10Def();
-            TypeConstraint c = Types.get(def.typeBounds());
-            if (c != null) { // We need to prove the context entails "c" (the class invariant) after we substituted the type arguments
-                TypeConstraint equals = ct.subst().reinstantiate(c);
-                if (!new X10TypeEnv_c(context).consistent(equals))
-                    return false;
-            }
-            }
+        	X10ParsedClassType ct = (X10ParsedClassType) t;
+        	if (ct.typeArguments() != null) {
+        		for (Type ti : ct.typeArguments()) {
+        			if (!consistent(ti)) {
+                    	System.out.println("INCONSISTENT: type argument "+t);
+        				return false;
+        			}
+        		}
+        		final X10ClassDef def = ct.x10Def();
+        		TypeConstraint c = Types.get(def.typeBounds());
+        		if (c != null) { // We need to prove the context entails "c" (the class invariant) after we substituted the type arguments
+        			TypeConstraint equals = ct.subst().reinstantiate(c);
+        			if (!new X10TypeEnv_c(context).consistent(equals)) {
+                    	System.out.println("INCONSISTENT: entailment "+t+" => "+c+"      "+equals);
+                    	System.out.println(context);
+        				return false;
+        			}
+        		}
+        	}
         }
         //if (!consistent(X10TypeMixin.realX(t)))
         //    return false;
