@@ -61,9 +61,8 @@ public class CheckedThrowable {
     @Native("java", "x10.core.ThrowableUtilities.toString(#this)")
     //@Native("java", "#this.toString()")
     @Native("c++", "x10aux::to_string(#this)")
-    // TODO need to make virtual method final to use with @Native
-    //public final native def toString():String;
-    public native def toString():String;
+    // virtual method with @Native needs to be final in managed x10
+    public final native def toString():String;
 
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#this)")
     //@Native("java", "#this.$getStackTrace()")

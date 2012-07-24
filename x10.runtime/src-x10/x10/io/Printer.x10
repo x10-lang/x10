@@ -44,6 +44,10 @@ public class Printer extends FilterWriter {
     public final def println(s:String): void {
     	print(s==null? "null\n" : s+"\n");
     }
+    // this is needed to use @Native for CheckedThrowable#toString().
+    public final def println(e:CheckedThrowable): void {
+    	print(e==null? "null\n" : e.toString()+"\n");
+    }
     
     public final def print(o:Any): void {
     	print(o==null? "null" : o.toString());
@@ -58,6 +62,10 @@ public class Printer extends FilterWriter {
         } finally {
             lock.unlock();
         }
+    }
+    // this is needed to use @Native for CheckedThrowable#toString().
+    public final def print(e:CheckedThrowable): void {
+    	print(e==null? "null" : e.toString());
     }
 
     public def printf(fmt: String): void { printfArray(fmt, new Array[Any](0)); }
