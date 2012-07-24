@@ -436,7 +436,8 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		// Add the method guard into the environment.
 		if (guard != null) {
-		    if (child == body || child == offerType ||  child == hasType || child == returnType) {
+		    if (child == body || child == offerType ||  child == hasType || child == returnType
+		    		|| (formals != null && formals.contains(child))|| (throwsTypes != null && throwsTypes.contains(child))) {
 		        Ref<CConstraint> vc = guard.valueConstraint();
 		        Ref<TypeConstraint> tc = guard.typeConstraint();
 

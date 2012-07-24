@@ -239,11 +239,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
             if (!consistent(Types.get(ct.baseType()))) {
-            	System.out.println("INCONSISTENT: base type "+t);
+            	//System.out.println("INCONSISTENT: base type "+t);
                 return false;
             }
             if (!consistent(Types.get(ct.constraint()))) {
-            	System.out.println("INCONSISTENT: constraint "+t);
+            	//System.out.println("INCONSISTENT: constraint "+t);
                 return false;
             }
         }
@@ -251,13 +251,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             MacroType mt = (MacroType) t;
             for (Type ti : mt.typeParameters()) {
                 if (!consistent(ti)) {
-                	System.out.println("INCONSISTENT: macrotype param "+t);
+                	//System.out.println("INCONSISTENT: macrotype param "+t);
                     return false;
                 }
             }
             for (Type ti : mt.formalTypes()) {
                 if (!consistent(ti)) {
-                	System.out.println("INCONSISTENT: macrotype formal "+t);
+                	//System.out.println("INCONSISTENT: macrotype formal "+t);
                     return false;
                 }
             }
@@ -267,7 +267,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         	if (ct.typeArguments() != null) {
         		for (Type ti : ct.typeArguments()) {
         			if (!consistent(ti)) {
-                    	System.out.println("INCONSISTENT: type argument "+t);
+                    	//System.out.println("INCONSISTENT: type argument "+t);
         				return false;
         			}
         		}
@@ -276,8 +276,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         		if (c != null) { // We need to prove the context entails "c" (the class invariant) after we substituted the type arguments
         			TypeConstraint equals = ct.subst().reinstantiate(c);
         			if (!new X10TypeEnv_c(context).consistent(equals)) {
-                    	System.out.println("INCONSISTENT: entailment "+t+" => "+c+"      "+equals);
-                    	System.out.println(context);
+                    	//System.out.println("INCONSISTENT: entailment "+t+" => "+c+"      "+equals);
+                    	//System.out.println(context);
         				return false;
         			}
         		}
@@ -440,6 +440,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 //            }
         
             if (expanded instanceof ParameterType) {
+            	/* [DC] this code cannot handle more general type constraints like == haszero and isref
+            	 * let us remove it and implement the same functionality via appending to the context
                 ParameterType pt = (ParameterType) expanded;
                 X10Def def = (X10Def) Types.get(pt.def());
                 Ref<TypeConstraint> ref = def.typeGuard();
@@ -448,6 +450,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                      List<Type> b = getBoundsFromConstraint(pt, c, kind);
                      worklist.addAll(b);
                 }
+                */
                 continue;
             }
             // vj:
