@@ -48,16 +48,10 @@ mkdir -p $workdir/x10-benchmarks-$X10_VERSION
 cd $workdir/x10-benchmarks-$X10_VERSION
 
 echo
-echo "getting benchmarks "
-for i in \
-        BC \
-        GLB \
-        hpcc \
-        kmeans \
-        SSCA1 \
-        UTS
+echo "getting PERCS benchmarks "
+for i in FT KMEANS LU RA SSCA1 SSCA2 STREAM UTS
 do
-    svn $svn_command https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/tags/$X10_TAG/$i
+    svn $svn_command https://x10.svn.sourceforge.net/svnroot/x10/benchmarks/tags/$X10_TAG/PERCS/$i
 done
 )
 
