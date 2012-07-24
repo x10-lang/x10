@@ -16,7 +16,6 @@ import x10.compiler.NativeRep;
 
 
 @NativeRep("java", "java.lang.Exception", null, "x10.rtt.Types.CHECKED_EXCEPTION")
-@NativeRep("c++", "x10aux::ref<x10::lang::CheckedException>", "x10::lang::CheckedException", null)
 public class CheckedException extends CheckedThrowable {
 
     @Native("java", "new java.lang.Exception()")

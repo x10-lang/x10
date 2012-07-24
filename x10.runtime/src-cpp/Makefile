@@ -176,6 +176,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Any.o \
 	x10/lang/Arithmetic.o \
 	x10/lang/Bitwise.o \
+	x10/lang/CheckedThrowable.o \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \
 	x10/lang/Fun.o \
