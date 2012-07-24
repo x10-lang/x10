@@ -26,37 +26,67 @@ public class CheckedExceptions1 extends x10Test {
 
         try {
             res = false;
-            throw new CheckedThrowable("hi");
+            val e = new CheckedThrowable("hi");
+            val typeName = e.typeName();
+            if (!typeName.equals("x10.lang.CheckedThrowable")) {
+                ok = false;
+                Console.OUT.println("Error: incorrect typename: " + typeName);
+            }
+            if (!(e instanceof CheckedThrowable)) {
+                ok = false;
+                Console.OUT.println("Error: not subtype of CheckedThrowable: " + typeName);
+            }
+            throw e;
         } catch (e:CheckedThrowable) {
             res = true;
         } finally {
             if (!res) {
                 ok = false;
-                Console.OUT.println("CheckedThrowable was not caught!");
+                Console.OUT.println("Error: CheckedThrowable was not caught!");
             }
         }
         
         try {
             res = false;
-            throw new CheckedException("hi");
+            val e = new CheckedException("hi");
+            val typeName = e.typeName();
+            if (!typeName.equals("x10.lang.CheckedException")) {
+                ok = false;
+                Console.OUT.println("Error: incorrect typename: " + typeName);
+            }
+            if (!(e instanceof CheckedException)) {
+                ok = false;
+                Console.OUT.println("Error: not subtype of CheckedException: " + typeName);
+            }
+            throw e;
         } catch (e:CheckedException) {
             res = true;
         } finally {
             if (!res) {
                 ok = false;
-                Console.OUT.println("CheckedException was not caught!");
+                Console.OUT.println("Error: CheckedException was not caught!");
             }
         }
         
         try {
             res = false;
-            throw new CheckedException("hi");
+            val e = new CheckedException("hi");
+            val typeName = e.typeName();
+            if (!typeName.equals("x10.lang.CheckedException")) {
+                ok = false;
+                Console.OUT.println("Error: incorrect typename: " + typeName);
+            }
+            if (!(e instanceof CheckedThrowable)) {
+                ok = false;
+                Console.OUT.println("Error: not subtype of CheckedThrowable: " + typeName);
+            }
+            throw e;
         } catch (e:CheckedThrowable) {
             res = true;
         } finally {
             if (!res) {
                 ok = false;
-                Console.OUT.println("CheckedException was not caught as CheckedThrowable!");
+                Console.OUT.println("Error: CheckedException was not caught as CheckedThrowable!");
             }
         }
         
