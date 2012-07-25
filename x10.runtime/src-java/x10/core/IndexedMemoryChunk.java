@@ -16,7 +16,6 @@ import java.util.Arrays;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.Place;
-import x10.lang.UnsupportedOperationException;
 import x10.rtt.BooleanType;
 import x10.rtt.ByteType;
 import x10.rtt.CharType;
@@ -304,7 +303,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return;
         }
 
-        throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        throw new java.lang.UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
         // notifier.$apply();
     }
 
@@ -474,7 +473,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return;
         }
 
-        throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        throw new java.lang.UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
         // notifier.$apply();
     }
 

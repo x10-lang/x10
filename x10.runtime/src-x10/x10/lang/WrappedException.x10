@@ -11,16 +11,13 @@
 
 package x10.lang;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
 
+public class WrappedException extends Exception {
 
-@NativeRep("java", "java.lang.NumberFormatException", null, "x10.rtt.Types.NUMBER_FORMAT_EXCEPTION")
-public class NumberFormatException23 extends IllegalArgumentException23 {
-
-    @Native("java", "new java.lang.NumberFormatException()")
     public def this() { super(); }
 
-    @Native("java", "new java.lang.NumberFormatException(#message)")
-    public def this(message: String) { super(message); }
+    public def this(cause: CheckedThrowable) { super(cause); }
+
+    public def this(message: String, cause: CheckedThrowable) { super(message, cause); }
+
 }

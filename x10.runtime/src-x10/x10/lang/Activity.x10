@@ -146,7 +146,7 @@ class Activity {
     def run():void {
         try {
             body();
-        } catch (t:Throwable) {
+        } catch (t:Exception) {
             finishState.pushException(t);
         }
         if (null != clockPhases) clockPhases.drop();

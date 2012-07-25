@@ -3542,7 +3542,8 @@ public class Emitter {
             w.newline();
             w.newline();
             
-            if (!def.typeParameters().isEmpty()) {
+            // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).
+//            if (!def.typeParameters().isEmpty()) {
               w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
               for (int i = 0; i < def.typeParameters().size(); i++) {
                   ParameterType pt = def.typeParameters().get(i);
@@ -3553,7 +3554,7 @@ public class Emitter {
               }
                 w.write("return null;");
                 w.write("}");
-            }
+//            }
             w.newline();
         }
 	}

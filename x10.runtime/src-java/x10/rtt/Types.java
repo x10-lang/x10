@@ -472,17 +472,6 @@ public class Types {
 	    return UNSUPPORTED_OPERATION_EXCEPTION;
 	}
     };
-    public static final RuntimeType<java.lang.InterruptedException> INTERRUPTED_EXCEPTION = new NamedType<java.lang.InterruptedException>(
-	"x10.lang.InterruptedException",
-	java.lang.InterruptedException.class,
-	null,
-	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return INTERRUPTED_EXCEPTION;
-	}
-    };
     public static final RuntimeType<java.util.NoSuchElementException> NO_SUCH_ELEMENT_EXCEPTION = new NamedType<java.util.NoSuchElementException>(
 	"x10.util.NoSuchElementException",
 	java.util.NoSuchElementException.class,
@@ -492,6 +481,17 @@ public class Types {
 	// make sure deserialized RTT object is not duplicated
 	private Object readResolve() throws java.io.ObjectStreamException {
 	    return NO_SUCH_ELEMENT_EXCEPTION;
+	}
+    };
+    public static final RuntimeType<x10.core.InterruptedException> INTERRUPTED_EXCEPTION = new NamedType<x10.core.InterruptedException>(
+	"x10.lang.InterruptedException",
+	x10.core.InterruptedException.class,
+	null,
+	new Type[] { EXCEPTION }
+    ) {
+	// make sure deserialized RTT object is not duplicated
+	private Object readResolve() throws java.io.ObjectStreamException {
+	    return INTERRUPTED_EXCEPTION;
 	}
     };
     public static final RuntimeType<x10.core.io.IOException> IO_EXCEPTION = new NamedType<x10.core.io.IOException>(
@@ -815,9 +815,9 @@ public class Types {
         // XTENLANG-3093
         if (self == null) {
             if (rtt == null || rtt.isAssignableTo(OBJECT)) return null;
-            throw new x10.lang.ClassCastException(rtt.typeName());
+            throw new java.lang.ClassCastException(rtt.typeName());
         }
-        if (rtt != null && !rtt.isInstance(self)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.isInstance(self)) throw new java.lang.ClassCastException(rtt.typeName());
         return (T) self;
     }
     
@@ -825,10 +825,10 @@ public class Types {
         // XTENLANG-3093
         if (self == null) {
             if (rtt == null || rtt.isAssignableTo(OBJECT)) return null;
-            throw new x10.lang.ClassCastException(rtt.typeName());
+            throw new java.lang.ClassCastException(rtt.typeName());
         }
         T ret = (T) conversion(rtt, self, true);
-        if (rtt != null && !rtt.isInstance(ret)) throw new x10.lang.ClassCastException(rtt.typeName());
+        if (rtt != null && !rtt.isInstance(ret)) throw new java.lang.ClassCastException(rtt.typeName());
         return ret;
     }
 

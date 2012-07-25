@@ -11,6 +11,7 @@
 
 package x10.core;
 
+import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -253,9 +254,7 @@ public abstract class ThrowableUtilities {
 
     public static java.lang.RuntimeException getUncheckedCause(java.lang.Throwable e) {
     	java.lang.Throwable cause = e.getCause();
-    	// TODO wrap it with WrappedException
-    	return cause instanceof java.lang.RuntimeException ? ((java.lang.RuntimeException) cause) : null;
-//    	return cause instanceof java.lang.RuntimeException ? ((java.lang.RuntimeException) cause) : new x10.lang.WrappedException(cause);
+    	return cause instanceof java.lang.RuntimeException ? ((java.lang.RuntimeException) cause) : new x10.lang.WrappedException(cause);
     }
 
     public static java.lang.String toString(java.lang.Throwable e) {
@@ -271,6 +270,17 @@ public abstract class ThrowableUtilities {
             str[i] = elements[i].toString();
         }
         return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+    }
+    
+    public static void printStackTrace(java.lang.Throwable t, x10.io.Printer p) {
+        x10.core.io.OutputStream os = p.getNativeOutputStream();
+        java.io.PrintStream ps = null;
+        if (os.stream instanceof java.io.PrintStream) {
+            ps = (java.io.PrintStream) os.stream;
+        } else {
+            ps = new java.io.PrintStream(os.stream);
+        }
+        t.printStackTrace(ps);
     }
 
     public static <T> T UnsupportedOperationException(java.lang.String message) {

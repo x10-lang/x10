@@ -3674,8 +3674,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         if (ct2.typeArguments() != null) types.addAll(ct2.typeArguments());
                     }
                 }
-                // To extend Any, the type requires getRTT even if it has no
-                // type params (e.g. VoidFun_0_0).
+                // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).
                 // if (types.size() > 0) {
                 w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() { return "
                         + X10PrettyPrinterVisitor.RTT_NAME + "; }");

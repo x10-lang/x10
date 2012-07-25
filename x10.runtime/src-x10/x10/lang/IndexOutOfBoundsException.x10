@@ -11,15 +11,21 @@
 
 package x10.lang;
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
+
 /**
  * Thrown to indicate that an index of some sort (such as to an array, or to a
  * string) is out of range.
  */
+@NativeRep("java", "java.lang.IndexOutOfBoundsException", null, "x10.rtt.Types.INDEX_OUT_OF_BOUNDS_EXCEPTION")
 public class IndexOutOfBoundsException extends Exception {
 
     /**
      * Construct an IndexOutOfBoundsException with no detail message.
      */
+    @Native("java", "new java.lang.IndexOutOfBoundsException()")
     public def this() { super(); }
 
     /**
@@ -27,6 +33,7 @@ public class IndexOutOfBoundsException extends Exception {
      *
      * @param message the detail message
      */
+    @Native("java", "new java.lang.IndexOutOfBoundsException(#message)")
     public def this(message: String) { super(message); }
 }
 

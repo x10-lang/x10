@@ -201,19 +201,19 @@ public class OutputStream extends Ref {
         }
         @Override
         public void close() {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         @Override
         public void flush() {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         @Override
         public void write(byte[] b) {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         @Override
         public void write(byte[] b, int off, int len) {
-            throw new x10.lang.UnsupportedOperationException();
+            throw new java.lang.UnsupportedOperationException();
         }
         public static final RuntimeType<WriterOutputStream> $RTT = NamedType.<WriterOutputStream> make(
             "x10.io.OutputStreamWriter.OutputStream.WriterOutputStream",

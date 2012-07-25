@@ -40,7 +40,7 @@ public abstract class Frame {
             resume(worker);
         } catch (t:Abort) {
             throw t;
-        } catch (t:Throwable) {
+        } catch (t:Exception) {
             worker.throwable = t;
         }
     }

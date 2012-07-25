@@ -26,7 +26,7 @@ public final class RemoteFinish extends FinishFrame {
         throw Abort.ABORT;
     }
 
-    @Inline public static def update(ffRef:GlobalRef[FinishFrame], stack:Stack[Throwable]) {
+    @Inline public static def update(ffRef:GlobalRef[FinishFrame], stack:Stack[Exception]) {
         val body = ()=> @x10.compiler.RemoteInvocation {
             val ff = (ffRef as GlobalRef[FinishFrame]{home==here})();
             ff.append(stack);

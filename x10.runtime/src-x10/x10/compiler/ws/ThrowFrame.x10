@@ -3,9 +3,9 @@ package x10.compiler.ws;
 import x10.compiler.Ifdef;
 
 public final class ThrowFrame extends Frame {
-    val throwable:Throwable;
+    val throwable:Exception;
     
-    public def this(up:Frame, throwable:Throwable) {
+    public def this(up:Frame, throwable:Exception) {
         super(up);
         this.throwable = throwable;
     }

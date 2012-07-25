@@ -17,7 +17,7 @@ public final class Worker {
     public var fifo:Deque = deque; // hack to avoid stealing from null fifo
     public val lock = new Lock();
 
-    public var throwable:Throwable = null;
+    public var throwable:Exception = null;
     
     public def this(i:Int, workers:Rail[Worker]) {
         random = new Random(i + (i << 8) + (i << 16) + (i << 24));
@@ -47,7 +47,7 @@ public final class Worker {
                     unroll(Frame.cast[Any,Frame](k));
                 } catch (Abort) {}
             }
-        } catch (t:Throwable) {
+        } catch (t:Exception) {
             Runtime.println("Uncaught exception at place " + here + " in WS worker: " + t);
             t.printStackTrace();
         }
@@ -162,7 +162,7 @@ public final class Worker {
         } catch (t:Abort) {
             finalize = false;
             worker.run(); // join the pool
-        } catch (t:Throwable) {
+        } catch (t:Exception) {
             ff.caught(t); // main terminated abnormally
         } finally {
             if (finalize) stop();

@@ -584,10 +584,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public short $_get_serialization_id() {
-		throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+		throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 }

@@ -36,14 +36,14 @@ public class ExceptionInInitializer extends Exception {
      * @param message the detail message
      * @param cause the cause
      */
-    public def this(message: String, cause: Throwable) { super(message, cause); } 
+    public def this(message: String, cause: CheckedThrowable) { super(message, cause); } 
 
     /**
      * Construct an ExceptionInInitializer with no detail message and the specified cause.
      *
      * @param cause the cause
      */
-    public def this(cause: Throwable) { super(cause); } 
+    public def this(cause: CheckedThrowable) { super(cause); } 
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

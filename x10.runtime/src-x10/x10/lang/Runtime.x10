@@ -396,7 +396,7 @@ public final class Runtime {
         public operator this():void {
             try {
                 while (loop());
-            } catch (t:Throwable) {
+            } catch (t:Exception) {
                 println("Uncaught exception in worker thread");
                 t.printStackTrace();
             } finally {
@@ -777,7 +777,7 @@ public final class Runtime {
         private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
-        var e:Throwable = null;
+        var e:Exception = null;
         var clockPhases:Activity.ClockPhases = null;
     }
 
@@ -790,7 +790,7 @@ public final class Runtime {
             try {
                 deepCopy(body)();
                 return;
-            } catch (t:Throwable) {
+            } catch (t:Exception) {
                 throw deepCopy(t);
             }
         }
@@ -808,7 +808,7 @@ public final class Runtime {
                 };
                 x10rtSendMessage(box.home.id, closure);
                 dealloc(closure);
-            } catch (e:Throwable) {
+            } catch (e:Exception) {
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
                     val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                     me2.e = e;
@@ -882,7 +882,7 @@ public final class Runtime {
             try {
             	// TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
             	return deepCopy(deepCopy(eval)());
-            } catch (t:Throwable) {
+            } catch (t:Exception) {
                 throw deepCopy(t);
             }
         }
@@ -902,7 +902,7 @@ public final class Runtime {
                 };
                 x10rtSendMessage(box.home.id, closure);
                 dealloc(closure);
-            } catch (e:Throwable) {
+            } catch (e:Exception) {
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
                     val me2 = (box as GlobalRef[Remote[T]]{home==here})();
                     me2.e = e;
@@ -1034,7 +1034,7 @@ public final class Runtime {
      * Push the exception thrown while executing s in a finish s,
      * onto the finish state.
      */
-    public static def pushException(t:Throwable):void  {
+    public static def pushException(t:Exception):void  {
         activity().finishState().pushException(t);
     }
     public static def startCollectingFinish[T](r:Reducible[T]) {
