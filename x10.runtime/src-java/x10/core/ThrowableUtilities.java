@@ -251,6 +251,13 @@ public abstract class ThrowableUtilities {
     	}
     }
 
+    public static java.lang.RuntimeException getUncheckedCause(java.lang.Throwable e) {
+    	java.lang.Throwable cause = e.getCause();
+    	// TODO wrap it with WrappedException
+    	return cause instanceof java.lang.RuntimeException ? ((java.lang.RuntimeException) cause) : null;
+//    	return cause instanceof java.lang.RuntimeException ? ((java.lang.RuntimeException) cause) : new x10.lang.WrappedException(cause);
+    }
+
     public static java.lang.String toString(java.lang.Throwable e) {
         java.lang.String typeName = x10.rtt.Types.typeName(e);
         java.lang.String message = e.getMessage();
