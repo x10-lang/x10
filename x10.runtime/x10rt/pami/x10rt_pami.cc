@@ -1893,16 +1893,27 @@ static void internal_alltoall_complete (pami_context_t   context,
 		error("Error detected in internal_alltoall_complete");
 
 	x10rt_pami_internal_alltoall *cbd = (x10rt_pami_internal_alltoall*)cookie;
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u completed remote updates for alltoall. cookie=%p\n", state.myPlaceId, cookie);
-	#endif
 
+	// TODO: there is no lock on this counter, which is fine when NTHREADS=1, but not otherwise
 	(cbd->counter)--;
 	// check if this is the last update
 	if (cbd->counter == 0)
 	{
+		#ifdef DEBUG
+			fprintf(stderr, "Place %u completed remote updates for internal alltoall. cookie=%p\n", state.myPlaceId, cookie);
+		#endif
 		// Done!  block on a barrier, followed by the original x10-level callback
-		x10rt_net_barrier(cbd->teamid, 0, cbd->tch, cbd->arg);
+
+		x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+		if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
+		tcb->tcb = cbd->tch;
+		tcb->arg = cbd->arg;
+		memset(&tcb->operation, 0, sizeof (tcb->operation));
+		tcb->operation.cb_done = collective_operation_complete;
+		tcb->operation.cookie = tcb;
+		tcb->operation.algorithm = state.teams[cbd->teamid].algorithm[PAMI_XFER_BARRIER];
+		pami_result_t status = PAMI_Collective(context, &tcb->operation);
+		if (status != PAMI_SUCCESS) error("Unable to issue post-alltoall barrier on team %u", cbd->teamid);
 		free(cookie);
 	}
 }
@@ -1916,6 +1927,7 @@ static void internal_alltoall_begin (pami_context_t   context,
 
 	pami_result_t status = PAMI_ERROR;
 	x10rt_pami_internal_alltoall *cbd = (x10rt_pami_internal_alltoall*)cookie;
+	// no need to lock the context in here, as it was already locked by the surrounding callback
 
 	uint64_t i, j, bufferLen=cbd->el*cbd->count, chunksize=(-1*((int)state.teams[cbd->teamid].algorithm[PAMI_XFER_ALLTOALL]));
 	if (chunksize < cbd->el) chunksize = cbd->el; // At least use the size of a single element
