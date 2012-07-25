@@ -28,29 +28,29 @@ endif
 PAMI_MPCC=mpCC
 
 ifeq ($(X10RT_PLATFORM), aix_xlc)
-  MOV_LDFLAGS_PAMI     += -L/usr/lpp/ppe.poe/lib
+  MOV_LDFLAGS_PAMI     += -L/opt/ibmhpc/pecurrent/ppe.poe/lib64
   MOV_LDLIBS_PAMI     += -lmpi_r -lvtd_r -lpami_r -lpthread -lm
   APP_LDFLAGS_PAMI   += -Wl,-binitfini:poe_remote_main 
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib64
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib/pami
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
-  MOV_LDFLAGS_PAMI     += -L/usr/lpp/ppe.poe/lib 
+  MOV_LDFLAGS_PAMI     += -L/opt/ibmhpc/pecurrent/ppe.poe/lib64
   MOV_LDLIBS_PAMI     += -lmpi_r -lvtd_r -lpami_r -lpthread -lm
   APP_LDFLAGS_PAMI   += -Wl,-binitfini:poe_remote_main 
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_gcc)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib64
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), linux_ppc_64_xlc)
-  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/pempi/gnu/lib64
+  MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
 endif
 ifeq ($(X10RT_PLATFORM), bgq)
