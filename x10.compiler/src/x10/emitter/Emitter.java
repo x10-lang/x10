@@ -3110,7 +3110,9 @@ public class Emitter {
         }
         
         if (mis.size() != 1) {
-            w.write("throw new x10.lang.Error(\"not implemented dispatch mechanism based on contra-variant type completely\");");
+            w.write("throw new ");
+            new TypeExpander(this, tr.typeSystem().Error(), 0).expand();
+            w.write("(\"dispatch mechanism not completely implemented for contra-variant types.\");");
         }
         
         w.write("}");
@@ -4011,7 +4013,9 @@ public class Emitter {
             w.writeln("public void " + X10PrettyPrinterVisitor.CONSTRUCTOR_METHOD_NAME(def) + "(" + X10PrettyPrinterVisitor.SERIAL_DATA +  " " + fieldName + ") {");
             w.newline(4);
             w.begin(0);
-            w.writeln("throw new x10.lang.Error(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
+            w.write("throw new ");
+            new TypeExpander(this, tr.typeSystem().Error(), 0).expand();
+            w.writeln("(\"dummy 2nd-phase constructor for non-splittable type should never be called.\");");
             w.end();
             w.newline();
             w.writeln("}");
