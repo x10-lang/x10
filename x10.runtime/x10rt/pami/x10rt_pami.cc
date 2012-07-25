@@ -777,6 +777,7 @@ static void team_create_dispatch_part2 (pami_context_t   context,
 
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
+	config.value.intval = 1;
 
 	#ifdef DEBUG
 		fprintf(stderr, "Creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
@@ -834,6 +835,7 @@ static void team_create_dispatch (
 
 		pami_configuration_t config;
 		config.name = PAMI_GEOMETRY_OPTIMIZE;
+		config.value.intval = 1;
 
 		#ifdef DEBUG
 			fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
@@ -876,10 +878,14 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	setenv("MP_MSG_API", "X10", 0);
 	const char *name = getenv("MP_MSG_API");
 
+	pami_configuration_t config;
+	config.name = PAMI_GEOMETRY_OPTIMIZE;
+	config.value.intval = 1;
+
 	// Check if we want to enable async progress
 	if (checkBoolEnvVar(getenv(X10RT_PAMI_ASYNC_PROGRESS)))
 	{
-		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
+		if ((status = PAMI_Client_create(name, &state.client, &config, 1)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI client: %i\n", status);
 
 		status = PAMI_Extension_open(state.client, "EXT_async_progress", &state.async_extension);
@@ -892,7 +898,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 	{
 		state.async_extension = NULL;
 		setenv("MP_POLLING_INTERVAL", "2147483647", 0);
-		if ((status = PAMI_Client_create(name, &state.client, NULL, 0)) != PAMI_SUCCESS)
+		if ((status = PAMI_Client_create(name, &state.client, &config, 1)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI client: %i\n", status);
 	}
 
@@ -919,7 +925,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		memset(state.context, 0, state.numParallelContexts*sizeof(pami_context_t));
 		if (state.numParallelContexts == 1)
 		{   // pre-initialize when only one context is used, since no lookup is needed
-			if ((status = PAMI_Context_createv(state.client, NULL, 0, &state.context[0], 1)) != PAMI_SUCCESS)
+			if ((status = PAMI_Context_createv(state.client, &config, 1, &state.context[0], 1)) != PAMI_SUCCESS)
 				error("Unable to initialize the PAMI context: %i\n", status);
 			registerHandlers(state.context[0], true);
 		}
@@ -939,7 +945,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		#ifdef DEBUG
 			fprintf(stderr, "Place %u initializing 1 context to be used by all non-static worker threads\n", state.myPlaceId);
 		#endif
-		if ((status = PAMI_Context_createv(state.client, NULL, 0, state.context, 1)) != PAMI_SUCCESS)
+		if ((status = PAMI_Context_createv(state.client, &config, 1, state.context, 1)) != PAMI_SUCCESS)
 			error("Unable to initialize the PAMI context: %i\n", status);
 		registerHandlers(state.context[0], true);
 	}
@@ -1680,6 +1686,7 @@ void x10rt_net_team_new (x10rt_place placec, x10rt_place *placev,
 
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
+	config.value.intval = 1;
 
 	#ifdef DEBUG
 		fprintf(stderr, "creating a new team %u at place %u of size %u\n", newTeamId, state.myPlaceId, state.teams[newTeamId].size);
@@ -1742,6 +1749,7 @@ static void split_stage2 (pami_context_t   context,
 
 	pami_configuration_t config;
 	config.name = PAMI_GEOMETRY_OPTIMIZE;
+	config.value.intval = 1;
 
 	pami_result_t   status = PAMI_ERROR;
 	pami_geometry_t parentGeometry = state.teams[cbd->teamIndex].geometry;
