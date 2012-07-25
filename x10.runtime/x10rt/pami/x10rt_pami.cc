@@ -1916,9 +1916,6 @@ static void internal_alltoall_begin (pami_context_t   context,
 
 	pami_result_t status = PAMI_ERROR;
 	x10rt_pami_internal_alltoall *cbd = (x10rt_pami_internal_alltoall*)cookie;
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u completed remote updates for alltoall. cookie=%p\n", state.myPlaceId, cookie);
-	#endif
 
 	uint64_t i, j, bufferLen=cbd->el*cbd->count, chunksize=(-1*((int)state.teams[cbd->teamid].algorithm[PAMI_XFER_ALLTOALL]));
 	if (chunksize < cbd->el) chunksize = cbd->el; // At least use the size of a single element
@@ -1937,8 +1934,8 @@ static void internal_alltoall_begin (pami_context_t   context,
 		{
 			int64_t remotePlace = (state.myPlaceId + j) % state.teams[cbd->teamid].size; // shift the place we start with
 			parameters.rma.dest = remotePlace;
-			parameters.addr.local = (void*)((char*)(cbd->sbuf) + (remotePlace * bufferLen) + (i * chunksize));
-			parameters.addr.remote = (void*)((char*)(cbd->dbuf) + (state.myPlaceId * bufferLen) + (i * chunksize));
+			parameters.addr.local = (void*)((char*)(cbd->sbuf) + (remotePlace * bufferLen) + i);
+			parameters.addr.remote = (void*)((char*)(cbd->dbuf) + (state.myPlaceId * bufferLen) + i);
 			status = PAMI_Put(context, &parameters);
 			if (status != PAMI_SUCCESS) error("Error with the remote Put in internal all-to-all %u\n", status);
 		}
