@@ -11,46 +11,74 @@
 
 package x10.lang;
 
-/**
- * The class Exception and its subclasses are a form of Throwable that indicates conditions that
- * a reasonable application might want to catch.
- */
-public class Exception extends Throwable {
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+import x10.compiler.NonEscaping;
+import x10.io.Printer;
+import x10.io.Console;
 
-    /**
-     * Construct an Exception with no detail message and no cause.
-     */
-    public def this() { super(); }
+@NativeRep("java", "java.lang.RuntimeException", null, "x10.rtt.Types.EXCEPTION")
+@NativeRep("c++", "x10aux::ref<x10::lang::Exception>", "x10::lang::Exception", null)
+public class Exception extends CheckedException {
+    @Native("java", "#this.getCause()")
+    @Native("c++", "(#this)->getCause()")
+    val cause:Exception;
 
-    /**
-     * Construct an Exception with the specified detail message and no cause.
-     *
-     * @param message the detail message
-     */
-    public def this(message: String) { super(message); } 
+    @Native("java", "#this.getMessage()")
+    @Native("c++", "(#this)->getMessage()")
+    val message: String;
 
-    /**
-     * Construct an Exception with the specified detail message and cause.
-     *
-     * @param message the detail message
-     * @param cause the cause
-     */
-    public def this(message: String, cause: Throwable) { super(message, cause); } 
-
-    /**
-     * Construct an Exception with no detail message and the specified cause.
-     *
-     * @param cause the cause
-     */
-    public def this(cause: Throwable) { super(cause); } 
-
-    /**
-     * Create a String representation of this Exception.
-     */
-    public def toString() {
+    @Native("java", "new java.lang.RuntimeException()")
+    public def this() = this("");
+    @Native("java", "new java.lang.RuntimeException(#message)")
+    public def this(message: String) {
+        super();
+        this.cause = null;
+        this.message = message;
+    }
+    @Native("java", "new java.lang.RuntimeException(#cause)")
+    public def this(cause: Exception) = this("", cause);
+    @Native("java", "new java.lang.RuntimeException(#message, #cause)")
+    public def this(message: String, cause: Exception): Exception {
+        super();
+        	this.cause = cause;
+        this.message = message;
+    }
+    
+    @Native("java", "#this.getMessage()")
+    @Native("c++", "(#this)->getMessage()")
+    public def getMessage():String = message;
+    
+    @Native("java", "#this.getCause()")
+    @Native("c++", "(#this)->getCause()")
+    public final def getCause():Exception = cause;
+    
+    @Native("java", "#this.toString()")
+    @Native("c++", "x10aux::to_string(#this)")
+    public def toString():String {
         val m = getMessage();
         return m == null ? typeName() : typeName() + ": " + getMessage();
     }
-}
 
-// vim:tabstop=4:shiftwidth=4:expandtab
+    // @Native("java", "x10.core.ExceptionUtilities.getStackTrace(#this)")
+    @Native("java", "#this.$getStackTrace()")
+    @Native("c++", "(#this)->getStackTrace()")
+    public final native def getStackTrace() : Array[String](1);
+
+    @Native("java", "#this.printStackTrace()")
+    @Native("c++", "(#this)->printStackTrace()")
+    public native def printStackTrace() : void;
+
+    // @Native("java", "x10.core.ExceptionUtilities.printStackTrace(#this, #p)")
+    @Native("java", "#this.printStackTrace(#p)")
+    @Native("c++",  "(#this)->printStackTrace(#p)")
+    public native def printStackTrace(p: Printer) : void;
+
+    @Native("java", "#this.fillInStackTrace()")
+    @Native("c++", "(#this)->fillInStackTrace()")
+    public native def fillInStackTrace() : Exception;
+
+    /*
+    public void setStackTrace(java.lang.StackTraceElement[]);
+    */
+}

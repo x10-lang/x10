@@ -231,11 +231,6 @@ public interface Type extends Qualifier, Annotated, Named
     boolean isThrowable();
 
     /**
-     * Return true if a subclass of java.lang.Throwable.
-     */
-    boolean isJavaThrowable();
-
-    /**
      * Return true if an unchecked exception.
      */
     boolean isUncheckedException();

@@ -4147,13 +4147,17 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    // MIKIO_PLEASE_SEE
     // N.B. true for Java throwables that are supertype of x.l.Throwable at implementation level
     private boolean isJavaThrowableAssignableFromX10Throwable(Type catchType) {
+    	return true;
+    	/*
         TypeSystem ts = tr.typeSystem();
         Context context = tr.context();
         return ts.typeEquals(catchType, ts.JavaThrowable(), context) ||
             ts.typeEquals(catchType, ts.JavaException(), context) ||
             ts.typeEquals(catchType, ts.JavaRuntimeException(), context);
+        */
     }
 
     @Override
@@ -4595,6 +4599,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    // MIKIO_PLEASE_SEE
     private Try_c reorderCatchBlocks(Try_c c) {
         TypeSystem ts = tr.typeSystem();
         Context context = tr.context();
@@ -4603,13 +4608,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         boolean hasJavaThrowable = false;
         for (Catch catchBlock : catchBlocks) {
             Type catchType = catchBlock.catchType();
-            if (!ts.isJavaThrowable(catchType)) {
+            if (false /*!ts.isJavaThrowable(catchType)*/) {
                 newCatchBlocks.add(catchBlock);
             }
         }
         for (Catch catchBlock : catchBlocks) {
             Type catchType = catchBlock.catchType();
-            if (ts.isJavaThrowable(catchType)) {
+            if (false /*ts.isJavaThrowable(catchType)*/) {
                 newCatchBlocks.add(catchBlock);
                 hasJavaThrowable = true;
             }

@@ -192,7 +192,8 @@ public class FinallyEliminator extends ContextVisitor {
             s = t.tryBlock();
         }
         Name name           = Name.makeFresh("throwable");
-        Type throwableType  = ts.Throwable();
+        // [DC] throwing CheckedThrowable might be a problem here... but hopefully after exception checking so ok
+        Type throwableType  = ts.CheckedThrowable();
         LocalDecl throwDecl = syn.createLocalDecl(pos, Flags.NONE, name, throwableType, syn.createLiteral(pos, null));
         Block tryBody       = syn.createBlock(pos, s, syn.createStaticCall(pos, Finalization(), PLAUSIBLE_THROW));
         Formal f            = syn.createFormal(pos, throwableType);

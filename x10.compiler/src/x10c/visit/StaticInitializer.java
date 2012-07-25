@@ -921,7 +921,7 @@ public class StaticInitializer extends ContextVisitor {
         Formal excFormal = xnf.Formal(pos, xnf.FlagsNode(pos, excDef.flags()), xnf.CanonicalTypeNode(pos, excDef.type()), xnf.Id(pos, excDef.name())).localDef(excDef);
 
         List<Ref<? extends Type>> newExceptArgTypes = new ArrayList<Ref<? extends Type>>();
-        newExceptArgTypes.add(Types.ref(xts.Throwable()));
+        newExceptArgTypes.add(Types.ref(xts.Exception()));
         ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptArgTypes, Collections.<Ref<? extends Type>>emptyList());
         ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
         List<Expr> newExceptArgs = new ArrayList<Expr>();
@@ -1033,9 +1033,10 @@ public class StaticInitializer extends ContextVisitor {
             Name excName = Name.makeFresh("exc$");
             List<Catch> catchBlocks = new ArrayList<Catch>();
             // gen catch (x10.core.X10Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
-            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.Throwable(), receiver, throwExceptStmt));
+            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.CheckedThrowable(), receiver, throwExceptStmt));
             // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
-            catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
+            // MIKIO_PLEASE_SEE
+            //catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
             stmts.add(xnf.Try(pos, xnf.Block(pos, fieldAssignStmt), catchBlocks));
         } else {
             stmts.add(fieldAssignStmt);

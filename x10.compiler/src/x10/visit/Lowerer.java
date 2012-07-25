@@ -933,11 +933,11 @@ public class Lowerer extends ContextVisitor {
 
         // TODO: merge with the call() function
         MethodInstance mi = ts.findMethod(ts.Runtime(),
-                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Throwable()), context()));
-        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Throwable()), tmp);
+                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Exception()), context()));
+        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Exception()), tmp);
         Formal formal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
-                nf.CanonicalTypeNode(pos, ts.Throwable()), nf.Id(pos, tmp)).localDef(lDef);
-        Expr local = nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(ts.Throwable());
+                nf.CanonicalTypeNode(pos, ts.Exception()), nf.Id(pos, tmp)).localDef(lDef);
+        Expr local = nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(ts.Exception());
         Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
                 nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(ts.Void());
@@ -1027,11 +1027,11 @@ public class Lowerer extends ContextVisitor {
         // Begin catch block
         Name tmp2 = getTmp();
         MethodInstance mi = ts.findMethod(ts.Runtime(),
-                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Throwable()), context()));
-        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Throwable()), tmp2);
+                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Exception()), context()));
+        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Exception()), tmp2);
         Formal formal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
-                nf.CanonicalTypeNode(pos, ts.Throwable()), nf.Id(pos, tmp2)).localDef(lDef);
-        Expr local = nf.Local(pos, nf.Id(pos, tmp2)).localInstance(lDef.asInstance()).type(ts.Throwable());
+                nf.CanonicalTypeNode(pos, ts.Exception()), nf.Id(pos, tmp2)).localDef(lDef);
+        Expr local = nf.Local(pos, nf.Id(pos, tmp2)).localInstance(lDef.asInstance()).type(ts.Exception());
         Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
                 nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(ts.Void());

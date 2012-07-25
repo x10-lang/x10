@@ -101,7 +101,7 @@ public class Try_c extends Stmt_c implements Try
     @Override
     public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
-        SubtypeSet caught = new SubtypeSet(ts.Throwable());
+        SubtypeSet caught = new SubtypeSet(ts.CheckedThrowable());
 
         // Walk through our catch blocks, making sure that they each can
         // catch something.
@@ -164,7 +164,7 @@ public class Try_c extends Stmt_c implements Try
         // Visit the try block.
         Block tryBlock = (Block) this.visitChild(this.tryBlock, newec);
         
-        SubtypeSet caught = new SubtypeSet(ts.Throwable());
+        SubtypeSet caught = new SubtypeSet(ts.CheckedThrowable());
         
         // Walk through our catch blocks, making sure that they each can 
         // catch something.

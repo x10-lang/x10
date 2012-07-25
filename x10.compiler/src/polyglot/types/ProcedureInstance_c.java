@@ -201,8 +201,8 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
      * <code>p</code>. */
     public boolean throwsSubset(ProcedureInstance<T> p) {
 
-        SubtypeSet s1 = new SubtypeSet(ts.JavaThrowable());
-        SubtypeSet s2 = new SubtypeSet(ts.JavaThrowable());
+        SubtypeSet s1 = new SubtypeSet(ts.CheckedThrowable());
+        SubtypeSet s2 = new SubtypeSet(ts.CheckedThrowable());
 
         s1.addAll(this.throwTypes());
         s2.addAll(p.throwTypes());

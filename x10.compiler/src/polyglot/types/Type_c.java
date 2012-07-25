@@ -113,10 +113,6 @@ public abstract class Type_c extends TypeObject_c implements Type
     }
 
 
-    public final boolean isJavaThrowable() {
-        return ts.isJavaThrowable(this);
-    }
-
     /**
      * Return true if an unchecked exception.
      */

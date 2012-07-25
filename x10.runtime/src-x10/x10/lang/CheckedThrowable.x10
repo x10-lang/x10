@@ -56,18 +56,18 @@ public class CheckedThrowable {
     
     @Native("java", "#this.getCause()")
     @Native("c++", "(#this)->getCause()")
-    public final def getCause():CheckedThrowable = cause;
+    public def getCause():CheckedThrowable = cause;
     
     @Native("java", "x10.core.ThrowableUtilities.toString(#this)")
     //@Native("java", "#this.toString()")
     @Native("c++", "x10aux::to_string(#this)")
     // virtual method with @Native needs to be final in managed x10
-    public final native def toString():String;
+    public native def toString():String;
 
     @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#this)")
     //@Native("java", "#this.$getStackTrace()")
     @Native("c++", "(#this)->getStackTrace()")
-    public final native def getStackTrace() : Array[String](1);
+    public native def getStackTrace() : Array[String](1);
 
     @Native("java", "#this.printStackTrace()")
     @Native("c++", "(#this)->printStackTrace()")

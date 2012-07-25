@@ -3073,11 +3073,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline(4); sw.begin(0);
 		if (n.catchBlocks().size() > 0) {
 		    String excVar = "__exc" + refVar;
+		    // [DC] the following I believe to be obsolete following the new itables implementation of interface dispatch
 		    // Note that the following c-style cast only works because Throwable is
 		    // *not* an interface and thus is not virtually inherited.  If it
 		    // were, we would have to static_cast the exception to Throwable on
 		    // throw (otherwise we would need to offset by an unknown quantity).
-		    String exception_ref = Emitter.translateType(xts.Throwable(), true);
+		    String exception_ref = Emitter.translateType(xts.CheckedThrowable(), true);
 		    sw.write(exception_ref+"& " + excVar + " = ("+exception_ref+"&)" + refVar + ";");
 		    context.setExceptionVar(excVar);
 		    for (Catch cb : n.catchBlocks()) {
@@ -3109,7 +3110,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline();
 		sw.write("if (");
 		String type = Emitter.translateType(n.formal().type().type(), true);
-        if (n.formal().type().type().typeEquals(tr.typeSystem().Throwable(), context)) {
+        if (n.formal().type().type().typeEquals(tr.typeSystem().CheckedThrowable(), context)) {
             sw.write("true");
         } else if (refsAsPointers) {
 			sw.write("!!dynamic_cast" + chevrons(type) + "(" + excVar + ")");

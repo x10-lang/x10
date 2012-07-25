@@ -95,8 +95,11 @@ public class TryCatchExpander extends Expander {
 
     // XTENLANG-2871 simplify Java to X10 exception conversion logic 
     // Use subtype checking instead of exact match of type name
-    // Assume that conversion of j.l.Throwable also includes conversion of j.l.Exception etc. 
+    // Assume that conversion of j.l.Throwable also includes conversion of j.l.Exception etc.
+    // MIKIO_PLEASE_SEE
     public static int conversionRequired(Type catchType) {
+    	return 0;
+    	/*
         TypeSystem ts = catchType.typeSystem();
         int convRequired = 0;
 //        if (ts.isSubtype(catchType, ts.RuntimeException())) {
@@ -110,6 +113,7 @@ public class TryCatchExpander extends Expander {
             convRequired |= THROWABLE_CONVERSION;
         }
         return convRequired;
+        */
     }
 
     private final CodeWriter w;

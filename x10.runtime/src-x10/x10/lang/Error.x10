@@ -11,6 +11,10 @@
 
 package x10.lang;
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
+
 /**
  * An Error is a subclass of Throwable that indicates serious problems that a reasonable
  * application should not try to catch.  Most such errors are abnormal conditions.
@@ -20,11 +24,13 @@ package x10.lang;
  * might be thrown during the execution of the method but not caught, since these errors
  * are abnormal conditions that should never occur.
  */
-public class Error extends Throwable {
+@NativeRep("java", "java.lang.Error", null, "x10.rtt.Types.ERROR")
+public class Error extends CheckedThrowable {
 
     /**
      * Construct an Error with no detail message and no cause.
      */
+    @Native("java", "new java.lang.Error()")
     public def this() { super(); } 
 
     /**
@@ -32,6 +38,7 @@ public class Error extends Throwable {
      *
      * @param message the detail message
      */
+    @Native("java", "new java.lang.Error(#message)")
     public def this(message: String) { super(message); } 
 
     /**
@@ -40,14 +47,16 @@ public class Error extends Throwable {
      * @param message the detail message
      * @param cause the cause
      */
-    public def this(message: String, cause: Throwable) { super(message, cause); }
+    @Native("java", "new java.lang.Error(#cause)")
+    public def this(message: String, cause: CheckedThrowable) { super(message, cause); }
 
     /**
      * Construct an Error with no detail message and the specified cause.
      *
      * @param cause the cause
      */
-    public def this(cause: Throwable) { super(cause); } 
+    @Native("java", "new java.lang.Error(#message, #cause)")
+    public def this(cause: CheckedThrowable) { super(cause); } 
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
