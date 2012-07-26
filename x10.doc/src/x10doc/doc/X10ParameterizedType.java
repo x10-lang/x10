@@ -1,21 +1,12 @@
 package x10doc.doc;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-
 import polyglot.types.ClassType;
-import polyglot.types.FieldDef;
 import polyglot.types.Types;
-
 import x10.constraint.XConstraint;
-import x10.constraint.XEQV;
-import x10.constraint.XFailure;
-import x10.constraint.XField;
-import x10.constraint.XFormula;
-import x10.constraint.XLocal;
+import x10.constraint.XExpr;
 import x10.constraint.XTerm;
-import x10.constraint.XVar;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.X10ClassType;
@@ -173,11 +164,11 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	}
 	
 	public String descriptor() {
-		XConstraint xc = Types.xclause(pType);
-		List<? extends XTerm> terms = xc.constraints();
+		XConstraint<?> xc = Types.xclause(pType);
+		List<? extends XTerm<?>> terms = xc.constraints();
 		String result = "  {";
 		boolean first = true;
-		for (XTerm t: terms) {
+		for (XTerm<?> t: terms) {
 			if (first) {
 				first = false;
 			}
@@ -242,16 +233,17 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	public String toString() {
 		if (pType instanceof ConstrainedType) {
 			ConstrainedType ct = ((ConstrainedType) pType);
-			XConstraint xc = ct.constraint().get();
+			XConstraint<?> xc = ct.constraint().get();
 			String str = ct.name() + "{";
 			boolean first = true;
-			for (XFormula f: xc.atoms()) {
+			// lshadare may have more than two children?
+			for (XExpr<?> f: xc.atoms()) {
 				if (first) {
 					first = false;
-					str += (f.left() + " " + f.operator() + " " + f.right());
+					str += (f.get(0) + " " + f.op() + " " + f.get(1));
 				}
 				else {
-					str += (", " + f.left() + " " + f.operator() + " " + f.right());
+					str += (", " + f.get(0) + " " + f.op() + " " + f.get(1));
 				}
 			}
 			str += "}";
