@@ -209,20 +209,24 @@ public class TryCatchExpander extends Expander {
     }
 
     // N.B. ThrowableUtilities.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
-    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.IndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
-        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        ,"java.lang.RuntimeException"
-    ));
+    // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.IndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
+//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+////        ,"java.lang.RuntimeException"
+//    ));
+    private static final Set<String> knownJavaRuntimeExceptions = Collections.<String>emptySet();
     private static final Set<String> knownJavaExceptions = new HashSet<String>(Arrays.asList("java.io.FileNotFoundException", "java.io.EOFException", "java.io.NotSerializableException", "java.io.IOException", "java.lang.InterruptedException"
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        , "java.lang.Exception"
     ));
-    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError"
-        // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError (switched back to use java assertion)
-        , "java.lang.AssertionError"
-        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        , "java.lang.Error"
-    ));
+    // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError"
+//        // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError (switched back to use java assertion)
+//        , "java.lang.AssertionError"
+//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
+////        , "java.lang.Error"
+//    ));
+    private static final Set<String> knownJavaErrors = Collections.<String>emptySet();
     private static final Set<String> knownJavaThrowables = Collections.<String>emptySet();
     // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
     public static boolean isKnownJavaThrowable(Type type) {

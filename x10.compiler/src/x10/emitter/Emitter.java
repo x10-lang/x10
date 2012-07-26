@@ -4041,9 +4041,8 @@ public class Emitter {
         return true;
 	}
 
-    private static boolean useReflectionToSerializeSuperClass(Type superType) {
-        assert superType.isClass();
-        return superType.toClass().isJavaType() || isNativeRepedToJava(superType);
+    public static boolean isRawJavaClass(Type superType) {
+        return superType.isClass() && superType.toClass().isJavaType() || isNativeRepedToJava(superType);
     }
 
     // Emits the code to serialize the super class
@@ -4051,7 +4050,7 @@ public class Emitter {
         // Check whether need to serialize super class
         if (needToSerializeSuperClass(superClassNode)) {
             // If the super class is a pure java class we need to serialize it using reflection
-            if (useReflectionToSerializeSuperClass(superClassNode.type())) {
+            if (isRawJavaClass(superClassNode.type())) {
                 w.write("$serializer.serializeClassUsingReflection(this, ");
                 printType(superClassNode.type(), BOX_PRIMITIVES);
                 w.writeln(".class);");
@@ -4066,7 +4065,7 @@ public class Emitter {
         // Check whether we need to deserialize the super class
         if (needToSerializeSuperClass(superClassNode)) {
             // If the super class is a pure java class we need to deserialize it using reflection
-            if (useReflectionToSerializeSuperClass(superClassNode.type())) {
+            if (isRawJavaClass(superClassNode.type())) {
                 w.write("$deserializer.deserializeClassUsingReflection(");
                 printType(superClassNode.type(), BOX_PRIMITIVES);
                 w.writeln(".class, $_obj, 0);");

@@ -20,10 +20,15 @@ import x10.runtime.impl.java.UnknownJavaThrowable;
 public abstract class ThrowableUtilities {
     
     // N.B. ThrowableUtilities.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
-    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10RuntimeExceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
-    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
-    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10Errors = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
-    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10Throwables = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
+	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10RuntimeExceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
+//    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
+//    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10Errors = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
+//    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>> x10Throwables = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends x10.core.X10Throwable>>();
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10RuntimeExceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Errors = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
+    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Throwables = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
 
     private static Class<? extends x10.core.X10Throwable> x10UnsupportedOperationException;
     
@@ -31,59 +36,62 @@ public abstract class ThrowableUtilities {
         try {
             Class<? extends java.lang.Throwable> javaClass;
             java.lang.String x10Name;
-            Class<? extends x10.core.X10Throwable> x10Class;
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            Class<? extends x10.core.X10Throwable> x10Class;
+            Class<? extends java.lang.RuntimeException> x10Class;
             
             // x10RuntimeExceptions
-            javaClass = java.lang.ArithmeticException.class;
-            x10Name = "x10.lang.ArithmeticException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-
-            javaClass = java.lang.ArrayIndexOutOfBoundsException.class;
-            x10Name = "x10.lang.ArrayIndexOutOfBoundsException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-
-            javaClass = java.lang.StringIndexOutOfBoundsException.class;
-            x10Name = "x10.lang.StringIndexOutOfBoundsException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-            
-            javaClass = java.lang.IndexOutOfBoundsException.class;
-            x10Name = "x10.lang.IndexOutOfBoundsException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-            
-            javaClass = java.lang.ClassCastException.class;
-            x10Name = "x10.lang.ClassCastException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-            
-            javaClass = java.lang.NumberFormatException.class;
-            x10Name = "x10.lang.NumberFormatException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-                        
-            javaClass = java.lang.IllegalArgumentException.class;
-            x10Name = "x10.lang.IllegalArgumentException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-            
-            javaClass = java.util.NoSuchElementException.class;
-            x10Name = "x10.util.NoSuchElementException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-            
-            javaClass = java.lang.NullPointerException.class;
-            x10Name = "x10.lang.NullPointerException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-
-            javaClass = java.lang.UnsupportedOperationException.class;
-            x10Name = "x10.lang.UnsupportedOperationException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10RuntimeExceptions.put(javaClass, x10Class);
-            x10UnsupportedOperationException = x10Class;
+            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//            javaClass = java.lang.ArithmeticException.class;
+//            x10Name = "x10.lang.ArithmeticException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//
+//            javaClass = java.lang.ArrayIndexOutOfBoundsException.class;
+//            x10Name = "x10.lang.ArrayIndexOutOfBoundsException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//
+//            javaClass = java.lang.StringIndexOutOfBoundsException.class;
+//            x10Name = "x10.lang.StringIndexOutOfBoundsException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//            
+//            javaClass = java.lang.IndexOutOfBoundsException.class;
+//            x10Name = "x10.lang.IndexOutOfBoundsException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//            
+//            javaClass = java.lang.ClassCastException.class;
+//            x10Name = "x10.lang.ClassCastException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//            
+//            javaClass = java.lang.NumberFormatException.class;
+//            x10Name = "x10.lang.NumberFormatException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//                        
+//            javaClass = java.lang.IllegalArgumentException.class;
+//            x10Name = "x10.lang.IllegalArgumentException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//            
+//            javaClass = java.util.NoSuchElementException.class;
+//            x10Name = "x10.util.NoSuchElementException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//            
+//            javaClass = java.lang.NullPointerException.class;
+//            x10Name = "x10.lang.NullPointerException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//
+//            javaClass = java.lang.UnsupportedOperationException.class;
+//            x10Name = "x10.lang.UnsupportedOperationException";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10RuntimeExceptions.put(javaClass, x10Class);
+//            x10UnsupportedOperationException = x10Class;
 
 	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //            javaClass = java.lang.RuntimeException.class;
@@ -93,28 +101,48 @@ public abstract class ThrowableUtilities {
             
             // x10Exceptions
             javaClass = java.io.FileNotFoundException.class;
-            x10Name = "x10.io.FileNotFoundException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            // TODO CHECKED_THROWABLE wrap with XRJ
+//            x10Name = "x10.io.FileNotFoundException";
+            x10Name = "x10.core.io.FileNotFoundException";
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
             
             javaClass = java.io.EOFException.class;
-            x10Name = "x10.io.EOFException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            // TODO CHECKED_THROWABLE wrap with XRJ
+//            x10Name = "x10.io.EOFException";
+            x10Name = "x10.core.io.EOFException";
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.io.NotSerializableException.class;
-            x10Name = "x10.io.NotSerializableException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            // TODO CHECKED_THROWABLE wrap with XRJ
+//            x10Name = "x10.io.NotSerializableException";
+            x10Name = "x10.core.io.NotSerializableException";
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.io.IOException.class;
-            x10Name = "x10.io.IOException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            // TODO CHECKED_THROWABLE wrap with XRJ
+//            x10Name = "x10.io.IOException";
+            x10Name = "x10.core.io.IOException";
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.lang.InterruptedException.class;
-            x10Name = "x10.lang.InterruptedException";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            // TODO CHECKED_THROWABLE wrap with XRJ
+//            x10Name = "x10.lang.InterruptedException";
+            x10Name = "x10.core.InterruptedException";
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
             
 	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
@@ -124,21 +152,22 @@ public abstract class ThrowableUtilities {
 //            x10Exceptions.put(javaClass, x10Class);
             
             // x10Errors
-            javaClass = java.lang.OutOfMemoryError.class;
-            x10Name = "x10.lang.OutOfMemoryError";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10Errors.put(javaClass, x10Class);
-
-            javaClass = java.lang.StackOverflowError.class;
-            x10Name = "x10.lang.StackOverflowError";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10Errors.put(javaClass, x10Class);
-
-            // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError (switched back to use java assertion)
-            javaClass = java.lang.AssertionError.class;
-            x10Name = "x10.lang.AssertionError";
-            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10Errors.put(javaClass, x10Class);
+            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//            javaClass = java.lang.OutOfMemoryError.class;
+//            x10Name = "x10.lang.OutOfMemoryError";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10Errors.put(javaClass, x10Class);
+//
+//            javaClass = java.lang.StackOverflowError.class;
+//            x10Name = "x10.lang.StackOverflowError";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10Errors.put(javaClass, x10Class);
+//
+//            // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError (switched back to use java assertion)
+//            javaClass = java.lang.AssertionError.class;
+//            x10Name = "x10.lang.AssertionError";
+//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10Errors.put(javaClass, x10Class);
 
 	    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //            javaClass = java.lang.Error.class;
@@ -162,9 +191,13 @@ public abstract class ThrowableUtilities {
 
     }
 	
-    private static x10.core.X10Throwable createX10Throwable(Class<? extends x10.core.X10Throwable> x10Class, java.lang.String message, java.lang.Throwable t) {
+	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//    private static x10.core.X10Throwable createX10Throwable(Class<? extends x10.core.X10Throwable> x10Class, java.lang.String message, java.lang.Throwable t) {
+    private static java.lang.RuntimeException createX10Throwable(Class<? extends java.lang.RuntimeException> x10Class, java.lang.String message, java.lang.Throwable t) {
         try {
-            x10.core.X10Throwable x10t = x10Class.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10.core.X10Throwable x10t = x10Class.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
+        	java.lang.RuntimeException x10t = x10Class.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
             if (t != null) {
             	x10t.setStackTrace(t.getStackTrace());
             }
@@ -174,10 +207,14 @@ public abstract class ThrowableUtilities {
         throw new java.lang.Error(t);
     }
     
-	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.RuntimeException e) {
+	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.RuntimeException e) {
+	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.RuntimeException e) {
             if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
         java.lang.String message = e.getMessage();
-        Class<? extends x10.core.X10Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
+    	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//        Class<? extends x10.core.X10Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
+        Class<? extends java.lang.RuntimeException> x10Class = x10RuntimeExceptions.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
@@ -187,10 +224,14 @@ public abstract class ThrowableUtilities {
         return createX10Throwable(x10Class, message, e);
     }
 
-	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Exception e) {
+	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Exception e) {
+	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.Exception e) {
             if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
         java.lang.String message = e.getMessage();
-        Class<? extends x10.core.X10Throwable> x10Class = x10Exceptions.get(e.getClass());
+    	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//        Class<? extends x10.core.X10Throwable> x10Class = x10Exceptions.get(e.getClass());
+        Class<? extends java.lang.RuntimeException> x10Class = x10Exceptions.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
@@ -200,9 +241,13 @@ public abstract class ThrowableUtilities {
         return createX10Throwable(x10Class, message, e);
     }
 
-	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Error e) {
+	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Error e) {
+	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.Error e) {
         java.lang.String message = e.getMessage();
-        Class<? extends x10.core.X10Throwable> x10Class = x10Errors.get(e.getClass());
+    	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//        Class<? extends x10.core.X10Throwable> x10Class = x10Errors.get(e.getClass());
+        Class<? extends java.lang.RuntimeException> x10Class = x10Errors.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
@@ -212,10 +257,14 @@ public abstract class ThrowableUtilities {
         return createX10Throwable(x10Class, message, e);
     }
 
-	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Throwable e) {
+	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Throwable e) {
+	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.Throwable e) {
             if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
         java.lang.String message = e.getMessage();
-        Class<? extends x10.core.X10Throwable> x10Class = x10Throwables.get(e.getClass());
+    	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//        Class<? extends x10.core.X10Throwable> x10Class = x10Throwables.get(e.getClass());
+        Class<? extends java.lang.RuntimeException> x10Class = x10Throwables.get(e.getClass());
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
@@ -225,21 +274,24 @@ public abstract class ThrowableUtilities {
         return createX10Throwable(x10Class, message, e);
     }
 
-    public static x10.core.Throwable convertJavaRuntimeException(java.lang.RuntimeException e) {
-    	return getCorrespondingX10Throwable(e);
-    }
-    public static x10.core.Throwable convertJavaException(java.lang.Exception e) {
-    	if (e instanceof java.lang.RuntimeException) {
-    		return getCorrespondingX10Throwable((java.lang.RuntimeException) e);
-    	} else
-    	/*if (e instanceof java.lang.Exception)*/ {
-    		return getCorrespondingX10Throwable(e);
-    	}
-    }
-    public static x10.core.Throwable convertJavaError(java.lang.Error e) {
-    	return getCorrespondingX10Throwable(e);
-    }
-    public static x10.core.Throwable convertJavaThrowable(java.lang.Throwable e) {
+	// TODO CHECKED_THROWABLE not used
+//    public static x10.core.Throwable convertJavaRuntimeException(java.lang.RuntimeException e) {
+//    	return getCorrespondingX10Throwable(e);
+//    }
+//    public static x10.core.Throwable convertJavaException(java.lang.Exception e) {
+//    	if (e instanceof java.lang.RuntimeException) {
+//    		return getCorrespondingX10Throwable((java.lang.RuntimeException) e);
+//    	} else
+//    	/*if (e instanceof java.lang.Exception)*/ {
+//    		return getCorrespondingX10Throwable(e);
+//    	}
+//    }
+//    public static x10.core.Throwable convertJavaError(java.lang.Error e) {
+//    	return getCorrespondingX10Throwable(e);
+//    }
+	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//    public static x10.core.Throwable convertJavaThrowable(java.lang.Throwable e) {
+    public static java.lang.RuntimeException convertJavaThrowable(java.lang.Throwable e) {
     	if (e instanceof java.lang.RuntimeException) {
     		return getCorrespondingX10Throwable((java.lang.RuntimeException) e);
     	} else if (e instanceof java.lang.Exception) {

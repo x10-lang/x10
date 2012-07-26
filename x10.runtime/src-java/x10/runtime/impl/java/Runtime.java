@@ -287,7 +287,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             byte[] bytes = serialize(body, finishState);
             x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	java.lang.RuntimeException xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -336,7 +338,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     		}
     		return body;
     	} catch (java.io.IOException e) {
-    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+    		java.lang.RuntimeException xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
     		xe.printStackTrace();
     		throw xe;
     	}
@@ -528,7 +532,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.InputStreamReader(new x10.core.io.InputStream(proc.getInputStream()));
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	java.lang.RuntimeException xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -539,7 +545,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.OutputStreamWriter(new x10.core.io.OutputStream(proc.getOutputStream()));
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	java.lang.RuntimeException xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
