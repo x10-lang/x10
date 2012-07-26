@@ -13,7 +13,7 @@ import x10.interop.Java;
 import x10.runtime.impl.java.InteropFuns;
 
 public class RunJava {
-    public static def main(args: Array[String](1)) throws java.lang.Throwable {
+    public static def main(args: Array[String](1)) {
         try {
         if (args.size < 1) {
             Console.ERR.println("Please specify the Java Main class");
@@ -33,7 +33,7 @@ public class RunJava {
         val mainMethod = mainClass.getMethod("main", argsClasses);
 
         InteropFuns.invokeAndUnwrapExceptions(mainMethod, null, javaArgsArray);
-        } catch (e: java.lang.Throwable) {
+        } catch (e: CheckedThrowable) {
             e.printStackTrace();
         }
     }
