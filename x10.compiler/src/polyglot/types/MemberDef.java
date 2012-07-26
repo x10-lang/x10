@@ -14,11 +14,13 @@
 
 package polyglot.types;
 
+import x10.constraint.XDef;
+
 /**
  * A <code>MemberInstance</code> is an entity that can be a member of
  * a class.
  */
-public interface MemberDef extends Def
+public interface MemberDef extends Def, XDef<Type>
 {
     /**
      * Return the member's flags.

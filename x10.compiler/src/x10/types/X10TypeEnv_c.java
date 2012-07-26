@@ -73,7 +73,6 @@ import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.CField;
-import x10.types.constraints.CAtom;
 import x10.types.constraints.CThis;
 import x10.types.constraints.CSelf;
 
@@ -197,14 +196,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
  /*   public void checkOverride(ClassType ct, MethodInstance mi, MethodInstance mj) throws SemanticException {
          XVar<Type> thisVar =  ConstraintManager.getConstraintSystem().makeUQV(); // ConstraintManager.getConstraintSystem().makeUQV(ConstraintManager.getConstraintSystem().makeFreshName("this")); // ConstraintManager.getConstraintSystem().makeLocal(ConstraintManager.getConstraintSystem().makeFreshName("this"));
 
-         List<XVar> ys = new ArrayList<XVar>(2);
-         List<XVar> xs = new ArrayList<XVar>(2);
+         List<XVar<Type>> ys = new ArrayList<XVar<Type>>(2);
+         List<XVar<Type>> xs = new ArrayList<XVar<Type>>(2);
 
          MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
          MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
          MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
-         final XVar[] y = ys.toArray(new XVar[ys.size()]);
-         final XVar[] x = xs.toArray(new XVar[ys.size()]);
+         final XVar<Type>[] y = ys.toArray(new XVar[ys.size()]);
+         final XVar<Type>[] x = xs.toArray(new XVar[ys.size()]);
 
          Context cxt = context; // PlaceChecker.pushHereTerm(mi.def(), (X10Context) context);
          X10TypeEnv_c newEnv = new X10TypeEnv_c(cxt);
@@ -762,11 +761,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return t2;
     }
     public CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
-        final List<? extends XTerm> terms = originalConst.constraints();
-        final ArrayList<XTerm> newTerms = new ArrayList<XTerm>(terms.size());
+        final List<? extends XTerm<Type>> terms = originalConst.constraints();
+        final ArrayList<XTerm<Type>> newTerms = new ArrayList<XTerm<Type>>(terms.size());
         boolean wasNew = false;
         for (XTerm<Type> xTerm : terms) {
-            final XTerm.TermVisitor visitor = new XTerm.TermVisitor() {
+            final XTerm.TermVisitor<Type> visitor = new XTerm.TermVisitor<Type>() {
                 public XTerm<Type> visit(XTerm<Type> term) {
                     XTerm<Type> res = XTypeTranslator.expandPropertyMethod(term,isMethod,ts,t1ClassType,context);
                     return res==term ? null : res;
@@ -777,7 +776,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             newTerms.add(newXterm);
         }
         if (wasNew) {
-            final CConstraint newConstraint = ConstraintManager.getConstraintSystem().makeCConstraint(originalConst.self(), originalConst.baseType());
+            final CConstraint newConstraint = ConstraintManager.getConstraintSystem().makeCConstraint(originalConst.self());
             newConstraint.setThisVar(originalConst.thisVar());
             for (XTerm<Type> xTerm : newTerms) {
                 try {
@@ -931,7 +930,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			x = c2.selfVarBinding();
     		}*/
     		if (x == null) {
-    			x =  ConstraintManager.getConstraintSystem().makeUQV(); 
+    			x =  ConstraintManager.getConstraintSystem().makeUQV(baseType2); 
     		}
     		t2 = Types.instantiateSelf(x, t2);
     		c2 = Types.xclause(t2);
@@ -1007,8 +1006,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             CConstraint d = ft2.guard();
             if (Sl.size() != Tl.size())
                 return false;
-            XVar[] ys = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
-            XVar[] xs = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
+            XVar<Type>[] ys = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
+            XVar<Type>[] xs = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
             try {
                 Sl = Subst.subst(Sl, ys, xs);
                 if (c != null) {
@@ -1242,14 +1241,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             FunctionType ft2 = (FunctionType) t2;
             if (ft1.formalNames().size() == ft2.formalNames().size()) {
                 // Rename formals
-                XTerm[] ys = new XTerm[ft1.formalNames().size()];
+                @SuppressWarnings("unchecked")
+				XTerm<Type>[] ys = new XTerm[ft1.formalNames().size()];
                 for (int i = 0; i < ys.length; i++) {
-                    ys[i] = ConstraintManager.getConstraintSystem().makeUQV();
+                    ys[i] = ConstraintManager.getConstraintSystem().makeUQV(ft1.argumentTypes().get(i));
                 }
                 try {
-                    XVar[] xs1 = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
+                    XVar<Type>[] xs1 = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
                     t1 = Subst.subst(ft1, ys, xs1, new Type[] { }, new ParameterType[] { });
-                    XVar[] xs2 = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
+                    XVar<Type>[] xs2 = Types.toVarArray(Types.toLocalDefList(ft2.formalNames()));
                     t2 = Subst.subst(ft2, ys, xs2, new Type[] { }, new ParameterType[] { });
                 } catch (SemanticException e) {
                     throw new InternalCompilerError("Unexpected exception while transforming function types", e);
@@ -1290,7 +1290,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
-        XVar<Type> temp = ConstraintManager.getConstraintSystem().makeUQV();
+        XVar<Type> temp = ConstraintManager.getConstraintSystem().makeUQV(baseType1);
         // instantiateSelf ensures that Int{self123==3} and A{self456==3} are equal.
         if (c1 != null) {
             c1 = c1.instantiateSelf(temp);
@@ -1428,9 +1428,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         // Allow assignment if the fromType's value can be represented as a toType
         if (c1 != null && ts.isNumeric(baseType1) && ts. isNumeric(baseType2)) {
-            XVar<Type> self = Types.selfVar(c1);
+            XTerm<Type> self = Types.selfVar(c1);
             if (self instanceof XLit) {
-                Object val = ((XLit) self).val();
+                @SuppressWarnings("unchecked")
+				Object val = ((XLit<Type,?>) self).val();
                 if (numericConversionValid(baseType2, baseType1, val)) {
                     return true;
                 }
@@ -1576,7 +1577,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     
             // Check if adding self==value makes the constraint on t inconsistent.
             
-            XLit val = ConstraintManager.getConstraintSystem().makeLit(value, base);
+            XLit<Type, ?> val = ConstraintManager.getConstraintSystem().makeLit(value, base);
 
             CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(base);
             c.addSelfEquality(val);
@@ -1593,8 +1594,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return CollectionUtil.<Type>allElementwise(l1, l2, new TypeSystem_c.TypeEquals(context));
     }
 
-    protected boolean listEquals(List<XVar> l1, List<XVar> l2) {
-        return CollectionUtil.<XVar>allEqual(l1, l2);
+    protected boolean listEquals(List<XVar<Type>> l1, List<XVar<Type>> l2) {
+        return CollectionUtil.<XVar<Type>>allEqual(l1, l2);
     }
 
     protected boolean isX10BaseSubtype(Type me, Type sup) {
@@ -1941,14 +1942,16 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         XVar<Type> thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = ConstraintManager.getConstraintSystem().makeThis();  
+            thisVar = ConstraintManager.getConstraintSystem().makeThis(Types.baseType(rt));  
 
-        List<XVar> ys = new ArrayList<XVar>(2);
-        List<XVar> xs = new ArrayList<XVar>(2);
+        List<XVar<Type>> ys = new ArrayList<XVar<Type>>(2);
+        List<XVar<Type>> xs = new ArrayList<XVar<Type>>(2);
         MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
         MethodInstance_c.buildSubst(rt, ys, xs, thisVar);
-        final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XVar[] x = xs.toArray(new XVar[ys.size()]);
+        @SuppressWarnings("unchecked")
+		final XVar<Type>[] y = ys.toArray(new XVar[ys.size()]);
+        @SuppressWarnings("unchecked")
+		final XVar<Type>[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = fixThis(mi, y, x);
 
@@ -1978,7 +1981,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         MethodInstance mi = (MethodInstance) jmi;
         XVar<Type> thisVar = mi.x10Def().thisVar();
         if (thisVar == null)
-            thisVar = ConstraintManager.getConstraintSystem().makeThis();  
+            thisVar = ConstraintManager.getConstraintSystem().makeThis(Types.baseType(mi.container()));  
         return implemented(mi, mi.container(), thisVar);
     }
 
@@ -1988,12 +1991,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             return Collections.<MethodInstance>emptyList();
         }
 
-        List<XVar> ys = new ArrayList<XVar>(2);
-        List<XVar> xs = new ArrayList<XVar>(2);
+        List<XVar<Type>> ys = new ArrayList<XVar<Type>>(2);
+        List<XVar<Type>> xs = new ArrayList<XVar<Type>>(2);
         MethodInstance_c.buildSubst((MethodInstance) mi, ys, xs, thisVar);
         MethodInstance_c.buildSubst(st, ys, xs, thisVar);
-        final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XVar[] x = xs.toArray(new XVar[ys.size()]);
+        @SuppressWarnings("unchecked")
+		final XVar<Type>[] y = ys.toArray(new XVar[ys.size()]);
+        @SuppressWarnings("unchecked")
+		final XVar<Type>[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = fixThis((MethodInstance) mi, y, x);
 
@@ -2023,11 +2028,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return l;
     }
     
-    XVar[] genSymbolicVars(int n) {
-    	XVar[] result = new XVar[n];
-    	//String prefix = "arg";
-    	for (int i =0; i < n; ++i) {
-    		result[i] = ConstraintManager.getConstraintSystem().makeUQV();
+    /**
+     * Construct an array of fresh universally quantified variables with the 
+     * given types. 
+     * @param types
+     * @return
+     */
+    XVar<Type>[] genSymbolicVars(List<Type> types) {
+    	@SuppressWarnings("unchecked")
+		XVar<Type>[] result = new XVar[types.size()];
+    	for (int i =0; i < types.size(); ++i) {
+    		result[i] = ConstraintManager.getConstraintSystem().makeUQV(types.get(i));
     	}
     	return result;
     }
@@ -2053,17 +2064,26 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                                         +" cannot override " + mj.signature() + " in " + mj.container()
                                         + "; different number of type parameters",mi.errorPosition());
         }
-
-        XVar[] newSymbols = genSymbolicVars(mj.formalNames().size()+1);
+        // construct a list containing the Place type followed by the types 
+        // of all the formal arguemnts of mj
+        List<Type> types = new ArrayList<Type>(mj.formalNames().size() + 1);
+        types.set(0,  ts.Place());
+        for (int i = 0; i < mj.formalNames().size(); ++i)
+        	types.set(i + 1, mj.formalTypes().get(i));
+        
+        XVar<Type>[] newSymbols = genSymbolicVars(types); 
+        
         TypeSystem xts = (TypeSystem) mi.typeSystem();
-        XVar[] miFormals = Matcher.getSymbolicNames(mi.formalNames(),xts);
+        XVar<Type>[] miFormals = Matcher.getSymbolicNames(mi.formalNames(),xts);
         XVar<Type> mipt = Types.getPlaceTerm(mi);
-        XVar[] mjFormals = Matcher.getSymbolicNames(mj.formalNames(),xts);
+        XVar<Type>[] mjFormals = Matcher.getSymbolicNames(mj.formalNames(),xts);
         XVar<Type> mjpt = Types.getPlaceTerm(mj);
-        XVar[] miSymbols = new XVar[miFormals.length+1];
+        @SuppressWarnings("unchecked")
+		XVar<Type>[] miSymbols = new XVar[miFormals.length+1];
         miSymbols[0] = mipt;
         System.arraycopy(miFormals, 0, miSymbols, 1, miFormals.length);
-        XVar[] mjSymbols = new XVar[mjFormals.length+1];
+        @SuppressWarnings("unchecked")
+		XVar<Type>[] mjSymbols = new XVar[mjFormals.length+1];
         mjSymbols[0] = mjpt;
         System.arraycopy(mjFormals, 0, mjSymbols, 1, mjFormals.length);
         
@@ -2175,13 +2195,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         MethodInstance mj = (MethodInstance) other;
         XVar<Type> thisVar = mi.x10Def().thisVar(); 
 
-        List<XVar> ys = new ArrayList<XVar>(2);
-        List<XVar> xs = new ArrayList<XVar>(2);
+        List<XVar<Type>> ys = new ArrayList<XVar<Type>>(2);
+        List<XVar<Type>> xs = new ArrayList<XVar<Type>>(2);
 
         MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
         MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
-        final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XVar[] x = xs.toArray(new XVar[ys.size()]);
+        @SuppressWarnings("unchecked")
+		final XVar<Type>[] y = ys.toArray(new XVar[ys.size()]);
+        @SuppressWarnings("unchecked")
+		final XVar<Type>[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = fixThis(mi, y, x);
         mj = fixThis(mj, y, x);
@@ -2228,13 +2250,15 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
           //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
             XVar<Type> thisVar = mi.x10Def().thisVar(); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // ConstraintManager.getConstraintSystem().makeLocal(thisName);
 
-            List<XVar> ys = new ArrayList<XVar>(2);
-            List<XVar> xs = new ArrayList<XVar>(2);
+            List<XVar<Type>> ys = new ArrayList<XVar<Type>>(2);
+            List<XVar<Type>> xs = new ArrayList<XVar<Type>>(2);
 
             MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
             MethodInstance_c.buildSubst(mj, ys, xs, thisVar);
-            final XVar[] y = ys.toArray(new XVar[ys.size()]);
-            final XVar[] x = xs.toArray(new XVar[ys.size()]);
+            @SuppressWarnings("unchecked")
+			final XVar<Type>[] y = ys.toArray(new XVar[ys.size()]);
+            @SuppressWarnings("unchecked")
+			final XVar<Type>[] x = xs.toArray(new XVar[ys.size()]);
 
             mi = fixThis(mi, y, x);
             mj = fixThis(mj, y, x);
@@ -2344,7 +2368,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	return acceptable;
     }
 
-	public  MethodInstance fixThis(final MethodInstance mi, final XVar[] y, final XVar[] x) {
+	public  MethodInstance fixThis(final MethodInstance mi, final XVar<Type>[] y, final XVar<Type>[] x) {
 	    MethodInstance mj = mi;
 	    final TypeSystem ts = (TypeSystem) mi.typeSystem();
 	
@@ -2362,7 +2386,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 	                        newRetType = Subst.addIn(newRetType, PlaceChecker.ThisHomeEqualsHere(y[0], ts));
 	                }
 	                if (y.length > 0 && y[0] instanceof XEQV) // this is a synthetic variable
-	                    newRetType = Subst.project(newRetType, (XVar) y[0]);  			
+	                    newRetType = Subst.project(newRetType, (XVar<Type>) y[0]);  			
 	                tref.update(newRetType);
 	            }
 	            catch (SemanticException e) {

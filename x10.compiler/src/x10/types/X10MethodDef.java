@@ -18,12 +18,13 @@ import polyglot.types.Ref;
 
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import x10.constraint.XDef;
 import x10.constraint.XTerm;
 
-public interface X10MethodDef extends MethodDef, X10ProcedureDef {
+public interface X10MethodDef extends MethodDef, X10ProcedureDef, XDef<Type> {
 
-    Ref<XTerm> body();
-    void body(Ref<XTerm> body);
+    Ref<XTerm<Type>> body();
+    void body(Ref<XTerm<Type>> body);
 
     Ref<? extends Type> offerType();
     void setOfferType(Ref<? extends Type> s);

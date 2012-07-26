@@ -108,6 +108,7 @@ import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
 import x10.ast.X10SourceFile_c;
 import x10.ast.SettableAssign;
+import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.emitter.Emitter;
 import x10.extension.X10Ext;
@@ -1589,7 +1590,7 @@ public class StaticInitializer extends ContextVisitor {
             if (ct.constraint().known()) {
                 CConstraint cc = ct.constraint().get();
                 XTerm<Type> selfVar = cc.selfVarBinding();
-                if (selfVar != null && selfVar.isLit())
+                if (selfVar != null && selfVar instanceof XLit)
                     return true;
             }
         }

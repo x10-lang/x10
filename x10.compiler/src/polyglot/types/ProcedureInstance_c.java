@@ -39,18 +39,18 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
         return guard;
     }
 
-    public ProcedureInstance_c guard(CConstraint guard) {
+    public ProcedureInstance_c<T> guard(CConstraint guard) {
         if (guard == this.guard) return this;
-        ProcedureInstance_c n = (ProcedureInstance_c) copy();
+        ProcedureInstance_c<T> n = (ProcedureInstance_c<T>) copy();
         n.guard = guard;
         return n;
     }
 
     protected boolean checkGuardAtRuntime = false;
     public boolean checkConstraintsAtRuntime() { return checkGuardAtRuntime; }
-    public ProcedureInstance_c checkConstraintsAtRuntime(boolean check) {
+    public ProcedureInstance_c<T> checkConstraintsAtRuntime(boolean check) {
         if (check==checkGuardAtRuntime) return this;
-        ProcedureInstance_c n = (ProcedureInstance_c) copy();
+        ProcedureInstance_c<T> n = (ProcedureInstance_c<T>) copy();
         n.checkGuardAtRuntime = check;
         return n;
     }
@@ -62,9 +62,9 @@ public abstract class ProcedureInstance_c<T extends ProcedureDef> extends Use_c<
             return Types.get(def().typeGuard());
         return typeGuard;
     }
-    public ProcedureInstance_c typeGuard(TypeConstraint s) {
+    public ProcedureInstance_c<T> typeGuard(TypeConstraint s) {
         if (s == this.typeGuard) return this;
-        ProcedureInstance_c n = (ProcedureInstance_c) copy();
+        ProcedureInstance_c<T> n = (ProcedureInstance_c<T>) copy();
         n.typeGuard = s;
         return n;
     }

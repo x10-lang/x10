@@ -41,9 +41,7 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
                      Ref<? extends ClassType> baseType) {
         super(ts, pos, Flags.FINAL, baseType, ThisDef.THIS);
         ClassType bt = Types.get(baseType);
-        XVar<Type> baseVar = ConstraintManager.getConstraintSystem().makeThis(bt);  
-        thisVar =  qType==null?  baseVar
-                : ConstraintManager.getConstraintSystem().makeQualifiedVar(qType.get(), baseVar);
+        thisVar = ConstraintManager.getConstraintSystem().makeThis(bt);  
     }
 
     public String toString() {
@@ -139,4 +137,9 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
     public Ref<TypeConstraint> typeGuard() {
     	return null;
     }
+    
+    @Override
+	public Type resultType() {
+		throw new UnsupportedOperationException();
+	}
 }

@@ -967,23 +967,23 @@ public interface TypeSystem extends XTypeSystem<Type> {
 
     X10ClassType Endpoint();
 
-    XLit FALSE();
+    XLit<Type, Boolean> FALSE();
 
-    XLit TRUE();
+    XLit<Type, Boolean> TRUE();
 
-    XLit NEG_ONE();
+    XLit<Type, ? extends Number> NEG_ONE();
     
     XConstrainedTerm FIRST_PLACE();
 
-    XLit ZERO();
+    XLit<Type, ? extends Number> ZERO();
 
-    XLit ONE();
+    XLit<Type, ? extends Number> ONE();
 
-    XLit TWO();
+    XLit<Type, ? extends Number> TWO();
 
-    XLit THREE();
+    XLit<Type, ? extends Number> THREE();
 
-    XLit NULL();
+    XLit<Type, ? extends Object> NULL();
 
 
     AsyncDef asyncCodeInstance(Position pos, ThisDef thisDef,
@@ -1046,7 +1046,7 @@ public interface TypeSystem extends XTypeSystem<Type> {
 
     X10MethodDef methodDef(Position pos, Position errorPos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> returnType, Name name,
             List<ParameterType> typeParams, List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes, ThisDef thisDef, List<LocalDef> formalNames,
-            Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm> body);
+            Ref<CConstraint> guard, Ref<TypeConstraint> typeGuard, Ref<? extends Type> offerType, Ref<XTerm<Type>> body);
 
     X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name);
 

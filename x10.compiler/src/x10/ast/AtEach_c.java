@@ -158,7 +158,7 @@ public class AtEach_c extends X10ClockedLoop_c implements AtEach, Clocked {
 	    if (def.placeTerm() == null) {
 	        // FIXME: this creates a new place term; ideally, it should be the place associated with each
 	        // point in the ateach distribution
-	        XConstrainedTerm placeTerm = XConstrainedTerm.make(PlaceChecker.makePlace(), def.typeSystem().Place());
+	        XConstrainedTerm placeTerm = XConstrainedTerm.make(PlaceChecker.makePlace(def.typeSystem()), def.typeSystem().Place());
 	        XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
 	        def.setPlaceTerm(placeTerm);
 	        def.setFinishPlaceTerm(finishPlaceTerm);

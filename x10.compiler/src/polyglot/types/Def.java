@@ -14,9 +14,11 @@
 
 package polyglot.types;
 
+import x10.constraint.XDef;
+
 
 /**
  * A Def is a type object representing a declaration.
  */
-public interface Def extends TypeObject {
+public interface Def extends TypeObject, XDef<Type> {
 }

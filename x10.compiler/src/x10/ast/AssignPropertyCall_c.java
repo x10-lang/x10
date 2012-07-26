@@ -217,7 +217,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         // into curr, with argi/self.
         
         CConstraint cxtCurr = cxt.currentConstraint();  
-        CConstraint curr = ConstraintManager.getConstraintSystem().makeCConstraint(cxtCurr.self(), cxtCurr.baseType());
+        CConstraint curr = ConstraintManager.getConstraintSystem().makeCConstraint(cxtCurr.self());
 
         for (int i=0; i < args.size() && i < props.size(); ++i) {
             Type yType = args.get(i).type();
@@ -227,9 +227,9 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 Errors.issue(tc.job(),
                              new Errors.TypeOfPropertyIsNotSubtypeOfPropertyType(args.get(i).type(), props, i, pos));
             }
-            XVar<Type> symbol = Types.selfVarBinding(yType);
+            XTerm<Type> symbol = Types.selfVarBinding(yType);
             if (symbol==null) {
-                symbol = ConstraintManager.getConstraintSystem().makeUQV();
+                symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(yType));
                 CConstraint c = Types.xclause(yType);
                 curr.addIn(symbol, c);
             } 
@@ -278,7 +278,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                     Expr initializer = args.get(i);
                     Type initType = initializer.type();
                     final FieldInstance fii = definedProperties.get(i);
-                    XVar<Type> prop = (XVar) ts.xtypeTranslator().translate(known.self(), fii);
+                    XVar<Type> prop = (XVar<Type>) ts.xtypeTranslator().translate(known.self(), fii);
 
                     // Add in the real clause of the initializer with [self.prop/self]
                     CConstraint c = Types.realX(initType);

@@ -24,7 +24,9 @@ import polyglot.main.Reporter;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
+import x10.constraint.XExpr;
 import x10.constraint.XLit;
+import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.XTypeLit;
@@ -81,7 +83,6 @@ import x10.types.XTypeTranslator;
 import x10.types.X10ProcedureInstance;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
-import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -425,8 +426,7 @@ public class TypeSystem_c implements TypeSystem
     
     public X10InitializerDef initializerDef(Position pos, Ref<? extends ClassType> container, Flags flags) {
        // String fullNameWithThis = "<init>#this";
-        XVar<Type> thisVar = ConstraintManager.getConstraintSystem().makeThis(); // XTerms.makeLocal(thisName);
-
+        XVar<Type> thisVar = ConstraintManager.getConstraintSystem().makeThis(container.get()); // XTerms.makeLocal(thisName);
         return initializerDef(pos, container, flags, thisVar);
     }
 
@@ -434,7 +434,7 @@ public class TypeSystem_c implements TypeSystem
         assert_(container);
         return new X10InitializerDef_c(this, pos, container, flags, thisVar);
     }
-
+    @Override
     public X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name) {
         assert_(container);
         assert_(type);
@@ -443,19 +443,20 @@ public class TypeSystem_c implements TypeSystem
 
         return fieldDef(pos, container, flags, type, name, thisDef);
     }
-
+    @Override
     public X10FieldDef fieldDef(Position pos, Ref<? extends ContainerType> container, Flags flags, Ref<? extends Type> type, Name name, ThisDef thisDef) {
         assert_(container);
         assert_(type);
         return new X10FieldDef_c(this, pos, container, flags, type, name, thisDef);
     }
 
-    
+    @Override
     public X10MethodDef methodDef(Position pos, Position errorPos, Ref<? extends ContainerType> container, Flags flags,
             Ref<? extends Type> returnType, Name name,
             List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes) {
         return methodDef(pos, errorPos, container, flags, returnType, name, argTypes, throwsTypes, null);
     }
+    @Override
     public X10MethodDef methodDef(Position pos, Position errorPos, Ref<? extends ContainerType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
                                   List<Ref<? extends Type>> argTypes, List<Ref<? extends Type>> throwsTypes, Ref<? extends Type> offerType)
@@ -466,7 +467,7 @@ public class TypeSystem_c implements TypeSystem
         return methodDef(pos, errorPos, container, flags, returnType, name, Collections.<ParameterType>emptyList(), argTypes,
                          throwsTypes, thisDef, dummyLocalDefs(argTypes), null, null, offerType, null);
     }
-
+    @Override
     public X10MethodDef methodDef(Position pos, Position errorPos, Ref<? extends ContainerType> container,
                                   Flags flags, Ref<? extends Type> returnType, Name name,
                                   List<ParameterType> typeParams,
@@ -476,7 +477,7 @@ public class TypeSystem_c implements TypeSystem
                                   Ref<CConstraint> guard,
                                   Ref<TypeConstraint> typeGuard,
                                   Ref<? extends Type> offerType,
-                                  Ref<XTerm> body)
+                                  Ref<XTerm<Type>> body)
     {
         assert_(container);
         assert_(returnType);
@@ -3613,8 +3614,8 @@ public class TypeSystem_c implements TypeSystem
         XVar[] xvars = Types.toVarArray(Types.toLocalDefList(formalNames), placeTerm);
         List<MethodInstance> l = new ArrayList<MethodInstance>();
         for (MethodInstance mi : t.methodsNamed(name)) {
-            List<XVar> ys = new ArrayList<XVar>(2);
-            List<XVar> xs = new ArrayList<XVar>(2);
+            List<XVar<Type>> ys = new ArrayList<XVar<Type>>(2);
+            List<XVar<Type>> xs = new ArrayList<XVar<Type>>(2);
 
             MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
             final XVar[] y = ys.toArray(new XVar[ys.size()]);
@@ -3666,12 +3667,12 @@ public class TypeSystem_c implements TypeSystem
 
         XVar<Type> thisVar = ((X10ClassDef) ct.def()).thisVar(); // XTerms.makeLocal(XTerms.makeFreshName("this"));
 
-        List<XVar> ys = new ArrayList<XVar>(2);
-        List<XVar> xs = new ArrayList<XVar>(2);
+        List<XVar<Type>> ys = new ArrayList<XVar<Type>>(2);
+        List<XVar<Type>> xs = new ArrayList<XVar<Type>>(2);
         MethodInstance_c.buildSubst(mi, ys, xs, thisVar);
         MethodInstance_c.buildSubst(ct, ys, xs, thisVar);
-        final XVar[] y = ys.toArray(new XVar[ys.size()]);
-        final XVar[] x = xs.toArray(new XVar[ys.size()]);
+        final XVar<Type>[] y = ys.toArray(new XVar[ys.size()]);
+        final XVar<Type>[] x = xs.toArray(new XVar[ys.size()]);
 
         mi = new X10TypeEnv_c(context).fixThis( mi, y, x);
         XVar<Type> placeTerm = Types.getPlaceTerm(mi);
@@ -3807,25 +3808,25 @@ public class TypeSystem_c implements TypeSystem
         return hereConstraintLit;
     }
 */
-    protected XLit FALSE;
+    protected XLit<Type, Boolean> FALSE;
 
-    public XLit FALSE() {
+    public XLit<Type, Boolean> FALSE() {
         if (FALSE == null)
             FALSE = XTypeTranslator.translate(false, this);
         return FALSE;
     }
 
-    protected XLit TRUE;
+    protected XLit<Type, Boolean> TRUE;
 
-    public XLit TRUE() {
+    public XLit<Type, Boolean> TRUE() {
         if (TRUE == null)
             TRUE = XTypeTranslator.translate(true, this);
         return TRUE;
     }
 
-    protected XLit NEG_ONE;
+    protected XLit<Type, ? extends Number> NEG_ONE;
 
-    public XLit NEG_ONE() {
+    public XLit<Type, ? extends Number> NEG_ONE() {
         if (NEG_ONE == null)
             NEG_ONE = XTypeTranslator.translate(-1, this);
         return NEG_ONE;
@@ -3835,45 +3836,45 @@ public class TypeSystem_c implements TypeSystem
     
     public XConstrainedTerm FIRST_PLACE() {
     	if (FIRST_PLACE == null)
-    		FIRST_PLACE = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV("FIRST_PLACE"), Place());
+    		FIRST_PLACE = XConstrainedTerm.make(ConstraintManager.getConstraintSystem().makeUQV(Place(), "FIRST_PLACE"), Place());
     	return FIRST_PLACE;
     }
     
-    protected XLit ZERO;
+    protected XLit<Type, ? extends Number> ZERO;
 
-    public XLit ZERO() {
+    public XLit<Type, ? extends Number> ZERO() {
         if (ZERO == null)
             ZERO = XTypeTranslator.translate(0, this);
         return ZERO;
     }
 
-    protected XLit ONE;
+    protected XLit<Type, ? extends Number> ONE;
 
-    public XLit ONE() {
+    public XLit<Type, ? extends Number> ONE() {
         if (ONE == null)
             ONE = XTypeTranslator.translate(1, this);
         return ONE;
     }
 
-    protected XLit TWO;
+    protected XLit<Type, ? extends Number> TWO;
 
-    public XLit TWO() {
+    public XLit<Type, ? extends Number> TWO() {
         if (TWO == null)
             TWO = XTypeTranslator.translate(2, this);
         return TWO;
     }
 
-    protected XLit THREE;
+    protected XLit<Type, ? extends Number> THREE;
 
-    public XLit THREE() {
+    public XLit<Type, ? extends Number> THREE() {
         if (THREE == null)
             THREE = XTypeTranslator.translate(3, this);
         return THREE;
     }
 
-    protected XLit NULL;
+    protected XLit<Type, Object> NULL;
 
-    public XLit NULL() {
+    public XLit<Type, ? extends Object> NULL() {
         if (NULL == null)
             NULL = XTypeTranslator.transNull(this);
         return NULL;
@@ -3997,8 +3998,8 @@ public class TypeSystem_c implements TypeSystem
         return CollectionUtil.<Type> allElementwise(l1, l2, new TypeSystem_c.TypeEquals(context));
     }
 
-    protected boolean listEquals(List<XVar> l1, List<XVar> l2) {
-        return CollectionUtil.<XVar> allEqual(l1, l2);
+    protected boolean listEquals(List<XVar<Type>> l1, List<XVar<Type>> l2) {
+        return CollectionUtil.<XVar<Type>> allEqual(l1, l2);
     }
 
     protected boolean isX10BaseSubtype(Type me, Type sup, Context context) {
@@ -4341,8 +4342,8 @@ public class TypeSystem_c implements TypeSystem
         X10ClassDef def = ClosureSynthesizer.closureBaseInterfaceDef(this, typeParameters.size(),
                 argTypes.size(), rt.isVoid(), formalNames, guard);
         FunctionType ct = (FunctionType) def.asType();
-        XVar[] yvars = Types.toVarArray(Types.toLocalDefList(ct.formalNames()));
-        XVar[] xvars = Types.toVarArray(formalNames);
+        XVar<Type>[] yvars = Types.toVarArray(Types.toLocalDefList(ct.formalNames()));
+        XVar<Type>[] xvars = Types.toVarArray(formalNames);
         List<Type> typeArgs = new ArrayList<Type>();
         for (Ref<? extends Type> ref : argTypes) {
             Type t = Types.get(ref);
@@ -4516,14 +4517,13 @@ public class TypeSystem_c implements TypeSystem
             }
             ConstrainedType ct = (ConstrainedType) t;
             CConstraint c = Types.xclause(ct);
-            for (XVar<Type> x : c.vars()) {
+            for (XTerm<Type> x : c.vars()) {
                 if (hasUnknown(x, visited)) {
                     return true;
                 }
             }
             
-            for (XFormula x : c.atoms()) {
-            	//assert x != null;
+            for (XExpr<Type> x : c.atoms()) {
                 if (hasUnknown(x, visited)) {
                     return true;
                 }
@@ -4532,27 +4532,21 @@ public class TypeSystem_c implements TypeSystem
         return false;
     }
 
-    private boolean hasUnknown(XFormula<?> x, HashSet<Type> visited) {
-        for (XTerm<Type> a : x.arguments()) {
+    private boolean hasUnknown(XExpr<Type> x, HashSet<Type> visited) {
+        for (XTerm<Type> a : x.children()) {
             if (hasUnknown(a, visited))
                 return true;
         }
         return false;
     }
     private boolean hasUnknown(XTerm<Type> x, HashSet<Type> visited) {
-        if (x instanceof XField<?>) {     
-            if (hasUnknown(((XField<?>) x).receiver(),visited))
-                return true;
-            if (x instanceof CField)
-                return hasUnknownType(((CField) x).type(),visited);
-        }
-        if (x instanceof XTypeLit) {
-            return hasUnknownType(((XTypeLit) x).type(),visited);
-        } 
-        if (x instanceof CLocal) 
-            return hasUnknownType(((CLocal) x).type(),visited);
-        
-        return false;
+    	if (x instanceof XExpr)
+    		if (hasUnknown((XExpr<Type>)x,visited))
+    			return true;
+    	if (x instanceof CField)
+    		return hasUnknownType(((CField) x).type(),visited);
+
+    	return hasUnknownType(x.type(), visited);
     }
 
 

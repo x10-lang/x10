@@ -10,6 +10,7 @@
  */
 package x10.types.matcher;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -38,6 +39,7 @@ import x10.types.X10FieldInstance;
 import x10.types.X10LocalInstance;
 import x10.types.X10ParsedClassType;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
 
 public class Subst {
@@ -107,7 +109,7 @@ public class Subst {
         return Types.xclause(base, c);
     }
 
-    public static Type project(Type t, XVar<Type> v) {
+    public static Type project(Type t, XTerm<Type> v) {
         if (t == null)
             return null;
 
@@ -159,7 +161,7 @@ public class Subst {
      * @return
      * @throws SemanticException
      */
-    public static List<Type> subst(List<Type> ts, XTerm[] y, XVar[] x) throws SemanticException {
+    public static List<Type> subst(List<Type> ts, XTerm<Type>[] y, XVar<Type>[] x) throws SemanticException {
         List<Type> result= new ArrayList<Type>(ts.size());
         boolean changed = false;
         for (Type t : ts) {
@@ -172,7 +174,7 @@ public class Subst {
         return result;
     }
 
-    public static Type subst(Type t, XTerm[] y, XVar[] x) throws SemanticException {
+    public static Type subst(Type t, XTerm<Type>[] y, XTerm<Type>[] x) throws SemanticException {
         assert y.length == x.length;
 
         if (t == null)
@@ -221,7 +223,7 @@ public class Subst {
         return t;
     }
 
-    public static Type subst(Type t, XTerm[] y, XVar[] x, Type[] Y, ParameterType[] X) throws SemanticException {
+    public static Type subst(Type t, XTerm<Type>[] y, XTerm<Type>[] x, Type[] Y, ParameterType[] X) throws SemanticException {
         if (t instanceof ConstrainedType) {
             ConstrainedType ct = (ConstrainedType) t;
             Type base = Types.get(ct.baseType()); // do not call X10TypeMixin.baseType(ct); that will strip constraints in ct
@@ -276,16 +278,29 @@ public class Subst {
         return t;
     }
 
-    public static Type subst(Type t, XTerm<Type> y, XVar<Type> x) throws SemanticException {
-        return subst(t, new XTerm[] { y }, new XVar[] { x });
+    @SuppressWarnings("unchecked")
+	public static Type subst(Type t, XTerm<Type> y, XTerm<Type> x) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
+    	terms[0] = y; 
+    	XTerm<Type>[] vars = (XTerm<Type>[]) Array.newInstance(x.getClass(), 1);
+    	vars[0] = x;
+        return subst(t, terms, vars);
     }
 
-    public static Type subst(Type t, Type Y, ParameterType X) throws SemanticException {
-        return subst(t, new XTerm[] {}, new XVar[] { }, new Type[] { Y }, new ParameterType[] { X });
+    @SuppressWarnings("unchecked")
+	public static Type subst(Type t, Type Y, ParameterType X) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance((ConstraintManager.getConstraintSystem().makeEQV(null)).getClass(), 1);
+    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance((ConstraintManager.getConstraintSystem().makeEQV(null)).getClass(), 1);
+    	return subst(t, terms, vars, new Type[] { Y }, new ParameterType[] { X });
     }
 
-    public static CConstraint subst(CConstraint t, XTerm<Type> y, XVar<Type> x) throws SemanticException {
-        return subst(t, new XTerm[] { y }, new XVar[] { x }, new Type[0], new ParameterType[0]);
+    @SuppressWarnings("unchecked")
+	public static CConstraint subst(CConstraint t, XTerm<Type> y, XVar<Type> x) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
+    	terms[0] = y; 
+    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance(x.getClass(), 1);
+    	vars[0] = x;
+    	return subst(t, terms, vars, new Type[0], new ParameterType[0]);
     }
 
     // FIXME: this is wrong, because types may appear in the constraint
@@ -306,7 +321,7 @@ public class Subst {
         return subst.reinstantiate(t);
     }
 
-    public static TypeConstraint subst(TypeConstraint t, XTerm[] y, XVar[] x) throws SemanticException {
+    public static TypeConstraint subst(TypeConstraint t, XTerm<Type>[] y, XVar<Type>[] x) throws SemanticException {
         assert y.length == x.length;
 
         if (t == null)
@@ -333,13 +348,13 @@ public class Subst {
         return t;
     }
 
-    public static TypeConstraint subst(TypeConstraint t, XTerm[] y, XVar[] x, Type[] Y, ParameterType[] X) throws SemanticException {
+    public static TypeConstraint subst(TypeConstraint t, XTerm<Type>[] y, XVar<Type>[] x, Type[] Y, ParameterType[] X) throws SemanticException {
         TypeConstraint t2 = subst(t, y, x);
         TypeConstraint t3 = subst(t2, Y, X);
         return t3;
     }
 
-    public static CConstraint subst(CConstraint t, XTerm[] y, XVar[] x) throws SemanticException {
+    public static CConstraint subst(CConstraint t, XTerm<Type>[] y, XTerm<Type>[] x) throws SemanticException {
         if (t == null)
             return null;
 
@@ -351,7 +366,7 @@ public class Subst {
             throw new SemanticException("Cannot instantiate formal parameters on actuals.");
         }
     }
-
+    // lshadare: why does this exist? 
     public static CConstraint subst(CConstraint t, Type[] Y, ParameterType[] X) throws SemanticException {
         if (t == null)
             return null;
@@ -359,30 +374,40 @@ public class Subst {
         return t;
     }
 
-    public static CConstraint subst(CConstraint t, XTerm[] y, XVar[] x, Type[] Y, ParameterType[] X) throws SemanticException {
+    public static CConstraint subst(CConstraint t, XTerm<Type>[] y, XTerm<Type>[] x, Type[] Y, ParameterType[] X) throws SemanticException {
         CConstraint t2 = subst(t, y, x);
         CConstraint t3 = subst(t2, Y, X);
         return t3;
     }
 
-    public static X10FieldInstance subst(X10FieldInstance fi, XTerm[] y, XVar[] x) throws SemanticException {
+    public static X10FieldInstance subst(X10FieldInstance fi, XTerm<Type>[] y, XVar<Type>[] x) throws SemanticException {
         Type ft = subst(fi.type(), y, x);
         Type rt = subst(fi.rightType(), y, x);
         ContainerType ct = (ContainerType) subst(fi.container(), y, x);
         return (X10FieldInstance) fi.type(ft, rt).container(ct);
     }
 
-    public static X10FieldInstance subst(X10FieldInstance fi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
-        return subst(fi, new XTerm[] { y }, new XVar[] { x });
+    @SuppressWarnings("unchecked")
+	public static X10FieldInstance subst(X10FieldInstance fi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
+    	terms[0] = y; 
+    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance(x.getClass(), 1);
+    	vars[0] = x;
+        return subst(fi, terms, vars);
     }
 
-    public static X10LocalInstance subst(X10LocalInstance li, XTerm[] y, XVar[] x) throws SemanticException {
+    public static X10LocalInstance subst(X10LocalInstance li, XTerm<Type>[] y, XVar<Type>[] x) throws SemanticException {
         Type ft = subst(li.type(), y, x);
         return li.type(ft);
     }
 
-    public static X10LocalInstance subst(X10LocalInstance li, XTerm<Type> y, XVar<Type> x) throws SemanticException {
-        return subst(li, new XTerm[] { y }, new XVar[] { x });
+    @SuppressWarnings("unchecked")
+	public static X10LocalInstance subst(X10LocalInstance li, XTerm<Type> y, XVar<Type> x) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
+    	terms[0] = y; 
+    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance(x.getClass(), 1);
+    	vars[0] = x;
+        return subst(li, terms, vars);
     }
 
     /**
@@ -392,7 +417,7 @@ public class Subst {
      * @return
      * @throws SemanticException 
      */
-    public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm[] y, XVar[] x) throws SemanticException {
+    public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm<Type>[] y, XVar<Type>[] x) throws SemanticException {
         Type returnType = ci.returnType();
         Type newReturnType = subst(returnType, y, x);
         if (newReturnType != returnType) {
@@ -425,8 +450,13 @@ public class Subst {
         return ci;
     }
 
-    public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm<Type> y, XVar<Type> x) throws SemanticException {
-        return subst(ci, new XTerm[] { y }, new XVar[] { x });
+    @SuppressWarnings("unchecked")
+	public static X10ConstructorInstance subst(X10ConstructorInstance ci, XTerm<Type> y, XVar<Type> x) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
+    	terms[0] = y; 
+    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance(x.getClass(), 1);
+    	vars[0] = x;
+        return subst(ci, terms, vars);
     }
 
     /**
@@ -436,7 +466,7 @@ public class Subst {
      * @return
      * @throws SemanticException 
      */
-    public static MethodInstance subst(MethodInstance mi, XTerm[] y, XVar[] x) throws SemanticException {
+    public static MethodInstance subst(MethodInstance mi, XTerm<Type>[] y, XVar<Type>[] x) throws SemanticException {
         Type returnType = mi.returnType();
         Type newReturnType = subst(returnType, y, x);
         if (newReturnType != returnType) {
@@ -469,8 +499,13 @@ public class Subst {
         return mi;
     }
 
-    public static MethodInstance subst(MethodInstance mi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
-        return subst(mi, new XTerm[] { y }, new XVar[] { x });
+    @SuppressWarnings("unchecked")
+	public static MethodInstance subst(MethodInstance mi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
+    	terms[0] = y; 
+    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance(x.getClass(), 1);
+    	vars[0] = x;
+        return subst(mi, terms, vars);
     }
 
     /**
@@ -480,7 +515,7 @@ public class Subst {
      * @return
      * @throws SemanticException 
      */
-    public static ClosureInstance subst(ClosureInstance ci, XTerm[] y, XVar[] x) throws SemanticException {
+    public static ClosureInstance subst(ClosureInstance ci, XTerm<Type>[] y, XVar<Type>[] x) throws SemanticException {
         Type returnType = ci.returnType();
         Type newReturnType = subst(returnType, y, x);
         if (newReturnType != returnType) {
@@ -522,8 +557,13 @@ public class Subst {
         return ci;
     }
 
-    public static ClosureInstance subst(ClosureInstance mi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
-        return subst(mi, new XTerm[] { y }, new XVar[] { x });
+    @SuppressWarnings("unchecked")
+	public static ClosureInstance subst(ClosureInstance mi, XTerm<Type> y, XVar<Type> x) throws SemanticException {
+    	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
+    	terms[0] = y; 
+    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance(x.getClass(), 1);
+    	vars[0] = x;
+        return subst(mi, terms, vars);
     }
 
 }

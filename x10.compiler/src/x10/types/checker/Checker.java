@@ -77,7 +77,6 @@ import polyglot.types.NoMemberException;
 
 import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CLocal;
 
 import x10.types.matcher.Subst;
 import x10.visit.X10TypeChecker;
@@ -246,12 +245,12 @@ public class Checker {
 			Type targetType = Types.baseType(target.type());
 			XTerm<Type> r=ts.xtypeTranslator().translate(ConstraintManager.getConstraintSystem().makeCConstraint(targetType), target,  c);
 			if (r instanceof XVar) {
-				receiver = (XVar) r;
+				receiver = (XVar<Type>) r;
 			}
 		} catch (IllegalConstraint z) {
 		}
 		if (receiver == null)
-			receiver = ConstraintManager.getConstraintSystem().makeEQV();
+			receiver = ConstraintManager.getConstraintSystem().makeEQV(Types.baseType(target.type()));
 		try {
 			t = Subst.subst(t, 
 					(new XVar[] { receiver }), 
@@ -287,10 +286,10 @@ public class Checker {
 	
 		x = x.copy();
 		try {
-			XVar<Type> receiver = Types.selfVarBinding(target.type());
+			XTerm<Type> receiver = Types.selfVarBinding(target.type());
 			XVar<Type> root = null;
 			if (receiver == null) {
-				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(target.type()));
 			}
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
@@ -324,10 +323,10 @@ public class Checker {
 		//xc = xc.copy();
 		x = x.copy();
 		try {
-			XVar<Type> receiver = Types.selfVarBinding(target.type());
+			XTerm<Type> receiver = Types.selfVarBinding(target.type());
 			XVar<Type> root = null;
 			if (receiver == null) {
-				receiver = root = ConstraintManager.getConstraintSystem().makeUQV();
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(target.type()));
 			}
 			xc = xc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))
@@ -523,7 +522,7 @@ public class Checker {
 	        }
 	        else {
 	            //thisVar = xts.xtypeTranslator().transThis(currentClass);
-	            thisVar = xts.xtypeTranslator().translateThisWithoutTypeConstraint();
+	            thisVar = xts.xtypeTranslator().translateThisWithoutTypeConstraint(Types.baseType(t));
 	        }
 	
 	        if (thisVar != null)

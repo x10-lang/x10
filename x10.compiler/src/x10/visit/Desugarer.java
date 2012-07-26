@@ -882,7 +882,7 @@ public class Desugarer extends ContextVisitor {
             XConstrainedTerm here = context().currentPlaceTerm();
             if (here != null && here.term() instanceof XVar) {
                 try {
-                    c = c.substitute(PlaceChecker.here(), (XVar) here.term());
+                    c = c.substitute(PlaceChecker.here(t.typeSystem()), (XVar) here.term());
                 } catch (XFailure e) { }
             }
             DepParameterExpr res 

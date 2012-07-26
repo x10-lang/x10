@@ -213,7 +213,7 @@ public class TypeParamSubst {
 		if (t instanceof X10ConstructorInstance) return (T) reinstantiateCI((X10ConstructorInstance) t);
 		if (t instanceof ClosureInstance) return (T) reinstantiateClosure((ClosureInstance) t);
 		if (t instanceof CConstraint) return (T) reinstantiateConstraint((CConstraint) t);
-		if (t instanceof XTerm) return (T) reinstantiateTerm((XTerm) t);
+		if (t instanceof XTerm) return (T) reinstantiateTerm((XTerm<Type>) t);
 		if (t instanceof TypeConstraint) return (T) reinstantiateTypeConstraint((TypeConstraint) t);
 		if (t instanceof X10LocalInstance) return (T) reinstantiateLI((X10LocalInstance) t);
 		//if (t instanceof X10LocalDef) return (T) reinstantiateLD((X10LocalDef) t);
@@ -300,9 +300,11 @@ public class TypeParamSubst {
 	private CConstraint reinstantiateConstraint(CConstraint c) {
 		int n = typeParameters.size();
 		assert typeArguments.size() == n;
-
-		XTerm[] ys = new XTerm[n];
-		XVar[] xs = new XVar[n];
+		
+		@SuppressWarnings("unchecked")
+		XTerm<Type>[] ys = new XTerm[n];
+		@SuppressWarnings("unchecked")
+		XTerm<Type>[] xs = new XTerm[n];
 
 		for (int i = 0; i < n; i++) {
 			ParameterType pt = typeParameters.get(i);
@@ -314,10 +316,10 @@ public class TypeParamSubst {
 			ys[i] = a;
 
 			if (p instanceof XVar) {
-				xs[i] = (XVar) p;
+				xs[i] = (XVar<Type>) p;
 			}
 			else {
-				xs[i] = ConstraintManager.getConstraintSystem().makeLit("error");
+				xs[i] = ConstraintManager.getConstraintSystem().makeLit("error", ts.String());
 			}
 		}
 
@@ -327,7 +329,7 @@ public class TypeParamSubst {
 			result = c.substitute(ys, xs);
 		}
 		catch (XFailure e) {
-			result = ConstraintManager.getConstraintSystem().makeCConstraint(c.baseType());
+			result = ConstraintManager.getConstraintSystem().makeCConstraint(c.self().type());
 			result.setInconsistent();
 		}
 
@@ -368,7 +370,7 @@ public class TypeParamSubst {
 			XTerm<Type> a = ts.xtypeTranslator().translate(at);
 
 			if (p instanceof XVar) {
-				t = t.subst(p, (XVar) a);
+				t = t.subst(p, a);
 			}
 		}
 

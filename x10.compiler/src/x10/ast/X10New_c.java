@@ -736,7 +736,7 @@ public class X10New_c extends New_c implements X10New {
         ConstrainedType type1 = Types.toConstrainedType(type);
         type1 = (ConstrainedType) PlaceChecker.AddIsHereClause(type1, tc.context());
         // Add self != null
-        type1 = (ConstrainedType) Types.addDisBinding(type1, Types.selfVar(type1), ConstraintManager.getConstraintSystem().xnull());
+        type1 = (ConstrainedType) Types.addDisBinding(type1, Types.selfVar(type1), ConstraintManager.getConstraintSystem().xnull(ts));
         if (! Types.consistent(type1))
             Errors.issue(tc.job(), new Errors.InconsistentType(type1, xci.position()));
         xci = (X10ConstructorInstance) xci.returnType(type1);

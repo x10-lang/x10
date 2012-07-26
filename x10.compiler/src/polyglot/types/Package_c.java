@@ -137,4 +137,9 @@ public class Package_c extends TypeObject_c implements Package
     public int hashCode() {
         return name.hashCode();
     }
+
+	@Override
+	public Type resultType() {
+		throw new UnsupportedOperationException("This is only required of Def that occur in XTerms");
+	}
 }

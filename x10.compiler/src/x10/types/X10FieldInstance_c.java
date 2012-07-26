@@ -126,7 +126,7 @@ public class X10FieldInstance_c extends FieldInstance_c implements X10FieldInsta
                         XTerm<Type> self = xts.xtypeTranslator().translate(receiver, this);
                         // Add {self = receiver.field} clause.
                         rc.addSelfEquality(self);
-                        rc.setThisVar((XVar) receiver);
+                        rc.setThisVar((XVar<Type>) receiver);
                     }
                     rightType = Types.xclause(Types.baseType(t), rc);
                 

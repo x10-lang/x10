@@ -193,7 +193,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
             // has n components.
             XVar<Type> self = Types.xclause(indexType).self();
             Synthesizer synth = new Synthesizer(nf, ts);
-            XTerm<Type> v = synth.makePointRankTerm((XVar) self);
+            XTerm<Type> v = synth.makePointRankTerm((XVar<Type>) self);
             XTerm<Type> rank = ConstraintManager.getConstraintSystem().makeLit(length, ts.Int());
             indexType = Types.addBinding(indexType, v, rank);
             r.update(indexType);
@@ -209,10 +209,10 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         Type base = Types.baseType(domainType);
 
 
-        XVar<Type> selfValue = Types.selfVarBinding(domainType);
+        XTerm<Type> selfValue = Types.selfVarBinding(domainType);
         boolean generated = false;
         if (selfValue == null) {
-            selfValue = ConstraintManager.getConstraintSystem().makeUQV();
+            selfValue = ConstraintManager.getConstraintSystem().makeUQV(indexType);
             generated = true;
         }
         XVar<Type> thisVar = base instanceof X10ClassType ?
@@ -230,7 +230,8 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
                     c=c.instantiateSelf(selfValue);
                     indexType = Types.addConstraint(indexType, c);
                     assert Types.consistent(indexType);
-                    indexType = Subst.subst(indexType, ConstraintManager.getConstraintSystem().makeEQV(), selfValue);
+                    // lshadare why do we need to do this?
+                    indexType = Subst.subst(indexType, ConstraintManager.getConstraintSystem().makeEQV(indexType), selfValue);
                 }
             } catch (SemanticException z) {
 

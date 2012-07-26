@@ -49,7 +49,6 @@ import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.constraint.xnative.visitors.XGraphVisitor;
 import x10.types.X10ClassDef;
 import polyglot.types.Context;
 import x10.types.X10FieldDef;
@@ -57,8 +56,6 @@ import x10.types.X10LocalDef;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 
-import x10.types.constraints.visitors.AddInVisitor;
-import x10.types.constraints.visitors.CEntailsVisitor;
 
 /**
  * The compiler's notion of a constraint. 
@@ -171,7 +168,7 @@ public interface CConstraint extends XConstraint<Type> {
      * terms in the constraint. So there should not be terms referring to the old thisVar.
      * @param var
      */
-    public void setThisVar(XVar<Type> var);
+    public void setThisVar(XTerm<Type> var);
     
     /**
      * Add the binding s=t.term(), and add in the constraints of t into this. This constraint
@@ -236,7 +233,7 @@ public interface CConstraint extends XConstraint<Type> {
      * @return 
      * @throws XFailure t1, t2 have different this() var
      */
-    public XVar<Type> getThisVar(CConstraint t1, CConstraint t2) throws XFailure;
+    public XTerm<Type> getThisVar(CConstraint t1, CConstraint t2) throws XFailure;
     
     /**
      * Return the result of substituting each yi for xi in this.
@@ -248,7 +245,7 @@ public interface CConstraint extends XConstraint<Type> {
      * Note: The only vars that need to be changed are in roots!
      * So doing constraints() and iterating over its terms is really bad.
      */
-    public CConstraint substitute(XTerm<Type>[] ys, XVar<Type>[] xs) throws XFailure;
+    public CConstraint substitute(XTerm<Type>[] ys, XTerm<Type>[] xs) throws XFailure;
 
     public boolean entails(CConstraint other, ConstraintMaker sigma);
 
@@ -278,7 +275,7 @@ public interface CConstraint extends XConstraint<Type> {
      * @param v
      * @return
      */
-    public CConstraint project(XVar<Type> v);
+    public CConstraint project(XTerm<Type> v);
 
     /**
      * Return exists self.this. Guaranteed that the self var of the
@@ -314,7 +311,7 @@ public interface CConstraint extends XConstraint<Type> {
     
 	public void addTerm(XTerm<Type> t) throws XFailure;
 
-	public XVar<Type> bindingForVar(XVar<Type> local_self);
+	public XTerm<Type> bindingForVar(XTerm<Type> local_self);
 
 	public boolean entails(XTerm<Type> t);
 
@@ -326,7 +323,7 @@ public interface CConstraint extends XConstraint<Type> {
 
 	public void setInconsistent();
 
-	public Set<? extends XVar<Type>> vars();
+	public Set<? extends XTerm<Type>> vars();
 
 }
 

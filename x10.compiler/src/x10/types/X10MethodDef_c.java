@@ -58,7 +58,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     Ref<TypeConstraint> typeGuard;
     List<ParameterType> typeParameters;
     List<LocalDef> formalNames;
-    Ref<XTerm> body;
+    Ref<XTerm<Type>> body;
     Ref<? extends Type> offerType;
 
     private HashSet<X10MethodDef_c> propertyMethodTransitivelyCalls = null; //null - haven't calculated it
@@ -96,7 +96,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
             Ref<CConstraint> guard,
             Ref<TypeConstraint> typeGuard,
             Ref< ? extends Type> offerType,
-            Ref<XTerm> body) {
+            Ref<XTerm<Type>> body) {
         super(ts, pos, errorPos, container, flags, returnType, name, formalTypes, throwTypes);
         this.typeParameters = TypedList.copyAndCheck(typeParams, ParameterType.class, true);
         this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
@@ -110,7 +110,7 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
     public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return ConstraintManager.getConstraintSystem().makeThis();
+        return ConstraintManager.getConstraintSystem().makeThis(container().get());
     }
 
     ThisDef thisDef;
@@ -143,11 +143,11 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 	this.formalNames = TypedList.copyAndCheck(formalNames, LocalDef.class, true);
     }
 
-    public Ref<XTerm> body() {
+    public Ref<XTerm<Type>> body() {
         return body;
     }
     
-    public void body(Ref<XTerm> body) {
+    public void body(Ref<XTerm<Type>> body) {
 	this.body = body;
     }
 
@@ -277,5 +277,9 @@ public class X10MethodDef_c extends MethodDef_c implements X10MethodDef {
 		    s += " = " + body;
 
 		return s;
+	}
+	@Override
+	public Type resultType() {
+		return Types.baseType(returnType().get()); 
 	}
 }

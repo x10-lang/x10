@@ -12,10 +12,11 @@
 package x10.types;
 
 import polyglot.types.LocalDef;
+import polyglot.types.Type;
+import x10.constraint.XDef;
 import x10.constraint.XTerm;
 
-public interface X10LocalDef extends LocalDef, X10Def {
-
+public interface X10LocalDef extends LocalDef, X10Def, XDef<Type> {
     void setUnnamed();
     boolean isUnnamed();
     void setAsyncInit();

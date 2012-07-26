@@ -231,7 +231,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         return n;
     }
 
-    public static void buildSubst(MethodInstance mi, List<XVar> ys, List<XVar> xs, XVar<Type> thisVar) {
+    public static void buildSubst(MethodInstance mi, List<XVar<Type>> ys, List<XVar<Type>> xs, XVar<Type> thisVar) {
     	XVar<Type> mdThisVar = mi.x10Def().thisVar();
         if (mdThisVar != null && mdThisVar != thisVar && ! xs.contains(mdThisVar)) {
             ys.add(thisVar);
@@ -241,7 +241,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         buildSubst(mi.container(), ys, xs, thisVar);
     }
 
-    public static void buildSubst(Type t, List<XVar> ys, List<XVar> xs, XVar<Type> thisVar) {
+    public static void buildSubst(Type t, List<XVar<Type>> ys, List<XVar<Type>> xs, XVar<Type> thisVar) {
         Type container = Types.baseType(t);
         if (container instanceof X10ClassType) {
             X10ClassDef cd = ((X10ClassType) container).x10Def();
@@ -450,7 +450,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                         c.addSelfEquality(self);
                     }
                     if (! flags.isStatic()) {
-                        c.setThisVar((XVar) receiver);
+                        c.setThisVar((XVar<Type>)receiver);
                     }
                     rightType = Types.xclause(Types.baseType(t), c);
                 }
@@ -465,7 +465,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
         return rightType;
     }
 
-    static private String toString( XVar[] ys) {
+    static private String toString( XVar<Type>[] ys) {
     	String s = "";
     		for (XVar<Type> x : ys) s += x.toString() + " ";
     		return s;

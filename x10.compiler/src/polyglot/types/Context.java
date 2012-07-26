@@ -58,7 +58,6 @@ import x10.types.X10ProcedureDef;
 import x10.types.XTypeTranslator;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CQualifiedVar;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -438,8 +437,7 @@ public class Context implements Resolver, Cloneable
             XVar<Type> base = outers.get(i).thisVar();
             for (int j=i+1; j < outers.size(); j++ ) {
                 X10ClassDef y = outers.get(j);
-                result.addEquality(y.thisVar(), 
-                			      ConstraintManager.getConstraintSystem().makeQualifiedVar(y.asType(), base));
+                result.addEquality(y.thisVar(), base);
         }
         }
         return result;
@@ -451,7 +449,7 @@ public class Context implements Resolver, Cloneable
         CConstraint result = currentConstraint;
         if (result == null) {
         	// CONSTRAINT_QUESTION: what is the original type of the currentConstraint
-            result = ConstraintManager.getConstraintSystem().makeCConstraint(null);
+            result = ConstraintManager.getConstraintSystem().makeCConstraint((Type)null);
             if (! inStaticContext()) {
                 result.setThisVar(thisVar());
                 CConstraint d = outerThisEquivalences();
@@ -558,7 +556,7 @@ public class Context implements Resolver, Cloneable
 
 
     public CConstraint constraintProjection(CConstraint... cs)  {
-        Map<XTerm, CConstraint> m = CollectionFactory.newHashMap();
+        Map<XTerm<Type>, CConstraint> m = CollectionFactory.newHashMap();
 
         // add in the real clause of the type of any var mentioned in the constraint list cs
         CConstraint r = null;
@@ -573,8 +571,9 @@ public class Context implements Resolver, Cloneable
             if (! r.consistent()) // r is inconsistent, no point going further.
                 return r;
         }
+        Type type = Types.baseType(this.currentDepType());
         if (r == null) 
-            r = ConstraintManager.getConstraintSystem().makeCConstraint(null);
+            r = ConstraintManager.getConstraintSystem().makeCConstraint(type);
         // fold in the current constraint
         r.addSigma(currentConstraint(), m);
         r.addSigma(currentPlaceTerm, typeSystem().Place(), m);

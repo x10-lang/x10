@@ -119,9 +119,7 @@ import x10.ast.X10New_c;
 import x10.ast.X10Special_c;
 import x10.ast.X10Unary_c;
 import x10.constraint.XEQV;
-import x10.constraint.XEquals;
 import x10.constraint.XFailure;
-import x10.constraint.XFormula;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
@@ -806,7 +804,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (!(n.type() instanceof ConstrainedType)) return null;
 		ConstrainedType ct = (ConstrainedType) n.type();
 		CConstraint cc = ct.getRealXClause();
-		XVar<Type> local_self = Types.selfVarBinding(cc);
+		XTerm<Type> local_self = Types.selfVarBinding(cc);
 		if (local_self==null) return null;
 		if (local_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+local_self.toString();
 		// resolve to another variable, keep going
@@ -814,7 +812,7 @@ public class CUDACodeGenerator extends MessagePassingCodeGenerator {
 		if (! projected.consistent())
 			return null;
 		
-		XVar<Type> closed_self = projected.bindingForVar(local_self);
+		XTerm<Type> closed_self = projected.bindingForVar(local_self);
 		if (closed_self==null) return null;
 		if (closed_self instanceof XLit) return "/*"+n+":"+n.type()+"*/"+closed_self.toString();
 		return null;

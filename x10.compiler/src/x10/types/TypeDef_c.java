@@ -174,7 +174,7 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	public XVar<Type> thisVar() {
 		if (this.thisDef != null)
 			return this.thisDef.thisVar();
-		return ConstraintManager.getConstraintSystem().makeThis(); 
+		return ConstraintManager.getConstraintSystem().makeThis(asType()); 
 	}
 
 	ThisDef thisDef;
@@ -251,5 +251,8 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	public CodeInstance<?> asInstance() {
 	    return asType();
 	}
-
+	@Override
+	public Type resultType() {
+		throw new UnsupportedOperationException();
+	}
 }

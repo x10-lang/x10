@@ -49,7 +49,6 @@ import x10.types.MacroType;
 import polyglot.types.TypeSystem;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -131,7 +130,7 @@ public class Matcher {
 	 * @param <PI>  -- The type of the formal descriptor
 	 * @param context -- The context in which the type-checking is being done
 	 * @param me -- The formal descriptor for this call
-	 * @param thisTypeArray -- An inout parameter containing thisType. 
+	 * @param thisTypeArray -- An inout parameter containing thisType.   
 	 * @param typeActuals -- The actual type parameters to the call
 	 * @param actualsIn  -- The types of the actual parameters for the call.
 	 * @param checkActuals -- Check actual types are subtypes of the formal
@@ -140,6 +139,8 @@ public class Matcher {
 	 * formals in actual types and return types. 
 	 * @throws SemanticException
 	 */
+	
+	//lshadare why is thisTypeArray an array when it's always of size 1
 	private static <PI extends X10ProcedureInstance<?>> PI instantiate(
 			final Context context, 
 			final PI me, 
@@ -148,7 +149,7 @@ public class Matcher {
 			final List<Type> actualsIn, 
 			boolean checkActuals) throws SemanticException
 			{
-		final XVar[] ys = new XVar[actualsIn.size()+1];
+		final XTerm<Type>[] ys = new XTerm[actualsIn.size()+1];
 	
 		final TypeSystem xts = (TypeSystem) me.typeSystem();
 
@@ -178,9 +179,9 @@ public class Matcher {
 
 		Type thisType = thisTypeArray[0];
 
-		final XVar<Type> ythiseqv =  ys[0] = getSymbolVar(thisType);
+		final XTerm<Type> ythiseqv =  ys[0] = getSymbolVar(thisType);
 		
-		XVar<Type> st = Types.selfVarBinding(thisType);
+		XTerm<Type> st = Types.selfVarBinding(thisType);
 		final boolean yeqvIsSymbol = (! isStatic) && (st !=null);
 		if (! isStatic) {
 			if (st == null)
@@ -189,7 +190,7 @@ public class Matcher {
 		final Type thisTypeFinal = thisType;
 		thisTypeArray[0] = thisType;
 
-		XVar[] x = getSymbolicNames(me.formalNames(), xts); 
+		XVar<Type>[] x = getSymbolicNames(me.formalNames(), xts); 
 
 		// Generate new local variable y's. These are local variables, from which
 		// XVar's can be generated as needed.
@@ -206,10 +207,10 @@ public class Matcher {
 		// See Converter.tryImplicitConversions.
 		final List<LocalInstance> yLocalInstances = getSymbolicNames(actuals);
 		
-		final XVar[] ySymbols = getSymbolicNames(yLocalInstances, xts);
+		final XVar<Type>[] ySymbols = getSymbolicNames(yLocalInstances, xts);
 		System.arraycopy(ySymbols, 0, ys, 1, actuals.size());
-
-
+		
+		//lshadare these two methods seem to do exactly the same thing
 		final CConstraint returnEnv = computeNewSigma(thisType, actuals, ythiseqv, ySymbols, isStatic, xts);
 		final CConstraint returnEnv2 = computeNewSigma2(thisType, actuals, ythiseqv, ySymbols, isStatic, xts);
 
@@ -218,15 +219,17 @@ public class Matcher {
 
 		if (! isStatic ) {
 			if (me.def() instanceof X10ProcedureDef)
-				xthis = (XVar) ((X10ProcedureDef) me.def()).thisVar();
+				xthis = (XVar<Type>) ((X10ProcedureDef) me.def()).thisVar();
 
 			if (xthis == null)
-				xthis = ConstraintManager.getConstraintSystem().makeThis(); 
+				xthis = ConstraintManager.getConstraintSystem().makeThis(thisType); 
 		}
 
 		final XVar<Type> codePlace = Types.getPlaceTerm(me);
 		XConstrainedTerm currentPlaceTerm = context.currentPlaceTerm();
-		final XTerm<Type> currentPlace = currentPlaceTerm != null ? currentPlaceTerm.term() : ConstraintManager.getConstraintSystem().makeEQV();
+		final XTerm<Type> currentPlace = currentPlaceTerm != null ? 
+										 	currentPlaceTerm.term() : 
+											ConstraintManager.getConstraintSystem().makeEQV(context.typeSystem().Place());
 
 		final ParameterType[] X = new ParameterType[typeFormals.size()];
 		final Type[] Y = new Type[typeFormals.size()];
@@ -244,8 +247,8 @@ public class Matcher {
 		// Start assembling the pieces of the PI with actual information.
 		X10ProcedureInstance<?> newMe = me.typeParameters(Arrays.asList(Y));
 
-		final XVar[] x2 = isStatic ? x : new XVar[x.length+2];
-		final XTerm[] y2eqv = isStatic ? ySymbols  : new XTerm[ySymbols.length+2];
+		final XVar<Type>[] x2 = isStatic ? x : new XVar[x.length+2];
+		final XTerm<Type>[] y2eqv = isStatic ? ySymbols  : new XTerm[ySymbols.length+2];
 		if (! isStatic) {
 	        	x2[0] = xthis;
 	        	x2[1] = Types.thisVar(xthis, thisType);
@@ -271,10 +274,13 @@ public class Matcher {
 	        				        // Do not replace the lowest level this by qvar's -- only outer this.
 	        				        // That will be taken care of by existing code. 
 	        				        if (outers != null && outers.size() > 1) {
-	        				            XVar[] outerThis = new XVar[outers.size()-1];
-	        				            XVar[] outerYs = new XVar[outers.size()-1];
+	        				            XVar<Type>[] outerThis = new XVar[outers.size()-1];
+	        				            XVar<Type>[] outerYs = new XVar[outers.size()-1];
 	        				            for (int i=1; i < outers.size(); ++i) {
-	        				                outerYs[i-1] = ConstraintManager.getConstraintSystem().makeQualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
+	        				            	// lshadare question
+	        				                //outerYs[i-1] = ConstraintManager.getConstraintSystem().makeQualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
+	        				            	// FIXME: this is probably wrong
+	        				            	outerYs[i-1] = ConstraintManager.getConstraintSystem().makeThis(outers.get(i).asType());
 	        				                outerThis[i-1]= outers.get(i).thisVar();
 	        				            }
 	        				            newReturnType = Subst.subst(newReturnType, outerYs, outerThis);
@@ -295,7 +301,7 @@ public class Matcher {
 	        				        if (xts.consistent(nrt, context))
 	        				            newReturnType = nrt;
 	        				        Type t = actualsIn.get(i-1);
-	        				        XVar<Type> self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
+	        				        XTerm<Type> self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
 	        				        if (self != null) {
 	        				            nrt = Subst.project(newReturnType, self);
 	        				            if (xts.consistent(nrt, context))
@@ -490,7 +496,7 @@ public class Matcher {
 	 * @throws SemanticException
 	 */
 	private static CConstraint computeNewSigma(Type thisType, List<Type> actuals, 
-			XVar<Type> ythis, XVar[] y, boolean isStatic, TypeSystem xts) 
+			XTerm<Type> ythis, XTerm<Type>[] y, boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -528,7 +534,7 @@ public class Matcher {
 	 * @throws SemanticException
 	 */
 	private static CConstraint computeNewSigma2(Type thisType, List<Type> actuals, 
-			XVar<Type> ythis, XVar[] y,  boolean isStatic, TypeSystem xts) 
+			XTerm<Type> ythis, XTerm<Type>[] y,  boolean isStatic, TypeSystem xts) 
 	throws SemanticException {
 	
 		CConstraint env = null; 
@@ -564,10 +570,10 @@ public class Matcher {
 	 * @param prefix
 	 * @return
 	 */
-	 private static XVar<Type> getSymbolVar(Type type) {
-   	  XVar<Type> symbol = Types.selfVarBinding(type);
+	 private static XTerm<Type> getSymbolVar(Type type) {
+   	  XTerm<Type> symbol = Types.selfVarBinding(type);
          if (symbol == null) {
-       	  symbol = ConstraintManager.getConstraintSystem().makeUQV();  
+       	  symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(type));  
          }
          return symbol;
    }
@@ -594,9 +600,9 @@ public class Matcher {
           return ySymbols;
     }
      
-    public static XVar[] getSymbolicNames(List<? extends LocalInstance> formalNames, TypeSystem xts) 
+    public static XVar<Type>[] getSymbolicNames(List<? extends LocalInstance> formalNames, TypeSystem xts) 
     throws SemanticException {
-    	 XVar[] x = new XVar[formalNames.size()];
+    	 XVar<Type>[] x = new XVar[formalNames.size()];
          for (int i = 0; i < formalNames.size(); i++) {
              x[i]=xts.xtypeTranslator().translate(formalNames.get(i));
              assert x[i] != null;

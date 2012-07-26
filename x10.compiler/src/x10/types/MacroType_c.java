@@ -62,7 +62,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	Ref<TypeDef> def;
 	
 	List<Type> typeParams;
-	List<XVar> formals;
+	List<XVar<Type>> formals;
 	List<Type> formalTypes;
 	CConstraint guard;
 	Ref<? extends Type> definedType;
@@ -174,18 +174,18 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 	        return CollectionUtil.allElementwise(this.formalTypes(), formalTypes, new TypeEquals(context));
 	}
 	
-	public List<XVar> formals() {
+	public List<XVar<Type>> formals() {
 		if (formals == null) {
 			List<Integer> indices = new ArrayList<Integer>();
 			for (int i = 0; i < def().formalNames().size(); i++) {
 				indices.add(i);
 			}
-			return new TransformingList<Integer, XVar>(indices, new FormalToVarTransform(def().formalNames(), def().formalTypes()));
+			return new TransformingList<Integer, XVar<Type>>(indices, new FormalToVarTransform(def().formalNames(), def().formalTypes()));
 		}
 		return formals;
 	}
 
-	public MacroType formals(List<XVar> formals) {
+	public MacroType formals(List<XVar<Type>> formals) {
 		MacroType_c t = (MacroType_c) copy();
 		t.formals = TypedList.copyAndCheck(formals, XVar.class, true);
 		return (MacroType) t;
@@ -264,7 +264,7 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		return t;
 	}
 
-    public static class FormalToVarTransform implements Transformation<Integer, XVar> {
+    public static class FormalToVarTransform implements Transformation<Integer, XVar<Type>> {
 
 		List<LocalDef> formalNames;
 		List<Ref<? extends Type>> formalTypes;
@@ -282,13 +282,13 @@ public class MacroType_c extends ParametrizedType_c implements MacroType {
 		}
 	}
 
-	public static class ParamToVarTransform implements Transformation<Ref<? extends Type>, XVar> {
+	public static class ParamToVarTransform implements Transformation<Ref<? extends Type>, XVar<Type>> {
 		public XVar<Type> transform(Ref<? extends Type> r) {
 			Type t = r.get();
 			if (t instanceof ParameterType) {
 				ParameterType pt = (ParameterType) t;
 				// TODO: Replace with XTerms.makeUQV(pt.name().toString());
-				return ConstraintManager.getConstraintSystem().makeUQV(pt.name().toString());
+				return ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(pt), pt.name().toString());
 				// return XTerms.makeLocal(new XNameWrapper<String>(pt.name().toString()));
 			}
 			throw new InternalCompilerError("Cannot translate non-parameter type into var.", t.position());

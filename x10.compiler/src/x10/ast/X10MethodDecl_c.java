@@ -261,7 +261,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		Flags xf = md.flags();
 		if (xf.isProperty()) {
-			final LazyRef<XTerm> bodyRef = Types.lazyRef(null);
+			final LazyRef<XTerm<Type>> bodyRef = Types.lazyRef(null);
 			bodyRef.setResolver(new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
 			md.body(bodyRef);
 		}
@@ -292,10 +292,10 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 	public void setResolver(Node parent, final TypeCheckPreparer v) {
 		X10MethodDef mi = (X10MethodDef) this.mi;
 		if (mi.body() instanceof LazyRef<?>) {
-            LazyRef<XTerm> r = (LazyRef<XTerm>) mi.body();
+            LazyRef<XTerm<Type>> r = (LazyRef<XTerm<Type>>) mi.body();
 			TypeChecker tc = new X10TypeChecker(v.job(), v.typeSystem(), v.nodeFactory(), v.getMemo());
 			tc = (TypeChecker) tc.context(v.context().freeze());
-			r.setResolver(new TypeCheckFragmentGoal<XTerm>(parent, this, tc, r, false));
+			r.setResolver(new TypeCheckFragmentGoal<XTerm<Type>>(parent, this, tc, r, false));
 		}
 	}
 
@@ -578,7 +578,7 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
                                 ok = true;
                                 X10MethodDef mi = (X10MethodDef) this.mi;
                                 if (mi.body() instanceof LazyRef<?>) {
-                                    LazyRef<XTerm> bodyRef = (LazyRef<XTerm>) mi.body();
+                                    LazyRef<XTerm<Type>> bodyRef = (LazyRef<XTerm<Type>>) mi.body();
                                     bodyRef.update(v);
                                 }
                             } catch (IllegalConstraint z) {

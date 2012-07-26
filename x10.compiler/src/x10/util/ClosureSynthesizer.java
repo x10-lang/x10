@@ -58,7 +58,6 @@ import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CLocal;
 
 import x10.types.matcher.Subst;
 import x10.extension.X10Ext;
@@ -194,8 +193,8 @@ public class ClosureSynthesizer {
         List<LocalDef> fromNames = def.formalNames();
         MethodInstance instance = sup.applyMethod();
         List<LocalDef> toNames =  ((X10MethodDef) instance.def()).formalNames();
-        XVar[] fromVars = Types.toVarArray(toNames);
-        XVar[] toVars = Types.toVarArray(fromNames);
+        XVar<Type>[] fromVars = Types.toVarArray(toNames);
+        XVar<Type>[] toVars = Types.toVarArray(fromNames);
         List<Type> formalTypes = ci.formalTypes();
         try {
             formalTypes = Subst.subst(formalTypes, fromVars, toVars);

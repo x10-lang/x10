@@ -11,6 +11,7 @@
 
 package x10.types;
 
+import polyglot.types.Type;
 import x10.constraint.XVar;
 
 public interface X10ThisVar {

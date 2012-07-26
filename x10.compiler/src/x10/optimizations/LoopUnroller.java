@@ -68,9 +68,7 @@ import x10.ast.Tuple;
 import x10.ast.X10Binary_c;
 import x10.ast.X10Formal;
 
-import x10.constraint.XEquals;
 import x10.constraint.XFailure;
-import x10.constraint.XField;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XTerm;
@@ -454,7 +452,9 @@ public class LoopUnroller extends ContextVisitor {
         return false;
      
     }
-
+    
+    /* lshadare this does not seem to be used
+     * 
     private boolean constraintEq1(XTerm<Type> term) {
         XEquals eq= (XEquals) term;
         XTerm[] args= eq.arguments();
@@ -480,6 +480,7 @@ public class LoopUnroller extends ContextVisitor {
         }
         return false;
     }
+    */
 
     private static Position PCG= Position.COMPILER_GENERATED;
 

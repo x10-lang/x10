@@ -154,7 +154,7 @@ public class DepParameterExpr_c extends Node_c implements DepParameterExpr {
     
     public Node buildTypes(TypeBuilder tb) {
     	DepParameterExpr_c n = (DepParameterExpr_c) copy();
-    	n.valueConstraint = Types.<CConstraint>lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint(null), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
+    	n.valueConstraint = Types.<CConstraint>lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint((Type)null), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
     	n.typeConstraint = Types.<TypeConstraint>lazyRef(new TypeConstraint(), new SetResolverGoal(tb.job()).intern(tb.job().extensionInfo().scheduler()));
     	return n;
       }

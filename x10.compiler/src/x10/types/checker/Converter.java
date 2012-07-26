@@ -91,7 +91,6 @@ import polyglot.types.TypeSystem;
 
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CLocal;
 import x10.types.constraints.TypeConstraint;
 
 import x10.types.matcher.Subst;
@@ -239,7 +238,7 @@ public class Converter {
 			}
 			List<Expr> transformedArgs = new ArrayList<Expr>();
 			List<Type> transformedArgTypes = new ArrayList<Type>();
-			List<XVar> transformedYs = new ArrayList<XVar>();
+			List<XVar<Type>> transformedYs = new ArrayList<XVar<Type>>();
 			
 			List<Type> formals = smi.formalTypes();
 			ContextVisitor argtc = tc.context(xc.pushBlock());
@@ -287,7 +286,8 @@ public class Converter {
 					continue METHOD;
 				Type nType = e2Type;
 				for (int k = 0; k < j; k++) {
-				    nType = Subst.subst(nType, ConstraintManager.getConstraintSystem().makeEQV(), transformedYs.get(k));
+					XVar<Type> v = transformedYs.get(k); 
+				    nType = Subst.subst(nType, ConstraintManager.getConstraintSystem().makeEQV(v.type()), v);
 				}
 				if (!nType.typeEquals(e2Type, argtc.context())) {
 				    // Do not add e2. This may contain some of the new variables
@@ -614,7 +614,7 @@ public class Converter {
 						&& ts.isCastValid(fromType, toType, context)) {
 					//return cast.conversionType(ConversionType.DESUGAR_LATER).type(baseTo);
 					X10Cast n = cast.conversionType(ConversionType.DESUGAR_LATER);
-					XVar<Type> sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
+					XTerm<Type> sv = Types.selfVarBinding(fromType); // FIXME: Vijay, can this be an XTerm?  -Bowen
 					if (sv != null)
 					    toType = Types.addSelfBinding((Type) toType.copy(), sv);
 					return n.type(toType);

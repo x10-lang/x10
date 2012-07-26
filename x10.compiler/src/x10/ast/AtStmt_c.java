@@ -245,7 +245,7 @@ public class AtStmt_c extends Stmt_c implements AtStmt {
             XConstrainedTerm finishPlaceTerm = c.currentFinishPlaceTerm();
 
             CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
-            XTerm<Type> term = PlaceChecker.makePlace();
+            XTerm<Type> term = PlaceChecker.makePlace(ts);
             try {
                 placeTerm = XConstrainedTerm.instantiate(d, term);
             } catch (XFailure z) {

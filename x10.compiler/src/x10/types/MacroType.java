@@ -37,7 +37,7 @@ public interface MacroType extends ParametrizedType, MemberInstance<TypeDef>, X1
 	MacroType returnType(Type returnType);
 	MacroType returnTypeRef(Ref<? extends Type> returnTypeRef);
 	//MacroType typeParameters(List<Type> typeParams); // Sigh.  Stupid javac
-	MacroType formals(List<XVar> formals);
+	MacroType formals(List<XVar<Type>> formals);
 	MacroType formalTypes(List<Type> formalTypes);
 	MacroType guard(CConstraint guard);
 }

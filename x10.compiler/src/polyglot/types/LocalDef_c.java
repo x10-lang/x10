@@ -100,4 +100,9 @@ public class LocalDef_c extends VarDef_c implements LocalDef
         return "local " + flags.translate() + type + " " +
         name + cvStr;
     }
+
+	@Override
+	public Type resultType() {
+		return asInstance().type();
+	}
 }

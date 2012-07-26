@@ -40,7 +40,7 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
+        return ConstraintManager.getConstraintSystem().makeThis(container.get()); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -100,4 +100,9 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     public Ref<TypeConstraint> typeGuard() {
     	return null;
     }
+    
+    @Override
+	public Type resultType() {
+		throw new UnsupportedOperationException();
+	}
 }

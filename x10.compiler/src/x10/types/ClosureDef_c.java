@@ -168,7 +168,7 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return ConstraintManager.getConstraintSystem().makeThis();
+        return ConstraintManager.getConstraintSystem().makeThis(asType());
     }
 
     ThisDef thisDef;
@@ -346,4 +346,9 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
     public void setThrowTypes(List<Ref<? extends Type>> l) {
         throw new Error("Internal compiler error: X10 closures do not throw java checked exceptions.");
     }
+
+	@Override
+	public Type resultType() {
+		throw new UnsupportedOperationException();
+	}
 }

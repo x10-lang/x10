@@ -120,7 +120,8 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
+        //lshadare not sure this is ok
+        return ConstraintManager.getConstraintSystem().makeThis(returnType.get()); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -193,4 +194,9 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
     public String signature() {
 	    return TypeSystem.CONSTRUCTOR_NAME + "(" + CollectionUtil.listToString(formalTypes) + ")";
     }
+    
+	@Override
+	public Type resultType() {
+		throw new UnsupportedOperationException();
+	}    
 }

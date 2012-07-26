@@ -22,6 +22,7 @@ import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XConstraint;
 import x10.constraint.XFailure;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
@@ -44,10 +45,10 @@ public class X10FieldMatcher {
         // t = T{exists vv. (tc,this==vv),ct[vv/self]}
         // If c does have a selfVarBinding, v, then we want to set t to
         // t = T{exists v. (tc, this=v, ct)}
-        XVar<Type> v = Types.selfVarBinding(container);
+        XTerm<Type> v = Types.selfVarBinding(container);
         XVar<Type> vv = null;
         if (v == null) {
-        	v = vv =ConstraintManager.getConstraintSystem().makeUQV();
+        	v = vv =ConstraintManager.getConstraintSystem().makeUQV(oldThis.type());
         }
         if (oldThis != null && v == null && vv==null)
         	assert false;
@@ -66,13 +67,13 @@ public class X10FieldMatcher {
             t = Types.constrainedType(Types.baseType(t), tconst);
             
             t = Subst.subst(t,
-                            new XVar[] {v},
-                            new XVar[] {oldThis},
+                            new XTerm[] {v},
+                            new XTerm[] {oldThis},
                             new Type[] {}, new ParameterType[] {});
             if (vv != null) { // Hide vv, i.e. substitute in an anonymous EQV
                 t = Subst.subst(t,
-                                new XVar[] {ConstraintManager.getConstraintSystem().makeEQV()},
-                                new XVar[] {vv},
+                                new XTerm[] {ConstraintManager.getConstraintSystem().makeEQV(vv.type())},
+                                new XTerm[] {vv},
                                 new Type[] {}, new ParameterType[] {});
             }
             final CConstraint tmpTc = Types.realX(t).copy();
@@ -103,10 +104,11 @@ public class X10FieldMatcher {
         // t = T{exists vv. (tc,this==vv),ct[vv/self]}
         // If c does have a selfVarBinding, v, then we want to set t to
         // t = T{exists v. (tc, this=v, ct)}
-        XVar<Type> v = Types.selfVarBinding(ct);
-        XVar<Type> vv = null;
+        
+        XTerm<Type> v = Types.selfVarBinding(ct);
+        XTerm<Type> vv = null;
         if (v == null) {
-        	v = vv =ConstraintManager.getConstraintSystem().makeUQV();
+        	v = vv =ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(ct));
         }
         XVar<Type> oldThis = fi.x10Def().thisVar();
         if (oldThis != null && v == null && vv==null)

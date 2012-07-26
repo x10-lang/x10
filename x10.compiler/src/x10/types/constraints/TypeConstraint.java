@@ -173,7 +173,7 @@ public class TypeConstraint implements Copy, Serializable {
 
         TypeConstraint tenv = new TypeConstraint();
 
-        XVar<Type> ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
+        XTerm<Type> ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
 
         if (ythis == null) {
             CConstraint c = Types.xclause(thisType);
@@ -193,9 +193,9 @@ public class TypeConstraint implements Copy, Serializable {
         Type[] Z = new Type[typeFormals.size()];
         
         @SuppressWarnings("unchecked")
-		XVar<Type>[] x = (XVar<Type>[])Array.newInstance(ConstraintManager.getConstraintSystem().makeEQV(null).getClass(), formals.size());
+		XTerm<Type>[] x = new XTerm[formals.size()];
         @SuppressWarnings("unchecked")
-        XVar<Type>[] y = (XVar<Type>[])Array.newInstance(ConstraintManager.getConstraintSystem().makeEQV(null).getClass(), formals.size());
+        XTerm<Type>[] y = new XTerm[formals.size()];
 
         for (int i = 0; i < typeFormals.size(); i++) {
             Type xtype = typeFormals.get(i);
@@ -222,7 +222,7 @@ public class TypeConstraint implements Copy, Serializable {
             // in other constraints and don't want to conflate them if
             // realX returns the same constraint twice.
             final CConstraint yc = Types.realX(ytype).copy();
-            XVar<Type> yi = Types.selfVar(yc);
+            XTerm<Type> yi = Types.selfVar(yc);
             if (yi == null) {
                 // This must mean that yi was not final, hence it cannot occur in 
                 // the dependent clauses of downstream yi's.
@@ -230,7 +230,7 @@ public class TypeConstraint implements Copy, Serializable {
             }
             tenv.addTypeParameterBindings(xtype, ytype, false);
             // CConstraint xc = X10TypeMixin.realX(xtype).copy();
-            XVar<Type> xi = xts.xtypeTranslator().translate(me.formalNames().get(i));
+            XTerm<Type> xi = xts.xtypeTranslator().translate(me.formalNames().get(i));
             x[i] = xi; 
             y[i] = yi; 
         }
@@ -553,7 +553,7 @@ public class TypeConstraint implements Copy, Serializable {
      * @throws SemanticException
      */
     private static <PI extends X10ProcedureInstance<?>> void inferTypeArguments(Context context, PI me, TypeConstraint tenv,
-                                                                                ParameterType[] X, Type[] Y, Type[] Z, XVar<Type>[] x, XVar<Type>[] y, XVar<Type> ythis, XVar<Type> xthis) throws SemanticException
+                                                                                ParameterType[] X, Type[] Y, Type[] Z, XTerm<Type>[] x, XTerm<Type>[] y, XTerm<Type> ythis, XVar<Type> xthis) throws SemanticException
                                                                                 {
         TypeSystem xts = (TypeSystem) me.typeSystem();
 

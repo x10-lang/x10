@@ -95,7 +95,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public XVar<Type> thisVar() {
         if (this.thisDef != null)
             return this.thisDef.thisVar();
-        return ConstraintManager.getConstraintSystem().makeThis(); // Why #this instead of this?
+        return ConstraintManager.getConstraintSystem().makeThis(asType()); // Why #this instead of this?
     }
 
     ThisDef thisDef;
@@ -173,12 +173,11 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     Ref<CConstraint> realClauseWithThis = setRealClauseWithThis();
     
     private Ref<CConstraint> setRealClauseWithThis() {
-    	// 
-      	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(null));
+    	// lshadare this will fail I believe because the position is null 
+      	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(asType()));
         final Runnable runnable = new Runnable() {
             public void run() {
                 CConstraint c = X10ClassDef_c.this.realClause.get();
-                c.setBaseType(Types.baseType(asType()));
                 c = c.instantiateSelf(thisVar());
                 ref.update(c);
             }
@@ -201,7 +200,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      * 
      */
     private Ref<CConstraint> setRealClause() {
-    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(null));
+    	//lshadare this will probably result in a nullpointer exception 
+    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(asType()));
     	Runnable runnable = new Runnable() {
     		boolean computing = false;
     		public void run() {
@@ -226,7 +226,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     						CConstraint rs = Types.realX(type);
     						if (rs != null && ! rs.valid()) {
     							if (rs.thisVar() != null)
-    								rs = rs.substitute(oldThis, (XVar) rs.thisVar());
+    								rs = rs.substitute(oldThis, rs.thisVar());
     						    result.addIn(rs);
     						}
     					    }
@@ -765,4 +765,8 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public void setWasInner(boolean v) {
         wasInner = v;
     }
+	@Override
+	public Type resultType() {
+		throw new UnsupportedOperationException();
+	}    
 }

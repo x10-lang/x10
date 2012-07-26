@@ -1,6 +1,8 @@
 package x10.types.checker;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import polyglot.ast.Call;
 import polyglot.ast.Expr;
@@ -59,12 +61,18 @@ import x10.util.Synthesizer;
  *
  */
 public class PlaceChecker {
-
-	static final XVar<Type> HERE = ConstraintManager.getConstraintSystem().makeUQV("synthetic here");
-	//public static final XLit GLOBAL_PLACE = new XLit_c("globalPlace");
-
-	public static XVar<Type> here() {
-		return HERE;
+	
+	/**
+	 * Making sure we have only one "synthetic here" variable per TypeSystem. 
+	 */
+	static final Map<TypeSystem, XVar<Type>> synthHereMap = new HashMap<TypeSystem, XVar<Type>>();
+	// lshadare: is there a more reasonable way to do this? 
+	public static XVar<Type> here(TypeSystem ts) {
+		if (!synthHereMap.containsKey(ts)) {
+			XVar<Type> here = ConstraintManager.getConstraintSystem().makeUQV(ts.Place(), "synthetic here");
+			synthHereMap.put(ts,  here);
+		} 
+		return synthHereMap.get(ts);
 	}
 
 	private static final String PLACE_HAME = "here"; // temporary XTENLANG-2674 hack
@@ -73,9 +81,8 @@ public class PlaceChecker {
 	 * 
 	 * @return a newly constructed UQV representing a fixed but unknown place.
 	 */
-	public static XTerm<Type> makePlace() {
-		XTerm<Type> place = ConstraintManager.getConstraintSystem().makeUQV(PLACE_HAME);
-
+	public static XTerm<Type> makePlace(TypeSystem ts) {
+		XTerm<Type> place = ConstraintManager.getConstraintSystem().makeUQV(ts.Place(), PLACE_HAME);
 		return place;
 	}
 
@@ -120,7 +127,7 @@ public class PlaceChecker {
 	 * @return
 	 */
 	static XTerm<Type> homeVar(XTerm<Type> target, TypeSystem xts)  {
-		return xts.xtypeTranslator().translateFakeField(target, HOME_NAME);
+		return xts.xtypeTranslator().translateFakeField(target, HOME_NAME, xts.Place());
 	}
 	static XTerm<Type> globalRefHomeVar(XTerm<Type> target, TypeSystem xts)  {
 		return xts.xtypeTranslator().translate(target, GlobalRefHome(xts));
@@ -129,7 +136,7 @@ public class PlaceChecker {
 	public static XTerm<Type> placeTerm(Type t) {
 		TypeSystem xts = (TypeSystem) t.typeSystem();
 		CConstraint cc = Types.xclause(t);
-		return cc==null ? null : cc.bindingForSelfField(GlobalRefHome(xts));
+		return cc==null ? null : cc.bindingForSelfProjection(GlobalRefHome(xts).def());
 	}
 
 	/**
@@ -142,9 +149,9 @@ public class PlaceChecker {
 	public static CConstraint ThisHomeEqualsHere(XTerm<Type> thisVar, TypeSystem ts) {
 
 		XTerm<Type> h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(null);
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
 		if (h != null) {
-			c.addEquality(h, here());
+			c.addEquality(h, here(ts));
 		}
 		return c;
 	}
@@ -159,7 +166,7 @@ public class PlaceChecker {
 		if (Types.isX10Struct(type))
 			return type;
 		ConstrainedType type1 = Types.toConstrainedType(type);
-		XVar<Type> selfVar = Types.selfVar(type1);
+		XTerm<Type> selfVar = Types.selfVar(type1);
 		assert selfVar != null;
 		/*if (selfVar == null) {
 		    selfVar = ConstraintManager.getConstraintSystem().makeEQV("self");
@@ -187,7 +194,7 @@ public class PlaceChecker {
 			assert true;
 		try {
 			if (xct.currentPlaceTerm() !=null) 
-				type = Subst.subst(type, xct.currentPlaceTerm().term(), here()); 
+				type = Subst.subst(type, xct.currentPlaceTerm().term(), here(type.typeSystem())); 
 		} catch (SemanticException z) {
 			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
@@ -196,7 +203,7 @@ public class PlaceChecker {
 	
 	public static Type ReplaceHereByPlaceTerm(Type type, XConstrainedTerm pt) {
 		try {
-				type = Subst.subst(type, pt.term(), here()); 
+				type = Subst.subst(type, pt.term(), here(type.typeSystem())); 
 		} catch (SemanticException z) {
 			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
@@ -216,7 +223,7 @@ public class PlaceChecker {
 		//assert term != null;
 		try {
 			if (term != null)
-				type = Subst.subst(type,  term, here()); 
+				type = Subst.subst(type,  term, here(type.typeSystem())); 
 		} catch (SemanticException z) {
 			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
@@ -230,7 +237,7 @@ public class PlaceChecker {
 		XTerm<Type> term = h.term();
 		try {
 			if (term instanceof XVar)
-				type = Subst.subst(type,  here(), (XVar) term); 
+				type = Subst.subst(type,  here(type.typeSystem()), (XVar<Type>)term); 
 		} catch (SemanticException z) {
 			throw new InternalCompilerError("Unexpectedly inconsistent constraint.");
 		}
@@ -243,13 +250,13 @@ public class PlaceChecker {
 			return;
 		XConstrainedTerm placeTerm = xc.currentPlaceTerm();
 		if (placeTerm != null)  
-			c.addEquality(here(), placeTerm.term());
+			c.addEquality(here(xc.typeSystem()), placeTerm.term());
 	}
 
 	public static void setHereTerm(MethodDef md, Context c) {
 	    c = c.pushBlock();
 	    if (isGlobalCode(md)) {
-	        c.setPlace(XConstrainedTerm.make(makePlace(), md.typeSystem().Place()));
+	        c.setPlace(XConstrainedTerm.make(makePlace(md.typeSystem()), md.typeSystem().Place()));
 	    } else {
 	        setHereIsThisHome(c);
 	    }
@@ -262,7 +269,7 @@ public class PlaceChecker {
 			return;
 		}
 		if (Types.isX10Struct(fd.container().get())) {
-			c.setPlace(XConstrainedTerm.make(makePlace(), fd.typeSystem().Place()));
+			c.setPlace(XConstrainedTerm.make(makePlace(fd.typeSystem()), fd.typeSystem().Place()));
 			return;
 		}
 		TypeSystem xts = (TypeSystem) c.typeSystem();
@@ -282,7 +289,7 @@ public class PlaceChecker {
 	public static XConstrainedTerm methodPlaceTerm(MethodDef md) {
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
-	    XTerm<Type> term = isGlobal ? makePlace() : homeVar(md.thisVar(), md.typeSystem());
+	    XTerm<Type> term = isGlobal ? makePlace(md.typeSystem()) : homeVar(md.thisVar(), md.typeSystem());
 	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(md.typeSystem().Place());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -303,7 +310,7 @@ public class PlaceChecker {
 	
 	public static XConstrainedTerm closurePlaceTerm(ClosureDef cd) {
 	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place());
-	    XTerm<Type> term = makePlace();
+	    XTerm<Type> term = makePlace(cd.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
 	    } catch (XFailure z) {
@@ -389,7 +396,7 @@ public class PlaceChecker {
 		if (placeIsPlace)  {
 			term = ts.xtypeTranslator().translate(pc, place, xc);
 			if (term == null) {
-				term = makePlace();
+				term = makePlace(ts);
 			}
 			try {
 				pt = XConstrainedTerm.instantiate(d, term);

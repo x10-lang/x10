@@ -75,9 +75,10 @@ import x10.ast.X10ClassDecl_c;
 import x10.ast.X10MethodDecl_c;
 import x10.ast.X10Special;
 import x10.ast.X10Special_c;
-import x10.constraint.XField;
 import x10.constraint.XLit;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.constraint.XLabeledOp;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
 import x10.types.ClosureDef;
@@ -271,19 +272,21 @@ public class Emitter {
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
 		CConstraint projected = cc; //context.constraintProjection(cc);
 		if (!projected.consistent()) return r;
-		for (XVar<Type> xvar : projected.vars()) {
-			XVar<Type> prefixes[] = xvar.vars();
-			if (prefixes.length!=2) continue;
-			if (!prefixes[0].toString().equals("self")) continue;
+		for (XTerm<Type> xvar : projected.vars()) {
+			List<XTerm<Type>> prefixes = xvar.vars();
+			if (prefixes.size()!=2) continue;
+			if (!prefixes.get(0).toString().equals("self")) continue;
 			if (!(xvar instanceof CField)) continue;
 			CField xvarf = (CField)xvar;
 			// [DC] I believe that since we are only looking at constraints of the form self.f,
 			// there is no need to check the type of the class which this field is attached to as it will
 			// always be the type we are translating.
-			if (!(xvarf.field() instanceof X10FieldDef)) continue; // only support # within @Native on property fields, not methods
-			String property_name = ((X10FieldDef)xvarf.field()).name().toString();
+			@SuppressWarnings("unchecked")
+			Def def = ((XLabeledOp<Type, Def>)xvarf.op()).getLabel(); 
+			if (! (def instanceof X10FieldDef)) continue; // only support # within @Native on property fields, not methods
+			String property_name = ((X10FieldDef)def).name().toString();
 			// resolve to another variable, keep going
-			XVar<Type> closed_xvar = projected.bindingForVar(xvar);
+			XTerm<Type> closed_xvar = projected.bindingForVar(xvar);
 			if (closed_xvar!=null && closed_xvar instanceof XLit) {
 				r.put(property_name, closed_xvar.toString());
 			}

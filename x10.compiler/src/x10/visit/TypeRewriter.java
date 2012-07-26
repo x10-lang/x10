@@ -51,8 +51,8 @@ public class TypeRewriter extends TypeTransformer {
     protected Type transformType(Type type) {
         try {
             Set<Name> vars = renamingMap.keySet();
-            XVar[] x = new XVar[vars.size() + 1];
-            XTerm[] y = new XTerm[x.length];
+            XVar<Type>[] x = new XVar[vars.size()];
+            XTerm<Type>[] y = new XTerm[x.length];
             int i = 0;
             for (Name n : vars) {
                 Name m = renamingMap.get(n);
@@ -62,8 +62,11 @@ public class TypeRewriter extends TypeTransformer {
                 y[i] = ConstraintManager.getConstraintSystem().makeLocal(ld, m.toString());
                 ++i;
             }
-            x[i] = ConstraintManager.getConstraintSystem().makeUQV(); // to force substitution
-            y[i] = ConstraintManager.getConstraintSystem().makeUQV();
+            //lshadare this doesn't seem to be doing anything, as the substitution substitutes
+            // x[i] for y[i], but x[i] cannot occur in the type because it is a fresh variable
+            
+            //x[i] = ConstraintManager.getConstraintSystem().makeUQV(); // to force substitution
+            //y[i] = ConstraintManager.getConstraintSystem().makeUQV();
             type = Subst.subst(type, y, x);
         } catch (SemanticException e) {
             throw new InternalCompilerError("Cannot alpha-rename locals in type " + type, e);

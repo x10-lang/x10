@@ -45,13 +45,13 @@ public interface ParametrizedType extends Named, Type {
 	Name name();
 
 	List<Type> typeParameters();
-	List<XVar> formals();
+	List<XVar<Type>> formals();
 	List<Type> formalTypes();
 	CConstraint guard();
 	
 	Def def();
 
-	ParametrizedType formals(List<XVar> formals);
+	ParametrizedType formals(List<XVar<Type>> formals);
 	ParametrizedType newFormalTypes(List<Type> formalTypes); // NOTE: javac reports an error in MacroType if this method is named formalTypes
 	ParametrizedType newTypeParameters(List<Type> typeParams); // NOTE: ditto
 }

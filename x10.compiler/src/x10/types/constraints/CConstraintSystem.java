@@ -11,8 +11,11 @@ import polyglot.types.MethodDef;
 import polyglot.types.Ref;
 import polyglot.types.Type;
 import x10.constraint.XConstraintSystem;
+import x10.constraint.XDef;
 import x10.constraint.XExpr;
 import x10.constraint.XLit;
+import x10.constraint.XLocal;
+import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.X10LocalDef;
@@ -43,7 +46,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param def definition of the field
      * @return
      */
-    public CField makeField(XTerm<Type> receiver, Def field); 
+    public CField makeField(XTerm<Type> receiver, XDef<Type> field); 
     /**
      * Create a new fake field dereference resulting from applying the field f 
      * defined by field to receiver i.e. receiver.f. This should be used for
@@ -52,13 +55,23 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param def definition of the field
      * @return
      */
-    public CField makeFakeField(XTerm<Type> receiver, Def field);
+    //TODO: can we eliminate this?
+    public CField makeFakeField(XTerm<Type> receiver, XDef<Type> field);
+    /**
+     * Create a new fake field dereference resulting from applying the field f 
+     * defined by field to receiver i.e. receiver.f. This should be used for
+     * compiler generated fields that are not visible to the user (such as here) 
+     * @param receiver the term we are dereferencing 
+     * @param op
+     * @return
+     */
+    public CField makeFakeField(XTerm<Type> receiver, XOp<Type> op);
     /**
      * Create a local variable from the give local definition.
      * @param ld variable definition
      * @return
      */
-    public XVar<Type> makeLocal(X10LocalDef ld);
+    public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D ld);
     /**
      * Create a local variable from the given local definition
      * using the given string name
@@ -66,7 +79,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param s string name
      * @return
      */
-    public XVar<Type> makeLocal(X10LocalDef ld, String s);
+    public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D ld, String s);
     /**
      * Construct an XExpr resulting from applying the method definition to the
      * given arguments. Note that the first element of the list is the recevier and 
@@ -75,7 +88,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param t receiver followed by method arguments
      * @return 
      */
-    public XExpr<Type> makeApply(Def md, List<XTerm<Type>>... t);
+    public XExpr<Type> makeApply(Def md, List<XTerm<Type>> t);
     /**
      * Construct the XTerm<Type> corresponding to the opaque definition. 
      * @param op
