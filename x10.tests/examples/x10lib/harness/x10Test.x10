@@ -32,7 +32,7 @@ abstract public class x10Test {
         val b = new Cell[Boolean](false);  
         try {
             finish async b(this.run());
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             e.printStackTrace();
         }
         reportResult(b());
@@ -42,7 +42,7 @@ abstract public class x10Test {
         var b: boolean = false;
         try {
             finish b = this.run();
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             e.printStackTrace();
         }
         reportResult(b);
