@@ -128,7 +128,7 @@ public interface XConstraint <T extends XType> {
 	 * @param v
 	 * @return t such that this |- t = v
 	 */
-	public XVar<T> bindingForVar(XVar<T> v);
+	public XTerm<T> bindingForVar(XVar<T> v);
 	
 	public void setInconsistent();
 	
@@ -136,7 +136,7 @@ public interface XConstraint <T extends XType> {
 	 * FIXME: this is what returned the unrolled nested field dereferncing
 	 * @return
 	 */
-	public Set<? extends XVar<T>> vars(); 
+	public Set<? extends XTerm<T>> vars(); 
 	
 	/**
 	 * FIXME: how to properly generalize this, remove atoms that contain EQVs?

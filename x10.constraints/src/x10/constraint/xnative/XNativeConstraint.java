@@ -126,7 +126,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
    
   
     /*
-    private void addTerm(XNativeTerm term, Set<XVar> result) {
+    private void addTerm(XNativeTerm term, Set<XVar<Type>> result) {
         if (term==null)
             return;
         if (term instanceof XFormula) {
@@ -138,7 +138,7 @@ public class XNativeConstraint implements Cloneable, XConstraint {
         if (term instanceof XVar)
             addVar((XVar) term, result);
     }
-    private void addVar(XVar var, Set<XVar> result) {
+    private void addVar(XVar var, Set<XVar<Type>> result) {
         if (var == null)
             return;
         result.add(var);
@@ -146,9 +146,9 @@ public class XNativeConstraint implements Cloneable, XConstraint {
             addVar(((XField)var).receiver(), result);
         }
     }
-    public Set<XVar> vars() {
+    public Set<XVar<Type>> vars() {
         List<XNativeTerm> terms = constraints();
-        Set <XVar> result = CollectionFactory.newHashSet();
+        Set <XVar<Type>> result = CollectionFactory.newHashSet();
         for (XNativeTerm term : terms) {
            addTerm(term, result);
         }

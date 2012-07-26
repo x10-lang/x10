@@ -14,8 +14,8 @@ public class XSimpleOp<T extends XType> extends XOp<T> {
 	 * @param kind
 	 */
 	XSimpleOp(XOp.Kind kind) {
-		assert kind!= XOp.Kind.APPLY; 
-		this.kind = kind; 
+		super(kind);
+		assert kind!= XOp.Kind.APPLY && kind != XOp.Kind.TAG; 
 	}
 
 	@Override

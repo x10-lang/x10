@@ -16,6 +16,14 @@ public interface XConstraintSystem<T extends XType> {
 	public <V> XLit<T, V> makeLit(T type, V v);
 	
 	/**
+	 * Make a variable with the given type and name
+	 * @param type
+	 * @param name
+	 * @return
+	 */
+	public XVar<T> makeVar(T type, String name);
+	
+	/**
 	 * Make a fresh EQV with a system chosen name. 
 	 * @return
 	 */
@@ -64,11 +72,20 @@ public interface XConstraintSystem<T extends XType> {
 	 * @return
 	 */
 	XExpr<T> makeExpr(XOp<T> op, List<? extends XTerm<T>> terms);
-	
+	XExpr<T> makeExpr(XOp<T> op, XTerm<T> t1, XTerm<T> t2);
+	XExpr<T> makeExpr(XOp<T> op, XTerm<T> t);
+
 	// convenience methods for some useful XExpr
 	public XExpr<T> makeEquals(XTerm<T> left, XTerm<T> right);
+	public XExpr<T> makeDisEquals(XTerm<T> left, XTerm<T> right);
 	public XExpr<T> makeAnd(XTerm<T> left, XTerm<T> right);
 	public XExpr<T> makeNot(XTerm<T> arg);
+	/**
+	 * Copy factory method that creates a fresh copy of an XTerm. 
+	 * @param term
+	 * @return
+	 */
+	public <U extends XTerm<T>> U copy(U term);
 	
 	/**
 	 * Construct an empty XConstraint. 

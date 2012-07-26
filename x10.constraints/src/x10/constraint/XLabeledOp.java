@@ -12,8 +12,8 @@ public class XLabeledOp<T extends XType, D extends XDef<T>> extends XOp<T> {
 	D def; 
 	
 	XLabeledOp(D def) {
+		super(XOp.Kind.APPLY);
 		this.def = def; 
-		this.kind = XOp.Kind.APPLY;
 	}
 	
 	public D getLabel() {

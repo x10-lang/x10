@@ -1,4 +1,7 @@
 package x10.constraint.smt;
+
+import x10.constraint.XType;
+
 /**
  * Wrapper around an external process calling to the SMT solver CVC4. Currently
  * constraints are dumped to a file and read in by the solver. 
@@ -27,13 +30,13 @@ public class XCvc4Solver implements XSmtSolver {
 	}
 	
 	@Override
-	public boolean isValid(XSmtTerm<? extends XSmtType> formula) throws XSmtFailure {
+	public boolean isValid(XSmtTerm<? extends XType> formula) throws XSmtFailure {
 		// TODO Auto-generated method stub
 		return false;
 	}
 
 	@Override
-	public boolean isSatsifiable(XSmtTerm<? extends XSmtType> formula) throws XSmtFailure {
+	public boolean isSatsifiable(XSmtTerm<? extends XType> formula) throws XSmtFailure {
 		// TODO Auto-generated method stub
 		return false;
 	}

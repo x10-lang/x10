@@ -1,13 +1,21 @@
 package x10.constraint.smt;
 
-import x10.constraint.XTerm;
+import java.util.List;
 
-public abstract class XSmtTerm<T extends XSmtType> implements XTerm<T> {
+import x10.constraint.XTerm;
+import x10.constraint.XType;
+
+public abstract class XSmtTerm<T extends XType> implements XTerm<T> {
 	T type; 
 
 	public XSmtTerm(T t) {
 		assert t!= null; 
 		this.type = t; 
+	}
+
+	public XSmtTerm(XSmtTerm<T> t) {
+		assert t!= null;
+		this.type = t.type;
 	}
 	
 	@Override
@@ -25,9 +33,37 @@ public abstract class XSmtTerm<T extends XSmtType> implements XTerm<T> {
 			return (XSmtTerm<T>)t2;
 		return this; 
 	}
+
+	/**
+	 * Should be overridden by XTerms that are projections (i.e. variables, field/method
+	 * dereferencing 
+	 */
+	@Override
+	public boolean isProjection() {
+		return false;
+	}
+
+	/**
+	 * In XSmtTerms we allow for all expressions in the constraints. 
+	 */
+	@Override
+	public boolean okAsNestedTerm() {
+		return true;
+	}
+	
+	@Override
+	public XSmtTerm<T> accept(TermVisitor<T> visitor) {
+        XSmtTerm<T> res = (XSmtTerm<T>)visitor.visit(this);
+        if (res!=null) return res;
+        return this;
+	}
+
+	@Override
+	public List<XTerm<T>> vars() {
+		throw new UnsupportedOperationException("Need to add this");
+	}
 	
 	public abstract void print(XPrinter p);
-	
 	public abstract boolean equals(Object o);
 	public abstract int hashCode();
 	public abstract String toString(); 

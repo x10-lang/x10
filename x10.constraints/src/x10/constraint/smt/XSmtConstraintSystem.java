@@ -12,10 +12,12 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XTypeSystem;
 import x10.constraint.XUQV;
+import x10.constraint.XVar;
 
-public class XSmtConstraintSystem<T extends XSmtType> implements XConstraintSystem<T> {
+public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<T> {
 	private static int idCounter = 0; 
 	
 	@Override
@@ -76,6 +78,20 @@ public class XSmtConstraintSystem<T extends XSmtType> implements XConstraintSyst
 		return new XSmtExpr<T>(op, false, smt_terms);
 	}
 
+	@Override
+	public XExpr<T> makeExpr(XOp<T> op, XTerm<T> t1, XTerm<T> t2) {
+		List<XTerm<T>> terms = new ArrayList<XTerm<T>>(2);
+		terms.add(t1); 
+		terms.add(t2);
+		return makeExpr(op, terms);
+	}
+
+	@Override
+	public XExpr<T> makeExpr(XOp<T> op, XTerm<T> t) {
+		List<XTerm<T>> terms = new ArrayList<XTerm<T>>(2);
+		terms.add(t); 
+		return makeExpr(op, terms);
+	}
 	
 	@Override
 	public XExpr<T> makeEquals(XTerm<T> left, XTerm<T> right) {
@@ -83,6 +99,13 @@ public class XSmtConstraintSystem<T extends XSmtType> implements XConstraintSyst
 		return new XSmtExpr<T>(XOp.<T>EQ(), false, (XSmtTerm<T>)left, (XSmtTerm<T>)right);
 	}
 
+	@Override
+	public XExpr<T> makeDisEquals(XTerm<T> left, XTerm<T> right) {
+		assert left!= null && right!= null;
+		return makeNot(makeEquals(left, right));
+	}
+	
+	
 	@Override
 	public XExpr<T> makeAnd(XTerm<T> left, XTerm<T> right) {
 		assert left!= null && right!= null; 
@@ -113,4 +136,16 @@ public class XSmtConstraintSystem<T extends XSmtType> implements XConstraintSyst
 	public XConstraint<T> makeConstraint() {
 		return new XSmtConstraint<T>(); 
 	}
+
+	@Override
+	public XVar<T> makeVar(T type, String name) {
+		return new XSmtVar<T>(type, name);
+	}
+
+	@Override
+	public <U extends XTerm<T>> U copy(U term) {
+		return term.copy(); 
+	}
+
+
 }

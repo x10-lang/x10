@@ -13,6 +13,7 @@ public abstract class XOp<T extends XType> {
 	 */
 	public enum Kind {
 		APPLY("apply"), 
+		TAG("tag"),
 		EQ("="),	
 		NOT("not"),
 		AND("and"),
@@ -25,6 +26,10 @@ public abstract class XOp<T extends XType> {
 	}
 	
 	Kind kind; 
+	
+	XOp(Kind kind) {
+		this.kind = kind; 
+	}
 	
 	/**
 	 * Returns the kind of the operator. 
@@ -65,6 +70,10 @@ public abstract class XOp<T extends XType> {
 	public static <T extends XType, D extends XDef<T>> XLabeledOp<T, D> APPLY(D def) {
 		return new XLabeledOp<T,D>(def);
 	}
+	public static <T extends XType, D> XTagOp<T, D> TAG(D def, T type) {
+		return new XTagOp<T,D>(def, type);
+	}
+
 	
 	/**
 	 * Constructs a labeled operator that represents the application 
@@ -100,6 +109,11 @@ public abstract class XOp<T extends XType> {
 		return true;
 	}
 
-	public abstract String toString(); 
+	public abstract String toString();
+
+	public Object asExprOperator() {
+		// TODO Auto-generated method stub
+		return null;
+	} 
 	
 }

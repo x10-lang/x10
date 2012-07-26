@@ -40,4 +40,10 @@ public interface XExpr<T extends XType> extends XTerm<T> {
 	 * @return
 	 */
 	boolean isHidden(); 
+	/**
+	 * Returns the ith child of the expression
+	 * @param i
+	 * @return
+	 */
+	XTerm<T> get(int i);
 }

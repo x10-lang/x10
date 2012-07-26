@@ -8,6 +8,7 @@ import x10.constraint.XConstraint;
 import x10.constraint.XExpr;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XVar;
 
 /**
@@ -19,7 +20,7 @@ import x10.constraint.XVar;
  *
  * @param <T>
  */
-public class XSmtConstraint<T extends XSmtType> implements XConstraint<T> {
+public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	/**
 	 * The name of the SMT solver to be used. 
 	 */
@@ -46,7 +47,7 @@ public class XSmtConstraint<T extends XSmtType> implements XConstraint<T> {
 	 */
 	transient Status status; 
 	
-	XSmtConstraint() {
+	protected XSmtConstraint() {
 		conjuncts = new ArrayList<XSmtTerm<T>>();
 		solver = XSolverFactory.SmtSolver(solverName);
 		status = Status.UNKNOWN;
@@ -138,7 +139,7 @@ public class XSmtConstraint<T extends XSmtType> implements XConstraint<T> {
 	}
 
 	@Override
-	public XConstraint<T> copy() {
+	public XSmtConstraint<T> copy() {
 		// TODO Auto-generated method stub
 		return null;
 	}

@@ -2,13 +2,19 @@ package x10.constraint.smt;
 
 import x10.constraint.XDef;
 import x10.constraint.XLocal;
+import x10.constraint.XType;
 
-public class XSmtLocal<T extends XSmtType, D extends XDef<T>> extends XSmtTerm<T> implements XLocal<T, D> {
+public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> implements XLocal<T, D> {
 	private final D def; 
 
 	XSmtLocal(D def) {
-		super(def.resultType());
+		super(def.resultType(), def.toString());
 		this.def = def;
+	}
+	
+	XSmtLocal(XSmtLocal<T, D> other) {
+		super(other);
+		this.def = other.def; 
 	}
 	
 	@Override
@@ -51,5 +57,10 @@ public class XSmtLocal<T extends XSmtType, D extends XDef<T>> extends XSmtTerm<T
 		return def.toString();
 	}
 	
+	@Override
+	public XSmtLocal<T,D> copy() {
+		return new XSmtLocal<T,D>(this); 
+	}
 	
+
 }

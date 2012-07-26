@@ -8,15 +8,15 @@ import x10.constraint.XTerm;
 import x10.constraint.XType;
 
 public class XSmt2Printer extends XPrinter {
-	Map<XTerm<? extends XSmtType>, ? extends XSmtType> varDecl; 
-	Set<? extends XSmtType> sortDecl;
+	Map<XTerm<? extends XType>, ? extends XType> varDecl; 
+	Set<? extends XType> sortDecl;
 	
 	public XSmt2Printer(Writer w) {
 		super(w);
 	}
 
 	@Override
-	public <T extends XSmtType> void out(XSmtTerm<T> term) {
+	public <T extends XType> void out(XSmtTerm<T> term) {
 		// TODO Auto-generated method stub
 		
 	}

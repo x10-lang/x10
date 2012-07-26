@@ -1,21 +1,28 @@
 package x10.constraint.smt;
 
+import x10.constraint.XType;
 import x10.constraint.XUQV;
 
-public class XSmtUQV<T extends XSmtType> extends XSmtTerm<T> implements XUQV<T> {
+public class XSmtUQV<T extends XType> extends XSmtVar<T> implements XUQV<T> {
 	private static String EQV_PREFIX = "#uqv";
 	private final int num; 
 	private final String name;
 	
 	public XSmtUQV(T type, int num) {
-		super(type);
+		super(type, EQV_PREFIX+num);
 		this.num = num;
 		this.name = null;
 	}
 	public XSmtUQV(T type, String name, int num) {
-		super(type);
+		super(type, name + num);
 		this.num = num;
 		this.name = name;
+	}
+	
+	public XSmtUQV(XSmtUQV<T> other) {
+		super(other);
+		this.num = other.num;
+		this.name = other.name; 
 	}
 	
 	@Override

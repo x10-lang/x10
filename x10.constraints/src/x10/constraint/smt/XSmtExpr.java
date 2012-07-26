@@ -3,11 +3,15 @@ package x10.constraint.smt;
 import java.util.ArrayList;
 import java.util.List;
 
+import x10.constraint.XConstraintManager;
 import x10.constraint.XExpr;
+import x10.constraint.XLabeledOp;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
+import x10.constraint.XVar;
 
-public class XSmtExpr<T extends XSmtType> extends XSmtTerm<T> implements XExpr<T> {
+public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	private final XOp<T> op; 
 	private final List<XSmtTerm<T>> children; 
 	private final boolean hidden; 
@@ -38,7 +42,22 @@ public class XSmtExpr<T extends XSmtType> extends XSmtTerm<T> implements XExpr<T
 		this.children.add(ch1); 
 		this.hidden = hidden; 
 	}
-
+	
+	public XSmtExpr(XSmtExpr<T> exp) {
+		super(exp);
+		assert exp != null;
+		this.op = exp.op; 
+		this.children = deepCopy(exp.children);
+		this.hidden = exp.hidden; 
+	}
+	
+	private List<XSmtTerm<T>> deepCopy (List<XSmtTerm<T>> terms) {
+		List<XSmtTerm<T>> res = new ArrayList<XSmtTerm<T>>(terms.size());
+		for (XSmtTerm<T> t : terms) {
+			res.add(XConstraintManager.<T>getConstraintSystem().copy(t));
+		}
+		return res; 
+	}
 	
 	@Override
 	public XSmtTerm<T> subst(XTerm<T> t1, XTerm<T> t2) {
@@ -130,5 +149,45 @@ public class XSmtExpr<T extends XSmtType> extends XSmtTerm<T> implements XExpr<T
 		return true;
 	}
 
+	@Override
+	public boolean hasVar(XVar<T> var) {
+		for (XTerm<T> ch :children)
+			if (ch.equals(var))
+				return true;
+		return false;
+	}
 
+	@Override
+	public XTerm<T> get(int i) {
+		return children.get(i);
+	}
+
+	@Override
+	public boolean isProjection() {
+		return op instanceof XLabeledOp && op.getKind() == XOp.Kind.APPLY;
+	}
+	
+	@Override
+	public XSmtTerm<T> accept(TermVisitor<T> visitor) {
+		XSmtTerm<T> res = (XSmtTerm<T>)visitor.visit(this);
+		if (res!=null) return res;
+		List<XSmtTerm<T>> newArgs = new ArrayList<XSmtTerm<T>>(children.size());
+		boolean wasNew = false;
+		for (int i = 0; i < children.size(); ++i ) {
+			XSmtTerm<T> xTerm = children.get(i);
+			final XSmtTerm<T> newArg = xTerm.accept(visitor);
+			wasNew |= newArg!=xTerm;
+			newArgs.set(i, newArg);
+		}
+
+		if (!wasNew) return this;
+		XSmtExpr<T> newThis = new XSmtExpr<T>(this.op,this.hidden, newArgs); 
+		return newThis;
+	}
+
+	@Override
+	public XSmtExpr<T> copy() {
+		return new XSmtExpr<T>(this); 
+	}
+	
 }
