@@ -154,7 +154,7 @@ abstract public class TestRegion extends x10Test {
         var r: String;
         try {
             r = myRun();
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             r = e.getMessage();
         }
         pr(test + " " + r);

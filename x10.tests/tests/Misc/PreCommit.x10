@@ -19,7 +19,7 @@ public class PreCommit extends x10Test {
         var b: boolean = false;
         try {
             finish b = test.run();
-        } catch (e: Throwable) {
+        } catch (e: Exception) {
             e.printStackTrace();
         }
         if (b) {
