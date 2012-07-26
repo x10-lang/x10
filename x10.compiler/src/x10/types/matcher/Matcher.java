@@ -274,7 +274,8 @@ public class Matcher {
 	        				            XVar[] outerThis = new XVar[outers.size()-1];
 	        				            XVar[] outerYs = new XVar[outers.size()-1];
 	        				            for (int i=1; i < outers.size(); ++i) {
-	        				                outerYs[i-1] = ConstraintManager.getConstraintSystem().makeQualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
+								XVar var = ConstraintManager.getConstraintSystem().makeUQV(); 
+	        				                outerYs[i-1] = ConstraintManager.getConstraintSystem().makeQualifiedVar(outers.get(i).asType(), var);
 	        				                outerThis[i-1]= outers.get(i).thisVar();
 	        				            }
 	        				            newReturnType = Subst.subst(newReturnType, outerYs, outerThis);
