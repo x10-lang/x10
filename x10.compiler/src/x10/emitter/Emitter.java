@@ -4025,42 +4025,54 @@ public class Emitter {
 
 	}
 
+    private ClassType Thread_;
+    private ClassType Thread() {
+        if (Thread_ == null)
+            Thread_ = tr.typeSystem().load("x10.lang.Thread");
+        return Thread_;
+    }
+
+    private boolean needToSerializeSuperClass(TypeNode superClassNode) {
+        if (superClassNode == null || !superClassNode.type().isClass()) return false;
+        Type superType = superClassNode.type();
+        if (superType.isAny() ||
+            superType.isObject() ||
+            superType.typeEquals(Thread(), tr.context())) return false;
+        return true;
+	}
+
+    private static boolean useReflectionToSerializeSuperClass(Type superType) {
+        assert superType.isClass();
+        return superType.toClass().isJavaType() || isNativeRepedToJava(superType);
+    }
+
     // Emits the code to serialize the super class
     public void serializeSuperClass(TypeNode superClassNode) {
-        X10CompilerOptions opts = (X10CompilerOptions) tr.job().extensionInfo().getOptions();
         // Check whether need to serialize super class
-        if (superClassNode != null && superClassNode.type().isClass()) {
-            if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
-                    superClassNode.type().toString().equals("x10.lang.Object") ||
-                    superClassNode.type().toString().equals("x10.lang.Any"))) {
-                if (superClassNode.type().toClass().isJavaType()) {
-                    w.write("$serializer.serializeClassUsingReflection(this, ");
-                    printType(superClassNode.type(), BOX_PRIMITIVES);
-                    w.writeln(".class);");
-                } else {
-                    w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
-                    w.newline();
-                }
+        if (needToSerializeSuperClass(superClassNode)) {
+            // If the super class is a pure java class we need to serialize it using reflection
+            if (useReflectionToSerializeSuperClass(superClassNode.type())) {
+                w.write("$serializer.serializeClassUsingReflection(this, ");
+                printType(superClassNode.type(), BOX_PRIMITIVES);
+                w.writeln(".class);");
+            } else {
+                w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
+                w.newline();
             }
         }
     }
-
     // Emits the code to deserialize the super class
     public void deserializeSuperClass(TypeNode superClassNode) {
         // Check whether we need to deserialize the super class
-        if (superClassNode != null && superClassNode.type().isClass()) {
-            if (!(superClassNode.type().toString().equals("x10.lang.Thread") ||
-                    superClassNode.type().toString().equals("x10.lang.Object") ||
-                    superClassNode.type().toString().equals("x10.lang.Any"))) {
-                // If the super class is a pure java class we need to deserialize it using reflection
-                if (superClassNode.type().toClass().isJavaType()) {
-                    w.write("$deserializer.deserializeClassUsingReflection(");
-                    printType(superClassNode.type(), BOX_PRIMITIVES);
-                    w.writeln(".class, $_obj, 0);");
-                } else {
-                    printType(superClassNode.type(), BOX_PRIMITIVES);
-                    w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
-                }
+        if (needToSerializeSuperClass(superClassNode)) {
+            // If the super class is a pure java class we need to deserialize it using reflection
+            if (useReflectionToSerializeSuperClass(superClassNode.type())) {
+                w.write("$deserializer.deserializeClassUsingReflection(");
+                printType(superClassNode.type(), BOX_PRIMITIVES);
+                w.writeln(".class, $_obj, 0);");
+            } else {
+                printType(superClassNode.type(), BOX_PRIMITIVES);
+                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
             }
         }
     }
