@@ -272,15 +272,13 @@ public class Emitter {
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
 		CConstraint projected = cc; //context.constraintProjection(cc);
 		if (!projected.consistent()) return r;
-		for (XTerm<Type> xvar : projected.vars()) {
-			List<XTerm<Type>> prefixes = xvar.vars();
-			if (prefixes.size()!=2) continue;
-			if (!prefixes.get(0).toString().equals("self")) continue;
+		for (XTerm<Type> xvar : projected.getVarsAndProjections()) {
 			if (!(xvar instanceof CField)) continue;
 			CField xvarf = (CField)xvar;
 			// [DC] I believe that since we are only looking at constraints of the form self.f,
 			// there is no need to check the type of the class which this field is attached to as it will
 			// always be the type we are translating.
+			if (!xvarf.receiver().toString().equals("self")) continue;
 			@SuppressWarnings("unchecked")
 			Def def = ((XLabeledOp<Type, Def>)xvarf.op()).getLabel(); 
 			if (! (def instanceof X10FieldDef)) continue; // only support # within @Native on property fields, not methods

@@ -307,11 +307,7 @@ public class ConstantPropagator extends ContextVisitor {
 
         CConstraint c = Types.xclause(type);
         if (c != null) {
-<<<<<<< .mine
             XTerm<Type> r = c.self();
-=======
-            XVar<Type> r = c.self();
->>>>>>> .r24232
             if (r instanceof XLit) {
                 @SuppressWarnings("unchecked")
 				XLit<Type, ?> l = (XLit<Type, ?>) r;

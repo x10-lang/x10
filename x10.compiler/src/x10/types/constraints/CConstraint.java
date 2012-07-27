@@ -319,17 +319,7 @@ public interface CConstraint extends XConstraint<Type> {
 
 	public List<? extends XTerm<Type>> extConstraintsHideFake();
 
-<<<<<<< .mine
-=======
-	public Set<? extends XTerm<Type>> getTerms();
-
->>>>>>> .r24232
 	public void setInconsistent();
 
-<<<<<<< .mine
-=======
-	public Set<? extends XTerm<Type>> vars();
-
->>>>>>> .r24232
 }
 

@@ -110,11 +110,7 @@ public class BuiltInTypeRules {
         ConstrainedType ltype = Types.toConstrainedType(left.type());
         ConstrainedType rtype = Types.toConstrainedType(right.type());
         ConstrainedType ct = Types.toConstrainedType(type);
-<<<<<<< .mine
         XTerm<Type> selfVar = ct.selfVar();
-=======
-        XVar<Type> selfVar = ct.selfVar();
->>>>>>> .r24232
 
         ct = ct.addRank(2);
         ct = ct.addRect();
