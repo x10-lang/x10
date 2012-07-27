@@ -36,9 +36,10 @@ public abstract class Struct implements StructI {
         return _struct_equals$O(o);
     }
 
-    public static final RuntimeType<Struct> $RTT = RuntimeType.<Struct> make(Struct.class, new Type[] { Types.STRUCT });
-    public RuntimeType<?> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {return null;}
+    // not used
+//    public static final RuntimeType<Struct> $RTT = RuntimeType.<Struct> make(Struct.class, new Type[] { Types.STRUCT });
+//    public RuntimeType<?> $getRTT() {return $RTT;}
+//    public Type<?> $getParam(int i) {return null;}
 
     @Override
     public java.lang.String toString() {

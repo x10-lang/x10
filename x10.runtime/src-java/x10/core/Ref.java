@@ -51,9 +51,11 @@ public abstract class Ref implements RefI {
     public Ref(Object out$) {}
     */
 
-    public static final RuntimeType<Ref> $RTT = NamedType.<Ref> make("x10.lang.Object", Ref.class);
-    public RuntimeType<?> $getRTT() {return $RTT;}
-    public Type<?> $getParam(int i) {return null;}
+    // not used
+////    public static final RuntimeType<Ref> $RTT = NamedType.<Ref> make("x10.lang.Object", Ref.class);
+//    public static final RuntimeType<?> $RTT = Types.OBJECT;
+//    public RuntimeType<?> $getRTT() {return $RTT;}
+//    public Type<?> $getParam(int i) {return null;}
 
     @Override
     public java.lang.String toString() {
