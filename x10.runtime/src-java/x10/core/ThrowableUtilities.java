@@ -11,11 +11,11 @@
 
 package x10.core;
 
-import java.io.PrintStream;
 import java.util.HashMap;
 import java.util.Map;
 
-import x10.runtime.impl.java.UnknownJavaThrowable;
+// TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//import x10.runtime.impl.java.UnknownJavaThrowable;
 
 public abstract class ThrowableUtilities {
     
@@ -213,7 +213,9 @@ public abstract class ThrowableUtilities {
 	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.RuntimeException e) {
 		// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //		if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
-		if (e instanceof UnknownJavaThrowable) return e; // already wrapped
+		// TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//		if (e instanceof UnknownJavaThrowable) return e; // already wrapped
+		if (e instanceof x10.lang.WrappedThrowable) return e; // already wrapped
         java.lang.String message = e.getMessage();
     	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //        Class<? extends x10.core.X10Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
@@ -221,7 +223,9 @@ public abstract class ThrowableUtilities {
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
-            return new UnknownJavaThrowable(e);
+            // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//            return new UnknownJavaThrowable(e);
+            return new x10.lang.WrappedThrowable(e);
         }
         
         return createX10Throwable(x10Class, message, e);
@@ -232,7 +236,9 @@ public abstract class ThrowableUtilities {
 	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.Exception e) {
 		// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //		if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
-		if (e instanceof UnknownJavaThrowable) return (java.lang.RuntimeException) e; // already wrapped
+		// TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//		if (e instanceof UnknownJavaThrowable) return (java.lang.RuntimeException) e; // already wrapped
+		if (e instanceof x10.lang.WrappedThrowable) return (java.lang.RuntimeException) e; // already wrapped
         java.lang.String message = e.getMessage();
     	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //        Class<? extends x10.core.X10Throwable> x10Class = x10Exceptions.get(e.getClass());
@@ -240,7 +246,9 @@ public abstract class ThrowableUtilities {
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
-            return new UnknownJavaThrowable(e);
+            // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//            return new UnknownJavaThrowable(e);
+            return new x10.lang.WrappedThrowable(e);
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -256,7 +264,9 @@ public abstract class ThrowableUtilities {
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
-            return new UnknownJavaThrowable(e);
+            // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//            return new UnknownJavaThrowable(e);
+            return new x10.lang.WrappedThrowable(e);
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -267,7 +277,9 @@ public abstract class ThrowableUtilities {
 	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.Throwable e) {
 		// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //		if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
-		if (e instanceof UnknownJavaThrowable) return (java.lang.RuntimeException) e; // already wrapped
+		// TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//		if (e instanceof UnknownJavaThrowable) return (java.lang.RuntimeException) e; // already wrapped
+		if (e instanceof x10.lang.WrappedThrowable) return (java.lang.RuntimeException) e; // already wrapped
         java.lang.String message = e.getMessage();
     	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //        Class<? extends x10.core.X10Throwable> x10Class = x10Throwables.get(e.getClass());
@@ -275,7 +287,9 @@ public abstract class ThrowableUtilities {
         if (x10Class == null) {
             // no corresponding x10 exceptions defined
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
-            return new UnknownJavaThrowable(e);
+            // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//            return new UnknownJavaThrowable(e);
+            return new x10.lang.WrappedThrowable(e);
         }
 
         return createX10Throwable(x10Class, message, e);
@@ -313,7 +327,7 @@ public abstract class ThrowableUtilities {
 
     public static java.lang.RuntimeException getUncheckedCause(java.lang.Throwable e) {
     	java.lang.Throwable cause = e.getCause();
-    	return cause instanceof java.lang.RuntimeException ? ((java.lang.RuntimeException) cause) : new x10.lang.WrappedException(cause);
+    	return cause instanceof java.lang.RuntimeException ? ((java.lang.RuntimeException) cause) : new x10.lang.WrappedThrowable(cause);
     }
 
     public static java.lang.String toString(java.lang.Throwable e) {

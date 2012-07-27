@@ -128,7 +128,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             } catch (java.lang.Error e) {
                 throw e;
             } catch (java.lang.Throwable t) {
-                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
+                // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
+                throw new x10.lang.WrappedThrowable(t);
             }
         }
 
@@ -194,7 +196,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
             // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
-            if (t instanceof UnknownJavaThrowable) t = t.getCause();
+            // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//            if (t instanceof UnknownJavaThrowable) t = t.getCause();
+            if (t instanceof x10.lang.WrappedThrowable) t = t.getCause();
             t.printStackTrace();
             setExitCode(1);
         }
@@ -470,7 +474,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
 		} catch (java.io.IOException e) {
 			e.printStackTrace();
-                        throw new x10.runtime.impl.java.UnknownJavaThrowable(e);
+			// TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//			throw new x10.runtime.impl.java.UnknownJavaThrowable(e);
+			throw new x10.lang.WrappedThrowable(e);
 		} finally {
 			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
 		}

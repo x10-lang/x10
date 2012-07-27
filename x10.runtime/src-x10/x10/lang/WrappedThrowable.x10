@@ -12,7 +12,7 @@
 package x10.lang;
 
 
-public class WrappedException extends Exception {
+public class WrappedThrowable extends Exception {
 
     public def this() { super(); }
 
