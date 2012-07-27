@@ -112,11 +112,11 @@ cleanUpExit() {
   #tr -cd '[\t\n\r\40-\176]' < ${REPORTF}_tmp > ${REPORTF}
   #rm -f ${REPORTF}_tmp
 	gzip -9 $REPORTF
-    # directly log results into legato's cattrack bay
+    # directly log results into cattrack's cattrack input directory 
 	if [[ $rc != 128 && -z "$NO_CATTRACK" ]]; then
-	scp ${REPORTF}.gz regression@legato.watson.ibm.com:/home/regression/incoming/${REPORTF}.gz_tmp
-	ssh regression@legato.watson.ibm.com chmod go+rw /home/regression/incoming/${REPORTF}.gz_tmp
-	ssh regression@legato.watson.ibm.com mv /home/regression/incoming/${REPORTF}.gz_tmp /home/regression/incoming/${REPORTF}.gz
+	scp ${REPORTF}.gz regression@cattrack.pok.ibm.com:/home/regression/incoming/${REPORTF}.gz_tmp
+	ssh regression@cattrack.pok.ibm.com chmod go+rw /home/regression/incoming/${REPORTF}.gz_tmp
+	ssh regression@cattrack.pok.ibm.com mv /home/regression/incoming/${REPORTF}.gz_tmp /home/regression/incoming/${REPORTF}.gz
 	fi
 	# cleanup code, if any
     if [[ -d "$LOGD" ]]; then
