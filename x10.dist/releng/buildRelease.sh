@@ -121,6 +121,6 @@ if [[ -z "$SKIP_X10_BUILD" ]]; then
         ant -Ddebug=true dist-cpp
     fi 
     ant xrx-xdoc
-    $distdir/x10.dist/releng/packageCPPRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
+    $distdir/x10.dist/releng/packageRelease.sh -version $X10_VERSION -platform $X10_PLATFORM
     echo "Platform specific distribuiton tarball created"
 fi

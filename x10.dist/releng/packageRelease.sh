@@ -58,4 +58,4 @@ cdir="`pwd`"
 [ "$cdir" = "/" ] && cdir="$cdir."
 cd "$top"
 
-eval tar -cvzf "$cdir/$tarfile" --exclude=.svn INSTALL.txt README.txt RELEASE.NOTES.txt bin/{x10,runx10,x10c,x10c++,X10Launcher} epl-v10.html etc include stdlib lib/*.jar lib/${PLAT_LIBPAT} samples
+eval tar -cvzf "$cdir/$tarfile" --exclude=.svn INSTALL.txt README.txt RELEASE.NOTES.txt bin/{x10,runx10,x10c,x10c++,X10Launcher,x10doc} epl-v10.html etc include stdlib lib/*.jar lib/${PLAT_LIBPAT} samples
