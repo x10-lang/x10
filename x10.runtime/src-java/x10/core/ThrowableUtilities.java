@@ -211,7 +211,9 @@ public abstract class ThrowableUtilities {
 	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.RuntimeException e) {
 	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.RuntimeException e) {
-            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
+		// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//		if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
+		if (e instanceof UnknownJavaThrowable) return e; // already wrapped
         java.lang.String message = e.getMessage();
     	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //        Class<? extends x10.core.X10Throwable> x10Class = x10RuntimeExceptions.get(e.getClass());
@@ -228,7 +230,9 @@ public abstract class ThrowableUtilities {
 	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Exception e) {
 	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.Exception e) {
-            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
+		// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//		if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
+		if (e instanceof UnknownJavaThrowable) return (java.lang.RuntimeException) e; // already wrapped
         java.lang.String message = e.getMessage();
     	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //        Class<? extends x10.core.X10Throwable> x10Class = x10Exceptions.get(e.getClass());
@@ -261,7 +265,9 @@ public abstract class ThrowableUtilities {
 	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //	public static x10.core.Throwable getCorrespondingX10Throwable(java.lang.Throwable e) {
 	public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.Throwable e) {
-            if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
+		// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//		if (e instanceof UnknownJavaThrowable) return (x10.core.Throwable) e; // already wrapped
+		if (e instanceof UnknownJavaThrowable) return (java.lang.RuntimeException) e; // already wrapped
         java.lang.String message = e.getMessage();
     	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //        Class<? extends x10.core.X10Throwable> x10Class = x10Throwables.get(e.getClass());
