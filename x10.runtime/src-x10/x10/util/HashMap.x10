@@ -103,7 +103,7 @@ import x10.io.SerialData;
     public def getOrThrow(k: K): V //throws NoSuchElementException
     {
         val e = getEntry(k);
-        if (e == null || e.removed) throw new NoSuchElementException("Not found");
+        if (e == null || e.removed) throw new NoSuchElementException("Not found: " + k);
         return e.value;
     }
     
