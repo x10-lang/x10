@@ -4041,8 +4041,8 @@ public class Emitter {
         return true;
 	}
 
-    public static boolean isRawJavaClass(Type superType) {
-        return superType.isClass() && superType.toClass().isJavaType() || isNativeRepedToJava(superType);
+    public static boolean isRawJavaClass(Type type) {
+        return type.isClass() && type.toClass().isJavaType() || isNativeRepedToJava(type);
     }
 
     // Emits the code to serialize the super class
