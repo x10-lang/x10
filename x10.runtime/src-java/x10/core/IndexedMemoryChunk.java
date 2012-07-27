@@ -25,7 +25,6 @@ import x10.rtt.IntType;
 import x10.rtt.LongType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.ShortType;
 import x10.rtt.StringType;
 import x10.rtt.Type;
@@ -230,8 +229,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
         public static final RuntimeType<$Closure$0> $RTT =
         	x10.rtt.StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
-        @Override
         public RuntimeType<$Closure$0> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) {return null;}
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
@@ -417,8 +416,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
         public static final RuntimeType<$Closure$1<?>> $RTT =
         	x10.rtt.StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
-        @Override
         public RuntimeType<$Closure$1<?>> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) { return i == 0 ? srcType : null; }
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
@@ -499,9 +498,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<IndexedMemoryChunk<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return i == 0 ? type : null; }
 
 

@@ -158,9 +158,7 @@ public class OutputStream extends Ref {
         OutputStream.class,
         new Type[] { Types.OBJECT }
     );
-    @Override
     public RuntimeType<?> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return null; }
 
 

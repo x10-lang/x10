@@ -44,9 +44,7 @@ public final class Vec<T> extends x10.core.Struct {
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<Vec<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 
     private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {

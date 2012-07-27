@@ -30,9 +30,7 @@ final public class String extends x10.core.Ref implements
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, String.class);
 
     public static final RuntimeType<java.lang.String> $RTT = Types.STRING;
-    @Override
     public RuntimeType<?> $getRTT() {return $RTT;}
-    @Override
     public Type<?> $getParam(int i) {return null;}
     
     // dispatcher for method abstract public (a1:Z1)=> U.$apply(a1:Z1): U

@@ -137,9 +137,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return i == 0 ? type : null; }
     
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {

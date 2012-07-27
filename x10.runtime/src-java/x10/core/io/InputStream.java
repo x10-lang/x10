@@ -142,9 +142,7 @@ public class InputStream extends Ref {
         InputStream.class,
         new Type[] { Types.OBJECT }
     );
-    @Override
     public RuntimeType<?> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return null; }
 
 }
