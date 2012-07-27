@@ -216,7 +216,9 @@ public abstract class ThrowableUtilities {
             // XTENLANG-2686: wrap unknown Java exception with UnknownJavaThrowable, which will be caught outside of main
             // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
 //            return new UnknownJavaThrowable(e);
-            return new x10.lang.WrappedThrowable(e);
+            // TODO CHECKED_THROWABLE wrapping is not neeeded for subtypes of java.lang.{RuntimeException,Error}.
+//            return new x10.lang.WrappedThrowable(e);
+            return e;
         }
         
         return createX10Throwable(x10Class, message, e);
@@ -290,14 +292,17 @@ public abstract class ThrowableUtilities {
 //    public static x10.core.Throwable convertJavaRuntimeException(java.lang.RuntimeException e) {
 //    	return getCorrespondingX10Throwable(e);
 //    }
+        // TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //    public static x10.core.Throwable convertJavaException(java.lang.Exception e) {
-//    	if (e instanceof java.lang.RuntimeException) {
-//    		return getCorrespondingX10Throwable((java.lang.RuntimeException) e);
-//    	} else
-//    	/*if (e instanceof java.lang.Exception)*/ {
-//    		return getCorrespondingX10Throwable(e);
-//    	}
-//    }
+    public static java.lang.RuntimeException convertJavaException(java.lang.Exception e) {
+    	if (e instanceof java.lang.RuntimeException) {
+    		return getCorrespondingX10Throwable((java.lang.RuntimeException) e);
+    	} else
+    	/*if (e instanceof java.lang.Exception)*/ {
+    		return getCorrespondingX10Throwable(e);
+    	}
+    }
+    // TODO CHECKED_THROWABLE not used
 //    public static x10.core.Throwable convertJavaError(java.lang.Error e) {
 //    	return getCorrespondingX10Throwable(e);
 //    }

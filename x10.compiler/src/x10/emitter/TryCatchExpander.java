@@ -98,8 +98,10 @@ public class TryCatchExpander extends Expander {
     // Assume that conversion of j.l.Throwable also includes conversion of j.l.Exception etc.
     // MIKIO_PLEASE_SEE
     public static int conversionRequired(Type catchType) {
-    	return 0;
-    	/*
+        // TODO CHECKED_EXCEPTION
+        // FIXME is it ok if we don't convert java.lang.InterruptedException or java.io.NotSerializableException?
+    	return NO_CONVERSION;
+        /*
         TypeSystem ts = catchType.typeSystem();
         int convRequired = 0;
 //        if (ts.isSubtype(catchType, ts.RuntimeException())) {
@@ -109,7 +111,7 @@ public class TryCatchExpander extends Expander {
             convRequired |= EXCEPTION_CONVERSION;
         } else if (ts.isSubtype(catchType, ts.Error())) {
             convRequired |= ERROR_CONVERSION;
-        } else if (ts.isSubtype(catchType, ts.Throwable())) {
+        } else if (ts.isSubtype(catchType, ts.CheckedThrowable())) {
             convRequired |= THROWABLE_CONVERSION;
         }
         return convRequired;

@@ -4150,6 +4150,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // MIKIO_PLEASE_SEE
     // N.B. true for Java throwables that are supertype of x.l.Throwable at implementation level
     private boolean isJavaThrowableAssignableFromX10Throwable(Type catchType) {
+        // TODO CHECKED_THROWABLE
+        // FIXME always use rethrow is safe but too much
     	return true;
     	/*
         TypeSystem ts = tr.typeSystem();
