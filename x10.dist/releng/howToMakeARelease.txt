@@ -70,7 +70,7 @@ one can build the actual release artifacts:
       masterBuildRelease.sh -version 2.0.1 -tag SF_RELEASE_2_0_1
 
       To build the BGP release on bgpfen1, you will need to manually checkout
-      and build a release branch and then use packageCPPRelease.sh.  This
+      and build a release branch and then use packageRelease.sh.  This
       is due to restricted network connectivity from the front-end machine.
 
    4. ssh into shell.sf.net and create a subdirectory of 
