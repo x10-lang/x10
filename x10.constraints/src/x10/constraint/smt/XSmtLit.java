@@ -7,7 +7,7 @@ import x10.constraint.XVar;
 public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, V> {
 	private final V val;
 	
-	XSmtLit(T t, V val) {
+	protected XSmtLit(T t, V val) {
 		super(t);
 		this.val = val; 
 	}

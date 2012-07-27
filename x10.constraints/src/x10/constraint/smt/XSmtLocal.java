@@ -6,15 +6,25 @@ import x10.constraint.XType;
 
 public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> implements XLocal<T, D> {
 	private final D def; 
+	private final String s; // just for documentation
 
 	XSmtLocal(D def) {
 		super(def.resultType(), def.toString());
 		this.def = def;
+		this.s = null; 
 	}
+
+	XSmtLocal(D def, String s) {
+		super(def.resultType(), def.toString());
+		this.def = def;
+		this.s = s; 
+	}
+
 	
 	XSmtLocal(XSmtLocal<T, D> other) {
 		super(other);
-		this.def = other.def; 
+		this.def = other.def;
+		this.s = other.s; 
 	}
 	
 	@Override
@@ -54,7 +64,7 @@ public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 
 	@Override
 	public String toString() {
-		return def.toString();
+		return s == null? def.toString() : s;
 	}
 	
 	@Override

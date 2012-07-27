@@ -8,12 +8,14 @@ package x10.constraint;
  *
  * @param <D>
  */
-public class XLabeledOp<T extends XType, D extends XDef<T>> extends XOp<T> {
+public class XLabeledOp<T extends XType, D> extends XOp<T> {
 	D def; 
+	T resultType; 
 	
-	XLabeledOp(D def) {
+	XLabeledOp(D def, T type) {
 		super(XOp.Kind.APPLY);
-		this.def = def; 
+		this.def = def;
+		this.resultType = type; 
 	}
 	
 	public D getLabel() {
@@ -27,7 +29,7 @@ public class XLabeledOp<T extends XType, D extends XDef<T>> extends XOp<T> {
 
 	@Override
 	public T type() {
-		return def.resultType();
+		return resultType;
 	}
 
 	@Override
@@ -58,6 +60,11 @@ public class XLabeledOp<T extends XType, D extends XDef<T>> extends XOp<T> {
 	@Override
 	public String toString() {
 		return kind.name() + " (" + def.toString() + ")";
+	}
+
+	@Override
+	public String prettyPrint() {
+		return getKind().prettyPrint() + def;
 	}
 	
 	

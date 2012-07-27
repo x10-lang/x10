@@ -6,14 +6,15 @@ public interface XConstraintSystem<T extends XType> {
 	
 	public XLit<T, Boolean> xtrue(XTypeSystem<T> ts); 
 	public XLit<T, Boolean> xfalse(XTypeSystem<T> ts); 
-	public XLit<T, Object>  xnull(XTypeSystem<T> ts); 
+	public XLit<T, ? extends Object>  xnull(XTypeSystem<T> ts); 
 	
 	/**
-	 * Make a new literal containing value v. 
+	 * Make a new literal containing value v with type type. 
 	 * @param v
 	 * @return
 	 */
-	public <V> XLit<T, V> makeLit(T type, V v);
+	//public <V> XLit<T, V> makeLit(T type, V v);
+	public <V> XLit<T, V> makeLit(V v, T type);
 	
 	/**
 	 * Make a variable with the given type and name
@@ -48,23 +49,53 @@ public interface XConstraintSystem<T extends XType> {
 	 * @return
 	 */
 	public <D extends XDef<T>> XLocal<T, D> makeLocal(D def);
+	/**
+	 * Make a local variable with its associated name and 
+	 * definition
+	 * @param def the definition of the variable
+	 * @param name the name of the local variable
+	 * @return
+	 */
+	public <D extends XDef<T>> XLocal<T, D> makeLocal(D def, String name);
+
+	/**
+     * Construct an XExpr resulting from applying the method definition to the
+     * given arguments. Note that the first element of the list is the recevier and 
+     * the rest are the method arguments
+     * @param md method definition
+     * @param t receiver followed by method arguments
+     * @return 
+     */
+    public <D extends XDef<T>> XExpr<T> makeMethod(D md, List<XTerm<T>> t);
+	
 	
 	/**
 	 * Make a projection operation i.e. field/method dereference a.f
 	 * @param receiver the container
-	 * @param label the field 
+	 * @param definition of the field/method
 	 * @return
 	 */
-	public XExpr<T> makeProjection(XTerm<T> receiver, XDef<T> label);
+	public <D extends XDef<T>> XField<T, D> makeField(XTerm<T> receiver, D label);
 	/**
 	 * Make a projection operation i.e. field/method dereference a.f
 	 * that is hidden (visible only to the compiler such as the here
 	 * field)
 	 * @param receiver the container
-	 * @param label the field 
+	 * @param definition of the field/method
 	 * @return
 	 */
-	public XExpr<T> makeFakeProjection(XTerm<T> receiver, XDef<T> label);
+	public <D extends XDef<T>> XField<T, D> makeFakeField(XTerm<T> receiver, D label);
+	/**
+	 * Make a projection operation i.e. field/method dereference when there is no 
+	 * definition of the field.  
+	 * @param receiver
+	 * @param label field label
+	 * @param type the type of the field dereference
+	 * @return
+	 */
+	public <D> XField<T, D> makeField(XTerm<T> receiver, D label, T type);
+	public <D> XField<T, D> makeFakeField(XTerm<T> receiver, D label, T type);
+	
 	/**
 	 * Make an expression with the operation op and children terms
 	 * @param op

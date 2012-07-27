@@ -12,16 +12,21 @@ public abstract class XOp<T extends XType> {
 	 *
 	 */
 	public enum Kind {
-		APPLY("apply"), 
-		TAG("tag"),
-		EQ("="),	
-		NOT("not"),
-		AND("and"),
-		OR("or"),
-		IMPL("=>");
+		APPLY("apply", ""), 
+		TAG("tag", ""),
+		EQ("=", "="),	
+		NOT("not", "!"),
+		AND("and", "&&"),
+		OR("or", "||"),
+		IMPL("=>", "=>");
 		String name;
-		Kind(String n) {
+		String prettyName;
+		Kind(String n, String pn) {
 			this.name = n;
+			this.prettyName = pn; 
+		}
+		String prettyPrint() {
+			return prettyName; 
 		}
 	}
 	
@@ -67,11 +72,8 @@ public abstract class XOp<T extends XType> {
 	public static <T extends XType> XSimpleOp<T> IMPL() {
 		return new XSimpleOp<T>(Kind.IMPL);
 	}
-	public static <T extends XType, D extends XDef<T>> XLabeledOp<T, D> APPLY(D def) {
-		return new XLabeledOp<T,D>(def);
-	}
-	public static <T extends XType, D> XTagOp<T, D> TAG(D def, T type) {
-		return new XTagOp<T,D>(def, type);
+	public static <T extends XType, D> XLabeledOp<T, D> APPLY(D def, T type) {
+		return new XLabeledOp<T,D>(def, type);
 	}
 
 	
@@ -83,8 +85,8 @@ public abstract class XOp<T extends XType> {
 	 * @param def
 	 * @return 
 	 */
-	public static <T extends XType, D extends XDef<T>> XLabeledOp<T,D> makeLabelOp(D def) {
-		return new XLabeledOp<T,D>(def);
+	public static <T extends XType, D> XLabeledOp<T,D> makeLabelOp(D def, T type) {
+		return new XLabeledOp<T,D>(def, type);
 	}
 
 	@Override
@@ -114,6 +116,7 @@ public abstract class XOp<T extends XType> {
 	public Object asExprOperator() {
 		// TODO Auto-generated method stub
 		return null;
-	} 
-	
+	}
+
+	public abstract String prettyPrint();	
 }

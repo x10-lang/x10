@@ -32,6 +32,11 @@ public class XSimpleOp<T extends XType> extends XOp<T> {
 	public String toString() {
 		return kind.name();
 	}
+
+	@Override
+	public String prettyPrint() {
+		return getKind().prettyPrint();
+	}
 	
 	
 }

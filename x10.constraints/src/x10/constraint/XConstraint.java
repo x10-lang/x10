@@ -103,18 +103,12 @@ public interface XConstraint <T extends XType> {
      */
     public List<? extends XTerm<T>> constraints();	
  
-    /**
-     * Returns a list consisting of all the atoms in the constraint. 
-     * @return
-     */
-    public List<? extends XExpr<T>> atoms();
-
    	/**
-	 * Collects all the XTerms occurring in the constraint, regardless
-	 * whether they are atoms or not. 
+	 * Collects all the XVar and XExpr that are projections from 
+	 * the constraint. 
 	 * @return
 	 */
-	public Set<? extends XTerm<T>> getTerms();
+	public Set<? extends XTerm<T>> getVarsAndProjections();
 
     /**
      * Create a copy of the current constraint. 
@@ -123,21 +117,16 @@ public interface XConstraint <T extends XType> {
 	public XConstraint<T> copy();
 	/**
 	 * Return a term v is equal to in the constraint, and null if there
-	 * is no "easy way" to compute such a term 
+	 * is no "easy way" to compute such a term. 
 	 * 
 	 * @param v
 	 * @return t such that this |- t = v
 	 */
-	public XTerm<T> bindingForVar(XVar<T> v);
+	public XTerm<T> bindingForVar(XTerm<T> v);
 	
 	public void setInconsistent();
 	
-	/**
-	 * FIXME: this is what returned the unrolled nested field dereferncing
-	 * @return
-	 */
-	public Set<? extends XTerm<T>> vars(); 
-	
+
 	/**
 	 * FIXME: how to properly generalize this, remove atoms that contain EQVs?
      * Return a list of bindings t1-> t2 equivalent to 

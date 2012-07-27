@@ -7,6 +7,7 @@ import x10.constraint.XConstraintManager;
 import x10.constraint.XExpr;
 import x10.constraint.XLabeledOp;
 import x10.constraint.XOp;
+import x10.constraint.XSimpleOp;
 import x10.constraint.XTerm;
 import x10.constraint.XType;
 import x10.constraint.XVar;
@@ -85,7 +86,7 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	}
 
 	@Override
-	public List<? extends XTerm<T>> children() {
+	public List<? extends XSmtTerm<T>> children() {
 		return children; 
 	}
 
@@ -158,7 +159,7 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	}
 
 	@Override
-	public XTerm<T> get(int i) {
+	public XSmtTerm<T> get(int i) {
 		return children.get(i);
 	}
 
@@ -188,6 +189,27 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	@Override
 	public XSmtExpr<T> copy() {
 		return new XSmtExpr<T>(this); 
+	}
+	
+	@Override
+	public String prettyPrint() {
+		if (op() instanceof XSimpleOp && children.size() == 2) {
+			return children.get(0).prettyPrint() + " " + op.prettyPrint() +  " " + children.get(1).prettyPrint(); 
+		}
+		StringBuilder sb = new StringBuilder(); 
+		sb.append(op.prettyPrint());
+		boolean simple = op() instanceof XSimpleOp;
+		if (!simple)	
+			sb.append("(");
+		
+		for (XSmtTerm<T> t : children) {
+			sb.append((t == children.get(0) && simple ? "" : " ") + t.prettyPrint());
+		}
+		
+		if (!simple)
+			sb.append(")");
+		
+		return sb.toString(); 
 	}
 	
 }

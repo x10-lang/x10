@@ -72,6 +72,11 @@ public interface XTerm<T extends XType> {
 
 	List<XTerm<T>> vars();
 	
-	<U extends XTerm<T>> U copy(); 
+	XTerm<T> copy();
+
+	String prettyPrint(); 
+	
+	boolean isEquals(); 
+	boolean isAnd(); 
 }
 	
