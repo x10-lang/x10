@@ -273,8 +273,6 @@ public class Types {
                     return Types.CLASS_CAST_EXCEPTION;
                 } else if (java.lang.ArithmeticException.class.equals(javaClass)) {
                     return Types.ARITHMETIC_EXCEPTION;
-                } else if (java.lang.InterruptedException.class.equals(javaClass)) {
-                    return Types.INTERRUPTED_EXCEPTION;
                 } else if (java.lang.UnsupportedOperationException.class.equals(javaClass)) {
                     return Types.UNSUPPORTED_OPERATION_EXCEPTION;
                 } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
@@ -473,17 +471,6 @@ public class Types {
 	// make sure deserialized RTT object is not duplicated
 	private Object readResolve() throws java.io.ObjectStreamException {
 	    return NO_SUCH_ELEMENT_EXCEPTION;
-	}
-    };
-    public static final RuntimeType<x10.core.InterruptedException> INTERRUPTED_EXCEPTION = new NamedType<x10.core.InterruptedException>(
-	"x10.lang.InterruptedException",
-	x10.core.InterruptedException.class,
-	null,
-	new Type[] { EXCEPTION }
-    ) {
-	// make sure deserialized RTT object is not duplicated
-	private Object readResolve() throws java.io.ObjectStreamException {
-	    return INTERRUPTED_EXCEPTION;
 	}
     };
     public static final RuntimeType<java.lang.Error> ERROR = new NamedType<java.lang.Error>(

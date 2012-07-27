@@ -26,13 +26,10 @@ import x10.compiler.NativeRep;
 /**
  * InterruptedException that may be thrown by NativeWorker.sleep.
  */
-@NativeRep("java", "x10.core.InterruptedException", null, "x10.rtt.Types.INTERRUPTED_EXCEPTION")
 class InterruptedException extends Exception {
 
-    @Native("java", "new x10.core.InterruptedException()")
     public def this() { super(); }
 
-    @Native("java", "new x10.core.InterruptedException(#message)")
     public def this(message: String) { super(message); }
 
 }

@@ -131,9 +131,7 @@ public abstract class ThrowableUtilities {
 //            x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.lang.InterruptedException.class;
-            // TODO CHECKED_THROWABLE wrap with XRJ
-//            x10Name = "x10.lang.InterruptedException";
-            x10Name = "x10.core.InterruptedException";
+            x10Name = "x10.lang.InterruptedException";
         	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
             x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
