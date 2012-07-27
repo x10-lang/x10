@@ -30,7 +30,8 @@ public abstract class ThrowableUtilities {
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Errors = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Throwables = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
 
-    private static Class<? extends x10.core.X10Throwable> x10UnsupportedOperationException;
+    // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//    private static Class<? extends x10.core.X10Throwable> x10UnsupportedOperationException;
     
     static {
         try {
@@ -336,21 +337,25 @@ public abstract class ThrowableUtilities {
     }
 
     public static <T> T UnsupportedOperationException(java.lang.String message) {
-        try {
-            throw createX10Throwable(x10UnsupportedOperationException, message, null);
-        } catch (IllegalArgumentException e) {
-        } catch (SecurityException e) {
-        }
-        return null;
+        // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//        try {
+//            throw createX10Throwable(x10UnsupportedOperationException, message, null);
+//        } catch (IllegalArgumentException e) {
+//        } catch (SecurityException e) {
+//        }
+//        return null;
+    	throw new java.lang.UnsupportedOperationException(message);
     }
 
     public static int UnsupportedOperationExceptionInt(java.lang.String message) {
-        try {
-            throw createX10Throwable(x10UnsupportedOperationException, message, null);
-        } catch (IllegalArgumentException e) {
-        } catch (SecurityException e) {
-        }
-        return 0;
+        // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//        try {
+//            throw createX10Throwable(x10UnsupportedOperationException, message, null);
+//        } catch (IllegalArgumentException e) {
+//        } catch (SecurityException e) {
+//        }
+//        return 0;
+    	throw new java.lang.UnsupportedOperationException(message);
     }
 
 }

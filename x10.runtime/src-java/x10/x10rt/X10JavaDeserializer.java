@@ -31,7 +31,8 @@ import java.util.concurrent.ConcurrentHashMap;
 import sun.misc.Unsafe;
 import x10.core.GlobalRef;
 import x10.core.IndexedMemoryChunk;
-import x10.core.X10Throwable;
+// TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//import x10.core.X10Throwable;
 import x10.io.SerialData;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
@@ -400,8 +401,9 @@ public class X10JavaDeserializer {
            	return new SpecialCaseDeserializerThunk(null);
         } else if (GlobalRef.class.getName().equals(clazz.getName())) {
            	return new SpecialCaseDeserializerThunk(null);
-        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);
+            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
+//           	return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {
            	return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Object".equals(clazz.getName())) {
@@ -727,8 +729,9 @@ public class X10JavaDeserializer {
 	            return (T) IndexedMemoryChunk.$Closure$1.$_deserialize_body((IndexedMemoryChunk.$Closure$1) obj, jds);
 	        } else if (GlobalRef.class.getName().equals(clazz.getName())) {
 	            return (T) GlobalRef.$_deserialize_body((GlobalRef) obj, jds);
-	        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
-	            return (T) X10Throwable.$_deserialize_body((X10Throwable) obj, jds);
+	            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//	        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
+//	            return (T) X10Throwable.$_deserialize_body((X10Throwable) obj, jds);
 	        } else if ("java.lang.Class".equals(clazz.getName())) {
 	            String className = jds.readString();
 	            try {
