@@ -33,7 +33,7 @@ public class GenericCast14 extends x10Test {
         }
         catch (e:ClassCastException) {
         }
-        catch (e:Throwable) {
+        catch (e:Exception) {
             ok = false;
             Console.OUT.println("Error: something other than ClassCastException was thrown for null as Any as Int!");
             e.printStackTrace();
@@ -46,7 +46,7 @@ public class GenericCast14 extends x10Test {
         }
         catch (e:ClassCastException) {
         }
-        catch (e:Throwable) {
+        catch (e:Exception) {
             ok = false;
             Console.OUT.println("Error: something other than ClassCastException was thrown for null as T{T <: Int}!");
             e.printStackTrace();
@@ -60,7 +60,7 @@ public class GenericCast14 extends x10Test {
         	Console.OUT.println("Error: ClassCastException was thrown for null as T{T <: Object}!");
         	e.printStackTrace();
         }
-        catch (e:Throwable) {
+        catch (e:Exception) {
         	ok = false;
         	Console.OUT.println("Error: something other than ClassCastException was thrown for null as T{T <: Object}!");
         	e.printStackTrace();

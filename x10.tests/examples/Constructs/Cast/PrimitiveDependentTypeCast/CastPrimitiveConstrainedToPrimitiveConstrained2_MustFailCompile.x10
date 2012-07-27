@@ -23,7 +23,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained2_MustFailCompile ext
 		try { 
 			var i: int{self == 1} = 1;
 			var j: int{self == 0} = i as int{self == 0}; // ERR
-		}catch(e: Throwable) {
+		}catch(e: Exception) {
 			return false;
 		}
 

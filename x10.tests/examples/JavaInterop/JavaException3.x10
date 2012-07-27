@@ -15,8 +15,8 @@ import harness.x10Test;
 
 public class JavaException3 extends x10Test {
 	static class Sub {
-		def this() throws java.lang.Throwable {
-			throw new java.lang.Throwable("I like Java.");          
+		def this() throws x10.lang.CheckedThrowable {
+			throw new x10.lang.CheckedThrowable("I like Java.");          
 		}
 	}
 	
@@ -24,7 +24,7 @@ public class JavaException3 extends x10Test {
 		var pass: Boolean = false;
 		try {
 			new Sub();
-		} catch (e:java.lang.Throwable) {
+		} catch (e:x10.lang.CheckedThrowable) {
 			pass = true;
 			//e.printStackTrace();
 		}

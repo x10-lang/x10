@@ -29,7 +29,7 @@ public class Atomic2 extends x10Test {
 		var gotException: boolean = false;
 		try {
 			atomic chk(x == 0);
-		} catch (var e: Throwable) {
+		} catch (var e: Exception) {
 			gotException = true;
 		}
 		chk(gotException);

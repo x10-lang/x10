@@ -23,7 +23,7 @@ public class AssignmentPrimitiveConstrainedToPrimitiveConstrained_MustFailCompil
 		try { 
 			var i: int{self == 1} = 1;
 			var j: int{self == 0} = i; // ERR
-		} catch(e: Throwable) {
+		} catch(e: Exception) {
 			return false;
 		}
 

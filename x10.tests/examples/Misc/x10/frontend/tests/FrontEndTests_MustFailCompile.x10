@@ -260,7 +260,7 @@ class TestExceptionsDefAssignment {
 		val x3:Int;
 		try {
 			x1 = 2;
-		} catch (e:Throwable) {
+		} catch (e:Exception) {
 			x2 = 3;
 		} finally {
 			x3 = 4;
@@ -4765,7 +4765,7 @@ class CatchInitTest(a:Int) {
 	def this() { // ERR: property(...) might not have been called
 		try {
 			property(2); 
-		} catch(e:Throwable) {}
+		} catch(e:Exception) {}
 	}
 }
 
@@ -5743,7 +5743,7 @@ class TestExceptionsFlow {
 		try {
 			x = new TestExceptionsFlow();
 			val y = 3 / x.n;
-		} catch (e:Throwable) {} // misguided attempt to ignore ArithmeticException
+		} catch (e:Exception) {} // misguided attempt to ignore ArithmeticException
 		use(x); // ERR
 	}
 	def use(Any) {}
@@ -6312,7 +6312,7 @@ class XTENLANG_1767 {
 						// but I think that's actually a conservative approximation - the current CFG says it might be caught in the first or second catch,
 						// and the more accurate one says it is definitely not caught in the first catch.
 						// that's why I can't build any example that will cause a bug...
-				} catch (e1:Throwable) {}
+				} catch (e1:Exception) {}
 			} 
 		} catch (e2:Exception) {}
 	}
@@ -6864,11 +6864,11 @@ class XTENLANG_1851 {
 }
 
 class XTENLANG_2745 {
-	class Exn extends Throwable{}
+	class Exn extends Exception{}
 	static def example() {
 		try {
 		}
-		catch (e : Throwable) {}
+		catch (e : Exception) {}
 		catch (e : Exn) {}// ERR
 	}
 }
@@ -6973,11 +6973,10 @@ class XTENLANG_2925 {
 }
 
 class XTENLANG_2855 {
-	interface Throws2[T]{T <: java.lang.Throwable} extends x10.lang.annotations.MethodAnnotation { }
+	interface Throws2[T]{T <: x10.lang.CheckedThrowable} extends x10.lang.annotations.MethodAnnotation { }
 	class AnnotationTest {
 		def test() throws
-            java.lang.Throwable,
-            x10.lang.Throwable, // ERR
+            x10.lang.CheckedThrowable,
             Any // ERR
         { } 
 	}

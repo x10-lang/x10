@@ -36,7 +36,7 @@ class XTENLANG_203 extends x10Test {
             } finally {
                 b = true;
             }
-        } catch (Throwable) {
+        } catch (Exception) {
             c = true;
         } finally {
             d = true;

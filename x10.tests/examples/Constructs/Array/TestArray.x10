@@ -57,7 +57,7 @@ abstract public class TestArray extends x10Test {
             var r: String;
             try {
                 r = (run)();
-            } catch (e: Throwable) {
+            } catch (e: Exception) {
                 r = e.getMessage();
             }
             o.println(test + " " + r);

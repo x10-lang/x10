@@ -27,7 +27,7 @@ public class InitStaticField2b extends x10Test {
     static def neverSucceed():Int {
     	count()++;
     	if (Math.sin(42) < 1000) { // should always happen
-    		throw new Throwable("I will try to break things.");
+    		throw new Exception("I will try to break things.");
     	}
     	return 1;
     }
@@ -44,7 +44,7 @@ public class InitStaticField2b extends x10Test {
         } catch (e:ExceptionInInitializer) {
         	// check ExceptionInInitializer is thrown
         	// e.printStackTrace();
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
         	ok = false;
         	Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown!");
         	// e.printStackTrace();
@@ -57,7 +57,7 @@ public class InitStaticField2b extends x10Test {
         } catch (e:ExceptionInInitializer) {
         	// check ExceptionInInitializer is thrown
         	// e.printStackTrace();
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
         	ok = false;
         	Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown!");
         	// e.printStackTrace();

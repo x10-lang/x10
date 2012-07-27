@@ -28,7 +28,7 @@ public class ArrayCopy3 extends x10Test {
         var gotException: boolean = false;
         try {
             async at(D(x)) {}; // dummy op just to use D[x]
-        } catch (var e: Throwable) {
+        } catch (var e: Exception) {
             gotException = true;
         }
         return gotException;

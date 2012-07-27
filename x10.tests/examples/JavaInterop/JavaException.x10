@@ -18,7 +18,7 @@ public class JavaException extends x10Test {
 	var pass: Boolean = false;
         try {
             throw new x10.lang.Exception("I like X10");
-        } catch (e: x10.lang.Throwable) {
+        } catch (e: x10.lang.Exception) {
 	    pass = true;
             //e.printStackTrace();
         }
@@ -28,8 +28,8 @@ public class JavaException extends x10Test {
     def javaException(): Boolean {
 	var pass: Boolean = false;
         try {
-            throw new java.lang.Exception("I like Java");
-        } catch (e: java.lang.Throwable) {
+            throw new x10.lang.CheckedException("I like Java");
+        } catch (e: x10.lang.CheckedException) {
 	    pass = true;
             //e.printStackTrace();
         }

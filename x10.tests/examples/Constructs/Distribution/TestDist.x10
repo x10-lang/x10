@@ -61,7 +61,7 @@ abstract public class TestDist extends x10Test {
             var r:String;
             try {
                 r = run();
-            } catch (e: Throwable) {
+            } catch (e: Exception) {
                 r = e.getMessage();
             }
             pr(testName + " " + r);

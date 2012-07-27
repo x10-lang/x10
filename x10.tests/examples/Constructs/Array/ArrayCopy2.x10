@@ -26,7 +26,7 @@ public class ArrayCopy2 extends x10Test {
     static def outOfRange(D: Dist, x: Point(D.rank)): boolean {
         try {
             async at(D(x)) {}; // dummy op just to use D(x)
-        } catch (Throwable) {
+        } catch (Exception) {
             return true;
         }
         return false;

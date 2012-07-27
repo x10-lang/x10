@@ -21,12 +21,12 @@ public class JavaException7 extends x10Test {
 
     public def run(): Boolean {
         var ok:Boolean = true;
-        var ex:java.lang.Throwable;
+        var ex:x10.lang.CheckedThrowable;
         
         try {
         	ex = null;
             new Base().f();
-        } catch (e:java.lang.Throwable) {
+        } catch (e:x10.lang.CheckedThrowable) {
             ex = e;
         } finally {
         	if (ex == null) {
@@ -41,7 +41,7 @@ public class JavaException7 extends x10Test {
         	new Base() {
         		def f():Any throws java.io.IOException { throw new java.io.IOException("Exception from a local class."); }
             }.f();
-        } catch (e:java.lang.Throwable) {
+        } catch (e:x10.lang.CheckedThrowable) {
             ex = e;
         } finally {
         	if (ex == null) {

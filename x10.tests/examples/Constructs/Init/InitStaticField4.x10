@@ -27,7 +27,7 @@ public class InitStaticField4 extends x10Test {
     static class D {
         def this() {
             count()++;
-            throw new Throwable();
+            throw new Exception();
         }
     }
 
@@ -45,7 +45,7 @@ public class InitStaticField4 extends x10Test {
         } catch (e:ExceptionInInitializer) {
             ok = false;
             Console.OUT.println("BUG: ExceptionInInitializer was thrown for c!");
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
             ok = false;
             Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown for c!");
         }
@@ -56,7 +56,7 @@ public class InitStaticField4 extends x10Test {
             Console.OUT.println("BUG: no exception was thrown for d!");
         } catch (e:ExceptionInInitializer) {
             // check ExceptionInInitializer is thrown
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
             ok = false;
             Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown for d!");
         }
@@ -67,7 +67,7 @@ public class InitStaticField4 extends x10Test {
             Console.OUT.println("BUG: no exception was thrown for d!");
         } catch (e:ExceptionInInitializer) {
             // check ExceptionInInitializer is thrown
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
             ok = false;
             Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown for d!");
         }

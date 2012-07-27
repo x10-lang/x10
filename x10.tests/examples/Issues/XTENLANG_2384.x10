@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 class XTENLANG_2384 extends x10Test {
 
-  static class Exn extends Throwable{}
+  static class Exn extends Exception {}
   static class SubExn(n:Int) extends Exn{}
   static class Example {
   static def example() {
@@ -27,7 +27,7 @@ class XTENLANG_2384 extends x10Test {
     catch (e : SubExn{n==1}) { assert false; }
     catch (e : SubExn{n==2}) { assert false; }
     catch (e : Exn)          { correct = true; }
-    catch (e : Throwable)    { assert false; }
+    catch (e : Exception)    { assert false; }
     assert correct;
   }
 }
