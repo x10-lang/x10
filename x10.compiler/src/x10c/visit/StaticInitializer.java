@@ -931,7 +931,7 @@ public class StaticInitializer extends ContextVisitor {
         Stmt storeExceptStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdExcept.name()), Assign.ASSIGN, newExceptExpr).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type()));
 
         List<Stmt> catchStmts = new ArrayList<Stmt>();
-        // gen exception = new x10.lang.ExceptionInInitializer(e.getMessage());
+        // gen exception = new x10.lang.ExceptionInInitializer(e);
         catchStmts.add(storeExceptStmt);
         // gen AtomicInteger.set(EXCEPTION_RAISED)
         catchStmts.add(xnf.Eval(pos, genStatusSetExcept(pos, receiver, fdCond)));
@@ -1032,11 +1032,13 @@ public class StaticInitializer extends ContextVisitor {
         if (stickyExceptionSemantics) {
             Name excName = Name.makeFresh("exc$");
             List<Catch> catchBlocks = new ArrayList<Catch>();
-            // gen catch (x10.core.X10Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+            // TODO CHECKED_THROWABLE OK single catch block as CheckedThrowable is enough
+//            // gen catch (x10.core.X10Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+//            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.Throwable(), receiver, throwExceptStmt));
+//            // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+//            catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
+            // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
             catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.CheckedThrowable(), receiver, throwExceptStmt));
-            // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
-            // MIKIO_PLEASE_SEE
-            //catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
             stmts.add(xnf.Try(pos, xnf.Block(pos, fieldAssignStmt), catchBlocks));
         } else {
             stmts.add(fieldAssignStmt);

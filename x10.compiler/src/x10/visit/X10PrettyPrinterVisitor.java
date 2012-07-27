@@ -4599,7 +4599,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    // MIKIO_PLEASE_SEE
+    // TODO CHECKED_THROWABLE OK reordering of catch blocks is no longer needed 
     private Try_c reorderCatchBlocks(Try_c c) {
         TypeSystem ts = tr.typeSystem();
         Context context = tr.context();
