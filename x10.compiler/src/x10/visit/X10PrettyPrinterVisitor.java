@@ -239,7 +239,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static final String X10_CORE_THROWABLE_UTILITIES = "x10.core.ThrowableUtilities";
     public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
-    public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
+    // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//    public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
     public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
     public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
     public static final String JAVA_LANG_EXCEPTION = "java.lang.Exception";
