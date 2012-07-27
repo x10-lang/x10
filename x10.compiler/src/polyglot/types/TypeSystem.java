@@ -953,7 +953,6 @@ public interface TypeSystem {
 
     //Type Value();
 
-    Type Object();
     X10ClassType GlobalRef();
     X10ClassType Any();
 
@@ -1085,8 +1084,6 @@ public interface TypeSystem {
     boolean isAny(Type me);
 
     boolean isStruct(Type me);
-
-    boolean isObject(Type me);
 
     boolean isString(Type me);
 

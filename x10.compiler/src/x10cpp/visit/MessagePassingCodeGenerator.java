@@ -141,6 +141,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -345,10 +346,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write("template <> class ");
 		h.write(mangled_non_method_name(cd.name().toString()));
 		h.write(voidTemplateInstantiation(cd.typeParameters().size()));
-		if (!cd.isStruct() && cd.superType() != null) {
+		if (!cd.isStruct()) {
+			Ref<? extends Type> st = cd.superType();
 		    h.write(" : public ");
-		    X10ClassDef sdef = ((X10ClassType) Types.baseType(cd.superType().get())).x10Def();
-		    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));
+		    if (st == null ) {
+			    h.write("x10::lang::Reference");
+		    } else {
+			    X10ClassDef sdef = ((X10ClassType) Types.baseType(st.get())).x10Def();
+			    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));
+		    }
 		}
 		h.allowBreak(0, " ");
 		h.write("{");
@@ -1740,7 +1746,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.writeln("static volatile x10aux::StaticInitController::status "+status+";");;
 
         // declare the exception holder
-        h.writeln("static x10aux::ref<x10::lang::Throwable> "+except+";");;
+        h.writeln("static x10aux::ref<x10::lang::CheckedThrowable> "+except+";");;
 
         // declare the accessor method
         h.write("static ");
@@ -1781,7 +1787,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.writeln(";");
         
         // define the exception holder flag
-        sw.write("x10aux::ref<x10::lang::Throwable> ");
+        sw.write("x10aux::ref<x10::lang::CheckedThrowable> ");
         sw.write(container+"::");
         sw.write(except);
         sw.writeln(";");

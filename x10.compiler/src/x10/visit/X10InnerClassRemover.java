@@ -506,7 +506,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
             cd = cd.body(cd.body().members(newMember));
             def.setWasInner(true);
             Ref<? extends Type> st = def.superType();
-            ((Ref<Type>) st).update(Types.instantiateTypeParametersExplicitly(Types.get(st)));
+            if (st != null) {
+            	((Ref<Type>) st).update(Types.instantiateTypeParametersExplicitly(Types.get(st)));
+            }
             for (Ref<? extends Type> it : def.interfaces()) {
                 ((Ref<Type>) it).update(Types.instantiateTypeParametersExplicitly(Types.get(it)));
             }

@@ -38,7 +38,7 @@ public class SubtypeSet implements java.util.Set<Type>
      * Creates an empty SubtypeSet
      */
     public SubtypeSet(TypeSystem ts) {
-	this(ts.Object());
+	this(ts.Any());
     }
 
     public SubtypeSet(Type top) {

@@ -9,7 +9,8 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <x10aux/system_utils.h>
+#include <cstdlib>
+#include <cstdio>
 
 #ifdef __bgp__
 #ifndef DISABLE_CLOCK_GETTIME
@@ -33,8 +34,9 @@
 #  include <sys/time.h>  // for gettimeofday (POSIX)
 #endif
 
-#include <stdlib.h>
-#include <stdio.h>
+#include <x10aux/system_utils.h>
+
+#include <x10/lang/String.h>
 
 void x10aux::system_utils::exit(x10_int code) {
 #ifndef NO_EXCEPTIONS
@@ -75,6 +77,16 @@ x10_long x10aux::system_utils::nanoTime() {
 
 void x10aux::system_utils::println(const char *msg) {
     fprintf(stderr, "%s\n", msg);
+}
+
+x10aux::ref<x10::lang::String> x10aux::identity_type_name (x10aux::ref<x10::lang::Reference> ptr)
+{
+    return x10::lang::String::Lit(alloc_printf("%s",ptr->_type()->name()));
+}
+
+x10aux::ref<x10::lang::String> x10aux::identity_to_string (x10aux::ref<x10::lang::Reference> ptr)
+{
+    return x10::lang::String::Lit(alloc_printf("%s@%p",ptr->_type()->name(),(void*)&*ptr));
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

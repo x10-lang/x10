@@ -224,8 +224,6 @@ public interface NodeFactory
 
     Switch Switch(Position pos, Expr expr, List<SwitchElement> elements);
 
-    Synchronized Synchronized(Position pos, Expr expr, Block body);
-
     Throw Throw(Position pos, Expr expr);
 
     Try Try(Position pos, Block tryBlock, List<Catch> catchBlocks);

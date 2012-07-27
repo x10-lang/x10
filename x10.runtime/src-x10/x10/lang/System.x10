@@ -112,6 +112,12 @@ public class System {
     @Native("c++", "printf(\"not setting %s\\n\", (#p)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.
     public static native def setProperty(p:String,v:String):void;
 
+    @Native("java", "java.lang.System.identityHashCode(#o)")
+    @Native("c++", "x10aux::identity_hash_code(#o)")
+    public static native def identityHashCode[T](o:T) {T isref} : Int;
+
+    public static def identityToString[T](o:T) {T isref} : String = o.typeName() + "@" + System.identityHashCode[T](o);
+
     /**
      * Sleep for the specified number of milliseconds.
      * [IP] NOTE: Unlike Java, x10 sleep() simply exits when interrupted.

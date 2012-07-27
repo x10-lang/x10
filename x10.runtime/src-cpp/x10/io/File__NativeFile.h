@@ -15,7 +15,7 @@
 #include <x10aux/config.h>
 #include <x10aux/serialization.h>
 
-#include <x10/lang/Object.h>
+#include <x10/lang/Reference.h>
 
 #include <x10/lang/String.h>
 
@@ -27,7 +27,7 @@ namespace x10 {
 
     namespace io {
 
-        class File__NativeFile : public x10::lang::Object {
+        class File__NativeFile : public x10::lang::Reference {
             public:
             RTT_H_DECLS_CLASS;
 
@@ -39,7 +39,6 @@ namespace x10 {
 
             static x10aux::ref<File__NativeFile> _make(x10aux::ref<x10::lang::String> s);
             x10aux::ref<File__NativeFile> _constructor(x10aux::ref<x10::lang::String> s) {
-                this->x10::lang::Object::_constructor();
                 path = s;
                 return this;
             }

@@ -344,7 +344,8 @@ public class ClosureRemover extends ContextVisitor {
                     // create class def for static nested
                     final X10ClassDef staticNestedClassDef = (X10ClassDef) xts.createClassDef();
                     
-                    staticNestedClassDef.superType(Types.ref(xts.Object()));
+                    //[DC] i assume simply not setting a supertype is OK.  This is how Object was defined I think.
+                    //staticNestedClassDef.superType(Types.ref(xts.Object()));
                     staticNestedClassDef.kind(ClassDef.MEMBER);
                     staticNestedClassDef.name(staticNestedClassName.id());
                     staticNestedClassDef.outer(Types.ref(def));
@@ -391,7 +392,7 @@ public class ClosureRemover extends ContextVisitor {
                     for (Type it : cint) {
                         interfaces.add(xnf.X10CanonicalTypeNode(pos, it));
                     }
-                    X10ClassDecl staticNestedClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticNestedClassName, xnf.X10CanonicalTypeNode(pos, xts.Object()), interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
+                    X10ClassDecl staticNestedClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticNestedClassName, null, interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
 
                     // Copy over the annotations from the closure. These annotations are needed for dealing with GENERAL asyncs and SIMPLE asyncs
                     X10Ext_c ext = (X10Ext_c) cl.ext();

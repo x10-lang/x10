@@ -19,7 +19,7 @@
 #define MAX_TRACE_SIZE 1
 #endif
 
-#include <x10/lang/Object.h>
+#include <x10/lang/Reference.h>
 
 namespace x10 { namespace io { class Printer; } }
 namespace x10 { namespace array { template <class T> class Array; } }
@@ -29,7 +29,7 @@ namespace x10 {
 
         class String;
 
-        class CheckedThrowable : public Object {
+        class CheckedThrowable : public Reference {
         public:
             RTT_H_DECLS_CLASS;
 

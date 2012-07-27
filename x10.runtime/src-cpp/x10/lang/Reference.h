@@ -16,6 +16,7 @@
 #include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/itables.h>
+#include <x10aux/system_utils.h>
 
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
@@ -26,8 +27,6 @@ namespace x10 {
 
         class String;
         class Any;
-        class Object;
-        class Throwable;
         
         /**
          * This is a class that exists only at the C++ implementation level,
@@ -35,7 +34,7 @@ namespace x10 {
          * associated RTT.
          * 
          * The purpose of this class is to provide a common C++ level superclass
-         * for Object (X10 local objects), Closure (function objects created from X10 closure literals),
+         * for X10 local objects, Closure (function objects created from X10 closure literals),
          * and IBox<T> (X10 structs of type T that have been boxed because they were upcast to an interface type).
          * The single common superclass is needed because pointers to instances of any of its subclasses could
          * appear in variables of interface type and we need a common C++ level
@@ -49,7 +48,11 @@ namespace x10 {
             /*********************************************************************************
              * Implementation-level object model functions assumed to be defined for all types
              *********************************************************************************/
-            virtual x10aux::itable_entry* _getITables() = 0;
+
+            // classes that implement no interfaces will inherit this guy
+            static x10aux::itable_entry empty_itable[1];
+            virtual x10aux::itable_entry* _getITables() { return empty_itable; }
+
 
             virtual const x10aux::RuntimeType *_type() const = 0;
 
@@ -65,10 +68,21 @@ namespace x10 {
                 return other == x10aux::ref<Reference>(this);
             }
             
-            virtual x10_int hashCode() = 0;
-
-            virtual x10aux::ref<String> toString() = 0;
+            // Will be overriden by classes that implement x10.lang.Runtime.Mortal to return true.
+            virtual x10_boolean _isMortal() { return false; }
             
+            virtual x10_int hashCode() { return x10aux::identity_hash_code(this); }
+
+            virtual x10aux::ref<String> toString() { return x10aux::identity_to_string(this); }
+
+            virtual x10aux::ref<String> typeName();
+
+            // Like the destructor, but called only by dealloc_object()
+            // Needed only for native classes that have alloc'ed state
+            virtual void _destructor() { }
+
+            static void dealloc_object(Reference*);
+
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types
              *********************************************************************************/

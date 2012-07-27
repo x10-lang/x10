@@ -31,7 +31,7 @@ import x10.util.ArrayList;
  */
 @NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
 @NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
-public final class String implements (Int) => Char, Ordered[String], Comparable[String] {
+public final class String implements Comparable[String] {
 
     /**
      * Default constructor.

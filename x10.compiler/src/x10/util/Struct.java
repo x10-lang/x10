@@ -96,12 +96,7 @@ public class Struct {
                BOOLEAN.update((X10ParsedClassType) xts.Boolean());
            }
        });
-       final LazyRef<X10ParsedClassType> OBJECT = Types.lazyRef(null);
-       OBJECT.setResolver(new Runnable() {
-           public void run() {
-               OBJECT.update((X10ParsedClassType) xts.Object());
-           }
-       });
+
 
 
 
@@ -173,7 +168,6 @@ public class Struct {
         final TypeNode intTypeNode = nf.CanonicalTypeNode(pos, ts.Int());
         final TypeNode boolTypeNode = nf.CanonicalTypeNode(pos, ts.Boolean());
         final TypeNode placeTypeNode = nf.CanonicalTypeNode(pos, ts.Place());
-        final TypeNode objectTypeNode = nf.CanonicalTypeNode(pos, ts.Object());
         final TypeNode stringTypeNode = nf.CanonicalTypeNode(pos, ts.String());
         final TypeNode anyTypeNode = nf.CanonicalTypeNode(pos, ts.Any());
         final List<TypeParamNode> typeParamNodeList = n.typeParameters();

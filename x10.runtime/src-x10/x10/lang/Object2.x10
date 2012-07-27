@@ -21,7 +21,7 @@ import x10.compiler.NonEscaping;
 // Fix for XTENLANG-1916
 @NativeRep("java", "x10.core.RefI", null, "x10.rtt.Types.OBJECT")
 @NativeRep("c++", "x10aux::ref<x10::lang::Object>", "x10::lang::Object", null)
-public class Object {
+public class Object2 {
 
     /**
      * Default constructor.

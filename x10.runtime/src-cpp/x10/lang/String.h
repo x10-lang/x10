@@ -17,7 +17,7 @@
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
 
-#include <x10/lang/Object.h>
+#include <x10/lang/Reference.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Comparable.h>
 
@@ -26,7 +26,7 @@ namespace x10 {
     
     namespace lang {
 
-        class String : public Object {
+        class String : public Reference {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 
@@ -171,7 +171,7 @@ namespace x10 {
         };
 
 
-        // Adding reference classes (String+String) (String+Object) (Object+String)
+        // Adding reference classes (String+String) (String+Reference) (Reference+String)
         template<class T1, class T2>
         x10aux::ref<String> operator+(T1 p1, T2 p2) {
             return String::Steal(x10aux::alloc_printf("%s%s",

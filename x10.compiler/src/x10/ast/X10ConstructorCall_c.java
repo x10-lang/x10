@@ -71,11 +71,6 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	public Node buildTypes(TypeBuilder tb) {
 	    TypeSystem ts = tb.typeSystem();
 
-	    // Remove super() calls for java.lang.Object.
-	    if (kind == SUPER && tb.currentClass()!=null && tb.currentClass().fullName().equals(QName.make("x10.lang.Object"))) {
-	        return tb.nodeFactory().Empty(position());
-	    }
-
 	    if (kind == THIS) {
 	        X10ConstructorDef cd = AssignPropertyCall_c.getConstructorDef(tb);
 	        if (cd != null) {
@@ -143,14 +138,10 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	        if (kind == SUPER && superType == null) {
 	        	// this can happen for structs, and for Object
 	        	Type type =  context.currentClass();
-	        	if (Types.isX10Struct(type)
-	        			|| ts.typeEquals(type, ts.Object(), tc.context())) {
-	        		// the super() call inserted by the parser needs to be thrown out
-	        		NodeFactory nf = (NodeFactory) tc.nodeFactory();
-	        		return nf.Empty(Position.compilerGenerated(position()));
-	        	}
-	        	throw new InternalCompilerError("Unexpected null supertype for " 
-	        			+ this, position());
+
+	        	// the super() call inserted by the parser needs to be thrown out
+        		NodeFactory nf = (NodeFactory) tc.nodeFactory();
+        		return nf.Empty(Position.compilerGenerated(position()));
 	        }
 
 	        // The qualifier specifies the enclosing instance of this inner class.

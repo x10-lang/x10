@@ -51,7 +51,7 @@ public class JavaArrayType_c extends ReferenceType_c implements JavaArrayType
             MethodDef mi = ts.methodDef(position(), position(),
                                         Types.<JavaArrayType_c>ref(this),
                                         ts.Public(),
-                                        Types.<Type>ref(ts.Object()),
+                                        Types.<Type>ref(ts.Any()),
                                         Name.make("clone"),
                                         Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
             methods.add(mi);
@@ -157,7 +157,7 @@ public class JavaArrayType_c extends ReferenceType_c implements JavaArrayType
 
     /** Get the super type of the array type. */
     public Type superClass() {
-	return ts.Object();
+	return ts.Any();
     }
 
     /** Get the interfaces implemented by the array type. */

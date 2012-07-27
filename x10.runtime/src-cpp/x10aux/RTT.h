@@ -42,6 +42,13 @@
         rtt.initStageTwo(NAME, KIND, 1, parents, 0, NULL, NULL); \
     }
 
+#define RTT_CC_DECLS0(TYPE,NAME,KIND)                        \
+    x10aux::RuntimeType TYPE::rtt;                              \
+    void TYPE::_initRTT() {                                     \
+        if (rtt.initStageOne(&rtt)) return;                     \
+        rtt.initStageTwo(NAME, KIND, 0, NULL, 0, NULL, NULL); \
+    }
+
 namespace x10 {
     namespace lang {
         class NullType;

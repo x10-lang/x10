@@ -260,98 +260,93 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
     protected Node leaveCall(Node old, Node n, NodeVisitor v) {
 
-	Position pos = n.position();
+    	Position pos = n.position();
 
-	// Convert anonymous classes into member classes
-	if (n instanceof New) {
-	    New neu = (New) n;
+    	// Convert anonymous classes into member classes
+    	if (n instanceof New) {
+    		New neu = (New) n;
 
-	    ClassBody body = neu.body();
+    		ClassBody body = neu.body();
 
-	    if (body == null)
-		return neu;
+    		if (body == null)
+    			return neu;
 
-	    // Box locals
-	    body = (ClassBody) neu.visitChild(body, localBoxer());
+    		// Box locals
+    		body = (ClassBody) neu.visitChild(body, localBoxer());
 
-	    // Check if extending a class or an interface.
-	    TypeNode superClass = neu.objectType();
-	    List<TypeNode> interfaces = Collections.<TypeNode>emptyList();
-	    ConstructorInstance ci = neu.constructorInstance();
+    		// Check if extending a class or an interface.
+    		TypeNode superClass = neu.objectType();
+    		List<TypeNode> interfaces = Collections.<TypeNode>emptyList();
+    		ConstructorInstance ci = neu.constructorInstance();
 
-	    ClassType supertype = neu.objectType().type().toClass();
-	    if (supertype != null && supertype.flags().isInterface()) {
-	        superClass = defaultSuperType(pos);
-	        supertype = superClass.type().toClass();
-	        interfaces = Collections.singletonList(neu.objectType());
-	        assert (neu.arguments().isEmpty());
-	        try {
-	            ci = ts.findConstructor(supertype, ts.ConstructorMatcher(supertype, Collections.<Type>emptyList(), context()));
-	        } catch (SemanticException e) {
-	            throw new InternalCompilerError("Default constructor not found in "+supertype, neu.position(), e);
-	        }
-	    }
+    		ClassType supertype = neu.objectType().type().toClass();
+    		if (supertype != null && supertype.flags().isInterface()) {
+    			superClass = null;
+    			interfaces = Collections.singletonList(neu.objectType());
+    			assert (neu.arguments().isEmpty());
+				ci = null;
+    		}
 
-	    Flags oldFlags = neu.anonType().flags();
-	    Flags flags = context.inStaticContext() ? oldFlags.Private().Static() : oldFlags.Private();
-	    Id name = nf.Id(pos, "Anonymous"+"$"+neu.position().offset());
-	    ClassDecl cd = nf.ClassDecl(pos, nf.FlagsNode(pos, flags), name, superClass, interfaces, body);
+    		Flags oldFlags = neu.anonType().flags();
+    		Flags flags = context.inStaticContext() ? oldFlags.Private().Static() : oldFlags.Private();
+    		Id name = nf.Id(pos, "Anonymous"+"$"+neu.position().offset());
+    		ClassDecl cd = nf.ClassDecl(pos, nf.FlagsNode(pos, flags), name, superClass, interfaces, body);
 
-	    X10ClassDef type = neu.anonType();
-	    type.kind(ClassDef.MEMBER);
-	    type.name(cd.name().id());
-	    type.outer(Types.ref(context.currentClassDef()));
-	    type.setPackage(Types.ref(context.package_()));
-	    type.flags(flags);
+    		X10ClassDef type = neu.anonType();
+    		type.kind(ClassDef.MEMBER);
+    		type.name(cd.name().id());
+    		type.outer(Types.ref(context.currentClassDef()));
+    		type.setPackage(Types.ref(context.package_()));
+    		type.flags(flags);
 
-	    cd = cd.classDef(type);
+    		cd = cd.classDef(type);
 
-	    ConstructorDecl td = addConstructor(cd, neu, ci);
+    		ConstructorDecl td = addConstructor(cd, neu, ci);
 
-	    // Add the CI to the class.
-	    type.addConstructor(td.constructorDef());
+    		// Add the CI to the class.
+    		type.addConstructor(td.constructorDef());
 
-	    {
-		// Append the constructor to the body.
-		ClassBody b = cd.body();
-		List<ClassMember> members = new ArrayList<ClassMember>();
-		members.addAll(b.members());
-		members.add(td);
-		b = b.members(members);
-		cd = cd.body(b);
-	    }
+    		{
+    			// Append the constructor to the body.
+    			ClassBody b = cd.body();
+    			List<ClassMember> members = new ArrayList<ClassMember>();
+    			members.addAll(b.members());
+    			members.add(td);
+    			b = b.members(members);
+    			cd = cd.body(b);
+    		}
 
-	    neu = neu.constructorInstance(computeConstructorInstance(td.constructorDef()));
-	    neu = neu.anonType(null);
+    		neu = neu.constructorInstance(computeConstructorInstance(td.constructorDef()));
+    		neu = neu.anonType(null);
 
-	    if (! flags.isStatic()) {
-		neu = neu.qualifier(nf.This(pos).type(context.currentClass()));
-	    }
+    		if (! flags.isStatic()) {
+    			neu = neu.qualifier(nf.This(pos).type(context.currentClass()));
+    		}
 
-	    cd = rewriteLocalClass(cd, (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
-	    hashAdd(orphans, context.currentClassDef(), cd);
-	    neu = adjustObjectType(neu, computeConstructedType(type, context().currentCode()));
-	    neu = neu.body(null);
-	    neu = (New) rewriteConstructorCalls(neu, cd.classDef(), (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
-	    return neu;
-	}
+    		cd = rewriteLocalClass(cd, (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
+    		hashAdd(orphans, context.currentClassDef(), cd);
+    		neu = adjustObjectType(neu, computeConstructedType(type, context().currentCode()));
+    		neu = neu.body(null);
+    		neu = (New) rewriteConstructorCalls(neu, cd.classDef(), (List<FieldDef>) hashGet(newFields, cd.classDef(), Collections.<FieldDef>emptyList()));
+    		return neu;
+    	}
 
-	// Add any orphaned declarations created below to the class body
-	if (n instanceof ClassDecl) {
-	    ClassDecl cd = (ClassDecl) n;
-	    List<ClassMember> o = orphans.get(cd.classDef());
-	    if (o == null)
-		return cd;
-	    ClassBody b = cd.body();
-	    o = b.visitList(o, this);
-	    List<ClassMember> members = new ArrayList<ClassMember>();
-	    members.addAll(b.members());
-	    members.addAll(o);
-	    b = b.members(members);
-	    return cd.body(b);
-	}
+    	// Add any orphaned declarations created below to the class body
+    	if (n instanceof ClassDecl) {
+    		ClassDecl cd = (ClassDecl) n;
+    		List<ClassMember> o = orphans.get(cd.classDef());
+    		if (o == null)
+    			return cd;
+    		ClassBody b = cd.body();
+    		o = b.visitList(o, this);
+    		List<ClassMember> members = new ArrayList<ClassMember>();
+    		members.addAll(b.members());
+    		members.addAll(o);
+    		b = b.members(members);
+    		return cd.body(b);
+    	}
 
-	return n;
+    	return n;
     }
 
     protected New adjustObjectType(New neu, ClassType ct) {
@@ -362,12 +357,6 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
     protected abstract ClassType computeConstructedType(ClassDef type, CodeDef codeDef);
 
-    /**
-     * The type to be extended when translating an anonymous class that
-     * implements an interface.
-     */
-    protected abstract TypeNode defaultSuperType(Position pos);
-
     protected abstract ClassDecl rewriteLocalClass(ClassDecl cd, List<FieldDef> newFields);
 
     protected abstract
@@ -375,52 +364,53 @@ public abstract class LocalClassRemover extends ContextVisitor {
 
     // Create a new constructor for an anonymous class.
     protected ConstructorDecl addConstructor(ClassDecl cd, New neu, ConstructorInstance superCI) {
-	// Build the list of formal parameters and list of arguments for the super call.
-	List<Formal> formals = new ArrayList<Formal>();
-	List<Expr> args = new ArrayList<Expr>();
-    List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
-    List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
-	int i = 1;
+    	// Build the list of formal parameters and list of arguments for the super call.
+    	List<Formal> formals = new ArrayList<Formal>();
+    	List<Expr> args = new ArrayList<Expr>();
+    	List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
+    	List<Ref<? extends Type>> throwTypes = new ArrayList<Ref<? extends Type>>();
+    	int i = 1;
 
-	for (Expr e : neu.arguments()) {
-	    Position pos = e.position();
-	    Id name = nf.Id(pos, "a" + i);
-	    i++;
-	    Formal f = nf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL), nf.CanonicalTypeNode(pos, e.type()), name);
-	    Local l = nf.Local(pos, name);
+    	for (Expr e : neu.arguments()) {
+    		Position pos = e.position();
+    		Id name = nf.Id(pos, "a" + i);
+    		i++;
+    		Formal f = nf.Formal(pos, nf.FlagsNode(pos, Flags.FINAL), nf.CanonicalTypeNode(pos, e.type()), name);
+    		Local l = nf.Local(pos, name);
 
-	    LocalDef li = ts.localDef(pos, f.flags().flags(), f.type().typeRef(), name.id());
-	    li.setNotConstant();
-	    f = f.localDef(li);
-	    l = l.localInstance(li.asInstance());
-	    l = (Local) l.type(li.asInstance().type());
+    		LocalDef li = ts.localDef(pos, f.flags().flags(), f.type().typeRef(), name.id());
+    		li.setNotConstant();
+    		f = f.localDef(li);
+    		l = l.localInstance(li.asInstance());
+    		l = (Local) l.type(li.asInstance().type());
 
-	    formals.add(f);
-	    args.add(l);
-	    argTypes.add(li.type());
-	}
+    		formals.add(f);
+    		args.add(l);
+    		argTypes.add(li.type());
+    	}
+
+    	Position pos = cd.position().markCompilerGenerated();
+    	List<Stmt> statements = new ArrayList<Stmt>();
+    	
+    	if (superCI != null) {
+	    	for (Type t : superCI.throwTypes()) {
+	    		throwTypes.add(Types.ref(t));
+	    	}
 	
-	for (Type t : superCI.throwTypes()) {
-	    throwTypes.add(Types.ref(t));
-	}
+	    	// Create the super call.
+	    	ConstructorCall cc = nf.SuperCall(pos, args);
+	    	cc = cc.constructorInstance(superCI);
+	    	cc = cc.qualifier(adjustQualifier(neu.qualifier()));
+	    	statements.add(cc);
+    	}
+	    	
+    	// Create the constructor declaration node and the CI.
+    	ConstructorDecl td = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PRIVATE), cd.name(), formals,  nf.Block(pos, statements));
+    	td = (ConstructorDecl) td.visit(new MarkReachable());
+    	ConstructorDef ci = ts.constructorDef(pos, pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes, throwTypes);
+    	td = td.constructorDef(ci);
 
-	Position pos = cd.position().markCompilerGenerated();
-
-	// Create the super call.
-	ConstructorCall cc = nf.SuperCall(pos, args);
-	cc = cc.constructorInstance(superCI);
-	cc = cc.qualifier(adjustQualifier(neu.qualifier()));
-
-	List<Stmt> statements = new ArrayList<Stmt>();
-	statements.add(cc);
-
-	// Create the constructor declaration node and the CI.
-	ConstructorDecl td = nf.ConstructorDecl(pos, nf.FlagsNode(pos, Flags.PRIVATE), cd.name(), formals,  nf.Block(pos, statements));
-    td = (ConstructorDecl) td.visit(new MarkReachable());
-	ConstructorDef ci = ts.constructorDef(pos, pos, Types.ref(cd.classDef().asType()), Flags.PRIVATE, argTypes, throwTypes);
-	td = td.constructorDef(ci);
-
-	return td;
+    	return td;
     }
 
     public static class MarkReachable extends NodeVisitor {

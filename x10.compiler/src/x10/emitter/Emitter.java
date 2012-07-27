@@ -732,7 +732,6 @@ public class Emitter {
 //            if (typeName.equals("x10.util.concurrent.AtomicReference")) return true;
 //            if (typeName.equals("x10.util.concurrent.AtomicBoolean")) return true;
             if (typeName.startsWith("x10.util.concurrent.Atomic")) return true;
-            if (type.isObject()) return true; // x.l.Object is subtype of x.l.Any which is @NativeRep'ed to j.l.Object. since every method of x.l.Object implements the method of x.l.Any, we need to handle x.l.Object as x.l.Any.
             return false;
             // TODO check if NativeRep'ed target (i.e. pat) recursively extends or implements Java type in Java implementation level. 
 //            Type bt = Types.baseType(type);
@@ -964,7 +963,6 @@ public class Emitter {
 					return;
 				} else {
 					assert false;
-					printType(type.typeSystem().Object(), flags);
 					return;
 				}
 			}
@@ -4036,7 +4034,6 @@ public class Emitter {
         if (superClassNode == null || !superClassNode.type().isClass()) return false;
         Type superType = superClassNode.type();
         if (superType.isAny() ||
-            superType.isObject() ||
             superType.typeEquals(Thread(), tr.context())) return false;
         return true;
 	}

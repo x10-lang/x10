@@ -877,7 +877,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
+                                     Flags.NONE, Types.ref(xts.Any()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -889,7 +889,7 @@ public class StaticInitializer extends ContextVisitor {
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, X10JavaDeserializer()));
         Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
-        Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Object());
+        Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Any());
         return call;
     }
 
@@ -1097,11 +1097,11 @@ public class StaticInitializer extends ContextVisitor {
 
         // make instance call
         ObjectType targetType = (ObjectType)target.type();
-        MethodDef md = xts.methodDef(pos, pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Object()), name, 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Any()), name, 
                                      Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr applyCall = xnf.X10Call(pos, target, xnf.Id(pos, name), Collections.<TypeNode>emptyList(), 
-                                     Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Object());
+                                     Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Any());
 
         // assign to local var
         Name lname = Name.make("initVal");
@@ -1213,12 +1213,12 @@ public class StaticInitializer extends ContextVisitor {
         if (customSerialization) {
             args.add(fieldVar.type(fieldVar.type()));
         } else {
-            args.add(fieldVar.type(xts.Object()));
+            args.add(fieldVar.type(xts.Any()));
         }
         args.add(fieldId.type(xts.Short()));
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
-        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Object()));
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Any()));
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Short()));
         Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
         Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(returnType);

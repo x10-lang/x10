@@ -52,7 +52,7 @@ public class Name  implements Serializable {
     
     public static Name make(String name) {
         if (! StringUtil.isNameShort(name))
-	assert StringUtil.isNameShort(name);
+	assert StringUtil.isNameShort(name) : name;
 	return makeUnchecked(name);
     }
 

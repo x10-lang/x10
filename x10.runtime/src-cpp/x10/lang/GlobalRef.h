@@ -3,6 +3,8 @@
 
 #include <x10rt.h>
 
+#include <x10/lang/Any.h>
+
 namespace x10 {
     namespace lang { 
         template<class T> class GlobalRef  {
@@ -121,7 +123,7 @@ namespace x10 {
 
 namespace x10 {
     namespace lang {
-        extern void logGlobalReference(x10aux::ref<x10::lang::Object> obj);
+        extern void logGlobalReference(x10aux::ref<x10::lang::Reference> obj);
     }
 }
 

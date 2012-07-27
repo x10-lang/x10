@@ -494,20 +494,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         final TypeNode superClassNode = n.superClass();
-        if (superClassNode != null || flags.isStruct()) {
-            w.write(" extends ");
-            if (flags.isStruct()) {
-                assert superClassNode == null : superClassNode;
-                w.write(X10_CORE_STRUCT);
-            } else {
-                assert superClassNode != null;
-                Type superType = superClassNode.type();
-                // N.B. HACK! If a class extends x10.lang.Object, swipe in x10.core.Ref
-                if (superType.isObject())
-                    w.write(X10_CORE_REF);
-                else
-                    er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
-            }
+        if (!flags.isInterface()) {
+            // [DC] all target classes use an extends clause now, even for roots (they extend x.c.Ref)
+	        w.write(" extends ");
+	        if (flags.isStruct()) {
+	            assert superClassNode == null : superClassNode;
+	            w.write(X10_CORE_STRUCT);
+	        } else {
+	            if (superClassNode == null) {
+	                // [DC] this is a root
+	                w.write(X10_CORE_REF);
+	            } else {
+	                Type superType = superClassNode.type();
+	                er.printType(superType, PRINT_TYPE_PARAMS | BOX_PRIMITIVES | NO_VARIANCE);
+	            }
+	        }
         }
 
         // Filter out x10.lang.Any from the interfaces.
@@ -1005,12 +1006,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             else {
                 // call "constructor just for allocation"
-                w.write("super($dummy");
+            	// [DC] if the class doesn't extend anything, don't bother calling super()
                 if (def.superType() != null) {
+                    w.write("super($dummy");
                     printArgumentsForTypeParamsPreComma(def.superType().get().toClass().typeArguments(), false);
+                    w.write(");");
+                    w.newline();
                 }
-                w.write(");");
-                w.newline();
             }
             printInitParams(def.asType(), params);
             w.write("}");
@@ -1923,10 +1925,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private void printAllocationCall(Type type, List<? extends Type> typeParams) {
         w.write("new ");
         // N.B. HACK! for x10.lang.Object, allocate x10.core.Ref instead of x10.core.RefI
-        if (isObject(type))
-                w.write(X10_CORE_REF);
-        else
-                er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
+        er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
         printArgumentsForTypeParamsPreComma(typeParams, false);
         w.write(")");
@@ -2636,7 +2635,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(",");
                         } else {
                             // box only if converting to function type or to x10.lang.Object
-                            if (xts.isFunctionType(castType) || isObject(castType)) {
+                            if (xts.isFunctionType(castType)) {
                                 er.printBoxConversion(e.type());
                             }
                         }
@@ -2855,8 +2854,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             castRE.expand();
                             w.write(",");
                         } else {
-                            // box only if converting to function type or to x10.lang.Object
-                            if (xts.isFunctionType(castType) || isObject(castType)) {
+                            // box only if converting to function type
+                            if (xts.isFunctionType(castType)) {
                             	er.printBoxConversion(exprType);
                             }
                             w.write("(");
@@ -3835,13 +3834,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                     w.write(",");
                     closeParen = true;
-                } else {
-                    // need to box string only if it is cast to function type or to x10.lang.Object
-                    if (xts.isFunctionType(castType) || isObject(castType)) {
-                        er.printBoxConversion(e.type());
-                        w.write("(");
-                        closeParen = true;
-                    }
                 }
             } if (!isBoxedType(e.type()) /*&& isBoxedType(defType)*/) {
                 // primitives need to be boxed 
@@ -4056,6 +4048,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10MethodDecl_c n) {
+    	// [DC] epic massive hack!
+    	// if (n.name().id().toString().equals("typeName")) return;
+    	// should be able to assert it's not typeName here, once we stop generating such decls somewhere in the frontend...
         if (er.printMainMethod(n)) {
             return;
         }
@@ -4189,12 +4184,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             || ct.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME) // is this needed?
             ) {
             TypeSystem ts = tr.typeSystem();
-            boolean isObject = isObject(ct);
 //            if (isObject) return;  // TODO stop calling constructor of x10.lang.Object for optimization (it should be safe)
             Expr target = c.target();
             if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
-                    if (isObject || Emitter.isNativeRepedToJava(ct) || Emitter.isNativeClassToJava(ct)) {
+                    if (Emitter.isNativeRepedToJava(ct) || Emitter.isNativeClassToJava(ct)) {
                         return;
                     }
                     // XTENLANG-3063
@@ -4222,10 +4216,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(";");
                     return;
                 }
-                // N.B. HACK! to initialize x10.lang.Object, call ((x10.core.Ref) target).$init() since x10.lang.Object is @NativeRep'ed to x10.core.RefI!
-            	if (isObject) w.write("((" + X10_CORE_REF + ") ");
                 target.translate(w, tr);
-            	if (isObject) w.write(")");
                 w.write(".");
             }
             w.write(CONSTRUCTOR_METHOD_NAME(ct.toClass().def()));
@@ -4278,10 +4269,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                         w.write(",");
                     } else {
-                        // need to box string only if it is cast to function type or to x10.lang.Object
-                        if (xts.isFunctionType(castType) || isObject(castType)) {
-                        	er.printBoxConversion(e.type());
-                        }
                         w.write("(");
                     }
                     c.print(e, w, tr);
@@ -4786,10 +4773,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return Types.baseType(type).isString();
     }
     
-    public static boolean isObject(Type type) {
-        return Types.baseType(type).isObject();
-    }
-
     public static boolean isIndexedMemoryChunk(Type type) {
         return Types.baseType(type).isIndexedMemoryChunk();
     }

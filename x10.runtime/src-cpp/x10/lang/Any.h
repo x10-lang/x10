@@ -19,7 +19,6 @@
 
 namespace x10 {
     namespace lang {
-        class Object;
         class String;
         
         class Any {

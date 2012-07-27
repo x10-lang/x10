@@ -81,7 +81,6 @@ import polyglot.ast.Stmt_c;
 import polyglot.ast.StringLit_c;
 import polyglot.ast.SwitchBlock_c;
 import polyglot.ast.Switch_c;
-import polyglot.ast.Synchronized_c;
 import polyglot.ast.Term_c;
 import polyglot.ast.Throw_c;
 import polyglot.ast.Try_c;
@@ -175,7 +174,6 @@ public class X10DelegatingVisitor {
 		if (n instanceof When_c) { visit((When_c)n); return; }
 		if (n instanceof Try_c) { visit((Try_c)n); return; }
 		if (n instanceof Throw_c) { visit((Throw_c)n); return; }
-		if (n instanceof Synchronized_c) { visit((Synchronized_c)n); return; }
 		if (n instanceof Switch_c) { visit((Switch_c)n); return; }
 		if (n instanceof Return_c) { visit((Return_c)n); return; }
 		if (n instanceof Next_c) { visit((Next_c)n); return; }
@@ -414,7 +412,6 @@ public class X10DelegatingVisitor {
 				public void visit(Next_c n) { visit((Stmt_c)n); }
 				public void visit(Return_c n) { visit((Stmt_c)n); }
 				public void visit(Switch_c n) { visit((Stmt_c)n); }
-				public void visit(Synchronized_c n) { visit((Stmt_c)n); }
 				public void visit(Throw_c n) { visit((Stmt_c)n); }
 				public void visit(Try_c n) { visit((Stmt_c)n); }
 				public void visit(When_c n) { visit((Stmt_c)n); }

@@ -73,10 +73,9 @@ public class X10LocalClassRemover extends LocalClassRemover {
      * The type to be extended when translating an anonymous class that
      * implements an interface.
      */
-    protected TypeNode defaultSuperType(Position pos) {
-        TypeSystem ts = (TypeSystem) this.ts;
-        return nf.CanonicalTypeNode(pos, ts.Object());
-    }
+    //protected TypeNode defaultSuperType(Position pos) {
+    //    return null;
+    //}
 
     protected class X10ConstructorCallRewriter extends ConstructorCallRewriter {
         public X10ConstructorCallRewriter(List<FieldDef> fields, ClassDef ct) {

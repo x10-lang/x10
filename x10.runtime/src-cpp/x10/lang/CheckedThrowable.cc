@@ -45,7 +45,6 @@ const serialization_id_t CheckedThrowable::_serialization_id =
 
 void
 CheckedThrowable::_serialize_body(x10aux::serialization_buffer &buf) {
-    this->Object::_serialize_body(buf);
     buf.write(FMGL(cause));
     buf.write(FMGL(message));
     getStackTrace(); // ensure cachedStackTrace has been computed before serializing it
@@ -54,7 +53,6 @@ CheckedThrowable::_serialize_body(x10aux::serialization_buffer &buf) {
 
 void
 CheckedThrowable::_deserialize_body(x10aux::deserialization_buffer &buf) {
-    this->Object::_deserialize_body(buf);
     FMGL(cause) = buf.read<x10aux::ref<CheckedThrowable> >();
     FMGL(message) = buf.read<x10aux::ref<String> >();
     FMGL(cachedStackTrace) = buf.read<ref<Array<ref<String> > > >();
@@ -90,7 +88,6 @@ CheckedThrowable::_make(x10aux::ref<String> message, x10aux::ref<CheckedThrowabl
 x10aux::ref<CheckedThrowable> CheckedThrowable::_constructor(x10aux::ref<String> message,
                                                x10aux::ref<CheckedThrowable> cause)
 {
-    this->Object::_constructor();
     this->FMGL(message) = message;
     this->FMGL(cause) = cause;
     this->FMGL(trace_size) = -1;
@@ -442,6 +439,6 @@ void CheckedThrowable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
     }
 }
 
-RTT_CC_DECLS1(CheckedThrowable, "x10.lang.CheckedThrowable", RuntimeType::class_kind, Object)
+RTT_CC_DECLS0(CheckedThrowable, "x10.lang.CheckedThrowable", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

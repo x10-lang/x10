@@ -2123,7 +2123,6 @@ public class TypeSystem_c implements TypeSystem
         return forName(name);
     }
 
-    protected X10ClassType OBJECT_;
     protected Type CLASS_;
     protected X10ClassType STRING_;
     protected X10ClassType EXCEPTION_;
@@ -2287,12 +2286,6 @@ public class TypeSystem_c implements TypeSystem
         if (GLOBAL_REF_ == null)
             GLOBAL_REF_ = load("x10.lang.GlobalRef");
         return GLOBAL_REF_;
-    }
-
-    public X10ClassType Object() {
-        if (OBJECT_ == null)
-            OBJECT_ = load("x10.lang.Object");
-        return (X10ClassType) OBJECT_;
     }
 
     public Type Class() {
@@ -3359,11 +3352,6 @@ public class TypeSystem_c implements TypeSystem
 		    // any superclasses it may have.
 		}
 	    }
-	    // A work-around for the current transient state of the system in which
-	 	   // Object is an interface.
-	 	   if (isStructType(t)) {
-	 		   superInterfaces.remove(Object());
-	 	   }
 
 	    return superInterfaces;
 	}
@@ -4091,9 +4079,6 @@ public class TypeSystem_c implements TypeSystem
             //typeEquals(me, Struct(), emptyContext());
     }
 
-    public boolean isObject(Type me) {
-        return typeEquals(me, Object(), emptyContext());
-    }
 
     public boolean isString(Type me) {
         return finalSubtype(me,String());

@@ -113,9 +113,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // extends/implements that may contain abstract methods that 
         // ct must define.
         List<Type> superInterfaces = ts.abstractSuperInterfaces(ct);
-
+        
         // check each abstract method of the classes and interfaces in superInterfaces
         for (Type it : superInterfaces) {
+        	// Everything from Any you get 'for free'
+        	// [DC] perhaps it == ts.Any() is more appropriate here?
+        	if (ts.typeEquals(it, ts.Any(), context)) continue;
             if (it instanceof ContainerType) {
                 ContainerType rt = (ContainerType) it;
                 for (MethodInstance mi : rt.methods()) {
@@ -128,6 +131,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     MethodInstance mj = ts.findImplementingMethod(ct, mi, context);
                     if (mj == null) {
                     	if (Types.isX10Struct(ct)) {
+                    		// [DC] what about toString and typeName() ???
                     		// Ignore checking requirement if the method is equals(Any), and ct is a struct.
                     		if (mi.name().toString().equals("equals")) {
                     			List<Type> argTypes = mi.formalTypes();
@@ -143,7 +147,17 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     			}
                     		}
                     	}
-                        if (!ct.flags().isAbstract()) {
+                    	// [DC] hack: need to figure out what to do about toString in the absence of x10.lang.Object
+                    	if (mi.name().toString().equals("hashCode"))
+                    		continue;
+                    	if (mi.name().toString().equals("equals"))
+                    		continue;
+                    	if (mi.name().toString().equals("toString"))
+                    		continue;
+                    	if (mi.name().toString().equals("typeName"))
+                    		continue;
+
+                    	if (!ct.flags().isAbstract()) {
                             SemanticException e = new SemanticException(ct.fullName()
                                     + " should be declared abstract; it does not define "
                                     + mi.signature()
@@ -1722,7 +1736,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // let's intersect all the interfaces type1 and type2 implement,
         // then let's return the one that is a subtype of all those in the intersection.
         // see XTENLANG-2635
-        if (ts.Any()!=res && ts.Object()!=res)
+        if (ts.Any()!=res)
             return res;
         if (ts.isAny(type1) || ts.isAny(type2)) // optimization
             return res;
@@ -1860,17 +1874,19 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	}
     	// XTENLANG-2118: Since they are not equal, and one is not a subtype of another
     	// and one of them is not a subtype of Object, the lub has to be Any.
-    	if (!ts.isSubtype(type1, ts.Object()) || !ts.isSubtype(type2, ts.Object())) {
-    		return ts.Any();
-    	}
+    	// [DC] hmm... this code assumed that the only hierarchy was under Object?  The only other types were function types?
+    	// Commenting it out, let the code underneath do the work...
+    	//if (!ts.isSubtype(type1, ts.Object()) || !ts.isSubtype(type2, ts.Object())) {
+    	//	return ts.Any();
+    	//}
     	// Now neither is a struct. Neither is null.
     	if (type1 instanceof ObjectType && type2 instanceof ObjectType) {
     		// Walk up the hierarchy
     		Type sup1 = ((ObjectType) type1).superClass();
     		Type sup2 = ((ObjectType) type2).superClass();
 
-    		if (sup1 == null) return ts.Object();
-    		if (sup2 == null) return ts.Object();
+    		if (sup1 == null) return ts.Any();
+    		if (sup2 == null) return ts.Any();
 
     		Type t1 = leastCommonAncestor(sup1, type2);
     		Type t2 = leastCommonAncestor(sup2, type1);
