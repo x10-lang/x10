@@ -405,7 +405,7 @@ implements X10ParsedClassType
 	    } else {
 	        n.typeArguments = TypedList.copyAndCheck(typeArgs, Type.class, false);
 	        try {
-	            n.thisVar = Types.getThisVar(typeArgs);
+	            n.thisVar = (XVar<Type>)Types.getThisVar(typeArgs);
 	        } catch (XFailure z) {
 	            throw new InternalCompilerError(z.toString() + " for type " + this);
 	        }

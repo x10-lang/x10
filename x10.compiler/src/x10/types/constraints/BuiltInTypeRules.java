@@ -77,7 +77,7 @@ public class BuiltInTypeRules {
         XTerm<Type> lrank = ltype.rank(context);
         XTerm<Type> rrank = rtype.rank(context);
         ConstrainedType ct = Types.toConstrainedType(type);
-        XVar<Type> selfVar = ct.selfVar();
+        XTerm<Type> selfVar = ct.selfVar();
 
         if (lrank instanceof XLit && rrank instanceof XLit) {
             int xr = (Integer) ((XLit) lrank).val();
@@ -110,7 +110,11 @@ public class BuiltInTypeRules {
         ConstrainedType ltype = Types.toConstrainedType(left.type());
         ConstrainedType rtype = Types.toConstrainedType(right.type());
         ConstrainedType ct = Types.toConstrainedType(type);
+<<<<<<< .mine
+        XTerm<Type> selfVar = ct.selfVar();
+=======
         XVar<Type> selfVar = ct.selfVar();
+>>>>>>> .r24232
 
         ct = ct.addRank(2);
         ct = ct.addRect();

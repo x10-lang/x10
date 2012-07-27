@@ -78,6 +78,7 @@ import x10.types.constants.ClosureValue;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CQualifiedVar;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -186,7 +187,7 @@ public class XTypeTranslator {
      */
     public XExpr<Type> translate(XVar<Type> var, FieldInstance fi, boolean ignore) {
         // Warning -- used to have a string that did not contain container()#.
-        return ConstraintManager.getConstraintSystem().makeProjection(var, fi.def());
+        return ConstraintManager.getConstraintSystem().makeField(var, fi.def());
     }
 
     /**
@@ -302,7 +303,7 @@ public class XTypeTranslator {
      * @return
      */
     public XTerm<Type> translateFakeField(XTerm<Type> target, String name, Type t)  {
-        return ConstraintManager.getConstraintSystem().makeFakeField(target, XOp.TAG(name,t));
+        return ConstraintManager.getConstraintSystem().makeFakeField(target, name,t);
     }
 
     /** 
@@ -371,7 +372,7 @@ public class XTypeTranslator {
      * @param ts TODO
      * @return
      */
-    public static XLit<Type, Object> transNull(TypeSystem ts) {
+    public static XLit<Type, ? extends Object> transNull(TypeSystem ts) {
         return ConstraintManager.getConstraintSystem().xnull(ts);
     }
 
@@ -620,7 +621,7 @@ public class XTypeTranslator {
                 return null;
             terms.add(v);
         }
-        return ConstraintManager.getConstraintSystem().makeExpr(XOp.TAG("tuple", t.type()), terms);
+        return ConstraintManager.getConstraintSystem().makeExpr(XOp.APPLY("tuple", t.type()), terms);
     }
 
 	private Type getType(TypeSystem ts, String name) throws SemanticException {
@@ -716,7 +717,7 @@ public class XTypeTranslator {
                     return null;
                 terms.add(v);
             }
-            XTerm<Type> v = ConstraintManager.getConstraintSystem().makeApply(xmi.def(), terms);
+            XTerm<Type> v = ConstraintManager.getConstraintSystem().makeMethod(xmi.def(), terms);
             return v;
         }
         Type type = t.type();
@@ -736,26 +737,77 @@ public class XTypeTranslator {
     private XTerm<Type> trans(CConstraint c, X10Special term, Context xc, boolean tl) {
         return trans(c, term, xc);
     }
-    //lshadare question:
     public XTerm<Type> trans(CConstraint c, X10Special t, Context xc0) {
+		return translateSpecialAsQualified(c,t,xc0);
+		// TODO: remove unreachable code
+        /*
+       	Context xc = xc0;
+        if (t.kind() == X10Special.SELF) {
+            if (c == null) {
+                //throw new SemanticException("Cannot refer to self outside a dependent clause.");
+                return null;
+            }
+            // lshadare why do we need to clone this?
+            XVar v = c.self();
+         // Need to deal with qualified guy as well.
+            TypeNode tn = t.qualifier();
+            if (tn != null) {
+                Type q = Types.baseType(tn.type());
+                v = ConstraintManager.getConstraintSystem().makeQualifiedVar(q, v);
+            }
+            return v;
+        }
+        else {
+            TypeNode tn = t.qualifier();
+            if (tn != null) {
+                Type q = Types.baseType(tn.type());
+                if (q instanceof X10ClassType) {
+                    X10ClassType ct = (X10ClassType) q;
+                    while (xc != null) {
+                        if (xc.inSuperTypeDeclaration()) {
+                            if (xc.supertypeDeclarationType() == ct.def())
+                                break;
+                        }
+                        else if (xc.currentClassDef() == ct.def()) {
+                            break;
+                        }
+                        xc = (Context) xc.pop();
+                    }
+                }
+            }
+            XVar thisVar = null;
+            for (Context outer = xc; outer != null && thisVar == null; outer = outer.pop()) {
+                thisVar = outer.thisVar();
+            }
+            if (thisVar == null) {
+                SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
+                return null;
+            }
+            if (c != null)
+                c.setThisVar(thisVar);
+            return thisVar;
+        }
+        */
+      }
+
+	public XTerm<Type> translateSpecialAsQualified(CConstraint c, X10Special t, Context xc0) {
         Context xc = xc0;
         if (t.kind() == X10Special.SELF) {
             if (c == null) {
                 //throw new SemanticException("Cannot refer to self outside a dependent clause.");
                 return null;
             }
-            // lshadare double-check
-            XVar<Type> v = c.self();
+            XTerm<Type> v = c.self();
             // Need to deal with qualified guy as well.
             TypeNode tn = t.qualifier();
             if (tn != null) {
                 Type q = Types.baseType(tn.type());
-                v = ConstraintManager.getConstraintSystem().makeSelf(q);
+                v = ConstraintManager.getConstraintSystem().makeQualifiedVar(q, v);
             }
             return v;
         }
         // this. why are we doing nothing about super..?
-        XVar<Type> baseThisVar = null;
+        XTerm<Type> baseThisVar = null;
         for (Context outer = xc; outer != null && baseThisVar == null; outer = outer.pop()) {
             baseThisVar = outer.thisVar();
         }
@@ -763,8 +815,13 @@ public class XTypeTranslator {
             SemanticException e = new SemanticException("Cannot refer to |this| from the context " + xc);
             return null;
         }
+       if (baseThisVar instanceof CQualifiedVar) {
+            CQualifiedVar qVar = (CQualifiedVar) baseThisVar;
+            if (qVar.qualifier() == ((Typed) qVar.receiver()).type())
+                baseThisVar = qVar.receiver();
+        }
         assert (baseThisVar instanceof CThis);
-        XVar<Type> thisVar = baseThisVar;
+        XTerm<Type> thisVar = baseThisVar;
         try {
             TypeNode tn = t.qualifier();
             if (tn == null) {
@@ -778,7 +835,7 @@ public class XTypeTranslator {
             // A as a qualifier. 
             // Return the qualified version of the base this.
             thisVar = (((CThis)baseThisVar).type()==q)
-            ? baseThisVar : ConstraintManager.getConstraintSystem().makeThis(q);
+            ? baseThisVar : ConstraintManager.getConstraintSystem().makeQualifiedVar(q, baseThisVar);
             return thisVar;
         } finally {
             if (c != null)

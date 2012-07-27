@@ -46,7 +46,6 @@ import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XType;
 import x10.constraint.XUQV;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.X10ClassDef;
@@ -75,16 +74,17 @@ public interface CConstraint extends XConstraint<Type> {
     /**
      * Variable to use for self in the constraint.
      */
-    public XVar<Type> self(); 
+
+     public XTerm<Type> self(); 
     /**
      * Variable to use for this in the constraint. 
      */
-    public XVar<Type> thisVar(); 
+    public XTerm<Type> thisVar(); 
     /**
      * Return what, if anything, self is bound to in the current constraint.
      * @return
      */
-    public XVar<Type> selfVarBinding(); 
+    public XTerm<Type> selfVarBinding(); 
     
     /**
      * Return true if the constraint recursively contains a Place term. 
@@ -319,11 +319,17 @@ public interface CConstraint extends XConstraint<Type> {
 
 	public List<? extends XTerm<Type>> extConstraintsHideFake();
 
+<<<<<<< .mine
+=======
 	public Set<? extends XTerm<Type>> getTerms();
 
+>>>>>>> .r24232
 	public void setInconsistent();
 
+<<<<<<< .mine
+=======
 	public Set<? extends XTerm<Type>> vars();
 
+>>>>>>> .r24232
 }
 

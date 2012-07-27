@@ -109,7 +109,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		/**
 		 * Check that the basetype and constraint agree on thisVar.
 		 */
-		public XVar<Type> thisVar() {
+		public XTerm<Type> thisVar() {
 			if (realXClause == null)
 				realXClause = realX();
 			if (! realXClause.consistent())
@@ -198,7 +198,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			}
 			
 			try {
-			XVar<Type> thisVar = Types.getThisVar(rootClause, depClause);
+			XTerm<Type> thisVar = Types.getThisVar(rootClause, depClause);
 			} catch (XFailure z) {
 			    rootClause.setInconsistent();
 			    return rootClause;
@@ -521,7 +521,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    return val; // todo: val can be null! if we build a synthetic term, then why not always build it???
 		}
 		
-		public XVar<Type> selfVar() {
+		public XTerm<Type> selfVar() {
 			return Types.get(constraint()).self();
 		}
 		

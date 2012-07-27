@@ -106,11 +106,13 @@ public class TypeTransformer extends NodeTransformer {
         if (c == null)
             return null;
         VarDef currentLocal = this.visitor().context().varWhoseTypeIsBeingElaborated();
+
         List<XTerm<Type>> oldvars = new ArrayList<XTerm<Type>>();
         List<XTerm<Type>> newvars = new ArrayList<XTerm<Type>>();
-        for (XTerm<Type> v : c.vars()) {
+        for (XTerm<Type> v : c.getVarsAndProjections()) {
             if (v instanceof XLocal) {
-                XLocal<Type, X10LocalDef> l = (XLocal<Type, X10LocalDef>) v;
+                @SuppressWarnings("unchecked")
+		XLocal<Type, X10LocalDef> l = (XLocal<Type, X10LocalDef>) v;
                 X10LocalDef ld = l.def();
                 X10LocalDef newld = vars.get(ld);
                 if (ld == currentLocal) { // we are in the declaration for this variable

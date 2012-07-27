@@ -191,7 +191,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
 
             // Add a self.rank=n clause, if the formal
             // has n components.
-            XVar<Type> self = Types.xclause(indexType).self();
+            XTerm<Type> self = Types.xclause(indexType).self();
             Synthesizer synth = new Synthesizer(nf, ts);
             XTerm<Type> v = synth.makePointRankTerm((XVar<Type>) self);
             XTerm<Type> rank = ConstraintManager.getConstraintSystem().makeLit(length, ts.Int());

@@ -274,13 +274,11 @@ public class Matcher {
 	        				        // Do not replace the lowest level this by qvar's -- only outer this.
 	        				        // That will be taken care of by existing code. 
 	        				        if (outers != null && outers.size() > 1) {
+
 	        				            XVar<Type>[] outerThis = new XVar[outers.size()-1];
-	        				            XVar<Type>[] outerYs = new XVar[outers.size()-1];
+	        				            XTerm<Type>[] outerYs = new XTerm[outers.size()-1];
 	        				            for (int i=1; i < outers.size(); ++i) {
-	        				            	// lshadare question
-	        				                //outerYs[i-1] = ConstraintManager.getConstraintSystem().makeQualifiedVar(outers.get(i).asType(), (XVar) y2eqv[0]);
-	        				            	// FIXME: this is probably wrong
-	        				            	outerYs[i-1] = ConstraintManager.getConstraintSystem().makeThis(outers.get(i).asType());
+	        				                outerYs[i-1] = ConstraintManager.getConstraintSystem().makeQualifiedVar(outers.get(i).asType(), y2eqv[0]);
 	        				                outerThis[i-1]= outers.get(i).thisVar();
 	        				            }
 	        				            newReturnType = Subst.subst(newReturnType, outerYs, outerThis);

@@ -3872,7 +3872,7 @@ public class TypeSystem_c implements TypeSystem
         return THREE;
     }
 
-    protected XLit<Type, Object> NULL;
+    protected XLit<Type, ? extends Object> NULL;
 
     public XLit<Type, ? extends Object> NULL() {
         if (NULL == null)
@@ -4517,13 +4517,7 @@ public class TypeSystem_c implements TypeSystem
             }
             ConstrainedType ct = (ConstrainedType) t;
             CConstraint c = Types.xclause(ct);
-            for (XTerm<Type> x : c.vars()) {
-                if (hasUnknown(x, visited)) {
-                    return true;
-                }
-            }
-            
-            for (XExpr<Type> x : c.atoms()) {
+            for (XTerm<Type> x : c.constraints()) {
                 if (hasUnknown(x, visited)) {
                     return true;
                 }
@@ -4543,8 +4537,6 @@ public class TypeSystem_c implements TypeSystem
     	if (x instanceof XExpr)
     		if (hasUnknown((XExpr<Type>)x,visited))
     			return true;
-    	if (x instanceof CField)
-    		return hasUnknownType(((CField) x).type(),visited);
 
     	return hasUnknownType(x.type(), visited);
     }

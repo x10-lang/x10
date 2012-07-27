@@ -18,6 +18,7 @@ import x10.constraint.XLocal;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.types.X10ClassType;
 import x10.types.X10LocalDef;
 
 /**
@@ -26,6 +27,7 @@ import x10.types.X10LocalDef;
  * @author lshadare
  *
  */
+
 public interface CConstraintSystem extends XConstraintSystem<Type> {
 	/**
 	 * Create a fresh special "self" variable with type t. 
@@ -46,7 +48,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param def definition of the field
      * @return
      */
-    public CField makeField(XTerm<Type> receiver, XDef<Type> field); 
+    public CField makeField(XTerm<Type> receiver, Def field); 
     /**
      * Create a new fake field dereference resulting from applying the field f 
      * defined by field to receiver i.e. receiver.f. This should be used for
@@ -55,40 +57,16 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param def definition of the field
      * @return
      */
-    //TODO: can we eliminate this?
-    public CField makeFakeField(XTerm<Type> receiver, XDef<Type> field);
+    public CField makeFakeField(XTerm<Type> receiver, Def field);
     /**
-     * Create a new fake field dereference resulting from applying the field f 
-     * defined by field to receiver i.e. receiver.f. This should be used for
-     * compiler generated fields that are not visible to the user (such as here) 
-     * @param receiver the term we are dereferencing 
-     * @param op
+     * Create a qualified variable with the given Type qualifier. The type of
+     * the resulting variable will be the same as the type of base. 
+     * @param qualifier 
+     * @param base
      * @return
      */
-    public CField makeFakeField(XTerm<Type> receiver, XOp<Type> op);
-    /**
-     * Create a local variable from the give local definition.
-     * @param ld variable definition
-     * @return
-     */
-    public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D ld);
-    /**
-     * Create a local variable from the given local definition
-     * using the given string name
-     * @param ld variable definition
-     * @param s string name
-     * @return
-     */
-    public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D ld, String s);
-    /**
-     * Construct an XExpr resulting from applying the method definition to the
-     * given arguments. Note that the first element of the list is the recevier and 
-     * the rest are the method arguments
-     * @param md method definition
-     * @param t receiver followed by method arguments
-     * @return 
-     */
-    public XExpr<Type> makeApply(Def md, List<XTerm<Type>> t);
+    public CQualifiedVar makeQualifiedVar(Type qualifier, XTerm<Type> base); 
+    
     /**
      * Construct the XTerm<Type> corresponding to the opaque definition. 
      * @param op
@@ -97,21 +75,13 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param args
      * @return
      */
-    public XExpr<Type> makeOpaque(Object op, boolean isatom, XTerm<Type> target, List<XTerm<Type>> args); 
-    /**
-     * Construct an XLit with the given value and type. Note that the correspondence
-     * between the value of type and the type of val is not enforced. 
-     * @param val value stored in literal
-     * @param type the type of the literal
-     * @return
-     */
-    public <V> XLit<Type, V> makeLit(V val, Type type);
+    public XExpr<Type> makeOpaque(Object op, boolean isAtomic, XTerm<Type> target, List<XTerm<Type>> args); 
     /**
      * Return a literal representing the zero value of the given type. 
      * @param type
      * @return
      */
-    public XLit<Type, Object> makeZero(Type type); 
+    public XLit<Type, ?> makeZero(Type type); 
     /**
      * Construct a type literal. 
      * @param type
@@ -138,6 +108,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param self
      * @return
      */
-    public CConstraint makeCConstraint(XVar<Type> self); 
+    public CConstraint makeCConstraint(XTerm<Type> self);
+	
     
 }

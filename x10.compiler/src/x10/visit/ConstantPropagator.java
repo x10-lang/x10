@@ -260,7 +260,7 @@ public class ConstantPropagator extends ContextVisitor {
         Type t = e.type();
         CConstraint c = Types.xclause(t);
         if (c != null) {
-            XVar<Type> r = c.self();
+            XTerm<Type> r = c.self();
             if (r instanceof XLit) {
                 XLit l = (XLit) r;
                 return ConstantValue.make(t, l.val());
@@ -307,9 +307,14 @@ public class ConstantPropagator extends ContextVisitor {
 
         CConstraint c = Types.xclause(type);
         if (c != null) {
+<<<<<<< .mine
+            XTerm<Type> r = c.self();
+=======
             XVar<Type> r = c.self();
+>>>>>>> .r24232
             if (r instanceof XLit) {
-                XLit l = (XLit) r;
+                @SuppressWarnings("unchecked")
+				XLit<Type, ?> l = (XLit<Type, ?>) r;
                 return true;
             }
         }

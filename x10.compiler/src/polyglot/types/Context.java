@@ -437,7 +437,8 @@ public class Context implements Resolver, Cloneable
             XVar<Type> base = outers.get(i).thisVar();
             for (int j=i+1; j < outers.size(); j++ ) {
                 X10ClassDef y = outers.get(j);
-                result.addEquality(y.thisVar(), base);
+                result.addEquality(y.thisVar(), 
+                				   ConstraintManager.getConstraintSystem().makeQualifiedVar(y.asType(), base));
         }
         }
         return result;

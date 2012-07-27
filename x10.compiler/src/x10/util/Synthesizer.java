@@ -99,6 +99,7 @@ import x10.types.X10FieldDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CField;
+import x10.types.constraints.CQualifiedVar;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CThis;
 import x10.visit.X10TypeBuilder;
@@ -1458,6 +1459,8 @@ public class Synthesizer {
      * @seeAlso X10TypeTranslator.constraint(...): it generates a constraint from an AST.
      */
     Expr makeExpr(XTerm<Type> t, Type baseType, Position pos) {
+    	if (t instanceof CQualifiedVar) 
+            return makeExpr((CQualifiedVar) t, baseType, pos);
         if (t instanceof XLit)
             return makeExpr((XLit<Type, ?>) t, baseType, pos);
         if (t instanceof CSelf)
@@ -1478,7 +1481,9 @@ public class Synthesizer {
             return makeExpr((XLocal<Type,? extends X10LocalDef>) t, baseType, pos);
         if (t instanceof XExpr)
             return makeExpr((XExpr<Type>) t, baseType, pos);
+        
         // FIXME: warn about being unable to translate the term
+        System.out.println("Cannot translate term " + t);
         return null;
     }
 
@@ -1517,11 +1522,11 @@ public class Synthesizer {
         return nf.Call(pos,newReceiver, nf.Id(pos,X10ClassDecl_c.getThisMethod(newReceiverDef.fullName(),ct.fullName())));
     }*/
     
-    /* lshadare w
+    // lshadare w
     Expr makeExpr(CQualifiedVar v, Type baseType, Position pos) {
         TypeNode tn = null;
         ClassType ct = v.type().toClass();
-        XVar<Type> var = v.receiver();
+        XTerm<Type> var = v.receiver();
         if (var instanceof CThis)  // use old code, but with type taken from v
             return makeExpr((CThis) var, v.type(), baseType, pos);
         if (! (var instanceof Typed || var instanceof CSelf))
@@ -1537,13 +1542,12 @@ public class Synthesizer {
         }
         ClassType varClassType = Types.getClassType(varType, xts);
         ClassDef varDef = varClassType.def();
-        // lshadare why is this returning a Call?
         return xnf.Call(pos, 
                         xnf.AmbExpr(pos, xnf.Id(pos,Name.make(var.toString()))),
                         xnf.Id(pos, X10ClassDecl_c.getThisMethod(varDef.fullName(), 
                                                                  ct.fullName())));
     }
-    */
+    
     Expr makeExpr(CThis ct, Type type, Type baseType, Position pos) {
         TypeNode tn = null;
         if (type != null) {

@@ -294,11 +294,12 @@ public class Subst {
     	return subst(t, terms, vars, new Type[] { Y }, new ParameterType[] { X });
     }
 
+
     @SuppressWarnings("unchecked")
-	public static CConstraint subst(CConstraint t, XTerm<Type> y, XVar<Type> x) throws SemanticException {
+	public static CConstraint subst(CConstraint t, XTerm<Type> y, XTerm<Type> x) throws SemanticException {
     	XTerm<Type>[] terms = (XTerm<Type>[]) Array.newInstance(y.getClass(), 1);
     	terms[0] = y; 
-    	XVar<Type>[] vars = (XVar<Type>[]) Array.newInstance(x.getClass(), 1);
+    	XTerm<Type>[] vars = (XTerm<Type>[]) Array.newInstance(x.getClass(), 1);
     	vars[0] = x;
     	return subst(t, terms, vars, new Type[0], new ParameterType[0]);
     }

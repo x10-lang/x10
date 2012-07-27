@@ -513,8 +513,8 @@ public class Types {
 	 * @return
 	 * @throws SemanticError
 	 */
-	public static XVar<Type> getThisVar(Type t1, Type t2) throws XFailure {
-		XVar<Type> thisVar = t1 == null ? null : ((X10ThisVar) t1).thisVar();
+	public static XTerm<Type> getThisVar(Type t1, Type t2) throws XFailure {
+		XTerm<Type> thisVar = t1 == null ? null : ((X10ThisVar) t1).thisVar();
 		if (thisVar == null)
 			return t2==null ? null : ((X10ThisVar) t2).thisVar();
 		if (t2 != null && ! thisVar.equals(((X10ThisVar) t2).thisVar()))
@@ -523,8 +523,8 @@ public class Types {
 		return thisVar;
 	}
 
-	public static XVar<Type> getThisVar(CConstraint t1, CConstraint t2) throws XFailure {
-		XVar<Type> thisVar = t1 == null ? null : t1.thisVar();
+	public static XTerm<Type> getThisVar(CConstraint t1, CConstraint t2) throws XFailure {
+		XTerm<Type> thisVar = t1 == null ? null : t1.thisVar();
 		if (thisVar == null)
 			return t2==null ? null : t2.thisVar();
 		if (t2 != null && ! thisVar.equals( t2.thisVar()))
@@ -533,13 +533,13 @@ public class Types {
 		return thisVar;
 	}
 
-	public static XVar<Type> getThisVar(List<Type> typeArgs) throws XFailure {
-		XVar<Type> thisVar = null;
+	public static XTerm<Type> getThisVar(List<Type> typeArgs) throws XFailure {
+		XTerm<Type> thisVar = null;
 		if (typeArgs != null)
 			for (Type type : typeArgs) {
 				if (type instanceof X10ThisVar) {
 					X10ThisVar xtype = (X10ThisVar)type;
-					XVar<Type> o = xtype.thisVar();
+					XTerm<Type> o = xtype.thisVar();
 					if (thisVar == null) {
 						thisVar = o;
 					} else {
@@ -887,7 +887,7 @@ public class Types {
 	        throw new InternalCompilerError("Could not find rail field of " + t, pos);
 
 	    XTypeTranslator xt = ts.xtypeTranslator();
-	    XVar<Type> self = c.self();
+	    XTerm<Type> self = c.self();
 	    XTerm<Type> selfRank = xt.translate(self, rankField);
 	    XTerm<Type> selfRect = xt.translate(self, rectField);
 	    XTerm<Type> selfZeroBased = xt.translate(self, zeroBasedField);
@@ -1822,7 +1822,7 @@ public class Types {
 	public static CConstraint removeLocals(Context cxt, CConstraint c0) {
 	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(c0.self().type());
 	    c.addIn(c0); // ensure that this has a different selfVar.
-	    Set<? extends XTerm<Type>> roots = c.getTerms();
+	    Set<? extends XTerm<Type>> roots = c.getVarsAndProjections();
 	    if (roots.size() > 0) {
 	        for (XTerm<Type> term : roots) {
 	        	// the local variable can either occur as a variable or inside a field access
@@ -1913,7 +1913,7 @@ public class Types {
     		return t;
     	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
     	c.addIn(c0); // ensure that this has a different selfVar.
-    	Set<? extends XTerm<Type>> roots = c.getTerms();
+    	Set<? extends XTerm<Type>> roots = c.getVarsAndProjections();
     	if (roots.size() > 0) {
     		CodeDef def = cxt.currentCode();
     		List<LocalDef> formals = null;
@@ -1942,9 +1942,8 @@ public class Types {
         if (xclause != null && ! xclause.valid()) {
             // there is some information to transfer.
             CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(type));
-            //XVar<Type> qvar = new QualifiedVar(Types.baseType(outer), result.self());
-            // lshadare not sure this is correct
-            xclause = xclause.instantiateSelf(result.self());
+            XTerm<Type> qvar = ConstraintManager.getConstraintSystem().makeQualifiedVar(Types.baseType(outer), result.self());
+            xclause = xclause.instantiateSelf(qvar);
             result.addIn(xclause);
             type = Types.addConstraint(type, result);
         }

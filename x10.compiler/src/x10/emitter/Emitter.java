@@ -85,6 +85,7 @@ import x10.ast.X10New_c;
 import x10.ast.X10NodeFactory_c;
 import x10.config.ConfigurationError;
 import x10.config.OptionError;
+import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.extension.X10Ext;
 import x10.types.ConstrainedType;
@@ -3232,7 +3233,7 @@ public class Emitter {
 	private static Type actualType(Type type) {
 	    if (type instanceof ConstrainedType) {
 	        ConstrainedType ct = (ConstrainedType) type;
-	        XVar selfVarBinding = ct.constraint().get().selfVarBinding();
+	        XTerm<Type> selfVarBinding = ct.constraint().get().selfVarBinding();
                 if (selfVarBinding != null && selfVarBinding instanceof Typed) {
                     // x10.lang.Object{self=="abc"} -> x10.lang.String
                     Type actualType = ((Typed) selfVarBinding).type();
