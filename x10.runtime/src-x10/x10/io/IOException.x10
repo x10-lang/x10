@@ -11,17 +11,11 @@
 
 package x10.io;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
 
-
-@NativeRep("java", "x10.core.io.IOException", null, "x10.rtt.Types.IO_EXCEPTION")
 public class IOException extends Exception {
 
-    @Native("java", "new x10.core.io.IOException()")
     public def this() { super(); }
 
-    @Native("java", "new x10.core.io.IOException(#message)")
     public def this(message: String) { super(message); }
 
 }

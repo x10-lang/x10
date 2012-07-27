@@ -11,17 +11,11 @@
 
 package x10.io;
 
-import x10.compiler.Native;
-import x10.compiler.NativeRep;
 
-
-@NativeRep("java", "x10.core.io.EOFException", null, "x10.rtt.Types.EOF_EXCEPTION")
 public class EOFException extends IOException {
 
-    @Native("java", "new x10.core.io.EOFException()")
     public def this() { super(); }
 
-    @Native("java", "new x10.core.io.EOFException(#message)")
     public def this(message: String) { super(message); }
 
 }

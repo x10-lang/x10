@@ -101,41 +101,34 @@ public abstract class ThrowableUtilities {
 //            x10RuntimeExceptions.put(javaClass, x10Class);
             
             // x10Exceptions
-            javaClass = java.io.FileNotFoundException.class;
-            // TODO CHECKED_THROWABLE wrap with XRJ
-//            x10Name = "x10.io.FileNotFoundException";
-            x10Name = "x10.core.io.FileNotFoundException";
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
-            x10Exceptions.put(javaClass, x10Class);
-            
-            javaClass = java.io.EOFException.class;
-            // TODO CHECKED_THROWABLE wrap with XRJ
-//            x10Name = "x10.io.EOFException";
-            x10Name = "x10.core.io.EOFException";
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
-            x10Exceptions.put(javaClass, x10Class);
-
             javaClass = java.io.NotSerializableException.class;
-            // TODO CHECKED_THROWABLE wrap with XRJ
-//            x10Name = "x10.io.NotSerializableException";
-            x10Name = "x10.core.io.NotSerializableException";
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+            x10Name = "x10.io.NotSerializableException";
+            // TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
 //            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
             x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
 
-            javaClass = java.io.IOException.class;
-            // TODO CHECKED_THROWABLE wrap with XRJ
+            // N.B. subtypes of java.io.IOException should be caught and converted to the corresponding x10 exceptions in XRJ
+//            javaClass = java.io.FileNotFoundException.class;
+//            x10Name = "x10.io.FileNotFoundException";
+//            // TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+////            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+//            x10Exceptions.put(javaClass, x10Class);
+//            
+//            javaClass = java.io.EOFException.class;
+//            x10Name = "x10.io.EOFException";
+//            // TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+////            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+//            x10Exceptions.put(javaClass, x10Class);
+//
+//            javaClass = java.io.IOException.class;
 //            x10Name = "x10.io.IOException";
-            x10Name = "x10.core.io.IOException";
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
-            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
-            x10Exceptions.put(javaClass, x10Class);
+//            // TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+////            x10Class = Class.forName(x10Name).asSubclass(x10.core.X10Throwable.class);
+//            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+//            x10Exceptions.put(javaClass, x10Class);
 
             javaClass = java.lang.InterruptedException.class;
             // TODO CHECKED_THROWABLE wrap with XRJ

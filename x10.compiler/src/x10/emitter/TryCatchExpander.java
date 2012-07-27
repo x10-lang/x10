@@ -215,7 +215,9 @@ public class TryCatchExpander extends Expander {
 ////        ,"java.lang.RuntimeException"
 //    ));
     private static final Set<String> knownJavaRuntimeExceptions = Collections.<String>emptySet();
-    private static final Set<String> knownJavaExceptions = new HashSet<String>(Arrays.asList("java.io.FileNotFoundException", "java.io.EOFException", "java.io.NotSerializableException", "java.io.IOException", "java.lang.InterruptedException"
+    private static final Set<String> knownJavaExceptions = new HashSet<String>(Arrays.asList("java.io.NotSerializableException", "java.lang.InterruptedException"
+        // N.B. subtypes of java.io.IOException should be caught and converted to the corresponding x10 exceptions in XRJ
+//        , "java.io.FileNotFoundException", "java.io.EOFException", "java.io.IOException" 
         // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
 //        , "java.lang.Exception"
     ));
