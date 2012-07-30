@@ -710,14 +710,13 @@ public class XTypeTranslator {
             if ((! tl))
                	throw new IllegalConstraint(t);
             List<XTerm<Type>> terms = new ArrayList<XTerm<Type>>();
-            terms.add(r);
             for (Expr e : t.arguments()) {
                 XTerm<Type> v = translate(c, e, xc, tl);
                 if (v == null)
                     return null;
                 terms.add(v);
             }
-            XTerm<Type> v = ConstraintManager.getConstraintSystem().makeMethod(xmi.def(), terms);
+            XTerm<Type> v = ConstraintManager.getConstraintSystem().makeMethod(xmi.def(), r, terms);
             return v;
         }
         Type type = t.type();
