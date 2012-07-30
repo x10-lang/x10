@@ -72,7 +72,7 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
         "x10.util.concurrent.AtomicReference",
         AtomicReference.class,
         RuntimeType.INVARIANTS(1),
-        new Type[] { Types.OBJECT }
+        new Type[] { Types.ANY }
     );
     public RuntimeType<AtomicReference> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return i == 0 ? T : null; }

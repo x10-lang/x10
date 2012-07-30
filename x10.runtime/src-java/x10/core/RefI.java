@@ -16,5 +16,6 @@ import x10.rtt.Types;
 
 // Base interface of all X10 ref objects
 public interface RefI extends Any {
+    // TODO remove Object
 	public static final RuntimeType<RefI> $RTT = Types.OBJECT;
 }

@@ -140,7 +140,7 @@ public class InputStream extends Ref {
     public static final RuntimeType<InputStream> $RTT = NamedType.<InputStream> make(
         "x10.io.InputStreamReader.InputStream",
         InputStream.class,
-        new Type[] { Types.OBJECT }
+        new Type[] { Types.ANY }
     );
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
