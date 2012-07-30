@@ -1,4 +1,8 @@
 package x10.constraint;
+
+import x10.constraint.smt.XPrinter;
+import x10.constraint.smt.XSmtPrinter;
+
 /**
  * Representation of an expression operator for XExpr occurring in constraints. 
  * 
@@ -12,21 +16,28 @@ public abstract class XOp<T extends XType> {
 	 *
 	 */
 	public enum Kind {
-		APPLY("apply", ""), 
-		TAG("tag", ""),
-		EQ("=", "="),	
-		NOT("not", "!"),
-		AND("and", "&&"),
-		OR("or", "||"),
-		IMPL("=>", "=>");
+		APPLY_LABEL("apply_label", "", ""),
+		APPLY("apply","", ""),
+		EQ("=", "=", "="),	
+		NOT("not", "!", "not"),
+		AND("and", "&&", "and"),
+		OR("or", "||", "or"),
+		IMPL("=>", "=>", "impl");
 		String name;
 		String prettyName;
-		Kind(String n, String pn) {
+		String smt2;
+		Kind(String n, String pn, String smt2) {
 			this.name = n;
 			this.prettyName = pn; 
+			this.smt2 = smt2; 
 		}
 		String prettyPrint() {
 			return prettyName; 
+		}
+		void print(XPrinter<? extends XType> p) {
+			if (p instanceof XSmtPrinter) {
+				p.append(smt2);
+			}
 		}
 	}
 	
@@ -51,12 +62,11 @@ public abstract class XOp<T extends XType> {
 	 */
 	public abstract T type(XTypeSystem<? extends T> ts); 
 	
-	public abstract T type(); 
-	
 	/**
 	 * Some useful operators. 
 	 */
 
+	
 	public static <T extends XType> XSimpleOp<T> EQ() {
 		return new XSimpleOp<T>(Kind.EQ);
 	}
@@ -71,6 +81,9 @@ public abstract class XOp<T extends XType> {
 	}
 	public static <T extends XType> XSimpleOp<T> IMPL() {
 		return new XSimpleOp<T>(Kind.IMPL);
+	}
+	public static <T extends XType> XSimpleOp<T> APPLY() {
+		return new XSimpleOp<T>(Kind.APPLY);
 	}
 	public static <T extends XType, D> XLabeledOp<T, D> APPLY(D def, T type) {
 		return new XLabeledOp<T,D>(def, type);
@@ -111,8 +124,8 @@ public abstract class XOp<T extends XType> {
 		return true;
 	}
 
+	public abstract void print(XPrinter<T> p);
 	public abstract String toString();
-
 	public Object asExprOperator() {
 		// TODO Auto-generated method stub
 		return null;

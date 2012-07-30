@@ -1,4 +1,7 @@
 package x10.constraint;
+
+import x10.constraint.smt.XPrinter;
+
 /**
  * XSimpleOp is a representation of simple operators i.e. operators that are not
  * parameterized (such as =, && etc.). It is essentially a wrapper around a subset 
@@ -15,17 +18,12 @@ public class XSimpleOp<T extends XType> extends XOp<T> {
 	 */
 	XSimpleOp(XOp.Kind kind) {
 		super(kind);
-		assert kind!= XOp.Kind.APPLY && kind != XOp.Kind.TAG; 
+		assert kind!= XOp.Kind.APPLY_LABEL; 
 	}
 
 	@Override
 	public T type(XTypeSystem<? extends T> ts) {
 		return ts.Boolean();
-	}
-
-	@Override
-	public T type() {
-		throw new UnsupportedOperationException("Need to pass in a TypeSystem to deduce the type of a XSimpleOp");
 	}
 
 	@Override
@@ -37,6 +35,10 @@ public class XSimpleOp<T extends XType> extends XOp<T> {
 	public String prettyPrint() {
 		return getKind().prettyPrint();
 	}
-	
+
+	@Override
+	public void print(XPrinter<T> p) {
+		kind.print(p);
+	}
 	
 }

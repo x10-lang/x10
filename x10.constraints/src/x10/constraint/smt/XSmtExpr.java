@@ -1,5 +1,6 @@
 package x10.constraint.smt;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -101,8 +102,13 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	}
 
 	@Override
-	public void print(XPrinter p) {
-		// TODO Auto-generated method stub
+	public void print(XPrinter<T> p) {
+		p.out(this);
+		p.append("(");
+		op().print(p);
+		for (XSmtTerm<T> ch : children())
+			ch.print(p); 
+		p.append(")");
 	}
 	
 	@Override

@@ -59,14 +59,15 @@ public interface XConstraintSystem<T extends XType> {
 	public <D extends XDef<T>> XLocal<T, D> makeLocal(D def, String name);
 
 	/**
-     * Construct an XExpr resulting from applying the method definition to the
-     * given arguments. Note that the first element of the list is the recevier and 
-     * the rest are the method arguments
+     * Construct the XTerm corresponding to a method call. This will be represented by a 
+     * field dereference followed by an function application. For example a.foo(x,y), will become 
+     * (APPLY ((APPLY_LABEL foo) a) x y). 
      * @param md method definition
-     * @param t receiver followed by method arguments
+     * @param receiver 
+     * @param t method arguments
      * @return 
      */
-    public <D extends XDef<T>> XExpr<T> makeMethod(D md, List<XTerm<T>> t);
+    public <D extends XDef<T>> XExpr<T> makeMethod(D md, XTerm<T> receiver, List<? extends XTerm<T>> t);
 	
 	
 	/**

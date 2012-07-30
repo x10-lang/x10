@@ -78,5 +78,6 @@ public interface XTerm<T extends XType> {
 	
 	boolean isEquals(); 
 	boolean isAnd(); 
+	
 }
 	

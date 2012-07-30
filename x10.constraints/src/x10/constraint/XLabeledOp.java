@@ -1,4 +1,7 @@
 package x10.constraint;
+
+import x10.constraint.smt.XPrinter;
+
 /**
  * A representation of an XExpr operator parameterized by the label. It is used
  * to represent field/method projection (a.f, a.foo()) when applied to a receiver 
@@ -13,7 +16,7 @@ public class XLabeledOp<T extends XType, D> extends XOp<T> {
 	T resultType; 
 	
 	XLabeledOp(D def, T type) {
-		super(XOp.Kind.APPLY);
+		super(XOp.Kind.APPLY_LABEL);
 		this.def = def;
 		this.resultType = type; 
 	}
@@ -24,13 +27,9 @@ public class XLabeledOp<T extends XType, D> extends XOp<T> {
 
 	@Override
 	public T type(XTypeSystem<? extends T> ts) {
-		return type(); 
+		return resultType; 
 	}
 
-	@Override
-	public T type() {
-		return resultType;
-	}
 
 	@Override
 	public int hashCode() {
@@ -66,6 +65,10 @@ public class XLabeledOp<T extends XType, D> extends XOp<T> {
 	public String prettyPrint() {
 		return getKind().prettyPrint() + def;
 	}
-	
+
+	@Override
+	public void print(XPrinter<T> p) {
+		p.append(p.mangle(def.toString()));
+	}
 	
 }

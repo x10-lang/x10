@@ -7,7 +7,13 @@ import x10.constraint.XType;
  * @author lshadare
  *
  */
-public interface XSmtSolver {
+public interface XSmtSolver<T extends XType> {
+	
+	enum Result {
+		SAT,
+		UNSAT,
+		UKNOWN
+	}
 	/**
 	 * Returns true if the formula is valid i.e. if it is true under
 	 * all variable assignments and false otherwise
@@ -15,7 +21,7 @@ public interface XSmtSolver {
 	 * @return
 	 * @throws XSmtFailure if there was a problem calling the external solver.
 	 */
-	boolean isValid(XSmtTerm<? extends XType> formula) throws XSmtFailure;
+	boolean isValid(XSmtTerm<T> formula) throws XSmtFailure;
 	/**
 	 * Returns true if the formula is satisfiable i.e. iif there is an
 	 * assignment to the free variables that renders the formula true, and 
@@ -24,5 +30,5 @@ public interface XSmtSolver {
 	 * @return
 	 * @throws XSmtFailure if there was a problem calling the external solver.
 	 */
-	boolean isSatsifiable(XSmtTerm<? extends XType> formula) throws XSmtFailure;
+	boolean isSatisfiable(XSmtTerm<T> formula) throws XSmtFailure;
 }

@@ -43,7 +43,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	/**
 	 * Pointer to the SMT solver. 
 	 */
-	protected XSmtSolver solver; 
+	protected XSmtSolver<T> solver; 
 
 	protected static enum Status {
 		CONSISTENT,

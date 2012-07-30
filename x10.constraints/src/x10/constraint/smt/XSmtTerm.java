@@ -90,7 +90,7 @@ public abstract class XSmtTerm<T extends XType> implements XTerm<T> {
 		return false; 
 	} 
 
-	public abstract void print(XPrinter p);
+	public abstract void print(XPrinter<T> p);
 	public abstract boolean equals(Object o);
 	public abstract int hashCode();
 	public abstract String toString();

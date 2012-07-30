@@ -43,9 +43,9 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 	}
 
 	@Override
-	public void print(XPrinter p) {
-		// TODO Auto-generated method stub
-		
+	public void print(XPrinter<T> p) {
+		p.out(this);
+		p.append(p.mangle(toString()));
 	}
 
 	@Override

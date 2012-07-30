@@ -23,9 +23,9 @@ public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, 
 	}
 
 	@Override
-	public void print(XPrinter p) {
-		// TODO Auto-generated method stub
-		
+	public void print(XPrinter<T> p) {
+		p.out(this);
+		p.append(val == null? p.nullVar(type()) : val.toString());
 	}
 	
 	@Override

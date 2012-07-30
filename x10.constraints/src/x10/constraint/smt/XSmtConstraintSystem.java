@@ -3,20 +3,13 @@ package x10.constraint.smt;
 import java.util.ArrayList;
 import java.util.List;
 
-import x10.constraint.XConstraint;
+
 import x10.constraint.XConstraintSystem;
 import x10.constraint.XDef;
-import x10.constraint.XEQV;
-import x10.constraint.XExpr;
-import x10.constraint.XField;
-import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XType;
 import x10.constraint.XTypeSystem;
-import x10.constraint.XUQV;
-import x10.constraint.XVar;
 
 public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<T> {
 	private static int idCounter = 0; 
@@ -149,8 +142,13 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 	}
 
 	@Override
-	public <D extends XDef<T>> XSmtExpr<T> makeMethod(D md, List<XTerm<T>> terms) {
-		return makeExpr(XOp.makeLabelOp(md, md.resultType()), terms);
+	public <D extends XDef<T>> XSmtExpr<T> makeMethod(D md, XTerm<T> receiver, List<? extends XTerm<T>> terms) {
+		XTerm<T> method = makeField(receiver, md);
+		List<XTerm<T>> args = new ArrayList<XTerm<T>>(terms.size() +1);
+		args.add(method);
+		for (XTerm<T> t : terms)
+			args.add(t); 
+		return makeExpr(XOp.<T>APPLY(), terms);
 	}
 
 	
