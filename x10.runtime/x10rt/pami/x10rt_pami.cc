@@ -2113,7 +2113,7 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		tcb->parameters.rma.bytes   = tcb->chunksize;
 		tcb->parameters.rma.cookie  = tcb;
 		tcb->parameters.rma.done_fn = internal_alltoall_step;
-
+		tcb->parameters.rma.hints.buffer_registered = PAMI_HINT_ENABLE;
 
 		pami_xfer_t operation;
 		memset(&operation, 0, sizeof(operation));
