@@ -310,7 +310,7 @@ public class StaticInitializer extends ContextVisitor {
         Position CG = Position.compilerGenerated(null);
         FlagsNode fNode = xnf.FlagsNode(CG, cDef.flags());
         Id id = xnf.Id(CG, cDef.name());
-        TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(CG, cDef.superType());
+        TypeNode superTN = cDef.superType() != null ? xnf.CanonicalTypeNode(CG, cDef.superType()) : null;
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
         ClassBody body = xnf.ClassBody(CG, cmembers);
         List<TypeNode> interfaceTN = Collections.<TypeNode>emptyList();
@@ -321,8 +321,8 @@ public class StaticInitializer extends ContextVisitor {
 
     private X10ClassDef createShadowClassDef(X10ClassDef interfaceClassDef) {
         X10ClassDef cDef = (X10ClassDef) xts.createClassDef(interfaceClassDef.sourceFile());
-        cDef.superType(Types.ref(xts.Any()));
-        List<Ref<? extends Type>> interfacesRef = Collections.<Ref<? extends Type>>emptyList();
+        List<Ref<? extends Type>> interfacesRef = new ArrayList<Ref<? extends Type>>();
+        interfacesRef.add(Types.ref(xts.Any()));
         cDef.setInterfaces(interfacesRef);
         cDef.name(Name.make(nestedShadowClass4Interface));
         cDef.setFlags(Flags.PUBLIC.Abstract());
