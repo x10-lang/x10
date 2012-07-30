@@ -11,7 +11,7 @@
 
 package x10.core.io;
 
-import x10.core.RefI;
+import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -20,7 +20,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public final class NativeFile extends java.io.File implements RefI {
+public final class NativeFile extends java.io.File implements Any {
 
 	private static final long serialVersionUID = 1L;
 

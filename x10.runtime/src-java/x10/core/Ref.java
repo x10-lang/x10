@@ -22,7 +22,7 @@ import java.io.IOException;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
-public abstract class Ref implements RefI {
+public abstract class Ref implements Any {
     
     private static final long serialVersionUID = 1L;
     
