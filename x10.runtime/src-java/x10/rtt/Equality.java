@@ -116,8 +116,10 @@ public class Equality {
         if (b instanceof x10.core.String) b = x10.core.String.$unbox((x10.core.String) b);
         if (a == b) return true;
 
-        // TODO remove RefI
-        if (a instanceof RefI || b instanceof RefI) return false;
+        // N.B. this is shortcut that can be removed safely
+        // if we need to know the referenceness of values at runtime in some other context,
+        // we may want to introduce isref() in RTT, which comes from Type.isReference(), and use it. 
+//        if (a instanceof RefI || b instanceof RefI) return false;
         
         // equality of structs are follows
         // short cuts for primitives
