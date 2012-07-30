@@ -35,7 +35,7 @@
 #define X10RT_PAMI_BCAST_ALG "X10RT_PAMI_BCAST_ALG"
 #define X10RT_PAMI_SCATTER_ALG "X10RT_PAMI_SCATTER_ALG"
 #define X10RT_PAMI_ALLTOALL_ALG "X10RT_PAMI_ALLTOALL_ALG"
-#define X10RT_PAMI_ALLTOALL_CHUNKSIZE "X10RT_PAMI_ALLTOALL_CHUNKSIZE"
+#define X10RT_PAMI_ALLTOALL_CHUNKS "X10RT_PAMI_ALLTOALL_CHUNKS"
 #define X10RT_PAMI_ALLREDUCE_ALG "X10RT_PAMI_ALLREDUCE_ALG"
 #define X10RT_PAMI_ALLGATHER_ALG "X10RT_PAMI_ALLGATHER_ALG"
 
@@ -125,9 +125,11 @@ struct x10rt_pami_internal_alltoall
 	const void *sbuf;
 	void *dbuf;
 	int teamid;
-	size_t el;
-	size_t count;
-	volatile uint64_t counter;
+	size_t dataSize;
+	size_t chunksize;
+	size_t currentChunkOffset;
+	size_t currentPlaceOffset;
+	pami_put_simple_t parameters;
 };
 
 struct x10rt_buffered_data
@@ -259,8 +261,8 @@ void determineCollectiveAlgorithms(x10rt_pami_team* team)
 	int userChoiceInt = userChoice?atoi(userChoice):0;
 	if (userChoiceInt < 0)
 	{
-		userChoice = getenv(X10RT_PAMI_ALLTOALL_CHUNKSIZE);
-		team->algorithm[PAMI_XFER_ALLTOALL] = -1*(userChoice?atoi(userChoice):1); // default to 4k chunks
+		userChoice = getenv(X10RT_PAMI_ALLTOALL_CHUNKS);
+		team->algorithm[PAMI_XFER_ALLTOALL] = -1*(userChoice?atoi(userChoice):1); // default to 1 chunk
 		#ifdef DEBUG
 			fprintf(stderr, "Switching AllToAll to internal implementation, chunksize = %u bytes\n", -1*team->algorithm[PAMI_XFER_ALLTOALL]);
 		#endif
@@ -1894,64 +1896,51 @@ static void internal_alltoall_complete (pami_context_t   context,
 
 	x10rt_pami_internal_alltoall *cbd = (x10rt_pami_internal_alltoall*)cookie;
 
-	// TODO: there is no lock on this counter, which is fine when NTHREADS=1, but not otherwise
-	(cbd->counter)--;
-	// check if this is the last update
-	if (cbd->counter == 0)
-	{
-		#ifdef DEBUG
-			fprintf(stderr, "Place %u completed remote updates for internal alltoall. cookie=%p\n", state.myPlaceId, cookie);
-		#endif
-		// Done!  block on a barrier, followed by the original x10-level callback
+	#ifdef DEBUG
+		fprintf(stderr, "Place %u completed remote updates for internal alltoall. cookie=%p\n", state.myPlaceId, cookie);
+	#endif
+	// Done!  block on a barrier, followed by the original x10-level callback
 
-		x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
-		if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
-		tcb->tcb = cbd->tch;
-		tcb->arg = cbd->arg;
-		memset(&tcb->operation, 0, sizeof (tcb->operation));
-		tcb->operation.cb_done = collective_operation_complete;
-		tcb->operation.cookie = tcb;
-		tcb->operation.algorithm = state.teams[cbd->teamid].algorithm[PAMI_XFER_BARRIER];
-		pami_result_t status = PAMI_Collective(context, &tcb->operation);
-		if (status != PAMI_SUCCESS) error("Unable to issue post-alltoall barrier on team %u", cbd->teamid);
-		free(cookie);
-	}
+	x10rt_pami_team_callback *tcb = (x10rt_pami_team_callback *)malloc(sizeof(x10rt_pami_team_callback));
+	if (tcb == NULL) error("Unable to allocate memory for a barrier callback header");
+	tcb->tcb = cbd->tch;
+	tcb->arg = cbd->arg;
+	memset(&tcb->operation, 0, sizeof (tcb->operation));
+	tcb->operation.cb_done = collective_operation_complete;
+	tcb->operation.cookie = tcb;
+	tcb->operation.algorithm = state.teams[cbd->teamid].algorithm[PAMI_XFER_BARRIER];
+	pami_result_t status = PAMI_Collective(context, &tcb->operation);
+	if (status != PAMI_SUCCESS) error("Unable to issue post-alltoall barrier on team %u", cbd->teamid);
+	free(cookie);
 }
 
-static void internal_alltoall_begin (pami_context_t   context,
+static void internal_alltoall_step (pami_context_t   context,
                        void          * cookie,
                        pami_result_t    result)
 {
 	if (result != PAMI_SUCCESS)
-		error("Error detected in internal_alltoall_begin");
+		error("Error detected in internal_alltoall_step");
 
 	pami_result_t status = PAMI_ERROR;
 	x10rt_pami_internal_alltoall *cbd = (x10rt_pami_internal_alltoall*)cookie;
 	// no need to lock the context in here, as it was already locked by the surrounding callback
 
-	uint64_t i, j, bufferLen=cbd->el*cbd->count, chunksize=(-1*((int)state.teams[cbd->teamid].algorithm[PAMI_XFER_ALLTOALL]));
-	if (chunksize < cbd->el) chunksize = cbd->el; // At least use the size of a single element
-	cbd->counter = state.teams[cbd->teamid].size * (bufferLen / chunksize); // the number of Put calls we're making per place
-	#ifdef DEBUG
-		fprintf(stderr, "Place %u executing internal AllToAll with team %u. chunksize=%lu\n", state.myPlaceId, cbd->teamid, chunksize);
-	#endif
-	pami_put_simple_t parameters;
-	memset(&parameters, 0, sizeof (parameters));
-	parameters.rma.bytes   = chunksize;
-	parameters.rma.cookie  = cookie;
-	parameters.rma.done_fn = internal_alltoall_complete;
-	for (i=0; i<bufferLen; i+=chunksize)
+	int64_t remotePlace = (state.myPlaceId + cbd->currentPlaceOffset) % state.teams[cbd->teamid].size; // shift the place we start with
+	cbd->parameters.rma.dest = remotePlace;
+	cbd->parameters.addr.local = (void*)((char*)(cbd->sbuf) + (remotePlace * cbd->dataSize) + cbd->currentChunkOffset);
+	cbd->parameters.addr.remote = (void*)((char*)(cbd->dbuf) + (state.myPlaceId * cbd->dataSize) + cbd->currentChunkOffset);
+
+	cbd->currentPlaceOffset++;
+	if (cbd->currentPlaceOffset >= state.teams[cbd->teamid].size)
 	{
-		for (j=0; j<state.teams[cbd->teamid].size; j++)
-		{
-			int64_t remotePlace = (state.myPlaceId + j) % state.teams[cbd->teamid].size; // shift the place we start with
-			parameters.rma.dest = remotePlace;
-			parameters.addr.local = (void*)((char*)(cbd->sbuf) + (remotePlace * bufferLen) + i);
-			parameters.addr.remote = (void*)((char*)(cbd->dbuf) + (state.myPlaceId * bufferLen) + i);
-			status = PAMI_Put(context, &parameters);
-			if (status != PAMI_SUCCESS) error("Error with the remote Put in internal all-to-all %u\n", status);
-		}
+		cbd->currentPlaceOffset = 0;
+		cbd->currentChunkOffset+=cbd->chunksize;
+		if (cbd->currentChunkOffset >= cbd->dataSize)
+			cbd->parameters.rma.done_fn = internal_alltoall_complete;
 	}
+
+	status = PAMI_Put(context, &cbd->parameters);
+	if (status != PAMI_SUCCESS) error("Error with the remote Put in internal all-to-all %u\n", status);
 }
 
 void x10rt_net_barrier (x10rt_team team, x10rt_place role, x10rt_completion_handler *ch, void *arg)
@@ -2116,12 +2105,19 @@ void x10rt_net_alltoall (x10rt_team team, x10rt_place role, const void *sbuf, vo
 		tcb->sbuf = sbuf;
 		tcb->dbuf = dbuf;
 		tcb->teamid = team;
-		tcb->el = el;
-		tcb->count = count;
+		tcb->dataSize = el*count;
+		tcb->chunksize = tcb->dataSize / (-1*((int)state.teams[team].algorithm[PAMI_XFER_ALLTOALL]));
+		tcb->currentChunkOffset = 0;
+		tcb->currentPlaceOffset = 0;
+		memset(&tcb->parameters, 0, sizeof (tcb->parameters));
+		tcb->parameters.rma.bytes   = tcb->chunksize;
+		tcb->parameters.rma.cookie  = tcb;
+		tcb->parameters.rma.done_fn = internal_alltoall_step;
+
 
 		pami_xfer_t operation;
 		memset(&operation, 0, sizeof(operation));
-		operation.cb_done = internal_alltoall_begin;
+		operation.cb_done = internal_alltoall_step;
 		operation.cookie = tcb;
 		operation.algorithm = state.teams[team].algorithm[PAMI_XFER_BARRIER];
 		#ifdef DEBUG
