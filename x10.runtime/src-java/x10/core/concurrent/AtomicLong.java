@@ -61,8 +61,7 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     //
     public static final RuntimeType<AtomicLong> $RTT = NamedType.<AtomicLong> make(
         "x10.util.concurrent.AtomicLong",
-        AtomicLong.class,
-        new Type[] { Types.ANY }
+        AtomicLong.class
     );
     public RuntimeType<AtomicLong> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }

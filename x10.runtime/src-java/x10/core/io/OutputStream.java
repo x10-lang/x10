@@ -155,8 +155,7 @@ public class OutputStream extends Ref {
     //
     public static final RuntimeType<OutputStream> $RTT = NamedType.<OutputStream> make(
         "x10.io.OutputStreamWriter.OutputStream",
-        OutputStream.class,
-        new Type[] { Types.ANY }
+        OutputStream.class
     );
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }

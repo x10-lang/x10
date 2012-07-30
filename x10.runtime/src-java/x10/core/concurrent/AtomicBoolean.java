@@ -61,8 +61,7 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
     //
     public static final RuntimeType<AtomicBoolean> $RTT = NamedType.<AtomicBoolean> make(
         "x10.util.concurrent.AtomicBoolean",
-        AtomicBoolean.class,
-        new Type[] { Types.ANY }
+        AtomicBoolean.class
     );
     public RuntimeType<AtomicBoolean> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }

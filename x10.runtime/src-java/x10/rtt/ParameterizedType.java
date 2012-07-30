@@ -111,7 +111,7 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
     public final boolean isAssignableTo(Type<?> superType) {
         if (this == superType) return true;
         if (superType == Types.ANY) return true;
-        // TODO remove Object
+        // TODO remove Types.OBJECT
         if (superType == Types.OBJECT) return !Types.isStructType(this);
         if (!superType.getJavaClass().isAssignableFrom(rawType.getJavaClass())) {
             return false;

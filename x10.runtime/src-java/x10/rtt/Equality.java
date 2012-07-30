@@ -116,6 +116,7 @@ public class Equality {
         if (b instanceof x10.core.String) b = x10.core.String.$unbox((x10.core.String) b);
         if (a == b) return true;
 
+        // TODO remove RefI
         if (a instanceof RefI || b instanceof RefI) return false;
         
         // equality of structs are follows

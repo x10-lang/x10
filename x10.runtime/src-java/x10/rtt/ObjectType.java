@@ -18,6 +18,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
+//TODO remove this file
 public final class ObjectType extends RuntimeType<x10.core.RefI> {
 
     private static final long serialVersionUID = 1L;

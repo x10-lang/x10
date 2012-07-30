@@ -29,8 +29,7 @@ public class LocalVar<T> extends x10.core.Ref {
         x10.rtt.NamedType.<LocalVar<?>> make(
                 "x10.compiler.LocalVar",
                 /* base class */ LocalVar.class,
-                /* variances */ RuntimeType.INVARIANTS(1),
-                /* parents */ new Type[] { Types.ANY }
+                /* variances */ RuntimeType.INVARIANTS(1)
     );
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }

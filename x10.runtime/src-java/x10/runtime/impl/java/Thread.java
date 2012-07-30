@@ -30,7 +30,7 @@ import java.io.IOException;
  */
 public class Thread implements x10.core.Any {
     private static final long serialVersionUID = 1L;
-    public static final RuntimeType<Thread> $RTT = NamedType.<Thread> make("x10.lang.Thread", Thread.class, new Type<?>[] { Types.ANY });
+    public static final RuntimeType<Thread> $RTT = NamedType.<Thread> make("x10.lang.Thread", Thread.class);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 

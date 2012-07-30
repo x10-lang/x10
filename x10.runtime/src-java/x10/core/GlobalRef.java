@@ -685,7 +685,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
 	private static final long serialVersionUID = 1L;
 	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalEval.class);
-	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class, new Type[] {Types.ANY});
+	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class);
 	public RuntimeType<?> $getRTT() {return $RTT;}
 	public Type<?> $getParam(int i) {return null;}
     

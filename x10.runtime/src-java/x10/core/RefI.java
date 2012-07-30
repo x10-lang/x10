@@ -14,8 +14,8 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Types;
 
+//TODO remove this file
 // Base interface of all X10 ref objects
 public interface RefI extends Any {
-    // TODO remove Object
-	public static final RuntimeType<RefI> $RTT = Types.OBJECT;
+    public static final RuntimeType<RefI> $RTT = Types.OBJECT;
 }

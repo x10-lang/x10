@@ -312,6 +312,7 @@ public class Types {
     }
 
     public static final RuntimeType<Object> ANY = new AnyType();
+    //TODO remove Types.OBJECT
     public static final RuntimeType<RefI> OBJECT = new ObjectType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
@@ -743,14 +744,14 @@ public class Types {
     private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     public static boolean hasNaturalZero(Type<?> rtt) {
-        // TODO remove Object
+        // TODO remove Types.OBJECT
     	return rtt.isAssignableTo(OBJECT) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
     }
 
     public static <T> T cast(final java.lang.Object self, Type<?> rtt) {
         // XTENLANG-3093
         if (self == null) {
-            // TODO remove Object
+            // TODO remove Types.OBJECT
             if (rtt == null || rtt.isAssignableTo(OBJECT)) return null;
             throw new java.lang.ClassCastException(rtt.typeName());
         }
@@ -761,7 +762,7 @@ public class Types {
     public static <T> T castConversion(final java.lang.Object self, Type<?> rtt) {
         // XTENLANG-3093
         if (self == null) {
-            // TODO remove Object
+            // TODO remove Types.OBJECT
             if (rtt == null || rtt.isAssignableTo(OBJECT)) return null;
             throw new java.lang.ClassCastException(rtt.typeName());
         }
