@@ -236,16 +236,27 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 			XConstraint<?> xc = ct.constraint().get();
 			String str = ct.name() + "{";
 			boolean first = true;
-			// lshadare may have more than two children?
-			for (XExpr<?> f: xc.atoms()) {
+			for (XTerm<?> t :xc.constraints()) {
 				if (first) {
-					first = false;
-					str += (f.get(0) + " " + f.op() + " " + f.get(1));
+					first = false; 
+					str += t.prettyPrint(); 
 				}
 				else {
-					str += (", " + f.get(0) + " " + f.op() + " " + f.get(1));
+					str += ", " + t.prettyPrint(); 
 				}
 			}
+//			// lshadare may have more than two children?
+			// why was this not printing properties?
+//			for (XExpr<?> f: xc.atoms()) {
+//				assert f.children().size() == 2; 
+//				if (first) {
+//					first = false;
+//					str += (f.get(0) + " " + f.op() + " " + f.get(1));
+//				}
+//				else {
+//					str += (", " + f.get(0) + " " + f.op() + " " + f.get(1));
+//				}
+//			}
 			str += "}";
 			System.out.println("X10ParameterizedType.toString(): " + str + 
 					           "; ConstrainedType.constraint().get() = " + xc);
