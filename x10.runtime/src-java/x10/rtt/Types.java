@@ -563,14 +563,14 @@ public class Types {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Boolean");}
         if (typeParamOrAny instanceof x10.core.Boolean) return x10.core.Boolean.$unbox((x10.core.Boolean)typeParamOrAny);
         else if (typeParamOrAny instanceof java.lang.Boolean) {return (java.lang.Boolean) typeParamOrAny;}
-        throw new ClassCastException("x10.lang.Boolean");
+        throw new java.lang.ClassCastException("x10.lang.Boolean");
     }
     
     public static char aschar(Object typeParamOrAny, Type<?> origRTT) {
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.Char");}
         if (typeParamOrAny instanceof x10.core.Char) return x10.core.Char.$unbox((x10.core.Char)typeParamOrAny);
         else if (typeParamOrAny instanceof java.lang.Character) {return (java.lang.Character) typeParamOrAny;}
-        throw new ClassCastException("x10.lang.Char");
+        throw new java.lang.ClassCastException("x10.lang.Char");
     }
 
     public static byte asbyte(Object typeParamOrAny, Type<?> origRTT){
@@ -581,7 +581,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Byte) return x10.core.Byte.$unbox((x10.core.Byte)typeParamOrAny);
         	else if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Byte");
+        throw new java.lang.ClassCastException("x10.lang.Byte");
     }
     
     public static short asshort(Object typeParamOrAny, Type<?> origRTT){
@@ -592,7 +592,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Short) return x10.core.Short.$unbox((x10.core.Short)typeParamOrAny);
         	else if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Short");
+        throw new java.lang.ClassCastException("x10.lang.Short");
     }
     
     public static int asint(Object typeParamOrAny, Type<?> origRTT){
@@ -603,7 +603,7 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.Int) return x10.core.Int.$unbox((x10.core.Int) typeParamOrAny);
             else if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Int");
+        throw new java.lang.ClassCastException("x10.lang.Int");
     }
 
     public static long aslong(Object typeParamOrAny, Type<?> origRTT){
@@ -614,7 +614,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Long) {return x10.core.Long.$unbox((x10.core.Long)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Long");
+        throw new java.lang.ClassCastException("x10.lang.Long");
     }
 
     public static float asfloat(Object typeParamOrAny, Type<?> origRTT){
@@ -625,7 +625,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Float) {return x10.core.Float.$unbox((x10.core.Float)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Float) {return (java.lang.Float) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Float");
+        throw new java.lang.ClassCastException("x10.lang.Float");
     }
 
     public static double asdouble(Object typeParamOrAny, Type<?> origRTT){
@@ -636,7 +636,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.Double) {return x10.core.Double.$unbox((x10.core.Double)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Double) {return (java.lang.Double) typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.Double");
+        throw new java.lang.ClassCastException("x10.lang.Double");
     }
 
     public static byte asUByte(Object typeParamOrAny, Type<?> origRTT){
@@ -647,7 +647,7 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.UByte) {return x10.core.UByte.$unbox((x10.core.UByte)typeParamOrAny);}
             else if (typeParamOrAny instanceof java.lang.Byte) {return (java.lang.Byte)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.UByte");
+        throw new java.lang.ClassCastException("x10.lang.UByte");
     }
     public static Object asBoxedUByte(Object typeParamOrAny, Type<?> origRTT){
     	return x10.core.UByte.$box(asUByte(typeParamOrAny, origRTT));
@@ -661,7 +661,7 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.UShort) {return x10.core.UShort.$unbox((x10.core.UShort)typeParamOrAny);}
             else if (typeParamOrAny instanceof java.lang.Short) {return (java.lang.Short)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.UShort");
+        throw new java.lang.ClassCastException("x10.lang.UShort");
     }
     public static Object asBoxedUShort(Object typeParamOrAny, Type<?> origRTT){
     	return x10.core.UShort.$box(asUShort(typeParamOrAny, origRTT));
@@ -675,7 +675,7 @@ public class Types {
         	if (typeParamOrAny instanceof x10.core.UInt) {return x10.core.UInt.$unbox((x10.core.Byte)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.UInt");
+        throw new java.lang.ClassCastException("x10.lang.UInt");
     }
     public static Object asBoxedUInt(Object typeParamOrAny, Type<?> origRTT){
     	return x10.core.UInt.$box(asUInt(typeParamOrAny, origRTT));
@@ -689,7 +689,7 @@ public class Types {
             if (typeParamOrAny instanceof x10.core.ULong) {return x10.core.ULong.$unbox((x10.core.ULong)typeParamOrAny);}
             else if (typeParamOrAny instanceof java.lang.Long) {return (java.lang.Long)typeParamOrAny;}
         }
-        throw new ClassCastException("x10.lang.ULong");
+        throw new java.lang.ClassCastException("x10.lang.ULong");
     }
     public static Object asBoxedULong(Object typeParamOrAny, Type<?> origRTT){
     	return x10.core.ULong.$box(asULong(typeParamOrAny, origRTT));
