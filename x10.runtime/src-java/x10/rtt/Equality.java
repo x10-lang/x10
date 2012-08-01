@@ -12,9 +12,6 @@
 package x10.rtt;
 
 
-import x10.core.RefI;
-import x10.core.StructI;
-
 public class Equality {
     public static boolean equalsequals(boolean a, boolean b) { return a == b; }
     public static boolean equalsequals(boolean a, Object b) { return equalsequals(x10.core.Boolean.$box(a), b); }
@@ -119,7 +116,7 @@ public class Equality {
         // N.B. this is shortcut that can be removed safely
         // if we need to know the referenceness of values at runtime in some other context,
         // we may want to introduce isref() in RTT, which comes from Type.isReference(), and use it. 
-//        if (a instanceof RefI || b instanceof RefI) return false;
+//        if (a instanceof x10.core.RefI || b instanceof x10.core.RefI) return false;
         
         // equality of structs are follows
         // short cuts for primitives
@@ -130,7 +127,7 @@ public class Equality {
         if (a instanceof Number && b instanceof Number)
             return equalsNumbers((Number) a, (Number) b);
         // for general structs. it also works with primitives.
-        if (a instanceof StructI) return ((StructI) a)._struct_equals$O(b);
+        if (a instanceof x10.core.StructI) return ((x10.core.StructI) a)._struct_equals$O(b);
         
         return false;
     }

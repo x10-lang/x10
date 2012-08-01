@@ -14,7 +14,6 @@ import java.lang.reflect.Field;
 
 import sun.misc.Unsafe;
 import x10.core.Ref;
-import x10.core.RefI;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
