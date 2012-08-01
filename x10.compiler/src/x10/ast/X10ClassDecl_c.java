@@ -423,9 +423,11 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
             def.addTypeParameter(tpn.type(), tpn.variance());
         }
 
+        ///* [DC] going to hack the typesystem to allow calls to these special Any methods even if they don't exist.
+        // [DC] actually, no.  going to do that for objects but not structs, and do something else for structs later
         if (flags().flags().isStruct())
             n = x10.util.Struct.addStructMethods(tb,n);
-
+		//*/
 
 
         //I need a way to access the outer instance when generating dynamic_checks.
@@ -668,14 +670,14 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	for (X10ClassType intface : interfaces) {
     	    List<MethodInstance> oldMethods = intface.methods();
     	    for (MethodInstance mi : oldMethods) {
-    	    	// [DC] this special case is because there is an implementation in Reference (c++)
-    	    	// and Ref (java) for these guys, so no need to declare them as abstract -- it just overrides the default ones.
-    	    	if (intface.isAny()) continue;
     	    	
-    	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+    	    	// [DC] leave these guys out of the picture -- backends handle them specially
+    	    	if (mi.container().isAny()) continue;
+    	        
+    	    	MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
 
     	        if (mj == null) { // This method is not already defined for this class
-    	            candidates.add(mi);
+    	        	candidates.add(mi);
     	        }
     	    }
     	} // interfaces
@@ -708,6 +710,73 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	            formalNames,
     	            mi.throwTypes(),
     	            mi.returnType(), null);
+    	}
+    	return n;
+    }
+ 
+    /**
+     * If the class does not have a super type and does not define a method from Any, add a default one.
+     */
+    public Node addDefaultAnyMethods( ContextVisitor tc) {
+    	X10ClassDecl_c n = this;
+    	
+    	if (n.flags().flags().isInterface())
+    		return n;
+    	if (n.flags().flags().isStruct())
+    		return n;
+    	if (n.superClass() != null)
+    		return n;
+    	
+    	TypeSystem xts =  tc.typeSystem();
+    	NodeFactory xnf = (NodeFactory) tc.nodeFactory();
+    	X10ClassType targetType = (X10ClassType) n.classDef().asType();
+
+    	LinkedList<MethodInstance> results = new LinkedList<MethodInstance>();
+
+    	X10ClassType intface = xts.Any();
+	    for (MethodInstance mi : xts.Any().methods()) {   	
+	        MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
+	        if (mj == null) { // This method is not already defined for this class
+	        	results.add(mi);
+	        }
+    	}
+
+    	Position CG = Position.compilerGenerated(body().position());
+    	Synthesizer synth = new Synthesizer(xnf, xts);
+    	for (MethodInstance mi : results) {
+    	    Id name = xnf.Id(CG, mi.name());
+    	    List<LocalDef> formalNames = new ArrayList<LocalDef>();
+    	    for (LocalDef f : ((X10MethodDef) mi.def()).formalNames()) {
+    	        X10LocalDef tf = (X10LocalDef) f.copy();
+    	        tf.setType(f.type());
+                formalNames.add(tf);
+            }
+    	    Type system = xts.System();
+    	    Name system_name = null;
+    	    X10Call call = null;
+    	    try {
+	    	    if (mi.name().toString().equals("hashCode")) {
+	    	    	List<Expr> args = Collections.<Expr>singletonList(xnf.Special(CG, Special.THIS).type(targetType));
+	        	    call = (X10Call) synth.makeStaticCall(CG, system, Name.make("identityHashCode"), args, mi.returnType(), tc.context());
+	    	    }
+	    	    //if (mi.name().toString().equals("typeName")) system_name = Name.make("identityTypeName");
+	    	    //if (mi.name().toString().equals("toString")) system_name = Name.make("identityToString");
+	    	    //if (mi.name().toString().equals("equals")) system_name = Name.make("identityEquals");
+	    	    //call = null;
+	    	    if (call != null) {
+		    	    assert call != null : mi.name().toString();
+		    	    System.out.println("Adding hashCode method... calling: " + call);
+		            n = synth.addSyntheticMethod(n,
+		            		Flags.PUBLIC,
+		    	            ((X10MethodDef) mi.def()).typeParameters(),
+		    	            mi.name(),
+		    	            formalNames,
+		    	            mi.throwTypes(),
+		    	            mi.returnType(), xnf.Block(CG,xnf.Return(CG, call)));
+	    	    }
+    	    } catch (SemanticException e) {
+    	    	Errors.issue(tc.job(), e, this);
+    	    }
     	}
     	return n;
     }
@@ -780,6 +849,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     	n = (X10ClassDecl_c) n.typeCheckProperties(parent, tc, childtc);
     	n = (X10ClassDecl_c) n.typeCheckClassInvariant(parent, tc, childtc);
+
+    	// have to run this before adjustAbstractMethods so that it doesn't create an abstract method for these guys
+    	//n = (X10ClassDecl_c) n.addDefaultAnyMethods(oldtc);
 
     	n = (X10ClassDecl_c) n.adjustAbstractMethods(oldtc);
 
@@ -871,8 +943,8 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     			n.classDef().setFlags(n.classDef().flags().Static());
     			n = (X10ClassDecl_c) n.flags(n.flags().flags(flags.Static()));
     		}
-    		n.checkStructMethods(parent, tc);
     	}
+    	n.checkStructMethods(parent, tc);
 
         // a superclass/interface is a covariant position (+)
         if (n.superClass!=null) Types.checkVariance(n.superClass, ParameterType.Variance.COVARIANT,tc.job());

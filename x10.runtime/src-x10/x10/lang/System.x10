@@ -112,11 +112,19 @@ public class System {
     @Native("c++", "printf(\"not setting %s\\n\", (#p)->c_str())") // FIXME: Trivial definition to allow XRX compilation to go through.
     public static native def setProperty(p:String,v:String):void;
 
+
+
+    @Native("java", "x10.rtt.Types.typeName(#o)")
+    @Native("c++", "x10aux::type_name(#o)")
+    public static native def identityTypeName(o:Any) : String;
+
     @Native("java", "java.lang.System.identityHashCode(#o)")
     @Native("c++", "x10aux::identity_hash_code(#o)")
-    public static native def identityHashCode[T](o:T) {T isref} : Int;
+    public static native def identityHashCode(o:Any) : Int;
 
-    public static def identityToString[T](o:T) {T isref} : String = o.typeName() + "@" + System.identityHashCode[T](o);
+    public static def identityToString(o:Any) : String = o.typeName() + "@" + System.identityHashCode(o);
+
+    public static def identityEquals(o1:Any, o2:Any) : Boolean = o1==o2;
 
     /**
      * Sleep for the specified number of milliseconds.

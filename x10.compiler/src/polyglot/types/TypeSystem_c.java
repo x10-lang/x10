@@ -1355,46 +1355,45 @@ public class TypeSystem_c implements TypeSystem
         return new X10TypeMatcher(name);
     }
 
-    public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher)
-    throws SemanticException {
+    public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher) throws SemanticException {
 
-	assert_(container);
+    	assert_(container);
 
-	Context context = matcher.context();
+    	Context context = matcher.context();
 
-	List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
+    	List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
+    	
+    	if (acceptable.size() == 0) {
+    		throw new NoMemberException(NoMemberException.METHOD,
+    				"No valid method call found for call in given type."
+    						+ "\n\t Call: " + matcher.stripConstraints()
+    						+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
 
-	if (acceptable.size() == 0) {
-	    throw new NoMemberException(NoMemberException.METHOD,
-	                                "No valid method call found for call in given type."
-	    		+ "\n\t Call: " + matcher.stripConstraints()
-	    		+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
+    	}
 
-	}
+    	Collection<MethodInstance> maximal =
+    			findMostSpecificProcedures(container, acceptable, (Matcher<MethodInstance>) matcher, context);
 
-	Collection<MethodInstance> maximal =
-	    findMostSpecificProcedures(container, acceptable, (Matcher<MethodInstance>) matcher, context);
+    	if (maximal.size() > 1) {
+    		StringBuffer sb = new StringBuffer();
+    		for (Iterator<MethodInstance> i = maximal.iterator(); i.hasNext();) {
+    			MethodInstance ma =  i.next();
+    			sb.append(ma.container());
+    			sb.append(".");
+    			sb.append(ma.signature());
+    			if (i.hasNext()) {
+    				if (maximal.size() == 2) {
+    					sb.append(" and ");
+    				}
+    				else {
+    					sb.append(", ");
+    				}
+    			}
+    		}
 
-	if (maximal.size() > 1) {
-	    StringBuffer sb = new StringBuffer();
-	    for (Iterator<MethodInstance> i = maximal.iterator(); i.hasNext();) {
-		MethodInstance ma =  i.next();
-		sb.append(ma.container());
-		sb.append(".");
-		sb.append(ma.signature());
-		if (i.hasNext()) {
-		    if (maximal.size() == 2) {
-			sb.append(" and ");
-		    }
-		    else {
-			sb.append(", ");
-		    }
-		}
-	    }
-
-	    throw Errors.MultipleMethodDefsMatch.make(maximal, matcher.toString(),
-	                                              Position.COMPILER_GENERATED);
-	}
+    		throw Errors.MultipleMethodDefsMatch.make(maximal, matcher.toString(),
+    				Position.COMPILER_GENERATED);
+    	}
 
 	MethodInstance mi = maximal.iterator().next();
 	return mi;
@@ -1608,99 +1607,104 @@ public class TypeSystem_c implements TypeSystem
      * Populates the list acceptable with those MethodInstances which are
      * Applicable and Accessible as defined by JLS 15.11.2.1
      */
-    private List<MethodInstance> superFindAcceptableMethods(Type container, MethodMatcher matcher)
-    throws SemanticException {
-        if (container==null) return Collections.EMPTY_LIST;
-        assert_(container);
-        
-    // Collect allMethods with the relevant name
-    Name name = matcher.name();
-    Context context = matcher.context();
-	List<MethodInstance> allMethods = new ArrayList<MethodInstance>();
-	Set<Type> visitedTypes = CollectionFactory.newHashSet();
+    private List<MethodInstance> superFindAcceptableMethods(Type container, MethodMatcher matcher) throws SemanticException {
+    	if (container==null) return Collections.EMPTY_LIST;
+    	assert_(container);
 
-	LinkedList<Type> typeQueue = new LinkedList<Type>();
-	typeQueue.addLast(container);
+    	// Collect allMethods with the relevant name
+    	Name name = matcher.name();
+    	Context context = matcher.context();
+    	List<MethodInstance> allMethods = new ArrayList<MethodInstance>();
+    	Set<Type> visitedTypes = CollectionFactory.newHashSet();
 
-	Q:
-	    while (! typeQueue.isEmpty()) {
-		Type t = typeQueue.removeFirst();
+    	LinkedList<Type> typeQueue = new LinkedList<Type>();
+    	typeQueue.addLast(container);
+    	typeQueue.addLast(container.typeSystem().Any());
 
-		if (t instanceof ContainerType) {
-		    ContainerType type = (ContainerType) t;
+    	Q: while (! typeQueue.isEmpty()) {
+			Type t = typeQueue.removeFirst();
 
-		    for (Type s : visitedTypes) {
-			if (typeEquals(type, s, context))
-			    continue Q;
-		    }
+			if (t instanceof ContainerType) {
+				ContainerType type = (ContainerType) t;
 
-		    if (visitedTypes.contains(type)) {
-			continue;
-		    }
+				for (Type s : visitedTypes) {
+					if (typeEquals(type, s, context))
+						continue Q;
+				}
 
-		    visitedTypes.add(type);
+				if (visitedTypes.contains(type)) {
+					continue;
+				}
 
-		    if (reporter.should_report(Reporter.types, 2))
-			reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
+				visitedTypes.add(type);
 
-            allMethods.addAll(type.methodsNamed(name));
-		}
+				if (reporter.should_report(Reporter.types, 2))
+					reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
 
-		if (t instanceof ObjectType) {
-		    ObjectType ot = (ObjectType) t;
-
-		    if (ot.superClass() != null) {
-			typeQueue.addLast(ot.superClass());
-		    }
-
-		    typeQueue.addAll(ot.interfaces());
-		}
-	    }
-
-        // Collected all methods, now let's filter them
-        List<Type> typeParams = matcher.typeArgs;
-        List<Type> argTypes = matcher.argTypes;
-        boolean isDumbMatcher = matcher.isDumbMatcher;
-
-        SemanticException error = null;
-        List<MethodInstance> resolved = resolveProcedure(container, context, allMethods, typeParams, argTypes, isDumbMatcher);
-
-        List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
-		for (MethodInstance mi : resolved)	{
-				MethodInstance oldmi = mi;
-			    mi = matcher.instantiate(mi);
-
-			    if (mi == null) {
-				continue;
-			    }
-			    mi.setOrigMI(oldmi);
-			    if (isAccessible(mi, context)) {
-				    acceptable.add(mi);
-			    }
-			    else {
-                    // method call is valid, but the method is
-                    // unacceptable.
-                    if (error == null) {
-                        error = new NoMemberException(NoMemberException.METHOD,
-                                                      "Method " + mi.signature() +
-                                                      " in " + container +
-                        " is inaccessible.");
-                    }
-			    }
+				allMethods.addAll(type.methodsNamed(name));
 			}
 
-        
-        if (acceptable.size() == 0) {
-            if (error == null) {
-                  throw new NoMemberException(NoMemberException.METHOD,
-                          "No valid method call found for call in given type."
-                            + "\n\t Call: " + matcher.stripConstraints()
-                            + "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
-            }
-            throw error;
-        }
+			if (t instanceof ObjectType) {
+				ObjectType ot = (ObjectType) t;
 
-        return acceptable;
+				if (ot.superClass() != null) {
+					typeQueue.addLast(ot.superClass());
+				}
+
+				typeQueue.addAll(ot.interfaces());
+			}
+		}
+
+    	// Collected all methods, now let's filter them
+    	List<Type> typeParams = matcher.typeArgs;
+    	List<Type> argTypes = matcher.argTypes;
+    	boolean isDumbMatcher = matcher.isDumbMatcher;
+
+    	SemanticException error = null;
+    	List<MethodInstance> resolved = resolveProcedure(container, context, allMethods, typeParams, argTypes, isDumbMatcher);
+
+    	List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
+    	for (MethodInstance mi : resolved)	{
+    		MethodInstance oldmi = mi;
+    		mi = matcher.instantiate(mi);
+
+    		if (mi == null) {
+    			continue;
+    		}
+    		mi.setOrigMI(oldmi);
+    		if (isAccessible(mi, context)) {
+    			acceptable.add(mi);
+    		}
+    		else {
+    			// method call is valid, but the method is
+    			// unacceptable.
+    			if (error == null) {
+    				error = new NoMemberException(NoMemberException.METHOD,
+    						"Method " + mi.signature() +
+    						" in " + container +
+    						" is inaccessible.");
+    			}
+    		}
+    	}
+
+
+    	if (acceptable.size() == 0) {
+    		if (error == null) {
+    			// perhaps it's one of the special Any methods...
+    			if (matcher.name.toString().equals("hashCode")) {
+    				if (matcher.argTypes.size() == 0) {
+
+    				}
+    			}
+    			throw new NoMemberException(NoMemberException.METHOD,
+    					"No valid method call found for call in given type."
+    							+ "\n\t Call: " + matcher.stripConstraints()
+    							+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
+    		}
+    		throw error;
+    	}
+
+    	return acceptable;
     }
 
     public static <D extends ProcedureDef, T extends X10ProcedureInstance<D> & MemberInstance<D>> List<T> resolveProcedure(Type container, Context context, List<T> allMethods, List<Type> typeParams, List<Type> argTypes, boolean dumbMatcher) {
@@ -2517,6 +2521,13 @@ public class TypeSystem_c implements TypeSystem
         if (runtimeType_ == null)
             runtimeType_ = load("x10.lang.Runtime"); // java file
         return runtimeType_;
+    }
+
+    protected X10ClassType systemType_;
+    public X10ClassType System() {
+        if (systemType_ == null)
+        	systemType_ = load("x10.lang.System");
+        return systemType_;
     }
 
     protected X10ClassType embedType_;
