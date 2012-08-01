@@ -1057,6 +1057,8 @@ public class TypeSystem_c implements TypeSystem
     				}
     			}
     		}
+    		
+    		if (!ot.isAny() && hasMethodNamed((ContainerType)Any(), name)) return true;
     	}
 
     	return false;
@@ -1690,12 +1692,6 @@ public class TypeSystem_c implements TypeSystem
 
     	if (acceptable.size() == 0) {
     		if (error == null) {
-    			// perhaps it's one of the special Any methods...
-    			if (matcher.name.toString().equals("hashCode")) {
-    				if (matcher.argTypes.size() == 0) {
-
-    				}
-    			}
     			throw new NoMemberException(NoMemberException.METHOD,
     					"No valid method call found for call in given type."
     							+ "\n\t Call: " + matcher.stripConstraints()
