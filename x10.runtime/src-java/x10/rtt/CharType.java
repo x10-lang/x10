@@ -90,6 +90,11 @@ public final class CharType extends RuntimeType<x10.core.Char> {
     	return ((char[]) array).length;
     }
 
+    @Override
+    public boolean isref() {
+        return false;
+    }
+
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 //    }
 //

@@ -3387,6 +3387,7 @@ public class Emitter {
 	    // for static inner classes that are compiled from closures
 	    boolean isStaticFunType = def.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME);
 	    boolean isVoidFun = false;
+	    boolean isStruct = def.isStruct();
 	    if (isStaticFunType) {
 	        // Note: assume that the first interface in this X10ClassDef is a function type
 	        Type type = def.interfaces().get(0).get();
@@ -3399,17 +3400,17 @@ public class Emitter {
         printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
         w.write("> " + X10PrettyPrinterVisitor.RTT_NAME + " = ");
         if (isStaticFunType) {
-            // Option for closures
-//            w.write("x10.rtt.RuntimeType");
             if (isVoidFun) {
                 w.write("x10.rtt.StaticVoidFunType");
             } else {
                 w.write("x10.rtt.StaticFunType");
             }
         } else {
-            // Option for non-closures
-//            w.write("x10.rtt.RuntimeType");
-            w.write("x10.rtt.NamedType");
+            if (isStruct) {
+                w.write("x10.rtt.NamedStructType");
+            } else {
+                w.write("x10.rtt.NamedType");
+            }
         }
         w.write(".<");
         printType(def.asType(), BOX_PRIMITIVES | NO_QUALIFIER);
@@ -3485,7 +3486,7 @@ public class Emitter {
                 }
                 printRTT(def, def.superType().get());
             }
-            if (def.isStruct()) {
+            if (isStruct) {
                 if (needComma) {
                     w.write(", ");
                 } else {
@@ -3498,37 +3499,6 @@ public class Emitter {
         }
         w.newline();
         w.write(")");
-
-        // override methods of RuntimeType as needed
-        if (isStaticFunType) {
-            // Option for closures
-            /*
-            // for static inner classes that are compiled from closures
-            w.write("{");
-
-            // Note: assume that the first parent in this RuntimeType is the parameterized type which corresponds to the above function type
-            w.write("public String typeName(Object o) {");
-            if (isVoidFun) {
-                w.write("return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForVoidFun();");
-            } else {
-                w.write("return ((x10.rtt.ParameterizedType<?>) getParents()[0]).typeNameForFun();");
-            }
-            w.write("}");
-            
-            w.write("}");
-            */
-        } else {
-            // Option for non-closures
-            /*
-            w.write("{");
-
-            w.write("public String typeName() {");
-            w.write("return \"" + def.asType() + "\";");
-            w.write("}");
-
-            w.write("}");
-            */
-        }
 
         w.write(";");
         w.newline();

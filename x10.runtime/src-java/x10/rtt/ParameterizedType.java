@@ -134,6 +134,10 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
         return rawType.hasZero();
     }
 
+    public boolean isref() {
+        return rawType.isref();
+    }
+
     public final boolean isInstance(Object o) {
         return rawType.isInstance(o, actualTypeArguments);
     }

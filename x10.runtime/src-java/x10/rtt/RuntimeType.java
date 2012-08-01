@@ -211,6 +211,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         return true;
     }
 
+    public boolean isref() {
+        return true;
+    }
+
     public boolean isInstance(Object o) {
         if (o == null) {return false;}
         if (o.getClass() == javaClass) {

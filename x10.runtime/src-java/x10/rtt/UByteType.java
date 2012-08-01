@@ -91,6 +91,11 @@ public final class UByteType extends RuntimeType<x10.core.UByte> {
     	return ((byte[]) array).length;
     }
 
+    @Override
+    public boolean isref() {
+        return false;
+    }
+
 //    public void $_serialize(X10JavaSerializer serializer) throws java.io.IOException {
 //    }
 //

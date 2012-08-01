@@ -31,4 +31,5 @@ public interface Type<T> extends java.io.Serializable, x10.x10rt.X10JavaSerializ
     String typeName();
 
     boolean hasZero();
+    boolean isref();
 }

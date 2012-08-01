@@ -19,101 +19,106 @@ import x10.x10rt.X10JavaSerializer;
 import java.io.IOException;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable {
+public class NamedStructType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, NamedType.class);
+    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, NamedStructType.class);
     
     public String typeName;
 
     // Just for allocation
-    public NamedType() {
+    public NamedStructType() {
         super();
     }
     
     // not used
-//    protected NamedType(String typeName, Class<?> javaClass) {
+//    protected NamedStructType(String typeName, Class<?> javaClass) {
 //        super(javaClass);
 //        this.typeName = typeName;
 //    }
 //
-//    protected NamedType(String typeName, Class<?> javaClass, Variance[] variances) {
+//    protected NamedStructType(String typeName, Class<?> javaClass, Variance[] variances) {
 //        super(javaClass, variances);
 //        this.typeName = typeName;
 //    }
 //
-//    protected NamedType(String typeName, Class<?> javaClass, Type<?>[] parents) {
+//    protected NamedStructType(String typeName, Class<?> javaClass, Type<?>[] parents) {
 //        super(javaClass, parents);
 //        this.typeName = typeName;
 //    }
     
     // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
-    protected NamedType(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+    protected NamedStructType(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
         super(javaClass, variances, parents);
         this.typeName = typeName;
     }
 
     private static final boolean useCache = true;
-    private static final ConcurrentHashMap<Class<?>, NamedType<?>> typeCache = new ConcurrentHashMap<Class<?>, NamedType<?>>();
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass) {
+    private static final ConcurrentHashMap<Class<?>, NamedStructType<?>> typeCache = new ConcurrentHashMap<Class<?>, NamedStructType<?>>();
+    public static <T> NamedStructType/*<T>*/ make(String typeName, Class<?> javaClass) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(javaClass);
+            NamedStructType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, null, null);
+                NamedStructType<?> type0 = new NamedStructType<T>(typeName, javaClass, null, null);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
-            return (NamedType<T>) type;
+            return (NamedStructType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, null, null);
+            return new NamedStructType<T>(typeName, javaClass, null, null);
         }
     }
 
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances) {
+    public static <T> NamedStructType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(javaClass);
+            NamedStructType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, variances, null);
+                NamedStructType<?> type0 = new NamedStructType<T>(typeName, javaClass, variances, null);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
-            return (NamedType<T>) type;
+            return (NamedStructType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, variances, null);
+            return new NamedStructType<T>(typeName, javaClass, variances, null);
         }
     }
 
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Type<?>[] parents) {
+    public static <T> NamedStructType/*<T>*/ make(String typeName, Class<?> javaClass, Type<?>[] parents) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(javaClass);
+            NamedStructType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, null, parents);
+                NamedStructType<?> type0 = new NamedStructType<T>(typeName, javaClass, null, parents);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
-            return (NamedType<T>) type;
+            return (NamedStructType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, null, parents);
+            return new NamedStructType<T>(typeName, javaClass, null, parents);
         }
     }
     
-    public static <T> NamedType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
+    public static <T> NamedStructType/*<T>*/ make(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
         if (useCache) {
-            NamedType<?> type = typeCache.get(javaClass);
+            NamedStructType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                NamedType<?> type0 = new NamedType<T>(typeName, javaClass, variances, parents);
+                NamedStructType<?> type0 = new NamedStructType<T>(typeName, javaClass, variances, parents);
                 type = typeCache.putIfAbsent(javaClass, type0);
                 if (type == null) type = type0;
             }
-            return (NamedType<T>) type;
+            return (NamedStructType<T>) type;
         } else {
-            return new NamedType<T>(typeName, javaClass, variances, parents);
+            return new NamedStructType<T>(typeName, javaClass, variances, parents);
         }
     }
 
     @Override
     public String typeName() {
         return typeName;
+    }
+
+    @Override
+    public boolean isref() {
+        return false;
     }
 
     @Override
@@ -128,12 +133,12 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        NamedType namedType = new NamedType();
+        NamedStructType namedType = new NamedStructType();
         deserializer.record_reference(namedType);
         return $_deserialize_body(namedType, deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(NamedStructType nt, X10JavaDeserializer deserializer) throws IOException {
         RuntimeType.$_deserialize_body(nt, deserializer);
         short classId = deserializer.readShort();
         nt.typeName = DeserializationDispatcher.getClassNameForID(classId, deserializer);
