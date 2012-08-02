@@ -22,6 +22,11 @@ else
 fi
 if [[ "$UNAME" = CYGWIN* ]]; then JAVA="$(cygpath -au "$JAVA")"; fi
 
+if [ "$1" == "" ] ; then
+    TESTS="$TOP/x10.tests"
+else
+    TESTS="$(pwd)/$1"
+fi
 
 #absolute path
 
@@ -39,12 +44,6 @@ echo "Compiling the frontend test suite architecture"
 echo "Running the tests..."
 
 export X10_DIST="$TOP/x10.dist"
-
-if [ "$1" == "" ] ; then
-    TESTS="$TOP/x10.tests"
-else
-    TESTS="$1"
-fi
 
 time nice "$JAVA" \
     -Xmx1G \

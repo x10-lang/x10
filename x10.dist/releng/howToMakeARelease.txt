@@ -41,9 +41,10 @@ Create the release branch and enter into final testing phase
 
       makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -code 
 
-   2. Create an RC2V2 instance from image pok1img-9700.0 to run release-branch 
-      regression testing.
-      Login as x10reg, and update scripts in bin to pull from the 
+   2. Create an RC2V3 instance from image 10028972 ("X10 Master Regression Image) 
+      to run release-branch regression testing.  
+      NOTE: This image is a private image owned by dave grove.  
+      Login to the image x10reg, and update scripts in bin to pull from the 
       release branch created by makeTag. 
       Enable crontab entry for desired test runs.
 
@@ -69,7 +70,7 @@ one can build the actual release artifacts:
       masterBuildRelease.sh -version 2.0.1 -tag SF_RELEASE_2_0_1
 
       To build the BGP release on bgpfen1, you will need to manually checkout
-      and build a release branch and then use packageCPPRelease.sh.  This
+      and build a release branch and then use packageRelease.sh.  This
       is due to restricted network connectivity from the front-end machine.
 
    4. ssh into shell.sf.net and create a subdirectory of 

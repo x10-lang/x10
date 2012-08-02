@@ -12,14 +12,14 @@
 import harness.x10Test;
 
 /**
- * A value of an unconstrained type parameter T cannot be assigned to a variable of type Object.
+ * A value of an unconstrained type parameter T cannot be assigned to a variable of type Empty.
  * Testing assignment to a field.
  *
  * @author vj 
  */
 public class ParameterTypeIsNotObject2_MustFailCompile extends x10Test {
 	class GenericWrapper[T] {
-		  var dummy:Object = null;
+		  var dummy:Empty = null;
 		  public def testAssign(x:T) {
 		  // bad!!
 		    dummy = x; // ERR

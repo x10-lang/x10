@@ -20,7 +20,7 @@ public class AsyncAtFinish extends x10Test{
 	
     static class T {
         private val root = GlobalRef[T](this);
-        transient var val_:Object;
+        transient var val_:Any;
     }
 
     public def run(): boolean = {

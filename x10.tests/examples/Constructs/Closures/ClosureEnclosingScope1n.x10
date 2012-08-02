@@ -28,12 +28,12 @@ public class ClosureEnclosingScope1n extends ClosureTest {
         
         val  b = 1;
 
-        val r = new Object() {
+        val r = new Empty() {
             val c = 1;
             def foo() = (()=>a+b+c)();
         }.foo();
 
-        check("new Object(){}.foo()", r, 3);
+        check("new Empty(){}.foo()", r, 3);
 
 
         return result;
