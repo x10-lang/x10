@@ -776,24 +776,9 @@ public class Lowerer extends ContextVisitor {
     // atomic S; -> try { Runtime.enterAtomic(); S } finally { Runtime.exitAtomic(); }
     private Stmt visitAtomic(Atomic a) throws SemanticException {
         Position pos = a.position();
-        if (context.typeSystem().extensionInfo() instanceof x10cpp.ExtensionInfo) {
-            // HACK.  Finally blocks are currently incredibly expensive in the C++ backend.
-            //        So, for now do a C++ specific hack here to avoid them.
-            //        The right fix is to implement replication of finally blocks in FinallyEliminator
-            //        and mark this finally block as one that should be eliminated via replication.
-            Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body(), nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
-            Formal eObj = altsynth.createFormal(pos, ts.Throwable());
-            Block catchBody = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())), nf.Throw(pos, altsynth.createLocal(pos, eObj)));
-            List<Catch> catchBlock = new ArrayList<Catch>();
-            catchBlock.add(nf.Catch(pos, eObj, catchBody));
-            return nf.Try(pos, tryBlock, catchBlock);
-        } else {
-            // Java has finally blocks and they are the most efficient mechanism for implementing finally,
-            // so we want to just use them if we are compiling X10 to Java.
-            Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
-            Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
-            return nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
-        }
+        Block tryBlock = nf.Block(pos, nf.Eval(pos, call(pos, ENTER_ATOMIC, ts.Void())), a.body());
+        Block finallyBlock = nf.Block(pos, nf.Eval(pos, call(pos, EXIT_ATOMIC, ts.Void())));
+        return nf.Try(pos, tryBlock, Collections.<Catch>emptyList(), finallyBlock);
     }
 
     private Stmt wrap(Position pos, Stmt s) {
