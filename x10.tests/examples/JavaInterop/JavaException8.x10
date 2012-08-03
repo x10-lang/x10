@@ -15,9 +15,9 @@ import harness.x10Test;
 
 public class JavaException8 extends x10Test {
 
-    static class C[T] {T <: java.lang.Exception} {
+    static class C[T] {T <: CheckedThrowable} {
         def f() throws T {}
-        static def g[U]() {U <: java.lang.Error} throws U {} 
+        static def g[U]() {U <: Error} throws U {} 
     }
 
     public def run(): Boolean = true;
