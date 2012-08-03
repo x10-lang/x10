@@ -66,7 +66,7 @@ abstract public class TestArray extends x10Test {
             
     class Grid {
     	private val root = GlobalRef[Grid](this);
-        transient var os: Rail[Object] = new Rail[Object](10);
+        transient var os: Rail[Any] = new Rail[Any](10);
 
         @Pinned def set(i0: int, vue: double): void = {
             os(i0) = new Box[Double](vue);
@@ -94,7 +94,7 @@ abstract public class TestArray extends x10Test {
                 }
             }
             for (var i: int = 0; i<os.size; i++) {
-                var o: Object = os(i);
+                var o: Any = os(i);
                 if (o==null) {
                     if (rank==1)
                         out.print(".");
