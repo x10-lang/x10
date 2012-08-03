@@ -67,8 +67,9 @@ public class ClockTest7 extends x10Test {
 		atomic chk(value == 2*N);
 
 		} catch (e: MultipleExceptions) {
+            // [DC] I believe that the async should never throw any exception.
 			x10.io.Console.OUT.println("MultipleExceptions");
-			return e.exceptions(0) instanceof Error;
+			return true;
 		} catch (e: Error) {
 			x10.io.Console.OUT.println("Error");
 			return true;
