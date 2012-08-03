@@ -27,7 +27,7 @@ public class GenericVariance01 extends GenericTest {
 
     public def run() = {
 
-        val ay:Object = new A[Y]();
+        val ay:Any = new A[Y]();
         check("ay instanceof A[X]", ay instanceof A[X], false);
         check("ay instanceof A[Y]", ay instanceof A[Y], true);
         check("ay instanceof A[Z]", ay instanceof A[Z], false);

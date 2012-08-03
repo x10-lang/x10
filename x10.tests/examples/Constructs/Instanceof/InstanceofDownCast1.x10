@@ -20,7 +20,7 @@ import harness.x10Test;
 public class InstanceofDownCast1 extends x10Test {
 
 	public def run(): boolean = {
-		var upcast: Object = new X10DepTypeSubClassOneB(1,2);
+		var upcast: Any = new X10DepTypeSubClassOneB(1,2);
 		return !(upcast instanceof X10DepTypeSubClassOneB{p==2&&a==2});
 	}
 	

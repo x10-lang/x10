@@ -15,11 +15,11 @@ import harness.x10Test;
  * This produces an infinite loop for the type checker, on 06/25/06
  */
 public class FieldAccessTest_MustFailCompile extends x10Test {
-	public var n: Object;
+	public var n: Any;
 
 	/**
 	 * The method is deliberately type-incorrect.
-	 * It should return nullable Object.
+	 * It should return nullable Any.
 	 * The problem is that this incorrect program causes the compiler to loop.
 	 */
 	public def n(): FieldAccessTest_MustFailCompile = n; // ERR

@@ -49,7 +49,7 @@ abstract class GenericTest extends x10Test {
             pr(test + " succeeds: got " + actual);
     }
 
-    def check(test:String, actual:Object, expected:Object) = {
+    def check(test:String, actual:Any, expected:Any) = {
 
         var result:boolean = actual.equals(expected);
 

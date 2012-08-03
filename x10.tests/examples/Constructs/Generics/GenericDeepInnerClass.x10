@@ -35,6 +35,6 @@ public class GenericDeepInnerClass[A] extends GenericTest {
     }
 
     public static def main(var args: Array[String](1)): void = {
-        new GenericDeepInnerClass[Object]().execute();
+        new GenericDeepInnerClass[Any]().execute();
     }
 }

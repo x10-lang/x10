@@ -20,41 +20,29 @@ import harness.x10Test;
  */
 public class InitStaticField3d extends x10Test {
 
-    static val a = null as Object;
     static val a2 = null as Any;
     static val b = "abc" as String;
-    static val b2 = "abc" as Object;
     static val b3 = "abc" as Any;
     static val c = 1 as Int;
     static val c2 = 1 as Any;
 
-    static val xa = null as Object as Object;
     static val xa2 = null as Any as Any;
-    static val xa3 = null as Object as Any;
     static val xb = "abc" as String as String;
-    static val xb2 = "abc" as Object as Object;
     static val xb3 = "abc" as Any as Any;
-    static val xb4 = "abc" as String as Object as Any;
     static val xc = 1 as Int as Int;
     static val xc2 = 1 as Any as Any;
     static val xc3 = 1 as Int as Any;
 
     public def run():Boolean {
-        chk(a == null);
         chk(a2 == null);
         chk(b.equals("abc"));
-        chk(b2.equals("abc"));
         chk(b3.equals("abc"));
         chk(c == 1);
         chk(c2 == 1);
 
-        chk(xa == null);
         chk(xa2 == null);
-        chk(xa3 == null);
         chk(xb.equals("abc"));
-        chk(xb2.equals("abc"));
         chk(xb3.equals("abc"));
-        chk(xb4.equals("abc"));
         chk(xc == 1);
         chk(xc2 == 1);
         chk(xc3 == 1);

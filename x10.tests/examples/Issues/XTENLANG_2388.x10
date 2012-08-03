@@ -41,7 +41,7 @@ class XTENLANG_2388 extends x10Test {
         chk(String haszero);
         chk(String{self==null} haszero);
         chk(!(String{self!=null} haszero));
-        chk(Object haszero);
+        chk(Empty haszero);
 
         chk(S1 haszero);
         chk(S2 haszero);

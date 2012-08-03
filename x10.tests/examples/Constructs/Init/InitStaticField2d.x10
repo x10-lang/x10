@@ -20,7 +20,7 @@ import harness.x10Test;
  */
 public class InitStaticField2d extends x10Test {
 
-    static val a = 1 as Any as Object;
+    static val a = 1 as Any as String; // cast to String should throw CCE
 
     public def run():Boolean {
         var ok:Boolean = true;

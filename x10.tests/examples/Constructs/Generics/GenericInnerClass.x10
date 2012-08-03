@@ -30,6 +30,6 @@ public class GenericInnerClass[A] extends GenericTest {
     }
 
     public static def main(var args: Array[String](1)): void = {
-        new GenericInnerClass[Object]().execute();
+        new GenericInnerClass[Any]().execute();
     }
 }

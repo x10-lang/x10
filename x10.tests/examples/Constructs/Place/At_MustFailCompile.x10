@@ -22,9 +22,9 @@ public class At_MustFailCompile extends x10Test {
     private val root = GlobalRef[At_MustFailCompile](this);
     var x:Int = 0;
     def globalRefCanBeUsedOnlyWithObjects(
-        GlobalRef[Any] // ERR
+        GlobalRef[Int] // ERR
     ) {}
-    def m(b: GlobalRef[Object]):Int {
+    def m(b: GlobalRef[Any]):Int {
         return at (b) {
             // We dont know that this local. 
             root().x // ERR
