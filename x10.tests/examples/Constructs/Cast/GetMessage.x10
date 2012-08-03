@@ -16,7 +16,7 @@ import harness.x10Test;
  */
 public class GetMessage extends x10Test {
 	public def run(): boolean = {
-        val s = new Object();
+        val s = new Empty();
         try {
             val tmp = s as Any as Comparable[Int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
             Console.ERR.println("Cast should have failed.");
