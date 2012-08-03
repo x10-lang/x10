@@ -1245,7 +1245,6 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
         FlagsNode fn = VarKeyword == null ? extractFlags(modifiers, Flags.FINAL) : extractFlags(modifiers, VarKeyword);
         List<LocalDecl> l = new TypedList<LocalDecl>(new LinkedList<LocalDecl>(), LocalDecl.class, false);
         for (Object[] o : VariableDeclarators) {
-            Position stmt_pos = fn.position();
             Position pos = (Position) o[0];
             Position compilerGen = pos.markCompilerGenerated();
             Id name = (Id) o[1];
@@ -1255,7 +1254,7 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
             TypeNode type = (TypeNode) o[4];
             if (type == null) type = nf.UnknownTypeNode((name != null ? name.position() : pos).markCompilerGenerated());
             Expr init = (Expr) o[5];
-            LocalDecl ld = nf.LocalDecl(stmt_pos, fn, type, name, init, exploded);
+            LocalDecl ld = nf.LocalDecl(pos, fn, type, name, init, exploded);
             ld = (LocalDecl) ((X10Ext) ld.ext()).annotations(extractAnnotations(modifiers));
             int index = 0;
             l.add(ld);
