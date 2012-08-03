@@ -747,12 +747,12 @@ recordTestResult() {
 	printf "\t\t\t<result-explanation>${__cat_test_result_explanation}</result-explanation>\n" >> $TLOGF
 	printf "\t\t\t<statistics/>\n" >> $TLOGF
 	printf "\t\t\t<output>\n" >> $TLOGF
-	perl -pe 's/&/\&amp;/g;
-	          s/</\&lt;/g;
-	          s/>/\&gt;/g;
-	          s/"/\&quot;/g;
-	          s/'"'"'/\&apos;/g;
-	          s/([^[:print:]\t\n\r])/sprintf("\&#%04x;", ord($1))/eg' $1 >> $TOUTF
+	sed -e 's/</\&lt;/g' \
+		-e 's/>/\&gt;/g' \
+		-e 's/&&/\&amp;\&amp;/g' \
+		-e 's/ & / \&amp; /g' \
+		-e '/Unexpected character ignored:/d' \
+		logDetail.$tdir.$className >> $TLOGF
 	#cat logDetail.$tdir.$className >> $TLOGF
 	printf "\t\t\t</output>\n" >> $TLOGF
 	printf "\t\t</test-execution>\n" >> $TLOGF
