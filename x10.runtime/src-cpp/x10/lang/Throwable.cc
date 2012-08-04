@@ -59,6 +59,7 @@ Throwable::_deserialize_body(x10aux::deserialization_buffer &buf) {
     FMGL(message) = buf.read<x10aux::ref<String> >();
     FMGL(cachedStackTrace) = buf.read<ref<Array<ref<String> > > >();
     FMGL(trace_size) = 0;
+    FMGL(trace) = NULL;
 }
 
 x10aux::ref<Reference> Throwable::_deserializer(x10aux::deserialization_buffer &buf){
@@ -94,6 +95,7 @@ x10aux::ref<Throwable> Throwable::_constructor(x10aux::ref<String> message,
     this->FMGL(message) = message;
     this->FMGL(cause) = cause;
     this->FMGL(trace_size) = -1;
+    this->FMGL(trace) = NULL;
     this->FMGL(cachedStackTrace) = X10_NULL;
     return this;
 }
@@ -178,34 +180,45 @@ int backtrace(void** trace, size_t max_size) {
 }
 #endif
 
+#define MAX_TRACE_SIZE 1024
 
 ref<Throwable> Throwable::fillInStackTrace() {
-#if defined(__GLIBC__) || defined(__APPLE__)
-    if (FMGL(trace_size)>=0) return this;
-    FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
-#elif defined(_AIX)
     if (FMGL(trace_size)>=0) return this;
 
-    // walk the stack, saving the offsets for each stack frame into "trace".
+#if defined(__GLIBC__) || defined(__APPLE__)
+    void *buffer[MAX_TRACE_SIZE];
+
+    int numFrames = ::backtrace(buffer, MAX_TRACE_SIZE);
+    FMGL(trace) = x10aux::alloc<void*>(numFrames*sizeof(void*), false); // does not contain pointers to GC heap
+    memcpy(FMGL(trace), buffer, numFrames*sizeof(void*));
+    FMGL(trace_size) = numFrames;
+#elif defined(_AIX)
+    void *buffer[MAX_TRACE_SIZE];
+    int numFrames = 0;
+
+    // walk the stack, saving the offsets for each stack frame into "buffer".
     unsigned long stackAddr;
 	#if defined(_LP64)
 		__asm__ __volatile__ ("std 1, %0 \n\t" : "=m" (stackAddr));
 	#else
 		__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackAddr));
 	#endif
-	FMGL(trace_size) = 0;
-	while (FMGL(trace_size) < MAX_TRACE_SIZE)
-	{
-		FMGL(trace)[FMGL(trace_size)] = (void*)*(((unsigned long *)stackAddr)+2); // link register is saved here in the stack
+	while (numFrames < MAX_TRACE_SIZE) {
+        buffer[numFrames] = (void*)*(((unsigned long *)stackAddr)+2); // link register is saved here in the stack
 		stackAddr = *((long *)stackAddr);
-		FMGL(trace_size)++;
-		if (stackAddr == 0) // the end of the stack (main)
+        numFrames++;
+		if (stackAddr == 0) {
+            // the end of the stack (main)
 			break;
+        }
 	}
+
+    FMGL(trace) = x10aux::alloc<void*>(numFrames*sizeof(void*), false); // does not contain pointers to GC heap
+    memcpy(FMGL(trace), buffer, numFrames*sizeof(void*));
+    FMGL(trace_size) = numFrames;
 #endif
     return this;
 }
-
 
 #ifdef __GLIBC__
 // This one gets the function name as a demangled string,
