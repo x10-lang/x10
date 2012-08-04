@@ -742,8 +742,9 @@ public class Types {
     private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     private static boolean isNullable(Type<?> rtt) {
-        // TODO remove Types.OBJECT
-        return rtt.isAssignableTo(OBJECT);
+        // N.B. 2nd attempt to remove Types.OBJECT. if successful, {RefI,ObjectType}.java and Types.OBJECT will be removed.
+//        return rtt.isAssignableTo(OBJECT);
+        return rtt.isref();
     }
 
     public static boolean hasNaturalZero(Type<?> rtt) {
