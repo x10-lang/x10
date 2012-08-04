@@ -11,7 +11,6 @@
 
 package x10.rtt;
 
-import x10.core.fun.Fun_0_1;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -33,7 +32,6 @@ public final class StringType extends RuntimeType<String> {
     public StringType() {
         super(String.class,
             new Type[] {
-                ParameterizedType.make(Fun_0_1.$RTT, Types.INT, Types.CHAR),
                 ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS)
             }
         );
