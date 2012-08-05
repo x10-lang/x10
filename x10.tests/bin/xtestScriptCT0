@@ -720,16 +720,14 @@ recordTestResult() {
 	printf "\t\t<name>${__cat_test_name}</name>\n" >> $TLOGF
 	printf "\t\t<command>\n" >> $TLOGF
 	printf "## compilation:\n" >> $TLOGF
-	echo "${__cat_test_x10c_command}" | sed -e 's/</\&lt;/g' \
-		-e 's/>/\&gt;/g' \
-		-e 's/&&/\&amp;\&amp;/g' \
-		-e 's/ & / \&amp; /g' >> $TLOGF
+	echo "${__cat_test_x10c_command}" | sed	-e 's/&/\&amp;/g' \
+	        -e 's/</\&lt;/g' \
+		-e 's/>/\&gt;/g' >> $TLOGF
 	printf "\n\n" >> $TLOGF
 	printf "## execution:\n" >> $TLOGF
-	echo "${__cat_test_x10_command}" | sed -e 's/</\&lt;/g' \
-		-e 's/>/\&gt;/g' \
-		-e 's/&&/\&amp;\&amp;/g' \
-		-e 's/ & / \&amp; /g' >> $TLOGF
+	echo "${__cat_test_x10_command}" | sed	-e 's/&/\&amp;/g' \
+	        -e 's/</\&lt;/g' \
+		-e 's/>/\&gt;/g' >> $TLOGF
 	printf "\n\n" >> $TLOGF
 	printf "\t\t</command>\n" >> $TLOGF
 	printf "\t\t<parameters>\n" >> $TLOGF
@@ -747,10 +745,9 @@ recordTestResult() {
 	printf "\t\t\t<result-explanation>${__cat_test_result_explanation}</result-explanation>\n" >> $TLOGF
 	printf "\t\t\t<statistics/>\n" >> $TLOGF
 	printf "\t\t\t<output>\n" >> $TLOGF
-	sed -e 's/</\&lt;/g' \
+	sed -e 's/&/\&amp;/g' \
+	        -e 's/</\&lt;/g' \
 		-e 's/>/\&gt;/g' \
-		-e 's/&&/\&amp;\&amp;/g' \
-		-e 's/ & / \&amp; /g' \
 		-e '/Unexpected character ignored:/d' \
 		logDetail.$tdir.$className >> $TLOGF
 	#cat logDetail.$tdir.$className >> $TLOGF
