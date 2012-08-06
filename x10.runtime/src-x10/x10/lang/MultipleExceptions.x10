@@ -19,10 +19,10 @@ import x10.io.Printer;
  * @author Christian Grothoff
  * @author tardieu
  */
-public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Exception {
-    public property exceptions():Rail[CheckedThrowable] = exceptions;
+public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
+    public property exceptions():Rail[Exception] = exceptions;
 
-    public def this(stack:Stack[CheckedThrowable]) {
+    public def this(stack:Stack[Exception]) {
         property(stack.toArray());
     }
 
@@ -30,12 +30,12 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
         property(null);
     }
 
-    public def this(t:CheckedThrowable) {
-        property(new Array[CheckedThrowable](1, t));
+    public def this(t:Exception) {
+        property(new Array[Exception](1, t));
     }
 
     public def printStackTrace(): void {
-        for (t:CheckedThrowable in exceptions.values()) {
+        for (t:Exception in exceptions.values()) {
             t.printStackTrace();
         }
     }
@@ -43,7 +43,7 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
     // FIXME CheckedThrowable.printStackTrace(Printer) is now final
     /*
     public def printStackTrace(p:Printer): void {
-        for (t in exceptions.values()) {
+        for (t:Exception in exceptions.values()) {
             t.printStackTrace(p);
         }
     }
@@ -54,20 +54,20 @@ public class MultipleExceptions(exceptions:Rail[CheckedThrowable]) extends Excep
     public def toString() {
         var me:String = super.toString();
         if (exceptions.size > 0) {
-            for (e in exceptions.values()) {
-                me += "\n\t"+e;
-            }
+	  for (e in exceptions.values()) {
+              me += "\n\t"+e;
+          }
         }
         return me;
     }
     */
 
-    public static def make(stack:Stack[CheckedThrowable]):MultipleExceptions {
+    public static def make(stack:Stack[Exception]):MultipleExceptions {
         if (null == stack || stack.isEmpty()) return null;
         return new MultipleExceptions(stack);
     }
 
-    public static def make(t:CheckedThrowable):MultipleExceptions {
+    public static def make(t:Exception):MultipleExceptions {
         if (null == t) return null;
         return new MultipleExceptions(t);
     }

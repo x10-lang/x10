@@ -48,7 +48,7 @@ abstract public class CollectingFinish[T] extends FinishFrame {
         val tmp = remap();
         tmp.redirect = tmp;
         if (null != stack) {
-            tmp.stack = new Stack[CheckedThrowable]();
+            tmp.stack = new Stack[Exception]();
             Runtime.atomicMonitor.lock();
             while (!stack.isEmpty()) tmp.stack.push(stack.pop());
             stack = null;

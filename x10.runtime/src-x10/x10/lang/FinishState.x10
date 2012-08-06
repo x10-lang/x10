@@ -29,7 +29,7 @@ abstract class FinishState {
     abstract def notifySubActivitySpawn(place:Place):void;
     abstract def notifyActivityCreation():void;
     abstract def notifyActivityTermination():void;
-    abstract def pushException(t:CheckedThrowable):void;
+    abstract def pushException(t:Exception):void;
     abstract def waitForFinish():void;
     abstract def simpleLatch():SimpleLatch;
 
@@ -39,7 +39,7 @@ abstract class FinishState {
     static class LocalFinish extends FinishState {
         @Embed private val count = @Embed new AtomicInteger(1);
         @Embed private val latch = @Embed new SimpleLatch();
-        private var exceptions:Stack[CheckedThrowable]; // lazily initialized
+        private var exceptions:Stack[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             assert place.id == Runtime.hereInt();
             count.getAndIncrement();
@@ -48,9 +48,9 @@ abstract class FinishState {
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0) latch.release();
         }
-        public def pushException(t:CheckedThrowable) {
+        public def pushException(t:Exception) {
             latch.lock();
-            if (null == exceptions) exceptions = new Stack[CheckedThrowable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             latch.unlock();
         }
@@ -85,16 +85,16 @@ abstract class FinishState {
     static class RootFinishSPMD extends RootFinishSkeleton {
         @Embed protected val latch = @Embed new SimpleLatch();
         @Embed private val count = @Embed new AtomicInteger(1);
-        private var exceptions:Stack[CheckedThrowable]; // lazily initialized
+        private var exceptions:Stack[Exception]; // lazily initialized
         public def notifySubActivitySpawn(place:Place) {
             count.incrementAndGet();
         }
         public def notifyActivityTermination() {
             if (count.decrementAndGet() == 0) latch.release();
         }
-        public def pushException(t:CheckedThrowable) {
+        public def pushException(t:Exception) {
             latch.lock();
-            if (null == exceptions) exceptions = new Stack[CheckedThrowable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             latch.unlock();
         }
@@ -110,7 +110,7 @@ abstract class FinishState {
 
     static class RemoteFinishSPMD extends RemoteFinishSkeleton {
         @Embed private val count = @Embed new AtomicInteger(1);
-        private var exceptions:Stack[CheckedThrowable]; // lazily initialized
+        private var exceptions:Stack[Exception]; // lazily initialized
         @Embed private val lock = @Embed new Lock();
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
@@ -139,9 +139,9 @@ abstract class FinishState {
                 Runtime.dealloc(closure);
             }
         }
-        public def pushException(t:CheckedThrowable) {
+        public def pushException(t:Exception) {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[CheckedThrowable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             lock.unlock();
         }
@@ -167,12 +167,12 @@ abstract class FinishState {
 
     static class RootFinishAsync extends RootFinishSkeleton{
         @Embed protected val latch = @Embed new SimpleLatch();
-        protected var exception:CheckedThrowable = null;
+        protected var exception:Exception = null;
         public def notifySubActivitySpawn(place:Place):void {}
         public def notifyActivityTermination():void {
             latch.release();
         }
-        public def pushException(t:CheckedThrowable):void {
+        public def pushException(t:Exception):void {
             exception = t;
         }
         public def waitForFinish():void {
@@ -184,13 +184,13 @@ abstract class FinishState {
     }
 
     static class RemoteFinishAsync extends RemoteFinishSkeleton {
-        protected var exception:CheckedThrowable;
+        protected var exception:Exception;
         def this(ref:GlobalRef[FinishState]) {
             super(ref);
         }
         public def notifyActivityCreation():void {}
         public def notifySubActivitySpawn(place:Place):void {}
-        public def pushException(t:CheckedThrowable):void {
+        public def pushException(t:Exception):void {
             exception = t;
         }
         public def notifyActivityTermination():void {
@@ -235,7 +235,7 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) {}
         public def notifyActivityCreation() {}
         public def notifyActivityTermination() {}
-        public def pushException(t:CheckedThrowable) {
+        public def pushException(t:Exception) {
             Runtime.println("Uncaught exception in uncounted activity");
             t.printStackTrace();
         }
@@ -305,7 +305,7 @@ abstract class FinishState {
         public def notifySubActivitySpawn(place:Place) { me.notifySubActivitySpawn(place); }
         public def notifyActivityCreation() { me.notifyActivityCreation(); }
         public def notifyActivityTermination() { me.notifyActivityTermination(); }
-        public def pushException(t:CheckedThrowable) { me.pushException(t); }
+        public def pushException(t:Exception) { me.pushException(t); }
         public def waitForFinish() { me.waitForFinish(); }
         public def simpleLatch() = me.simpleLatch();
     }
@@ -338,7 +338,7 @@ abstract class FinishState {
     static class RootFinish extends RootFinishSkeleton {
         @Embed protected transient var latch:SimpleLatch;
         protected var count:Int = 1;
-        protected var exceptions:Stack[CheckedThrowable]; // lazily initialized
+        protected var exceptions:Stack[Exception]; // lazily initialized
         protected var counts:IndexedMemoryChunk[Int];
 //        protected var seen:IndexedMemoryChunk[Boolean];
         def this() {
@@ -379,11 +379,11 @@ abstract class FinishState {
             latch.unlock();
             latch.release();
         }
-        public def process(t:CheckedThrowable):void {
-            if (null == exceptions) exceptions = new Stack[CheckedThrowable]();
+        public def process(t:Exception):void {
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
         }
-        public def pushException(t:CheckedThrowable):void {
+        public def pushException(t:Exception):void {
             latch.lock();
             process(t);
             latch.unlock();
@@ -447,14 +447,14 @@ abstract class FinishState {
             latch.unlock();
         }
 
-        def notify(rail:IndexedMemoryChunk[Int], t:CheckedThrowable):void {
+        def notify(rail:IndexedMemoryChunk[Int], t:Exception):void {
             latch.lock();
             process(t);
             process(rail);
             latch.unlock();
         }
 
-        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]], t:CheckedThrowable):void {
+        def notify(rail:IndexedMemoryChunk[Pair[Int,Int]], t:Exception):void {
             latch.lock();
             process(t);
             process(rail);
@@ -465,7 +465,7 @@ abstract class FinishState {
     }
 
     static class RemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:Stack[CheckedThrowable];
+        protected var exceptions:Stack[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
         protected var counts:IndexedMemoryChunk[Int];
@@ -498,9 +498,9 @@ abstract class FinishState {
             }
             lock.unlock();
         }
-        public def pushException(t:CheckedThrowable):void {
+        public def pushException(t:Exception):void {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[CheckedThrowable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             lock.unlock();
         }
@@ -580,7 +580,7 @@ abstract class FinishState {
     }
 
     static class DenseRemoteFinish extends RemoteFinishSkeleton {
-        protected var exceptions:Stack[CheckedThrowable];
+        protected var exceptions:Stack[Exception];
         @Embed protected transient var lock:Lock = @Embed new Lock();
         protected var count:Int = 0;
         protected var counts:IndexedMemoryChunk[Int];
@@ -613,9 +613,9 @@ abstract class FinishState {
             }
             lock.unlock();
         }
-        public def pushException(t:CheckedThrowable):void {
+        public def pushException(t:Exception):void {
             lock.lock();
-            if (null == exceptions) exceptions = new Stack[CheckedThrowable]();
+            if (null == exceptions) exceptions = new Stack[Exception]();
             exceptions.push(t);
             lock.unlock();
         }
