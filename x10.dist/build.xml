@@ -211,7 +211,9 @@
 
     <target name="lpg-jar" depends="init,lpg-local-jar" unless="local.lpg.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${lpg.jar.url}" dest="${lib}/${lpg.jar}"/>
+	</retry>
         <delete file="${lib}/lpgruntime.jar"/>
         <available property="lpg.jar.present" file="${lib}/${lpg.jar}"/>
         <fail message="Unable to get ${lpg.jar} from ${lpg.jar.url}" unless="lpg.jar.present"/>
@@ -225,7 +227,9 @@
 
     <target name="ecj-jar" depends="init,ecj-local-jar" unless="local.ecj.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${ecj.jar.url}" dest="${lib}/${ecj.jar}"/>
+	</retry>
         <available property="ecj.jar.present" file="${lib}/${ecj.jar}"/>
         <fail message="Unable to get ${ecj.jar} from ${ecj.jar.url}" unless="ecj.jar.present"/>
     </target>
@@ -238,7 +242,9 @@
 
     <target name="wala-jar" depends="init,wala-local-jar" unless="local.wala.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${wala.jar.url}" dest="${lib}/${wala.jar}"/>
+	</retry>
         <available property="wala.jar.present" file="${lib}/${wala.jar}"/>
         <fail message="Unable to get ${wala.jar} from ${wala.jar.url}" unless="wala.jar.present"/>
     </target>
@@ -251,7 +257,9 @@
 
     <target name="wala2-jar" depends="init,wala2-local-jar" unless="local.wala2.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${wala2.jar.url}" dest="${lib}/${wala2.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${wala2.jar.url}" dest="${lib}/${wala2.jar}"/>
+	</retry>
         <available property="wala2.jar.present" file="${lib}/${wala2.jar}"/>
         <fail message="Unable to get ${wala2.jar} from ${wala2.jar.url}" unless="wala2.jar.present"/>
     </target>
@@ -264,7 +272,9 @@
 
     <target name="wala3-jar" depends="init,wala3-local-jar" unless="local.wala3.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${wala3.jar.url}" dest="${lib}/${wala3.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${wala3.jar.url}" dest="${lib}/${wala3.jar}"/>
+	</retry>
         <available property="wala3.jar.present" file="${lib}/${wala3.jar}"/>
         <fail message="Unable to get ${wala3.jar} from ${wala3.jar.url}" unless="wala3.jar.present"/>
     </target>
@@ -277,7 +287,9 @@
 
     <target name="wala4-jar" depends="init,wala4-local-jar" unless="local.wala4.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${wala4.jar.url}" dest="${lib}/${wala4.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${wala4.jar.url}" dest="${lib}/${wala4.jar}"/>
+	</retry>
         <available property="wala4.jar.present" file="${lib}/${wala4.jar}"/>
         <fail message="Unable to get ${wala4.jar} from ${wala4.jar.url}" unless="wala4.jar.present"/>
     </target>
@@ -290,7 +302,9 @@
 
     <target name="equinox-jar" depends="init,equinox-local-jar" unless="local.equinox.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${equinox.jar.url}" dest="${lib}/${equinox.jar}"/>
+	</retry>
         <available property="equinox.jar.present" file="${lib}/${equinox.jar}"/>
         <fail message="Unable to get ${equinox.jar} from ${equinox.jar.url}" unless="equinox.jar.present"/>
     </target>
@@ -303,7 +317,9 @@
 
     <target name="math-jar" depends="init,math-local-jar" unless="local.math.jar">
         <mkdir dir="${lib}"/>
-        <get usetimestamp="true" src="${math.jar.url}" dest="${lib}/${math.jar}"/>
+	<retry>
+          <get usetimestamp="true" src="${math.jar.url}" dest="${lib}/${math.jar}"/>
+	</retry>
         <available property="math.jar.present" file="${lib}/${math.jar}"/>
         <fail message="Unable to get ${math.jar} from ${math.jar.url}" unless="math.jar.present"/>
     </target>

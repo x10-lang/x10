@@ -586,8 +586,10 @@
 
 	<target name="download-bdwgc" depends="check-bdwgc,convert-bdwgc-paths" unless="bdwgc.skip.download">
 		<sequential>
-			<mkdir dir="${bdwgc.dir}/src" />
+		  <mkdir dir="${bdwgc.dir}/src" />
+		  <retry>
 		    <get usetimestamp="true" src="${bdwgc.url}" dest="${bdwgc.dir}/${bdwgc.tar}"/>
+		  </retry>
 		</sequential>
 	</target>
 			
