@@ -35,8 +35,8 @@ public class GenericInference2 extends GenericTest {
 
         val y = m(new Y());
         val z = m(new Z());
-        check("y", y, "Y");
-        check("z", z, "Z");
+        genericCheck("y", y, "Y");
+        genericCheck("z", z, "Z");
 
         return result;
     }

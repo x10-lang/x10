@@ -35,8 +35,8 @@ public class GenericCast07 extends GenericTest {
         var i:I[int] = a as I[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
         var j:J[int] = a as J[int]; // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
 
-        check("i.m(0)", i.m(0), 0);
-        check("j.m(0)", j.m(0), 0);
+        genericCheck("i.m(0)", i.m(0), 0);
+        genericCheck("j.m(0)", j.m(0), 0);
 
         return result;
     }

@@ -28,7 +28,7 @@ public class GenericOverPrimitives4 extends GenericTest {
         }
 
         a:A[boolean] = new A[boolean](true);
-        check("a.get()", a.get(), true);
+        genericCheck("a.get()", a.get(), true);
 
         return result;
     }

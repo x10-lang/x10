@@ -23,8 +23,8 @@ public class GenericMethods1 extends GenericTest {
 
     public def run() = {
 
-        check("m[int](1)", m[int](1), 1);
-        check("m[String](\"1\")", m[String]("1"), "1");
+        genericCheck("m[int](1)", m[int](1), 1);
+        genericCheck("m[String](\"1\")", m[String]("1"), "1");
 
         return result;
     }

@@ -34,7 +34,7 @@ public class GenericInference4 extends GenericTest {
     public def run(): boolean = {
 
         val d = m(new Y(), new Z());
-        check("d", d, "XX");
+        genericCheck("d", d, "XX");
 
         return result;
     }

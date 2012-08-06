@@ -37,9 +37,9 @@ public class GenericInheritance07 extends GenericTest {
         val i:I[int] = a;
         val j:J[int] = a;
 
-        check("a.m(0)", a.m(0), 0);
-        check("i.m(0)", i.m(0), 0);
-        check("j.m(0)", j.m(0), 0);
+        genericCheck("a.m(0)", a.m(0), 0);
+        genericCheck("i.m(0)", i.m(0), 0);
+        genericCheck("j.m(0)", j.m(0), 0);
 
         return result;
     }
