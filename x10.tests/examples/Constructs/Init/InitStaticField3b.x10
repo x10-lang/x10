@@ -33,7 +33,6 @@ public class InitStaticField3b extends x10Test {
     
     static val j = "abc" as Any;
     static val l = "abc" as String;
-    static val m = "abc" as (Int)=>Char;
     static val n = "abc" as Comparable[String];
     
 
@@ -48,7 +47,6 @@ public class InitStaticField3b extends x10Test {
         chk(i == 1);
         chk(j.equals("abc"));
         chk(l.equals("abc"));
-        chk(m.equals("abc"));
         chk(n.equals("abc"));
 
         return true;
