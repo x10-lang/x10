@@ -178,22 +178,8 @@ public abstract class Unsigned {
 //            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
 //        }
 //    }
-    
-    private static java.lang.String forInputString(java.lang.String s) {
-        return "For input string: \"" + s + "\"";
-    }
-    private static x10.core.Throwable newNumberFormatException(java.lang.String s) {
-        try {
-            return Class.forName("x10.lang.NumberFormatException").asSubclass(x10.core.Throwable.class).getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { s });
-        } catch (java.lang.ClassNotFoundException e1) {
-        } catch (java.lang.InstantiationException e2) {
-        } catch (java.lang.IllegalAccessException e3) {
-        } catch (java.lang.NoSuchMethodException e4) {
-        } catch (java.lang.reflect.InvocationTargetException e5) {
-        }
-        return null;
-    }
-    
+
+
 //    private static java.math.BigInteger toSLONG(long a) {
 //        byte[] bytes = new byte[8];
 //        for (int i = 0; i < 8; ++i) {
@@ -215,11 +201,8 @@ public abstract class Unsigned {
     private static final java.math.BigInteger ULONG_MAX = toULONG(0xFFFFFFFFFFFFFFFFL);
     public static long parseULong(java.lang.String s, int radix) {
         java.math.BigInteger ulong = new java.math.BigInteger(s, radix);
-        if (ulong.signum() < 0) {
-            throw newNumberFormatException(forInputString(s));
-        }
-        if (ulong.compareTo(ULONG_MAX) > 0) {
-            throw newNumberFormatException(forInputString(s));
+        if (ulong.signum() < 0 || ulong.compareTo(ULONG_MAX) > 0) {
+            throw new java.lang.NumberFormatException("For input string: \"" + s + "\"");
         }
         return ulong.longValue();
     }

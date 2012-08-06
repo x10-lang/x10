@@ -169,9 +169,10 @@ public class TryCatchExpander extends Expander {
 
             String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
 
-            w.write("catch (" + X10PrettyPrinterVisitor.X10_CORE_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-            w.write("throw " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ";");
-            w.write("}");
+            // TODO remove x10.core.Throwable
+//            w.write("catch (" + X10PrettyPrinterVisitor.X10_CORE_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+//            w.write("throw " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ";");
+//            w.write("}");
 
             if ((additionalTryCatchForConversion & THROWABLE_CONVERSION) != 0) {
                 w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");

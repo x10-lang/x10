@@ -148,9 +148,9 @@ public class Thread implements x10.core.Any {
         try {
             java.lang.Thread.sleep(time, nanos);
         } catch (InterruptedException e) {
-            x10.core.Throwable e1 = null;
+            java.lang.RuntimeException e1 = null;
             try {
-                e1 = (x10.core.Throwable)Class.forName("x10.lang.InterruptedException").newInstance();
+                e1 = (java.lang.RuntimeException)Class.forName("x10.lang.InterruptedException").newInstance();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }

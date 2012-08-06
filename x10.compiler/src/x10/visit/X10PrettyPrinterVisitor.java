@@ -238,7 +238,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
 
     public static final String X10_CORE_THROWABLE_UTILITIES = "x10.core.ThrowableUtilities";
-    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
+    // TODO remove x10.core.Throwable
+//    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
     // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //    public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
     public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
@@ -4163,18 +4164,20 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.printBlock(n.formal(), w, tr);
         w.write(")");
         
-        boolean rethrowX10Throwable = supportJavaThrowables && !useRethrowBlock && isJavaThrowableAssignableFromX10Throwable(n.catchType());
-        if (rethrowX10Throwable) {
-            w.writeln("{");
-            String formalName = n.formal().name().toString();
-            w.writeln("if (" + formalName + " instanceof " + X10_CORE_THROWABLE + ") { throw (" + X10_CORE_THROWABLE + ") " + formalName + "; }");
-        }
+        // TODO remove x10.core.Throwable
+//        boolean rethrowX10Throwable = supportJavaThrowables && !useRethrowBlock && isJavaThrowableAssignableFromX10Throwable(n.catchType());
+//        if (rethrowX10Throwable) {
+//            w.writeln("{");
+//            String formalName = n.formal().name().toString();
+//            w.writeln("if (" + formalName + " instanceof " + X10_CORE_THROWABLE + ") { throw (" + X10_CORE_THROWABLE + ") " + formalName + "; }");
+//        }
         
         n.printSubStmt(n.body(), w, tr);
         
-        if (rethrowX10Throwable) {
-            w.writeln("}");
-        }
+        // TODO remove x10.core.Throwable
+//        if (rethrowX10Throwable) {
+//            w.writeln("}");
+//        }
     }
 
     @Override
@@ -4697,17 +4700,19 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
             expander.addCatchBlock(JAVA_LANG_THROWABLE, convRequired, temp, new Expander(er) {
                 public void expand(Translator tr) {
-                    boolean generateRethrowBlock = true;
+                    // TODO remove x10.core.Throwable
+//                    boolean generateRethrowBlock = true;
                     w.newline();
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
-                        if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(type)) {
-                            generateRethrowBlock = false;
-                            w.write("if (" + temp + " instanceof " + X10_CORE_THROWABLE + ") {"); w.newline();
-                            w.write("throw (" + X10_CORE_THROWABLE + ") " + temp + ";"); w.newline();
-                            w.write("} else "); w.newline();
-                        }
+                        // TODO remove x10.core.Throwable
+//                        if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(type)) {
+//                            generateRethrowBlock = false;
+//                            w.write("if (" + temp + " instanceof " + X10_CORE_THROWABLE + ") {"); w.newline();
+//                            w.write("throw (" + X10_CORE_THROWABLE + ") " + temp + ";"); w.newline();
+//                            w.write("} else "); w.newline();
+//                        }
                         w.write("if (" + temp + " instanceof ");
                         er.printType(type, 0);
                         if (type instanceof ConstrainedType) {
@@ -4724,19 +4729,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             });
         } else { // XTENLANG-2384: Normal case, no constrained type in catchBlocks
             final String temp = "$ex";
-            boolean generateRethrowBlock = true;
+            // TODO remove x10.core.Throwable
+//            boolean generateRethrowBlock = true;
             for (int i = 0; i < catchBlocks.size(); ++i) {
                 Catch catchBlock = catchBlocks.get(i);
-                if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(catchBlock.catchType())) {
-                    generateRethrowBlock = false;
-                    expander.addCatchBlock(X10_CORE_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
-                        public void expand(Translator tr) {
-                            w.newline();
-                            w.write("throw " + temp + ";"); 
-                            w.newline();
-                        }
-                    });
-                }
+                // TODO remove x10.core.Throwable
+//                if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(catchBlock.catchType())) {
+//                    generateRethrowBlock = false;
+//                    expander.addCatchBlock(X10_CORE_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
+//                        public void expand(Translator tr) {
+//                            w.newline();
+//                            w.write("throw " + temp + ";"); 
+//                            w.newline();
+//                        }
+//                    });
+//                }
                 expander.addCatchBlock(catchBlock);
             }
         }
