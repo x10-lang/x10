@@ -22,8 +22,9 @@ import java.io.IOException;
 import java.util.WeakHashMap;
 
 final public class String extends x10.core.Ref implements
-    x10.core.fun.Fun_0_1<x10.core.Int, x10.core.Char>,
-    java.lang.Comparable<java.lang.String>, x10.util.Ordered
+    java.lang.Comparable<java.lang.String>
+    , x10.core.fun.Fun_0_1<x10.core.Int, x10.core.Char>
+    , x10.util.Ordered
 {
 
     private static final long serialVersionUID = 1L;
@@ -131,11 +132,11 @@ final public class String extends x10.core.Ref implements
 
     // make $box/$unbox idempotent
     public static String $box(String obj) {
-    	return obj;
+        return obj;
     }
     
     public static java.lang.String $unbox(java.lang.String value) {
-    	return value;
+        return value;
     }
 
 //    public String(final x10.core.String id$1) {
@@ -191,21 +192,21 @@ final public class String extends x10.core.Ref implements
         return $value.charAt(index);
     }
 
-	public boolean $lt$O(final java.lang.String x) {
-		return $value.compareTo(x) < 0;
-	}
+    public boolean $lt$O(final java.lang.String x) {
+        return $value.compareTo(x) < 0;
+    }
 
-	public boolean $gt$O(final java.lang.String x) {
-		return $value.compareTo(x) > 0;
-	}
+    public boolean $gt$O(final java.lang.String x) {
+        return $value.compareTo(x) > 0;
+    }
 
-	public boolean $le$O(final java.lang.String x) {
-		return $value.compareTo(x) <= 0;
-	}
+    public boolean $le$O(final java.lang.String x) {
+        return $value.compareTo(x) <= 0;
+    }
 
-	public boolean $ge$O(final java.lang.String x) {
-		return $value.compareTo(x) >= 0;
-	}
+    public boolean $ge$O(final java.lang.String x) {
+        return $value.compareTo(x) >= 0;
+    }
 
 //    public char charAt(final int index) {
 //        return $value.charAt(index);
@@ -284,28 +285,41 @@ final public class String extends x10.core.Ref implements
 //    {
 //        return new x10.core.String(java.lang.String.format(fmt.$value, args.raw().getObjectArray()));
 //    }
-	
-	public static java.lang.String format(java.lang.String format, Object[] args) {
-	    Object[] copy = new Object[args.length];
-	    // rebox x10.core.Int objects into java.lang.Integers
-	    for (int i = 0; i < args.length; i++) {
-    	    if (args[i] instanceof x10.core.Byte)
-	            copy[i] = new java.lang.Byte(x10.core.Byte.$unbox((x10.core.Byte)args[i]));
-    	    else if (args[i] instanceof x10.core.Short)
-	            copy[i] = new java.lang.Short(x10.core.Short.$unbox((x10.core.Short)args[i]));
-    	    else if (args[i] instanceof x10.core.Int)
-	            copy[i] = new java.lang.Integer(x10.core.Int.$unbox((x10.core.Int)args[i]));
-    	    else if (args[i] instanceof x10.core.Long)
-	            copy[i] = new java.lang.Long(x10.core.Long.$unbox((x10.core.Long)args[i]));
-    	    else if (args[i] instanceof x10.core.Float)
-	            copy[i] = new java.lang.Float(x10.core.Float.$unbox((x10.core.Float)args[i]));
-    	    else if (args[i] instanceof x10.core.Double)
-	            copy[i] = new java.lang.Double(x10.core.Double.$unbox((x10.core.Double)args[i]));
-	        else
-    	        copy[i] = args[i];
-	    }
-	    return java.lang.String.format(format, copy);
-	}
+
+        public static java.lang.String format(java.lang.String format, java.lang.Object[] args) {
+            java.lang.Object[] copy = new java.lang.Object[args.length];
+            // rebox x10.core.Int objects into java.lang.Integers
+            for (int i = 0; i < args.length; i++) {
+                if (args[i] instanceof x10.core.Byte)
+                    copy[i] = java.lang.Byte.valueOf(x10.core.Byte.$unbox((x10.core.Byte)args[i]));
+                else if (args[i] instanceof x10.core.Short)
+                    copy[i] = java.lang.Short.valueOf(x10.core.Short.$unbox((x10.core.Short)args[i]));
+                else if (args[i] instanceof x10.core.Int)
+                    copy[i] = java.lang.Integer.valueOf(x10.core.Int.$unbox((x10.core.Int)args[i]));
+                else if (args[i] instanceof x10.core.Long)
+                    copy[i] = java.lang.Long.valueOf(x10.core.Long.$unbox((x10.core.Long)args[i]));
+                else if (args[i] instanceof x10.core.Float)
+                    copy[i] = java.lang.Float.valueOf(x10.core.Float.$unbox((x10.core.Float)args[i]));
+                else if (args[i] instanceof x10.core.Double)
+                    copy[i] = java.lang.Double.valueOf(x10.core.Double.$unbox((x10.core.Double)args[i]));
+                else if (args[i] instanceof x10.core.Char)
+                    copy[i] = java.lang.Character.valueOf(x10.core.Char.$unbox((x10.core.Char)args[i]));
+                else if (args[i] instanceof x10.core.Boolean)
+                    copy[i] = java.lang.Boolean.valueOf(x10.core.Boolean.$unbox((x10.core.Boolean)args[i]));
+                // FIXME unsigned types
+                else if (args[i] instanceof x10.core.UByte)
+                    copy[i] = java.lang.Byte.valueOf(x10.core.UByte.$unbox((x10.core.UByte)args[i]));
+                else if (args[i] instanceof x10.core.UShort)
+                    copy[i] = java.lang.Short.valueOf(x10.core.UShort.$unbox((x10.core.UShort)args[i]));
+                else if (args[i] instanceof x10.core.UInt)
+                    copy[i] = java.lang.Integer.valueOf(x10.core.UInt.$unbox((x10.core.UInt)args[i]));
+                else if (args[i] instanceof x10.core.ULong)
+                    copy[i] = java.lang.Long.valueOf(x10.core.ULong.$unbox((x10.core.ULong)args[i]));
+                else
+                    copy[i] = args[i];
+            }
+            return java.lang.String.format(format, copy);
+        }
 
 //    public x10.core.String toLowerCase() {
 //        return new x10.core.String($value.toLowerCase());
@@ -376,6 +390,6 @@ final public class String extends x10.core.Ref implements
     }
 
     public short $_get_serialization_id() {
-		return _serialization_id;
-	}
+        return _serialization_id;
+    }
 }
