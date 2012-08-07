@@ -6,12 +6,13 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.core;
+package x10.runtime.impl.java;
 
-public abstract class Signed {
+
+public abstract class SignedUtils {
     
     public static java.lang.String toString(byte a, int radix) {
         if (a >= 0) {
