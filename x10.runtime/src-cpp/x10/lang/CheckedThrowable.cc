@@ -425,12 +425,12 @@ void CheckedThrowable::printStackTrace() {
 }
 
 void CheckedThrowable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
-    printer->println(toString());
+    printer->println(class_cast<x10aux::ref<Any>,x10aux::ref<String> >(toString()));
     ref<Array<x10aux::ref<String> > > trace = this->getStackTrace();
     x10aux::ref<x10::lang::String> atStr = x10::lang::String::Lit("\tat ");
     for (int i=0 ; i<trace->FMGL(size) ; ++i) { 
         printer->print(atStr);
-        printer->println(trace->__apply(i));
+        printer->println(class_cast<x10aux::ref<Any>,x10aux::ref<String> >(trace->__apply(i)));
     }
     ref<CheckedThrowable> cause = getCause();
     if (!cause.isNull()) {
