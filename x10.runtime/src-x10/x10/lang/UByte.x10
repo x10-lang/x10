@@ -341,7 +341,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the given Float
      * @return the given Float converted to a UByte.
      */
-    @Native("java", "x10.core.Floats.toUByte(#x)")
+    @Native("java", "x10.runtime.impl.java.FloatUtils.toUByte(#x)")
     @Native("c++",  "x10aux::float_utils::toUByte(#1)")
     public static native operator (x:Float) as UByte; /*  {
         val temp : Int = x as Int;
@@ -355,7 +355,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the given Double
      * @return the given Double converted to a UByte.
      */
-    @Native("java", "x10.core.Floats.toUByte(#x)")
+    @Native("java", "x10.runtime.impl.java.FloatUtils.toUByte(#x)")
     @Native("c++",  "x10aux::double_utils::toUByte(#1)")
     public static native operator (x:Double) as UByte; /*  {
         val temp : Int = x as Int;

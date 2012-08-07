@@ -6,19 +6,20 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.core;
+package x10.runtime.impl.java;
 
-public abstract class Floats {
-	
-	/*
-	 * Java does not have {f,d}2{b,s} bytecodes and implements conversions from {float,double} to {byte,short} 
-	 * as {float,double} to int followed by int to {byte,short}.
-	 * Since int to {byte,short} conversions in Java do not handle overflows, we need the following functions
-	 * to implement semantics of X10 conversions correctly.
-	 */
+
+public abstract class FloatUtils {
+        
+    /*
+     * Java does not have {f,d}2{b,s} bytecodes and implements conversions from {float,double} to {byte,short} 
+     * as {float,double} to int followed by int to {byte,short}.
+     * Since int to {byte,short} conversions in Java do not handle overflows, we need the following functions
+     * to implement semantics of X10 conversions correctly.
+     */
     public static byte toByte(float a) {
         int ia = (int)a;
         if (ia > java.lang.Byte.MAX_VALUE) return java.lang.Byte.MAX_VALUE;
@@ -27,11 +28,11 @@ public abstract class Floats {
     }
     
     public static byte toByte(double a) {
-      int ia = (int)a;
-      if (ia > java.lang.Byte.MAX_VALUE) return java.lang.Byte.MAX_VALUE;
-      else if (ia < java.lang.Byte.MIN_VALUE) return java.lang.Byte.MIN_VALUE;
-      else return (byte)ia;
-  }
+        int ia = (int)a;
+        if (ia > java.lang.Byte.MAX_VALUE) return java.lang.Byte.MAX_VALUE;
+        else if (ia < java.lang.Byte.MIN_VALUE) return java.lang.Byte.MIN_VALUE;
+        else return (byte)ia;
+    }
   
     public static short toShort(float a) {
         int ia = (int)a;
