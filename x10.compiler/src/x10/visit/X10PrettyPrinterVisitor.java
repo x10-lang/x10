@@ -237,6 +237,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
     public static final String X10_RUNTIME_IMPL_JAVA_RUNTIME = "x10.runtime.impl.java.Runtime";
     public static final String X10_RUNTIME_IMPL_JAVA_EVALUTILS = "x10.runtime.impl.java.EvalUtils";
+    public static final String X10_RUNTIME_IMPL_JAVA_ARRAYUTILS = "x10.runtime.impl.java.ArrayUtils";
 
     public static final String X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS = "x10.runtime.impl.java.ThrowableUtils";
     // TODO remove x10.core.Throwable
@@ -3241,7 +3242,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public void visit(Tuple_c c) {
         Type t = Types.getParameterType(c.type(), 0);
 
-        w.write("x10.core.ArrayFactory.<");
+        w.write(X10_RUNTIME_IMPL_JAVA_ARRAYUTILS + ".<");
         er.printType(t, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
         w.write("> ");
         w.write("makeArrayFromJavaArray(");

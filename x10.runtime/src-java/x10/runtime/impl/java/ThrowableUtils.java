@@ -339,7 +339,7 @@ public abstract class ThrowableUtils {
         for (int i = 0; i < elements.length; ++i) {
             str[i] = elements[i].toString();
         }
-        return x10.core.ArrayFactory.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
+        return x10.runtime.impl.java.ArrayUtils.<java.lang.String>makeArrayFromJavaArray(x10.rtt.Types.STRING, str);
     }
     
     public static void printStackTrace(java.lang.Throwable t, x10.io.Printer p) {
