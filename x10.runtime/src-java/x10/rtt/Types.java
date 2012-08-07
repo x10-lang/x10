@@ -311,7 +311,7 @@ public class Types {
 
     public static final RuntimeType<Object> ANY = new AnyType();
     //TODO remove Types.OBJECT
-    public static final RuntimeType<x10.core.RefI> OBJECT = new ObjectType();
+//    public static final RuntimeType<x10.core.RefI> OBJECT = new ObjectType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
     public static final RuntimeType<x10.core.StructI> STRUCT = new StructType();
