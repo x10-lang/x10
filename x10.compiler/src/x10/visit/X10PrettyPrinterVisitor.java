@@ -238,7 +238,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_RUNTIME_IMPL_JAVA_RUNTIME = "x10.runtime.impl.java.Runtime";
     public static final String X10_RUNTIME_IMPL_JAVA_EVALUTILS = "x10.runtime.impl.java.EvalUtils";
 
-    public static final String X10_CORE_THROWABLE_UTILITIES = "x10.core.ThrowableUtilities";
+    public static final String X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS = "x10.runtime.impl.java.ThrowableUtils";
     // TODO remove x10.core.Throwable
 //    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
     // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
@@ -4068,7 +4068,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (s != null) {
             w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native block
             w.write(s);
-            w.write("} catch (" + JAVA_LANG_THROWABLE + " $exc$) { throw " + X10_CORE_THROWABLE_UTILITIES + ".convertJavaThrowable($exc$); }"); // XTENLANG-2686
+            w.write("} catch (" + JAVA_LANG_THROWABLE + " $exc$) { throw " + X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaThrowable($exc$); }"); // XTENLANG-2686
         } else {
             n.translate(w, tr);
         }

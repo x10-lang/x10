@@ -488,8 +488,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 
     // TODO implement remote operations
     public RemoteIndexedMemoryChunk<T> getCongruentSibling(x10.lang.Place p) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
-    	return null;
+        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
 
     public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = NamedType.<IndexedMemoryChunk<?>> make(

@@ -176,21 +176,21 @@ public class TryCatchExpander extends Expander {
 
             if ((additionalTryCatchForConversion & THROWABLE_CONVERSION) != 0) {
                 w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                w.write("throw " + X10PrettyPrinterVisitor.X10_CORE_THROWABLE_UTILITIES + ".convertJavaThrowable(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaThrowable(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                 w.write("}");
             } else {
                 if ((additionalTryCatchForConversion & EXCEPTION_CONVERSION) != 0) {
                     w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_EXCEPTION + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                    w.write("throw " + X10PrettyPrinterVisitor.X10_CORE_THROWABLE_UTILITIES + ".convertJavaException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                     w.write("}");
                 } else if ((additionalTryCatchForConversion & RUNTIME_EXCEPTION_CONVERSION) != 0) {
                     w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_RUNTIME_EXCEPTION + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                    w.write("throw " + X10PrettyPrinterVisitor.X10_CORE_THROWABLE_UTILITIES + ".convertJavaRuntimeException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaRuntimeException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                     w.write("}");
                 }
                 if ((additionalTryCatchForConversion & ERROR_CONVERSION) != 0) {
                     w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_ERROR + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                    w.write("throw " + X10PrettyPrinterVisitor.X10_CORE_THROWABLE_UTILITIES + ".convertJavaError(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaError(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                     w.write("}");
                 }
             }
@@ -211,7 +211,7 @@ public class TryCatchExpander extends Expander {
         }
     }
 
-    // N.B. ThrowableUtilities.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
+    // N.B. ThrowableUtils.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
     // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.IndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
 //        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}

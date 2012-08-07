@@ -58,18 +58,18 @@ public class CheckedThrowable {
     @Native("c++", "(#this)->getCause()")
     public final def getCheckedCause():CheckedThrowable = cause;
     
-    @Native("java", "x10.core.ThrowableUtilities.getUncheckedCause(#this)")
+    @Native("java", "x10.runtime.impl.java.ThrowableUtils.getUncheckedCause(#this)")
     // @Native("java", "#this.getCause()")
     // @Native("c++", "(#this)->getCause()")
     public final def getCause():Exception = cause as Exception;
     
-    @Native("java", "x10.core.ThrowableUtilities.toString(#this)")
+    @Native("java", "x10.runtime.impl.java.ThrowableUtils.toString(#this)")
     //@Native("java", "#this.toString()")
     @Native("c++", "x10aux::to_string(#this)")
     // virtual method with @Native needs to be final in managed x10
     public final native def toString():String;
 
-    @Native("java", "x10.core.ThrowableUtilities.getStackTrace(#this)")
+    @Native("java", "x10.runtime.impl.java.ThrowableUtils.getStackTrace(#this)")
     //@Native("java", "#this.$getStackTrace()")
     @Native("c++", "(#this)->getStackTrace()")
     public final native def getStackTrace() : Array[String](1);
@@ -78,7 +78,7 @@ public class CheckedThrowable {
     @Native("c++", "(#this)->printStackTrace()")
     public native def printStackTrace() : void;
 
-    @Native("java", "x10.core.ThrowableUtilities.printStackTrace(#this, #p)")
+    @Native("java", "x10.runtime.impl.java.ThrowableUtils.printStackTrace(#this, #p)")
     // @Native("java", "#this.printStackTrace(#p)")
     @Native("c++",  "(#this)->printStackTrace(#p)")
     // virtual method with @Native needs to be final in managed x10

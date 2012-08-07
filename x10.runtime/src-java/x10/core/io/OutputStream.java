@@ -93,7 +93,7 @@ public class OutputStream extends Ref {
 //        try {
 //            stream.write(buf.raw().getByteArray());
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
 //        }
 //    }
 
@@ -119,7 +119,7 @@ public class OutputStream extends Ref {
 //        try {
 //            stream.write(buf.raw().getByteArray(), off, len);
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
 //        }
 //    }
 

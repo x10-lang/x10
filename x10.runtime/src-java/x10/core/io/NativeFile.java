@@ -50,7 +50,7 @@ public final class NativeFile extends java.io.File implements Any {
 //        try {
 //            return super.getCanonicalPath();
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //
