@@ -236,7 +236,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
     public static final String X10_RUNTIME_IMPL_JAVA_RUNTIME = "x10.runtime.impl.java.Runtime";
-    public static final String X10_RUNTIME_UTIL_UTIL = "x10.runtime.util.Util";
+    public static final String X10_RUNTIME_IMPL_JAVA_EVALUTILS = "x10.runtime.impl.java.EvalUtils";
 
     public static final String X10_CORE_THROWABLE_UTILITIES = "x10.core.ThrowableUtilities";
     // TODO remove x10.core.Throwable
@@ -4335,7 +4335,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // support for back-end method inlining
             if (er.isMethodInlineTarget(tr.typeSystem(), ((X10Call) expr).target().type())
                     && ((X10Call) expr).methodInstance().name() == ClosureCall.APPLY) {
-                w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+                w.write(X10_RUNTIME_IMPL_JAVA_EVALUTILS + ".eval(");
                 n.print(expr, w, tr);
                 w.write(")");
             } else if (er.isMethodInlineTarget(tr.typeSystem(), ((X10Call) expr).target().type())
@@ -4345,7 +4345,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // support for @Native
             else if (!expr.type().isVoid()
                     && Emitter.getJavaImplForDef(((X10Call) expr).methodInstance().x10Def()) != null) {
-                w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+                w.write(X10_RUNTIME_IMPL_JAVA_EVALUTILS + ".eval(");
                 n.print(expr, w, tr);
                 w.write(")");
             } else {
@@ -4361,7 +4361,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
         // not a legal java statement
         else {
-            w.write(X10_RUNTIME_UTIL_UTIL + ".eval(");
+            w.write(X10_RUNTIME_IMPL_JAVA_EVALUTILS + ".eval(");
             n.print(expr, w, tr);
             w.write(")");
         }
