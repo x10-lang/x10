@@ -649,9 +649,10 @@ public class Types {
         }
         throw new java.lang.ClassCastException("x10.lang.UByte");
     }
-    public static Object asBoxedUByte(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.UByte.$box(asUByte(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedUByte(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.UByte.$box(asUByte(typeParamOrAny, origRTT));
+//    }
 
     public static short asUShort(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UShort");}
@@ -663,9 +664,10 @@ public class Types {
         }
         throw new java.lang.ClassCastException("x10.lang.UShort");
     }
-    public static Object asBoxedUShort(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.UShort.$box(asUShort(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedUShort(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.UShort.$box(asUShort(typeParamOrAny, origRTT));
+//    }
 
     public static int asUInt(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.UInt");}
@@ -677,9 +679,10 @@ public class Types {
         }
         throw new java.lang.ClassCastException("x10.lang.UInt");
     }
-    public static Object asBoxedUInt(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.UInt.$box(asUInt(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedUInt(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.UInt.$box(asUInt(typeParamOrAny, origRTT));
+//    }
 
     public static long asULong(Object typeParamOrAny, Type<?> origRTT){
         if (typeParamOrAny == null) {nullIsCastToStruct("x10.lang.ULong");}
@@ -691,9 +694,10 @@ public class Types {
         }
         throw new java.lang.ClassCastException("x10.lang.ULong");
     }
-    public static Object asBoxedULong(Object typeParamOrAny, Type<?> origRTT){
-    	return x10.core.ULong.$box(asULong(typeParamOrAny, origRTT));
-    }
+    // not used
+//    public static Object asBoxedULong(Object typeParamOrAny, Type<?> origRTT){
+//    	return x10.core.ULong.$box(asULong(typeParamOrAny, origRTT));
+//    }
 
     public static Object asStruct(Type<?> rtt, Object typeParamOrAny) {
         if (typeParamOrAny == null) {nullIsCastToStruct(rtt);}
@@ -720,10 +724,10 @@ public class Types {
         if (rtt == LONG) {return x10.core.Long.$box(aslong(primOrTypeParam, convert ? LONG : null));}
         if (rtt == FLOAT) {return x10.core.Float.$box(asfloat(primOrTypeParam, convert ? FLOAT : null));}
         if (rtt == DOUBLE) {return x10.core.Double.$box(asdouble(primOrTypeParam, convert ? DOUBLE : null));}
-        if (rtt == UBYTE) {return asBoxedUByte(primOrTypeParam, convert ? UBYTE : null);}
-        if (rtt == USHORT) {return asBoxedUShort(primOrTypeParam, convert ? USHORT : null);}
-        if (rtt == UINT) {return asBoxedUInt(primOrTypeParam, convert ? UINT : null);}
-        if (rtt == ULONG) {return asBoxedULong(primOrTypeParam, convert ? ULONG : null);}
+        if (rtt == UBYTE) {return x10.core.UByte.$box(asUByte(primOrTypeParam, convert ? UBYTE : null));}
+        if (rtt == USHORT) {return x10.core.UShort.$box(asUShort(primOrTypeParam, convert ? USHORT : null));}
+        if (rtt == UINT) {return x10.core.UInt.$box(asUInt(primOrTypeParam, convert ? UINT : null));}
+        if (rtt == ULONG) {return x10.core.ULong.$box(asULong(primOrTypeParam, convert ? ULONG : null));}
 
         // TODO remove boxing of String
 //        if (rtt == STRING) {
