@@ -386,7 +386,7 @@ public final class String implements Comparable[String] {
      * @param args the arguments referenced by the format specifiers in the format string.
      * @return a formatted string.
      */
-    @Native("java", "x10.core.String.format(#fmt,(Object[]) (#args).raw().value)")
+    @Native("java", "x10.runtime.impl.java.StringUtils.format(#fmt,(java.lang.Object[]) (#args).raw().value)")
     @Native("c++", "x10::lang::String::format(#fmt,#args)")
     public native static def format(fmt: String, args:Array[Any]): String;
 
