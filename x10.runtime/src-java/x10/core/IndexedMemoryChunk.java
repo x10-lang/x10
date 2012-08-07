@@ -246,9 +246,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
                         this.srcData instanceof boolean[]) {
                     serializer.write(DeserializationDispatcher.javaClassID);
                     serializer.writeObject(this.srcData);
-                } else if (this.srcData instanceof String[]) {
+                } else if (this.srcData instanceof java.lang.String[]) {
                     serializer.write(DeserializationDispatcher.STRING_ID);
-                    serializer.write((String[]) this.srcData);
+                    serializer.write((java.lang.String[]) this.srcData);
                 } else if (this.srcData instanceof X10JavaSerializable[]) {
                 	serializer.write((X10JavaSerializable[]) this.srcData);
                 } else {
