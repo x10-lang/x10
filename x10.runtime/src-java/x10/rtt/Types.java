@@ -175,9 +175,10 @@ public class Types {
         if (o instanceof java.lang.Boolean) {
             return x10.core.Boolean.$box(((java.lang.Boolean) o).booleanValue());
         }
-        if (o instanceof java.lang.String) {
-            return x10.core.String.$box((java.lang.String) o);
-        }
+        // TODO remove boxing of String
+//        if (o instanceof java.lang.String) {
+//            return x10.core.String.$box((java.lang.String) o);
+//        }
         return o;
     }
     public static x10.core.Byte $box(byte o) {
@@ -204,9 +205,10 @@ public class Types {
     public static x10.core.Boolean $box(boolean o) {
         return x10.core.Boolean.$box(o);
     }
-    public static x10.core.String $box(java.lang.String o) {
-        return x10.core.String.$box(o);
-    }
+    // TODO remove boxing of String
+//    public static x10.core.String $box(java.lang.String o) {
+//        return x10.core.String.$box(o);
+//    }
     public static Object $boxu(Object o) {
         if (o instanceof java.lang.Byte) {
             return x10.core.UByte.$box(((java.lang.Byte) o).byteValue());
@@ -722,14 +724,15 @@ public class Types {
         if (rtt == USHORT) {return asBoxedUShort(primOrTypeParam, convert ? USHORT : null);}
         if (rtt == UINT) {return asBoxedUInt(primOrTypeParam, convert ? UINT : null);}
         if (rtt == ULONG) {return asBoxedULong(primOrTypeParam, convert ? ULONG : null);}
-        
-        if (rtt == STRING) {
-            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.$unbox((x10.core.String) primOrTypeParam);
-            return primOrTypeParam;
-        }
-        else if (primOrTypeParam instanceof java.lang.String) { // i.e. rtt==Any|Object|Fun
-            return x10.core.String.$box((java.lang.String) primOrTypeParam);
-        }
+
+        // TODO remove boxing of String
+//        if (rtt == STRING) {
+//            if (primOrTypeParam instanceof x10.core.String) return x10.core.String.$unbox((x10.core.String) primOrTypeParam);
+//            return primOrTypeParam;
+//        }
+//        else if (primOrTypeParam instanceof java.lang.String) { // i.e. rtt==Any|Object|Fun
+//            return x10.core.String.$box((java.lang.String) primOrTypeParam);
+//        }
         
         return primOrTypeParam;
     }

@@ -108,10 +108,11 @@ public class Equality {
         // Struct equality is value equality that implys non-null.
         if (a == null || b == null) return false;
 
-        // For boxed String object
-        if (a instanceof x10.core.String) a = x10.core.String.$unbox((x10.core.String) a);
-        if (b instanceof x10.core.String) b = x10.core.String.$unbox((x10.core.String) b);
-        if (a == b) return true;
+        // TODO remove boxing of String
+//        // For boxed String object
+//        if (a instanceof x10.core.String) a = x10.core.String.$unbox((x10.core.String) a);
+//        if (b instanceof x10.core.String) b = x10.core.String.$unbox((x10.core.String) b);
+//        if (a == b) return true;
 
         // N.B. this is shortcut that can be removed safely
         // if we need to know the referenceness of values at runtime in some other context,
