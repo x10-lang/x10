@@ -59,6 +59,7 @@ import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.ConstraintManager;
+import x10.types.constraints.TypeConstraint;
 
 public class TypeDecl_c extends Term_c implements TypeDecl {
 	private TypeNode type;
@@ -188,6 +189,23 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 	        for (Formal f : formals) {
 	            f.addDecls(c);
 	        }
+	    } else {
+	    	if (guard != null) {
+		    	// add the guard when descending into the RHS of the typedef
+
+		        Ref<CConstraint> vc = guard.valueConstraint();
+				Ref<TypeConstraint> tc = guard.typeConstraint();
+	
+				if (vc != null || tc != null) {
+			        c = c.pushBlock();
+					c.setName(" Typedef guard for |" + name() + "| ");
+					if (vc != null)
+						c.addConstraint(vc);
+					if (tc != null) {
+						c.setTypeConstraintWithContextTerms(tc);
+					}
+				}
+	    	}
 	    }
 
 	    return super.enterChildScope(child, c);
