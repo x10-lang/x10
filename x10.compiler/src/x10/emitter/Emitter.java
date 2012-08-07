@@ -4383,7 +4383,7 @@ public class Emitter {
     		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
     		
     		w.write(";}");
-    		w.write("catch (java.lang.Throwable $exc$) { throw x10.core.ThrowableUtilities.convertJavaThrowable($exc$); } }"); // XTENLANG-2686
+    		w.write("catch (java.lang.Throwable $exc$) { throw " + X10PrettyPrinterVisitor.X10_CORE_THROWABLE_UTILITIES + ".convertJavaThrowable($exc$); } }"); // XTENLANG-2686
     		w.newline();
     		
     		return true;
