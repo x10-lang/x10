@@ -40,10 +40,6 @@ public class Printer extends FilterWriter {
     public final def println(o:Any): void {
         print(o==null? "null\n" : o.toString()+"\n");
     }
-    // this is needed to avoid extra boxing in Managed X10
-    public final def println(s:String): void {
-    	print(s==null? "null\n" : s+"\n");
-    }
     // this is needed to use @Native for CheckedThrowable#toString().
     public final def println(e:CheckedThrowable): void {
     	print(e==null? "null\n" : e.toString()+"\n");
@@ -83,7 +79,7 @@ public class Printer extends FilterWriter {
     }
 
     public def printf(fmt: String, args: Rail[Any]): void { 
-        print(String.format(fmt, new Array[Any](args.size, (i:int)=>args(i))));
+        printfArray(fmt, args); 
     }
     public def printfArray(fmt: String, args: Array[Any](1)): void { 
         print(String.format(fmt, args));
