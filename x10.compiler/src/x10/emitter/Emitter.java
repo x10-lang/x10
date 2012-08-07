@@ -906,11 +906,12 @@ public class Emitter {
 	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
 	        // it requires parentheses to be printed after
 	    }
-	    else if (isString(type)) {
-	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
-	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
-	        // it requires parentheses to be printed after
-	    }
+	    // TODO remove boxing of String
+//	    else if (isString(type)) {
+//	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+//	        w.write("." + X10PrettyPrinterVisitor.BOX_METHOD_NAME);
+//	        // it requires parentheses to be printed after
+//	    }
 	    else {
                 // type == T comes here
 	        // FIXME: maybe this is not needed at all? -- boxing of non-boxable types
@@ -930,11 +931,12 @@ public class Emitter {
 	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
 	        return true;
 	    }
-	    else if (isString(type)) {
-	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
-	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
-	        return true;
-	    }
+            // TODO remove boxing of String
+//	    else if (isString(type)) {
+//	    	w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+//	        w.write("." + X10PrettyPrinterVisitor.UNBOX_METHOD_NAME + "(");
+//	        return true;
+//	    }
 	    else {
 	        // FIXME: maybe this is not needed at all? -- unboxing of non-boxable types
 	        w.write("(");
@@ -2246,12 +2248,12 @@ public class Emitter {
             boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
             int intflags = instantiateReturnType ? BOX_PRIMITIVES : 0;
             if (!X10PrettyPrinterVisitor.isGenericOverloading) intflags |= PRINT_TYPE_PARAMS;
-            boolean boxReturnString = isCovariantOverride && isString(impl.returnType());
-            if (boxReturnString) {
-                w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
-            } else {
+            // TODO remove boxing of String
+//            boolean boxReturnString = isCovariantOverride && isString(impl.returnType());
+//            if (boxReturnString)
+//                w.write(X10PrettyPrinterVisitor.X10_CORE_STRING);
+//            else
                 printType(impl.returnType(), intflags);
-            }
 
 	    boolean isInterface = st.isClass() && st.toClass().flags().isInterface();
 	    
@@ -2333,7 +2335,9 @@ public class Emitter {
 	    }
 
         boolean closeParen = false;
-        if (boxReturnString || (instantiateReturnType && !isBoxedType(impl.returnType()))) {
+        // TODO remove boxing of String
+//        if (boxReturnString || (instantiateReturnType && !isBoxedType(impl.returnType()))) {
+        if (instantiateReturnType && !isBoxedType(impl.returnType())) {
         	printBoxConversion(impl.returnType());
         	w.write("(");
             closeParen = true;
