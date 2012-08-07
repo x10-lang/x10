@@ -30,7 +30,7 @@ public final class StringType extends RuntimeType<java.lang.String> {
     }
 
     public StringType() {
-        super(String.class,
+        super(java.lang.String.class,
             new Type[] {
                 ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS)
             }
@@ -47,7 +47,7 @@ public final class StringType extends RuntimeType<java.lang.String> {
     }
     
     @Override
-    public String typeName() {
+    public java.lang.String typeName() {
         return "x10.lang.String";
     }
 
