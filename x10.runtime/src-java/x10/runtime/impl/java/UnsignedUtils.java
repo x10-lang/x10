@@ -6,12 +6,14 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.core;
+package x10.runtime.impl.java;
 
-public abstract class Unsigned {
+
+public abstract class UnsignedUtils {
+
 //    public static int toUInt(byte a) {
 //        return a & 0xFF;
 //    }
@@ -30,7 +32,7 @@ public abstract class Unsigned {
 //    public static long toSLong(int a) {
 //        return a;
 //    }
-    
+
     /**
      * Converts a ULong to double
      * @param a unboxed ULong value represented as long
@@ -41,7 +43,7 @@ public abstract class Unsigned {
         if (a >= 0) return v;
         else return v - 2.0*java.lang.Long.MIN_VALUE;
     }
-    
+
     /**
      * Converts a ULong to float
      * @param a unboxed ULong value represented as long
@@ -90,7 +92,7 @@ public abstract class Unsigned {
     public static boolean lt(long a, long b) {
         return inject(a) < inject(b);
     }
-    
+
     public static int div(int a, int b) {
 //        return (int) div(toULong(a), toULong(b));
 //        return (int) (toULong(a) / toULong(b));
@@ -119,64 +121,40 @@ public abstract class Unsigned {
 //    }
 
     public static long div(long a, long b) {
-        try {
-            if (a >= 0 && b >= 0)
-                return a / b;
-            else
-                return toULONG(a).divide(toULONG(b)).longValue();
-        } catch (ArithmeticException e) {
-            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
-        }
+        if (a >= 0 && b >= 0)
+            return a / b;
+        else
+            return toULONG(a).divide(toULONG(b)).longValue();
     }
 //    public static long div_U_S(long a, long b) {
-//        try {
-//            if (a >= 0 && b >= 0)
-//                return a / b;
-//            else
-//                return toULONG(a).divide(toSLONG(b)).longValue();
-//        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
-//        }
+//        if (a >= 0 && b >= 0)
+//            return a / b;
+//        else
+//            return toULONG(a).divide(toSLONG(b)).longValue();
 //    }
 //    public static long div_S_U(long a, long b) {
-//        try {
-//            if (a >= 0 && b >= 0)
-//                return a / b;
-//            else
-//                return toSLONG(a).divide(toULONG(b)).longValue();
-//        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
-//        }
+//        if (a >= 0 && b >= 0)
+//            return a / b;
+//        else
+//            return toSLONG(a).divide(toULONG(b)).longValue();
 //    }
     public static long rem(long a, long b) {
-        try {
-            if (a >= 0 && b >= 0)
-                return a % b;
-            else
-                return toULONG(a).remainder(toULONG(b)).longValue();
-        } catch (ArithmeticException e) {
-            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
-        }
+        if (a >= 0 && b >= 0)
+            return a % b;
+        else
+            return toULONG(a).remainder(toULONG(b)).longValue();
     }
 //    public static long rem_U_S(long a, long b) {
-//        try {
-//            if (a >= 0 && b >= 0)
-//                return a % b;
-//            else
-//                return toULONG(a).remainder(toSLONG(b)).longValue();
-//        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
-//        }
+//        if (a >= 0 && b >= 0)
+//            return a % b;
+//        else
+//            return toULONG(a).remainder(toSLONG(b)).longValue();
 //    }
 //    public static long rem_S_U(long a, long b) {
-//        try {
-//            if (a >= 0 && b >= 0)
-//                return a % b;
-//            else
-//                return toSLONG(a).remainder(toULONG(b)).longValue();
-//        } catch (ArithmeticException e) {
-//            throw ThrowableUtilities.getCorrespondingX10Throwable(e);
-//        }
+//        if (a >= 0 && b >= 0)
+//            return a % b;
+//        else
+//            return toSLONG(a).remainder(toULONG(b)).longValue();
 //    }
 
 
@@ -197,7 +175,7 @@ public abstract class Unsigned {
         return new java.math.BigInteger(bytes);        
     }
 
-    
+
     private static final java.math.BigInteger ULONG_MAX = toULONG(0xFFFFFFFFFFFFFFFFL);
     public static long parseULong(java.lang.String s, int radix) {
         java.math.BigInteger ulong = new java.math.BigInteger(s, radix);
@@ -209,7 +187,7 @@ public abstract class Unsigned {
     public static long parseULong(java.lang.String s) {
         return parseULong(s, 10);
     }
-    
+
     /*
     // followings are correct but not used
     public static java.lang.String toString(byte a, int radix) {
@@ -237,5 +215,5 @@ public abstract class Unsigned {
     public static java.lang.String toString(long a) {
         return toULONG(a).toString();
     }
-    
+
 }

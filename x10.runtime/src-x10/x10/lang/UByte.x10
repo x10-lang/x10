@@ -41,7 +41,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the other UByte
      * @return true if this UByte is strictly less than the other UByte.
      */
-    @Native("java", "x10.core.Unsigned.lt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.lt(#this, #x)")
     @Native("c++",  "((#0) < (#1))")
     public native operator this < (x:UByte): Boolean; /*  {
         return (byteVal + Byte.MIN_VALUE) < (x.byteVal + Byte.MIN_VALUE);
@@ -54,7 +54,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the other UByte
      * @return true if this UByte is strictly greater than the other UByte.
      */
-    @Native("java", "x10.core.Unsigned.gt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.gt(#this, #x)")
     @Native("c++",  "((#0) > (#1))")
     public native operator this > (x:UByte): Boolean; /*  {
         return (byteVal + Byte.MIN_VALUE) > (x.byteVal + Byte.MIN_VALUE);
@@ -67,7 +67,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the other UByte
      * @return true if this UByte is less than or equal to the other UByte.
      */
-    @Native("java", "x10.core.Unsigned.le(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.le(#this, #x)")
     @Native("c++",  "((#0) <= (#1))")
     public native operator this <= (x:UByte): Boolean; /*  {
         return (byteVal + Byte.MIN_VALUE) <= (x.byteVal + Byte.MIN_VALUE);
@@ -80,7 +80,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the other UByte
      * @return true if this UByte is greater than or equal to the other UByte.
      */
-    @Native("java", "x10.core.Unsigned.ge(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.ge(#this, #x)")
     @Native("c++",  "((#0) >= (#1))")
     public native operator this >= (x:UByte): Boolean; /*  {
         return (byteVal + Byte.MIN_VALUE) >= (x.byteVal + Byte.MIN_VALUE);
