@@ -231,34 +231,34 @@ final public class RuntimeTypeExpander extends Expander {
 
     String typeof(Type t) {
         if (t.isBoolean())
-            return "x10.rtt.Types.BOOLEAN";
+            return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".BOOLEAN";
         if (t.isChar())
-            return "x10.rtt.Types.CHAR";
+            return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".CHAR";
         if (t.isNumeric()) {
             TypeSystem ts = (TypeSystem) er.tr.typeSystem();
             if (t.isUnsignedNumeric()) {
                 if (t.isUByte())
-                    return "x10.rtt.Types.UBYTE";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UBYTE";
                 if (t.isUShort())
-                    return "x10.rtt.Types.USHORT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".USHORT";
                 if (t.isUInt())
-                    return "x10.rtt.Types.UINT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UINT";
                 if (t.isULong())
-                    return "x10.rtt.Types.ULONG";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".ULONG";
             } else if (t.isSignedNumeric()) {
                 if (t.isByte())
-                    return "x10.rtt.Types.BYTE";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".BYTE";
                 if (t.isShort())
-                    return "x10.rtt.Types.SHORT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".SHORT";
                 if (t.isInt())
-                    return "x10.rtt.Types.INT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".INT";
                 if (t.isLong())
-                    return "x10.rtt.Types.LONG";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".LONG";
             } else {
                 if (t.isFloat())
-                    return "x10.rtt.Types.FLOAT";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".FLOAT";
                 if (t.isDouble())
-                    return "x10.rtt.Types.DOUBLE";
+                    return X10PrettyPrinterVisitor.X10_RTT_TYPES + ".DOUBLE";
             }
         }
         return null;

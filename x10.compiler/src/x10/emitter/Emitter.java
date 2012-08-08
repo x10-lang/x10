@@ -2365,7 +2365,7 @@ public class Emitter {
 	        final Type at = i.next();
 	        first2 = false;
 	        // TODO
-	        new RuntimeTypeExpander(this, at).expand(tr);
+	        new RuntimeTypeExpander(this, at).expand();
 	        if (i.hasNext()) {
 	            w.write(",");
 	            w.allowBreak(0, " ");
@@ -3067,7 +3067,7 @@ public class Emitter {
                     w.write(", ");
                 }
                 first2 = false;
-                new RuntimeTypeExpander(this, t).expand(tr);
+                new RuntimeTypeExpander(this, t).expand();
             }
             
             for (int i = 0; i < mi.formalTypes().size(); i++) {
@@ -3497,7 +3497,7 @@ public class Emitter {
                     needComma = true;
                 }
                 // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
-                w.write("x10.rtt.Types.STRUCT");
+                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPES + ".STRUCT");
             }
             w.write("}");
         }
@@ -3536,7 +3536,7 @@ public class Emitter {
         if (type.isClass()) {
             X10ClassType x10Type = type.toClass();
             if (x10Type.isJavaType()) {
-            	w.write("x10.rtt.Types.getRTT(");
+            	w.write(X10PrettyPrinterVisitor.X10_RTT_TYPES + ".getRTT(");
             	printType(x10Type, 0);
             	w.write(".class)");
                 return;
@@ -3629,11 +3629,11 @@ public class Emitter {
                 }
                 w.write(")");
             } else {
-                new RuntimeTypeExpander(this, x10Type).expand(tr);
+                new RuntimeTypeExpander(this, x10Type).expand();
             }
         }
         else if (type instanceof NullType) {
-            w.write("x10.rtt.Types.OBJECT");
+            new RuntimeTypeExpander(this, tr.typeSystem().Any()).expand();
         }
     }
 
@@ -3824,7 +3824,7 @@ public class Emitter {
                     for (Type type : superType.typeArguments()) {
                         // pass rtt of the type
                     	// TODO mangle typa variable
-                        new RuntimeTypeExpander(this, type).expand(tr);
+                        new RuntimeTypeExpander(this, type).expand();
                         w.write(", ");
                     }
                 }
@@ -4072,7 +4072,7 @@ public class Emitter {
             if (superType.typeArguments() != null) {
                 for (Type type : superType.typeArguments()) {
                     // pass rtt of the type
-                    new RuntimeTypeExpander(this, type).expand(tr);
+                    new RuntimeTypeExpander(this, type).expand();
                     w.write(", ");
                 }
             }
@@ -4101,13 +4101,13 @@ public class Emitter {
 //            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
-                    zero = "(x10.core.UByte) x10.rtt.Types.UBYTE_ZERO";
+                    zero = "(x10.core.UByte) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UBYTE_ZERO";
                 } else if (xts.isUShort(type)) {
-                    zero = "(x10.core.UShort) x10.rtt.Types.USHORT_ZERO";
+                    zero = "(x10.core.UShort) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".USHORT_ZERO";
                 } else if (xts.isUInt(type)) {
-                    zero = "(x10.core.UInt) x10.rtt.Types.UINT_ZERO";
+                    zero = "(x10.core.UInt) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UINT_ZERO";
                 } else if (xts.isULong(type)) {
-                    zero = "(x10.core.ULong) x10.rtt.Types.ULONG_ZERO";
+                    zero = "(x10.core.ULong) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".ULONG_ZERO";
                 } else if (xts.isByte(type)) {
                     zero = "(byte) 0";
                 } else if (xts.isShort(type)) {
@@ -4135,7 +4135,7 @@ public class Emitter {
                     if (pcType.typeArguments() != null) {
                         for (Type typeArgument : pcType.typeArguments()) {
                             // pass rtt of the type
-                            new RuntimeTypeExpander(this, typeArgument).expand(tr);
+                            new RuntimeTypeExpander(this, typeArgument).expand();
                             w.write(", ");
                         }
                     }
@@ -4144,7 +4144,7 @@ public class Emitter {
             } else if (xts.isParameterType(type)) {
                 // for type parameter T, "(T) x10.rtt.Types.zeroValue(T);"
                 ParameterType paramType = (ParameterType) type;
-                zero = "(" + mangleParameterType(paramType) + ") x10.rtt.Types.zeroValue(" + mangleParameterType(paramType) + ")";
+                zero = "(" + mangleParameterType(paramType) + ") " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".zeroValue(" + mangleParameterType(paramType) + ")";
             } else {
                 // reference (i.e. non-struct) type
                 zero = "null";
