@@ -35,7 +35,7 @@ public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
     }
 
     public def printStackTrace(): void {
-        for (t:Exception in exceptions.values()) {
+        for (t in exceptions.values()) {
             t.printStackTrace();
         }
     }
@@ -43,7 +43,7 @@ public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
     // FIXME CheckedThrowable.printStackTrace(Printer) is now final
     /*
     public def printStackTrace(p:Printer): void {
-        for (t:Exception in exceptions.values()) {
+        for (t in exceptions.values()) {
             t.printStackTrace(p);
         }
     }
