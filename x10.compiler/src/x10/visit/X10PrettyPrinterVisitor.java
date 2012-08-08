@@ -244,7 +244,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
     // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //    public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
-    public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
+    // TODO remove wrapping with UnknownJavaThrowable
+//    public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
     public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
     public static final String JAVA_LANG_EXCEPTION = "java.lang.Exception";
     public static final String JAVA_LANG_RUNTIME_EXCEPTION = "java.lang.RuntimeException";
@@ -3564,14 +3565,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // }
         // }
 
-        TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
-        if (runAsync) {
-            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, "ex", new Expander(er) {
-                public void expand(Translator tr) {
-                    w.write("x10.lang.Runtime.pushException(ex);");
-                }
-            });
-        }
+        // TODO remove wrapping with UnknownJavaThrowable
+//        TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
+//        if (runAsync) {
+//            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, "ex", new Expander(er) {
+//                public void expand(Translator tr) {
+//                    w.write("x10.lang.Runtime.pushException(ex);");
+//                }
+//            });
+//        }
+
         // if (throwThrowable) {
         // tryCatchExpander.addCatchBlock("java.lang.RuntimeException", "ex",
         // new Expander(er) {
@@ -3629,11 +3632,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // tryCatchExpander.expand(tr2);
         // } else
         //
-        if (runAsync) {
-            tryCatchExpander.expand(tr2);
-        } else {
+
+        // TODO remove wrapping with UnknownJavaThrowable
+//        if (runAsync)
+//            tryCatchExpander.expand(tr2);
+//        else
             er.prettyPrint(n.body(), tr2);
-        }
 
         if (isSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
             w.write("return null;");
@@ -4630,68 +4634,71 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
         final List<Catch> catchBlocks = c.catchBlocks();
 
-        boolean isUnknownJavaThrowableCaught = false;
+        // TODO remove wrapping with UnknownJavaThrowable
+//        boolean isUnknownJavaThrowableCaught = false;
         boolean isConstrainedThrowableCaught = false; // XTENLANG-2384
         for (int i = 0; i < catchBlocks.size(); ++i) {
             Type type = catchBlocks.get(i).catchType();
-            if (isUnknownJavaThrowable(type)) {
-                // found Java checked exceptions caught here!!
-                isUnknownJavaThrowableCaught = true;
-            }
+            // TODO remove wrapping with UnknownJavaThrowable
+//            if (isUnknownJavaThrowable(type)) {
+//                // found Java checked exceptions caught here!!
+//                isUnknownJavaThrowableCaught = true;
+//            }
             if (type instanceof ConstrainedType) // XTENLANG-2384: Check if there is a constained type in catchBlocks
                 isConstrainedThrowableCaught = true;
         }
 
-        // unwrap and handle Java throwable
-        if (isUnknownJavaThrowableCaught) {
-            final String temp = "$ex";
-            expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
-                public void expand(Translator tr) {
-                    w.newline();
-
-                    boolean needElse = false;
-                    for (int i = 0; i < catchBlocks.size(); ++i) {
-                        Catch cb = catchBlocks.get(i);
-                        Type type = cb.catchType();
-                        if (!isUnknownJavaThrowable(type))
-                            continue;
-
-                        if (needElse) {
-                            w.write("else ");
-                        } else {
-                            needElse = true;
-                        }
-                        w.write("if (" + temp + ".getCause() instanceof ");
-                        er.printType(cb.catchType(), 0);
-                        w.write(") {");
-                        w.newline();
-
-                        // stop generating redundant code for empty block
-                        if (!cb.body().statements().isEmpty()) {
-                        cb.formal().translate(w, tr);
-                        w.write(" = ");
-                        // TODO:CAST
-                        w.write("(");
-                        er.printType(cb.catchType(), 0);
-                        w.write(") " + temp + ".getCause();");
-                        w.newline();
-
-                        cb.body().translate(w, tr);
-                        w.newline();
-                        }
-
-                        w.write("}");
-                        w.newline();
-                    }
-                    w.write("else {");
-                    w.newline();
-                    w.write("throw " + temp + ";");
-                    w.newline();
-                    w.write("}");
-                    w.newline();
-                }
-            });
-        }
+        // TODO remove wrapping with UnknownJavaThrowable
+//        // unwrap and handle Java throwable
+//        if (isUnknownJavaThrowableCaught) {
+//            final String temp = "$ex";
+//            expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
+//                public void expand(Translator tr) {
+//                    w.newline();
+//
+//                    boolean needElse = false;
+//                    for (int i = 0; i < catchBlocks.size(); ++i) {
+//                        Catch cb = catchBlocks.get(i);
+//                        Type type = cb.catchType();
+//                        if (!isUnknownJavaThrowable(type))
+//                            continue;
+//
+//                        if (needElse) {
+//                            w.write("else ");
+//                        } else {
+//                            needElse = true;
+//                        }
+//                        w.write("if (" + temp + ".getCause() instanceof ");
+//                        er.printType(cb.catchType(), 0);
+//                        w.write(") {");
+//                        w.newline();
+//
+//                        // stop generating redundant code for empty block
+//                        if (!cb.body().statements().isEmpty()) {
+//                        cb.formal().translate(w, tr);
+//                        w.write(" = ");
+//                        // TODO:CAST
+//                        w.write("(");
+//                        er.printType(cb.catchType(), 0);
+//                        w.write(") " + temp + ".getCause();");
+//                        w.newline();
+//
+//                        cb.body().translate(w, tr);
+//                        w.newline();
+//                        }
+//
+//                        w.write("}");
+//                        w.newline();
+//                    }
+//                    w.write("else {");
+//                    w.newline();
+//                    w.write("throw " + temp + ";");
+//                    w.newline();
+//                    w.write("}");
+//                    w.newline();
+//                }
+//            });
+//        }
 
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
         if (isConstrainedThrowableCaught) {
