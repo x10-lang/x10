@@ -86,7 +86,7 @@ abstract public class FinishFrame extends Frame {
 
     @NoInline public final def caught(t:Exception) {
 //        Runtime.println("CAUGHT: " + t);
-        if (t == Abort.ABORT) throw t;
+        if (t == Abort.ABORT) throw Abort.ABORT;
         Runtime.atomicMonitor.lock();
         if (null == stack) stack = new Stack[Exception]();
         stack.push(t);
