@@ -145,7 +145,7 @@ public final class String implements Comparable[String] {
      * @return the Array of Bytes representing this String in the default charset.
      * @see #chars()
      */
-    @Native("java", "x10.runtime.impl.java.ArrayUtils.<java.lang.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
+    @Native("java", "x10.runtime.impl.java.ArrayUtils.<x10.core.Byte>makeArrayFromJavaArray(x10.rtt.Types.BYTE, (#this).getBytes())")
     @Native("c++", "(#this)->bytes()")
     public native def bytes():Rail[Byte];
 
