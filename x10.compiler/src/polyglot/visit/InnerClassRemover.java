@@ -450,8 +450,12 @@ public abstract class InnerClassRemover extends ContextVisitor {
                         
                         // prepend the super call
                         statements.add(0, cc);
+                    } else {
+                    	// [DC] The absence of this case in previous versions was a bug
+                    	// but I believe it would only have caused a problem with the root (Object)
+                    	// which was not an inner class (and was @NativeRep anyway)
+                    	statements.add(0, s0);
                     }
-                    
                     statements.addAll(block.statements().subList(1, block.statements().size()));
                 }
                 else {
