@@ -521,6 +521,9 @@ public class X10JavaSerializer {
     	} else if ("x10.rtt.NamedType".equals(clazz.getName())) {
     		SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
     		return new SpecialCaseSerializerThunk(clazz, superThunk);
+        } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
+            SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
+            return new SpecialCaseSerializerThunk(clazz, superThunk);
     	} else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
     		return new SpecialCaseSerializerThunk(clazz);
     	} else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
@@ -793,6 +796,10 @@ public class X10JavaSerializer {
     			Field typeNameField = clazz.getDeclaredField("typeName");
     			String typeName = (String) typeNameField.get(obj);
     			xjs.writeClassID(typeName);
+                } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
+                    Field typeNameField = clazz.getDeclaredField("typeName");
+                    String typeName = (String) typeNameField.get(obj);
+                    xjs.writeClassID(typeName);
     		} else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
     			Field javaClassField = clazz.getDeclaredField("javaClass");
     			Class<?> javaClass = (Class<?>) javaClassField.get(obj);

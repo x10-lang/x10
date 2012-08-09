@@ -34,6 +34,7 @@ import x10.core.IndexedMemoryChunk;
 // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //import x10.core.X10Throwable;
 import x10.io.SerialData;
+import x10.rtt.NamedStructType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
@@ -388,9 +389,11 @@ public class X10JavaDeserializer {
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
         if ("java.lang.String".equals(clazz.getName())) {
-        	return new SpecialCaseDeserializerThunk(null);	
+        	return new SpecialCaseDeserializerThunk(null);
         } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);	
+           	return new SpecialCaseDeserializerThunk(null);
+        } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
+            return new SpecialCaseDeserializerThunk(null);  
         } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
            	return new SpecialCaseDeserializerThunk(null);	
         } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
@@ -709,9 +712,12 @@ public class X10JavaDeserializer {
 	        if ("java.lang.String".equals(clazz.getName())) {
 	            obj = (T) jds.readStringValue();
 	            return obj;
-	        } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
+                } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
 	            NamedType.$_deserialize_body((NamedType) obj, jds);
 	            return obj;
+                } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
+                    NamedType.$_deserialize_body((NamedStructType) obj, jds);
+                    return obj;
 	        } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
 	            X10JavaSerializable x10JavaSerializable = RuntimeType.$_deserialize_body((RuntimeType) obj, jds);
 	            if (obj != x10JavaSerializable) {
