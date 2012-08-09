@@ -794,9 +794,9 @@ public class X10JavaSerializer {
     			String typeName = (String) typeNameField.get(obj);
     			xjs.writeClassID(typeName);
     		} else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-    			Field implField = clazz.getDeclaredField("impl");
-    			Class<?> impl = (Class<?>) implField.get(obj);
-    			xjs.writeClassID(impl.getName());
+    			Field javaClassField = clazz.getDeclaredField("javaClass");
+    			Class<?> javaClass = (Class<?>) javaClassField.get(obj);
+    			xjs.writeClassID(javaClass.getName());
     		} else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
     			((IndexedMemoryChunk) obj).$_serialize(xjs);
     		} else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
