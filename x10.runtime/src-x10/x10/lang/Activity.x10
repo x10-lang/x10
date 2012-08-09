@@ -146,6 +146,8 @@ class Activity {
     def run():void {
         try {
             body();
+        } catch (t:Error) {
+            finishState.pushException(new WrappedThrowable(t));
         } catch (t:Exception) {
             finishState.pushException(t);
         }

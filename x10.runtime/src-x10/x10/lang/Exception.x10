@@ -53,6 +53,13 @@ public class Exception extends CheckedException {
     @Native("java", "new java.lang.RuntimeException(#message, #cause)")
     public def this(message: String, cause: CheckedThrowable) { super(message, cause); }
 
+    /**
+     * Cast to Exception, or if not possible, wrap in WrappedThrowable.
+     *
+     * @param e Either gets wrapped or returned.
+     */
+    @Native("java", "x10.rtt.Types.EXCEPTION.isInstance(#e) ? (java.lang.RuntimeException)((java.lang.Throwable)#e) : ((java.lang.RuntimeException)(new x10.lang.WrappedThrowable(#e)))")
+    public static def ensureException(e:CheckedThrowable) : Exception = e instanceof Exception ? e as Exception : new WrappedThrowable(e);
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab
