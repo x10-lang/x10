@@ -512,7 +512,42 @@ public class X10JavaSerializer {
     	}
     	return ans;
     }
-    	
+
+//    private static final java.util.HashSet<java.lang.String> RAW_JAVA_THROWABLES = new java.util.HashSet<java.lang.String>();
+//    static {
+//        RAW_JAVA_THROWABLES.add(java.lang.Throwable.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.Exception.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.RuntimeException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.ArithmeticException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.ArrayIndexOutOfBoundsException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.ClassCastException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.IllegalArgumentException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.IndexOutOfBoundsException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.NullPointerException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.NumberFormatException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.StringIndexOutOfBoundsException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.UnsupportedOperationException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.util.NoSuchElementException.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.Error.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.AssertionError.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.OutOfMemoryError.class.getName());
+//        RAW_JAVA_THROWABLES.add(java.lang.StackOverflowError.class.getName());
+//    }
+    static final boolean RAW_JAVA_THROWABLES_SERIALIZE_MESSAGE = false;
+    static boolean isRawJavaThrowable(java.lang.Class clazz) {
+        if (!java.lang.Throwable.class.isAssignableFrom(clazz)) return false;
+        boolean isX10Generated = false;
+        for (java.lang.annotation.Annotation ann : clazz.getDeclaredAnnotations()) {
+            if (ann instanceof x10.core.X10Generated) {
+                isX10Generated = true;
+                break;
+            }
+        }
+//        System.out.println("clazz.getName() = " + clazz.getName() + ", isX10Generated = " + isX10Generated);
+//        return RAW_JAVA_THROWABLES.contains(clazz.getName());
+        return !isX10Generated;
+    }
+
     private SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
     	
     	// We need to handle these classes in a special way because their 
@@ -538,8 +573,10 @@ public class X10JavaSerializer {
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //    	} else if (X10Throwable.class.getName().equals(clazz.getName())) {
 //    		return new SpecialCaseSerializerThunk(clazz);
+        } else if (isRawJavaThrowable(clazz)) {
+            return new SpecialCaseSerializerThunk(clazz);
     	} else if ("java.lang.Class".equals(clazz.getName())) {
-    		return new SpecialCaseSerializerThunk(clazz);
+    	    return new SpecialCaseSerializerThunk(clazz);
     	} else if ("java.lang.Object".equals(clazz.getName())) {
     	    return new SpecialCaseSerializerThunk(clazz);
     	}
@@ -816,6 +853,10 @@ public class X10JavaSerializer {
     	        // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //    		} else if (X10Throwable.class.getName().equals(clazz.getName())) {
 //    			((X10Throwable) obj).$_serialize(xjs);
+    		} else if (isRawJavaThrowable(clazz)) {
+    		    if (RAW_JAVA_THROWABLES_SERIALIZE_MESSAGE) {
+    		        xjs.write(((java.lang.Throwable) obj).getMessage());
+    		    }
     		} else if ("java.lang.Class".equals(clazz.getName())) {
     			xjs.write(((Class)obj).getName());
     		} /* else if ("java.lang.Object".equals(clazz.getName())) {

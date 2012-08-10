@@ -407,8 +407,10 @@ public class X10JavaDeserializer {
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
 //           	return new SpecialCaseDeserializerThunk(null);
+        } else if (X10JavaSerializer.isRawJavaThrowable(clazz)) {
+            return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);
+            return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Object".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
         }
@@ -738,6 +740,18 @@ public class X10JavaDeserializer {
 	            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //	        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
 //	            return (T) X10Throwable.$_deserialize_body((X10Throwable) obj, jds);
+	        } else if (X10JavaSerializer.isRawJavaThrowable(clazz)) {
+	            if (X10JavaSerializer.RAW_JAVA_THROWABLES_SERIALIZE_MESSAGE) {
+	                try {
+                            String message = jds.readString();
+	                    Field detailMessageField = java.lang.Throwable.class.getDeclaredField("detailMessage");
+	                    detailMessageField.setAccessible(true);
+	                    detailMessageField.set(obj, message);
+	                } catch (Exception e) {
+	                    e.printStackTrace();
+	                }
+	            }
+	            return obj;
 	        } else if ("java.lang.Class".equals(clazz.getName())) {
 	            String className = jds.readString();
 	            try {
