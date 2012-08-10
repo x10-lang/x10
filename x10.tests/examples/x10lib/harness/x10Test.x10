@@ -82,7 +82,17 @@ abstract public class x10Test {
         if (b) success(); else failure();
     }
 
-    public static class TestException extends Exception { }
+    public static class TestException extends Exception {
+
+        public def this() { super(); }
+
+        public def this(cause: CheckedThrowable) { super(cause); }
+
+        public def this(message: String) { super(message); }
+
+        public def this(message: String, cause: CheckedThrowable) { super(message, cause); }
+
+    }
 
     /**
      * Check if a given condition is true, and throw an error if not.
