@@ -716,7 +716,7 @@ public class X10JavaDeserializer {
 	            NamedType.$_deserialize_body((NamedType) obj, jds);
 	            return obj;
                 } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
-                    NamedType.$_deserialize_body((NamedStructType) obj, jds);
+                    NamedStructType.$_deserialize_body((NamedStructType) obj, jds);
                     return obj;
 	        } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
 	            X10JavaSerializable x10JavaSerializable = RuntimeType.$_deserialize_body((RuntimeType) obj, jds);
