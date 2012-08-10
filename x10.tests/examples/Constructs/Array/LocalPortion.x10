@@ -54,7 +54,7 @@ public class LocalPortion extends x10Test {
         val constantTriDistArray = DistArray.make[Int](Dist.makeConstant(triRegion));
         try {
             val localPortion = constantTriDistArray.getLocalPortion();
-            throw new Error("getLocalPortion for triangular region should throw exception!");
+            throw new Exception("getLocalPortion for triangular region should throw exception!");
         } catch (e: UnsupportedOperationException) {
             // correct operation
         }

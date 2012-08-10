@@ -20,7 +20,7 @@ import x10.io.Console;
 class XTENLANG_203 extends x10Test {
 
     
-    def foo() {throw new Error();}
+    def foo() {throw new Exception();}
 
     public def run(): boolean {
 

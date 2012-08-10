@@ -41,7 +41,7 @@ public class ArrayCopy1 extends x10Test {
                 val pb = p as Point(B.dist.region.rank);
                 val fp:Int = at (E(pb)) B(pb);
                 if (A(p) != fp)
-                    throw new Error("****Error: A(" + p + ")= " + A(p) + ", B(" + p + ")=" + B(pb) + " fp= " + fp);
+                    throw new Exception("****Error: A(" + p + ")= " + A(p) + ", B(" + p + ")=" + B(pb) + " fp= " + fp);
                 chk(A(p)==fp); 
                 chk(A(p)==(at (E(pb)) B(pb)));
             }
@@ -100,7 +100,7 @@ public class ArrayCopy1 extends x10Test {
 
             return true;
 
-        } catch (e:Error) {
+        } catch (e:Exception) {
             //e.printStackTrace();
             x10.io.Console.OUT.println(e.toString());
             return false;
@@ -136,7 +136,7 @@ public class ArrayCopy1 extends x10Test {
                 case CONSTANT: return r->here;
                 //case RANDOM: return Dist.makeRandom(r);
                 //case ARBITRARY:return Dist.makeArbitrary(r);
-                default: throw new Error();
+                default: throw new Exception();
             }
         }
     }

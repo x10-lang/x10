@@ -159,7 +159,7 @@ public class ArrayCopy2 extends x10Test {
                 case BLOCK: return Dist.makeBlock(R,0) as Dist(R);
                 case CONSTANT: return (R->here) as Dist(R);
                 // case BLOCKCYCLIC: return Dist.makeBlockCyclic(R, 0,3) as Dist(R);
-                default: throw new Error();
+                default: throw new Exception();
             }
         }
     }

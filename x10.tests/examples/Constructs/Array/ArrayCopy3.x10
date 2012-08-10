@@ -172,7 +172,7 @@ public class ArrayCopy3 extends x10Test {
                 // case CYCLIC: return Dist.makeCyclic(r);
                 // case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
                 case CONSTANT: return r->here;
-                default: throw new Error();
+                default: throw new Exception();
             }
         }
     }

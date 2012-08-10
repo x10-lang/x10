@@ -26,7 +26,7 @@ public class FlattenConditional extends x10Test {
     }
     
     def m(a: int): int = {
-        if (a == 2) throw new Error();
+        if (a == 2) throw new Exception();
         return a;
     }
 
