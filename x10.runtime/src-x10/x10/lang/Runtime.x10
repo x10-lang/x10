@@ -12,6 +12,7 @@
 package x10.lang;
 
 import x10.compiler.Native;
+import x10.compiler.Inline;
 import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
 
@@ -396,7 +397,7 @@ public final class Runtime {
         public operator this():void {
             try {
                 while (loop());
-            } catch (t:Exception) {
+            } catch (t:CheckedThrowable) {
                 println("Uncaught exception in worker thread");
                 t.printStackTrace();
             } finally {
@@ -777,9 +778,40 @@ public final class Runtime {
         private def this(Any) {
             throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
-        var e:Exception = null;
+        var e:CheckedThrowable = null;
         var clockPhases:Activity.ClockPhases = null;
     }
+
+    /** Subvert X10 and target language exception checking.
+     */
+    @Native("c++", "x10aux::throwException(x10aux::nullCheck(#e))")
+    @Native("java", "Thread.currentThread().stop(#e)")
+    private static native def throwCheckedWithoutThrows (e:CheckedThrowable) : void;
+
+    /**
+     * Transparently wrap checked exceptions at the root of an at desugared closure, and unpack later.
+     */
+    private static class AtCheckedWrapper extends Exception {
+        public def this(cause: CheckedThrowable) { super(cause); }
+    }
+
+    /**
+      * Used in codegen at the root of an at closure, upon catching something that is not below Error
+      */
+    public static def wrapAtChecked (caught:CheckedThrowable) : void {
+        // Only wrap if necessary
+        if (caught instanceof Exception) throw caught as Exception;
+        if (caught instanceof Error) throw caught as Error;
+        throw new AtCheckedWrapper(caught);
+    }
+ 
+    /**
+     * When a checked exception can escape an 'at', we inject the exception into the calling activity using
+     * a sleazy trick that the javac exception checker does not know about.  This call forces it to believe
+     * that a given exception may be raised by the at.
+     */
+    //public static def pretendToThrow[T] () { T<: CheckedThrowable } : void throws T { }
+    // work-around for XTENLANG-3086 is in CheckedThrowable.x10
 
     /**
      * Run at statement
@@ -788,10 +820,14 @@ public final class Runtime {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
-                deepCopy(body)();
-                return;
-            } catch (t:Exception) {
-                throw deepCopy(t);
+                try {
+                    deepCopy(body)();
+                    return;
+                } catch (t:AtCheckedWrapper) {
+                    throw t.getCheckedCause();
+                }
+            } catch (t:CheckedThrowable) {
+                throwCheckedWithoutThrows(deepCopy(t));
             }
         }
         @StackAllocate val me = @StackAllocate new RemoteControl();
@@ -800,15 +836,19 @@ public final class Runtime {
         at(place) async {
             activity().clockPhases = clockPhases;
             try {
-                body();
-                val closure = ()=> @x10.compiler.RemoteInvocation { 
-                    val me2 = (box as GlobalRef[RemoteControl]{home==here})();
-                    me2.clockPhases = clockPhases;
-                    me2.release();
-                };
-                x10rtSendMessage(box.home.id, closure);
-                dealloc(closure);
-            } catch (e:Exception) {
+                try {
+                    body();
+                    val closure = ()=> @x10.compiler.RemoteInvocation { 
+                        val me2 = (box as GlobalRef[RemoteControl]{home==here})();
+                        me2.clockPhases = clockPhases;
+                        me2.release();
+                    };
+                    x10rtSendMessage(box.home.id, closure);
+                    dealloc(closure);
+                } catch (e:AtCheckedWrapper) {
+                    throw e.getCheckedCause();
+                }
+            } catch (e:CheckedThrowable) {
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
                     val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                     me2.e = e;
@@ -824,7 +864,7 @@ public final class Runtime {
         dealloc(body);
         activity().clockPhases = me.clockPhases;
         if (null != me.e) {
-            throw me.e;
+            throwCheckedWithoutThrows(me.e);
         }
     }
 
@@ -880,10 +920,14 @@ public final class Runtime {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
-            	// TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
-            	return deepCopy(deepCopy(eval)());
-            } catch (t:Exception) {
-                throw deepCopy(t);
+                try {
+                    // TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
+                    return deepCopy(deepCopy(eval)());
+                } catch (t:AtCheckedWrapper) {
+                    throw t.getCheckedCause();
+                }
+            } catch (t:CheckedThrowable) {
+                throwCheckedWithoutThrows(deepCopy(t));
             }
         }
         @StackAllocate val me = @StackAllocate new Remote[T]();
@@ -892,17 +936,21 @@ public final class Runtime {
         at(place) async {
             activity().clockPhases = clockPhases;
             try {
-                val result = eval();
-                val closure = ()=> @x10.compiler.RemoteInvocation { 
-                    val me2 = (box as GlobalRef[Remote[T]]{home==here})();
-                    // me2 has type Box[T{box.home==here}]... weird
-                    me2.t = new Box[T{box.home==here}](result as T{box.home==here});
-                    me2.clockPhases = clockPhases;
-                    me2.release();
-                };
-                x10rtSendMessage(box.home.id, closure);
-                dealloc(closure);
-            } catch (e:Exception) {
+                try {
+                    val result = eval();
+                    val closure = ()=> @x10.compiler.RemoteInvocation { 
+                        val me2 = (box as GlobalRef[Remote[T]]{home==here})();
+                        // me2 has type Box[T{box.home==here}]... weird
+                        me2.t = new Box[T{box.home==here}](result as T{box.home==here});
+                        me2.clockPhases = clockPhases;
+                        me2.release();
+                    };
+                    x10rtSendMessage(box.home.id, closure);
+                    dealloc(closure);
+                } catch (t:AtCheckedWrapper) {
+                    throw t.getCheckedCause();
+                }
+            } catch (e:CheckedThrowable) {
                 val closure = ()=> @x10.compiler.RemoteInvocation { 
                     val me2 = (box as GlobalRef[Remote[T]]{home==here})();
                     me2.e = e;
@@ -918,7 +966,7 @@ public final class Runtime {
         dealloc(eval);
         activity().clockPhases = me.clockPhases;
         if (null != me.e) {
-            throw me.e;
+            throwCheckedWithoutThrows(me.e);
         }
         return me.t.value;
     }

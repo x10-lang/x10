@@ -445,10 +445,28 @@ public class Lowerer extends ContextVisitor {
         return null;
     }
 
-    private Stmt atStmt(Position pos, Stmt body, Expr place,
+    private Stmt atStmt(Position pos, Stmt at_body, Expr place,
             List<VarInstance<? extends VarDef>> env, AtDef def) throws SemanticException {
         place = getPlace(pos, place);
-        Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+        
+    	// try { at_body }
+        Block tryBlock = synth.toBlock(at_body);
+
+        List<Catch> catches = new ArrayList<Catch>();
+        { // catch (e:CheckedThrowable) { Runtime.wrapAtChecked(e); }
+	        Name catchFormalName = getTmp();
+	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
+	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+	                nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
+	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
+	        Expr wrap = synth.makeStaticCall(pos, ts.Runtime(), Name.make("wrapAtChecked"), Collections.singletonList(catchLocal), ts.Exception(), context());
+	        Block catchBlock = nf.Block(pos, nf.Eval(pos, wrap));
+	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
+        }
+	        
+        Block closure_body = synth.toBlock(nf.Try(pos, tryBlock, catches, null));
+        
+        Closure closure = synth.makeClosure(at_body.position(), ts.Void(), closure_body, context());
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
@@ -459,11 +477,19 @@ public class Lowerer extends ContextVisitor {
         } else {
             args = new Expr[] { place, closure };
         }
-        Stmt result = nf.Eval(pos,
+        List<Stmt> statements = new ArrayList<Stmt>();
+        Stmt run_at = nf.Eval(pos,
         		synth.makeStaticCall(pos, ts.Runtime(), RUN_AT,
         				Arrays.asList(args), ts.Void(),
         				context()));
-        return result;
+        statements.add(run_at);
+        //XTENLANG-3086 change from ts.CheckedThrowable() to ts.Runtime()
+        for (Type thrown : at_body.exceptions()) {
+        	TypeNode thrown_node = nf.UnknownTypeNode(pos).typeRef(Types.ref(thrown));
+	        Expr pretendToThrow = synth.makeStaticCall(pos, ts.CheckedThrowable(), Name.make("pretendToThrow"), Collections.singletonList(thrown_node), Collections.<Expr>emptyList(),  ts.Void(), context());
+        	statements.add(nf.Eval(pos, pretendToThrow));
+        }
+        return nf.Block(pos, statements);
     }
 
     private Stmt visitAtStmt(AtStmt a) throws SemanticException {
