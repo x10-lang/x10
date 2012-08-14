@@ -890,11 +890,11 @@ public class WSSynthesizer {
         Context ct = classSynth.getContext();
         Name formalName = ct.getNewVarName();
         
-        Formal f = synth.createFormal(compilerPos, ts.CheckedThrowable(), formalName, Flags.NONE);
+        Formal f = synth.createFormal(compilerPos, ts.Exception(), formalName, Flags.NONE);
         Expr caught = synth.makeInstanceCall(compilerPos, genThisRef(classSynth),
                 CAUGHT, Collections.<TypeNode>emptyList(), Collections.<Expr>singletonList(
-                        nf.Local(compilerPos, nf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(ts.CheckedThrowable())), ts.Void(),
-                Collections.<Type>singletonList(ts.CheckedThrowable()), ct);
+                        nf.Local(compilerPos, nf.Id(compilerPos, formalName)).localInstance(f.localDef().asInstance()).type(ts.Exception())), ts.Void(),
+                Collections.<Type>singletonList(ts.Exception()), ct);
         Catch c = nf.Catch(compilerPos, f, nf.Block(compilerPos,
                 nf.Eval(compilerPos, caught)));
         
