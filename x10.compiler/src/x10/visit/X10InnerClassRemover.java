@@ -497,6 +497,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
                         Stmt stmt = block.statements().get(0);
                         if (stmt instanceof ConstructorCall) {
                             statements.add(0, stmt);
+                        } else {
+                        	statements.add(stmt);
                         }
                         statements.addAll(block.statements().subList(1, block.statements().size()));
                     }
