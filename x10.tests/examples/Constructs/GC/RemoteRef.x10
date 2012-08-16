@@ -64,10 +64,13 @@ public class RemoteRef extends x10Test {
                 
                 }
 
-            } catch (e:CheckedThrowable) {
-
+            // work around bugs serialising exceptions on managed backend XTENLANG-3112   
+            } catch (e:Error) {
                 e.printStackTrace();
-
+                throw e;
+            } catch (e:Exception) {
+                e.printStackTrace();
+                throw e;
             }
 
         }
