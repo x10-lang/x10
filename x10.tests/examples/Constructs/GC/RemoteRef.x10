@@ -49,8 +49,8 @@ public class RemoteRef extends x10Test {
     public def spawnRemoteTask(c:Clock, iterCount:Int, res:GlobalRef[ResultHolder]) {
         val v = GlobalRef[AnObject](new AnObject());
         async clocked(c) {
-            try {
-                at(here.next()) {
+            at(here.next()) {
+                try {
                     for (var i:int = 0; i<iterCount; i++) {
                     if (Debug) Console.OUT.println("Remote before next: "+i);
                         Clock.advanceAll();
@@ -62,15 +62,16 @@ public class RemoteRef extends x10Test {
                     Clock.advanceAll();
                     if (Debug) Console.OUT.println("Remote: after last next next");
                 
+
+                // work around bugs serialising exceptions on managed backend XTENLANG-3112   
+                } catch (e:Error) {
+                    e.printStackTrace();
+                    throw e;
+                } catch (e:Exception) {
+                    e.printStackTrace();
+                    throw e;
                 }
 
-            // work around bugs serialising exceptions on managed backend XTENLANG-3112   
-            } catch (e:Error) {
-                e.printStackTrace();
-                throw e;
-            } catch (e:Exception) {
-                e.printStackTrace();
-                throw e;
             }
 
         }
