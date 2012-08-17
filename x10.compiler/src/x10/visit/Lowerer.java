@@ -483,11 +483,15 @@ public class Lowerer extends ContextVisitor {
         				Arrays.asList(args), ts.Void(),
         				context()));
         statements.add(run_at);
-        //XTENLANG-3086 change from ts.CheckedThrowable() to ts.Runtime()
-        for (Type thrown : at_body.exceptions()) {
-        	TypeNode thrown_node = nf.UnknownTypeNode(pos).typeRef(Types.ref(thrown));
-	        Expr pretendToThrow = synth.makeStaticCall(pos, ts.CheckedThrowable(), Name.make("pretendToThrow"), Collections.singletonList(thrown_node), Collections.<Expr>emptyList(),  ts.Void(), context());
-        	statements.add(nf.Eval(pos, pretendToThrow));
+    	// [DC] It seems this can sometimes be null, even though it ought not to be.
+    	// I suspect some pass before this one is not filling it in, in some new code.
+        if (at_body.exceptions() != null) {
+	        for (Type thrown : at_body.exceptions()) {
+	        	TypeNode thrown_node = nf.UnknownTypeNode(pos).typeRef(Types.ref(thrown));
+	            //XTENLANG-3086 change from ts.CheckedThrowable() to ts.Runtime()
+		        Expr pretendToThrow = synth.makeStaticCall(pos, ts.CheckedThrowable(), Name.make("pretendToThrow"), Collections.singletonList(thrown_node), Collections.<Expr>emptyList(),  ts.Void(), context());
+	        	statements.add(nf.Eval(pos, pretendToThrow));
+	        }
         }
         return nf.Block(pos, statements);
     }
