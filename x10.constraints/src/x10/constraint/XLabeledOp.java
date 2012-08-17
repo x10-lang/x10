@@ -63,12 +63,21 @@ public class XLabeledOp<T extends XType, D> extends XOp<T> {
 
 	@Override
 	public String prettyPrint() {
-		return getKind().prettyPrint() + def;
+		if (def instanceof XDef) {
+			XDef<T> d = (XDef<T>) def; 
+			return d.getName();
+		}
+		return def.toString();
 	}
 
 	@Override
-	public void print(XPrinter<T> p) {
-		p.append(p.mangle(def.toString()));
+	public String print(XPrinter<T> p) {
+		if (def instanceof XDef) {
+			@SuppressWarnings("unchecked")
+			XDef<T> d = (XDef<T>)def; 
+			return p.mangle(d.getName());
+		}
+		return p.mangle(def.toString());
 	}
 	
 }

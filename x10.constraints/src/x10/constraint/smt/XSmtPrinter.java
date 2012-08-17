@@ -13,6 +13,7 @@ import java.util.Set;
 
 import x10.constraint.XConstraintManager;
 import x10.constraint.XLabeledOp;
+import x10.constraint.XLit;
 import x10.constraint.XType;
 import x10.constraint.XTypeSystem;
 
@@ -26,19 +27,25 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	/**
 	 * Set containing the variables that need to be declared. 
 	 */
-	Set<XSmtVar<T>> varDeclarations;
+	private final Set<XSmtVar<T>> varDeclarations;
 	/**
 	 * Set containing all the function symbols that need to be declared. 
 	 */
-	Map<XLabeledOp<T,Object>, List<T>> funDeclarations; 
+	private final Map<XLabeledOp<T,Object>, List<T>> funDeclarations; 
 	/**
-	 * Set containing all the new sorts that need to be declared. 
+	 * Set containing the names of all the sorts that need to be declared. 
 	 */
-	Set<T> sortDeclarations; 
+	private final Set<String> sortDeclarations; 
+	/**
+	 * Set containing variables for all the string constants. We need this to
+	 * explicitly add the constraint that strinVariables with different names
+	 * are disequal. 
+	 */
+	private final Set<XSmtVar<T>> stringVariables; 
 	/**
 	 * The header of the smt2 file. 
 	 */
-	private static final String prelude = "(set-logic QF_AUFLIRA)  \n" +
+	private static final String prelude = "(set-logic AUFLIRA)  \n" +
 			"(set-info :smt-lib-version 2.0) \n" +
 			"(set-info :status unknown) \n";
 	/**
@@ -50,35 +57,60 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	 * This is the stream everything will be dumped to. The writer and declWriter
 	 * writers share this stream.  
 	 */
-	private final FileOutputStream fileOS;
+	private FileOutputStream fileOS;
 	/**
 	 * The actual XTerms will be use this writer. 
 	 */
-	private final OutputStreamWriter writer;
+	private OutputStreamWriter writer;
 	/**
 	 * Declarations will use this writer. 
 	 */
-	private final OutputStreamWriter declWriter;
+	private OutputStreamWriter declWriter;
+	
+	private final String outFile;
+	/**
+	 * Keeps track whether the writers and declaration maps have been initialized. 
+	 */
+	private boolean initialized;
+	private XSmtVar<T> nullVar; 
 	
 	public XSmtPrinter(String outFile) {
+		this.outFile = outFile; 
+		this.varDeclarations = new HashSet<XSmtVar<T>>(); 
+		this.funDeclarations = new HashMap<XLabeledOp<T, Object>, List<T>>();
+		this.sortDeclarations = new HashSet<String>();
+		this.stringVariables = new HashSet<XSmtVar<T>>();
+		initialize(); 
+	}
+	
+	private void initialize() {
 		try {
-			this.fileOS = new FileOutputStream(outFile);
+			this.fileOS = new FileOutputStream(outFile, false);
 		} catch (FileNotFoundException e) {
-			throw new IllegalStateException("Problem writing to smt2 file " + e);
+			throw new IllegalStateException("Problem writting smt2 file: " + outFile);
 		}
 		this.writer =  new OutputStreamWriter(fileOS);
 		this.declWriter = new OutputStreamWriter(fileOS);
-		this.varDeclarations = new HashSet<XSmtVar<T>>(); 
-		this.funDeclarations = new HashMap<XLabeledOp<T, Object>, List<T>>();
+		this.initialized = true; 
 	}
 
 	@Override
-	public void out(XSmtTerm<T> term) {
+	public void declare(XSmtTerm<T> term) {
+//		if (term instanceof XSmtEQV || 
+//			term instanceof XSmtUQV) {
+//			// don't need to declare the variables but may need to 
+//			// declare the sort
+//			if (!term.type().isPrimitive())
+//				sortDeclarations.add(smt2(term.type())); 
+//		} 
+//		else
 		if (term instanceof XSmtVar) {
 			// collect variable declarations
 			varDeclarations.add((XSmtVar<T>)term);
-			sortDeclarations.add(term.type()); 
+			if (!term.type().isPrimitive())
+				sortDeclarations.add(smt2(term.type())); 
 		}
+		else
 		if (term instanceof XSmtExpr) {
 			// collect uninterpreted function symbol declarations
 			XSmtExpr<T> exp = (XSmtExpr<T>) term; 
@@ -89,17 +121,26 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 				// adding the result type
 				XTypeSystem<? extends T> ts = term.type().xTypeSystem();
 				types.add(exp.op().type(ts));
+				funDeclarations.put((XLabeledOp<T,Object>)exp.op(), types); 
 			}
 		}
-		if (term instanceof XSmtLit && ((XSmtLit<?,?>)term).val() == null) {
-			@SuppressWarnings("unchecked")
-			XSmtVar<T> nullVar = (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(term.type(), nullVar(term.type()));
-			varDeclarations.add(nullVar);
+		else
+		if (term instanceof XSmtLit) {
+			// there are several special cases we need to take care of
+			XSmtLit<T, ?> lit = (XSmtLit<T, Object>) term; 
+			// create a special variable for null
+			if (lit.val() == null)
+				declare(nullVar(lit.type().<T>xTypeSystem()));
+			// create one variable for each string constant
+			else if (lit.val() instanceof String) {
+				XSmtVar<T> strVar = stringVar(lit.val().toString(), lit.type());
+				declare(strVar); 
+			}
 		}
 	}
 	@Override
 	public String mangle(String string) {
-		return "?" + string.replaceAll("[\\.\\(\\):#\\s]", "_");
+		return "?" + string.replaceAll("[\\.\\(\\):#\\s\\[\\]{},]", "_");
 	}
 
 	@Override
@@ -112,20 +153,40 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	}
 
 	@Override
-	public void dump() {
+	public void dump(XSmtTerm<T> query) {
+		assert initialized; 
+		
 		try {
+			OutputStreamWriter ow = new OutputStreamWriter(fileOS);
+			// print out the header
+
+			ow.append(prelude);
+			ow.flush(); 
+			// print out the declarations
+			query.declare(this); 
 			generateDeclarations();
-			writeToFile();
+			
+			// print out the actual formula we are asserting
+			ow.append("(assert ");
+			ow.flush(); 
+			query.print(this);
+			writer.append(")\n");
+			writer.flush();
+			// TODO: add String constants disequalities 
+			
+			// print the prologue
+			ow.append(prologue);
+			ow.flush(); 
+			ow.close(); 
 		} catch (IOException e) {
 			throw new IllegalStateException("Problem writing to smt2 " + e);
 		}
-		clear(); 
 	}
 
 	private void generateDeclarations() throws IOException {
-		for(T type : sortDeclarations) {
-			declWriter.append(declareType(type));
-		}
+//		for(String type : sortDeclarations) {
+//			declWriter.append(declareType(type));
+//		}
 		for (XSmtVar<T> var : varDeclarations) {
 			declWriter.append(declareVar(var));
 		}
@@ -133,65 +194,89 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 		for (XLabeledOp<T, Object> op : funDeclarations.keySet()) {
 			declWriter.append(declareFun(op, funDeclarations.get(op)));
 		}
+		declWriter.flush(); 
 	}
 
-	private void writeToFile() throws IOException {
-		OutputStreamWriter ow = new OutputStreamWriter(fileOS);
-		ow.append(prelude);
-		ow.flush(); 
-		declWriter.flush();
-		writer.flush();
-		ow.append(prologue);
-		ow.flush(); 
-		ow.close(); 
-		fileOS.flush();
-	}
-
-	private String declareType(T type) {
-		if (type.isJavaPrimitive())
-			return ""; 
-		return "(declare-sort " + smt2(type) + " 0 )\n";
+	private String declareType(String type) {
+		// add alias instead
+		return "(define-sort " + type + " () Int ) \n";
+		//return "(declare-sort " + type + " 0 )\n";
 	}
 
 	private String declareVar(XSmtVar<T> var) {
-		return "(declare-fun " + mangle(var.toString()) + " () " + smt2(var.type()) + ")";
+		return "(declare-fun " + mangle(var.toString()) + " () " + smt2(var.type()) + ")\n";
 	}
 
 	private String declareFun(XLabeledOp<T, ?> op, List<T> types) {
 		StringBuilder sb = new StringBuilder(); 
-		sb.append("declare-fun (");
+		sb.append("(declare-fun ");
+		sb.append(op.print(this));
+		// printing argument types
+		sb.append(" (");
 		for (int i = 0; i < types.size() -1; ++i) {
 			T type = types.get(i); 
 			sb.append((i==0 ? "" : " ") + smt2(type)); 
 		}
 		sb.append(") ");
+		// printing return type
 		T returnType = types.get(types.size() - 1);
 		sb.append(smt2(returnType));
 		sb.append(")\n");
 		return sb.toString(); 
 	}
 
-	private String smt2(T type) {
+	public static <T extends XType> String smt2(T type) {
 		if (type.isBoolean())
-			return "Boolean"; 
+			return "Bool"; 
 		if (type.isInt() || type.isLong())
 			return "Int"; 
 		if (type.isFloat())
 			return "Real"; 
-		if (!type.isJavaPrimitive())
-			return mangle(type.toString()); 
+		if (type.isDouble())
+			return "Real";
+		if (!type.isPrimitive())
+			//return "USort";
+			return "Int"; 
+		return "Int"; 
 
-		throw new IllegalArgumentException("Unsupported smt2 type " + type);
+		//throw new IllegalArgumentException("Unsupported smt2 type: " + type);
 	}
+	
 	@Override
-	public String nullVar(T type) {
-		return mangle("null" + type.toString()); 
+	public XSmtVar<T> nullVar(XTypeSystem<? extends T> ts) {
+		if (nullVar == null)
+			nullVar = (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(ts.Null(), "null");
+		return nullVar; 
+	}
+	
+	@Override
+	public XSmtVar<T> stringVar(String name, T type) {
+		String var = mangle(name); 
+		return (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(type, var);
 	}
 
 	private void clear() {
 		varDeclarations.clear();
 		funDeclarations.clear(); 
-		sortDeclarations.clear(); 
+		sortDeclarations.clear();
+		try {
+			writer.close();
+			declWriter.close(); 
+		} catch (IOException e) {
+			throw new IllegalStateException("Problem closing smt2 writers: " + e);
+		}
+		
+	}
+
+	@Override
+	public void reset() {
+		clear(); 
+		initialize(); 
+	}
+
+	@Override
+	public String printType(T t) {
+		return smt2(t); 
 	}
 
 }

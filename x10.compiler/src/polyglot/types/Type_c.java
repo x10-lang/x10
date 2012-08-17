@@ -267,4 +267,8 @@ public abstract class Type_c extends TypeObject_c implements Type
     public XTypeSystem<Type> xTypeSystem() {
     	return ts; 
     }
+	@Override
+	public boolean isPrimitive() {
+		return isNumeric() || isBoolean(); 
+	}
 }

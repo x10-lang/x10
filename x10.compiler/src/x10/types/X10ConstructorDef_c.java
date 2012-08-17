@@ -195,8 +195,4 @@ public class X10ConstructorDef_c extends ConstructorDef_c implements X10Construc
 	    return TypeSystem.CONSTRUCTOR_NAME + "(" + CollectionUtil.listToString(formalTypes) + ")";
     }
     
-	@Override
-	public Type resultType() {
-		throw new UnsupportedOperationException();
-	}    
 }

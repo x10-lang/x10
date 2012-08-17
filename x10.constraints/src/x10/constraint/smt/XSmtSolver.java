@@ -31,4 +31,6 @@ public interface XSmtSolver<T extends XType> {
 	 * @throws XSmtFailure if there was a problem calling the external solver.
 	 */
 	boolean isSatisfiable(XSmtTerm<T> formula) throws XSmtFailure;
+	
+	boolean entails(XSmtTerm<T> t1, XSmtTerm<T> t2) throws XSmtFailure; 
 }

@@ -18,6 +18,7 @@ import x10.constraint.smt.XSmtConstraintSystem;
 import x10.constraint.smt.XSmtLit;
 import x10.constraint.smt.XSmtTerm;
 import x10.constraint.smt.XSmtVar;
+import x10.types.ConstrainedType;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraintSystem;
 import x10.types.constraints.CField;
@@ -32,11 +33,13 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 	
 	@Override
 	public CSelf makeSelf(Type t) {
+		assert ! (t instanceof ConstrainedType);
 		return new CSmtSelf(t, idCounter++); 
 	}
 
 	@Override
 	public CThis makeThis(Type t) {
+		assert ! (t instanceof ConstrainedType);
 		return new CSmtThis(t, idCounter++);
 	}
 
@@ -48,22 +51,28 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 	}
 
 	@Override
-	public CField makeField(XTerm<Type> receiver, Def field) {
-		return new CSmtField(field, (XSmtTerm<Type>)receiver, false);
+	public <D extends XDef<Type>> CField<D> makeCField(XTerm<Type> receiver, D field) {
+		if (field.toString().contains("IntRange")) {
+			System.out.println("IntRange");
+		}
+		
+		return new CSmtField<D>(field, (XSmtTerm<Type>)receiver, false);
 	}
 
 	@Override
-	public CField makeFakeField(XTerm<Type> receiver, Def field) {
-		return new CSmtField(field, (XSmtTerm<Type>)receiver, true);
+	public <D extends XDef<Type>> CField<D> makeFakeCField(XTerm<Type> receiver, D field) {
+		return new CSmtField<D>(field, (XSmtTerm<Type>)receiver, true);
 	}
 
 	@Override
 	public CQualifiedVar makeQualifiedVar(Type qualifier, XTerm<Type> base) {
+		assert ! (qualifier instanceof ConstrainedType);
 		return new CSmtQualifiedVar(base.type(), qualifier, (XSmtVar<Type>)base);
 	}
 
 	@Override
 	public XSmtLit<Type, ?> makeZero(Type type) {
+		assert ! (type instanceof ConstrainedType); 
         TypeSystem ts = type.typeSystem();
         if (type.isBoolean()) return xfalse(ts);
         else if (type.isChar()) return makeLit(Character.valueOf('\0'), type);
@@ -96,6 +105,7 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 
 	@Override
 	public CConstraint makeCConstraint(Type type) {
+		assert ! (type instanceof ConstrainedType);
 		return new CSmtConstraint(type);
 	}
 

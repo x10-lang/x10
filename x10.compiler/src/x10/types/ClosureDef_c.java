@@ -347,8 +347,4 @@ public class ClosureDef_c extends Def_c implements ClosureDef {
         throw new Error("Internal compiler error: X10 closures do not throw java checked exceptions.");
     }
 
-	@Override
-	public Type resultType() {
-		throw new UnsupportedOperationException();
-	}
 }

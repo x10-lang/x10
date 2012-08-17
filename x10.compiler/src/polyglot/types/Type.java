@@ -280,5 +280,7 @@ public interface Type extends Qualifier, Annotated, Named, XSmtType
     String toString();
     
     void print(CodeWriter w);
+    
+    boolean isPrimitive(); 
 
 }

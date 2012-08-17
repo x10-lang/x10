@@ -39,4 +39,9 @@ public class XConstraintManager {
 		return res; 
 	}
 
+	public static String header;
+	public static void setHeader(String string) {
+		header = string; 
+		
+	}
 }

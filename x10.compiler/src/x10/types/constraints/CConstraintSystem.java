@@ -48,7 +48,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param def definition of the field
      * @return
      */
-    public CField makeField(XTerm<Type> receiver, Def field); 
+    public <D extends XDef<Type>> CField<D> makeCField(XTerm<Type> receiver, D field); 
     /**
      * Create a new fake field dereference resulting from applying the field f 
      * defined by field to receiver i.e. receiver.f. This should be used for
@@ -57,7 +57,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @param def definition of the field
      * @return
      */
-    public CField makeFakeField(XTerm<Type> receiver, Def field);
+    public <D extends XDef<Type>> CField<D> makeFakeCField(XTerm<Type> receiver, D field);
     /**
      * Create a qualified variable with the given Type qualifier. The type of
      * the resulting variable will be the same as the type of base. 

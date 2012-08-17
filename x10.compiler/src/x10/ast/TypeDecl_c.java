@@ -247,7 +247,8 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    // lshadare this leads to an infinite cycle, but we should be able to get
 		    // the baseType here without getting into a cycle
 		    
-		    final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint((Type)null));
+		    //final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint((Type)null));
+		    final LazyRef<CConstraint> cref = Types.<CConstraint>lazyRef(null);
 		    ConstrainedType t = ConstrainedType.xclause(f.type().typeRef(), cref);
 		    cref.setResolver(new Runnable() {
 		        public void run() {

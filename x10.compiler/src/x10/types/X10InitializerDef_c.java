@@ -101,8 +101,4 @@ public class X10InitializerDef_c extends InitializerDef_c implements X10Initiali
     	return null;
     }
     
-    @Override
-	public Type resultType() {
-		throw new UnsupportedOperationException();
-	}
 }

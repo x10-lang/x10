@@ -1846,7 +1846,7 @@ public class Types {
 	public static XVar<Type>[] toVarArray(List<? extends VarDef> formalNames) {
 	    int size = formalNames.size();
 	    @SuppressWarnings("unchecked")
-		XVar<Type>[] oldFNs = (XVar<Type>[]) Array.newInstance(ConstraintManager.getConstraintSystem().makeEQV(null).getClass(), size);
+		XVar<Type>[] oldFNs = new XVar[size]; 
 	    toVarArray(oldFNs, 0, formalNames);
 	    return oldFNs;
 	}
@@ -1854,7 +1854,7 @@ public class Types {
 	public static XVar<Type>[] toVarArray(List<? extends VarDef> formalNames, XVar<Type> v) {
 	    int size = formalNames.size();
 	    @SuppressWarnings("unchecked")
-		XVar<Type>[] oldFNs = (XVar<Type>[]) Array.newInstance(ConstraintManager.getConstraintSystem().makeEQV(null).getClass(), size+1);
+		XVar<Type>[] oldFNs = new XVar[size+1]; 
 	    toVarArray(oldFNs, 0, formalNames);
 	    oldFNs[size] = v;
 	    return oldFNs;
@@ -1863,7 +1863,7 @@ public class Types {
 	public static XVar<Type>[] toVarArray(List<? extends VarDef> formalNames, XVar<Type> v, XVar<Type> w) {
 	    int size = formalNames.size();
 	    @SuppressWarnings("unchecked")
-		XVar<Type>[] oldFNs = (XVar<Type>[]) Array.newInstance(ConstraintManager.getConstraintSystem().makeEQV(null).getClass(), size+2);
+		XVar<Type>[] oldFNs = new XVar[size+2]; 
 	    toVarArray(oldFNs, 0, formalNames);
 	    oldFNs[size] = v;
 	    oldFNs[size+1] = w;
@@ -1938,6 +1938,10 @@ public class Types {
     	return constrainedType(baseType(t), c);
     }
     public static Type addInOuterClauses(Type type, Type outer) {
+    	// lshadare question
+    	if (type == null)
+    		return null; 
+    	
         CConstraint xclause = Types.xclause(outer);
         if (xclause != null && ! xclause.valid()) {
             // there is some information to transfer.

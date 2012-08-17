@@ -251,8 +251,4 @@ public class TypeDef_c extends MemberDef_c implements TypeDef {
 	public CodeInstance<?> asInstance() {
 	    return asType();
 	}
-	@Override
-	public Type resultType() {
-		throw new UnsupportedOperationException();
-	}
 }

@@ -38,7 +38,7 @@ public class X10FieldMatcher {
     		boolean contextKnowsReceiver) throws SemanticException {
         assert container!=null && t!=null;
         CConstraint c = Types.xclause(container);
-        
+        // lshadare why not just set this to self of c?
         // Let v be the symbolic name for the target. If there is none, we make one up.
         // Let t = T{tc}, and ct = U{c}.
         // If c does not have a selfVarBinding, then we want to set t to
@@ -48,7 +48,8 @@ public class X10FieldMatcher {
         XTerm<Type> v = Types.selfVarBinding(container);
         XVar<Type> vv = null;
         if (v == null) {
-        	v = vv =ConstraintManager.getConstraintSystem().makeUQV(oldThis.type());
+        	// lshadare why are we making a universally quantified variable here?
+        	v = vv =ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(container));
         }
         if (oldThis != null && v == null && vv==null)
         	assert false;
@@ -70,6 +71,8 @@ public class X10FieldMatcher {
                             new XTerm[] {v},
                             new XTerm[] {oldThis},
                             new Type[] {}, new ParameterType[] {});
+            // lshadare the only way vv is not null is if it is equal to v so we are essentially 
+            // substituting oldThis by a new EQV
             if (vv != null) { // Hide vv, i.e. substitute in an anonymous EQV
                 t = Subst.subst(t,
                                 new XTerm[] {ConstraintManager.getConstraintSystem().makeEQV(vv.type())},
@@ -104,15 +107,15 @@ public class X10FieldMatcher {
         // t = T{exists vv. (tc,this==vv),ct[vv/self]}
         // If c does have a selfVarBinding, v, then we want to set t to
         // t = T{exists v. (tc, this=v, ct)}
-        
-        XTerm<Type> v = Types.selfVarBinding(ct);
-        XTerm<Type> vv = null;
-        if (v == null) {
-        	v = vv =ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(ct));
-        }
+        // lshadare: dead code
+        //XTerm<Type> v = Types.selfVarBinding(ct);
+        //XTerm<Type> vv = null;
+        //if (v == null) {
+        //	v = vv =ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(ct));
+        //}
         XVar<Type> oldThis = fi.x10Def().thisVar();
-        if (oldThis != null && v == null && vv==null)
-        	assert false;
+//        if (oldThis != null && v == null && vv==null)
+//        	assert false;
         /*if (c != null)
         	c = c.copy().instantiateSelf(v);*/
 

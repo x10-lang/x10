@@ -15,6 +15,7 @@ import x10.constraint.XExpr;
 import x10.constraint.XField;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
+import x10.constraint.XDef;
 import x10.types.X10ClassDef;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
@@ -25,7 +26,7 @@ import x10.types.X10MethodDef;
  * 
  * @author vj
  */
-public interface CField extends XField<Type, Def> {
-    public Def def(); 
+public interface CField<D extends XDef<Type>> extends XField<Type, D> {
+    public D def(); 
     public XVar<Type> thisVar();
 }

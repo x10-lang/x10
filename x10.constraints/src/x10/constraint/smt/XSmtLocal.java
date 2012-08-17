@@ -9,13 +9,13 @@ public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 	private final String s; // just for documentation
 
 	XSmtLocal(D def) {
-		super(def.resultType(), def.toString());
+		super(def.resultType(), def.getName());
 		this.def = def;
 		this.s = null; 
 	}
 
 	XSmtLocal(D def, String s) {
-		super(def.resultType(), def.toString());
+		super(def.resultType(), def.getName());
 		this.def = def;
 		this.s = s; 
 	}
@@ -33,15 +33,10 @@ public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 	}
 
 	@Override
-	public void print(XPrinter p) {
-		// TODO Auto-generated method stub
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((def == null) ? 0 : def.hashCode());
+		result = prime * result + ((def == null) ? 0 : def.getName().hashCode());
 		return result;
 	}
 
@@ -57,20 +52,18 @@ public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 		if (def == null) {
 			if (other.def != null)
 				return false;
-		} else if (!def.equals(other.def))
+		} else if (!def.getName().equals(other.def.getName()))
 			return false;
 		return true;
 	}
 
 	@Override
 	public String toString() {
-		return s == null? def.toString() : s;
+		return s == null? def.getName() : s;
 	}
 	
 	@Override
 	public XSmtLocal<T,D> copy() {
 		return new XSmtLocal<T,D>(this); 
 	}
-	
-
 }

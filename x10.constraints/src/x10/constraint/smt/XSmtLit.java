@@ -1,5 +1,7 @@
 package x10.constraint.smt;
 
+import java.util.Set;
+
 import x10.constraint.XLit;
 import x10.constraint.XType;
 import x10.constraint.XVar;
@@ -24,8 +26,35 @@ public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, 
 
 	@Override
 	public void print(XPrinter<T> p) {
-		p.out(this);
-		p.append(val == null? p.nullVar(type()) : val.toString());
+		if (val == null) {
+			// we treat null as a variable
+			XSmtVar<T> var = p.nullVar(type().<T>xTypeSystem());
+			var.print(p);
+		} 
+		else if (val instanceof Number) {
+			String str = val.toString();
+			// we need to output the decimal digit
+			if (type().isFloat() || type().isDouble()) {
+				if (!str.contains(".")) 
+					str = str + ".0"; 
+			}
+			if (str.startsWith("-")) {
+				str = "(- " + str.substring(1) + ")";
+			}
+			p.append(str);
+		}
+		else if (val instanceof String){
+			// we treat string constants as fresh variables 
+			XSmtVar<T> var = p.stringVar(val.toString(), type());
+			var.print(p);
+		} else {
+			p.append(val.toString());
+		}
+	}
+	
+	@Override
+	protected void declare(XPrinter<T> p) {
+		p.declare(this); 
 	}
 	
 	@Override
@@ -71,6 +100,13 @@ public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, 
 	@Override
 	public XSmtLit<T,V> copy() {
 		return new XSmtLit<T,V>(this); 
+	}
+
+	@Override
+	public String prettyPrint() {
+		if (val == null)
+			return "null";
+		return val.toString(); 
 	}
 
 }

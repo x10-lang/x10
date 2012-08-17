@@ -4,9 +4,9 @@ import java.util.List;
 
 public interface XConstraintSystem<T extends XType> {
 	
-	public XLit<T, Boolean> xtrue(XTypeSystem<T> ts); 
-	public XLit<T, Boolean> xfalse(XTypeSystem<T> ts); 
-	public XLit<T, ? extends Object>  xnull(XTypeSystem<T> ts); 
+	public XLit<T, Boolean> xtrue(XTypeSystem<? extends T> ts); 
+	public XLit<T, Boolean> xfalse(XTypeSystem<? extends T> ts); 
+	public <U> XLit<T, U>  xnull(XTypeSystem<? extends T> ts); 
 	
 	/**
 	 * Make a new literal containing value v with type type. 
@@ -111,6 +111,7 @@ public interface XConstraintSystem<T extends XType> {
 	public XExpr<T> makeEquals(XTerm<T> left, XTerm<T> right);
 	public XExpr<T> makeDisEquals(XTerm<T> left, XTerm<T> right);
 	public XExpr<T> makeAnd(XTerm<T> left, XTerm<T> right);
+	public XTerm<T> makeAnd(List<? extends XTerm<T>> conjuncts);
 	public XExpr<T> makeNot(XTerm<T> arg);
 	/**
 	 * Copy factory method that creates a fresh copy of an XTerm. 

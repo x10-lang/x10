@@ -173,7 +173,8 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
                     throw new InternalCompilerError("Unexpected exception comparing function types", this.position(), e);
                 }
             }
-            if (!ts.env(ts.emptyContext()).entails(h, g) || !ts.env(ts.emptyContext()).entails(g, h)) {
+            if (!ts.env(ts.emptyContext()).entails(h, g, "EqualsImpl " + position() + " " + o.toString()) || 
+            	!ts.env(ts.emptyContext()).entails(g, h, "EqualsImpl " + position() + " " + o.toString())) {
                 return false;
             }
             return true;

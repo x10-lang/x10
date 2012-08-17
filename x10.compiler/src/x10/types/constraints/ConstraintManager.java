@@ -1,5 +1,7 @@
 package x10.types.constraints;
 
+import polyglot.types.Type;
+import x10.constraint.XConstraintManager;
 import x10.types.constraints.smt.CSmtConstraintSystem;
 
 
@@ -27,4 +29,5 @@ public class ConstraintManager {
 		
 		return constraint_factory; 
 	}
+	
 }

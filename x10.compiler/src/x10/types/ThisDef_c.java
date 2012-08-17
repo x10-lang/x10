@@ -138,8 +138,4 @@ public class ThisDef_c extends VarDef_c implements ThisDef {
     	return null;
     }
     
-    @Override
-	public Type resultType() {
-		throw new UnsupportedOperationException();
-	}
 }

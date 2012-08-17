@@ -10,8 +10,13 @@ public class CSmtSelf extends XSmtVar<Type> implements CSelf {
     private final int num;
     
 	public CSmtSelf(Type t, int num) {
-		super(t, SELF_VAR_PREFIX+num);
+		super(t, SELF_VAR_PREFIX + num+t);
 		this.num = num; 
+	}
+	
+	public CSmtSelf(CSmtSelf other) {
+		super(other); 
+		this.num = other.num; 
 	}
 
 	@Override
@@ -37,16 +42,17 @@ public class CSmtSelf extends XSmtVar<Type> implements CSelf {
 	}
 
 	@Override
-	public void print(XPrinter p) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
 	public String toString() {
-		return SELF_VAR_PREFIX + ":" + type();
+		return SELF_VAR_PREFIX + num + ":" + type();
 	}
-    
-    
+	@Override
+	public String prettyPrint() {
+		return SELF_VAR_PREFIX; 
+	}
+	
+	@Override
+	public CSmtSelf copy() {
+		return new CSmtSelf(this); 
+	}	
 
 }

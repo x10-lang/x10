@@ -1,8 +1,8 @@
 package x10.constraint.smt;
 
-import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import x10.constraint.XConstraintManager;
 import x10.constraint.XExpr;
@@ -20,7 +20,10 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	
 	public XSmtExpr(XOp<T> op, boolean hidden, List<XSmtTerm<T>> children) {
 		super(op.type(children.get(0).type().<T>xTypeSystem()));
-		assert children.size() > 0; 
+		assert op.isArityValid(children.size()); 
+		if (op.getKind() == XOp.Kind.EQ && children.size() != 2) {
+			throw new IllegalArgumentException("eq size 2"); 
+		}
 		this.op = op; 
 		this.children = children; 
 		this.hidden = hidden; 
@@ -28,7 +31,7 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	
 	public XSmtExpr(XOp<T> op, boolean hidden, XSmtTerm<T> ch1, XSmtTerm<T> ch2) {
 		super(op.type(ch1.type().<T>xTypeSystem()));
-
+		assert (op.isArityValid(2));
 		this.op = op; 
 		this.children = new ArrayList<XSmtTerm<T>>(2);
 		this.children.add(ch1); 
@@ -38,7 +41,7 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 
 	public XSmtExpr(XOp<T> op, boolean hidden, XSmtTerm<T> ch1) {
 		super(op.type(ch1.type().<T>xTypeSystem()));
-
+		assert(op.isArityValid(1));
 		this.op = op; 
 		this.children = new ArrayList<XSmtTerm<T>>(1);
 		this.children.add(ch1); 
@@ -102,13 +105,22 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	}
 
 	@Override
-	public void print(XPrinter<T> p) {
-		p.out(this);
+	protected void print(XPrinter<T> p) {
 		p.append("(");
-		op().print(p);
-		for (XSmtTerm<T> ch : children())
+		p.append(op().print(p));
+		for (XSmtTerm<T> ch : children()) {
+			p.append(" ");
 			ch.print(p); 
+		}
 		p.append(")");
+	}
+	
+	@Override
+	protected void declare(XPrinter<T> p) {
+		p.declare(this); 
+		for (XSmtTerm<T> ch : children()) {
+			ch.declare(p); 
+		}
 	}
 	
 	@Override
@@ -184,7 +196,7 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 			XSmtTerm<T> xTerm = children.get(i);
 			final XSmtTerm<T> newArg = xTerm.accept(visitor);
 			wasNew |= newArg!=xTerm;
-			newArgs.set(i, newArg);
+			newArgs.add(newArg);
 		}
 
 		if (!wasNew) return this;
@@ -199,9 +211,20 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 	
 	@Override
 	public String prettyPrint() {
-		if (op() instanceof XSimpleOp && children.size() == 2) {
-			return children.get(0).prettyPrint() + " " + op.prettyPrint() +  " " + children.get(1).prettyPrint(); 
+		if (children.size() == 1) {
+			return op.prettyPrint() + " " + children.get(0).prettyPrint(); 
 		}
+
+		if (op() instanceof XSimpleOp && children.size() >= 2) {
+			StringBuilder sb = new StringBuilder(); 
+			for (int i = 0; i < children.size(); ++i){
+				XSmtTerm<T> t = children.get(i); 
+				sb.append(i == 0? "" : (" " + op.prettyPrint() + " "));
+				sb.append(t.prettyPrint());
+			}
+			return sb.toString();
+		}
+		
 		StringBuilder sb = new StringBuilder(); 
 		sb.append(op.prettyPrint());
 		boolean simple = op() instanceof XSimpleOp;

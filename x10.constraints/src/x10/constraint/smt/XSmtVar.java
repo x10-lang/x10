@@ -2,13 +2,14 @@ package x10.constraint.smt;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import x10.constraint.XTerm;
 import x10.constraint.XType;
 import x10.constraint.XVar;
 
 public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
-	String name; 
+	private String name; 
 	
 	public XSmtVar(T t, String name) {
 		super(t);
@@ -26,11 +27,6 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 	}
 	
 	@Override
-	public boolean isProjection() {
-		return true; 
-	}
-
-	@Override
 	public List<XTerm<T>> vars() {
 		List<XTerm<T>> res = new ArrayList<XTerm<T>>(1);
 		res.add(this); 
@@ -43,9 +39,13 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 	}
 
 	@Override
-	public void print(XPrinter<T> p) {
-		p.out(this);
+	protected void print(XPrinter<T> p) {
 		p.append(p.mangle(toString()));
+	}
+	
+	@Override
+	protected void declare(XPrinter<T> p) {
+		p.declare(this); 
 	}
 
 	@Override
@@ -62,7 +62,8 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 			return true;
 		if (obj == null)
 			return false;
-		if (getClass() != obj.getClass())
+		
+		if (! (obj instanceof XSmtVar))
 			return false;
 		
 		@SuppressWarnings("unchecked")
@@ -78,6 +79,11 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 	@Override
 	public String toString() {
 		return name + ":" + type(); 
+	}
+	
+	@Override
+	public String prettyPrint() {
+		return name; 
 	}
 
 	@Override

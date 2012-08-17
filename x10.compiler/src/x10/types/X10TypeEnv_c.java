@@ -946,7 +946,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		
 //  		c1 = xcontext.constraintProjection(c1);
 //  		c2 = xcontext.constraintProjection(c2);
-
+    		
+    		
     		if (c1 != null && ! c.entails(c1)) {
     			// Update the context, by adding the
     			// real clause of t1 to the current constraint, 
@@ -983,7 +984,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	t1=baseType1;
     	
     	if (baseType2 != t2) {
-    		if (! entails(c1, c2))
+    		if (! entails(c1, c2, "Is subtype " + t1 + " at " + t1.position() + " of " + t2 + " at " + t2.position()))
     			return false;
     		if (isSubtype(x, baseType1, baseType2 ))
     			return true;
@@ -1298,11 +1299,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (c2 != null) {
             c2 = c2.instantiateSelf(temp);
         }
-            
-        if (! entails( c1, c2))
+        String info = "Type Equals: " + t1 + " at " + t1.position() + " equals " + t2 + " at " + t2.position();   
+        if (! entails( c1, c2, info))
             return false;
 
-        if (! entails(c2, c1))
+        if (! entails(c2, c1, info))
             return false;
         return true;
     }
@@ -1382,10 +1383,13 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return isSubtype(fromType, toType);
     }
 
+    public boolean entails(final CConstraint c1, final CConstraint c2) {
+    	return entails(c1, c2, null); 
+    }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#entails(x10.constraint.CConstraint, x10.constraint.CConstraint)
      */
-    public boolean entails(final CConstraint c1, final CConstraint c2) {
+    public boolean entails(final CConstraint c1, final CConstraint c2, Object info) {
         if (c2 == null || c2.valid())
             return true;
         if (c1 != null && ! c1.consistent())
@@ -1415,7 +1419,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (c1 != null && c1.valid()) { c1 = null; }
         if (c2 != null && c2.valid()) { c2 = null; }
 
-        if (! entails(c1, c2))
+        if (! entails(c1, c2, "Primitive conversion from " + fromType + " at " + fromType.position() + " to "
+        		+ toType + " at " + toType.position()))
             return false;
 
         if (ts.isVoid(baseType1))
@@ -1581,7 +1586,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
             CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(base);
             c.addSelfEquality(val);
-            return entails(c, Types.realX(toType));
+            return entails(c, Types.realX(toType), null);
     }
 
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2) {
@@ -1625,7 +1630,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         try {
             CConstraint c1 = Types.realX(me);
             CConstraint c2 = Types.xclause(other);
-            return entails(c1, c2);
+            return entails(c1, c2, me.position());
         }
         catch (InternalCompilerError e) {
             if (e.getCause() instanceof XFailure) {
@@ -2067,9 +2072,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // construct a list containing the Place type followed by the types 
         // of all the formal arguemnts of mj
         List<Type> types = new ArrayList<Type>(mj.formalNames().size() + 1);
-        types.set(0,  ts.Place());
+        types.add(ts.Place());
         for (int i = 0; i < mj.formalNames().size(); ++i)
-        	types.set(i + 1, mj.formalTypes().get(i));
+        	types.add(mj.formalTypes().get(i));
         
         XVar<Type>[] newSymbols = genSymbolicVars(types); 
         

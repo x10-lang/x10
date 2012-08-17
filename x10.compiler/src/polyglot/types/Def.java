@@ -20,5 +20,5 @@ import x10.constraint.XDef;
 /**
  * A Def is a type object representing a declaration.
  */
-public interface Def extends TypeObject, XDef<Type> {
+public interface Def extends TypeObject {
 }

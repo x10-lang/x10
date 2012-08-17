@@ -16,6 +16,7 @@ package polyglot.types;
 
 import polyglot.main.Report;
 import polyglot.util.Position;
+import x10.types.FunctionType_c;
 
 /**
  * A <code>LocalInstance</code> contains type information for a local variable.
@@ -103,6 +104,16 @@ public class LocalDef_c extends VarDef_c implements LocalDef
 
 	@Override
 	public Type resultType() {
-		return asInstance().type();
+		return Types.baseType(asInstance().type());
+	}
+	
+	@Override
+	public String getName() {
+		Type t = Types.baseType(type.get()); 
+		if (t instanceof FunctionType_c) {
+			Type returnType = Types.baseType((FunctionType_c)t);
+			return returnType.toString() + name().toString(); 
+		}
+		return t.toString() + name().toString(); 
 	}
 }

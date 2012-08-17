@@ -32,8 +32,26 @@ public class XSmtField<T extends XType, F> extends XSmtExpr<T> implements XField
 	}
 
 	@Override
-	public XTerm<T> receiver() {
+	public XSmtTerm<T> receiver() {
 		return get(0);
 	}
-
+	@Override
+	public String prettyPrint() {
+		if (field() instanceof XType) {
+			// this is a qualified variable
+			return field().toString() + "." + receiver().prettyPrint(); 
+		}
+		return receiver().prettyPrint() + "." + op().prettyPrint(); 
+	}
+	@Override
+	public XSmtTerm<T> subst(XTerm<T> t1, XTerm<T> t2) {
+		if (this.equals(t2))
+			return (XSmtTerm<T>)t1; 
+		
+		XSmtTerm<T> new_receiver = receiver().subst(t1, t2);
+		if (new_receiver != receiver()) {
+			return new XSmtField<T,F>(field(), new_receiver, type());
+		}
+		return this;
+	}
 }

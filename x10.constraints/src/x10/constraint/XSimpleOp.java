@@ -37,8 +37,8 @@ public class XSimpleOp<T extends XType> extends XOp<T> {
 	}
 
 	@Override
-	public void print(XPrinter<T> p) {
-		kind.print(p);
+	public String print(XPrinter<T> p) {
+		return kind.print(p);
 	}
-	
+
 }

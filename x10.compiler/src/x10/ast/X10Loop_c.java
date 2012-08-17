@@ -212,7 +212,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         XTerm<Type> selfValue = Types.selfVarBinding(domainType);
         boolean generated = false;
         if (selfValue == null) {
-            selfValue = ConstraintManager.getConstraintSystem().makeUQV(indexType);
+            selfValue = ConstraintManager.getConstraintSystem().makeUQV(base);
             generated = true;
         }
         XVar<Type> thisVar = base instanceof X10ClassType ?
@@ -231,7 +231,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
                     indexType = Types.addConstraint(indexType, c);
                     assert Types.consistent(indexType);
                     // lshadare why do we need to do this?
-                    indexType = Subst.subst(indexType, ConstraintManager.getConstraintSystem().makeEQV(indexType), selfValue);
+                    indexType = Subst.subst(indexType, ConstraintManager.getConstraintSystem().makeEQV(selfValue.type()), selfValue);
                 }
             } catch (SemanticException z) {
 

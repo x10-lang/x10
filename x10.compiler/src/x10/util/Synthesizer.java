@@ -213,7 +213,7 @@ public class Synthesizer {
 	    X10FieldInstance fi = Types.getProperty(type, Name.make(name));
 	    if (fi == null)
 	        return null;
-	    return ConstraintManager.getConstraintSystem().makeField(receiver, fi.def());
+	    return ConstraintManager.getConstraintSystem().makeCField(receiver, fi.def());
 	}
 
 	public XTerm<Type> makePointRankTerm(XVar<Type> receiver) {
@@ -1434,7 +1434,7 @@ public class Synthesizer {
         java.util.Set<VarDef> res = CollectionFactory.newHashSet();
         // FieldDef
         if (t instanceof CField) {
-            final CField field = (CField) t;
+            final CField<?> field = (CField<?>) t;
             // the receiver will always be the first argument
             final XTerm<Type> receiver = field.get(0);
             res.addAll(getLocals(receiver));
@@ -1443,7 +1443,8 @@ public class Synthesizer {
                 res.add((VarDef) field.def());
             }
         } else if (t instanceof XLocal) {
-            XLocal<Type, VarDef> local = (XLocal<Type, VarDef>) t;
+            @SuppressWarnings("unchecked")
+			XLocal<Type, X10LocalDef> local = (XLocal<Type, X10LocalDef>) t;
             res.add(local.def());
         } else if (t instanceof XExpr) {
             final XExpr<Type> xExpr = (XExpr<Type>) t;

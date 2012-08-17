@@ -203,6 +203,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         return this.properties(properties);
     }
 
+    private static int count = 0; 
     protected static void checkAssignments(ContextVisitor tc, Position pos,
                                            List<FieldInstance> props, List<Expr> args)
     {
@@ -223,7 +224,9 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
             Type yType = args.get(i).type();
             yType = Types.addConstraint(yType, curr);
             Type xType = props.get(i).type();
+            count ++;
             if (!xts.isSubtype(yType, xType)) {
+            	System.out.println("Count " + count);
                 Errors.issue(tc.job(),
                              new Errors.TypeOfPropertyIsNotSubtypeOfPropertyType(args.get(i).type(), props, i, pos));
             }
@@ -233,7 +236,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 CConstraint c = Types.xclause(yType);
                 curr.addIn(symbol, c);
             } 
-            curr.addEquality(ConstraintManager.getConstraintSystem().makeField(thisVar, props.get(i).def()), symbol);
+            curr.addEquality(ConstraintManager.getConstraintSystem().makeCField(thisVar, props.get(i).def()), symbol);
 
             if (! curr.consistent()) {
                 Errors.issue(tc.job(),
@@ -278,7 +281,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                     Expr initializer = args.get(i);
                     Type initType = initializer.type();
                     final FieldInstance fii = definedProperties.get(i);
-                    XVar<Type> prop = (XVar<Type>) ts.xtypeTranslator().translate(known.self(), fii);
+                    XTerm<Type> prop = (XTerm<Type>) ts.xtypeTranslator().translate(known.self(), fii);
 
                     // Add in the real clause of the initializer with [self.prop/self]
                     CConstraint c = Types.realX(initType);

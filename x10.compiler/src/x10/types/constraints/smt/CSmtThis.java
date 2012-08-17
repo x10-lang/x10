@@ -10,17 +10,15 @@ public class CSmtThis extends XSmtVar<Type> implements CThis {
     private final int num;
 
     public CSmtThis(Type t, int num) {
-		super(t, THIS_VAR_PREFIX+num);
-		this.num = num; 
+		super(t, THIS_VAR_PREFIX+num+t);
+		this.num = num;
 	}
-
     
-	@Override
-	public void print(XPrinter p) {
-		// TODO Auto-generated method stub
-		
-	}
-
+    public CSmtThis(CSmtThis other) {
+    	super(other); 
+    	this.num = other.num;
+    }
+    
 	@Override
 	public String toString() {
 		return THIS_VAR_PREFIX + ":" + type(); 
@@ -49,5 +47,13 @@ public class CSmtThis extends XSmtVar<Type> implements CThis {
 			return false;
 		return true;
 	}
-
+	@Override
+	public String prettyPrint() {
+		return THIS_VAR_PREFIX; 
+	}
+	
+	@Override
+	public CSmtThis copy() {
+		return new CSmtThis(this); 
+	}
 }

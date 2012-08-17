@@ -22,7 +22,7 @@ import x10.types.MethodInstance;
  * A <code>MethodInstance</code> represents the type information for a Java
  * method.
  */
-public interface MethodDef extends FunctionDef, MemberDef, Def
+public interface MethodDef extends FunctionDef, MemberDef, Def, XDef<Type>
 {
     MethodInstance asInstance();
     

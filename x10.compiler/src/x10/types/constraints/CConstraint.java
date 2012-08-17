@@ -40,6 +40,7 @@ import polyglot.types.SemanticException;
 
 
 import x10.constraint.XConstraint;
+import x10.constraint.XDef;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
@@ -53,6 +54,7 @@ import polyglot.types.Context;
 import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
 import polyglot.types.TypeSystem;
+import polyglot.util.Position;
 import x10.types.checker.PlaceChecker;
 
 
@@ -256,7 +258,7 @@ public interface CConstraint extends XConstraint<Type> {
      * @param fieldName -- Name of field
      * @return
      */
-    public XTerm<Type> bindingForSelfProjection(Def fd);
+    public XTerm<Type> bindingForSelfProjection(XDef<Type> fd);
 
     /** Return the least upper bound of this and other. That is, the resulting constraint has precisely
      * the constraints entailed by both this and other.
@@ -302,6 +304,9 @@ public interface CConstraint extends XConstraint<Type> {
      * specified by the types of the terms occurring in this. This is done 
      * recursively. That is, for each constraint c added to r, we recursively 
      * add the constraints for the terms that occur in c.
+     * NOTE: the resulting constraint will have a null self(). It is the 
+     * responsibility of the caller to set the constraints' self to an appropriate 
+     * value. 
      * @param m
      * @param old
      * @return
@@ -315,11 +320,8 @@ public interface CConstraint extends XConstraint<Type> {
 
 	public boolean entails(XTerm<Type> t);
 
-	public List<? extends XTerm<Type>> extConstraints();
-
-	public List<? extends XTerm<Type>> extConstraintsHideFake();
-
 	public void setInconsistent();
+	public void setSelf(XTerm<Type> self);
 
 }
 

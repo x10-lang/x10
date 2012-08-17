@@ -20,7 +20,7 @@ import x10.constraint.XDef;
  * A <code>MemberInstance</code> is an entity that can be a member of
  * a class.
  */
-public interface MemberDef extends Def, XDef<Type>
+public interface MemberDef extends Def
 {
     /**
      * Return the member's flags.

@@ -414,7 +414,7 @@ public class TypeConstraint implements Copy, Serializable {
                         throw new InternalCompilerError("Unexpected exception comparing function types", yft.position(), e);
                     }
                 }
-                if (ts.env(ts.emptyContext()).entails(h, g)) {
+                if (ts.env(ts.emptyContext()).entails(h, g, xft.position())) {
                     // Now we are in the case xft is (S1,..,Sn){g}=>S and yft is (T1,...,Tn){h}=>T
                     // This will generate for each i, Si <: Ti (contravariant arguments) and
                     // T <: S (covariant return types).

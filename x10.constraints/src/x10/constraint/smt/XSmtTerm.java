@@ -1,6 +1,7 @@
 package x10.constraint.smt;
 
 import java.util.List;
+import java.util.Set;
 
 import x10.constraint.XExpr;
 import x10.constraint.XOp;
@@ -8,7 +9,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XType;
 
 public abstract class XSmtTerm<T extends XType> implements XTerm<T> {
-	T type; 
+	final T type; 
 
 	public XSmtTerm(T t) {
 		assert t!= null; 
@@ -31,8 +32,8 @@ public abstract class XSmtTerm<T extends XType> implements XTerm<T> {
 	 */
 	@Override
 	public XSmtTerm<T> subst(XTerm<T> t1, XTerm<T> t2) {
-		if (this.equals(t1))
-			return (XSmtTerm<T>)t2;
+		if (this.equals(t2))
+			return (XSmtTerm<T>)t1;
 		return this; 
 	}
 
@@ -60,10 +61,10 @@ public abstract class XSmtTerm<T extends XType> implements XTerm<T> {
         return this;
 	}
 
-	@Override
-	public String prettyPrint() {
-		return toString(); 
-	}
+//	@Override
+//	public String prettyPrint() {
+//		return toString(); 
+//	}
 	
 	@Override
 	public List<XTerm<T>> vars() {
@@ -90,7 +91,8 @@ public abstract class XSmtTerm<T extends XType> implements XTerm<T> {
 		return false; 
 	} 
 
-	public abstract void print(XPrinter<T> p);
+	protected abstract void print(XPrinter<T> p);
+	protected abstract void declare(XPrinter<T> p);
 	public abstract boolean equals(Object o);
 	public abstract int hashCode();
 	public abstract String toString();

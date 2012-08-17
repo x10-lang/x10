@@ -8,6 +8,7 @@ import polyglot.types.Types;
 import x10.constraint.XLabeledOp;
 import x10.constraint.XOp;
 import x10.constraint.XVar;
+import x10.constraint.XDef;
 import x10.constraint.smt.XSmtExpr;
 import x10.constraint.smt.XSmtField;
 import x10.constraint.smt.XSmtTerm;
@@ -15,16 +16,16 @@ import x10.types.X10ClassDef;
 import x10.types.X10FieldDef;
 import x10.types.constraints.CField;
 
-public class CSmtField extends XSmtField<Type,Def> implements CField {
-	CSmtField(Def d, XSmtTerm<Type> receiver) {
+public class CSmtField<D extends XDef<Type>> extends XSmtField<Type, D> implements CField<D> {
+	CSmtField(D d, XSmtTerm<Type> receiver) {
 		super(d, receiver,d.resultType());
 	}
-	CSmtField(Def d, XSmtTerm<Type> receiver, boolean hidden) {
+	CSmtField(D d, XSmtTerm<Type> receiver, boolean hidden) {
 		super(d, receiver,d.resultType(), hidden);
 	}
 	
 	@Override
-	public Def def() {
+	public D def() {
 		return field(); 
 	}
 

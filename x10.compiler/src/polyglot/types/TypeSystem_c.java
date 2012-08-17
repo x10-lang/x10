@@ -832,13 +832,13 @@ public class TypeSystem_c implements TypeSystem
         l.add(JavaError());
         return l;
         }
-    
+    @Override
     public boolean isSubtype(Type t1, Type t2, Context context) {
 	assert_(t1);
 	assert_(t2);
 	return env(context).isSubtype(t1, t2);
     }
-
+    @Override
     public boolean isSubtype(Type t1, Type t2) {
         return isSubtype(t1, t2, emptyContext());
     }

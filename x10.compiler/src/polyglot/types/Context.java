@@ -430,7 +430,8 @@ public class Context implements Resolver, Cloneable
 
     CConstraint outerThisEquivalences() {
         Type curr = currentClass();
-    	CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(curr);
+    	CConstraint result = curr == null? ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null) :
+    									   ConstraintManager.getConstraintSystem().makeCConstraint(curr);
         
         List<X10ClassDef> outers = Types.outerTypes(curr); 
         for (int i=0; i < outers.size(); i++) {
@@ -450,7 +451,7 @@ public class Context implements Resolver, Cloneable
         CConstraint result = currentConstraint;
         if (result == null) {
         	// CONSTRAINT_QUESTION: what is the original type of the currentConstraint
-            result = ConstraintManager.getConstraintSystem().makeCConstraint((Type)null);
+            result = ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null);
             if (! inStaticContext()) {
                 result.setThisVar(thisVar());
                 CConstraint d = outerThisEquivalences();

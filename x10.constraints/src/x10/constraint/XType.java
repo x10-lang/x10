@@ -14,8 +14,11 @@ public interface XType {
 	 * Returns true if boolean
 	 */
 	boolean isBoolean(); 
-	
-	boolean isJavaPrimitive(); 
+	/**
+	 * Returns true if the type is a primitive type such as Int, Bool
+	 * @return
+	 */
+	boolean isPrimitive(); 
 	
     /**
      * Return true if char.

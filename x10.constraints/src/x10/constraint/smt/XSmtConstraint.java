@@ -8,6 +8,7 @@ import java.util.Set;
 import x10.constraint.XConstraint;
 import x10.constraint.XConstraintManager;
 import x10.constraint.XConstraintSystem;
+import x10.constraint.XEQV;
 import x10.constraint.XExpr;
 import x10.constraint.XFailure;
 import x10.constraint.XOp;
@@ -33,7 +34,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	/**
 	 * The name of the SMT solver to be used. 
 	 */
-	private static final String solverName = "cvc4";
+	private static final String solverName = "cvc3";
 	/**
 	 * The conjunction of XSmtTerms representing the constraint. Maintains the
 	 * invariant that none of the terms in conjuncts are a top level AND 
@@ -75,12 +76,24 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	
 	@Override
 	public boolean consistent() {
-		return status == Status.CONSISTENT;
+		// FIXME: 
+		return true;
+		//return status == Status.CONSISTENT;
 	}
 
 	@Override
 	public boolean valid() {
-		return status == Status.VALID;
+		if (constraints().isEmpty())
+			return true; 
+//		return false; 
+		
+		XTerm<T> conjunction = cs().makeAnd(constraints()); 
+		try {
+			boolean res = solver.isValid((XSmtTerm<T>)conjunction);
+			return res; 
+		} catch (XSmtFailure e) {
+			throw new IllegalStateException("Smt Solver Failure " +  e);
+		}
 	}
 
 	@Override
@@ -116,17 +129,22 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 
 	@Override
 	public boolean entails(XConstraint<T> other) {
-		XTerm<T> other_and = cs().makeExpr(XOp.<T>AND(), other.constraints());
+		// any constraint entails the empty constraint
+		if (other == null || other.constraints().size() == 0)
+			return true;
+
+		XTerm<T> other_and = cs().makeAnd(other.constraints());
 		return entails(other_and);
 	}
 
 	@Override
 	public boolean entails(XTerm<T> term) {
-		XTerm<T> this_and = cs().makeExpr(XOp.<T>AND(), constraints());
-		@SuppressWarnings("unchecked")
-		XSmtTerm<T> impl = (XSmtTerm<T>) cs().makeExpr(XOp.<T>IMPL(), this_and, term);
-		try {
-			return solver.isValid(impl);
+		try {		
+			if (constraints().size() == 0) 
+				return solver.isValid((XSmtTerm<T>)term);
+			
+			XTerm<T> this_and = cs().makeAnd(constraints());
+			return solver.entails((XSmtTerm<T>)this_and, (XSmtTerm<T>)term);
 		} catch (XSmtFailure e) {
 			throw new IllegalStateException("Smt Solver Failure " +  e);
 		}
@@ -223,16 +241,61 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 				"when they become inconsistent.");
 	}
 
-	@Override
-	public List<? extends XTerm<T>> extConstraints() {
-		// TODO Auto-generated method stub
-		return null;
+	/**
+	 * Helper method that returns true if the XTerm contains existentially quantified 
+	 * variables and/or fake fields (depending on the arguments)
+	 * @param t
+	 * @param ext return true if the term contains EQV
+	 * @param fake return true if the term contains hidden expressions 
+	 * @return
+	 */
+	private boolean extFake(XTerm<T> t, boolean ext, boolean fake) {
+		if (ext && t instanceof XEQV)
+			return true; 
+		
+		if (t instanceof XExpr) {
+			XExpr<T> exp = (XExpr<T>) t; 
+			
+			if (fake && exp.isHidden())
+				return true;
+			for (XTerm<T> ch : exp.children()) {
+				if (extFake(ch, ext, fake))
+					return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public List<? extends XTerm<T>> extConstraintsHideFake() {
-		// TODO Auto-generated method stub
-		return null;
+		List<XTerm<T>> terms = new ArrayList<XTerm<T>>();
+		for (XTerm<T> t :conjuncts) {
+			if(!extFake(t, true, true))
+				terms.add(t);
+		}
+		return terms;
 	}
-
+	
+	@Override
+	public List<? extends XTerm<T>> extConstraints() {
+		List<XTerm<T>> terms = new ArrayList<XTerm<T>>();
+		for (XTerm<T> t :conjuncts) {
+			if(!extFake(t, true, false))
+				terms.add(t);
+		}
+		return terms;
+	}
+	
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(); 
+		sb.append("{");
+		for (int i = 0; i < constraints().size(); ++i) {
+			XTerm<T> t = constraints().get(i); 
+			sb.append((i == 0? "" : ", ") + t.prettyPrint());
+		}
+		sb.append("}");
+		
+		return sb.toString();
+	}
 }

@@ -21,7 +21,7 @@ import polyglot.types.Type;
 import x10.constraint.XDef;
 import x10.constraint.XTerm;
 
-public interface X10MethodDef extends MethodDef, X10ProcedureDef, XDef<Type> {
+public interface X10MethodDef extends MethodDef, X10ProcedureDef , XDef<Type> {
 
     Ref<XTerm<Type>> body();
     void body(Ref<XTerm<Type>> body);

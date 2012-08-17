@@ -235,7 +235,7 @@ public class XTypeTranslator {
     public XTerm<Type> translate(XTerm<Type> target, MethodInstance mi) {
         assert mi.flags().isProperty() && mi.formalTypes().size() == 0;
         //lshadare not sure this is right, look at CField vs CAtom differences
-        return ConstraintManager.getConstraintSystem().makeField(target, mi.def());
+        return ConstraintManager.getConstraintSystem().makeCField(target, mi.def());
     }
     
     static public XTerm<Type> expandSelfPropertyMethod(XTerm<Type> term) {
@@ -417,7 +417,7 @@ public class XTypeTranslator {
      * @throws SemanticException
      */
     public CConstraint constraint(List<Formal> ignore, Expr term, Context xc) throws SemanticException {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint((Type)null);
+        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null);
         if (term == null)
             return c;
 
@@ -704,7 +704,7 @@ public class XTypeTranslator {
 
             if (t.arguments().size() == 0) {
             	//lshadare not sure this is right
-            	return ConstraintManager.getConstraintSystem().makeField(r, xmi.def());
+            	return ConstraintManager.getConstraintSystem().makeCField(r, xmi.def());
             }
             
             if ((! tl))
@@ -795,6 +795,12 @@ public class XTypeTranslator {
             if (c == null) {
                 //throw new SemanticException("Cannot refer to self outside a dependent clause.");
                 return null;
+            }
+            if (c.self() == null) {
+            	// FIXME: this is done because sometimes we do not know the type the Constraint is associated to
+            	XTerm<Type> newself = ConstraintManager.getConstraintSystem().makeSelf(Types.baseType(t.type())); 
+            	// no need to substitute as null could not have occured in the constraint
+            	c.setSelf(newself);
             }
             XTerm<Type> v = c.self();
             // Need to deal with qualified guy as well.

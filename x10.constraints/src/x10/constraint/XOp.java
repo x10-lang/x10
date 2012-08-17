@@ -11,42 +11,62 @@ import x10.constraint.smt.XSmtPrinter;
  */
 public abstract class XOp<T extends XType> {
 	/**
+	 * Simple enum to represent the number of arguments a Kind
+	 * can have. MANY means 1 or more.
+	 * @author lshadare
+	 *
+	 */
+	protected enum Arity {
+		ONE,
+		TWO,
+		MANY
+	}
+
+	/**
 	 * An XKind represents the kind of the operator.  
 	 * @author lshadare
 	 *
 	 */
 	public enum Kind {
-		APPLY_LABEL("apply_label", "", ""),
-		APPLY("apply","", ""),
-		EQ("=", "=", "="),	
-		NOT("not", "!", "not"),
-		AND("and", "&&", "and"),
-		OR("or", "||", "or"),
-		IMPL("=>", "=>", "impl");
-		String name;
+		APPLY_LABEL("", "", Arity.MANY),
+		APPLY("", "", Arity.ONE),
+		EQ("=", "=", Arity.TWO),	
+		NOT("!", "not", Arity.ONE),
+		AND("&&", "and", Arity.MANY),
+		OR("||", "or", Arity.MANY),
+		IMPL("=>", "=>", Arity.TWO);
+
 		String prettyName;
 		String smt2;
-		Kind(String n, String pn, String smt2) {
-			this.name = n;
+		// the number of arguments this Kind permits
+		Arity arity;
+
+		Kind(String pn, String smt2, Arity arity) {
 			this.prettyName = pn; 
 			this.smt2 = smt2; 
+			this.arity = arity; 
 		}
 		String prettyPrint() {
 			return prettyName; 
 		}
-		void print(XPrinter<? extends XType> p) {
+		String print(XPrinter<? extends XType> p) {
 			if (p instanceof XSmtPrinter) {
-				p.append(smt2);
+				return smt2;
 			}
+			throw new IllegalArgumentException("Unsupported printer " + p);
+		}
+
+		Arity arity() {
+			return arity; 
 		}
 	}
-	
+
 	Kind kind; 
-	
+
 	XOp(Kind kind) {
 		this.kind = kind; 
 	}
-	
+
 	/**
 	 * Returns the kind of the operator. 
 	 * @return
@@ -54,19 +74,19 @@ public abstract class XOp<T extends XType> {
 	public Kind getKind() {
 		return kind; 
 	}
-	
+
 	/**
 	 * Returns the type of the term resulting from applying this operator
 	 * e.g. for EQ the returned type would be Boolean. 
 	 * @return
 	 */
 	public abstract T type(XTypeSystem<? extends T> ts); 
-	
+
 	/**
 	 * Some useful operators. 
 	 */
 
-	
+
 	public static <T extends XType> XSimpleOp<T> EQ() {
 		return new XSimpleOp<T>(Kind.EQ);
 	}
@@ -89,7 +109,7 @@ public abstract class XOp<T extends XType> {
 		return new XLabeledOp<T,D>(def, type);
 	}
 
-	
+
 	/**
 	 * Constructs a labeled operator that represents the application 
 	 * of the field/method corresponding to the field/method definition
@@ -124,7 +144,7 @@ public abstract class XOp<T extends XType> {
 		return true;
 	}
 
-	public abstract void print(XPrinter<T> p);
+	public abstract String print(XPrinter<T> p);
 	public abstract String toString();
 	public Object asExprOperator() {
 		// TODO Auto-generated method stub
@@ -132,4 +152,19 @@ public abstract class XOp<T extends XType> {
 	}
 
 	public abstract String prettyPrint();	
+	
+	public boolean isArityValid(int n) {
+		if (n < 0)
+			throw new IllegalArgumentException("Illegal arity.");
+		Arity a = getKind().arity(); 
+
+		if (a == Arity.ONE)
+			return n == 1; 
+
+		if (a == Arity.TWO)
+			return n == 2;
+
+		assert a == Arity.MANY;
+		return true; 
+	}
 }

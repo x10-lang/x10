@@ -14,9 +14,11 @@
 
 package polyglot.types;
 
+import x10.constraint.XDef;
+
 /**
  * A <code>LocalInstance</code> contains type information for a local variable.
  */
-public interface LocalDef extends VarDef {
+public interface LocalDef extends VarDef, XDef<Type> {
     LocalInstance asInstance();
 }

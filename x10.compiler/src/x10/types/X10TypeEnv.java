@@ -21,6 +21,7 @@ import polyglot.types.TypeEnv;
 import x10.constraint.XConstraint;
 import x10.constraint.XTerm;
 import polyglot.types.TypeSystem_c.Kind;
+import polyglot.util.Position;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
 
@@ -54,6 +55,8 @@ public interface X10TypeEnv extends TypeEnv {
     boolean isSubtype(Type t1, Type t2);
    
     boolean entails(CConstraint c1, CConstraint c2);
+    
+    boolean entails(CConstraint c1, CConstraint c2, Object info);
 
     boolean hasSameClassDef(Type t1, Type t2);
 

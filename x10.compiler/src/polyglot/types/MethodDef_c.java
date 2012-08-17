@@ -105,4 +105,14 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
         return "method";
     }
     
+    @Override
+    public Type resultType() {
+    	return Types.baseType(returnType().get()); 
+    } 
+    @Override
+	public String getName() {
+		return container().toString() + "." + name().toString(); 
+	} 
+    
+    
 }

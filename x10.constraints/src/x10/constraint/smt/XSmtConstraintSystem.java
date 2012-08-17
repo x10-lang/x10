@@ -15,25 +15,28 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 	private static int idCounter = 0; 
 	
 	@Override
-	public XSmtLit<T, java.lang.Boolean> xtrue(XTypeSystem<T> ts) {
+	public XSmtLit<T, java.lang.Boolean> xtrue(XTypeSystem<? extends T> ts) {
 		assert ts != null; 
 		return new XSmtLit<T, Boolean>(ts.Boolean(), true);
 	}
 
 	@Override
-	public XSmtLit<T, java.lang.Boolean> xfalse(XTypeSystem<T> ts) {
+	public XSmtLit<T, java.lang.Boolean> xfalse(XTypeSystem<? extends T> ts) {
 		assert ts != null;
 		return new XSmtLit<T, Boolean>(ts.Boolean(), false);
 	}
 
 	@Override
-	public XSmtLit<T, ?> xnull(XTypeSystem<T> ts) {
+	public <U> XSmtLit<T, U> xnull(XTypeSystem<? extends T> ts) {
 		assert ts != null;
-		return new XSmtLit<T, Object>(ts.Null(), null);
+		return new XSmtLit<T, U>(ts.Null(), null);
 	}
 
 	@Override
 	public <V> XSmtLit<T, V> makeLit(V val, T type) {
+		if (val == null)
+			return this.xnull(type.<T>xTypeSystem());
+		
 		assert type != null && val!= null; 
 		return new XSmtLit<T, V>(type, val);
 	}
@@ -69,6 +72,8 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 
 	@Override
 	public XSmtExpr<T> makeExpr(XOp<T> op, List<? extends XTerm<T>> terms) {
+		assert op.isArityValid(terms.size()); 
+		assert op.getKind() != XOp.Kind.APPLY_LABEL;
 		List<XSmtTerm<T>> smt_terms = new ArrayList<XSmtTerm<T>>(terms.size()); 
 		for (XTerm<T> t : terms) {
 			assert t != null;
@@ -110,6 +115,15 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 		assert left!= null && right!= null; 
 		return new XSmtExpr<T>(XOp.<T>AND(), false, (XSmtTerm<T>)left, (XSmtTerm<T>)right);
 	}
+	
+	@Override 
+	public XSmtTerm<T> makeAnd(List<? extends XTerm<T>> conjuncts) {
+		assert !conjuncts.isEmpty();
+		if (conjuncts.size() == 1)
+			return (XSmtTerm<T>)conjuncts.get(0);
+		
+		return makeExpr(XOp.<T>AND(), conjuncts);
+	}
 
 	@Override
 	public XSmtExpr<T> makeNot(XTerm<T> arg) {
@@ -119,6 +133,10 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 
 	@Override
 	public <D extends XDef<T>> XSmtField<T,D> makeField(XTerm<T> receiver, D label) {
+		if (label.toString().contains("IntRange")) {
+			System.out.println("IntRange");
+		}
+
 		assert receiver!= null && label!= null;
 		return new XSmtField<T,D>(label, (XSmtTerm<T>)receiver, label.resultType());
 	}
@@ -159,6 +177,8 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 
 	@Override
 	public XSmtVar<T> makeVar(T type, String name) {
+		// self and this are special variables
+		assert !name.startsWith("self") && !name.startsWith("this");	
 		return new XSmtVar<T>(type, name);
 	}
 

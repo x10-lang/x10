@@ -149,6 +149,9 @@ public class Matcher {
 			final List<Type> actualsIn, 
 			boolean checkActuals) throws SemanticException
 			{
+		// lshadare so far thisTypeArray has only had size 1
+		assert thisTypeArray[0] != null || Types.isStatic(me); 
+		
 		final XTerm<Type>[] ys = new XTerm[actualsIn.size()+1];
 	
 		final TypeSystem xts = (TypeSystem) me.typeSystem();
@@ -503,9 +506,13 @@ public class Matcher {
 			if (env != null && ythis != null && ! ((env == null) || env.valid()))
 				env = env.instantiateSelf(ythis);
 		}
-		if (env == null)
-			env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType));
-
+		if (env == null) {
+			if (thisType != null)
+				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType));
+			else
+				// the self variable will be substituted anyway (I hope)
+				env = ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null);
+		}
 	    for (int i = 0; i < actuals.size(); i++) { // conjoin ytype's realX
 	    		Type ytype = actuals.get(i);
 	    		final CConstraint yc = Types.realX(ytype);
@@ -541,8 +548,13 @@ public class Matcher {
 			if (env != null && ythis != null && ! ((env == null) || env.valid()))
 				env = env.instantiateSelf(ythis);
 		}
-		if (env == null)
-			env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType));
+		if (env == null) {
+			if (thisType != null)
+				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType));
+			else
+				// the self variable will be substituted anyway (I hope)
+				env = ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null);
+		}
 	
 		//To do: Not sure these need to be added to Gamma. Constraint projection will retrieve them
 		// from the types of the variables.
@@ -568,13 +580,15 @@ public class Matcher {
 	 * @param prefix
 	 * @return
 	 */
-	 private static XTerm<Type> getSymbolVar(Type type) {
-   	  XTerm<Type> symbol = Types.selfVarBinding(type);
-         if (symbol == null) {
-       	  symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(type));  
-         }
-         return symbol;
-   }
+	private static XTerm<Type> getSymbolVar(Type type) {
+		if (type == null)
+			return null; 
+		XTerm<Type> symbol = Types.selfVarBinding(type);
+		if (symbol == null) {
+			symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(type));  
+		}
+		return symbol;
+	}
     private static X10LocalInstance getSymbol( Type type) {
     	TypeSystem ts = type.typeSystem();
     	Ref<Type> ref = new LazyRef_c<Type>(type);

@@ -765,8 +765,4 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     public void setWasInner(boolean v) {
         wasInner = v;
     }
-	@Override
-	public Type resultType() {
-		throw new UnsupportedOperationException();
-	}    
 }
