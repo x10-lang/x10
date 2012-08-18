@@ -13,11 +13,6 @@
 #define X10_LANG_CHECKED_THROWABLE_H
 
 #include <x10aux/config.h>
-#if defined(__GLIBC__) || defined(_AIX) || defined(__APPLE__)
-#define MAX_TRACE_SIZE 1024
-#else
-#define MAX_TRACE_SIZE 1
-#endif
 
 #include <x10/lang/Reference.h>
 
@@ -42,7 +37,7 @@ namespace x10 {
             // then this will not have valid information, but there may
             // still be a human-readable backtrace available in the
             // cachedStackTrace field.
-            void *FMGL(trace)[MAX_TRACE_SIZE]; 
+            void **FMGL(trace);
             int FMGL(trace_size);
 
             // Computing the human-readable form of the backtrace is expensive.
