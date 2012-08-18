@@ -177,7 +177,15 @@ int backtrace(void** trace, size_t max_size) {
 }
 #endif
 
+#if defined(__GLIBC__) || defined(__APPLE__)
 #define MAX_TRACE_SIZE 1024
+#elif defined(_AIX)
+
+#define INITIAL_TRACE_SIZE 32
+#define TRACE_SIZE_INCREMENT 64
+#define MAX_TRACE_SIZE 512
+
+#endif
 
 ref<CheckedThrowable> CheckedThrowable::fillInStackTrace() {
     if (FMGL(trace_size)>=0) return this;
@@ -190,9 +198,10 @@ ref<CheckedThrowable> CheckedThrowable::fillInStackTrace() {
     memcpy(FMGL(trace), buffer, numFrames*sizeof(void*));
     FMGL(trace_size) = numFrames;
 #elif defined(_AIX)
-    void *buffer[MAX_TRACE_SIZE];
     int numFrames = 0;
-
+	FMGL(trace) = x10aux::alloc<void*>(INITIAL_TRACE_SIZE*sizeof(void*), false); // does not contain pointers to GC heap
+	int bufferSize = INITIAL_TRACE_SIZE;
+	
     // walk the stack, saving the offsets for each stack frame into "buffer".
     unsigned long stackAddr;
 	#if defined(_LP64)
@@ -200,8 +209,12 @@ ref<CheckedThrowable> CheckedThrowable::fillInStackTrace() {
 	#else
 		__asm__ __volatile__ ("stw 1, %0 \n\t" : "=m" (stackAddr));
 	#endif
-	while (numFrames < MAX_TRACE_SIZE) {
-        buffer[numFrames] = (void*)*(((unsigned long *)stackAddr)+2); // link register is saved here in the stack
+	// Need to leave 1 frame of slop for recapture of backtrace (See AIX code below in getStackTrace)
+	while (numFrames < MAX_TRACE_SIZE-1) {
+		if (numFrames == bufferSize-1) {
+			FMGL(trace) = x10aux::realloc<void*>(FMGL(trace), (bufferSize+TRACE_SIZE_INCREMENT)*sizeof(void*));
+		}
+		FMGL(trace)[numFrames] = (void*)*(((unsigned long *)stackAddr)+2); // link register is saved here in the stack
 		stackAddr = *((long *)stackAddr);
         numFrames++;
 		if (stackAddr == 0) {
@@ -209,9 +222,6 @@ ref<CheckedThrowable> CheckedThrowable::fillInStackTrace() {
 			break;
         }
 	}
-
-    FMGL(trace) = x10aux::alloc<void*>(numFrames*sizeof(void*), false); // does not contain pointers to GC heap
-    memcpy(FMGL(trace), buffer, numFrames*sizeof(void*));
     FMGL(trace_size) = numFrames;
 #endif
     return this;
@@ -368,8 +378,10 @@ ref<Array<ref<String> > >CheckedThrowable::getStackTrace() {
 
 			// call the original slow backtrace method to convert the offsets into text
 			// this overwrites the contents of "trace" and value of "trace_size", which are no longer needed.
-			FMGL(trace_size) = ::backtrace(FMGL(trace), sizeof(FMGL(trace))/sizeof(*FMGL(trace)));
-
+			// We add one to the limit becasue we left 1 extra frame in the code above, are
+			// our fake stack has one extra frame in it (relative to the original).
+			FMGL(trace_size) = ::backtrace(FMGL(trace), (FMGL(trace_size)+1)*sizeof(void*));
+			
 			// replace the stack frame pointer to point to the real stack again
 			*((unsigned long*)stackPointer) = originalStackPointer;
 
