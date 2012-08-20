@@ -1695,7 +1695,7 @@ public class Emitter {
                 }
                 if (type.isClass()) {
                     TypeSystem ts = context.typeSystem();
-                    if (ts.isAny(type) || ts.isObjectType(type, context)) {
+                    if (ts.isAny(type)) {
                         it.remove();
                     }
                     else if (!type.toClass().flags().isInterface()) {
@@ -1707,13 +1707,6 @@ public class Emitter {
                             supClassType = type;
                         }
                         it.remove();
-                    }
-                    // TODO quick fix for boxing String
-                    if (type instanceof FunctionType) {
-                        List<Type> argTypes = ((FunctionType) type).argumentTypes();
-                        if (argTypes.size() == 1 && argTypes.get(0).isInt() && ((FunctionType) type).returnType().isChar()) {
-                            it.remove();
-                        }
                     }
                 }
             }
