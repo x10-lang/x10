@@ -122,7 +122,7 @@ public class System {
     @Native("c++", "x10aux::identity_hash_code(#o)")
     public static native def identityHashCode(o:Any) : Int;
 
-    public static def identityToString(o:Any) : String = o.typeName() + "@" + System.identityHashCode(o);
+    public static def identityToString(o:Any) : String = o.typeName() + "@" + System.identityHashCode(o).toHexString();
 
     public static def identityEquals(o1:Any, o2:Any) : Boolean = o1==o2;
 
