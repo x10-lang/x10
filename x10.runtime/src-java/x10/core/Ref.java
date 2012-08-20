@@ -57,9 +57,31 @@ public abstract class Ref implements Any {
 //    public RuntimeType<?> $getRTT() {return $RTT;}
 //    public Type<?> $getParam(int i) {return null;}
 
+    public java.lang.String toString$O() {
+        return x10.lang.System.identityToString$O(this);
+    }
+    
     @Override
     public java.lang.String toString() {
-        return Types.typeName(this) + "@" + Integer.toHexString(System.identityHashCode(this));
+        return toString$O();
+    }
+    
+    public int hashCode$O() {
+        return x10.lang.System.identityHashCode$O(this);
+    }
+    
+    @Override
+    public int hashCode() {
+        return hashCode$O();
+    }
+    
+    public boolean equals$O(java.lang.Object other) {
+        return x10.lang.System.identityEquals$O(this, other);
+    }
+    
+    @Override
+    public boolean equals(java.lang.Object other) {
+        return equals$O(other);
     }
     
     // not used
