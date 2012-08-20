@@ -534,6 +534,7 @@ public class X10JavaSerializer {
 //        RAW_JAVA_THROWABLES.add(java.lang.StackOverflowError.class.getName());
 //    }
     static final boolean RAW_JAVA_THROWABLES_SERIALIZE_MESSAGE = false;
+    static final boolean RAW_JAVA_THROWABLES_SERIALIZE_STACKTRACE = true;
     static boolean isRawJavaThrowable(java.lang.Class clazz) {
         if (!java.lang.Throwable.class.isAssignableFrom(clazz)) return false;
         boolean isX10Generated = false;
@@ -855,8 +856,13 @@ public class X10JavaSerializer {
 //    			((X10Throwable) obj).$_serialize(xjs);
     		} else if (isRawJavaThrowable(clazz)) {
     		    if (RAW_JAVA_THROWABLES_SERIALIZE_MESSAGE) {
-    		        xjs.write(((java.lang.Throwable) obj).getMessage());
+                        java.lang.Throwable t = (java.lang.Throwable) obj;
+    		        xjs.write(t.getMessage());
     		    }
+                    if (RAW_JAVA_THROWABLES_SERIALIZE_STACKTRACE) {
+                        java.lang.Throwable t = (java.lang.Throwable) obj;
+                        xjs.writeArrayUsingReflection(t.getStackTrace());
+                    }
     		} else if ("java.lang.Class".equals(clazz.getName())) {
     			xjs.write(((Class)obj).getName());
     		} /* else if ("java.lang.Object".equals(clazz.getName())) {

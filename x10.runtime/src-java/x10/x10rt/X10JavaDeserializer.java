@@ -751,6 +751,11 @@ public class X10JavaDeserializer {
 	                    e.printStackTrace();
 	                }
 	            }
+	            if (X10JavaSerializer.RAW_JAVA_THROWABLES_SERIALIZE_STACKTRACE) {
+                        java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
+                        java.lang.Throwable t = (java.lang.Throwable) obj;
+                        t.setStackTrace(trace);
+	            }
 	            return obj;
 	        } else if ("java.lang.Class".equals(clazz.getName())) {
 	            String className = jds.readString();
