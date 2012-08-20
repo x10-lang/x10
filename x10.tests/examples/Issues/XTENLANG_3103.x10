@@ -22,6 +22,7 @@ public class XTENLANG_3103[T]
     public static def run()
     {
         val myArTestIntNo123 : C[Int{self!=0}] = null;
-        myArTestIntNo123.a(Point.make(0));
+        val arr /*: Array[Int{self!=0}]{rank==1}*/ = myArTestIntNo123.a;
+        arr(Point.make(0));
     }
 }
