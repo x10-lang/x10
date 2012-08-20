@@ -116,7 +116,7 @@ public class DeserializationDispatcher {
                 Runtime.printTraceMessage("Deserialized a null reference");
             }
             return null;
-        } else if (i <=8) {
+        } else if (i <= MAX_ID_FOR_PRIMITIVE) {
             return deserializePrimitive(i, deserializer);
         }
 
