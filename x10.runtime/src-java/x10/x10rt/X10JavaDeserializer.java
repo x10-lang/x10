@@ -163,7 +163,7 @@ public class X10JavaDeserializer {
     public byte readByte() throws IOException {
         byte v = in.readByte();
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing [**] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + v);
+            Runtime.printTraceMessage("Deserializing [*] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }

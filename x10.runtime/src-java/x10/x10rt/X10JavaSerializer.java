@@ -198,7 +198,7 @@ public class X10JavaSerializer {
 
     public void write(byte b) throws IOException {
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + b);
+            Runtime.printTraceMessage("Serializing [*] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + b);
         }
         out.writeByte(b);
     }
