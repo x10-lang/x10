@@ -549,10 +549,10 @@ public class X10JavaDeserializer {
     }
     
     private abstract static class DeserializerThunk {
-    	protected final DeserializerThunk superclassThunk;
+    	protected final DeserializerThunk superThunk;
     	
     	DeserializerThunk(DeserializerThunk st) {
-    		superclassThunk = st;
+    		superThunk = st;
 		}
     	
     	@SuppressWarnings("unchecked")
@@ -572,8 +572,8 @@ public class X10JavaDeserializer {
     	}
     	
     	<T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
-    		if (superclassThunk != null) {
-    			obj = superclassThunk.deserializeObject(clazz, obj, i, jds);
+    		if (superThunk != null) {
+    			obj = superThunk.deserializeObject(clazz, obj, i, jds);
     		}
     		return deserializeBody(clazz, obj, i, jds);
     	}

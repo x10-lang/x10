@@ -442,7 +442,7 @@ public class X10JavaSerializer {
     	try {
     		SerializerThunk st = getSerializerThunk(bodyClass);
     		writeClassID(bodyClass.getName());
-    		st.serializeObj(body, this);
+    		st.serializeObject(body, this);
     	} catch (SecurityException e) {
     		e.printStackTrace();
     		throw new RuntimeException(e);
@@ -469,7 +469,7 @@ public class X10JavaSerializer {
     	try {
     		SerializerThunk st = getSerializerThunk(clazz);
     		writeClassID(clazz.getName());
-    		st.serializeObj(obj, this);
+    		st.serializeObject(obj, this);
     	} catch (SecurityException e) {
     		e.printStackTrace();
     		throw new RuntimeException(e);
@@ -687,9 +687,9 @@ public class X10JavaSerializer {
     		superThunk = st;
     	}
     	
-    	<T> void serializeObj(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
+    	<T> void serializeObject(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
     		if (superThunk != null) {
-    			superThunk.serializeObj(obj, xjs);
+    			superThunk.serializeObject(obj, xjs);
     		}
     		serializeBody(obj, xjs);
     	}
