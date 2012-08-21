@@ -798,6 +798,17 @@ public class Emitter {
 
 	// check if the specified method overrides or implements Java method (= a method whose container is a Java type)
         public static boolean canOverrideOrImplementJavaMethod(MethodDef def) {
+            if (def.flags().isStatic()) return false;
+
+            // instance methods of Any (=java.lang.Object)
+            // N.B. these methods should be included in mi.implemented() but not for some reason, so added as special cases. 
+            String methodName = def.name().toString();
+            List<Ref<? extends Type>> formalTypes = def.formalTypes();
+            int numFormals = formalTypes.size();
+            if (methodName.equals("toString") && numFormals == 0) return true;
+            if (methodName.equals("hashCode") && numFormals == 0) return true;
+            if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return true;
+
             Context context = def.typeSystem().emptyContext();
             MethodInstance mi = def.asInstance();
             for (MethodInstance overridden : mi.overrides(context)) {
@@ -1553,17 +1564,17 @@ public class Emitter {
         
 //        if (!def.flags().isStatic()) {
 //            String methodName = def.name().toString();
-            // instance methods
+//            // instance methods
 //            List<Ref<? extends Type>> formalTypes = def.formalTypes();
 //            int numFormals = formalTypes.size();
-//            if (methodName.equals("toString") && numFormals == 0) return false;/*Any=j.l.Object*/
-//            if (methodName.equals("hashCode") && numFormals == 0) return false;/*Any=j.l.Object*/
-//            if (methodName.equals("equals") && numFormals == 1 && formalTypes.get(0).get().isAny()) return false;/*Any=j.l.Object*/
-//            if (methodName.equals("compareTo") && numFormals == 1) return false;/*Comparable=j.l.Comparable*/
-            // TODO want to check with the fact that x.l.Comparable is @NativeRep'ed to j.l.Comparable
-            // XTENLANG-2929
-            if (canOverrideOrImplementJavaMethod(def)) return false;/*CharSequence etc.*/
+//            //if (methodName.equals("compareTo") && numFormals == 1) return false;/*Comparable=j.l.Comparable*/
+//            List<ParameterType> typeParams = def.typeParameters();
+//            int numTypeParams = typeParams.size();
+//            if (methodName.equals("compareTo") && numFormals == 1 && numTypeParams == 1 && formalTypes.get(0).get().isComparable(typeParams.get(0))) return false;/*Comparable=j.l.Comparable*/
 //        }
+        // TODO want to check with the fact that x.l.Comparable is @NativeRep'ed to j.l.Comparable
+        // XTENLANG-2929
+        if (canOverrideOrImplementJavaMethod(def)) return false;/*CharSequence etc.*/
         
         return true;
     }

@@ -57,32 +57,21 @@ public abstract class Ref implements Any {
 //    public RuntimeType<?> $getRTT() {return $RTT;}
 //    public Type<?> $getParam(int i) {return null;}
 
-    public java.lang.String toString$O() {
-        return x10.lang.System.identityToString$O(this);
-    }
-    
     @Override
     public java.lang.String toString() {
-        return toString$O();
+        return x10.lang.System.identityToString$O(this);
     }
-    
-    public int hashCode$O() {
-        return x10.lang.System.identityHashCode$O(this);
-    }
-    
-    @Override
-    public int hashCode() {
-        return hashCode$O();
-    }
-    
-    public boolean equals$O(java.lang.Object other) {
-        return x10.lang.System.identityEquals$O(this, other);
-    }
-    
-    @Override
-    public boolean equals(java.lang.Object other) {
-        return equals$O(other);
-    }
+
+    // not used (same as Java)
+//    @Override
+//    public int hashCode() {
+//        return x10.lang.System.identityHashCode$O(this);
+//    }
+//
+//    @Override
+//    public boolean equals(java.lang.Object other) {
+//        return x10.lang.System.identityEquals$O(this, other);
+//    }
     
     // not used
 //    public static x10.x10rt.X10JavaSerializable $_deserialize_body(Ref $_obj, x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
