@@ -70,7 +70,6 @@ public class X10JavaDeserializer {
         objectList.set(pos, obj);
     }
 
-
     public Object getObjectAtPosition(int pos) {
         Object o = objectList.get(pos);
         if (Runtime.TRACE_SER) {
@@ -247,14 +246,14 @@ public class X10JavaDeserializer {
     }
 
     public String readString() throws IOException {
-        short classID = in.readShort();
-        if (classID == DeserializationDispatcher.refValue) {
-            return (String) getObjectAtPosition(readInt());
-        } else if (classID == DeserializationDispatcher.NULL_ID) {
+        short serializationID = in.readShort();
+        if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null reference");
             }
             return null;
+        } else if (serializationID == DeserializationDispatcher.refValue) {
+            return (String) getObjectAtPosition(readInt());
         }
         String str = readStringValue();
         if (Runtime.TRACE_SER) {
@@ -282,13 +281,13 @@ public class X10JavaDeserializer {
 
     public Object readRefUsingReflection() throws IOException {
         short serializationID = readShort();
-        if (serializationID == DeserializationDispatcher.refValue) {
-            return getObjectAtPosition(readInt());
-        } else if (serializationID == DeserializationDispatcher.NULL_ID) {
+        if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserialized a null reference");
             }
             return null;
+        } else if (serializationID == DeserializationDispatcher.refValue) {
+            return getObjectAtPosition(readInt());
         } else if (serializationID <= DeserializationDispatcher.MAX_ID_FOR_PRIMITIVE) {
             return DeserializationDispatcher.deserializePrimitive(serializationID, this);
         }
@@ -401,8 +400,8 @@ public class X10JavaDeserializer {
         } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-            //        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
-            //                  return new SpecialCaseDeserializerThunk(null);
+//        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
+//            return new SpecialCaseDeserializerThunk(null);
         } else if (X10JavaSerializer.isThrowable(clazz)) {
             return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {

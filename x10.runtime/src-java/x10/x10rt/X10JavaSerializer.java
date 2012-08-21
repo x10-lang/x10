@@ -58,11 +58,12 @@ public class X10JavaSerializer {
             return;
         }
 
-        if (obj.getClass().toString().equals("java.lang.Object")) {
-            return;
-        }
+//        if (obj.getClass().toString().equals("java.lang.Object")) {
+//            // should never happen
+//            return;
+//        }
         Integer pos = previous_position(obj, true);
-        if (pos !=null) {
+        if (pos != null) {
             return;
         }
         short i = obj.$_get_serialization_id();
@@ -88,14 +89,13 @@ public class X10JavaSerializer {
     }
 
     public void write(X10JavaSerializable obj[]) throws IOException {
-
         write(obj.length);
         for (X10JavaSerializable o : obj) {
             write(o);
         }
     }
     
-    public void write(Object obj[]) throws IOException {
+    public void write(Object[] obj) throws IOException {
         write(obj.length);
         for (Object o : obj) {
             write(o);
@@ -155,7 +155,7 @@ public class X10JavaSerializer {
         out.writeBoolean(p.booleanValue());
     }
 
-    public void write(boolean v[]) throws IOException {
+    public void write(boolean[] v) throws IOException {
         out.writeInt(v.length);
         for (boolean b : v) {
             out.writeBoolean(b);
@@ -436,8 +436,8 @@ public class X10JavaSerializer {
         }
 
         try {
-            SerializerThunk st = getSerializerThunk(bodyClass);
             writeClassID(bodyClass.getName());
+            SerializerThunk st = getSerializerThunk(bodyClass);
             st.serializeObject(body, this);
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -463,8 +463,8 @@ public class X10JavaSerializer {
     // This method is called from generated code when an X10 class has a Java superclass
     public <T> void serializeClassUsingReflection(T obj, Class<T> clazz) throws IOException {
         try {
-            SerializerThunk st = getSerializerThunk(clazz);
             writeClassID(clazz.getName());
+            SerializerThunk st = getSerializerThunk(clazz);
             st.serializeObject(obj, this);
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -562,7 +562,7 @@ public class X10JavaSerializer {
             isHadoopSerializable = true;
         }
 
-        if(isCustomSerializable && isHadoopSerializable) {
+        if (isCustomSerializable && isHadoopSerializable) {
             throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
         }
 
