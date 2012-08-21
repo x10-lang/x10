@@ -38,9 +38,8 @@ namespace x10 {
 
             RTT_H_DECLS_CLASS;
 
-            static Fun_0_1<x10_int, x10_char>::itable<String> _itable_Fun_0_1;
             static Comparable<x10aux::ref<String> >::itable<String> _itable_Comparable;
-            static x10aux::itable_entry _itables[3];
+            static x10aux::itable_entry _itables[2];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
 
             void _constructor(const char *content, bool steal);

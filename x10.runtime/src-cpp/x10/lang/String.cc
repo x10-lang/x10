@@ -459,15 +459,11 @@ x10aux::ref<Reference> String::_deserializer(x10aux::deserialization_buffer& buf
     return this_;
 }
 
-Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::equals, &String::hashCode,
-                                                                   &String::__apply,                                                                    
-                                                                   &String::toString, &String::typeName);
 Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::compareTo,
                                                                    &String::equals, &String::hashCode,
                                                                    &String::toString, &String::typeName);
 
-x10aux::itable_entry String::_itables[3] = {
-    x10aux::itable_entry(&x10aux::getRTT<Fun_0_1<x10_int, x10_char> >, &String::_itable_Fun_0_1),
+x10aux::itable_entry String::_itables[2] = {
     x10aux::itable_entry(&x10aux::getRTT<Comparable<ref<String> > >, &String::_itable_Comparable),
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
@@ -476,8 +472,7 @@ x10aux::RuntimeType String::rtt;
 
 void String::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    const x10aux::RuntimeType* parents[1] =
-        { Comparable<String>::getRTT() };
+    const x10aux::RuntimeType* parents[1] = { Comparable<String>::getRTT() };
     
     rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 1, parents, 0, NULL, NULL);
 }    

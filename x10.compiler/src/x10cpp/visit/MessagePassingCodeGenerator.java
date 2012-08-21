@@ -765,10 +765,10 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.end();
         h.newline(0);
         h.writeln("};");
-        if (isStruct) {
-            emitter.printRTTDefn((X10ClassType) Types.baseType(def.asType()), sw);
-        } 
-        
+        h.forceNewline(0);
+
+        emitter.printRTTDefn((X10ClassType) Types.baseType(def.asType()), sw);
+
         ((X10CPPTranslator)tr).setContext(n.enterChildScope(n.body(), context)); // FIXME
 
         extractGenericStaticDecls(def, h);
@@ -1053,8 +1053,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         sw.end();
         sw.newline();
-
-        emitter.printRTTDefn(currentClass, sw);
     }
 
     private void visitClassBody(ClassBody_c n, X10CPPContext_c context,
@@ -1104,8 +1102,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         sw.end();
         sw.newline();
-
-        emitter.printRTTDefn(currentClass, sw);
     }
 
     private void visitStructBody(ClassBody_c n, X10CPPContext_c context,
