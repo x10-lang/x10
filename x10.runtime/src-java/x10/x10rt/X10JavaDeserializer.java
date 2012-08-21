@@ -163,7 +163,7 @@ public class X10JavaDeserializer {
     public byte readByte() throws IOException {
         byte v = in.readByte();
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing [****] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + v);
+            Runtime.printTraceMessage("Deserializing [**] a " + Runtime.ANSI_CYAN + "byte" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -236,7 +236,7 @@ public class X10JavaDeserializer {
     public float readFloat() throws IOException {
         float v = in.readFloat();
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing [********] a " + Runtime.ANSI_CYAN + "float" + Runtime.ANSI_RESET + ": " + v);
+            Runtime.printTraceMessage("Deserializing [****] a " + Runtime.ANSI_CYAN + "float" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -407,7 +407,7 @@ public class X10JavaDeserializer {
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
 //           	return new SpecialCaseDeserializerThunk(null);
-        } else if (X10JavaSerializer.isRawJavaThrowable(clazz)) {
+        } else if (X10JavaSerializer.isThrowable(clazz)) {
             return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
@@ -740,8 +740,8 @@ public class X10JavaDeserializer {
 	            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //	        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
 //	            return (T) X10Throwable.$_deserialize_body((X10Throwable) obj, jds);
-	        } else if (X10JavaSerializer.isRawJavaThrowable(clazz)) {
-	            if (X10JavaSerializer.RAW_JAVA_THROWABLES_SERIALIZE_MESSAGE) {
+	        } else if (X10JavaSerializer.isThrowable(clazz)) {
+	            if (X10JavaSerializer.THROWABLES_SERIALIZE_MESSAGE) {
 	                try {
                             String message = jds.readString();
 	                    Field detailMessageField = java.lang.Throwable.class.getDeclaredField("detailMessage");
@@ -751,7 +751,7 @@ public class X10JavaDeserializer {
 	                    e.printStackTrace();
 	                }
 	            }
-	            if (X10JavaSerializer.RAW_JAVA_THROWABLES_SERIALIZE_STACKTRACE) {
+	            if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
                         java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
                         java.lang.Throwable t = (java.lang.Throwable) obj;
                         t.setStackTrace(trace);
