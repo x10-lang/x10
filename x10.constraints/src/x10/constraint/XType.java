@@ -80,4 +80,5 @@ public interface XType {
      * @return the type system of this type
      */
     <T> XTypeSystem<? extends T> xTypeSystem();
+    String typetoSmtString(); 
 }

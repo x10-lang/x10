@@ -104,12 +104,12 @@ public class LocalDef_c extends VarDef_c implements LocalDef
 
 	@Override
 	public Type resultType() {
-		return Types.baseType(asInstance().type());
+		return Types.baseTypeRec(asInstance().type());
 	}
 	
 	@Override
 	public String getName() {
-		Type t = Types.baseType(type.get()); 
+		Type t = Types.baseTypeRec(type.get()); 
 		if (t instanceof FunctionType_c) {
 			Type returnType = Types.baseType((FunctionType_c)t);
 			return returnType.toString() + name().toString(); 

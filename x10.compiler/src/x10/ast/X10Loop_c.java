@@ -212,7 +212,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
         XTerm<Type> selfValue = Types.selfVarBinding(domainType);
         boolean generated = false;
         if (selfValue == null) {
-            selfValue = ConstraintManager.getConstraintSystem().makeUQV(base);
+            selfValue = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(base));
             generated = true;
         }
         XVar<Type> thisVar = base instanceof X10ClassType ?

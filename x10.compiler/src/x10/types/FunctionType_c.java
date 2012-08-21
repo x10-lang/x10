@@ -100,6 +100,23 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
         if (guard == null || guard.constraints().size() == 0) return "";
         return guard.toString();
     }
+    @Override
+    public String typetoSmtString() {
+        MethodInstance mi = applyMethod();
+        if (mi==null) // this could happen if the method is installed before the type is properly formed, e.g. in -report types=2 execution.
+            return "???"; 
+        StringBuilder sb = new StringBuilder();
+        List<LocalInstance> formals = mi.formalNames();
+        for (int i=0; i < formals.size(); ++i) {
+            LocalInstance f = formals.get(i);
+            if (sb.length() > 0)
+                sb.append(", ");
+            sb.append(f.name());
+            sb.append(':');
+            sb.append(f.type());
+        }
+        return "(" + sb.toString() + ")" + guardToString(guard()) + "=>" + mi.returnType();
+    }
 
     @Override
     public String typeToString() {

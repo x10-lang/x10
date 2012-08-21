@@ -32,20 +32,12 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 		return XConstraintManager.<T>getConstraintSystem();
 	}
 	/**
-	 * The name of the SMT solver to be used. 
-	 */
-	private static final String solverName = "cvc3";
-	/**
 	 * The conjunction of XSmtTerms representing the constraint. Maintains the
 	 * invariant that none of the terms in conjuncts are a top level AND 
 	 * i.e. the AND is flatten for convenience 
 	 */
 	protected List<XSmtTerm<T>> conjuncts;
-	/**
-	 * Pointer to the SMT solver. 
-	 */
-	protected XSmtSolver<T> solver; 
-
+ 
 	protected static enum Status {
 		CONSISTENT,
 		INCONSISTENT,
@@ -61,7 +53,6 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	
 	protected XSmtConstraint() {
 		conjuncts = new ArrayList<XSmtTerm<T>>();
-		solver = XSolverFactory.SmtSolver(solverName);
 		status = Status.UNKNOWN;
 	}
 	
@@ -70,7 +61,6 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 		for (XSmtTerm<T> ch : other.constraints()) {
 			conjuncts.add(XConstraintManager.<T>getConstraintSystem().copy(ch));
 		}
-		this.solver = other.solver; 
 		this.status = Status.UNKNOWN; 
 	}
 	
@@ -89,7 +79,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 		
 		XTerm<T> conjunction = cs().makeAnd(constraints()); 
 		try {
-			boolean res = solver.isValid((XSmtTerm<T>)conjunction);
+			boolean res = XSolverEngine.isValid((XSmtTerm<T>)conjunction);
 			return res; 
 		} catch (XSmtFailure e) {
 			throw new IllegalStateException("Smt Solver Failure " +  e);
@@ -141,10 +131,10 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	public boolean entails(XTerm<T> term) {
 		try {		
 			if (constraints().size() == 0) 
-				return solver.isValid((XSmtTerm<T>)term);
+				return XSolverEngine.isValid((XSmtTerm<T>)term);
 			
 			XTerm<T> this_and = cs().makeAnd(constraints());
-			return solver.entails((XSmtTerm<T>)this_and, (XSmtTerm<T>)term);
+			return XSolverEngine.entails((XSmtTerm<T>)this_and, (XSmtTerm<T>)term);
 		} catch (XSmtFailure e) {
 			throw new IllegalStateException("Smt Solver Failure " +  e);
 		}

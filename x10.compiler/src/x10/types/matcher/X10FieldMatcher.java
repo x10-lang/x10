@@ -49,7 +49,7 @@ public class X10FieldMatcher {
         XVar<Type> vv = null;
         if (v == null) {
         	// lshadare why are we making a universally quantified variable here?
-        	v = vv =ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(container));
+        	v = vv =ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(container));
         }
         if (oldThis != null && v == null && vv==null)
         	assert false;
@@ -75,7 +75,7 @@ public class X10FieldMatcher {
             // substituting oldThis by a new EQV
             if (vv != null) { // Hide vv, i.e. substitute in an anonymous EQV
                 t = Subst.subst(t,
-                                new XTerm[] {ConstraintManager.getConstraintSystem().makeEQV(vv.type())},
+                                new XTerm[] {ConstraintManager.getConstraintSystem().makeEQV(Types.baseTypeRec(vv.type()))},
                                 new XTerm[] {vv},
                                 new Type[] {}, new ParameterType[] {});
             }

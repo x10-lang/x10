@@ -250,7 +250,7 @@ public class Checker {
 		} catch (IllegalConstraint z) {
 		}
 		if (receiver == null)
-			receiver = ConstraintManager.getConstraintSystem().makeEQV(Types.baseType(target.type()));
+			receiver = ConstraintManager.getConstraintSystem().makeEQV(Types.baseTypeRec(target.type()));
 		try {
 			t = Subst.subst(t, 
 					(new XVar[] { receiver }), 
@@ -289,7 +289,7 @@ public class Checker {
 			XTerm<Type> receiver = Types.selfVarBinding(target.type());
 			XVar<Type> root = null;
 			if (receiver == null) {
-				receiver = root = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(target.type()));
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(target.type()));
 			}
 			// Need to add the target's constraints in here because the target may not
 			// be a variable. hence the type information wont be in the context.
@@ -326,7 +326,7 @@ public class Checker {
 			XTerm<Type> receiver = Types.selfVarBinding(target.type());
 			XVar<Type> root = null;
 			if (receiver == null) {
-				receiver = root = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(target.type()));
+				receiver = root = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(target.type()));
 			}
 			xc = xc.instantiateSelf(receiver);
 			if (! Types.contextKnowsType(target))

@@ -8,14 +8,14 @@ public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 	private final D def; 
 	private final String s; // just for documentation
 
-	XSmtLocal(D def) {
-		super(def.resultType(), def.getName());
+	public XSmtLocal(D def, T type) {
+		super(type, def.getName());
 		this.def = def;
 		this.s = null; 
 	}
 
-	XSmtLocal(D def, String s) {
-		super(def.resultType(), def.getName());
+	public XSmtLocal(D def, String s, T type) {
+		super(type, def.getName());
 		this.def = def;
 		this.s = s; 
 	}

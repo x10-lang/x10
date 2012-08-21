@@ -52,6 +52,7 @@ import polyglot.util.TransformingList;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
+import x10.constraint.XTypeSystem;
 import x10.types.constraints.ConstraintManager;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
@@ -243,6 +244,16 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 	            typeName = "("+typeName+")";
 	        return typeName + cString;
 		}
+
+		@Override
+		public String typetoSmtString() {
+	        Type type = baseType.getCached();
+	        String typeName = type.toString();
+	        if (type instanceof FunctionType_c)
+	            typeName = "("+typeName+")";
+	        return typeName;
+		}
+
 		
 		private String constraintString() {
 			StringBuilder sb = new StringBuilder();
@@ -296,7 +307,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			// Get or make a name tt for self.
 			XTerm<Type> t = c.bindingForVar(c.self());
 			if (t == null) {
-				t = ConstraintManager.getConstraintSystem().makeEQV(base);
+				t = ConstraintManager.getConstraintSystem().makeEQV(Types.baseTypeRec(base));
 
 			}
 			final XTerm<Type> tt = t;
@@ -851,4 +862,5 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			 return false;
 					 
 		 }
+
 	}

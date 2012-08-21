@@ -232,7 +232,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
             }
             XTerm<Type> symbol = Types.selfVarBinding(yType);
             if (symbol==null) {
-                symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(yType));
+                symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(yType));
                 CConstraint c = Types.xclause(yType);
                 curr.addIn(symbol, c);
             } 

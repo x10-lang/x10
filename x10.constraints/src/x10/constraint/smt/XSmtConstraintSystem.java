@@ -59,16 +59,6 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 		return new XSmtUQV<T>(type, prefix, idCounter++);
 	}
 
-	@Override
-	public <D extends XDef<T>> XSmtLocal<T, D> makeLocal(D def) {
-		assert def != null;
-		return new XSmtLocal<T,D>(def);
-	}
-
-	@Override
-	public <D extends XDef<T>> XSmtLocal<T, D> makeLocal(D def, String name) {
-		return new XSmtLocal<T,D>(def, name);
-	}
 
 	@Override
 	public XSmtExpr<T> makeExpr(XOp<T> op, List<? extends XTerm<T>> terms) {
@@ -131,21 +121,6 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 		return new XSmtExpr<T>(XOp.<T>NOT(), false, (XSmtTerm<T>)arg);
 	}
 
-	@Override
-	public <D extends XDef<T>> XSmtField<T,D> makeField(XTerm<T> receiver, D label) {
-		if (label.toString().contains("IntRange")) {
-			System.out.println("IntRange");
-		}
-
-		assert receiver!= null && label!= null;
-		return new XSmtField<T,D>(label, (XSmtTerm<T>)receiver, label.resultType());
-	}
-
-	@Override
-	public <D extends XDef<T>> XSmtField<T,D> makeFakeField(XTerm<T> receiver, D label) {
-		assert receiver!= null && label!= null;
-		return new XSmtField<T,D>(label, (XSmtTerm<T>)receiver, label.resultType(), true);
-	}
 
 	@Override
 	public <D> XSmtField<T, D> makeField(XTerm<T> receiver, D label, T type) {
@@ -157,16 +132,6 @@ public class XSmtConstraintSystem<T extends XType> implements XConstraintSystem<
 	public <D> XSmtField<T, D> makeFakeField(XTerm<T> receiver, D label, T type) {
 		assert receiver!= null && label!= null && type != null;
 		return new XSmtField<T, D>(label, (XSmtTerm<T>)receiver, type, true);
-	}
-
-	@Override
-	public <D extends XDef<T>> XSmtExpr<T> makeMethod(D md, XTerm<T> receiver, List<? extends XTerm<T>> terms) {
-		XTerm<T> method = makeField(receiver, md);
-		List<XTerm<T>> args = new ArrayList<XTerm<T>>(terms.size() +1);
-		args.add(method);
-		for (XTerm<T> t : terms)
-			args.add(t); 
-		return makeExpr(XOp.<T>APPLY(), terms);
 	}
 
 	

@@ -13,6 +13,7 @@ import polyglot.types.Type;
 import x10.constraint.XConstraintSystem;
 import x10.constraint.XDef;
 import x10.constraint.XExpr;
+import x10.constraint.XField;
 import x10.constraint.XLit;
 import x10.constraint.XLocal;
 import x10.constraint.XOp;
@@ -41,6 +42,50 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
 	 * @return this variable
 	 */
     public CThis makeThis(Type t);
+	/**
+	 * Make a local variable with its associated definition
+	 * @param def the definition of the variable
+	 * @return
+	 */
+	public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D def);
+	/**
+	 * Make a local variable with its associated name and 
+	 * definition
+	 * @param def the definition of the variable
+	 * @param name the name of the local variable
+	 * @return
+	 */
+	public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D def, String name);
+
+	/**
+     * Construct the XTerm corresponding to a method call. This will be represented by a 
+     * field dereference followed by an function application. For example a.foo(x,y), will become 
+     * (APPLY ((APPLY_LABEL foo) a) x y). 
+     * @param md method definition
+     * @param receiver 
+     * @param t method arguments
+     * @return 
+     */
+    public <D extends XDef<Type>> XExpr<Type> makeMethod(D md, XTerm<Type> receiver, List<? extends XTerm<Type>> t);
+	
+	
+	/**
+	 * Make a projection operation i.e. field/method dereference a.f
+	 * @param receiver the container
+	 * @param definition of the field/method
+	 * @return
+	 */
+	public <D extends XDef<Type>> XField<Type, D> makeField(XTerm<Type> receiver, D label);
+	/**
+	 * Make a projection operation i.e. field/method dereference a.f
+	 * that is hidden (visible only to the compiler such as the here
+	 * field)
+	 * @param receiver the container
+	 * @param definition of the field/method
+	 * @return
+	 */
+	public <D extends XDef<Type>> XField<Type, D> makeFakeField(XTerm<Type> receiver, D label);
+    
     /**
      * Create a new field dereference resulting from applying the field f 
      * defined by field to receiver i.e. receiver.f

@@ -343,7 +343,7 @@ public class XTypeTranslator {
     }
     
     public XUQV<Type> translateTypeParam(ParameterType t) {
-        return ConstraintManager.getConstraintSystem().makeUQV(t, t.toString()); 
+        return ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(t), t.toString()); 
     }
 
     
@@ -559,7 +559,7 @@ public class XTypeTranslator {
         // Determine if their types force them to be equal or disequal.
 
         CConstraint c1 = Types.xclause(r1.type()).copy();
-        XVar<Type> x = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(r1.type()));
+        XVar<Type> x = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(r1.type()));
         c1.addSelfEquality(x);
         CConstraint c2 = Types.xclause(x, r2.type()).copy();
         if (rb.operator()== Binary.EQ) {

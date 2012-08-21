@@ -7,11 +7,11 @@ import x10.constraint.XTerm;
 import x10.constraint.XType;
 
 public class XSmtField<T extends XType, F> extends XSmtExpr<T> implements XField<T,F> {
-	protected XSmtField(F field, XSmtTerm<T> receiver, T type) {
+	public XSmtField(F field, XSmtTerm<T> receiver, T type) {
 		super(XOp.makeLabelOp(field,type), false, receiver);
 	}
 	
-	protected XSmtField(F field, XSmtTerm<T> receiver, T type, boolean hidden) {
+	public XSmtField(F field, XSmtTerm<T> receiver, T type, boolean hidden) {
 		super(XOp.makeLabelOp(field,type), hidden, receiver);
 	}
 	

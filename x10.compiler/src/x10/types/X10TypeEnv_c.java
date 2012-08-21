@@ -1245,7 +1245,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                 @SuppressWarnings("unchecked")
 				XTerm<Type>[] ys = new XTerm[ft1.formalNames().size()];
                 for (int i = 0; i < ys.length; i++) {
-                    ys[i] = ConstraintManager.getConstraintSystem().makeUQV(ft1.argumentTypes().get(i));
+                    ys[i] = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(ft1.argumentTypes().get(i)));
                 }
                 try {
                     XVar<Type>[] xs1 = Types.toVarArray(Types.toLocalDefList(ft1.formalNames()));
@@ -1291,7 +1291,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
-        XVar<Type> temp = ConstraintManager.getConstraintSystem().makeUQV(baseType1);
+        XVar<Type> temp = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(baseType1));
         // instantiateSelf ensures that Int{self123==3} and A{self456==3} are equal.
         if (c1 != null) {
             c1 = c1.instantiateSelf(temp);
@@ -2043,7 +2043,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	@SuppressWarnings("unchecked")
 		XVar<Type>[] result = new XVar[types.size()];
     	for (int i =0; i < types.size(); ++i) {
-    		result[i] = ConstraintManager.getConstraintSystem().makeUQV(types.get(i));
+    		result[i] = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(types.get(i)));
     	}
     	return result;
     }

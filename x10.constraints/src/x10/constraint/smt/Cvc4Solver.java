@@ -17,51 +17,29 @@ import x10.constraint.XType;
  * @author lshadare
  *
  */
-public class XCvc4Solver<T extends XType> implements XSmtSolver<T> {
+public class Cvc4Solver<T extends XType> implements XSmtSolver {
 	/**
 	 * Some useful String constants for now. 
 	 */
-	private static final String outFile = "/home/lshadare/temp/constraints-dump/x10-constraint.smt2";
 	private static final String solverPath = "/home/lshadare/solvers/cvc4";
 	private final ProcessBuilder pb;
 	//private final XSmtPrinter<T> printer; 
-	private static XCvc4Solver<? extends XType> instance = null;
-	private XConstraintSystem<T> cs = XConstraintManager.<T>getConstraintSystem(); 
+	private static Cvc4Solver<? extends XType> instance = null;
 	
-	private XCvc4Solver() {
-		this.pb = new ProcessBuilder(solverPath, outFile);
+	private Cvc4Solver() {
+		this.pb = new ProcessBuilder(solverPath, XSolverEngine.outFile);
 		this.pb.redirectErrorStream(true);
-		//this.printer = new XSmtPrinter<T>(outFile); 
 	}
 	
 	@SuppressWarnings("unchecked")
-	public static <T extends XType> XCvc4Solver<T> getInstance() {
+	public static <T extends XType> Cvc4Solver<T> getInstance() {
 		if (instance == null)
-			instance = new XCvc4Solver<T>(); 
-		return (XCvc4Solver<T>)instance;
-	}
-	
-	private Result solve(XSmtTerm<T> query) {
-		XSmtPrinter<T> p = new XSmtPrinter<T>(outFile);
-		p.dump(query); 
-		return run(); 
-	}
-
-	@Override
-	public boolean isValid(XSmtTerm<T> formula) throws XSmtFailure {
-		//@SuppressWarnings("unchecked")
-		// make sure the quantifiers are top level
-		//XSmtTerm<T> query = (XSmtTerm<T>)cs.makeNot(new XSmtQuantifier<T>(formula));
-		//universalFreeVariables(formula); 
-		return solve(formula) == Result.SAT;
+			instance = new Cvc4Solver<T>(); 
+		return (Cvc4Solver<T>)instance;
 	}
 	
 	@Override
-	public boolean isSatisfiable(XSmtTerm<T> formula) throws XSmtFailure {
-		return solve(new XSmtQuantifier<T>(formula)) == Result.SAT;
-	}
-	
-	private XSmtSolver.Result run() {
+	public XSolverEngine.Result run() {
 		try {
 			Process pr = pb.start(); 
 			// note that Process.getInputStream() obtains an input stream with 
@@ -81,10 +59,10 @@ public class XCvc4Solver<T extends XType> implements XSmtSolver<T> {
 			String output = sb.toString(); 
 
 			if (output.contains("sat") && exitVal == 10)
-				return Result.SAT;
+				return XSolverEngine.Result.SAT;
 
 			if (output.contains("unsat") && exitVal == 20)
-				return Result.UNSAT;
+				return XSolverEngine.Result.UNSAT;
 
 			throw new IOException("CVC4 SmtSolver Error");
 		}
@@ -93,13 +71,6 @@ public class XCvc4Solver<T extends XType> implements XSmtSolver<T> {
 			throw new UndeclaredThrowableException(e); 
 		}
 		
-	}
-
-	@Override
-	public boolean entails(XSmtTerm<T> t1, XSmtTerm<T> t2) throws XSmtFailure {
-		XSmtTerm<T> impl = (XSmtTerm<T>)XConstraintManager.<T>getConstraintSystem().makeExpr(XOp.<T>IMPL(), t1, t2); 
-		XSmtTerm<T> query = new XSmtQuantifier<T>(impl);
-		return isValid(query);
 	}
 
 }

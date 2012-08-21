@@ -585,7 +585,7 @@ public class Matcher {
 			return null; 
 		XTerm<Type> symbol = Types.selfVarBinding(type);
 		if (symbol == null) {
-			symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(type));  
+			symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(type));  
 		}
 		return symbol;
 	}

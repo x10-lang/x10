@@ -44,49 +44,6 @@ public interface XConstraintSystem<T extends XType> {
 	public XUQV<T> makeUQV(T type, String prefix);
 	
 	/**
-	 * Make a local variable with its associated definition
-	 * @param def the definition of the variable
-	 * @return
-	 */
-	public <D extends XDef<T>> XLocal<T, D> makeLocal(D def);
-	/**
-	 * Make a local variable with its associated name and 
-	 * definition
-	 * @param def the definition of the variable
-	 * @param name the name of the local variable
-	 * @return
-	 */
-	public <D extends XDef<T>> XLocal<T, D> makeLocal(D def, String name);
-
-	/**
-     * Construct the XTerm corresponding to a method call. This will be represented by a 
-     * field dereference followed by an function application. For example a.foo(x,y), will become 
-     * (APPLY ((APPLY_LABEL foo) a) x y). 
-     * @param md method definition
-     * @param receiver 
-     * @param t method arguments
-     * @return 
-     */
-    public <D extends XDef<T>> XExpr<T> makeMethod(D md, XTerm<T> receiver, List<? extends XTerm<T>> t);
-	
-	
-	/**
-	 * Make a projection operation i.e. field/method dereference a.f
-	 * @param receiver the container
-	 * @param definition of the field/method
-	 * @return
-	 */
-	public <D extends XDef<T>> XField<T, D> makeField(XTerm<T> receiver, D label);
-	/**
-	 * Make a projection operation i.e. field/method dereference a.f
-	 * that is hidden (visible only to the compiler such as the here
-	 * field)
-	 * @param receiver the container
-	 * @param definition of the field/method
-	 * @return
-	 */
-	public <D extends XDef<T>> XField<T, D> makeFakeField(XTerm<T> receiver, D label);
-	/**
 	 * Make a projection operation i.e. field/method dereference when there is no 
 	 * definition of the field.  
 	 * @param receiver

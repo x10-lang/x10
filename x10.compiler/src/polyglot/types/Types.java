@@ -256,6 +256,39 @@ public class Types {
 	    return t;
 	}
 	
+	public static Type baseTypeRec(Type t) {
+		if (t instanceof MacroType) {
+			return baseTypeRec(((MacroType) t).definedType());
+		}
+		if (t instanceof ConstrainedType) {
+			return baseTypeRec(get(((ConstrainedType) t).baseType()));
+		}
+		
+		if (t instanceof X10ClassType) {
+			X10ClassType c = (X10ClassType)t;
+			if (c.typeArguments() == null)
+				return t; 
+			List<Type> newargs = new ArrayList<Type>(c.typeArguments().size());
+	    	for (Type arg : c.typeArguments()) {
+	    		newargs.add(baseTypeRec(arg)); 
+	    	}
+	    	return c.typeArguments(newargs);
+		}
+		
+	    if (t instanceof FunctionType) {
+	    	FunctionType f = (FunctionType)t; 
+	    	if (f.typeArguments() == null)
+	    		return t; 
+	    	List<Type> newargs = new ArrayList<Type>(f.typeArguments().size());
+	    	for (Type arg : f.typeArguments()) {
+	    		newargs.add(baseTypeRec(arg)); 
+	    	}
+	    	return f.typeArguments(newargs);
+	    }
+	    return t; 
+	}
+
+	
 	public static List<FunctionType> functionTypes(Type t) {
 	    List<FunctionType> ans = new ArrayList<FunctionType>();
 	    Type bt = Types.baseType(t);
@@ -1469,7 +1502,7 @@ public class Types {
 	    XVar<Type> p1This = descends2 ? xp1.def().thisVar(): null;
 	    XVar<Type> p2This = descends2 ? xp2.def().thisVar() : null;
 	    
-	    XVar<Type> thisVar = ConstraintManager.getConstraintSystem().makeUQV(ct1);
+	    XVar<Type> thisVar = ConstraintManager.getConstraintSystem().makeUQV(baseTypeRec(ct1));
 	    
 	    for (int i = 0; i < xp1.formalTypes().size(); i++) {
 	    	// Need to use original type information. The current type
@@ -1776,7 +1809,7 @@ public class Types {
                 if (classType.def()==iterable && classType.typeArguments().size()==1) {
                     Type arg = classType.typeArguments().get(0);
                     CConstraint xclause = Types.xclause(t);
-			        final XVar<Type> tt = ConstraintManager.getConstraintSystem().makeEQV(t);
+			        final XVar<Type> tt = ConstraintManager.getConstraintSystem().makeEQV(baseTypeRec(t));
                     try {
                         xclause = Subst.subst(xclause, tt, xclause.self());
                     } catch (SemanticException e) {

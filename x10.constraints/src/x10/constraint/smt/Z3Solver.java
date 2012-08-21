@@ -22,18 +22,16 @@ import x10.constraint.XType;
  * @author lshadare
  *
  */
-public class Z3Solver<T extends XType> implements XSmtSolver<T> {
+public class Z3Solver<T extends XType> implements XSmtSolver {
 	/**
 	 * Some useful String constants for now. 
 	 */
-	private static final String outFile = "/home/lshadare/temp/constraints-dump/x10-constraint.smt2";
 	private static final String solverPath = "/home/lshadare/solvers/z3/bin/z3";
 	private final ProcessBuilder pb;
 	private static Z3Solver<? extends XType> instance = null;
-	private XConstraintSystem<T> cs = XConstraintManager.<T>getConstraintSystem(); 
 	
 	private Z3Solver() {
-		this.pb = new ProcessBuilder(solverPath, outFile);
+		this.pb = new ProcessBuilder(solverPath, XSolverEngine.outFile);
 		this.pb.redirectErrorStream(true);
 	}
 	
@@ -44,92 +42,9 @@ public class Z3Solver<T extends XType> implements XSmtSolver<T> {
 		return (Z3Solver<T>)instance;
 	}
 	
-	private Result solve(XSmtTerm<T> query) {
-//		XSmtPrinter<T> p = new XSmtPrinter<T>(outFile);
-//		p.dump(query); 
-//		return run();
-		// we only need the axioms 
-		if (query instanceof XSmtQuantifier)
-			query = instantiateAxioms(query);
-		XSmtPrinter<T> p = new XSmtPrinter<T>(outFile);
-		p.dump(query); 
-		return run(); 
-	}
-
-	/**
-	 * Based on the terms in the query it instantiates various axioms that help the
-	 * solver. 
-	 * @param query
-	 */
-	private XSmtTerm<T> instantiateAxioms(XSmtTerm<T> query) {
-		Set<XSmtField<T,?>> fields = new HashSet<XSmtField<T,?>>(); 
-		collectFieldAccess(query, fields);
-		List<XTerm<T>> conjuncts  = new ArrayList<XTerm<T>>(fields.size() + 1);
-		for (XSmtField<T,?> f : fields) {
-			// for each field dereference a.f construct the axiom 
-			// forall v exists b (b.f = v) 
-			XTerm<T> v = cs.makeUQV(f.type());
-			XTerm<T> b = cs.makeEQV(f.receiver().type()); 
-			XTerm<T> bf = cs.makeField(b, f.field(), f.type()); 
-			@SuppressWarnings("unchecked")
-			XSmtTerm<T> eq = (XSmtTerm<T>)cs.makeEquals(v, bf);
-			// make the quantifiers explicit
-			conjuncts.add(new XSmtQuantifier<T>(eq)); 
-		}
-		// if we have some axioms add them as assumptions 
-		if (! conjuncts.isEmpty()) {
-			XTerm<T> axioms = cs.makeAnd(conjuncts);
-			@SuppressWarnings("unchecked")
-			XSmtTerm<T> res = (XSmtTerm<T>)cs.makeExpr(XOp.<T>IMPL(), axioms, query);
-			return res;
-		}
-		return query;
-	}
-
-	private void collectFieldAccess(XSmtTerm<T> term, Set<XSmtField<T, ?>> fields) {
-		if (term instanceof XSmtExpr) {
-			XSmtExpr<T> expr = (XSmtExpr<T>)term; 
-			for (XSmtTerm<T> t : expr.children())
-				collectFieldAccess(t, fields);
-		}
-		if (term instanceof XSmtQuantifier)
-			collectFieldAccess(((XSmtQuantifier<T>)term).body(), fields); 
-		if (term instanceof XSmtField) 
-			fields.add((XSmtField<T,?>) term); 
-	}
 
 	@Override
-	public boolean isValid(XSmtTerm<T> formula) throws XSmtFailure {
-		//@SuppressWarnings("unchecked")
-		// make sure the quantifiers are top level
-		
-		XSmtQuantifier<T> query = new XSmtQuantifier<T>(formula);
-		if (query.onlyUniversal()) {
-			return solve((XSmtTerm<T>)cs.makeNot(formula)) == Result.UNSAT;
-		}
-		if (query.onlyExistential()) 
-			return solve(formula) == Result.SAT;
-		
-		Result res = solve(query);
-		if (res == Result.UKNOWN)
-			throw new XSmtFailure("Unknown result");
-		return res == Result.SAT;
-	}
-
-	@Override
-	public boolean isSatisfiable(XSmtTerm<T> formula) throws XSmtFailure {
-		//return solve(formula) == Result.SAT;
-		Result res = solve(new XSmtQuantifier<T>(formula)); 
-
-		if (res == Result.UKNOWN)
-			throw new XSmtFailure("Unknown result");
-
-		return res == Result.SAT;
-	}
-	
-	private static int debugCounter = 0; 
-	private XSmtSolver.Result run() {
-		debugCounter++; 
+	public XSolverEngine.Result run() {
 		try {
 			Process pr = pb.start(); 
 			// note that Process.getInputStream() obtains an input stream with 
@@ -152,43 +67,23 @@ public class Z3Solver<T extends XType> implements XSmtSolver<T> {
 				throw new IOException("SmtSolver Error exit code " + exitVal + ": " + output);
 
 			if (output.contains("unsat"))
-				return Result.UNSAT;
+				return XSolverEngine.Result.UNSAT;
 
 			if (output.contains("sat"))
-				return Result.SAT;
+				return XSolverEngine.Result.SAT;
 			
 			if (output.contains("unknown")) {
-				System.out.println("unknown " + debugCounter);
-				if (debugCounter == 449 || debugCounter == 451) {
-					return Result.SAT;
-				}
-				return Result.UKNOWN;
+				return XSolverEngine.Result.UKNOWN;
 			}
 			
 			throw new IOException("Z3 SmtSolver Error");
 		}
 		catch (Exception e) {
-			System.out.println(e); 
+			System.out.println(e);
 			throw new UndeclaredThrowableException(e); 
 		}
 		
 	}
 
-	@Override
-	public boolean entails(XSmtTerm<T> t1, XSmtTerm<T> t2) throws XSmtFailure {
-		XSmtTerm<T> impl = (XSmtTerm<T>)cs.makeExpr(XOp.<T>IMPL(), t1, t2); 
-		//XSmtTerm<T> query = new XSmtQuantifier<T>(impl);
-		try {
-			return isValid(impl);
-		} catch (XSmtFailure e) {
-			// try to check if the second term is valid. 
-			try {
-				return isValid(t2);
-			} catch(XSmtFailure f) {
-				throw new UndeclaredThrowableException(f); 	
-				//return false; 
-			}
-		}
-	}
 
 }

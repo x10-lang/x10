@@ -184,9 +184,9 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	}
 
 	private void generateDeclarations() throws IOException {
-//		for(String type : sortDeclarations) {
-//			declWriter.append(declareType(type));
-//		}
+		for(String type : sortDeclarations) {
+			declWriter.append(declareType(type));
+		}
 		for (XSmtVar<T> var : varDeclarations) {
 			declWriter.append(declareVar(var));
 		}
@@ -198,9 +198,7 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	}
 
 	private String declareType(String type) {
-		// add alias instead
-		return "(define-sort " + type + " () Int ) \n";
-		//return "(declare-sort " + type + " 0 )\n";
+		return "(declare-datatypes () ((" + type + " (mk-" + type + "(get Int)))))\n"; 
 	}
 
 	private String declareVar(XSmtVar<T> var) {
@@ -235,9 +233,8 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 		if (type.isDouble())
 			return "Real";
 		if (!type.isPrimitive())
-			//return "USort";
-			return "Int"; 
-		return "Int"; 
+			return "USort";
+		return "USort"; 
 
 		//throw new IllegalArgumentException("Unsupported smt2 type: " + type);
 	}

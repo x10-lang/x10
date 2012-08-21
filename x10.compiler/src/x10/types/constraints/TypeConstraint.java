@@ -179,7 +179,7 @@ public class TypeConstraint implements Copy, Serializable {
             CConstraint c = Types.xclause(thisType);
             c = (c == null) ? ConstraintManager.getConstraintSystem().makeCConstraint(thisType) : c.copy();
 
-            ythis = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(thisType));  
+            ythis = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(thisType));  
             c.addSelfEquality(ythis);
             c.setThisVar(ythis);
 
@@ -226,7 +226,7 @@ public class TypeConstraint implements Copy, Serializable {
             if (yi == null) {
                 // This must mean that yi was not final, hence it cannot occur in 
                 // the dependent clauses of downstream yi's.
-                yi = ConstraintManager.getConstraintSystem().makeUQV(Types.baseType(ytype)); // xts.xtypeTranslator().genEQV(ytype, false);
+                yi = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(ytype)); // xts.xtypeTranslator().genEQV(ytype, false);
             }
             tenv.addTypeParameterBindings(xtype, ytype, false);
             // CConstraint xc = X10TypeMixin.realX(xtype).copy();

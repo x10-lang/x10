@@ -78,7 +78,7 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 
 	@Override
 	public String toString() {
-		return name + ":" + type(); 
+		return name; // + ":" + type().typetoSmtString(); 
 	}
 	
 	@Override
