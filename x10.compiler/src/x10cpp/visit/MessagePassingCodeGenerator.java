@@ -350,7 +350,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			Ref<? extends Type> st = cd.superType();
 		    h.write(" : public ");
 		    if (st == null ) {
-			    h.write("x10::lang::Reference");
+			    h.write("x10::lang::X10Class");
 		    } else {
 			    X10ClassDef sdef = ((X10ClassType) Types.baseType(st.get())).x10Def();
 			    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));

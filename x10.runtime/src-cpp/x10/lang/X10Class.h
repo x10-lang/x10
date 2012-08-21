@@ -9,52 +9,41 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#ifndef X10_LANG_REFERENCE_H
-#define X10_LANG_REFERENCE_H
+#ifndef X10_LANG_X10CLASS_H
+#define X10_LANG_X10CLASS_H
 
-#include <x10aux/config.h>
-#include <x10aux/ref.h>
-#include <x10aux/RTT.h>
-#include <x10aux/itables.h>
-#include <x10aux/system_utils.h>
-
-#include <x10aux/serialization.h>
-#include <x10aux/deserialization_dispatcher.h>
+#include <x10/lang/Reference.h>
 
 namespace x10 {
-
     namespace lang {
-
-        class String;
-        class Any;
         
         /**
          * This is a class that exists only at the C++ implementation level,
-         * not at the X10 language level.  Therefore it does not have an
-         * associated RTT.
+         * not at the X10 language level.
          * 
          * The purpose of this class is to provide a common C++ level superclass
-         * for X10 Classes, Closure (function objects created from X10 closure literals),
-         * and IBox<T> (X10 structs of type T that have been boxed because they were upcast to an interface type).
-         * The single common superclass is needed because pointers to instances of any of its subclasses could
-         * appear in variables of interface type and we need a common C++ level
-         * ancestor class so that virtual dispatch will work.
+         * for all X10 classes to enable C++ level types to distinguish between
+         * types that are X10 classes vs. types that are not (other subclasses of Reference).
+         * 
+         * It is not formally part of the RTT system (_type is abstract),
+         * but we do declare a private synthetic RTT for it to properly initialize
+         * the sentinel RTT in empty_itables for debugging.
          */
-        class Reference {
+        class X10Class : public Reference {
         public:
-            Reference(){ }
+            X10Class(){ }
             
             /*********************************************************************************
              * Implementation-level object model functions assumed to be defined for all types
              *********************************************************************************/
 
-            virtual x10aux::itable_entry* _getITables() = 0;
+            // classes that implement no interfaces will inherit this guy
+            static x10aux::itable_entry empty_itable[1];
+            virtual x10aux::itable_entry* _getITables() { return empty_itable; }
+
 
             virtual const x10aux::RuntimeType *_type() const = 0;
 
-            // Will be overriden by classes that implement x10.lang.Runtime.Mortal to return true.
-            virtual x10_boolean _isMortal() { return false; }
-            
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
              *********************************************************************************/
@@ -66,26 +55,31 @@ namespace x10 {
                 return other == x10aux::ref<Reference>(this);
             }
             
-            virtual x10_int hashCode() = 0;
+            virtual x10_int hashCode() { return x10aux::identity_hash_code(this); }
 
-            virtual x10aux::ref<String> toString() = 0;
+            virtual x10aux::ref<String> toString() { return x10aux::identity_to_string(this); }
+
+            virtual x10aux::ref<String> typeName();
+
+            // Like the destructor, but called only by dealloc_object()
+            // To be overridden by native classes that have alloc'ed state
+            // TODO: reconsider if we actually need this functionality.
+            virtual void _destructor() { }
+
+            static void dealloc_object(X10Class*);
 
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types
              *********************************************************************************/
             virtual x10aux::serialization_id_t _get_serialization_id() = 0;
             virtual void _serialize_body(x10aux::serialization_buffer &) = 0;
-        };
 
-        /**
-         * This is a class that exists only at the C++ implementation level,
-         * not at the X10 language level.  It's only real purpose is to
-         * provide a C++ level type for X10_NULL and therefore permit
-         * a unique RTT object to be associated with the X10 value null.
-         */
-        class NullType : public Reference {
-          public:
-            RTT_H_DECLS_CLASS;
+        private:
+            // RTT intentionally private because the only usage is meant to be in this class;
+            // not meant to be availble to subclasses.
+            static x10aux::RuntimeType rtt;
+            static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }
+            static void _initRTT();
         };
     }
 }

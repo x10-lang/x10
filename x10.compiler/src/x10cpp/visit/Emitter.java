@@ -835,7 +835,7 @@ public class Emitter {
 		if (!n.flags().flags().isInterface() && !n.classDef().isStruct()) {
 			TypeNode sc = n.superClass();
 			if (sc == null) {
-				h.write(" : public x10::lang::Reference");
+				h.write(" : public x10::lang::X10Class");
 			} else {
 				String parent = translateType(n.superClass().type());
 				h.write(" : public "+parent);

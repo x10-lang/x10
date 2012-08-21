@@ -17,7 +17,7 @@
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
 
-#include <x10/lang/Reference.h>
+#include <x10/lang/X10Class.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Comparable.h>
 
@@ -26,7 +26,7 @@ namespace x10 {
     
     namespace lang {
 
-        class String : public Reference {
+        class String : public X10Class {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 

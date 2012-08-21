@@ -15,7 +15,7 @@
 #include <x10aux/config.h>
 #include <x10aux/ref.h>
 
-#include <x10/lang/Reference.h>
+#include <x10/lang/X10Class.h>
 #include <x10/lang/String.h>
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10aux/serialization.h>
@@ -50,7 +50,7 @@ namespace x10 {
         * augmented with the park/unpark API of java.util.concurrent.
         * locks.LockSupport.
         */
-        class Thread : public x10::lang::Reference {
+        class Thread : public x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
 

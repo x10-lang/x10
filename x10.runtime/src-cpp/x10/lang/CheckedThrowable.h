@@ -14,7 +14,7 @@
 
 #include <x10aux/config.h>
 
-#include <x10/lang/Reference.h>
+#include <x10/lang/X10Class.h>
 
 namespace x10 { namespace io { class Printer; } }
 namespace x10 { namespace array { template <class T> class Array; } }
@@ -24,7 +24,7 @@ namespace x10 {
 
         class String;
 
-        class CheckedThrowable : public Reference {
+        class CheckedThrowable : public X10Class {
         public:
             RTT_H_DECLS_CLASS;
 

@@ -19,14 +19,9 @@
 #include <x10aux/atomic_ops.h>
 #include <x10aux/basic_functions.h>
 
-
-#include <x10/lang/Reference.h>
+#include <x10/lang/X10Class.h>
 
 namespace x10 {
-    namespace lang {
-        class String;
-    }
-
     namespace util {
         namespace concurrent {
 
@@ -40,7 +35,7 @@ namespace x10 {
                  * S* and volatile S*.  Moving between S and T where S != T needs to be done
                  * with the C++ type system so that object model operations are performed.
                  */
-                template<class T> class AtomicReference : public x10::lang::Reference {
+                template<class T> class AtomicReference : public x10::lang::X10Class {
                 public:
                     RTT_H_DECLS_CLASS;
 

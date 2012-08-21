@@ -12,7 +12,7 @@
 #ifndef X10_LANG_LOCK__REENTRANT_LOCK_H
 #define X10_LANG_LOCK__REENTRANT_LOCK_H
 
-#include <x10/lang/Reference.h>
+#include <x10/lang/X10Class.h>
 
 #include <x10aux/lock.h>
 
@@ -29,7 +29,7 @@ namespace x10 {
         * is not owned by another thread.  The method will return
         * immediately if the calling thread already owns the lock.
         */
-        class Lock__ReentrantLock : public x10::lang::Reference {
+        class Lock__ReentrantLock : public x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
     

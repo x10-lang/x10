@@ -12,7 +12,7 @@
 #ifndef X10_LANG_DEQUE_H
 #define X10_LANG_DEQUE_H
 
-#include <x10/lang/Reference.h>
+#include <x10/lang/X10Class.h>
 #include <x10aux/serialization.h>
 
 namespace x10 {
@@ -26,7 +26,7 @@ namespace x10 {
         * Expert Group and released to the public domain, as explained at
         * http://creativecommons.org/licenses/publicdomain
         */
-        class Deque : public x10::lang::Reference {
+        class Deque : public x10::lang::X10Class {
         public:
             RTT_H_DECLS_CLASS;
 
