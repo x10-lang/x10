@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.x10rt;
@@ -29,10 +29,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 import sun.misc.Unsafe;
-import x10.core.GlobalRef;
-import x10.core.IndexedMemoryChunk;
-// TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//import x10.core.X10Throwable;
 import x10.io.SerialData;
 import x10.rtt.NamedStructType;
 import x10.rtt.NamedType;
@@ -40,8 +36,8 @@ import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
 
 public class X10JavaDeserializer {
-	
-	private static ConcurrentHashMap<Class<?>, DeserializerThunk> thunks = new ConcurrentHashMap<Class<?>, DeserializerThunk>(50);
+        
+    private static ConcurrentHashMap<Class<?>, DeserializerThunk> thunks = new ConcurrentHashMap<Class<?>, DeserializerThunk>(50);
 
 
     // When a Object is deserialized record its position
@@ -57,7 +53,7 @@ public class X10JavaDeserializer {
     }
 
     public DataInput getInpForHadoop() {
-    	return in;
+        return in;
     }
     
     public int record_reference(Object obj) {
@@ -102,7 +98,7 @@ public class X10JavaDeserializer {
     }
 
     @SuppressWarnings("unchecked")
-	public <T> void readArray(T[] array) throws IOException {
+    public <T> void readArray(T[] array) throws IOException {
         int length = array.length;
         for (int i = 0; i < length; i++) {
             array[i] = (T) readRef();
@@ -178,7 +174,7 @@ public class X10JavaDeserializer {
     public void _readByteArray(int length, byte[] v) throws IOException {
         int read = 0;
         while (read < length) {
-                read += in.read(v, read, length-read);
+            read += in.read(v, read, length-read);
         }
     }
 
@@ -304,84 +300,84 @@ public class X10JavaDeserializer {
     }
 
     private Object deserializeRefUsingReflection(short serializationID) throws IOException {
-            Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
-            String className = clazz.getName();
+        Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
+        String className = clazz.getName();
 
-            if (className.startsWith("x10.rtt.") &&
-            		("x10.rtt.FloatType".equals(className) 
-            				|| "x10.rtt.IntType".equals(className)
-            				|| "x10.rtt.DoubleType".equals(className)
-            				|| "x10.rtt.LongType".equals(className)
-            				|| "x10.rtt.BooleanType".equals(className)
-            				|| "x10.rtt.StringType".equals(className)
-            				|| "x10.rtt.CharType".equals(className)
-            				|| "x10.rtt.ByteType".equals(className)
-            				|| "x10.rtt.ShortType".equals(className)
-            				|| "x10.rtt.ObjectType".equals(className)
-            				|| "x10.rtt.UByteType".equals(className)
-            				|| "x10.rtt.UIntType".equals(className)
-            				|| "x10.rtt.ULongType".equals(className)
-            				|| "x10.rtt.UShortType".equals(className)
-            		)) {
-                // These classes don't implement the serialization/deserialization routines, hence we deserialize the superclass
-                readShort();
-                clazz = clazz.getSuperclass();
-            }
+        if (className.startsWith("x10.rtt.") &&
+            ("x10.rtt.FloatType".equals(className) 
+             || "x10.rtt.IntType".equals(className)
+             || "x10.rtt.DoubleType".equals(className)
+             || "x10.rtt.LongType".equals(className)
+             || "x10.rtt.BooleanType".equals(className)
+             || "x10.rtt.StringType".equals(className)
+             || "x10.rtt.CharType".equals(className)
+             || "x10.rtt.ByteType".equals(className)
+             || "x10.rtt.ShortType".equals(className)
+             || "x10.rtt.ObjectType".equals(className)
+             || "x10.rtt.UByteType".equals(className)
+             || "x10.rtt.UIntType".equals(className)
+             || "x10.rtt.ULongType".equals(className)
+             || "x10.rtt.UShortType".equals(className)
+             )) {
+            // These classes don't implement the serialization/deserialization routines, hence we deserialize the superclass
+            readShort();
+            clazz = clazz.getSuperclass();
+        }
             
-			try {
-				DeserializerThunk thunk = getDeserializerThunk(clazz);
-				return thunk.deserializeObject(clazz, this);
-			} catch (SecurityException e) {
-				throw new RuntimeException(e);
-			} catch (NoSuchFieldException e) {
-				throw new RuntimeException(e);
-			} catch (NoSuchMethodException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalArgumentException e) {
-				throw new RuntimeException(e);
-			} catch (IllegalAccessException e) {
-				throw new RuntimeException(e);
-			} catch (InvocationTargetException e) {
-				throw new RuntimeException(e);
-			} catch (InstantiationException e) {
-				throw new RuntimeException(e);
-			}
+        try {
+            DeserializerThunk thunk = getDeserializerThunk(clazz);
+            return thunk.deserializeObject(clazz, this);
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     // This method is called from generated code when an X10 class has a Java superclass.
     public <T> Object deserializeClassUsingReflection(Class<? extends Object> clazz, T obj, int i) throws IOException {
-		try {
-			DeserializerThunk thunk = getDeserializerThunk(clazz);
-			return thunk.deserializeObject(clazz, this);
-		} catch (SecurityException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchFieldException e) {
-			throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalArgumentException e) {
-			throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-			throw new RuntimeException(e);
-		} catch (InstantiationException e) {
-			throw new RuntimeException(e);
-		}
+        try {
+            DeserializerThunk thunk = getDeserializerThunk(clazz);
+            return thunk.deserializeObject(clazz, this);
+        } catch (SecurityException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
+            throw new RuntimeException(e);
+        }
     }
     
     private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
     
     private DeserializerThunk getDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-    	DeserializerThunk ans = thunks.get(clazz);
-    	if (ans == null) {
-    		ans = getDeserializerThunkHelper(clazz);
-    		thunks.put(clazz, ans);
-    		if (Runtime.TRACE_SER) {
-    			Runtime.printTraceMessage("Creating deserialization thunk "+ans.getClass()+" for "+clazz);
-    		}
-    	}
-    	return ans;
+        DeserializerThunk ans = thunks.get(clazz);
+        if (ans == null) {
+            ans = getDeserializerThunkHelper(clazz);
+            thunks.put(clazz, ans);
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Creating deserialization thunk "+ans.getClass()+" for "+clazz);
+            }
+        }
+        return ans;
     }
 
     private DeserializerThunk getDeserializerThunkHelper(Class<?> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
@@ -389,24 +385,24 @@ public class X10JavaDeserializer {
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
         if ("java.lang.String".equals(clazz.getName())) {
-        	return new SpecialCaseDeserializerThunk(null);
+            return new SpecialCaseDeserializerThunk(null);
         } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);
+            return new SpecialCaseDeserializerThunk(null);
         } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);  
         } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);	
+            return new SpecialCaseDeserializerThunk(null);      
         } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);
+            return new SpecialCaseDeserializerThunk(null);
         } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);
+            return new SpecialCaseDeserializerThunk(null);
         } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);
-        } else if (GlobalRef.class.getName().equals(clazz.getName())) {
-           	return new SpecialCaseDeserializerThunk(null);
+            return new SpecialCaseDeserializerThunk(null);
+        } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
+            return new SpecialCaseDeserializerThunk(null);
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
-//           	return new SpecialCaseDeserializerThunk(null);
+            //        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
+            //                  return new SpecialCaseDeserializerThunk(null);
         } else if (X10JavaSerializer.isThrowable(clazz)) {
             return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {
@@ -426,25 +422,25 @@ public class X10JavaDeserializer {
         }
 
         if (Runtime.implementsHadoopWritable(clazz)) {
-        	isHadoopSerializable = true;
+            isHadoopSerializable = true;
         }
         
         if (isCustomSerializable && isHadoopSerializable) {
-        	throw new RuntimeException("deserializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
+            throw new RuntimeException("deserializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
         }
         
         if (isCustomSerializable) {
-        	return new CustomDeserializerThunk(clazz);
+            return new CustomDeserializerThunk(clazz);
         }
         
         if (isHadoopSerializable) {
-        	return new HadoopDeserializerThunk(clazz);
+            return new HadoopDeserializerThunk(clazz);
         }
 
         Class<?> superclass = clazz.getSuperclass();
         DeserializerThunk superclassThunk = null;
         if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-        	superclassThunk = getDeserializerThunkHelper(superclass);
+            superclassThunk = getDeserializerThunkHelper(superclass);
         }
 
         return new FieldBasedDeserializerThunk(clazz, superclassThunk);
@@ -503,7 +499,7 @@ public class X10JavaDeserializer {
             int length = readInt();
             Object o = Array.newInstance(componentType, length);
             for (int i = 0; i < length; i++) {
-                 Array.set(o, i, readArrayUsingReflection(componentType));
+                Array.set(o, i, readArrayUsingReflection(componentType));
             }
             return o;
         } else {
@@ -518,7 +514,7 @@ public class X10JavaDeserializer {
     }
 
     private String readStringUsingReflection() throws IOException {
-           return readString();
+        return readString();
     }
 
     public static Unsafe getUnsafe() {
@@ -549,228 +545,228 @@ public class X10JavaDeserializer {
     }
     
     private abstract static class DeserializerThunk {
-    	protected final DeserializerThunk superThunk;
-    	
-    	DeserializerThunk(DeserializerThunk st) {
-    		superThunk = st;
-		}
-    	
-    	@SuppressWarnings("unchecked")
-		<T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+        protected final DeserializerThunk superThunk;
+        
+        DeserializerThunk(DeserializerThunk st) {
+            superThunk = st;
+        }
+        
+        @SuppressWarnings("unchecked")
+        <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
             T obj = null;
 
             // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
             if (!"java.lang.Class".equals(clazz.getName())) {
                 try {
-					obj = (T)unsafe.allocateInstance(clazz);
-				} catch (InstantiationException e) {
-					throw new RuntimeException(e);
-				}
+                    obj = (T)unsafe.allocateInstance(clazz);
+                } catch (InstantiationException e) {
+                    throw new RuntimeException(e);
+                }
             }
             int i = jds.record_reference(obj);
             return deserializeObject(clazz, obj, i, jds);
-    	}
-    	
-    	<T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
-    		if (superThunk != null) {
-    			obj = superThunk.deserializeObject(clazz, obj, i, jds);
-    		}
-    		return deserializeBody(clazz, obj, i, jds);
-    	}
-    	
-    	protected abstract <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException;
+        }
+        
+        <T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            if (superThunk != null) {
+                obj = superThunk.deserializeObject(clazz, obj, i, jds);
+            }
+            return deserializeBody(clazz, obj, i, jds);
+        }
+        
+        protected abstract <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException;
     }
     
     private static class FieldBasedDeserializerThunk extends DeserializerThunk {
-    	protected final Field[] fields;
-    	
-    	FieldBasedDeserializerThunk(Class<? extends Object> clazz, DeserializerThunk st) {
-    		super(st);
+        protected final Field[] fields;
+        
+        FieldBasedDeserializerThunk(Class<? extends Object> clazz, DeserializerThunk st) {
+            super(st);
 
-                // XTENLANG-2982,2983 transient fields may be initialized with readObject method. 
-                Method readObjectMethod = null;
-                try {
-                    readObjectMethod = clazz.getDeclaredMethod("readObject", java.io.ObjectInputStream.class);
-                } catch (Exception e) {}
+            // XTENLANG-2982,2983 transient fields may be initialized with readObject method. 
+            Method readObjectMethod = null;
+            try {
+                readObjectMethod = clazz.getDeclaredMethod("readObject", java.io.ObjectInputStream.class);
+            } catch (Exception e) {}
 
-    		// Sort the fields to get JVM-independent ordering.
-    		Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-    		Field[] declaredFields = clazz.getDeclaredFields();
-    		for (Field field : declaredFields) {
-    			int modifiers = field.getModifiers();
-    			if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && readObjectMethod == null)) {
-    				continue;
-    			}
-    			field.setAccessible(true);
-    			flds.add(field);
-    		}
-     		fields = flds.toArray(new Field[flds.size()]);
-     	}
+            // Sort the fields to get JVM-independent ordering.
+            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+            Field[] declaredFields = clazz.getDeclaredFields();
+            for (Field field : declaredFields) {
+                int modifiers = field.getModifiers();
+                if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && readObjectMethod == null)) {
+                    continue;
+                }
+                field.setAccessible(true);
+                flds.add(field);
+            }
+            fields = flds.toArray(new Field[flds.size()]);
+        }
 
-		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalAccessException {		
-	        for (Field field : fields) {
-	            Class<?> type = field.getType();
-	            if (type.isPrimitive()) {
-	                jds.readPrimitiveUsingReflection(field, obj);
-	            } else if (type.isArray()) {
-	                field.set(obj, jds.readArrayUsingReflection(type.getComponentType()));
-	            } else if ("java.lang.String".equals(type.getName())) {
-	                field.set(obj, jds.readStringUsingReflection());
-	            } else {
-	                Object value = jds.readRefUsingReflection();
-	                field.set(obj, value);
-	            }
-	        }
-			return obj;
-		}
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalAccessException {             
+            for (Field field : fields) {
+                Class<?> type = field.getType();
+                if (type.isPrimitive()) {
+                    jds.readPrimitiveUsingReflection(field, obj);
+                } else if (type.isArray()) {
+                    field.set(obj, jds.readArrayUsingReflection(type.getComponentType()));
+                } else if ("java.lang.String".equals(type.getName())) {
+                    field.set(obj, jds.readStringUsingReflection());
+                } else {
+                    Object value = jds.readRefUsingReflection();
+                    field.set(obj, value);
+                }
+            }
+            return obj;
+        }
     }
 
     private static class HadoopDeserializerThunk extends DeserializerThunk {
-    	protected final Constructor<?> constructor;
-    	protected final Method readMethod;
+        protected final Constructor<?> constructor;
+        protected final Method readMethod;
 
-    	HadoopDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchMethodException {
-    		super(null);
-        	constructor = clazz.getDeclaredConstructor(EMPTY_ARRAY);
+        HadoopDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchMethodException {
+            super(null);
+            constructor = clazz.getDeclaredConstructor(EMPTY_ARRAY);
             constructor.setAccessible(true);
 
-    		readMethod = clazz.getMethod("readFields", java.io.DataInput.class);
-    		readMethod.setAccessible(true);
-    	}
+            readMethod = clazz.getMethod("readFields", java.io.DataInput.class);
+            readMethod.setAccessible(true);
+        }
 
-       	@SuppressWarnings("unchecked")
-       	@Override
-		<T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
-           	if (Runtime.TRACE_SER) {
+        @SuppressWarnings("unchecked")
+        @Override
+        <T> T deserializeObject(Class<?> clazz, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
+            if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Calling hadoop deserializer with object of type " + clazz);
             }
-        	
-       		// Hadoop assumes that the default constructor will be used to create the instance.
-       		// The default constructor will execute field initialization expressions.  
-       		// So we have to mimic that behavior here.
+                
+            // Hadoop assumes that the default constructor will be used to create the instance.
+            // The default constructor will execute field initialization expressions.  
+            // So we have to mimic that behavior here.
             T obj = (T)constructor.newInstance();
             int i = jds.record_reference(obj);
 
             return deserializeObject(clazz, obj, i, jds);
-    	}
-    	
-		@Override
-		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
-    		readMethod.invoke(obj, jds.in);
-    		return obj;
-		}
-    	
+        }
+        
+        @Override
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IllegalArgumentException, InstantiationException, IllegalAccessException, InvocationTargetException {
+            readMethod.invoke(obj, jds.in);
+            return obj;
+        }
+        
     }
     
     private static class CustomDeserializerThunk extends DeserializerThunk {
-    	protected final Field[] fields;
-    	protected final Method makeMethod;
+        protected final Field[] fields;
+        protected final Method makeMethod;
 
-    	CustomDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-    		super(null);
+        CustomDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+            super(null);
 
-    		// Sort the fields to get JVM-independent ordering.
-    		// Need to serialize the fields related to RTT's since they
-    		// are specific to the Java backend.
-    		Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-    		TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-    		for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-    			Field field = clazz.getDeclaredField(typeParameter.getName());
-    			field.setAccessible(true);
-    			flds.add(field);
-    		}
-    		fields = flds.toArray(new Field[flds.size()]);      
-    		
+            // Sort the fields to get JVM-independent ordering.
+            // Need to serialize the fields related to RTT's since they
+            // are specific to the Java backend.
+            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+            TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
+            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+                Field field = clazz.getDeclaredField(typeParameter.getName());
+                field.setAccessible(true);
+                flds.add(field);
+            }
+            fields = flds.toArray(new Field[flds.size()]);      
+                
             // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
-    		makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
+            makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
             makeMethod.setAccessible(true);
-    	}
+        }
 
-		@Override
-		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-			for (Field field : fields) {
-				Object value = jds.readRefUsingReflection();
-				field.set(obj, value);
-			}
+        @Override
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+            for (Field field : fields) {
+                Object value = jds.readRefUsingReflection();
+                field.set(obj, value);
+            }
 
-			SerialData serialData = (SerialData) jds.readRefUsingReflection();
+            SerialData serialData = (SerialData) jds.readRefUsingReflection();
             makeMethod.invoke(obj, serialData);
             return obj;
-		}
+        }
     }
     
     private static class SpecialCaseDeserializerThunk extends DeserializerThunk {
 
-    	SpecialCaseDeserializerThunk(Class <? extends Object> clazz) {
-    		super(null);
-    	}
+        SpecialCaseDeserializerThunk(Class <? extends Object> clazz) {
+            super(null);
+        }
 
-    	SpecialCaseDeserializerThunk(Class <? extends Object> clazz, DeserializerThunk st) {
-    		super(st);
-    	}
+        SpecialCaseDeserializerThunk(Class <? extends Object> clazz, DeserializerThunk st) {
+            super(st);
+        }
 
-		@SuppressWarnings({ "unchecked", "rawtypes" })
-		protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
-	        if ("java.lang.String".equals(clazz.getName())) {
-	            obj = (T) jds.readStringValue();
-	            return obj;
-                } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
-	            NamedType.$_deserialize_body((NamedType) obj, jds);
-	            return obj;
-                } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
-                    NamedStructType.$_deserialize_body((NamedStructType) obj, jds);
-                    return obj;
-	        } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-	            X10JavaSerializable x10JavaSerializable = RuntimeType.$_deserialize_body((RuntimeType) obj, jds);
-	            if (obj != x10JavaSerializable) {
-	                jds.update_reference(i, x10JavaSerializable);
-	                obj = (T) x10JavaSerializable;
-	            }
-	            return obj;
-	        } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-	            IndexedMemoryChunk imc = (IndexedMemoryChunk) obj;
-	            IndexedMemoryChunk._deSerialize_body(imc, jds);
-	            return (T) imc;
-	        } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-	            return (T) IndexedMemoryChunk.$Closure$0.$_deserialize_body((IndexedMemoryChunk.$Closure$0) obj, jds);
-	        } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-	            return (T) IndexedMemoryChunk.$Closure$1.$_deserialize_body((IndexedMemoryChunk.$Closure$1) obj, jds);
-	        } else if (GlobalRef.class.getName().equals(clazz.getName())) {
-	            return (T) GlobalRef.$_deserialize_body((GlobalRef) obj, jds);
-	            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//	        } else if (X10Throwable.class.getName().equals(clazz.getName())) {
-//	            return (T) X10Throwable.$_deserialize_body((X10Throwable) obj, jds);
-	        } else if (X10JavaSerializer.isThrowable(clazz)) {
-	            if (X10JavaSerializer.THROWABLES_SERIALIZE_MESSAGE) {
-	                try {
-                            String message = jds.readString();
-	                    Field detailMessageField = java.lang.Throwable.class.getDeclaredField("detailMessage");
-	                    detailMessageField.setAccessible(true);
-	                    detailMessageField.set(obj, message);
-	                } catch (Exception e) {
-	                    e.printStackTrace();
-	                }
-	            }
-	            if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
-                        java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
-                        java.lang.Throwable t = (java.lang.Throwable) obj;
-                        t.setStackTrace(trace);
-	            }
-	            return obj;
-	        } else if ("java.lang.Class".equals(clazz.getName())) {
-	            String className = jds.readString();
-	            try {
-	                T t = (T) Class.forName(className);
-	                jds.update_reference(i, t);
-	                return t;
-	            } catch (ClassNotFoundException e) {
-	                throw new RuntimeException(e);
-	            }
-	        } else if ("java.lang.Object".equals(clazz.getName())) {
-	            return obj;
-	        }
-	        throw new RuntimeException("Unhandled type in special case thunk: "+obj.getClass());
-		}
+        @SuppressWarnings({ "unchecked", "rawtypes" })
+            protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
+            if ("java.lang.String".equals(clazz.getName())) {
+                obj = (T) jds.readStringValue();
+                return obj;
+            } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
+                NamedType.$_deserialize_body((NamedType) obj, jds);
+                return obj;
+            } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
+                NamedStructType.$_deserialize_body((NamedStructType) obj, jds);
+                return obj;
+            } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
+                X10JavaSerializable x10JavaSerializable = RuntimeType.$_deserialize_body((RuntimeType) obj, jds);
+                if (obj != x10JavaSerializable) {
+                    jds.update_reference(i, x10JavaSerializable);
+                    obj = (T) x10JavaSerializable;
+                }
+                return obj;
+            } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
+                x10.core.IndexedMemoryChunk imc = (x10.core.IndexedMemoryChunk) obj;
+                x10.core.IndexedMemoryChunk._deSerialize_body(imc, jds);
+                return (T) imc;
+            } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
+                return (T) x10.core.IndexedMemoryChunk.$Closure$0.$_deserialize_body((x10.core.IndexedMemoryChunk.$Closure$0) obj, jds);
+            } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
+                return (T) x10.core.IndexedMemoryChunk.$Closure$1.$_deserialize_body((x10.core.IndexedMemoryChunk.$Closure$1) obj, jds);
+            } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
+                return (T) x10.core.GlobalRef.$_deserialize_body((x10.core.GlobalRef) obj, jds);
+                // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//            } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
+//                return (T) x10.core.X10Throwable.$_deserialize_body((x10.core.X10Throwable) obj, jds);
+            } else if (X10JavaSerializer.isThrowable(clazz)) {
+                if (X10JavaSerializer.THROWABLES_SERIALIZE_MESSAGE) {
+                    try {
+                        String message = jds.readString();
+                        Field detailMessageField = java.lang.Throwable.class.getDeclaredField("detailMessage");
+                        detailMessageField.setAccessible(true);
+                        detailMessageField.set(obj, message);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+                if (X10JavaSerializer.THROWABLES_SERIALIZE_STACKTRACE) {
+                    java.lang.StackTraceElement[] trace = (java.lang.StackTraceElement[]) jds.readArrayUsingReflection(java.lang.StackTraceElement.class);
+                    java.lang.Throwable t = (java.lang.Throwable) obj;
+                    t.setStackTrace(trace);
+                }
+                return obj;
+            } else if ("java.lang.Class".equals(clazz.getName())) {
+                String className = jds.readString();
+                try {
+                    T t = (T) Class.forName(className);
+                    jds.update_reference(i, t);
+                    return t;
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
+            } else if ("java.lang.Object".equals(clazz.getName())) {
+                return obj;
+            }
+            throw new RuntimeException("Unhandled type in special case thunk: "+obj.getClass());
+        }
     }
 
 }

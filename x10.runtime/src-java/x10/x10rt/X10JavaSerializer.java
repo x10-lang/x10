@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.x10rt;
@@ -26,17 +26,13 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
 
-import x10.core.GlobalRef;
-import x10.core.IndexedMemoryChunk;
-// TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//import x10.core.X10Throwable;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 import x10.runtime.impl.java.Runtime;
 
 public class X10JavaSerializer {
-	
-	private static ConcurrentHashMap<Class<?>, SerializerThunk> thunks = new ConcurrentHashMap<Class<?>, X10JavaSerializer.SerializerThunk>(50);
+        
+    private static ConcurrentHashMap<Class<?>, SerializerThunk> thunks = new ConcurrentHashMap<Class<?>, X10JavaSerializer.SerializerThunk>(50);
 
     // When a Object is serialized record its position
     // N.B. use custom IdentityHashMap class, as standard one has poor performance on J9
@@ -44,16 +40,16 @@ public class X10JavaSerializer {
     DataOutputStream out;
     int counter = 0;
     // [GlobalGC] Table to remember serialized GlobalRefs, set and used in GlobalRef.java and InitDispatcher.java
-    X10IdentityHashMap<GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<GlobalRef<?>, Integer>(); // for GlobalGC
-    public void addToGrefMap(GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
-    public java.util.Map<GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
+    X10IdentityHashMap<x10.core.GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<x10.core.GlobalRef<?>, Integer>(); // for GlobalGC
+    public void addToGrefMap(x10.core.GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
+    public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
 
     public X10JavaSerializer(DataOutputStream out) {
         this.out = out;
     }
 
     public DataOutput getOutForHadoop() {
-    	return out;
+        return out;
     }
     
     public void write(X10JavaSerializable obj) throws IOException {
@@ -408,109 +404,109 @@ public class X10JavaSerializer {
     }
 
     public <T> void writeObjectUsingReflection(T body) throws IOException {
-    	if (body == null) {
-    		writeNull();
-    		return;
-    	}
-    	Integer pos = previous_position(body, true);
-    	if (pos != null) {
-    		return;
-    	}
-    	Class<? extends Object> bodyClass = body.getClass();
-    	String className = bodyClass.getName();
+        if (body == null) {
+            writeNull();
+            return;
+        }
+        Integer pos = previous_position(body, true);
+        if (pos != null) {
+            return;
+        }
+        Class<? extends Object> bodyClass = body.getClass();
+        String className = bodyClass.getName();
 
-    	if (className.startsWith("x10.rtt.") &&
-    			("x10.rtt.FloatType".equals(bodyClass.getName()) 
-    					|| "x10.rtt.IntType".equals(bodyClass.getName())
-    					|| "x10.rtt.DoubleType".equals(bodyClass.getName())
-    					|| "x10.rtt.LongType".equals(bodyClass.getName())
-    					|| "x10.rtt.BooleanType".equals(bodyClass.getName())
-    					|| "x10.rtt.StringType".equals(bodyClass.getName())
-    					|| "x10.rtt.CharType".equals(bodyClass.getName())
-    					|| "x10.rtt.ByteType".equals(bodyClass.getName())
-    					|| "x10.rtt.ShortType".equals(bodyClass.getName())
-    					//TODO remove Types.OBJECT
-//    					|| "x10.rtt.ObjectType".equals(bodyClass.getName())
-    					|| "x10.rtt.UByteType".equals(bodyClass.getName())
-    					|| "x10.rtt.UIntType".equals(bodyClass.getName())
-    					|| "x10.rtt.ULongType".equals(bodyClass.getName())
-    					|| "x10.rtt.UShortType".equals(bodyClass.getName()))) {
-    		// These classes don't implement the serialization/deserialization routines, hence we serialize the superclass
-    		bodyClass = bodyClass.getSuperclass();
-    	}
+        if (className.startsWith("x10.rtt.") &&
+            ("x10.rtt.FloatType".equals(bodyClass.getName()) 
+             || "x10.rtt.IntType".equals(bodyClass.getName())
+             || "x10.rtt.DoubleType".equals(bodyClass.getName())
+             || "x10.rtt.LongType".equals(bodyClass.getName())
+             || "x10.rtt.BooleanType".equals(bodyClass.getName())
+             || "x10.rtt.StringType".equals(bodyClass.getName())
+             || "x10.rtt.CharType".equals(bodyClass.getName())
+             || "x10.rtt.ByteType".equals(bodyClass.getName())
+             || "x10.rtt.ShortType".equals(bodyClass.getName())
+             //TODO remove Types.OBJECT
+//             || "x10.rtt.ObjectType".equals(bodyClass.getName())
+             || "x10.rtt.UByteType".equals(bodyClass.getName())
+             || "x10.rtt.UIntType".equals(bodyClass.getName())
+             || "x10.rtt.ULongType".equals(bodyClass.getName())
+             || "x10.rtt.UShortType".equals(bodyClass.getName()))) {
+            // These classes don't implement the serialization/deserialization routines, hence we serialize the superclass
+            bodyClass = bodyClass.getSuperclass();
+        }
 
-    	try {
-    		SerializerThunk st = getSerializerThunk(bodyClass);
-    		writeClassID(bodyClass.getName());
-    		st.serializeObject(body, this);
-    	} catch (SecurityException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-    	} catch (IllegalArgumentException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (NoSuchFieldException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		}
+        try {
+            SerializerThunk st = getSerializerThunk(bodyClass);
+            writeClassID(bodyClass.getName());
+            st.serializeObject(body, this);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }
     }
 
     // This method is called from generated code when an X10 class has a Java superclass
     public <T> void serializeClassUsingReflection(T obj, Class<T> clazz) throws IOException {
-    	try {
-    		SerializerThunk st = getSerializerThunk(clazz);
-    		writeClassID(clazz.getName());
-    		st.serializeObject(obj, this);
-    	} catch (SecurityException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-    	} catch (IllegalArgumentException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (IllegalAccessException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (InvocationTargetException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (NoSuchFieldException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		} catch (NoSuchMethodException e) {
-    		e.printStackTrace();
-    		throw new RuntimeException(e);
-		}    	
+        try {
+            SerializerThunk st = getSerializerThunk(clazz);
+            writeClassID(clazz.getName());
+            st.serializeObject(obj, this);
+        } catch (SecurityException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            e.printStackTrace();
+            throw new RuntimeException(e);
+        }       
     }
     
     public void writeClassID(String className) throws IOException {
-    	short id = DeserializationDispatcher.getIDForClassName(className);
-    	if (id < 0) {
-    		write(DeserializationDispatcher.javaClassID);
-    		writeStringValue(className);
-    	} else {
-    		write(id);
-    	}
+        short id = DeserializationDispatcher.getIDForClassName(className);
+        if (id < 0) {
+            write(DeserializationDispatcher.javaClassID);
+            writeStringValue(className);
+        } else {
+            write(id);
+        }
     }
 
     private SerializerThunk getSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-    	SerializerThunk ans = thunks.get(clazz);
-    	if (ans == null) {
-    		ans = getSerializerThunkHelper(clazz);
-    		thunks.put(clazz, ans);
-    		if (Runtime.TRACE_SER) {
-    			Runtime.printTraceMessage("Creating serialization thunk "+ans.getClass()+" for "+clazz);
-    		}
-    	}
-    	return ans;
+        SerializerThunk ans = thunks.get(clazz);
+        if (ans == null) {
+            ans = getSerializerThunkHelper(clazz);
+            thunks.put(clazz, ans);
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Creating serialization thunk "+ans.getClass()+" for "+clazz);
+            }
+        }
+        return ans;
     }
 
     static final boolean THROWABLES_SERIALIZE_MESSAGE = false;
@@ -520,71 +516,71 @@ public class X10JavaSerializer {
     }
 
     private SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-    	
-    	// We need to handle these classes in a special way because their 
-    	// implementation of serialization/deserialization is not straight forward.
-    	if ("java.lang.String".equals(clazz.getName())) {
-    		return new SpecialCaseSerializerThunk(clazz);
-    	} else if ("x10.rtt.NamedType".equals(clazz.getName())) {
-    		SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
-    		return new SpecialCaseSerializerThunk(clazz, superThunk);
+        
+        // We need to handle these classes in a special way because their 
+        // implementation of serialization/deserialization is not straight forward.
+        if ("java.lang.String".equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
+        } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
+            SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
+            return new SpecialCaseSerializerThunk(clazz, superThunk);
         } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
             SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
             return new SpecialCaseSerializerThunk(clazz, superThunk);
-    	} else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-    		return new SpecialCaseSerializerThunk(clazz);
-    	} else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-    		return new SpecialCaseSerializerThunk(clazz);
-    	} else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-    		return new SpecialCaseSerializerThunk(clazz);
-    	} else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-    		return new SpecialCaseSerializerThunk(clazz);
-    	} else if (GlobalRef.class.getName().equals(clazz.getName())) {
-    		return new SpecialCaseSerializerThunk(clazz);
+        } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
+        } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
+        } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
+        } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
+        } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//    	} else if (X10Throwable.class.getName().equals(clazz.getName())) {
-//    		return new SpecialCaseSerializerThunk(clazz);
+//        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
+//            return new SpecialCaseSerializerThunk(clazz);
         } else if (isThrowable(clazz)) {
             return new SpecialCaseSerializerThunk(clazz);
-    	} else if ("java.lang.Class".equals(clazz.getName())) {
-    	    return new SpecialCaseSerializerThunk(clazz);
-    	} else if ("java.lang.Object".equals(clazz.getName())) {
-    	    return new SpecialCaseSerializerThunk(clazz);
-    	}
+        } else if ("java.lang.Class".equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
+        } else if ("java.lang.Object".equals(clazz.getName())) {
+            return new SpecialCaseSerializerThunk(clazz);
+        }
 
-    	Class<?>[] interfaces = clazz.getInterfaces();
-    	boolean isCustomSerializable = false;
-    	boolean isHadoopSerializable = false;
-    	for (Class<?> aInterface : interfaces) {
-    		if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
-    			isCustomSerializable = true;
-    			break;
-    		}
-    	}
+        Class<?>[] interfaces = clazz.getInterfaces();
+        boolean isCustomSerializable = false;
+        boolean isHadoopSerializable = false;
+        for (Class<?> aInterface : interfaces) {
+            if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
+                isCustomSerializable = true;
+                break;
+            }
+        }
 
-    	if (Runtime.implementsHadoopWritable(clazz)) {
-    		isHadoopSerializable = true;
-    	}
+        if (Runtime.implementsHadoopWritable(clazz)) {
+            isHadoopSerializable = true;
+        }
 
-    	if(isCustomSerializable && isHadoopSerializable) {
-    		throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
-    	}
+        if(isCustomSerializable && isHadoopSerializable) {
+            throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
+        }
 
-    	if (isCustomSerializable) {
-    		return new CustomSerializerThunk(clazz);
-    	}
-    	
-    	if (isHadoopSerializable) {
-    		return new HadoopSerializerThunk(clazz);
-    	}
-    	
-    	Class<?> superclass = clazz.getSuperclass();
-    	SerializerThunk superThunk = null;
-    	if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-    		superThunk = getSerializerThunk(clazz.getSuperclass());
-    	}
+        if (isCustomSerializable) {
+            return new CustomSerializerThunk(clazz);
+        }
+        
+        if (isHadoopSerializable) {
+            return new HadoopSerializerThunk(clazz);
+        }
+        
+        Class<?> superclass = clazz.getSuperclass();
+        SerializerThunk superThunk = null;
+        if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
+            superThunk = getSerializerThunk(clazz.getSuperclass());
+        }
 
-    	return new FieldBasedSerializerThunk(clazz, superThunk);
+        return new FieldBasedSerializerThunk(clazz, superThunk);
     }
 
     public void writeArrayUsingReflection(Object obj) throws IOException {
@@ -593,59 +589,59 @@ public class X10JavaSerializer {
             return;
         }
         write(DeserializationDispatcher.javaArrayID);
-    	Class<?> componentType = obj.getClass().getComponentType();
-    	int length = Array.getLength(obj);
-    	write(length);
-    	if (componentType.isPrimitive()) {
-    		if ("int".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getInt(obj, i));
-    			}
-    		} else if ("double".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getDouble(obj, i));
-    			}
-    		} else if ("float".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getFloat(obj, i));
-    			}
-    		} else if ("boolean".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getBoolean(obj, i));
-    			}
-    		} else if ("byte".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getByte(obj, i));
-    			}
-    		} else if ("short".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getShort(obj, i));
-    			}
-    		} else if ("long".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getLong(obj, i));
-    			}
-    		} else if ("char".equals(componentType.getName())) {
-    			for (int i = 0; i < length; i++) {
-    				write(Array.getChar(obj, i));
-    			}
-    		}
-    	} else if ("java.lang.String".equals(componentType.getName())) {
-    		for (int i = 0; i < length; i++) {
-    			String str = (String) Array.get(obj, i);
-    			write(str);
-    		}
-    	} else if (componentType.isArray()) {
-    		for (int i = 0; i < length; i++) {
-    			Object o = Array.get(obj, i);
-    			writeArrayUsingReflection(o);
-    		}
-    	} else {
-    		for (int i = 0; i < length; i++) {
-    			Object o = Array.get(obj, i);
-    			writeObjectUsingReflection(o);
-    		}
-    	}
+        Class<?> componentType = obj.getClass().getComponentType();
+        int length = Array.getLength(obj);
+        write(length);
+        if (componentType.isPrimitive()) {
+            if ("int".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getInt(obj, i));
+                }
+            } else if ("double".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getDouble(obj, i));
+                }
+            } else if ("float".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getFloat(obj, i));
+                }
+            } else if ("boolean".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getBoolean(obj, i));
+                }
+            } else if ("byte".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getByte(obj, i));
+                }
+            } else if ("short".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getShort(obj, i));
+                }
+            } else if ("long".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getLong(obj, i));
+                }
+            } else if ("char".equals(componentType.getName())) {
+                for (int i = 0; i < length; i++) {
+                    write(Array.getChar(obj, i));
+                }
+            }
+        } else if ("java.lang.String".equals(componentType.getName())) {
+            for (int i = 0; i < length; i++) {
+                String str = (String) Array.get(obj, i);
+                write(str);
+            }
+        } else if (componentType.isArray()) {
+            for (int i = 0; i < length; i++) {
+                Object o = Array.get(obj, i);
+                writeArrayUsingReflection(o);
+            }
+        } else {
+            for (int i = 0; i < length; i++) {
+                Object o = Array.get(obj, i);
+                writeObjectUsingReflection(o);
+            }
+        }
     }
 
     private <T> void writeStringUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
@@ -681,52 +677,52 @@ public class X10JavaSerializer {
     }
     
     private static abstract class SerializerThunk {
-    	protected final SerializerThunk superThunk;
-    	
-    	SerializerThunk(SerializerThunk st) {
-    		superThunk = st;
-    	}
-    	
-    	<T> void serializeObject(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
-    		if (superThunk != null) {
-    			superThunk.serializeObject(obj, xjs);
-    		}
-    		serializeBody(obj, xjs);
-    	}
-    	
-    	abstract <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException;
+        protected final SerializerThunk superThunk;
+        
+        SerializerThunk(SerializerThunk st) {
+            superThunk = st;
+        }
+        
+        <T> void serializeObject(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
+            if (superThunk != null) {
+                superThunk.serializeObject(obj, xjs);
+            }
+            serializeBody(obj, xjs);
+        }
+        
+        abstract <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException;
     }
     
     private static class FieldBasedSerializerThunk extends SerializerThunk {
-    	protected final Field[] fields;
-    	
-    	FieldBasedSerializerThunk(Class<? extends Object> clazz, SerializerThunk st) {
-    		super(st);
+        protected final Field[] fields;
+        
+        FieldBasedSerializerThunk(Class<? extends Object> clazz, SerializerThunk st) {
+            super(st);
 
-    		// XTENLANG-2982,2983 transient fields may be initialized with readObject method. 
-    		Method readObjectMethod = null;
-    		try {
-    		    readObjectMethod = clazz.getDeclaredMethod("readObject", java.io.ObjectInputStream.class);
-    		} catch (Exception e) {}
+            // XTENLANG-2982,2983 transient fields may be initialized with readObject method. 
+            Method readObjectMethod = null;
+            try {
+                readObjectMethod = clazz.getDeclaredMethod("readObject", java.io.ObjectInputStream.class);
+            } catch (Exception e) {}
 
-    		// Sort the fields to get JVM-independent ordering.
-    		Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-    		Field[] declaredFields = clazz.getDeclaredFields();
-    		for (Field field : declaredFields) {
-    			int modifiers = field.getModifiers();
-    			if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && readObjectMethod == null)) {
-    				continue;
-    			}
-    			field.setAccessible(true);
-    			flds.add(field);
-    		}
-     		fields = flds.toArray(new Field[flds.size()]);
-     	}
-    	
-    	<T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException {
-    		for (int i=0; i<fields.length; i++) {
-    			Field field = fields[i];
-    			Class<?> type = field.getType();
+            // Sort the fields to get JVM-independent ordering.
+            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+            Field[] declaredFields = clazz.getDeclaredFields();
+            for (Field field : declaredFields) {
+                int modifiers = field.getModifiers();
+                if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && readObjectMethod == null)) {
+                    continue;
+                }
+                field.setAccessible(true);
+                flds.add(field);
+            }
+            fields = flds.toArray(new Field[flds.size()]);
+        }
+        
+        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException {
+            for (int i=0; i<fields.length; i++) {
+                Field field = fields[i];
+                Class<?> type = field.getType();
                 if (type.isPrimitive()) {
                     xjs.writePrimitiveUsingReflection(field, obj);
                 } else if (type.isArray()) {
@@ -736,108 +732,108 @@ public class X10JavaSerializer {
                 } else {
                     xjs.writeObjectUsingReflection(field.get(obj));
                 }
-    		}
-    	}
+            }
+        }
     }
-    	
+        
     private static class HadoopSerializerThunk extends SerializerThunk {
-    	protected final Method writeMethod;
+        protected final Method writeMethod;
 
-    	HadoopSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchMethodException {
-    		super(null);
-    		writeMethod = clazz.getMethod("write", java.io.DataOutput.class);
-    		writeMethod.setAccessible(true);
-    	}
+        HadoopSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchMethodException {
+            super(null);
+            writeMethod = clazz.getMethod("write", java.io.DataOutput.class);
+            writeMethod.setAccessible(true);
+        }
 
-    	<T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-    		if (Runtime.TRACE_SER) {
+        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+            if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("\tInvoking "+writeMethod);
-    		}
-    		writeMethod.invoke(obj, xjs.out);
-    	}
+            }
+            writeMethod.invoke(obj, xjs.out);
+        }
     }
 
     private static class CustomSerializerThunk extends SerializerThunk {
-    	protected final Field[] fields;
+        protected final Field[] fields;
 
-    	CustomSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException {
-    		super(null);
+        CustomSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException {
+            super(null);
 
-    		// Sort the fields to get JVM-independent ordering.
-    		// Need to serialize the fields related to RTT's since they
-    		// are specific to the Java backend.
-    		Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-    		TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-    		for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-    			Field field = clazz.getDeclaredField(typeParameter.getName());
-    			field.setAccessible(true);
-    			flds.add(field);
-    		}
-    		fields = flds.toArray(new Field[flds.size()]);      		
-    	}
+            // Sort the fields to get JVM-independent ordering.
+            // Need to serialize the fields related to RTT's since they
+            // are specific to the Java backend.
+            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+            TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
+            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+                Field field = clazz.getDeclaredField(typeParameter.getName());
+                field.setAccessible(true);
+                flds.add(field);
+            }
+            fields = flds.toArray(new Field[flds.size()]);                      
+        }
 
-    	<T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {
-    		for (Field field: fields) {
-    			xjs.writeObjectUsingReflection(field.get(obj));
-    		}
-    		CustomSerialization cs = (CustomSerialization)obj;
-    		SerialData serialData = cs.serialize();
-    		xjs.writeObjectUsingReflection(serialData);
-    	}
+        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {
+            for (Field field: fields) {
+                xjs.writeObjectUsingReflection(field.get(obj));
+            }
+            CustomSerialization cs = (CustomSerialization)obj;
+            SerialData serialData = cs.serialize();
+            xjs.writeObjectUsingReflection(serialData);
+        }
     }
     
     private static class SpecialCaseSerializerThunk extends SerializerThunk {
 
-    	SpecialCaseSerializerThunk(Class <? extends Object> clazz) {
-    		super(null);
-    	}
+        SpecialCaseSerializerThunk(Class <? extends Object> clazz) {
+            super(null);
+        }
 
-    	SpecialCaseSerializerThunk(Class <? extends Object> clazz, SerializerThunk st) {
-    		super(st);
-    	}
+        SpecialCaseSerializerThunk(Class <? extends Object> clazz, SerializerThunk st) {
+            super(st);
+        }
 
-    	@SuppressWarnings("rawtypes")
-		<T> void serializeBody(T obj, X10JavaSerializer xjs) throws IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-    		Class<? extends Object> clazz = obj.getClass();
-    		if ("java.lang.String".equals(clazz.getName())) {
-    			xjs.writeStringValue((String) obj);
-    		} else if ("x10.rtt.NamedType".equals(clazz.getName())) {
-    			Field typeNameField = clazz.getDeclaredField("typeName");
-    			String typeName = (String) typeNameField.get(obj);
-    			xjs.writeClassID(typeName);
-                } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
-                    Field typeNameField = clazz.getDeclaredField("typeName");
-                    String typeName = (String) typeNameField.get(obj);
-                    xjs.writeClassID(typeName);
-    		} else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-    			Field javaClassField = clazz.getDeclaredField("javaClass");
-    			Class<?> javaClass = (Class<?>) javaClassField.get(obj);
-    			xjs.writeClassID(javaClass.getName());
-    		} else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-    			((IndexedMemoryChunk) obj).$_serialize(xjs);
-    		} else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-    			((IndexedMemoryChunk.$Closure$0) obj).$_serialize(xjs);
-    		} else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-    			((IndexedMemoryChunk.$Closure$1) obj).$_serialize(xjs);
-    		} else if (GlobalRef.class.getName().equals(clazz.getName())) {
-    			((GlobalRef) obj).$_serialize(xjs);
-    	        // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//    		} else if (X10Throwable.class.getName().equals(clazz.getName())) {
-//    			((X10Throwable) obj).$_serialize(xjs);
-    		} else if (isThrowable(clazz)) {
-    		    if (THROWABLES_SERIALIZE_MESSAGE) {
-                        java.lang.Throwable t = (java.lang.Throwable) obj;
-    		        xjs.write(t.getMessage());
-    		    }
-                    if (THROWABLES_SERIALIZE_STACKTRACE) {
-                        java.lang.Throwable t = (java.lang.Throwable) obj;
-                        xjs.writeArrayUsingReflection(t.getStackTrace());
-                    }
-    		} else if ("java.lang.Class".equals(clazz.getName())) {
-    			xjs.write(((Class)obj).getName());
-    		} /* else if ("java.lang.Object".equals(clazz.getName())) {
-    		    // NOP 
-    		} */
-    	}
+        @SuppressWarnings("rawtypes")
+        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
+            Class<? extends Object> clazz = obj.getClass();
+            if ("java.lang.String".equals(clazz.getName())) {
+                xjs.writeStringValue((String) obj);
+            } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
+                Field typeNameField = clazz.getDeclaredField("typeName");
+                String typeName = (String) typeNameField.get(obj);
+                xjs.writeClassID(typeName);
+            } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
+                Field typeNameField = clazz.getDeclaredField("typeName");
+                String typeName = (String) typeNameField.get(obj);
+                xjs.writeClassID(typeName);
+            } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
+                Field javaClassField = clazz.getDeclaredField("javaClass");
+                Class<?> javaClass = (Class<?>) javaClassField.get(obj);
+                xjs.writeClassID(javaClass.getName());
+            } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
+                ((x10.core.IndexedMemoryChunk) obj).$_serialize(xjs);
+            } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
+                ((x10.core.IndexedMemoryChunk.$Closure$0) obj).$_serialize(xjs);
+            } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
+                ((x10.core.IndexedMemoryChunk.$Closure$1) obj).$_serialize(xjs);
+            } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
+                ((x10.core.GlobalRef) obj).$_serialize(xjs);
+                // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
+//            } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
+//                ((x10.core.X10Throwable) obj).$_serialize(xjs);
+            } else if (isThrowable(clazz)) {
+                if (THROWABLES_SERIALIZE_MESSAGE) {
+                    java.lang.Throwable t = (java.lang.Throwable) obj;
+                    xjs.write(t.getMessage());
+                }
+                if (THROWABLES_SERIALIZE_STACKTRACE) {
+                    java.lang.Throwable t = (java.lang.Throwable) obj;
+                    xjs.writeArrayUsingReflection(t.getStackTrace());
+                }
+            } else if ("java.lang.Class".equals(clazz.getName())) {
+                xjs.write(((Class)obj).getName());
+//            } else if ("java.lang.Object".equals(clazz.getName())) {
+//                // NOP 
+            }
+        }
     }
 }
