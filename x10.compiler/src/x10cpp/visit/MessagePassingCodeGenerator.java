@@ -39,6 +39,7 @@ import static x10cpp.visit.SharedVarsMethods.VOID;
 import static x10cpp.visit.SharedVarsMethods.VOID_PTR;
 import static x10cpp.visit.SharedVarsMethods.REFERENCE_TYPE;
 import static x10cpp.visit.SharedVarsMethods.CLOSURE_TYPE;
+import static x10cpp.visit.SharedVarsMethods.CLASS_TYPE;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.getId;
 import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
@@ -1081,10 +1082,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
-            if (superClass != null) {
-                generateUsingDeclsForInheritedMethods(context, currentClass,
-                                                      superClass, xts, h, members);
-            }
+            generateUsingDeclsForInheritedMethods(context, currentClass, superClass, xts, h, members);
             
             ClassMember prev = null;
             for (ClassMember member : members) {
@@ -1272,40 +1270,57 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             possibleNames.add(mi.name());
         }
         while (superClass != null && !possibleNames.isEmpty()) {
-            Iterator<Name> names = possibleNames.iterator();
-            nameLoop: while (names.hasNext()) {
-                Name methName = names.next();
-                List<MethodInstance> childImpls = childClass.methodsNamed(methName);
-                List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
-                if (!parentImpls.isEmpty()) {
-                    boolean emitUsing = false;
-                    if (childImpls.size() != parentImpls.size()) {
-                        // Number of implementation differs, so we can't have an exact signature match.
-                        emitUsing = true;
-                    } else {
-                        // Same number of impls, now check for identical signatures.
-                        implLoop: for (MethodInstance childImpl : childImpls) {
-                            for (MethodInstance parentImpl : parentImpls) {
-                                if (childImpl.isSameMethod(parentImpl, context)) continue implLoop;
-                            }
-                            // If we get to here, then there is a childImpl that has a different signature than all parentImpls
-                            emitUsing = true;
-                            break implLoop;                 
-                        }
-                    }
-                    
-                    if (emitUsing) {
-                        names.remove();
-                        h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString())+";");
-                        didSomething = true;
-                        continue nameLoop;
-                    }  
-                }
-            }
+            didSomething = generateUsingDeclsHelper(context, childClass, superClass, h, didSomething, possibleNames);
             superClass = (X10ClassType)superClass.superClass();
+        }
+        if (!possibleNames.isEmpty()) {
+        	// also check for methods of Any; at the impl level these are inherited from X10Class
+        	// and therefore need to be treated just as if they were inherited from a real X10 superclass
+        	// for the purposes of generating using declarations.
+            didSomething = generateUsingDeclsHelper(context, childClass, xts.Any(), h, didSomething, possibleNames);
         }
         if (didSomething) h.forceNewline();
     }
+
+	private boolean generateUsingDeclsHelper(X10CPPContext_c context,
+			X10ClassType childClass, X10ClassType superClass,
+			ClassifiedStream h, boolean didSomething, Set<Name> possibleNames) {
+		Iterator<Name> names = possibleNames.iterator();
+		nameLoop: while (names.hasNext()) {
+		    Name methName = names.next();
+		    List<MethodInstance> childImpls = childClass.methodsNamed(methName);
+		    List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
+		    if (!parentImpls.isEmpty()) {
+		        boolean emitUsing = false;
+		        if (childImpls.size() != parentImpls.size()) {
+		            // Number of implementation differs, so we can't have an exact signature match.
+		            emitUsing = true;
+		        } else {
+		            // Same number of impls, now check for identical signatures.
+		            implLoop: for (MethodInstance childImpl : childImpls) {
+		                for (MethodInstance parentImpl : parentImpls) {
+		                    if (childImpl.isSameMethod(parentImpl, context)) continue implLoop;
+		                }
+		                // If we get to here, then there is a childImpl that has a different signature than all parentImpls
+		                emitUsing = true;
+		                break implLoop;                 
+		            }
+		        }
+		        
+		        if (emitUsing) {
+		            names.remove();
+		            if (superClass.isAny()) {
+		            	h.writeln("using "+CLASS_TYPE+"::"+mangled_method_name(methName.toString())+";");		            	
+		            } else {
+		            	h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString())+";");
+		            }
+		            didSomething = true;
+		            continue nameLoop;
+		        }  
+		    }
+		}
+		return didSomething;
+	}
 
     public void visit(PackageNode_c n) {
         assert (false);
