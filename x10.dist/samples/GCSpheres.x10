@@ -19,7 +19,6 @@ import x10.util.Random;
  *
  * @Author Dave Cunningham
  * @Author Vijay Saraswat
- * Converted to 2.1 9/1/2010
 */
 class GCSpheres {
 

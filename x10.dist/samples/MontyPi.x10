@@ -16,7 +16,6 @@ import x10.io.Console;
  * Calculation of an approximation to pi by using a Monte Carlo simulation
  * (throwing darts into the unit square and determining the fraction that land
  * in the unit circle).
- * Converted to 2.1 9/1/2010.
  */
 public class MontyPi {
     public static def main(args:Array[String](1)) {

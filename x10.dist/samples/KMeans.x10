@@ -17,7 +17,9 @@ import x10.util.Random;
  * points of dimension o.myDim.
  * <p> 
  * This class implements a sequential program, that is readily parallelizable.
- *  Converted to 2.1 on 9/1/2010
+ *
+ * For a scalable, high-performance version of this benchmark see
+ * KMeans.x10 in the X10 Benchmarks (separate download from x10-lang.org)
  */
 public class KMeans(myDim:Int) {
 
