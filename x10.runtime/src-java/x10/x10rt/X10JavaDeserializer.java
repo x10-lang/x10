@@ -437,12 +437,12 @@ public class X10JavaDeserializer {
         }
 
         Class<?> superclass = clazz.getSuperclass();
-        DeserializerThunk superclassThunk = null;
+        DeserializerThunk superThunk = null;
         if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-            superclassThunk = getDeserializerThunkHelper(superclass);
+            superThunk = getDeserializerThunkHelper(superclass);
         }
 
-        return new FieldBasedDeserializerThunk(clazz, superclassThunk);
+        return new FieldBasedDeserializerThunk(clazz, superThunk);
     }
 
     private <T> void readPrimitiveUsingReflection(Field field, T obj) throws IOException, IllegalAccessException {
@@ -555,7 +555,7 @@ public class X10JavaDeserializer {
             T obj = null;
 
             // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
-            if (!"java.lang.Class".equals(clazz.getName())) {
+            if (!Modifier.isAbstract(clazz.getModifiers()) && !"java.lang.Class".equals(clazz.getName())) {
                 try {
                     obj = (T)unsafe.allocateInstance(clazz);
                 } catch (InstantiationException e) {
