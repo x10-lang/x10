@@ -4052,7 +4052,7 @@ public class Emitter {
     }
 
     // TODO haszero
-	public void generateZeroValueConstructor(X10ClassDef def, X10ClassDecl_c n) {
+    public void generateZeroValueConstructor(X10ClassDef def, X10ClassDecl_c n) {
         w.write("// zero value constructor");
         w.newline();
         w.write("public " + def.name().toString() + "(");
