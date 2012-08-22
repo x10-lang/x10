@@ -97,6 +97,7 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
@@ -164,8 +165,13 @@ import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorInstance;
 import x10.types.X10FieldInstance;
+import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType_c;
+import x10.types.X10TypeEnv;
+import x10.types.X10TypeEnv_c;
+import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
+import x10.types.constraints.TypeConstraint;
 import x10.util.AnnotationUtils;
 import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
@@ -4055,9 +4061,24 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10MethodDecl_c n) {
-    	// [DC] epic massive hack!
-    	// if (n.name().id().toString().equals("typeName")) return;
-    	// should be able to assert it's not typeName here, once we stop generating such decls somewhere in the frontend...
+    	// should be able to assert n.name() is not typeName here, once we stop generating such decls somewhere in the frontend...
+    	if (n.name().id().toString().equals("testFunctionForMikio")) {
+    		X10MethodDef def = n.methodDef();
+	    	TypeSystem_c xts = (TypeSystem_c)tr.typeSystem();
+			if (def.typeGuard() != null) {
+				Context c = tr.context();
+				Context c2 = c.pushBlock();
+		        Ref<TypeConstraint> tc = def.typeGuard();
+		        if (tc != null) {
+		            c2.setName(" MethodGuard for |" + def.name() + "| ");
+		            if (tc != null) {
+		                c2.setTypeConstraintWithContextTerms(tc);
+		            }
+		        }      
+		    	X10TypeEnv tenv = xts.env(c2);
+		    	System.out.println(tenv.upperBounds(n.methodDef().typeParameters().get(0)));
+			}
+    	}
         if (er.printMainMethod(n)) {
             return;
         }
