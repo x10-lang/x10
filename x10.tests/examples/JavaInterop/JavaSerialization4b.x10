@@ -16,22 +16,31 @@ import harness.x10Test;
 public class JavaSerialization4b extends x10Test {
 
     static class MyInt extends java.lang.Number {
-        public def intValue():Int = 0;
-        public def longValue():Long = 0L;
-        public def floatValue():Float = 0.0F;
-        public def doubleValue():Double = 0.0;
+        val i:Int;
+        def this(i:Int) {
+            this.i = i;
+        }
+        public def intValue():Int = i;
+        public def longValue():Long = i as Long;
+        public def floatValue():Float = i as Float;
+        public def doubleValue():Double = i as Double;
     }
         
-    static def test():void {
-        val e = new MyInt();
-        at (here.next()) {
-        	e.toString();
-        }
+    static def test():Boolean {
+        val e = new MyInt(99);
+        val j = e.intValue();
+        Console.OUT.println(j);
+        if (99 != j) return false;
+        val ok = at (here.next()) {
+            val i = e.intValue();
+            Console.OUT.println(i);
+            return 99 == i;
+        };
+        return ok;
     }
 
     public def run(): Boolean = {
-        test();
-        return true;
+        return test();
     }
 
     public static def main(args: Array[String](1)) {
