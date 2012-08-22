@@ -347,7 +347,7 @@ public class X10JavaDeserializer {
     public <T> Object deserializeClassUsingReflection(Class<? extends Object> clazz, T obj, int i) throws IOException {
         try {
             DeserializerThunk thunk = getDeserializerThunk(clazz);
-            return thunk.deserializeObject(clazz, this);
+            return thunk.deserializeObject(clazz, obj, i, this);
         } catch (SecurityException e) {
             throw new RuntimeException(e);
         } catch (NoSuchFieldException e) {
@@ -555,8 +555,9 @@ public class X10JavaDeserializer {
             T obj = null;
 
             // If the class is java.lang.Class we cannot create an instance in the following manner so we just skip it
-            if (!Modifier.isAbstract(clazz.getModifiers()) && !"java.lang.Class".equals(clazz.getName())) {
+            if (!"java.lang.Class".equals(clazz.getName())) {
                 try {
+                    assert !Modifier.isAbstract(clazz.getModifiers());                    
                     obj = (T)unsafe.allocateInstance(clazz);
                 } catch (InstantiationException e) {
                     throw new RuntimeException(e);
@@ -705,7 +706,7 @@ public class X10JavaDeserializer {
         }
 
         @SuppressWarnings({ "unchecked", "rawtypes" })
-            protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
+        protected <T> T deserializeBody(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException {
             if ("java.lang.String".equals(clazz.getName())) {
                 obj = (T) jds.readStringValue();
                 return obj;
