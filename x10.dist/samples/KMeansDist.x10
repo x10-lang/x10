@@ -12,6 +12,12 @@
 import x10.io.Console;
 import x10.util.Random;
 
+/**
+ * A formulation of KMeans using DistArray.
+ *
+ * For a scalable, high-performance version of this benchmark see
+ * KMeans.x10 in the X10 Benchmarks (separate download from x10-lang.org)
+ */
 public class KMeansDist {
 
     static val DIM=2;

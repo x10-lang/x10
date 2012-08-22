@@ -13,7 +13,10 @@ import x10.io.Console;
 import x10.util.Timer;
 
 /**
- * Converted to 2.1.
+ * Simple version of the RA benchmark from the HPC Challenge benchmarks.
+ * 
+ * For a scalable, high-performance version of this benchmark see
+ * RandomAccess.x10 in the X10 Benchmarks (separate download from x10-lang.org)
  */
 class LocalTable {
 

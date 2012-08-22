@@ -12,7 +12,6 @@
 
 /**
  * Compute the number of solutions to the N queens problem.
- * Converted to 2.2 on 27/4/2011
  */
 public class NQueensPar {
     public static val EXPECTED_SOLUTIONS =

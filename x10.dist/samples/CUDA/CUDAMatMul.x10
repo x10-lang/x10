@@ -41,13 +41,13 @@ public class CUDAMatMul {
             assert (k%16) == 0 && k > 0 : "unsupported shared dimension in ourSgemm( 'N', 'N', ... )";
             //sgemmNN<<<grid, threads>>>( A, lda, B, ldb, C, ldc, k, alpha, beta );
             finish async at (gpu) @CUDA @CUDADirectParams {
-                finish for (block in 0..((m*n/64/16)-1)) async {
+                finish for (block in 0..(((m*n)/64/16)-1)) async {
                     val bs = new Array[Float](16*17, 0);
                     clocked finish for (thread in 0..63) clocked async {
                         val inx = thread % 16;
                         val iny = thread / 16;
-                        val ibx = (block%64) * 64;
-                        val iby = (block/64) * 16;
+                        val ibx = (block%(m/64)) * 64;
+                        val iby = (block/(m/64)) * 16;
                         val id = inx + iny*16;
 
                         var A_idx:Int = ibx + id;
@@ -81,7 +81,7 @@ public class CUDAMatMul {
 
                         } while( B_idx < Blast_idx );
 
-                        @Unroll(16) for (i in 0..(16-1)) { 
+                        @Unroll(16) for (i in 0..(16-1)) {
                             C(C_idx + i*ldc) = alpha*c(i) + beta*C(C_idx + i*ldc);
                         }
                     }
@@ -96,9 +96,15 @@ public class CUDAMatMul {
     }
 
 
-    public static def main (args : Array[String]) {
+    public static def main (args : Rail[String]) {
 
-        val N = 4096;
+        var N_ : Int;
+        if (args.size >= 1) {
+            N_ = Int.parseInt(args(0));
+        } else {
+            N_ = 4096;
+        }
+        val N = N_;
 
         //
         //  init arrays
@@ -137,7 +143,7 @@ public class CUDAMatMul {
 
             val nb = 64;
             //for(var idim:Int = 1; idim <= N/nb; idim = ((idim+1)*1.1) as Int )
-            val idim = 4096/nb;
+            val idim = N/nb;
             {
                 val dim = idim*nb;
 

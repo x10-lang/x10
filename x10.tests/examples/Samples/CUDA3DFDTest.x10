@@ -14,7 +14,7 @@ import harness.x10Test;
 
 public class CUDA3DFDTest extends x10Test {
     public def run():boolean {
-         val args = new Array[String](0);
+         val args = ["16", "16", "16"];
          CUDA3DFD.main(args);
          return true;
     }
