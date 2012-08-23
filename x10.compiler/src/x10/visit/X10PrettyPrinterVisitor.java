@@ -97,7 +97,6 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
@@ -168,8 +167,6 @@ import x10.types.X10FieldInstance;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType_c;
 import x10.types.X10TypeEnv;
-import x10.types.X10TypeEnv_c;
-import x10.types.constraints.CConstraint;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.util.AnnotationUtils;
@@ -650,8 +647,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // print the custom serializer
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
-        } else if(subtypeOfHadoopWritable(def)){
-        	w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+        } else if (subtypeOfHadoopWritable(def)) {
+            w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
             w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
             w.newline(4);
             w.begin(0);
@@ -4061,23 +4058,21 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     @Override
     public void visit(X10MethodDecl_c n) {
-    	// should be able to assert n.name() is not typeName here, once we stop generating such decls somewhere in the frontend...
-    	if (n.name().id().toString().equals("testFunctionForMikio")) {
-    		X10MethodDef def = n.methodDef();
-	    	TypeSystem_c xts = (TypeSystem_c)tr.typeSystem();
-			if (def.typeGuard() != null) {
-				Context c = tr.context();
-				Context c2 = c.pushBlock();
-		        Ref<TypeConstraint> tc = def.typeGuard();
-		        if (tc != null) {
-		            c2.setName(" MethodGuard for |" + def.name() + "| ");
-		            if (tc != null) {
-		                c2.setTypeConstraintWithContextTerms(tc);
-		            }
-		        }      
-		    	X10TypeEnv tenv = xts.env(c2);
-		    	System.out.println(tenv.upperBounds(n.methodDef().typeParameters().get(0)));
-			}
+        // should be able to assert n.name() is not typeName here, once we stop generating such decls somewhere in the frontend...
+        // [DC] sample code to demonstrate how to get type param bounds information.
+        // TODO delete this when XTENLANG-3086 has been fixed.
+        if (n.name().id().toString().equals("testFunctionForMikio")) {
+            MethodDef def = n.methodDef();
+            TypeSystem xts = tr.typeSystem();
+            Ref<TypeConstraint> tc = def.typeGuard();
+            if (tc != null) {
+                Context c = tr.context();
+                Context c2 = c.pushBlock();
+                c2.setName(" MethodGuard for |" + def.name() + "| ");
+                c2.setTypeConstraintWithContextTerms(tc);
+                X10TypeEnv tenv = xts.env(c2);
+                System.out.println(tenv.upperBounds(n.methodDef().typeParameters().get(0)));
+            }
     	}
         if (er.printMainMethod(n)) {
             return;
