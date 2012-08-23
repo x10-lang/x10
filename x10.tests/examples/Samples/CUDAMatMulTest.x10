@@ -14,7 +14,7 @@ import harness.x10Test;
 
 public class CUDAMatMulTest extends x10Test {
     public def run():boolean {
-         val args = ["64"];
+         val args = ["64" as String];
          CUDAMatMul.main(args);
          return true;
     }
