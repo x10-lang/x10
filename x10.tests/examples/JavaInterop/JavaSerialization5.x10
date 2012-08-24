@@ -10,17 +10,25 @@
  */
 
 import harness.x10Test;
+import x10.interop.Java;
 
 // MANAGED_X10_ONLY
 
-public class JavaSerialization4 extends x10Test {
+public class JavaSerialization5 extends x10Test {
 
-    static class MyException extends Exception {}
-        
+    static class C {
+        val a:Any;
+        def this() {
+            val ja = Java.newArray[Any](1);
+            ja(0) = "abc";
+            a = ja;
+        }
+    }
+
     static def test():void {
-        val e = new MyException();
+        val c = new C();
         at (here.next()) {
-            e.toString();
+            c.toString();
         }
     }
 
@@ -30,7 +38,7 @@ public class JavaSerialization4 extends x10Test {
     }
 
     public static def main(args: Array[String](1)) {
-        new JavaSerialization4().execute();
+        new JavaSerialization5().execute();
     }
 
 }

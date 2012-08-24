@@ -13,14 +13,13 @@ import harness.x10Test;
 
 // MANAGED_X10_ONLY
 
-public class JavaSerialization4 extends x10Test {
+public class JavaSerialization4c extends x10Test {
 
-    static class MyException extends Exception {}
-        
     static def test():void {
-        val e = new MyException();
+        val e = new java.lang.Integer(99);
         at (here.next()) {
-            e.toString();
+            val i = e.intValue();
+            chk(i == 99);
         }
     }
 
@@ -30,7 +29,7 @@ public class JavaSerialization4 extends x10Test {
     }
 
     public static def main(args: Array[String](1)) {
-        new JavaSerialization4().execute();
+        new JavaSerialization4c().execute();
     }
 
 }
