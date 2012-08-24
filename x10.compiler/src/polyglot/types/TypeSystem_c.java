@@ -26,7 +26,6 @@ import polyglot.types.reflect.ClassFileLazyClassInitializer;
 import polyglot.util.*;
 import x10.constraint.XExpr;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.XTypeLit;
@@ -87,6 +86,7 @@ import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.CLocal;
 
 import x10.types.matcher.*;
 import x10.util.ClosureSynthesizer;
@@ -4517,7 +4517,7 @@ public class TypeSystem_c implements TypeSystem
             }
             ConstrainedType ct = (ConstrainedType) t;
             CConstraint c = Types.xclause(ct);
-            for (XTerm<Type> x : c.constraints()) {
+            for (XTerm<Type> x : c.terms()) {
                 if (hasUnknown(x, visited)) {
                     return true;
                 }

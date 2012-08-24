@@ -272,7 +272,7 @@ public class Emitter {
 		 // FIXME: [DC] context.constraintProjection ought not to eliminate information but it seems to?
 		CConstraint projected = cc; //context.constraintProjection(cc);
 		if (!projected.consistent()) return r;
-		for (XTerm<Type> xvar : projected.getVarsAndProjections()) {
+		for (XTerm<Type> xvar : projected.getVarsAndFields()) {
 			if (!(xvar instanceof CField)) continue;
 			CField xvarf = (CField)xvar;
 			// [DC] I believe that since we are only looking at constraints of the form self.f,

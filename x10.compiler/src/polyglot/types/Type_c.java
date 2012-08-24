@@ -259,11 +259,6 @@ public abstract class Type_c extends TypeObject_c implements Type
      */
     abstract public String typeToString();
     
-    @Override
-    public String typetoSmtString() {
-    	return toString(); 
-	}	
-
     
     public void print(CodeWriter w) {
 	w.write(toString());

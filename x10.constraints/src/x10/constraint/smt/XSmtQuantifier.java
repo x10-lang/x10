@@ -4,7 +4,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import x10.constraint.XConstraintManager;
-import x10.constraint.XTerm;
 import x10.constraint.XType;
 import x10.constraint.XVar;
 
@@ -30,6 +29,7 @@ public class XSmtQuantifier<T extends XType> extends XSmtTerm<T> {
 	public XSmtTerm<T> body() {
 		return body;
 	}
+	
 	public boolean onlyUniversal() {
 		return eqv.isEmpty();
 	}
@@ -144,6 +144,7 @@ public class XSmtQuantifier<T extends XType> extends XSmtTerm<T> {
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
+		@SuppressWarnings("unchecked")
 		XSmtQuantifier<T> other = (XSmtQuantifier<T>) obj;
 		if (body == null) {
 			if (other.body != null)

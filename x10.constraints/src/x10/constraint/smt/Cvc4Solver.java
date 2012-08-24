@@ -5,9 +5,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.UndeclaredThrowableException;
 
-import x10.constraint.XConstraintManager;
-import x10.constraint.XConstraintSystem;
-import x10.constraint.XOp;
 import x10.constraint.XType;
 
 /**
@@ -21,9 +18,8 @@ public class Cvc4Solver<T extends XType> implements XSmtSolver {
 	/**
 	 * Some useful String constants for now. 
 	 */
-	private static final String solverPath = "/home/lshadare/solvers/cvc4";
+	private static final String solverPath = XSolverEngine.path+"cvc4"; 
 	private final ProcessBuilder pb;
-	//private final XSmtPrinter<T> printer; 
 	private static Cvc4Solver<? extends XType> instance = null;
 	
 	private Cvc4Solver() {

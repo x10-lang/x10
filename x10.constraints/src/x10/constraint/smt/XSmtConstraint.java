@@ -11,15 +11,13 @@ import x10.constraint.XConstraintSystem;
 import x10.constraint.XEQV;
 import x10.constraint.XExpr;
 import x10.constraint.XFailure;
-import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XType;
 
 /**
  * Implementation of XConstraints to be used by an SMT solver. The constraint
  * represents the conjunction of the XSmtTerms stored in conjuncts, each of which 
- * must have a Boolean type. The constraint also keeps a pointer to an external solver
- * that can answer satisfiability queries. 
+ * must have a Boolean type. 
  * @author lshadare
  *
  * @param <T>
@@ -57,8 +55,8 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	}
 	
 	protected XSmtConstraint(XSmtConstraint<T> other) {
-		this.conjuncts = new ArrayList<XSmtTerm<T>>(other.constraints().size());
-		for (XSmtTerm<T> ch : other.constraints()) {
+		this.conjuncts = new ArrayList<XSmtTerm<T>>(other.terms().size());
+		for (XSmtTerm<T> ch : other.terms()) {
 			conjuncts.add(XConstraintManager.<T>getConstraintSystem().copy(ch));
 		}
 		this.status = Status.UNKNOWN; 
@@ -66,23 +64,20 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	
 	@Override
 	public boolean consistent() {
-		// FIXME: 
+		// for now to avoid a costly SMT solver call. 
 		return true;
-		//return status == Status.CONSISTENT;
 	}
 
 	@Override
 	public boolean valid() {
-		if (constraints().isEmpty())
+		if (terms().isEmpty())
 			return true; 
-//		return false; 
 		
-		XTerm<T> conjunction = cs().makeAnd(constraints()); 
+		XTerm<T> conjunction = cs().makeAnd(terms()); 
 		try {
-			boolean res = XSolverEngine.isValid((XSmtTerm<T>)conjunction);
-			return res; 
+			return XSolverEngine.isValid((XSmtTerm<T>)conjunction);
 		} catch (XSmtFailure e) {
-			throw new IllegalStateException("Smt Solver Failure " +  e);
+			throw new IllegalStateException("Validity check failed: " +  e);
 		}
 	}
 
@@ -120,23 +115,22 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	@Override
 	public boolean entails(XConstraint<T> other) {
 		// any constraint entails the empty constraint
-		if (other == null || other.constraints().size() == 0)
+		if (other == null || other.terms().size() == 0)
 			return true;
-
-		XTerm<T> other_and = cs().makeAnd(other.constraints());
+		XTerm<T> other_and = cs().makeAnd(other.terms());
 		return entails(other_and);
 	}
 
 	@Override
 	public boolean entails(XTerm<T> term) {
 		try {		
-			if (constraints().size() == 0) 
+			if (terms().size() == 0) 
 				return XSolverEngine.isValid((XSmtTerm<T>)term);
 			
-			XTerm<T> this_and = cs().makeAnd(constraints());
+			XTerm<T> this_and = cs().makeAnd(terms());
 			return XSolverEngine.entails((XSmtTerm<T>)this_and, (XSmtTerm<T>)term);
 		} catch (XSmtFailure e) {
-			throw new IllegalStateException("Smt Solver Failure " +  e);
+			throw new IllegalStateException("Entails check failed " +  e);
 		}
 	}
 
@@ -154,17 +148,17 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 
 	@Override
 	public XConstraint<T> leastUpperBound(XConstraint<T> other) {
-		// TODO Auto-generated method stub
+		// TODO: still need to implement this (unclear how to generalize)
 		return null;
 	}
 
-	/**oh
-	 * 
-	 */
 	@Override
 	public XConstraint<T> residue(XConstraint<T> other) {
+		// naive implementation that checks which individual conjuncts in other
+		// are entailed by the current constraint (could do better by iterating 
+		// through atoms?)
 		XConstraint<T> result = cs().makeConstraint();
-		for (XTerm<T> constraint : other.constraints()) {
+		for (XTerm<T> constraint : other.terms()) {
 			if (!entails(constraint)) {
 				try {
 					result.addTerm(constraint);
@@ -177,26 +171,26 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	}
 
 	@Override
-	public List<? extends XSmtTerm<T>> constraints() {
+	public List<? extends XSmtTerm<T>> terms() {
 		return conjuncts; 
 	}
 
 	@Override
-	public Set<? extends XSmtTerm<T>> getVarsAndProjections() {
+	public Set<? extends XSmtTerm<T>> getVarsAndFields() {
 		Set<XSmtTerm<T>> res = new HashSet<XSmtTerm<T>>();
 		for (XSmtTerm<T> ch :conjuncts) {
-			getVarsAndProjections(ch, res); 
+			getVarsAndFields(ch, res); 
 		}
 		return res; 
 	}
 	
-	private void getVarsAndProjections(XSmtTerm<T> term, Set<XSmtTerm<T>> visited) {
+	private void getVarsAndFields(XSmtTerm<T> term, Set<XSmtTerm<T>> visited) {
 		if (term instanceof XSmtVar)
 			visited.add(term);
 		else if (term instanceof XSmtExpr) {
 			XSmtExpr<T> exp = (XSmtExpr<T>) term; 
 			for (XSmtTerm<T> ch : exp.children()) {
-				getVarsAndProjections(ch, visited);
+				getVarsAndFields(ch, visited);
 			}
 		}
 	}
@@ -227,7 +221,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	public void setInconsistent() {
 		throw new UnsupportedOperationException("XSmtConstraints should " +
 				"never be set inconsistent from the outside. This is a " +
-				"feature only for XNativeConstraints tha throw XFailure " +
+				"feature only for XNativeConstraints that throw XFailure " +
 				"when they become inconsistent.");
 	}
 
@@ -257,7 +251,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	}
 
 	@Override
-	public List<? extends XTerm<T>> extConstraintsHideFake() {
+	public List<? extends XTerm<T>> extTermsHideFake() {
 		List<XTerm<T>> terms = new ArrayList<XTerm<T>>();
 		for (XTerm<T> t :conjuncts) {
 			if(!extFake(t, true, true))
@@ -267,7 +261,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	}
 	
 	@Override
-	public List<? extends XTerm<T>> extConstraints() {
+	public List<? extends XTerm<T>> extTerms() {
 		List<XTerm<T>> terms = new ArrayList<XTerm<T>>();
 		for (XTerm<T> t :conjuncts) {
 			if(!extFake(t, true, false))
@@ -280,8 +274,8 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	public String toString() {
 		StringBuilder sb = new StringBuilder(); 
 		sb.append("{");
-		for (int i = 0; i < constraints().size(); ++i) {
-			XTerm<T> t = constraints().get(i); 
+		for (int i = 0; i < terms().size(); ++i) {
+			XTerm<T> t = terms().get(i); 
 			sb.append((i == 0? "" : ", ") + t.prettyPrint());
 		}
 		sb.append("}");

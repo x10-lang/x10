@@ -25,20 +25,15 @@ public class CSmtField<D extends XDef<Type>> extends XSmtField<Type, D> implemen
 	}
 	
 	@Override
-	public D def() {
-		return field(); 
-	}
-
-	@Override
 	public XVar<Type> thisVar() {
-        if (def() instanceof X10FieldDef)
-            return ((X10ClassDef) Types.get(((X10FieldDef) def()).container()).toClass().def()).thisVar();
+        if (field() instanceof X10FieldDef)
+            return ((X10ClassDef) Types.get(((X10FieldDef) field()).container()).toClass().def()).thisVar();
         return null;
 	}
 	
 	@Override
 	public String toString() {
-		return get(0) + "." + def();
+		return get(0) + "." + field();
 	}
 
 }

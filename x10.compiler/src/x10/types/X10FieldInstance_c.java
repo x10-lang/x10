@@ -28,12 +28,12 @@ import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XFailure;
-import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.ConstraintManager;
+import x10.types.constraints.CLocal;
 
 /**
  * 

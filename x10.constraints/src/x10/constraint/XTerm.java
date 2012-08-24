@@ -1,6 +1,5 @@
 package x10.constraint;
 
-import java.util.List;
 
 /**
  * XTerms are used to represent the terms occurring in constraints. They
@@ -55,29 +54,43 @@ public interface XTerm<T extends XType> {
      *  (otherwise we create a clone with the new children)
      */
     public XTerm<T> accept(TermVisitor<T> visitor) ;
-	
-	String toString();
-	
-	boolean equals(Object o);
-	
-	int hashCode();
 	/**
-	 * Return true if it is either a field/method access, a lit or a variable. 
-	 * FIXME: rename to something more normal
+	 * Return true if this is the term is a projection i.e. a field or method access
+	 * 
 	 * @return
 	 */
 	boolean isProjection(); 
-	
-	boolean okAsNestedTerm();
-
-	List<XTerm<T>> vars();
-	
-	XTerm<T> copy();
-
-	String prettyPrint(); 
-	
+	/**
+	 * Check whether the term represents an equality. 
+	 * @return true if equality
+	 */
 	boolean isEquals(); 
+	/**
+	 * Check whether the term represents a conjunction 
+	 * @return true if conjunction
+	 */
 	boolean isAnd(); 
+	/**
+	 * Check whether the term represents boolean negation
+	 * @return true if not
+	 */
+	boolean isNot(); 
+	/**
+	 * Return true if the term can appear nested inside a constraint
+	 * @return
+	 */
+	boolean okAsNestedTerm();
+	/**
+	 * Construct a copy of the given XTerm. 
+	 * @return
+	 */
+	XTerm<T> copy();
+	
+	String toString();
+	String prettyPrint(); 	
+
+	boolean equals(Object o);
+	int hashCode();
 	
 }
 	

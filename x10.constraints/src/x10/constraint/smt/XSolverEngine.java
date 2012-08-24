@@ -13,7 +13,7 @@ import x10.constraint.XTerm;
 import x10.constraint.XType;
 
 /**
- * Interface to be implemented by all external SMT solvers. 
+ * Static class that calls out to one or more external SMT solvers. 
  * @author lshadare
  *
  */
@@ -24,14 +24,15 @@ public class XSolverEngine<T extends XType> {
 		UNSAT,
 		UKNOWN
 	}
-	protected static final String outFile = "/home/lshadare/temp/constraints-dump/x10-constraint.smt2";
+	public static final String path ="/home/lshadare/x10-constraints2/solvers/";
+	protected static final String outFile = path + "temp/x10-constraint.smt2";
 	
 	private static boolean solving = false; 
 	private static <T extends XType> Result solve(XSmtTerm<T> query) {
 		if (solving)
 			throw new IllegalStateException("Cannot call solve while in solving");
 		solving = true; 
-		// we only need the axioms 
+		// we only need the axioms if the query has quantifiers 
 		if (query instanceof XSmtQuantifier)
 			query = instantiateAxioms(query);
 		XSmtPrinter<T> p = new XSmtPrinter<T>(outFile);
@@ -81,9 +82,13 @@ public class XSolverEngine<T extends XType> {
 		}
 		if (term instanceof XSmtQuantifier)
 			collectFieldAccess(((XSmtQuantifier<T>)term).body(), fields); 
-		if (term instanceof XSmtField) 
-			fields.add((XSmtField<T,?>) term); 
+		if (term instanceof XSmtField) {
+			@SuppressWarnings("unchecked")
+			XSmtField<T,?> term2 = (XSmtField<T,?>) term;
+			fields.add(term2);
+		} 
 	}
+	
 	/**
 	 * Returns true if the formula is valid i.e. if it is true under
 	 * all variable assignments and false otherwise
@@ -93,12 +98,13 @@ public class XSolverEngine<T extends XType> {
 	 */
 	public static <T extends XType> boolean isValid(XSmtTerm<T> formula) throws XSmtFailure {
 		XConstraintSystem<T> cs = XConstraintManager.<T>getConstraintSystem(); 
-		//@SuppressWarnings("unchecked")
 		// make sure the quantifiers are top level
 		
 		XSmtQuantifier<T> query = new XSmtQuantifier<T>(formula);
 		if (query.onlyUniversal()) {
-			return solve((XSmtTerm<T>)cs.makeNot(formula)) == Result.UNSAT;
+			@SuppressWarnings("unchecked")
+			XSmtTerm<T> makeNot = (XSmtTerm<T>)cs.makeNot(formula);
+			return solve(makeNot) == Result.UNSAT;
 		}
 		if (query.onlyExistential()) 
 			return solve(formula) == Result.SAT;
@@ -118,7 +124,6 @@ public class XSolverEngine<T extends XType> {
 	 * @throws XSmtFailure if there was a problem calling the external solver.
 	 */
 	public static <T extends XType> boolean isSatisfiable(XSmtTerm<T> formula) throws XSmtFailure {
-		//return solve(formula) == Result.SAT;
 		Result res = solve(new XSmtQuantifier<T>(formula)); 
 
 		if (res == Result.UKNOWN)
@@ -129,25 +134,25 @@ public class XSolverEngine<T extends XType> {
 
 	public static <T extends XType> boolean entails(XSmtTerm<T> t1, XSmtTerm<T> t2) throws XSmtFailure {
 		XConstraintSystem<T> cs = XConstraintManager.<T>getConstraintSystem(); 
-		XSmtTerm<T> impl = (XSmtTerm<T>)cs.makeExpr(XOp.<T>IMPL(), t1, t2); 
-		//XSmtTerm<T> query = new XSmtQuantifier<T>(impl);
+		@SuppressWarnings("unchecked")
+		XSmtTerm<T> impl = (XSmtTerm<T>)cs.makeExpr(XOp.<T>IMPL(), t1, t2);
+		XSmtTerm<T> query = new XSmtQuantifier<T>(impl);
 		try {
-			return isValid(impl);
+			return isValid(query);
 		} catch (XSmtFailure e) {
 			// try to check if the second term is valid. 
 			try {
-				return isValid(t2);
+				return isValid(new XSmtQuantifier<T>(t2));
 			} catch(XSmtFailure f) {
-				throw new UndeclaredThrowableException(f); 	
-				//return false; 
+				throw new UndeclaredThrowableException(e); 	
 			}
 		}
 	}
 	
 	protected static <T extends XType> XSolverEngine.Result run() {
 		Result res = XSolverFactory.SmtSolver("z3").run();
-		if (res == Result.UKNOWN)
-			res = XSolverFactory.SmtSolver("cvc3").run(); 
+//		if (res == Result.UKNOWN)
+//			res = XSolverFactory.SmtSolver("cvc3").run(); 
 		return res; 
 	}
 }

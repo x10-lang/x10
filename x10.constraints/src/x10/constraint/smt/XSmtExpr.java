@@ -2,11 +2,9 @@ package x10.constraint.smt;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 
 import x10.constraint.XConstraintManager;
 import x10.constraint.XExpr;
-import x10.constraint.XLabeledOp;
 import x10.constraint.XOp;
 import x10.constraint.XSimpleOp;
 import x10.constraint.XTerm;
@@ -183,7 +181,8 @@ public class XSmtExpr<T extends XType> extends XSmtTerm<T> implements XExpr<T> {
 
 	@Override
 	public boolean isProjection() {
-		return op instanceof XLabeledOp && op.getKind() == XOp.Kind.APPLY;
+		return 	(op.getKind() == XOp.Kind.APPLY_LABEL || // field or method dereference  a.foo
+				 op.getKind() == XOp.Kind.APPLY && children.get(0).isProjection()); // method call a.foo(x,y);
 	}
 	
 	@Override

@@ -36,7 +36,6 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
 import x10.ast.X10Formal;
 import x10.ast.X10MethodDecl;
-import x10.constraint.XLocal;
 import x10.types.ClosureInstance;
 import x10.types.MethodInstance;
 import x10.types.TypeParamSubst;
@@ -48,6 +47,7 @@ import x10.types.X10LocalInstance;
 import x10.types.X10MethodDef;
 
 import x10.types.constraints.ConstraintManager;
+import x10.types.constraints.CLocal;
 import x10.types.matcher.Subst;
 
 public class Reinstantiator extends TypeParamSubstTransformer {
@@ -56,24 +56,24 @@ public class Reinstantiator extends TypeParamSubstTransformer {
         }
 
         // TODO: move this up to TypeTransformer
-        private Pair<XLocal[], XLocal[]> getLocalSubstitution() {
+        private Pair<CLocal[], CLocal[]> getLocalSubstitution() {
             Map<X10LocalDef, X10LocalDef> map = vars;
-            XLocal[] X = new XLocal[map.keySet().size()];
-            XLocal[] Y = new XLocal[X.length];
+            CLocal[] X = new CLocal[map.keySet().size()];
+            CLocal[] Y = new CLocal[X.length];
             int i = 0;
             for (X10LocalDef ld : map.keySet()) {
                 X[i] = ConstraintManager.getConstraintSystem().makeLocal(ld);
                 Y[i] = ConstraintManager.getConstraintSystem().makeLocal(map.get(ld));
                 i++;
             }
-            return new Pair<XLocal[], XLocal[]>(X, Y);
+            return new Pair<CLocal[], CLocal[]>(X, Y);
         }
 
         @Override
         protected X10ConstructorInstance transformConstructorInstance(X10ConstructorInstance ci) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
+            Pair<CLocal[], CLocal[]> p = getLocalSubstitution();
+            CLocal[] X = p.fst();
+            CLocal[] Y = p.snd();
             try {
                 ci = Subst.subst(ci, Y, X);
             } catch (SemanticException e) {
@@ -84,9 +84,9 @@ public class Reinstantiator extends TypeParamSubstTransformer {
 
         @Override
         protected ClosureInstance transformClosureInstance(ClosureInstance ci) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
+            Pair<CLocal[], CLocal[]> p = getLocalSubstitution();
+            CLocal[] X = p.fst();
+            CLocal[] Y = p.snd();
             try {
                 ci = Subst.subst(ci, Y, X);
             } catch (SemanticException e) {
@@ -97,9 +97,9 @@ public class Reinstantiator extends TypeParamSubstTransformer {
 
         @Override
         protected X10FieldInstance transformFieldInstance(X10FieldInstance fi) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
+            Pair<CLocal[], CLocal[]> p = getLocalSubstitution();
+            CLocal[] X = p.fst();
+            CLocal[] Y = p.snd();
             try {
                 fi = Subst.subst(fi, Y, X);
             } catch (SemanticException e) {
@@ -117,9 +117,9 @@ public class Reinstantiator extends TypeParamSubstTransformer {
 //                mapLocal(newld, newld);
 //            }
 //            mapLocal(ld, newld);
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
+            Pair<CLocal[], CLocal[]> p = getLocalSubstitution();
+            CLocal[] X = p.fst();
+            CLocal[] Y = p.snd();
             try {
                 li = Subst.subst(li, Y, X);
             } catch (SemanticException e) {
@@ -130,9 +130,9 @@ public class Reinstantiator extends TypeParamSubstTransformer {
 
         @Override
         protected MethodInstance transformMethodInstance(MethodInstance mi) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
+            Pair<CLocal[], CLocal[]> p = getLocalSubstitution();
+            CLocal[] X = p.fst();
+            CLocal[] Y = p.snd();
             try {
                 mi = Subst.subst(mi, Y, X);
             } catch (SemanticException e) {
@@ -143,9 +143,9 @@ public class Reinstantiator extends TypeParamSubstTransformer {
 
         @Override
         protected Type transformType(Type type) {
-            Pair<XLocal[], XLocal[]> p = getLocalSubstitution();
-            XLocal[] X = p.fst();
-            XLocal[] Y = p.snd();
+            Pair<CLocal[], CLocal[]> p = getLocalSubstitution();
+            CLocal[] X = p.fst();
+            CLocal[] Y = p.snd();
             try {
                 type = Subst.subst(type, Y, X);
             } catch (SemanticException e) {

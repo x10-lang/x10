@@ -25,10 +25,10 @@ import polyglot.types.VarInstance_c;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import x10.constraint.XFailure;
-import x10.constraint.XLocal;
 import x10.types.checker.PlaceChecker;
 import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 
 public class ThisInstance_c extends VarInstance_c<ThisDef> implements ThisInstance {
     private static final long serialVersionUID = -2728180556244846992L;

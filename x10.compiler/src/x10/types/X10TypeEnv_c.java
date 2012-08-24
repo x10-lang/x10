@@ -761,7 +761,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return t2;
     }
     public CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
-        final List<? extends XTerm<Type>> terms = originalConst.constraints();
+        final List<? extends XTerm<Type>> terms = originalConst.terms();
         final ArrayList<XTerm<Type>> newTerms = new ArrayList<XTerm<Type>>(terms.size());
         boolean wasNew = false;
         for (XTerm<Type> xTerm : terms) {
@@ -984,7 +984,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     	t1=baseType1;
     	
     	if (baseType2 != t2) {
-    		if (! entails(c1, c2, "Is subtype " + t1 + " at " + t1.position() + " of " + t2 + " at " + t2.position()))
+    		if (! entails(c1, c2))
     			return false;
     		if (isSubtype(x, baseType1, baseType2 ))
     			return true;
@@ -1300,10 +1300,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             c2 = c2.instantiateSelf(temp);
         }
         String info = "Type Equals: " + t1 + " at " + t1.position() + " equals " + t2 + " at " + t2.position();   
-        if (! entails( c1, c2, info))
+        if (! entails( c1, c2))
             return false;
 
-        if (! entails(c2, c1, info))
+        if (! entails(c2, c1))
             return false;
         return true;
     }
@@ -1383,13 +1383,10 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         return isSubtype(fromType, toType);
     }
 
-    public boolean entails(final CConstraint c1, final CConstraint c2) {
-    	return entails(c1, c2, null); 
-    }
     /* (non-Javadoc)
      * @see x10.types.X10TypeEnv#entails(x10.constraint.CConstraint, x10.constraint.CConstraint)
      */
-    public boolean entails(final CConstraint c1, final CConstraint c2, Object info) {
+    public boolean entails(final CConstraint c1, final CConstraint c2) {
         if (c2 == null || c2.valid())
             return true;
         if (c1 != null && ! c1.consistent())
@@ -1419,8 +1416,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         if (c1 != null && c1.valid()) { c1 = null; }
         if (c2 != null && c2.valid()) { c2 = null; }
 
-        if (! entails(c1, c2, "Primitive conversion from " + fromType + " at " + fromType.position() + " to "
-        		+ toType + " at " + toType.position()))
+        if (! entails(c1, c2))
             return false;
 
         if (ts.isVoid(baseType1))
@@ -1586,7 +1582,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
             CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(base);
             c.addSelfEquality(val);
-            return entails(c, Types.realX(toType), null);
+            return entails(c, Types.realX(toType));
     }
 
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2) {
@@ -1630,7 +1626,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         try {
             CConstraint c1 = Types.realX(me);
             CConstraint c2 = Types.xclause(other);
-            return entails(c1, c2, me.position());
+            return entails(c1, c2);
         }
         catch (InternalCompilerError e) {
             if (e.getCause() instanceof XFailure) {

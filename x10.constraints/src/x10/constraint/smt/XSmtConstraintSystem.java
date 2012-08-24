@@ -5,7 +5,6 @@ import java.util.List;
 
 
 import x10.constraint.XConstraintSystem;
-import x10.constraint.XDef;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XType;

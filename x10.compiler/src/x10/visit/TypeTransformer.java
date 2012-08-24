@@ -55,7 +55,6 @@ import x10.ast.TypeParamNode;
 import x10.ast.X10ConstructorCall;
 import x10.ast.X10Formal;
 import x10.constraint.XFailure;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.extension.X10Ext_c;
@@ -80,6 +79,7 @@ import x10.types.X10MemberDef;
 import x10.types.X10ParsedClassType;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.ConstraintManager;
+import x10.types.constraints.CLocal;
 
 import polyglot.types.TypeSystem;
 import polyglot.visit.ContextVisitor;
@@ -109,10 +109,10 @@ public class TypeTransformer extends NodeTransformer {
 
         List<XTerm<Type>> oldvars = new ArrayList<XTerm<Type>>();
         List<XTerm<Type>> newvars = new ArrayList<XTerm<Type>>();
-        for (XTerm<Type> v : c.getVarsAndProjections()) {
-            if (v instanceof XLocal) {
+        for (XTerm<Type> v : c.getVarsAndFields()) {
+            if (v instanceof CLocal) {
                 @SuppressWarnings("unchecked")
-		XLocal<Type, X10LocalDef> l = (XLocal<Type, X10LocalDef>) v;
+		CLocal<Type, X10LocalDef> l = (CLocal<Type, X10LocalDef>) v;
                 X10LocalDef ld = l.def();
                 X10LocalDef newld = vars.get(ld);
                 if (ld == currentLocal) { // we are in the declaration for this variable

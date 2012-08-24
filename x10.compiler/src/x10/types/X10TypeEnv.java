@@ -55,8 +55,6 @@ public interface X10TypeEnv extends TypeEnv {
     boolean isSubtype(Type t1, Type t2);
    
     boolean entails(CConstraint c1, CConstraint c2);
-    
-    boolean entails(CConstraint c1, CConstraint c2, Object info);
 
     boolean hasSameClassDef(Type t1, Type t2);
 

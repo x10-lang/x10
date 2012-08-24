@@ -1,9 +1,21 @@
 package x10.constraint;
 
 import java.util.List;
-
+/**
+ * Factory interface for constructing constraints. All constraints and XTerms should
+ * be constructed using these factory methods. 
+ * @author lshadare
+ *
+ * @param <T>
+ */
 public interface XConstraintSystem<T extends XType> {
-	
+	/**
+	 * A couple of useful constants. Note that we have one constant
+	 * per XTypeSystem (i.e. true in one type system will not be the
+	 * same as true in another type system)
+	 * @param ts
+	 * @return
+	 */
 	public XLit<T, Boolean> xtrue(XTypeSystem<? extends T> ts); 
 	public XLit<T, Boolean> xfalse(XTypeSystem<? extends T> ts); 
 	public <U> XLit<T, U>  xnull(XTypeSystem<? extends T> ts); 
@@ -13,7 +25,6 @@ public interface XConstraintSystem<T extends XType> {
 	 * @param v
 	 * @return
 	 */
-	//public <V> XLit<T, V> makeLit(T type, V v);
 	public <V> XLit<T, V> makeLit(V v, T type);
 	
 	/**
@@ -25,13 +36,15 @@ public interface XConstraintSystem<T extends XType> {
 	public XVar<T> makeVar(T type, String name);
 	
 	/**
-	 * Make a fresh EQV with a system chosen name. 
+	 * Make a fresh existentially quantified variable with 
+	 * a system chosen name. 
 	 * @return
 	 */
 	public XEQV<T> makeEQV(T type);
 	
 	/**
-	 * Make a fresh UQV with a system chosen name. 
+	 * Make a fresh universally quantified variable with 
+	 * a system chosen name. 
 	 * @return
 	 */
 	public XUQV<T> makeUQV(T type);
@@ -44,8 +57,8 @@ public interface XConstraintSystem<T extends XType> {
 	public XUQV<T> makeUQV(T type, String prefix);
 	
 	/**
-	 * Make a projection operation i.e. field/method dereference when there is no 
-	 * definition of the field.  
+	 * Construct a field/method access from the given label and type. Note
+	 * that for a method the type will be the return type of the method.  
 	 * @param receiver
 	 * @param label field label
 	 * @param type the type of the field dereference

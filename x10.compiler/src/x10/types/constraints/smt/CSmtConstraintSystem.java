@@ -12,7 +12,6 @@ import polyglot.types.Types;
 import x10.constraint.XDef;
 import x10.constraint.XExpr;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -20,7 +19,6 @@ import x10.constraint.smt.XSmtConstraintSystem;
 import x10.constraint.smt.XSmtExpr;
 import x10.constraint.smt.XSmtField;
 import x10.constraint.smt.XSmtLit;
-import x10.constraint.smt.XSmtLocal;
 import x10.constraint.smt.XSmtTerm;
 import x10.constraint.smt.XSmtVar;
 import x10.types.ConstrainedType;
@@ -32,6 +30,7 @@ import x10.types.constraints.CQualifiedVar;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.XTypeLit;
 
 public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements CConstraintSystem {
@@ -52,14 +51,14 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 	}
 
 	@Override
-	public <D extends XDef<Type>> XSmtLocal<Type, D> makeLocal(D def) {
+	public <D extends XDef<Type>> CSmtLocal<Type, D> makeLocal(D def) {
 		assert def != null;
-		return new XSmtLocal<Type,D>(def, Types.baseTypeRec(def.resultType()));
+		return new CSmtLocal<Type,D>(def, Types.baseTypeRec(def.resultType()));
 	}
 
 	@Override
-	public <D extends XDef<Type>> XSmtLocal<Type, D> makeLocal(D def, String name) {
-		return new XSmtLocal<Type,D>(def, name, Types.baseTypeRec(def.resultType()));
+	public <D extends XDef<Type>> CSmtLocal<Type, D> makeLocal(D def, String name) {
+		return new CSmtLocal<Type,D>(def, name, Types.baseTypeRec(def.resultType()));
 	}
 
 	@Override

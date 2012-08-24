@@ -13,7 +13,6 @@ import java.util.Set;
 
 import x10.constraint.XConstraintManager;
 import x10.constraint.XLabeledOp;
-import x10.constraint.XLit;
 import x10.constraint.XType;
 import x10.constraint.XTypeSystem;
 
@@ -121,12 +120,15 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 				// adding the result type
 				XTypeSystem<? extends T> ts = term.type().xTypeSystem();
 				types.add(exp.op().type(ts));
-				funDeclarations.put((XLabeledOp<T,Object>)exp.op(), types); 
+				@SuppressWarnings("unchecked")
+				XLabeledOp<T,Object> op = (XLabeledOp<T,Object>)exp.op();
+				funDeclarations.put(op, types); 
 			}
 		}
 		else
 		if (term instanceof XSmtLit) {
 			// there are several special cases we need to take care of
+			@SuppressWarnings("unchecked")
 			XSmtLit<T, ?> lit = (XSmtLit<T, Object>) term; 
 			// create a special variable for null
 			if (lit.val() == null)
@@ -241,35 +243,22 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	
 	@Override
 	public XSmtVar<T> nullVar(XTypeSystem<? extends T> ts) {
-		if (nullVar == null)
-			nullVar = (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(ts.Null(), "null");
+		if (nullVar == null) {
+			@SuppressWarnings("unchecked")
+			XSmtVar<T> makeVar = (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(ts.Null(), "null");
+			nullVar = makeVar;
+		}
 		return nullVar; 
 	}
 	
 	@Override
 	public XSmtVar<T> stringVar(String name, T type) {
 		String var = mangle(name); 
-		return (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(type, var);
+		@SuppressWarnings("unchecked")
+		XSmtVar<T> makeVar = (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(type, var);
+		return makeVar;
 	}
 
-	private void clear() {
-		varDeclarations.clear();
-		funDeclarations.clear(); 
-		sortDeclarations.clear();
-		try {
-			writer.close();
-			declWriter.close(); 
-		} catch (IOException e) {
-			throw new IllegalStateException("Problem closing smt2 writers: " + e);
-		}
-		
-	}
-
-	@Override
-	public void reset() {
-		clear(); 
-		initialize(); 
-	}
 
 	@Override
 	public String printType(T t) {

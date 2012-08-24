@@ -15,7 +15,6 @@ import x10.constraint.XDef;
 import x10.constraint.XExpr;
 import x10.constraint.XField;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -47,7 +46,7 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
 	 * @param def the definition of the variable
 	 * @return
 	 */
-	public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D def);
+	public <D extends XDef<Type>> CLocal<Type, D> makeLocal(D def);
 	/**
 	 * Make a local variable with its associated name and 
 	 * definition
@@ -55,12 +54,12 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
 	 * @param name the name of the local variable
 	 * @return
 	 */
-	public <D extends XDef<Type>> XLocal<Type, D> makeLocal(D def, String name);
+	public <D extends XDef<Type>> CLocal<Type, D> makeLocal(D def, String name);
 
 	/**
      * Construct the XTerm corresponding to a method call. This will be represented by a 
      * field dereference followed by an function application. For example a.foo(x,y), will become 
-     * (APPLY ((APPLY_LABEL foo) a) x y). 
+     * (APPLY (XLabeledOp(foo) a) x y). 
      * @param md method definition
      * @param receiver 
      * @param t method arguments
@@ -154,6 +153,5 @@ public interface CConstraintSystem extends XConstraintSystem<Type> {
      * @return
      */
     public CConstraint makeCConstraint(XTerm<Type> self);
-	
     
 }

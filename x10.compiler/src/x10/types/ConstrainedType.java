@@ -245,22 +245,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 	        return typeName + cString;
 		}
 
-		@Override
-		public String typetoSmtString() {
-	        Type type = baseType.getCached();
-	        String typeName = type.toString();
-	        if (type instanceof FunctionType_c)
-	            typeName = "("+typeName+")";
-	        return typeName;
-		}
 
-		
 		private String constraintString() {
 			StringBuilder sb = new StringBuilder();
 			Type base = baseType.getCached();
 			CConstraint c = constraint.getCached();
 			if (c != null && ! c.valid() && (!c.consistent() || 
-					!(c.extConstraintsHideFake().size() == 0))) {
+					!(c.extTermsHideFake().size() == 0))) {
 				sb.append(c);
 			}
 			return sb.toString();
@@ -486,11 +477,11 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			FieldInstance fi = Types.getProperty(this, name);
 			// TODO: check dist.region.p and region.p
 			if (fi != null)
-				return c.bindingForSelfProjection(fi.def());
+				return c.bindingForSelfField(fi.def());
 		
 			MethodInstance mi = Types.getPropertyMethod(this, name);
 			if (mi != null) {
-			    return c.bindingForSelfProjection(mi.def());
+			    return c.bindingForSelfField(mi.def());
 			}
 			
 			return null;

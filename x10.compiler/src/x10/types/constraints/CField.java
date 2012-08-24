@@ -27,6 +27,5 @@ import x10.types.X10MethodDef;
  * @author vj
  */
 public interface CField<D extends XDef<Type>> extends XField<Type, D> {
-    public D def(); 
     public XVar<Type> thisVar();
 }

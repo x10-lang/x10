@@ -97,25 +97,8 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
     }
 
     protected static String guardToString(CConstraint guard) {
-        if (guard == null || guard.constraints().size() == 0) return "";
+        if (guard == null || guard.terms().size() == 0) return "";
         return guard.toString();
-    }
-    @Override
-    public String typetoSmtString() {
-        MethodInstance mi = applyMethod();
-        if (mi==null) // this could happen if the method is installed before the type is properly formed, e.g. in -report types=2 execution.
-            return "???"; 
-        StringBuilder sb = new StringBuilder();
-        List<LocalInstance> formals = mi.formalNames();
-        for (int i=0; i < formals.size(); ++i) {
-            LocalInstance f = formals.get(i);
-            if (sb.length() > 0)
-                sb.append(", ");
-            sb.append(f.name());
-            sb.append(':');
-            sb.append(f.type());
-        }
-        return "(" + sb.toString() + ")" + guardToString(guard()) + "=>" + mi.returnType();
     }
 
     @Override
@@ -190,8 +173,8 @@ public class FunctionType_c extends X10ParsedClassType_c implements FunctionType
                     throw new InternalCompilerError("Unexpected exception comparing function types", this.position(), e);
                 }
             }
-            if (!ts.env(ts.emptyContext()).entails(h, g, "EqualsImpl " + position() + " " + o.toString()) || 
-            	!ts.env(ts.emptyContext()).entails(g, h, "EqualsImpl " + position() + " " + o.toString())) {
+            if (!ts.env(ts.emptyContext()).entails(h, g) || 
+            	!ts.env(ts.emptyContext()).entails(g, h)) {
                 return false;
             }
             return true;

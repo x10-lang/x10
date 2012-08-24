@@ -5,6 +5,7 @@ import java.util.Map;
 import polyglot.types.Def;
 import polyglot.types.Type;
 import polyglot.types.Types;
+import x10.constraint.XConstraint;
 import x10.constraint.XConstraintManager;
 import x10.constraint.XDef;
 import x10.constraint.XEQV;
@@ -12,7 +13,6 @@ import x10.constraint.XExpr;
 import x10.constraint.XFailure;
 import x10.constraint.XField;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
@@ -30,6 +30,7 @@ import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.CLocal;
 
 public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint {
 	XSmtTerm<Type> self; 
@@ -79,7 +80,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	public boolean hasPlaceTerm() {
 		// a global place term has to be a variable so it suffices
 		// to look at vars and projections
-		for (XTerm<Type> t : getVarsAndProjections()) {
+		for (XTerm<Type> t : getVarsAndFields()) {
 			if (PlaceChecker.isGlobalPlace(t))
 				return true; 
 		}
@@ -103,7 +104,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	@Override
 	public void addIn(XTerm<Type> newSelf, CConstraint c) {
 		if (c == null) return; 
-		if (c == this || c.constraints() == constraints()) {
+		if (c == this || c.terms() == terms()) {
 			try {
 				substitute(newSelf, self());
 			} catch(XFailure e) {
@@ -113,7 +114,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 		if (! c.consistent()) {setInconsistent(); return;}
 		if (c.valid()) return; 
 		
-		for (XTerm<Type> term : c.constraints()) {
+		for (XTerm<Type> term : c.terms()) {
 			XTerm<Type> newterm = term.subst(newSelf, c.self());
 			assert newterm != null; 
 			conjuncts.add((XSmtTerm<Type>)newterm);
@@ -203,7 +204,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	}
 
 	@Override
-	public CSmtConstraint residue(CConstraint other) {
+	public CSmtConstraint residue(XConstraint<Type> other) {
 		// TODO Auto-generated method stub
 		return null;
 	}
@@ -241,7 +242,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 		// the assumption is that self will be substituted in
 		CSmtConstraint result = self() == null ? new CSmtConstraint(self()) :
 												 new CSmtConstraint(self().type()); 
-		for (XTerm<Type> term : constraints()) {
+		for (XTerm<Type> term : terms()) {
 			XTerm<Type> t = term; 
 			for (int i = 0; i < ys.length; ++i) {
 				XTerm<Type> y= ys[i];
@@ -275,7 +276,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	}
 
 	@Override
-	public XTerm<Type> bindingForSelfProjection(XDef<Type> fd) {
+	public XTerm<Type> bindingForSelfField(XDef<Type> fd) {
 		XTerm<Type> field = ConstraintManager.getConstraintSystem().makeCField(self(), fd);
 		return bindingForVar(field);
 	}
@@ -287,7 +288,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 		CSmtConstraint result = new CSmtConstraint(t); 
 		XTerm<Type> resultSelf = result.self(); 
 		try {
-			for (XTerm<Type> term : other.constraints()) {
+			for (XTerm<Type> term : other.terms()) {
 				term = term.subst(otherSelf, self()); 
 				if (entails(term)) {
 					term = term.subst(self(), resultSelf);
@@ -346,7 +347,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	private CSmtConstraint constraintProjection(Map<XTerm<Type>, CConstraint> m, int depth) {
 		CSmtConstraint result = self() == null? new CSmtConstraint((XSmtTerm<Type>)null) :
 												new CSmtConstraint(self().type()); 
-		for (XTerm<Type> t : constraints()) {
+		for (XTerm<Type> t : terms()) {
 			CSmtConstraint termConstraint = constraintProjection(t, m, depth); 
 			if (termConstraint != null)
 				result.addIn(termConstraint);
@@ -370,9 +371,9 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
         
         m.put(t, new CSmtConstraint((XSmtTerm<Type>)null));
         
-        if (t instanceof XLocal) {
+        if (t instanceof CLocal) {
             @SuppressWarnings("unchecked")
-			XLocal<Type, X10LocalDef> v = (XLocal<Type, X10LocalDef>) t;
+			CLocal<Type, X10LocalDef> v = (CLocal<Type, X10LocalDef>) t;
             X10LocalDef ld = v.def();
             if (ld != null) {
                 Type ty = Types.get(ld.type());

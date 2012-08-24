@@ -1,27 +1,28 @@
-package x10.constraint.smt;
+package x10.types.constraints.smt;
 
 import x10.constraint.XDef;
-import x10.constraint.XLocal;
 import x10.constraint.XType;
+import x10.constraint.smt.XSmtVar;
+import x10.types.constraints.CLocal;
 
-public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> implements XLocal<T, D> {
+public class CSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> implements CLocal<T, D> {
 	private final D def; 
 	private final String s; // just for documentation
 
-	public XSmtLocal(D def, T type) {
+	public CSmtLocal(D def, T type) {
 		super(type, def.getName());
 		this.def = def;
 		this.s = null; 
 	}
 
-	public XSmtLocal(D def, String s, T type) {
+	public CSmtLocal(D def, String s, T type) {
 		super(type, def.getName());
 		this.def = def;
 		this.s = s; 
 	}
 
 	
-	XSmtLocal(XSmtLocal<T, D> other) {
+	CSmtLocal(CSmtLocal<T, D> other) {
 		super(other);
 		this.def = other.def;
 		this.s = other.s; 
@@ -48,7 +49,7 @@ public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		XSmtLocal<?,?> other = (XSmtLocal<?,?>) obj;
+		CSmtLocal<?,?> other = (CSmtLocal<?,?>) obj;
 		if (def == null) {
 			if (other.def != null)
 				return false;
@@ -63,7 +64,7 @@ public class XSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 	}
 	
 	@Override
-	public XSmtLocal<T,D> copy() {
-		return new XSmtLocal<T,D>(this); 
+	public CSmtLocal<T,D> copy() {
+		return new CSmtLocal<T,D>(this); 
 	}
 }

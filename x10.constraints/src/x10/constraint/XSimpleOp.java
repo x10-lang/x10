@@ -33,7 +33,7 @@ public class XSimpleOp<T extends XType> extends XOp<T> {
 
 	@Override
 	public String prettyPrint() {
-		return getKind().prettyPrint();
+		return kind.prettyPrint();
 	}
 
 	@Override

@@ -77,7 +77,6 @@ import x10.constraint.XExpr;
 import x10.constraint.XFailure;
 import x10.constraint.XLabeledOp;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.types.constraints.ConstraintManager;
 import x10.constraint.XUQV;
@@ -102,6 +101,7 @@ import x10.types.constraints.CField;
 import x10.types.constraints.CQualifiedVar;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CThis;
+import x10.types.constraints.CLocal;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
 import x10.types.constants.StringValue;
@@ -1425,7 +1425,7 @@ public class Synthesizer {
             // nothing to check
             return res;
         } 
-        List<? extends XTerm<Type>> terms  = c.extConstraints();
+        List<? extends XTerm<Type>> terms  = c.extTerms();
         for (XTerm<Type> t : terms)
             res.addAll(getLocals(t));
         return res;
@@ -1439,12 +1439,12 @@ public class Synthesizer {
             final XTerm<Type> receiver = field.get(0);
             res.addAll(getLocals(receiver));
 
-            if (receiver instanceof CThis && field.def() instanceof VarDef) {  
-                res.add((VarDef) field.def());
+            if (receiver instanceof CThis && field.field() instanceof VarDef) {  
+                res.add((VarDef) field.field());
             }
-        } else if (t instanceof XLocal) {
+        } else if (t instanceof CLocal) {
             @SuppressWarnings("unchecked")
-			XLocal<Type, X10LocalDef> local = (XLocal<Type, X10LocalDef>) t;
+			CLocal<Type, X10LocalDef> local = (CLocal<Type, X10LocalDef>) t;
             res.add(local.def());
         } else if (t instanceof XExpr) {
             final XExpr<Type> xExpr = (XExpr<Type>) t;
@@ -1478,8 +1478,8 @@ public class Synthesizer {
             return makeExpr((XEQV<Type>) t, baseType, pos); // this must occur before XLocal_c
         if (t instanceof XUQV)
             return makeExpr((XUQV<Type>) t, baseType, pos); // this must occur before XLocal_c
-        if (t instanceof XLocal)
-            return makeExpr((XLocal<Type,? extends X10LocalDef>) t, baseType, pos);
+        if (t instanceof CLocal)
+            return makeExpr((CLocal<Type,? extends X10LocalDef>) t, baseType, pos);
         if (t instanceof XExpr)
             return makeExpr((XExpr<Type>) t, baseType, pos);
         
@@ -1570,7 +1570,7 @@ public class Synthesizer {
     }
 
     // FIXME: merge with makeExpr(XEQV, Position)
-    Expr makeExpr(XLocal<Type, ? extends X10LocalDef> t, Type baseType, Position pos) {
+    Expr makeExpr(CLocal<Type, ? extends X10LocalDef> t, Type baseType, Position pos) {
         String str = t.def().toString();
         return xnf.AmbExpr(pos, xnf.Id(pos,t.def().name()));
     }
@@ -1641,13 +1641,14 @@ public class Synthesizer {
         }
         // otherwise must be some binary operation
     	String op = t.op().asExprOperator().toString();
-    	if (op.equals(ConstraintManager.asExprAndName.toString())) {
+    	if (t.isAnd()) {
+    		assert t.children().size() == 2; 
     		return xnf.Binary(pos, args.get(0), Binary.COND_AND, args.get(1));
     	}
-    	if (op.equals(ConstraintManager.asExprEqualsName.toString())) {
+    	if (t.isEquals()) {
             return xnf.Binary(pos, args.get(0), Binary.EQ, args.get(1));
         }
-        if (op.equals(ConstraintManager.asExprNotName.toString())) {
+        if (t.isNot()) {
             return xnf.Unary(pos, Unary.NOT, args.get(0));
         }
         return xnf.Call(pos, xnf.Id(pos, Name.make(op)), args);
@@ -1658,7 +1659,7 @@ public class Synthesizer {
         List<Expr> es = new ArrayList<Expr>();
         if (c == null)
             return es;
-        List<? extends XTerm<Type>> terms = c.extConstraints();
+        List<? extends XTerm<Type>> terms = c.extTerms();
 
         for (XTerm<Type> term : terms) {
             Expr e = makeExpr(term, null, pos);

@@ -1,10 +1,5 @@
 package x10.constraint.smt;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-
-import x10.constraint.XTerm;
 import x10.constraint.XType;
 import x10.constraint.XVar;
 
@@ -26,12 +21,6 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 		return equals(var);
 	}
 	
-	@Override
-	public List<XTerm<T>> vars() {
-		List<XTerm<T>> res = new ArrayList<XTerm<T>>(1);
-		res.add(this); 
-		return res;
-	}
 
 	@Override
 	public String name() {

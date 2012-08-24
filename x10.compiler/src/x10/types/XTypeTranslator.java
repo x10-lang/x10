@@ -64,7 +64,6 @@ import x10.constraint.XEQV;
 import x10.constraint.XExpr;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XOp;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
@@ -86,6 +85,7 @@ import x10.types.constraints.XConstrainedTerm;
 import x10.types.constraints.CField;
 import x10.types.constraints.CThis;
 import x10.types.constraints.CSelf;
+import x10.types.constraints.CLocal;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 import x10.types.constraints.XTypeLit;
@@ -312,7 +312,7 @@ public class XTypeTranslator {
      * @param li
      * @return
      */
-     public XLocal<Type, X10LocalDef> translate(LocalInstance li) {
+     public CLocal<Type, X10LocalDef> translate(LocalInstance li) {
         return ConstraintManager.getConstraintSystem().makeLocal((X10LocalDef) li.def());
        
     }
@@ -497,7 +497,7 @@ public class XTypeTranslator {
         return placeTerm.term();
         //return PlaceChecker.here();
     }
-    private XLocal<Type, ? extends XDef<Type>> trans(Local t) {
+    private CLocal<Type, ? extends XDef<Type>> trans(Local t) {
         return translate(t.localInstance());
     }
 
@@ -621,7 +621,7 @@ public class XTypeTranslator {
                 return null;
             terms.add(v);
         }
-        return ConstraintManager.getConstraintSystem().makeExpr(XOp.APPLY("tuple", t.type()), terms);
+        return ConstraintManager.getConstraintSystem().makeExpr(XOp.makeLabelOp("tuple", t.type()), terms);
     }
 
 	private Type getType(TypeSystem ts, String name) throws SemanticException {

@@ -33,7 +33,6 @@ import x10.ast.X10Field_c;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.constraint.XTerm;
 import x10.types.constraints.ConstraintManager;
@@ -52,6 +51,7 @@ import x10.types.XTypeTranslator;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.CLocal;
 import x10.types.matcher.Subst;
 import x10.util.Synthesizer;
 
@@ -136,7 +136,7 @@ public class PlaceChecker {
 	public static XTerm<Type> placeTerm(Type t) {
 		TypeSystem xts = (TypeSystem) t.typeSystem();
 		CConstraint cc = Types.xclause(t);
-		return cc==null ? null : cc.bindingForSelfProjection(GlobalRefHome(xts).def());
+		return cc==null ? null : cc.bindingForSelfField(GlobalRefHome(xts).def());
 	}
 
 	/**

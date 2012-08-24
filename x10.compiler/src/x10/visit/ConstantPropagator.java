@@ -248,7 +248,7 @@ public class ConstantPropagator extends ContextVisitor {
         		Type t = target.type();
         		CConstraint c = Types.xclause(t);
         		if (c != null) {
-        			XTerm<Type> val = c.bindingForSelfProjection(f.fieldInstance().def());
+        			XTerm<Type> val = c.bindingForSelfField(f.fieldInstance().def());
         			if (val instanceof XLit) {
         				XLit<Type, ?> l = (XLit<Type, ?>) val;
         				return ConstantValue.make(f.type(), l.val());
@@ -297,7 +297,7 @@ public class ConstantPropagator extends ContextVisitor {
                 Type t = target.type();
                 CConstraint c = Types.xclause(t);
                 if (c != null) {
-                	XTerm<Type> val = c.bindingForSelfProjection(f.fieldInstance().def());
+                	XTerm<Type> val = c.bindingForSelfField(f.fieldInstance().def());
                 	if (val instanceof XLit) {
                 		return true;
                 	}

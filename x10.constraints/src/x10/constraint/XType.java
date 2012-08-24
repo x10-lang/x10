@@ -1,6 +1,5 @@
 package x10.constraint;
 
-
 /**
  * All types of an XTerm should implement this interface. The main
  * purpose of the interface rather than using polyglot.types.Type 
@@ -80,5 +79,4 @@ public interface XType {
      * @return the type system of this type
      */
     <T> XTypeSystem<? extends T> xTypeSystem();
-    String typetoSmtString(); 
 }

@@ -3,11 +3,11 @@ package x10.constraint;
 import java.util.List;
 import java.util.Set;
 /**
- * Representation of a constraint over types. Constraints are not immutable and
+ * Representation of a constraint associated to a type. Constraints are not immutable and
  * can be built incrementally by adding new terms (which must be of type Boolean). 
  * The constraint essentially represents the conjunction of all the terms added in 
  * the constraint. Note that the added terms can be either atoms, or have an arbitrary 
- * Boolean structure (i.e. there is no guarantee on conjunctions being flatten).
+ * Boolean structure (i.e. there is no guarantee that the conjunctions are flatten).
  *  
  * @author lshadare
  *
@@ -16,7 +16,7 @@ import java.util.Set;
 public interface XConstraint <T extends XType> {
 	/**
 	 * Check if the constraint is currently consistent. 
-	 * @return true if consistent.
+	 * @return true if consistent. 
 	 */
     public boolean consistent(); 
     /**
@@ -24,7 +24,6 @@ public interface XConstraint <T extends XType> {
      * @return true if valid. 
      */
     public boolean valid(); 
-
      /**
      * Strengthen the constraint by asserting the term t. The term t
      * should always have Boolean type.   
@@ -101,14 +100,13 @@ public interface XConstraint <T extends XType> {
      * This is not necessarily flattened. 
      * @return
      */
-    public List<? extends XTerm<T>> constraints();	
+    public List<? extends XTerm<T>> terms();	
  
    	/**
-	 * Collects all the XVar and XExpr that are projections from 
-	 * the constraint. 
+	 * Collects all the XVar and XFields occurring in the current constraint. 
 	 * @return
 	 */
-	public Set<? extends XTerm<T>> getVarsAndProjections();
+	public Set<? extends XTerm<T>> getVarsAndFields();
 
     /**
      * Create a copy of the current constraint. 
@@ -116,36 +114,29 @@ public interface XConstraint <T extends XType> {
      */
 	public XConstraint<T> copy();
 	/**
-	 * Return a term v is equal to in the constraint, and null if there
-	 * is no "easy way" to compute such a term. 
+	 * Return a term v is equal to in the constraint, and null if such
+	 * a term could not be "easily" computed. 
 	 * 
 	 * @param v
 	 * @return t such that this |- t = v
 	 */
 	public XTerm<T> bindingForVar(XTerm<T> v);
-	
-	public void setInconsistent();
-	
-
 	/**
-	 * FIXME: how to properly generalize this, remove atoms that contain EQVs?
-     * Return a list of bindings t1-> t2 equivalent to 
-     * the current constraint except that equalities involving EQV variables 
-     * are ignored.
-     * 
+	 * Mark the constraint as being inconsistent. 
+	 */
+	public void setInconsistent();
+	/**
+	 * Return the externally visible terms i.e. a list of atoms in the current constraint ignoring
+	 * those that have equalities involving EQV variables. 
      * @return
      */
-	public List<? extends XTerm<T>> extConstraints();
+	public List<? extends XTerm<T>> extTerms();
 	/**
-	 * FIXME: how to properly generalize this, remove atoms that contain EQVs?
-	 * Return a list of bindings t1-> t2 equivalent to the current
-	 * constraint except that equalities involving only EQV variables are 
-	 * ignored if dumpEQV is false, and equalities involving only fake fields
-	 * are ignored if hideFake is true.
-	 * 
-	 * @return
-	 */
-	public List<? extends XTerm<T>> extConstraintsHideFake();
+	 * Return the externally visible terms. i.e. a list of atoms in the current constraint ignoring
+	 * those that have equalities involving EQV variables and fake fields. 
+     * @return
+     */
+	public List<? extends XTerm<T>> extTermsHideFake();
 	
 	public String toString();
 }

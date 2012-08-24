@@ -12,14 +12,15 @@ import x10.constraint.smt.XSmtPrinter;
 public abstract class XOp<T extends XType> {
 	/**
 	 * Simple enum to represent the number of arguments a Kind
-	 * can have. MANY means 1 or more.
+	 * can have. MANY means 1 or more (this is mainly for debugging
+	 * purposes).
 	 * @author lshadare
 	 *
 	 */
 	protected enum Arity {
 		ONE,
 		TWO,
-		MANY
+		ANY
 	}
 
 	/**
@@ -28,18 +29,17 @@ public abstract class XOp<T extends XType> {
 	 *
 	 */
 	public enum Kind {
-		APPLY_LABEL("", "", Arity.MANY),
-		APPLY("", "", Arity.ONE),
-		EQ("=", "=", Arity.TWO),	
+		APPLY_LABEL("", "", Arity.ANY), // apply a label to the arguments (this had arity MANY instead of ONE to handle tuples)
+		APPLY("", "", Arity.ANY), // apply a function to its arguments
+		EQ("==", "=", Arity.TWO),	
 		NOT("!", "not", Arity.ONE),
-		AND("&&", "and", Arity.MANY),
-		OR("||", "or", Arity.MANY),
+		AND("&&", "and", Arity.ANY),
+		OR("||", "or", Arity.ANY),
 		IMPL("=>", "=>", Arity.TWO);
 
-		String prettyName;
-		String smt2;
-		// the number of arguments this Kind permits
-		Arity arity;
+		String prettyName; 
+		String smt2; // the smt2 representation of the kind
+		Arity arity; // the number of arguments this Kind permits
 
 		Kind(String pn, String smt2, Arity arity) {
 			this.prettyName = pn; 
@@ -60,7 +60,10 @@ public abstract class XOp<T extends XType> {
 			return arity; 
 		}
 	}
-
+	
+	/**
+	 * The kind of this operator. 
+	 */
 	Kind kind; 
 
 	XOp(Kind kind) {
@@ -85,8 +88,6 @@ public abstract class XOp<T extends XType> {
 	/**
 	 * Some useful operators. 
 	 */
-
-
 	public static <T extends XType> XSimpleOp<T> EQ() {
 		return new XSimpleOp<T>(Kind.EQ);
 	}
@@ -105,17 +106,13 @@ public abstract class XOp<T extends XType> {
 	public static <T extends XType> XSimpleOp<T> APPLY() {
 		return new XSimpleOp<T>(Kind.APPLY);
 	}
-	public static <T extends XType, D> XLabeledOp<T, D> APPLY(D def, T type) {
-		return new XLabeledOp<T,D>(def, type);
-	}
-
 
 	/**
-	 * Constructs a labeled operator that represents the application 
-	 * of the field/method corresponding to the field/method definition
-	 * def. 
+	 * Constructs a labeled operator that represents the member (field/method) dereference 
+	 * corresponding to the definition. 
 	 * 
-	 * @param def
+	 * @param def definition of member
+	 * @param type the type of the member 
 	 * @return 
 	 */
 	public static <T extends XType, D> XLabeledOp<T,D> makeLabelOp(D def, T type) {
@@ -143,16 +140,21 @@ public abstract class XOp<T extends XType> {
 			return false;
 		return true;
 	}
-
+	/**
+	 * Return a string representation of the operator that is
+	 * valid for the given printer. 
+	 * @param p 
+	 * @return 
+	 */
 	public abstract String print(XPrinter<T> p);
 	public abstract String toString();
-	public Object asExprOperator() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
 	public abstract String prettyPrint();	
-	
+
+	/**
+	 * Check that the expression can have n children
+	 * @param n arity to be checked
+	 * @return
+	 */
 	public boolean isArityValid(int n) {
 		if (n < 0)
 			throw new IllegalArgumentException("Illegal arity.");
@@ -164,7 +166,16 @@ public abstract class XOp<T extends XType> {
 		if (a == Arity.TWO)
 			return n == 2;
 
-		assert a == Arity.MANY;
+		assert a == Arity.ANY;
 		return true; 
 	}
+	/**
+	 * Return the polyglot Expr operator corresponding to this operator. 
+	 * @return
+	 */
+	public String asExprOperator() {
+		assert kind != Kind.APPLY && kind != Kind.APPLY_LABEL; 
+		return kind.prettyPrint();
+	}
+
 }

@@ -70,7 +70,6 @@ import x10.ast.X10Formal;
 
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.ConstrainedType;
@@ -80,6 +79,7 @@ import x10.types.TypeParamSubst;
 import polyglot.types.TypeSystem;
 import x10.types.constants.IntegralValue;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 import x10.visit.Desugarer;
 import x10.visit.NodeTransformingVisitor;
 import x10.visit.Reinstantiator;

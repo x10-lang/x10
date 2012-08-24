@@ -1,7 +1,5 @@
 package x10.constraint.smt;
 
-import java.util.Set;
-
 import x10.constraint.XLit;
 import x10.constraint.XType;
 import x10.constraint.XVar;
@@ -27,7 +25,7 @@ public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, 
 	@Override
 	public void print(XPrinter<T> p) {
 		if (val == null) {
-			// we treat null as a variable
+			// we treat null as a variable that the printer keeps track of
 			XSmtVar<T> var = p.nullVar(type().<T>xTypeSystem());
 			var.print(p);
 		} 

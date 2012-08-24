@@ -37,7 +37,6 @@ import x10.ast.AnnotationNode;
 import x10.ast.Closure;
 import x10.ast.ClosureCall;
 import x10.ast.X10Local_c;
-import x10.constraint.XLocal;
 import x10.constraint.XVar;
 import x10.types.ClosureDef;
 import x10.types.ClosureInstance;
@@ -58,6 +57,7 @@ import polyglot.types.Context;
 import x10.types.X10MethodDef;
 import polyglot.types.TypeSystem;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CLocal;
 
 import x10.types.matcher.Subst;
 import x10.extension.X10Ext;

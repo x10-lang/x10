@@ -4,19 +4,10 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import x10.constraint.XConstraintManager;
-import x10.constraint.XConstraintSystem;
-import x10.constraint.XOp;
-import x10.constraint.XTerm;
 import x10.constraint.XType;
 
 /**
- * Wrapper around an external process calling to the SMT solver Z3. Currently
+ * Wrapper around an external process calling to the SMT solver CVC3. Currently
  * constraints are dumped to a file and read in by the solver. 
  * TODO: use more efficient means of communication (pipe, library call etc.)
  * @author lshadare
@@ -27,7 +18,7 @@ public class Cvc3Solver<T extends XType> implements XSmtSolver {
 	 * Some useful String constants for now. 
 	 */
 	
-	private static final String solverPath = "/home/lshadare/solvers/cvc3-2.4.1";
+	private static final String solverPath = XSolverEngine.path+"cvc3"; 
 	private final ProcessBuilder pb;
 	private static Cvc3Solver<? extends XType> instance = null;
 	

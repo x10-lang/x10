@@ -9,6 +9,4 @@ package x10.constraint;
 public interface XDef<T extends XType> {
 	T resultType(); 
 	String getName(); 
-	//int hashCode();
-	//boolean equals(); 
 }

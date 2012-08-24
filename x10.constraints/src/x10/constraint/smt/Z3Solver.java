@@ -4,15 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.UndeclaredThrowableException;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import x10.constraint.XConstraintManager;
-import x10.constraint.XConstraintSystem;
-import x10.constraint.XOp;
-import x10.constraint.XTerm;
 import x10.constraint.XType;
 
 /**
@@ -26,7 +17,7 @@ public class Z3Solver<T extends XType> implements XSmtSolver {
 	/**
 	 * Some useful String constants for now. 
 	 */
-	private static final String solverPath = "/home/lshadare/solvers/z3/bin/z3";
+	private static final String solverPath = XSolverEngine.path+"z3";
 	private final ProcessBuilder pb;
 	private static Z3Solver<? extends XType> instance = null;
 	

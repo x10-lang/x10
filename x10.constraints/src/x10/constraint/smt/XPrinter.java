@@ -1,8 +1,6 @@
 package x10.constraint.smt;
 
 
-import java.util.Set;
-
 import x10.constraint.XType;
 import x10.constraint.XTypeSystem;
 
@@ -44,16 +42,12 @@ public interface XPrinter<T extends XType> {
 	 */
 	public String mangle(String string);
 	/**
-	 * Write the output to file. Note that this method can only be called again
-	 * if reset was called in-between. 
+	 * Write the output to file.
 	 */
 	public void dump(XSmtTerm<T> query);
 	/**
-	 * Resets the printer i.e. dump now should output an empty file
-	 */
-	public void reset();
-	/**
 	 * Returns the String representation of this particular type. 
+	 * (required by XSmtQuantifier)
 	 * @param t
 	 * @return
 	 */

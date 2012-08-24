@@ -55,7 +55,6 @@ import x10.constraint.XEQV;
 import x10.constraint.XExpr;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.constraint.XLocal;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
@@ -89,6 +88,7 @@ import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
+import x10.types.constraints.CLocal;
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
 import x10.types.matcher.X10FieldMatcher;
@@ -599,7 +599,7 @@ public class Types {
 		Type b = baseType(t);
 		CConstraint c = Types.xclause(t);
 		if ( hasVar(b, x)) return true;
-		for (XTerm<Type> term : c.constraints()) {
+		for (XTerm<Type> term : c.terms()) {
 		    if (term.hasVar(x))
 			return true;
 		}
@@ -702,7 +702,7 @@ public class Types {
 	        // X10ClassDecl_c.classInvariant is fine, 
 	        // but  X10ClassDef_c.classInvariant is wrong
 	        final Ref<CConstraint> ref = x10ClassDef.classInvariant();
-	        if (ref!=null && ref.get().constraints().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
+	        if (ref!=null && ref.get().terms().size()>0) return false; // the struct has a class invariant (so the zero value might not satisfy it)
 	
 	        // We use ts.structHaszero to prevent infinite recursion such as in the case of:
 	        // struct U(u:U) {}
@@ -1117,7 +1117,7 @@ public class Types {
 	public static XTerm<Type> propVal(Type t, Name name) {
 	    CConstraint c = Types.xclause(t);
 	    if (c == null) return null;
-		return c.bindingForSelfProjection(Types.getProperty(t, name).def());
+		return c.bindingForSelfField(Types.getProperty(t, name).def());
 	}
 
 	public static Type promote(Unary.Operator op, JavaPrimitiveType t) throws SemanticException {
@@ -1855,15 +1855,15 @@ public class Types {
 	public static CConstraint removeLocals(Context cxt, CConstraint c0) {
 	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(c0.self().type());
 	    c.addIn(c0); // ensure that this has a different selfVar.
-	    Set<? extends XTerm<Type>> roots = c.getVarsAndProjections();
+	    Set<? extends XTerm<Type>> roots = c.getVarsAndFields();
 	    if (roots.size() > 0) {
 	        for (XTerm<Type> term : roots) {
 	        	// the local variable can either occur as a variable or inside a field access
 	        	if (term instanceof XVar || term.isProjection()) {
 	        		XTerm<Type> t = term.isProjection()? ((XExpr<Type>)term).get(0) : term;
-	        		if (t instanceof XLocal) {
+	        		if (t instanceof CLocal) {
 	        			@SuppressWarnings("unchecked")
-						XLocal<Type, X10LocalDef> local = (XLocal<Type, X10LocalDef>) t;
+						CLocal<Type, X10LocalDef> local = (CLocal<Type, X10LocalDef>) t;
 	        			X10LocalDef name = local.def();
 	        			if (! cxt.isFormalParameter(name) && cxt.isLocalExcludingAsyncAt(name.name())) {
 	        				// This is a local variable. Eliminate!
@@ -1946,7 +1946,7 @@ public class Types {
     		return t;
     	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
     	c.addIn(c0); // ensure that this has a different selfVar.
-    	Set<? extends XTerm<Type>> roots = c.getVarsAndProjections();
+    	Set<? extends XTerm<Type>> roots = c.getVarsAndFields();
     	if (roots.size() > 0) {
     		CodeDef def = cxt.currentCode();
     		List<LocalDef> formals = null;
@@ -1956,9 +1956,9 @@ public class Types {
     		for (XTerm<Type> term : roots) {
     			if (term instanceof XVar || term.isProjection()) {
     				XTerm<Type> root = term.isProjection() ? ((XExpr<Type>)term).get(0) : term; 
-    				if (root instanceof XLocal) {
+    				if (root instanceof CLocal) {
     					@SuppressWarnings("unchecked")
-						XLocal<Type,X10LocalDef> rootL = (XLocal<Type,X10LocalDef>)root;
+						CLocal<Type,X10LocalDef> rootL = (CLocal<Type,X10LocalDef>)root;
     					X10LocalDef name = rootL.def();
     					if (formals != null && ! formals.contains(name)) {
     						// This is a local variable. Eliminate!
