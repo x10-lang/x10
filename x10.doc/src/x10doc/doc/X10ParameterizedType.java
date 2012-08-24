@@ -165,7 +165,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 	
 	public String descriptor() {
 		XConstraint<?> xc = Types.xclause(pType);
-		List<? extends XTerm<?>> terms = xc.constraints();
+		List<? extends XTerm<?>> terms = xc.terms();
 		String result = "  {";
 		boolean first = true;
 		for (XTerm<?> t: terms) {
@@ -236,7 +236,7 @@ public class X10ParameterizedType extends X10Type implements ParameterizedType {
 			XConstraint<?> xc = ct.constraint().get();
 			String str = ct.name() + "{";
 			boolean first = true;
-			for (XTerm<?> t :xc.constraints()) {
+			for (XTerm<?> t :xc.terms()) {
 				if (first) {
 					first = false; 
 					str += t.prettyPrint(); 

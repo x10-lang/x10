@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+<?xml version="1.0" encoding="UTF-8"?><launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
 <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
 <listEntry value="/x10.doc"/>
 </listAttribute>
@@ -9,7 +8,6 @@
 <booleanAttribute key="org.eclipse.debug.core.appendEnvironmentVariables" value="true"/>
 <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
 <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
-<listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
 </listAttribute>
 <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="polyglot.main.Main"/>
 <stringAttribute key="org.eclipse.jdt.launching.PROGRAM_ARGUMENTS" value="-extclass x10doc.ExtensionInfo -d &quot;${workspace_loc:x10.doc}/out2&quot; -sourcepath &quot;${workspace_loc:x10.runtime/src-x10}&quot; -sourcepath &quot;${workspace_loc:x10.dist}/lib/x10.jar&quot; -sourcepath &quot;${workspace_loc:x10.tests}/examples/x10lib&quot; -assert &quot;${resource_loc}&quot;"/>
