@@ -488,12 +488,12 @@ public class X10JavaSerializer {
     }
     
     public void writeClassID(String className) throws IOException {
-        short id = DeserializationDispatcher.getIDForClassName(className);
-        if (id < 0) {
+        short serializationID = DeserializationDispatcher.getSerializationIDForClassName(className);
+        if (serializationID < 0) {
             write(DeserializationDispatcher.javaClassID);
             writeStringValue(className);
         } else {
-            write(id);
+            write(serializationID);
         }
     }
 
@@ -589,9 +589,9 @@ public class X10JavaSerializer {
             return;
         }
         write(DeserializationDispatcher.javaArrayID);
-        Class<?> componentType = obj.getClass().getComponentType();
         int length = Array.getLength(obj);
         write(length);
+        Class<?> componentType = obj.getClass().getComponentType();
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
                 for (int i = 0; i < length; i++) {

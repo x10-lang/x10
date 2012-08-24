@@ -43,17 +43,17 @@ public class DeserializationDispatcher {
     public static final short javaClassID = refValue - 1;
     public static final short javaArrayID = refValue - 2;
 
-    // Should start issuing id's from 1 cause the id 0 is used to indicate a null value.
-    // We first increment i before issuing the id hence initialize to NULL_ID
-    private static short i = NULL_ID;
+    // Should start issuing serializationID's from 1 cause the serializationID 0 is used to indicate a null value.
+    // We first increment nextSerializationID before issuing the serializationID hence initialize to NULL_ID
+    private static short nextSerializationID = NULL_ID;
 
     private static List<DeserializationInfo> idToDeserializationInfo = new ArrayList<DeserializationInfo>();
     private static List<Method> idToDeserializermethod = new ArrayList<Method>();
-    private static Map<String, Short> classNameToId = new HashMap<String, Short> ();
+    private static Map<String, Short> classNameToId = new HashMap<String, Short>();
 
     // Keep track of the asyncs that need to be registered with the X10 RT implementation
     private static List<DeserializationInfo> asyncs = new ArrayList<DeserializationInfo>();
-    private static Map<Integer, Short> messageIdToSID = new HashMap<Integer, Short> ();
+    private static Map<Integer, Short> messageIdToSID = new HashMap<Integer, Short>();
 
     public static enum ClosureKind {
         CLOSURE_KIND_NOT_ASYNC,    // is not a closure, or is a closure that is not created in place of an async by the desugarer
@@ -62,11 +62,11 @@ public class DeserializationDispatcher {
     };
 
     public static short addDispatcher(ClosureKind closureKind, Class clazz) {
-        if (i == NULL_ID) {
-            classNameToId.put(null, i);
-            idToDeserializationInfo.add(i, null);
-            idToDeserializermethod.add(i, null);
-            i++;
+        if (nextSerializationID == NULL_ID) {
+            classNameToId.put(null, nextSerializationID);
+            idToDeserializationInfo.add(nextSerializationID, null);
+            idToDeserializermethod.add(nextSerializationID, null);
+            nextSerializationID++;
             try {
                 add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.String"), false);
                 add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Float"), false);
@@ -82,49 +82,49 @@ public class DeserializationDispatcher {
             }
         }
         add(closureKind, clazz, true);
-        return (short) (i-1);
+        return (short) (nextSerializationID-1);
     }
 
     public static short addDispatcher(ClosureKind closureKind, Class clazz, String alternate) {
-        short i = addDispatcher(closureKind, clazz);
-        classNameToId.put(alternate, i);
-        return i;
+        short serializationID = addDispatcher(closureKind, clazz);
+        classNameToId.put(alternate, serializationID);
+        return serializationID;
     }
 
     private static void add(ClosureKind closureKind, Class clazz, boolean addDeserializerMethod) {
-        classNameToId.put(clazz.getName(), i);
-        DeserializationInfo deserializationInfo = new DeserializationInfo(closureKind, clazz, i);
-        idToDeserializationInfo.add(i, deserializationInfo);
+        classNameToId.put(clazz.getName(), nextSerializationID);
+        DeserializationInfo deserializationInfo = new DeserializationInfo(closureKind, clazz, nextSerializationID);
+        idToDeserializationInfo.add(nextSerializationID, deserializationInfo);
         if (deserializationInfo.closureKind != ClosureKind.CLOSURE_KIND_NOT_ASYNC) {
             // This class needs a message ID
             asyncs.add(deserializationInfo);
         }
         if (addDeserializerMethod && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
-            idToDeserializermethod.add(i, getDeserializerMethod(clazz));
+            idToDeserializermethod.add(nextSerializationID, getDeserializerMethod(clazz));
         } else {
-            idToDeserializermethod.add(i, null);
+            idToDeserializermethod.add(nextSerializationID, null);
         }
-        i++;
+        nextSerializationID++;
     }
 
-    public static Object getInstanceForId(short i, X10JavaDeserializer deserializer) throws IOException {
+    public static Object getInstanceForId(short serializationID, X10JavaDeserializer deserializer) throws IOException {
 
-        if (i == refValue) {
+        if (serializationID == refValue) {
             return deserializer.getObjectAtPosition(deserializer.readInt());
-        } else if (i == NULL_ID) {
+        } else if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserialized a null reference");
             }
             return null;
-        } else if (i <= MAX_ID_FOR_PRIMITIVE) {
-            return deserializePrimitive(i, deserializer);
+        } else if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
+            return deserializePrimitive(serializationID, deserializer);
         }
 
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing non-null value with id " + i);
+            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
         }
         try {
-            Method method = idToDeserializermethod.get(i);
+            Method method = idToDeserializermethod.get(serializationID);
             return method.invoke(null, deserializer);
         } catch (InvocationTargetException e) {
             // This should never happen
@@ -149,57 +149,57 @@ public class DeserializationDispatcher {
         }
     }
 
-    public static Object deserializePrimitive(short i, X10JavaDeserializer deserializer) throws IOException {
+    public static Object deserializePrimitive(short serializationID, X10JavaDeserializer deserializer) throws IOException {
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing non-null value with id " + i);
+            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
         }
         Object obj = null;
-        switch(i) {
+        switch (serializationID) {
             case STRING_ID:
-                 obj =  deserializer.readStringValue();
+                obj = deserializer.readStringValue();
                 break;
             case FLOAT_ID:
-                 obj = deserializer.readFloat();
+                obj = deserializer.readFloat();
                 break;
             case DOUBLE_ID:
-                 obj = deserializer.readDouble();
+                obj = deserializer.readDouble();
                 break;
             case INTEGER_ID:
-                  obj = deserializer.readInt();
+                obj = deserializer.readInt();
                 break;
             case BOOLEAN_ID:
-                 obj = deserializer.readBoolean();
+                obj = deserializer.readBoolean();
                 break;
             case BYTE_ID:
-                  obj = deserializer.readByte();
+                obj = deserializer.readByte();
                 break;
             case SHORT_ID:
                 obj = deserializer.readShort();
                 break;
-            case  CHARACTER_ID:
-                 obj = deserializer.readChar();
+            case CHARACTER_ID:
+                obj = deserializer.readChar();
                 break;
             case LONG_ID:
-                 obj = deserializer.readLong();
+                obj = deserializer.readLong();
                 break;
         }
         deserializer.record_reference(obj);
         return obj;
     }
 
-    public static String getClassNameForID(short id, X10JavaDeserializer deserializer) {
-         if (id == javaClassID) {
+    public static String getClassNameForID(short serializationID, X10JavaDeserializer deserializer) {
+         if (serializationID == javaClassID) {
             try {
                 return deserializer.readStringValue();
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         }
-        return getClassForID(id, deserializer).getName();
+        return getClassForID(serializationID, deserializer).getName();
     }
 
-    public static Class getClassForID(short id, X10JavaDeserializer deserializer) {
-        if (id == javaClassID) {
+    public static Class getClassForID(short serializationID, X10JavaDeserializer deserializer) {
+        if (serializationID == javaClassID) {
             try {
                 String className = deserializer.readStringValue();
                 return Class.forName(className);
@@ -209,11 +209,11 @@ public class DeserializationDispatcher {
                 throw new RuntimeException(e);
             }
         }
-        return idToDeserializationInfo.get(id).clazz;
+        return idToDeserializationInfo.get(serializationID).clazz;
     }
 
-    public static short getIDForClassName(String str) {
-        Short val = classNameToId.get(str);
+    public static short getSerializationIDForClassName(String str) {
+        Short serializationID = classNameToId.get(str);
 
         // When there are inner classes the type name is of the form A.B.C where
         // C is an inner class of B. But classNameToId uses class.getName() to store
@@ -222,14 +222,14 @@ public class DeserializationDispatcher {
         // but the typenames are stored at A.B.C so this disconnect is inevitable
         int i;
         String s = str;
-        while (val == null && ((i = s.lastIndexOf(".")) > 0)) {
+        while (serializationID == null && ((i = s.lastIndexOf(".")) > 0)) {
             s = s.substring(0, i) + "$" + s.substring(i + 1);
-            val = classNameToId.get(s);
+            serializationID = classNameToId.get(s);
         }
-        if (val == null) {
+        if (serializationID == null) {
             return -1;
         }
-        return val;
+        return serializationID;
     }
 
     public static void registerHandlers() {
@@ -238,49 +238,49 @@ public class DeserializationDispatcher {
 
     public static void registerHandlersCallback(int[] ids) {
         int j = 0;
-       for (DeserializationInfo deserializationInfo : asyncs) {
-           deserializationInfo.msgType = ids[j];
-           messageIdToSID.put(deserializationInfo.msgType, deserializationInfo.sid);
-           j++;
-       }
-       // We no longer need this data structure
+        for (DeserializationInfo deserializationInfo : asyncs) {
+            deserializationInfo.msgType = ids[j];
+            messageIdToSID.put(deserializationInfo.msgType, deserializationInfo.serializationID);
+            j++;
+        }
+        // We no longer need this data structure
         asyncs = null;
     }
 
-    public static int getMessageID(short sid) {
-        return idToDeserializationInfo.get(sid).msgType;
+    public static int getMessageID(short serializationID) {
+        return idToDeserializationInfo.get(serializationID).msgType;
     }
 
     public static short getSerializationID(int msg_id) {
         return messageIdToSID.get(msg_id);
     }
 
-    public static ClosureKind getClosureKind(short sid) {
-        return idToDeserializationInfo.get(sid).closureKind;
+    public static ClosureKind getClosureKind(short serializationID) {
+        return idToDeserializationInfo.get(serializationID).closureKind;
     }
 
-    public static void setStaticInitializer(short sid) {
-        idToDeserializationInfo.get(sid).isStaticInitializer = true;
+    public static void setStaticInitializer(short serializationID) {
+        idToDeserializationInfo.get(serializationID).isStaticInitializer = true;
     }
 
-    public static boolean isStaticInitializer(short sid) {
-        return idToDeserializationInfo.get(sid).isStaticInitializer;
+    public static boolean isStaticInitializer(short serializationID) {
+        return idToDeserializationInfo.get(serializationID).isStaticInitializer;
     }
 
     private static class DeserializationInfo {
         public ClosureKind closureKind;
         public Class clazz;
         public int msgType;
-        public short sid;
+        public short serializationID;
 
         // We need to deserialize static initializers using custom serialization, this is a marker to know whether
         // this is a static serialization
         public boolean isStaticInitializer = false;
 
-        private DeserializationInfo(ClosureKind closureKind, Class clazz, short sid) {
+        private DeserializationInfo(ClosureKind closureKind, Class clazz, short serializationID) {
             this.closureKind = closureKind;
             this.clazz = clazz;
-            this.sid = sid;
+            this.serializationID = serializationID;
         }
     }
 }

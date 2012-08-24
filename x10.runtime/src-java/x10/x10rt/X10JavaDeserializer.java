@@ -73,7 +73,7 @@ public class X10JavaDeserializer {
     public Object getObjectAtPosition(int pos) {
         Object o = objectList.get(pos);
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("\t\tRetrieving repeated reference  of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + o.getClass().getName() + Runtime.ANSI_RESET + " at " + pos + "  (absolute) in map");
+            Runtime.printTraceMessage("\t\tRetrieving repeated reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + o.getClass().getName() + Runtime.ANSI_RESET + " at " + pos + "  (absolute) in map");
         }
         return o;
     }
@@ -85,7 +85,7 @@ public class X10JavaDeserializer {
 
     public Object readRef(short serializationID) throws IOException {
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Dispatching deserialisation using id " + serializationID);
+            Runtime.printTraceMessage("Dispatching deserialization using id " + serializationID);
         }
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
@@ -255,6 +255,7 @@ public class X10JavaDeserializer {
         } else if (serializationID == DeserializationDispatcher.refValue) {
             return (String) getObjectAtPosition(readInt());
         }
+        assert serializationID == DeserializationDispatcher.STRING_ID;
         String str = readStringValue();
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Deserializing a " + Runtime.ANSI_CYAN + "String" + Runtime.ANSI_RESET + ": " + str);
