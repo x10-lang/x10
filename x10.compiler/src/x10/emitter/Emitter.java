@@ -98,8 +98,10 @@ import x10.types.X10ConstructorInstance;
 import x10.types.X10Def;
 import x10.types.X10MethodDef;
 import x10.types.X10ParsedClassType_c;
+import x10.types.X10TypeEnv;
 import x10.types.constants.ConstantValue;
 import x10.types.constants.StringValue;
+import x10.types.constraints.TypeConstraint;
 import x10.util.AnnotationUtils;
 import x10.util.CollectionFactory;
 import x10.util.HierarchyUtils;
@@ -1688,29 +1690,41 @@ public class Emitter {
         return false;
     }
 
-    public void printTypeParams(Node_c n, Context context, List<TypeParamNode> typeParameters) {
-        if (typeParameters.size() <= 0) return;
+    private void printTypeParams(Node_c n, Context context, List<TypeParamNode> typeParameters, X10TypeEnv tenv, List<ParameterType> typeParams) {
+        int nTypeParameters = typeParameters.size();
+//        if (nTypeParameters <= 0) return;
+        assert nTypeParameters > 0;
+
         w.write("<");
+
         w.begin(0);
         String sep = "";
-        for (TypeParamNode tp : typeParameters) {
+        for (int i = 0; i < nTypeParameters; ++i) {
             w.write(sep);
+            sep = ", ";
+            
+            TypeParamNode tp = typeParameters.get(i);
             w.write(mangleParameterType(tp));
-            List<Type> sups = new LinkedList<Type>(tp.upperBounds());
-                            
+
+            if (tenv == null) continue;
+
+            // print upperbounds
+            List<Type> sups = new LinkedList<Type>(tenv.upperBounds(typeParams.get(i)));
+            if (sups.isEmpty()) continue;
+
             Type supClassType = null;
-            for (Iterator<Type> it = sups.iterator(); it.hasNext();) {
+            Iterator<Type> it = sups.iterator();
+            while (it.hasNext()) {
                 Type type = Types.baseType(it.next());
                 if (type.isParameterType()) {
                     it.remove();
                 }
                 if (type.isClass()) {
-                    TypeSystem ts = context.typeSystem();
-                    if (ts.isAny(type)) {
+                    if (type.isAny()) {
                         it.remove();
                     }
                     else if (!type.toClass().flags().isInterface()) {
-                        if (supClassType != null ) {
+                        if (supClassType != null) {
                             if (type.isSubtype(supClassType, context)) {
                                 supClassType = type;
                             }
@@ -1729,19 +1743,51 @@ public class Emitter {
             if (sups.size() > 0) {
                 w.write(" extends ");
                 List<Type> alreadyPrintedTypes = new ArrayList<Type>();
-                for (int i = 0; i < sups.size(); ++i) {
-                    Type type = sups.get(i);
+                for (Type type : sups) {
                     if (!alreadyPrinted(alreadyPrintedTypes, type)) {
                         if (alreadyPrintedTypes.size() != 0) w.write(" & ");
-                        printType(sups.get(i), BOX_PRIMITIVES);
+                        printType(type, BOX_PRIMITIVES);
                         alreadyPrintedTypes.add(type);
                     }
                 }
             }
-            sep = ", ";
+
         }
         w.end();
-        w.write(">");
+
+        w.write("> ");
+    }
+
+    public void printTypeParams(X10MethodDecl_c n, Context context, List<TypeParamNode> typeParameters) {
+        if (typeParameters.size() <= 0) return;
+
+        X10TypeEnv tenv = null;
+        MethodDef def = n.methodDef();
+        Ref<TypeConstraint> tc = def.typeGuard();
+        if (tc != null) {
+            Context c2 = context.pushBlock();
+            c2.setName(" MethodGuard for |" + def.name() + "| ");
+            c2.setTypeConstraintWithContextTerms(tc);
+            tenv = tr.typeSystem().env(c2);
+        }
+
+        printTypeParams(n, context, typeParameters, tenv, def.typeParameters());
+    }
+
+    public void printTypeParams(X10ClassDecl_c n, Context context, List<TypeParamNode> typeParameters) {
+        if (typeParameters.size() <= 0) return;
+
+        X10TypeEnv tenv = null;
+        X10ClassDef def = n.classDef();
+        Ref<TypeConstraint> tc = def.typeGuard();
+        if (tc != null) {
+            Context c2 = context.pushBlock();
+            c2.setName(" ClassGuard for |" + def.name() + "| ");
+            c2.setTypeConstraintWithContextTerms(tc);
+            tenv = tr.typeSystem().env(c2);
+        }
+
+        printTypeParams(n, context, typeParameters, tenv, def.typeParameters());
     }
 
     public void printMethodParams(List<? extends Type> methodTypeParams) {

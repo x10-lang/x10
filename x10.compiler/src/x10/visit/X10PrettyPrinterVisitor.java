@@ -4059,21 +4059,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     @Override
     public void visit(X10MethodDecl_c n) {
         // should be able to assert n.name() is not typeName here, once we stop generating such decls somewhere in the frontend...
-        // [DC] sample code to demonstrate how to get type param bounds information.
-        // TODO delete this when XTENLANG-3086 has been fixed.
-        if (n.name().id().toString().equals("testFunctionForMikio")) {
-            MethodDef def = n.methodDef();
-            TypeSystem xts = tr.typeSystem();
-            Ref<TypeConstraint> tc = def.typeGuard();
-            if (tc != null) {
-                Context c = tr.context();
-                Context c2 = c.pushBlock();
-                c2.setName(" MethodGuard for |" + def.name() + "| ");
-                c2.setTypeConstraintWithContextTerms(tc);
-                X10TypeEnv tenv = xts.env(c2);
-                System.out.println(tenv.upperBounds(n.methodDef().typeParameters().get(0)));
-            }
-    	}
         if (er.printMainMethod(n)) {
             return;
         }
