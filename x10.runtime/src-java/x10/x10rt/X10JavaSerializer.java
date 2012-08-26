@@ -463,7 +463,6 @@ public class X10JavaSerializer {
     // This method is called from generated code when an X10 class has a Java superclass
     public <T> void serializeClassUsingReflection(T obj, Class<T> clazz) throws IOException {
         try {
-            writeClassID(clazz.getName());
             SerializerThunk st = getSerializerThunk(clazz);
             st.serializeObject(obj, this);
         } catch (SecurityException e) {
@@ -497,7 +496,7 @@ public class X10JavaSerializer {
         }
     }
 
-    private SerializerThunk getSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+    private static SerializerThunk getSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
         SerializerThunk ans = thunks.get(clazz);
         if (ans == null) {
             ans = getSerializerThunkHelper(clazz);
@@ -515,7 +514,7 @@ public class X10JavaSerializer {
         return java.lang.Throwable.class.isAssignableFrom(clazz);
     }
 
-    private SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+    private static SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
         
         // We need to handle these classes in a special way because their 
         // implementation of serialization/deserialization is not straight forward.

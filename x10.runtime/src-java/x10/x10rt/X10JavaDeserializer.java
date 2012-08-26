@@ -368,7 +368,7 @@ public class X10JavaDeserializer {
     
     private static final Class<?>[] EMPTY_ARRAY = new Class[]{};
     
-    private DeserializerThunk getDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+    private static DeserializerThunk getDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
         DeserializerThunk ans = thunks.get(clazz);
         if (ans == null) {
             ans = getDeserializerThunkHelper(clazz);
@@ -380,7 +380,7 @@ public class X10JavaDeserializer {
         return ans;
     }
 
-    private DeserializerThunk getDeserializerThunkHelper(Class<?> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
+    private static DeserializerThunk getDeserializerThunkHelper(Class<?> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
 
         // We need to handle these classes in a special way cause there implementation of serialization/deserialization is
         // not straight forward. Hence we just call into the custom serialization of these classes.
