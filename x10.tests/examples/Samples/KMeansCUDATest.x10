@@ -15,7 +15,9 @@ import harness.x10Test;
 public class KMeansCUDATest extends x10Test {
     public def run():boolean {
          val args = new Array[String](2);
-         args(0) = "-p"; args(1) = "../../x10.dist/samples/points.dat";
+         val x10home = System.getenv("X10_HOME");
+         args(0) = "-p"; 
+         args(1) = (x10home == null ? "../../.." : x10home) + "/x10.dist/samples/points.dat";
          KMeansCUDA.main(args);
          return true;
     }
