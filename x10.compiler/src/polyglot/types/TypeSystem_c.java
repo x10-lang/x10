@@ -87,6 +87,7 @@ import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.xnative.CNativeLocal;
 
 import x10.types.matcher.*;
 import x10.util.ClosureSynthesizer;
@@ -4543,5 +4544,56 @@ public class TypeSystem_c implements TypeSystem
         assert_(p2);
         return ((ProcedureInstance_c<T>) p1).throwsSubset(p2);
     }
-
+    
+    // checks that the number of type args match the number of type params
+    public static void internalConsistencyCheck (Type t) {
+    	if (t instanceof X10ParsedClassType_c) {
+    		X10ParsedClassType_c t2 = (X10ParsedClassType_c) t;
+    		X10ClassDef t2_def = t2.def();
+    		List<ParameterType> t2_params = t2_def.typeParameters();
+    		List<Type> t2_args = t2.typeArguments();
+    		int num_params = t2_params.size();
+    		// sometimes t2_args == null means it has not yet been filled in
+    		// sometimes it means 0 args
+    		// this ambiguity weakens the following check but that's life
+    		if (t2_args == null) { return; }
+    		int num_args = t2_args.size();
+    		// sometimes num_args==0 can mean that the type is used in a static fashion
+    		// e.g. class C[T] { static PI = 3.142; } ... C.PI;
+    		if (num_args == 0) return;
+    		if (num_params != num_args) {
+    			throw new InternalCompilerError(t+" has "+t2_params+" type params but "+t2_args+" type arguments.");
+    		}
+    	} else if (t instanceof ConstrainedType) {
+    		ConstrainedType t2 = (ConstrainedType) t;
+    		internalConsistencyCheck(t2.baseType().get());
+    		// Look for broken types inside variables in the constraint
+    		CConstraint c = t2.constraint().get();
+    		for (XTerm xt : c.getTerms()) {
+    			if (xt instanceof CNativeLocal) {
+    				X10LocalDef xld = ((CNativeLocal) xt).name();
+    				Type t3 = xld.type().get();
+    				if (t3 == t) return; // simple cycle check
+    				internalConsistencyCheck(t3);
+    			}
+    		}
+    	}
+    	
+	}
+    
+    // calling this on unpopulated mi may result in a runtime error
+    public static void internalConsistencyCheck (MethodInstance mi) {
+        for (Type t : mi.formalTypes()) {
+    		TypeSystem_c.internalConsistencyCheck(t);
+    	}
+        for (Ref<? extends Type> t : mi.def().formalTypes()) {
+    		TypeSystem_c.internalConsistencyCheck(t.get());
+    	}
+        for (LocalDef ld : mi.def().formalNames()) {
+    		TypeSystem_c.internalConsistencyCheck(ld.type().get());
+    	}
+        for (LocalInstance li : mi.formalNames()) {
+    		TypeSystem_c.internalConsistencyCheck(li.type());
+    	}    	
+    }
 }

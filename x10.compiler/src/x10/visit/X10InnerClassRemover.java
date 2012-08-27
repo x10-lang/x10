@@ -43,6 +43,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
@@ -50,6 +51,7 @@ import polyglot.visit.InnerClassRemover;
 import polyglot.visit.NodeVisitor;
 import x10.ast.DepParameterExpr;
 import x10.ast.TypeParamNode;
+import x10.ast.X10Call;
 import x10.ast.X10ClassDecl;
 import x10.ast.X10ConstructorDecl;
 import x10.ast.X10FieldDecl;
@@ -220,7 +222,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
 
         @Override
         protected MethodInstance transformMethodInstance(MethodInstance mi) {
-            Type returnType = mi.returnType();
+        	
+        	Type returnType = mi.returnType();
             Type newReturnType = transformType(returnType);
             if (newReturnType != returnType) {
                 mi = (MethodInstance) mi.returnType(newReturnType);
@@ -236,6 +239,7 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 LocalInstance newLI = transformLocalInstance((X10LocalInstance) li);
                 if (newLI != li) changed = true;
                 newFormalNames.add(newLI);
+            	TypeSystem_c.internalConsistencyCheck(newLI.type());
             }
             if (changed) {
                 mi = (MethodInstance) mi.formalNames(newFormalNames);
@@ -255,6 +259,9 @@ public class X10InnerClassRemover extends InnerClassRemover {
             if (newTypeGuard != typeGuard) {
                 mi = (MethodInstance) mi.typeGuard(newTypeGuard);
             }
+
+    		TypeSystem_c.internalConsistencyCheck(mi);
+            
             return mi;
         }
 
@@ -271,6 +278,16 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 fi = (X10FieldInstance) fi.container(newContainer);
             }
             return fi;
+        }
+        
+        @Override
+        protected X10LocalInstance transformLocalInstance(X10LocalInstance li) {
+            Type type = li.type();
+            Type newType = transformType(type);
+            if (newType != type) {
+                li = (X10LocalInstance) li.type(newType);
+            }
+            return li;
         }
 
         @Override
