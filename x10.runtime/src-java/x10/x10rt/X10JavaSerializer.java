@@ -345,6 +345,10 @@ public class X10JavaSerializer {
     }
 
     public void write(Object v) throws IOException {
+        if (v.getClass().isArray()) {
+            writeArrayUsingReflectionWithType(v);
+            return;
+        }
         writeObjectUsingReflection(v);
     }
 
@@ -587,6 +591,10 @@ public class X10JavaSerializer {
             writeNull();
             return;
         }
+        Integer pos = previous_position(obj, true);
+        if (pos != null) {
+            return;
+        }
         write(DeserializationDispatcher.javaArrayID);
         int length = Array.getLength(obj);
         write(length);
@@ -639,6 +647,61 @@ public class X10JavaSerializer {
             for (int i = 0; i < length; i++) {
                 Object o = Array.get(obj, i);
                 writeObjectUsingReflection(o);
+            }
+        }
+    }
+
+    public void writeArrayUsingReflectionWithType(Object obj) throws IOException {
+        if (obj == null) {
+            writeNull();
+            return;
+        }
+        Integer pos = previous_position(obj, true);
+        if (pos != null) {
+            return;
+        }
+        write(DeserializationDispatcher.javaArrayID);
+        Class<?> componentType = obj.getClass().getComponentType();
+        if (componentType.isPrimitive()) {
+            if ("int".equals(componentType.getName())) {
+                write(DeserializationDispatcher.INTEGER_ID);
+                write((int[]) obj);
+            } else if ("double".equals(componentType.getName())) {
+                write(DeserializationDispatcher.DOUBLE_ID);
+                write((double[]) obj);
+            } else if ("float".equals(componentType.getName())) {
+                write(DeserializationDispatcher.FLOAT_ID);
+                write((float[]) obj);
+            } else if ("boolean".equals(componentType.getName())) {
+                write(DeserializationDispatcher.BOOLEAN_ID);
+                write((boolean[]) obj);
+            } else if ("byte".equals(componentType.getName())) {
+                write(DeserializationDispatcher.BYTE_ID);
+                write((byte[]) obj);
+            } else if ("short".equals(componentType.getName())) {
+                write(DeserializationDispatcher.SHORT_ID);
+                write((short[]) obj);
+            } else if ("long".equals(componentType.getName())) {
+                write(DeserializationDispatcher.LONG_ID);
+                write((long[]) obj);
+            } else if ("char".equals(componentType.getName())) {
+                write(DeserializationDispatcher.CHARACTER_ID);
+                write((char[]) obj);
+            }
+        } else if ("java.lang.String".equals(componentType.getName())) {
+            write(DeserializationDispatcher.STRING_ID);
+            write((java.lang.String[]) obj);
+        } else {            
+            writeClassID(componentType.getName());
+            if (componentType.isArray()) {
+                int length = Array.getLength(obj);
+                write(length);
+                for (int i = 0; i < length; ++i) {
+                    Object o = Array.get(obj, i);
+                    writeArrayUsingReflection(o);
+                }
+            } else {
+                write((java.lang.Object[]) obj);
             }
         }
     }
