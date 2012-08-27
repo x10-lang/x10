@@ -20,14 +20,22 @@ public class XTENLANG_3103[T] extends x10Test {
     class C[U](a:Array[U]{rank==1}) {
     }
 
-    public def run():Boolean {
-        val myArTestIntNo123 : C[Int{self!=0}] = null;
-        val arr /*: Array[Int{self!=0}]{rank==1}*/ = myArTestIntNo123.a;
+    public static def runIt() {
+        val myArTestIntNo123 : XTENLANG_3103[String].C[Int{self!=0}] = null;
+        val arr = myArTestIntNo123.a;
+        // Used to ICE here
         arr(Point.make(0));
+    }
+
+    public def run():Boolean {
+        try {
+            runIt();
+        } catch (e:NullPointerException) {
+        }
         return true;
     }
 
-    public static def main(args: Array[String](1)) {
+    public static def main(args: Rail[String]) {
     	new XTENLANG_3103[Int]().execute();
     }
 }
