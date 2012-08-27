@@ -1428,7 +1428,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             X10ClassType ct = t.toClass();
             try {
                 if (ct.isX10Struct()) {
-                    X10ClassDef cd = (X10ClassDef) ct.def();
+                    X10ClassDef cd = ct.def();
                     if (!cd.annotationsMatching(getType("x10.compiler.Mutable")).isEmpty()) {
                         return true;
                     }
