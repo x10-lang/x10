@@ -225,6 +225,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportTypeConstraintsWithErasure = true;
     // XTENLANG-3090 (switched back to use java assertion)
     private static final boolean useJavaAssertion = true;
+    // XTENLANG-3086
+    public static final boolean supportUpperBounds = true;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -449,6 +451,54 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
+    private ClassType X10JavaSerializable_;
+    private ClassType X10JavaSerializable() {
+        if (X10JavaSerializable_ == null)
+            X10JavaSerializable_ = tr.typeSystem().load("x10.x10rt.X10JavaSerializable");
+        return X10JavaSerializable_;
+    }
+
+    private boolean canCastToX10JavaSerializable(X10ClassDecl_c n, Type type, Context context) {
+        type = Types.baseType(type);
+
+        Type leastUpperBound = null;
+
+        if (type.isParameterType()) {
+            if (!supportUpperBounds) return true;
+            
+            X10ClassDef def = n.classDef();
+            Ref<TypeConstraint> tc = def.typeGuard();
+            if (tc == null) return true; // no upperbounds
+            
+            Context c2 = context.pushBlock();
+            c2.setName(" ClassGuard for |" + def.name() + "| ");
+            c2.setTypeConstraintWithContextTerms(tc);
+            X10TypeEnv tenv = tr.typeSystem().env(c2);
+            List<Type> upperBounds = tenv.upperBounds(type);
+            
+            Iterator<Type> it = upperBounds.iterator();
+            while (it.hasNext()) {
+                Type upperBound = Types.baseType(it.next());
+                if (upperBound.isParameterType()) {
+                    return canCastToX10JavaSerializable(n, upperBound, context);
+                }
+                if (upperBound.isClass()) {
+                    if (!upperBound.toClass().flags().isInterface()) {
+                        if (leastUpperBound == null || upperBound.isSubtype(leastUpperBound, context)) {
+                            leastUpperBound = upperBound;
+                        }
+                    }
+                }
+            }
+        } else if (type.isClass() && !type.toClass().flags().isInterface()) {
+            // FIXME uncomment the following requires X10JavaSerializable.class before compiling it.
+            // leave it for now because of no immediate problem.
+//            leastUpperBound = ftype;
+        }
+
+        return leastUpperBound == null || leastUpperBound.isSubtype(X10JavaSerializable(), context);
+    }
+
     @Override
     public void visit(X10ClassDecl_c n) {
         X10CContext_c context = (X10CContext_c) tr.context();
@@ -668,7 +718,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.writeln("}");
             w.newline();
 
-            // _deserializer  method
+            // _deserializer method
             w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
             w.newline(4);
             w.begin(0);
@@ -690,7 +740,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.writeln("}");
             w.newline();
             
-         // _serialize()
+            // _serialize()
             w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
             w.newline(4);
             w.begin(0);
@@ -719,7 +769,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 ASTQuery query = new ASTQuery(tr);
 
                 //_deserialize_body method
-                w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+                w.write("public static ");
+                if (supportUpperBounds)
+                if (typeParameters.size() > 0) {
+                    er.printTypeParams(n, context, typeParameters);
+                }
+                w.write("x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
                 w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
                 w.newline(4);
                 w.begin(0);
@@ -734,13 +789,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 List<ParameterType> parameterTypes = ct.x10Def().typeParameters();
 
-                // Deserialize any parameter types
+                // Deserialize type parameters
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
                     w.write("$_obj.");
                     er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
-                    w.write(" = ( " + X10_RUNTIME_TYPE_CLASS + " ) ");
-                    w.writeln("$deserializer.readRef();");
+                    w.writeln(" = (" + X10_RUNTIME_TYPE_CLASS + ") $deserializer.readRef();");
                 }
 
                 // Deserialize the public variables of this class , we do not serialize transient or static variables
@@ -754,7 +808,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         if (f.flags().isTransient()) // don't serialize transient fields
                             continue;
                         if (f.type().isParameterType()) {
-                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.readRef();");
+                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                            if (supportUpperBounds) {
+                            w.write("(");
+                            er.printType(f.type(), BOX_PRIMITIVES);
+                            w.write(") ");
+                            }
+                            w.writeln("$deserializer.readRef();");
                         } else if ((str = needsCasting(f.type())) != null) {
                             // Want these to be readInteger and so on.....  These do not need a explicit case cause we are calling special methods
                             w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = $deserializer.read" + str + "();");
@@ -907,11 +967,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         } else if (xts.isJavaArray(f.type())) {
                             w.writeln("$serializer.writeArrayUsingReflection(this." + fieldName + ");");
                         } else {
+                            boolean canCastToX10JavaSerializable = canCastToX10JavaSerializable(n, f.type(), context);
+                            if (canCastToX10JavaSerializable) {
                             w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
                             w.writeln("$serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
                             w.writeln("} else {");
+                            }
                             w.writeln("$serializer.write(this." + fieldName + ");");
+                            if (canCastToX10JavaSerializable) {
                             w.writeln("}");
+                            }
                         }
                     }
                 }

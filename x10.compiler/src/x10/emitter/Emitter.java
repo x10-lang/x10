@@ -1709,41 +1709,37 @@ public class Emitter {
             if (tenv == null) continue;
 
             // print upperbounds
-            List<Type> sups = new LinkedList<Type>(tenv.upperBounds(typeParams.get(i)));
-            if (sups.isEmpty()) continue;
+            List<Type> upperBounds = new LinkedList<Type>(tenv.upperBounds(typeParams.get(i)));
+            if (upperBounds.isEmpty()) continue;
 
-            Type supClassType = null;
-            Iterator<Type> it = sups.iterator();
+            Type leastUpperBound = null;
+            Iterator<Type> it = upperBounds.iterator();
             while (it.hasNext()) {
-                Type type = Types.baseType(it.next());
-                if (type.isParameterType()) {
+                Type upperBound = Types.baseType(it.next());
+                if (upperBound.isParameterType()) {
                     it.remove();
                 }
-                if (type.isClass()) {
-                    if (type.isAny()) {
+                if (upperBound.isClass()) {
+                    if (upperBound.isAny()) {
                         it.remove();
                     }
-                    else if (!type.toClass().flags().isInterface()) {
-                        if (supClassType != null) {
-                            if (type.isSubtype(supClassType, context)) {
-                                supClassType = type;
-                            }
-                        } else {
-                            supClassType = type;
+                    else if (!upperBound.toClass().flags().isInterface()) {
+                        if (leastUpperBound == null || upperBound.isSubtype(leastUpperBound, context)) {
+                            leastUpperBound = upperBound;
                         }
                         it.remove();
                     }
                 }
             }
-            if (supClassType != null) {
-                sups.add(0, supClassType);
+            if (leastUpperBound != null) {
+                upperBounds.add(0, leastUpperBound);
             }
             
             // FIXME need to check strategy for bounds of type parameter
-            if (sups.size() > 0) {
+            if (upperBounds.size() > 0) {
                 w.write(" extends ");
                 List<Type> alreadyPrintedTypes = new ArrayList<Type>();
-                for (Type type : sups) {
+                for (Type type : upperBounds) {
                     if (!alreadyPrinted(alreadyPrintedTypes, type)) {
                         if (alreadyPrintedTypes.size() != 0) w.write(" & ");
                         printType(type, BOX_PRIMITIVES);
@@ -1763,12 +1759,15 @@ public class Emitter {
 
         X10TypeEnv tenv = null;
         MethodDef def = n.methodDef();
+
+        if (X10PrettyPrinterVisitor.supportUpperBounds) {
         Ref<TypeConstraint> tc = def.typeGuard();
         if (tc != null) {
             Context c2 = context.pushBlock();
             c2.setName(" MethodGuard for |" + def.name() + "| ");
             c2.setTypeConstraintWithContextTerms(tc);
             tenv = tr.typeSystem().env(c2);
+        }
         }
 
         printTypeParams(n, context, typeParameters, tenv, def.typeParameters());
@@ -1779,12 +1778,15 @@ public class Emitter {
 
         X10TypeEnv tenv = null;
         X10ClassDef def = n.classDef();
+
+        if (X10PrettyPrinterVisitor.supportUpperBounds) {
         Ref<TypeConstraint> tc = def.typeGuard();
         if (tc != null) {
             Context c2 = context.pushBlock();
             c2.setName(" ClassGuard for |" + def.name() + "| ");
             c2.setTypeConstraintWithContextTerms(tc);
             tenv = tr.typeSystem().env(c2);
+        }
         }
 
         printTypeParams(n, context, typeParameters, tenv, def.typeParameters());
@@ -3935,8 +3937,7 @@ public class Emitter {
         for (ParameterType at : def.typeParameters()) {
             w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
             printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-            w.write(" = ( " + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ) ");
-            w.writeln("$deserializer.readRef();");
+            w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") $deserializer.readRef();");
             params.add(mangleParameterType(at));
         }
 
