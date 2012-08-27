@@ -508,7 +508,7 @@ public class X10JavaSerializer {
         return ans;
     }
 
-    static final boolean THROWABLES_SERIALIZE_MESSAGE = false;
+    static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
     static final boolean THROWABLES_SERIALIZE_STACKTRACE = true;
     static boolean isThrowable(java.lang.Class<?> clazz) {
         return java.lang.Throwable.class.isAssignableFrom(clazz);
