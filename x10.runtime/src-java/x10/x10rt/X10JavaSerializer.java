@@ -345,6 +345,10 @@ public class X10JavaSerializer {
     }
 
     public void write(Object v) throws IOException {
+        if (v == null) {
+            writeNull();
+            return;
+        }
         if (v.getClass().isArray()) {
             writeArrayUsingReflectionWithType(v);
             return;
