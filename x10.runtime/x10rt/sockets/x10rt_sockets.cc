@@ -30,6 +30,7 @@
 #include <unistd.h> // for close() and sleep()
 #include <errno.h> // for the strerror function
 #include <sys/socket.h> // for sockets
+#include <arpa/inet.h>
 #include <sys/param.h>
 #include <pthread.h> // for locks on the sockets
 #include <poll.h> // for poll()
@@ -71,6 +72,13 @@ struct x10SocketDataToWrite
 	struct x10SocketDataToWrite* next;
 };
 
+// just an IP+port pair
+struct x10SocketLink
+{
+	in_addr ip;
+	in_port_t port;
+};
+
 struct x10SocketState
 {
 	x10rt_place numPlaces; // how many places we have.
@@ -89,6 +97,8 @@ struct x10SocketState
 	bool useNonblockingLinks; // flag to enable/disable buffered writes.  True by default
 	struct x10SocketDataToWrite* pendingWrites;
 	pthread_mutex_t pendingWriteLock;
+	bool runAsLibrary; // main() is not X10... operate with an external launcher, act as a library, don't call system exit, etc.
+	struct x10SocketLink* linkInformation; // used to hold IP+port of every place, for when we run as a library
 } state;
 
 bool probe (bool onlyProcessAccept, bool block);
@@ -104,7 +114,7 @@ void error(const char* message)
 	else
 		fprintf(stderr, "Fatal Error at place %u: %s\n", state.myPlaceId, message);
 	fflush(stderr);
-	abort();
+	if (!state.runAsLibrary) abort();
 }
 
 /*
@@ -401,87 +411,93 @@ int initLink(uint32_t remotePlace)
 		#ifdef DEBUG
 			fprintf(stderr, "X10rt.Sockets: Place %u looking up place %u for a new connection\n", state.myPlaceId, remotePlace);
 		#endif
-		char link[1024];
-		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
+		char* link;
+		int port;
 
-		int port = getPortEnv(remotePlace);
-		if (port == 0)
+		if (state.linkInformation)
 		{
-			int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, sizeof(link));
-			if (r <= 0)
-			{
-				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-				return -1;
-			}
-
-			// check that the other end didn't connect to us while we were waiting for our lookup to complete.
-			if (state.socketLinks[remotePlace].fd > 0)
-			{
-				pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
-				return state.socketLinks[remotePlace].fd;
-			}
-
-			// break apart the link into host and port
-			char * c = strchr(link, ':');
-			if (c == NULL)
-			{
-				char* suicideNote = (char*)alloca(512);
-				sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
-				error(suicideNote);
-			}
-			c[0] = '\0';
-			port = atoi(c + 1);
+			// use the table we stored earlier
+			link = inet_ntoa(state.linkInformation[remotePlace].ip);
+			port = state.linkInformation[remotePlace].port;
 		}
 		else
 		{
-			char* p = getenv(X10_HOSTLIST);
-			if (p != NULL)
-			{
-				// find our port number in the list
-				char * start = p;
-				char * end = strchr(start, ',');
-				for (unsigned int i=1; i<=remotePlace; i++)
-				{
-					if (end == NULL)
-						error("Not enough hosts defined in "X10_HOSTLIST);
+			// ask the launcher
+			link = (char *)alloca(1024);
+			pthread_mutex_lock(&state.writeLocks[state.myPlaceId]); // because the lookup isn't currently thread-safe
 
-					start = end+1;
-					end = strchr(start, ',');
-				}
-				if (end == NULL)
-					strcpy(link, start);
-				else
+			port = getPortEnv(remotePlace);
+			if (port == 0)
+			{
+				int r = Launcher::lookupPlace(state.myPlaceId, remotePlace, link, 1024);
+				if (r <= 0)
 				{
-					strncpy(link, start, end-start);
-					link[end-start] = '\0';
+					pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+					return -1;
 				}
+
+				// check that the other end didn't connect to us while we were waiting for our lookup to complete.
+				if (state.socketLinks[remotePlace].fd > 0)
+				{
+					pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
+					return state.socketLinks[remotePlace].fd;
+				}
+
+				// break apart the link into host and port
+				char * c = strchr(link, ':');
+				if (c == NULL)
+				{
+					char* suicideNote = (char*)alloca(512);
+					sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
+					error(suicideNote);
+				}
+				c[0] = '\0';
+				port = atoi(c + 1);
 			}
 			else
 			{
+				char* p = getenv(X10_HOSTLIST);
+				if (p != NULL)
+				{
+					// find our port number in the list
+					char * start = p;
+					char * end = strchr(start, ',');
+					for (unsigned int i=1; i<=remotePlace; i++)
+					{
+						if (end == NULL)
+							error("Not enough hosts defined in "X10_HOSTLIST);
+
+						start = end+1;
+						end = strchr(start, ',');
+					}
+					if (end == NULL)
+						strcpy(link, start);
+					else
+					{
+						strncpy(link, start, end-start);
+						link[end-start] = '\0';
+					}
+				}
+				else
+				{
+					strcpy(link, "localhost\0");
+					if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10_FORCEPORTS);
+				}
+			}
+
+			// check to see if the host is our host, and if so, change it to "localhost"
+			// to take advantage of any localhost OS efficiencies
+			if (strcmp(state.myhost, link) == 0)
+			{
 				strcpy(link, "localhost\0");
-				if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10_FORCEPORTS);
+				#ifdef DEBUG
+					fprintf(stderr, "X10rt.Sockets: Place %u changed hostname for place %u to %s\n", state.myPlaceId, remotePlace, link);
+				#endif
 			}
 		}
 
-		// check to see if the host is our host, and if so, change it to "localhost"
-		// to take advantage of any localhost OS efficiencies
-		bool noDelay;
-		if (strcmp(state.myhost, link) == 0)
-		{
-			strcpy(link, "localhost\0");
-			#ifdef DEBUG
-				fprintf(stderr, "X10rt.Sockets: Place %u changed hostname for place %u to %s\n", state.myPlaceId, remotePlace, link);
-			#endif
-//			noDelay = true;
-		}
-// performance seems to be better when we disable nagle for everything.
-//		else if (strcmp("localhost", link) == 0)
-			noDelay = true;
-//		else
-//			noDelay = false;
-
 		int newFD;
-		if ((newFD = TCP::connect(link, port, 10, noDelay)) > 0)
+		if ((newFD = TCP::connect(link, port, 10, true)) > 0)
 		{
 			struct ctrl_msg m;
 			m.type = HELLO;
@@ -551,11 +567,87 @@ int initLink(uint32_t remotePlace)
 	return state.socketLinks[remotePlace].fd;
 }
 
+/*
+ * This version of the init operates outside of our own launcher, and allows X10 to run as a library in some non-X10 program
+ * We will block here, waiting for place 0 to come along and tell us our place ID and number of places.  Think of this method as
+ * a partway-up X10RT waiting to join a computation.
+ */
+void x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counter)
+{
+	state.runAsLibrary = true;
+	state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
+	state.linkAtStartup = false;
+	state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
+	state.pendingWrites = NULL;
+	state.myhost = NULL;
+	if (state.useNonblockingLinks)
+		pthread_mutex_init(&state.pendingWriteLock, NULL);
+	pthread_mutex_init(&state.readLock, NULL);
+	state.nextSocketToCheck = 0;
+
+	// open local listen port.
+	unsigned listenPort;
+	char* p = getenv(X10_FORCEPORTS);
+	if (p) listenPort = atoi(p);
+	int listenSocket = TCP::listen(&listenPort, 10);
+	if (listenSocket < 0) error("cannot create listener port");
+
+	while (true)
+	{
+		int newSocket = TCP::accept(listenSocket, true); // this is a BLOCKING call.  We wait until the connection is established
+		if (newSocket > 0)
+		{
+			struct ctrl_msg m;
+			int r = TCP::read(newSocket, &m, sizeof(struct ctrl_msg));
+			if (r == sizeof(struct ctrl_msg))
+			{
+				if (m.from == 0 && m.type == HELLO)
+				{
+					// now we have everything needed to start running
+					state.myPlaceId = m.to;
+					state.numPlaces = m.datalen; // number of places, not size of data
+					state.linkInformation = safe_malloc<x10SocketLink>(m.datalen);
+					// read in all IP+port information, for every place
+					TCP::read(newSocket, state.linkInformation, m.datalen*sizeof(struct x10SocketLink));
+
+					// initialize structures
+					state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
+					state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
+					for (unsigned int i=0; i<state.numPlaces; i++)
+					{
+						state.socketLinks[i].fd = -1;
+						state.socketLinks[i].events = 0;
+					}
+					state.socketLinks[state.myPlaceId].fd = listenSocket;
+					pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
+					state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
+
+					state.socketLinks[0].fd = newSocket;
+					pthread_mutex_init(&state.writeLocks[0], NULL);
+					state.socketLinks[0].events = POLLIN | POLLPRI;
+
+					// respond to place 0
+					m.to = 0;
+					m.from = state.myPlaceId;
+					m.datalen = 0;
+					r = TCP::write(newSocket, &m, sizeof(struct ctrl_msg));
+
+					return; // operate normally
+				}
+			}
+		}
+	}
+}
+
 /******************************************************
  *  Main API calls.  See x10rt_net.h for documentation
 *******************************************************/
 void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
+	if (checkBoolEnvVar(getenv(X10_LIBRARY_MODE)))
+		return x10rt_net_init_as_library(argc, argv, counter);
+	state.runAsLibrary = false;
+
 	// If this is to be a launcher process, this method will not return.
 	Launcher::Setup(*argc, *argv);
 
@@ -1137,7 +1229,7 @@ void x10rt_net_finalize (void)
 		#endif
 	}
 	pthread_mutex_destroy(&state.readLock);
-	free(state.myhost);
+	if (state.myhost) free(state.myhost);
 	free(state.socketLinks);
 	free(state.writeLocks);
 }
