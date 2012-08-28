@@ -226,7 +226,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // XTENLANG-3090 (switched back to use java assertion)
     private static final boolean useJavaAssertion = true;
     // XTENLANG-3086
-    public static final boolean supportUpperBounds = true;
+    public static final boolean supportUpperBounds = false;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
