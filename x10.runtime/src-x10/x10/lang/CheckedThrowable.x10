@@ -90,7 +90,7 @@ public class CheckedThrowable {
 
     // work-around for XTENLANG-3086
     // this code should be uncommented in x10.lang.Runtime when bug is fixed
-    @Native("java", "if (false) throw (#T)null else { }")
+    @Native("java", "if (false) throw (#T)null; else { }")
     @Native("c++", "do { } while (0)")
     public static native def pretendToThrow[T] () { T<: CheckedThrowable } : void;
 
