@@ -672,7 +672,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     	    for (MethodInstance mi : oldMethods) {
     	    	
     	    	// [DC] leave these guys out of the picture -- backends handle them specially
-    	    	if (mi.container().isAny()) continue;
+    	    	// testing mi.container().isAny() does not work since an interface I can redeclare these methods as abstract, in which
+    	    	// case their container is I, not Any
+    	    	if (mi.name().toString().equals("toString") && mi.formalNames().isEmpty()) continue;
+    	    	if (mi.name().toString().equals("hashCode") && mi.formalNames().isEmpty()) continue;
+    	    	if (mi.name().toString().equals("typeName") && mi.formalNames().isEmpty()) continue;
+    	    	if (mi.name().toString().equals("equals") && mi.formalNames().size()==1 && mi.formalTypes().get(0).isAny()) continue;
     	        
     	    	MethodInstance mj = xts.findImplementingMethod(targetType, mi, true, tc.context());
 
