@@ -260,51 +260,73 @@ public class Types {
 
     /*
      * returns runtime type for known types.
-     * mainly for string and exceptions.
+     * mainly for primitives, string and exceptions.
      */
     public static RuntimeType/*<?>*/ getRTTForKnownType(Class<?> javaClass) {
-        if (java.lang.String.class.equals(javaClass)) {
-            return Types.STRING;
+        if (java.lang.Object.class.equals(javaClass)) {
+            return ANY;
+        } else if (java.lang.String.class.equals(javaClass)) {
+            return STRING;
+        } else if (java.lang.Comparable.class.equals(javaClass)) {
+            return COMPARABLE;
+        } else if (javaClass.isPrimitive()) {
+            if (byte.class.equals(javaClass)) {
+                return BYTE;
+            } else if (short.class.equals(javaClass)) {
+                return SHORT;
+            } else if (int.class.equals(javaClass)) {
+                return INT;
+            } else if (long.class.equals(javaClass)) {
+                return LONG;
+            } else if (float.class.equals(javaClass)) {
+                return FLOAT;
+            } else if (double.class.equals(javaClass)) {
+                return DOUBLE;
+            } else if (char.class.equals(javaClass)) {
+                return CHAR;
+            } else if (boolean.class.equals(javaClass)) {
+                return BOOLEAN;
+            }
         } else if (java.lang.Throwable.class.isAssignableFrom(javaClass)) {
             if (java.lang.Exception.class.isAssignableFrom(javaClass)) {
                 if (java.lang.NullPointerException.class.equals(javaClass)) {
-                    return Types.NULL_POINTER_EXCEPTION;
+                    return NULL_POINTER_EXCEPTION;
                 } else if (java.lang.ClassCastException.class.equals(javaClass)) {
-                    return Types.CLASS_CAST_EXCEPTION;
+                    return CLASS_CAST_EXCEPTION;
                 } else if (java.lang.ArithmeticException.class.equals(javaClass)) {
-                    return Types.ARITHMETIC_EXCEPTION;
+                    return ARITHMETIC_EXCEPTION;
                 } else if (java.lang.UnsupportedOperationException.class.equals(javaClass)) {
-                    return Types.UNSUPPORTED_OPERATION_EXCEPTION;
+                    return UNSUPPORTED_OPERATION_EXCEPTION;
                 } else if (java.util.NoSuchElementException.class.equals(javaClass)) {
-                    return Types.NO_SUCH_ELEMENT_EXCEPTION;
+                    return NO_SUCH_ELEMENT_EXCEPTION;
                 } else if (java.lang.ArrayIndexOutOfBoundsException.class.equals(javaClass)) {
-                    return Types.ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                    return ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION;
                 } else if (java.lang.StringIndexOutOfBoundsException.class.equals(javaClass)) {
-                    return Types.STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                    return STRING_INDEX_OUT_OF_BOUNDS_EXCEPTION;
                 } else if (java.lang.IndexOutOfBoundsException.class.equals(javaClass)) {
-                    return Types.INDEX_OUT_OF_BOUNDS_EXCEPTION;
+                    return INDEX_OUT_OF_BOUNDS_EXCEPTION;
                 } else if (java.lang.NumberFormatException.class.equals(javaClass)) {
-                    return Types.NUMBER_FORMAT_EXCEPTION;
+                    return NUMBER_FORMAT_EXCEPTION;
                 } else if (java.lang.IllegalArgumentException.class.equals(javaClass)) {
-                    return Types.ILLEGAL_ARGUMENT_EXCEPTION;
+                    return ILLEGAL_ARGUMENT_EXCEPTION;
                 } else if (java.lang.RuntimeException.class.equals(javaClass)) {
-                    return Types.EXCEPTION;
+                    return EXCEPTION;
                 } else if (java.lang.Exception.class.equals(javaClass)) {
-                    return Types.CHECKED_EXCEPTION;
+                    return CHECKED_EXCEPTION;
                 }
             } else if (java.lang.Error.class.isAssignableFrom(javaClass)) {
                 if (java.lang.OutOfMemoryError.class.equals(javaClass)) {
-                    return Types.OUT_OF_MEMORY_ERROR;
+                    return OUT_OF_MEMORY_ERROR;
                 } else if (java.lang.StackOverflowError.class.equals(javaClass)) {
-                    return Types.STACK_OVERFLOW_ERROR;
+                    return STACK_OVERFLOW_ERROR;
                 } else if (java.lang.AssertionError.class.equals(javaClass)) {
-                    return Types.ASSERTION_ERROR;
+                    return ASSERTION_ERROR;
                 } else if (java.lang.Error.class.equals(javaClass)) {
-                    return Types.ERROR;
+                    return ERROR;
                 }
             } else {
                 if (java.lang.Throwable.class.equals(javaClass)) {
-                    return Types.CHECKED_THROWABLE;
+                    return CHECKED_THROWABLE;
                 }
             }
         }
