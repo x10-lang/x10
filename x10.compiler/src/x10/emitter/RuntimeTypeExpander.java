@@ -190,10 +190,12 @@ final public class RuntimeTypeExpander extends Expander {
                     } else {
                         name = null;
                     }
-            		component = new TypeExpander(er, at, PRINT_TYPE_PARAMS);
+                    // for RTT of Java.array[Comparable[Int]] -> x10.rtt.Types.getRTT(java.lang.Comparable/*<x10.core.Int>*/[].class)
+                    int printTypeParamsIfNotNativeRepedToJava = Emitter.isNativeRepedToJava(at) ? 0 : PRINT_TYPE_PARAMS;
+                    component = new TypeExpander(er, at, printTypeParamsIfNotNativeRepedToJava);
 //                	components.put(String.valueOf(i++), component); // N.B. don't use number index to avoid breaking existing code
                     if (name != null) { components.put(name, component); }
-            		component = new TypeExpander(er, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                    component = new TypeExpander(er, at, printTypeParamsIfNotNativeRepedToJava | BOX_PRIMITIVES);
                 	components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+Emitter.NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
             		component = new RuntimeTypeExpander(er, at);
