@@ -550,14 +550,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         IndexedMemoryChunk imc = new IndexedMemoryChunk((java.lang.System[]) null);
         deserializer.record_reference(imc);
-        return _deSerialize_body(imc, deserializer);
+        return $_deserialize_body(imc, deserializer);
 	}
 
 	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deSerialize_body(IndexedMemoryChunk imc, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(IndexedMemoryChunk imc, X10JavaDeserializer deserializer) throws IOException {
         int length = deserializer.readInt();
         imc.length = length;
         imc.type = (Type) deserializer.readRef();

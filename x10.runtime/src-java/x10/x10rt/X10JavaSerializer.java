@@ -395,7 +395,7 @@ public class X10JavaSerializer {
             // We have serialized this object before hence no need to do it again
             if (writeRef) {
                 write(DeserializationDispatcher.refValue);
-                out.writeInt(pos);
+                write(pos.intValue());
             }
         } else {
             objectMap.put(obj, counter);

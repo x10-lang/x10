@@ -13,18 +13,23 @@ import harness.x10Test;
 
 // MANAGED_X10_ONLY
 
-public class JavaType1 extends x10Test {
+public class JavaType2 extends x10Test {
 
     def test() {
+        val l = new java.util.ArrayList();
+        val s = l.typeName();
+        chk("java.util.ArrayList".equals(s));
         val d:Any = new java.util.Date();
-        val s = d.typeName();
-        chk("java.util.Date".equals(s));
-        val dd = at (here.next()) {
-            val ss = d.typeName();
-            chk(s.equals(ss));
-            return d;
+        l.add(d);
+        l.add(d);
+        val ll = at (here.next()) {
+            val d0 = l.get(0);
+            val d1 = l.get(1);
+            chk(d0 != null);
+            chk(d0 == d1);
+            return l;
         };
-        chk(d.equals(dd));
+        chk(l.equals(ll));
     }
 
     public def run(): Boolean = {
@@ -33,6 +38,6 @@ public class JavaType1 extends x10Test {
     }
 
     public static def main(args: Array[String](1)) {
-        new JavaType1().execute();
+        new JavaType2().execute();
     }
 }

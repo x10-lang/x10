@@ -120,6 +120,7 @@ public class X10JavaDeserializer {
                 Class<?> componentType = DeserializationDispatcher.getClassForID(componentTypeID, this);
                 int length = readInt();
                 Object obj = Array.newInstance(componentType, length);
+                record_reference(obj);
                 if (componentType.isArray()) {
                     for (int i = 0; i < length; ++i) {
                         Array.set(obj, i, readArrayUsingReflection(componentType));
@@ -157,6 +158,7 @@ public class X10JavaDeserializer {
     public int[] readIntArray() throws IOException {
         int length = in.readInt();
         int[] v = new int[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = in.readInt();
         }
@@ -174,6 +176,7 @@ public class X10JavaDeserializer {
     public boolean[] readBooleanArray() throws IOException {
         int length = in.readInt();
         boolean[] v = new boolean[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = in.readBoolean();
         }
@@ -191,6 +194,7 @@ public class X10JavaDeserializer {
     public char[] readCharArray() throws IOException {
         int length = in.readInt();
         char[] v = new char[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = in.readChar();
         }
@@ -208,6 +212,7 @@ public class X10JavaDeserializer {
     public byte[] readByteArray() throws IOException {
         int length = in.readInt();
         byte[] v = new byte[length];
+        record_reference(v);
         _readByteArray(length, v);
         return v;
     }
@@ -230,6 +235,7 @@ public class X10JavaDeserializer {
     public short[] readShortArray() throws IOException {
         int length = in.readInt();
         short[] v = new short[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = in.readShort();
         }
@@ -247,6 +253,7 @@ public class X10JavaDeserializer {
     public long[] readLongArray() throws IOException {
         int length = in.readInt();
         long[] v = new long[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = in.readLong();
         }
@@ -264,6 +271,7 @@ public class X10JavaDeserializer {
     public double[] readDoubleArray() throws IOException {
         int length = in.readInt();
         double[] v = new double[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = in.readDouble();
         }
@@ -281,6 +289,7 @@ public class X10JavaDeserializer {
     public float[] readFloatArray() throws IOException {
         int length = in.readInt();
         float[] v = new float[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = in.readFloat();
         }
@@ -317,6 +326,7 @@ public class X10JavaDeserializer {
     public String[] readStringArray() throws IOException {
         int length = in.readInt();
         String[] v = new String[length];
+        record_reference(v);
         for (int i = 0; i < length; i++) {
             v[i] = readString();
         }
@@ -543,18 +553,18 @@ public class X10JavaDeserializer {
             }
         } else if ("java.lang.String".equals(componentType.getName())) {
             return readStringArray();
-        } else if (componentType.isArray()) {
-            int length = readInt();
-            Object o = Array.newInstance(componentType, length);
-            for (int i = 0; i < length; i++) {
-                Array.set(o, i, readArrayUsingReflection(componentType));
-            }
-            return o;
         } else {
             int length = readInt();
             Object o = Array.newInstance(componentType, length);
-            for (int i = 0; i < length; i++) {
-                Array.set(o, i, readRefUsingReflection());
+            record_reference(o);
+            if (componentType.isArray()) {
+                for (int i = 0; i < length; i++) {
+                    Array.set(o, i, readArrayUsingReflection(componentType));
+                }
+            } else {
+                for (int i = 0; i < length; i++) {
+                    Array.set(o, i, readRefUsingReflection());
+                }
             }
             return o;
         }
@@ -774,7 +784,7 @@ public class X10JavaDeserializer {
                 return obj;
             } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
                 x10.core.IndexedMemoryChunk imc = (x10.core.IndexedMemoryChunk) obj;
-                x10.core.IndexedMemoryChunk._deSerialize_body(imc, jds);
+                x10.core.IndexedMemoryChunk.$_deserialize_body(imc, jds);
                 return (T) imc;
             } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
                 return (T) x10.core.IndexedMemoryChunk.$Closure$0.$_deserialize_body((x10.core.IndexedMemoryChunk.$Closure$0) obj, jds);
