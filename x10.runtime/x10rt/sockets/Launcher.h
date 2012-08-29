@@ -47,6 +47,7 @@
 #define X10_NOYIELD "X10_NOYIELD" // setting this flag means "don't issue a sched_yield() after a probe comes up empty".
 #define X10_LAZYLINKS "X10_LAZYLINKS" // flag to establish place to place links to be at startup, instead of lazily.
 #define X10_NOWRITEBUFFER "X10_NOWRITEBUFFER" // turns off non-blocking sockets
+#define X10_LIBRARY_MODE "X10_LIBRARY_MODE" // Don't use our own launcher, but instead rely on some external system.
 // don't miss X10_DEBUGGER_ID and X10_DEBUGGER_NAME over in DebugHelper.h
 
 // Enable/disable debug information
