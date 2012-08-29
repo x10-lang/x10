@@ -23,14 +23,14 @@ public class JavaSerializationObject extends x10Test {
         val obj = new_Object();
         at (here) {
             val copy = obj;
-	    chk(copy.typeName().equals("java.lang.Object"));
+            chk(copy.typeName().equals("x10.lang.Any"));
             // Success if no exception occurs, see XTENLANG-3018
         }
-	return true;
+        return true;
     }
 
     public def run(): Boolean = {
-	return testObject();
+        return testObject();
     }
 
     public static def main(args: Array[String](1)) {
