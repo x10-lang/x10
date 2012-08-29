@@ -17,7 +17,7 @@
 #include <x10aux/config.h>
 #include <x10aux/string_utils.h>
 
-#include <x10/lang/Object.h>
+#include <x10/lang/X10Class.h>
 #include <x10/lang/Fun_0_1.h>
 #include <x10/lang/Comparable.h>
 
@@ -26,7 +26,7 @@ namespace x10 {
     
     namespace lang {
 
-        class String : public Object {
+        class String : public X10Class {
             const char *FMGL(content);
             std::size_t FMGL(content_length);
 
@@ -38,9 +38,8 @@ namespace x10 {
 
             RTT_H_DECLS_CLASS;
 
-            static Fun_0_1<x10_int, x10_char>::itable<String> _itable_Fun_0_1;
             static Comparable<x10aux::ref<String> >::itable<String> _itable_Comparable;
-            static x10aux::itable_entry _itables[3];
+            static x10aux::itable_entry _itables[2];
             virtual x10aux::itable_entry* _getITables() { return _itables; }
 
             void _constructor(const char *content, bool steal);
@@ -171,7 +170,7 @@ namespace x10 {
         };
 
 
-        // Adding reference classes (String+String) (String+Object) (Object+String)
+        // Adding reference classes (String+String) (String+Reference) (Reference+String)
         template<class T1, class T2>
         x10aux::ref<String> operator+(T1 p1, T2 p2) {
             return String::Steal(x10aux::alloc_printf("%s%s",

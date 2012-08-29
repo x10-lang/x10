@@ -11,7 +11,7 @@
 
 package x10.core.io;
 
-import x10.core.RefI;
+import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -20,7 +20,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public final class NativeFile extends java.io.File implements RefI {
+public final class NativeFile extends java.io.File implements Any {
 
 	private static final long serialVersionUID = 1L;
 
@@ -36,12 +36,12 @@ public final class NativeFile extends java.io.File implements RefI {
         try {
             return super.getCanonicalPath();
         } catch (java.io.IOException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.IOException(e.getMessage());
         }
     }
 
     public x10.array.Array listInternal() {
-        return x10.core.ArrayFactory.makeArrayFromJavaArray(Types.STRING, list());
+        return x10.runtime.impl.java.ArrayUtils.makeArrayFromJavaArray(Types.STRING, list());
     }
 
     // Following workaround is no longer required.
@@ -50,7 +50,7 @@ public final class NativeFile extends java.io.File implements RefI {
 //        try {
 //            return super.getCanonicalPath();
 //        } catch (java.io.IOException e) {
-//            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+//            throw x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
 //        }
 //    }
 //
@@ -109,8 +109,7 @@ public final class NativeFile extends java.io.File implements RefI {
     //
     public static final RuntimeType<NativeFile> $RTT = NamedType.<NativeFile> make(
         "x10.io.File.NativeFile",
-        NativeFile.class,
-        new Type[] { Types.OBJECT }
+        NativeFile.class
     );
     public RuntimeType<NativeFile> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }

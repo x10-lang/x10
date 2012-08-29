@@ -21,11 +21,11 @@ import harness.x10Test;
 
 public class CF10 extends x10Test{
 
-    static class Blig implements Reducible[Object] {
-        public def zero() : Object {
+    static class Blig implements Reducible[Any] {
+        public def zero() : Any {
            return "";
         }
-        public operator this(a:Object, b:Object):Object {
+        public operator this(a:Any, b:Any):Any {
            return "[" + a + "," + b + "]";
         }
     }

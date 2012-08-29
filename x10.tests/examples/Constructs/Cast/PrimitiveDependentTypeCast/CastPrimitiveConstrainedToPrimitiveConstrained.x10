@@ -23,7 +23,7 @@ public class CastPrimitiveConstrainedToPrimitiveConstrained extends x10Test {
 			var i: int{self == 0} = 0;
 			var j: int{self == 0} = 0;
 			i = j as int{self == 0};
-		}catch(e: Throwable) {
+		}catch(e: Exception) {
 			return false;
 		}
 

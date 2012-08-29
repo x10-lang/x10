@@ -22,7 +22,7 @@ package x10.compiler;
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
 
-public class Finalization extends x10.lang.Throwable implements CustomSerialization {
+public class Finalization extends x10.lang.Exception implements CustomSerialization {
     
     public var value: Any          = null;
     public var label: String       = null;

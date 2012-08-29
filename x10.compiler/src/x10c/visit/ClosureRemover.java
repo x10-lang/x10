@@ -235,7 +235,7 @@ public class ClosureRemover extends ContextVisitor {
 
                         X10MethodDef md = (X10MethodDef) xts.methodDef(pos, pos, Types.ref(ct), flags, cld.returnType(), name, rts, argTypes, Collections.<Ref<? extends Type>>emptyList(), ct.def().thisDef(), cld.formalNames(), cld.guard(), cld.typeGuard(), cld.offerType(), null);
                         
-                        X10MethodDecl mdcl = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, flags), cl.returnType(), xnf.Id(pos, name), tps, formals, null, null, body);
+                        X10MethodDecl mdcl = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, flags), cl.returnType(), xnf.Id(pos, name), tps, formals, null, null, Collections.<TypeNode>emptyList(), body);
     
                         nmembers.add(mdcl.methodDef(md));
                         
@@ -344,7 +344,8 @@ public class ClosureRemover extends ContextVisitor {
                     // create class def for static nested
                     final X10ClassDef staticNestedClassDef = (X10ClassDef) xts.createClassDef();
                     
-                    staticNestedClassDef.superType(Types.ref(xts.Object()));
+                    //[DC] i assume simply not setting a supertype is OK.  This is how Object was defined I think.
+                    //staticNestedClassDef.superType(Types.ref(xts.Object()));
                     staticNestedClassDef.kind(ClassDef.MEMBER);
                     staticNestedClassDef.name(staticNestedClassName.id());
                     staticNestedClassDef.outer(Types.ref(def));
@@ -391,7 +392,7 @@ public class ClosureRemover extends ContextVisitor {
                     for (Type it : cint) {
                         interfaces.add(xnf.X10CanonicalTypeNode(pos, it));
                     }
-                    X10ClassDecl staticNestedClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticNestedClassName, xnf.X10CanonicalTypeNode(pos, xts.Object()), interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
+                    X10ClassDecl staticNestedClassDecl = (X10ClassDecl) xnf.ClassDecl(pos, xnf.FlagsNode(pos, privateStatic), staticNestedClassName, null, interfaces, xnf.ClassBody(pos, Collections.<ClassMember>emptyList()));
 
                     // Copy over the annotations from the closure. These annotations are needed for dealing with GENERAL asyncs and SIMPLE asyncs
                     X10Ext_c ext = (X10Ext_c) cl.ext();

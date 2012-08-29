@@ -33,6 +33,7 @@ import polyglot.types.SemanticException;
 import polyglot.types.TopLevelResolver;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLoader;
 import polyglot.util.CollectionUtil;
@@ -198,9 +199,13 @@ public class X10SourceClassResolver implements TopLevelResolver {
     public static final QName VOID = QName.make("void");
     public static final QName JAVA_LANG_OBJECT = QName.make("java.lang.Object");
     public static final QName JAVA_LANG_STRING = QName.make("java.lang.String");
+    public static final QName JAVA_LANG_THROWABLE = QName.make("java.lang.Throwable");
+    public static final QName JAVA_LANG_EXCEPTION = QName.make("java.lang.Exception");
+    public static final QName JAVA_LANG_ERROR = QName.make("java.lang.Error");
+    public static final QName JAVA_LANG_RUNTIMEEXCEPTION = QName.make("java.lang.RuntimeException");
 
     public List<Type> find(QName name) throws SemanticException {
-        TypeSystem ts = (TypeSystem) this.ts;
+        TypeSystem_c ts = (TypeSystem_c) this.ts;
 
         if (name.equals(VOID))
             return CollectionUtil.<Type>list(ts.Void());
@@ -269,6 +274,9 @@ public class X10SourceClassResolver implements TopLevelResolver {
         // XTENLANG-2118: Intercept some known Java types
         if (name.equals(JAVA_LANG_OBJECT)) return CollectionUtil.<Type>list(ts.Any());
         if (name.equals(JAVA_LANG_STRING)) return CollectionUtil.<Type>list(ts.String());
+        if (name.equals(JAVA_LANG_THROWABLE)) return CollectionUtil.<Type>list(ts.CheckedThrowable());
+        if (name.equals(JAVA_LANG_EXCEPTION)) return CollectionUtil.<Type>list(ts.CheckedException());
+        if (name.equals(JAVA_LANG_RUNTIMEEXCEPTION)) return CollectionUtil.<Type>list(ts.Exception());
 
         // XTENLANG-2118: Load the type from a Java class file
         ClassFile jClazz = loadJavaClassFile(name);

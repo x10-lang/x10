@@ -41,7 +41,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the other UShort
      * @return true if this UShort is strictly less than the other UShort.
      */
-    @Native("java", "x10.core.Unsigned.lt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.lt(#this, #x)")
     @Native("c++",  "((#0) < (#1))")
     public native operator this < (x:UShort): Boolean; /*  {
          return (shortVal + Short.MIN_VALUE) < (x.shortVal + Short.MIN_VALUE);
@@ -54,7 +54,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the other UShort
      * @return true if this UShort is strictly greater than the other UShort.
      */
-    @Native("java", "x10.core.Unsigned.gt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.gt(#this, #x)")
     @Native("c++",  "((#0) > (#1))")
     public native operator this > (x:UShort): Boolean; /*  {
         return (shortVal + Short.MIN_VALUE) > (x.shortVal + Short.MIN_VALUE);
@@ -67,7 +67,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the other UShort
      * @return true if this UShort is less than or equal to the other UShort.
      */
-    @Native("java", "x10.core.Unsigned.le(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.le(#this, #x)")
     @Native("c++",  "((#0) <= (#1))")
     public native operator this <= (x:UShort): Boolean; /*  {
          return (shortVal + Short.MIN_VALUE) <= (x.shortVal + Short.MIN_VALUE);
@@ -80,7 +80,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the other UShort
      * @return true if this UShort is greater than or equal to the other UShort.
      */
-    @Native("java", "x10.core.Unsigned.ge(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.ge(#this, #x)")
     @Native("c++",  "((#0) >= (#1))")
     public native operator this >= (x:UShort): Boolean; /*  {
         return (shortVal + Short.MIN_VALUE) >= (x.shortVal + Short.MIN_VALUE);
@@ -342,7 +342,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the given Float
      * @return the given Float converted to a UShort.
      */
-    @Native("java", "x10.core.Floats.toUShort(#x)")
+    @Native("java", "x10.runtime.impl.java.FloatUtils.toUShort(#x)")
     @Native("c++",  "x10aux::float_utils::toUShort(#1)")
     public native static operator (x:Float) as UShort; /*  {
         val temp : Int = x as Int;
@@ -356,7 +356,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the given Double
      * @return the given Double converted to a UShort.
      */
-    @Native("java", "x10.core.Floats.toUShort(#x)")
+    @Native("java", "x10.runtime.impl.java.FloatUtils.toUShort(#x)")
     @Native("c++",  "x10aux::double_utils::toUShort(#1)")
     public native static operator (x:Double) as UShort; /*  {
         val temp : Int = x as Int;

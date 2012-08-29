@@ -39,4 +39,6 @@ public interface X10MethodDecl extends MethodDecl, Guarded {
 	X10MethodDecl formals(List<Formal> formals);
 	X10MethodDecl methodDef(MethodDef mi);
 	X10MethodDef methodDef();
+	List<TypeNode> throwsTypes();
+	X10MethodDecl throwsTypes(List<TypeNode> throwsTypes);
 }

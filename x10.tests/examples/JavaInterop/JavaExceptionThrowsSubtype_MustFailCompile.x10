@@ -11,17 +11,16 @@
 
 import harness.x10Test;
 import x10.interop.Java;
-import x10.interop.java.Throws;
 
 // MANAGED_X10_ONLY
 
 public class JavaExceptionThrowsSubtype_MustFailCompile extends x10Test {
 
     public static class A {
-        public def throws() { }
+        public def throwsMethod() { }
     }
     public static class B extends A {
-        public def throws() @Throws[java.io.IOException] { }
+        public def throwsMethod() throws java.io.IOException { }
     }
 
 

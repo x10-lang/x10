@@ -16,7 +16,6 @@
 #include <x10aux/reference_logger.h>
 
 #include <x10/lang/Reference.h>
-#include <x10/lang/Object.h>
 #include <x10/lang/Comparable.h>
 
 #include <cstdarg>

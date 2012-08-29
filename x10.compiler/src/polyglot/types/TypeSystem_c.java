@@ -87,6 +87,7 @@ import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
+import x10.types.constraints.xnative.CNativeLocal;
 
 import x10.types.matcher.*;
 import x10.util.ClosureSynthesizer;
@@ -810,7 +811,15 @@ public class TypeSystem_c implements TypeSystem
      **/
     public boolean isThrowable(Type type) {
         assert_(type);
-        return emptyContextSubtype(type,Throwable());
+        return emptyContextSubtype(type,CheckedThrowable());
+    }
+    public boolean isException(Type type) {
+        assert_(type);
+        return emptyContextSubtype(type,Exception());
+    }
+    public boolean isError(Type type) {
+        assert_(type);
+        return emptyContextSubtype(type,Error());
     }
 
     
@@ -819,7 +828,7 @@ public class TypeSystem_c implements TypeSystem
      * uncheckedExceptions().
      */
     public boolean isUncheckedException(Type type) {
-        return isThrowable(type) || isJavaUncheckedException(type);
+        return isException(type) || isError(type);
     }
     /**
      * Returns a list of the Throwable types that need not be declared
@@ -827,9 +836,8 @@ public class TypeSystem_c implements TypeSystem
      */
     public Collection<Type> uncheckedExceptions() {
         List<Type> l = new ArrayList<Type>(1);
-        l.add(Throwable());
-        l.add(JavaRuntimeException());
-        l.add(JavaError());
+        l.add(Exception());
+        l.add(Error());
         return l;
         }
     
@@ -1050,6 +1058,8 @@ public class TypeSystem_c implements TypeSystem
     				}
     			}
     		}
+    		
+    		if (!ot.isAny() && hasMethodNamed((ContainerType)Any(), name)) return true;
     	}
 
     	return false;
@@ -1348,46 +1358,45 @@ public class TypeSystem_c implements TypeSystem
         return new X10TypeMatcher(name);
     }
 
-    public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher)
-    throws SemanticException {
+    public MethodInstance SUPER_findMethod(Type container, MethodMatcher matcher) throws SemanticException {
 
-	assert_(container);
+    	assert_(container);
 
-	Context context = matcher.context();
+    	Context context = matcher.context();
 
-	List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
+    	List<MethodInstance> acceptable = findAcceptableMethods(container, matcher);
+    	
+    	if (acceptable.size() == 0) {
+    		throw new NoMemberException(NoMemberException.METHOD,
+    				"No valid method call found for call in given type."
+    						+ "\n\t Call: " + matcher.stripConstraints()
+    						+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
 
-	if (acceptable.size() == 0) {
-	    throw new NoMemberException(NoMemberException.METHOD,
-	                                "No valid method call found for call in given type."
-	    		+ "\n\t Call: " + matcher.stripConstraints()
-	    		+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
+    	}
 
-	}
+    	Collection<MethodInstance> maximal =
+    			findMostSpecificProcedures(container, acceptable, (Matcher<MethodInstance>) matcher, context);
 
-	Collection<MethodInstance> maximal =
-	    findMostSpecificProcedures(container, acceptable, (Matcher<MethodInstance>) matcher, context);
+    	if (maximal.size() > 1) {
+    		StringBuffer sb = new StringBuffer();
+    		for (Iterator<MethodInstance> i = maximal.iterator(); i.hasNext();) {
+    			MethodInstance ma =  i.next();
+    			sb.append(ma.container());
+    			sb.append(".");
+    			sb.append(ma.signature());
+    			if (i.hasNext()) {
+    				if (maximal.size() == 2) {
+    					sb.append(" and ");
+    				}
+    				else {
+    					sb.append(", ");
+    				}
+    			}
+    		}
 
-	if (maximal.size() > 1) {
-	    StringBuffer sb = new StringBuffer();
-	    for (Iterator<MethodInstance> i = maximal.iterator(); i.hasNext();) {
-		MethodInstance ma =  i.next();
-		sb.append(ma.container());
-		sb.append(".");
-		sb.append(ma.signature());
-		if (i.hasNext()) {
-		    if (maximal.size() == 2) {
-			sb.append(" and ");
-		    }
-		    else {
-			sb.append(", ");
-		    }
-		}
-	    }
-
-	    throw Errors.MultipleMethodDefsMatch.make(maximal, matcher.toString(),
-	                                              Position.COMPILER_GENERATED);
-	}
+    		throw Errors.MultipleMethodDefsMatch.make(maximal, matcher.toString(),
+    				Position.COMPILER_GENERATED);
+    	}
 
 	MethodInstance mi = maximal.iterator().next();
 	return mi;
@@ -1601,99 +1610,98 @@ public class TypeSystem_c implements TypeSystem
      * Populates the list acceptable with those MethodInstances which are
      * Applicable and Accessible as defined by JLS 15.11.2.1
      */
-    private List<MethodInstance> superFindAcceptableMethods(Type container, MethodMatcher matcher)
-    throws SemanticException {
-        if (container==null) return Collections.EMPTY_LIST;
-        assert_(container);
-        
-    // Collect allMethods with the relevant name
-    Name name = matcher.name();
-    Context context = matcher.context();
-	List<MethodInstance> allMethods = new ArrayList<MethodInstance>();
-	Set<Type> visitedTypes = CollectionFactory.newHashSet();
+    private List<MethodInstance> superFindAcceptableMethods(Type container, MethodMatcher matcher) throws SemanticException {
+    	if (container==null) return Collections.EMPTY_LIST;
+    	assert_(container);
 
-	LinkedList<Type> typeQueue = new LinkedList<Type>();
-	typeQueue.addLast(container);
+    	// Collect allMethods with the relevant name
+    	Name name = matcher.name();
+    	Context context = matcher.context();
+    	List<MethodInstance> allMethods = new ArrayList<MethodInstance>();
+    	Set<Type> visitedTypes = CollectionFactory.newHashSet();
 
-	Q:
-	    while (! typeQueue.isEmpty()) {
-		Type t = typeQueue.removeFirst();
+    	LinkedList<Type> typeQueue = new LinkedList<Type>();
+    	typeQueue.addLast(container);
+    	typeQueue.addLast(container.typeSystem().Any());
 
-		if (t instanceof ContainerType) {
-		    ContainerType type = (ContainerType) t;
+    	Q: while (! typeQueue.isEmpty()) {
+			Type t = typeQueue.removeFirst();
 
-		    for (Type s : visitedTypes) {
-			if (typeEquals(type, s, context))
-			    continue Q;
-		    }
+			if (t instanceof ContainerType) {
+				ContainerType type = (ContainerType) t;
 
-		    if (visitedTypes.contains(type)) {
-			continue;
-		    }
+				for (Type s : visitedTypes) {
+					if (typeEquals(type, s, context))
+						continue Q;
+				}
 
-		    visitedTypes.add(type);
+				if (visitedTypes.contains(type)) {
+					continue;
+				}
 
-		    if (reporter.should_report(Reporter.types, 2))
-			reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
+				visitedTypes.add(type);
 
-            allMethods.addAll(type.methodsNamed(name));
-		}
+				if (reporter.should_report(Reporter.types, 2))
+					reporter.report(2, "Searching type " + type + " for method " + matcher.signature());
 
-		if (t instanceof ObjectType) {
-		    ObjectType ot = (ObjectType) t;
-
-		    if (ot.superClass() != null) {
-			typeQueue.addLast(ot.superClass());
-		    }
-
-		    typeQueue.addAll(ot.interfaces());
-		}
-	    }
-
-        // Collected all methods, now let's filter them
-        List<Type> typeParams = matcher.typeArgs;
-        List<Type> argTypes = matcher.argTypes;
-        boolean isDumbMatcher = matcher.isDumbMatcher;
-
-        SemanticException error = null;
-        List<MethodInstance> resolved = resolveProcedure(container, context, allMethods, typeParams, argTypes, isDumbMatcher);
-
-        List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
-		for (MethodInstance mi : resolved)	{
-				MethodInstance oldmi = mi;
-			    mi = matcher.instantiate(mi);
-
-			    if (mi == null) {
-				continue;
-			    }
-			    mi.setOrigMI(oldmi);
-			    if (isAccessible(mi, context)) {
-				    acceptable.add(mi);
-			    }
-			    else {
-                    // method call is valid, but the method is
-                    // unacceptable.
-                    if (error == null) {
-                        error = new NoMemberException(NoMemberException.METHOD,
-                                                      "Method " + mi.signature() +
-                                                      " in " + container +
-                        " is inaccessible.");
-                    }
-			    }
+				allMethods.addAll(type.methodsNamed(name));
 			}
 
-        
-        if (acceptable.size() == 0) {
-            if (error == null) {
-                  throw new NoMemberException(NoMemberException.METHOD,
-                          "No valid method call found for call in given type."
-                            + "\n\t Call: " + matcher.stripConstraints()
-                            + "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
-            }
-            throw error;
-        }
+			if (t instanceof ObjectType) {
+				ObjectType ot = (ObjectType) t;
 
-        return acceptable;
+				if (ot.superClass() != null) {
+					typeQueue.addLast(ot.superClass());
+				}
+
+				typeQueue.addAll(ot.interfaces());
+			}
+		}
+
+    	// Collected all methods, now let's filter them
+    	List<Type> typeParams = matcher.typeArgs;
+    	List<Type> argTypes = matcher.argTypes;
+    	boolean isDumbMatcher = matcher.isDumbMatcher;
+
+    	SemanticException error = null;
+    	List<MethodInstance> resolved = resolveProcedure(container, context, allMethods, typeParams, argTypes, isDumbMatcher);
+
+    	List<MethodInstance> acceptable = new ArrayList<MethodInstance>();
+    	for (MethodInstance mi : resolved)	{
+    		MethodInstance oldmi = mi;
+    		mi = matcher.instantiate(mi);
+
+    		if (mi == null) {
+    			continue;
+    		}
+    		mi.setOrigMI(oldmi);
+    		if (isAccessible(mi, context)) {
+    			acceptable.add(mi);
+    		}
+    		else {
+    			// method call is valid, but the method is
+    			// unacceptable.
+    			if (error == null) {
+    				error = new NoMemberException(NoMemberException.METHOD,
+    						"Method " + mi.signature() +
+    						" in " + container +
+    						" is inaccessible.");
+    			}
+    		}
+    	}
+
+
+    	if (acceptable.size() == 0) {
+    		if (error == null) {
+    			throw new NoMemberException(NoMemberException.METHOD,
+    					"No valid method call found for call in given type."
+    							+ "\n\t Call: " + matcher.stripConstraints()
+    							+ "\n\t Type: " + Types.stripConstraintsIfDynamicCalls(container));
+    		}
+    		throw error;
+    	}
+
+    	return acceptable;
     }
 
     public static <D extends ProcedureDef, T extends X10ProcedureInstance<D> & MemberInstance<D>> List<T> resolveProcedure(Type container, Context context, List<T> allMethods, List<Type> typeParams, List<Type> argTypes, boolean dumbMatcher) {
@@ -2116,30 +2124,16 @@ public class TypeSystem_c implements TypeSystem
         return forName(name);
     }
 
-    protected X10ClassType OBJECT_;
     protected Type CLASS_;
     protected X10ClassType STRING_;
-    protected X10ClassType THROWABLE_;
-    protected X10ClassType JLTHROWABLE_;
+    protected X10ClassType EXCEPTION_;
 
     public Type JavaClass()   { 
         if (CLASS_ != null) return CLASS_;
         return CLASS_ = load("java.lang.Class"); 
     }
-    public X10ClassType JavaThrowable() {
-        if (JLTHROWABLE_ != null) return JLTHROWABLE_;
-        return JLTHROWABLE_ = load("java.lang.Throwable");
-    }
-    public X10ClassType JavaError() { return load("java.lang.Error"); }
-    public X10ClassType JavaException() { return load("java.lang.Exception"); }
-    public X10ClassType JavaRuntimeException() { return load("java.lang.RuntimeException"); }
     public Type Cloneable() { return load("java.lang.Cloneable"); }
     public Type Serializable() { return load("java.io.Serializable"); }
-    public Type JavaNullPointerException() { return load("java.lang.NullPointerException"); }
-    public Type JavaClassCastException()   { return load("java.lang.ClassCastException"); }
-    public Type JavaOutOfBoundsException() { return load("java.lang.ArrayIndexOutOfBoundsException"); }
-    public Type JavaArrayStoreException()  { return load("java.lang.ArrayStoreException"); }
-    public Type JavaArithmeticException()  { return load("java.lang.ArithmeticException"); }
 
     protected NullType createJavaNull() {
 	return new NullType(this);
@@ -2295,12 +2289,6 @@ public class TypeSystem_c implements TypeSystem
         return GLOBAL_REF_;
     }
 
-    public X10ClassType Object() {
-        if (OBJECT_ == null)
-            OBJECT_ = load("x10.lang.Object");
-        return (X10ClassType) OBJECT_;
-    }
-
     public Type Class() {
         if (CLASS_ != null)
             return CLASS_;
@@ -2332,11 +2320,11 @@ public class TypeSystem_c implements TypeSystem
         return t;
     }
 
-    public X10ClassType Throwable() {
-        if (THROWABLE_ != null)
-            return (X10ClassType) THROWABLE_;
-        X10ClassType t = load("x10.lang.Throwable");
-        THROWABLE_ = t;
+    public X10ClassType Exception() {
+        if (EXCEPTION_ != null)
+            return (X10ClassType) EXCEPTION_;
+        X10ClassType t = load("x10.lang.Exception");
+        EXCEPTION_ = t;
         return t;
     }
 
@@ -2344,8 +2332,12 @@ public class TypeSystem_c implements TypeSystem
         return load("x10.lang.Error");
     }
 
-    public X10ClassType Exception() {
-        return load("x10.lang.Exception");
+    public X10ClassType CheckedThrowable() {
+        return load("x10.lang.CheckedThrowable");
+    }
+
+    public X10ClassType CheckedException() {
+        return load("x10.lang.CheckedException");
     }
 
     public X10ClassType NullPointerException() {
@@ -2528,6 +2520,13 @@ public class TypeSystem_c implements TypeSystem
         return runtimeType_;
     }
 
+    protected X10ClassType systemType_;
+    public X10ClassType System() {
+        if (systemType_ == null)
+        	systemType_ = load("x10.lang.System");
+        return systemType_;
+    }
+
     protected X10ClassType embedType_;
     public X10ClassType Embed() {
         if (embedType_ == null)
@@ -2535,13 +2534,6 @@ public class TypeSystem_c implements TypeSystem
         return embedType_;
     }
 
-    protected X10ClassType throwsType_;
-    public X10ClassType Throws() {
-        if (throwsType_ == null)
-        	throwsType_ = load("x10.interop.java.Throws");
-        return throwsType_;
-    }
-    
     protected X10ClassType perProcessType_;
     public X10ClassType PerProcess() {
         if (perProcessType_ == null)
@@ -2959,18 +2951,7 @@ public class TypeSystem_c implements TypeSystem
                 "x10.lang.Float".equals(arrayType) ||
                 "x10.lang.Long".equals(arrayType);
     }
-    
-    @Override
-    public boolean isJavaThrowable(Type type) {
-        assert_(type);
-        return emptyContextSubtype(type,JavaThrowable());
-    }
 
-    public boolean isJavaUncheckedException(Type type) {
-    	assert_(type);
-    	return emptyContextSubtype(type,JavaRuntimeException()) ||
-    	       emptyContextSubtype(type, JavaError());
-    }
     
     public Type arrayOf(Ref<? extends Type> type, int dims) {
 	return arrayOf(null, type, dims);
@@ -3379,11 +3360,6 @@ public class TypeSystem_c implements TypeSystem
 		    // any superclasses it may have.
 		}
 	    }
-	    // A work-around for the current transient state of the system in which
-	 	   // Object is an interface.
-	 	   if (isStructType(t)) {
-	 		   superInterfaces.remove(Object());
-	 	   }
 
 	    return superInterfaces;
 	}
@@ -4111,9 +4087,6 @@ public class TypeSystem_c implements TypeSystem
             //typeEquals(me, Struct(), emptyContext());
     }
 
-    public boolean isObject(Type me) {
-        return typeEquals(me, Object(), emptyContext());
-    }
 
     public boolean isString(Type me) {
         return finalSubtype(me,String());
@@ -4571,5 +4544,56 @@ public class TypeSystem_c implements TypeSystem
         assert_(p2);
         return ((ProcedureInstance_c<T>) p1).throwsSubset(p2);
     }
-
+    
+    // checks that the number of type args match the number of type params
+    public static void internalConsistencyCheck (Type t) {
+    	if (t instanceof X10ParsedClassType_c) {
+    		X10ParsedClassType_c t2 = (X10ParsedClassType_c) t;
+    		X10ClassDef t2_def = t2.def();
+    		List<ParameterType> t2_params = t2_def.typeParameters();
+    		List<Type> t2_args = t2.typeArguments();
+    		int num_params = t2_params.size();
+    		// sometimes t2_args == null means it has not yet been filled in
+    		// sometimes it means 0 args
+    		// this ambiguity weakens the following check but that's life
+    		if (t2_args == null) { return; }
+    		int num_args = t2_args.size();
+    		// sometimes num_args==0 can mean that the type is used in a static fashion
+    		// e.g. class C[T] { static PI = 3.142; } ... C.PI;
+    		if (num_args == 0) return;
+    		if (num_params != num_args) {
+    			throw new InternalCompilerError(t+" has "+t2_params+" type params but "+t2_args+" type arguments.");
+    		}
+    	} else if (t instanceof ConstrainedType) {
+    		ConstrainedType t2 = (ConstrainedType) t;
+    		internalConsistencyCheck(t2.baseType().get());
+    		// Look for broken types inside variables in the constraint
+    		CConstraint c = t2.constraint().get();
+    		for (XTerm xt : c.getTerms()) {
+    			if (xt instanceof CNativeLocal) {
+    				X10LocalDef xld = ((CNativeLocal) xt).name();
+    				Type t3 = xld.type().get();
+    				if (t3 == t) return; // simple cycle check
+    				internalConsistencyCheck(t3);
+    			}
+    		}
+    	}
+    	
+	}
+    
+    // calling this on unpopulated mi may result in a runtime error
+    public static void internalConsistencyCheck (MethodInstance mi) {
+        for (Type t : mi.formalTypes()) {
+    		TypeSystem_c.internalConsistencyCheck(t);
+    	}
+        for (Ref<? extends Type> t : mi.def().formalTypes()) {
+    		TypeSystem_c.internalConsistencyCheck(t.get());
+    	}
+        for (LocalDef ld : mi.def().formalNames()) {
+    		TypeSystem_c.internalConsistencyCheck(ld.type().get());
+    	}
+        for (LocalInstance li : mi.formalNames()) {
+    		TypeSystem_c.internalConsistencyCheck(li.type());
+    	}    	
+    }
 }

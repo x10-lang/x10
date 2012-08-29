@@ -209,37 +209,39 @@ public abstract class New_c extends Expr_c implements X10New
     }
 
     protected New_c typeCheckHeader(TypeChecker childtc) {
-	TypeSystem ts = childtc.typeSystem();
+    	TypeSystem ts = childtc.typeSystem();
 
-	New_c n = this;
+    	New_c n = this;
 
-	n = n.typeCheckObjectType(childtc);
+    	n = n.typeCheckObjectType(childtc);
 
-	Expr qualifier = n.qualifier;
-	TypeNode tn = n.tn;
-	List<Expr> arguments = n.arguments;
-	ClassBody body = n.body;
+    	Expr qualifier = n.qualifier;
+    	TypeNode tn = n.tn;
+    	List<Expr> arguments = n.arguments;
+    	ClassBody body = n.body;
 
-	if (body != null) {
-	    Ref<? extends Type> ct = tn.typeRef();
-	    ClassDef anonType = n.anonType();
+    	if (body != null) {
+    		Ref<? extends Type> ct = tn.typeRef();
+    		ClassDef anonType = n.anonType();
 
-	    assert anonType != null;
+    		assert anonType != null;
 
-	    if (! ct.get().toClass().flags().isInterface()) {
-		anonType.superType(ct);
-	    }
-	    else {
-		anonType.superType(Types.<Type>ref(ts.Object()));
-                assert anonType.interfaces().isEmpty() || anonType.interfaces().get(0) == ct;
-                if (anonType.interfaces().isEmpty())
-                    anonType.addInterface(ct);
-	    }
-	}
+    		if (! ct.get().toClass().flags().isInterface()) {
+    			anonType.superType(ct);
+    		}
+    		else {
+    			// [DC] assume that not setting this is OK
+    			// we don't have a root class anymore (just a root interface: Any)
+    			//anonType.superType(Types.<Type>ref(ts.Object()));
+    			assert anonType.interfaces().isEmpty() || anonType.interfaces().get(0) == ct;
+    			if (anonType.interfaces().isEmpty())
+    				anonType.addInterface(ct);
+    		}
+    	}
 
-	arguments = visitList(arguments, childtc);
-	n = n.reconstruct(qualifier, tn, arguments, body);
-	return n;
+    	arguments = visitList(arguments, childtc);
+    	n = n.reconstruct(qualifier, tn, arguments, body);
+    	return n;
     }
 
     /**

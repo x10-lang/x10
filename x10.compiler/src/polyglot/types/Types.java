@@ -47,6 +47,7 @@ import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
+import x10.ast.IsRefTest;
 import x10.ast.ParExpr;
 
 import x10.ast.SubtypeTest;
@@ -617,6 +618,8 @@ public class Types {
 	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
 	        // Similarly, Int<:T doesn't help, because  Int<:Any{self!=null}
 	        // However, T==Int does help, and so does an explicit T hasZero
+	    	// isref implies haszero which is good too
+	    	// [DC] shouldn't we be using some kind of entailment check here?
 	        TypeConstraint typeConst = xc.currentTypeConstraint();
 	        List<SubtypeConstraint> env =  typeConst.terms();
 	        for (SubtypeConstraint sc : env) {
@@ -629,15 +632,18 @@ public class Types {
 	                    if (!ts.isParameterType(sup)) other = sup;
 	                }
 	                if (other!=null &&                                 
-	                        isHaszero(other,xc)) // careful of infinite recursion when calling isHaszero
+	                        isHaszero(other,xc)) { // careful of infinite recursion when calling isHaszero
 	                                    // We cannot have infinite recursion because other is not a ParameterType
 	                                    // (we can have that T==U, U==Int. but then typeEquals(T,Int,xc) should return true)
+	        	        //zeroLit = ConstraintManager.getConstraintSystem().makeZero(t);
 	                    return true; // T is equal to another type that has zero
+	                }
 	            } else if (sc.isSubtypeConstraint()) {
 	                // doesn't help
 	            } else {
-	                assert sc.isHaszero();
+	                assert sc.isHaszero() || sc.isIsRef();
 	                if (ts.typeEquals(t,sc.subtype(),xc)) {
+	        	        //zeroLit = ConstraintManager.getConstraintSystem().makeZero(t);
 	                    return true;
 	                }
 	            }
@@ -689,6 +695,7 @@ public class Types {
 	        }
 	        return true;
 	    }
+	    /*
 	    if (ts.isParameterType(t)) { // FIXME: why is this code duplicated?
 	        // we have some type "T" which is a type parameter. Does it have a zero value?
 	        // So, type bounds (e.g., T<:Int) do not help, because  Int{self!=0}<:Int
@@ -717,6 +724,7 @@ public class Types {
 	            }
 	        }
 	    }
+	    */
 	    if (zeroLit == null) return false;
 	    if (!isConstrained(t)) return true;
 	    final CConstraint constraint = Types.xclause(t);
@@ -724,6 +732,39 @@ public class Types {
 	    // make sure the zeroLit is not in the constraint
 	    zeroCons.addSelfBinding(zeroLit);
 	    return zeroCons.entails(constraint);
+	}
+
+	public static boolean isIsRef(Type t, Context xc) {
+	    TypeSystem ts = xc.typeSystem();
+	    if (ts.isObjectOrInterfaceType(t, xc)) {
+	    	return true;
+	    } else if (ts.isParameterType(t)) {
+	        // we have some type "T" which is a type parameter. Is it a reference?
+	    	// Anything <: another type that is isref ought to do it. 
+	        TypeConstraint typeConst = xc.currentTypeConstraint();
+	        List<SubtypeConstraint> env =  typeConst.terms();
+	        for (SubtypeConstraint sc : env) {
+	            if (sc.isEqualityConstraint()) {
+	                Type other = null;
+	                final Type sub = sc.subtype();
+	                final Type sup = sc.supertype();
+	                if (ts.typeEquals(t, sub,xc)) { // if this guy is T <: sup or T == sup
+	                    if (!ts.isParameterType(sup)) other = sup;
+	                }
+	                if (other!=null &&                                 
+	                		isIsRef(other,xc)) // careful of infinite recursion when calling isIsref
+	                                    // We cannot have infinite recursion because other is not a ParameterType
+	                                    // (we can have that T==U, U==Int. but then typeEquals(T,Int,xc) should return true)
+	                    return true; // T is under some other type that is a ref
+	            } else if (sc.isIsRef()) {
+	                if (ts.typeEquals(t,sc.subtype(),xc)) {
+			        	//System.out.println("ASDASD isIsRef "+t+" using "+sc);
+	                    return true;
+	                }
+	            }
+	        }
+	    }
+	    return false;
 	}
 
 	public static Expr getZeroVal(TypeNode typeNode, Position p, ContextVisitor tc) { // see X10FieldDecl_c.typeCheck
@@ -1528,6 +1569,8 @@ public class Types {
 	    else if (e instanceof SubtypeTest)
 	        return true;
 	    else if (e instanceof HasZeroTest)
+	        return true;
+	    else if (e instanceof IsRefTest)
 	        return true;
 	    return false;
 	}

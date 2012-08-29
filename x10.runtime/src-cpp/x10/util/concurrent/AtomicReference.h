@@ -19,14 +19,9 @@
 #include <x10aux/atomic_ops.h>
 #include <x10aux/basic_functions.h>
 
-
-#include <x10/lang/Object.h>
+#include <x10/lang/X10Class.h>
 
 namespace x10 {
-    namespace lang {
-        class String;
-    }
-
     namespace util {
         namespace concurrent {
 
@@ -40,7 +35,7 @@ namespace x10 {
                  * S* and volatile S*.  Moving between S and T where S != T needs to be done
                  * with the C++ type system so that object model operations are performed.
                  */
-                template<class T> class AtomicReference : public x10::lang::Object {
+                template<class T> class AtomicReference : public x10::lang::X10Class {
                 public:
                     RTT_H_DECLS_CLASS;
 
@@ -48,8 +43,7 @@ namespace x10 {
                     static x10aux::ref<AtomicReference<T> > _make(T val);
 
                 private:
-                    x10aux::ref<AtomicReference<T> > _constructor(x10::lang::Object *data) {
-                        this->x10::lang::Object::_constructor();
+                    x10aux::ref<AtomicReference<T> > _constructor(x10::lang::Reference *data) {
                         _data = data;
                         return this;
                     }
@@ -66,7 +60,7 @@ namespace x10 {
                     virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
                 private:
-                    volatile x10::lang::Object* _data;
+                    volatile x10::lang::Reference* _data;
 
                 public:
                     T get();
@@ -90,27 +84,27 @@ namespace x10 {
 
                 template<class T> x10aux::ref<AtomicReference<T> > AtomicReference<T>::_make(T val) {
                     x10aux::ref<AtomicReference<T> > result = (new (x10aux::alloc<AtomicReference<T> >())AtomicReference<T>());
-                    x10::lang::Object *tmp = val.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    x10::lang::Reference *tmp = val.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Reference* */
                     result->_constructor(tmp);
                     return result;
                 }
                 
                 template<class T> T AtomicReference<T>::get() {
-                    x10::lang::Object *tmp = (x10::lang::Object*)_data; /* drops volatile */
-                    x10aux::ref<x10::lang::Object> tmp2 = tmp; /* boxes to ref */
-                    T tmp3 = tmp2;  /* downcast from ref<Object> to T (ref<S>) */
+                    x10::lang::Reference *tmp = (x10::lang::Reference*)_data; /* drops volatile */
+                    x10aux::ref<x10::lang::Reference> tmp2 = tmp; /* boxes to ref */
+                    T tmp3 = tmp2;  /* downcast from ref<Reference> to T (ref<S>) */
                     return tmp3;
                 }
 
                 template<class T> void AtomicReference<T>::set(T val) {
-                    x10::lang::Object* tmp = val.operator->();
+                    x10::lang::Reference* tmp = val.operator->();
                     _data = tmp;
                 }
 
                 template<class T> x10_boolean AtomicReference<T>::compareAndSet(T oldVal, T newVal) {
-                    x10::lang::Object *oldValPtr = oldVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
-                    x10::lang::Object *newValPtr = newVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
-                    x10::lang::Object *res = (x10::lang::Object *)x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldValPtr, (void*)newValPtr);
+                    x10::lang::Reference *oldValPtr = oldVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Reference* */
+                    x10::lang::Reference *newValPtr = newVal.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Reference* */
+                    x10::lang::Reference *res = (x10::lang::Reference *)x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldValPtr, (void*)newValPtr);
                     return res == oldValPtr;
                 }
 
@@ -126,9 +120,9 @@ namespace x10 {
                 }
 
                 template<class T> x10aux::ref<x10::lang::String> AtomicReference<T>::toString() {
-                    x10::lang::Object* tmp = (x10::lang::Object*)_data; /* drops volatile */
-                    x10aux::ref<x10::lang::Object> tmp2 = tmp; /* boxes to ref */
-                    T tmp3 = tmp2; /* downcast from ref<Object> to T (ref<S) */
+                    x10::lang::Reference* tmp = (x10::lang::Reference*)_data; /* drops volatile */
+                    x10aux::ref<x10::lang::Reference> tmp2 = tmp; /* boxes to ref */
+                    T tmp3 = tmp2; /* downcast from ref<Reference> to T (ref<S) */
                     return x10aux::safe_to_string(tmp3);
                 }
                 
@@ -141,18 +135,16 @@ namespace x10 {
 
                 template<class T> void
                 AtomicReference<T>::_serialize_body(x10aux::serialization_buffer &buf) {
-                    this->Object::_serialize_body(buf);
-                    x10::lang::Object* tmp = (x10::lang::Object*)_data; /* drops volatile */
-                    x10aux::ref<x10::lang::Object> tmp2 = tmp; /* boxes to ref */
-                    T tmp3 = tmp2; /* downcast from ref<Object> to T (ref<S) */
+                    x10::lang::Reference* tmp = (x10::lang::Reference*)_data; /* drops volatile */
+                    x10aux::ref<x10::lang::Reference> tmp2 = tmp; /* boxes to ref */
+                    T tmp3 = tmp2; /* downcast from ref<Reference> to T (ref<S) */
                     buf.write(tmp3);
                 }
 
                 template<class T> void
                 AtomicReference<T>::_deserialize_body(x10aux::deserialization_buffer& buf) {
-                    this->Object::_deserialize_body(buf);
                     T tmp = buf.read<T>();
-                    x10::lang::Object *tmp2 = tmp.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Object* */
+                    x10::lang::Reference *tmp2 = tmp.operator->(); /* Does two things: gets backing S* ptr from ref<S> and upcasts S* to Reference* */
                     _data = tmp2;
                 }
 

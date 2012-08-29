@@ -28,7 +28,7 @@ public class ArrayCopy3 extends x10Test {
         var gotException: boolean = false;
         try {
             async at(D(x)) {}; // dummy op just to use D[x]
-        } catch (var e: Throwable) {
+        } catch (var e: Exception) {
             gotException = true;
         }
         return gotException;
@@ -172,7 +172,7 @@ public class ArrayCopy3 extends x10Test {
                 // case CYCLIC: return Dist.makeCyclic(r);
                 // case BLOCKCYCLIC: return Dist.makeBlockCyclic(r, 0, 3);
                 case CONSTANT: return r->here;
-                default: throw new Error();
+                default: throw new Exception();
             }
         }
     }

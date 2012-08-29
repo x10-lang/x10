@@ -215,7 +215,7 @@ public struct Float implements Comparable[Float], Arithmetic[Float], Ordered[Flo
      * @param x the given ULong
      * @return the given ULong converted to a Float.
      */
-    @Native("java", "(x10.core.Unsigned.toFloat(#x))")
+    @Native("java", "(x10.runtime.impl.java.UnsignedUtils.toFloat(#x))")
     @Native("c++",  "((x10_float) (#1))")
     public native static operator (x:ULong): Float;
 

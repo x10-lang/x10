@@ -436,7 +436,7 @@ public interface TypeSystem {
     /**
      * <code>java.lang.Throwable</code>
      */
-    Type Throwable();
+    Type CheckedThrowable();
 
     /**
      * <code>java.lang.Error</code>
@@ -949,12 +949,10 @@ public interface TypeSystem {
     X10ClassType Uninitialized();
     X10ClassType SuppressTransientError();
     X10ClassType Embed();
-    X10ClassType Throws();
     X10ClassType PerProcess();
 
     //Type Value();
 
-    Type Object();
     X10ClassType GlobalRef();
     X10ClassType Any();
 
@@ -1086,8 +1084,6 @@ public interface TypeSystem {
     boolean isAny(Type me);
 
     boolean isStruct(Type me);
-
-    boolean isObject(Type me);
 
     boolean isString(Type me);
 
@@ -1283,10 +1279,9 @@ public interface TypeSystem {
     X10ClassType JavaArray();
     boolean isJavaArray(Type me);
     boolean isPrimitiveJavaArray(Type type);
-    X10ClassType JavaThrowable();
-    boolean isJavaThrowable(Type me);
-    X10ClassType JavaException();
-    X10ClassType JavaRuntimeException();
+    //boolean isJavaThrowable(Type me);
 
     public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
+
+	X10ClassType System();
 }

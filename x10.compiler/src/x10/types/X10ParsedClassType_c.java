@@ -174,17 +174,23 @@ implements X10ParsedClassType
             List<Type> typeArguments = new ArrayList<Type>();
             List<ParameterType> typeParameters = new ArrayList<ParameterType>();
             for (X10ParsedClassType_c c = this; c != null; c = (X10ParsedClassType_c) c.container()) {
-                List<ParameterType> tp = c.x10Def().typeParameters();
+            	X10ClassDef cdef = c.x10Def();
+                List<ParameterType> tp = cdef.typeParameters();
                 List<Type> ta = c.typeArguments;
-                if (ta == null)
-                    ta = new ArrayList<Type>();
-                if (!tp.isEmpty() && !ta.isEmpty()) {
+            	// [DC] ta == null can happen if the type is used to access a static member
+            	// don't add substitutions in this case
+                if (ta != null) {
+                	assert ta.size() == tp.size();
+                //if (!tp.isEmpty() && !ta.isEmpty()) {
                     typeArguments.addAll(ta);
                     typeParameters.addAll(tp);
+                //}
                 }
                 if (!c.isMember() || c.flags().isStatic())
                     break;
             }
+            //if (typeArguments.isEmpty()) typeParameters = new ArrayList<ParameterType>();
+            assert typeArguments.size() == typeParameters.size();
             cacheSubst = new TypeParamSubst((TypeSystem) ts, typeArguments, typeParameters);
         }
         return cacheSubst;

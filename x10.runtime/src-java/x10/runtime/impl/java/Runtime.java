@@ -11,7 +11,6 @@
 
 package x10.runtime.impl.java;
 
-import x10.core.ThrowableUtilities;
 import x10.core.io.InputStream;
 import x10.core.io.OutputStream;
 import x10.io.InputStreamReader;
@@ -128,7 +127,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             } catch (java.lang.Error e) {
                 throw e;
             } catch (java.lang.Throwable t) {
-                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
+                // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
+                throw new x10.lang.WrappedThrowable(t);
             }
         }
 
@@ -194,7 +195,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
             // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
-            if (t instanceof UnknownJavaThrowable) t = t.getCause();
+            // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//            if (t instanceof UnknownJavaThrowable) t = t.getCause();
+            if (t instanceof x10.lang.WrappedThrowable) t = t.getCause();
             t.printStackTrace();
             setExitCode(1);
         }
@@ -287,7 +290,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             byte[] bytes = serialize(body, finishState);
             x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -336,7 +341,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     		}
     		return body;
     	} catch (java.io.IOException e) {
-    		x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//    		x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
     		xe.printStackTrace();
     		throw xe;
     	}
@@ -466,7 +473,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
 		} catch (java.io.IOException e) {
 			e.printStackTrace();
-                        throw new x10.runtime.impl.java.UnknownJavaThrowable(e);
+			// TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
+//			throw new x10.runtime.impl.java.UnknownJavaThrowable(e);
+			throw new x10.lang.WrappedThrowable(e);
 		} finally {
 			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
 		}
@@ -528,7 +537,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.InputStreamReader(new x10.core.io.InputStream(proc.getInputStream()));
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -539,7 +550,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.OutputStreamWriter(new x10.core.io.OutputStream(proc.getOutputStream()));
         } catch (IOException e) {
-            x10.core.Throwable xe = ThrowableUtilities.getCorrespondingX10Throwable(e);
+        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
+//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -584,10 +597,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public short $_get_serialization_id() {
-		throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+		throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        throw new x10.lang.UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 }

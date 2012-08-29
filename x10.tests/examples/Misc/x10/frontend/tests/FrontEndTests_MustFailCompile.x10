@@ -260,7 +260,7 @@ class TestExceptionsDefAssignment {
 		val x3:Int;
 		try {
 			x1 = 2;
-		} catch (e:Throwable) {
+		} catch (e:Exception) {
 			x2 = 3;
 		} finally {
 			x3 = 4;
@@ -749,7 +749,7 @@ class MultipleCtorsAndFieldInits {
 			val r2 = i; // ERR
 		}
 		val r3 = i;
-		k= new Object();
+		k= new Empty();
 	}
 	def this(k:MultipleCtorsAndFieldInits) { // ERR: Field 'k' was not definitely assigned in this conprivate structor.
 		finish {k.i = 2; j=true;
@@ -1073,14 +1073,14 @@ interface BlaInterface {
 	def bla():Int{self!=0};
 }
 class TestAnonymousClass {
-	static val anonymous1 = new Object() {};
-	val anonymous2 = new Object() {}; // ERR: 'this' cannot escape via an anonymous class during construction
+	static val anonymous1 = new Any() {};
+	val anonymous2 = new Any() {}; // ERR: 'this' cannot escape via an anonymous class during construction
 	val anonymous3 = new TestAnonymousClass() {}; // ERR: 'this' cannot escape via an anonymous class during construction
 	def foo() {
-		val x = new Object() {};
+		val x = new Any() {};
 	}
 	@NonEscaping final def foo2() {
-		val x = new Object() {}; // ERR: 'this' cannot escape via an anonymous class during construction
+		val x = new Any() {}; // ERR: 'this' cannot escape via an anonymous class during construction
 	}
 
 	val anonymous = new BlaInterface() { // ERR: 'this' cannot escape via an anonymous class during construction
@@ -1134,7 +1134,7 @@ class TestGlobalRefInheritanceSub extends TestGlobalRefInheritance {
 }
 
 
-struct TestStructCtor[T] { T <: Object } {
+struct TestStructCtor[T] { T isref } {
 	def this() {}
 	def test1(
 		TestStructCtor[TestStructCtor[String]]) {// ERR (Semantic Error: Type TestStructCtor[TestStructCtor[x10.lang.String]] is inconsistent.)
@@ -1678,7 +1678,7 @@ struct BlaStruct(p:Int) implements InterfaceForStruct {
 	val i:Int = 4;
 	val jj:String =  new String("as");
 	val j:UInt = 4;
-	val h:Object = new Object();
+	val h:Empty = new Empty();
 	def this(p:Int) {		property(p);	}
 }
 struct Test3[U,B] {
@@ -1913,7 +1913,7 @@ class TestCaptureVarInClosureAsyncInnerAnon {
 				x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
 		}
 		val inner = new Inner();
-		val anonymous = new Object() {
+		val anonymous = new Any() {
 			val y =
 				x+2; // ERR: Local variable "x" is accessed from an inner class or a closure, and must be declared final.
 		};
@@ -2613,13 +2613,13 @@ class ExplodingPointTest[T] {
 
 class TestOverloadingAndInterface {
 interface XXX {
-	def m(Object):Int;
+	def m(Empty):Int;
 }
 interface YYY {
 	def m(String):String;
 }
 class C3 implements XXX,YYY {
-	public def m(Object):Int = 1;
+	public def m(Empty):Int = 1;
 	public def m(String):String="";
 	def test(c:C3) {
 		val f1:XXX = c;
@@ -3259,19 +3259,19 @@ class TestStructEqualsClass {
 }
 
 class SubtypeConstraints {
-class A[T] { T <: Object } {
+class A[T] { T isref } {
 	var a1:A[T];
 	var a2:A[Int]; // ERR: Semantic Error: Type A[x10.lang.Int] is inconsistent.
 	var a4:A[Int{self==3}]; // ERR
 }
 class Test[T]  {
 	def m1(GlobalRef[T]{self.home==here}) {} // ERR
-	def m2(GlobalRef[T]{self.home==here}) {T<:Object} {}  // ShouldNotBeERR
+	def m2(GlobalRef[T]{self.home==here}) {T isref} {}  // ShouldNotBeERR
 }
-static class TestStatic[T]{T<:Object} {
+static class TestStatic[T]{T isref} {
 	public static def m1[T]():TestStatic[T]  = null; // ERR
-	public static def m2[T]() {T<:Object} :TestStatic[T] = null;
-    public static type TestStatic[T](p:Int) {T<:Object} = TestStatic[T]{1==p};
+	public static def m2[T]() {T isref} :TestStatic[T] = null;
+    public static type TestStatic[T](p:Int) {T isref} = TestStatic[T]{1==p};
 }
 
 }
@@ -3373,8 +3373,8 @@ class Test[W](p:Int) {
 class XTENLANG_967  {
     def test() {        
         class C[T] {
-			val f1 = (){T<:Object} => "hi"; // ERR: Type constraints not permitted in closure guards.
-			def f2(){T<:Object} = "hi";
+			val f1 = (){T isref} => "hi"; // ERR: Type constraints not permitted in closure guards.
+			def f2(){T isref} = "hi";
 		}
         val res1 =  new C[Int]().f1();
         val res2 =  new C[Int]().f2(); // ERR: Type guard {} cannot be established; inconsistent in calling context.
@@ -3683,9 +3683,9 @@ class TreeUsingFieldNotProperty { this.left==null } { // ERR
   val left:TreeUsingFieldNotProperty = null;
 }
 class XTENLANG_1149 {
-    def m(b:Boolean, x:Object{self!=null}, y:Object{self!=null}):Object{self!=null} {
-        val z:Object{self!=null} = b ? x : y;
-        @ERR val z2:Object{self==null} = b ? x : y;
+    def m(b:Boolean, x:Any{self!=null}, y:Any{self!=null}):Any{self!=null} {
+        val z:Any{self!=null} = b ? x : y;
+        @ERR val z2:Any{self==null} = b ? x : y;
         return z;
     }
 }
@@ -4014,7 +4014,7 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 	interface B[T] {
 		def a():B[T];
 		def a2():B[T];
-		def b():Object;
+		def b():Any;
 		def c():A2;
 		def c2():A;
 		def c3():A;
@@ -4028,7 +4028,7 @@ class MethodCollisionTests { // see also \x10.tests\examples\Constructs\Interfac
 		def b():String;
 		def c():A;
 		def c2():A2;
-		def c3():Object;
+		def c3():Any;
 		def d():void;
 		def e():A;
 		def f():void;
@@ -4765,7 +4765,7 @@ class CatchInitTest(a:Int) {
 	def this() { // ERR: property(...) might not have been called
 		try {
 			property(2); 
-		} catch(e:Throwable) {}
+		} catch(e:Exception) {}
 	}
 }
 
@@ -4860,7 +4860,7 @@ class XTENLANG_2456 {
 class Test1[T] {T haszero} {
 	val z = Zero.get[T]();
 }
-class Test2[T] {T haszero, T<:Object} {
+class Test2[T] {T haszero, T isref} {
 	val z = Zero.get[T]();
 }
 
@@ -5743,7 +5743,7 @@ class TestExceptionsFlow {
 		try {
 			x = new TestExceptionsFlow();
 			val y = 3 / x.n;
-		} catch (e:Throwable) {} // misguided attempt to ignore ArithmeticException
+		} catch (e:Exception) {} // misguided attempt to ignore ArithmeticException
 		use(x); // ERR
 	}
 	def use(Any) {}
@@ -5892,7 +5892,7 @@ class TestInitChecker {
 	}
 	def m2() {
 		val y = 1;
-		val o2 = new Object() {
+		val o2 = new Any() {
 			class M {
 				val w = y;
 			}
@@ -5950,10 +5950,10 @@ class TestInitChecker {
 	def test5() {
         val x:Int{self!=0};
         val y:Int{self!=0} = 2;
-		val o = new Object() {
+		val o = new Any() {
 			val z = x; // ERR
 		};
-		val o2 = new Object() {
+		val o2 = new Any() {
 			val z = y;
 		};
         val c = ()=>x; // ERR
@@ -5968,13 +5968,13 @@ class TestInitChecker {
 	def testInner() {
 		val i1:Int;
 		val i2:Int = 1;
-		val x = new Object() {
+		val x = new Any() {
 			def qq() {
 				use(i1); // ERR
 				use(i2);
 				val j1:Int;
 				val j2:Int = 2;
-				val w =  new Object() {
+				val w =  new Any() {
 					def qq2() {
 						use(i1); // ERR
 						use(i2);
@@ -6223,7 +6223,7 @@ class TestTypeParamShadowing { // XTENLANG-2163
 	class Outer[X] {X<:A} {
 		class Inner[X] {X<:B} {
 			def m[X](x:X) {X<:C} : C = x;
-			def m2[X](x:X) {X<:C} = new Object() {  // test anon class creation
+			def m2[X](x:X) {X<:C} = new Any() {  // test anon class creation
 				def q(x:X):C = x;
 				def qe(x:X):B = x; // ERR
 				def t[X](x:X) {X<:A} : A = x;
@@ -6312,7 +6312,7 @@ class XTENLANG_1767 {
 						// but I think that's actually a conservative approximation - the current CFG says it might be caught in the first or second catch,
 						// and the more accurate one says it is definitely not caught in the first catch.
 						// that's why I can't build any example that will cause a bug...
-				} catch (e1:Throwable) {}
+				} catch (e1:Exception) {}
 			} 
 		} catch (e2:Exception) {}
 	}
@@ -6475,8 +6475,8 @@ class ClassLCATest {
 	static class A implements Op {}
 	static class B implements Op {}
 	class Test {
-		// LCA of A and B should be Op or Object ?
-		val w:Array[Object{self!=null}] = [new A(), new B()]; // ERR
+		// LCA of A and B should be Op or Any ?
+		val w:Array[Any{self!=null}] = [new A(), new B()]; // ERR
 		val x:Array[Op{self!=null}] = [new A(), new B()]; 
 		val y:Array[Op] = [new A() as Op, new B()];
 		val z:Array[Op] = [new A() as Op, new B() as Op];
@@ -6516,11 +6516,11 @@ class LCATests { // see XTENLANG-2635
 		def test() {
 			val x1:Array[Op{self!=null}] = [new S1(), new S2()]; 
 			val x2:Array[Op{self!=null}] = [new S1(), new S2(), new S3()]; 
-			val x3:Array[Object{self!=null}] = [new S1(), new S13()];
+			val x3:Array[Any{self!=null}] = [new S1(), new S13()];
 			val x4:Array[Op{self!=null}] = [new S1(), new S23()]; 
-			val x5:Array[Object{self!=null}] = [new S1(), new S123()];
-			val x6:Array[Object{self!=null}] = [new S123(), new S2()];
-			val x7:Array[Object{self!=null}] = [new S23(), new S2()]; 
+			val x5:Array[Any{self!=null}] = [new S1(), new S123()];
+			val x6:Array[Any{self!=null}] = [new S123(), new S2()];
+			val x7:Array[Any{self!=null}] = [new S23(), new S2()]; 
 			val x8:Array[Op{self!=null}] = [new S13(), new S2()];
 		}
 	}
@@ -6543,7 +6543,7 @@ class LCATests { // see XTENLANG-2635
 		static class S2 implements GI[S1] {}
 		static class S3 implements GI[S1] {}
 		def test() {
-			val x1:Array[Object{self!=null}] = [new S1(), new S2()]; 
+			val x1:Array[Any{self!=null}] = [new S1(), new S2()]; 
 			val x2:Array[GI[S1]{self!=null}] = [new S2(), new S3()]; 
 		}
 	}
@@ -6864,11 +6864,11 @@ class XTENLANG_1851 {
 }
 
 class XTENLANG_2745 {
-	class Exn extends Throwable{}
+	class Exn extends Exception{}
 	static def example() {
 		try {
 		}
-		catch (e : Throwable) {}
+		catch (e : Exception) {}
 		catch (e : Exn) {}// ERR
 	}
 }
@@ -6973,12 +6973,12 @@ class XTENLANG_2925 {
 }
 
 class XTENLANG_2855 {
-	interface Throws2[T]{T <: java.lang.Throwable} extends x10.lang.annotations.MethodAnnotation { }
+	interface Throws2[T]{T <: x10.lang.CheckedThrowable} extends x10.lang.annotations.MethodAnnotation { }
 	class AnnotationTest {
-		@Throws2[java.lang.Throwable]
-		@Throws2[x10.lang.Throwable]  // ERR
-		@Throws2[Any] // ERR
-		def test() {}
+		def test() throws
+            x10.lang.CheckedThrowable,
+            Any // ERR
+        { } 
 	}
 }
 

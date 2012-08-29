@@ -28,9 +28,9 @@ import java.io.IOException;
  * @author Raj Barik, Vivek Sarkar
  * @author tardieu
  */
-public class Thread implements x10.core.RefI {
+public class Thread implements x10.core.Any {
     private static final long serialVersionUID = 1L;
-    public static final RuntimeType<Thread> $RTT = NamedType.<Thread> make("x10.lang.Thread", Thread.class, new Type<?>[] { Types.OBJECT });
+    public static final RuntimeType<Thread> $RTT = NamedType.<Thread> make("x10.lang.Thread", Thread.class);
     public RuntimeType<?> $getRTT() { return $RTT; }
     public Type<?> $getParam(int i) { return null; }
 
@@ -148,9 +148,9 @@ public class Thread implements x10.core.RefI {
         try {
             java.lang.Thread.sleep(time, nanos);
         } catch (InterruptedException e) {
-            x10.core.Throwable e1 = null;
+            java.lang.RuntimeException e1 = null;
             try {
-                e1 = (x10.core.Throwable)Class.forName("x10.lang.InterruptedException").newInstance();
+                e1 = (java.lang.RuntimeException)Class.forName("x10.lang.InterruptedException").newInstance();
             } catch (Exception e2) {
                 e2.printStackTrace();
             }

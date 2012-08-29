@@ -13,9 +13,9 @@ import x10.compiler.NativeRep;
 public final class Deque {
     public native def size():Int;
 
-    public native def poll():Object;
+    public native def poll():Any;
 
-    public native def push(t:Object):void;
+    public native def push(t:Any):void;
 
-    public native def steal():Object;
+    public native def steal():Any;
 }

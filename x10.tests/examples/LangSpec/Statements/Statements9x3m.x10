@@ -29,8 +29,8 @@ public class Statements9x3m extends x10Test {
 // file Statements line 948
 
  static class Example {
- static   class ThisExn extends Throwable {}
- static   class ThatExn extends Throwable {}
+ static   class ThisExn extends Exception {}
+ static   class ThatExn extends Exception {}
   var didFinally : Boolean = false;
   def example(b:Boolean) {
     try {

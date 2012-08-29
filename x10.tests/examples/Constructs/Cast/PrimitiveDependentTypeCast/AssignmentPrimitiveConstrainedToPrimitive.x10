@@ -25,7 +25,7 @@ public class AssignmentPrimitiveConstrainedToPrimitive extends x10Test {
 			var j: int = 0;
 			j = i;
 			j = k;
-		}catch(e: Throwable) {
+		}catch(e: Exception) {
 			return false;
 		}
 

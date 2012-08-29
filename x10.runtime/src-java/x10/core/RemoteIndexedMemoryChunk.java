@@ -106,29 +106,29 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
 
     // TODO implement remote operations
     public void remoteAdd(int idx, long v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
     public void remoteAnd(int idx, long v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
     public void remoteOr(int idx, long v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
     public void remoteXor(int idx, long v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
 
     public void remoteAdd(int idx, x10.core.ULong v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
     public void remoteAnd(int idx, x10.core.ULong v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
     public void remoteOr(int idx, x10.core.ULong v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
     public void remoteXor(int idx, x10.core.ULong v) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");    	
+    	throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");    	
     }
 
     public static final RuntimeType<RemoteIndexedMemoryChunk<?>> $RTT = NamedType.<RemoteIndexedMemoryChunk<?>> make(
@@ -137,9 +137,7 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<RemoteIndexedMemoryChunk<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return i == 0 ? type : null; }
     
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {

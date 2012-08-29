@@ -11,7 +11,7 @@
 
 package x10.core.concurrent;
 
-import x10.core.RefI;
+import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
@@ -23,7 +23,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements RefI, X10JavaSerializable {
+public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, AtomicReference.class);
@@ -71,8 +71,7 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
     public static final RuntimeType<AtomicReference> $RTT = NamedType.<AtomicReference> make(
         "x10.util.concurrent.AtomicReference",
         AtomicReference.class,
-        RuntimeType.INVARIANTS(1),
-        new Type[] { Types.OBJECT }
+        RuntimeType.INVARIANTS(1)
     );
     public RuntimeType<AtomicReference> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return i == 0 ? T : null; }

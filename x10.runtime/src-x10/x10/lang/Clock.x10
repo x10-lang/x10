@@ -145,7 +145,7 @@ public final class Clock(name:String) {
         dropUnsafe();
     }
 
-    public def toString():String = name.equals("") ? super.toString() : name;
+    public def toString():String = name.equals("") ? System.identityToString(this) : name;
     
     private def clockUseException(method:String) {
         if (dropped()) throw new ClockUseException("invalid invocation of " + method + "() on clock " + toString() + "; calling activity is not clocked on this clock");

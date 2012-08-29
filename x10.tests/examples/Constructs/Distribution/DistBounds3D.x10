@@ -118,7 +118,7 @@ public class DistBounds3D extends x10Test {
                 case CONSTANT: return r->here;
                 //case RANDOM: return Dist.makeRandom(r);
                 //case ARBITRARY: return Dist.makeArbitrary(r);
-                default:throw new Error("TODO");
+                default:throw new Exception("TODO");
             }
         }
     }

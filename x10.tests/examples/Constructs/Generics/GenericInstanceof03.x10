@@ -29,7 +29,7 @@ public class GenericInstanceof03 extends GenericTest {
 
     public def run() = {
 
-        var a:Object = new A[int]();
+        var a:Any = new A[int]();
 
         return a instanceof I[int];
     }

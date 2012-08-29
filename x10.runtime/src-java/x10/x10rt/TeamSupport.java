@@ -11,7 +11,6 @@
 package x10.x10rt;
 
 import x10.core.IndexedMemoryChunk;
-import x10.core.ThrowableUtilities;
 import x10.lang.FinishState;
 import x10.lang.Place;
 
@@ -43,7 +42,7 @@ public class TeamSupport {
         } else if (chunkRaw instanceof float[]) {
             typeCode = RED_TYPE_FLOAT;
         } else {
-        	ThrowableUtilities.UnsupportedOperationException("Unsupported type of src array "+chunk.type.typeName()+" in nativeAllReduce");
+            throw new java.lang.UnsupportedOperationException("Unsupported type of src array "+chunk.type.typeName()+" in nativeAllReduce");
         }
         return typeCode;
     }

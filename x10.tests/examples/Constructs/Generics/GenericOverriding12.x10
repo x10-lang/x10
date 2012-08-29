@@ -36,8 +36,8 @@ public class GenericOverriding12 extends GenericTest {
 
     public def run() = {
 
-        check("a.m[String](0)", a.m[String](), 0);
-        check("b.m[String](0)", b.m[String](), 1);
+        genericCheck("a.m[String](0)", a.m[String](), 0);
+        genericCheck("b.m[String](0)", b.m[String](), 1);
 
         return result;
     }

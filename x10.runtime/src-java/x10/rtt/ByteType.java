@@ -90,6 +90,11 @@ public final class ByteType extends RuntimeType<x10.core.Byte> {
     	return ((byte[]) array).length;
     }
 
+    @Override
+    public boolean isref() {
+        return false;
+    }
+
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 //    }
 //

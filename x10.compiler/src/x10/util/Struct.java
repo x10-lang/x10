@@ -38,6 +38,7 @@ import x10cpp.visit.SharedVarsMethods;
 public class Struct {
     private final static java.util.Set<String> ignoreTypes = CollectionFactory.newHashSet();
 
+    // these are the structs that are @NativeRep to java
     static {
         ignoreTypes.add("Boolean");
         ignoreTypes.add("Byte");
@@ -45,13 +46,12 @@ public class Struct {
         ignoreTypes.add("Char");
         ignoreTypes.add("Short");
         ignoreTypes.add("UShort");
-        ignoreTypes.add("Int");
+        ignoreTypes.add("Int"); 
         ignoreTypes.add("UInt");
         ignoreTypes.add("Long");
         ignoreTypes.add("ULong");
         ignoreTypes.add("Float");
         ignoreTypes.add("Double");
-        ignoreTypes.add("Place");
     }
 
     public static X10ClassDecl_c addStructMethods(TypeBuilder tb, X10ClassDecl_c n) {
@@ -68,43 +68,27 @@ public class Struct {
         interfacesList.add(xts.lazyAny());
         cd.setInterfaces(interfacesList);
 
-       final Position pos = Position.compilerGenerated(n.body().position());
-
-       //String fullNameWithThis = fullName + "#this";
-       //String fullNameWithThis = "this";
-     //  XName thisName = new XNameWrapper<Object>(new Object(), fullNameWithThis);
-       XVar thisVar = ConstraintManager.getConstraintSystem().makeThis(ct); // ConstraintManager.getConstraintSystem().makeThis(fullNameWithThis); // XTerms.makeLocal(thisName);
+        final Position pos = Position.compilerGenerated(n.body().position());
 
 
-
-
-       final LazyRef<X10ParsedClassType> PLACE = Types.lazyRef(null);
-       PLACE.setResolver(new Runnable() {
-           public void run() {
-               PLACE.update((X10ParsedClassType) xts.Place());
-           }
-       });
-       final LazyRef<X10ParsedClassType> STRING = Types.lazyRef(null);
-       STRING.setResolver(new Runnable() {
-           public void run() {
-               STRING.update((X10ParsedClassType) xts.String());
-           }
-       });
-       final LazyRef<X10ParsedClassType> BOOLEAN = Types.lazyRef(null);
-       BOOLEAN.setResolver(new Runnable() {
-           public void run() {
-               BOOLEAN.update((X10ParsedClassType) xts.Boolean());
-           }
-       });
-       final LazyRef<X10ParsedClassType> OBJECT = Types.lazyRef(null);
-       OBJECT.setResolver(new Runnable() {
-           public void run() {
-               OBJECT.update((X10ParsedClassType) xts.Object());
-           }
-       });
-
-
-
+        final LazyRef<X10ParsedClassType> PLACE = Types.lazyRef(null);
+        PLACE.setResolver(new Runnable() {
+        	public void run() {
+        		PLACE.update((X10ParsedClassType) xts.Place());
+        	}
+        });
+        final LazyRef<X10ParsedClassType> STRING = Types.lazyRef(null);
+        STRING.setResolver(new Runnable() {
+        	public void run() {
+        		STRING.update((X10ParsedClassType) xts.String());
+        	}
+        });
+        final LazyRef<X10ParsedClassType> BOOLEAN = Types.lazyRef(null);
+        BOOLEAN.setResolver(new Runnable() {
+        	public void run() {
+        		BOOLEAN.update((X10ParsedClassType) xts.Boolean());
+        	}
+        });
 
 
 
@@ -147,6 +131,7 @@ public class Struct {
                     mdecl.formals().isEmpty()) {
                     seenHashCode = true;
                 }
+                // [DC] this code heavily broken... unsure how to fix it at this point
                 if (mdecl.name().id().toString().equals("equals") && mdecl.formals().size() == 1) {
                     seenEqualsAny = true; // XTENLANG-2441: Needs to be a test to see if the type of formal is Any.
                     seenEqualsSelf = true; // XTENLANG-2441: Needs to be a test to see if the type of the formal is the Struct ct 
@@ -173,7 +158,6 @@ public class Struct {
         final TypeNode intTypeNode = nf.CanonicalTypeNode(pos, ts.Int());
         final TypeNode boolTypeNode = nf.CanonicalTypeNode(pos, ts.Boolean());
         final TypeNode placeTypeNode = nf.CanonicalTypeNode(pos, ts.Place());
-        final TypeNode objectTypeNode = nf.CanonicalTypeNode(pos, ts.Object());
         final TypeNode stringTypeNode = nf.CanonicalTypeNode(pos, ts.String());
         final TypeNode anyTypeNode = nf.CanonicalTypeNode(pos, ts.Any());
         final List<TypeParamNode> typeParamNodeList = n.typeParameters();

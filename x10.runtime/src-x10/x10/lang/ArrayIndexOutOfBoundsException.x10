@@ -6,20 +6,26 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.lang;
+
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
 
 /**
  * Thrown to indicate that an array has been accessed with an illegal index.
  * For example, the point is outside of the array's region.
  */
+@NativeRep("java", "java.lang.ArrayIndexOutOfBoundsException", null, "x10.rtt.Types.ARRAY_INDEX_OUT_OF_BOUNDS_EXCEPTION")
 public class ArrayIndexOutOfBoundsException extends IndexOutOfBoundsException {
 
     /**
      * Construct an ArrayIndexOutOfBoundsException with no detail message.
      */
+    @Native("java", "new java.lang.ArrayIndexOutOfBoundsException()")
     public def this() { super(); }
 
     /**
@@ -27,6 +33,7 @@ public class ArrayIndexOutOfBoundsException extends IndexOutOfBoundsException {
      *
      * @param message the detail message
      */
+    @Native("java", "new java.lang.ArrayIndexOutOfBoundsException(#message)")
     public def this(message: String) { super(message); }
 }
 

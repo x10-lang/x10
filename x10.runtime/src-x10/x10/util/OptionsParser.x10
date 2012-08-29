@@ -23,7 +23,8 @@ public final class OptionsParser {
         private val msg:String;
         public def this (m:String) { this.msg = m; }
         public def this () {this.msg = null;}
-         public def toString() = "Commandline error: "+msg;
+        // FIXME CheckedThrowable.toString() is now final
+        // public def toString() = "Commandline error: "+msg;
     }
 
     private val map : HashMap[String,String];

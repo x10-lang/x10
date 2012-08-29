@@ -29,12 +29,9 @@ public class LocalVar<T> extends x10.core.Ref {
         x10.rtt.NamedType.<LocalVar<?>> make(
                 "x10.compiler.LocalVar",
                 /* base class */ LocalVar.class,
-                /* variances */ RuntimeType.INVARIANTS(1),
-                /* parents */ new Type[] { Types.OBJECT }
+                /* variances */ RuntimeType.INVARIANTS(1)
     );
-    @Override
     public RuntimeType<?> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { if (i == 0) return T; return null; }
 
     private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {

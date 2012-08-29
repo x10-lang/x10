@@ -29,7 +29,7 @@ public class Types240 extends x10Test {
 // file Types line 823
 
  static class Example {
-  static type Nonnull[T]{T <: Object}  = T{self!=null};
+  static type Nonnull[T]{T isref}  = T{self!=null};
   var example : Nonnull[Example] = new Example();
 }
 

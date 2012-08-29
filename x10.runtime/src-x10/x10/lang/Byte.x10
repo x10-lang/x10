@@ -254,7 +254,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @param x the given Float
      * @return the given Float converted to a Byte.
      */
-    @Native("java", "x10.core.Floats.toByte(#x)")
+    @Native("java", "x10.runtime.impl.java.FloatUtils.toByte(#x)")
     @Native("c++",  "x10aux::float_utils::toByte(#1)")
     public native static operator (x:Float) as Byte;
 
@@ -263,7 +263,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @param x the given Double
      * @return the given Double converted to a Byte.
      */
-    @Native("java", "x10.core.Floats.toByte(#x)")
+    @Native("java", "x10.runtime.impl.java.FloatUtils.toByte(#x)")
     @Native("c++",  "x10aux::double_utils::toByte(#1)")
     public native static operator (x:Double) as Byte;
 
@@ -296,7 +296,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @param radix the radix to use in the String representation
      * @return a String representation of this Byte in the specified radix.
      */
-    @Native("java", "x10.core.Signed.toString((byte)#this, #radix)")
+    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, #radix)")
     @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -309,7 +309,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      *
      * @return a String representation of this Byte in base 16.
      */
-    @Native("java", "x10.core.Signed.toString((byte)#this, 16)")
+    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, 16)")
     @Native("c++", "x10aux::byte_utils::toString(#0, 16)")
     public native def toHexString(): String;
 
@@ -322,7 +322,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      *
      * @return a String representation of this Byte in base 8.
      */
-    @Native("java", "x10.core.Signed.toString((byte)#this, 8)")
+    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, 8)")
     @Native("c++", "x10aux::byte_utils::toString(#0, 8)")
     public native def toOctalString(): String;
 
@@ -335,7 +335,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      *
      * @return a String representation of this Byte in base 2.
      */
-    @Native("java", "x10.core.Signed.toString((byte)#this, 2)")
+    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, 2)")
     @Native("c++", "x10aux::byte_utils::toString(#0, 2)")
     public native def toBinaryString(): String;
 

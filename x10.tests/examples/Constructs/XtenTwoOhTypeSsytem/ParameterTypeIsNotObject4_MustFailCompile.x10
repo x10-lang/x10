@@ -12,16 +12,16 @@
 import harness.x10Test;
 
 /**
- * A value of an unconstrained type parameter T cannot be assigned to a variable of type Object.
+ * A value of an unconstrained type parameter T cannot be assigned to a variable of type Empty.
  * Testing method invocation.
  *
  * @author vj 
  */
 public class ParameterTypeIsNotObject4_MustFailCompile extends x10Test {
 	class GenericWrapper[T] {
-		  def m(x:Object):void = {}
+		  def m(x:Empty):void = {}
 		  public def testAssign(y:T) {
-			  m(y); // ERR: Method m(x: x10.lang.Object): void in ParameterTypeIsNotObject4_MustFailCompile.GenericWrapper{self==ParameterTypeIsNotObject4_MustFailCompile.GenericWrapper#this} cannot be called with arguments (T{self==y});    Invalid Parameter.
+			  m(y); // ERR: Method m(x: x10.lang.Empty): void in ParameterTypeIsNotObject4_MustFailCompile.GenericWrapper{self==ParameterTypeIsNotObject4_MustFailCompile.GenericWrapper#this} cannot be called with arguments (T{self==y});    Invalid Parameter.
 		  }
 	}
 	public def run()=true;

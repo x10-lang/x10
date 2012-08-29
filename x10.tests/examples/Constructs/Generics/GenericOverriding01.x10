@@ -32,8 +32,8 @@ public class GenericOverriding01 extends GenericTest {
         val a = new A[int]();
         val b = new B[int]();
 
-        check("a.m(0)", a.m(0), 0);
-        check("b.m(0)", b.m(0), 1);
+        genericCheck("a.m(0)", a.m(0), 0);
+        genericCheck("b.m(0)", b.m(0), 1);
 
         return result;
     }

@@ -11,7 +11,7 @@
 
 package x10.core.concurrent;
 
-import x10.core.RefI;
+import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
@@ -22,7 +22,7 @@ import x10.x10rt.X10JavaSerializer;
 
 import java.io.IOException;
 
-public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements RefI, X10JavaSerializable {
+public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
     private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, AtomicLong.class);
@@ -61,8 +61,7 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     //
     public static final RuntimeType<AtomicLong> $RTT = NamedType.<AtomicLong> make(
         "x10.util.concurrent.AtomicLong",
-        AtomicLong.class,
-        new Type[] { Types.OBJECT }
+        AtomicLong.class
     );
     public RuntimeType<AtomicLong> $getRTT() {return $RTT;}
     public Type<?> $getParam(int i) { return null; }

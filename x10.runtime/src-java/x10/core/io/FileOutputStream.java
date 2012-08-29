@@ -31,7 +31,7 @@ public class FileOutputStream extends OutputStream {
             super.x10$io$OutputStreamWriter$OutputStream$$init$S(new java.io.FileOutputStream(name, append));
             return this;
         } catch (java.io.FileNotFoundException e) {
-            throw x10.core.ThrowableUtilities.getCorrespondingX10Throwable(e);
+            throw new x10.io.FileNotFoundException(e.getMessage());
         }
     }
     // XTENLANG-3063

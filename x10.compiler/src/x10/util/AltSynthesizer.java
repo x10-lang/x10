@@ -178,7 +178,7 @@ public class AltSynthesizer {
                     return null;
                 args.add(ei);
             }
-            return nf.Tuple(pos, args).type(ts.arrayOf(ts.Object()));
+            return nf.Tuple(pos, args).type(ts.arrayOf(ts.Any()));
         }
         return null;
     }

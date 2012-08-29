@@ -41,7 +41,7 @@ public class Java {
     @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass()")
     public static native def javaClass[T]():java.lang.Class;
     @Native("java", "do { throw #e; } while (false)")
-    public static native @NoReturn def throwException(e:java.lang.Throwable):void;
+    public static native @NoReturn def throwException(e:CheckedThrowable):void;
     // Java conversions (primitive)
     public static def convert(b:x10.lang.Boolean):Java.boolean = b; // no-op
     //public static def convert(b:Java.boolean):x10.lang.Boolean = b; // no-op

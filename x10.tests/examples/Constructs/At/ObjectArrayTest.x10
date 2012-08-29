@@ -15,7 +15,7 @@ import harness.x10Test;
  * Unit test for serialization of Arrays of classes
  * with a mix of unique and repeated objects.
  * 
- * Testing at both unique class (Blat) and at String/Object 
+ * Testing at both unique class (Blat) and at String/Empty 
  * to catch interactions with Java serialization and Java interop.
  *
  * Also serves as a micro-benchmark for repeated reference detection.
@@ -55,9 +55,9 @@ public class ObjectArrayTest  extends x10Test {
     Console.OUT.println("Unique Blat time "+((end-start) as double/1e6)+" ms");
 
 
-    val uo = new Object();
-    val a3 = new Array[Object](n, (i:int)=>(i%2 == 0) ? uo : new Object());
-    val a4 = new Array[Object](n, uo);
+    val uo = new Empty();
+    val a3 = new Array[Empty](n, (i:int)=>(i%2 == 0) ? uo : new Empty());
+    val a4 = new Array[Empty](n, uo);
 
     start = System.nanoTime();
     at (here.next()) {

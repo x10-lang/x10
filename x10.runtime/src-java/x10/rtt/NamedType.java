@@ -130,8 +130,8 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         NamedType namedType = new NamedType();
         deserializer.record_reference(namedType);
-		return $_deserialize_body(namedType, deserializer);
-	}
+        return $_deserialize_body(namedType, deserializer);
+    }
 
     public static X10JavaSerializable $_deserialize_body(NamedType nt, X10JavaDeserializer deserializer) throws IOException {
         RuntimeType.$_deserialize_body(nt, deserializer);

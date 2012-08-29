@@ -35,7 +35,7 @@ class StructToAnyAndBack extends x10Test {
             return false;
         } catch (e:ClassCastException) {
             return true;
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
             Console.OUT.println("Raised wrong exception "+e);
             return false;
         }

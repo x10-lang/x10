@@ -205,7 +205,7 @@ public class Synthesizer {
 
 	    // Create the method declaration node and the CI.
 	    MethodDecl result = 
-	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, block);
+	        xnf.X10MethodDecl(CG, newFlags, rt, xnf.Id(CG,name), typeParamNodes, formals, null, null, Collections.<TypeNode>emptyList(), block);
 
 	    MethodDef rmi = xts.methodDef(CG, CG, Types.ref(ct.classDef().asType()), 
 	            newFlags.flags(), rt.typeRef(), name, typeParameters, argTypes, throwTypes, ct.classDef().thisDef(), formalNames, null, null, null, null);

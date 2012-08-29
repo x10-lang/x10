@@ -50,14 +50,12 @@ void
 String::_constructor(const char *content, bool steal) {
     size_t len = strlen(content);
     if (!steal) content = string_utils::strdup(content);
-    this->Object::_constructor();
     this->FMGL(content) = content;
     this->FMGL(content_length) = len;
 }
 
 void
 String::_constructor() {
-    this->Object::_constructor();
     this->FMGL(content) = "";
     this->FMGL(content_length) = 0;
 }
@@ -65,7 +63,6 @@ String::_constructor() {
 void
 String::_constructor(x10aux::ref<String> s) {
     nullCheck(s);
-    this->Object::_constructor();
     this->FMGL(content) = s->FMGL(content);
     this->FMGL(content_length) = s->FMGL(content_length);
 }
@@ -79,7 +76,6 @@ String::_constructor(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int st
         content[i] = (char)(array->raw()[start + i]);
     }
     content[i] = '\0';
-    this->Object::_constructor();
     this->FMGL(content) = content;
     this->FMGL(content_length) = i;
 }
@@ -93,7 +89,6 @@ String::_constructor(x10aux::ref<x10::array::Array<x10_char> > array, x10_int st
         content[i] = (char)(array->raw()[start + i].v);
     }
     content[i] = '\0';
-    this->Object::_constructor();
     this->FMGL(content) = content;
     this->FMGL(content_length) = i;
 }
@@ -271,8 +266,6 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
         ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
     } else if (x10aux::instanceof<ref<String> >(p)) {
         ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<ref<String> >(p)->c_str()));
-    } else if (x10aux::instanceof<ref<Object> >(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<ref<Object> >(p)->toString()->c_str()));
     } else if (x10aux::instanceof<x10_boolean>(p)) {
         ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_boolean>(p)));
     } else if (x10aux::instanceof<x10_byte>(p)) {
@@ -434,7 +427,6 @@ const serialization_id_t String::_serialization_id =
     DeserializationDispatcher::addDeserializer(String::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
 void String::_serialize_body(x10aux::serialization_buffer& buf) {
-    this->Object::_serialize_body(buf);
     // only support strings that are shorter than 4billion chars
     x10_int sz = FMGL(content_length);
     buf.write(sz);
@@ -449,7 +441,6 @@ void String::_destructor() {
 }
 
 void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
-    this->Object::_deserialize_body(buf);
     x10_int sz = buf.read<x10_int>();
     char *content = x10aux::alloc<char>(sz+1);
     for (x10_int i = 0; i < sz; ++i) {
@@ -468,15 +459,11 @@ x10aux::ref<Reference> String::_deserializer(x10aux::deserialization_buffer& buf
     return this_;
 }
 
-Fun_0_1<x10_int, x10_char>::itable<String> String::_itable_Fun_0_1(&String::equals, &String::hashCode,
-                                                                   &String::__apply,                                                                    
-                                                                   &String::toString, &String::typeName);
 Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::compareTo,
                                                                    &String::equals, &String::hashCode,
                                                                    &String::toString, &String::typeName);
 
-x10aux::itable_entry String::_itables[3] = {
-    x10aux::itable_entry(&x10aux::getRTT<Fun_0_1<x10_int, x10_char> >, &String::_itable_Fun_0_1),
+x10aux::itable_entry String::_itables[2] = {
     x10aux::itable_entry(&x10aux::getRTT<Comparable<ref<String> > >, &String::_itable_Comparable),
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
@@ -485,12 +472,9 @@ x10aux::RuntimeType String::rtt;
 
 void String::_initRTT() {
     if (rtt.initStageOne(&rtt)) return;
-    const x10aux::RuntimeType* parents[3] =
-        {Object::getRTT(),
-         Fun_0_1<x10_int, x10_char>::getRTT(),
-         Comparable<String>::getRTT() };
+    const x10aux::RuntimeType* parents[1] = { Comparable<String>::getRTT() };
     
-    rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 3, parents, 0, NULL, NULL);
+    rtt.initStageTwo("x10.lang.String", RuntimeType::class_kind, 1, parents, 0, NULL, NULL);
 }    
 
 // vim:tabstop=4:shiftwidth=4:expandtab

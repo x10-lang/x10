@@ -126,10 +126,13 @@ public class TypeConstraint implements Copy, Serializable {
         for (SubtypeConstraint t : terms()) {
             if (t.isEqualityConstraint()) {
                 if (! ts.typeEquals(t.subtype(), t.supertype(), context)) return false;
-            }
-            else if (t.isSubtypeConstraint()) {
+            } else if (t.isSubtypeConstraint()) {
                 if (! ts.isSubtype(t.subtype(), t.supertype(), context)) return false;
-            } else if (t.isHaszero() && !Types.isHaszero(t.subtype(),context)) return false;
+            } else if (t.isHaszero()) {
+            	if (!Types.isHaszero(t.subtype(),context)) return false;
+        	} else if (t.isIsRef()) {
+            	if (!Types.isIsRef(t.subtype(),context)) return false;
+        	}
         }
         return true;
     }
@@ -474,7 +477,7 @@ public class TypeConstraint implements Copy, Serializable {
      * FIXME: Only the equality case (1) and the same type case (3) are handled for now.  Also "haszero" is not expanded.
      */
     private static void expandTypeConstraints(TypeConstraint tenv, SubtypeConstraint term, Context context) throws XFailure {
-        if (term.isHaszero()) return;
+        if (term.isHaszero() || term.isIsRef()) return;
 
         TypeSystem xts = (TypeSystem) context.typeSystem();
         Type b = xts.expandMacros(term.subtype());
@@ -562,7 +565,7 @@ public class TypeConstraint implements Copy, Serializable {
                 for (SubtypeConstraint term : tenv.terms()) {
                     SubtypeConstraint eq = term;
 
-                    if (term.isHaszero())continue; // haszero constraints do not participate in type inference
+                    if (term.isHaszero() || term.isIsRef())continue; // haszero constraints do not participate in type inference
                         
                     Type sub = eq.subtype();
                     Type sup = eq.supertype();

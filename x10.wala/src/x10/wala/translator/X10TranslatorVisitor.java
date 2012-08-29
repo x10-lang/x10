@@ -53,7 +53,6 @@ import polyglot.ast.Special;
 import polyglot.ast.StringLit;
 import polyglot.ast.Switch;
 import polyglot.ast.SwitchBlock;
-import polyglot.ast.Synchronized;
 import polyglot.ast.Throw;
 import polyglot.ast.Try;
 import polyglot.ast.Unary;
@@ -132,7 +131,6 @@ public interface X10TranslatorVisitor {
     CAstNode visit(For f, WalkContext wc);
     CAstNode visit(While w, WalkContext wc);
     CAstNode visit(Switch s, WalkContext wc);
-    CAstNode visit(Synchronized s, WalkContext wc);
     CAstNode visit(Try t, WalkContext wc);
     CAstNode visit(Empty e, WalkContext wc);
     CAstNode visit(Eval e, WalkContext wc);

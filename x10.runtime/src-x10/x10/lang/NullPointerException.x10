@@ -6,12 +6,22 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 package x10.lang;
 
+import x10.compiler.Native;
+import x10.compiler.NativeRep;
+
+
+@NativeRep("java", "java.lang.NullPointerException", null, "x10.rtt.Types.NULL_POINTER_EXCEPTION")
 public class NullPointerException extends Exception {
+
+    @Native("java", "new java.lang.NullPointerException()")
     public def this() { super(); }
+
+    @Native("java", "new java.lang.NullPointerException(#message)")
     public def this(message: String) { super(message); } 
+
 }

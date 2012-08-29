@@ -80,7 +80,7 @@ public class FutureTest3 extends x10Test {
 		gotException = false;
 		try {
 			r2 = Future.make( () => { return A(OUTOFRANGE) += 1; } ) .force();
-		} catch (var e: Throwable) {
+		} catch (var e: Exception) {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("2");
@@ -92,7 +92,7 @@ public class FutureTest3 extends x10Test {
 		gotException = false;
 		try {
 			r3 = Future.make( () =>  m1(A, K)) .force();
-		} catch (var e: Throwable) {
+		} catch (var e: Exception) {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("3");
@@ -108,7 +108,7 @@ public class FutureTest3 extends x10Test {
 		gotException = false;
 		try {
 			r4 = Future.make( () => m2(A, K)) .force();
-		} catch (var e: Throwable) {
+		} catch (var e: Exception) {
 			gotException = true;
 		}
 		x10.io.Console.OUT.println("4" + gotException + " r4 = " + r4);
@@ -129,7 +129,7 @@ public class FutureTest3 extends x10Test {
 		gotException = false;
 		try {
 			r5 = fr5.force();
-		} catch (var e: Throwable) {
+		} catch (var e: Exception) {
 			gotException = true;
 		}
 		chk(r5 ==-1 && gotException);

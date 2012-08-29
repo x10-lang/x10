@@ -12,14 +12,13 @@
 import harness.x10Test;
 
 /**
- * Purpose: Checks null litteral can't be cast to a non-nullable type.
- * Issue: null is not an instanceof x10.lang.Object, but would be one of nullable<x10.lang.Object>
+ * Purpose: Checks null litteral can't be cast to a struct type.
  * @author vcave
  **/
  public class CastNullToReference_MustFailCompile extends x10Test {
 
 	public def run(): boolean = {
-		var obj:x10.lang.Object = null as Object; // ok in 1.7
+		var obj:x10.lang.Any = null as Any; // ok in 1.7
 		var v:x10.lang.Complex = null as Complex; // ERR not allowed in 2.0 
 		return false;
 	}

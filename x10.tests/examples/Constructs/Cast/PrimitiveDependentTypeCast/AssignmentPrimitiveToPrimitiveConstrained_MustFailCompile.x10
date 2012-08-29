@@ -30,7 +30,7 @@ public class AssignmentPrimitiveToPrimitiveConstrained_MustFailCompile extends x
 			// Even if j equals zero, types are not compatible
 			// A cast would be necessary to check conversion validity
 			i = @ERR j;
-		}catch(e: Throwable) {
+		}catch(e: Exception) {
 			return false;
 		}
 

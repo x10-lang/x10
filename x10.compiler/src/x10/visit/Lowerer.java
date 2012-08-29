@@ -445,10 +445,28 @@ public class Lowerer extends ContextVisitor {
         return null;
     }
 
-    private Stmt atStmt(Position pos, Stmt body, Expr place,
+    private Stmt atStmt(Position pos, Stmt at_body, Expr place,
             List<VarInstance<? extends VarDef>> env, AtDef def) throws SemanticException {
         place = getPlace(pos, place);
-        Closure closure = synth.makeClosure(body.position(), ts.Void(), synth.toBlock(body), context());
+        
+    	// try { at_body }
+        Block tryBlock = synth.toBlock(at_body);
+
+        List<Catch> catches = new ArrayList<Catch>();
+        { // catch (e:CheckedThrowable) { Runtime.wrapAtChecked(e); }
+	        Name catchFormalName = getTmp();
+	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
+	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+	                nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
+	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
+	        Expr wrap = synth.makeStaticCall(pos, ts.Runtime(), Name.make("wrapAtChecked"), Collections.singletonList(catchLocal), ts.Exception(), context());
+	        Block catchBlock = nf.Block(pos, nf.Eval(pos, wrap));
+	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
+        }
+	        
+        Block closure_body = synth.toBlock(nf.Try(pos, tryBlock, catches, null));
+        
+        Closure closure = synth.makeClosure(at_body.position(), ts.Void(), closure_body, context());
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
@@ -459,11 +477,23 @@ public class Lowerer extends ContextVisitor {
         } else {
             args = new Expr[] { place, closure };
         }
-        Stmt result = nf.Eval(pos,
+        List<Stmt> statements = new ArrayList<Stmt>();
+        Stmt run_at = nf.Eval(pos,
         		synth.makeStaticCall(pos, ts.Runtime(), RUN_AT,
         				Arrays.asList(args), ts.Void(),
         				context()));
-        return result;
+        statements.add(run_at);
+    	// [DC] It seems this can sometimes be null, even though it ought not to be.
+    	// I suspect some pass before this one is not filling it in, in some new code.
+        if (at_body.exceptions() != null) {
+	        for (Type thrown : at_body.exceptions()) {
+	        	TypeNode thrown_node = nf.UnknownTypeNode(pos).typeRef(Types.ref(thrown));
+	            //XTENLANG-3086 change from ts.CheckedThrowable() to ts.Runtime()
+		        Expr pretendToThrow = synth.makeStaticCall(pos, ts.CheckedThrowable(), Name.make("pretendToThrow"), Collections.singletonList(thrown_node), Collections.<Expr>emptyList(),  ts.Void(), context());
+	        	statements.add(nf.Eval(pos, pretendToThrow));
+	        }
+        }
+        return nf.Block(pos, statements);
     }
 
     private Stmt visitAtStmt(AtStmt a) throws SemanticException {
@@ -706,13 +736,41 @@ public class Lowerer extends ContextVisitor {
     }
 
     private Stmt makeAsyncBody(Position pos, List<Expr> exprs, List<Type> types,
-            Stmt body, List<X10ClassType> annotations,
+            Stmt async_body, List<X10ClassType> annotations,
             List<VarInstance<? extends VarDef>> env) throws SemanticException {
+
     	if (annotations == null)
     		annotations = new ArrayList<X10ClassType>(1);
     	annotations.add((X10ClassType) ts.systemResolver().findOne(ASYNC_CLOSURE));
-        Closure closure = synth.makeClosure(body.position(), ts.Void(),
-                synth.toBlock(body), context(), annotations);
+
+    	// try { async_body }
+        Block tryBlock = synth.toBlock(async_body);
+
+        List<Catch> catches = new ArrayList<Catch>();
+        { // catch (e:Error) { throw e; }
+	        Name catchFormalName = getTmp();
+	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Error()), catchFormalName);
+	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+	                nf.CanonicalTypeNode(pos, ts.Error()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
+	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
+	        Block catchBlock = nf.Block(pos, nf.Throw(pos, catchLocal));
+	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
+        }
+        { // catch (e:CheckedThrowable) { throw Exception.ensureException(e); }
+	        Name catchFormalName = getTmp();
+	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
+	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+	                nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
+	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
+	        Expr wrap = synth.makeStaticCall(pos, ts.Exception(), Name.make("ensureException"), Collections.singletonList(catchLocal), ts.Exception(), context());
+	        Block catchBlock = nf.Block(pos, nf.Throw(pos, wrap));
+	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
+        }
+	        
+        Block closure_body = synth.toBlock(nf.Try(pos, tryBlock, catches, null));
+
+        Closure closure = synth.makeClosure(async_body.position(), ts.Void(), closure_body, context(), annotations);
+        
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));
         closure.closureDef().setMethodContainer(Types.ref(mi));
@@ -932,12 +990,13 @@ public class Lowerer extends ContextVisitor {
             return specializedFinish;
 
         // TODO: merge with the call() function
+        Type catchType = ts.CheckedThrowable();
         MethodInstance mi = ts.findMethod(ts.Runtime(),
-                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Throwable()), context()));
-        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Throwable()), tmp);
+            ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(catchType), context()));
+        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(catchType), tmp);
         Formal formal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
-                nf.CanonicalTypeNode(pos, ts.Throwable()), nf.Id(pos, tmp)).localDef(lDef);
-        Expr local = nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(ts.Throwable());
+            nf.CanonicalTypeNode(pos, catchType), nf.Id(pos, tmp)).localDef(lDef);
+        Expr local = nf.Local(pos, nf.Id(pos, tmp)).localInstance(lDef.asInstance()).type(catchType);
         Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
                 nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(ts.Void());
@@ -1026,12 +1085,13 @@ public class Lowerer extends ContextVisitor {
 
         // Begin catch block
         Name tmp2 = getTmp();
+        Type catchType = ts.CheckedThrowable();
         MethodInstance mi = ts.findMethod(ts.Runtime(),
-                ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(ts.Throwable()), context()));
-        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Throwable()), tmp2);
+            ts.MethodMatcher(ts.Runtime(), PUSH_EXCEPTION, Collections.singletonList(catchType), context()));
+        LocalDef lDef = ts.localDef(pos, ts.NoFlags(), Types.ref(catchType), tmp2);
         Formal formal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
-                nf.CanonicalTypeNode(pos, ts.Throwable()), nf.Id(pos, tmp2)).localDef(lDef);
-        Expr local = nf.Local(pos, nf.Id(pos, tmp2)).localInstance(lDef.asInstance()).type(ts.Throwable());
+            nf.CanonicalTypeNode(pos, catchType), nf.Id(pos, tmp2)).localDef(lDef);
+        Expr local = nf.Local(pos, nf.Id(pos, tmp2)).localInstance(lDef.asInstance()).type(catchType);
         Expr call = nf.X10Call(pos, nf.CanonicalTypeNode(pos, ts.Runtime()),
                 nf.Id(pos, PUSH_EXCEPTION), Collections.<TypeNode>emptyList(),
                 Collections.singletonList(local)).methodInstance(mi).type(ts.Void());

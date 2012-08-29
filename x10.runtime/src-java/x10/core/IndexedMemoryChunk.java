@@ -16,7 +16,6 @@ import java.util.Arrays;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.Place;
-import x10.lang.UnsupportedOperationException;
 import x10.rtt.BooleanType;
 import x10.rtt.ByteType;
 import x10.rtt.CharType;
@@ -26,7 +25,6 @@ import x10.rtt.IntType;
 import x10.rtt.LongType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.ShortType;
 import x10.rtt.StringType;
 import x10.rtt.Type;
@@ -101,7 +99,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     public static <T> IndexedMemoryChunk<T> allocate(Type<T> type, long length, boolean zeroed) {
         if (length > Integer.MAX_VALUE) {
             // TODO
-            throw new x10.lang.OutOfMemoryError("Array length must be shorter than 2^31");
+            throw new java.lang.OutOfMemoryError("Array length must be shorter than 2^31");
         }
         return new IndexedMemoryChunk<T>(type, (int) length, zeroed);
     }
@@ -230,9 +228,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             System.arraycopy(srcData, 0, dstData, dstIndex, numElems);
         }
         public static final RuntimeType<$Closure$0> $RTT =
-        	x10.rtt.StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
-        @Override
+        	x10.rtt.StaticVoidFunType.<$Closure$0> make($Closure$0.class, new Type[] { VoidFun_0_0.$RTT });
         public RuntimeType<$Closure$0> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) {return null;}
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
@@ -248,9 +246,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
                         this.srcData instanceof boolean[]) {
                     serializer.write(DeserializationDispatcher.javaClassID);
                     serializer.writeObject(this.srcData);
-                } else if (this.srcData instanceof String[]) {
+                } else if (this.srcData instanceof java.lang.String[]) {
                     serializer.write(DeserializationDispatcher.STRING_ID);
-                    serializer.write((String[]) this.srcData);
+                    serializer.write((java.lang.String[]) this.srcData);
                 } else if (this.srcData instanceof X10JavaSerializable[]) {
                 	serializer.write((X10JavaSerializable[]) this.srcData);
                 } else {
@@ -304,7 +302,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return;
         }
 
-        throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        throw new java.lang.UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
         // notifier.$apply();
     }
 
@@ -417,9 +415,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             x10.lang.Runtime.runAsync(dstWrapperHome, copyBody2);
         }
         public static final RuntimeType<$Closure$1<?>> $RTT =
-        	x10.rtt.StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT, Types.OBJECT });
-        @Override
+        	x10.rtt.StaticVoidFunType.<$Closure$1<?>> make($Closure$1.class, new Type[] { VoidFun_0_0.$RTT });
         public RuntimeType<$Closure$1<?>> $getRTT() { return $RTT; }
+        public Type<?> $getParam(int i) { return i == 0 ? srcType : null; }
 
         //TODO Keith This is not compatible with C++ at the moment cause the java backend does not implement send_put
         public void $_serialize(X10JavaSerializer serializer) throws IOException {
@@ -474,7 +472,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             return;
         }
 
-        throw new UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
+        throw new java.lang.UnsupportedOperationException("asyncCopy with notifier not implemented for multivm");
         // notifier.$apply();
     }
 
@@ -490,8 +488,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 
     // TODO implement remote operations
     public RemoteIndexedMemoryChunk<T> getCongruentSibling(x10.lang.Place p) {
-    	ThrowableUtilities.UnsupportedOperationException("Remote operations are not implemented.");
-    	return null;
+        throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
 
     public static final RuntimeType<IndexedMemoryChunk<?>> $RTT = NamedType.<IndexedMemoryChunk<?>> make(
@@ -500,9 +497,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<IndexedMemoryChunk<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return i == 0 ? type : null; }
 
 
@@ -555,14 +550,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 	public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         IndexedMemoryChunk imc = new IndexedMemoryChunk((java.lang.System[]) null);
         deserializer.record_reference(imc);
-        return _deSerialize_body(imc, deserializer);
+        return $_deserialize_body(imc, deserializer);
 	}
 
 	public short $_get_serialization_id() {
 		return _serialization_id;
 	}
 
-    public static X10JavaSerializable _deSerialize_body(IndexedMemoryChunk imc, X10JavaDeserializer deserializer) throws IOException {
+    public static X10JavaSerializable $_deserialize_body(IndexedMemoryChunk imc, X10JavaDeserializer deserializer) throws IOException {
         int length = deserializer.readInt();
         imc.length = length;
         imc.type = (Type) deserializer.readRef();

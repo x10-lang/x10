@@ -21,8 +21,6 @@
 
 #include <x10/lang/VoidFun_0_0.h>
 
-#include <x10/lang/Throwable.h>
-
 #include <x10/lang/Thread.h>
 #include <x10/lang/Runtime__Worker.h>
 #include <x10/lang/Closure.h>

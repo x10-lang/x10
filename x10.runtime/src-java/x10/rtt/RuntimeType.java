@@ -82,10 +82,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         if (useCache) {
             RuntimeType<?> type = typeCache.get(javaClass);
             if (type == null) {
-                RuntimeType<?> type0;
-                if (java.lang.String.class.equals(javaClass)) {
-                    type0 = Types.STRING;
-                } else {
+                RuntimeType<?> type0 = Types.getRTTForKnownType(javaClass);
+                if (type0 == null) {
                     type0 = new RuntimeType<T>(javaClass, null, null);
                 }
                 type = typeCache.putIfAbsent(javaClass, type0);
@@ -93,11 +91,11 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             }
             return (RuntimeType<T>) type;
         } else {
-            if (java.lang.String.class.equals(javaClass)) {
-                return Types.STRING;
-            } else {
-                return new RuntimeType<T>(javaClass, null, null);
+            RuntimeType<?> type = Types.getRTTForKnownType(javaClass);
+            if (type == null) {
+                type = new RuntimeType<T>(javaClass, null, null);
             }
+            return (RuntimeType<T>) type;
         }
     }
 
@@ -192,7 +190,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public boolean isAssignableTo(Type<?> superType) {
         if (this == superType) return true;
         if (superType == Types.ANY) return true;
-        if (superType == Types.OBJECT) return !Types.isStructType(this);
+        // N.B. 2nd attempt to remove Types.OBJECT. if successful, {RefI,ObjectType}.java and Types.OBJECT will be removed.
+//        if (superType == Types.OBJECT) return !Types.isStructType(this);
         if (superType instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) superType;
             if (rt.javaClass.isAssignableFrom(javaClass)) {
@@ -209,6 +208,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
 
     public boolean hasZero() {
+        return true;
+    }
+
+    public boolean isref() {
         return true;
     }
 
@@ -449,35 +452,11 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     private static final String X10_INTEROP_JAVA_ARRAY = "x10.interop.Java.array";
     private static String typeName(Class<?> javaClass) {
+        RuntimeType<?> rtt = null;
         if (javaClass.isArray()) {
             return X10_INTEROP_JAVA_ARRAY + "[" + typeName(javaClass.getComponentType()) + "]";
-        } else if (javaClass.isPrimitive()) {
-            if (byte.class.equals(javaClass)) {
-                return "x10.lang.Byte";
-            }
-            if (short.class.equals(javaClass)) {
-                return "x10.lang.Short";
-            }
-            if (int.class.equals(javaClass)) {
-                return "x10.lang.Int";
-            }
-            if (long.class.equals(javaClass)) {
-                return "x10.lang.Long";
-            }
-            if (float.class.equals(javaClass)) {
-                return "x10.lang.Float";
-            }
-            if (double.class.equals(javaClass)) {
-                return "x10.lang.Double";
-            }
-            if (char.class.equals(javaClass)) {
-                return "x10.lang.Char";
-            }
-            if (boolean.class.equals(javaClass)) {
-                return "x10.lang.Boolean";
-            }
-            assert false;
-            return "";
+        } else if ((rtt = Types.getRTTForKnownType(javaClass)) != null) {
+            return rtt.typeName();
         } else {
             return javaClass.getName();            
         }
@@ -668,8 +647,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             return Types.INT;
         } else if ("x10.core.Long".equals(className)) {
             return Types.LONG;
-        } else if ("x10.core.Object".equals(className)) {
-            return Types.OBJECT;
+//        } else if ("x10.core.Ref".equals(className)) {
+//            return Types.OBJECT;
         } else if ("x10.core.Short".equals(className)) {
             return Types.SHORT;
         } else if ("x10.core.String".equals(className)) {

@@ -36,11 +36,9 @@ File__NativeFile::_make(x10aux::ref<String> s) {
 }
 
 void File__NativeFile::_serialize_body(serialization_buffer &buf) {
-    this->Object::_serialize_body(buf);
 }
 
 void File__NativeFile::_deserialize_body(deserialization_buffer& buf) {
-    this->Object::_deserialize_body(buf);
 }
 
 const x10aux::serialization_id_t File__NativeFile::_serialization_id =
@@ -53,7 +51,7 @@ x10aux::ref<Reference> File__NativeFile::_deserializer(x10aux::deserialization_b
     return this_;
 }
 
-RTT_CC_DECLS1(File__NativeFile, "x10.io.File.NativeFile", RuntimeType::class_kind, Object)
+RTT_CC_DECLS0(File__NativeFile, "x10.io.File.NativeFile", RuntimeType::class_kind)
 
 x10aux::ref<String>
 File__NativeFile::getAbsolutePath() {

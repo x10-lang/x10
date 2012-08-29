@@ -40,7 +40,7 @@ public class GenericInference1_MustFailCompile extends GenericTest {
             m(); // ERR:  Method m[T](){}[T <: GenericInference1_MustFailCompile.X]: x10.lang.String{self=="X"} in GenericInference1_MustFailCompile{self==GenericInference1_MustFailCompile#this} cannot be called with arguments (); Cannot infer type for type parameter T.
                     // used to be: Method m[T](){}[T <: GenericInference1_MustFailCompile.X]: x10.lang.String{self=="X"} in GenericInference1_MustFailCompile{self==GenericInference1_MustFailCompile#this} cannot be called with arguments (); Could not infer type for type parameter T.
                     // now: (Diagnostic) No constraint on type parameters. Returning Any instead of throwing an exception.
-        check("a", a, "hi");
+        genericCheck("a", a, "hi");
 
         return result;
     }

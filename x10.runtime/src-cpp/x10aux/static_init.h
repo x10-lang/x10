@@ -20,7 +20,7 @@
 
 namespace x10 {
     namespace lang {
-        class Throwable;
+        class CheckedThrowable;
     }
 }
 
@@ -37,7 +37,7 @@ namespace x10aux {
 
         static void initField(volatile status* flag,
                               void (*init_func)(void),
-                              x10aux::ref<x10::lang::Throwable>*,
+                              x10aux::ref<x10::lang::CheckedThrowable>*,
                               const char* fname);
 
       private:

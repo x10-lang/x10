@@ -27,8 +27,8 @@ public class GenericMethods2 extends GenericTest {
 
         val a = new A();
 
-        check("a.m[int](1)", a.m[int](1), 1);
-        check("a.m[String](\"1\")", a.m[String]("1"), "1");
+        genericCheck("a.m[int](1)", a.m[int](1), 1);
+        genericCheck("a.m[String](\"1\")", a.m[String]("1"), "1");
 
         return result;
     }

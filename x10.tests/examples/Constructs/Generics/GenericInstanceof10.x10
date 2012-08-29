@@ -37,7 +37,7 @@ public class GenericInstanceof10 extends GenericTest {
 
     public def run() = {
 
-        var a:Object = new A[int]();
+        var a:Any = new A[int]();
 
         return !(a instanceof I[String]) && !(a instanceof J[String]);
     }

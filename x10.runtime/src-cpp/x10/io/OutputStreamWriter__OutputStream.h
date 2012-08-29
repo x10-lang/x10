@@ -12,7 +12,7 @@
 #ifndef X10_IO_OUTPUTSTREAM_H
 #define X10_IO_OUTPUTSTREAM_H
 
-#include <x10/lang/Object.h>
+#include <x10/lang/X10Class.h>
 
 namespace x10 {
 
@@ -22,7 +22,7 @@ namespace x10 {
 
     namespace io {
 
-        class OutputStreamWriter__OutputStream : public x10::lang::Object {
+        class OutputStreamWriter__OutputStream : public x10::lang::X10Class {
             public:
             RTT_H_DECLS_CLASS;
 
@@ -30,7 +30,6 @@ namespace x10 {
 
             public:
             x10aux::ref<OutputStreamWriter__OutputStream> _constructor() {
-                this->x10::lang::Object::_constructor();
                 return this;
             }
 

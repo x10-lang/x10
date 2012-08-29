@@ -11,7 +11,6 @@
 
 package x10.rtt;
 
-import x10.core.fun.Fun_0_1;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -19,8 +18,8 @@ import x10.x10rt.X10JavaSerializer;
 import java.io.IOException;
 
 
-public final class StringType extends RuntimeType<String> {
-//public final class StringType extends RuntimeType<String> implements X10JavaSerializable {
+public final class StringType extends RuntimeType<java.lang.String> {
+//public final class StringType extends RuntimeType<java.lang.String> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
 //    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, StringType.class.getName());
@@ -31,9 +30,8 @@ public final class StringType extends RuntimeType<String> {
     }
 
     public StringType() {
-        super(String.class,
+        super(java.lang.String.class,
             new Type[] {
-                ParameterizedType.make(Fun_0_1.$RTT, Types.INT, Types.CHAR),
                 ParameterizedType.make(Types.COMPARABLE, UnresolvedType.THIS)
             }
         );
@@ -41,13 +39,15 @@ public final class StringType extends RuntimeType<String> {
     
     @Override
     public boolean isInstance(Object obj) {
-        // rules for String boxing currently are not straightforward,
-        // so we accept both unboxed (java.lang) and boxed (x10.core) objects.
-        return obj instanceof java.lang.String || obj instanceof x10.core.String;
+        // TODO remove boxing of String
+//        // rules for String boxing currently are not straightforward,
+//        // so we accept both unboxed (java.lang) and boxed (x10.core) objects.
+//        return obj instanceof java.lang.String || obj instanceof x10.core.String;
+        return obj instanceof java.lang.String;
     }
     
     @Override
-    public String typeName() {
+    public java.lang.String typeName() {
         return "x10.lang.String";
     }
 

@@ -32,7 +32,7 @@ import x10.compiler.NativeClass;
  */
 @NativeClass("c++", "x10.lang", "PlaceLocalHandle_Impl")
 @NativeClass("java", "x10.runtime.impl.java", "PlaceLocalHandle")
-public final struct PlaceLocalHandle[T]{T <: Object} {
+public final struct PlaceLocalHandle[T]{T isref} {
 
     // Only to be used by make method and Runtime class
     native def this();
@@ -60,7 +60,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def make[T](dist:Dist, init:()=>T){T isref}:PlaceLocalHandle[T] {
         return make(dist.places(), init);
     }
 
@@ -78,7 +78,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init_there a closure to be evaluated in each place to create the local objects.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def make[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
         return make(dist.places(), init_here, init_there);
     }
 
@@ -93,7 +93,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T](pg:PlaceGroup, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def make[T](pg:PlaceGroup, init:()=>T){T isref}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         finish for (p in pg) {
             at (p) async handle.set(init());
@@ -115,7 +115,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init_there a closure to be evaluated in each place to create the local objects.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def make[T,U](pg:PlaceGroup, init_here:(Place)=>U, init_there:(U)=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def make[T,U](pg:PlaceGroup, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         finish for (p in pg) {
             val v:U = init_here(p);
@@ -141,7 +141,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def makeFlat[T](dist:Dist, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def makeFlat[T](dist:Dist, init:()=>T){T isref}:PlaceLocalHandle[T] {
         return makeFlat(dist.places(), init);
     }
 
@@ -161,7 +161,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init_there a closure to be evaluated in each place to create the local objects.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def makeFlat[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def makeFlat[T,U](dist:Dist, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
         return makeFlat(dist.places(), init_here, init_there);
     }
 
@@ -178,7 +178,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init the initialization closure used to create the local object.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def makeFlat[T](pg:PlaceGroup, init:()=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def makeFlat[T](pg:PlaceGroup, init:()=>T){T isref}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         pg.broadcastFlat( ()=>{ handle.set(init()); });
         return handle;
@@ -200,7 +200,7 @@ public final struct PlaceLocalHandle[T]{T <: Object} {
      * @param init_there a closure to be evaluated in each place to create the local objects.
      * @return a PlaceLocalHandle that can be used to access the local objects.
      */
-    public static def makeFlat[T,U](pg:PlaceGroup, init_here:(Place)=>U, init_there:(U)=>T){T <: Object}:PlaceLocalHandle[T] {
+    public static def makeFlat[T,U](pg:PlaceGroup, init_here:(Place)=>U, init_there:(U)=>T){T isref}:PlaceLocalHandle[T] {
         val handle = at(Place.FIRST_PLACE) PlaceLocalHandle[T]();
         @Pragma(Pragma.FINISH_SPMD) finish for (p in pg) {
             val v:U = init_here(p);

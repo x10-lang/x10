@@ -716,7 +716,7 @@ public class Desugarer extends ContextVisitor {
         newDep = nf.Unary(pos, Unary.Operator.NOT, newDep).type(ts.Boolean());
         If anIf = nf.If(pos, newDep, nf.Throw(pos,
                 nf.New(pos, nf.CanonicalTypeNode(pos, ts.FailedDynamicCheckException()),
-                        CollectionUtil.<Expr>list(nf.StringLit(pos, newDep.toString()))).type(ts.Throwable())));
+                        CollectionUtil.<Expr>list(nf.StringLit(pos, newDep.toString()))).type(ts.FailedDynamicCheckException())));
         anIf = (If) anIf.visit(builder).visit(checker).visit(v);
         statements.addAll(locals);
         statements.add(anIf);

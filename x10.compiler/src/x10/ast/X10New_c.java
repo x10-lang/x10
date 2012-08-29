@@ -190,11 +190,11 @@ public class X10New_c extends New_c implements X10New {
                 anonType.setInterfaces(Collections.<Ref<? extends Type>> singletonList(ct));
             }
             else */{
-                anonType.superType(Types.<Type> ref(ts.Object()));
+            	// [DC] null means it's a new root in the object hierarchy (no more x10.lang.Object)
+                anonType.superType(null);
                 anonType.setInterfaces(Collections.<Ref<? extends Type>> singletonList(ct));
             }
 
-            assert anonType.superType() != null;
             assert anonType.interfaces().size() <= 1;
         }
 

@@ -26,10 +26,10 @@ public class GenericMethods6 extends GenericTest {
         }
 
         val a1 = new A[String]();
-        check("a1.m[int](\"1\",1)", a1.m[int]("1",1), 1);
+        genericCheck("a1.m[int](\"1\",1)", a1.m[int]("1",1), 1);
 
         val a2 = new A[int]();
-        check("a2.m[String](1,\"1\")", a2.m[String](1,"1"), "1");
+        genericCheck("a2.m[String](1,\"1\")", a2.m[String](1,"1"), "1");
 
         return result;
     }

@@ -250,13 +250,6 @@ public abstract class NodeFactory_c extends AbstractNodeFactory_c implements Nod
         return n;
     }
 
-    public Synchronized Synchronized(Position pos, Expr expr, Block body) {
-        Synchronized n = new Synchronized_c(pos, expr, body);
-        n = (Synchronized)n.ext(extFactory.extSynchronized());
-        n = (Synchronized)n.del(delFactory.delSynchronized());
-        return n;
-    }
-
     public Throw Throw(Position pos, Expr expr) {
         Throw n = new Throw_c(pos, expr);
         n = (Throw)n.ext(extFactory.extThrow());

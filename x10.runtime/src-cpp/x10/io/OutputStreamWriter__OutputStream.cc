@@ -48,13 +48,11 @@ void OutputStreamWriter__OutputStream::write(x10::util::IndexedMemoryChunk<x10_b
 }
 
 void OutputStreamWriter__OutputStream::_serialize_body(x10aux::serialization_buffer& buf) {
-    x10::lang::Object::_serialize_body(buf);
 }
 
 void OutputStreamWriter__OutputStream::_deserialize_body(x10aux::deserialization_buffer& buf) {
-    x10::lang::Object::_deserialize_body(buf);
 }
 
-RTT_CC_DECLS1(OutputStreamWriter__OutputStream, "x10.io.OutputStreamWriter.OutputStream", RuntimeType::class_kind, Object)
+RTT_CC_DECLS0(OutputStreamWriter__OutputStream, "x10.io.OutputStreamWriter.OutputStream", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

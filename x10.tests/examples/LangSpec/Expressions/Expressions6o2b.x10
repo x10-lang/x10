@@ -28,7 +28,7 @@ public class Expressions6o2b extends x10Test {
 
 // file Expressions line 793
  static  class Hook {
- static def example(ob:Object) =
+ static def example(ob:Any) =
 (ob == null) ? null : ob.toString();
 def run() {
   return example(null) == null && example("yes").equals("yes");

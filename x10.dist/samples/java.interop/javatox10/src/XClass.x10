@@ -12,10 +12,10 @@
 public class XClass {
     private static val time = System.nanoTime();
     def xint() = 100;
-    def xobject() = new Object();
+    def xobject() = new Empty();
     def xstring() = "xyz";
     def xclass() = new XClass();
-    def xthrows() { throw new Throwable(); }
+    def xthrows() { throw new Exception(); }
     def xstaticfield() {
         finish for (p in Place.places()) {
             async at (p) Console.OUT.println("Time at place " + p.id + " is " + time);

@@ -20,7 +20,7 @@ import harness.x10Test;
  */
 public class InitStaticField2d extends x10Test {
 
-    static val a = 1 as Any as Object;
+    static val a = 1 as Any as String; // cast to String should throw CCE
 
     public def run():Boolean {
         var ok:Boolean = true;
@@ -32,7 +32,7 @@ public class InitStaticField2d extends x10Test {
         } catch (e:ExceptionInInitializer) {
         	// check ExceptionInInitializer is thrown
         	// e.printStackTrace();
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
         	ok = false;
         	Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown!");
         	// e.printStackTrace();
@@ -45,7 +45,7 @@ public class InitStaticField2d extends x10Test {
         } catch (e:ExceptionInInitializer) {
         	// check ExceptionInInitializer is thrown
         	// e.printStackTrace();
-        } catch (e:Throwable) {
+        } catch (e:Exception) {
         	ok = false;
         	Console.OUT.println("BUG: something other than ExceptionInInitializer was thrown!");
         	// e.printStackTrace();

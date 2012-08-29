@@ -92,6 +92,11 @@ public final class IntType extends RuntimeType<x10.core.Int> {
     	return ((int[]) array).length;
     }
 
+    @Override
+    public boolean isref() {
+        return false;
+    }
+
 //    public void $_serialize(X10JavaSerializer serializer) throws IOException {
 //    }
 //

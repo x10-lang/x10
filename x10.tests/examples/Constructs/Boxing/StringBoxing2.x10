@@ -22,8 +22,8 @@ public class StringBoxing2 extends x10Test {
 	(x:Any) => x as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
-    static def makefun2[X](): ((Int)=>Char)=>X = {
-	(a:(Int)=>Char) => a as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
+    static def makefun2[X](): (Comparable[String])=>X = {
+	(a:Comparable[String]) => a as X // ERR: Warning: This is an unsound cast because X10 currently does not perform constraint solving at runtime for generic parameters.
     }
 
   

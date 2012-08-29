@@ -176,19 +176,19 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Any.o \
 	x10/lang/Arithmetic.o \
 	x10/lang/Bitwise.o \
+	x10/lang/CheckedThrowable.o \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \
 	x10/lang/Fun.o \
 	x10/lang/GlobalRef.o \
 	x10/lang/IBox.o \
-	x10/lang/Object.o \
 	x10/lang/Reference.o \
 	x10/lang/String.o \
-	x10/lang/Throwable.o \
 	x10/lang/Deque.o \
 	x10/lang/Lock__ReentrantLock.o \
 	x10/lang/PlaceLocalHandle_Impl.o \
 	x10/lang/Thread.o \
+	x10/lang/X10Class.o \
 	x10/util/IndexedMemoryChunk.o \
 	x10/util/Ordered.o \
 	x10/util/RemoteIndexedMemoryChunk.o \

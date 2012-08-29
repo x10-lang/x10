@@ -24,7 +24,7 @@ using namespace x10::lang;
 
 void StaticInitController::initField(volatile status* flag,
                                      void (*init_func)(void),
-                                     x10aux::ref<x10::lang::Throwable> *exceptionHolder,
+                                     x10aux::ref<x10::lang::CheckedThrowable> *exceptionHolder,
                                      const char* fname) {
     {
         status __var1__ = (status)x10aux::atomic_ops::compareAndSet_32((volatile x10_int*)flag, (x10_int)UNINITIALIZED, (x10_int)INITIALIZING);
@@ -35,7 +35,7 @@ void StaticInitController::initField(volatile status* flag,
             // init_func will evalute the field init expr, store the value in the field and set *flag to INITIALIZED.
             (*init_func)();
         } catch (x10aux::__ref& exceptObj) {
-            x10aux::ref<x10::lang::Throwable>& throwableExceptObj = (x10aux::ref<x10::lang::Throwable>&)(exceptObj);
+            x10aux::ref<x10::lang::CheckedThrowable>& throwableExceptObj = (x10aux::ref<x10::lang::CheckedThrowable>&)(exceptObj);
             *exceptionHolder = throwableExceptObj;
 
             *flag = EXCEPTION_RAISED;

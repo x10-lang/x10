@@ -38,9 +38,9 @@ public class GenericInheritance06 extends GenericTest {
     public def run() = {
 
         val a = new A[int]();
-        check("a.m(0)", a.m(0), 0);
-        check("a.n(0)", a.n(0), 1);
-        check("a.o(0)", a.o(0), 2);
+        genericCheck("a.m(0)", a.m(0), 0);
+        genericCheck("a.n(0)", a.n(0), 1);
+        genericCheck("a.o(0)", a.o(0), 2);
 
         return result;
     }

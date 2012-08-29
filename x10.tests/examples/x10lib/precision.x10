@@ -17,7 +17,7 @@ public struct precision {
     public static def is_equal (a:Double, b:Double, tol:Double):Boolean {
         if (tol < 0.0) {
             x10.io.Console.OUT.println("Error in is_equal(Double,Double,Double): invalid tolerance "+tol);
-            throw new Error();
+            throw new Exception();
         }
 
         return Math.abs(a - b) <= 0.5d * Math.abs(a + b) * tol;
@@ -30,7 +30,7 @@ public struct precision {
     public static def is_equal (a:Float, b:Float, tol:Float):Boolean {
         if (tol < 0.0) {
             x10.io.Console.OUT.println("Error in is_equal(Float,Float,Float): invalid tolerance "+tol);
-            throw new Error();
+            throw new Exception();
         }
 
         return Math.abs(a - b) <= 0.5f * Math.abs(a + b) * tol;

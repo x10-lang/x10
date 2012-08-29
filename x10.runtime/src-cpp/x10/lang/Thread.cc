@@ -564,11 +564,9 @@ void Thread::__apply()
 }
 
 void Thread::_serialize_body(serialization_buffer &buf) {
-    this->Object::_serialize_body(buf);
 }
 
 void Thread::_deserialize_body(deserialization_buffer& buf) {
-    this->Object::_deserialize_body(buf);
 }
 
 x10aux::ref<x10::lang::Reference> Thread::_deserializer(x10aux::deserialization_buffer &buf) {
@@ -578,6 +576,6 @@ x10aux::ref<x10::lang::Reference> Thread::_deserializer(x10aux::deserialization_
     return this_;
 }
 
-RTT_CC_DECLS1(Thread, "x10.lang.Thread", RuntimeType::class_kind, Object)
+RTT_CC_DECLS0(Thread, "x10.lang.Thread", RuntimeType::class_kind)
 
 // vim:tabstop=4:shiftwidth=4:expandtab

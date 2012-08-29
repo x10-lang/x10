@@ -61,7 +61,7 @@ abstract public class TestDist extends x10Test {
             var r:String;
             try {
                 r = run();
-            } catch (e: Throwable) {
+            } catch (e: Exception) {
                 r = e.getMessage();
             }
             pr(testName + " " + r);
@@ -73,7 +73,7 @@ abstract public class TestDist extends x10Test {
             
     class Grid {
 
-        var os: Rail[Object] = new Rail[Object](10);
+        var os: Rail[Any] = new Rail[Any](10);
 
         def set(i0: int, vue: double): void = {
             os(i0) = new Box[double](vue);
@@ -101,7 +101,7 @@ abstract public class TestDist extends x10Test {
                 }
             }
             for (var i: int = 0; i<os.size; i++) {
-                var o: Object = os(i);
+                var o: Any = os(i);
                 if (o==null) {
                     if (rank==1)
                         print(".");

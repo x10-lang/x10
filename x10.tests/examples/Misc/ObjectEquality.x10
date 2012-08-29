@@ -19,10 +19,10 @@ import harness.x10Test;
  */
 public class ObjectEquality extends x10Test {
 
-	var objField: Object;
+	var objField: Empty;
 
 	public def run(): boolean = {
-		val obj: Object = new Object();
+		val obj: Empty = new Empty();
 		if (obj == objField)
 			return false;
 		return true;

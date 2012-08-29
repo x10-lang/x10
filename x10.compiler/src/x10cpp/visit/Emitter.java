@@ -834,9 +834,14 @@ public class Emitter {
 		}
 		h.write(mangled_non_method_name(n.name().id().toString()));
 
-		if (!n.flags().flags().isInterface() && n.superClass() != null) {
-			String parent = translateType(n.superClass().type());
-			h.write(" : public "+parent);
+		if (!n.flags().flags().isInterface() && !n.classDef().isStruct()) {
+			TypeNode sc = n.superClass();
+			if (sc == null) {
+				h.write(" : public x10::lang::X10Class");
+			} else {
+				String parent = translateType(n.superClass().type());
+				h.write(" : public "+parent);
+			}
 		}
 
 		h.unifiedBreak(0);

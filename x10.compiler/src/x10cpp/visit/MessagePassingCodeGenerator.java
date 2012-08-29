@@ -39,6 +39,7 @@ import static x10cpp.visit.SharedVarsMethods.VOID;
 import static x10cpp.visit.SharedVarsMethods.VOID_PTR;
 import static x10cpp.visit.SharedVarsMethods.REFERENCE_TYPE;
 import static x10cpp.visit.SharedVarsMethods.CLOSURE_TYPE;
+import static x10cpp.visit.SharedVarsMethods.CLASS_TYPE;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
 import static x10cpp.visit.SharedVarsMethods.getId;
 import static x10cpp.visit.SharedVarsMethods.getUniqueId_;
@@ -141,6 +142,7 @@ import polyglot.types.LocalInstance;
 import polyglot.types.MethodDef;
 import polyglot.types.Name;
 import polyglot.types.QName;
+import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
@@ -345,10 +347,15 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		h.write("template <> class ");
 		h.write(mangled_non_method_name(cd.name().toString()));
 		h.write(voidTemplateInstantiation(cd.typeParameters().size()));
-		if (!cd.isStruct() && cd.superType() != null) {
+		if (!cd.isStruct()) {
+			Ref<? extends Type> st = cd.superType();
 		    h.write(" : public ");
-		    X10ClassDef sdef = ((X10ClassType) Types.baseType(cd.superType().get())).x10Def();
-		    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));
+		    if (st == null ) {
+			    h.write("x10::lang::X10Class");
+		    } else {
+			    X10ClassDef sdef = ((X10ClassType) Types.baseType(st.get())).x10Def();
+			    h.write(Emitter.translateType(getStaticMemberContainer(sdef), false));
+		    }
 		}
 		h.allowBreak(0, " ");
 		h.write("{");
@@ -1075,10 +1082,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (!members.isEmpty()) {
             String className = Emitter.translateType(currentClass);
 
-            if (superClass != null) {
-                generateUsingDeclsForInheritedMethods(context, currentClass,
-                                                      superClass, xts, h, members);
-            }
+            generateUsingDeclsForInheritedMethods(context, currentClass, superClass, xts, h, members);
             
             ClassMember prev = null;
             for (ClassMember member : members) {
@@ -1266,40 +1270,57 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             possibleNames.add(mi.name());
         }
         while (superClass != null && !possibleNames.isEmpty()) {
-            Iterator<Name> names = possibleNames.iterator();
-            nameLoop: while (names.hasNext()) {
-                Name methName = names.next();
-                List<MethodInstance> childImpls = childClass.methodsNamed(methName);
-                List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
-                if (!parentImpls.isEmpty()) {
-                    boolean emitUsing = false;
-                    if (childImpls.size() != parentImpls.size()) {
-                        // Number of implementation differs, so we can't have an exact signature match.
-                        emitUsing = true;
-                    } else {
-                        // Same number of impls, now check for identical signatures.
-                        implLoop: for (MethodInstance childImpl : childImpls) {
-                            for (MethodInstance parentImpl : parentImpls) {
-                                if (childImpl.isSameMethod(parentImpl, context)) continue implLoop;
-                            }
-                            // If we get to here, then there is a childImpl that has a different signature than all parentImpls
-                            emitUsing = true;
-                            break implLoop;                 
-                        }
-                    }
-                    
-                    if (emitUsing) {
-                        names.remove();
-                        h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString())+";");
-                        didSomething = true;
-                        continue nameLoop;
-                    }  
-                }
-            }
+            didSomething = generateUsingDeclsHelper(context, childClass, superClass, h, didSomething, possibleNames);
             superClass = (X10ClassType)superClass.superClass();
+        }
+        if (!possibleNames.isEmpty()) {
+        	// also check for methods of Any; at the impl level these are inherited from X10Class
+        	// and therefore need to be treated just as if they were inherited from a real X10 superclass
+        	// for the purposes of generating using declarations.
+            didSomething = generateUsingDeclsHelper(context, childClass, xts.Any(), h, didSomething, possibleNames);
         }
         if (didSomething) h.forceNewline();
     }
+
+	private boolean generateUsingDeclsHelper(X10CPPContext_c context,
+			X10ClassType childClass, X10ClassType superClass,
+			ClassifiedStream h, boolean didSomething, Set<Name> possibleNames) {
+		Iterator<Name> names = possibleNames.iterator();
+		nameLoop: while (names.hasNext()) {
+		    Name methName = names.next();
+		    List<MethodInstance> childImpls = childClass.methodsNamed(methName);
+		    List<MethodInstance> parentImpls = superClass.methodsNamed(methName);
+		    if (!parentImpls.isEmpty()) {
+		        boolean emitUsing = false;
+		        if (childImpls.size() != parentImpls.size()) {
+		            // Number of implementation differs, so we can't have an exact signature match.
+		            emitUsing = true;
+		        } else {
+		            // Same number of impls, now check for identical signatures.
+		            implLoop: for (MethodInstance childImpl : childImpls) {
+		                for (MethodInstance parentImpl : parentImpls) {
+		                    if (childImpl.isSameMethod(parentImpl, context)) continue implLoop;
+		                }
+		                // If we get to here, then there is a childImpl that has a different signature than all parentImpls
+		                emitUsing = true;
+		                break implLoop;                 
+		            }
+		        }
+		        
+		        if (emitUsing) {
+		            names.remove();
+		            if (superClass.isAny()) {
+		            	h.writeln("using "+CLASS_TYPE+"::"+mangled_method_name(methName.toString())+";");		            	
+		            } else {
+		            	h.writeln("using "+Emitter.translateType(superClass,false)+"::"+mangled_method_name(methName.toString())+";");
+		            }
+		            didSomething = true;
+		            continue nameLoop;
+		        }  
+		    }
+		}
+		return didSomething;
+	}
 
     public void visit(PackageNode_c n) {
         assert (false);
@@ -1736,7 +1757,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.writeln("static volatile x10aux::StaticInitController::status "+status+";");;
 
         // declare the exception holder
-        h.writeln("static x10aux::ref<x10::lang::Throwable> "+except+";");;
+        h.writeln("static x10aux::ref<x10::lang::CheckedThrowable> "+except+";");;
 
         // declare the accessor method
         h.write("static ");
@@ -1777,7 +1798,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.writeln(";");
         
         // define the exception holder flag
-        sw.write("x10aux::ref<x10::lang::Throwable> ");
+        sw.write("x10aux::ref<x10::lang::CheckedThrowable> ");
         sw.write(container+"::");
         sw.write(except);
         sw.writeln(";");
@@ -3069,11 +3090,12 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline(4); sw.begin(0);
 		if (n.catchBlocks().size() > 0) {
 		    String excVar = "__exc" + refVar;
+		    // [DC] the following I believe to be obsolete following the new itables implementation of interface dispatch
 		    // Note that the following c-style cast only works because Throwable is
 		    // *not* an interface and thus is not virtually inherited.  If it
 		    // were, we would have to static_cast the exception to Throwable on
 		    // throw (otherwise we would need to offset by an unknown quantity).
-		    String exception_ref = Emitter.translateType(xts.Throwable(), true);
+		    String exception_ref = Emitter.translateType(xts.CheckedThrowable(), true);
 		    sw.write(exception_ref+"& " + excVar + " = ("+exception_ref+"&)" + refVar + ";");
 		    context.setExceptionVar(excVar);
 		    for (Catch cb : n.catchBlocks()) {
@@ -3105,7 +3127,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		sw.newline();
 		sw.write("if (");
 		String type = Emitter.translateType(n.formal().type().type(), true);
-        if (n.formal().type().type().typeEquals(tr.typeSystem().Throwable(), context)) {
+        if (n.formal().type().type().typeEquals(tr.typeSystem().CheckedThrowable(), context)) {
             sw.write("true");
         } else if (refsAsPointers) {
 			sw.write("!!dynamic_cast" + chevrons(type) + "(" + excVar + ")");

@@ -19,7 +19,7 @@ public final class AtFrame extends Frame {
         worker.throwable = null;
     }
 
-    @Inline public static def update(upRef:GlobalRef[Frame], throwable:Throwable) {
+    @Inline public static def update(upRef:GlobalRef[Frame], throwable:Exception) {
         val body = ()=> @x10.compiler.RemoteInvocation {
             var up:Frame = (upRef as GlobalRef[Frame]{home==here})();
             if (null != throwable) {

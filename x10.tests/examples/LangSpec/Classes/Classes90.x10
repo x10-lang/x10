@@ -28,11 +28,11 @@ public class Classes90 extends x10Test {
 
 // file Classes line 602
 //OPTIONS: -STATIC_CHECKS
- static  class Example {var f : String = ""; def example(x:Object){x != null} = {this.f = x.toString();}}
+ static  class Example {var f : String = ""; def example(x:Any){x != null} = {this.f = x.toString();}}
  static  class Eyample {
-  def exam(e:Example, x:Object) {
+  def exam(e:Example, x:Any) {
     if (x != null)
-       e.example(x as Object{x != null});
+       e.example(x as Any{x != null});
        // If STATIC_CHECKS is in force:
        // ERROR: if (x != null) e.example(x);
   }

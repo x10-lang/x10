@@ -47,9 +47,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         RuntimeType.INVARIANTS(1),
         new Type[] { Types.STRUCT }
     );
-    @Override
     public RuntimeType<GlobalRef<?>> $getRTT() { return $RTT; }
-    @Override
     public Type<?> $getParam(int i) { return i == 0 ? T : null; }
 
     /*
@@ -360,12 +358,10 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
                                    $Closure$0.class);
 
             public static final x10.rtt.RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make(
-            /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT,
-                    x10.rtt.Types.OBJECT });
+            /* base class */$Closure$0.class, /* parents */new x10.rtt.Type[] { x10.core.fun.VoidFun_0_0.$RTT });
 
-            public x10.rtt.RuntimeType<?> $getRTT() {
-                return $RTT;
-            }
+            public x10.rtt.RuntimeType<?> $getRTT() {return $RTT;}
+            public Type<?> $getParam(int i) {return null;}
 
             private void writeObject(java.io.ObjectOutputStream oos) throws java.io.IOException {
                 if (x10.runtime.impl.java.Runtime.TRACE_SER) {
@@ -689,9 +685,9 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
 	private static final long serialVersionUID = 1L;
 	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalEval.class);
-	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class, new Type[] {Types.OBJECT});
-	@Override
+	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class);
 	public RuntimeType<?> $getRTT() {return $RTT;}
+	public Type<?> $getParam(int i) {return null;}
     
 	// constructor just for allocation
 	public LocalEval(final java.lang.System[] $dummy) { super($dummy);}
@@ -754,10 +750,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    public static final RuntimeType<$Closure$Eval> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 
 							 RuntimeType.INVARIANTS(2),
-							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1)), Types.OBJECT});
-	    @Override
+							 new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(1))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
-	    @Override
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;if (i ==1)return $U;return null;}
 
 	    // constructor just for allocation
@@ -823,10 +817,8 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    public static final RuntimeType<$Closure$Apply> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class,
                                                           RuntimeType.INVARIANTS(1),
-							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0)), Types.OBJECT});
-	    @Override
+							  new Type[] {x10.rtt.ParameterizedType.make(x10.core.fun.Fun_0_0.$RTT, x10.rtt.UnresolvedType.PARAM(0))});
 	    public RuntimeType<?> $getRTT() {return $RTT;}
-	    @Override
 	    public Type<?> $getParam(int i) {if (i ==0)return $T;return null;}
 
 	    // constructor just for allocation

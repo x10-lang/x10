@@ -25,8 +25,8 @@ public class InstanceofDownCast extends x10Test {
 	 private var counter3: int = 0;
 	 
 	public def run(): boolean = {
-		var upcast1: Object = new X10DepTypeClassOneB(1);
-		var upcast2: Object = new X10DepTypeSubClassOneB(1,2);
+		var upcast1: Any = new X10DepTypeClassOneB(1);
+		var upcast2: Any = new X10DepTypeSubClassOneB(1,2);
 		var upcast3: X10DepTypeClassOneB = new X10DepTypeSubClassOneB(2,3);
 
 		// instance of checked against an object
@@ -55,12 +55,12 @@ public class InstanceofDownCast extends x10Test {
 				(counter1==1) && (counter2==2) && (counter3==2));
 	}
 	
-	private def getX10DepTypeClassOneB(var c1: int): Object = {
+	private def getX10DepTypeClassOneB(var c1: int): Any = {
 		counter1++;
 		return new X10DepTypeClassOneB(c1);
 	}
 
-	private def getX10DepTypeSubClassOneB(var c1: int, var c2: int): Object = {
+	private def getX10DepTypeSubClassOneB(var c1: int, var c2: int): Any = {
 		counter2++;
 		return new X10DepTypeSubClassOneB(c1, c2);
 	}

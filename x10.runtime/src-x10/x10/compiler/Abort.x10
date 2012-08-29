@@ -7,7 +7,7 @@ package x10.compiler;
  * 
  * @author tardieu
  */
-public class Abort extends x10.lang.Throwable {
+public class Abort extends x10.lang.Exception {
     public static ABORT = new Abort();
 
     private def this() {}

@@ -23,7 +23,7 @@ public class InstanceofDownCast2 extends x10Test {
 		instanceof X10DepTypeSubClassOneB{p==2&&a==2});
 	}
 
-	private def getX10DepTypeSubClassOneB(var c1: int, var c2: int): Object = {
+	private def getX10DepTypeSubClassOneB(var c1: int, var c2: int): Any = {
 		return new X10DepTypeSubClassOneB(c1, c2);
 	}
 

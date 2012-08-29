@@ -18,7 +18,7 @@ public class AtOtherPlace extends x10Test{
     
 	static class T {
 		private val root = GlobalRef[T](this);
-		var val_:Object;
+		var val_:Any;
 	}
     
     public def run(): boolean = {

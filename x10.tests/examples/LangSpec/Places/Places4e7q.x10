@@ -29,7 +29,7 @@ public class Places4e7q extends x10Test {
 // file Places line 965
 
  static class Places13TestExp{
-  def check(g:GlobalRef[Object]{here == g.home})  = g();  }
+  def check(g:GlobalRef[Any]{here == g.home})  = g();  }
 
  static class Hook {
    def run():Boolean = true;

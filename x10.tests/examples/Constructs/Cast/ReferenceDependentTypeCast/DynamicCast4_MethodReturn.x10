@@ -31,7 +31,7 @@ public class DynamicCast4_MethodReturn extends x10Test {
       return false;
    }
    
-   public def objectReturner(): x10.lang.Object = {
+   public def objectReturner(): Any = {
       return new X10DepTypeClassTwo(0,1);
    }
 

@@ -30,6 +30,6 @@ public class GenericInnerClassParameterCapture[A] extends GenericTest {
     }
 
     public static def main(var args: Array[String](1)): void = {
-        new GenericInnerClassParameterCapture[Object]().execute();
+        new GenericInnerClassParameterCapture[Any]().execute();
     }
 }

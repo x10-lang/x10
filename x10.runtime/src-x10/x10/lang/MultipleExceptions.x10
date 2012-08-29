@@ -19,10 +19,10 @@ import x10.io.Printer;
  * @author Christian Grothoff
  * @author tardieu
  */
-public class MultipleExceptions(exceptions:Rail[Throwable]) extends Exception {
-    public property exceptions():Rail[Throwable] = exceptions;
+public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
+    public property exceptions():Rail[Exception] = exceptions;
 
-    public def this(stack:Stack[Throwable]) {
+    public def this(stack:Stack[Exception]) {
         property(stack.toArray());
     }
 
@@ -30,22 +30,27 @@ public class MultipleExceptions(exceptions:Rail[Throwable]) extends Exception {
         property(null);
     }
 
-    public def this(t:Throwable) {
-        property(new Array[Throwable](1, t));
+    public def this(t:Exception) {
+        property(new Array[Exception](1, t));
     }
 
     public def printStackTrace(): void {
-        for (t:Throwable in exceptions.values()) {
+        for (t in exceptions.values()) {
             t.printStackTrace();
         }
     }
 
+    // FIXME CheckedThrowable.printStackTrace(Printer) is now final
+    /*
     public def printStackTrace(p:Printer): void {
-        for (t:Throwable in exceptions.values()) {
+        for (t in exceptions.values()) {
             t.printStackTrace(p);
         }
     }
+    */
 
+    // FIXME CheckedThrowable.toString() is now final
+    /*
     public def toString() {
         var me:String = super.toString();
         if (exceptions.size > 0) {
@@ -55,13 +60,14 @@ public class MultipleExceptions(exceptions:Rail[Throwable]) extends Exception {
         }
         return me;
     }
+    */
 
-    public static def make(stack:Stack[Throwable]):MultipleExceptions {
+    public static def make(stack:Stack[Exception]):MultipleExceptions {
         if (null == stack || stack.isEmpty()) return null;
         return new MultipleExceptions(stack);
     }
 
-    public static def make(t:Throwable):MultipleExceptions {
+    public static def make(t:Exception):MultipleExceptions {
         if (null == t) return null;
         return new MultipleExceptions(t);
     }

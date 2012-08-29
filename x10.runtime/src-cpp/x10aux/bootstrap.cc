@@ -136,9 +136,8 @@ static void* real_x10_main_inner(void* _main_args) {
     } catch(x10aux::__ref& e) {
 
         // Assume that only throwables can be thrown
-        // and things are never thrown by interface (always cast to a value/object class)
-        x10aux::ref<x10::lang::Throwable> &e_ =
-            static_cast<x10aux::ref<x10::lang::Throwable>&>(e);
+        x10aux::ref<x10::lang::CheckedThrowable> &e_ =
+            static_cast<x10aux::ref<x10::lang::CheckedThrowable>&>(e);
 
         fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here,
                 x10aux::string_utils::cstr(nullCheck(nullCheck(e_)->toString())));

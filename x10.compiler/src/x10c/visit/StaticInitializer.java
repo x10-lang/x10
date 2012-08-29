@@ -310,7 +310,7 @@ public class StaticInitializer extends ContextVisitor {
         Position CG = Position.compilerGenerated(null);
         FlagsNode fNode = xnf.FlagsNode(CG, cDef.flags());
         Id id = xnf.Id(CG, cDef.name());
-        TypeNode superTN = (TypeNode) xnf.CanonicalTypeNode(CG, cDef.superType());
+        TypeNode superTN = cDef.superType() != null ? xnf.CanonicalTypeNode(CG, cDef.superType()) : null;
         List<ClassMember> cmembers = new ArrayList<ClassMember>();
         ClassBody body = xnf.ClassBody(CG, cmembers);
         List<TypeNode> interfaceTN = Collections.<TypeNode>emptyList();
@@ -321,8 +321,8 @@ public class StaticInitializer extends ContextVisitor {
 
     private X10ClassDef createShadowClassDef(X10ClassDef interfaceClassDef) {
         X10ClassDef cDef = (X10ClassDef) xts.createClassDef(interfaceClassDef.sourceFile());
-        cDef.superType(Types.ref(xts.Any()));
-        List<Ref<? extends Type>> interfacesRef = Collections.<Ref<? extends Type>>emptyList();
+        List<Ref<? extends Type>> interfacesRef = new ArrayList<Ref<? extends Type>>();
+        interfacesRef.add(Types.ref(xts.Any()));
         cDef.setInterfaces(interfacesRef);
         cDef.name(Name.make(nestedShadowClass4Interface));
         cDef.setFlags(Flags.PUBLIC.Abstract());
@@ -833,7 +833,7 @@ public class StaticInitializer extends ContextVisitor {
         TypeNode returnType = xnf.X10CanonicalTypeNode(pos, xts.Void());
         Block body = makeDeserializeMethodBody(pos, fieldInfo, fdCond, classDef, deserializerName);
         MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name), 
-                                              typeFormals, formals, null, null, body);
+                                              typeFormals, formals, null, null, Collections.<TypeNode>emptyList(), body);
         // associate methodDef with methodDecl
         result = result.methodDef(md);
         return result;
@@ -877,7 +877,7 @@ public class StaticInitializer extends ContextVisitor {
         List<Ref<? extends Type>> argTypes = new ArrayList<Ref<? extends Type>>();
         argTypes.add(Types.ref(X10JavaDeserializer()));
         MethodDef md = xts.methodDef(pos, pos, Types.ref(InitDispatcher()), 
-                                     Flags.NONE, Types.ref(xts.Object()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
+                                     Flags.NONE, Types.ref(xts.Any()), id.id(), argTypes, Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
 
         // actual arguments
@@ -889,7 +889,7 @@ public class StaticInitializer extends ContextVisitor {
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, X10JavaDeserializer()));
         Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
-        Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Object());
+        Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(xts.Any());
         return call;
     }
 
@@ -910,7 +910,7 @@ public class StaticInitializer extends ContextVisitor {
         TypeNode returnType = xnf.X10CanonicalTypeNode(pos, type);
         Block body = makeInitMethodBody(pos, fieldInfo, fdExcept, fdCond, fdId, fdPLH, classDef);
         MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name),
-                                              typeParamNodes, formals, null, null, body);
+                                              typeParamNodes, formals, null, null, Collections.<TypeNode>emptyList(), body);
         // associate methodDef with methodDecl
         result = result.methodDef(md);
         return result;
@@ -921,7 +921,7 @@ public class StaticInitializer extends ContextVisitor {
         Formal excFormal = xnf.Formal(pos, xnf.FlagsNode(pos, excDef.flags()), xnf.CanonicalTypeNode(pos, excDef.type()), xnf.Id(pos, excDef.name())).localDef(excDef);
 
         List<Ref<? extends Type>> newExceptArgTypes = new ArrayList<Ref<? extends Type>>();
-        newExceptArgTypes.add(Types.ref(xts.Throwable()));
+        newExceptArgTypes.add(Types.ref(xts.Exception()));
         ConstructorDef cd = xts.constructorDef(pos, pos, Types.ref(fdExcept.asInstance().type().toClass()), Flags.NONE, newExceptArgTypes, Collections.<Ref<? extends Type>>emptyList());
         ConstructorInstance ci = xts.createConstructorInstance(pos, pos, Types.ref(cd));
         List<Expr> newExceptArgs = new ArrayList<Expr>();
@@ -931,7 +931,7 @@ public class StaticInitializer extends ContextVisitor {
         Stmt storeExceptStmt = xnf.Eval(pos, xnf.FieldAssign(pos, receiver, xnf.Id(pos, fdExcept.name()), Assign.ASSIGN, newExceptExpr).fieldInstance(fdExcept.asInstance()).type(fdExcept.asInstance().type()));
 
         List<Stmt> catchStmts = new ArrayList<Stmt>();
-        // gen exception = new x10.lang.ExceptionInInitializer(e.getMessage());
+        // gen exception = new x10.lang.ExceptionInInitializer(e);
         catchStmts.add(storeExceptStmt);
         // gen AtomicInteger.set(EXCEPTION_RAISED)
         catchStmts.add(xnf.Eval(pos, genStatusSetExcept(pos, receiver, fdCond)));
@@ -1032,10 +1032,13 @@ public class StaticInitializer extends ContextVisitor {
         if (stickyExceptionSemantics) {
             Name excName = Name.makeFresh("exc$");
             List<Catch> catchBlocks = new ArrayList<Catch>();
-            // gen catch (x10.core.X10Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
-            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.Throwable(), receiver, throwExceptStmt));
-            // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
-            catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
+            // TODO CHECKED_THROWABLE OK single catch block as CheckedThrowable is enough
+//            // gen catch (x10.core.X10Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+//            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.Throwable(), receiver, throwExceptStmt));
+//            // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc.getMessage()); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+//            catchBlocks.add(genCatchWithMessage(pos, fdExcept, fdCond, excName, xts.JavaThrowable(), receiver, throwExceptStmt));
+            // gen catch (java.lang.Throwable exc) { exception = new x10.lang.ExceptionInInitializer(exc); AtomicInteger.set(EXCEPTION_RAISED); lockInitialized(); notifyInitialized(); throw exception; }
+            catchBlocks.add(genCatch(pos, fdExcept, fdCond, excName, xts.CheckedThrowable(), receiver, throwExceptStmt));
             stmts.add(xnf.Try(pos, xnf.Block(pos, fieldAssignStmt), catchBlocks));
         } else {
             stmts.add(fieldAssignStmt);
@@ -1094,11 +1097,11 @@ public class StaticInitializer extends ContextVisitor {
 
         // make instance call
         ObjectType targetType = (ObjectType)target.type();
-        MethodDef md = xts.methodDef(pos, pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Object()), name, 
+        MethodDef md = xts.methodDef(pos, pos, Types.ref(targetType), Flags.NONE, Types.ref(xts.Any()), name, 
                                      Collections.<Ref<? extends Type>>emptyList(), Collections.<Ref<? extends Type>>emptyList());
         MethodInstance mi = xts.createMethodInstance(pos, pos, Types.ref(md));
         Expr applyCall = xnf.X10Call(pos, target, xnf.Id(pos, name), Collections.<TypeNode>emptyList(), 
-                                     Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Object());
+                                     Collections.<Expr>emptyList()).methodInstance(mi).type(xts.Any());
 
         // assign to local var
         Name lname = Name.make("initVal");
@@ -1210,12 +1213,12 @@ public class StaticInitializer extends ContextVisitor {
         if (customSerialization) {
             args.add(fieldVar.type(fieldVar.type()));
         } else {
-            args.add(fieldVar.type(xts.Object()));
+            args.add(fieldVar.type(xts.Any()));
         }
         args.add(fieldId.type(xts.Short()));
 
         List<TypeNode> typeParamNodes = new ArrayList<TypeNode>();
-        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Object()));
+        typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Any()));
         typeParamNodes.add(xnf.CanonicalTypeNode(pos, xts.Short()));
         Receiver receiver = xnf.CanonicalTypeNode(pos, InitDispatcher());
         Expr call = xnf.X10Call(pos, receiver, id, typeParamNodes, args).methodInstance(mi).type(returnType);
@@ -1321,7 +1324,7 @@ public class StaticInitializer extends ContextVisitor {
         // create method declaration
         TypeNode returnType = xnf.X10CanonicalTypeNode(pos, fi.type());
         MethodDecl result = xnf.X10MethodDecl(pos, xnf.FlagsNode(pos, Flags.STATIC), returnType, xnf.Id(pos, name), 
-                                              typeParamNodes, formals, null, null, body);
+                                              typeParamNodes, formals, null, null, Collections.<TypeNode>emptyList(), body);
         // associate methodDef with methodDecl
         result = result.methodDef(md);
         return result;

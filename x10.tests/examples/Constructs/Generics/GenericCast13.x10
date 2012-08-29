@@ -36,7 +36,7 @@ public class GenericCast13 extends GenericTest {
 
     public def run() = {
         
-        var a:Object = new A();
+        var a:Any = new A();
 
         var exceptions:int = 0;
 

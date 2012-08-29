@@ -19,8 +19,13 @@
 #include <x10aux/ref.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10/lang/Reference.h>
 #include <x10/lang/IBox.h>
+
+namespace x10 {
+namespace lang {
+class Reference;
+}
+}
 
 namespace x10aux {
 

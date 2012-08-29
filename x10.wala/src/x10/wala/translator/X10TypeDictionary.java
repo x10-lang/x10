@@ -58,7 +58,7 @@ public class X10TypeDictionary extends CAstTypeDictionaryImpl {
         @SuppressWarnings("unchecked")
         public Collection getSupertypes() {
           if (fEltPolyglotType.isJavaPrimitive())
-            return Collections.singleton(getCAstTypeFor(fTypeSystem.Object()));
+            return Collections.singleton(getCAstTypeFor(fTypeSystem.Any()));
           Assertions.productionAssertion(fEltPolyglotType.isReference(), "Non-primitive, non-reference array element type!");
           ObjectType baseRefType = (ObjectType) fEltPolyglotType;
           Collection<CAstType> supers = new ArrayList<CAstType>();

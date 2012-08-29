@@ -94,9 +94,9 @@ public class Catch_c extends Stmt_c implements Catch
     public Node typeCheck(ContextVisitor tc) {
         TypeSystem ts = tc.typeSystem();
 
-	if (! catchType().isThrowable() && !ts.isJavaThrowable(catchType())) {
+	if (! catchType().isThrowable()) {
 	    Errors.issue(tc.job(),
-	            new SemanticException("Can only throw subclasses of \"" +ts.Throwable() + "\".", formal.position()),
+	            new SemanticException("Can only throw subclasses of \"" +ts.CheckedThrowable() + "\".", formal.position()),
 	            this);
 	}
 

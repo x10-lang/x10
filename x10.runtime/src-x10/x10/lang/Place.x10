@@ -209,7 +209,7 @@ public final struct Place(id: Int)  {
      */
     @Native("java", "(#r).home")
     @Native("c++", "x10::lang::Place::place((#r)->location)")
-    public static native operator[T] (r:GlobalRef[T]){T <: Object}: Place{self==r.home};
+    public static native operator[T] (r:GlobalRef[T]){T isref}: Place{self==r.home};
 
 }
 public type Place(id:Int) = Place{self.id==id};
