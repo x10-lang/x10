@@ -41,9 +41,9 @@ Create the release branch and enter into final testing phase
 
       makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -code 
 
-   2. Create an RC2V3 instance from image 10028972 ("X10 Master Regression Image) 
+   2. Create an RC2V3 instance from image in the Watson A-40
+      data center from the image 10028972 ("X10 Master Regression Image) 
       to run release-branch regression testing.  
-      NOTE: This image is a private image owned by dave grove.  
       Login to the image x10reg, and update scripts in bin to pull from the 
       release branch created by makeTag. 
       Enable crontab entry for desired test runs.
@@ -107,6 +107,8 @@ one can build the actual release artifacts:
       Update the "X10 Releases" page to link to the new download version.
       Update the "latest release" menu item in Downloads-submenu to point to 
       the new release page.
+      Create a redirect entry to get a nice external URL 
+         (eg  http://x10-lang.org/releases/x10-release-223) for the release.
 
    10. Post release announcement in SF news and web page front-page news.
 
