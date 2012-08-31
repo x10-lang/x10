@@ -331,6 +331,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     			// hierarchy, but avoids an infinite loop.
     			c = c.pushBlock();
     			c.addNamed(type.asType());
+    			
+    			// add class invariant, XTENLANG-3125
+    			if (classInvariant != null) {
+					c.addConstraint(type.classInvariant()); // is this needed too?
+					c.setCurrentTypeConstraint(classInvariant.typeConstraint());
+    			}
     		}
 
     		// Add type parameters
