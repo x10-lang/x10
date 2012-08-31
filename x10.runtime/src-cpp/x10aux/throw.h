@@ -22,19 +22,16 @@ namespace x10aux {
 
     template<class T> void throwException() X10_PRAGMA_NORETURN;
 
-    template<class T> void throwException(T* e) X10_PRAGMA_NORETURN;
+    void throwException(x10::lang::CheckedThrowable* e) X10_PRAGMA_NORETURN;
 
     void throwArithmeticException() X10_PRAGMA_NORETURN;
 
-    template<class T> inline void throwException(T* e) {
-        e->fillInStackTrace();
-        throw e;
+    inline void throwException(x10::lang::CheckedThrowable* e) {
+        throw e->fillInStackTrace();
     }
 
     template<class T> void throwException() {
-        T* e = T::_make();
-        e->fillInStackTrace();
-        throw e;
+        throwException(T::_make());
     }
 
     inline x10_byte zeroCheck(x10_byte val) {
