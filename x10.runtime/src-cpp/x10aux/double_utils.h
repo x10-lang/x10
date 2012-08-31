@@ -25,9 +25,9 @@ namespace x10 {
 namespace x10aux {
     class double_utils {
     public:
-        static const ref<x10::lang::String> toHexString(x10_double value);
-        static const ref<x10::lang::String> toString(x10_double value);
-        static x10_double parseDouble(ref<x10::lang::String> s);
+        static x10::lang::String* toHexString(x10_double value);
+        static x10::lang::String* toString(x10_double value);
+        static x10_double parseDouble(x10::lang::String* s);
         static x10_boolean isNaN(x10_double value);
         static x10_boolean isInfinite(x10_double value);
         static x10_long toLongBits(x10_double value);

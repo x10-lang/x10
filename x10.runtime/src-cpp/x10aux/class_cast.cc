@@ -22,12 +22,12 @@ using namespace x10aux;
 using namespace x10::lang;
 
 void x10aux::throwClassCastException(const char *msg_) {
-    x10aux::ref<String> msg = String::Lit(msg_);
+    String* msg = String::Lit(msg_);
     throwException(x10::lang::ClassCastException::_make(msg));
 }
 
 void x10aux::throwClassCastException(const RuntimeType *from, const RuntimeType *to) {
-    x10aux::ref<String> msg;
+    String* msg;
     if (x10_native_debug_messages) {
         msg = String::Steal(x10aux::alloc_printf("tried to cast an instance of %s to a %s ", from->name(), to->name()));
     } else {

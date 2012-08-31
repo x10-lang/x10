@@ -27,16 +27,16 @@ namespace x10 {
             static Comparable<x10_boolean>::itable<Boolean_iboxthunk> comparable_itable;
 
             /* Methods of Any */
-            x10_boolean equals(ref<Any> arg0) {
+            x10_boolean equals(Any* arg0) {
                 return x10aux::equals(value, arg0);
             }
             x10_int hashCode() {
                 return x10aux::hash_code(value);
             }
-            ref<String> toString() {
+            String* toString() {
                 return x10aux::to_string(value);
             }
-            ref<String> typeName() {
+            String* typeName() {
                 return x10aux::type_name(value);
             }
             /* Methods of Comparable */
@@ -59,16 +59,16 @@ namespace x10 {
             static x10::util::Ordered<x10_char>::itable<Char_iboxthunk> ordered_itable;
 
             /* Methods of Any */
-            x10_boolean equals(ref<Any> arg0) {
+            x10_boolean equals(Any* arg0) {
                 return x10aux::equals(value, arg0);
             }
             x10_int hashCode() {
                 return x10aux::hash_code(value);
             }
-            ref<String> toString() {
+            String* toString() {
                 return x10aux::to_string(value);
             }
-            ref<String> typeName() {
+            String* typeName() {
                 return x10aux::type_name(value);
             }
             /* Methods of Comparable */
@@ -108,16 +108,16 @@ namespace x10 {
             static x10::util::Ordered<CPRIM>::itable<PRIMCLASS##_iboxthunk> ordered_itable;       \
                                                                         \
             /* Methods of Any */                                        \
-            x10_boolean equals(ref<Any> arg0) {                         \
+            x10_boolean equals(Any* arg0) {                             \
                 return x10aux::equals(value, arg0);                     \
             }                                                           \
             x10_int hashCode() {                                        \
                 return x10aux::hash_code(value);                        \
             }                                                           \
-            ref<String> toString() {                                    \
+            String* toString() {                                        \
                 return x10aux::to_string(value);                        \
             }                                                           \
-            ref<String> typeName() {                                    \
+            String* typeName() {                                        \
                 return x10aux::type_name(value);                        \
             }                                                           \
             /* Methods of Comparable */                                 \
@@ -179,16 +179,16 @@ namespace x10 {
             static x10::util::Ordered<CPRIM>::itable<PRIMCLASS##_iboxthunk> ordered_itable;       \
                                                                         \
             /* Methods of Any */                                        \
-            x10_boolean equals(ref<Any> arg0) {                         \
+            x10_boolean equals(Any* arg0) {                             \
                 return x10aux::equals(value, arg0);                     \
             }                                                           \
             x10_int hashCode() {                                        \
                 return x10aux::hash_code(value);                        \
             }                                                           \
-            ref<String> toString() {                                    \
+            String* toString() {                                        \
                 return x10aux::to_string(value);                        \
             }                                                           \
-            ref<String> typeName() {                                    \
+            String* typeName() {                                        \
                 return x10aux::type_name(value);                        \
             }                                                           \
             /* Methods of Comparable */                                 \

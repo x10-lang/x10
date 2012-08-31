@@ -22,7 +22,8 @@ using namespace x10::io;
 using namespace x10aux;
 
 static InputStreamReader__InputStream* _STANDARD_IN_cache = NULL;
-x10aux::ref<InputStreamReader__InputStream> InputStreamReader__InputStream::STANDARD_IN()
+
+InputStreamReader__InputStream* InputStreamReader__InputStream::STANDARD_IN()
 {
 	if (NULL == _STANDARD_IN_cache)
 		_STANDARD_IN_cache = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(stdin);

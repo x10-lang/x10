@@ -111,7 +111,7 @@ public final class Runtime {
     //@Native("c++", "x10::lang::Object::dealloc_object((x10::lang::Object*)#o.operator->())")
     //public static def deallocObject(o:Object):void {}
 
-    @Native("c++", "x10aux::dealloc(#o.operator->())")
+    @Native("c++", "x10aux::dealloc(#o)")
     public static def dealloc[T](o:T){ T isref } :void {}
 
     // Environment variables
@@ -486,7 +486,7 @@ public final class Runtime {
          * @throws UnsupportedOperationException
          */
         public def this(a:SerialData) {
-        	super(a);
+        	super();
         	throw new UnsupportedOperationException("Cannot deserialize "+typeName());
         }
     }

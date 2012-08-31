@@ -15,14 +15,14 @@ using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
 
-x10aux::ref<FileReader__FileInputStream>
-FileReader__FileInputStream::_make(x10aux::ref<x10::lang::String> name) {
-    x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream ();
+FileReader__FileInputStream*
+FileReader__FileInputStream::_make(x10::lang::String* name) {
+    FileReader__FileInputStream* this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream ();
     this_->_constructor(name);
     return this_;
 }
 
-void FileReader__FileInputStream::_constructor(x10aux::ref<x10::lang::String> file) {
+void FileReader__FileInputStream::_constructor(x10::lang::String* file) {
     this->InputStreamReader__InputStream::_constructor();
     x10aux::io::FILEPtrInputStream fpis(x10aux::io::FILEPtrStream::open_file(file, "r"));
     _inputStream = fpis;
@@ -69,12 +69,12 @@ void FileReader__FileInputStream::_deserialize_body(x10aux::deserialization_buff
     // _inputStream = buf.read<x10aux::io::FILEPtrInputStream>();
 }
 
-x10aux::ref<x10::lang::Reference> FileReader__FileInputStream::_deserializer(x10aux::deserialization_buffer& buf) {
+x10::lang::Reference* FileReader__FileInputStream::_deserializer(x10aux::deserialization_buffer& buf) {
     // TODO: attempting to serialize _outputStream is nonsensical.
     //       The old 1.7 definition of this class simply didn't work either,
     //       it just silently didn't serialize the FILEPtrInputSteam field.
     // assert(false);
-    x10aux::ref<FileReader__FileInputStream> this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(NULL);
+    FileReader__FileInputStream* this_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(NULL);
     buf.record_reference(this_);
     this_->_deserialize_body(buf);
     return this_;

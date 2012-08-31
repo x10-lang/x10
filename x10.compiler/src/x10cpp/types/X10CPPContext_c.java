@@ -113,11 +113,6 @@ public class X10CPPContext_c extends Context {
         this.stmt = stmt;
     }
 
-    
-    private String excVar;
-    public void setExceptionVar(String var) { this.excVar = var; }
-    public String getExceptionVar() { return excVar; }
-
     // used internally, shallow
 	protected boolean inClosure;
     public void setInClosure() { inClosure = true; }

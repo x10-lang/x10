@@ -15,7 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.NativeRep;
 
 @NativeRep("java", "x10.core.concurrent.AtomicReference<#T$box>", null, "x10.rtt.ParameterizedType.make(x10.core.concurrent.AtomicReference.$RTT, #T$rtt)")
-@NativeRep("c++", "x10aux::ref<x10::util::concurrent::AtomicReference<#T > >", "x10::util::concurrent::AtomicReference<#T >", null)
+@NativeRep("c++", "x10::util::concurrent::AtomicReference<#T >*", "x10::util::concurrent::AtomicReference<#T >", null)
 public final class AtomicReference[T]{T isref} {
 	
 	// Unusable due to compiler bug.  See http://jira.codehaus.org/browse/XTENLANG-127 (Yoav todo: this bug was fixed!)

@@ -30,9 +30,9 @@ namespace x10 {
             FileReader__FileInputStream(FILE *f) : _inputStream(f) { } 
             FileReader__FileInputStream() : _inputStream(NULL) { } 
 
-            static x10aux::ref<FileReader__FileInputStream> _make(x10aux::ref<x10::lang::String> name);
+            static FileReader__FileInputStream* _make(x10::lang::String* name);
 
-            void _constructor (x10aux::ref<x10::lang::String> file);
+            void _constructor (x10::lang::String* file);
             void _constructor (FILE* file);
             void _constructor ();
 
@@ -62,7 +62,7 @@ namespace x10 {
                 return _serialization_id;
             }
             virtual void _serialize_body(x10aux::serialization_buffer& buf);
-            static x10aux::ref<x10::lang::Reference> _deserializer(x10aux::deserialization_buffer& buf);
+            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
         };
     }

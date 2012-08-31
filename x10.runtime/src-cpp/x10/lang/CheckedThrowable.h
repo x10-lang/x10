@@ -28,8 +28,8 @@ namespace x10 {
         public:
             RTT_H_DECLS_CLASS;
 
-            x10aux::ref<CheckedThrowable> FMGL(cause);
-            x10aux::ref<String> FMGL(message);
+            CheckedThrowable* FMGL(cause);
+            String* FMGL(message);
 
             // This stores the the native backtrace information
             // captured when the exception was thrown.
@@ -42,36 +42,34 @@ namespace x10 {
 
             // Computing the human-readable form of the backtrace is expensive.
             // Once we do it, keep it around for future use.
-            x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > FMGL(cachedStackTrace);
+            x10::array::Array<x10::lang::String*>* FMGL(cachedStackTrace);
             
-            static x10aux::ref<CheckedThrowable> _make();
-            static x10aux::ref<CheckedThrowable> _make(x10aux::ref<String> message);
-            static x10aux::ref<CheckedThrowable> _make(x10aux::ref<CheckedThrowable> cause);
-            static x10aux::ref<CheckedThrowable> _make(x10aux::ref<String> message,
-                                                x10aux::ref<CheckedThrowable> cause);
+            static CheckedThrowable* _make();
+            static CheckedThrowable* _make(String* message);
+            static CheckedThrowable* _make(CheckedThrowable* cause);
+            static CheckedThrowable* _make(String* message, CheckedThrowable* cause);
 
-            x10aux::ref<CheckedThrowable> _constructor() {
-                return _constructor(X10_NULL, X10_NULL);
+            CheckedThrowable* _constructor() {
+                return _constructor(NULL, NULL);
             }
 
-            x10aux::ref<CheckedThrowable> _constructor(x10aux::ref<String> message) {
-                return _constructor(message, X10_NULL);
+            CheckedThrowable* _constructor(String* message) {
+                return _constructor(message, NULL);
             }
 
-            x10aux::ref<CheckedThrowable> _constructor(x10aux::ref<CheckedThrowable> cause) {
-                return _constructor(X10_NULL, cause);
+            CheckedThrowable* _constructor(CheckedThrowable* cause) {
+                return _constructor(NULL, cause);
             }
 
-            x10aux::ref<CheckedThrowable> _constructor(x10aux::ref<String> message,
-                                                x10aux::ref<CheckedThrowable> cause);
+            CheckedThrowable* _constructor(String* message, CheckedThrowable* cause);
 
-            virtual x10aux::ref<String> getMessage() { return FMGL(message); }
-            virtual x10aux::ref<CheckedThrowable> getCause() { return FMGL(cause); }
-            virtual x10aux::ref<String> toString();
-            virtual x10aux::ref<CheckedThrowable> fillInStackTrace();
-            virtual x10aux::ref<x10::array::Array<x10aux::ref<String> > > getStackTrace();
+            virtual String* getMessage() { return FMGL(message); }
+            virtual CheckedThrowable* getCause() { return FMGL(cause); }
+            virtual String* toString();
+            virtual CheckedThrowable* fillInStackTrace();
+            virtual x10::array::Array<String*>* getStackTrace();
             virtual void printStackTrace();
-            virtual void printStackTrace(x10aux::ref<x10::io::Printer>);
+            virtual void printStackTrace(x10::io::Printer*);
             
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -79,7 +77,7 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf);
 
-            static x10aux::ref<Reference> _deserializer(x10aux::deserialization_buffer &buf);
+            static Reference* _deserializer(x10aux::deserialization_buffer &buf);
 
             void _deserialize_body(x10aux::deserialization_buffer &buf);
         };

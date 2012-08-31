@@ -10,7 +10,7 @@ import x10.util.Random;
 
 public abstract class Frame {
     @Native("java", "((#U$box) #x)")
-    @Native("c++", "static_cast<#U >(#x)")
+    @Native("c++", "reinterpret_cast<#U >(#x)")
     public native static def cast[T,U](x:T):U;
 
     @Uninitialized public val up:Frame;

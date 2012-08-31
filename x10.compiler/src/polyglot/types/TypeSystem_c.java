@@ -4200,6 +4200,9 @@ public class TypeSystem_c implements TypeSystem
         return kind(t, c) == Kind.OBJECT;
     }
 
+    public boolean isInterfaceType(Type t, Context c) {
+        return kind(t, c) == Kind.INTERFACE;
+    }
 
     public boolean isStructType(Type t) {
         return kind(t, null) == Kind.STRUCT;

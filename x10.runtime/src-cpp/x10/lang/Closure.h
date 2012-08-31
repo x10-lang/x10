@@ -46,11 +46,11 @@ namespace x10 {
 
             virtual x10_int hashCode();
             
-            virtual x10aux::ref<String> toString();
+            virtual String* toString();
             
             virtual const char* toNativeString();
 
-            virtual x10aux::ref<x10::lang::String> typeName();
+            virtual x10::lang::String* typeName();
         };
     }
 }

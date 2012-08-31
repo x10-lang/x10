@@ -22,14 +22,13 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-x10aux::ref<Deque>
-Deque::_make() {
-    x10aux::ref<Deque> this_ = new (x10aux::alloc<Deque>()) Deque();
+Deque* Deque::_make() {
+    Deque* this_ = new (x10aux::alloc<Deque>()) Deque();
     this_->_constructor();
     return this_;
 }
 
-ref<Deque> Deque::_constructor() {
+Deque* Deque::_constructor() {
     queue = x10aux::alloc<Slots>();
     queue->capacity = INITIAL_QUEUE_CAPACITY;
     queue->data = x10aux::alloc<volatile void*>(INITIAL_QUEUE_CAPACITY * sizeof(void*));
@@ -61,7 +60,7 @@ void Deque::growQueue() {
     int newMask = newSize - 1;
     do {
         int oldIndex = b & oldMask;
-        Reference *t = (Reference*)(oldQ->data[oldIndex]);
+        Any *t = (Any*)(oldQ->data[oldIndex]);
         if (t != NULL && !casSlotNull(oldQ, oldIndex, t)) {
             t = NULL;
         }
@@ -73,19 +72,19 @@ void Deque::growQueue() {
     // concurrently accessed by other threads.
 }
 
-ref<Reference> Deque::steal() {
-    Reference *t;
+Any* Deque::steal() {
+    Any *t;
     Slots *q;
     int i;
     int b;
     if (sp != (b = base) &&
         (q = queue) != NULL && // must read q after b
-        (t = ((Reference*)q->data[i = (q->capacity - 1) & b])) != NULL &&
+        (t = ((Any*)q->data[i = (q->capacity - 1) & b])) != NULL &&
         casSlotNull(q, i, t)) {
         base = b + 1;
         return t;
     }
-    return X10_NULL;
+    return NULL;
 }
 
 void Deque::_serialize_body(serialization_buffer &buf) {
@@ -94,9 +93,9 @@ void Deque::_serialize_body(serialization_buffer &buf) {
 void Deque::_deserialize_body(deserialization_buffer& buf) {
 }
 
-x10aux::ref<x10::lang::Reference> Deque::_deserializer(x10aux::deserialization_buffer &buf) {
-    x10aux::ref<Deque> this_ = new (x10aux::alloc<Deque>()) Deque();
-    buf.record_reference(this_); // TODO: avoid; no global refs; final class
+x10::lang::Reference* Deque::_deserializer(x10aux::deserialization_buffer &buf) {
+    Deque* this_ = new (x10aux::alloc<Deque>()) Deque();
+    buf.record_reference(this_);
     this_->_deserialize_body(buf);
     return this_;
 }

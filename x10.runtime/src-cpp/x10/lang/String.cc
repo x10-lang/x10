@@ -61,14 +61,14 @@ String::_constructor() {
 }
 
 void
-String::_constructor(x10aux::ref<String> s) {
+String::_constructor(String* s) {
     nullCheck(s);
     this->FMGL(content) = s->FMGL(content);
     this->FMGL(content_length) = s->FMGL(content_length);
 }
 
 void
-String::_constructor(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int start, x10_int length) {
+String::_constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int length) {
     nullCheck(array);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
@@ -81,7 +81,7 @@ String::_constructor(x10aux::ref<x10::array::Array<x10_byte> > array, x10_int st
 }
 
 void
-String::_constructor(x10aux::ref<x10::array::Array<x10_char> > array, x10_int start, x10_int length) {
+String::_constructor(x10::array::Array<x10_char>* array, x10_int start, x10_int length) {
     nullCheck(array);
     x10_int i = 0;
     char *content= x10aux::alloc<char>(length+1);
@@ -116,7 +116,7 @@ static const char *strnstrn(const char *haystack, size_t haystack_sz,
     return NULL;
 }
 
-x10_int String::indexOf(ref<String> str, x10_int i) {
+x10_int String::indexOf(String* str, x10_int i) {
     nullCheck(str);
     if (i<0) i = 0;
     if (((size_t)i) >= FMGL(content_length)) return -1;
@@ -157,7 +157,7 @@ x10_int String::indexOf(x10_char c, x10_int i) {
 // ref: javadoc for java.lang.String.trim()
 static bool isws (char x) { return x <= 0x20; }
 
-x10aux::ref<String> String::trim() {
+String* String::trim() {
     const char *start = FMGL(content);
     x10_int l = FMGL(content_length);
     bool didSomething = false;
@@ -183,7 +183,7 @@ static const char *strnrstrn(const char *haystack, size_t haystack_sz,
     return NULL;
 }
 
-x10_int String::lastIndexOf(ref<String> str, x10_int i) {
+x10_int String::lastIndexOf(String* str, x10_int i) {
     nullCheck(str);
     if (i < 0) i = 0;
     if (((size_t)i) >= FMGL(content_length)) return -1;
@@ -223,7 +223,7 @@ x10_int String::lastIndexOf(x10_char c, x10_int i) {
     return (x10_int) (pos - haystack);
 }
 
-ref<String> String::substring(x10_int start, x10_int end) {
+String* String::substring(x10_int start, x10_int end) {
 #ifndef NO_BOUNDS_CHECKS
     if (start < 0) throwStringIndexOutOfBoundsException(start, FMGL(content_length));
     if (start > end) throwStringIndexOutOfBoundsException(start, end);
@@ -244,28 +244,28 @@ x10_char String::charAt(x10_int i) {
 }
 
 
-ref<x10::array::Array<x10_char> > String::chars() {
+x10::array::Array<x10_char>* String::chars() {
     x10_int sz = length();
-    ref<x10::array::Array<x10_char> > array = x10::array::Array<x10_char>::_make(sz);
+    x10::array::Array<x10_char>* array = x10::array::Array<x10_char>::_make(sz);
     for (int i = 0; i < sz; ++i)
         array->__set(i, (x10_char) FMGL(content)[i]);
     return array;
 }
 
-ref<x10::array::Array<x10_byte> > String::bytes() {
+x10::array::Array<x10_byte>* String::bytes() {
     x10_int sz = length();
-    ref<x10::array::Array<x10_byte> > array = x10::array::Array<x10_byte>::_make(sz);
+    x10::array::Array<x10_byte>* array = x10::array::Array<x10_byte>::_make(sz);
     for (int i = 0; i < sz; ++i)
         array->__set(i, FMGL(content)[i]); 
     return array;
 }
 
-void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
+void String::_formatHelper(std::ostringstream &ss, char* fmt, Any* p) {
     char* buf = NULL;
-    if (p.isNull()) {
+    if (NULL == p) {
         ss << (buf = x10aux::alloc_printf(fmt, "null")); // FIXME: Ignore nulls for now
-    } else if (x10aux::instanceof<ref<String> >(p)) {
-        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<ref<String> >(p)->c_str()));
+    } else if (x10aux::instanceof<String*>(p)) {
+        ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<String*>(p)->c_str()));
     } else if (x10aux::instanceof<x10_boolean>(p)) {
         ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_boolean>(p)));
     } else if (x10aux::instanceof<x10_byte>(p)) {
@@ -289,14 +289,14 @@ void String::_formatHelper(std::ostringstream &ss, char* fmt, ref<Any> p) {
     } else if (x10aux::instanceof<x10_double>(p)) {
         ss << (buf = x10aux::alloc_printf(fmt, class_cast_unchecked<x10_double>(p)));
     } else {
-        ref<Reference> tmp(p);
+        Reference* tmp = reinterpret_cast<x10::lang::Reference*>(p);
         ss << (buf = x10aux::alloc_printf(fmt, tmp->toString()->c_str()));
     }
     if (buf != NULL)
         dealloc(buf);
 }
 
-ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > > parms) {
+String* String::format(String* format, x10::array::Array<Any*>* parms) {
     std::ostringstream ss;
     nullCheck(format);
     nullCheck(parms);
@@ -312,7 +312,7 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
             ss << fmt;
             --i;
         } else {
-            const ref<Reference> p = parms->__apply(i);
+            Any* p = parms->__apply(i);
             _formatHelper(ss, fmt, p);
         }
         if (next != NULL)
@@ -322,11 +322,11 @@ ref<String> String::format(ref<String> format, ref<x10::array::Array<ref<Any> > 
     return String::Lit(ss.str().c_str());
 }
 
-x10_boolean String::equals(ref<Any> p0) {
-    if (p0.isNull()) return false;
-    if (ref<String>(p0).operator->() == this) return true; // short-circuit trivial equality
-    if (!x10aux::instanceof<ref<x10::lang::String> >(p0)) return false;
-    ref<String> that = (ref<String>) p0;
+x10_boolean String::equals(Any* p0) {
+    if (NULL == p0) return false;
+    if (this == reinterpret_cast<String*>(p0)) return true; // short-circuit trivial equality
+    if (!x10aux::instanceof<x10::lang::String*>(p0)) return false;
+    String* that = reinterpret_cast<String*>(p0);
     if (this->FMGL(content_length) != that->FMGL(content_length)) return false; // short-circuit trivial dis-equality
     if (strncmp(this->FMGL(content), that->FMGL(content), this->length()))
         return false;
@@ -334,9 +334,9 @@ x10_boolean String::equals(ref<Any> p0) {
 }
 
 /* FIXME: Unicode support */
-x10_boolean String::equalsIgnoreCase(ref<String> s) {
-    if (s.isNull()) return false;
-    if (ref<String>(s).operator->() == this) return true; // short-circuit trivial equality
+x10_boolean String::equalsIgnoreCase(String* s) {
+    if (NULL == s) return false;
+    if (s == this) return true; // short-circuit trivial equality
     if (this->FMGL(content_length) != s->FMGL(content_length)) return false; // short-circuit trivial dis-equality
     if (strncasecmp(this->FMGL(content), s->FMGL(content), this->length()))
         return false;
@@ -344,7 +344,7 @@ x10_boolean String::equalsIgnoreCase(ref<String> s) {
 }
 
 /* FIXME: Unicode support */
-ref<String> String::toLowerCase() {
+String* String::toLowerCase() {
     char *str = x10aux::alloc<char>(FMGL(content_length)+1);
     bool all_lower = true;
     for (size_t i = 0; i < FMGL(content_length); ++i) {
@@ -363,7 +363,7 @@ ref<String> String::toLowerCase() {
 }
 
 /* FIXME: Unicode support */
-ref<String> String::toUpperCase() {
+String* String::toUpperCase() {
     char *str = x10aux::alloc<char>(FMGL(content_length)+1);
     bool all_upper = true;
     for (size_t i = 0; i < FMGL(content_length); ++i) {
@@ -381,9 +381,9 @@ ref<String> String::toUpperCase() {
     return String::Steal(str);
 }
 
-x10_int String::compareTo(ref<String> s) {
+x10_int String::compareTo(String* s) {
     nullCheck(s);
-    if (ref<String>(s).operator->() == this) return 0; // short-circuit trivial equality
+    if (s == this) return 0; // short-circuit trivial equality
     int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
     size_t min_length = length_diff < 0 ? this->FMGL(content_length) : s->FMGL(content_length);
     int cmp = strncmp(this->FMGL(content), s->FMGL(content), min_length);
@@ -393,9 +393,9 @@ x10_int String::compareTo(ref<String> s) {
 }
 
 /* FIXME: Unicode support */
-x10_int String::compareToIgnoreCase(ref<String> s) {
+x10_int String::compareToIgnoreCase(String* s) {
     nullCheck(s);
-    if (ref<String>(s).operator->() == this) return 0; // short-circuit trivial equality
+    if (s == this) return 0; // short-circuit trivial equality
     int length_diff = this->FMGL(content_length) - s->FMGL(content_length);
     size_t min_length = length_diff < 0 ? this->FMGL(content_length) : s->FMGL(content_length);
     int cmp = strncasecmp(this->FMGL(content), s->FMGL(content), min_length);
@@ -404,7 +404,7 @@ x10_int String::compareToIgnoreCase(ref<String> s) {
     return (x10_int) length_diff;
 }
 
-x10_boolean String::startsWith(ref<String> s) {
+x10_boolean String::startsWith(String* s) {
     nullCheck(s);
     size_t len = s->FMGL(content_length);
     if (len > this->FMGL(content_length))
@@ -413,7 +413,7 @@ x10_boolean String::startsWith(ref<String> s) {
     return (cmp == 0);
 }
 
-x10_boolean String::endsWith(ref<String> s) {
+x10_boolean String::endsWith(String* s) {
     nullCheck(s);
     size_t len = s->FMGL(content_length);
     if (len > this->FMGL(content_length))
@@ -452,19 +452,19 @@ void String::_deserialize_body(x10aux::deserialization_buffer &buf) {
     _S_("Deserialized string was: \""<<this<<"\"");
 }
 
-x10aux::ref<Reference> String::_deserializer(x10aux::deserialization_buffer& buf) {
-    x10aux::ref<String> this_ = new (x10aux::alloc<String>()) String();
+Reference* String::_deserializer(x10aux::deserialization_buffer& buf) {
+    String* this_ = new (x10aux::alloc<String>()) String();
     buf.record_reference(this_);
     this_->_deserialize_body(buf);
     return this_;
 }
 
-Comparable<ref<String> >::itable<String> String::_itable_Comparable(&String::compareTo,
-                                                                   &String::equals, &String::hashCode,
-                                                                   &String::toString, &String::typeName);
+Comparable<String*>::itable<String> String::_itable_Comparable(&String::compareTo,
+                                                               &String::equals, &String::hashCode,
+                                                               &String::toString, &String::typeName);
 
 x10aux::itable_entry String::_itables[2] = {
-    x10aux::itable_entry(&x10aux::getRTT<Comparable<ref<String> > >, &String::_itable_Comparable),
+    x10aux::itable_entry(&x10aux::getRTT<Comparable<String*> >, &String::_itable_Comparable),
     x10aux::itable_entry(NULL,  (void*)x10aux::getRTT<String>())
 };
 

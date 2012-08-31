@@ -5,6 +5,7 @@ import polyglot.ast.ArrayInit;
 import polyglot.ast.LocalClassDecl;
 import polyglot.ast.New;
 import polyglot.ast.Node;
+import polyglot.ast.Try;
 import polyglot.frontend.Job;
 import polyglot.util.ErrorInfo;
 import polyglot.visit.NodeVisitor;
@@ -66,6 +67,10 @@ public class PreCodeGenASTChecker extends NodeVisitor {
         
         if (n instanceof SettableAssign) {
             return "Settable assign should have been expanded";
+        }
+        
+        if (n instanceof Try && ((Try) n).finallyBlock() != null) {
+            return "Finally block not eliminated before codegen";
         }
 
         return null;

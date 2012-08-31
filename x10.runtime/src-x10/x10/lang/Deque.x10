@@ -9,7 +9,7 @@ import x10.compiler.NativeRep;
  * @author tardieu
  */
 @NativeRep("java", "x10.runtime.impl.java.Deque", null, "x10.runtime.impl.java.Deque.$RTT")
-@NativeRep("c++", "x10aux::ref<x10::lang::Deque>", "x10::lang::Deque", null)
+@NativeRep("c++", "x10::lang::Deque*", "x10::lang::Deque", null)
 public final class Deque {
     public native def size():Int;
 

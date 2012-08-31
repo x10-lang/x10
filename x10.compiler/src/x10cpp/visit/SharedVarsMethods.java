@@ -95,9 +95,7 @@ public class SharedVarsMethods {
     }
 
 	public static String make_ref(String type) {
-		if (refsAsPointers)
-			return type+"*";
-		return "x10aux::ref"+chevrons(type);
+	    return type+"*";
 	}
 	
 	public static String make_captured_lval(Type type) {

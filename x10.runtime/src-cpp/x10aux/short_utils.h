@@ -25,14 +25,14 @@ namespace x10 {
 namespace x10aux {
     class short_utils {
     public:
-        static const ref<x10::lang::String> toString(x10_short value, x10_int radix);
-        static const ref<x10::lang::String> toString(x10_short value);
-        static const ref<x10::lang::String> toString(x10_ushort value, x10_int radix);
-        static const ref<x10::lang::String> toString(x10_ushort value);
-        static x10_short parseShort(ref<x10::lang::String> s, x10_int radix);
-        static x10_short parseShort(ref<x10::lang::String> s) { return parseShort(s, 10); }
-        static x10_ushort parseUShort(ref<x10::lang::String> s, x10_int radix);
-        static x10_ushort parseUShort(ref<x10::lang::String> s) { return parseUShort(s, 10); }
+        static x10::lang::String* toString(x10_short value, x10_int radix);
+        static x10::lang::String* toString(x10_short value);
+        static x10::lang::String* toString(x10_ushort value, x10_int radix);
+        static x10::lang::String* toString(x10_ushort value);
+        static x10_short parseShort(x10::lang::String* s, x10_int radix);
+        static x10_short parseShort(x10::lang::String* s) { return parseShort(s, 10); }
+        static x10_ushort parseUShort(x10::lang::String* s, x10_int radix);
+        static x10_ushort parseUShort(x10::lang::String* s) { return parseUShort(s, 10); }
         static x10_short reverseBytes(x10_short value);
         static x10_int compareTo(x10_short v1, x10_short v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);

@@ -33,7 +33,7 @@ namespace x10 {
 
 
         public:
-            x10aux::ref<InputStreamReader__InputStream> _constructor() {
+            InputStreamReader__InputStream* _constructor() {
                 return this;
             }
             
@@ -57,7 +57,7 @@ namespace x10 {
 
             virtual x10_boolean markSupported() { return false; }
 
-            static x10aux::ref<InputStreamReader__InputStream> STANDARD_IN();
+            static InputStreamReader__InputStream* STANDARD_IN();
 
             // Serialization
             virtual void _serialize_body(x10aux::serialization_buffer& buf);

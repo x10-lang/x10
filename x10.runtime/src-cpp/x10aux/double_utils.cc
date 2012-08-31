@@ -27,17 +27,17 @@ typedef union TypePunner {
     x10_double d;
 } TypePunner;
 
-const ref<String> x10aux::double_utils::toHexString(x10_double value) {
+String* x10aux::double_utils::toHexString(x10_double value) {
     (void) value;
     UNIMPLEMENTED("toHexString");
-    return X10_NULL;
+    return NULL;
 }
 
-const ref<String> x10aux::double_utils::toString(x10_double value) {
+String* x10aux::double_utils::toString(x10_double value) {
     return to_string(value);
 }
 
-x10_double x10aux::double_utils::parseDouble(ref<String> s) {
+x10_double x10aux::double_utils::parseDouble(String* s) {
     const char *start = nullCheck(s)->c_str();
     char *end;
     errno = 0;

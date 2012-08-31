@@ -16,7 +16,7 @@
 using namespace x10aux;
 using namespace x10::util::concurrent;
 
-x10_boolean atomic_boolean_funs::compareAndSet(ref<AtomicBoolean> obj,
+x10_boolean atomic_boolean_funs::compareAndSet(AtomicBoolean *obj,
                                                x10_boolean expect, x10_boolean update) {
     x10_int expectI = expect ? 1 : 0;
     x10_int updateI = update ? 1 : 0;
@@ -24,7 +24,7 @@ x10_boolean atomic_boolean_funs::compareAndSet(ref<AtomicBoolean> obj,
     return oldVal == 1;
 }
                     
-x10_boolean atomic_boolean_funs::weakCompareAndSet(ref<AtomicBoolean> obj,
+x10_boolean atomic_boolean_funs::weakCompareAndSet(AtomicBoolean *obj,
                                                    x10_boolean expect, x10_boolean update) {
     // TODO: for minor optimization on ppc we could add a weakCompareAndSet in atomic_ops and use that here
     x10_int expectI = expect ? 1 : 0;

@@ -30,9 +30,9 @@ namespace x10 {
         public:
             RTT_H_DECLS_CLASS;
 
-            static x10aux::ref<Deque> _make();
+            static Deque* _make();
 
-            x10aux::ref<Deque> _constructor();
+            Deque* _constructor();
 
             static const x10aux::serialization_id_t _serialization_id;
 
@@ -40,7 +40,7 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf);
 
-            static x10aux::ref<x10::lang::Reference> _deserializer(x10aux::deserialization_buffer &buf);
+            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer &buf);
 
             virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
@@ -57,7 +57,7 @@ namespace x10 {
              * Add in store-order the given task at given slot of q.
              * Caller must ensure q is nonnull and index is in range.
              */
-            inline void setSlot(Slots *q, int i, x10::lang::Reference *t) {
+            inline void setSlot(Slots *q, int i, x10::lang::Any *t) {
                 q->data[i] = t;
                 x10aux::atomic_ops::store_store_barrier();
             }
@@ -67,7 +67,7 @@ namespace x10 {
              * CAS given slot of q to null. Caller must ensure q is nonnull
              * and index is in range.
              */
-            inline bool casSlotNull(Slots *q, int i, x10::lang::Reference* t) {
+            inline bool casSlotNull(Slots *q, int i, x10::lang::Any* t) {
                 return x10aux::atomic_ops::compareAndSet_ptr(&(q->data[i]), t, NULL) == t;
             }
 
@@ -91,11 +91,11 @@ namespace x10 {
              * Pushes a task. Called only by current thread.
              * @param t the task. Caller must ensure nonnull
              */
-            void push(x10aux::ref<x10::lang::Reference> t) {
+            void push(x10::lang::Any* t) {
                 Slots *q = queue;
                 int mask = q->capacity - 1;
                 int s = sp;
-                setSlot(q, s & mask, t.operator->());
+                setSlot(q, s & mask, t);
                 storeSp(++s);
                 if ((s -= base) == 1) {
                     ;
@@ -109,19 +109,19 @@ namespace x10 {
              * either empty or contended.
              * @return a task, or null if none or contended.
              */
-            x10aux::ref<x10::lang::Reference> steal();
+            x10::lang::Any* steal();
 
             /**
              * Returns a popped task, or null if empty. Ensures active status
              * if nonnull. Called only by current thread.
              */
-            x10aux::ref<x10::lang::Reference> poll() {
+            x10::lang::Any* poll() {
                 int s = sp;
                 while (s != base) {
                     Slots *q = queue;
                     int mask = q->capacity - 1;
                     int i = (s - 1) & mask;
-                    Reference *t = (Reference*)(q->data[i]);
+                    Any *t = (Any*)(q->data[i]);
                     if (t == NULL || !casSlotNull(q, i, t))
                         break;
                     storeSp(s - 1);
@@ -133,9 +133,9 @@ namespace x10 {
             /**
              * Returns next task to pop.
              */
-            inline x10aux::ref<x10::lang::Reference> peekTask() {
+            inline x10::lang::Any* peekTask() {
                 Slots *q = queue;
-                return q == NULL ? NULL : (x10::lang::Reference*)(q->data[(sp - 1) & (q->capacity - 1)]);
+                return q == NULL ? NULL : (x10::lang::Any*)(q->data[(sp - 1) & (q->capacity - 1)]);
             }
 
             /**

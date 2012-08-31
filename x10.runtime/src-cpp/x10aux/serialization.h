@@ -31,7 +31,7 @@
  *
  * 2) Structs
  *
- * 3) Instances of ref<T>
+ * 3) Instances of T* (Classes, boxed structs, closures)
  *
  *
  * The mechanism (1) copies raw implementation-dependent bytes to/from the stream and we will
@@ -126,24 +126,24 @@ namespace x10aux {
             _top(0)
         { }
         /* Returns 0 if the pointer has not been recorded yet */
-        template<class T> int previous_position(const ref<T>& r) {
-            int pos = _position((void*) r.operator->());
+        template<class T> int previous_position(const T* r) {
+            int pos = _position((void*)r);
             if (pos == 0) {
-                _S_("\t\tRecorded new reference "<<((void*) r.operator->())<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos-1)<<" (absolute) in map: "<<this);
+                _S_("\t\tRecorded new reference "<<((void*)r)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos-1)<<" (absolute) in map: "<<this);
             } else {
-                _S_("\t\tFound repeated reference "<<((void*) r.operator->())<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this);
+                _S_("\t\tFound repeated reference "<<((void*)r)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this);
             }
             return pos;
         }
-        template<class T> ref<T> get_at_position(int pos) {
+        template<class T> T* get_at_position(int pos) {
             T* val = (T*)_get(pos);
             _S_("\t\tRetrieving repeated reference "<<((void*) val)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this);
-            return ref<T>(val);
+            return val;
         }
-        template<class T> ref<T> set_at_position(int pos, ref<T> newval) {
-            T* val = (T*)_set(pos, newval.operator->());
-            _S_("\t\tReplacing repeated reference "<<((void*) val)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this<<" by "<<((void*) newval.operator->()));
-            return ref<T>(val);
+        template<class T> T* set_at_position(int pos, T* newval) {
+            T* val = (T*)_set(pos, newval);
+            _S_("\t\tReplacing repeated reference "<<((void*) val)<<" of type "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" at "<<(_top+pos)<<" (absolute) in map: "<<this<<" by "<<((void*) newval));
+            return val;
         }
         void reset() { _top = 0; assert (false); }
         ~addr_map() { x10aux::dealloc(_ptrs); }
@@ -208,16 +208,16 @@ namespace x10aux {
         char *steal() { char *buf = buffer; buffer = NULL; return buf; }
         char *borrow() { return buffer; }
 
-        static void serialize_reference(serialization_buffer &buf, ref<x10::lang::Reference>);
+        static void serialize_reference(serialization_buffer &buf, x10::lang::Reference*);
         static void copyIn(serialization_buffer &buf, const void* data, x10_long length, size_t sizeOfT);
 
-        template <class T> void manually_record_reference(ref<T> val) {
+        template <class T> void manually_record_reference(T* val) {
             map.previous_position(val);
         }
         
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Write;
-        template<class T> struct Write<ref<T> >;
+        template<class T> struct Write<T*>;
         template<class T> struct Write<captured_ref_lval<T> >;
         template<class T> struct Write<captured_struct_lval<T> >;
         template<typename T> void write(const T &val);
@@ -285,14 +285,14 @@ namespace x10aux {
     PRIMITIVE_VOLATILE_WRITE(x10_int)
     PRIMITIVE_VOLATILE_WRITE(x10_long)
 
-    // Case for references e.g. ref<Reference>
-    template<class T> struct serialization_buffer::Write<ref<T> > {
-        static void _(serialization_buffer &buf, ref<T> val);
+    // Case for references e.g. Reference*
+    template<class T> struct serialization_buffer::Write<T*> {
+        static void _(serialization_buffer &buf, T* val);
     };
-    template<class T> void serialization_buffer::Write<ref<T> >::_(serialization_buffer &buf,
-                                                                   ref<T> val) {
+    template<class T> void serialization_buffer::Write<T*>::_(serialization_buffer &buf,
+                                                                   T* val) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
-        if (!val.isNull()) {
+        if (NULL != val) {
             int pos = buf.map.previous_position(val);
             if (pos != 0) {
                 _S_("\tRepeated ("<<pos<<") serialization of a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" into buf: "<<&buf);
@@ -301,13 +301,14 @@ namespace x10aux {
                 return;
             }
         }
-        serialize_reference(buf, ref<x10::lang::Reference>(val));
+        x10::lang::Reference* valAsRef = reinterpret_cast<x10::lang::Reference*>(val);
+        serialize_reference(buf, valAsRef);
     }
 
     inline void serialization_buffer::copyIn(serialization_buffer &buf,
-                                                const void *data,
-                                                x10_long length,
-                                                size_t sizeOfT) {
+                                             const void *data,
+                                             x10_long length,
+                                             size_t sizeOfT) {
         size_t numBytes = length * sizeOfT;
         if (buf.cursor + numBytes >= buf.limit) buf.grow(buf.length() + numBytes);
         copy_bulk(buf.cursor, data, length, sizeOfT);
@@ -360,12 +361,12 @@ namespace x10aux {
 
         size_t consumed (void) { return cursor - buffer; }
 
-        static ref<x10::lang::Reference> deserialize_reference(deserialization_buffer &buf);
+        static x10::lang::Reference* deserialize_reference(deserialization_buffer &buf);
         static void copyOut(deserialization_buffer &buf, void* data, x10_long length, size_t sizeOfT);
         
         // Default case for primitives and other things that never contain pointers
         template<class T> struct Read;
-        template<class T> struct Read<ref<T> >;
+        template<class T> struct Read<T*>;
         template<typename T> GPUSAFE T read();
         template<typename T> GPUSAFE T peek() {
             const char* saved_cursor = cursor;
@@ -375,26 +376,26 @@ namespace x10aux {
         }
         // This has to be called every time a reference is created, but
         // before the rest of the object is deserialized!
-        template<typename T> bool record_reference(ref<T> r);
+        template<typename T> bool record_reference(T* r);
 
-        template<typename T> void update_reference(ref<T> r, ref<T> newr);
+        template<typename T> void update_reference(T* r, T* newr);
 
         // So it can access the addr_map
         template<class T> friend struct Read;
     };
 
-    template<typename T> bool deserialization_buffer::record_reference(ref<T> r) {
+    template<typename T> bool deserialization_buffer::record_reference(T* r) {
         int pos = map.previous_position(r);
         if (pos != 0) {
-            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Attempting to repeatedly record a reference "<<((void*)r.operator->())<<" (already found at position "<<pos<<") in buf: "<<this);
+            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Attempting to repeatedly record a reference "<<((void*)r)<<" (already found at position "<<pos<<") in buf: "<<this);
         }
         return !pos;
     }
 
-    template<typename T> void deserialization_buffer::update_reference(ref<T> r, ref<T> newr) {
+    template<typename T> void deserialization_buffer::update_reference(T* r, T* newr) {
         int pos = map.previous_position(r);
         if (pos == 0) {
-            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Attempting to update a nonexistent reference "<<((void*)r.operator->())<<" in buf: "<<this);
+            _S_("\t"<<ANSI_SER<<ANSI_BOLD<<"OOPS!"<<ANSI_RESET<<" Attempting to update a nonexistent reference "<<((void*)r)<<" in buf: "<<this);
         }
         map.set_at_position(pos, newr);
     }
@@ -453,11 +454,11 @@ namespace x10aux {
     PRIMITIVE_READ(x10_double)
     //PRIMITIVE_READ(x10_addr_t) // already defined above
 
-    // Case for references e.g. ref<Reference>, 
-    template<class T> struct deserialization_buffer::Read<ref<T> > {
-        GPUSAFE static ref<T> _(deserialization_buffer &buf);
+    // Case for references e.g. Reference*, 
+    template<class T> struct deserialization_buffer::Read<T*> {
+        GPUSAFE static T* _(deserialization_buffer &buf);
     };
-    template<class T> ref<T> deserialization_buffer::Read<ref<T> >::_(deserialization_buffer &buf) {
+    template<class T> T* deserialization_buffer::Read<T*>::_(deserialization_buffer &buf) {
         _S_("Deserializing a "<<ANSI_SER<<ANSI_BOLD<<TYPENAME(T)<<ANSI_RESET<<" from buf: "<<&buf);
         x10aux::serialization_id_t code = buf.peek<x10aux::serialization_id_t>();
         if (code == (x10aux::serialization_id_t) 0xFFFF) {
@@ -467,7 +468,7 @@ namespace x10aux {
             return buf.map.get_at_position<T>(pos);
         }
         // Deserialize it
-        return deserialize_reference(buf);
+        return reinterpret_cast<T*>(deserialize_reference(buf));
     }
 
     // Case for captured stack addresses, captured_ref_lval<T> and captured_struct_lval<T>

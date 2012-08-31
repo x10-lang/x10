@@ -47,7 +47,7 @@ namespace x10aux {
     }
 
     /******* hash_code ********/
-    inline static x10_int identity_hash_code (x10aux::ref<x10::lang::Reference> ptr)
+    inline static x10_int identity_hash_code (x10::lang::Reference* ptr)
     {
 
         // STEP 2: Combine the bits of the pointer into a 32 bit integer.
@@ -55,16 +55,16 @@ namespace x10aux {
         //         the behavior of that is somewhat underdefined and tends to expose
         //         "interesting" behavior in C++ compilers (especially at high optimization
         //         level).
-        uint64_t v2 = (uint64_t)&*ptr;
+        uint64_t v2 = (uint64_t)ptr;
         x10_int lower = (x10_int)(v2 & 0xffffffff);
         x10_int upper = (x10_int)(v2 >> 32);
         x10_int hc = lower ^ upper;
         return hc; 
     }
 
-    x10aux::ref<x10::lang::String> identity_type_name (x10aux::ref<x10::lang::Reference> ptr);
+    x10::lang::String* identity_type_name (x10::lang::Reference* ptr);
 
-    x10aux::ref<x10::lang::String> identity_to_string (x10aux::ref<x10::lang::Reference> ptr);
+    x10::lang::String* identity_to_string (x10::lang::Reference* ptr);
 }
 
 #endif

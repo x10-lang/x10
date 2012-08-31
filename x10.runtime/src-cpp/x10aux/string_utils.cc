@@ -21,22 +21,22 @@ using namespace x10::array;
 using namespace x10::lang;
 using namespace x10aux;
 
-ref<Array<ref<String> > >x10aux::convert_args(int ac, char **av) {
+Array<String*>* x10aux::convert_args(int ac, char **av) {
     assert(ac>=1);
     x10_int x10_argc = ac  - 1;
-    ref<Array<ref<String> > > arr(Array<ref<String> >::_make(x10_argc));
+    Array<String*>* arr(Array<String*>::_make(x10_argc));
     for (int i = 1; i < ac; i++) {
-        ref<String> val = String::Lit(av[i]);
+        String* val = String::Lit(av[i]);
         arr->__set(i-1, val);
     }
     return arr;
 }
 
-ref<String> x10aux::string_utils::lit(const char* s) {
+String* x10aux::string_utils::lit(const char* s) {
     return String::Lit(s);
 }
 
-const char* x10aux::string_utils::cstr(ref<String> s) {
+const char* x10aux::string_utils::cstr(String* s) {
     return s->c_str();
 }
 

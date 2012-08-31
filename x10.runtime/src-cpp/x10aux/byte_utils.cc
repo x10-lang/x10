@@ -26,7 +26,7 @@ static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a'
                            'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
                            'x', 'y', 'z' };
 
-const ref<String> x10aux::byte_utils::toString(x10_byte value, x10_int radix) {
+String* x10aux::byte_utils::toString(x10_byte value, x10_int radix) {
     if (0 == value) return String::Lit("0");
     if (radix < 2 || radix > 36) radix = 10;
     // worst case is binary of Byte.MIN_VALUE -- - plus 8 digits and a '\0'
@@ -43,11 +43,11 @@ const ref<String> x10aux::byte_utils::toString(x10_byte value, x10_int radix) {
     return String::Steal(alloc_printf("%s",b));
 }
 
-const ref<String> x10aux::byte_utils::toString(x10_byte value) {
+String* x10aux::byte_utils::toString(x10_byte value) {
     return to_string(value);
 }
 
-const ref<String> x10aux::byte_utils::toString(x10_ubyte value, x10_int radix) {
+String* x10aux::byte_utils::toString(x10_ubyte value, x10_int radix) {
     if (0 == value) return String::Lit("0");
     if (radix < 2 || radix > 36) radix = 10;
     // worst case is binary: 8 digits and a '\0'
@@ -61,11 +61,11 @@ const ref<String> x10aux::byte_utils::toString(x10_ubyte value, x10_int radix) {
     return String::Steal(alloc_printf("%s",b));
 }
 
-const ref<String> x10aux::byte_utils::toString(x10_ubyte value) {
+String* x10aux::byte_utils::toString(x10_ubyte value) {
     return to_string(value);
 }
 
-x10_byte x10aux::byte_utils::parseByte(ref<String> s, x10_int radix) {
+x10_byte x10aux::byte_utils::parseByte(String* s, x10_int radix) {
     const char *start = nullCheck(s)->c_str();
     char *end;
     errno = 0;
@@ -78,7 +78,7 @@ x10_byte x10aux::byte_utils::parseByte(ref<String> s, x10_int radix) {
     return (x10_byte)ans;
 }
 
-x10_ubyte x10aux::byte_utils::parseUByte(ref<String> s, x10_int radix) {
+x10_ubyte x10aux::byte_utils::parseUByte(String* s, x10_int radix) {
     const char *start = nullCheck(s)->c_str();
     char *end;
     errno = 0;

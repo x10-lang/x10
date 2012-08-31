@@ -401,7 +401,7 @@ public class Emitter {
 			name = ((ParameterType)type).name().toString();
 			return mangled_parameter_type_name(name); // parameter types shouldn't be refs
 		} else if (type.isNull()) {
-			return "x10aux::ref<x10::lang::NullType>"; // typedef to something sensible
+			return "NULL";
 		} else {
 			assert false : type; // unhandled type.
 		}

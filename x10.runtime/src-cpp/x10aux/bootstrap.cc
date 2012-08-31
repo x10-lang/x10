@@ -113,13 +113,12 @@ static void* real_x10_main_inner(void* _main_args) {
         x10::lang::Runtime__Worker::_make((x10_int)0);
 
         // Get the args into an X10 Array[String]
-        x10aux::ref<x10::array::Array<x10aux::ref<x10::lang::String> > > args = x10aux::convert_args(main_args->ac, main_args->av);
+        x10::array::Array<x10::lang::String*>* args = x10aux::convert_args(main_args->ac, main_args->av);
 
         // Construct closure to invoke the user's "public static def main(Array[String]) : void"
         // if at place 0 otherwise wait for asyncs.
-        x10aux::ref<x10::lang::VoidFun_0_0> main_closure =
-            x10aux::ref<BootStrapClosure>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure)))
-                                          x10aux::BootStrapClosure(main_args->mainFunc, args));
+        x10::lang::VoidFun_0_0* main_closure =
+            reinterpret_cast<x10::lang::VoidFun_0_0*>(new (x10aux::alloc<x10::lang::VoidFun_0_0>(sizeof(x10aux::BootStrapClosure))) x10aux::BootStrapClosure(main_args->mainFunc, args));
 
         // Bootup the serialization/deserialization code
         x10aux::DeserializationDispatcher::registerHandlers();
@@ -133,16 +132,11 @@ static void* real_x10_main_inner(void* _main_args) {
 
         x10aux::exitCode = exitCode;
 
-    } catch(x10aux::__ref& e) {
-
-        // Assume that only throwables can be thrown
-        x10aux::ref<x10::lang::CheckedThrowable> &e_ =
-            static_cast<x10aux::ref<x10::lang::CheckedThrowable>&>(e);
-
+    } catch(x10::lang::CheckedThrowable* e) {
         fprintf(stderr, "Uncaught exception at place %ld: %s\n", (long)x10aux::here,
-                x10aux::string_utils::cstr(nullCheck(nullCheck(e_)->toString())));
+                x10aux::string_utils::cstr(e->toString()));
 
-        e_->printStackTrace();
+        e->printStackTrace();
 
         x10aux::exitCode = 1;
 

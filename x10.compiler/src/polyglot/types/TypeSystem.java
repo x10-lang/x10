@@ -1202,6 +1202,8 @@ public interface TypeSystem {
 
     boolean isObjectOrInterfaceType(Type t, Context context);
 
+    boolean isInterfaceType(Type t, Context context);
+
     boolean isParameterType(Type toType);
 
     X10ClassType Region();

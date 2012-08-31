@@ -25,9 +25,9 @@ namespace x10 {
 namespace x10aux {
     class float_utils {
     public:
-        static const ref<x10::lang::String> toHexString(x10_float value);
-        static const ref<x10::lang::String> toString(x10_float value);
-        static x10_float parseFloat(ref<x10::lang::String> s);
+        static x10::lang::String* toHexString(x10_float value);
+        static x10::lang::String* toString(x10_float value);
+        static x10_float parseFloat(x10::lang::String* s);
         static x10_boolean isNaN(x10_float value);
         static x10_boolean isInfinite(x10_float value);
         static x10_int toIntBits(x10_float value);

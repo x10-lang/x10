@@ -119,7 +119,7 @@ public class System {
     public static native def identityTypeName(o:Any) : String;
 
     @Native("java", "java.lang.System.identityHashCode(#o)")
-    @Native("c++", "x10aux::identity_hash_code(#o)")
+    @Native("c++", "x10aux::identity_hash_code(reinterpret_cast<x10::lang::Reference*>(#o))")
     public static native def identityHashCode(o:Any) : Int;
 
     public static def identityToString(o:Any) : String = o.typeName() + "@" + System.identityHashCode(o).toHexString();

@@ -23,7 +23,7 @@ using namespace x10::lang;
 using namespace x10::io;
 
 
-FILE* FILEPtrStream::open_file(const ref<String>& name, const char* mode) {
+FILE* FILEPtrStream::open_file(String* name, const char* mode) {
     const char *filename = name->c_str();
     FILE* res = fopen(filename, mode);
 #ifndef NO_EXCEPTIONS

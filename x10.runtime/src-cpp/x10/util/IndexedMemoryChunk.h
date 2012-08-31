@@ -31,6 +31,7 @@
 
 namespace x10 {
     namespace lang { class Place; }
+    namespace lang { class VoidFun_0_0; }
     
     namespace util { 
 
@@ -127,19 +128,19 @@ namespace x10 {
     
             void _deserialize_body(x10aux::deserialization_buffer& buf);
             
-            x10_boolean equals(x10aux::ref<x10::lang::Any> that) { return _struct_equals(that); }
+            x10_boolean equals(x10::lang::Any* that) { return _struct_equals(that); }
     
             x10_boolean equals(x10::util::IndexedMemoryChunk<T> that) { return _struct_equals(that); }
     
-            x10_boolean _struct_equals(x10aux::ref<x10::lang::Any>);
+            x10_boolean _struct_equals(x10::lang::Any*);
     
             x10_boolean _struct_equals(x10::util::IndexedMemoryChunk<T> that);
     
-            x10aux::ref<x10::lang::String> toString();
+            x10::lang::String* toString();
     
             x10_int hashCode() { return (x10_int)data; }
 
-            x10aux::ref<x10::lang::String> typeName();
+            x10::lang::String* typeName();
         };
     }
 }
@@ -181,7 +182,7 @@ namespace x10 {
             template<class T> static void asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                     x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                     x10_int numElems,
-                                                    x10aux::ref<x10::lang::Reference> notif);
+                                                    x10::lang::VoidFun_0_0* notif);
 
 
             template<class T> static void asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
@@ -191,7 +192,7 @@ namespace x10 {
             template<class T> static void asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
                                                     x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                     x10_int numElems,
-                                                    x10aux::ref<x10::lang::Reference> notif);
+                                                    x10::lang::VoidFun_0_0* notif);
 
             template<class T> static void copy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
@@ -249,6 +250,7 @@ template<class T> class IndexedMemoryChunk;
 #include <x10/lang/Any.h>
 #include <x10/lang/Place.h>
 #include <x10/lang/String.h>
+#include <x10/lang/VoidFun_0_0.h>
 #include <x10/util/RemoteIndexedMemoryChunk.h>
 #ifndef X10_UTIL_INDEXEDMEMORYCHUNK_H_GENERICS
 #define X10_UTIL_INDEXEDMEMORYCHUNK_H_GENERICS
@@ -275,9 +277,9 @@ namespace x10 {
         extern void IMC_uncounted_notifier(x10aux::deserialization_buffer&, x10_int);
 
         extern void IMC_copyToBody(void *srcAddr, void *dstAddr, x10_int numBytes,
-                                   x10::lang::Place dstPlace, bool overlap, x10aux::ref<x10::lang::Reference> notif);
+                                   x10::lang::Place dstPlace, bool overlap, x10::lang::VoidFun_0_0* notif);
         extern void IMC_copyFromBody(void *srcAddr, void *dstAddr, x10_int numBytes,
-                                     x10::lang::Place srcPlace, bool overlap, x10aux::ref<x10::lang::Reference> notif);
+                                     x10::lang::Place srcPlace, bool overlap, x10::lang::VoidFun_0_0* notif);
         extern void IMC_copyBody(void *srcAddr, void *dstAddr, x10_int numBytes, bool overlap);
         
         template<class T> class IndexedMemoryChunk_ithunk0 : public x10::util::IndexedMemoryChunk<T> {
@@ -294,16 +296,16 @@ namespace x10 {
         template<class T> class IndexedMemoryChunk_iboxithunk0 : public x10::lang::IBox<x10::util::IndexedMemoryChunk<T> > {
         public:
             static x10::lang::Any::itable<IndexedMemoryChunk_iboxithunk0<T> > itable;
-            x10_boolean equals(x10aux::ref<x10::lang::Any> arg0) {
+            x10_boolean equals(x10::lang::Any* arg0) {
                 return this->value->equals(arg0);
             }
             x10_int hashCode() {
                 return this->value->hashCode();
             }
-            x10aux::ref<x10::lang::String> toString() {
+            x10::lang::String* toString() {
                 return this->value->toString();
             }
-            x10aux::ref<x10::lang::String> typeName() {
+            x10::lang::String* typeName() {
                 return this->value->typeName();
             }
         };
@@ -352,14 +354,14 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     checkBounds(srcIndex+numElems, src.len+1);
     checkBounds(dstIndex, dst.len);
     checkBounds(dstIndex+numElems, dst.len+1);
-    IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, X10_NULL);
+    IMC_copyToBody(srcAddr, dstAddr, numBytes, dst.home, src->data == dst->data, NULL);
 }
 
 
 template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::IndexedMemoryChunk<T> src, x10_int srcIndex,
                                                                       x10::util::RemoteIndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                       x10_int numElems,
-                                                                      x10aux::ref<x10::lang::Reference> notif) {
+                                                                      x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
@@ -383,13 +385,13 @@ template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util:
     checkBounds(srcIndex+numElems, src.len+1);
     checkBounds(dstIndex, dst.len);
     checkBounds(dstIndex+numElems, dst.len+1);
-    IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, X10_NULL);
+    IMC_copyFromBody(srcAddr, dstAddr, numBytes, src.home, src->data == dst->data, NULL);
 }
 
 template<class T> void x10::util::IndexedMemoryChunk<void>::asyncCopy(x10::util::RemoteIndexedMemoryChunk<T> src, x10_int srcIndex,
                                                                       x10::util::IndexedMemoryChunk<T> dst, x10_int dstIndex,
                                                                       x10_int numElems,
-                                                                      x10aux::ref<x10::lang::Reference> notif) {
+                                                                      x10::lang::VoidFun_0_0* notif) {
     if (numElems <= 0) return;
     void* srcAddr = (void*)(&src->raw()[srcIndex]);
     void* dstAddr = (void*)(&dst->raw()[dstIndex]);
@@ -523,7 +525,7 @@ namespace x10 {
 }
 
 
-template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x10aux::ref<x10::lang::Any> that) {
+template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x10::lang::Any* that) {
     if ((!(x10aux::instanceof<x10::util::IndexedMemoryChunk<T> >(that)))) {
         return false;
     }
@@ -534,7 +536,7 @@ template<class T> x10_boolean x10::util::IndexedMemoryChunk<T>::_struct_equals(x
     return x10aux::struct_equals(data, that->data) && x10aux::struct_equals(len, that->len);
 }
 
-template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::toString() {
+template<class T> x10::lang::String* x10::util::IndexedMemoryChunk<T>::toString() {
     char* tmp = x10aux::alloc_printf("IndexedMemoryChunk(");
     int sz = length() > 10 ? 10 : length();
     for (int i = 0; i < sz; i++) {
@@ -547,7 +549,7 @@ template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T
     return x10::lang::String::Steal(tmp);
 }
 
-template<class T> x10aux::ref<x10::lang::String> x10::util::IndexedMemoryChunk<T>::typeName() {
+template<class T> x10::lang::String* x10::util::IndexedMemoryChunk<T>::typeName() {
     char* tmp = x10aux::alloc_printf("x10.util.IndexedMemoryChunk<%s>", x10aux::getRTT<T>()->name());
     return x10::lang::String::Steal(tmp);
 }

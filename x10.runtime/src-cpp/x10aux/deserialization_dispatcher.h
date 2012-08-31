@@ -23,7 +23,7 @@ namespace x10aux {
 
     class deserialization_buffer;
 
-    typedef ref<x10::lang::Reference> (*Deserializer)(deserialization_buffer &buf);
+    typedef x10::lang::Reference* (*Deserializer)(deserialization_buffer &buf);
     template<> inline const char *typeName<Deserializer>() { return "Deserializer"; }
 
     typedef void (*CUDAPre)(deserialization_buffer &buf, place p,
@@ -86,14 +86,14 @@ namespace x10aux {
         }
 
         
-        static ref<x10::lang::Reference> create(deserialization_buffer &buf) {
+        static x10::lang::Reference* create(deserialization_buffer &buf) {
             return it->create_(buf);
         }
-        static ref<x10::lang::Reference> create(deserialization_buffer &buf, serialization_id_t id) {
+        static x10::lang::Reference* create(deserialization_buffer &buf, serialization_id_t id) {
             return it->create_(buf, id);
         }
-        ref<x10::lang::Reference> create_(deserialization_buffer &buf);
-        ref<x10::lang::Reference> create_(deserialization_buffer &buf, serialization_id_t id);
+        x10::lang::Reference* create_(deserialization_buffer &buf);
+        x10::lang::Reference* create_(deserialization_buffer &buf, serialization_id_t id);
 
         static serialization_id_t addDeserializer (Deserializer deser, ClosureKind kind,
                                                    CUDAPre cuda_pre = NULL,

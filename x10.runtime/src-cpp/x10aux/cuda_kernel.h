@@ -51,7 +51,7 @@ namespace x10aux {
         // use extra template param S to avoid having to include headers in this file
         template<class T, class S> void populateArr (S init);
         //template<class T, class S> void populateSeq (S init);
-        //template<class T> void populateClosure (int elements, x10aux::ref<x10::lang::Reference> init);
+        //template<class T> void populateClosure (int elements, x10::lang::Reference* init);
         //template<class T> void populateConstant (int elements, T init);
     };
 }
@@ -67,7 +67,7 @@ template<class T, class S> void x10aux::CMemPopulator::populateSeq (S init) {
     x10aux::nullCheck(init);
     int elements = init->FMGL(size); // size property
     for (int i=0 ; i<elements ; ++i) {
-        T tmp = (init.operator->()->*(x10aux::findITable<S>(init->_getITables())->apply))(i);
+        T tmp = (init->*(x10aux::findITable<S>(init->_getITables())->apply))(i);
         size_t elsz = sizeof(T);
         memcpy(&ptr[offset], &tmp, elsz);
         offset += elsz;
@@ -75,10 +75,10 @@ template<class T, class S> void x10aux::CMemPopulator::populateSeq (S init) {
 }
 */
 /*
-template<class T> void x10aux::CMemPopulator::populateClosure (int elements, x10aux::ref<x10::lang::Reference> init) {
+template<class T> void x10aux::CMemPopulator::populateClosure (int elements, x10::lang::Reference* init) {
     x10aux::nullCheck(init);
     for (int i=0 ; i<elements ; ++i) {
-        T tmp = (init.operator->()->*(x10aux::findITable<x10::lang::Fun_0_1<x10_int, T> >(init->_getITables())->apply))(i);
+        T tmp = (init->*(x10aux::findITable<x10::lang::Fun_0_1<x10_int, T> >(init->_getITables())->apply))(i);
         size_t elsz = sizeof(T);
         memcpy(&ptr[offset], &tmp, elsz);
         offset += elsz;

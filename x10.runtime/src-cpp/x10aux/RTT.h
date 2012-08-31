@@ -51,15 +51,12 @@
 
 namespace x10 {
     namespace lang {
-        class NullType;
         class Reference;
         class String;
     }
 }
 
 namespace x10aux {
-
-    template<class T> class ref;
 
     class RuntimeType {
     private:
@@ -123,11 +120,9 @@ namespace x10aux {
 
         bool subtypeOf(const RuntimeType * const other) const;
 
-        // use "const ref<t> &" here to break circular dependency
-        bool instanceOf(const x10aux::ref<x10::lang::Reference> &other) const;
+        bool instanceOf(const x10::lang::Reference* other) const;
 
-        // use "const ref<t> &" here to break circular dependency
-        bool concreteInstanceOf(const x10aux::ref<x10::lang::Reference> &other) const;
+        bool concreteInstanceOf(const x10::lang::Reference* other) const;
 
         bool equals(const RuntimeType * const other) const {
             return other == this;
@@ -167,10 +162,18 @@ namespace x10aux {
         virtual const char *name() const;
     };
 
-
+    template <typename T> class remove_all_pointers{
+    public:
+        typedef T type;
+    };
+    template <typename T> class remove_all_pointers<T*>{
+    public:
+        typedef typename remove_all_pointers<T>::type type;
+    };
+    
     // this is the function we use to get runtime types from types
     template<class T> const x10aux::RuntimeType* getRTT() {
-        return T::getRTT();
+        return remove_all_pointers<T>::type::getRTT();
     }
     // specializations of getRTT template for primitive types
     template<> inline const x10aux::RuntimeType *getRTT<x10_boolean>() {
@@ -246,7 +249,7 @@ namespace x10aux {
         return &x10aux::RuntimeType::ULongType;
     }
 
-    // This is different to getRTT because it distinguishes between T and ref<T>
+    // This is different to getRTT because it distinguishes between T and T*
     template<class T> struct TypeName { static const char *_() {
         const RuntimeType *t = getRTT<T>();
         if (NULL == t || !t->isInitialized) return "uninitialized RTT";
@@ -270,7 +273,6 @@ namespace x10aux {
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
     template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
     template<> inline const char *typeName<x10::lang::Reference>() { return "interface"; }
-    template<> inline const char *typeName<x10::lang::NullType>() { return "Null"; }
 #ifndef NO_IOSTREAM
     template<> inline const char *typeName<std::stringstream>() { return "std::stringstream"; }
 #endif
@@ -286,15 +288,17 @@ namespace x10aux {
     template<class T> struct Instanceof<T, T> { static x10_boolean _(T v) {
         return true;
     } };
-    template<class T, class S> struct Instanceof<T, x10aux::ref<S> > {
-        static x10_boolean _(x10aux::ref<S> v) {
-            return x10aux::getRTT<T>()->instanceOf(v);
+    template<class T, class S> struct Instanceof<T, S*> {
+        static x10_boolean _(S* v) {
+            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
+            return x10aux::getRTT<T>()->instanceOf(vAsRef);
         }
     };
     // Have to specialize again to disambiguate
-    template<class T> struct Instanceof<x10aux::ref<T>, x10aux::ref<T> > {
-        static x10_boolean _(x10aux::ref<T> v) {
-            return x10aux::getRTT<x10aux::ref<T> >()->instanceOf(v);
+    template<class T> struct Instanceof<T*, T*> {
+        static x10_boolean _(T* v) {
+            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
+            return x10aux::getRTT<T>()->instanceOf(vAsRef);
         }
     };
 
@@ -308,15 +312,17 @@ namespace x10aux {
     template<class T> struct ConcreteInstanceof<T, T> { static x10_boolean _(T v) {
         return true;
     } };
-    template<class T, class S> struct ConcreteInstanceof<T, x10aux::ref<S> > {
-        static x10_boolean _(x10aux::ref<S> v) {
-            return x10aux::getRTT<T>()->concreteInstanceOf(v);
+    template<class T, class S> struct ConcreteInstanceof<T, S*> {
+        static x10_boolean _(S* v) {
+            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
+            return x10aux::getRTT<T>()->concreteInstanceOf(vAsRef);
         }
     };
     // Have to specialize again to disambiguate
-    template<class T> struct ConcreteInstanceof<x10aux::ref<T>, x10aux::ref<T> > {
-        static x10_boolean _(x10aux::ref<T> v) {
-            return x10aux::getRTT<x10aux::ref<T> >()->concreteInstanceOf(v);
+    template<class T> struct ConcreteInstanceof<T*, T*> {
+        static x10_boolean _(T* v) {
+            x10::lang::Reference* vAsRef = reinterpret_cast<x10::lang::Reference*>(v);
+            return x10aux::getRTT<T>()->concreteInstanceOf(vAsRef);
         }
     };
 

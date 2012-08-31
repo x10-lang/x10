@@ -58,17 +58,17 @@ namespace x10 {
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
              *********************************************************************************/
-            virtual x10_boolean equals(x10aux::ref<Any> other) {
-                return this->_struct_equals(x10aux::ref<Reference>(other));
+            virtual x10_boolean equals(Any* other) {
+                return this->_struct_equals(reinterpret_cast<Reference*>(other));
             }
 
-            virtual x10_boolean _struct_equals(x10aux::ref<Reference> other) {
-                return other == x10aux::ref<Reference>(this);
+            virtual x10_boolean _struct_equals(Reference* other) {
+                return other == this;
             }
             
             virtual x10_int hashCode() = 0;
 
-            virtual x10aux::ref<String> toString() = 0;
+            virtual String* toString() = 0;
 
             /*********************************************************************************
              * Serialization/Deserialization functions assumed to be defined for all types
@@ -76,19 +76,10 @@ namespace x10 {
             virtual x10aux::serialization_id_t _get_serialization_id() = 0;
             virtual void _serialize_body(x10aux::serialization_buffer &) = 0;
         };
-
-        /**
-         * This is a class that exists only at the C++ implementation level,
-         * not at the X10 language level.  It's only real purpose is to
-         * provide a C++ level type for X10_NULL and therefore permit
-         * a unique RTT object to be associated with the X10 value null.
-         */
-        class NullType : public Reference {
-          public:
-            RTT_H_DECLS_CLASS;
-        };
     }
 }
+
+#define X10_NULL reinterpret_cast<x10::lang::Reference*>(NULL)
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100

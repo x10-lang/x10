@@ -16,14 +16,14 @@ using namespace x10aux;
 using namespace x10::lang;
 using namespace x10::io;
 
-x10aux::ref<FileWriter__FileOutputStream>
-FileWriter__FileOutputStream::_make(x10aux::ref<x10::lang::String> name, bool append) {
-    x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream ();
+FileWriter__FileOutputStream*
+FileWriter__FileOutputStream::_make(x10::lang::String* name, bool append) {
+    FileWriter__FileOutputStream* this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream ();
     this_->_constructor(name, append);
     return this_;
 }
 
-void FileWriter__FileOutputStream::_constructor(x10aux::ref<x10::lang::String> file, bool append) {
+void FileWriter__FileOutputStream::_constructor(x10::lang::String* file, bool append) {
     this->OutputStreamWriter__OutputStream::_constructor();
     x10aux::io::FILEPtrOutputStream fpos(x10aux::io::FILEPtrStream::open_file(file, (append ? "a" : "w")));
     _outputStream = fpos;
@@ -68,12 +68,12 @@ void FileWriter__FileOutputStream::_deserialize_body(x10aux::deserialization_buf
     // _outputStream = buf.read<x10aux::io::FILEPtrOutputStream>();
 }
 
-x10aux::ref<Reference> FileWriter__FileOutputStream::_deserializer(x10aux::deserialization_buffer& buf) {
+Reference* FileWriter__FileOutputStream::_deserializer(x10aux::deserialization_buffer& buf) {
     // TODO: attempting to serialize _outputStream is nonsensical.
     //       The old 1.7 definition of this class simply didn't work either,
     //       it just silently didn't serialize the FILEPtrInputSteam field.
     // assert(false);
-    x10aux::ref<FileWriter__FileOutputStream> this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream();
+    FileWriter__FileOutputStream* this_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream();
     buf.record_reference(this_);
     this_->_deserialize_body(buf);
     return this_;

@@ -26,6 +26,7 @@
 #include <x10/lang/Closure.h> // for x10_runtime_Runtime__closure__6
 
 #include <x10/lang/Runtime.h>
+#include <x10/lang/FinishState.h>
 
 #include <strings.h>
 
@@ -161,22 +162,21 @@ void x10aux::network_init (int ac, char **av) {
     opv = (x10rt_remote_op_params*)malloc(remote_op_batch * sizeof(*opv));
 }
 
-void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10aux::ref<x10::lang::Reference> fs_, x10aux::endpoint endpoint) {
+void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
+                          x10::lang::FinishState* fs, x10aux::endpoint endpoint) {
 
-    x10aux::ref<x10::lang::FinishState> fs = fs_; // avoid including FinishState in the header
-
+    x10::lang::Reference* real_body = reinterpret_cast<x10::lang::Reference*>(body_fun);
+    
     serialization_id_t real_sid = real_body->_get_serialization_id();
     if (!is_cuda(p)) {
         _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a simple async: "<<ANSI_RESET
-            <<ref<Reference>(real_body)->toString()->c_str()
+            <<real_body->toString()->c_str()
             <<" sid "<<real_sid<<" to place: "<<p);
 
     } else {
-
         _X_(ANSI_BOLD<<ANSI_X10RT<<"This is actually a kernel: "<<ANSI_RESET
-            <<ref<Reference>(real_body)->toString()->c_str()
+            <<real_body->toString()->c_str()
             <<" sid "<<real_sid<<" at GPU: "<<p);
-
     }
 
     x10aux::msg_type real_id = DeserializationDispatcher::getMsgType(real_sid);
@@ -210,12 +210,14 @@ void x10aux::run_async_at(x10aux::place p, x10aux::ref<Reference> real_body, x10
     x10rt_send_msg(&params);
 }
 
-void x10aux::run_closure_at(x10aux::place p, x10aux::ref<Reference> body, x10aux::endpoint endpoint) {
+void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun, x10aux::endpoint endpoint) {
+
+    x10::lang::Reference* body = reinterpret_cast<x10::lang::Reference*>(body_fun);
 
     serialization_id_t sid = body->_get_serialization_id();
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"Transmitting a general async: "<<ANSI_RESET
-        <<ref<Reference>(body)->toString()->c_str()
+        <<body->toString()->c_str()
         <<" sid "<<sid<<" to place: "<<p);
 
     assert(p!=here); // this case should be handled earlier
@@ -285,22 +287,22 @@ static void receive_async (const x10rt_msg_params *p) {
     x10aux::ClosureKind ck = DeserializationDispatcher::getClosureKind(sid);
     switch (ck) {
         case x10aux::CLOSURE_KIND_GENERAL_ASYNC: {
-            ref<Reference> body(x10aux::DeserializationDispatcher::create(buf, sid));
+            Reference* body(x10aux::DeserializationDispatcher::create(buf, sid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised general async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
-            if (body.isNull()) return;
-            VoidFun_0_0::__apply(body);
-            x10aux::dealloc(body.operator->());
+            if (NULL == body) return;
+            VoidFun_0_0::__apply(reinterpret_cast<VoidFun_0_0*>(body));
+            x10aux::dealloc(body);
         } break;
         case x10aux::CLOSURE_KIND_SIMPLE_ASYNC: {
-            x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
-            ref<Reference> body(x10aux::DeserializationDispatcher::create(buf, sid));
+            x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
+            Reference* body(x10aux::DeserializationDispatcher::create(buf, sid));
             assert(buf.consumed() <= p->len);
             _X_("The deserialised simple async was: "<<x10aux::safe_to_string(body));
             deserialized_bytes += buf.consumed()  ; asyncs_received++;
-            if (body.isNull()) return;
-            x10::lang::Runtime::execute(body, fs);
+            if (NULL == body) return;
+            x10::lang::Runtime::execute(reinterpret_cast<VoidFun_0_0*>(body), fs);
         } break;
         default: abort();
     }
@@ -311,7 +313,7 @@ static void cuda_pre (const x10rt_msg_params *p, size_t *blocks, size_t *threads
 {
     _X_(ANSI_X10RT<<"Receiving a kernel pre callback, deserialising..."<<ANSI_RESET);
     x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-    buf.read<x10aux::ref<x10::lang::FinishState> >();
+    buf.read<x10::lang::FinishState*>();
     // note: high bytes thrown away in implicit conversion
     serialization_id_t sid = x10aux::DeserializationDispatcher::getSerializationId(p->type);
     x10aux::CUDAPre pre = x10aux::DeserializationDispatcher::getCUDAPre(sid);
@@ -331,7 +333,7 @@ static void cuda_post (const x10rt_msg_params *p, size_t blocks, size_t threads,
     }
     {
         x10aux::deserialization_buffer buf(static_cast<char*>(p->msg), p->len);
-        x10aux::ref<x10::lang::FinishState> fs = buf.read<x10aux::ref<x10::lang::FinishState> >();
+        x10::lang::FinishState* fs = buf.read<x10::lang::FinishState*>();
         fs->notifyActivityCreation();
         fs->notifyActivityTermination();
     }
@@ -461,10 +463,10 @@ void x10aux::cuda_put (place gpu, x10_ulong addr, void *var, size_t sz)
 // teams
 
 void *x10aux::coll_enter() {
-    x10aux::ref<x10::lang::FinishState> fs = Runtime::activity()->finishState();
+    x10::lang::FinishState* fs = Runtime::activity()->finishState();
     fs->notifySubActivitySpawn(x10::lang::Place::_make(x10aux::here));
     fs->notifyActivityCreation();
-    return fs._val;
+    return fs;
 }
 
 void x10aux::coll_handler(void *arg) {
@@ -500,11 +502,12 @@ void x10aux::coll_handler2(x10rt_team id, void *arg) {
     extern char **environ;
 #endif
 
-x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > x10aux::loadenv() {
+x10::util::HashMap<x10::lang::String*,x10::lang::String*>* x10aux::loadenv() {
 #ifdef __MACH__
     char** environ = *_NSGetEnviron();
 #endif
-    x10aux::ref<x10::util::HashMap<x10aux::ref<x10::lang::String>,x10aux::ref<x10::lang::String> > > map = x10::util::HashMap<x10aux::ref<x10::lang::String>, x10aux::ref<x10::lang::String> >::_make();
+    x10::util::HashMap<x10::lang::String*,x10::lang::String*>* map =
+        x10::util::HashMap<x10::lang::String*, x10::lang::String*>::_make();
     for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
         char *var = x10aux::string_utils::strdup(environ[i]);
         *strchr(var,'=') = '\0';

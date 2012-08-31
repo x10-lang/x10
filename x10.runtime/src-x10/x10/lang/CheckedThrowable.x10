@@ -18,7 +18,7 @@ import x10.io.Console;
 
 
 @NativeRep("java", "java.lang.Throwable", null, "x10.rtt.Types.CHECKED_THROWABLE")
-@NativeRep("c++", "x10aux::ref<x10::lang::CheckedThrowable>", "x10::lang::CheckedThrowable", null)
+@NativeRep("c++", "x10::lang::CheckedThrowable*", "x10::lang::CheckedThrowable", null)
 public class CheckedThrowable {
 
     @Native("java", "#this.getCause()")

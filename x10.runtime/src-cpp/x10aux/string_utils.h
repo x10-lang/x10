@@ -27,13 +27,13 @@ namespace x10 {
 
 namespace x10aux {
 
-    ref<x10::array::Array<ref<x10::lang::String> > > convert_args(int ac, char **av);
+    x10::array::Array<x10::lang::String*>* convert_args(int ac, char **av);
 
     namespace string_utils {
 
-        ref<x10::lang::String> lit(const char*);
+        x10::lang::String* lit(const char*);
 
-        const char* cstr(ref<x10::lang::String>);
+        const char* cstr(x10::lang::String*);
 
         char *strdup(const char*);
         char *strndup(const char*, x10_int len);

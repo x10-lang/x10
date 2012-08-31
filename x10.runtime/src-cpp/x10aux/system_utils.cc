@@ -79,14 +79,12 @@ void x10aux::system_utils::println(const char *msg) {
     fprintf(stderr, "%s\n", msg);
 }
 
-x10aux::ref<x10::lang::String> x10aux::identity_type_name (x10aux::ref<x10::lang::Reference> ptr)
-{
+x10::lang::String* x10aux::identity_type_name (x10::lang::Reference* ptr) {
     return x10::lang::String::Lit(alloc_printf("%s",ptr->_type()->name()));
 }
 
-x10aux::ref<x10::lang::String> x10aux::identity_to_string (x10aux::ref<x10::lang::Reference> ptr)
-{
-    return x10::lang::String::Lit(alloc_printf("%s@%p",ptr->_type()->name(),(void*)&*ptr));
+x10::lang::String* x10aux::identity_to_string (x10::lang::Reference* ptr) {
+    return x10::lang::String::Lit(alloc_printf("%s@%p",ptr->_type()->name(),(void*)ptr));
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

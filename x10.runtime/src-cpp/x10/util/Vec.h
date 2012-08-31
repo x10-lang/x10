@@ -61,9 +61,10 @@ namespace x10 {
                         assert(src.size() == SZ);
                         ::memcpy(arr, src.arr, SZ * sizeof(T));
                 }
-                x10aux::ref<x10::lang::String> toString (void)
+                x10::lang::String* toString (void)
                 {
-                        return x10aux::string_utils::lit("struct x10.util.Vec: size=")+x10aux::to_string(SZ);
+                    return x10::lang::String::__plus(x10aux::string_utils::lit("struct x10.util.Vec: size="),
+                                                     x10aux::to_string(SZ));
                 }
                 x10_int hashCode (void) { return (x10_int)SZ; }
                 x10_boolean _struct_equals(NativeVec<T,SZ> other)
@@ -96,7 +97,7 @@ namespace x10 {
                         }
                         return true;
                 }
-                x10_boolean equals(x10aux::ref<x10::lang::Any> other)
+                x10_boolean equals(x10::lang::Any* other)
                 {
                         // FIXME: this sucks
                         return false;
@@ -133,9 +134,10 @@ namespace x10 {
                 {
                         ::memcpy(arr, src.arr, sz * sizeof(T));
                 }
-                x10aux::ref<x10::lang::String> toString (void)
+                x10::lang::String* toString (void)
                 {
-                        return x10aux::string_utils::lit("struct x10.util.Vec: size=")+x10aux::to_string(sz);
+                    return x10::lang::String::__plus(x10aux::string_utils::lit("struct x10.util.Vec: size="),
+                                                     x10aux::to_string(sz));
                 }
                 x10_int hashCode (void) { return (x10_int)sz; }
                 template<int SZ> x10_boolean equals(NativeVec<T,SZ> other)
@@ -170,7 +172,7 @@ namespace x10 {
                         }
                         return true;
                 }
-                x10_boolean equals(x10aux::ref<x10::lang::Any> other)
+                x10_boolean equals(x10::lang::Any* other)
                 {
                         // FIXME: this sucks
                         return false;

@@ -275,7 +275,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             // XTENLANG-1407: Remove this memset call once we finish the default value specification/implementation.
             //                Expect it to be more efficient to explicitly initialize all of the object fields instead
             //                of first calling memset, then storing into most of the fields a second time.
-            sw.write("x10aux::ref"+chevrons(typeName)+"((new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"()))");
+            sw.write("((new (memset(x10aux::alloc"+chevrons(typeName)+"(), 0, sizeof("+typeName+"))) "+typeName+"()))");
             sw.newline();
         }
     }
@@ -996,17 +996,30 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             String mname = itable.mangledName(meth);
             
             // Method for x10::lang::Reference (objects, closures, boxed structs)
-            h.write("template <class R> static "+Emitter.translateType(meth.returnType(), true));
-            h.write(" "+mname+"(x10aux::ref<R> _recv");
+            h.write("static "+Emitter.translateType(meth.returnType(), true));
+            h.write(" "+mname+"("+Emitter.translateType(currentClass, true)+" _recv");
             int argNum=0;
             for (Type f : meth.formalTypes()) {
                 h.write(", ");
                 h.write(Emitter.translateType(f, true)+" arg"+(argNum++));
             }
             h.write(") {"); h.newline(4); h.begin(0);
-            h.writeln("x10aux::ref<x10::lang::Reference> _refRecv(_recv);");
-            if (!meth.returnType().isVoid()) h.write("return ");
-            h.write("(_refRecv.operator->()->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
+            h.writeln("x10::lang::Reference* _refRecv = reinterpret_cast<x10::lang::Reference*>(_recv);");
+            boolean needsCast = false;
+            if (!meth.returnType().isVoid()) {
+                h.write("return ");
+                // the cast is because our generated member function may use a more general
+                // return type and c++ does not support covariant smartptr returns
+                // TODO: See TODO in CastInjector.
+                Type ret_type = emitter.findRootMethodReturnType(meth.x10Def(), null, meth);
+                needsCast = !xts.typeDeepBaseEquals(meth.returnType(), ret_type, context);
+                if (needsCast) {
+                    h.write("x10aux::class_cast_unchecked");
+                    h.write(chevrons(Emitter.translateType(meth.returnType(), true)));
+                    h.write("(");
+                }
+            }
+            h.write("(_refRecv->*(x10aux::findITable"+chevrons(Emitter.translateType(currentClass, false))+"(_refRecv->_getITables())->"+mname+"))(");
             boolean first = true;
             argNum = 0;
             for (Type f : meth.formalTypes()) {
@@ -1014,6 +1027,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 h.write("arg"+(argNum++));
                 first = false;
             }
+            if (needsCast) h.write(")");
             h.write(");");
             h.end(); h.newline();
             h.writeln("}");
@@ -1757,7 +1771,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         h.writeln("static volatile x10aux::StaticInitController::status "+status+";");;
 
         // declare the exception holder
-        h.writeln("static x10aux::ref<x10::lang::CheckedThrowable> "+except+";");;
+        h.writeln("static "+make_ref("x10::lang::CheckedThrowable")+" "+except+";");;
 
         // declare the accessor method
         h.write("static ");
@@ -1798,7 +1812,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         sw.writeln(";");
         
         // define the exception holder flag
-        sw.write("x10aux::ref<x10::lang::CheckedThrowable> ");
+        sw.write(make_ref("x10::lang::CheckedThrowable")+" ");
         sw.write(container+"::");
         sw.write(except);
         sw.writeln(";");
@@ -2965,7 +2979,18 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Context context = (Context) tr.context();
 
                 if (xts.typeEquals(f_, t_, context)) {
-                    c.printSubExpr(c.expr(), true, sw, tr);
+                    if (c.expr() instanceof NullLit_c) {
+                        // Could still need a C++ level cast to make the typing work
+                        // FIXME: if we make X10_NULL a void*, we wouldn't need this cast,
+                        //        but need to verify if all the template overloading in basic_functions
+                        //        would still work.
+                        sw.write("reinterpret_cast");
+                        sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
+                        c.printSubExpr(c.expr(), true, sw, tr);
+                        sw.write(")");
+                    } else {
+                        c.printSubExpr(c.expr(), true, sw, tr);
+                    }
                 } else if (c.conversionType()==Converter.ConversionType.SUBTYPE && xts.isSubtype(f_, t_, context)) {
                     // If it is an upcast, we can implement as a class_cast_unchecked.
                     // However we still need to do something for two reasons
@@ -3032,16 +3057,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	public void visit(X10Instanceof_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
 
-		if (refsAsPointers) {
-			sw.write("!!dynamic_cast");
-			sw.write(chevrons(Emitter.translateType(n.compareType().type(), true)));
-			sw.write("(");
-			sw.begin(0);
-			n.printSubExpr(n.expr(), sw, tr);
-			sw.end();
-			sw.write(")");
-			return;
-		}
 		sw.write("x10aux::instanceof");
 		sw.write(chevrons(Emitter.translateType(n.compareType().type(), true)));
 		sw.write("(");
@@ -3073,77 +3088,27 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
         }
 		
-		if (n.finallyBlock() != null) {
-			sw.write("try {");
-			sw.newline(0); sw.begin(0);
-		}
-		sw.write("try");
+        sw.write("try");
 		assert (n.tryBlock() instanceof Block_c);
 		n.printSubStmt(n.tryBlock(), sw, tr);
 		sw.newline(0);
-        
-		// [IP] C++ will not catch ref types properly, as there is no hierarchy.
-		// So, we have to do the dispatching ourselves.
-		sw.newline();
-		String refVar = "__ref__" + getUniqueId_();
-		sw.write("catch (x10aux::__ref& " + refVar + ") {");
-		sw.newline(4); sw.begin(0);
-		if (n.catchBlocks().size() > 0) {
-		    String excVar = "__exc" + refVar;
-		    // [DC] the following I believe to be obsolete following the new itables implementation of interface dispatch
-		    // Note that the following c-style cast only works because Throwable is
-		    // *not* an interface and thus is not virtually inherited.  If it
-		    // were, we would have to static_cast the exception to Throwable on
-		    // throw (otherwise we would need to offset by an unknown quantity).
-		    String exception_ref = Emitter.translateType(xts.CheckedThrowable(), true);
-		    sw.write(exception_ref+"& " + excVar + " = ("+exception_ref+"&)" + refVar + ";");
-		    context.setExceptionVar(excVar);
-		    for (Catch cb : n.catchBlocks()) {
-		        sw.newline(0);
-		        n.printBlock(cb, sw, tr);
-		    }
-		}
-		sw.newline();
-		sw.write("throw;");
-		sw.end(); sw.newline();
-		sw.write("}");
-		if (n.finallyBlock() != null) {
-			sw.end(); sw.newline();
-			sw.write("} catch (...) {");
-			sw.newline(4); sw.begin(0);
-			n.printBlock(n.finallyBlock(), sw, tr);
-			sw.newline();
-			sw.write("throw;");
-			sw.end(); sw.newline();
-			sw.write("}");
-			sw.newline();
-			n.printBlock(n.finallyBlock(), sw, tr);
+
+		for (Catch cb : n.catchBlocks()) {
+		    sw.newline(0);
+		    n.printBlock(cb, sw, tr);
 		}
 	}
 
 	public void visit(Catch_c n) {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
-		String excVar = context.getExceptionVar();
 		sw.newline();
-		sw.write("if (");
-		String type = Emitter.translateType(n.formal().type().type(), true);
-        if (n.formal().type().type().typeEquals(tr.typeSystem().CheckedThrowable(), context)) {
-            sw.write("true");
-        } else if (refsAsPointers) {
-			sw.write("!!dynamic_cast" + chevrons(type) + "(" + excVar + ")");
-		} else {
-			sw.write("x10aux::instanceof" + chevrons(type) + "(" + excVar + ")");
-		}
-		sw.write(") {");
-		sw.newline(4); sw.begin(0);
+		sw.write("catch (");
 		n.printBlock(n.formal(), sw, tr);
-		sw.write(" =");
-		sw.allowBreak(2, " ");
-		sw.write("static_cast" + chevrons(type) + "(" + excVar + ");");
-		sw.newline(0);
+	    sw.write(") {");
+		sw.newline(4); sw.begin(0);
 		n.print(n.body(), sw, tr);
 		sw.end(); sw.newline();
-		sw.write("} else");
+		sw.write("}");
 	}
 
     public void visit(ParExpr_c n) {
@@ -3478,7 +3443,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 
         boolean stackAllocateClosure = ((X10CPPContext_c)c).closureOuter.stackAllocateClosure;
         if (!stackAllocateClosure) {
-            sw.write(make_ref(superType)+"("+make_ref(cnamet));
+            sw.write("reinterpret_cast"+chevrons(make_ref(superType))+"(");
             sw.write("(new (x10aux::alloc"+chevrons(superType)+"(sizeof("+cname+templateArgs+")))");
         }
         sw.write(cname+templateArgs+"(");
@@ -3555,7 +3520,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         inc.write("template<class __T> static "+make_ref("__T")+" "+DESERIALIZE_METHOD+"("+DESERIALIZATION_BUFFER+" &buf) {");
         inc.newline(4); inc.begin(0);
         inc.writeln(cnamet+"* storage = x10aux::alloc"+chevrons(cnamet)+"();");
-        inc.writeln("buf.record_reference("+make_ref(cnamet)+"(storage));");
+        inc.writeln("buf.record_reference(storage);");
         
         // FIXME: factor out this loop
         for (int i = 0; i < env.size(); i++) {

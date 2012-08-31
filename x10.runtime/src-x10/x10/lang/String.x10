@@ -30,7 +30,7 @@ import x10.util.ArrayList;
  * is defined in {@link x10.lang.Char}.
  */
 @NativeRep("java", "java.lang.String", null, "x10.rtt.Types.STRING")
-@NativeRep("c++", "x10aux::ref<x10::lang::String>", "x10::lang::String", null)
+@NativeRep("c++", "x10::lang::String*", "x10::lang::String", null)
 public final class String implements Comparable[String] {
 
     /**
@@ -522,7 +522,7 @@ public final class String implements Comparable[String] {
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "((#x) + (#y))")
+    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
     public native static operator[T] (x:String) + (y:T): String;
 
     /**
@@ -534,7 +534,7 @@ public final class String implements Comparable[String] {
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "((#x) + (#y))")
+    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
     public native static operator[T] (x:T) + (y:String): String;
 
     /**
@@ -545,7 +545,7 @@ public final class String implements Comparable[String] {
      * @return the resulting String
      */
     @Native("java", "((#x) + (#y))")
-    @Native("c++",  "((#x) + (#y))")
+    @Native("c++",  "x10::lang::String::__plus(#x, #y)")
     public native static operator (x:String) + (y:String): String;
 }
 

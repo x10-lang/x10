@@ -17,7 +17,7 @@ import x10.compiler.NativeRep;
 /**
  * A set of common arithmetic operations.
  */
-@NativeRep("c++", "x10aux::ref<x10::lang::Arithmetic<#T > >", "x10::lang::Arithmetic<#T >", null)
+@NativeRep("c++", "x10::lang::Arithmetic<#T >*", "x10::lang::Arithmetic<#T >", null)
 public interface Arithmetic[T] {
     /**
      * A unary plus operator.

@@ -17,16 +17,16 @@ using namespace x10aux;
 using namespace x10::util::concurrent;
 
 
-x10_boolean atomic_int_funs::compareAndSet(ref<AtomicInteger> obj, x10_int expect, x10_int update) {
+x10_boolean atomic_int_funs::compareAndSet(AtomicInteger* obj, x10_int expect, x10_int update) {
     return atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expect, update) == expect;
 }
 
-x10_boolean atomic_int_funs::weakCompareAndSet(ref<AtomicInteger> obj, x10_int expect, x10_int update) {
+x10_boolean atomic_int_funs::weakCompareAndSet(AtomicInteger* obj, x10_int expect, x10_int update) {
     // TODO: for minor optimization on ppc we could add a weakCompareAndSet in atomic_ops and use that here
     return atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expect, update) == expect;
 }
 
-x10_int atomic_int_funs::getAndAdd(ref<AtomicInteger> obj, x10_int delta) {
+x10_int atomic_int_funs::getAndAdd(AtomicInteger *obj, x10_int delta) {
     x10_int oldValue = obj->FMGL(value);
     while (atomic_ops::compareAndSet_32(&(obj->FMGL(value)), oldValue, oldValue+delta) != oldValue) {
         oldValue = obj->FMGL(value);
@@ -34,7 +34,7 @@ x10_int atomic_int_funs::getAndAdd(ref<AtomicInteger> obj, x10_int delta) {
     return oldValue;
 }
 
-x10_int atomic_int_funs::addAndGet(ref<AtomicInteger> obj, x10_int delta) {
+x10_int atomic_int_funs::addAndGet(AtomicInteger* obj, x10_int delta) {
     x10_int oldValue = obj->FMGL(value);
     while (atomic_ops::compareAndSet_32(&(obj->FMGL(value)), oldValue, oldValue+delta) != oldValue) {
         oldValue = obj->FMGL(value);

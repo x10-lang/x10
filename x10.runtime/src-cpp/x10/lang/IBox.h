@@ -42,9 +42,9 @@ namespace x10 {
             virtual const x10aux::RuntimeType *_type() const;
             static const x10aux::RuntimeType* getRTT();
 
-            virtual x10_boolean _struct_equals(x10aux::ref<Reference> other);
+            virtual x10_boolean _struct_equals(Reference* other);
             
-            virtual x10aux::ref<String> toString();
+            virtual String* toString();
 
             virtual x10_int hashCode();
             
@@ -56,7 +56,7 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &);
 
-            static x10aux::ref<Reference> _deserializer(x10aux::deserialization_buffer& buf);
+            static Reference* _deserializer(x10aux::deserialization_buffer& buf);
         };
     }
 }
@@ -102,14 +102,14 @@ namespace x10 {
         template<class T> const x10aux::RuntimeType* IBox<T>::_type() const { return x10aux::getRTT<T>(); }
         template<class T> const x10aux::RuntimeType* IBox<T>::getRTT() { return x10aux::getRTT<T>(); }
 
-        template<class T> x10aux::ref<String> IBox<T>::toString() { return x10aux::to_string(value); }
+        template<class T> String* IBox<T>::toString() { return x10aux::to_string(value); }
 
         template<class T> x10_int IBox<T>::hashCode() { return x10aux::hash_code(value); }
 
-        template <class T> x10_boolean IBox<T>::_struct_equals(x10aux::ref<Reference> other) {
-            if (!other.isNull() && _type()->equals(other->_type())) {
+        template <class T> x10_boolean IBox<T>::_struct_equals(Reference* other) {
+            if (NULL != other && _type()->equals(other->_type())) {
                 // implies that other is also an IBox<T>
-                x10aux::ref<IBox<T> > otherAsIBox(other);
+                IBox<T>* otherAsIBox = reinterpret_cast<IBox<T>*>(other);
                 return x10aux::struct_equals(value, otherAsIBox->value);
             } else {
                 // If I'm an IBox<T> and the other guy is not an IBox<T> then has to be false.
@@ -124,11 +124,11 @@ namespace x10 {
             buf.write(value);
         }
         
-        template<class T> x10aux::ref<Reference> x10::lang::IBox<T>::_deserializer(x10aux::deserialization_buffer& buf) {
+        template<class T> Reference* x10::lang::IBox<T>::_deserializer(x10aux::deserialization_buffer& buf) {
             IBox<T> * storage = x10aux::alloc<IBox<T> >();
-            buf.record_reference(x10aux::ref<IBox<T> >(storage));
+            buf.record_reference(storage);
             T tmp = buf.read<T>();
-            x10aux::ref<x10::lang::IBox<T> > this_ = new (storage) x10::lang::IBox<T>(tmp);
+            x10::lang::IBox<T>* this_ = new (storage) x10::lang::IBox<T>(tmp);
             return this_;
         }
     }

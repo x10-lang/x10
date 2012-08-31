@@ -53,54 +53,48 @@ CheckedThrowable::_serialize_body(x10aux::serialization_buffer &buf) {
 
 void
 CheckedThrowable::_deserialize_body(x10aux::deserialization_buffer &buf) {
-    FMGL(cause) = buf.read<x10aux::ref<CheckedThrowable> >();
-    FMGL(message) = buf.read<x10aux::ref<String> >();
-    FMGL(cachedStackTrace) = buf.read<ref<Array<ref<String> > > >();
+    FMGL(cause) = buf.read<CheckedThrowable*>();
+    FMGL(message) = buf.read<String*>();
+    FMGL(cachedStackTrace) = buf.read<Array<String*>*>();
     FMGL(trace_size) = 0;
     FMGL(trace) = NULL;
 }
 
-x10aux::ref<Reference> CheckedThrowable::_deserializer(x10aux::deserialization_buffer &buf){
-    x10aux::ref<CheckedThrowable> this_ = new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable();
+Reference* CheckedThrowable::_deserializer(x10aux::deserialization_buffer &buf){
+    CheckedThrowable* this_ = new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable();
     this_->_deserialize_body(buf);
     return this_;
 }
 
-x10aux::ref<CheckedThrowable>
-CheckedThrowable::_make() {
+CheckedThrowable* CheckedThrowable::_make() {
     return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor();
 }
 
-x10aux::ref<CheckedThrowable>
-CheckedThrowable::_make(x10aux::ref<String> message) {
+CheckedThrowable* CheckedThrowable::_make(String* message) {
     return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor(message);
 }
 
-x10aux::ref<CheckedThrowable>
-CheckedThrowable::_make(x10aux::ref<CheckedThrowable> cause) {
+CheckedThrowable* CheckedThrowable::_make(CheckedThrowable* cause) {
     return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor(cause);
 }
     
-x10aux::ref<CheckedThrowable>
-CheckedThrowable::_make(x10aux::ref<String> message, x10aux::ref<CheckedThrowable> cause) {
+CheckedThrowable* CheckedThrowable::_make(String* message, CheckedThrowable* cause) {
     return (new (x10aux::alloc<CheckedThrowable>()) CheckedThrowable())->_constructor(message, cause);
 }
 
-x10aux::ref<CheckedThrowable> CheckedThrowable::_constructor(x10aux::ref<String> message,
-                                               x10aux::ref<CheckedThrowable> cause)
-{
+CheckedThrowable* CheckedThrowable::_constructor(String* message, CheckedThrowable* cause) {
     this->FMGL(message) = message;
     this->FMGL(cause) = cause;
     this->FMGL(trace_size) = -1;
     this->FMGL(trace) = NULL;
-    this->FMGL(cachedStackTrace) = X10_NULL;
+    this->FMGL(cachedStackTrace) = NULL;
     return this;
 }
 
 
-ref<String> CheckedThrowable::toString() {
-    ref<String> message = getMessage();
-    if (message.isNull()) {
+String* CheckedThrowable::toString() {
+    String* message = getMessage();
+    if (NULL == message) {
         return String::Lit(_type()->name());
     } else {
         return String::Steal(alloc_printf("%s: %s",_type()->name(),message->c_str()));
@@ -187,7 +181,7 @@ int backtrace(void** trace, size_t max_size) {
 
 #endif
 
-ref<CheckedThrowable> CheckedThrowable::fillInStackTrace() {
+CheckedThrowable* CheckedThrowable::fillInStackTrace() {
     if (FMGL(trace_size)>=0) return this;
 
 #if defined(__GLIBC__) || defined(__APPLE__)
@@ -326,15 +320,15 @@ static char* demangle_symbol(char* name) {
 }
 #endif
 
-ref<Array<ref<String> > >CheckedThrowable::getStackTrace() {
-    if (FMGL(cachedStackTrace).isNull()) {
+Array<String*>* CheckedThrowable::getStackTrace() {
+    if (NULL == FMGL(cachedStackTrace)) {
         #if defined(__GLIBC__) || defined(__APPLE__)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = Array<ref<String> >::_make(1);
+            FMGL(cachedStackTrace) = Array<String*>::_make(1);
             FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
         } else {
-            ref<Array<ref<String> > > array = Array<ref<String> >::_make(FMGL(trace_size));
+            Array<String*>* array = Array<String*>::_make(FMGL(trace_size));
             char **messages = ::backtrace_symbols(FMGL(trace), FMGL(trace_size));
             for (int i=0 ; i<FMGL(trace_size) ; ++i) {
                 char *filename; char *symbol; size_t addr;
@@ -350,7 +344,7 @@ ref<Array<ref<String> > >CheckedThrowable::getStackTrace() {
         #elif defined(_AIX)
         if (FMGL(trace_size) <= 0) {
             const char *msg = "No stacktrace recorded.";
-            FMGL(cachedStackTrace) = Array<ref<String> >::_make(1);
+            FMGL(cachedStackTrace) = Array<String*>::_make(1);
             FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
         } else {
 			// build up a fake stack from our saved addresses
@@ -389,7 +383,7 @@ ref<Array<ref<String> > >CheckedThrowable::getStackTrace() {
 			free(fakeStack);
 
 			// from here on down, proceed as before
-            ref<Array<ref<String> > > array = Array<ref<String> >::_make(FMGL(trace_size));
+            Array<String*> array = Array<String*>::_make(FMGL(trace_size));
 			char *msg;
 			for (int i=0 ; i<FMGL(trace_size) ; ++i) {
 				char* s = (char*)FMGL(trace)[i];
@@ -429,7 +423,7 @@ ref<Array<ref<String> > >CheckedThrowable::getStackTrace() {
         }
     #else
         const char *msg = "Detailed stacktraces not supported on this platform.";
-        FMGL(cachedStackTrace) = Array<ref<String> >::_make(1);
+        FMGL(cachedStackTrace) = Array<String*>::_make(1);
         FMGL(cachedStackTrace)->__set(0, String::Lit(msg));
     #endif
     }
@@ -439,26 +433,26 @@ ref<Array<ref<String> > >CheckedThrowable::getStackTrace() {
 
 void CheckedThrowable::printStackTrace() {
     fprintf(stderr, "%s\n", this->toString()->c_str());
-    ref<Array<x10aux::ref<String> > > trace = this->getStackTrace();
+    Array<String*>* trace = this->getStackTrace();
     for (int i = 0; i < trace->FMGL(size); ++i)
         fprintf(stderr, "\tat %s\n", trace->__apply(i)->c_str());
-    ref<CheckedThrowable> cause = getCause();
-    if (!cause.isNull()) {
+    CheckedThrowable* cause = getCause();
+    if (NULL != cause) {
         fprintf(stderr, "Caused by: ");
         cause->printStackTrace();
     }
 }
 
-void CheckedThrowable::printStackTrace(x10aux::ref<x10::io::Printer> printer) {
-    printer->println(class_cast<x10aux::ref<Any>,x10aux::ref<String> >(toString()));
-    ref<Array<x10aux::ref<String> > > trace = this->getStackTrace();
-    x10aux::ref<x10::lang::String> atStr = x10::lang::String::Lit("\tat ");
+void CheckedThrowable::printStackTrace(x10::io::Printer* printer) {
+    printer->println(class_cast<Any*,String*>(toString()));
+    Array<String*>* trace = this->getStackTrace();
+    String* atStr = String::Lit("\tat ");
     for (int i=0 ; i<trace->FMGL(size) ; ++i) { 
         printer->print(atStr);
-        printer->println(class_cast<x10aux::ref<Any>,x10aux::ref<String> >(trace->__apply(i)));
+        printer->println(class_cast<Any*,String*>(trace->__apply(i)));
     }
-    ref<CheckedThrowable> cause = getCause();
-    if (!cause.isNull()) {
+    CheckedThrowable* cause = getCause();
+    if (NULL != cause) {
         printer->print(x10::lang::String::Lit("Caused by: "));
         cause->printStackTrace(printer);
     }

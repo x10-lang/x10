@@ -33,12 +33,12 @@ namespace x10 {
 
         private:
 
-            x10aux::ref<x10::lang::String> path;
+            x10::lang::String* path;
 
         public:
 
-            static x10aux::ref<File__NativeFile> _make(x10aux::ref<x10::lang::String> s);
-            x10aux::ref<File__NativeFile> _constructor(x10aux::ref<x10::lang::String> s) {
+            static File__NativeFile* _make(x10::lang::String* s);
+            File__NativeFile* _constructor(x10::lang::String* s) {
                 path = s;
                 return this;
             }
@@ -49,15 +49,15 @@ namespace x10 {
 
             virtual void _serialize_body(x10aux::serialization_buffer &buf);
 
-            static x10aux::ref<x10::lang::Reference> _deserializer(x10aux::deserialization_buffer &buf);
+            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer &buf);
 
             virtual void _deserialize_body(x10aux::deserialization_buffer& buf);
 
-            virtual x10aux::ref<x10::lang::String> getPath() { return path; }
+            virtual x10::lang::String* getPath() { return path; }
 
-            virtual x10aux::ref<x10::lang::String> getAbsolutePath();
+            virtual x10::lang::String* getAbsolutePath();
 
-            virtual x10aux::ref<x10::lang::String> getCanonicalPath();
+            virtual x10::lang::String* getCanonicalPath();
 
             virtual x10_boolean canRead();
 

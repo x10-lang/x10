@@ -44,7 +44,7 @@ namespace x10 {
 
             virtual void _constructor (void) { }
 
-            static x10aux::ref<Lock__ReentrantLock> _make();
+            static Lock__ReentrantLock* _make();
             ~Lock__ReentrantLock() { }
 
         public:

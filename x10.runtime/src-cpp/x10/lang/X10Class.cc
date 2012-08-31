@@ -15,7 +15,7 @@
 using namespace x10::lang;
 using namespace x10aux;
 
-x10aux::ref<x10::lang::String> x10::lang::X10Class::typeName() {
+x10::lang::String* x10::lang::X10Class::typeName() {
     return x10::lang::String::Lit(_type()->name());
 }
 

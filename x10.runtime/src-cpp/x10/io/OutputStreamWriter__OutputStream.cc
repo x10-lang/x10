@@ -22,7 +22,7 @@ using namespace x10::io;
 using namespace x10aux;
 
 static OutputStreamWriter__OutputStream* _STANDARD_OUT_cache = NULL;
-x10aux::ref<OutputStreamWriter__OutputStream> OutputStreamWriter__OutputStream::STANDARD_OUT()
+OutputStreamWriter__OutputStream* OutputStreamWriter__OutputStream::STANDARD_OUT()
 {
 	if (NULL == _STANDARD_OUT_cache)
 		_STANDARD_OUT_cache = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stdout);
@@ -30,7 +30,7 @@ x10aux::ref<OutputStreamWriter__OutputStream> OutputStreamWriter__OutputStream::
 }
 
 static OutputStreamWriter__OutputStream* _STANDARD_ERR_cache = NULL;
-x10aux::ref<OutputStreamWriter__OutputStream> OutputStreamWriter__OutputStream::STANDARD_ERR()
+OutputStreamWriter__OutputStream* OutputStreamWriter__OutputStream::STANDARD_ERR()
 {
 	if (NULL == _STANDARD_ERR_cache)
 		_STANDARD_ERR_cache = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(stderr);

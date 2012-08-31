@@ -28,7 +28,7 @@ static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a'
                            'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
                            'x', 'y', 'z' };
 
-const ref<String> x10aux::long_utils::toString(x10_long value, x10_int radix) {
+String* x10aux::long_utils::toString(x10_long value, x10_int radix) {
     if (0 == value) return String::Lit("0");
     if (radix < 2 || radix > 36) radix = 10;
     // worst case is binary of Long.MIN_VALUE -- - plus 64 digits and a '\0'
@@ -45,11 +45,11 @@ const ref<String> x10aux::long_utils::toString(x10_long value, x10_int radix) {
     return String::Steal(alloc_printf("%s",b));
 }
 
-const ref<String> x10aux::long_utils::toString(x10_long value) {
+String* x10aux::long_utils::toString(x10_long value) {
     return to_string(value);
 }
 
-const ref<String> x10aux::long_utils::toString(x10_ulong value, x10_int radix) {
+String* x10aux::long_utils::toString(x10_ulong value, x10_int radix) {
     if (0 == value) return String::Lit("0");
     if (radix < 2 || radix > 36) radix = 10;
     // worst case is binary: 64 digits and a '\0'
@@ -63,11 +63,11 @@ const ref<String> x10aux::long_utils::toString(x10_ulong value, x10_int radix) {
     return String::Steal(alloc_printf("%s",b));
 }
 
-const ref<String> x10aux::long_utils::toString(x10_ulong value) {
+String* x10aux::long_utils::toString(x10_ulong value) {
     return to_string(value);
 }
 
-x10_long x10aux::long_utils::parseLong(ref<String> s, x10_int radix) {
+x10_long x10aux::long_utils::parseLong(String* s, x10_int radix) {
     const char *start = nullCheck(s)->c_str();
     char *end;
     errno = 0;
@@ -79,7 +79,7 @@ x10_long x10aux::long_utils::parseLong(ref<String> s, x10_int radix) {
     return ans;
 }
 
-x10_ulong x10aux::long_utils::parseULong(ref<String> s, x10_int radix) {
+x10_ulong x10aux::long_utils::parseULong(String* s, x10_int radix) {
     const char *start = nullCheck(s)->c_str();
     char *end;
     errno = 0;

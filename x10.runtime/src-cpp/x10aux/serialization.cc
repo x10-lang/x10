@@ -83,24 +83,24 @@ void serialization_buffer::grow (size_t new_capacity) {
 }
 
 void serialization_buffer::serialize_reference(serialization_buffer &buf,
-                                               x10aux::ref<x10::lang::Reference> this_) {
-    if (this_.isNull()) {
+                                               x10::lang::Reference* this_) {
+    if (NULL == this_) {
         _S_("Serializing a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET<<" to buf: "<<&buf);
         buf.write((x10aux::serialization_id_t)0);
     } else {
         x10aux::serialization_id_t id = this_->_get_serialization_id();
-        _S_("Serializing id "<<id<<" of type "<< ANSI_SER<<ANSI_BOLD<<this_->_type()->name()<<"and address "<<(void*)(this_.operator->()));
+        _S_("Serializing id "<<id<<" of type "<< ANSI_SER<<ANSI_BOLD<<this_->_type()->name()<<"and address "<<(void*)(this_));
         buf.write(id);
         this_->_serialize_body(buf);
-        _S_("Completed serialization of "<<(void*)(this_.operator->()));
+        _S_("Completed serialization of "<<(void*)(this_));
     }
 }
 
-x10aux::ref<Reference> deserialization_buffer::deserialize_reference(deserialization_buffer &buf) {
+Reference* deserialization_buffer::deserialize_reference(deserialization_buffer &buf) {
     x10aux::serialization_id_t id = buf.read<x10aux::serialization_id_t>();
     if (id == 0) {
         _S_("Deserialized a "<<ANSI_SER<<ANSI_BOLD<<"null reference"<<ANSI_RESET);
-        return X10_NULL;
+        return NULL;
     } else {
         _S_("Deserializing non-null value with id "<<ANSI_SER<<ANSI_BOLD<<id<<ANSI_RESET<<" from buf: "<<&buf);
         return x10aux::DeserializationDispatcher::create(buf, id);

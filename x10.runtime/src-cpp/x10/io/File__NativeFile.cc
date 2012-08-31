@@ -30,8 +30,7 @@ using namespace x10::lang;
 using namespace x10::io;
 using namespace x10aux;
 
-x10aux::ref<File__NativeFile>
-File__NativeFile::_make(x10aux::ref<String> s) {
+File__NativeFile* File__NativeFile::_make(String* s) {
     return (new (x10aux::alloc<File__NativeFile>()) File__NativeFile())->_constructor(s);
 }
 
@@ -44,29 +43,27 @@ void File__NativeFile::_deserialize_body(deserialization_buffer& buf) {
 const x10aux::serialization_id_t File__NativeFile::_serialization_id =
     x10aux::DeserializationDispatcher::addDeserializer(File__NativeFile::_deserializer, x10aux::CLOSURE_KIND_NOT_ASYNC);
 
-x10aux::ref<Reference> File__NativeFile::_deserializer(x10aux::deserialization_buffer &buf) {
-    x10aux::ref<File__NativeFile> this_ = new (x10aux::alloc<File__NativeFile>()) File__NativeFile();
-    buf.record_reference(this_); // TODO: avoid; no global refs; final class
+Reference* File__NativeFile::_deserializer(x10aux::deserialization_buffer &buf) {
+    File__NativeFile* this_ = new (x10aux::alloc<File__NativeFile>()) File__NativeFile();
+    buf.record_reference(this_);
     this_->_deserialize_body(buf);
     return this_;
 }
 
 RTT_CC_DECLS0(File__NativeFile, "x10.io.File.NativeFile", RuntimeType::class_kind)
 
-x10aux::ref<String>
-File__NativeFile::getAbsolutePath() {
+String* File__NativeFile::getAbsolutePath() {
     if (*path->c_str()=='/') // absolute
         return path;
     char* cwd = getcwd(NULL, _POSIX_PATH_MAX);
     if (cwd == NULL)
-        return X10_NULL;
-    x10aux::ref<String> absPath = String::Lit(cwd) + String::Lit("/") + path;
+        return NULL;
+    String* absPath = String::__plus(String::__plus(String::Lit(cwd), String::Lit("/")), path);
     free(cwd);
     return absPath;
 }
 
-x10aux::ref<String>
-File__NativeFile::getCanonicalPath() {
+String* File__NativeFile::getCanonicalPath() {
     assert(false); /* FIXME: STUBBED NATIVE */
     return getAbsolutePath();
 }

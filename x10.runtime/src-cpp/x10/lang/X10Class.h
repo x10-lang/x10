@@ -47,19 +47,19 @@ namespace x10 {
             /*********************************************************************************
              * X10-level functions assumed to be defined for all types
              *********************************************************************************/
-            virtual x10_boolean equals(x10aux::ref<Any> other) {
-                return this->_struct_equals(x10aux::ref<Reference>(other));
+            virtual x10_boolean equals(Any* other) {
+                return this->_struct_equals(reinterpret_cast<Reference*>(other));
             }
 
-            virtual x10_boolean _struct_equals(x10aux::ref<Reference> other) {
-                return other == x10aux::ref<Reference>(this);
+            virtual x10_boolean _struct_equals(Reference* other) {
+                return other == this;
             }
             
             virtual x10_int hashCode() { return x10aux::identity_hash_code(this); }
 
-            virtual x10aux::ref<String> toString() { return x10aux::identity_to_string(this); }
+            virtual String* toString() { return x10aux::identity_to_string(this); }
 
-            virtual x10aux::ref<String> typeName();
+            virtual String* typeName();
 
             // Like the destructor, but called only by dealloc_object()
             // To be overridden by native classes that have alloc'ed state

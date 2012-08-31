@@ -33,7 +33,7 @@ namespace x10aux {
             explicit FILEPtrStream(FILE* stream) : _stream(check_stream(stream)) { }
 
         public:
-            static FILE* open_file(const x10aux::ref<x10::lang::String>& name,
+            static FILE* open_file(x10::lang::String* name,
                                    const char* mode);
             void close();
         };

@@ -18,7 +18,7 @@ import x10.compiler.NativeRep;
  * A set of common comparison operations.
  * Should be implemented by types that define a total order.
  */
-@NativeRep("c++", "x10aux::ref<x10::util::Ordered<#T > >", "x10::util::Ordered<#T >", null)
+@NativeRep("c++", "x10::util::Ordered<#T >*", "x10::util::Ordered<#T >", null)
 public interface Ordered[T] {
     /**
      * A binary less-than operator.

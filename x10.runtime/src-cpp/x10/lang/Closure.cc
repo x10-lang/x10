@@ -23,7 +23,7 @@ x10_int Closure::hashCode() {
     return x10aux::hash_code(_get_serialization_id());
 }
 
-x10aux::ref<x10::lang::String> x10::lang::Closure::toString() {
+x10::lang::String* x10::lang::Closure::toString() {
     return String::Lit(this->toNativeString());
 }
 
@@ -31,7 +31,7 @@ const char* x10::lang::Closure::toNativeString() {
     return "Closure without toNativeString defined.";
 }
 
-x10aux::ref<x10::lang::String> x10::lang::Closure::typeName() {
+x10::lang::String* x10::lang::Closure::typeName() {
     return x10::lang::String::Lit(_type()->name());
 }
 

@@ -31,14 +31,14 @@
 namespace x10 { namespace array { template<class T> class Array; } }
 
 namespace x10aux {
-    typedef void (*ApplicationMainFunction)(ref<x10::array::Array<ref<x10::lang::String> > >);
+    typedef void (*ApplicationMainFunction)(x10::array::Array<x10::lang::String*>*);
 
     class BootStrapClosure : public x10::lang::Closure
     {
         protected:
 
         ApplicationMainFunction main;
-        ref<x10::array::Array<ref<x10::lang::String> > > args;
+        x10::array::Array<x10::lang::String*>* args;
         public:
 
         static x10::lang::VoidFun_0_0::itable<BootStrapClosure> _itable;
@@ -53,13 +53,13 @@ namespace x10aux {
         }
 
         BootStrapClosure(ApplicationMainFunction main_,
-                         ref<x10::array::Array<ref<x10::lang::String> > > args_)
+                         x10::array::Array<x10::lang::String*>* args_)
           : main(main_), args(args_)
         { }
 
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
-        ref<x10::lang::String> toString() {
+        x10::lang::String* toString() {
             return x10aux::string_utils::lit("x10aux::BootStrapClosure ("__FILELINE__")");
         }
 

@@ -25,8 +25,8 @@ namespace x10 {
 namespace x10aux {
     class boolean_utils {
     public:
-        static const ref<x10::lang::String> toString(x10_boolean value);
-        static x10_boolean parseBoolean(const ref<x10::lang::String>& s);
+        static x10::lang::String* toString(x10_boolean value);
+        static x10_boolean parseBoolean(const x10::lang::String* s);
         static x10_int compareTo(x10_boolean v1, x10_boolean v2) {
             return v1 == v2 ? 0 : (v1 ? 1 : -1);
         }

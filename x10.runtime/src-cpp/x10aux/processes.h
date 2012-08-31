@@ -27,8 +27,8 @@ namespace x10 {
 namespace x10aux {
     class processes {
     public:
-        static x10aux::ref<x10::io::Reader> execForRead(const char *command);
-        static x10aux::ref<x10::io::Writer> execForWrite(const char *command);
+        static x10::io::Reader* execForRead(const char *command);
+        static x10::io::Writer* execForWrite(const char *command);
     };
 }
 

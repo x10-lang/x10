@@ -21,15 +21,15 @@ namespace x10aux {
     class atomic_int_funs {
     public:
 
-        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::AtomicInteger> obj,
+        static x10_boolean compareAndSet(x10::util::concurrent::AtomicInteger* obj,
                                          x10_int expect, x10_int update);
 
-        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::AtomicInteger> obj,
+        static x10_boolean weakCompareAndSet(x10::util::concurrent::AtomicInteger* obj,
                                              x10_int expect, x10_int update);
 
-        static x10_int getAndAdd(x10aux::ref<x10::util::concurrent::AtomicInteger> obj, x10_int delta);
+        static x10_int getAndAdd(x10::util::concurrent::AtomicInteger* obj, x10_int delta);
 
-        static x10_int addAndGet(x10aux::ref<x10::util::concurrent::AtomicInteger> obj, x10_int delta);
+        static x10_int addAndGet(x10::util::concurrent::AtomicInteger* obj, x10_int delta);
     };
 }
         

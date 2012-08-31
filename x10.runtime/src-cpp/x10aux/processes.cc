@@ -22,29 +22,29 @@
 
 #include <stdlib.h>
 
-x10aux::ref<x10::io::Reader> x10aux::processes::execForRead(const char *command) {
+x10::io::Reader* x10aux::processes::execForRead(const char *command) {
     FILE* inFd = popen(command, "r");
 #ifndef NO_EXCEPTIONS
     if (inFd == NULL) {
-        x10aux::ref<x10::lang::String> s = x10aux::string_utils::lit("execForRead: ") + x10aux::string_utils::lit(command);
+        x10::lang::String* s = x10::lang::String::__plus(x10aux::string_utils::lit("execForRead: "), x10aux::string_utils::lit(command));
         throwException(x10::io::IOException::_make(s));
     }
 #endif
-    x10aux::ref<x10::io::InputStreamReader__InputStream> in_ = new (x10aux::alloc<x10::io::FileReader__FileInputStream>()) x10::io::FileReader__FileInputStream(inFd);
-    x10aux::ref<x10::io::Reader> inReader_ = x10::io::InputStreamReader::_make(in_);
+    x10::io::InputStreamReader__InputStream* in_ = new (x10aux::alloc<x10::io::FileReader__FileInputStream>()) x10::io::FileReader__FileInputStream(inFd);
+    x10::io::Reader* inReader_ = x10::io::InputStreamReader::_make(in_);
     return inReader_;
 }
 
-x10aux::ref<x10::io::Writer> x10aux::processes::execForWrite(const char *command) {
+x10::io::Writer* x10aux::processes::execForWrite(const char *command) {
     FILE* outFd = popen(command, "w");
 #ifndef NO_EXCEPTIONS
     if (outFd == NULL) {
-        x10aux::ref<x10::lang::String> s = x10aux::string_utils::lit("execForWrite: ") + x10aux::string_utils::lit(command);
+        x10::lang::String* s = x10::lang::String::__plus(x10aux::string_utils::lit("execForWrite: "), x10aux::string_utils::lit(command));
         throwException(x10::io::IOException::_make(s));
     }
 #endif
-    x10aux::ref<x10::io::OutputStreamWriter__OutputStream> out_ = new (x10aux::alloc<x10::io::FileWriter__FileOutputStream>()) x10::io::FileWriter__FileOutputStream(outFd);
-    x10aux::ref<x10::io::Writer> outWriter_ = x10::io::OutputStreamWriter::_make(out_);
+    x10::io::OutputStreamWriter__OutputStream* out_ = new (x10aux::alloc<x10::io::FileWriter__FileOutputStream>()) x10::io::FileWriter__FileOutputStream(outFd);
+    x10::io::Writer* outWriter_ = x10::io::OutputStreamWriter::_make(out_);
     return outWriter_;
 }
 

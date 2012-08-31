@@ -24,14 +24,14 @@ namespace x10 {
 namespace x10aux {
     class long_utils {
     public:
-        static const ref<x10::lang::String> toString(x10_long value, x10_int radix);
-        static const ref<x10::lang::String> toString(x10_long value);
-        static const ref<x10::lang::String> toString(x10_ulong value, x10_int radix);
-        static const ref<x10::lang::String> toString(x10_ulong value);
-        static x10_long parseLong(ref<x10::lang::String> s, x10_int radix);
-        static x10_long parseLong(ref<x10::lang::String> s) { return parseLong(s, 10); }
-        static x10_ulong parseULong(ref<x10::lang::String> s, x10_int radix);
-        static x10_ulong parseULong(ref<x10::lang::String> s) { return parseULong(s, 10); }
+        static x10::lang::String* toString(x10_long value, x10_int radix);
+        static x10::lang::String* toString(x10_long value);
+        static x10::lang::String* toString(x10_ulong value, x10_int radix);
+        static x10::lang::String* toString(x10_ulong value);
+        static x10_long parseLong(x10::lang::String* s, x10_int radix);
+        static x10_long parseLong(x10::lang::String* s) { return parseLong(s, 10); }
+        static x10_ulong parseULong(x10::lang::String* s, x10_int radix);
+        static x10_ulong parseULong(x10::lang::String* s) { return parseULong(s, 10); }
         static x10_long highestOneBit(x10_long value);
         static x10_long lowestOneBit(x10_long value);
         static x10_int numberOfLeadingZeros(x10_long value);

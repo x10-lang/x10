@@ -29,9 +29,9 @@ namespace x10 {
             FileWriter__FileOutputStream(FILE *f): _outputStream(f) { }
             FileWriter__FileOutputStream(): _outputStream(NULL) { }
 
-            static x10aux::ref<FileWriter__FileOutputStream> _make(x10aux::ref<x10::lang::String> name, bool append);
+            static FileWriter__FileOutputStream* _make(x10::lang::String* name, bool append);
 
-            void _constructor (x10aux::ref<x10::lang::String> file, bool append);
+            void _constructor (x10::lang::String* file, bool append);
             void _constructor (FILE* file);
             void _constructor ();
 
@@ -59,7 +59,7 @@ namespace x10 {
                 return _serialization_id;
             }
             virtual void _serialize_body(x10aux::serialization_buffer& buf);
-            static x10aux::ref<Reference> _deserializer(x10aux::deserialization_buffer& buf);
+            static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
             // No specialized serialization methods - not optimizing this final class
         };

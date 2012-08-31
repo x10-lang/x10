@@ -21,12 +21,12 @@ using namespace x10::lang;
 using namespace std;
 using namespace x10aux;
 
-const ref<String> x10aux::boolean_utils::toString(x10_boolean value) {
+String* x10aux::boolean_utils::toString(x10_boolean value) {
     return x10aux::to_string(value);
 }
 
-x10_boolean x10aux::boolean_utils::parseBoolean(const ref<String>& s) {
-    return !s.isNull() && !::strcasecmp(nullCheck(s)->c_str(), "true");
+x10_boolean x10aux::boolean_utils::parseBoolean(const String* s) {
+    return NULL != s && !::strcasecmp(s->c_str(), "true");
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

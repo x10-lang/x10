@@ -20,10 +20,10 @@ namespace x10aux {
                 
     class atomic_boolean_funs {
     public:
-        static x10_boolean compareAndSet(x10aux::ref<x10::util::concurrent::AtomicBoolean> obj,
+        static x10_boolean compareAndSet(x10::util::concurrent::AtomicBoolean *obj,
                                          x10_boolean expect, x10_boolean update);
                     
-        static x10_boolean weakCompareAndSet(x10aux::ref<x10::util::concurrent::AtomicBoolean> obj,
+        static x10_boolean weakCompareAndSet(x10::util::concurrent::AtomicBoolean *obj,
                                              x10_boolean expect, x10_boolean update);
     };
 }
