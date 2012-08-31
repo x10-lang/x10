@@ -67,8 +67,8 @@ namespace x10aux {
         }
 
         T operator=(const T &val) {
-            *((T*)(size_t)_val)  = val;
-            return val;
+            *((T*)(size_t)_val)  = const_cast<T>(val);
+            return const_cast<T>(val);
         }
 
         // &<captured_struct_lval<T> can simply be the thing itself.
@@ -108,8 +108,8 @@ namespace x10aux {
         }
 
         T* operator=(const T* value) {
-            *((T**)(size_t)_val) = value;
-            return value;
+            *((T**)(size_t)_val) = const_cast<T*>(value);
+            return const_cast<T*>(value);
         }
         
         // &<captured_ref_lval<T> can simply be the thing itself.
