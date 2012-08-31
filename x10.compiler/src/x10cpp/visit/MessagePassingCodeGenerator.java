@@ -3088,27 +3088,52 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             }
         }
 		
-        sw.write("try");
+		sw.write("try");
 		assert (n.tryBlock() instanceof Block_c);
 		n.printSubStmt(n.tryBlock(), sw, tr);
 		sw.newline(0);
-
-		for (Catch cb : n.catchBlocks()) {
-		    sw.newline(0);
-		    n.printBlock(cb, sw, tr);
+        
+		// C++ does dispatching based on the static type of the thrown exception.
+		// X10, like Java needs to dispatch on the dynamic type of the thrown exception.
+		// So, we have to do the dispatching ourselves.
+		sw.newline();
+        String excVar = "__exc" + getUniqueId_();
+		sw.write("catch ("+ Emitter.translateType(xts.CheckedThrowable(), true)+" " + excVar + ") {");
+		sw.newline(4); sw.begin(0);
+		if (n.catchBlocks().size() > 0) {
+		    context.setExceptionVar(excVar);
+		    for (Catch cb : n.catchBlocks()) {
+		        sw.newline(0);
+		        n.printBlock(cb, sw, tr);
+		    }
 		}
+		sw.newline();
+		sw.write("throw;");
+		sw.end(); sw.newline();
+		sw.write("}");
 	}
 
 	public void visit(Catch_c n) {
         X10CPPContext_c context = (X10CPPContext_c) tr.context();
+		String excVar = context.getExceptionVar();
 		sw.newline();
-		sw.write("catch (");
-		n.printBlock(n.formal(), sw, tr);
-	    sw.write(") {");
+		sw.write("if (");
+		String type = Emitter.translateType(n.formal().type().type(), true);
+        if (n.formal().type().type().typeEquals(tr.typeSystem().CheckedThrowable(), context)) {
+            sw.write("true");
+		} else {
+			sw.write("x10aux::instanceof" + chevrons(type) + "(" + excVar + ")");
+		}
+		sw.write(") {");
 		sw.newline(4); sw.begin(0);
+		n.printBlock(n.formal(), sw, tr);
+		sw.write(" =");
+		sw.allowBreak(2, " ");
+		sw.write("static_cast" + chevrons(type) + "(" + excVar + ");");
+		sw.newline(0);
 		n.print(n.body(), sw, tr);
 		sw.end(); sw.newline();
-		sw.write("}");
+		sw.write("} else");
 	}
 
     public void visit(ParExpr_c n) {
