@@ -99,7 +99,7 @@ export X10RT_IMPL=$x10rt_impl
 
 [ -z "$MAIN" ] && MAIN="polyglot.main.Main"
 
-command="\"$JAVA\" -Xmx768m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" -Dx10c.ecj.jar=\"$ECJ_JAR\" -Dx10c.math.jar=\"$MATH_JAR\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
+command="\"$JAVA\" -Xmx1024m -Dfile.encoding=UTF-8 -Dx10.dist=\"$TOP\" -Dx10c.ecj.jar=\"$ECJ_JAR\" -Dx10c.math.jar=\"$MATH_JAR\" $config $profile -classpath \"$classpath\" ${java_args} $MAIN -extclass $ext $args"
 
 [ -n "$verbose" ] && echo "$command"
 
