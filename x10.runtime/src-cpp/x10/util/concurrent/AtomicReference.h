@@ -35,7 +35,7 @@ namespace x10 {
                     static AtomicReference<T>* _make(T val);
 
                 private:
-                    AtomicReference<T>* _constructor(x10::lang::Reference *data) {
+                    AtomicReference<T>* _constructor(T data) {
                         _data = data;
                         return this;
                     }
