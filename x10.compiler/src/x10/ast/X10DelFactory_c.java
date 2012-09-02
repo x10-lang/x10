@@ -48,7 +48,7 @@ public class X10DelFactory_c extends AbstractDelFactory_c {
 					w.writeln(ext.comment());
 			}
 			if (((X10CompilerOptions)tr.job().extensionInfo().getOptions()).x10_config.DEBUG_CODEGEN
-			        && w.getClass() != DebugCodeWriter.class)
+			    && !(jl() instanceof TypeDecl) && w.getClass() != DebugCodeWriter.class)
 			    w = new DebugCodeWriter(w, tr.job());
 			makeCodeGenerator(w, tr).visitAppropriate(jl());
 		}
