@@ -120,25 +120,29 @@ namespace x10 {
                 };                                                      \
             static x10_boolean equals(PRIM recv, PRIM arg0) { return x10aux::equals(recv, arg0); } \
             static x10_int hashCode(PRIM recv) { return x10aux::hash_code(recv); } \
-            static x10_boolean __lt(x10::lang::Reference* recv, PRIM arg0) { \
+            static x10_boolean __lt(Ordered<PRIM>* _recv, PRIM arg0) { \
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
                 return (recv->*(x10aux::findITable<x10::util::Ordered<PRIM> >(recv->_getITables())->__lt))(arg0); \
             }                                                           \
             static inline x10_boolean __lt(PRIM recv, PRIM arg0) {      \
                 return recv < arg0;                                     \
             }                                                           \
-            static x10_boolean __le(x10::lang::Reference* recv, PRIM arg0) { \
+            static x10_boolean __le(Ordered<PRIM>* _recv, PRIM arg0) { \
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
                 return (recv->*(x10aux::findITable<x10::util::Ordered<PRIM> >(recv->_getITables())->__le))(arg0); \
             }                                                           \
             static inline x10_boolean __le(PRIM recv, PRIM arg0) {      \
                 return recv <= arg0;                                    \
             }                                                           \
-            static x10_boolean __gt(x10::lang::Reference* recv, PRIM arg0) { \
+            static x10_boolean __gt(Ordered<PRIM>* _recv, PRIM arg0) { \
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
                 return (recv->*(x10aux::findITable<x10::util::Ordered<PRIM> >(recv->_getITables())->__gt))(arg0); \
             }                                                           \
             static inline x10_boolean __gt(PRIM recv, PRIM arg0) {      \
                 return recv > arg0;                                     \
             }                                                           \
-            static x10_boolean __ge(x10::lang::Reference* recv, PRIM arg0) { \
+            static x10_boolean __ge(Ordered<PRIM>* _recv, PRIM arg0) { \
+                x10::lang::Reference* recv = reinterpret_cast<x10::lang::Reference*>(_recv); \
                 return (recv->*(x10aux::findITable<x10::util::Ordered<PRIM> >(recv->_getITables())->__ge))(arg0); \
             }                                                           \
             static inline x10_boolean __ge(PRIM recv, PRIM arg0) {      \
