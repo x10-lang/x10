@@ -1723,10 +1723,9 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String val = getId();
 	    emitter.printType(dec.type().type(), sw);
 	    sw.allowBreak(2, 2, " ", 1);
-	    sw.write(val + " =");
-	    sw.allowBreak(2, 2, " ", 1);
+	    sw.write(val + " = x10aux::class_cast_unchecked"+chevrons(emitter.translateType(dec.type().type(), true))+"(");
 	    dec.print(dec.init(), sw, tr);
-	    sw.writeln(";");
+	    sw.writeln(");");
 	    // copy into the field
 	    sw.writeln(fname + " = " + val + ";");
 	    // update the status
