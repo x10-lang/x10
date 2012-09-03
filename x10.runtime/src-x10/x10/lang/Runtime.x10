@@ -1083,7 +1083,7 @@ public final class Runtime {
      * onto the finish state.
      */
     public static def pushException(t:CheckedThrowable):void  {
-    	val e = t instanceof Exception ? t as Exception : new WrappedThrowable(t);
+    	val e = Exception.ensureException(t);
     	activity().finishState().pushException(e);
     }
     public static def startCollectingFinish[T](r:Reducible[T]) {
