@@ -109,14 +109,16 @@ public class DeserializationDispatcher {
 
     public static Object getInstanceForId(short serializationID, X10JavaDeserializer deserializer) throws IOException {
 
-        if (serializationID == refValue) {
-            return deserializer.getObjectAtPosition(deserializer.readInt());
-        } else if (serializationID == NULL_ID) {
+        if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Deserialized a null reference");
+                Runtime.printTraceMessage("Deserializing a null reference");
             }
             return null;
-        } else if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
+        }
+        if (serializationID == refValue) {
+            return deserializer.getObjectAtPosition(deserializer.readInt());
+        }
+        if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
             return deserializePrimitive(serializationID, deserializer);
         }
 

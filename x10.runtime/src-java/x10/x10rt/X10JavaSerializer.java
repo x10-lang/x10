@@ -104,7 +104,7 @@ public class X10JavaSerializer {
 
     public void write(int i) throws IOException {
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing [****] a " + Runtime.ANSI_CYAN + " int" + Runtime.ANSI_RESET + ": " + i);
+            Runtime.printTraceMessage("Serializing [****] an " + Runtime.ANSI_CYAN + "int" + Runtime.ANSI_RESET + ": " + i);
         }
         out.writeInt(i);
     }
@@ -119,7 +119,7 @@ public class X10JavaSerializer {
             return;
         }
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "integer" + Runtime.ANSI_RESET + ": " + p);
+            Runtime.printTraceMessage("Serializing an " + Runtime.ANSI_CYAN + "Integer" + Runtime.ANSI_RESET + ": " + p);
         }
         out.writeShort(DeserializationDispatcher.INTEGER_ID);
         out.writeInt(p.intValue());

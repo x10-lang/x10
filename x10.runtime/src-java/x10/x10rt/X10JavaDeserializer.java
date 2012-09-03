@@ -71,11 +71,11 @@ public class X10JavaDeserializer {
     }
 
     public Object getObjectAtPosition(int pos) {
-        Object o = objectList.get(pos);
+        Object obj = objectList.get(pos);
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("\t\tRetrieving repeated reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + o.getClass().getName() + Runtime.ANSI_RESET + " at " + pos + "  (absolute) in map");
+            Runtime.printTraceMessage("\t\tRetrieving repeated reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET + " at " + pos + "  (absolute) in map");
         }
-        return o;
+        return obj;
     }
 
     public Object readRef() throws IOException {
@@ -84,11 +84,14 @@ public class X10JavaDeserializer {
     }
 
     public Object readRef(short serializationID) throws IOException {
+        if (serializationID == DeserializationDispatcher.NULL_ID) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Deserializing a null reference");
+            }
+            return null;
+        }
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Dispatching deserialization using id " + serializationID);
-        }
-        if (serializationID == DeserializationDispatcher.NULL_ID) {
-            return null;
         }
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
@@ -150,7 +153,7 @@ public class X10JavaDeserializer {
     public int readInt() throws IOException {
         int v = in.readInt();
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing [****] a " + Runtime.ANSI_CYAN + "int" + Runtime.ANSI_RESET + ": " + v);
+            Runtime.printTraceMessage("Deserializing [****] an " + Runtime.ANSI_CYAN + "int" + Runtime.ANSI_RESET + ": " + v);
         }
         return v;
     }
@@ -337,7 +340,7 @@ public class X10JavaDeserializer {
         short serializationID = readShort();
         if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Deserialized a null reference");
+                Runtime.printTraceMessage("Deserializing a null reference");
             }
             return null;
         }
@@ -526,7 +529,7 @@ public class X10JavaDeserializer {
         short serializationID = readShort();
         if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Deserialized a null array");
+                Runtime.printTraceMessage("Deserializing a null array");
             }
             return null;
         }
