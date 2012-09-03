@@ -288,7 +288,7 @@ public class Types {
                 return BOOLEAN;
             }
         } else if (java.lang.Throwable.class.isAssignableFrom(javaClass)) {
-            if (java.lang.Exception.class.isAssignableFrom(javaClass)) {
+            if (java.lang.RuntimeException.class.isAssignableFrom(javaClass)) {
                 if (java.lang.NullPointerException.class.equals(javaClass)) {
                     return NULL_POINTER_EXCEPTION;
                 } else if (java.lang.ClassCastException.class.equals(javaClass)) {
@@ -311,7 +311,9 @@ public class Types {
                     return ILLEGAL_ARGUMENT_EXCEPTION;
                 } else if (java.lang.RuntimeException.class.equals(javaClass)) {
                     return EXCEPTION;
-                } else if (java.lang.Exception.class.equals(javaClass)) {
+                }
+            } else if (java.lang.Exception.class.isAssignableFrom(javaClass)) {
+                if (java.lang.Exception.class.equals(javaClass)) {
                     return CHECKED_EXCEPTION;
                 }
             } else if (java.lang.Error.class.isAssignableFrom(javaClass)) {
