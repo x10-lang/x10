@@ -43,7 +43,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is strictly less than the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.lt(#this, #1)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.lt(#this, #x)")
     @Native("c++",  "((#0) < (#1))")
     public native operator this < (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) < (x.longVal + Long.MIN_VALUE);
@@ -56,7 +56,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is strictly greater than the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.gt(#this, #1)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.gt(#this, #x)")
     @Native("c++",  "((#0) > (#1))")
     public native operator this > (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) > (x.longVal + Long.MIN_VALUE);
@@ -69,7 +69,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is less than or equal to the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.le(#this, #1)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.le(#this, #x)")
     @Native("c++",  "((#0) <= (#1))")
     public native operator this <= (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) <= (x.longVal + Long.MIN_VALUE);
@@ -82,7 +82,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is greater than or equal to the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.ge(#this, #1)")
+    @Native("java", "x10.runtime.impl.java.UnsignedUtils.ge(#this, #x)")
     @Native("c++",  "((#0) >= (#1))")
     public native operator this >= (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) >= (x.longVal + Long.MIN_VALUE);
@@ -96,7 +96,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the sum of this ULong and the other ULong.
      */
-    @Native("java", "((#this) + (#1))")
+    @Native("java", "((#this) + (#x))")
     @Native("c++",  "((x10_ulong) ((#0) + (#1)))")
     public native operator this + (x:ULong): ULong; /* = ULong(longVal + x.longVal); */
 
@@ -107,7 +107,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the difference of this ULong and the other ULong.
      */
-    @Native("java", "((#this) - (#1))")
+    @Native("java", "((#this) - (#x))")
     @Native("c++",  "((x10_ulong) ((#0) - (#1)))")
     public native operator this - (x:ULong): ULong; /* = ULong(longVal - x.longVal) */
 
@@ -118,7 +118,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the product of this ULong and the other ULong.
      */
-    @Native("java", "((#this) * (#1))")
+    @Native("java", "((#this) * (#x))")
     @Native("c++",  "((x10_ulong) ((#0) * (#1)))")
     public native operator this * (x:ULong): ULong; /* = ULong(longVal * x.longVal) */
 

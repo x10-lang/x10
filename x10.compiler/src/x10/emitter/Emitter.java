@@ -577,12 +577,12 @@ public class Emitter {
                         ++endpos;
                     }
                 } else {
-                    throw new InternalCompilerError("Template '" + id + "' uses ill-formed key #" + regex.substring(pos + 1));
+                    throw new InternalCompilerError("Template '" + id + "' uses ill-formed parameter #" + regex.substring(pos + 1));
                 }
                 String str = regex.substring(pos + 1, endpos);
                 Object component = components.get(str);
                 if (component == null) {
-                    throw new InternalCompilerError("Template '" + id + "' uses undefined key #" + str);
+                    throw new InternalCompilerError("Template '" + id + "' uses undefined parameter #" + str);
                 }
                 pos = endpos - 1;
                 start = pos + 1;
@@ -883,6 +883,7 @@ public class Emitter {
 				Object component;
                 String name;
 				component = new TypeExpander(this, type, flags);
+				if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 				components.put(String.valueOf(i++), component);
                 components.put("class", component);
 				for (Type at : classTypeArgs) {
@@ -892,12 +893,15 @@ public class Emitter {
                         name = null;
                     }
                     component = new TypeExpander(this, at, flags & ~BOX_PRIMITIVES);
+                    if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name, component); }
 					component = new TypeExpander(this, at, flags | BOX_PRIMITIVES);
+	                                if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 					components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     component = new RuntimeTypeExpander(this, at);
+                    if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
 				}
@@ -1114,6 +1118,7 @@ public class Emitter {
       String name;
       if (receiver != null) {
           component = receiver;
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           components.put("this", component);
       } else {
@@ -1130,12 +1135,15 @@ public class Emitter {
         	  name = null;
           }
           component = new TypeExpander(this, at, PRINT_TYPE_PARAMS);
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
           component = new TypeExpander(this, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
       }
@@ -1150,6 +1158,7 @@ public class Emitter {
     		  name = null;
     	  }
           component = e;
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
       }
@@ -1164,12 +1173,15 @@ public class Emitter {
         	  name = null;
           }
           component = new TypeExpander(this, at, PRINT_TYPE_PARAMS);
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name, component); }
           component = new TypeExpander(this, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
           component = new RuntimeTypeExpander(this, at);
+          if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
           components.put(String.valueOf(i++), component);
           if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
       }
@@ -3609,6 +3621,7 @@ public class Emitter {
                 Object component;
                 String name;
                 component = new TypeExpander(this, x10Type, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
                 components.put(String.valueOf(i++), component);
                 components.put("class", component);
                 for (final Type at : classTypeArgs) {
@@ -3620,9 +3633,11 @@ public class Emitter {
                     // XTENLANG-3010 : runtime type of Java.array[T] is defined as "Types.getRTT(#T[].class)" 
                     component = new TypeExpander(this, at, PRINT_TYPE_PARAMS);
                     // Note: to avoid changing number based key, we only register this with name based key 
+//                    if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 //                    components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name, component); }
                     component = new TypeExpander(this, at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                    if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_BOXED_REP_SUFFIX, component); }
                     if (Types.baseType(at).typeEquals(def.asType(), tr.context())) {
@@ -3636,6 +3651,7 @@ public class Emitter {
                             }
                         };
                     }
+                    if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
                     components.put(String.valueOf(i++), component);
                     if (name != null) { components.put(name+NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX, component); }
                 }
@@ -4484,15 +4500,19 @@ public class Emitter {
             Object component;
             int i = 0;
             component = n.formals().get(0);
+//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 //            components.put(String.valueOf(i++), component);
             components.put("args", component);
             component = n.body();
+//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 //            components.put(String.valueOf(i++), component);
             components.put("body", component);
             component = tr.context().currentClass().name();
+//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 //            components.put(String.valueOf(i++), component);
             components.put("mainclass", component);
             component = throwsClause;
+//            if (X10PrettyPrinterVisitor.supportNumberedParameterForNative)
 //            components.put(String.valueOf(i++), component);
             components.put("throws", component);
             dumpRegex(X10PrettyPrinterVisitor.MAIN_CLASS, components, tr, regex);

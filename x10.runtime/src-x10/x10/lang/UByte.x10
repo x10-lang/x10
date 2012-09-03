@@ -126,7 +126,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the other UByte
      * @return the quotient of this UByte and the other UByte.
      */
-    @Native("java", "((byte)((0xff & #0) / (0xff & #1)))")
+    @Native("java", "((byte)((0xff & #this) / (0xff & #x)))")
     @Native("c++",  "((x10_ubyte) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:UByte): UByte; /* {
         return UByte(((byteVal as Long) / (x.byteVal as Long)) as Byte);
@@ -138,7 +138,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @param x the other UByte
      * @return the remainder from dividing this UByte by the other UByte.
      */
-    @Native("java", "((byte)((0xff & #0) % (0xff & #1)))")
+    @Native("java", "((byte)((0xff & #this) % (0xff & #x)))")
     @Native("c++",  "((x10_ubyte) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:UByte): UByte; /*  {
         return UByte(((byteVal as Long) % (x.byteVal as Long)) as Byte);

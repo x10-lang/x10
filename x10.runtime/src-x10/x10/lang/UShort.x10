@@ -126,7 +126,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the other UShort
      * @return the quotient of this UShort and the other UShort.
      */
-    @Native("java", "((short)((0xffff & #0) / (0xffff & #1)))")
+    @Native("java", "((short)((0xffff & #this) / (0xffff & #x)))")
     @Native("c++",  "((x10_ushort) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:UShort): UShort; /*  {
         return UShort(((shortVal as Long) / (x.shortVal as Long)) as Short);
@@ -138,7 +138,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the other UShort
      * @return the remainder from dividing this UShort by the other UShort.
      */
-    @Native("java", "((short)((0xffff & #0) % (0xffff & #1)))")
+    @Native("java", "((short)((0xffff & #this) % (0xffff & #x)))")
     @Native("c++",  "((x10_ushort) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:UShort): UShort; /*  {
         return UShort(((shortVal as Long) % (x.shortVal as Long)) as Short);
