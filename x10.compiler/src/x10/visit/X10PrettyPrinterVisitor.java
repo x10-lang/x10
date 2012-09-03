@@ -198,7 +198,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_REF = "x10.core.Ref";
     public static final String X10_CORE_STRUCT = "x10.core.Struct";
     public static final String X10_CORE_ANY = "x10.core.Any";
-    public static final String X10_CORE_X10GENERATED = "x10.core.X10Generated";
 
     public static final String DUMMY_PARAM_TYPE1 = "java.lang.System";
 
@@ -242,6 +241,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //    public static final String X10_CORE_STRING = "x10.core.String";
     public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
+    public static final String X10_RUNTIME_IMPL_JAVA_X10GENERATED = "x10.runtime.impl.java.X10Generated";
     public static final String X10_RUNTIME_IMPL_JAVA_RUNTIME = "x10.runtime.impl.java.Runtime";
     public static final String X10_RUNTIME_IMPL_JAVA_EVALUTILS = "x10.runtime.impl.java.EvalUtils";
     public static final String X10_RUNTIME_IMPL_JAVA_ARRAYUTILS = "x10.runtime.impl.java.ArrayUtils";
@@ -532,7 +532,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         Flags flags = n.flags().flags();
 
         w.begin(0);
-        w.write("@"+X10_CORE_X10GENERATED+" ");
+        w.write("@"+X10_RUNTIME_IMPL_JAVA_X10GENERATED+" ");
         if (flags.isInterface()) {
             w.write(flags.clearInterface().clearAbstract().translateJava());
         } else {
