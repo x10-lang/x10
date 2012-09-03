@@ -47,6 +47,11 @@ bool RuntimeType::subtypeOf(const RuntimeType * const other) const {
 
     if (equals(other)) return true; // trivial case
 
+    // the NullType should be considered a subtype of any class or interface 
+    if (equals(getRTT<x10::lang::NullType>())) {
+        if (other->kind == class_kind || other->kind == interface_kind) return true;
+    }
+    
     if (paramsc > 0 && canonical->equals(other->canonical)) {
         // Different instances of the same generic type (since canonical is equal).
         // this->subtypeOf(other) will be true exactly when the type parameters

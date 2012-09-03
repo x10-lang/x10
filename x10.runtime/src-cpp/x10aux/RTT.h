@@ -52,6 +52,7 @@
 namespace x10 {
     namespace lang {
         class Reference;
+        class NullType;
         class String;
     }
 }
@@ -272,7 +273,8 @@ namespace x10aux {
     template<> inline const char *typeName<char>() { return "char"; }
     template<> inline const char *typeName<const RuntimeType*>() { return "const RuntimeType *"; }
     template<> inline const char *typeName<RuntimeType::Variance>() { return "Variance"; }
-    template<> inline const char *typeName<x10::lang::Reference>() { return "interface"; }
+    template<> inline const char *typeName<x10::lang::Reference>() { return "Reference"; }
+    template<> inline const char *typeName<x10::lang::NullType>() { return "Null"; }
 #ifndef NO_IOSTREAM
     template<> inline const char *typeName<std::stringstream>() { return "std::stringstream"; }
 #endif

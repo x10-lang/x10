@@ -76,10 +76,21 @@ namespace x10 {
             virtual x10aux::serialization_id_t _get_serialization_id() = 0;
             virtual void _serialize_body(x10aux::serialization_buffer &) = 0;
         };
+
+        /**
+         * This is a class that exists only at the C++ implementation level,
+         * not at the X10 language level.  It's only real purpose is to
+         * provide a C++ level type for X10_NULL and therefore permit
+         * a unique RTT object to be associated with the X10 value null.
+         */
+        class NullType : public Reference {
+          public:
+            RTT_H_DECLS_CLASS;
+        };
     }
 }
 
-#define X10_NULL reinterpret_cast<x10::lang::Reference*>(NULL)
+#define X10_NULL reinterpret_cast<x10::lang::NullType*>(NULL)
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
