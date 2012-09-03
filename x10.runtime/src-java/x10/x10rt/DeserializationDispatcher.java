@@ -130,7 +130,7 @@ public class DeserializationDispatcher {
             return method.invoke(null, deserializer);
         } catch (InvocationTargetException e) {
             // This should never happen
-            throw new RuntimeException(e);
+            throw new RuntimeException("Error in deserializing non-null value with id " + serializationID, e);
         } catch (SecurityException e) {
             // This should never happen
             throw new RuntimeException(e);

@@ -59,7 +59,7 @@ public class X10JavaDeserializer {
     public int record_reference(Object obj) {
         if (Runtime.TRACE_SER) {
             String className = obj == null ? "null" : obj.getClass().getName();
-            Runtime.printTraceMessage("\t\tRecorded new reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + className + Runtime.ANSI_RESET + " at " + counter + "  (absolute) in map");
+            Runtime.printTraceMessage("\t\tRecorded new reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + className + Runtime.ANSI_RESET + " at " + counter + " (absolute) in map");
         }
         objectList.add(counter, obj);
         counter++;
@@ -73,7 +73,7 @@ public class X10JavaDeserializer {
     public Object getObjectAtPosition(int pos) {
         Object obj = objectList.get(pos);
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("\t\tRetrieving repeated reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET + " at " + pos + "  (absolute) in map");
+            Runtime.printTraceMessage("\t\tRetrieving repeated reference of type " + Runtime.ANSI_CYAN + Runtime.ANSI_BOLD + obj.getClass().getName() + Runtime.ANSI_RESET + " at " + pos + " (absolute) in map");
         }
         return obj;
     }
@@ -300,7 +300,7 @@ public class X10JavaDeserializer {
     }
 
     public String readString() throws IOException {
-        short serializationID = in.readShort();
+        short serializationID = readShort();
         if (serializationID == DeserializationDispatcher.NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null reference");
