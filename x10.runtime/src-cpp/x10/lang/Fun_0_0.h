@@ -14,7 +14,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10aux/fun_utils.h>
 
 #include <x10/lang/Any.h>
 
@@ -23,7 +22,7 @@ namespace x10 {
 
         void _initRTTHelper_Fun_0_0(x10aux::RuntimeType *location, const x10aux::RuntimeType *rtt0);
 
-        template<class R> class Fun_0_0 : public x10aux::AnyFun {
+        template<class R> class Fun_0_0 {
             public:
             static x10aux::RuntimeFunType rtt;
             static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }

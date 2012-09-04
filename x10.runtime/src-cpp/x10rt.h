@@ -37,7 +37,6 @@
 #include <x10aux/long_utils.h>
 #include <x10aux/short_utils.h>
 #include <x10aux/string_utils.h>
-#include <x10aux/fun_utils.h>
 #include <x10aux/array_utils.h>
 
 #include <x10aux/math_utils.h>

@@ -15,13 +15,12 @@
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
-#include <x10aux/fun_utils.h>
 
 #include <x10/lang/Any.h>
 
 namespace x10 {
     namespace lang {
-        class VoidFun_0_0 : public x10aux::AnyFun {
+        class VoidFun_0_0 {
             public:
             static x10aux::RuntimeType rtt;
             static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }

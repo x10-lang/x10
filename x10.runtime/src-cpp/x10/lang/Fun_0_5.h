@@ -14,7 +14,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10aux/fun_utils.h>
 
 #include <x10/lang/Any.h>
 
@@ -29,7 +28,7 @@ namespace x10 {
                                     const x10aux::RuntimeType *rtt4,
                                     const x10aux::RuntimeType *rtt5);
 
-        template<class P1, class P2, class P3, class P4, class P5, class R> class Fun_0_5 : public x10aux::AnyFun {
+        template<class P1, class P2, class P3, class P4, class P5, class R> class Fun_0_5 {
             public:
             static x10aux::RuntimeFunType rtt;
             static const x10aux::RuntimeType* getRTT() { if (!rtt.isInitialized) _initRTT(); return &rtt; }
