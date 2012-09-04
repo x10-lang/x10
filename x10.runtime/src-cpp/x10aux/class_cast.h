@@ -14,17 +14,10 @@
 
 #include <x10aux/config.h>
 #include <x10aux/throw.h>
-
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/IBox.h>
-
-namespace x10 {
-namespace lang {
-class Reference;
-}
-}
 
 namespace x10aux {
 
@@ -33,10 +26,6 @@ namespace x10aux {
      *  T stands for "to"
      *  F stands for "from"
      */
-    
-    extern void throwClassCastException(const RuntimeType *from, const RuntimeType *to) X10_PRAGMA_NORETURN;
-    extern void throwClassCastException(const char *msg) X10_PRAGMA_NORETURN;
-
     
     template<typename T, typename F> GPUSAFE T class_cast(F obj);
     template<typename T, typename F> GPUSAFE T class_cast(F obj, bool checked);
@@ -269,8 +258,6 @@ namespace x10aux {
         return ClassCast<T,F>::_(obj, false);
     }
 }
-
-    
 
 #endif
 // vim:tabstop=4:shiftwidth=4:expandtab

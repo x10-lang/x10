@@ -11,18 +11,37 @@
 
 #include <x10aux/throw.h>
 
-#include <x10/lang/NullPointerException.h>
 #include <x10/lang/ArithmeticException.h>
+#include <x10/lang/ClassCastException.h>
+#include <x10/lang/NullPointerException.h>
 #include <x10/lang/String.h>
+
+using namespace x10::lang;
 
 void x10aux::throwArithmeticException() {
 #ifndef NO_EXCEPTIONS
-    throwException(x10::lang::ArithmeticException::_make(x10::lang::String::Lit("divide by zero")));
+    throwException(ArithmeticException::_make(String::Lit("divide by zero")));
 #endif
 }
 
 void x10aux::throwNPE() {
 #ifndef NO_EXCEPTIONS
-    throwException<x10::lang::NullPointerException>();
+    throwException<NullPointerException>();
 #endif
+}
+
+void x10aux::throwClassCastException(const char *msg_) {
+    String* msg = String::Lit(msg_);
+    throwException(ClassCastException::_make(msg));
+}
+
+void x10aux::throwClassCastException(const RuntimeType *from, const RuntimeType *to) {
+    String* msg;
+    if (x10_native_debug_messages) {
+        msg = String::Steal(x10aux::alloc_printf("tried to cast an instance of %s to a %s ", from->name(), to->name()));
+    } else {
+        (void) from; // match Managed X10 message format, which does not have 'from' to put in the message
+        msg = String::Steal(x10aux::alloc_printf("%s", to->name()));
+    }
+    throwException(ClassCastException::_make(msg));
 }

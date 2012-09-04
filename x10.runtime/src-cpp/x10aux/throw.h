@@ -88,6 +88,15 @@ namespace x10aux {
     template <class T> inline T nullCheck(T x) {
         return x;
     }
+
+
+    /*
+     * Helper function for class cast exceptions
+     */
+    class RuntimeType;
+
+    extern void throwClassCastException(const RuntimeType *from, const RuntimeType *to) X10_PRAGMA_NORETURN;
+    extern void throwClassCastException(const char *msg) X10_PRAGMA_NORETURN;
 }
 
 #endif /* X10AUX_THROW_H */

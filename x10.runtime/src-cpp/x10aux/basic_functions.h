@@ -28,12 +28,6 @@
 #include <x10/lang/IBox.h>
 #undef X10_LANG_IBOX_NODEPS
 
-namespace x10 {
-    namespace lang {
-        class String;
-    }
-}
-
 namespace x10aux {
 
     /******* type_name ********/
