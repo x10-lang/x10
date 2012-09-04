@@ -13,6 +13,7 @@
 #include <x10aux/static_init.h>
 #include <x10aux/alloc.h>
 #include <x10aux/network.h>
+#include <x10aux/atomic_ops.h>
 
 #include <x10/lang/Runtime.h>
 #include <x10/lang/ExceptionInInitializer.h>

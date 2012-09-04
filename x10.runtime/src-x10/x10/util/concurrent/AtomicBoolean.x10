@@ -14,7 +14,9 @@ package x10.util.concurrent;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Volatile;
+import x10.compiler.NativeCPPInclude;
 
+@NativeCPPInclude("x10/util/concurrent/AtomicBooleanNatives.h")
 @NativeRep("java", "x10.core.concurrent.AtomicBoolean", null, "x10.core.concurrent.AtomicBoolean.$RTT")
 public final class AtomicBoolean {
    /*
@@ -40,11 +42,11 @@ public final class AtomicBoolean {
     }
 
     @Native("java", "#this.compareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_boolean_funs::compareAndSet(#this, #expect, #update)")
+    @Native("c++", "x10::util::concurrent::AtomicBooleanNatives::compareAndSet(#this, #expect, #update)")
     public native def compareAndSet(expect:Boolean, update:Boolean):Boolean;
 
     @Native("java", "#this.weakCompareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_boolean_funs::weakCompareAndSet(#this, #expect, #update)")
+    @Native("c++", "x10::util::concurrent::AtomicBooleanNatives::weakCompareAndSet(#this, #expect, #update)")
     public native def weakCompareAndSet(expect:Boolean, update:Boolean):Boolean;
     
     @Native("java", "#this.getAndSet(#v)")

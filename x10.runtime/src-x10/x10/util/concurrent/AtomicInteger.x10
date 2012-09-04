@@ -14,7 +14,9 @@ package x10.util.concurrent;
 import x10.compiler.Native;
 import x10.compiler.NativeRep;
 import x10.compiler.Volatile;
+import x10.compiler.NativeCPPInclude;
 
+@NativeCPPInclude("x10/util/concurrent/AtomicIntegerNatives.h")
 @NativeRep("java", "x10.core.concurrent.AtomicInteger", null, "x10.core.concurrent.AtomicInteger.$RTT")
 public final class AtomicInteger {
 
@@ -33,11 +35,11 @@ public final class AtomicInteger {
     }
     
     @Native("java", "#this.compareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_int_funs::compareAndSet(#this,#expect,#update)")
+    @Native("c++", "x10::util::concurrent::AtomicIntegerNatives::compareAndSet(#this,#expect,#update)")
     public native def compareAndSet(expect:Int, update:Int):Boolean;
 
     @Native("java", "#this.weakCompareAndSet(#expect,#update)")
-    @Native("c++", "x10aux::atomic_int_funs::weakCompareAndSet(#this,#expect,#update)")
+    @Native("c++", "x10::util::concurrent::AtomicIntegerNatives::weakCompareAndSet(#this,#expect,#update)")
     public native def weakCompareAndSet(expect:Int, update:Int):Boolean;
     
     @Native("java", "#this.getAndIncrement()")
@@ -47,7 +49,7 @@ public final class AtomicInteger {
     public def getAndDecrement():Int = getAndAdd(-1);
     
     @Native("java", "#this.getAndAdd(#delta)")
-    @Native("c++", "x10aux::atomic_int_funs::getAndAdd(#this, #delta)")
+    @Native("c++", "x10::util::concurrent::AtomicIntegerNatives::getAndAdd(#this, #delta)")
     public native def getAndAdd(delta:Int):Int;
     
     @Native("java", "#this.incrementAndGet()")
@@ -57,7 +59,7 @@ public final class AtomicInteger {
     public def decrementAndGet():Int = addAndGet(-1);
     
     @Native("java", "#this.addAndGet(#delta)")
-    @Native("c++", "x10aux::atomic_int_funs::addAndGet(#this, #delta)")
+    @Native("c++", "x10::util::concurrent::AtomicIntegerNatives::addAndGet(#this, #delta)")
     public native def addAndGet(delta:Int):Int;
     
     @Native("java", "#this.toString()")

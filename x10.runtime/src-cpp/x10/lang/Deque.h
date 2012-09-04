@@ -13,7 +13,9 @@
 #define X10_LANG_DEQUE_H
 
 #include <x10/lang/X10Class.h>
+
 #include <x10aux/serialization.h>
+#include <x10aux/atomic_ops.h>
 
 namespace x10 {
     namespace lang {

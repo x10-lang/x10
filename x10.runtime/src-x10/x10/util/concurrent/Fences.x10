@@ -12,7 +12,9 @@
 package x10.util.concurrent;
 
 import x10.compiler.Native;
+import x10.compiler.NativeCPPInclude;
 
+@NativeCPPInclude("x10aux/atomic_ops.h")
 public class Fences {
     @Native("java", "x10.runtime.impl.java.Fences.loadLoadBarrier()")
     @Native("c++", "x10aux::atomic_ops::load_load_barrier()")

@@ -21,11 +21,6 @@
 #include <x10aux/hash.h>
 #include <x10aux/basic_functions.h>
 
-#include <x10aux/atomic_ops.h>
-#include <x10aux/atomic_boolean_funs.h>
-#include <x10aux/atomic_int_funs.h>
-#include <x10aux/atomic_long_funs.h>
-
 #include <x10aux/itables.h>
 
 #include <x10aux/boolean_utils.h>
