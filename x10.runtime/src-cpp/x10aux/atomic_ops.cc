@@ -11,6 +11,9 @@
 
 #include "atomic_ops.h"
 
+#include <x10aux/alloc.h>
+
+
 #if !defined(_LP64)
 x10aux::reentrant_lock* x10aux::atomic_ops::_longOperationLock = new (alloc<reentrant_lock>())reentrant_lock();
 
