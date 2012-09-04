@@ -19,10 +19,10 @@ public class JavaException3b extends x10Test {
 	}
 	
 	static class Sub extends Sup {
-		def this():Sub throws x10.lang.CheckedThrowable {
+		def this() throws x10.lang.CheckedThrowable : Sub {
 			throw new x10.lang.CheckedThrowable("I like Java.");          
 		}
-		def this(a:Int):Sub throws x10.lang.CheckedThrowable {
+		def this(a:Int) throws x10.lang.CheckedThrowable : Sub {
 			this();
 		}
 	}

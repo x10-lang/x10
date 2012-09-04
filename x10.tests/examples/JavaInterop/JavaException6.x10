@@ -18,11 +18,11 @@ public class JavaException6 extends x10Test {
 
     public abstract static class Base {
     	@Native("java", "null")
-        public native def f(): Any throws java.io.IOException;
+        public native def f() throws java.io.IOException : Any;
     }
 
     public static class Derived extends Base {
-        public def f(): Any throws java.io.IOException {
+        public def f() throws java.io.IOException : Any {
         	return super.f();
         }
     }
