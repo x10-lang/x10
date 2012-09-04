@@ -21,7 +21,7 @@ public class CF3_MustFailCompile extends x10Test {
      	public  def zero()=0;
      	public  operator this(a:Int,b:Int)=a+b;
     }
-    def m():void offers Int {
+    def m() offers Int : void {
     	offer "a"; // ERR
     }
 	public def run() {
