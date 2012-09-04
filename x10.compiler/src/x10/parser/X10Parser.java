@@ -574,7 +574,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 38:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 38:  MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 38: {
                 //#line 383 "x10/parser/x10.g"
@@ -588,11 +588,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 383 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(6);
                 //#line 383 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(7);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(7);
                 //#line 383 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(8);
+                Object Throwsopt = (Object) getRhsSym(8);
                 //#line 383 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(9);
+                Object HasResultTypeopt = (Object) getRhsSym(9);
                 //#line 383 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(10);
                 //#line 385 "x10/parser/x10.g"
@@ -600,7 +600,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 44:  BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 44:  BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 44: {
                 //#line 393 "x10/parser/x10.g"
@@ -616,11 +616,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 393 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(11);
                 //#line 393 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(12);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(12);
                 //#line 393 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(13);
+                Object Throwsopt = (Object) getRhsSym(13);
                 //#line 393 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(14);
+                Object HasResultTypeopt = (Object) getRhsSym(14);
                 //#line 393 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(15);
                 //#line 395 "x10/parser/x10.g"
@@ -628,7 +628,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 45:  BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 45:  BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 45: {
                 //#line 397 "x10/parser/x10.g"
@@ -642,11 +642,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 397 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(9);
                 //#line 397 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(10);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(10);
                 //#line 397 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(11);
+                Object Throwsopt = (Object) getRhsSym(11);
                 //#line 397 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(12);
+                Object HasResultTypeopt = (Object) getRhsSym(12);
                 //#line 397 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(13);
                 //#line 399 "x10/parser/x10.g"
@@ -654,7 +654,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 46:  BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 46:  BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 46: {
                 //#line 401 "x10/parser/x10.g"
@@ -668,11 +668,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 401 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(9);
                 //#line 401 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(10);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(10);
                 //#line 401 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(11);
+                Object Throwsopt = (Object) getRhsSym(11);
                 //#line 401 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(12);
+                Object HasResultTypeopt = (Object) getRhsSym(12);
                 //#line 401 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(13);
                 //#line 403 "x10/parser/x10.g"
@@ -680,7 +680,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 47:  PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 47:  PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 47: {
                 //#line 406 "x10/parser/x10.g"
@@ -694,11 +694,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 406 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(8);
                 //#line 406 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(9);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(9);
                 //#line 406 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(10);
+                Object Throwsopt = (Object) getRhsSym(10);
                 //#line 406 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(11);
+                Object HasResultTypeopt = (Object) getRhsSym(11);
                 //#line 406 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(12);
                 //#line 408 "x10/parser/x10.g"
@@ -706,7 +706,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 48:  PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 48:  PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 48: {
                 //#line 410 "x10/parser/x10.g"
@@ -718,11 +718,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 410 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(6);
                 //#line 410 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(7);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(7);
                 //#line 410 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(8);
+                Object Throwsopt = (Object) getRhsSym(8);
                 //#line 410 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(9);
+                Object HasResultTypeopt = (Object) getRhsSym(9);
                 //#line 410 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(10);
                 //#line 412 "x10/parser/x10.g"
@@ -730,7 +730,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 49:  ApplyOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 49:  ApplyOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 49: {
                 //#line 415 "x10/parser/x10.g"
@@ -742,11 +742,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 415 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(6);
                 //#line 415 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(7);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(7);
                 //#line 415 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(8);
+                Object Throwsopt = (Object) getRhsSym(8);
                 //#line 415 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(9);
+                Object HasResultTypeopt = (Object) getRhsSym(9);
                 //#line 415 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(10);
                 //#line 417 "x10/parser/x10.g"
@@ -754,7 +754,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 50:  SetOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 50:  SetOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 50: {
                 //#line 420 "x10/parser/x10.g"
@@ -768,11 +768,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 420 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(10);
                 //#line 420 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(11);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(11);
                 //#line 420 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(12);
+                Object Throwsopt = (Object) getRhsSym(12);
                 //#line 420 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(13);
+                Object HasResultTypeopt = (Object) getRhsSym(13);
                 //#line 420 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(14);
                 //#line 422 "x10/parser/x10.g"
@@ -804,7 +804,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 54:  ExplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 54:  ExplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as ? WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 54: {
                 //#line 433 "x10/parser/x10.g"
@@ -816,11 +816,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 433 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(9);
                 //#line 433 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(10);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(10);
                 //#line 433 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(11);
+                Object Throwsopt = (Object) getRhsSym(11);
                 //#line 433 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(12);
+                Object HasResultTypeopt = (Object) getRhsSym(12);
                 //#line 433 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(13);
                 //#line 435 "x10/parser/x10.g"
@@ -828,7 +828,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 55:  ImplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+            // Rule 55:  ImplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
             //
             case 55: {
                 //#line 438 "x10/parser/x10.g"
@@ -840,11 +840,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 438 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(7);
                 //#line 438 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(8);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(8);
                 //#line 438 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(9);
+                Object Throwsopt = (Object) getRhsSym(9);
                 //#line 438 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(10);
+                Object HasResultTypeopt = (Object) getRhsSym(10);
                 //#line 438 "x10/parser/x10.g"
                 Object MethodBody = (Object) getRhsSym(11);
                 //#line 440 "x10/parser/x10.g"
@@ -1393,7 +1393,7 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 107:  ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt ConstructorBody
+            // Rule 107:  ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt ConstructorBody
             //
             case 107: {
                 //#line 660 "x10/parser/x10.g"
@@ -1405,11 +1405,11 @@ public class X10Parser extends Object implements RuleAction
                 //#line 660 "x10/parser/x10.g"
                 Object WhereClauseopt = (Object) getRhsSym(6);
                 //#line 660 "x10/parser/x10.g"
-                Object HasResultTypeopt = (Object) getRhsSym(7);
+                Object OBSOLETE_Offersopt = (Object) getRhsSym(7);
                 //#line 660 "x10/parser/x10.g"
-                Object OBSOLETE_Offersopt = (Object) getRhsSym(8);
+                Object Throwsopt = (Object) getRhsSym(8);
                 //#line 660 "x10/parser/x10.g"
-                Object Throwsopt = (Object) getRhsSym(9);
+                Object HasResultTypeopt = (Object) getRhsSym(9);
                 //#line 660 "x10/parser/x10.g"
                 Object ConstructorBody = (Object) getRhsSym(10);
                 //#line 662 "x10/parser/x10.g"

@@ -380,7 +380,7 @@
 			r.rule_Property0(Annotationsopt,Identifier,ResultType);
         $EndJava./
 
-    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+    MethodDeclaration ::= MethodModifiersopt def Identifier TypeParametersopt FormalParameters WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration0(MethodModifiersopt,Identifier,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
@@ -390,34 +390,34 @@
                         | SetOperatorDeclaration
                         | ConversionOperatorDeclaration
 
-    BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+    BinaryOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration1(MethodModifiersopt,TypeParametersopt,fp1,BinOp,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
-                                | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+                                | MethodModifiersopt operator TypeParametersopt this BinOp ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration3(MethodModifiersopt,TypeParametersopt,BinOp,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
-                                | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+                                | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) BinOp this WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration4(MethodModifiersopt,TypeParametersopt,fp1,BinOp,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
 
-    PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+    PrefixOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt PrefixOp ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration2(MethodModifiersopt,TypeParametersopt,PrefixOp,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
-                                | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+                                | MethodModifiersopt operator TypeParametersopt PrefixOp this WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration5(MethodModifiersopt,TypeParametersopt,PrefixOp,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
 
-    ApplyOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+    ApplyOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration6(MethodModifiersopt,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
 
-    SetOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+    SetOperatorDeclaration ::= MethodModifiersopt operator this TypeParametersopt FormalParameters = ( FormalParameter$fp2 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration7(MethodModifiersopt,TypeParametersopt,FormalParameters,fp2,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
@@ -430,12 +430,12 @@
         /.$BeginJava
 			r.rule_MethodDeclaration8(MethodModifiersopt,TypeParametersopt,fp1,Type,WhereClauseopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
-                                            | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as '?' WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+                                            | MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) as '?' WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration9(MethodModifiersopt,TypeParametersopt,fp1,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
 
-    ImplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt MethodBody
+    ImplicitConversionOperatorDeclaration ::= MethodModifiersopt operator TypeParametersopt ( FormalParameter$fp1 ) WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt MethodBody
         /.$BeginJava
 			r.rule_MethodDeclaration10(MethodModifiersopt,TypeParametersopt,fp1,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,MethodBody);
         $EndJava./
@@ -657,7 +657,7 @@
 			r.rule_StructDeclaration0(Modifiersopt,Identifier,TypeParamsWithVarianceopt,Propertiesopt,WhereClauseopt,Interfacesopt,ClassBody);
         $EndJava./
 
-    ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt HasResultTypeopt OBSOLETE_Offersopt Throwsopt ConstructorBody
+    ConstructorDeclaration ::= Modifiersopt def this TypeParametersopt FormalParameters WhereClauseopt OBSOLETE_Offersopt Throwsopt HasResultTypeopt ConstructorBody
         /.$BeginJava
 			r.rule_ConstructorDeclaration0(Modifiersopt,TypeParametersopt,FormalParameters,WhereClauseopt,HasResultTypeopt,OBSOLETE_Offersopt,Throwsopt,ConstructorBody);
                                                                
