@@ -13,9 +13,6 @@
 #define X10_LANG_CLOSURE_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-#include <x10aux/serialization.h>
-#include <x10aux/RTT.h>
 
 #include <x10/lang/Reference.h>
 

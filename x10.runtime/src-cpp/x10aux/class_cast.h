@@ -16,7 +16,6 @@
 #include <x10aux/throw.h>
 
 #include <x10aux/RTT.h>
-#include <x10aux/ref.h>
 #include <x10aux/basic_functions.h>
 
 #include <x10/lang/IBox.h>

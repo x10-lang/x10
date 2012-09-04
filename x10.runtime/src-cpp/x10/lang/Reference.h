@@ -13,7 +13,6 @@
 #define X10_LANG_REFERENCE_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/itables.h>
 #include <x10aux/system_utils.h>

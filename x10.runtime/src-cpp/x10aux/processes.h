@@ -13,9 +13,6 @@
 #define X10AUX_PROCESSES_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-
-#include <stdio.h>
 
 namespace x10 {
     namespace io {

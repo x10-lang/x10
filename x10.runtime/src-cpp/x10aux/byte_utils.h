@@ -13,7 +13,6 @@
 #define X10AUX_BYTE_UTILS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 namespace x10 {
     namespace lang {
@@ -33,10 +32,10 @@ namespace x10aux {
         static x10_byte parseByte(x10::lang::String* s) { return parseByte(s, 10); }
         static x10_ubyte parseUByte(x10::lang::String* s, x10_int radix);
         static x10_ubyte parseUByte(x10::lang::String* s) { return parseUByte(s, 10); }
-        static x10_int compareTo(x10_byte v1, x10_byte v2) {
+        static inline x10_int compareTo(x10_byte v1, x10_byte v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
-        static x10_int compareTo(x10_ubyte v1, x10_ubyte v2) {
+        static inline x10_int compareTo(x10_ubyte v1, x10_ubyte v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
     };

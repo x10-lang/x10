@@ -13,7 +13,6 @@
 #define X10_UTIL_CONCURRENT_ATOMICREFERENCE_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/atomic_ops.h>

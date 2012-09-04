@@ -146,8 +146,6 @@ namespace x10aux {
 
 }
 
-#include <x10aux/ref.h>
-
 namespace x10aux {
 
     x10::util::HashMap<x10::lang::String*, x10::lang::String*>* loadenv();

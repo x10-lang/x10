@@ -9,17 +9,11 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <x10aux/ref.h>
-#include <x10aux/alloc.h>
-
 #include <x10/lang/Closure.h>
 #include <x10/lang/String.h>
 #include <x10/lang/Place.h>
 
-using namespace x10::lang;
-using namespace x10aux;
-
-x10_int Closure::hashCode() {
+x10_int x10::lang::Closure::hashCode() {
     return x10aux::hash_code(_get_serialization_id());
 }
 

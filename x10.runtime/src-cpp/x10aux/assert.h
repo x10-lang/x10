@@ -13,7 +13,6 @@
 #define X10AUX_ASSERT_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 #include <x10aux/basic_functions.h>
 
 namespace x10 { namespace lang { class String; } }

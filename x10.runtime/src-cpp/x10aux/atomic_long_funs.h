@@ -12,7 +12,7 @@
 #ifndef X10AUX_ATOMIC_LONG_FUNS_H
 #define X10AUX_ATOMIC_LONG_FUNS_H
 
-#include <x10aux/ref.h>
+#include <x10aux/config.h>
 
 namespace x10 { namespace util { namespace concurrent { class AtomicLong; }}}
 

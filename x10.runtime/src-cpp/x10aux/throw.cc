@@ -9,14 +9,20 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <x10aux/config.h>
 #include <x10aux/throw.h>
 
+#include <x10/lang/NullPointerException.h>
 #include <x10/lang/ArithmeticException.h>
 #include <x10/lang/String.h>
 
 void x10aux::throwArithmeticException() {
 #ifndef NO_EXCEPTIONS
     throwException(x10::lang::ArithmeticException::_make(x10::lang::String::Lit("divide by zero")));
+#endif
+}
+
+void x10aux::throwNPE() {
+#ifndef NO_EXCEPTIONS
+    throwException<x10::lang::NullPointerException>();
 #endif
 }

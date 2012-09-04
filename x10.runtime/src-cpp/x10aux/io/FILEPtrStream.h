@@ -14,8 +14,6 @@
 
 #include <stdio.h>
 
-#include <x10aux/ref.h>
-
 namespace x10 {
     namespace lang {
         class String;

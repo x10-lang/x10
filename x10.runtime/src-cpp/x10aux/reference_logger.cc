@@ -10,8 +10,9 @@
  */
 
 #include <x10aux/reference_logger.h>
+#include <x10aux/lock.h>
+#include <x10aux/alloc.h>
 
-using namespace x10::lang;
 using namespace x10aux;
 
 #if defined(X10_USE_BDWGC) || defined(X10_DEBUG_REFERENCE_LOGGER)
@@ -25,6 +26,10 @@ ReferenceLogger::ReferenceLogger() {
     _lock = new (alloc<reentrant_lock>())reentrant_lock();
     _buckets = x10aux::alloc<Bucket*>(NUM_BUCKETS*sizeof(Bucket*));
     memset(_buckets, 0, NUM_BUCKETS*sizeof(Bucket*));
+}
+
+ReferenceLogger* ReferenceLogger::initMe() {
+    return new (x10aux::alloc<ReferenceLogger>()) ReferenceLogger();
 }
 
 void ReferenceLogger::log_(void *x) {

@@ -21,6 +21,7 @@
 #include <x10/io/OutputStreamWriter__OutputStream.h>
 
 #include <stdlib.h>
+#include <stdio.h>
 
 x10::io::Reader* x10aux::processes::execForRead(const char *command) {
     FILE* inFd = popen(command, "r");

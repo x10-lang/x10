@@ -13,7 +13,6 @@
 #define X10AUX_STRING_UTILS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 #include <x10aux/captured_lval.h>
 
 namespace x10 {

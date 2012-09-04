@@ -13,12 +13,11 @@
 #define X10_LANG_THREAD_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
+#include <x10aux/serialization.h>
 
 #include <x10/lang/X10Class.h>
 #include <x10/lang/String.h>
 #include <x10/lang/VoidFun_0_0.h>
-#include <x10aux/serialization.h>
 
 #include <pthread.h>
 

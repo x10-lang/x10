@@ -13,10 +13,9 @@
 #define X10AUX_PLACELOCAL_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-#include <x10aux/lock.h>
 
 namespace x10aux {
+    class reentrant_lock;
 
     class place_local {
     private:

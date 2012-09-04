@@ -13,7 +13,6 @@
 #define X10AUX_SHORT_UTILS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 namespace x10 {
     namespace lang {
@@ -34,10 +33,10 @@ namespace x10aux {
         static x10_ushort parseUShort(x10::lang::String* s, x10_int radix);
         static x10_ushort parseUShort(x10::lang::String* s) { return parseUShort(s, 10); }
         static x10_short reverseBytes(x10_short value);
-        static x10_int compareTo(x10_short v1, x10_short v2) {
+        static inline x10_int compareTo(x10_short v1, x10_short v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
-        static x10_int compareTo(x10_ushort v1, x10_ushort v2) {
+        static inline x10_int compareTo(x10_ushort v1, x10_ushort v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
     };

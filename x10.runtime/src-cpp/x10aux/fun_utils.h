@@ -13,7 +13,6 @@
 #define X10AUX_FUN_UTILS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 namespace x10aux {
     class AnyFun {

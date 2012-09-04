@@ -13,7 +13,6 @@
 #define X10AUX_LONG_UTILS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 namespace x10 {
     namespace lang {
@@ -40,11 +39,11 @@ namespace x10aux {
         static x10_long rotateLeft(x10_long value, x10_int distance);
         static x10_long rotateRight(x10_long value, x10_int distance);
         static x10_long reverse(x10_long value);
-        static x10_int signum(x10_long value) {
+        static inline x10_int signum(x10_long value) {
             return (value >> 63) | (((x10_ulong)(-value)) >> 63);
         }
         static x10_long reverseBytes(x10_long value);
-        static x10_int compareTo(x10_long v1, x10_long v2) {
+        static inline x10_int compareTo(x10_long v1, x10_long v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
         static x10_int compareTo(x10_ulong v1, x10_ulong v2) {

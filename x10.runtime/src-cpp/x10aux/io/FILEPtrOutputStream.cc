@@ -10,13 +10,10 @@
  */
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
-#include <x10aux/alloc.h>
 
 #include <x10aux/io/FILEPtrOutputStream.h>
 
 #include <x10/util/IndexedMemoryChunk.h>
-#include <x10/io/IOException.h>
 
 
 using namespace x10aux;

@@ -14,7 +14,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/math.h>
-#include <x10aux/ref.h>
 
 namespace x10 {
     namespace lang {
@@ -33,7 +32,7 @@ namespace x10aux {
         static x10_int toIntBits(x10_float value);
         static x10_int toRawIntBits(x10_float value);
         static x10_float fromIntBits(x10_int value);
-        static x10_int compareTo(x10_float v1, x10_float v2) {
+        static inline x10_int compareTo(x10_float v1, x10_float v2) {
             return v1 == v2 ? 0 : (v1 < v2 ? -1 : 1);
         }
         static x10_byte toByte(x10_float value);

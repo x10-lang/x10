@@ -13,9 +13,8 @@
 #define X10AUX_DESERIALIZATION_DISPATCHER_H
 
 #include <x10aux/config.h>
-
-#include <x10aux/ref.h>
 #include <x10aux/network.h>
+#include <x10aux/RTT.h>
 
 namespace x10 { namespace lang { class Reference; } }
 

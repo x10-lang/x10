@@ -13,7 +13,6 @@
 #define X10AUX_BOOLEAN_UTILS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 namespace x10 {
     namespace lang {
@@ -27,7 +26,7 @@ namespace x10aux {
     public:
         static x10::lang::String* toString(x10_boolean value);
         static x10_boolean parseBoolean(const x10::lang::String* s);
-        static x10_int compareTo(x10_boolean v1, x10_boolean v2) {
+        static inline x10_int compareTo(x10_boolean v1, x10_boolean v2) {
             return v1 == v2 ? 0 : (v1 ? 1 : -1);
         }
     };

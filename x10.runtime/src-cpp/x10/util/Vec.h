@@ -13,7 +13,6 @@
 #define X10_UTIL_VEC_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 #include <x10aux/RTT.h>
 #include <x10aux/serialization.h>
 

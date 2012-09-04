@@ -9,7 +9,6 @@
 #include <x10aux/network.h>
 
 #include <x10aux/class_cast.h>
-#include <x10aux/ref.h>
 #include <x10aux/captured_lval.h>
 #include <x10aux/reference_logger.h>
 #include <x10aux/alloc.h>

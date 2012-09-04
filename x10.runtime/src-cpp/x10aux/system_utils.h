@@ -15,7 +15,6 @@
 #include <cstdio>
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 
 namespace x10 { namespace lang {
     class Reference;
@@ -47,14 +46,11 @@ namespace x10aux {
     }
 
     /******* hash_code ********/
-    inline static x10_int identity_hash_code (x10::lang::Reference* ptr)
-    {
-
-        // STEP 2: Combine the bits of the pointer into a 32 bit integer.
-        //         Note: intentionally not doing some type-punning pointer thing here as
-        //         the behavior of that is somewhat underdefined and tends to expose
-        //         "interesting" behavior in C++ compilers (especially at high optimization
-        //         level).
+    inline static x10_int identity_hash_code (x10::lang::Reference* ptr) {
+        // Combine the bits of the pointer into a 32 bit integer.
+        // Note: intentionally not doing some type-punning pointer thing here as
+        //       the behavior of that is somewhat underdefined and tends to expose
+        //       "interesting" behavior in C++ compilers at high optimization levels.
         uint64_t v2 = (uint64_t)ptr;
         x10_int lower = (x10_int)(v2 & 0xffffffff);
         x10_int upper = (x10_int)(v2 >> 32);

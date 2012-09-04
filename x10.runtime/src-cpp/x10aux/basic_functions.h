@@ -13,11 +13,16 @@
 #define X10AUX_BASIC_FUNCTIONS_H
 
 #include <x10aux/config.h>
-#include <x10aux/ref.h>
 #include <x10aux/hash.h>
 #include <x10aux/double_utils.h>
 #include <x10aux/float_utils.h>
 #include <x10aux/string_utils.h>
+
+#ifndef X10AUX_THROW_H_NODEPS
+#define X10AUX_THROW_H_NODEPS
+#include <x10aux/throw.h>
+#undef X10AUX_THROW_H_NODEPS
+#endif
 
 #define X10_LANG_IBOX_NODEPS
 #include <x10/lang/IBox.h>

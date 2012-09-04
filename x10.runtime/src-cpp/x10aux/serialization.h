@@ -15,7 +15,6 @@
 
 #include <x10aux/config.h>
 
-#include <x10aux/ref.h>
 #include <x10aux/captured_lval.h>
 #include <x10aux/alloc.h>
 #include <x10aux/deserialization_dispatcher.h>
