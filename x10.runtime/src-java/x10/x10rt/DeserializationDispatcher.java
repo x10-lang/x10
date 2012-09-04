@@ -37,7 +37,8 @@ public class DeserializationDispatcher {
     public static final short LONG_ID = 8;
     public static final short CHARACTER_ID = 9;
     public static final short MAX_ID_FOR_PRIMITIVE = 9;
-    public static final String NULL_VALUE = "__NULL__";
+    // not used
+//    public static final String NULL_VALUE = "__NULL__";
 
     public static final short refValue = Short.MAX_VALUE;
     public static final short javaClassID = refValue - 1;

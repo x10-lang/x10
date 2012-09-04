@@ -90,12 +90,12 @@ public class X10JavaDeserializer {
             }
             return null;
         }
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Dispatching deserialization using id " + serializationID);
-        }
         if (serializationID == DeserializationDispatcher.refValue) {
             return getObjectAtPosition(readInt());
         }
+//        if (Runtime.TRACE_SER) {
+//            Runtime.printTraceMessage("Dispatching deserialization using id " + serializationID);
+//        }
         if (serializationID == DeserializationDispatcher.javaClassID) {
             return deserializeRefUsingReflection(serializationID);
         }
