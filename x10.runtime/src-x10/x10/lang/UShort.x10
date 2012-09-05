@@ -356,7 +356,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @param x the given Double
      * @return the given Double converted to a UShort.
      */
-    @Native("java", "x10.runtime.impl.java.FloatUtils.toUShort(#x)")
+    @Native("java", "x10.runtime.impl.java.DoubleUtils.toUShort(#x)")
     @Native("c++",  "x10aux::double_utils::toUShort(#1)")
     public native static operator (x:Double) as UShort; /*  {
         val temp : Int = x as Int;

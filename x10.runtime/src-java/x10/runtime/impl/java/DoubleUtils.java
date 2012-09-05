@@ -12,7 +12,7 @@
 package x10.runtime.impl.java;
 
 
-public abstract class FloatUtils {
+public abstract class DoubleUtils {
 
     /*
      * Java does not have {f,d}2{b,s} bytecodes and implements conversions from {float,double} to {byte,short}
@@ -20,28 +20,28 @@ public abstract class FloatUtils {
      * Since int to {byte,short} conversions in Java do not handle overflows, we need the following functions
      * to implement semantics of X10 conversions correctly.
      */
-    public static byte toByte(float a) {
+    public static byte toByte(double a) {
         int ia = (int)a;
         if (ia > java.lang.Byte.MAX_VALUE) return java.lang.Byte.MAX_VALUE;
         else if (ia < java.lang.Byte.MIN_VALUE) return java.lang.Byte.MIN_VALUE;
         else return (byte)ia;
     }
 
-    public static short toShort(float a) {
+    public static short toShort(double a) {
         int ia = (int)a;
         if (ia > java.lang.Short.MAX_VALUE) return java.lang.Short.MAX_VALUE;
         else if (ia < java.lang.Short.MIN_VALUE) return java.lang.Short.MIN_VALUE;
         else return (short)ia;
     }
 
-    public static byte toUByte(float a) {
+    public static byte toUByte(double a) {
         int ia = (int)a;
         if (ia > 0xff) return (byte)0xff;
         else if (ia < 0) return 0;
         else return (byte)ia;
     }
 
-    public static short toUShort(float a) {
+    public static short toUShort(double a) {
         int ia = (int)a;
         if (ia > 0xffff) return (short)0xffff;
         else if (ia < 0) return 0;

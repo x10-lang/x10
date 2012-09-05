@@ -263,7 +263,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @param x the given Double
      * @return the given Double converted to a Byte.
      */
-    @Native("java", "x10.runtime.impl.java.FloatUtils.toByte(#x)")
+    @Native("java", "x10.runtime.impl.java.DoubleUtils.toByte(#x)")
     @Native("c++",  "x10aux::double_utils::toByte(#1)")
     public native static operator (x:Double) as Byte;
 
