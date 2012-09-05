@@ -456,7 +456,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private ClassType X10JavaSerializable_;
     private ClassType X10JavaSerializable() {
         if (X10JavaSerializable_ == null)
-            X10JavaSerializable_ = tr.typeSystem().load("x10.x10rt.X10JavaSerializable");
+            X10JavaSerializable_ = tr.typeSystem().load(Emitter.X10_JAVA_SERIALIZABLE_CLASS);
         return X10JavaSerializable_;
     }
 
@@ -612,11 +612,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (alreadyPrintedTypes.size() != 0) {
                     w.write(", ");
                 }
-                w.write("x10.x10rt.X10JavaSerializable");
+                w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS);
             }
 
         } else if (!def.flags().isInterface() && !(def.asType().toString().equals(CUSTOM_SERIALIZATION))) {
-            w.write(" implements x10.x10rt.X10JavaSerializable");
+            w.write(" implements " + Emitter.X10_JAVA_SERIALIZABLE_CLASS);
         } else {
         	// make all interfaces extend x10.core.Any
         	// N.B. We cannot represent it with Type node since x10.core.Any is @NativeRep'ed to java.lang.Object instead of to x10.core.Any
@@ -631,18 +631,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.begin(0);
 
         // Determine which closure kind this class belongs to and register it accordingly
-        String closureKind = "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ";
+        String closureKind = Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_NOT_ASYNC, ";
         try {
             if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(ASYNC_CLOSURE)).isEmpty()) {
-                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
+                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
             } else if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(ASYNC_CLOSURE)).isEmpty()) {
-                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
+                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
             }
 
             if (!((X10Ext) (n.body()).ext()).annotationMatching(xts.systemResolver().findOne(REMOTE_INVOCATION)).isEmpty()) {
-                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
+                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
             } else if (!((X10Ext) (n).ext()).annotationMatching(xts.systemResolver().findOne(REMOTE_INVOCATION)).isEmpty()) {
-                closureKind =  "x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
+                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
             }
         } catch (SemanticException e) {
         }
@@ -656,7 +656,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             // _serialization_id
             w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(" + closureKind);
+            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(" + closureKind);
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
             w.newline();
@@ -664,7 +664,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
             // _serialization_id
             w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write("x10.x10rt.DeserializationDispatcher.addDispatcher(" + closureKind);
+            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(" + closureKind);
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
             w.newline();
@@ -700,8 +700,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else if (subtypeOfHadoopWritable(def)) {
-            w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
-            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+            w.write("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException { ");
             w.newline(4);
             w.begin(0);
             
@@ -721,7 +721,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
 
             // _deserializer method
-            w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+            w.writeln("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
             w.newline(4);
             w.begin(0);
             w.write(Emitter.mangleToJava(def.name()) + " $_obj = (" + Emitter.mangleToJava(def.name()) + ") ");
@@ -743,7 +743,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
             
             // _serialize()
-            w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
+            w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
             w.newline(4);
             w.begin(0);
             w.writeln("this.write($serializer.getOutForHadoop());");
@@ -776,8 +776,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (typeParameters.size() > 0) {
                     er.printTypeParams(n, context, typeParameters);
                 }
-                w.write("x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
-                w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+                w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+                w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 
@@ -795,7 +795,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
                     w.write("$_obj.");
-                    er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    er.printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                     w.writeln(" = (" + X10_RUNTIME_TYPE_CLASS + ") $deserializer.readRef();");
                 }
 
@@ -859,7 +859,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _deserializer  method
-                w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+                w.writeln("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZER_METHOD + "(" + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 
@@ -926,7 +926,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.newline();
 
                 // _serialize()
-                w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
+                w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 
@@ -936,8 +936,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 // Serialize any type parameters
                 for (Iterator<? extends Type> i = parameterTypes.iterator(); i.hasNext(); ) {
                     final Type at = i.next();
-                    w.write("$serializer.write( (x10.x10rt.X10JavaSerializable) this.");
-                    er.printType(at, X10PrettyPrinterVisitor.PRINT_TYPE_PARAMS | X10PrettyPrinterVisitor.BOX_PRIMITIVES);
+                    w.write("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") this.");
+                    er.printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
                     w.writeln(");");
                 }
 
@@ -955,8 +955,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             // If this is an array and not a java primitive we need to cast it into an array
                             w.writeln("$serializer.write(this." + fieldName + ");");
                         } else {
-                            w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable []) {");
-                            w.writeln("$serializer.write( (x10.x10rt.X10JavaSerializable[]) this." + fieldName + ");");
+                            w.writeln("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " []) {");
+                            w.writeln("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + "[]) this." + fieldName + ");");
                             w.writeln("} else {");
                             w.writeln("$serializer.write(this." + fieldName + ");");
                             w.writeln("}");
@@ -971,8 +971,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                         } else {
                             boolean canCastToX10JavaSerializable = canCastToX10JavaSerializable(n, f.type(), context);
                             if (canCastToX10JavaSerializable) {
-                            w.writeln("if (" + fieldName + " instanceof x10.x10rt.X10JavaSerializable) {");
-                            w.writeln("$serializer.write( (x10.x10rt.X10JavaSerializable) this." + fieldName + ");");
+                            w.writeln("if (" + fieldName + " instanceof " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") {");
+                            w.writeln("$serializer.write((" + Emitter.X10_JAVA_SERIALIZABLE_CLASS + ") this." + fieldName + ");");
                             w.writeln("} else {");
                             }
                             w.writeln("$serializer.write(this." + fieldName + ");");
@@ -3100,7 +3100,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
                 w.write("_" + ft.typeParameters().size());
                 w.write("_" + args.size());
-                w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
+                w.write("." + RTT_NAME);
             } else if (pat == null && !ct.isJavaType() && Emitter.getJavaRep(cd) == null && ct.isGloballyAccessible()
                     && cd.typeParameters().size() != 0) {
             	String rttString = RuntimeTypeExpander.getRTT(Emitter.mangleQName(cd.fullName()).toString(), RuntimeTypeExpander.hasConflictingField(ct, tr));
@@ -3757,9 +3757,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 }
                 // To extend Any, the type requires getRTT even if it has no type params (e.g. VoidFun_0_0).
                 // if (types.size() > 0) {
-                w.write("public x10.rtt.RuntimeType<?> " + X10PrettyPrinterVisitor.GETRTT_NAME + "() { return "
-                        + X10PrettyPrinterVisitor.RTT_NAME + "; }");
-                w.write("public x10.rtt.Type<?> " + X10PrettyPrinterVisitor.GETPARAM_NAME + "(int i) {");
+                w.write("public x10.rtt.RuntimeType<?> " + GETRTT_NAME + "() { return " + RTT_NAME + "; }");
+                w.write("public x10.rtt.Type<?> " + GETPARAM_NAME + "(int i) {");
                 for (int i = 0; i < types.size(); i++) {
                     w.write("if (i ==" + i + ")");
                     Type t = types.get(i);

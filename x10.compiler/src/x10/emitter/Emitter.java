@@ -391,6 +391,11 @@ public class Emitter {
 		map.put(OperatorNames.inverse(OperatorNames.STARSTAR), Name.make("$inv_starstar"));
 	}
 
+	public static final String X10_JAVA_SERIALIZABLE_CLASS = "x10.x10rt.X10JavaSerializable";
+	public static final String X10_JAVA_SERIALIZER_CLASS = "x10.x10rt.X10JavaSerializer";
+	public static final String X10_JAVA_DESERIALIZER_CLASS = "x10.x10rt.X10JavaDeserializer";
+	public static final String DESERIALIZATION_DISPATCHER_CLASS = "x10.x10rt.DeserializationDispatcher";
+
     public static final String SERIALIZE_ID_METHOD = "$_get_serialization_id";
     public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";
     public static final String SERIALIZE_METHOD = "$_serialize";
@@ -3937,14 +3942,14 @@ public class Emitter {
         }
 
         //_deserialize_body method
-        w.write("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZE_BODY_METHOD + "(");
-        w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+        w.write("public static " + X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZE_BODY_METHOD + "(");
+        w.writeln(mangleToJava(def.name()) + " $_obj , " + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
 
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\"X10JavaSerializable: " + Emitter.DESERIALIZE_BODY_METHOD + "() of \" + "  + Emitter.mangleToJava(def.name()) + ".class + \" calling\"); ");
+            w.write("java.lang.System.out.println(\"X10JavaSerializable: " + DESERIALIZE_BODY_METHOD + "() of \" + "  + mangleToJava(def.name()) + ".class + \" calling\"); ");
             w.writeln("} ");
         }
 
@@ -3989,10 +3994,10 @@ public class Emitter {
         w.newline();
 
         // _deserializer  method
-        w.writeln("public static x10.x10rt.X10JavaSerializable " + Emitter.DESERIALIZER_METHOD + "(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { ");
+        w.writeln("public static " + X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZER_METHOD + "(" + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
-        w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(");
+        w.write(mangleToJava(def.name()) + " $_obj = new " + mangleToJava(def.name()) + "(");
         if (X10PrettyPrinterVisitor.supportConstructorSplitting
             // XTENLANG-2830
             /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
@@ -4011,29 +4016,29 @@ public class Emitter {
             w.writeln("(x10.io.SerialData) null);");
         }
         w.writeln("$deserializer.record_reference($_obj);");
-        w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+        w.writeln("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
         w.end();
         w.newline();
         w.writeln("}");
         w.newline();
 
         // _serialize_id()
-        w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
+        w.writeln("public short " + SERIALIZE_ID_METHOD + "() {");
         w.newline(4);
         w.begin(0);
-        w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
+        w.writeln(" return " + SERIALIZATION_ID_FIELD + ";");
         w.end();
         w.newline();
         w.writeln("}");
         w.newline();
 
         // _serialize()
-        w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {");
+        w.writeln("public void " + SERIALIZE_METHOD + "(" + X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
         if (!opts.x10_config.NO_TRACES && !opts.x10_config.OPTIMIZE) {
             w.write("if (" + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_RUNTIME + ".TRACE_SER) { ");
-            w.write("java.lang.System.out.println(\" CustomSerialization : " + Emitter.SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
+            w.write("java.lang.System.out.println(\" CustomSerialization : " + SERIALIZE_METHOD + " of \" + this + \" calling\"); ");
             w.writeln("} ");
         }
 
@@ -4093,7 +4098,7 @@ public class Emitter {
                 printType(superClassNode.type(), BOX_PRIMITIVES);
                 w.writeln(".class);");
             } else {
-                w.write("super." + Emitter.SERIALIZE_METHOD + "($serializer);");
+                w.write("super." + SERIALIZE_METHOD + "($serializer);");
                 w.newline();
             }
         }
@@ -4109,7 +4114,7 @@ public class Emitter {
                 w.writeln(".class, $_obj, 0);");
             } else {
                 printType(superClassNode.type(), BOX_PRIMITIVES);
-                w.writeln("." + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
+                w.writeln("." + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
             }
         }
     }
