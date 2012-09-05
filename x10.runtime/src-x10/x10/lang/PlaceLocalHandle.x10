@@ -31,7 +31,7 @@ import x10.compiler.NativeClass;
  * multiple places or mapping distinct object at each place).</p>
  */
 @NativeClass("c++", "x10.lang", "PlaceLocalHandle_Impl")
-@NativeClass("java", "x10.runtime.impl.java", "PlaceLocalHandle")
+@NativeClass("java", "x10.core", "PlaceLocalHandle")
 public final struct PlaceLocalHandle[T]{T isref} {
 
     // Only to be used by make method and Runtime class
