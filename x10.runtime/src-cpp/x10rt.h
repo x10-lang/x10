@@ -18,7 +18,6 @@
 #include <x10aux/RTT.h>
 #include <x10aux/assert.h>
 #include <x10aux/static_init.h>
-#include <x10aux/hash.h>
 #include <x10aux/basic_functions.h>
 
 #include <x10aux/itables.h>

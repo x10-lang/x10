@@ -13,7 +13,6 @@
 #define X10AUX_BASIC_FUNCTIONS_H
 
 #include <x10aux/config.h>
-#include <x10aux/hash.h>
 #include <x10aux/string_utils.h>
 
 #ifndef X10AUX_THROW_H_NODEPS

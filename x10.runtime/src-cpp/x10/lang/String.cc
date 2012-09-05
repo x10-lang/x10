@@ -16,7 +16,6 @@
 #include <x10aux/serialization.h>
 #include <x10aux/basic_functions.h>
 #include <x10aux/throw.h>
-#include <x10aux/hash.h>
 
 #include <x10/lang/Char.h>
 #include <x10/lang/String.h>
