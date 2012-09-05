@@ -27,7 +27,7 @@ x10::io::Reader* x10aux::processes::execForRead(const char *command) {
     FILE* inFd = popen(command, "r");
 #ifndef NO_EXCEPTIONS
     if (inFd == NULL) {
-        x10::lang::String* s = x10::lang::String::__plus(x10aux::string_utils::lit("execForRead: "), x10aux::string_utils::lit(command));
+        x10::lang::String* s = x10::lang::String::__plus(x10::lang::String::Lit("execForRead: "), x10::lang::String::Lit(command));
         throwException(x10::io::IOException::_make(s));
     }
 #endif
@@ -40,7 +40,7 @@ x10::io::Writer* x10aux::processes::execForWrite(const char *command) {
     FILE* outFd = popen(command, "w");
 #ifndef NO_EXCEPTIONS
     if (outFd == NULL) {
-        x10::lang::String* s = x10::lang::String::__plus(x10aux::string_utils::lit("execForWrite: "), x10aux::string_utils::lit(command));
+        x10::lang::String* s = x10::lang::String::__plus(x10::lang::String::Lit("execForWrite: "), x10::lang::String::Lit(command));
         throwException(x10::io::IOException::_make(s));
     }
 #endif

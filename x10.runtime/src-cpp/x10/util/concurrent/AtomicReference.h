@@ -14,7 +14,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
-#include <x10aux/string_utils.h>
 #include <x10aux/atomic_ops.h>
 #include <x10aux/basic_functions.h>
 

@@ -15,7 +15,6 @@
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
 #include <x10aux/place_local.h>
-#include <x10aux/string_utils.h>
 #include <x10aux/system_utils.h>
 #include <x10aux/deserialization_dispatcher.h>
 
@@ -60,7 +59,7 @@ namespace x10aux {
         const x10aux::RuntimeType *_type() const {return x10aux::getRTT<x10::lang::VoidFun_0_0>();}
 
         x10::lang::String* toString() {
-            return x10aux::string_utils::lit("x10aux::BootStrapClosure ("__FILELINE__")");
+            return x10::lang::String::Lit("x10aux::BootStrapClosure ("__FILELINE__")");
         }
 
         virtual x10aux::serialization_id_t _get_serialization_id() {

@@ -80,6 +80,31 @@ char *x10aux::realloc_printf(char *buf, const char *fmt, ...) {
     return r;
 }
 
+char * x10aux::alloc_utils::strdup(const char* old) {
+#ifdef X10_USE_BDWGC
+    int len = strlen(old);
+    char *ans = x10aux::alloc<char>(len+1);
+    memcpy(ans, old, len);
+    ans[len] = 0;
+    return ans;
+#else
+    return ::strdup(old);
+#endif
+}
+
+char * x10aux::alloc_utils::strndup(const char* old, int len) {
+#if defined(X10_USE_BDWGC) || defined(__SVR4) || defined(__APPLE__)
+    int len2 = strlen(old);
+    if (len2 < len) len = len2;
+    char *ans = x10aux::alloc<char>(len+1);
+    memcpy(ans, old, len);
+    ans[len] = 0;
+    return ans;
+#else
+    return ::strndup(old, len);
+#endif
+}
+
 #ifdef X10_USE_BDWGC
 bool x10aux::gc_init_done;
 #endif        

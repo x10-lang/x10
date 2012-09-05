@@ -13,11 +13,11 @@
 
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
-#include <x10aux/string_utils.h>
 #include <x10aux/math.h>
 
 #include <x10/lang/Double.h>
 #include <x10/lang/Float.h>
+#include <x10/lang/String.h>
 
 using namespace x10aux;
 using namespace x10::lang;
@@ -37,7 +37,7 @@ String* x10aux::to_string(T v) { \
     int amt = ::snprintf(buf, sizeof(buf), FMT, (C)v); \
     (void)amt; \
     assert((size_t)amt<sizeof(buf) && "buf too small "__TOKEN_STRING(SZ)" for "__TOKEN_STRING(T)); \
-    return x10aux::string_utils::lit(buf); \
+    return x10::lang::String::Lit(buf);              \
 }
 
 // hh is C99, not ansi c, so we use h instead.
@@ -100,21 +100,24 @@ String* x10aux::to_string(x10_double v_) {
         char *rest = buf + strlen(buf);
         ::snprintf(rest, sizeof(buf) + buf - rest, "E%d", e);
     }   
-    return x10aux::string_utils::lit(buf);
+    return x10::lang::String::Lit(buf);
 }   
     
 
 String* x10aux::to_string(x10_boolean v) {
-    static String* t = x10aux::string_utils::lit("true");
-    static String* f = x10aux::string_utils::lit("false");
+    static String* t = x10::lang::String::Lit("true");
+    static String* f = x10::lang::String::Lit("false");
     return ((bool)v) ? t : f;
 }   
     
 String* x10aux::to_string(x10_char v) {
     char v_[] = {(char)v.v,'\0'};
-    return x10aux::string_utils::lit(v_);
+    return x10::lang::String::Lit(v_);
 }
 
+String* x10aux::makeStringLit(const char* s) {
+    return x10::lang::String::Lit(s);
+}    
 
 GPUSAFE x10_boolean x10aux::compare_references_slow(x10::lang::Reference* x,
                                                     x10::lang::Reference* y) {

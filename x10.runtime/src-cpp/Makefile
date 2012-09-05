@@ -152,7 +152,6 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/RTT.o \
 	x10aux/deserialization_dispatcher.o \
 	x10aux/serialization.o \
-	x10aux/string_utils.o \
 	x10aux/system_utils.o \
 	x10aux/throw.o \
 	x10aux/debug.o \

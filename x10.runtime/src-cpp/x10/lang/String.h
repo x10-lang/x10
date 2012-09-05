@@ -15,7 +15,6 @@
 #include <cstring>
 
 #include <x10aux/config.h>
-#include <x10aux/string_utils.h>
 
 #include <x10/lang/X10Class.h>
 #include <x10/lang/Fun_0_1.h>

@@ -48,7 +48,7 @@ static inline void checkStringBounds(x10_int index, x10_int length) {
 void
 String::_constructor(const char *content, bool steal) {
     size_t len = strlen(content);
-    if (!steal) content = string_utils::strdup(content);
+    if (!steal) content = alloc_utils::strdup(content);
     this->FMGL(content) = content;
     this->FMGL(content_length) = len;
 }
@@ -164,7 +164,7 @@ String* String::trim() {
     while (isws(start[0]) && l>0) { start++; l--; didSomething = true; }
     while (isws(start[l-1]) && l>0) { l--; didSomething = true; }
     if (!didSomething) { return this; }
-    char *trimmed = string_utils::strndup(start, l);
+    char *trimmed = alloc_utils::strndup(start, l);
     return _make(trimmed, true);
 }
 
@@ -300,7 +300,7 @@ String* String::format(String* format, x10::array::Array<Any*>* parms) {
     nullCheck(format);
     nullCheck(parms);
     //size_t len = format->FMGL(content_length);
-    char* orig = string_utils::strdup(format->c_str());
+    char* orig = alloc_utils::strdup(format->c_str());
     char* fmt = orig;
     char* next = NULL;
     for (x10_int i = 0; fmt != NULL; ++i, fmt = next) {

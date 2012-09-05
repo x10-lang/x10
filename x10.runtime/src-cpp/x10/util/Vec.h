@@ -62,7 +62,7 @@ namespace x10 {
                 }
                 x10::lang::String* toString (void)
                 {
-                    return x10::lang::String::__plus(x10aux::string_utils::lit("struct x10.util.Vec: size="),
+                    return x10::lang::String::__plus(x10::lang::String::Lit("struct x10.util.Vec: size="),
                                                      x10aux::to_string(SZ));
                 }
                 x10_int hashCode (void) { return (x10_int)SZ; }
@@ -135,7 +135,7 @@ namespace x10 {
                 }
                 x10::lang::String* toString (void)
                 {
-                    return x10::lang::String::__plus(x10aux::string_utils::lit("struct x10.util.Vec: size="),
+                    return x10::lang::String::__plus(x10::lang::String::Lit("struct x10.util.Vec: size="),
                                                      x10aux::to_string(sz));
                 }
                 x10_int hashCode (void) { return (x10_int)sz; }

@@ -13,7 +13,6 @@
 #define X10AUX_BASIC_FUNCTIONS_H
 
 #include <x10aux/config.h>
-#include <x10aux/string_utils.h>
 
 #ifndef X10AUX_THROW_H_NODEPS
 #define X10AUX_THROW_H_NODEPS
@@ -25,13 +24,18 @@
 #include <x10/lang/IBox.h>
 #undef X10_LANG_IBOX_NODEPS
 
+namespace x10 { namespace lang { class String; } }
+
 namespace x10aux {
 
+    // Break header file circularity with String.h
+    extern x10::lang::String* makeStringLit(const char*);
+    
     /******* type_name ********/
 
     template<class T> inline x10::lang::String* type_name(T* x) {
         x10::lang::Reference* xAsRef = reinterpret_cast<x10::lang::Reference*>(x);
-        return string_utils::lit(nullCheck(xAsRef)->_type()->name());
+        return makeStringLit(nullCheck(xAsRef)->_type()->name());
     }
 
     template<class T> inline x10::lang::String* type_name(captured_ref_lval<T> x) {
@@ -43,7 +47,7 @@ namespace x10aux {
     }
 
     template<typename T> inline x10::lang::String* type_name(T x) {
-        return string_utils::lit(getRTT<T>()->name());
+        return makeStringLit(getRTT<T>()->name());
     }
 
 
@@ -360,7 +364,7 @@ namespace x10aux {
      * Wrapers around to_string to translate null to "null"
      */
     template<class T> x10::lang::String* safe_to_string(T* v) {
-        if (NULL == v) return string_utils::lit("null");
+        if (NULL == v) return makeStringLit("null");
         return to_string(v);
     }
     template<class T> x10::lang::String* safe_to_string(captured_ref_lval<T> v) {

@@ -14,7 +14,6 @@
 #include <x10aux/network.h>
 #include <x10aux/RTT.h>
 #include <x10aux/basic_functions.h>
-#include <x10aux/string_utils.h>
 
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
@@ -508,7 +507,7 @@ x10::util::HashMap<x10::lang::String*,x10::lang::String*>* x10aux::loadenv() {
     x10::util::HashMap<x10::lang::String*,x10::lang::String*>* map =
         x10::util::HashMap<x10::lang::String*, x10::lang::String*>::_make();
     for (unsigned i=0 ; environ[i]!=NULL ; ++i) {
-        char *var = x10aux::string_utils::strdup(environ[i]);
+        char *var = x10aux::alloc_utils::strdup(environ[i]);
         *strchr(var,'=') = '\0';
         char* val = getenv(var);
         assert(val!=NULL);
