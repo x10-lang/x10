@@ -299,11 +299,11 @@ public final class Math {
    @Native("c++", "x10aux::math_utils::cbrt(#a)")
    public static native def cbrt(a:Double):Double;
 
-   @Native("java", "x10.runtime.impl.java.MathUtils.erf(#a)")
+   @Native("java", "org.apache.commons.math3.special.Erf.erf(#a)")
    @Native("c++", "x10aux::math_utils::erf(#a)")
    public static native def erf(a:Double):Double;
 
-   @Native("java", "x10.runtime.impl.java.MathUtils.erfc(#a)")
+   @Native("java", "org.apache.commons.math3.special.Erf.erfc(#a)")
    @Native("c++", "x10aux::math_utils::erfc(#a)")
    public static native def erfc(a:Double):Double;
 
