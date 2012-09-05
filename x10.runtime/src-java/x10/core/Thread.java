@@ -6,10 +6,10 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2010.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.runtime.impl.java;
+package x10.core;
 
 import x10.io.SerialData;
 import x10.lang.Place;
@@ -28,7 +28,7 @@ import java.io.IOException;
  * @author Raj Barik, Vivek Sarkar
  * @author tardieu
  */
-public class Thread implements x10.core.Any {
+public class Thread implements Any {
     private static final long serialVersionUID = 1L;
     public static final RuntimeType<Thread> $RTT = NamedType.<Thread> make("x10.lang.Thread", Thread.class);
     public RuntimeType<?> $getRTT() { return $RTT; }
@@ -56,7 +56,7 @@ public class Thread implements x10.core.Any {
         throw new UnsupportedOperationException("Cannot deserialize Thread");
     }
 
-    public final Thread x10$lang$Thread$$init$S(String name) {
+    public final Thread x10$lang$Thread$$init$S(java.lang.String name) {
         jthread = new java.lang.Thread(name) {
             public void run() {
                 context.set(Thread.this);
@@ -72,13 +72,13 @@ public class Thread implements x10.core.Any {
     }
     // XTENLANG-3063
     // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Thread $init(String name) {
+    public Thread $init(java.lang.String name) {
         return x10$lang$Thread$$init$S(name);
     }
 
-    public Thread(String name) {
+    public Thread(java.lang.String name) {
         // XTENLANG-3063
-//        $init(name);
+        //        $init(name);
         x10$lang$Thread$$init$S(name);
     }
 
@@ -95,7 +95,7 @@ public class Thread implements x10.core.Any {
 
     public Thread() {
         // XTENLANG-3063
-//        $init();
+        //        $init();
         x10$lang$Thread$$init$S();
     }
 
@@ -104,7 +104,7 @@ public class Thread implements x10.core.Any {
     public void start() {
         jthread.start();
     }
-    
+
     public void join() throws InterruptedException {
         jthread.join();
     }
@@ -116,11 +116,11 @@ public class Thread implements x10.core.Any {
         return home;
     }
 
-    public String name() {
+    public java.lang.String name() {
         return jthread.getName();
     }
 
-    public void name(String name) {
+    public void name(java.lang.String name) {
         jthread.setName(name);
     }
 
@@ -132,7 +132,7 @@ public class Thread implements x10.core.Any {
         java.util.concurrent.locks.LockSupport.unpark(jthread);
     }
 
-    public static void parkNanos(Long nanos) {
+    public static void parkNanos(java.lang.Long nanos) {
         java.util.concurrent.locks.LockSupport.parkNanos(nanos);
     }
 
@@ -158,12 +158,12 @@ public class Thread implements x10.core.Any {
         }
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+    public short $_get_serialization_id() {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
-        public short $_get_serialization_id() {
-            throw new UnsupportedOperationException("Cannot serialize " + getClass());
-        }
+    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+        throw new UnsupportedOperationException("Cannot serialize " + getClass());
+    }
 
 }

@@ -11,9 +11,9 @@
 
 package x10.core;
 
-import x10.rtt.Type;
+import x10.core.Thread;
 
-import x10.runtime.impl.java.Thread;
+import x10.rtt.Type;
 
 import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;

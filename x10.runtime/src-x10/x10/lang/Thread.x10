@@ -20,7 +20,7 @@ import x10.io.SerialData;
  * 
  * @author tardieu
  */
-@NativeRep("java", "x10.runtime.impl.java.Thread", null, "x10.runtime.impl.java.Thread.$RTT")
+@NativeRep("java", "x10.core.Thread", null, "x10.core.Thread.$RTT")
 @NativeRep("c++", "x10::lang::Thread*", "x10::lang::Thread", null)
 class Thread implements CustomSerialization {
 
