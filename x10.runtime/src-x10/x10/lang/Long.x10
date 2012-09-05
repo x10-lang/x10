@@ -255,7 +255,7 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
      * @return the given Float converted to a Long.
      */
     @Native("java", "((long)(float)(#x))")
-    @Native("c++",  "x10aux::float_utils::toLong(#1)")
+    @Native("c++",  "x10::lang::FloatNatives::toLong(#1)")
     public native static operator (x:Float) as Long;
 
     /**
@@ -264,7 +264,7 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
      * @return the given Double converted to a Long.
      */
     @Native("java", "((long)(double)(#x))")
-    @Native("c++",  "x10aux::double_utils::toLong(#1)")
+    @Native("c++",  "x10::lang::DoubleNatives::toLong(#1)")
     public native static operator (x:Double) as Long;
 
     /**

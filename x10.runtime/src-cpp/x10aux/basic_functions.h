@@ -14,8 +14,6 @@
 
 #include <x10aux/config.h>
 #include <x10aux/hash.h>
-#include <x10aux/double_utils.h>
-#include <x10aux/float_utils.h>
 #include <x10aux/string_utils.h>
 
 #ifndef X10AUX_THROW_H_NODEPS
@@ -322,12 +320,8 @@ namespace x10aux {
     inline x10_int hash_code(const x10_long x) {
         return hash_code((x10_ulong)x);
     }
-    inline x10_int hash_code(const x10_double x) {
-        return hash_code(double_utils::toLongBits(x));
-    }
-    inline x10_int hash_code(const x10_float x) {
-        return hash_code(float_utils::toIntBits(x));
-    }
+    x10_int hash_code(const x10_double x);
+    x10_int hash_code(const x10_float x);
 
     
     /******* to_string ********/

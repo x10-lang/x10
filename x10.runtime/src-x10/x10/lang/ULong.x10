@@ -348,7 +348,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the given Float converted to a ULong.
      */
     @Native("java", "((long)(float)(#x))")
-    @Native("c++",  "x10aux::float_utils::toULong(#1)")
+    @Native("c++",  "x10::lang::FloatNatives::toULong(#1)")
     public static native operator (x:Float) as ULong; /* = ULong(x as Long); */
 
     /**
@@ -357,7 +357,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the given Double converted to a ULong.
      */
     @Native("java", "((long)(double)(#x))")
-    @Native("c++",  "x10aux::double_utils::toULong(#1)")
+    @Native("c++",  "x10::lang::DoubleNatives::toULong(#1)")
     public static native operator (x:Double) as ULong; /* = ULong(x as Long); */
 
     /**

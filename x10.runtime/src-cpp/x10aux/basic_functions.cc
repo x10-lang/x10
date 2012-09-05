@@ -9,14 +9,27 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
+#include <stdio.h>
+
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/math.h>
-#include <stdio.h>
+
+#include <x10/lang/Double.h>
+#include <x10/lang/Float.h>
 
 using namespace x10aux;
 using namespace x10::lang;
+
+x10_int x10aux::hash_code(const x10_double x) {
+    return hash_code(x10::lang::DoubleNatives::toLongBits(x));
+}
+
+x10_int x10aux::hash_code(const x10_float x) {
+    return hash_code(x10::lang::FloatNatives::toIntBits(x));
+}
+
 
 #define TO_STRING(SZ,T,C,FMT) \
 String* x10aux::to_string(T v) { \

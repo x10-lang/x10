@@ -348,7 +348,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @return the given Float converted to a UInt.
      */
     @Native("java", "((int)(float)(#x))")
-    @Native("c++",  "x10aux::float_utils::toUInt(#1)")
+    @Native("c++",  "x10::lang::FloatNatives::toUInt(#1)")
     public static native operator (x:Float) as UInt; /*  = UInt(x as Int); */
 
     /**
@@ -357,7 +357,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @return the given Double converted to a UInt.
      */
     @Native("java", "((int)(double)(#x))")
-    @Native("c++",  "x10aux::double_utils::toUInt(#1)")
+    @Native("c++",  "x10::lang::DoubleNatives::toUInt(#1)")
     public static native operator (x:Double) as UInt; /*  {
         val temp : Long = x as Long;
         if (temp > 0xffffffff) return UInt(0xffffffff as Int);

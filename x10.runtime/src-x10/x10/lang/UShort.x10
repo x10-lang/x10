@@ -343,7 +343,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return the given Float converted to a UShort.
      */
     @Native("java", "x10.runtime.impl.java.FloatUtils.toUShort(#x)")
-    @Native("c++",  "x10aux::float_utils::toUShort(#1)")
+    @Native("c++",  "x10::lang::FloatNatives::toUShort(#1)")
     public native static operator (x:Float) as UShort; /*  {
         val temp : Int = x as Int;
         if (temp > 0xffff) return UShort(0xffff as Byte);
@@ -357,7 +357,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return the given Double converted to a UShort.
      */
     @Native("java", "x10.runtime.impl.java.DoubleUtils.toUShort(#x)")
-    @Native("c++",  "x10aux::double_utils::toUShort(#1)")
+    @Native("c++",  "x10::lang::DoubleNatives::toUShort(#1)")
     public native static operator (x:Double) as UShort; /*  {
         val temp : Int = x as Int;
         if (temp > 0xffff) return UShort(0xffff as Byte);

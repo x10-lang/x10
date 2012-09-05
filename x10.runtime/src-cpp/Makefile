@@ -140,13 +140,11 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/char_utils.o \
 	x10aux/class_cast.o \
 	x10aux/config.o \
-	x10aux/double_utils.o \
 	x10aux/static_init.o \
 	x10aux/itables.o \
 	x10aux/io/FILEPtrInputStream.o \
 	x10aux/io/FILEPtrOutputStream.o \
 	x10aux/io/FILEPtrStream.o \
-	x10aux/float_utils.o \
 	x10aux/lock.o \
 	x10aux/network.o \
 	x10aux/place_local.o \
@@ -172,10 +170,12 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/CheckedThrowable.o \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \
+	x10/lang/Double.o \
 	x10/lang/Fun.o \
 	x10/lang/GlobalRef.o \
 	x10/lang/IBox.o \
 	x10/lang/Int.o \
+	x10/lang/Float.o \
 	x10/lang/Long.o \
 	x10/lang/Reference.o \
 	x10/lang/Short.o \

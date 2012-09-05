@@ -257,7 +257,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the given Float converted to an Int.
      */
     @Native("java", "((int)(float)(#x))")
-    @Native("c++",  "x10aux::float_utils::toInt(#1)")
+    @Native("c++",  "x10::lang::FloatNatives::toInt(#1)")
     @Native("cuda",  "((x10_int)#1)")
     public native static operator (x:Float) as Int;
 
@@ -267,7 +267,7 @@ public struct Int implements Comparable[Int], Arithmetic[Int], Bitwise[Int], Ord
      * @return the given Double converted to an Int.
      */
     @Native("java", "((int)(double)(#x))")
-    @Native("c++",  "x10aux::double_utils::toInt(#1)")
+    @Native("c++",  "x10::lang::DoubleNatives::toInt(#1)")
     public native static operator (x:Double) as Int;
 
     /**

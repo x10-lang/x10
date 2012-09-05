@@ -9,7 +9,9 @@
 
 #include <x10/lang/Boolean.h>
 #include <x10/lang/Byte.h>
+#include <x10/lang/Double.h>
 #include <x10/lang/Int.h>
+#include <x10/lang/Float.h>
 #include <x10/lang/Long.h>
 #include <x10/lang/Short.h>
 #include <x10/lang/UByte.h>
@@ -107,10 +109,10 @@ COMPARABLE_PRIM_DECL(x10_ushort, UShortNatives)
 COMPARABLE_PRIM_DECL(x10_char, x10aux::char_utils)
 COMPARABLE_PRIM_DECL(x10_int, IntNatives)
 COMPARABLE_PRIM_DECL(x10_uint, UIntNatives)
-COMPARABLE_PRIM_DECL(x10_float, x10aux::float_utils)
+COMPARABLE_PRIM_DECL(x10_float, FloatNatives)
 COMPARABLE_PRIM_DECL(x10_long, LongNatives)
 COMPARABLE_PRIM_DECL(x10_ulong, ULongNatives)
-COMPARABLE_PRIM_DECL(x10_double, x10aux::double_utils)
+COMPARABLE_PRIM_DECL(x10_double, DoubleNatives)
 
     }
 } 

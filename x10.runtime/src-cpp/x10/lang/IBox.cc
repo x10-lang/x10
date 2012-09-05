@@ -11,7 +11,6 @@
 
 #include <x10rt.h>
 #include <x10/lang/IBox.h>
-#include <x10/lang/Boolean.h>
 #include <x10/lang/Comparable.h>
 #include <x10/lang/Arithmetic.h>
 #include <x10/lang/Bitwise.h>
@@ -271,10 +270,10 @@ namespace x10 {
         BOXED_PRIM_ITABLES_CABO(x10_ushort, UShort, UShortNatives)
         BOXED_PRIM_ITABLES_CABO(x10_int, Int, IntNatives)
         BOXED_PRIM_ITABLES_CABO(x10_uint, UInt, UIntNatives)
-        BOXED_PRIM_ITABLES_CAO(x10_float, Float, x10aux::float_utils)
+        BOXED_PRIM_ITABLES_CAO(x10_float, Float, FloatNatives)
         BOXED_PRIM_ITABLES_CABO(x10_long, Long, LongNatives)
         BOXED_PRIM_ITABLES_CABO(x10_ulong, ULong, ULongNatives)
-        BOXED_PRIM_ITABLES_CAO(x10_double, Double, x10aux::double_utils)
+        BOXED_PRIM_ITABLES_CAO(x10_double, Double, DoubleNatives)
 
     }
 }
