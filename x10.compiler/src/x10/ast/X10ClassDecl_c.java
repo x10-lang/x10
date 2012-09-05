@@ -501,10 +501,9 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     public static Name getThisMethod(QName containerName, QName n) {
         return Name.make(
-                containerName.toString().replace('.','$')+
-                        "$$"+
-                n.toString().replace('.','$')+
-                        "$this");
+            containerName.toString().replace('.','$')+ "$"+ "$this"
+                +"$"+ n.toString().replace('.','$')
+            );
     }
 
     private SemanticException errorInAST;
