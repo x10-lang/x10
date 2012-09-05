@@ -137,7 +137,6 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/atomic_ops.o \
 	x10aux/basic_functions.o \
 	x10aux/bootstrap.o \
-	x10aux/char_utils.o \
 	x10aux/class_cast.o \
 	x10aux/config.o \
 	x10aux/static_init.o \
@@ -167,6 +166,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Bitwise.o \
 	x10/lang/Boolean.o \
 	x10/lang/Byte.o \
+	x10/lang/Char.o \
 	x10/lang/CheckedThrowable.o \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \

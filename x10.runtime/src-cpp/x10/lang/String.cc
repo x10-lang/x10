@@ -17,8 +17,8 @@
 #include <x10aux/basic_functions.h>
 #include <x10aux/throw.h>
 #include <x10aux/hash.h>
-#include <x10aux/char_utils.h>
 
+#include <x10/lang/Char.h>
 #include <x10/lang/String.h>
 #include <x10/lang/StringIndexOutOfBoundsException.h>
 
@@ -349,9 +349,9 @@ String* String::toLowerCase() {
     bool all_lower = true;
     for (size_t i = 0; i < FMGL(content_length); ++i) {
         x10_char c = FMGL(content)[i];
-        if (!x10aux::char_utils::isLowerCase(c))
+        if (!CharNatives::isLowerCase(c))
             all_lower = false;
-        x10_char l = x10aux::char_utils::toLowerCase(c);
+        x10_char l = CharNatives::toLowerCase(c);
         str[i] = (char)l.v;
     }
     if (all_lower) {
@@ -368,9 +368,9 @@ String* String::toUpperCase() {
     bool all_upper = true;
     for (size_t i = 0; i < FMGL(content_length); ++i) {
         x10_char c = FMGL(content)[i];
-        if (!x10aux::char_utils::isUpperCase(c))
+        if (!CharNatives::isUpperCase(c))
             all_upper = false;
-        x10_char u = x10aux::char_utils::toUpperCase(c);
+        x10_char u = CharNatives::toUpperCase(c);
         str[i] = (char)u.v;
     }
     if (all_upper) {

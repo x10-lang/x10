@@ -41,7 +41,7 @@ namespace x10 {
             }
             /* Methods of Comparable */
             x10_int compareTo(x10_boolean arg0) {
-                return x10::lang::BooleanNatives::compareTo(value, arg0);
+                return BooleanNatives::compareTo(value, arg0);
             }
         };
 
@@ -73,7 +73,7 @@ namespace x10 {
             }
             /* Methods of Comparable */
             x10_int compareTo(x10_char arg0) {
-                return x10aux::char_utils::compareTo(value, arg0);
+                return CharNatives::compareTo(value, arg0);
             }
             /* Methods of Ordered */
             x10_boolean __lt(x10_char arg0) {
