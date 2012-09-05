@@ -226,8 +226,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private static final boolean useJavaAssertion = true;
     // XTENLANG-3086
     public static final boolean supportUpperBounds = false;
-    // Support numbered parameters for @Native (e.g. @Native("java","#0.toString()")).
-    public static final boolean supportNumberedParameterForNative = false;
+    // Support numbered parameters for @Native (e.g. @Native("java","#0.toString()")) for backward compatibility.
+    public static final boolean supportNumberedParameterForNative = true;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
