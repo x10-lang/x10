@@ -32,6 +32,24 @@ class RootException11b extends x10Test {
         val exceptions = new Array[Exception](1, new Exception());
     }
 
+    static class MyException9 extends Exception {
+        val exceptions = new Array[Exception]((1..2) * (3..4) * (5..6), new Exception());
+    }
+
+    public def test0() {
+        var ok:Boolean = false;
+        try {
+            finish
+                at (here.next())
+                    async
+                        throw new Exception();
+        } catch (ex: Exception) {
+            ok = true;
+            Console.OUT.println(ex);
+        }
+        return ok;
+    }
+    
     public def test1() {
         var ok:Boolean = false;
         try {
@@ -74,17 +92,48 @@ class RootException11b extends x10Test {
         return ok;
     }
         
-    public def run(){
-        val ok1 = test1();
-        if (!ok1) Console.OUT.println("Error in test1");
+    public def test9() {
+        var ok:Boolean = false;
+        try {
+            finish
+                at (here.next())
+                    async
+                        throw new MyException9();
+        } catch (ex: Exception) {
+            ok = true;
+            Console.OUT.println(ex);
+        }
+        return ok;
+    }
+    
+    public def run() {
+        val oks = new x10.util.ArrayList[Boolean]();
+        var ok:Boolean;
+        
+        ok = test0();
+        if (!ok) Console.OUT.println("Error in test0");
+        oks.add(ok);
 
-        val ok2 = test2();
-        if (!ok2) Console.OUT.println("Error in test2");
+        ok = test1();
+        if (!ok) Console.OUT.println("Error in test1");
+        oks.add(ok);
 
-        val ok3 = test3();
-        if (!ok3) Console.OUT.println("Error in test3");
+        ok = test2();
+        if (!ok) Console.OUT.println("Error in test2");
+        oks.add(ok);
 
-        return ok1 && ok2 && ok3;
+        ok = test3();
+        if (!ok) Console.OUT.println("Error in test3");
+        oks.add(ok);
+
+        ok = test9();
+        if (!ok) Console.OUT.println("Error in test9");
+        oks.add(ok);
+
+        for (thisOk in oks) {
+            if (!thisOk) return false;
+        }
+        return true;
     }
 
     public static def main(args: Array[String](1)):void {
