@@ -786,8 +786,7 @@ public class X10JavaSerializer {
         }
         
         <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException {
-            for (int i=0; i<fields.length; i++) {
-                Field field = fields[i];
+            for (Field field : fields) {
                 Class<?> type = field.getType();
                 if (type.isPrimitive()) {
                     xjs.writePrimitiveUsingReflection(field, obj);
