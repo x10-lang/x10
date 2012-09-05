@@ -272,7 +272,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             return CONSTRUCTOR_METHOD_NAME;
         }
     }
-    public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
+    public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$initForReflection";
     public static final String CREATION_METHOD_NAME = "$make";
     public static final String BOX_METHOD_NAME = "$box";
     public static final String UNBOX_METHOD_NAME = "$unbox";
@@ -831,7 +831,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             er.printType(f.type(), BOX_PRIMITIVES);
                             w.writeln(") $deserializer.readArrayUsingReflection(" + f.type().toClass().typeArguments().get(0).toString() + ".class);");
                             w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
-                        } else if(f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
+                        } else if (f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                             // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
                             w.write("java.lang.Object[] " + Emitter.mangleToJava(f.name()) + " = (java.lang.Object[]) $deserializer.readRef();");
                             w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
@@ -1752,7 +1752,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (isCustomSerializable) {
 
                 // We cant use the same method name in all classes cause it creates and endless loop cause whn super.init is called it calls back to this method
-                methodName = n.returnType().type().fullName().toString().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION;
+                methodName = n.returnType().type().fullName().toString().replace(".", "$") + "$" + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION;
                 w.writeln(methodName + "(" + n.formals().get(0).name() + ");");
             } else {
                 printConstructorBody(n, body);

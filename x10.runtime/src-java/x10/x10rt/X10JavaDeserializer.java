@@ -45,7 +45,7 @@ public class X10JavaDeserializer {
     private DataInputStream in;
     private int counter = 0;
     private static Unsafe unsafe = getUnsafe();
-    private static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$init_for_reflection";
+    private static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$initForReflection";
 
     public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
@@ -740,7 +740,7 @@ public class X10JavaDeserializer {
             fields = flds.toArray(new Field[flds.size()]);      
                 
             // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
-            makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
+            makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + "$" + CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);
             makeMethod.setAccessible(true);
         }
 
