@@ -396,7 +396,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return a String representation of this UShort in the specified radix.
      */
     @Native("java", "java.lang.Integer.toString((#this) & 0xffff, #radix)")
-    @Native("c++", "x10aux::short_utils::toString(#0, #1)")
+    @Native("c++", "x10::lang::UShortNatives::toString(#0, #1)")
     public native def toString(radix:Int): String; 
 
     /**
@@ -404,7 +404,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return a String representation of this UShort as a hexadecimal number.
      */
     @Native("java", "java.lang.Integer.toHexString((#this) & 0xffff)")
-    @Native("c++", "x10aux::short_utils::toString(#0, 16)")
+    @Native("c++", "x10::lang::UShortNatives::toString(#0, 16)")
     public native def toHexString(): String;
 
     /**
@@ -412,7 +412,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return a String representation of this UShort as an octal number.
      */
     @Native("java", "java.lang.Integer.toOctalString((#this) & 0xffff)")
-    @Native("c++", "x10aux::short_utils::toString(#0, 8)")
+    @Native("c++", "x10::lang::UShortNatives::toString(#0, 8)")
     public native def toOctalString(): String;
 
     /**
@@ -420,7 +420,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return a String representation of this UShort as a binary number.
      */
     @Native("java", "java.lang.Integer.toBinaryString((#this) & 0xffff)")
-    @Native("c++", "x10aux::short_utils::toString(#0, 2)")
+    @Native("c++", "x10::lang::UShortNatives::toString(#0, 2)")
     public native def toBinaryString(): String;
 
     /**
@@ -435,7 +435,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @deprecated use {@link #parse(String,Int)} instead
      */
     @Native("java", "((short)(java.lang.Integer.parseInt(#s, #radix) & 0xffff))")
-    @Native("c++", "x10aux::short_utils::parseUShort(#1, #2)")
+    @Native("c++", "x10::lang::UShortNatives::parseUShort(#1, #2)")
     public static native def parseUShort(s:String, radix:Int): UShort; /*  //throwsNumberFormatException 
     {
         return parse(s, radix);
@@ -445,7 +445,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @deprecated use {@link #parse(String)} instead
      */
     @Native("java", "((short)(java.lang.Integer.parseInt(#s) & 0xffff))")
-    @Native("c++", "x10aux::short_utils::parseUShort(#1)")
+    @Native("c++", "x10::lang::UShortNatives::parseUShort(#1)")
     public static native def parseUShort(s:String): UShort; /*  //throwsNumberFormatException 
     {
         return parse(s);
@@ -459,7 +459,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @throws NumberFormatException if the String does not contain a parsable UShort.
      */
     @Native("java", "((short)(java.lang.Integer.parseInt(#s, #radix) & 0xffff))")
-    @Native("c++", "x10aux::short_utils::parseUShort(#1, #2)")
+    @Native("c++", "x10::lang::UShortNatives::parseUShort(#1, #2)")
     public static native def parse(s:String, radix:Int): UShort; /*  //throwsNumberFormatException 
     {
     	val i = Int.parse(s, radix);
@@ -476,7 +476,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @throws NumberFormatException if the String does not contain a parsable UShort.
      */
     @Native("java", "((short)(java.lang.Integer.parseInt(#s) & 0xffff))")
-    @Native("c++", "x10aux::short_utils::parseUShort(#1)")
+    @Native("c++", "x10::lang::UShortNatives::parseUShort(#1)")
     public static native def parse(s:String): UShort; /*  //throwsNumberFormatException 
     {
         return parse(s, 10);
@@ -489,7 +489,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return the value obtained by reversing order of the bits in this UShort.
      */
     @Native("java", "((short)(java.lang.Integer.reverse(#this)>>>16))")
-    @Native("c++", "((x10_ushort)(x10aux::int_utils::reverse(#0)>>16))")
+    @Native("c++", "((x10_ushort)(x10::lang::IntNatives::reverse(#0)>>16))")
     public native def reverse(): UShort; /*  = UShort(this.shortVal.reverse()); */
 
     /**
@@ -507,7 +507,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
      * @return the value obtained by reversing (or, equivalently, swapping) the bytes in this UShort.
      */
     @Native("java", "java.lang.Short.reverseBytes(#this)")
-    @Native("c++", "((x10_ushort) x10aux::short_utils::reverseBytes((x10_short) #0))")
+    @Native("c++", "((x10_ushort) x10::lang::ShortNatives::reverseBytes((x10_short) #0))")
     public native def reverseBytes(): UShort; /*  = UShort(this.shortVal.reverseBytes()); */
 
 
@@ -538,7 +538,7 @@ public struct UShort implements Comparable[UShort], Arithmetic[UShort], Bitwise[
     * to, or greater than the given UShort.
     */
     @Native("java", "x10.rtt.Equality.compareTo((short)(#this + java.lang.Short.MIN_VALUE), (short)(#x + java.lang.Short.MIN_VALUE))")
-    @Native("c++", "x10aux::short_utils::compareTo(#0, #1)")
+    @Native("c++", "x10::lang::UShortNatives::compareTo(#0, #1)")
     public native def compareTo(x:UShort): Int; /*  = (this.shortVal + Short.MIN_VALUE).compareTo(x.shortVal + Short.MIN_VALUE); */
 
     @Native("java", "x10.rtt.Types.USHORT.typeName()")

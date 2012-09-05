@@ -9,7 +9,19 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/*
- * Empty header file for NativeRep class that doesn't require a
- * C++ implementation
- */
+#ifndef X10_LANG_DOUBLE_H
+#define X10_LANG_DOUBLE_H
+
+#include <x10aux/config.h>
+
+namespace x10 {
+    namespace lang {
+        class String;
+        
+        class DoubleNatives {
+        public:
+        };
+    }
+}
+
+#endif /* X10_LANG_DOUBLE_H */

@@ -9,7 +9,25 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-/*
- * Empty header file for NativeRep class that doesn't require a
- * C++ implementation
- */
+#ifndef X10_LANG_BOOLEAN_H
+#define X10_LANG_BOOLEAN_H
+
+#include <x10aux/config.h>
+
+namespace x10 {
+    namespace lang {
+
+        class String;
+        
+        class BooleanNatives {
+        public:
+            static x10::lang::String* toString(x10_boolean value);
+            static x10_boolean parseBoolean(String* s);
+            static inline x10_int compareTo(x10_boolean v1, x10_boolean v2) {
+                return v1 == v2 ? 0 : (v1 ? 1 : -1);
+            }
+        };
+    }
+}
+
+#endif /* X10_LANG_BOOLEAN_H */

@@ -94,7 +94,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @deprecated use {@link #parse(String)} instead
      */
     @Native("java", "java.lang.Boolean.parseBoolean(#s)")
-    @Native("c++", "x10aux::boolean_utils::parseBoolean(#1)")
+    @Native("c++", "x10::lang:BooleanNatives::parseBoolean(#1)")
     public native static def parseBoolean(s:String): Boolean;
 
     /**
@@ -105,7 +105,7 @@ public struct Boolean implements Comparable[Boolean] {
      * @return the Boolean represented by the String argument.
      */
     @Native("java", "java.lang.Boolean.parseBoolean(#s)")
-    @Native("c++", "x10aux::boolean_utils::parseBoolean(#1)")
+    @Native("c++", "x10::lang:BooleanNatives::parseBoolean(#1)")
     public native static def parse(s:String): Boolean;
 
 
@@ -137,7 +137,7 @@ public struct Boolean implements Comparable[Boolean] {
     * to, or greater than the given Boolean.
     */
     @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
-    @Native("c++", "x10aux::boolean_utils::compareTo(#0, #1)")
+    @Native("c++", "x10::lang:BooleanNatives::compareTo(#0, #1)")
     public native def compareTo(x:Boolean):Int;
 
     // These operations are built-in.  Declaring them will prevent the

@@ -297,7 +297,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @return a String representation of this Byte in the specified radix.
      */
     @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, #radix)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
+    @Native("c++", "x10::lang::ByteNatives::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
     /**
@@ -310,7 +310,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @return a String representation of this Byte in base 16.
      */
     @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, 16)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, 16)")
+    @Native("c++", "x10::lang::ByteNatives::toString(#0, 16)")
     public native def toHexString(): String;
 
     /**
@@ -323,7 +323,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @return a String representation of this Byte in base 8.
      */
     @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, 8)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, 8)")
+    @Native("c++", "x10::lang::ByteNatives::toString(#0, 8)")
     public native def toOctalString(): String;
 
     /**
@@ -336,7 +336,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @return a String representation of this Byte in base 2.
      */
     @Native("java", "x10.runtime.impl.java.SignedUtils.toString((byte)#this, 2)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, 2)")
+    @Native("c++", "x10::lang::ByteNatives::toString(#0, 2)")
     public native def toBinaryString(): String;
 
     /**
@@ -351,14 +351,14 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @deprecated use {@link #parse(String,Int)} instead
      */
     @Native("java", "java.lang.Byte.parseByte(#s, #radix)")
-    @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
+    @Native("c++", "x10::lang::ByteNatives::parseByte(#1, #2)")
     public native static def parseByte(s:String, radix:Int): Byte; //throwsNumberFormatException;
 
     /**
      * @deprecated use {@link #parse(String)} instead
      */
     @Native("java", "java.lang.Byte.parseByte(#s)")
-    @Native("c++", "x10aux::byte_utils::parseByte(#1)")
+    @Native("c++", "x10::lang::ByteNatives::parseByte(#1)")
     public native static def parseByte(s:String): Byte ; //throwsNumberFormatException;
 
     /**
@@ -369,7 +369,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @; //throwsNumberFormatException if the String does not contain a parsable Byte.
      */
     @Native("java", "java.lang.Byte.parseByte(#s, #radix)")
-    @Native("c++", "x10aux::byte_utils::parseByte(#1, #2)")
+    @Native("c++", "x10::lang::ByteNatives::parseByte(#1, #2)")
     public native static def parse(s:String, radix:Int): Byte ; //throwsNumberFormatException;
 
     /**
@@ -379,7 +379,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @throws NumberFormatException if the String does not contain a parsable Byte.
      */
     @Native("java", "java.lang.Byte.parseByte(#s)")
-    @Native("c++", "x10aux::byte_utils::parseByte(#1)")
+    @Native("c++", "x10::lang::ByteNatives::parseByte(#1)")
     public native static def parse(s:String): Byte ; //throwsNumberFormatException;
 
 
@@ -389,7 +389,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @return the value obtained by reversing order of the bits in this Byte.
      */
     @Native("java", "((byte)(java.lang.Integer.reverse(#this)>>>24))")
-    @Native("c++", "((x10_byte)(x10aux::int_utils::reverse(#0)>>24))")
+    @Native("c++", "((x10_byte)(x10::lang::IntNatives::reverse(#0)>>24))")
     public native def reverse(): Byte;
 
     /**
@@ -399,7 +399,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
      * @return the signum function of this Byte.
      */
     @Native("java", "java.lang.Integer.signum(#this)")
-    @Native("c++", "x10aux::int_utils::signum((x10_int)#0)")
+    @Native("c++", "x10::lang::IntNatives::signum((x10_int)#0)")
     public native def signum(): Int;
 
 
@@ -430,7 +430,7 @@ public struct Byte implements Comparable[Byte], Arithmetic[Byte], Bitwise[Byte],
     * to, or greater than the given Byte.
     */
    @Native("java", "x10.rtt.Equality.compareTo(#this, #x)")
-   @Native("c++", "x10aux::byte_utils::compareTo(#0, #1)")
+   @Native("c++", "x10::lang::ByteNatives::compareTo(#0, #1)")
    public native def compareTo(x:Byte):Int;
 }
 public type Byte(b:Byte) = Byte{self==b};

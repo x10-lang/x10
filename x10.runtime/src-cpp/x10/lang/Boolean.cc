@@ -9,23 +9,20 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <x10aux/config.h>
-#include <x10aux/boolean_utils.h>
-#include <x10aux/basic_functions.h>
-
+#include <x10/lang/Boolean.h>
 #include <x10/lang/String.h>
+
+#include <x10aux/basic_functions.h>
 
 #include <strings.h>
 
 using namespace x10::lang;
-using namespace std;
-using namespace x10aux;
 
-String* x10aux::boolean_utils::toString(x10_boolean value) {
+String* x10::lang::BooleanNatives::toString(x10_boolean value) {
     return x10aux::to_string(value);
 }
 
-x10_boolean x10aux::boolean_utils::parseBoolean(const String* s) {
+x10_boolean x10::lang::BooleanNatives::parseBoolean(String* s) {
     return NULL != s && !::strcasecmp(s->c_str(), "true");
 }
 

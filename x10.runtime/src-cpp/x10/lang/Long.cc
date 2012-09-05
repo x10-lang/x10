@@ -9,26 +9,21 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <x10aux/config.h>
-
-#include <x10aux/long_utils.h>
-#include <x10aux/basic_functions.h>
-
-#include <x10/lang/String.h>
-#include <x10/lang/NumberFormatException.h>
 #include <errno.h>
 
-using namespace x10::lang;
-using namespace std;
-using namespace x10aux;
+#include <x10/lang/Long.h>
+#include <x10/lang/String.h>
+#include <x10/lang/NumberFormatException.h>
 
+using namespace x10::lang;
+using namespace x10aux;
 
 static char numerals[] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a',
                            'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l',
                            'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w',
                            'x', 'y', 'z' };
 
-String* x10aux::long_utils::toString(x10_long value, x10_int radix) {
+String* LongNatives::toString(x10_long value, x10_int radix) {
     if (0 == value) return String::Lit("0");
     if (radix < 2 || radix > 36) radix = 10;
     // worst case is binary of Long.MIN_VALUE -- - plus 64 digits and a '\0'
@@ -45,53 +40,23 @@ String* x10aux::long_utils::toString(x10_long value, x10_int radix) {
     return String::Steal(alloc_printf("%s",b));
 }
 
-String* x10aux::long_utils::toString(x10_long value) {
+String* LongNatives::toString(x10_long value) {
     return to_string(value);
 }
 
-String* x10aux::long_utils::toString(x10_ulong value, x10_int radix) {
-    if (0 == value) return String::Lit("0");
-    if (radix < 2 || radix > 36) radix = 10;
-    // worst case is binary: 64 digits and a '\0'
-    char buf[65] = ""; //zeroes entire buffer (S6.7.8.21)
-    x10_ulong value2 = value;
-    char *b;
-    // start on the '\0', will predecrement so will not clobber it
-    for (b=&buf[64] ; value2>0 ; value2/=radix) {
-        *(--b) = numerals[value2 % radix];
-    }
-    return String::Steal(alloc_printf("%s",b));
-}
-
-String* x10aux::long_utils::toString(x10_ulong value) {
-    return to_string(value);
-}
-
-x10_long x10aux::long_utils::parseLong(String* s, x10_int radix) {
+x10_long LongNatives::parseLong(String* s, x10_int radix) {
     const char *start = nullCheck(s)->c_str();
     char *end;
     errno = 0;
     x10_long ans = strtoll(start, &end, radix);
     if (errno == ERANGE || (errno != 0 && ans == 0) ||
         ((end-start) != s->length())) {
-        x10aux::throwException(x10::lang::NumberFormatException::_make(s));
+        throwException(NumberFormatException::_make(s));
     }
     return ans;
 }
 
-x10_ulong x10aux::long_utils::parseULong(String* s, x10_int radix) {
-    const char *start = nullCheck(s)->c_str();
-    char *end;
-    errno = 0;
-    x10_ulong ans = strtoull(start, &end, radix);
-    if (errno == ERANGE || (errno != 0 && ans == 0) ||
-        ((end-start) != s->length())) {
-        x10aux::throwException(x10::lang::NumberFormatException::_make(s));
-    }
-    return ans;
-}
-
-x10_long x10aux::long_utils::highestOneBit(x10_long x) {
+x10_long LongNatives::highestOneBit(x10_long x) {
     x |= (x >> 1);
     x |= (x >> 2);
     x |= (x >> 4);
@@ -101,11 +66,11 @@ x10_long x10aux::long_utils::highestOneBit(x10_long x) {
     return x & ~(((x10_ulong)x) >> 1);
 }
 
-x10_long x10aux::long_utils::lowestOneBit(x10_long x) {
+x10_long LongNatives::lowestOneBit(x10_long x) {
     return x & (-x);
 }
 
-x10_int x10aux::long_utils::numberOfLeadingZeros(x10_long x) {
+x10_int LongNatives::numberOfLeadingZeros(x10_long x) {
     x |= (x >> 1);
     x |= (x >> 2);
     x |= (x >> 4);
@@ -115,11 +80,11 @@ x10_int x10aux::long_utils::numberOfLeadingZeros(x10_long x) {
     return bitCount(~x);
 }
 
-x10_int x10aux::long_utils::numberOfTrailingZeros(x10_long x) {
+x10_int LongNatives::numberOfTrailingZeros(x10_long x) {
     return bitCount(~x & (x-1));
 }
 
-x10_int x10aux::long_utils::bitCount(x10_long x) {
+x10_int LongNatives::bitCount(x10_long x) {
     x10_ulong ux = (x10_ulong)x;
     ux = ux - ((ux >> 1) & 0x5555555555555555LL);
     ux = (ux & 0x3333333333333333LL) + ((ux >> 2) & 0x3333333333333333LL);
@@ -130,15 +95,15 @@ x10_int x10aux::long_utils::bitCount(x10_long x) {
     return (x10_int)(ux & 0x7F);
 }
 
-x10_long x10aux::long_utils::rotateLeft(x10_long x, x10_int distance) {
+x10_long LongNatives::rotateLeft(x10_long x, x10_int distance) {
     return (x << distance) | (((x10_ulong)x) >> (64 - distance));
 }
 
-x10_long x10aux::long_utils::rotateRight(x10_long x, x10_int distance) {
+x10_long LongNatives::rotateRight(x10_long x, x10_int distance) {
     return (((x10_ulong)x) >> distance) | (x << (64 - distance));
 }
 
-x10_long x10aux::long_utils::reverse(x10_long x) {
+x10_long LongNatives::reverse(x10_long x) {
     x10_ulong ux = (x10_ulong)x;
     ux = ((ux & 0x5555555555555555LL) << 1) | ((ux >> 1) & 0x5555555555555555LL);
     ux = ((ux & 0x3333333333333333LL) << 2) | ((ux >> 2) & 0x3333333333333333LL);
@@ -146,7 +111,7 @@ x10_long x10aux::long_utils::reverse(x10_long x) {
     return reverseBytes((x10_long)ux);
 }
 
-x10_long x10aux::long_utils::reverseBytes(x10_long x) {
+x10_long LongNatives::reverseBytes(x10_long x) {
     x10_ulong ux = x;
     x10_ulong ans = ux << 56; 
     ans |= (ux & 0xFF00L) << 40;

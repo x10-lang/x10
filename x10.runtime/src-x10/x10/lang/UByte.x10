@@ -395,7 +395,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return a String representation of this UByte in the specified radix.
      */
     @Native("java", "java.lang.Integer.toString((#this) & 0xff, #radix)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, #1)")
+    @Native("c++", "x10::lang::UByteNatives::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
     /**
@@ -403,7 +403,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return a String representation of this UByte as a hexadecimal number.
      */
     @Native("java", "java.lang.Integer.toHexString((#this) & 0xff)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, 16)")
+    @Native("c++", "x10::lang::UByteNatives::toString(#0, 16)")
     public native def toHexString(): String;
 
     /**
@@ -411,7 +411,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return a String representation of this UByte as an octal number.
      */
     @Native("java", "java.lang.Integer.toOctalString((#this) & 0xff)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, 8)")
+    @Native("c++", "x10::lang::UByteNatives::toString(#0, 8)")
     public native def toOctalString(): String;
 
     /**
@@ -419,7 +419,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return a String representation of this UByte as a binary number.
      */
     @Native("java", "java.lang.Integer.toBinaryString((#this) & 0xff)")
-    @Native("c++", "x10aux::byte_utils::toString(#0, 2)")
+    @Native("c++", "x10::lang::UByteNatives::toString(#0, 2)")
     public native def toBinaryString(): String;
 
     /**
@@ -434,7 +434,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @deprecated use {@link #parse(String,Int)} instead
      */
     @Native("java", "((byte)(java.lang.Integer.parseInt(#s, #radix) & 0xff))")
-    @Native("c++", "(x10aux::byte_utils::parseUByte(#1, #2))")
+    @Native("c++", "(x10::lang::UByteNatives::parseUByte(#1, #2))")
     public static def parseUByte(s:String, radix:Int): UByte //throws NumberFormatException 
     {
         return parse(s, radix);
@@ -444,7 +444,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @deprecated use {@link #parse(String)} instead
      */
     @Native("java", "((byte)(java.lang.Integer.parseInt(#s) & 0xff))")
-    @Native("c++", "(x10aux::byte_utils::parseUByte(#1))")
+    @Native("c++", "(x10::lang::UByteNatives::parseUByte(#1))")
     public static def parseUByte(s:String): UByte //throws NumberFormatException 
     {
         return parse(s);
@@ -458,7 +458,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @throws NumberFormatException if the String does not contain a parsable UByte.
      */
     @Native("java", "((byte)(java.lang.Integer.parseInt(#s, #radix) & 0xff))")
-    @Native("c++", "(x10aux::byte_utils::parseUByte(#1, #2))")
+    @Native("c++", "(x10::lang::UByteNatives::parseUByte(#1, #2))")
     public static native def parse(s:String, radix:Int): UByte; /*  //throws NumberFormatException 
     {
     	val i = Int.parse(s, radix);
@@ -475,7 +475,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @throws NumberFormatException if the String does not contain a parsable UByte.
      */
     @Native("java", "((byte)(java.lang.Integer.parseInt(#s) & 0xff))")
-    @Native("c++", "(x10aux::byte_utils::parseUByte(#1))")
+    @Native("c++", "(x10::lang::UByteNatives::parseUByte(#1))")
     public static native def parse(s:String): UByte; /*  //throws NumberFormatException 
     {
         return parse(s, 10);
@@ -488,7 +488,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
      * @return the value obtained by reversing order of the bits in this UByte.
      */
     @Native("java", "((byte)(java.lang.Integer.reverse(#this)>>>24))")
-    @Native("c++", "((x10_ubyte)(x10aux::int_utils::reverse(#0)>>24))")
+    @Native("c++", "((x10_ubyte)(x10::lang::IntNatives::reverse(#0)>>24))")
     public native def reverse(): UByte; /*  = UByte(this.byteVal.reverse()); */
 
     /**
@@ -528,7 +528,7 @@ public struct UByte implements Comparable[UByte], Arithmetic[UByte], Bitwise[UBy
     * to, or greater than the given UByte.
     */
     @Native("java", "x10.rtt.Equality.compareTo((byte)(#this + java.lang.Byte.MIN_VALUE), (byte)(#x + java.lang.Byte.MIN_VALUE))")
-    @Native("c++", "x10aux::byte_utils::compareTo(#0, #1)")
+    @Native("c++", "x10::lang::UByteNatives::compareTo(#0, #1)")
     public native def compareTo(x:UByte): Int; /*  = (this.byteVal + Byte.MIN_VALUE).compareTo(x.byteVal + Byte.MIN_VALUE); */
 
     @Native("java", "x10.rtt.Types.UBYTE.typeName()")

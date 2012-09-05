@@ -23,14 +23,9 @@
 
 #include <x10aux/itables.h>
 
-#include <x10aux/boolean_utils.h>
-#include <x10aux/byte_utils.h>
 #include <x10aux/char_utils.h>
 #include <x10aux/double_utils.h>
-#include <x10aux/int_utils.h>
 #include <x10aux/float_utils.h>
-#include <x10aux/long_utils.h>
-#include <x10aux/short_utils.h>
 #include <x10aux/string_utils.h>
 #include <x10aux/array_utils.h>
 

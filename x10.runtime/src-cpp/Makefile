@@ -136,14 +136,11 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/assert.o \
 	x10aux/atomic_ops.o \
 	x10aux/basic_functions.o \
-	x10aux/boolean_utils.o \
 	x10aux/bootstrap.o \
-	x10aux/byte_utils.o \
 	x10aux/char_utils.o \
 	x10aux/class_cast.o \
 	x10aux/config.o \
 	x10aux/double_utils.o \
-	x10aux/int_utils.o \
 	x10aux/static_init.o \
 	x10aux/itables.o \
 	x10aux/io/FILEPtrInputStream.o \
@@ -151,7 +148,6 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/io/FILEPtrStream.o \
 	x10aux/float_utils.o \
 	x10aux/lock.o \
-	x10aux/long_utils.o \
 	x10aux/network.o \
 	x10aux/place_local.o \
 	x10aux/processes.o \
@@ -159,7 +155,6 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/RTT.o \
 	x10aux/deserialization_dispatcher.o \
 	x10aux/serialization.o \
-	x10aux/short_utils.o \
 	x10aux/string_utils.o \
 	x10aux/system_utils.o \
 	x10aux/throw.o \
@@ -172,18 +167,27 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Any.o \
 	x10/lang/Arithmetic.o \
 	x10/lang/Bitwise.o \
+	x10/lang/Boolean.o \
+	x10/lang/Byte.o \
 	x10/lang/CheckedThrowable.o \
 	x10/lang/Closure.o \
 	x10/lang/Comparable.o \
 	x10/lang/Fun.o \
 	x10/lang/GlobalRef.o \
 	x10/lang/IBox.o \
+	x10/lang/Int.o \
+	x10/lang/Long.o \
 	x10/lang/Reference.o \
+	x10/lang/Short.o \
 	x10/lang/String.o \
 	x10/lang/Deque.o \
 	x10/lang/Lock__ReentrantLock.o \
 	x10/lang/PlaceLocalHandle_Impl.o \
 	x10/lang/Thread.o \
+	x10/lang/UByte.o \
+	x10/lang/UInt.o \
+	x10/lang/ULong.o \
+	x10/lang/UShort.o \
 	x10/lang/X10Class.o \
 	x10/util/IndexedMemoryChunk.o \
 	x10/util/Ordered.o \
