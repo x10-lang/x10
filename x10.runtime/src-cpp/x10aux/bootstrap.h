@@ -14,18 +14,13 @@
 
 #include <x10aux/config.h>
 #include <x10aux/alloc.h>
-#include <x10aux/place_local.h>
-#include <x10aux/system_utils.h>
 #include <x10aux/deserialization_dispatcher.h>
 
 #include <x10/lang/VoidFun_0_0.h>
 
-#include <x10/lang/Thread.h>
-#include <x10/lang/Runtime__Worker.h>
 #include <x10/lang/Closure.h>
 
-#include <stdio.h>
-#include <unistd.h>
+#include <x10/lang/String.h>
 
 namespace x10 { namespace array { template<class T> class Array; } }
 

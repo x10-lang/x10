@@ -30,6 +30,13 @@ x10_int x10aux::hash_code(const x10_float x) {
     return hash_code(x10::lang::FloatNatives::toIntBits(x));
 }
 
+String* x10aux::identity_type_name (Reference* ptr) {
+    return String::Lit(alloc_printf("%s",ptr->_type()->name()));
+}
+
+String* x10aux::identity_to_string (Reference* ptr) {
+    return String::Lit(alloc_printf("%s@%p",ptr->_type()->name(),(void*)ptr));
+}
 
 #define TO_STRING(SZ,T,C,FMT) \
 String* x10aux::to_string(T v) { \

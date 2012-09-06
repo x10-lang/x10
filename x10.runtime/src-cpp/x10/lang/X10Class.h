@@ -13,6 +13,7 @@
 #define X10_LANG_X10CLASS_H
 
 #include <x10/lang/Reference.h>
+#include <x10aux/basic_functions.h>
 
 namespace x10 {
     namespace lang {

@@ -15,7 +15,6 @@
 #include <x10aux/config.h>
 #include <x10aux/RTT.h>
 #include <x10aux/itables.h>
-#include <x10aux/system_utils.h>
 
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>

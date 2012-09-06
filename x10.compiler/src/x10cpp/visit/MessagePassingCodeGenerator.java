@@ -1363,6 +1363,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         if (options.x10_config.DEBUG)
 		{
 			sb.append("\n// Debugger stuff\n");
+			sb.append("#include<x10aux/place_local.h>\n");
+			sb.append("#include<x10/lang/Thread.h>\n");
 			sb.append("void* x10aux_place_local__fastData = &x10aux::place_local::_fastData;\n");
 			sb.append("void* __x10MainRef = (void *) "+container+"::main;\n");
 			sb.append("pthread_key_t* __x10ThreadMapper = (pthread_key_t *) &x10::lang::Thread::__thread_mapper;\n");

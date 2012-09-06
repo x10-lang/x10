@@ -21,12 +21,37 @@ namespace x10 {
     }
 }
 
+namespace x10aux {
+    extern volatile x10_int exitCode;
+}
+    
+
 namespace x10 {
     namespace lang {
+        class Reference;
+        class String;
+        
         class RuntimeNatives {
         public:
             static x10::io::Reader* execForRead(const char *command);
             static x10::io::Writer* execForWrite(const char *command);
+
+            /* Exit with the given exit code */
+            static void exit(x10_int code);
+
+            /** Milliseconds since the Epoch: midnight, Jan 1, 1970. */
+            static x10_long currentTimeMillis();
+
+            /** Current value of the system timer, in nanoseconds.  May be rounded if system timer does not have nanosecond precision. */
+            static x10_long nanoTime();
+
+            /** Low-level println to stderr; intended only for low-level debugging of XRX */
+            static void println(const char *msg);
+
+            /** Low-level printf to stderr; intended only for low-level debugging of XRX */
+            template<class T> static inline void printf(const char* fmt, const T& t) {
+                fprintf(stderr, fmt, t);
+            }
         };
     }
 }

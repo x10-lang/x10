@@ -11,8 +11,12 @@
 
 #include <x10aux/config.h>
 #include <x10aux/bootstrap.h>
+#include <x10aux/place_local.h>
+#include <x10aux/alloc.h>
 
 #include <pthread.h>
+#include <stdio.h>
+#include <unistd.h>
 
 #include <x10/lang/Place.h>
 #include <x10/lang/Runtime.h>
@@ -20,6 +24,7 @@
 #include <x10/lang/Thread.h>
 #include <x10/array/Array.h>
 #include <x10/lang/String.h>
+#include <x10/lang/Runtime__Worker.h>
 
 using namespace x10aux;
 

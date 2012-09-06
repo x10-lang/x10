@@ -46,15 +46,15 @@ public final class Runtime {
     // Debug print methods
 
     @Native("java", "java.lang.System.err.println(#any)")
-    @Native("c++", "x10aux::system_utils::println(x10aux::to_string(#any)->c_str())")
+    @Native("c++", "x10::lang::RuntimeNatives::println(x10aux::to_string(#any)->c_str())")
     public native static def println(any:Any):void;
 
     @Native("java", "java.lang.System.err.println()")
-    @Native("c++", "x10aux::system_utils::println(\"\")")
+    @Native("c++", "x10::lang::RuntimeNatives::println(\"\")")
     public native static def println():void;
 
     @Native("java", "java.lang.System.err.printf(#fmt, #t)")
-    @Native("c++", "x10aux::system_utils::printf(#fmt, #t)")
+    @Native("c++", "x10::lang::RuntimeNatives::printf(#fmt, #t)")
     public native static def printf[T](fmt:String, t:T):void;
 
     // Native runtime interface

@@ -23,8 +23,6 @@
 
 #include <x10aux/array_utils.h>
 
-#include <x10aux/system_utils.h>
-
 #include <x10aux/cuda_kernel.h>
 
 #include <x10aux/vec_decl.h>

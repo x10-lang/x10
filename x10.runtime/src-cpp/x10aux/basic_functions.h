@@ -326,6 +326,16 @@ namespace x10aux {
     x10_int hash_code(const x10_double x);
     x10_int hash_code(const x10_float x);
 
+
+    /******* identity hash_code ********/
+    inline x10_int identity_hash_code(x10::lang::Reference* ptr) {
+        // Combine the bits of the pointer into a 32 bit integer.
+        uint64_t v2 = (uint64_t)ptr;
+        x10_int lower = (x10_int)(v2 & 0xffffffff);
+        x10_int upper = (x10_int)(v2 >> 32);
+        x10_int hc = lower ^ upper;
+        return hc; 
+    }
     
     /******* to_string ********/
 
@@ -376,6 +386,10 @@ namespace x10aux {
     template<class T> x10::lang::String* safe_to_string(T v) {
         return to_string(v);
     }
+
+    extern x10::lang::String* identity_type_name (x10::lang::Reference* ptr);
+
+    extern x10::lang::String* identity_to_string(x10::lang::Reference* ptr);
     
     /******* zeroValue ********/
     template<class T> struct Zero {
