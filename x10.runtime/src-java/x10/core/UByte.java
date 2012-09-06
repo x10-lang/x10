@@ -157,15 +157,15 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     public UByte $unsigned_right$G(final int count) { return UByte.$box((0xff & $value) >>> count); }
     
     // implements Ordered<UByte>
-    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UnsignedUtils.lt($value,((UByte)a).$value)); }
-    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UnsignedUtils.gt($value,((UByte)a).$value)); }
-    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UnsignedUtils.le($value,((UByte)a).$value)); }
-    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UnsignedUtils.ge($value,((UByte)a).$value)); }
+    public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value)); }
+    public java.lang.Object $gt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value)); }
+    public java.lang.Object $le(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value)); }
+    public java.lang.Object $ge(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value)); }
     // for X10PrettyPrinterVisitor.generateSpecialDispatcher
-    public boolean $lt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UnsignedUtils.lt($value,((UByte)a).$value); }
-    public boolean $gt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UnsignedUtils.gt($value,((UByte)a).$value); }
-    public boolean $le$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UnsignedUtils.le($value,((UByte)a).$value); }
-    public boolean $ge$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UnsignedUtils.ge($value,((UByte)a).$value); }
+    public boolean $lt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value); }
+    public boolean $gt$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.gt($value,((UByte)a).$value); }
+    public boolean $le$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UByte)a).$value); }
+    public boolean $ge$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UByte)a).$value); }
 
     // extends abstract class java.lang.Number
     @Override

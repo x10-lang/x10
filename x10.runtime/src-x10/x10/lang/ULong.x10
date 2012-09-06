@@ -43,7 +43,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is strictly less than the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.lt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.lt(#this, #x)")
     @Native("c++",  "((#0) < (#1))")
     public native operator this < (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) < (x.longVal + Long.MIN_VALUE);
@@ -56,7 +56,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is strictly greater than the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.gt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.gt(#this, #x)")
     @Native("c++",  "((#0) > (#1))")
     public native operator this > (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) > (x.longVal + Long.MIN_VALUE);
@@ -69,7 +69,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is less than or equal to the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.le(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.le(#this, #x)")
     @Native("c++",  "((#0) <= (#1))")
     public native operator this <= (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) <= (x.longVal + Long.MIN_VALUE);
@@ -82,7 +82,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return true if this ULong is greater than or equal to the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.ge(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.ge(#this, #x)")
     @Native("c++",  "((#0) >= (#1))")
     public native operator this >= (x:ULong): Boolean; /* {
         return (longVal + Long.MIN_VALUE) >= (x.longVal + Long.MIN_VALUE);
@@ -128,7 +128,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the quotient of this ULong and the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.div(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.div(#this, #x)")
     @Native("c++",  "((x10_ulong) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:ULong): ULong; /*{
     	// TODO implement in X10
@@ -142,7 +142,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param x the other ULong
      * @return the remainder from dividing this ULong by the other ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.rem(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.rem(#this, #x)")
     @Native("c++",  "((x10_ulong) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:ULong): ULong; /* {
     	// TODO implement in X10
@@ -390,7 +390,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @param radix the radix to use in the String representation
      * @return a String representation of this ULong in the specified radix.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.toString(#this, #radix)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.toString(#this, #radix)")
     @Native("c++", "x10::lang::ULongNatives::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -422,14 +422,14 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * Returns a String representation of this ULong as a decimal number.
      * @return a String representation of this ULong as a decimal number.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.toString(#this)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.toString(#this)")
     @Native("c++", "x10aux::to_string(#0)")
     public native def toString(): String;
 
     /**
      * @deprecated use {@link #parse(String,Int)} instead
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.parseULong(#s, #radix)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.parseULong(#s, #radix)")
     @Native("c++", "x10::lang::ULongNatives::parseULong(#1, #2)")
     public static native def parseULong(s:String, radix:Int): ULong; /* //throws NumberFormatException 
     {
@@ -439,7 +439,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
     /**
      * @deprecated use {@link #parse(String)} instead
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.parseULong(#s)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.parseULong(#s)")
     @Native("c++", "x10::lang::ULongNatives::parseULong(#1)")
     public static native def parseULong(s:String): ULong; /* //throws NumberFormatException 
     {
@@ -453,7 +453,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the ULong represented by the String argument in the specified radix.
      * @throws NumberFormatException if the String does not contain a parsable ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.parseULong(#s, #radix)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.parseULong(#s, #radix)")
     @Native("c++", "x10::lang::ULongNatives::parseULong(#1, #2)")
     public static native def parse(s:String, radix:Int): ULong; /*  //throws NumberFormatException 
     {
@@ -467,7 +467,7 @@ public struct ULong implements Comparable[ULong], Arithmetic[ULong], Bitwise[ULo
      * @return the ULong represented by the String argument.
      * @throws NumberFormatException if the String does not contain a parsable ULong.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.parseULong(#s)")
+    @Native("java", "x10.runtime.impl.java.ULongUtils.parseULong(#s)")
     @Native("c++", "x10::lang::ULongNatives::parseULong(#1)")
     public static native def parse(s:String): ULong; /* //throws NumberFormatException 
     {

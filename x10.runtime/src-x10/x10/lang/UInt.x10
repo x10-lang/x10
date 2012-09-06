@@ -43,7 +43,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @param x the other UInt
      * @return true if this UInt is strictly less than the other UInt.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.lt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UIntUtils.lt(#this, #x)")
     @Native("c++",  "((#0) < (#1))")
     public native operator this < (x:UInt): Boolean; /*  {
          return (intVal + Int.MIN_VALUE) < (x.intVal + Int.MIN_VALUE);
@@ -56,7 +56,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @param x the other UInt
      * @return true if this UInt is strictly greater than the other UInt.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.gt(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UIntUtils.gt(#this, #x)")
     @Native("c++",  "((#0) > (#1))")
     public native operator this > (x:UInt): Boolean; /*  {
         return (intVal + Int.MIN_VALUE) > (x.intVal + Int.MIN_VALUE);
@@ -69,7 +69,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @param x the other UInt
      * @return true if this UInt is less than or equal to the other UInt.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.le(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UIntUtils.le(#this, #x)")
     @Native("c++",  "((#0) <= (#1))")
     public native operator this <= (x:UInt): Boolean; /*  {
          return (intVal + Int.MIN_VALUE) <= (x.intVal + Int.MIN_VALUE);
@@ -82,7 +82,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @param x the other UInt
      * @return true if this UInt is greater than or equal to the other UInt.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.ge(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UIntUtils.ge(#this, #x)")
     @Native("c++",  "((#0) >= (#1))")
     public native operator this >= (x:UInt): Boolean; /*  {
         return (intVal + Int.MIN_VALUE) >= (x.intVal + Int.MIN_VALUE);
@@ -128,7 +128,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @param x the other UInt
      * @return the quotient of this UInt and the other UInt.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.div(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UIntUtils.div(#this, #x)")
     @Native("c++",  "((x10_uint) ((#0) / x10aux::zeroCheck(#1)))")
     public native operator this / (x:UInt): UInt; /*  {
         return UInt(((intVal as Long) / (x.intVal as Long)) as Int);
@@ -140,7 +140,7 @@ public struct UInt implements Comparable[UInt], Arithmetic[UInt], Bitwise[UInt],
      * @param x the other UInt
      * @return the remainder from dividing this UInt by the other UInt.
      */
-    @Native("java", "x10.runtime.impl.java.UnsignedUtils.rem(#this, #x)")
+    @Native("java", "x10.runtime.impl.java.UIntUtils.rem(#this, #x)")
     @Native("c++",  "((x10_uint) ((#0) % x10aux::zeroCheck(#1)))")
     public native operator this % (x:UInt): UInt; /*  {
         return UInt(((intVal as Long) % (x.intVal as Long)) as Int);
