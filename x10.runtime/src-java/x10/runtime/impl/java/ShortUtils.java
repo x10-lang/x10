@@ -12,24 +12,15 @@
 package x10.runtime.impl.java;
 
 
-public abstract class SignedUtils {
-    
-    public static java.lang.String toString(byte a, int radix) {
-        if (a >= 0) {
-            return Integer.toString(a, radix);
-        } else {
-            int b = (0x80000000 - a) & 0x7FFFFFFF;
-            return "-" + Integer.toString(b, radix);
-        }
-    }
+public abstract class ShortUtils {
 
     public static java.lang.String toString(short a, int radix) {
         if (a >= 0) {
-            return Integer.toString(a, radix);
+            return java.lang.Integer.toString(a, radix);
         } else {
             int b = (0x80000000 - a) & 0x7FFFFFFF;
-            return "-" + Integer.toString(b, radix);
+            return "-" + java.lang.Integer.toString(b, radix);
         }
     }
-    
+
 }

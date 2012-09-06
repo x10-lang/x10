@@ -304,7 +304,7 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      * @param radix the radix to use in the String representation
      * @return a String representation of this Short in the specified radix.
      */
-    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((short)#this, #radix)")
+    @Native("java", "x10.runtime.impl.java.ShortUtils.toString((short)#this, #radix)")
     @Native("c++", "x10::lang::ShortNatives::toString(#0, #1)")
     public native def toString(radix:Int): String;
 
@@ -317,7 +317,7 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      *
      * @return a String representation of this Short in base 16.
      */
-    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((short)#this, 16)")
+    @Native("java", "x10.runtime.impl.java.ShortUtils.toString((short)#this, 16)")
     @Native("c++", "x10::lang::ShortNatives::toString(#0, 16)")
     public native def toHexString(): String;
 
@@ -330,7 +330,7 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      *
      * @return a String representation of this Short in base 8.
      */
-    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((short)#this, 8)")
+    @Native("java", "x10.runtime.impl.java.ShortUtils.toString((short)#this, 8)")
     @Native("c++", "x10::lang::ShortNatives::toString(#0, 8)")
     public native def toOctalString(): String;
 
@@ -343,7 +343,7 @@ public struct Short implements Comparable[Short], Arithmetic[Short], Bitwise[Sho
      *
      * @return a String representation of this Short in base 2.
      */
-    @Native("java", "x10.runtime.impl.java.SignedUtils.toString((short)#this, 2)")
+    @Native("java", "x10.runtime.impl.java.ShortUtils.toString((short)#this, 2)")
     @Native("c++", "x10::lang::ShortNatives::toString(#0, 2)")
     public native def toBinaryString(): String;
 
