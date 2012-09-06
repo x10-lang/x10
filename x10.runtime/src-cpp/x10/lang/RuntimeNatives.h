@@ -9,8 +9,8 @@
  *  (C) Copyright Australian National University 2012.
  */
 
-#ifndef X10AUX_PROCESSES_H
-#define X10AUX_PROCESSES_H
+#ifndef X10_LANG_RUNTIMENATIVES_H
+#define X10_LANG_RUNTIMENATIVES_H
 
 #include <x10aux/config.h>
 
@@ -21,13 +21,16 @@ namespace x10 {
     }
 }
 
-namespace x10aux {
-    class processes {
-    public:
-        static x10::io::Reader* execForRead(const char *command);
-        static x10::io::Writer* execForWrite(const char *command);
-    };
+namespace x10 {
+    namespace lang {
+        class RuntimeNatives {
+        public:
+            static x10::io::Reader* execForRead(const char *command);
+            static x10::io::Writer* execForWrite(const char *command);
+        };
+    }
 }
 
-#endif
+#endif /* X10_LANG_RUNTIMENATIVES_H */
+
 // vim:tabstop=4:shiftwidth=4:expandtab

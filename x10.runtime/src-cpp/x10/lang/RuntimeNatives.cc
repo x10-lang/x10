@@ -9,7 +9,8 @@
  *  (C) Copyright Australian National University 2012.
  */
 
-#include <x10aux/processes.h>
+#include <x10/lang/RuntimeNatives.h>
+
 #include <x10/io/IOException.h>
 #include <x10/io/Reader.h>
 #include <x10/io/Writer.h>
@@ -23,29 +24,32 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-x10::io::Reader* x10aux::processes::execForRead(const char *command) {
+using namespace x10::lang;
+using namespace x10::io;
+
+Reader* RuntimeNatives::execForRead(const char *command) {
     FILE* inFd = popen(command, "r");
 #ifndef NO_EXCEPTIONS
     if (inFd == NULL) {
-        x10::lang::String* s = x10::lang::String::__plus(x10::lang::String::Lit("execForRead: "), x10::lang::String::Lit(command));
-        throwException(x10::io::IOException::_make(s));
+        String* s = String::__plus(String::Lit("execForRead: "), String::Lit(command));
+        x10aux::throwException(IOException::_make(s));
     }
 #endif
-    x10::io::InputStreamReader__InputStream* in_ = new (x10aux::alloc<x10::io::FileReader__FileInputStream>()) x10::io::FileReader__FileInputStream(inFd);
-    x10::io::Reader* inReader_ = x10::io::InputStreamReader::_make(in_);
+    InputStreamReader__InputStream* in_ = new (x10aux::alloc<FileReader__FileInputStream>()) FileReader__FileInputStream(inFd);
+    Reader* inReader_ = InputStreamReader::_make(in_);
     return inReader_;
 }
 
-x10::io::Writer* x10aux::processes::execForWrite(const char *command) {
+Writer* RuntimeNatives::execForWrite(const char *command) {
     FILE* outFd = popen(command, "w");
 #ifndef NO_EXCEPTIONS
     if (outFd == NULL) {
-        x10::lang::String* s = x10::lang::String::__plus(x10::lang::String::Lit("execForWrite: "), x10::lang::String::Lit(command));
-        throwException(x10::io::IOException::_make(s));
+        String* s = String::__plus(String::Lit("execForWrite: "), String::Lit(command));
+        x10aux::throwException(IOException::_make(s));
     }
 #endif
-    x10::io::OutputStreamWriter__OutputStream* out_ = new (x10aux::alloc<x10::io::FileWriter__FileOutputStream>()) x10::io::FileWriter__FileOutputStream(outFd);
-    x10::io::Writer* outWriter_ = x10::io::OutputStreamWriter::_make(out_);
+    OutputStreamWriter__OutputStream* out_ = new (x10aux::alloc<FileWriter__FileOutputStream>()) FileWriter__FileOutputStream(outFd);
+    Writer* outWriter_ = OutputStreamWriter::_make(out_);
     return outWriter_;
 }
 

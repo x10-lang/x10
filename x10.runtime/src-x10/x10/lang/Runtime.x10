@@ -15,6 +15,7 @@ import x10.compiler.Native;
 import x10.compiler.Inline;
 import x10.compiler.Pragma;
 import x10.compiler.StackAllocate;
+import x10.compiler.NativeCPPInclude;
 
 import x10.io.CustomSerialization;
 import x10.io.SerialData;
@@ -29,6 +30,7 @@ import x10.util.concurrent.Lock;
 import x10.util.concurrent.Monitor;
 import x10.util.concurrent.SimpleLatch;
 
+
 /**
  * XRX invocation protocol:
  * - Native runtime invokes new Runtime.Worker(0). Returns Worker instance worker0.
@@ -38,6 +40,7 @@ import x10.util.concurrent.SimpleLatch;
  * 
  * @author tardieu
  */
+@NativeCPPInclude("x10/lang/RuntimeNatives.h")
 public final class Runtime {
 
     // Debug print methods
@@ -133,7 +136,7 @@ public final class Runtime {
      * of the new process.
      */
     @Native("java","x10.runtime.impl.java.Runtime.execForRead(#command)")
-    @Native("c++", "x10aux::processes::execForRead(x10aux::to_string(#command)->c_str())")
+    @Native("c++", "x10::lang::RuntimeNatives::execForRead(x10aux::to_string(#command)->c_str())")
     public static native def execForRead(command:String):Reader{self!=null};
 
     /**
@@ -142,7 +145,7 @@ public final class Runtime {
      * of the new process.
      */
     @Native("java","x10.runtime.impl.java.Runtime.execForWrite(#command)")
-    @Native("c++", "x10aux::processes::execForWrite(x10aux::to_string(#command)->c_str())")
+    @Native("c++", "x10::lang::RuntimeNatives::execForWrite(x10aux::to_string(#command)->c_str())")
     public static native def execForWrite(command:String):Writer{self!=null};
             
     // Runtime state

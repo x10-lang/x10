@@ -147,7 +147,6 @@ ALL_XRCPP_OBJECTS = \
 	x10aux/lock.o \
 	x10aux/network.o \
 	x10aux/place_local.o \
-	x10aux/processes.o \
 	x10aux/reference_logger.o \
 	x10aux/RTT.o \
 	x10aux/deserialization_dispatcher.o \
@@ -177,6 +176,7 @@ ALL_XRCPP_OBJECTS = \
 	x10/lang/Float.o \
 	x10/lang/Long.o \
 	x10/lang/Reference.o \
+	x10/lang/RuntimeNatives.o \
 	x10/lang/Short.o \
 	x10/lang/String.o \
 	x10/lang/Deque.o \
