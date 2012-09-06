@@ -17,7 +17,7 @@ package com.ibm.apgas;
  * wrapper object. But doing it this way is is marginally easy to maintain
  * because we can just regenerate this class when serialization logic changes.
  */
-@x10.core.X10Generated
+@x10.runtime.impl.java.X10Generated
 public class TaskWrapper extends x10.core.Ref implements
 		x10.core.fun.VoidFun_0_0, x10.x10rt.X10JavaSerializable {
 	private static final long serialVersionUID = 1L;
