@@ -446,7 +446,7 @@ public class X10JavaSerializer {
         try {
             writeClassID(bodyClass.getName());
             SerializerThunk st = getSerializerThunk(bodyClass);
-            st.serializeObject(body, this);
+            st.serializeObject(body, bodyClass, this);
         } catch (SecurityException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -472,7 +472,7 @@ public class X10JavaSerializer {
     public <T> void serializeClassUsingReflection(T obj, Class<T> clazz) throws IOException {
         try {
             SerializerThunk st = getSerializerThunk(clazz);
-            st.serializeObject(obj, this);
+            st.serializeObject(obj, clazz, this);
         } catch (SecurityException e) {
             e.printStackTrace();
             throw new RuntimeException(e);
@@ -516,7 +516,7 @@ public class X10JavaSerializer {
         return ans;
     }
 
-    static final boolean THROWABLES_SERIALIZE_MESSAGE = false;
+    static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
     static final boolean THROWABLES_SERIALIZE_STACKTRACE = false;
 
     private static SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
@@ -746,14 +746,14 @@ public class X10JavaSerializer {
             superThunk = st;
         }
         
-        <T> void serializeObject(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
+        <T> void serializeObject(T obj, Class<? extends Object > clazz, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
             if (superThunk != null) {
-                superThunk.serializeObject(obj, xjs);
+                superThunk.serializeObject(obj, clazz.getSuperclass(), xjs);
             }
-            serializeBody(obj, xjs);
+            serializeBody(obj, clazz, xjs);
         }
         
-        abstract <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException;
+        abstract <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException;
     }
     
     private static class FieldBasedSerializerThunk extends SerializerThunk {
@@ -782,7 +782,7 @@ public class X10JavaSerializer {
             fields = flds.toArray(new Field[flds.size()]);
         }
         
-        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalAccessException, IOException {
+        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalAccessException, IOException {
             for (Field field : fields) {
                 Class<?> type = field.getType();
                 if (type.isPrimitive()) {
@@ -807,7 +807,7 @@ public class X10JavaSerializer {
             writeMethod.setAccessible(true);
         }
 
-        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("\tInvoking "+writeMethod);
             }
@@ -834,7 +834,7 @@ public class X10JavaSerializer {
             fields = flds.toArray(new Field[flds.size()]);                      
         }
 
-        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {
+        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {
             for (Field field: fields) {
                 xjs.writeObjectUsingReflection(field.get(obj));
             }
@@ -855,8 +855,7 @@ public class X10JavaSerializer {
         }
 
         @SuppressWarnings("rawtypes")
-        <T> void serializeBody(T obj, X10JavaSerializer xjs) throws IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-            Class<? extends Object> clazz = obj.getClass();
+        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
             if ("java.lang.String".equals(clazz.getName())) {
                 xjs.writeStringValue((String) obj);
             } else if ("x10.rtt.NamedType".equals(clazz.getName())) {

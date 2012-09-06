@@ -801,7 +801,7 @@ public class X10JavaDeserializer {
             } else if ("java.lang.Throwable".equals(clazz.getName())) {
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_MESSAGE) {
                     try {
-                        String message = jds.readString();
+                        String message = (String)jds.readRef();
                         Field detailMessageField = java.lang.Throwable.class.getDeclaredField("detailMessage");
                         detailMessageField.setAccessible(true);
                         detailMessageField.set(obj, message);
