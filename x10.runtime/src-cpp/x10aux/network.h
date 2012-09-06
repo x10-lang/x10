@@ -13,7 +13,6 @@
 #define X10AUX_NETWORK_H
 
 #include <x10aux/config.h>
-#include <x10aux/network.h>
 
 #include <x10rt_front.h>
 #include <x10rt_cpp.h>
