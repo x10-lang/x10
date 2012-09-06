@@ -15,6 +15,12 @@
 #include <x10aux/lock.h>
 #include <x10aux/basic_functions.h>
 
+namespace x10aux {
+    template<> inline const char *typeName<place_local>() { return "place_local"; }
+    template<> inline const char *typeName<place_local::Bucket*>() { return "place_local::Bucket *"; }
+    template<> inline const char *typeName<place_local::Bucket>() { return "place_local::Bucket"; }
+}
+
 using namespace x10::lang;
 using namespace x10aux;
 
