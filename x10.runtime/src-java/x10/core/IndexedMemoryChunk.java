@@ -534,15 +534,14 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             for (java.lang.String v : castValue) {
                 serializer.write(v);
             }
-        } else if (value instanceof X10JavaSerializable[]) {
-            Object [] castValue = (Object[]) value;
-            for (Object v : castValue) {
-                serializer.write((X10JavaSerializable)v);
-            }
         } else {
         	Object [] castValue = (Object[]) value;
             for (Object v : castValue) {
-                serializer.write(v);
+                if (v instanceof X10JavaSerializable) {
+                    serializer.write((X10JavaSerializable)v);                    
+                } else {
+                    serializer.write(v);
+                }
             }
         }
 	}

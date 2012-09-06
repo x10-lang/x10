@@ -461,7 +461,7 @@ public class X10JavaDeserializer {
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
 //            return new SpecialCaseDeserializerThunk(null);
-        } else if (X10JavaSerializer.isThrowable(clazz)) {
+        } else if ("java.lang.Throwable".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
@@ -498,7 +498,7 @@ public class X10JavaDeserializer {
         Class<?> superclass = clazz.getSuperclass();
         DeserializerThunk superThunk = null;
         if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-            superThunk = getDeserializerThunkHelper(superclass);
+            superThunk = getDeserializerThunk(superclass);
         }
 
         return new FieldBasedDeserializerThunk(clazz, superThunk);
@@ -631,7 +631,7 @@ public class X10JavaDeserializer {
         
         <T> T deserializeObject(Class<?> clazz, T obj, int i, X10JavaDeserializer jds) throws IOException, IllegalArgumentException, IllegalAccessException, InvocationTargetException, InstantiationException {
             if (superThunk != null) {
-                obj = superThunk.deserializeObject(clazz, obj, i, jds);
+                obj = superThunk.deserializeObject(clazz.getSuperclass(), obj, i, jds);
             }
             return deserializeBody(clazz, obj, i, jds);
         }
@@ -798,7 +798,7 @@ public class X10JavaDeserializer {
                 // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //            } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
 //                return (T) x10.core.X10Throwable.$_deserialize_body((x10.core.X10Throwable) obj, jds);
-            } else if (X10JavaSerializer.isThrowable(clazz)) {
+            } else if ("java.lang.Throwable".equals(clazz.getName())) {
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_MESSAGE) {
                     try {
                         String message = jds.readString();

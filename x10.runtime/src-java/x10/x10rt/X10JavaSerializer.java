@@ -516,11 +516,8 @@ public class X10JavaSerializer {
         return ans;
     }
 
-    static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
-    static final boolean THROWABLES_SERIALIZE_STACKTRACE = true;
-    static boolean isThrowable(java.lang.Class<?> clazz) {
-        return java.lang.Throwable.class.isAssignableFrom(clazz);
-    }
+    static final boolean THROWABLES_SERIALIZE_MESSAGE = false;
+    static final boolean THROWABLES_SERIALIZE_STACKTRACE = false;
 
     private static SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
         
@@ -547,7 +544,7 @@ public class X10JavaSerializer {
             // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
 //            return new SpecialCaseSerializerThunk(clazz);
-        } else if (isThrowable(clazz)) {
+        } else if ("java.lang.Throwable".equals(clazz.getName())) {
             return new SpecialCaseSerializerThunk(clazz);
         } else if ("java.lang.Class".equals(clazz.getName())) {
             return new SpecialCaseSerializerThunk(clazz);
@@ -885,7 +882,7 @@ public class X10JavaSerializer {
                 // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
 //            } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
 //                ((x10.core.X10Throwable) obj).$_serialize(xjs);
-            } else if (isThrowable(clazz)) {
+            } else if ("java.lang.Throwable".equals(clazz.getName())) {
                 if (THROWABLES_SERIALIZE_MESSAGE) {
                     java.lang.Throwable t = (java.lang.Throwable) obj;
                     xjs.write(t.getMessage());
