@@ -383,7 +383,7 @@ Array<String*>* CheckedThrowable::getStackTrace() {
 			free(fakeStack);
 
 			// from here on down, proceed as before
-            Array<String*> array = Array<String*>::_make(FMGL(trace_size));
+            Array<String*>* array = Array<String*>::_make(FMGL(trace_size));
 			char *msg;
 			for (int i=0 ; i<FMGL(trace_size) ; ++i) {
 				char* s = (char*)FMGL(trace)[i];
