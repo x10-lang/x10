@@ -21,10 +21,6 @@
 
 namespace x10 {
 
-    namespace lang {
-        template<class T> class Rail;
-    }
-
     namespace io {
 
         class File__NativeFile : public x10::lang::X10Class {
