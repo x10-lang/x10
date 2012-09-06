@@ -216,7 +216,7 @@ public struct Double implements Comparable[Double], Arithmetic[Double], Ordered[
      * @param x the given ULong
      * @return the given ULong converted to a Double.
      */
-    @Native("java", "(x10.runtime.impl.java.UnsignedUtils.toDouble(#x))")
+    @Native("java", "(x10.runtime.impl.java.ULongUtils.toDouble(#x))")
     @Native("c++",  "((x10_double) (#1))")
     public native static operator (x:ULong): Double;
 

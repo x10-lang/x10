@@ -33,28 +33,6 @@ public abstract class UnsignedUtils {
 //        return a;
 //    }
 
-    /**
-     * Converts a ULong to double
-     * @param a unboxed ULong value represented as long
-     * @return value converted to double
-     */
-    public static double toDouble(long a) {
-        double v = (double)a;
-        if (a >= 0) return v;
-        else return v - 2.0*java.lang.Long.MIN_VALUE;
-    }
-
-    /**
-     * Converts a ULong to float
-     * @param a unboxed ULong value represented as long
-     * @return value converted to float
-     */
-    public static float toFloat(long a) {
-        double v = (double)a;
-        if (a >= 0) return (float)v;
-        else return (float)(v - 2.0*java.lang.Long.MIN_VALUE);
-    }
-
     public static int inject(int a) {
         return (a + java.lang.Integer.MIN_VALUE);
     }
