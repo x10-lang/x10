@@ -517,7 +517,8 @@ public class X10JavaSerializer {
     }
 
     static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
-    static final boolean THROWABLES_SERIALIZE_STACKTRACE = false;
+    static final boolean THROWABLES_SERIALIZE_STACKTRACE = true;
+    static final boolean THROWABLES_SERIALIZE_CAUSE = true;
 
     private static SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
         
@@ -882,13 +883,15 @@ public class X10JavaSerializer {
 //            } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
 //                ((x10.core.X10Throwable) obj).$_serialize(xjs);
             } else if ("java.lang.Throwable".equals(clazz.getName())) {
+                java.lang.Throwable t = (java.lang.Throwable) obj;
                 if (THROWABLES_SERIALIZE_MESSAGE) {
-                    java.lang.Throwable t = (java.lang.Throwable) obj;
                     xjs.write(t.getMessage());
                 }
                 if (THROWABLES_SERIALIZE_STACKTRACE) {
-                    java.lang.Throwable t = (java.lang.Throwable) obj;
                     xjs.writeArrayUsingReflection(t.getStackTrace());
+                }
+                if (THROWABLES_SERIALIZE_CAUSE) {
+                    xjs.write(t.getCause());
                 }
             } else if ("java.lang.Class".equals(clazz.getName())) {
                 xjs.write(((Class)obj).getName());

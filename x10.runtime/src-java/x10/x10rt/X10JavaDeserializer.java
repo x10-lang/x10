@@ -814,6 +814,16 @@ public class X10JavaDeserializer {
                     java.lang.Throwable t = (java.lang.Throwable) obj;
                     t.setStackTrace(trace);
                 }
+                if (X10JavaSerializer.THROWABLES_SERIALIZE_CAUSE) {
+                    try {
+                        java.lang.Throwable cause = (java.lang.Throwable) jds.readRef();
+                        Field causeField = java.lang.Throwable.class.getDeclaredField("cause");
+                        causeField.setAccessible(true);
+                        causeField.set(obj, cause);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 return obj;
             } else if ("java.lang.Class".equals(clazz.getName())) {
                 String className = jds.readString();
