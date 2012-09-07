@@ -9,10 +9,9 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-import x10.interop.java.Throws;
 
 public class XClass extends JClass {
-    static def testJThrows():void throws CheckedThrowable {
+    static def testJThrows() throws CheckedThrowable:void {
         val x = new XClass();
         x.jthrows();
     }
