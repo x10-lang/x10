@@ -6,7 +6,7 @@
  *  You may obtain a copy of the License at
  *      http://www.opensource.org/licenses/eclipse-1.0.php
  *
- *  (C) Copyright IBM Corporation 2006-2011.
+ *  (C) Copyright IBM Corporation 2006-2012.
  */
 
 public class XClass {   
@@ -19,7 +19,7 @@ public class XClass {
         passed = false;
         try {
             JClass.throwable("throwable");
-        } catch (e:java.lang.Throwable) {
+        } catch (e:x10.lang.CheckedThrowable) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -29,7 +29,7 @@ public class XClass {
         passed = false;
         try {
             JClass.exception("exception");
-        } catch (e:java.lang.Exception) {
+        } catch (e:x10.lang.CheckedException) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -39,7 +39,7 @@ public class XClass {
         passed = false;
         try {
             JClass.runtimeException("runtimeException");
-        } catch (e:java.lang.RuntimeException) {
+        } catch (e:x10.lang.Exception) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -49,7 +49,7 @@ public class XClass {
         passed = false;
         try {
             JClass.error("error");
-        } catch (e:java.lang.Error) {
+        } catch (e:x10.lang.Error) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -60,7 +60,7 @@ public class XClass {
         passed = false;
         try {
             JClass.aThrowable("aThrowable");
-        } catch (e:java.lang.Throwable) {
+        } catch (e:x10.lang.CheckedThrowable) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -70,7 +70,7 @@ public class XClass {
         passed = false;
         try {
             JClass.anException("anException");
-        } catch (e:java.lang.Exception) {
+        } catch (e:x10.lang.CheckedException) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -80,7 +80,7 @@ public class XClass {
         passed = false;
         try {
             JClass.aRuntimeException("aRuntimeException");
-        } catch (e:java.lang.RuntimeException) {
+        } catch (e:x10.lang.Exception) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -90,7 +90,7 @@ public class XClass {
         passed = false;
         try {
             JClass.anError("anError");
-        } catch (e:java.lang.Error) {
+        } catch (e:x10.lang.Error) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
@@ -101,9 +101,7 @@ public class XClass {
         passed = false;
         try {
             throw new x10.lang.Exception("x10exception");
-        } catch (e:java.lang.Throwable) {
-            if (DEBUG) e.printStackTrace();
-        } catch (e:x10.lang.Throwable) {
+        } catch (e:x10.lang.CheckedThrowable) {
             passed = true;
             if (DEBUG) e.printStackTrace();
         } finally {
