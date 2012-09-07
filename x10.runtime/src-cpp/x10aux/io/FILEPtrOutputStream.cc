@@ -14,7 +14,7 @@
 #include <x10aux/io/FILEPtrOutputStream.h>
 
 #include <x10/util/IndexedMemoryChunk.h>
-
+#include <x10/io/FileNotFoundException.h>
 
 using namespace x10aux;
 using namespace x10aux::io;
@@ -44,6 +44,16 @@ void FILEPtrOutputStream::write(x10_int b) {
 
 void FILEPtrOutputStream::write(const char* s) {
     ::fprintf(_stream, "%s", s);
+}
+
+FILE* FILEPtrOutputStream::open_file(String* name, const char* mode) {
+    const char *filename = name->c_str();
+    FILE* res = fopen(filename, mode);
+#ifndef NO_EXCEPTIONS
+    if (res == NULL)
+        throwException(FileNotFoundException::_make(name));
+#endif
+    return res;
 }
 
 // vim:tabstop=4:shiftwidth=4:expandtab

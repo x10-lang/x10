@@ -25,7 +25,7 @@ FileWriter__FileOutputStream::_make(x10::lang::String* name, bool append) {
 
 void FileWriter__FileOutputStream::_constructor(x10::lang::String* file, bool append) {
     this->OutputStreamWriter__OutputStream::_constructor();
-    x10aux::io::FILEPtrOutputStream fpos(x10aux::io::FILEPtrStream::open_file(file, (append ? "a" : "w")));
+    x10aux::io::FILEPtrOutputStream fpos(x10aux::io::FILEPtrOutputStream::open_file(file, (append ? "a" : "w")));
     _outputStream = fpos;
 }
 

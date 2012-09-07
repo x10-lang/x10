@@ -24,7 +24,7 @@ FileReader__FileInputStream::_make(x10::lang::String* name) {
 
 void FileReader__FileInputStream::_constructor(x10::lang::String* file) {
     this->InputStreamReader__InputStream::_constructor();
-    x10aux::io::FILEPtrInputStream fpis(x10aux::io::FILEPtrStream::open_file(file, "r"));
+    x10aux::io::FILEPtrInputStream fpis(x10aux::io::FILEPtrInputStream::open_file(file, "r"));
     _inputStream = fpis;
 }
 

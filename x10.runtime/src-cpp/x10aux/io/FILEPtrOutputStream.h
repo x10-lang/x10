@@ -12,21 +12,23 @@
 #ifndef X10AUX_IO_FILEPTROUTPUTSTREAM_H
 #define X10AUX_IO_FILEPTROUTPUTSTREAM_H
 
-#include <x10aux/io/FILEPtrStream.h>
 #include <cstdarg>
+#include <stdio.h>
 
 namespace x10 {
-    namespace util {
-        template<class T> class IndexedMemoryChunk;
-    }
+    namespace util { template<class T> class IndexedMemoryChunk; }
+    namespace lang { class String; }
 }
 
 namespace x10aux {
     namespace io {
 
-        class FILEPtrOutputStream : public FILEPtrStream {
+        class FILEPtrOutputStream {
+        private:
+            FILE* _stream;
+
         public:
-            explicit FILEPtrOutputStream(FILE* stream) : FILEPtrStream(stream) { }
+            explicit FILEPtrOutputStream(FILE* stream) : _stream(stream) { }
 
             void _vprintf(const char* format, va_list parms);
             void write(const char* s);
@@ -34,6 +36,7 @@ namespace x10aux {
             void close();
             void write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
             void write(x10_int b);
+            static FILE* open_file(x10::lang::String* name, const char* mode);
         };
     }
 }
