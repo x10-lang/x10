@@ -40,6 +40,24 @@ public class Java {
     public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int, d3:Java.int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass()")
     public static native def javaClass[T]():java.lang.Class;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).set(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Any):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setByte(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Byte):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setShort(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Short):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setInt(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Int):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setLong(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Long):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setFloat(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Float):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setDouble(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Double):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setChar(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Char):void;
+    @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setBoolean(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
+    public static native def setStaticField[T](name:String,value:Boolean):void;
     @Native("java", "do { throw #e; } while (false)")
     public static native @NoReturn def throwException(e:CheckedThrowable):void;
     // Java conversions (primitive)
