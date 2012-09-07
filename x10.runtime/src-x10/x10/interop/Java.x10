@@ -30,6 +30,8 @@ public class Java {
         @Native("java", "(#this)[#i] = #v")
         public final native operator this(i:Java.int) = (v:T):T;
     }
+    @Native("java", "new java.lang.Object()")
+    public static native def newObject():Any{self!=null};
     @Native("java", "(#T[])#T$rtt.makeArray(#d0)")
     public static native def newArray[T](d0:Java.int):array[T]{self.length==d0};
     @Native("java", "(#T[][])#T$rtt.makeArray(#d0,#d1)")
