@@ -1014,7 +1014,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                 Type ret_type = emitter.findRootMethodReturnType(meth.x10Def(), null, meth);
                 needsCast = !xts.typeDeepBaseEquals(meth.returnType(), ret_type, context);
                 if (needsCast) {
-                    h.write("x10aux::class_cast_unchecked");
+                    h.write(selectUncheckedCast(xts, ret_type, meth.returnType()));
                     h.write(chevrons(Emitter.translateType(meth.returnType(), true)));
                     h.write("(");
                 }
@@ -1725,7 +1725,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    String val = getId();
 	    emitter.printType(dec.type().type(), sw);
 	    sw.allowBreak(2, 2, " ", 1);
-	    sw.write(val + " = x10aux::class_cast_unchecked"+chevrons(emitter.translateType(dec.type().type(), true))+"(");
+	    sw.write(val + " = "+selectUncheckedCast(tr.typeSystem(), dec.init().type(), dec.type().type()));
+	    sw.write(chevrons(Emitter.translateType(dec.type().type(), true))+"(");
 	    dec.print(dec.init(), sw, tr);
 	    sw.writeln(");");
 	    // copy into the field
@@ -2075,7 +2076,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 			    Type ret_type = emitter.findRootMethodReturnType(md, null, mi);
 			    needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type, context);
 			    if (needsCast) {
-			        sw.write("x10aux::class_cast_unchecked");
+			        sw.write(selectUncheckedCast(xts, mi.returnType(), ret_type));
 			        sw.write(chevrons(Emitter.translateType(ret_type, true)) + "(");
 			    }
 			}
@@ -2558,7 +2559,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
         Type ret_type = emitter.findRootMethodReturnType(md, null, mi);
 		boolean needsCast = !xts.typeDeepBaseEquals(mi.returnType(), ret_type, context);
 		if (needsCast) {
-			sw.write("x10aux::class_cast_unchecked");
+			sw.write(selectUncheckedCast(xts, ret_type, mi.returnType()));
 			sw.write(chevrons(Emitter.translateType(mi.returnType(), true)) + "(");
 		}
 
@@ -2998,13 +2999,13 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
                     //   (a) if it is a struct, then the upcast will autobox
                     //   (b) if it is not a struct, we might still need the cast to
                     //       get the right C++ types so that overload resolution will work.
-                    sw.write("x10aux::class_cast_unchecked");
+                    sw.write(selectUncheckedCast(xts, f_, t_));
                     sw.write(chevrons(Emitter.translateType(t_, true)) + "(");
                     c.printSubExpr(c.expr(), true, sw, tr);
                     sw.write(")");
                 } else {
 				    if (c.conversionType()==Converter.ConversionType.UNCHECKED) {
-				        sw.write("x10aux::class_cast_unchecked");
+				        sw.write(selectUncheckedCast(xts, f_, t_));
 				    } else {
 				        sw.write("x10aux::class_cast");
 				    }
@@ -3028,6 +3029,16 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 	}
 
+    private String selectUncheckedCast(TypeSystem xts, Type fromType, Type toType) {
+        if (xts.isObjectOrInterfaceType(fromType, tr.context()) &&
+                xts.isObjectOrInterfaceType(toType, tr.context())) {
+            return "reinterpret_cast";
+        } else {
+            return "x10aux::class_cast_unchecked";
+        }
+    }
+
+	
 	public void visit(SubtypeTest_c n) {
 		X10CPPContext_c context = (X10CPPContext_c) tr.context();
         if (n.equals()) {

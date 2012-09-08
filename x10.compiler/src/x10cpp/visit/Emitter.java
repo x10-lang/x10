@@ -1297,6 +1297,5 @@ public class Emitter {
         }
         w.write(pattern.substring(last));
 	}
-
 }
 // vim:tabstop=4:shiftwidth=4:expandtab
