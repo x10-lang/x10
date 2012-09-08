@@ -142,6 +142,10 @@ public class X10LocalClassRemover extends LocalClassRemover {
         super(icrv);
     }
 
+    // [DC] Igor suggests that the purpose of this code is to fix the return type of the method
+    // from which 1 or more local classes were removed.  This is not possible during hte normal
+    // course of the visitor, due to not knowing at this point what changes have actually occurred.
+    // So do it here on the unwind as a sort of post pass.
     @Override
     protected Node leaveCall(Node old, Node n, NodeVisitor v) {
         Node res = super.leaveCall(old, n, v);
@@ -155,7 +159,7 @@ public class X10LocalClassRemover extends LocalClassRemover {
             List<ParameterType> params = type.x10Def().typeParameters();
             if (!params.isEmpty() && (ta == null || ta.size() != params.size())) {
                 X10MethodDef md = decl.methodDef();
-                if ((ta == null || ta.equals(params)) && !md.typeParameters().isEmpty())
+                if (ta == null)
                     ta = new ArrayList<Type>();
                 for (int i = ta.size(); i < params.size(); i++) {
                     ta.add(params.get(i));
