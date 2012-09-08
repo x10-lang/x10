@@ -13,8 +13,9 @@
 #define X10_IO_FILEINPUTSTREAM_H
 
 #include <x10/io/InputStreamReader__InputStream.h>
-#include <x10aux/io/FILEPtrInputStream.h>
 #include <x10/util/IndexedMemoryChunk.h>
+
+#include <stdio.h>
 
 namespace x10 {
 
@@ -22,39 +23,30 @@ namespace x10 {
 
         class FileReader__FileInputStream : public InputStreamReader__InputStream {
         protected:
-            x10aux::io::FILEPtrInputStream _inputStream;
+            FILE* FMGL(file);
             
         public:
             RTT_H_DECLS_CLASS;
 
-            FileReader__FileInputStream(FILE *f) : _inputStream(f) { } 
-            FileReader__FileInputStream() : _inputStream(NULL) { } 
-
+            explicit FileReader__FileInputStream(FILE* file) : FMGL(file)(file) { } 
+            FileReader__FileInputStream() : FMGL(file)(NULL) { } 
+            
             static FileReader__FileInputStream* _make(x10::lang::String* name);
 
             void _constructor (x10::lang::String* file);
             void _constructor (FILE* file);
-            void _constructor ();
 
-            virtual char * gets(char *buf, int sz) {
-                return _inputStream.gets(buf,sz);
-            }
+            virtual char * gets(char *buf, int sz);
 
-            virtual void close() {
-                _inputStream.close();
-            }
+            virtual void close();
 
-            virtual x10_int read() {
-                return _inputStream.read();
-            }
+            virtual x10_int read();
 
             virtual x10_int read(x10::util::IndexedMemoryChunk<x10_byte> b,
                                  x10_int off,
                                  x10_int len);
 
-            virtual void skip(x10_int bytes) {
-                return _inputStream.skip(bytes);
-            }
+            virtual void skip(x10_int bytes);
 
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;

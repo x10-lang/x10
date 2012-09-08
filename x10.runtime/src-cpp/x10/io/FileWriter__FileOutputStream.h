@@ -13,7 +13,9 @@
 #define X10_IO_FILEOUTPUTSTREAM_H
 
 #include <x10/io/OutputStreamWriter__OutputStream.h>
-#include <x10aux/io/FILEPtrOutputStream.h>
+
+#include <cstdarg>
+#include <stdio.h>
 
 namespace x10 {
 
@@ -21,37 +23,28 @@ namespace x10 {
 
         class FileWriter__FileOutputStream : public x10::io::OutputStreamWriter__OutputStream {
         protected:
-            x10aux::io::FILEPtrOutputStream _outputStream;
+            FILE* FMGL(file);
             
         public:
             RTT_H_DECLS_CLASS;
 
-            FileWriter__FileOutputStream(FILE *f): _outputStream(f) { }
-            FileWriter__FileOutputStream(): _outputStream(NULL) { }
+            FileWriter__FileOutputStream(FILE *f): FMGL(file)(f) { }
+            FileWriter__FileOutputStream(): FMGL(file)(NULL) { }
 
             static FileWriter__FileOutputStream* _make(x10::lang::String* name, bool append);
 
             void _constructor (x10::lang::String* file, bool append);
             void _constructor (FILE* file);
-            void _constructor ();
 
-            virtual void write(const char *str) {
-                _outputStream.write(str);
-            }
+            virtual void write(const char *str);
 
-            virtual void write(x10_int i) {
-                _outputStream.write(i);
-            }
+            virtual void write(x10_int i);
 
             virtual void write(x10::util::IndexedMemoryChunk<x10_byte> b, x10_int off, x10_int len);
 
-            virtual void flush() {
-                _outputStream.flush();
-            }
+            virtual void flush();
 
-            virtual void close() {
-                _outputStream.close();
-            }
+            virtual void close();
 
             // Serialization
             static const x10aux::serialization_id_t _serialization_id;
@@ -61,7 +54,6 @@ namespace x10 {
             virtual void _serialize_body(x10aux::serialization_buffer& buf);
             static x10::lang::Reference* _deserializer(x10aux::deserialization_buffer& buf);
             void _deserialize_body(x10aux::deserialization_buffer& buf);
-            // No specialized serialization methods - not optimizing this final class
         };
 
     }
