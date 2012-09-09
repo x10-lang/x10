@@ -15,6 +15,10 @@ import x10.compiler.Native;
 
 // MANAGED_X10_ONLY
 
+/**
+ * The point of this test case is to see if exception stack traces 
+ * are being properly serialized.
+ */
 public class JavaSerialization3 extends x10Test {
         
     static def test():void {
@@ -22,7 +26,11 @@ public class JavaSerialization3 extends x10Test {
             (null as String).length();
         } catch (e:NullPointerException) {
             at (here.next()) {
-                e.printStackTrace();
+	        // Checking for a minimal size is not a complete check,
+		// but trying to be too picky about the contents of the
+		// stack trace can be fragile in the presence of inlining, etc.
+	        val st = e.getStackTrace();
+		chk(st.size > 5, "Stack trace too short...where did it go?");
             }
         }
     }
