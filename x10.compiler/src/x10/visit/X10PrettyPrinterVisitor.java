@@ -1996,7 +1996,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     private void printAllocationCall(Type type, List<? extends Type> typeParams) {
         w.write("new ");
-        // N.B. HACK! for x10.lang.Object, allocate x10.core.Ref instead of x10.core.RefI
         er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
         printArgumentsForTypeParamsPreComma(typeParams, false);
@@ -2706,11 +2705,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(".conversion(");
                             new RuntimeTypeExpander(er, Types.baseType(castType)).expand(tr);
                             w.write(",");
-                        } else {
-                            // box only if converting to function type or to x10.lang.Object
-                            if (xts.isFunctionType(castType)) {
-                                er.printBoxConversion(e.type());
-                            }
                         }
                     }
 

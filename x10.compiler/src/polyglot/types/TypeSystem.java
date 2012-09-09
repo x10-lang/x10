@@ -897,7 +897,7 @@ public interface TypeSystem {
     
     /**
      * Returns an immutable list of all the interfaces
-     * which the type implements excluding itself and x10.lang.Object.
+     * which the type implements excluding itself.
      * This is different from {@link #Interface()} in that this method
      * traverses the class hierarchy to collect all implemented interfaces
      * instead of shallowly returning just the interfaces directly implemented

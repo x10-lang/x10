@@ -509,15 +509,6 @@ public class TypeSystem_c implements TypeSystem
         if (child == a)
             return false;
 
-        // XTENLANG-2118: this short-circuit is no longer valid for classes that don't extend x10.lang.Object
-        //ClassDef o = classDefOf(Object());
-        //
-        //if (ancestor == o)
-        //    return true;
-        //
-        //if (child == o)
-        //    return false;
-
         Type sup = Types.get(child.superType());
 
         if (sup != null && classDefOf(sup) != null) {
