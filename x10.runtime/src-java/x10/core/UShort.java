@@ -28,7 +28,7 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     x10.lang.Arithmetic<UShort>, x10.lang.Bitwise<UShort>, x10.util.Ordered<UShort>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UShort.class);
+    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UShort.class);
 
     public static final RuntimeType<?> $RTT = Types.USHORT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -155,7 +155,7 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     }
 
     public short $_get_serialization_id() {
-        return _serialization_id;
+        return $_serialization_id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
