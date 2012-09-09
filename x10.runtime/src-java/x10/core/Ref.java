@@ -26,7 +26,8 @@ public abstract class Ref implements Any {
     
     private static final long serialVersionUID = 1L;
     
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Ref.class);
+    // not used (really?)
+//    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Ref.class);
 
     // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
@@ -78,13 +79,14 @@ public abstract class Ref implements Any {
 //        $deserializer.record_reference($_obj);
 //        return $_deserialize_body($_obj, $deserializer);
 //    }
-    
-    public short $_get_serialization_id() {
-         return $_serialization_id;
-    }
-    
-    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
-        
-    }
-    
+
+    // not used (really?)
+//    public short $_get_serialization_id() {
+//         return $_serialization_id;
+//    }
+//    
+//    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
+//        
+//    }
+
 }
