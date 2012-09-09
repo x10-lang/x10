@@ -39,10 +39,6 @@ public final class StringType extends RuntimeType<java.lang.String> {
     
     @Override
     public boolean isInstance(Object obj) {
-        // TODO remove boxing of String
-//        // rules for String boxing currently are not straightforward,
-//        // so we accept both unboxed (java.lang) and boxed (x10.core) objects.
-//        return obj instanceof java.lang.String || obj instanceof x10.core.String;
         return obj instanceof java.lang.String;
     }
     
