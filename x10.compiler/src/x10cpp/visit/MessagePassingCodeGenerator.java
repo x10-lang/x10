@@ -676,32 +676,44 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		if (!fields.isEmpty()) {
 		    Set<Type> dupes = CollectionFactory.newHashSet();
             Set<ClassType> dupes2 = CollectionFactory.newHashSet();
+            Set<ClassType> dupes3 = CollectionFactory.newHashSet();
+
 		    for (FieldInstance fi : fields) {
+                Type fct = fi.type();
+
 		        if (!fi.flags().isStatic()) {
-		            Type fct = fi.type();
+                    if (!((X10FieldInstance) fi).annotationsMatching(xts.Embed()).isEmpty()) {
+                        ArrayList<ClassType> types = new ArrayList<ClassType>();
+                        extractAllClassTypes(fct, types, dupes2);
+                        for (ClassType t : types) {
+                            X10ClassDef cd = ((X10ClassType)t).x10Def();
+                            if (cd != def && getCppRep(cd) == null) {
+                                String header = getHeader(t);
+                                String guard = getHeaderGuard(header);
+                                h.writeln("#define "+guard+"_NODEPS");
+                                h.writeln("#include <" + header + ">");
+                                h.writeln("#undef "+guard+"_NODEPS");
+                                allIncludes.add(getHeader(t));
+                            }
+                        }
+                    }
+
 		            if (!dupes.contains(fct)) {
 		                dupes.add(fct);
-		                if (!((X10FieldInstance) fi).annotationsMatching(xts.Embed()).isEmpty()) {
-		                    ArrayList<ClassType> types = new ArrayList<ClassType>();
-                            extractAllClassTypes(fct, types, dupes2);
-                            for (ClassType t : types) {
-                                X10ClassDef cd = ((X10ClassType)t).x10Def();
-                                if (cd != def && getCppRep(cd) == null) {
-                                    String header = getHeader(t);
-                                    String guard = getHeaderGuard(header);
-                                    h.writeln("#define "+guard+"_NODEPS");
-                                    h.writeln("#include <" + header + ">");
-                                    h.writeln("#undef "+guard+"_NODEPS");
-                                    allIncludes.add(getHeader(t));
-                                }
-                            }
+		                ArrayList<ClassType> types = new ArrayList<ClassType>();
+		                extractAllClassTypes(fct, types, dupes3);
+		                if (xts.isStruct(fct)) {
+		                    types.add((X10ClassType) Types.baseType(fct));
 		                }
-		                if (xts.isStructType(fct)) {
-		                    String header = getHeader(fct.toClass());
-		                    String guard = getHeaderGuard(header);
-		                    h.writeln("#define "+guard+"_NODEPS");
-		                    h.writeln("#include <" + header + ">");
-		                    h.writeln("#undef "+guard+"_NODEPS");
+		                for (ClassType t : types) {
+		                    if (xts.isStructType(t)) {
+		                        String header = getHeader(t.toClass());
+		                        String guard = getHeaderGuard(header);
+		                        h.writeln("#define "+guard+"_NODEPS");
+		                        h.writeln("#include <" + header + ">");
+		                        h.writeln("#undef "+guard+"_NODEPS");
+                                allIncludes.add(getHeader(t));
+		                    }
 		                }
 		            }
 		        }
