@@ -433,8 +433,6 @@ public class X10JavaSerializer {
              || "x10.rtt.CharType".equals(bodyClass.getName())
              || "x10.rtt.ByteType".equals(bodyClass.getName())
              || "x10.rtt.ShortType".equals(bodyClass.getName())
-             //TODO remove Types.OBJECT
-//             || "x10.rtt.ObjectType".equals(bodyClass.getName())
              || "x10.rtt.UByteType".equals(bodyClass.getName())
              || "x10.rtt.UIntType".equals(bodyClass.getName())
              || "x10.rtt.ULongType".equals(bodyClass.getName())

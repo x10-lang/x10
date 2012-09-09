@@ -190,8 +190,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     public boolean isAssignableTo(Type<?> superType) {
         if (this == superType) return true;
         if (superType == Types.ANY) return true;
-        // N.B. 2nd attempt to remove Types.OBJECT. if successful, {RefI,ObjectType}.java and Types.OBJECT will be removed.
-//        if (superType == Types.OBJECT) return !Types.isStructType(this);
         if (superType instanceof RuntimeType<?>) {
             RuntimeType<?> rt = (RuntimeType<?>) superType;
             if (rt.javaClass.isAssignableFrom(javaClass)) {
@@ -647,8 +645,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             return Types.INT;
         } else if ("x10.core.Long".equals(className)) {
             return Types.LONG;
-//        } else if ("x10.core.Ref".equals(className)) {
-//            return Types.OBJECT;
         } else if ("x10.core.Short".equals(className)) {
             return Types.SHORT;
         } else if ("x10.core.String".equals(className)) {

@@ -328,8 +328,6 @@ public class Types {
     }
 
     public static final RuntimeType<Object> ANY = new AnyType();
-    //TODO remove Types.OBJECT
-//    public static final RuntimeType<x10.core.RefI> OBJECT = new ObjectType();
     // Struct is not an X10 type, but it has RTT for runtime type checking such as instanceof
     // create rtt of struct before all struct types (e.g. int)
     public static final RuntimeType<x10.core.StructI> STRUCT = new StructType();
@@ -756,8 +754,6 @@ public class Types {
     private static void nullIsCastToStruct(String msg){throw new java.lang.ClassCastException(msg);}
 
     private static boolean isNullable(Type<?> rtt) {
-        // N.B. 2nd attempt to remove Types.OBJECT. if successful, {RefI,ObjectType}.java and Types.OBJECT will be removed.
-//        return rtt.isAssignableTo(OBJECT);
         return rtt.isref();
     }
 
