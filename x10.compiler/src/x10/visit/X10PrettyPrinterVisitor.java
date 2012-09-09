@@ -3190,10 +3190,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.write("\"");
         w.write(StringUtil.escape(n.value()));
         w.write("\"");
-        // removed it since now we pass captured environment explicitly,
+        // N.B. removed it since now we pass captured environment explicitly,
         // therefore the workaround is no longer needed.
-        // w.write(".toString()"); // workaround for XTENLANG-2006. TODO remove
-        // this when the bug get fixed.
+        // w.write(".toString()"); // workaround for XTENLANG-2006.
     }
 
     @Override
@@ -4262,7 +4261,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             || ct.name().toString().startsWith(ClosureRemover.STATIC_NESTED_CLASS_BASE_NAME) // is this needed?
             ) {
             TypeSystem ts = tr.typeSystem();
-//            if (isObject) return;  // TODO stop calling constructor of x10.lang.Object for optimization (it should be safe)
             Expr target = c.target();
             if (target == null || target instanceof Special) {
                 if (c.kind() == ConstructorCall.SUPER) {
