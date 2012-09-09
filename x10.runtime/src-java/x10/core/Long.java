@@ -29,7 +29,7 @@ final public class Long extends Number implements StructI, java.lang.Comparable<
     x10.lang.Arithmetic<Long>, x10.lang.Bitwise<Long>, x10.util.Ordered<Long>
 {
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Long.class);
+    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Long.class);
     
     public static final RuntimeType<?> $RTT = Types.LONG;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -169,7 +169,7 @@ final public class Long extends Number implements StructI, java.lang.Comparable<
     }
 
     public short $_get_serialization_id() {
-        return _serialization_id;
+        return $_serialization_id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {

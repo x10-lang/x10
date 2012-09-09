@@ -15,7 +15,6 @@ import x10.core.Ref;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
 
 public class InputStream extends Ref {
   

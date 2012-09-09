@@ -3523,7 +3523,7 @@ public class Emitter {
             boolean needComma = false;
             for (int i = 0 ; i < def.interfaces().size(); i ++) {
                 Type type = def.interfaces().get(i).get();
-                // N.B. any X10 type is either Object or Struct that has Any as parents
+                // we don't need to add Types.ANY as parents because everything is subtype of Any
                 if (xts.isAny(type)) continue;
                 if (needComma) {
                     w.write(", ");
