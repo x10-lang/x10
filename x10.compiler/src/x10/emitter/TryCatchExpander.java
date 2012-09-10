@@ -109,9 +109,11 @@ public class TryCatchExpander extends Expander {
 //        } else
         if (ts.isSubtype(catchType, ts.Exception())) {
             convRequired |= EXCEPTION_CONVERSION;
-        } else if (ts.isSubtype(catchType, ts.Error())) {
-            convRequired |= ERROR_CONVERSION;
-        } else if (ts.isSubtype(catchType, ts.CheckedThrowable())) {
+        } else
+//        if (ts.isSubtype(catchType, ts.Error())) {
+//            convRequired |= ERROR_CONVERSION;
+//        } else
+        if (ts.isSubtype(catchType, ts.CheckedThrowable())) {
             convRequired |= THROWABLE_CONVERSION;
         }
         return convRequired;
@@ -169,11 +171,6 @@ public class TryCatchExpander extends Expander {
 
             String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
 
-            // TODO remove x10.core.Throwable
-//            w.write("catch (" + X10PrettyPrinterVisitor.X10_CORE_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-//            w.write("throw " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ";");
-//            w.write("}");
-
             if ((additionalTryCatchForConversion & THROWABLE_CONVERSION) != 0) {
                 w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
                 w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaThrowable(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
@@ -212,28 +209,13 @@ public class TryCatchExpander extends Expander {
     }
 
     // N.B. ThrowableUtils.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
-    // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//    private static final Set<String> knownJavaRuntimeExceptions = new HashSet<String>(Arrays.asList("java.lang.ArithmeticException", "java.lang.ArrayIndexOutOfBoundsException", "java.lang.StringIndexOutOfBoundsException", "java.lang.IndexOutOfBoundsException", "java.lang.ClassCastException", "java.lang.NumberFormatException", "java.lang.IllegalArgumentException", "java.util.NoSuchElementException", "java.lang.NullPointerException", "java.lang.UnsupportedOperationException"
-//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-////        ,"java.lang.RuntimeException"
-//    ));
     private static final Set<String> knownJavaRuntimeExceptions = Collections.<String>emptySet();
     private static final Set<String> knownJavaExceptions = new HashSet<String>(Arrays.asList("java.io.NotSerializableException", "java.lang.InterruptedException"
         // N.B. subtypes of java.io.IOException should be caught and converted to the corresponding x10 exceptions in XRJ
 //        , "java.io.FileNotFoundException", "java.io.EOFException", "java.io.IOException" 
-        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-//        , "java.lang.Exception"
     ));
-    // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//    private static final Set<String> knownJavaErrors = new HashSet<String>(Arrays.asList("java.lang.OutOfMemoryError", "java.lang.StackOverflowError"
-//        // XTENLANG-3090 stop converting j.l.AssertionError to x.l.AssertionError (switched back to use java assertion)
-//        , "java.lang.AssertionError"
-//        // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
-////        , "java.lang.Error"
-//    ));
     private static final Set<String> knownJavaErrors = Collections.<String>emptySet();
     private static final Set<String> knownJavaThrowables = Collections.<String>emptySet();
-    // XTENLANG-2871 stop converting j.l.{Throwable,Exception,RuntimeException,Error} to x.l.{Throwable,Exception,RuntimeException,Error}
     public static boolean isKnownJavaThrowable(Type type) {
         String typeName = type.toString();
         return knownJavaRuntimeExceptions.contains(typeName) || knownJavaExceptions.contains(typeName) || knownJavaErrors.contains(typeName) || knownJavaThrowables.contains(typeName);

@@ -57,11 +57,11 @@ public class CheckedThrowable {
     @Native("java", "#this.getCause()")
     @Native("c++", "(#this)->getCause()")
     public final def getCheckedCause():CheckedThrowable = cause;
-    
-    @Native("java", "x10.runtime.impl.java.ThrowableUtils.getUncheckedCause(#this)")
-    // @Native("java", "#this.getCause()")
+
+    // @Native("java", "x10.runtime.impl.java.ThrowableUtils.getUncheckedCause(#this)")
+    @Native("java", "x10.rtt.Types.EXCEPTION.isInstance(#this.getCause()) ? (java.lang.RuntimeException)(#this.getCause()) : new x10.lang.WrappedThrowable(#this.getCause())")
     // @Native("c++", "(#this)->getCause()")
-    public final def getCause():Exception = cause as Exception;
+    public final def getCause():Exception = Exception.ensureException(cause);
     
     @Native("java", "x10.runtime.impl.java.ThrowableUtils.toString(#this)")
     //@Native("java", "#this.toString()")

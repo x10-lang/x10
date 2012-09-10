@@ -58,7 +58,7 @@ public class Exception extends CheckedException {
      *
      * @param e Either gets wrapped or returned.
      */
-    @Native("java", "x10.rtt.Types.EXCEPTION.isInstance(#e) ? (java.lang.RuntimeException)((java.lang.Throwable)#e) : ((java.lang.RuntimeException)(new x10.lang.WrappedThrowable(#e)))")
+    @Native("java", "x10.rtt.Types.EXCEPTION.isInstance(#e) ? (java.lang.RuntimeException)(#e) : new x10.lang.WrappedThrowable(#e)")
     public static def ensureException(e:CheckedThrowable) : Exception = e instanceof Exception ? e as Exception : new WrappedThrowable(e);
 }
 
