@@ -286,6 +286,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             }
             return instantiateCheck(params, rtt, any);
         }
+        if (o instanceof java.lang.String) {
+            RuntimeType<?> rtt = Types.STRING;
+            return instantiateCheck(params, rtt, o);
+        }
         return false;
     }
 
