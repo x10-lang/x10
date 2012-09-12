@@ -21,7 +21,7 @@ class HelloWholeJavaWorld {
             at (p) async {
                 val vmName = ManagementFactory.getRuntimeMXBean().getName(); // pid@hostname
                 val split = vmName.split("@");
-                val pid = Int.parse(split(0));
+                val pid = Long.parse(split(0));
                 val hostName = split(1);
                 Console.OUT.println("Hello World from place "+ p.id + " [host:" + hostName + ",pid:" + pid + "]");
             }
