@@ -698,8 +698,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (subtypeOfCustomSerializer(def)) {
             er.generateCustomSerializer(def, n);
         } else if (subtypeOfHadoopWritable(def)) {
-            w.write("public static " + Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
-            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException { ");
+            w.write("public static ");
+            if (typeParameters.size() > 0) {
+                er.printTypeParams(n, context, typeParameters);
+            }
+            w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
+            er.printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+            w.writeln(" $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException { ");
             w.newline(4);
             w.begin(0);
             
@@ -770,12 +775,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 //_deserialize_body method
                 w.write("public static ");
-                if (supportUpperBounds)
+//                if (supportUpperBounds)
                 if (typeParameters.size() > 0) {
                     er.printTypeParams(n, context, typeParameters);
                 }
                 w.write(Emitter.X10_JAVA_SERIALIZABLE_CLASS + " " + Emitter.DESERIALIZE_BODY_METHOD + "(");
-                w.writeln(Emitter.mangleToJava(def.name()) + " $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
+                er.printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+                w.writeln(" $_obj , " + Emitter.X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
                 w.newline(4);
                 w.begin(0);
 

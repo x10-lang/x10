@@ -3923,8 +3923,14 @@ public class Emitter {
         }
 
         //_deserialize_body method
-        w.write("public static " + X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZE_BODY_METHOD + "(");
-        w.writeln(mangleToJava(def.name()) + " $_obj , " + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
+        w.write("public static ");
+        List<TypeParamNode> typeParameters = n.typeParameters();
+        if (typeParameters.size() > 0) {
+            printTypeParams(n, tr.context(), typeParameters);
+        }
+        w.write(X10_JAVA_SERIALIZABLE_CLASS + " " + DESERIALIZE_BODY_METHOD + "(");
+        printType(def.asType(), PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
+        w.writeln(" $_obj , " + X10_JAVA_DESERIALIZER_CLASS + " $deserializer) throws java.io.IOException {");
         w.newline(4);
         w.begin(0);
 

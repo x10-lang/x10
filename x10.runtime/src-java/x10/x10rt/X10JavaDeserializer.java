@@ -78,9 +78,9 @@ public class X10JavaDeserializer {
         return obj;
     }
 
-    public Object readRef() throws IOException {
+    public <T> T readRef() throws IOException {
         short serializationID = readShort();
-        return readRef(serializationID);
+        return (T) readRef(serializationID);
     }
 
     public Object readRef(short serializationID) throws IOException {
