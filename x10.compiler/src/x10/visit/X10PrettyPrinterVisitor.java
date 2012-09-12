@@ -245,6 +245,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_RUNTIME_IMPL_JAVA_ARRAYUTILS = "x10.runtime.impl.java.ArrayUtils";
 
     public static final String X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS = "x10.runtime.impl.java.ThrowableUtils";
+    public static final String CONVERT_JAVA_THROWABLE_METHOD = "convertJavaThrowable";
+    public static final String CONVERT_JAVA_EXCEPTION_METHOD = "convertJavaException";
+    public static final String CONVERT_JAVA_RUNTIME_EXCEPTION_METHOD = "convertJavaRuntimeException";
+    public static final String CONVERT_JAVA_ERROR_METHOD = "convertJavaError";
+    public static final boolean supportConversionForJavaErrors = false;
+    
     // TODO remove x10.core.Throwable
 //    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
     // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
@@ -4135,13 +4141,27 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // ////////////////////////////////
     // Stmt
     // ////////////////////////////////
+    
+    public static void generateCatchAndRethrowAsUncheckedException(CodeWriter w) {
+        String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
+        w.writeln("catch (" + JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
+
+        if (!supportConversionForJavaErrors) {
+        w.writeln("if (" + TEMPORARY_EXCEPTION_VARIABLE_NAME + " instanceof " + JAVA_LANG_ERROR + ") throw (" + JAVA_LANG_ERROR + ")" + TEMPORARY_EXCEPTION_VARIABLE_NAME + "; else ");
+        }
+        w.writeln("throw " + X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + "." + CONVERT_JAVA_THROWABLE_METHOD + "(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+
+        w.writeln("}");
+    }
+
     @Override
     public void visit(Block_c n) {
         String s = Emitter.getJavaImplForStmt(n, tr.typeSystem());
         if (s != null) {
             w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native block
             w.write(s);
-            w.write("} catch (" + JAVA_LANG_THROWABLE + " $exc$) { throw " + X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaThrowable($exc$); }"); // XTENLANG-2686
+            w.write("}"); // XTENLANG-2686
+            generateCatchAndRethrowAsUncheckedException(w); // XTENLANG-2686
         } else {
             n.translate(w, tr);
         }

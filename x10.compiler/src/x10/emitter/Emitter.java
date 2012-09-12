@@ -4432,17 +4432,20 @@ public class Emitter {
     		}
     		
     		w.write("{");
+
     		w.write("try {"); // XTENLANG-2686: handle Java exceptions inside @Native method
     		// always same?
     		if (!n.returnType().type().isVoid()) {
 //    		if (!mi.returnType().isVoid()) {
     			w.write("return ");
     		}
-    		
     		emitNativeAnnotation(pat, targetArg, mi.x10Def().typeParameters(), mi.typeParameters(), params, args, classTypeParams, classTypeArguments);
-    		
-    		w.write(";}");
-    		w.write("catch (java.lang.Throwable $exc$) { throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaThrowable($exc$); } }"); // XTENLANG-2686
+    		w.write(";");
+
+    		w.writeln("}"); // XTENLANG-2686
+    		X10PrettyPrinterVisitor.generateCatchAndRethrowAsUncheckedException(w); // XTENLANG-2686
+
+                w.write("}");
     		w.newline();
     		
     		return true;

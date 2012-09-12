@@ -169,25 +169,22 @@ public class TryCatchExpander extends Expander {
         if (additionalTryCatchForConversion != NO_CONVERSION) {
             w.write("}");
 
-            String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
-
             if ((additionalTryCatchForConversion & THROWABLE_CONVERSION) != 0) {
-                w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_THROWABLE + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaThrowable(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
-                w.write("}");
+                X10PrettyPrinterVisitor.generateCatchAndRethrowAsUncheckedException(w);
             } else {
+                String TEMPORARY_EXCEPTION_VARIABLE_NAME = Name.makeFresh("exc$").toString();
                 if ((additionalTryCatchForConversion & EXCEPTION_CONVERSION) != 0) {
                     w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_EXCEPTION + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + "." + X10PrettyPrinterVisitor.CONVERT_JAVA_EXCEPTION_METHOD + "(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                     w.write("}");
                 } else if ((additionalTryCatchForConversion & RUNTIME_EXCEPTION_CONVERSION) != 0) {
                     w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_RUNTIME_EXCEPTION + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaRuntimeException(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + "." + X10PrettyPrinterVisitor.CONVERT_JAVA_RUNTIME_EXCEPTION_METHOD + "(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                     w.write("}");
                 }
                 if ((additionalTryCatchForConversion & ERROR_CONVERSION) != 0) {
                     w.write("catch (" + X10PrettyPrinterVisitor.JAVA_LANG_ERROR + " " + TEMPORARY_EXCEPTION_VARIABLE_NAME + ") {");
-                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + ".convertJavaError(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
+                    w.write("throw " + X10PrettyPrinterVisitor.X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS + "." + X10PrettyPrinterVisitor.CONVERT_JAVA_ERROR_METHOD + "(" + TEMPORARY_EXCEPTION_VARIABLE_NAME + ");");
                     w.write("}");
                 }
             }
