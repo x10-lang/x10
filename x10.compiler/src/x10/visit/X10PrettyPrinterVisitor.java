@@ -836,29 +836,35 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
                             w.writeln("$deserializer.read" + primitiveType + "Array();");
                         } else if (xts.isJavaArray(f.type())) {
+                            String type = f.type().toClass().typeArguments().get(0).toString();
+                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                            w.write("(");
                             er.printType(f.type(), BOX_PRIMITIVES);
-                            w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
-                            er.printType(f.type(), BOX_PRIMITIVES);
-                            w.writeln(") $deserializer.readArrayUsingReflection(" + f.type().toClass().typeArguments().get(0).toString() + ".class);");
-                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                            w.write(") ");
+                            w.writeln("$deserializer.readArrayUsingReflection(" + type + ".class);");
                         } else if (f.type().isArray() && f.type() instanceof JavaArrayType_c && ((JavaArrayType_c)f.type()).base().isParameterType()) {
                             // This is to get the test case XTENLANG_2299 to compile. Hope its a generic fix
-                            w.write("java.lang.Object[] " + Emitter.mangleToJava(f.name()) + " = (java.lang.Object[]) $deserializer.readRef();");
-                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                            // not needed because readRef takes type parameters
+//                            w.write("(");
+//                            er.printType(f.type(), BOX_PRIMITIVES);
+//                            w.write(") ");                            
+                            w.writeln("$deserializer.readRef();");
                         } else if (f.type().toClass() != null && f.type().toClass().isJavaType()) {
                             // deserialize the variable using reflection and cast it back to the correct type
+                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                            w.write("(");
                             er.printType(f.type(), BOX_PRIMITIVES);
-                            w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
-                            er.printType(f.type(), BOX_PRIMITIVES);
-                            w.writeln(") $deserializer.readRefUsingReflection();");
-                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                            w.write(") ");                            
+                            w.writeln("$deserializer.readRefUsingReflection();");
                         } else {
                             // deserialize the variable and cast it back to the correct type
-                            er.printType(f.type(), BOX_PRIMITIVES);
-                            w.write(" " + Emitter.mangleToJava(f.name()) + " = (");
-                            er.printType(f.type(), BOX_PRIMITIVES);
-                            w.writeln(") $deserializer.readRef();");
-                            w.writeln("$_obj." + Emitter.mangleToJava(f.name()) + " = " + Emitter.mangleToJava(f.name()) + ";");
+                            w.write("$_obj." + Emitter.mangleToJava(f.name()) + " = ");
+                            // not needed because readRef takes type parameters
+//                            w.write("(");
+//                            er.printType(f.type(), BOX_PRIMITIVES);
+//                            w.write(") ");                            
+                            w.writeln("$deserializer.readRef();");
                         }
                     }
 
