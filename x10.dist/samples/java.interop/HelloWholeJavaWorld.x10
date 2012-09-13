@@ -15,7 +15,7 @@ import java.lang.management.ManagementFactory;
  * The classic hello world program, with a twist - prints hello from every Place.
  * Uses Java interop to get hostname and pid.
  */
-class HelloWholeJavaWorld {
+public class HelloWholeJavaWorld {
     public static def main(Array[String]):void {
         finish for (p in Place.places()) {
             at (p) async {

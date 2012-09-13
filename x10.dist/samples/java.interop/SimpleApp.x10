@@ -20,7 +20,7 @@
  */
 
 /*
- * Original is db-derby-10.9.1.0-bin/demo/programs/simple/SimpleApp.java
+ * This is based on db-derby-10.9.1.0-bin/demo/programs/simple/SimpleApp.java
  * Ported to X10 2.3
  * For embeded mode, run as "x10 -cp .:derby.jar SimpleApp"
  * For client mode, run as "x10 -cp .:derbyclient.jar SimpleApp derbyclient"
@@ -133,9 +133,6 @@ public class SimpleApp {
          * in an array list for convenience.
          */
         var conn:Connection = null;
-        /* This ArrayList usage may cause a warning when compiling this class
-         * with a compiler for J2SE 5.0 or newer. We are not using generics
-         * because we want the source to support J2SE 1.4.2 environments. */
         val statements = new x10.util.ArrayList[Statement](); // list of Statements, PreparedStatements
         var rs:ResultSet = null;
         try {
