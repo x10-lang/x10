@@ -302,7 +302,7 @@ public class StaticInitializer extends ContextVisitor {
         return members;
     }
 
-    private X10ClassDecl createNestedShadowClass(ClassDecl_c interfaceClass) {
+    private X10ClassDecl createNestedShadowClass(X10ClassDecl_c interfaceClass) {
         // create ClassDef first
         X10ClassDef cDef = createShadowClassDef(interfaceClass.classDef());
 

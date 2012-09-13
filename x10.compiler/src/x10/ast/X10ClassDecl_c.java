@@ -314,6 +314,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
 
     @Override
     public Context enterScope(Context c) {
+    	c = c.pushCode(classDef());
     	return c.pushBlock();
     }
 
