@@ -104,7 +104,7 @@ public class MD {
         
         if (files.size == 0) return;
 
-        if (numPlaces == 0) {
+        if (numPlaces == 1) {
             generateDigestParallel(files, algo);
         } else {
             val filesArray = new Rail[Rail[String]](numPlaces, (i:Int) => new Rail[String]((files.size + numPlaces - 1 - i) / numPlaces));
