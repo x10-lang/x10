@@ -79,8 +79,8 @@ public abstract class ThrowableUtils {
             }
             return x10t;
         } catch (java.lang.Exception e) {
+            throw new java.lang.Error(e);
         }
-        throw new java.lang.Error(t);
     }
     
     public static java.lang.RuntimeException getCorrespondingX10Throwable(java.lang.RuntimeException e) {
