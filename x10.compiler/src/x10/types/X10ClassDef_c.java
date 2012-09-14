@@ -765,10 +765,10 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     
     // [DC] the following 5 functions added to allow ClassDef to be a CodeDef
     // which I wanted to do so that the code reference stored in a context can understand
-    // when an expression is within an inner class scope (e.g. a guard of a local class)
+    // when an expression is within an inner class scope (e.g. invariant of a local class)
 	@Override
 	public CodeInstance<?> asInstance() {
-		return asInstance();
+		return asType();
 	}
 
 	@Override
