@@ -7,39 +7,30 @@ import x10.compiler.NoReturn;
 @NativeRep("c++", "#error Undefined Java", "#error Undefined Java", null)
 public class Java {
     private def this() { } // no instances
-    // Java primitive types
-    public static type boolean = x10.lang.Boolean;
-    public static type byte = x10.lang.Byte;
-    public static type short = x10.lang.Short;
-    public static type int = x10.lang.Int;
-    public static type long = x10.lang.Long;
-    public static type float = x10.lang.Float;
-    public static type double = x10.lang.Double;
-    public static type char = x10.lang.Char;
     // Java arrays (special)
     // TODO: reject unsigned types for element type
     @NativeRep("java", "#T[]", null, "x10.rtt.Types.getRTT(#T[].class)")
     public static final class array[T](
         @Native("java", "(#this).length")
-        length:Java.int
+        length:Int
     ) {
         @Native("java", "(#T[])#T$rtt.makeArray(#d0)")
-        public native def this(d0:Java.int):array[T]{self.length==d0};
+        public native def this(d0:Int):array[T]{self.length==d0};
         @Native("java", "(#this)[#i]")
-        public final native operator this(i:Java.int):T;
+        public final native operator this(i:Int):T;
         @Native("java", "(#this)[#i] = #v")
-        public final native operator this(i:Java.int) = (v:T):T;
+        public final native operator this(i:Int) = (v:T):T;
     }
     @Native("java", "new java.lang.Object()")
     public static native def newObject():Any{self!=null};
     @Native("java", "(#T[])#T$rtt.makeArray(#d0)")
-    public static native def newArray[T](d0:Java.int):array[T]{self.length==d0};
+    public static native def newArray[T](d0:Int):array[T]{self.length==d0};
     @Native("java", "(#T[][])#T$rtt.makeArray(#d0,#d1)")
-    public static native def newArray[T](d0:Java.int, d1:Java.int):array[array[T]{self.length==d1}]{self.length==d0};
+    public static native def newArray[T](d0:Int, d1:Int):array[array[T]{self.length==d1}]{self.length==d0};
     @Native("java", "(#T[][][])#T$rtt.makeArray(#d0,#d1,#d2)")
-    public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int):array[array[array[T]{self.length==d2}]{self.length==d1}]{self.length==d0};
+    public static native def newArray[T](d0:Int, d1:Int, d2:Int):array[array[array[T]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "(#T[][][][])#T$rtt.makeArray(#d0,#d1,#d2,#d3)")
-    public static native def newArray[T](d0:Java.int, d1:Java.int, d2:Java.int, d3:Java.int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
+    public static native def newArray[T](d0:Int, d1:Int, d2:Int, d3:Int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass()")
     public static native def javaClass[T]():java.lang.Class;
     @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).set(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
@@ -62,28 +53,41 @@ public class Java {
     public static native def setStaticField[T](name:String,value:Boolean):void;
     @Native("java", "do { throw #e; } while (false)")
     public static native @NoReturn def throwException(e:CheckedThrowable):void;
+    
     // Java conversions (primitive)
-    public static def convert(b:x10.lang.Boolean):Java.boolean = b; // no-op
-    //public static def convert(b:Java.boolean):x10.lang.Boolean = b; // no-op
-    public static def convert(b:x10.lang.Byte):Java.byte = b; // no-op
-    //public static def convert(b:Java.byte):x10.lang.Byte = b; // no-op
-    public static def convert(s:x10.lang.Short):Java.short = s; // no-op
-    //public static def convert(s:Java.short):x10.lang.Short = s; // no-op
-    public static def convert(i:x10.lang.Int):Java.int = i; // no-op
-    //public static def convert(i:Java.int):x10.lang.Int = i; // no-op
-    public static def convert(l:x10.lang.Long):Java.long = l; // no-op
-    //public static def convert(l:Java.long):x10.lang.Long = l; // no-op
-    public static def convert(f:x10.lang.Float):Java.float = f; // no-op
-    //public static def convert(f:Java.float):x10.lang.Float = f; // no-op
-    public static def convert(d:x10.lang.Double):Java.double = d; // no-op
-    //public static def convert(d:Java.double):x10.lang.Double = d; // no-op
-    public static def convert(c:x10.lang.Char):Java.char = c; // no-op
-    //public static def convert(c:Java.char):x10.lang.Char = c; // no-op
-    // Java conversions (String)
-    @Native("java", "#s")
-    public static native def convert(s:x10.lang.String):java.lang.String; // no-op
-    //@Native("java", "#s")
-    //public static native def convert(s:java.lang.String):x10.lang.String; // no-op
+    @Native("java", "java.lang.Boolean.valueOf(#b)")
+    public static native def convert(b:x10.lang.Boolean):java.lang.Boolean{self!=null};
+    @Native("java", "#b.booleanValue()")
+    public static native def convert(b:java.lang.Boolean):x10.lang.Boolean;
+    @Native("java", "java.lang.Byte.valueOf(#y)")
+    public static native def convert(y:x10.lang.Byte):java.lang.Byte{self!=null};
+    @Native("java", "#y.byteValue()")
+    public static native def convert(y:java.lang.Byte):x10.lang.Byte;
+    @Native("java", "java.lang.Short.valueOf(#s)")
+    public static native def convert(s:x10.lang.Short):java.lang.Short{self!=null};
+    @Native("java", "#s.shortValue()")
+    public static native def convert(s:java.lang.Short):x10.lang.Short;
+    @Native("java", "java.lang.Integer.valueOf(#i)")
+    public static native def convert(i:x10.lang.Int):java.lang.Integer{self!=null};
+    @Native("java", "#i.intValue()")
+    public static native def convert(i:java.lang.Integer):x10.lang.Int;
+    @Native("java", "java.lang.Long.valueOf(#l)")
+    public static native def convert(l:x10.lang.Long):java.lang.Long{self!=null};
+    @Native("java", "#l.longValue()")
+    public static native def convert(l:java.lang.Long):x10.lang.Long;
+    @Native("java", "java.lang.Float.valueOf(#f)")
+    public static native def convert(f:x10.lang.Float):java.lang.Float{self!=null};
+    @Native("java", "#f.floatValue()")
+    public static native def convert(f:java.lang.Float):x10.lang.Float;
+    @Native("java", "java.lang.Double.valueOf(#d)")
+    public static native def convert(d:x10.lang.Double):java.lang.Double{self!=null};
+    @Native("java", "#d.doubleValue()")
+    public static native def convert(d:java.lang.Double):x10.lang.Double;
+    @Native("java", "java.lang.Character.valueOf(#c)")
+    public static native def convert(c:x10.lang.Char):java.lang.Character{self!=null};
+    @Native("java", "#c.charValue()")
+    public static native def convert(c:java.lang.Character):x10.lang.Char;
+    
     // Java conversions (array)
     @Native("java", "(#T[])#a.raw.getBackingArray()")
     public static native def convert[T](a:x10.array.Array[T](1)):Java.array[T];
