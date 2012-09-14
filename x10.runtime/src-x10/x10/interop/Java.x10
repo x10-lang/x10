@@ -1,3 +1,14 @@
+/*
+ *  This file is part of the X10 project (http://x10-lang.org).
+ *
+ *  This file is licensed to You under the Eclipse Public License (EPL);
+ *  You may not use this file except in compliance with the License.
+ *  You may obtain a copy of the License at
+ *      http://www.opensource.org/licenses/eclipse-1.0.php
+ *
+ *  (C) Copyright IBM Corporation 2006-2012.
+ */
+
 package x10.interop;
 
 import x10.compiler.Native;
@@ -7,6 +18,7 @@ import x10.compiler.NoReturn;
 @NativeRep("c++", "#error Undefined Java", "#error Undefined Java", null)
 public class Java {
     private def this() { } // no instances
+    
     // Java arrays (special)
     // TODO: reject unsigned types for element type
     @NativeRep("java", "#T[]", null, "x10.rtt.Types.getRTT(#T[].class)")
@@ -32,6 +44,8 @@ public class Java {
     @Native("java", "(#T[][][][])#T$rtt.makeArray(#d0,#d1,#d2,#d3)")
     public static native def newArray[T](d0:Int, d1:Int, d2:Int, d3:Int):array[array[array[array[T]{self.length==d3}]{self.length==d2}]{self.length==d1}]{self.length==d0};
     @Native("java", "((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass()")
+    
+    // Java classes
     public static native def javaClass[T]():java.lang.Class;
     @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).set(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
     public static native def setStaticField[T](name:String,value:Any):void;
@@ -51,6 +65,8 @@ public class Java {
     public static native def setStaticField[T](name:String,value:Char):void;
     @Native("java", "do { try { ((x10.rtt.RuntimeType<?>)#T$rtt).getJavaClass().getDeclaredField(#name).setBoolean(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
     public static native def setStaticField[T](name:String,value:Boolean):void;
+    
+    // Java exceptions
     @Native("java", "do { throw #e; } while (false)")
     public static native @NoReturn def throwException(e:CheckedThrowable):void;
     
