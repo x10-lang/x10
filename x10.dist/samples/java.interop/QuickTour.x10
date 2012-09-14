@@ -84,7 +84,7 @@ public class QuickTour {
 
 	// N.B. X10 doesn't support varargs
         //coll.insert(doc);
-        coll.insert(x10.interop.Java.convert([doc]));
+        coll.insert(Java.convert([doc]));
 
         // get it (since it's the only one in there since we dropped the rest earlier on)
         val myDoc = coll.findOne();
@@ -95,7 +95,7 @@ public class QuickTour {
 	    // N.B. X10 doesn't support varargs
 	    // N.B. Java classes don't understand x10.core.Int etc.
             //coll.insert(new BasicDBObject().append("i", i));
-            coll.insert(x10.interop.Java.convert([new BasicDBObject().append("i", Java.convert(i))]));
+            coll.insert(Java.convert([new BasicDBObject().append("i", Java.convert(i))]));
         }
         Console.OUT.println("total # of documents after inserting 100 small ones (should be 101) " + coll.getCount());
 
