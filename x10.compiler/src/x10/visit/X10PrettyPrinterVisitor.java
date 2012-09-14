@@ -1798,7 +1798,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.end();
         }
 
-        // WIP XTENLANG-3063
+        // XTENLANG-3063
         if (supportConstructorInlining && !supportConstructorWithThrows) {
             w.newline();
             w.writeln("// constructor");
