@@ -425,8 +425,8 @@ public class Emitter {
 	}
 
 	public static String mangleIdentifier(String n) {
-		// Workaround an assertion failure in Name.make.
-		if (! StringUtil.isNameShort(n))
+		// Callers seem to assume that passing in a FQN here resulting in non-mangling.
+		if (!StringUtil.isNameShort(n))
 			return n;
 		return mangleIdentifier(Name.make(n)).toString();
 	}
