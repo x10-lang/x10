@@ -47,7 +47,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         return null;
     }
 
-    private String[] args;
+    protected String[] args;
 
     // not used
 //    // constructor just for allocation
