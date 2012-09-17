@@ -689,7 +689,7 @@ CROSS_COMPILE_BGQ='${CROSS_COMPILE_BGQ}'
         <tar destfile="${src.tar.location}/x10-${src.tar.version}.tar.bz2" compression="bzip2" longfile="gnu">
             <tarfileset prefix="" dir="${basedir}" includes="epl-v10.html,RELEASE.NOTES.txt,README.txt,INSTALL.txt"/>
             <tarfileset prefix="" dir="${x10.tests.location}" includes="TESTING"/>
-            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${lpg.jar},lib/${ecj.jar},samples/**"/>
+            <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes=".launchConfigs/*,.classpath,.project,README,INSTALL,build*,exportPlugin.xml,bin/*.in,lib/${lpg.jar},lib/${ecj.jar},samples/**,tools/**"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes="bin/x10c++" filemode="755"/>
             <tarfileset prefix="x10.dist" dir="${basedir}" excludes="releng/**,**/.*.swp,lib/**,stdlib/**,etc/**" includes="bin/x10doc" filemode="755"/>
             <tarfileset prefix="x10.doc" dir="${x10.doc.location}" excludes="releng/**,**/.*.swp,classes/**"/>
