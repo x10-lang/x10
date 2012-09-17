@@ -32,7 +32,7 @@ public class Pool extends x10.runtime.impl.java.Runtime {
     	// it gets a deserialization id before the x10rt message ids are finalized by start.
         System.setProperty("x10.NO_PRELOAD_CLASSES", "false");
         String preload = System.getProperty("x10.EXTRA_PRELOAD_CLASSES");
-        preload = ((null == preload) ? "" : ",")+com.ibm.apgas.TaskWrapper.class.getName();
+        preload = ((null == preload) ? "" : (preload+java.io.File.pathSeparator))+com.ibm.apgas.TaskWrapper.class.getName();
         System.setProperty("x10.EXTRA_PRELOAD_CLASSES", preload);
     	
         start(new String[]{});
