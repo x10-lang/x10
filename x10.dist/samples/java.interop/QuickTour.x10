@@ -15,11 +15,9 @@
  */
 
 import com.mongodb.Mongo;
-import com.mongodb.DBCollection;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.DBCursor;
-import com.mongodb.DB;
 
 import x10.interop.Java;
 
@@ -31,34 +29,33 @@ import x10.interop.Java;
  * Ported to X10 2.3
  *
  * Compile as "x10c -cp mongo-2.9.1.jar QuickTour.x10"
- * Run as "x10 -cp .:mongo-2.9.1.jar QuickTour"
+ * Run as "x10 -cp .:mongo-2.9.1.jar QuickTour [mongohost]"
  */
 public class QuickTour {
 
-    public static def main(Rail[String]) throws CheckedException :void {
+    public static def main(args:Rail[String]) throws CheckedException :void {
 
-        // connect to the local database server
-	val m = new Mongo();
-	//val m = new Mongo("mongoDBhost");
+        // connect to the specified or local database server
+        val m = args.size > 0 ? new Mongo(args(0)) : new Mongo();
 
         // get handle to "mydb"
         val db = m.getDB( "mydb" );
-    
+
         // Authenticate - optional
         // val auth = db.authenticate("foo", "bar");
 
 
         // get a list of the collections in this database and print them out
         val colls = db.getCollectionNames();
-	val collsIter = colls.iterator();
-	while (collsIter.hasNext()) {
-	    val s = collsIter.next() as String;
-	    Console.OUT.println(s);
-	}
+        val collsIter = colls.iterator();
+        while (collsIter.hasNext()) {
+            val s = collsIter.next() as String;
+            Console.OUT.println(s);
+        }
 
         // get a collection object to work with
         val coll = db.getCollection("testCollection");
-        
+
         // drop all the data in it
         coll.drop();
 
@@ -68,13 +65,13 @@ public class QuickTour {
 
         doc.put("name", "MongoDB");
         doc.put("type", "database");
-	// N.B. Java classes don't understand x10.core.Int etc.
+        // N.B. Java classes don't understand x10.core.Int etc.
         //doc.put("count", 1);
         doc.put("count", Java.convert(1));
 
         val info = new BasicDBObject();
 
-	// N.B. Java classes don't understand x10.core.Int etc.
+        // N.B. Java classes don't understand x10.core.Int etc.
         //info.put("x", 203);
         //info.put("y", 102);
         info.put("x", Java.convert(203));
@@ -82,7 +79,7 @@ public class QuickTour {
 
         doc.put("info", info);
 
-	// N.B. X10 doesn't support varargs
+        // N.B. X10 doesn't support varargs
         //coll.insert(doc);
         coll.insert(Java.convert([doc]));
 
@@ -92,8 +89,8 @@ public class QuickTour {
 
         // now, lets add lots of little documents to the collection so we can explore queries and cursors
         for (var i:Int=0; i < 100; i++) {
-	    // N.B. X10 doesn't support varargs
-	    // N.B. Java classes don't understand x10.core.Int etc.
+            // N.B. X10 doesn't support varargs
+            // N.B. Java classes don't understand x10.core.Int etc.
             //coll.insert(new BasicDBObject().append("i", i));
             coll.insert(Java.convert([new BasicDBObject().append("i", Java.convert(i))]));
         }
@@ -108,10 +105,10 @@ public class QuickTour {
         } finally {
             cursor.close();
         }
-        
+
         //  now use a query to get 1 document out
         var query:BasicDBObject = new BasicDBObject();
-	// N.B. Java classes don't understand x10.core.Int etc.
+        // N.B. Java classes don't understand x10.core.Int etc.
         //query.put("i", 71);
         query.put("i", Java.convert(71));
         cursor = coll.find(query);
@@ -126,7 +123,7 @@ public class QuickTour {
 
         //  now use a range query to get a larger subset
         query = new BasicDBObject();
-	// N.B. Java classes don't understand x10.core.Int etc.
+        // N.B. Java classes don't understand x10.core.Int etc.
         //query.put("i", new BasicDBObject("$gt", 50));  // i.e. find all where i > 50
         query.put("i", new BasicDBObject("$gt", Java.convert(50)));  // i.e. find all where i > 50
         cursor = coll.find(query);
@@ -141,32 +138,32 @@ public class QuickTour {
 
         // range query with multiple contstraings
         query = new BasicDBObject();
-	// N.B. Java classes don't understand x10.core.Int etc.
+        // N.B. Java classes don't understand x10.core.Int etc.
         //query.put("i", new BasicDBObject("$gt", 20).append("$lte", 30));  // i.e.   20 < i <= 30
         query.put("i", new BasicDBObject("$gt", Java.convert(20)).append("$lte", Java.convert(30)));  // i.e.   20 < i <= 30
         cursor = coll.find(query);
 
         try {
             while (cursor.hasNext()) {
-		Console.OUT.println(cursor.next());
+                Console.OUT.println(cursor.next());
             }
         } finally {
             cursor.close();
         }
 
         // create an index on the "i" field
-	// N.B. Java classes don't understand x10.core.Int etc.
+        // N.B. Java classes don't understand x10.core.Int etc.
         //coll.createIndex(new BasicDBObject("i", 1));  // create index on "i", ascending
         coll.createIndex(new BasicDBObject("i", Java.convert(1)));  // create index on "i", ascending
 
 
         //  list the indexes on the collection
         val list = coll.getIndexInfo();
-	val listIter = list.iterator();
-	while (listIter.hasNext()) {
-	    val o = listIter.next() as DBObject;
+        val listIter = list.iterator();
+        while (listIter.hasNext()) {
+            val o = listIter.next() as DBObject;
             Console.OUT.println(o);
-	}
+        }
 
         // See if the last operation had an error
         Console.OUT.println("Last error : " + db.getLastError());
@@ -181,7 +178,7 @@ public class QuickTour {
         Console.OUT.println("Last error : " + db.getLastError());
 
         db.resetError();
-        
+
         // release resources
         m.close();
     }
