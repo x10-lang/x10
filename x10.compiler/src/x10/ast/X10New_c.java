@@ -381,6 +381,7 @@ public class X10New_c extends New_c implements X10New {
             qualifier = (Expr) k.visitChild(k.qualifier(), childtc);
         }
 
+        /*  
         if (typeArguments.size() > 0) {
             List<Type> typeArgs = new ArrayList<Type>(typeArguments.size());
 
@@ -393,9 +394,10 @@ public class X10New_c extends New_c implements X10New {
                         new Errors.CannotInstantiateType(ct, n.position()));
                 // TODO: fake missing args or delete extra args
             }
-
+            // [DC] this is where the problem is!  XTENLANG-3133
             ct = ct.typeArguments(typeArgs);
         }
+        */
 
         t = Types.xclause(ct, xc);
 
