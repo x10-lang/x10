@@ -39,11 +39,12 @@ public class ServerLauncher {
 
     // N.B. X10 doesn't support enums
     // enum Watcher.Event.EventType
-    static val None = -1;
-    static val NodeCreated = 1;
-    static val NodeDeleted = 2;
-    static val NodeDataChanged = 3;
-    static val NodeChildrenChanged = 4;
+    static val None = -1; // Watcher.Event.EventType.None.getIntValue();
+    static val NodeCreated = 1; // Watcher.Event.EventType.NodeCreated.getIntValue();
+    static val NodeDeleted = 2; // Watcher.Event.EventType.NodeDeleted.getIntValue();
+    static val NodeDataChanged = 3; // Watcher.Event.EventType.NodeDataChanged.getIntValue();
+    static val NodeChildrenChanged = 4; // Watcher.Event.EventType.NodeChildrenChanged.getIntValue();
+
 
     static class ChildrenChangedWatcher implements Watcher {
         val zk:ZooKeeper;
@@ -55,6 +56,7 @@ public class ServerLauncher {
         public def process(event:WatchedEvent):void {
             try {
                 val path = event.getPath();
+                // N.B. X10 doesn't support enums
                 switch (event.getType().getIntValue()) {
                 case NodeChildrenChanged:
                     // Note: NodeChildrenChanged event is triggered only for the change of *direct* children                    
@@ -144,7 +146,7 @@ public class ServerLauncher {
         finish {
             async {
                 while (true) {
-                    // do something wounderful
+                    // do something wonderful
                     // N.B. use System.threadSleep instead of System.sleep to avoid busy loop in x10 runtime.
                     //System.sleep(1024L);
                     System.threadSleep(1024L);
