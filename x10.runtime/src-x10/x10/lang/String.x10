@@ -46,11 +46,23 @@ public final class String implements Comparable[String] {
     /**
      * Construct a String from an Array[Byte].
      */
+    @Native("java", "new java.lang.String((#r).raw().getByteArray())")
+    public native def this(r:Array[Byte]): String;
+
+    /**
+     * Construct a String from an Array[Byte], offset and length.
+     */
     @Native("java", "new java.lang.String((#r).raw().getByteArray(),#offset,#length)")
     public native def this(r:Array[Byte], offset:Int, length:Int): String;
 
     /**
      * Construct a String from an Array[Char].
+     */
+    @Native("java", "new java.lang.String((#r).raw().getCharArray())")
+    public native def this(r:Array[Char]): String;
+
+    /**
+     * Construct a String from an Array[Char], offset and length.
      */
     @Native("java", "new java.lang.String((#r).raw().getCharArray(),#offset,#length)")
     public native def this(r:Array[Char], offset:Int, length:Int): String;
