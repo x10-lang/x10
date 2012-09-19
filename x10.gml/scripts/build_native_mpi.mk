@@ -67,9 +67,9 @@ clean_all ::
 ###-----------
 help	::
 	@echo "----------------------------- build for native MPI transport --------------------------";
-	@echo " make mpi       : build default test $(target) for native backend running on MPI transport";
-	@echo " make all_mpi   : build all [ $(target_list) ] for native backend running on MPI transport";
+	@echo " make mpi       : build default target $(target) for native backend running on MPI transport";
+	@echo " make all_mpi   : build all targets [ $(target_list) ] for native backend running on MPI transport";
 	@echo " make clean     : remove default built binary $(target)_mpi";
 	@echo " make clean_all : remove all built targets";
 	@echo "";
-		
+

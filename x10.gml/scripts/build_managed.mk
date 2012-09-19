@@ -4,7 +4,7 @@
 ## Created by: 	Juemin Zhang
 ## Contact:   	zhangj@us.ibm.com
 ###################################################
-# This make file is used for building managed ackend.
+# This make file is used for building managed backend.
 ###################################################
 
 ##---------------
@@ -25,7 +25,7 @@
 x10src		= $(target).x10
 
 ##----------------------------------
-GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml.properties  -cp $(gml_lib)/managed_gml.jar
+GML_LIB_JAVA= -x10lib $(gml_path)/managed_gml.properties -cp $(gml_lib)/managed_gml.jar
 
 ###################################################
 # X10 file built rules
@@ -49,7 +49,6 @@ clean		::
 help	::
 	@echo "------------------- build benchmark test for managed backend ------------";
 	@echo " make java     : build default target $(target) for managed backend";
-	@echo " make all_java : build all [ $(target_list) ] for managed backend";
+	@echo " make all_java : build all targets [ $(target_list) ] for managed backend";
 	@echo " make clean    : remove build dir";	
 	@echo ""
-	
