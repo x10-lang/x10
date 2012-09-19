@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-package x10.runtime.impl.java;
+package x10.core;
 import java.lang.reflect.Field;
 
 import sun.misc.Unsafe;
