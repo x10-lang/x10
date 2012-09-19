@@ -87,18 +87,18 @@ public final class Runtime {
      * Process one incoming active message if any (non-blocking).
      */
     @Native("c++", "x10aux::event_probe()")
-    @Native("java","x10.runtime.impl.java.Runtime.eventProbe()")
+    @Native("java", "x10.runtime.impl.java.Runtime.eventProbe()")
     public static native def x10rtProbe():void;
 
     @Native("c++", "x10aux::blocking_probe()")
-    @Native("java","x10.runtime.impl.java.Runtime.blockingProbe()")
+    @Native("java", "x10.runtime.impl.java.Runtime.blockingProbe()")
     public static native def x10rtBlockingProbe():void;
 
     /**
      * Process one incoming active message if any (non-blocking).
      */
     @Native("c++", "x10aux::event_probe()")
-    @Native("java","x10.runtime.impl.java.Runtime.eventProbe()")
+    @Native("java", "x10.runtime.impl.java.Runtime.eventProbe()")
     public static native def wsProcessEvents():void;
 
     /**
@@ -135,7 +135,7 @@ public final class Runtime {
      * The returned InputStreamReader is connected to the standard output
      * of the new process.
      */
-    @Native("java","x10.runtime.impl.java.Runtime.execForRead(#command)")
+    @Native("java", "x10.runtime.impl.java.Runtime.execForRead(#command)")
     @Native("c++", "x10::lang::RuntimeNatives::execForRead(x10aux::to_string(#command)->c_str())")
     public static native def execForRead(command:String):Reader{self!=null};
 
@@ -144,7 +144,7 @@ public final class Runtime {
      * The returned OutputStreamWriter is connected to the standard input
      * of the new process.
      */
-    @Native("java","x10.runtime.impl.java.Runtime.execForWrite(#command)")
+    @Native("java", "x10.runtime.impl.java.Runtime.execForWrite(#command)")
     @Native("c++", "x10::lang::RuntimeNatives::execForWrite(x10aux::to_string(#command)->c_str())")
     public static native def execForWrite(command:String):Writer{self!=null};
             
@@ -788,7 +788,7 @@ public final class Runtime {
     /** Subvert X10 and target language exception checking.
      */
     @Native("c++", "x10aux::throwException(x10aux::nullCheck(#e))")
-    @Native("java", "Thread.currentThread().stop(#e)")
+    @Native("java", "java.lang.Thread.currentThread().stop(#e)")
     private static native def throwCheckedWithoutThrows (e:CheckedThrowable) : void;
 
     /**
