@@ -19,13 +19,13 @@ package x10.runtime.impl.java;
  * by the VM as instrinsics but can be simulated using
  * load/stores to volatile variables.
  */
-public final class Fences {
+public final class FencesUtils {
   static volatile int v1;
   static volatile int v2;
   static int d1;
   static int d2;
   
-  private Fences() {}
+  private FencesUtils() {}
 
   public static void loadStoreBarrier() {
     v2 = v1;
