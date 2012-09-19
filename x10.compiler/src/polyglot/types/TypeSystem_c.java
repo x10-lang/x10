@@ -2124,6 +2124,7 @@ public class TypeSystem_c implements TypeSystem
         return CLASS_ = load("java.lang.Class"); 
     }
     public Type Cloneable() { return load("java.lang.Cloneable"); }
+    public Type JLIterable() { return load("java.lang.Iterable"); }
     public Type Serializable() { return load("java.io.Serializable"); }
 
     protected NullType createJavaNull() {

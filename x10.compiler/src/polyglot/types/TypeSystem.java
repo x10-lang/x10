@@ -454,6 +454,11 @@ public interface TypeSystem {
     Type Cloneable();
 
     /**
+     * <code>java.lang.Iterable</code>
+     */
+    Type JLIterable();
+
+    /**
      * <code>java.io.Serializable</code>
      */
     Type Serializable();

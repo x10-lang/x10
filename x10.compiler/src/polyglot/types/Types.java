@@ -1821,6 +1821,16 @@ public class Types {
                         assert false;
                     }
                     res.add(Types.xclause(arg, xclause));
+                } else if (ts.typeEquals(classType, ts.JLIterable(), context)) {
+                    Type arg = ts.Any();
+                    CConstraint xclause = Types.xclause(t);
+			        final XVar tt = ConstraintManager.getConstraintSystem().makeEQV();
+                    try {
+                        xclause = Subst.subst(xclause, tt, xclause.self());
+                    } catch (SemanticException e) {
+                        assert false;
+                    }
+                    res.add(Types.xclause(arg, xclause));
                 }
             }
         }
