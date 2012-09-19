@@ -20,8 +20,6 @@ public class InteropFuns {
 	    return m.invoke(obj, args);
 	} catch (InvocationTargetException e) {
 	    Throwable cause = e.getCause();
-	    // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
-//	    while (cause instanceof UnknownJavaThrowable) {
 	    while (cause instanceof x10.lang.WrappedThrowable) {
 		cause = cause.getCause();
 	    }

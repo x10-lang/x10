@@ -251,12 +251,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String CONVERT_JAVA_ERROR_METHOD = "convertJavaError";
     public static final boolean supportConversionForJavaErrors = false;
     
-    // TODO remove x10.core.Throwable
-//    public static final String X10_CORE_THROWABLE = "x10.core.Throwable";
-    // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//    public static final String X10_CORE_X10THROWABLE = "x10.core.X10Throwable";
-    // TODO remove wrapping with UnknownJavaThrowable
-//    public static final String X10_IMPL_UNKNOWN_JAVA_THROWABLE = "x10.runtime.impl.java.UnknownJavaThrowable";
     public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
     public static final String JAVA_LANG_EXCEPTION = "java.lang.Exception";
     public static final String JAVA_LANG_RUNTIME_EXCEPTION = "java.lang.RuntimeException";
@@ -4246,7 +4240,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // MIKIO_PLEASE_SEE
     // N.B. true for Java throwables that are supertype of x.l.Throwable at implementation level
     private boolean isJavaThrowableAssignableFromX10Throwable(Type catchType) {
-        // TODO CHECKED_THROWABLE
         // FIXME always use rethrow is safe but too much
     	return true;
     	/*
@@ -4571,7 +4564,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    // TODO CHECKED_THROWABLE OK reordering of catch blocks is no longer needed 
+    // TODO OK reordering of catch blocks is no longer needed 
     private Try_c reorderCatchBlocks(Try_c c) {
         TypeSystem ts = tr.typeSystem();
         Context context = tr.context();

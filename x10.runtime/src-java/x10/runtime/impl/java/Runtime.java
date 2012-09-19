@@ -127,8 +127,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             } catch (java.lang.Error e) {
                 throw e;
             } catch (java.lang.Throwable t) {
-                // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
-//                throw new x10.runtime.impl.java.UnknownJavaThrowable(t);
                 throw new x10.lang.WrappedThrowable(t);
             }
         }
@@ -195,8 +193,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                                    new $Closure$Main(this, aargs));
         } catch (java.lang.Throwable t) {
             // XTENLANG=2686: Unwrap UnknownJavaThrowable to get the original Throwable object
-            // TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
-//            if (t instanceof UnknownJavaThrowable) t = t.getCause();
             if (t instanceof x10.lang.WrappedThrowable) t = t.getCause();
             t.printStackTrace();
             setExitCode(1);
@@ -290,9 +286,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             byte[] bytes = serialize(body, finishState);
             x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
         } catch (IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -341,8 +335,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     		}
     		return body;
     	} catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//    		x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
     		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
     		xe.printStackTrace();
     		throw xe;
@@ -473,8 +465,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
 		} catch (java.io.IOException e) {
 			e.printStackTrace();
-			// TODO CHECKED_THROWABLE replace UnknownJavaThrowable with x10.lang.WrappedThrowable
-//			throw new x10.runtime.impl.java.UnknownJavaThrowable(e);
 			throw new x10.lang.WrappedThrowable(e);
 		} finally {
 			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
@@ -537,9 +527,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.InputStreamReader(new x10.core.io.InputStream(proc.getInputStream()));
         } catch (IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -550,9 +538,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.OutputStreamWriter(new x10.core.io.OutputStream(proc.getOutputStream()));
         } catch (IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }

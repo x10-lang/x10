@@ -452,9 +452,7 @@ public abstract class InitDispatcher {
             in.close();
             return o;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -464,9 +462,7 @@ public abstract class InitDispatcher {
         try {
             return deserializer.readRef();
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -477,9 +473,7 @@ public abstract class InitDispatcher {
             int i = deserializer.readInt();
             return i;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -490,9 +484,7 @@ public abstract class InitDispatcher {
             double v = deserializer.readDouble();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -503,9 +495,7 @@ public abstract class InitDispatcher {
             float v = deserializer.readFloat();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -516,9 +506,7 @@ public abstract class InitDispatcher {
             long v = deserializer.readLong();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -529,9 +517,7 @@ public abstract class InitDispatcher {
             short v = deserializer.readShort();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -542,9 +528,7 @@ public abstract class InitDispatcher {
             byte v = deserializer.readByte();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -555,9 +539,7 @@ public abstract class InitDispatcher {
             char v = deserializer.readChar();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -568,9 +550,7 @@ public abstract class InitDispatcher {
             boolean v = deserializer.readBoolean();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -581,9 +561,7 @@ public abstract class InitDispatcher {
             String v = deserializer.readString();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -594,9 +572,7 @@ public abstract class InitDispatcher {
             Object v = deserializer.readRefUsingReflection();
             return v;
         } catch (java.io.IOException e) {
-        	// TODO CHECKED_THROWABLE x10.lang.Exception is mapped to java.lang.RuntimeException rather than x10.core.X10Thowable.
-//            x10.core.Throwable xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
-        	java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
             xe.printStackTrace();
             throw xe;
         }

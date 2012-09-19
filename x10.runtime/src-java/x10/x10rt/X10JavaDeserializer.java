@@ -458,9 +458,6 @@ public class X10JavaDeserializer {
             return new SpecialCaseDeserializerThunk(null);
         } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
-            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
-//            return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Throwable".equals(clazz.getName())) {
             return new SpecialCaseDeserializerThunk(null);
         } else if ("java.lang.Class".equals(clazz.getName())) {
@@ -795,9 +792,6 @@ public class X10JavaDeserializer {
                 return (T) x10.core.IndexedMemoryChunk.$Closure$1.$_deserialize_body((x10.core.IndexedMemoryChunk.$Closure$1) obj, jds);
             } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
                 return (T) x10.core.GlobalRef.$_deserialize_body((x10.core.GlobalRef) obj, jds);
-                // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//            } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
-//                return (T) x10.core.X10Throwable.$_deserialize_body((x10.core.X10Throwable) obj, jds);
             } else if ("java.lang.Throwable".equals(clazz.getName())) {
                 if (X10JavaSerializer.THROWABLES_SERIALIZE_MESSAGE) {
                     try {
