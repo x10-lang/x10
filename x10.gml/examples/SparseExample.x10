@@ -150,14 +150,14 @@ public class SparseExample{
     		ret &= s2.equals(s2);
     		if (ret) Console.OUT.println("Full copy all columns passed");
     		
-    		val s3 = SparseCSC.make(M-2, N);
+    		val s3 = SparseCSC.make(M-2, N, (M-2)*N);
     		SparseCSC.copyRows(sm, 1, s3, 0, M-2);
     		for (var c:Int=0; c<s3.N; c++)
     			for (var r:Int=0; r<s3.M; r++)
     				ret &= sm(r+1, c)==s3(r, c); 
     		if (ret) Console.OUT.println("Partial rows copy passed");
     		
-    		val s4 = SparseCSC.make(M, N-2);
+    		val s4 = SparseCSC.make(M, N-2, M*(N-2));
     		SparseCSC.copyCols(sm, 1, s4, 0, N-2);
     		for (var c:Int=0; c<s4.N; c++)
     			for (var r:Int=0; r<s4.M; r++)
