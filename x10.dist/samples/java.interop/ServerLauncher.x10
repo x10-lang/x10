@@ -37,15 +37,6 @@ import x10.interop.Java;
  */
 public class ServerLauncher {
 
-    // N.B. X10 doesn't support enums
-    // enum Watcher.Event.EventType
-    static val None = -1; // Watcher.Event.EventType.None.getIntValue();
-    static val NodeCreated = 1; // Watcher.Event.EventType.NodeCreated.getIntValue();
-    static val NodeDeleted = 2; // Watcher.Event.EventType.NodeDeleted.getIntValue();
-    static val NodeDataChanged = 3; // Watcher.Event.EventType.NodeDataChanged.getIntValue();
-    static val NodeChildrenChanged = 4; // Watcher.Event.EventType.NodeChildrenChanged.getIntValue();
-
-
     static class ChildrenChangedWatcher implements Watcher {
         val zk:ZooKeeper;
         val cb:DumpChildrenCallback;
@@ -56,9 +47,10 @@ public class ServerLauncher {
         public def process(event:WatchedEvent):void {
             try {
                 val path = event.getPath();
-                // N.B. X10 doesn't support enums
-                switch (event.getType().getIntValue()) {
-                case NodeChildrenChanged:
+                // N.B. X10 doesn't support switch on enums
+                /*
+                switch (event.getType()) {
+                case Watcher.Event.EventType.NodeChildrenChanged:
                     // Note: NodeChildrenChanged event is triggered only for the change of *direct* children                    
                     Console.OUT.println("Membership has been changed.");
 
@@ -71,7 +63,7 @@ public class ServerLauncher {
                     zk.getChildren(path, this, cb, null);
 
                     break;
-                case NodeDeleted:
+                case Watcher.Event.EventType.NodeDeleted:
                     // this is the event of deletion of parent node.
                     // since all children node no longer exist, we don't need to register the watcher again.
                     break;
@@ -80,6 +72,29 @@ public class ServerLauncher {
                     assert false : "should not happen";
                     zk.getChildren(path, this); // register the watcher again
                     break;
+                }
+                */
+                val eventType = event.getType();
+                if (Watcher.Event.EventType.NodeChildrenChanged.equals(eventType)) {
+                    // Note: NodeChildrenChanged event is triggered only for the change of *direct* children                    
+                    Console.OUT.println("Membership has been changed.");
+
+                    // TODO implement recovery process.
+                    // ideally, in case of node failure or addition of a new node, we will change request routing for load balancing.
+                    // for the first demo, we just terminate all x10 places and restart the cluster (due to the limitation of X10 2.3).
+                    // for now, we just dump all children recursively.
+
+                    // recursively dump children
+                    zk.getChildren(path, this, cb, null);
+                }
+                else if (Watcher.Event.EventType.NodeDeleted.equals(eventType)) {
+                    // this is the event of deletion of parent node.
+                    // since all children node no longer exist, we don't need to register the watcher again.
+                }
+                else {
+                    Console.OUT.println("Unknown event occurred: " + event);
+                    assert false : "should not happen";
+                    zk.getChildren(path, this); // register the watcher again
                 }
             } catch (e:CheckedException) {
                 e.printStackTrace();
