@@ -140,9 +140,9 @@ final public class Short extends Number implements StructI, java.lang.Comparable
     public Short $ampersand(java.lang.Object b, Type t) { return Short.$box($value & ((Short)b).$value); }
     public Short $bar(java.lang.Object b, Type t) { return Short.$box($value | ((Short)b).$value); }
     public Short $caret(java.lang.Object b, Type t) { return Short.$box($value ^ ((Short)b).$value); }
-    public Short $left$G(final int count) { return Short.$box($value << count); }
-    public Short $right$G(final int count) { return Short.$box($value >> count); }
-    public Short $unsigned_right$G(final int count) { return Short.$box($value >>> count); }
+    public Short $left$G(int count) { return Short.$box($value << count); }
+    public Short $right$G(int count) { return Short.$box($value >> count); }
+    public Short $unsigned_right$G(int count) { return Short.$box($value >>> count); }
     
     // implements Ordered<Short>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Short)b).$value); }

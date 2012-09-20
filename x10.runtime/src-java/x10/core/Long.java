@@ -131,9 +131,9 @@ final public class Long extends Number implements StructI, java.lang.Comparable<
     public Long $ampersand(java.lang.Object b, Type t) { return Long.$box($value & ((Long)b).$value); }
     public Long $bar(java.lang.Object b, Type t) { return Long.$box($value | ((Long)b).$value); }
     public Long $caret(java.lang.Object b, Type t) { return Long.$box($value ^ ((Long)b).$value); }
-    public Long $left$G(final int count) { return Long.$box($value << count); }
-    public Long $right$G(final int count) { return Long.$box($value >> count); }
-    public Long $unsigned_right$G(final int count) { return Long.$box($value >>> count); }
+    public Long $left$G(int count) { return Long.$box($value << count); }
+    public Long $right$G(int count) { return Long.$box($value >> count); }
+    public Long $unsigned_right$G(int count) { return Long.$box($value >>> count); }
     
     // implements Ordered<Long>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Long)b).$value); }

@@ -159,9 +159,9 @@ final public class ULong extends Number implements StructI, java.lang.Comparable
     public ULong $ampersand(java.lang.Object a, Type t) { return ULong.$box($value & ((ULong)a).$value); }
     public ULong $bar(java.lang.Object a, Type t) { return ULong.$box($value | ((ULong)a).$value); }
     public ULong $caret(java.lang.Object a, Type t) { return ULong.$box($value ^ ((ULong)a).$value); }
-    public ULong $left$G(final int count) { return ULong.$box($value << count); }
-    public ULong $right$G(final int count) { return ULong.$box($value >>> count); } // ULong is always unsigned
-    public ULong $unsigned_right$G(final int count) { return ULong.$box($value >>> count); }
+    public ULong $left$G(int count) { return ULong.$box($value << count); }
+    public ULong $right$G(int count) { return ULong.$box($value >>> count); } // ULong is always unsigned
+    public ULong $unsigned_right$G(int count) { return ULong.$box($value >>> count); }
     
     // implements Ordered<ULong>
     public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.ULongUtils.lt($value,((ULong)a).$value)); }

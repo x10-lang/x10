@@ -152,9 +152,9 @@ final public class UByte extends Number implements StructI, java.lang.Comparable
     public UByte $ampersand(java.lang.Object a, Type t) { return UByte.$box($value & ((UByte)a).$value); }
     public UByte $bar(java.lang.Object a, Type t) { return UByte.$box($value | ((UByte)a).$value); }
     public UByte $caret(java.lang.Object a, Type t) { return UByte.$box($value ^ ((UByte)a).$value); }
-    public UByte $left$G(final int count) { return UByte.$box($value << count); }
-    public UByte $right$G(final int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
-    public UByte $unsigned_right$G(final int count) { return UByte.$box((0xff & $value) >>> count); }
+    public UByte $left$G(int count) { return UByte.$box($value << count); }
+    public UByte $right$G(int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
+    public UByte $unsigned_right$G(int count) { return UByte.$box((0xff & $value) >>> count); }
     
     // implements Ordered<UByte>
     public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value)); }

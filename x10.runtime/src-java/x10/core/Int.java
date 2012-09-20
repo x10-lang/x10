@@ -144,9 +144,9 @@ final public class Int extends Number implements StructI, java.lang.Comparable<I
     public Int $ampersand(java.lang.Object b, Type t) { return Int.$box($value & ((Int)b).$value); }
     public Int $bar(java.lang.Object b, Type t) { return Int.$box($value | ((Int)b).$value); }
     public Int $caret(java.lang.Object b, Type t) { return Int.$box($value ^ ((Int)b).$value); }
-    public Int $left$G(final int count) { return Int.$box($value << count); }
-    public Int $right$G(final int count) { return Int.$box($value >> count); }
-    public Int $unsigned_right$G(final int count) { return Int.$box($value >>> count); }
+    public Int $left$G(int count) { return Int.$box($value << count); }
+    public Int $right$G(int count) { return Int.$box($value >> count); }
+    public Int $unsigned_right$G(int count) { return Int.$box($value >>> count); }
     
     // implements Ordered<Int>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Int)b).$value); }

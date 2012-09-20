@@ -161,9 +161,9 @@ final public class UInt extends Number implements StructI, java.lang.Comparable<
     public UInt $ampersand(java.lang.Object a, Type t) { return UInt.$box($value & ((UInt)a).$value); }
     public UInt $bar(java.lang.Object a, Type t) { return UInt.$box($value | ((UInt)a).$value); }
     public UInt $caret(java.lang.Object a, Type t) { return UInt.$box($value ^ ((UInt)a).$value); }
-    public UInt $left$G(final int count) { return UInt.$box($value << count); }
-    public UInt $right$G(final int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
-    public UInt $unsigned_right$G(final int count) { return UInt.$box($value >>> count); }
+    public UInt $left$G(int count) { return UInt.$box($value << count); }
+    public UInt $right$G(int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
+    public UInt $unsigned_right$G(int count) { return UInt.$box($value >>> count); }
     
     // implements Ordered<UInt>
     public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UInt)a).$value)); }

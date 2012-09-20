@@ -135,9 +135,9 @@ final public class UShort extends Number implements StructI, java.lang.Comparabl
     public UShort $ampersand(java.lang.Object a, Type t) { return UShort.$box($value & ((UShort)a).$value); }
     public UShort $bar(java.lang.Object a, Type t) { return UShort.$box($value | ((UShort)a).$value); }
     public UShort $caret(java.lang.Object a, Type t) { return UShort.$box($value ^ ((UShort)a).$value); }
-    public UShort $left$G(final int count) { return UShort.$box($value << count); }
-    public UShort $right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
-    public UShort $unsigned_right$G(final int count) { return UShort.$box((0xffff & $value) >>> count); }
+    public UShort $left$G(int count) { return UShort.$box($value << count); }
+    public UShort $right$G(int count) { return UShort.$box((0xffff & $value) >>> count); } // UShort is always unsigned
+    public UShort $unsigned_right$G(int count) { return UShort.$box((0xffff & $value) >>> count); }
     
     // implements Ordered<UShort>
     public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UShort)a).$value)); }

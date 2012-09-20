@@ -138,9 +138,9 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     public Byte $ampersand(java.lang.Object b, Type t) { return Byte.$box($value & ((Byte)b).$value); }
     public Byte $bar(java.lang.Object b, Type t) { return Byte.$box($value | ((Byte)b).$value); }
     public Byte $caret(java.lang.Object b, Type t) { return Byte.$box($value ^ ((Byte)b).$value); }
-    public Byte $left$G(final int count) { return Byte.$box($value << count); }
-    public Byte $right$G(final int count) { return Byte.$box($value >> count); }
-    public Byte $unsigned_right$G(final int count) { return Byte.$box($value >>> count); }
+    public Byte $left$G(int count) { return Byte.$box($value << count); }
+    public Byte $right$G(int count) { return Byte.$box($value >> count); }
+    public Byte $unsigned_right$G(int count) { return Byte.$box($value >>> count); }
     
     // implements Ordered<Byte>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Byte)b).$value); }
