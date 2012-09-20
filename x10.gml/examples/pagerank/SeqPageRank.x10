@@ -59,12 +59,12 @@ public class SeqPageRank {
 		Debug.flushln("Start sequential PageRank");
 		for (var i:Int=0; i<iteration; i++) {
 			GP.mult(G, P, false).scale(alpha);			
-			//DenseMultBLAS.comp(G, P, GP);
+			//DenseMatrixBLAS.comp(G, P, GP);
 			//GP.scale(alpha);
 			//
 			P.mult(E, U.dotProd(P)).scale(1-alpha).cellAdd(GP);
-			//DenseMultBLAS.comp(U, P, UP);
-			//DenseMultBLAS.comp(E, UP, P);
+			//DenseMatrixBLAS.comp(U, P, UP);
+			//DenseMatrixBLAS.comp(E, UP, P);
 			//P.scale(1-alpha);
 			//P.cellAdd(GP);
 		}
