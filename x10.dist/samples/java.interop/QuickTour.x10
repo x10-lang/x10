@@ -47,9 +47,8 @@ public class QuickTour {
 
         // get a list of the collections in this database and print them out
         val colls = db.getCollectionNames();
-        val collsIter = colls.iterator();
-        while (collsIter.hasNext()) {
-            val s = collsIter.next() as String;
+        for (sAny in colls) {
+            val s = sAny as String;
             Console.OUT.println(s);
         }
 
@@ -159,9 +158,8 @@ public class QuickTour {
 
         //  list the indexes on the collection
         val list = coll.getIndexInfo();
-        val listIter = list.iterator();
-        while (listIter.hasNext()) {
-            val o = listIter.next() as DBObject;
+        for (oAny in list) {
+            val o = oAny as DBObject;
             Console.OUT.println(o);
         }
 

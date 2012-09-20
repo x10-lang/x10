@@ -113,9 +113,8 @@ public class ServerLauncher {
             if (parent.endsWith("/")) parent = parent.substring(0, parent.length()-1);
             val childStat = new Stat();
             try {
-                val childrenIterator = children.iterator();
-                while (childrenIterator.hasNext()) {
-                    val _child = childrenIterator.next() as String;
+                for (_childAny in children) {
+                    val _child = _childAny as String;
                     val child = parent + "/" + _child;
                     val childData = Java.convert(zk.getData(child, false, childStat));
                     Console.OUT.println(child + " : " + new String(childData));
