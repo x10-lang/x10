@@ -38,9 +38,6 @@ public abstract class Ref implements Any {
     // constructor for non-virtual call
     public final Ref x10$lang$Object$$init$S() {return this;}
     
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Ref $init(){return x10$lang$Object$$init$S();}
 	
     // not used
 //    public static Ref $make() { return new Ref(); }

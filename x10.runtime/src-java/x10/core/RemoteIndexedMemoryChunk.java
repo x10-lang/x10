@@ -63,11 +63,6 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
         }
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public RemoteIndexedMemoryChunk<T> $init(Type<T> type, int length, Object value) {
-        return x10$util$RemoteIndexedMemoryChunk$$init$S(type, length, value);
-    }
 
     private RemoteIndexedMemoryChunk(Type<T> type, int length, Object value) {
         this.length = length;

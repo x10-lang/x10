@@ -212,14 +212,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean generateSpecialDispatcherNotUse = false;  // TODO to be removed
     public static final boolean isGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
-    public static final boolean supportConstructorInlining = true;  // prereq for XTENLANG-3063
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
     // XTENLANG-2871
     public static final boolean supportJavaThrowables = true;
     public static final boolean useRethrowBlock = true;
-    // XTENLANG-3063
-    public static final boolean supportConstructorWithThrows = supportConstructorInlining && true;
     // XTENLANG-3058
     public static final boolean supportTypeConstraintsWithErasure = true;
     // XTENLANG-3090 (switched back to use java assertion)
@@ -263,12 +260,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String INITPARAMS_NAME = "$initParams";
     public static final String CONSTRUCTOR_METHOD_NAME = "$init";
     public static String CONSTRUCTOR_METHOD_NAME(ClassDef cd) {
-        if (supportConstructorWithThrows) {
-            // call super bridge rather than $init for potential override of $init by $init with throws clause
-            return (InlineHelper.makeSuperBridgeName(cd, Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
-        } else {
-            return CONSTRUCTOR_METHOD_NAME;
-        }
+        return InlineHelper.makeSuperBridgeName(cd, Name.make(CONSTRUCTOR_METHOD_NAME)).toString();
     }
     public static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$initForReflection";
     public static final String CREATION_METHOD_NAME = "$make";
@@ -1699,23 +1691,16 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private void printConstructorMethodDecl(X10ConstructorDecl_c n, boolean isCustomSerializable) {
 
         w.newline();
-        if (supportConstructorInlining) {
-            w.writeln("// constructor for non-virtual call");
-        } else {
-            w.writeln("// constructor");
-        }
+        w.writeln("// constructor for non-virtual call");
 
         String methodName = null;
 
-        Flags ctorFlags = n.flags().flags().clearPrivate().clearProtected().Public();
-        if (supportConstructorInlining) {
-            ctorFlags = ctorFlags.Final();
-        }
+        Flags ctorFlags = n.flags().flags().clearPrivate().clearProtected().Public().Final();
         tr.print(n, tr.nodeFactory().FlagsNode(n.flags().position(), ctorFlags), w);
 
         er.printType(n.constructorDef().container().get(), PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write(" ");
-        String ctorName = supportConstructorInlining ? InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString() : CONSTRUCTOR_METHOD_NAME; 
+        String ctorName = InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString(); 
         w.write(ctorName);
 
         List<String> params = printConstructorFormals(n, false);
@@ -1792,39 +1777,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.end();
         }
 
-        // XTENLANG-3063
-        if (supportConstructorInlining && !supportConstructorWithThrows) {
-            w.newline();
-            w.writeln("// constructor");
-
-            tr.print(n, tr.nodeFactory().FlagsNode(n.flags().position(), n.flags().flags().clearPrivate().clearProtected().Public()), w);
-
-            er.printType(n.constructorDef().container().get(), PRINT_TYPE_PARAMS | NO_VARIANCE);
-            w.write(" ");
-            w.write(CONSTRUCTOR_METHOD_NAME);
-
-            printConstructorFormals(n, false);
-       
-            isFirst = true;
-            for (Ref<? extends Type> _throws : n.constructorDef().throwTypes()) {
-                if (isFirst) {
-                    w.write(" throws ");
-                    isFirst = false;
-                } else {
-                    w.write(", ");                
-                }
-                er.printType(_throws.get(), 0);
-            }
-
-            w.write("{");
-            
-            w.write("return ");
-            w.write(InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString());
-            printConstructorParams(n);
-            w.write(";");
-            
-            w.writeln("}");
-        }
     }
 
     private void printConstructorBody(X10ConstructorDecl_c n, Block body) {
@@ -4286,22 +4238,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (Emitter.isNativeRepedToJava(ct) || Emitter.isNativeClassToJava(ct)) {
                         return;
                     }
-                    // XTENLANG-3063
-                    // constructors (i.e. $init) are renamed so that they won't be overridden.
-                    if (supportConstructorWithThrows) {
-                        w.write("/*super.*/");
-                    } else
-                    w.write("super.");
+                    w.write("/*super.*/");
                 } else {
-                    // XTENLANG-3063
-                    // constructors (i.e. $init) are renamed so that they won't be overridden.
-                    if (supportConstructorWithThrows) {
-                        w.write("/*this.*/");
-                    } else
-                    w.write("this");
+                    w.write("/*this.*/");
                 }
             } else {
-                if (supportConstructorInlining && c.kind() == ConstructorCall.SUPER) {
+                if (c.kind() == ConstructorCall.SUPER) {
                     target.translate(w, tr);
                     w.write(".");
                     // invoke constructor for non-virtual call directly

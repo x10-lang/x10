@@ -70,15 +70,8 @@ public class Thread implements Any {
         home = Place.place(X10RT.here());
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Thread $init(java.lang.String name) {
-        return x10$lang$Thread$$init$S(name);
-    }
 
     public Thread(java.lang.String name) {
-        // XTENLANG-3063
-        //        $init(name);
         x10$lang$Thread$$init$S(name);
     }
 
@@ -87,15 +80,8 @@ public class Thread implements Any {
         home = Place.place(X10RT.here());
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Thread $init() {
-        return x10$lang$Thread$$init$S();
-    }
 
     public Thread() {
-        // XTENLANG-3063
-        //        $init();
         x10$lang$Thread$$init$S();
     }
 

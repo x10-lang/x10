@@ -33,9 +33,6 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
     }
     
     public final AtomicInteger x10$util$concurrent$AtomicInteger$$init$S() {return this;}
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicInteger $init() {return x10$util$concurrent$AtomicInteger$$init$S();}
 	
     public AtomicInteger() {
         super();
@@ -45,11 +42,6 @@ public final class AtomicInteger extends java.util.concurrent.atomic.AtomicInteg
         // TODO
         set(initialValue);
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public AtomicInteger $init(int initialValue) {
-        return x10$util$concurrent$AtomicInteger$$init$S(initialValue);
     }
     
     public AtomicInteger(int initialValue) {

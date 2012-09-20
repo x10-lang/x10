@@ -571,8 +571,6 @@ public struct Long implements Comparable[Long], Arithmetic[Long], Bitwise[Long],
     * @param upper the upper bound
     * @return a range from lower to upper, inclusive.
     */
-	// XTENLANG-3063
-   // @Native("java", "new x10.lang.LongRange((java.lang.System[]) null).$init(#x, #y)")
    @Native("java", "new x10.lang.LongRange((java.lang.System[]) null).x10$lang$LongRange$$init$S(#x, #y)")
    @Native("c++", "x10::lang::LongRange::_make(#1, #2)")
    public native static operator (x:Long) .. (y:Long):LongRange{min==x,max==y};

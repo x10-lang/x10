@@ -26,18 +26,11 @@ public class FileInputStream extends InputStream {
 
     public final FileInputStream x10$io$FileReader$FileInputStream$$init$S(String name) {
         try {
-            // XTENLANG-3063
-//            super.$init(new java.io.FileInputStream(name));
             super.x10$io$InputStreamReader$InputStream$$init$S(new java.io.FileInputStream(name));
             return this;
         } catch (java.io.FileNotFoundException e) {
             throw new x10.io.FileNotFoundException(e.getMessage());
         }
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public FileInputStream $init(String name) {
-        return x10$io$FileReader$FileInputStream$$init$S(name);
     }
 
     // not used
@@ -48,8 +41,6 @@ public class FileInputStream extends InputStream {
     // creation method for java code (1-phase java constructor)
     public FileInputStream(String name) {
         this((java.lang.System[]) null);
-        // XTENLANG-3063
-//        $init(name);
         x10$io$FileReader$FileInputStream$$init$S(name);
     }
 

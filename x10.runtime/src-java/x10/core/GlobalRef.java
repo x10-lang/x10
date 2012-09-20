@@ -458,11 +458,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         obj = null;
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public GlobalRef<T> $init() {
-        return x10$lang$GlobalRef$$init$S();
-    }
 
     public final GlobalRef<T> x10$lang$GlobalRef$$init$S(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
         GlobalGCDebug(3, "GlobalRef.$init(T=" + T + ", obj=" + obj + ", $dummy) called, isMortal=" + (obj instanceof Mortal));
@@ -470,11 +465,6 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         this.home = x10.lang.Runtime.home();
         this.obj = obj;
         return this;
-    }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public GlobalRef<T> $init(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
-        return x10$lang$GlobalRef$$init$S(T, obj, $dummy);
     }
 
     public GlobalRef(final Type<?> T, T obj, __0x10$lang$GlobalRef$$T $dummy) {
@@ -693,15 +683,10 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	public LocalEval(final java.lang.System[] $dummy) { super($dummy);}
 	
         public final LocalEval x10$lang$GlobalRef$LocalEval$$init$S() {return this;}
-        // XTENLANG-3063
-        // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-	public LocalEval $init() {return x10$lang$GlobalRef$LocalEval$$init$S();}
 	
 	// creation method for java code (1-phase java constructor)
         public LocalEval() {
             this((java.lang.System[]) null);
-            // XTENLANG-3063
-//            $init();
             x10$lang$GlobalRef$LocalEval$$init$S();
         }
         // not used

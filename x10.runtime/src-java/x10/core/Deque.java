@@ -87,11 +87,6 @@ public class Deque extends Ref {
         queue = new Object[INITIAL_QUEUE_CAPACITY];
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public Deque $init() {
-        return x10$lang$Deque$$init$S();
-    }
     
     /**
      * Creates a Deque.

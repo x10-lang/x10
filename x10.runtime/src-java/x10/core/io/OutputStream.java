@@ -51,17 +51,10 @@ public class OutputStream extends Ref {
         this.stream = stream;
         return this;
     }
-    // XTENLANG-3063
-    // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-    public OutputStream $init(java.io.OutputStream stream) {
-        return x10$io$OutputStreamWriter$OutputStream$$init$S(stream);
-    }
     
     // creation method for java code (1-phase java constructor)
     public OutputStream(java.io.OutputStream stream) {
         this((java.lang.System[]) null);
-        // XTENLANG-3063
-//        $init(stream);
         x10$io$OutputStreamWriter$OutputStream$$init$S(stream);
     }
     
@@ -192,16 +185,9 @@ public class OutputStream extends Ref {
 
         public final WriterOutputStream x10$io$OutputStreamWriter$OutputStream$WriterOutputStream$$init$S(x10.io.Writer w) {
             // NOTE: since the backing stream is not set, all APIs of OutputStream must be overridden.
-            // XTENLANG-3063
-//            super.$init((java.io.OutputStream)null);
             super.x10$io$OutputStreamWriter$OutputStream$$init$S((java.io.OutputStream)null);
             this.w = w;
             return this;
-        }
-        // XTENLANG-3063
-        // not used if X10PrettyPrinterVisitor.supportConstructorWithThrows == true
-        public WriterOutputStream $init(x10.io.Writer w) {
-            return x10$io$OutputStreamWriter$OutputStream$WriterOutputStream$$init$S(w);
         }
         
         public WriterOutputStream(x10.io.Writer w) {
