@@ -11,17 +11,15 @@
 
 package x10.core.concurrent;
 
+import java.io.IOException;
+
 import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
-import x10.rtt.Types;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
-
-import java.io.IOException;
 
 public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements Any, X10JavaSerializable {
 
