@@ -137,7 +137,7 @@ class DVMultRowwise {
 		Console.OUT.printf("Starting verification on dense matrix\n");
 		
 		for (1..it) {
-			DenseMultBLAS.comp(ma, mb, mc, false);
+			DenseMatrixBLAS.comp(ma, mb, mc, false);
 			mc.copyTo(mb);
 		}
 		
