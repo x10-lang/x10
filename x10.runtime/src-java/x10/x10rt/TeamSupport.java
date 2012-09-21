@@ -42,7 +42,7 @@ public class TeamSupport {
         } else if (chunkRaw instanceof float[]) {
             typeCode = RED_TYPE_FLOAT;
         } else {
-            throw new java.lang.UnsupportedOperationException("Unsupported type of src array "+chunk.type.typeName()+" in nativeAllReduce");
+            throw new java.lang.UnsupportedOperationException("Unsupported type of src array "+chunk.T.typeName()+" in nativeAllReduce");
         }
         return typeCode;
     }
