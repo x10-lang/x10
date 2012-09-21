@@ -1700,7 +1700,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         er.printType(n.constructorDef().container().get(), PRINT_TYPE_PARAMS | NO_VARIANCE);
         w.write(" ");
-        String ctorName = InlineHelper.makeSuperBridgeName(n.constructorDef().container().get().toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString(); 
+        String ctorName = CONSTRUCTOR_METHOD_NAME(n.constructorDef().container().get().toClass().def()); 
         w.write(ctorName);
 
         List<String> params = printConstructorFormals(n, false);
@@ -4247,7 +4247,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     target.translate(w, tr);
                     w.write(".");
                     // invoke constructor for non-virtual call directly
-                    String ctorName = InlineHelper.makeSuperBridgeName(ct.toClass().def(), Name.make(CONSTRUCTOR_METHOD_NAME)).toString(); 
+                    String ctorName = CONSTRUCTOR_METHOD_NAME(ct.toClass().def()); 
                     w.write(ctorName);
                     printConstructorArgumentList(c, c, c.constructorInstance(), null, false);
                     w.write(";");
