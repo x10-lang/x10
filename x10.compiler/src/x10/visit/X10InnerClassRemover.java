@@ -389,6 +389,11 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 updateRefUnsafe(dotr, Types.get(otr));
             }
         }
+        ContainerType container = def.container().get();
+        Ref<? extends ContainerType> newContainer = Types.ref((ContainerType)fixType(container));
+        if (newContainer != container) {
+            def.setContainer(newContainer);
+        }        
         return md;
     }
 
@@ -436,6 +441,11 @@ public class X10InnerClassRemover extends InnerClassRemover {
                 updateRefUnsafe(dotr, Types.get(otr));
             }
         }
+        ContainerType container = def.container().get();
+        Ref<? extends ContainerType> newContainer = Types.ref((ContainerType)fixType(container));
+        if (newContainer != container) {
+            def.setContainer(newContainer);
+        }        
         return cd;
     }
 
@@ -597,6 +607,8 @@ public class X10InnerClassRemover extends InnerClassRemover {
             for (int p = 0; p < typeParameters.size(); p++) {
                 ParameterType tp = typeParameters.get(p);
                 // FIXME: [IP] this is a hack.  We should really rename type parameters.
+                // rename it here, see what breaks...
+                //tp = new ParameterType(ts, Position.COMPILER_GENERATED, Position.COMPILER_GENERATED, Name.makeFresh("_T"), Types.ref(def));
                 def.addTypeParameter(tp, variances.get(p));
             }
             def.setWasInner(true);

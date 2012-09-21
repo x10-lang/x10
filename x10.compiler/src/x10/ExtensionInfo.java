@@ -536,12 +536,12 @@ public class ExtensionInfo extends polyglot.frontend.ParserlessJLExtensionInfo {
            final Goal nativeClassVisitorGoal = NativeClassVisitor(job);
            goals.add(nativeClassVisitorGoal);
 
+           goals.add(TypeParameterAlphaRenamer(job));
+
            final Goal innerClassRemoverGoal = InnerClassRemover(job);
            goals.add(innerClassRemoverGoal); // TODO: move even earlier
            innerClassRemoverGoal.addPrereq(nativeClassVisitorGoal);
            innerClassRemoverGoal.addPrereq(typeCheckBarrierGoal);
-
-           goals.add(TypeParameterAlphaRenamer(job));
 
            goals.add(Serialized(job));
            if (opts.x10_config.WORK_STEALING) {

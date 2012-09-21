@@ -42,10 +42,12 @@ import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.PropertyDecl;
 import x10.ast.TypeParamNode;
+import x10.ast.X10ConstructorDecl;
 import x10.ast.X10MethodDecl;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
+import x10.types.X10ConstructorDef;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.TypeConstraint;
@@ -223,6 +225,34 @@ public class TypeParamAlphaRenamer extends NodeTransformingVisitor {
             }
             return n;
         }
+        //[DC] based on the MethodDecl part
+        if (n instanceof X10ConstructorDecl) {
+            X10ConstructorDef def = ((X10ConstructorDecl) n).constructorDef();
+            TypeParamAlphaRenamer tpar = (TypeParamAlphaRenamer) v;
+            TypeParamSubst subst = tpar.buildSubst();
+            adjustConstructorDef(def, subst);
+            /* [DC] don't think that constructors can have type params of their own
+            List<ParameterType> tps = new ArrayList<ParameterType>();
+            List<TypeParamNode> tpns = ((X10ConstructorDecl) n).typeParameters();
+            boolean changed = false;
+            for (int i = 0; i < def.typeParameters().size(); i++) {
+                ParameterType p = def.typeParameters().get(i);
+                TypeParamNode tpn = tpns.get(i);
+                ParameterType np = tpar.getType(p);
+                if (np != null) {
+                    assert (tpn.type().typeEquals(np, context));
+                    tps.add(np);
+                    changed = true;
+                } else {
+                    tps.add(p);
+                }
+            }
+            if (changed) {
+                def.setTypeParameters(tps);
+            }
+            */
+            return n;
+        }        
         return super.leaveCall(parent, old, n, v);
     }
 
