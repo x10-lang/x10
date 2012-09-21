@@ -24,7 +24,7 @@ import java.io.IOException;
  * Represents a boxed UInt value. Boxed representation is used when casting
  * a UInt value into type Any or parameter type T.
  */
-final public class UInt extends Number implements StructI, java.lang.Comparable<UInt>,
+final public class UInt extends java.lang.Number implements StructI, java.lang.Comparable<UInt>,
     x10.lang.Arithmetic<UInt>, x10.lang.Bitwise<UInt>, x10.util.Ordered<UInt>
 {
     private static final long serialVersionUID = 1L;

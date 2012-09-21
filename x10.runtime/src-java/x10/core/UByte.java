@@ -24,7 +24,7 @@ import java.io.IOException;
  * Represents a boxed UByte value. Boxed representation is used when casting
  * a UByte value into type Any or parameter type T.
  */
-final public class UByte extends Number implements StructI, java.lang.Comparable<UByte>,
+final public class UByte extends java.lang.Number implements StructI, java.lang.Comparable<UByte>,
     x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;

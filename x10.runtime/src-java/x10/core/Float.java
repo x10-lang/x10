@@ -25,7 +25,7 @@ import java.io.IOException;
  * an Float value to type Any, parameter type T or superinterfaces such
  * as Comparable<Float>.
  */
-final public class Float extends Number implements StructI,
+final public class Float extends java.lang.Number implements StructI,
 	java.lang.Comparable<Float>, x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
 {
     private static final long serialVersionUID = 1L;

@@ -25,7 +25,7 @@ import java.io.IOException;
  * an Int value to type Any, parameter type T or superinterfaces such
  * as Comparable<Int>.
  */
-final public class Int extends Number implements StructI, java.lang.Comparable<Int>,
+final public class Int extends java.lang.Number implements StructI, java.lang.Comparable<Int>,
     x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;

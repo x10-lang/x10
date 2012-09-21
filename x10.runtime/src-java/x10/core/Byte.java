@@ -25,7 +25,7 @@ import java.io.IOException;
  * an Byte value to type Any, parameter type T or superinterfaces such
  * as Comparable<Byte>.
  */
-final public class Byte extends Number implements StructI, java.lang.Comparable<Byte>,
+final public class Byte extends java.lang.Number implements StructI, java.lang.Comparable<Byte>,
     x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
@@ -154,19 +154,19 @@ final public class Byte extends Number implements StructI, java.lang.Comparable<
     public boolean $ge$Z(java.lang.Object b, Type t) { return $value >= ((Byte)b).$value; }
     
     // extends abstract class java.lang.Number
-//    @Override
+    @Override
     public int intValue() {
         return (int)$value;
     }
-//    @Override
+    @Override
     public long longValue() {
         return (long)$value;
     }
-//    @Override
+    @Override
     public float floatValue() {
         return (float)$value;
     }
-//    @Override
+    @Override
     public double doubleValue() {
         return (double)$value;
     }

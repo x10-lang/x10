@@ -568,8 +568,14 @@ public class Types {
         }
         return false;
     }
+    public static boolean isPrimitiveType(Type<?> rtt) {
+        return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
+    }
     static boolean isStructType(Type<?> rtt) {
-    	return isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN || rtt.isAssignableTo(STRUCT);
+    	return isPrimitiveType(rtt) || rtt.isAssignableTo(STRUCT);
+    }
+    public static boolean isStringType(Type<?> rtt) {
+        return rtt == STRING;
     }
 
     
@@ -758,7 +764,7 @@ public class Types {
     }
 
     public static boolean hasNaturalZero(Type<?> rtt) {
-    	return isNullable(rtt) || isNumericType(rtt) || rtt == CHAR || rtt == BOOLEAN;
+    	return isNullable(rtt) || isPrimitiveType(rtt);
     }
 
     public static <T> T cast(final java.lang.Object self, Type<?> rtt) {

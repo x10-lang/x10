@@ -16,17 +16,8 @@ import java.util.Arrays;
 
 import x10.core.fun.VoidFun_0_0;
 import x10.lang.Place;
-import x10.rtt.BooleanType;
-import x10.rtt.ByteType;
-import x10.rtt.CharType;
-import x10.rtt.DoubleType;
-import x10.rtt.FloatType;
-import x10.rtt.IntType;
-import x10.rtt.LongType;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
-import x10.rtt.ShortType;
-import x10.rtt.StringType;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.x10rt.DeserializationDispatcher;
@@ -213,13 +204,15 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         public void $_serialize(X10JavaSerializer $serializer) throws IOException {
             $serializer.write(this.numElems);
             if (this.numElems > 0) {
-                if (this.srcData instanceof int[] || this.srcData instanceof double[] || this.srcData instanceof float[] || this.srcData instanceof short[] || this.srcData instanceof char[] || this.srcData instanceof byte[] || this.srcData instanceof long[] || this.srcData instanceof boolean[]) {
+                Class<?> componentType = this.srcData.getClass().getComponentType();
+                if (componentType.isPrimitive()) {
                     $serializer.write(DeserializationDispatcher.javaClassID);
                     $serializer.writeObject(this.srcData);
-                } else if (this.srcData instanceof java.lang.String[]) {
+                } else if (componentType.equals(java.lang.String.class)) {
                     $serializer.write(DeserializationDispatcher.STRING_ID);
                     $serializer.write((java.lang.String[]) this.srcData);
                 } else if (this.srcData instanceof X10JavaSerializable[]) {
+                //} else if (X10JavaSerializable.class.isAssignableFrom(componentType)) {
                     $serializer.write((X10JavaSerializable[]) this.srcData);
                 } else {
                     $serializer.write((Object[]) this.srcData);
@@ -447,9 +440,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 
         // If the T is a java primitive type, we use default java serialization here
         // cause its much faster than writing a single element at a time
-        if (T instanceof FloatType || T instanceof IntType || T instanceof ByteType || T instanceof DoubleType || T instanceof LongType || T instanceof CharType || T instanceof ShortType || T instanceof BooleanType) {
+        if (Types.isPrimitiveType(T)) {
             $serializer.writeObject(value);
-        } else if (T instanceof StringType) {
+        } else if (Types.isStringType(T)) {
             java.lang.String[] castValue = (java.lang.String[]) value;
             for (java.lang.String v : castValue) {
                 $serializer.write(v);
@@ -482,9 +475,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
 
         // If the T is a java primitive type, we use default java serialization here
         // cause its much faster than reading a single element at a time
-        if ($_obj.T instanceof FloatType || $_obj.T instanceof IntType || $_obj.T instanceof ByteType || $_obj.T instanceof DoubleType || $_obj.T instanceof LongType || $_obj.T instanceof CharType || $_obj.T instanceof ShortType || $_obj.T instanceof BooleanType) {
+        if (Types.isPrimitiveType($_obj.T)) {
             $_obj.value = $deserializer.readObject();
-        } else if ($_obj.T instanceof StringType) {
+        } else if (Types.isStringType($_obj.T)) {
             java.lang.String[] values = (java.lang.String[]) $_obj.T.makeArray($_obj.length);
             for (int i = 0; i < $_obj.length; i++) {
                 values[i] = $deserializer.readString();

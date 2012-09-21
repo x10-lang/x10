@@ -25,7 +25,7 @@ import java.io.IOException;
  * an Double value to type Any, parameter type T or superinterfaces such
  * as Comparable<Double>.
  */
-final public class Double extends Number implements StructI,
+final public class Double extends java.lang.Number implements StructI,
 	java.lang.Comparable<Double>, x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
 {
     private static final long serialVersionUID = 1L;

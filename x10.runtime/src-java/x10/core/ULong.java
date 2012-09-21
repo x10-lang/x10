@@ -24,7 +24,7 @@ import java.io.IOException;
  * Represents a boxed ULong value. Boxed representation is used when casting
  * a ULong value into type Any or parameter type T.
  */
-final public class ULong extends Number implements StructI, java.lang.Comparable<ULong>,
+final public class ULong extends java.lang.Number implements StructI, java.lang.Comparable<ULong>,
     x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
 {
     private static final long serialVersionUID = 1L;
