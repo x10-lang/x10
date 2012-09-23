@@ -3307,8 +3307,8 @@ public class Emitter {
         private ClassType Comparable_String_;
         private ClassType Comparable_String() {
             if (Comparable_String_ == null) {
-                TypeSystem xts = tr.typeSystem();
-                Comparable_String_ = xts.load("x10.lang.Comparable").toClass().typeArguments(Arrays.asList(xts.String()));
+                TypeSystem_c xts = (TypeSystem_c) tr.typeSystem();
+                Comparable_String_ = xts.Comparable().typeArguments(Arrays.<Type> asList(xts.String()));
             }
             return Comparable_String_;
         }
