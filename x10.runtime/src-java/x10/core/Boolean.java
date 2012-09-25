@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -28,7 +29,7 @@ import java.io.IOException;
 final public class Boolean extends Struct implements java.lang.Comparable<Boolean>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Boolean.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Boolean.class);
     
     public static final RuntimeType<?> $RTT = Types.BOOLEAN;
     public RuntimeType<?> $getRTT() {return $RTT;}

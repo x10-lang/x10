@@ -116,6 +116,7 @@ import x10.ast.ClosureCall_c;
 import x10.ast.Closure_c;
 import x10.ast.HasZeroTest_c;
 import x10.ast.LocalTypeDef_c;
+import x10.ast.OperatorNames;
 import x10.ast.ParExpr;
 import x10.ast.ParExpr_c;
 import x10.ast.PropertyDecl;
@@ -225,6 +226,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportUpperBounds = false;
     // Support numbered parameters for @Native (e.g. @Native("java","#0.toString()")) for backward compatibility.
     public static final boolean supportNumberedParameterForNative = true;
+    // Expose existing special dispatcher through special interfaces (e.g. Arithmetic, Bitwise)
+    public static final boolean exposeSpecialDispatcherThroughSpecialInterface = false;
 
     // N.B. should be as short as file name length which is valid on all supported platforms.
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
@@ -2571,7 +2574,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             // call
             // XTENLANG-2993
-            er.printMethodName(md, invokeInterface, isDispatchMethod, generateSpecialDispatcher && !generateSpecialDispatcherNotUse, md.returnType().get(), isSpecialReturnType, isParamReturnType);
+//            Type returnTypeForDispatcher = md.returnType().get();
+            Type returnTypeForDispatcher = isPrimitive(mi.returnType()) && isPrimitiveGenericMethod(mi) ? mi.returnType() : md.returnType().get();
+            er.printMethodName(md, invokeInterface, isDispatchMethod, generateSpecialDispatcher && !generateSpecialDispatcherNotUse, returnTypeForDispatcher, isSpecialReturnType, isParamReturnType);
         }
 
         // print the argument list
@@ -2805,7 +2810,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             X10Call call = (X10Call)expr;
                             MethodInstance mi = call.methodInstance();
                             if (!isPrimitiveGenericMethod(mi) && 
-                                ((isBoxedType(mi.def().returnType().get()) && !er.isInlinedCall(call)) || Emitter.isDispatcher(call.methodInstance())) )
+                                ((isBoxedType(mi.def().returnType().get()) && !er.isInlinedCall(call)) || Emitter.isDispatcher(mi)) )
                                 closeParen = er.printUnboxConversion(castType);
                         } else if (expr instanceof ClosureCall) {
                             ClosureCall call = (ClosureCall)expr;
@@ -4719,7 +4724,22 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
      * @return true if method should be treated specially wrt argument and return value boxing.
      */
     public static boolean isPrimitiveGenericMethod(MethodInstance mi) {
-        if (mi.container().fullName().toString().equals("x10.interop.Java.array")) return true;
+        QName fullName = mi.container().fullName();
+        if (fullName.toString().equals("x10.interop.Java.array")) return true;
+        if (exposeSpecialDispatcherThroughSpecialInterface) {
+            Name name = mi.name();
+            List<LocalInstance> formalNames = mi.formalNames();
+            if (fullName.equals(Emitter.X10_LANG_ARITHMETIC_QNAME)) {
+                if (formalNames != null && formalNames.size() == 1 &&
+                    (OperatorNames.PLUS.equals(name) || OperatorNames.MINUS.equals(name) || OperatorNames.STAR.equals(name) || OperatorNames.SLASH.equals(name)))
+                    return true;
+            }
+            else if (fullName.equals(Emitter.X10_LANG_BITWISE_QNAME)) {
+                if (formalNames != null && formalNames.size() == 1 &&
+                    (OperatorNames.AMPERSAND.equals(name) || OperatorNames.BAR.equals(name) || OperatorNames.CARET.equals(name)))
+                    return true;
+            }
+        }
         return false;
     }
 

@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -25,10 +26,12 @@ import java.io.IOException;
  * a UByte value into type Any or parameter type T.
  */
 final public class UByte extends java.lang.Number implements StructI, java.lang.Comparable<UByte>,
-    x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
+    x10.core.Arithmetic.$b, x10.core.Bitwise.$b, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UByte.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UByte.class);
     
     public static final RuntimeType<?> $RTT = Types.UBYTE;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -145,8 +148,13 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     public UByte $plus(java.lang.Object a, Type t) { return UByte.$box($value + ((UByte)a).$value); }
     public UByte $minus(java.lang.Object a, Type t) { return UByte.$box($value - ((UByte)a).$value); }
     public UByte $times(java.lang.Object a, Type t) { return UByte.$box($value * ((UByte)a).$value); }
-    public UByte $over(java.lang.Object a, Type t) { return UByte.$box((short)((0xff & $value) / (0xff & ((UByte)a).$value))); }
-    
+    public UByte $over(java.lang.Object a, Type t) { return UByte.$box((byte)((0xff & $value) / (0xff & ((UByte)a).$value))); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public byte $plus$b(java.lang.Object a, Type t) { return (byte) ($value + ((UByte)a).$value); }
+    public byte $minus$b(java.lang.Object a, Type t) { return (byte) ($value - ((UByte)a).$value); }
+    public byte $times$b(java.lang.Object a, Type t) { return (byte) ($value * ((UByte)a).$value); }
+    public byte $over$b(java.lang.Object a, Type t) { return (byte) ((0xff & $value) / (0xff & ((UByte)a).$value)); }
+
     // implements Bitwise<UByte>
     public UByte $tilde$G() { return UByte.$box(~$value); }
     public UByte $ampersand(java.lang.Object a, Type t) { return UByte.$box($value & ((UByte)a).$value); }
@@ -155,6 +163,10 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     public UByte $left$G(int count) { return UByte.$box($value << count); }
     public UByte $right$G(int count) { return UByte.$box((0xff & $value) >>> count); } // UByte is always unsigned
     public UByte $unsigned_right$G(int count) { return UByte.$box((0xff & $value) >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public byte $ampersand$b(java.lang.Object a, Type t) { return (byte) ($value & ((UByte)a).$value); }
+    public byte $bar$b(java.lang.Object a, Type t) { return (byte) ($value | ((UByte)a).$value); }
+    public byte $caret$b(java.lang.Object a, Type t) { return (byte) ($value ^ ((UByte)a).$value); }
     
     // implements Ordered<UByte>
     public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UByte)a).$value)); }

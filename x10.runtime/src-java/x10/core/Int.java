@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -26,10 +27,12 @@ import java.io.IOException;
  * as Comparable<Int>.
  */
 final public class Int extends java.lang.Number implements StructI, java.lang.Comparable<Int>,
-    x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<Int>, x10.lang.Bitwise<Int>, x10.util.Ordered<Int>
+    x10.core.Arithmetic.$I, x10.core.Bitwise.$I, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Int.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Int.class);
     
     public static final RuntimeType<?> $RTT = Types.INT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -138,6 +141,11 @@ final public class Int extends java.lang.Number implements StructI, java.lang.Co
     public Int $minus(java.lang.Object b, Type t) { return Int.$box($value - ((Int)b).$value); }
     public Int $times(java.lang.Object b, Type t) { return Int.$box($value * ((Int)b).$value); }
     public Int $over(java.lang.Object b, Type t) { return Int.$box($value / ((Int)b).$value); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public int $plus$I(java.lang.Object b, Type t) { return $value + ((Int)b).$value; }
+    public int $minus$I(java.lang.Object b, Type t) { return $value - ((Int)b).$value; }
+    public int $times$I(java.lang.Object b, Type t) { return $value * ((Int)b).$value; }
+    public int $over$I(java.lang.Object b, Type t) { return $value / ((Int)b).$value; }
     
     // implements Bitwise<Int>
     public Int $tilde$G() { return Int.$box(~$value); }
@@ -147,6 +155,10 @@ final public class Int extends java.lang.Number implements StructI, java.lang.Co
     public Int $left$G(int count) { return Int.$box($value << count); }
     public Int $right$G(int count) { return Int.$box($value >> count); }
     public Int $unsigned_right$G(int count) { return Int.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public int $ampersand$I(java.lang.Object b, Type t) { return $value & ((Int)b).$value; }
+    public int $bar$I(java.lang.Object b, Type t) { return $value | ((Int)b).$value; }
+    public int $caret$I(java.lang.Object b, Type t) { return $value ^ ((Int)b).$value; }
     
     // implements Ordered<Int>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Int)b).$value); }

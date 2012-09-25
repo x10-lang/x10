@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -26,10 +27,12 @@ import java.io.IOException;
  * as Comparable<Long>.
  */
 final public class Long extends java.lang.Number implements StructI, java.lang.Comparable<Long>,
-    x10.lang.Arithmetic<Long>, x10.lang.Bitwise<Long>, x10.util.Ordered<Long>
+//for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<Long>, x10.lang.Bitwise<Long>, x10.util.Ordered<Long>
+    x10.core.Arithmetic.$J, x10.core.Bitwise.$J, x10.util.Ordered<Long>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Long.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Long.class);
     
     public static final RuntimeType<?> $RTT = Types.LONG;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -125,6 +128,11 @@ final public class Long extends java.lang.Number implements StructI, java.lang.C
     public Long $minus(java.lang.Object b, Type t) { return Long.$box($value - ((Long)b).$value); }
     public Long $times(java.lang.Object b, Type t) { return Long.$box($value * ((Long)b).$value); }
     public Long $over(java.lang.Object b, Type t) { return Long.$box($value / ((Long)b).$value); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public long $plus$J(java.lang.Object b, Type t) { return $value + ((Long)b).$value; }
+    public long $minus$J(java.lang.Object b, Type t) { return $value - ((Long)b).$value; }
+    public long $times$J(java.lang.Object b, Type t) { return $value * ((Long)b).$value; }
+    public long $over$J(java.lang.Object b, Type t) { return $value / ((Long)b).$value; }
     
     // implements Bitwise<Long>
     public Long $tilde$G() { return Long.$box(~$value); }
@@ -134,6 +142,10 @@ final public class Long extends java.lang.Number implements StructI, java.lang.C
     public Long $left$G(int count) { return Long.$box($value << count); }
     public Long $right$G(int count) { return Long.$box($value >> count); }
     public Long $unsigned_right$G(int count) { return Long.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public long $ampersand$J(java.lang.Object b, Type t) { return $value & ((Long)b).$value; }
+    public long $bar$J(java.lang.Object b, Type t) { return $value | ((Long)b).$value; }
+    public long $caret$J(java.lang.Object b, Type t) { return $value ^ ((Long)b).$value; }
     
     // implements Ordered<Long>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Long)b).$value); }

@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -26,10 +27,12 @@ import java.io.IOException;
  * as Comparable<Short>.
  */
 final public class Short extends java.lang.Number implements StructI, java.lang.Comparable<Short>,
-    x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
+    x10.core.Arithmetic.$S, x10.core.Bitwise.$S, x10.util.Ordered<Short>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Short.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Short.class);
     
     public static final RuntimeType<?> $RTT = Types.SHORT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -134,6 +137,11 @@ final public class Short extends java.lang.Number implements StructI, java.lang.
     public Short $minus(java.lang.Object b, Type t) { return Short.$box($value - ((Short)b).$value); }
     public Short $times(java.lang.Object b, Type t) { return Short.$box($value * ((Short)b).$value); }
     public Short $over(java.lang.Object b, Type t) { return Short.$box($value / ((Short)b).$value); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public short $plus$S(java.lang.Object b, Type t) { return (short) ($value + ((Short)b).$value); }
+    public short $minus$S(java.lang.Object b, Type t) { return (short) ($value - ((Short)b).$value); }
+    public short $times$S(java.lang.Object b, Type t) { return (short) ($value * ((Short)b).$value); }
+    public short $over$S(java.lang.Object b, Type t) { return (short) ($value / ((Short)b).$value); }
     
     // implements Bitwise<Short>
     public Short $tilde$G() { return Short.$box(~$value); }
@@ -143,6 +151,10 @@ final public class Short extends java.lang.Number implements StructI, java.lang.
     public Short $left$G(int count) { return Short.$box($value << count); }
     public Short $right$G(int count) { return Short.$box($value >> count); }
     public Short $unsigned_right$G(int count) { return Short.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public short $ampersand$S(java.lang.Object b, Type t) { return (short) ($value & ((Short)b).$value); }
+    public short $bar$S(java.lang.Object b, Type t) { return (short) ($value | ((Short)b).$value); }
+    public short $caret$S(java.lang.Object b, Type t) { return (short) ($value ^ ((Short)b).$value); }
     
     // implements Ordered<Short>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Short)b).$value); }

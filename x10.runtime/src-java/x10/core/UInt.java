@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -25,10 +26,12 @@ import java.io.IOException;
  * a UInt value into type Any or parameter type T.
  */
 final public class UInt extends java.lang.Number implements StructI, java.lang.Comparable<UInt>,
-    x10.lang.Arithmetic<UInt>, x10.lang.Bitwise<UInt>, x10.util.Ordered<UInt>
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<UInt>, x10.lang.Bitwise<UInt>, x10.util.Ordered<UInt>
+    x10.core.Arithmetic.$i, x10.core.Bitwise.$i, x10.util.Ordered<UInt>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UInt.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UInt.class);
     
     public static final RuntimeType<?> $RTT = Types.UINT;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -155,6 +158,11 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
     public UInt $minus(java.lang.Object a, Type t) { return UInt.$box($value - ((UInt)a).$value); }
     public UInt $times(java.lang.Object a, Type t) { return UInt.$box($value * ((UInt)a).$value); }
     public UInt $over(java.lang.Object a, Type t) { return UInt.$box(x10.runtime.impl.java.UIntUtils.div($value,((UInt)a).$value)); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public int $plus$i(java.lang.Object a, Type t) { return $value + ((UInt)a).$value; }
+    public int $minus$i(java.lang.Object a, Type t) { return $value - ((UInt)a).$value; }
+    public int $times$i(java.lang.Object a, Type t) { return $value * ((UInt)a).$value; }
+    public int $over$i(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.div($value,((UInt)a).$value); }
     
     // implements Bitwise<UInt>
     public UInt $tilde$G() { return UInt.$box(~$value); }
@@ -164,6 +172,10 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
     public UInt $left$G(int count) { return UInt.$box($value << count); }
     public UInt $right$G(int count) { return UInt.$box($value >>> count); } // UInt is always unsigned
     public UInt $unsigned_right$G(int count) { return UInt.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public int $ampersand$i(java.lang.Object a, Type t) { return $value & ((UInt)a).$value; }
+    public int $bar$i(java.lang.Object a, Type t) { return $value | ((UInt)a).$value; }
+    public int $caret$i(java.lang.Object a, Type t) { return $value ^ ((UInt)a).$value; }
     
     // implements Ordered<UInt>
     public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.UIntUtils.lt($value,((UInt)a).$value)); }

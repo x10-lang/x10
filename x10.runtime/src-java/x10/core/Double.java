@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -25,11 +26,13 @@ import java.io.IOException;
  * an Double value to type Any, parameter type T or superinterfaces such
  * as Comparable<Double>.
  */
-final public class Double extends java.lang.Number implements StructI,
-	java.lang.Comparable<Double>, x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
+final public class Double extends java.lang.Number implements StructI, java.lang.Comparable<Double>,
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
+    x10.core.Arithmetic.$D, x10.util.Ordered<Double>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Double.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Double.class);
     
     public static final RuntimeType<?> $RTT = Types.DOUBLE;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -108,6 +111,11 @@ final public class Double extends java.lang.Number implements StructI,
     public Double $minus(java.lang.Object b, Type t) { return Double.$box($value - ((Double)b).$value); }
     public Double $times(java.lang.Object b, Type t) { return Double.$box($value * ((Double)b).$value); }
     public Double $over(java.lang.Object b, Type t) { return Double.$box($value / ((Double)b).$value); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public double $plus$D(java.lang.Object b, Type t) { return $value + ((Double)b).$value; }
+    public double $minus$D(java.lang.Object b, Type t) { return $value - ((Double)b).$value; }
+    public double $times$D(java.lang.Object b, Type t) { return $value * ((Double)b).$value; }
+    public double $over$D(java.lang.Object b, Type t) { return $value / ((Double)b).$value; }
     
     // implements Ordered<Double>
     public java.lang.Object $lt(java.lang.Object b, Type t) { return x10.core.Boolean.$box($value < ((Double)b).$value); }

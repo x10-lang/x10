@@ -14,6 +14,7 @@ package x10.core;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.DeserializationDispatcher;
 import x10.x10rt.X10JavaDeserializer;
 import x10.x10rt.X10JavaSerializable;
 import x10.x10rt.X10JavaSerializer;
@@ -25,10 +26,12 @@ import java.io.IOException;
  * a ULong value into type Any or parameter type T.
  */
 final public class ULong extends java.lang.Number implements StructI, java.lang.Comparable<ULong>,
-    x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//    x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
+    x10.core.Arithmetic.$j, x10.core.Bitwise.$j, x10.util.Ordered<ULong>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ULong.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ULong.class);
     
     public static final RuntimeType<?> $RTT = Types.ULONG;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -153,6 +156,11 @@ final public class ULong extends java.lang.Number implements StructI, java.lang.
     public ULong $minus(java.lang.Object a, Type t) { return ULong.$box($value - ((ULong)a).$value); }
     public ULong $times(java.lang.Object a, Type t) { return ULong.$box($value * ((ULong)a).$value); }
     public ULong $over(java.lang.Object a, Type t) { return ULong.$box(x10.runtime.impl.java.ULongUtils.div($value,((ULong)a).$value)); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public long $plus$j(java.lang.Object a, Type t) { return $value + ((ULong)a).$value; }
+    public long $minus$j(java.lang.Object a, Type t) { return $value - ((ULong)a).$value; }
+    public long $times$j(java.lang.Object a, Type t) { return $value * ((ULong)a).$value; }
+    public long $over$j(java.lang.Object a, Type t) { return x10.runtime.impl.java.ULongUtils.div($value,((ULong)a).$value); }
     
     // implements Bitwise<ULong>
     public ULong $tilde$G() { return ULong.$box(~$value); }
@@ -162,6 +170,10 @@ final public class ULong extends java.lang.Number implements StructI, java.lang.
     public ULong $left$G(int count) { return ULong.$box($value << count); }
     public ULong $right$G(int count) { return ULong.$box($value >>> count); } // ULong is always unsigned
     public ULong $unsigned_right$G(int count) { return ULong.$box($value >>> count); }
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+    public long $ampersand$j(java.lang.Object a, Type t) { return $value & ((ULong)a).$value; }
+    public long $bar$j(java.lang.Object a, Type t) { return $value | ((ULong)a).$value; }
+    public long $caret$j(java.lang.Object a, Type t) { return $value ^ ((ULong)a).$value; }
     
     // implements Ordered<ULong>
     public java.lang.Object $lt(java.lang.Object a, Type t) { return x10.core.Boolean.$box(x10.runtime.impl.java.ULongUtils.lt($value,((ULong)a).$value)); }
