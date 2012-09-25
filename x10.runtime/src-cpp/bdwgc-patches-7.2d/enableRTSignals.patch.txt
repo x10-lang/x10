@@ -1,6 +1,6 @@
-diff -c -r gc-7.2/configure.ac trunk/gc-7.2/configure.ac
-*** gc-7.2/configure.ac	2012-05-11 13:09:00.000000000 -0400
---- trunk/gc-7.2/configure.ac	2012-06-01 14:02:36.000000000 -0400
+diff -c -r configure.ac trunk/configure.ac
+*** configure.ac	2012-05-11 13:09:00.000000000 -0400
+--- trunk/configure.ac	2012-06-01 14:02:36.000000000 -0400
 ***************
 *** 584,589 ****
 --- 584,600 ----
@@ -21,9 +21,9 @@ diff -c -r gc-7.2/configure.ac trunk/gc-7.2/configure.ac
   dnl Debugging
   dnl ---------
   
-diff -c -r gc-7.2/include/private/gc_priv.h trunk/gc-7.2/include/private/gc_priv.h
-*** gc-7.2/include/private/gc_priv.h	2012-05-11 13:09:00.000000000 -0400
---- trunk/gc-7.2/include/private/gc_priv.h	2012-06-01 14:04:39.000000000 -0400
+diff -c -r include/private/gc_priv.h trunk/include/private/gc_priv.h
+*** include/private/gc_priv.h	2012-05-11 13:09:00.000000000 -0400
+--- trunk/include/private/gc_priv.h	2012-06-01 14:04:39.000000000 -0400
 ***************
 *** 2190,2195 ****
 --- 2190,2205 ----

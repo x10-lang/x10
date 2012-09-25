@@ -634,10 +634,10 @@
 	      </then>
 	    </if>
 
-	    <!-- Patches to apply for bdwgc version 7.2b -->
+	    <!-- Patches to apply for bdwgc version 7.2d -->
 	    <if>
 	      <conditions>
-		<equals arg1="${bdwgc.version}" arg2="7.1" />
+		<equals arg1="${bdwgc.version}" arg2="7.2d" />
 	      </conditions>
 	      <then>
 		<patch patchfile="${basedir}/src-cpp/bdwgc-patches-${bdwgc.version}/enableRTSignals.patch.txt"

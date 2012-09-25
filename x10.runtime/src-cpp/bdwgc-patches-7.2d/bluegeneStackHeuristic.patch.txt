@@ -1,6 +1,6 @@
-diff -c -r gc-7.2/include/private/gcconfig.h trunk/gc-7.2/include/private/gcconfig.h
-*** gc-7.2/include/private/gcconfig.h	2012-05-11 13:09:00.000000000 -0400
---- trunk/gc-7.2/include/private/gcconfig.h	2012-06-01 13:55:57.000000000 -0400
+diff -c -r include/private/gcconfig.h trunk/include/private/gcconfig.h
+*** include/private/gcconfig.h	2012-05-11 13:09:00.000000000 -0400
+--- trunk/include/private/gcconfig.h	2012-06-01 13:55:57.000000000 -0400
 ***************
 *** 796,802 ****
   #     define OS_TYPE "LINUX"
