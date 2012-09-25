@@ -183,10 +183,8 @@ public class Options {
             StringBuffer sb = new StringBuffer();
             if (extension != null) {
                 sb.append(extension.compilerName() + 
-                          " version " + extension.version() + "\n");
+                          " version " + extension.version());
             }
-            sb.append("Polyglot compiler toolkit version " +
-                               new polyglot.frontend.JLVersion());
             throw new Main.TerminationException(sb.toString(), 0);
         }
         else if (args[i].equals("-d"))
