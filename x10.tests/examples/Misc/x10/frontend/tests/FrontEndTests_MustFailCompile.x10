@@ -3112,25 +3112,25 @@ class LegalCoercionsBetweenAllNumerics {
 		i = b;
 		i = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.Int		 Found type: x10.lang.Long)
 		i = s;
-		i = ub;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ub		 Expected type: x10.lang.Int		 Found type: x10.lang.UByte)
+		i = ub;  
 		i = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Int		 Found type: x10.lang.UInt)
 		i = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Int		 Found type: x10.lang.ULong)
-		i = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.Int		 Found type: x10.lang.UShort)
+		i = us;  
 		l = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.Long		 Found type: x10.lang.Float)
 		l = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Long		 Found type: x10.lang.Double)
 		l = b;
 		l = i;
 		l = s;
-		l = ub;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ub		 Expected type: x10.lang.Long		 Found type: x10.lang.UByte)
-		l = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.Long		 Found type: x10.lang.UInt)
+		l = ub;  
+		l = ui;  
 		l = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.Long		 Found type: x10.lang.ULong)
-		l = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.us		 Expected type: x10.lang.Long		 Found type: x10.lang.UShort)
+		l = us;  
 		s = f;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.f		 Expected type: x10.lang.Short		 Found type: x10.lang.Float)
 		s = d;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.d		 Expected type: x10.lang.Short		 Found type: x10.lang.Double)
 		s = b;
 		s = i;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.i		 Expected type: x10.lang.Short		 Found type: x10.lang.Int)
 		s = l;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.l		 Expected type: x10.lang.Short		 Found type: x10.lang.Long)
-		s = ub;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ub		 Expected type: x10.lang.Short		 Found type: x10.lang.UByte)
+		s = ub;  
 		s = ui;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ui		 Expected type: x10.lang.Short		 Found type: x10.lang.UInt)
 		s = ul;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Short		 Found type: x10.lang.ULong)
 		s = us;  // ERR (Semantic Error: Cannot assign expression to target.		 Expression: LegalCoercionsBetweenAllNumerics.this.ul		 Expected type: x10.lang.Short		 Found type: x10.lang.UShort)
@@ -3265,8 +3265,8 @@ class A[T] { T isref } {
 	var a4:A[Int{self==3}]; // ERR
 }
 class Test[T]  {
-	def m1(GlobalRef[T]{self.home==here}) {} // ERR
-	def m2(GlobalRef[T]{self.home==here}) {T isref} {}  // ShouldNotBeERR
+	def m1(GlobalRef[T]{self.home==here}) {} // ERR: Semantic Error: Type is inconsistent.
+	def m2(GlobalRef[T]{self.home==here}) {T isref} {}  
 }
 static class TestStatic[T]{T isref} {
 	public static def m1[T]():TestStatic[T]  = null; // ERR
