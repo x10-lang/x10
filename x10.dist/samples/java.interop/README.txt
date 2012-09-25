@@ -1,5 +1,5 @@
 
-We have designed the type system and the Java code generation of X10 programming language very carefully so that X10 programmers can call the existing (i.e. not compiled from X10) Java code as natural as possible. We have successfully exposed most of Java features to X10 in a natural way, therefore X10 programmers can leverage the existing Java libraries without hustle.
+We have designed the type system and the Java code generation of X10 programming language very carefully so that X10 programmers can call the existing (i.e. not compiled from X10) Java code as natural as possible. We have successfully exposed most of Java features to X10 in natural ways, therefore X10 programmers can leverage the existing Java libraries without hustle.
 
 However, due to some gaps between X10 and Java, there are some points that X10 programmers need to be aware of.
 
