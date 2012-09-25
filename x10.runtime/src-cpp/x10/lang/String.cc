@@ -66,6 +66,11 @@ String::_constructor(String* s) {
     this->FMGL(content_length) = s->FMGL(content_length);
 }
 
+String*
+String::_make(x10::array::Array<x10_byte>* array) {
+    return _make(array, 0, array->FMGL(size));
+}
+
 void
 String::_constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int length) {
     nullCheck(array);
@@ -77,6 +82,11 @@ String::_constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int 
     content[i] = '\0';
     this->FMGL(content) = content;
     this->FMGL(content_length) = i;
+}
+
+String*
+String::_make(x10::array::Array<x10_char>* array) {
+    return _make(array, 0, array->FMGL(size));
 }
 
 void

@@ -67,6 +67,8 @@ namespace x10 {
                 return this_;
             }
 
+            static String* _make(x10::array::Array<x10_byte>* array);
+
             void _constructor(x10::array::Array<x10_byte>* array, x10_int start, x10_int length);
             static String* _make(x10::array::Array<x10_byte>* array, x10_int start, x10_int length) {
                 String* this_ = new (x10aux::alloc<String>()) String();
@@ -74,6 +76,8 @@ namespace x10 {
                 return this_;
             }
 
+            static String* _make(x10::array::Array<x10_char>* array);
+            
             void _constructor(x10::array::Array<x10_char>* array, x10_int start, x10_int length);
             static String* _make(x10::array::Array<x10_char>* array, x10_int start, x10_int length) {
                 String* this_ = new (x10aux::alloc<String>()) String();
