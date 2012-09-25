@@ -1,15 +1,12 @@
-Release 2.2.3
+Release 2.3.0
 
 MAJOR CHANGES
 
 The following major changes were made in the X10 language
 specification and implementation in this release.
 
-  + The semantics of static field initialization were changed so
-    that static fields are now lazily initialized on a per-Place basis 
-    when the field is first read by an activity executing in a given Place.
-    For more details, please see Section 8.6 (Static Initialization) in
-    the language specification. 
+SUMMARIZE JAVA INTEROP CHANGES HERE; point to changelog section of manual
+for more details.
 
 Please consult the language specification for the details of
 any minor language changes and specification clarifications made in
@@ -17,7 +14,7 @@ this release.
 
 LIMITATIONS OF THIS RELEASE
 
-The following features described in the 2.2.3 language manual do not
+The following features described in the 2.3.0 language manual do not
 currently work and will be fixed in the subsequent releases:
   - Non-static type definitions as class or interface members
     (static type defs do work)
@@ -45,64 +42,14 @@ may either use g++ 4.2 or better or xlC 10.1.0.4 or better.
 
 SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
-Below is a summary of JIRA issues addressed for the X10 2.2.3
+Below is a summary of JIRA issues addressed for the X10 2.3.0
 
-** New Features and Improvements
-    * [XTENLANG-529] - Test cases for static initialization semantics
-    * [XTENLANG-936] - Determine automatically 32 vs 64 architecture in X10 Platform Configuration
-    * [XTENLANG-1036] - X10DT source editor should provide basic "quick-fixes" for common newbie-triggered compiler messages
-    * [XTENLANG-1041] - X10DT source editor should provide distinct font/color settings for various syntax categories
-    * [XTENLANG-1065] - "Search" for types with main() methods should use an indexed search
-    * [XTENLANG-1095] - Should be able to constrain an X10 search to a context
-    * [XTENLANG-1755] - code auto completion
-    * [XTENLANG-2952] - Proper support for project dependencies
-    * [XTENLANG-2972] - Change static initialization semantics to be per-place
-    * [XTENLANG-2977] - java-interop: type system should support throwability checking
-    * [XTENLANG-2993] - Return primitives without boxing from dispatcher method (IntfMethod2)
-    * [XTENLANG-3008] - Calling java.lang.System.exit deadlocks
-    * [XTENLANG-3037] - -DEBUG_CODEGEN: a tool for quickly diagnosing problems in Java codegen
-    * [XTENLANG-3045] - FileWriter: support appending to File
-    * [XTENLANG-3047] - Distributed Garbage Collection for Managed X10
-    * [XTENLANG-3056] - Support sort (and binary search over) Array
-    * [XTENLANG-3064] - Serialization: avoid byte swapping between homogeneous places
-    * [XTENLANG-3072] - New reader method for reading into byte array
-    * [XTENLANG-3075] - java-interop: launcher for Java programs
-    * [XTENLANG-3082] - Support execution of native commands
+TODO
 
-** Tasks
-    * [XTENLANG-3073] - Update commons math to 3.0
-    * [XTENLANG-3074] - Update ecj to 3.7.2
 
-** Bugs
-    * [XTENLANG-1146] - Fully implement coercion/conversion operations between all sensible pairs of built-in primitives
-    * [XTENLANG-2143] - Add standard x10 copyright headers to polyglot files
-    * [XTENLANG-2400] - Thrown exception at static init time can deadlock
-    * [XTENLANG-2870] - java-interop: reachability test for catch statement does not understand java checked exceptions
-    * [XTENLANG-2874] - java-interop: bug in alpha renaming type parameter when the parameter was bound to Java type
-    * [XTENLANG-3002] - Printer class print method needs to unlock in finally {}
-    * [XTENLANG-3006] - java-interop: post-compilation error with Java.array access for primitives
-    * [XTENLANG-3007] - Comparing ULongs leads to compiler-error with x10c++ (64bit).
-    * [XTENLANG-3009] - regionForHere computation in BlockBlockDist incorrect for non-zeroBased regions
-    * [XTENLANG-3010] - java-interop: Calling reduce on an X10 array that contains a java array crashes the compiler (JavaArray1)
-    * [XTENLANG-3011] - java-interop: Generated code does not correctly propagate @Throws annotations (JavaException5, JavaException6)
-    * [XTENLANG-3018] - java-interop: Serialization of instance of java.lang.Object causes NPE (JavaSerializationObject)
-    * [XTENLANG-3029] - Any.typeName() is incorrect for int literals and string in Java backend (TypeName1)
-    * [XTENLANG-3032] - ClassCastException in code generated for async initialization of value with generic type instantiated on primitive
-    * [XTENLANG-3033] - Compile errors when building X10 with GCC 4.7
-    * [XTENLANG-3035] - Duplicate bridge method (IntfMethod1)
-    * [XTENLANG-3040] - PreLoader is too eager and tries to load  unavailable (and otherwise never referenced libraries) classes
-    * [XTENLANG-3058] - managed codegen does not take into account type constraint environment properly (DepTypeInMethod1)
-    * [XTENLANG-3061] - ICE in Native X10 on upcast of null to a function type
-    * [XTENLANG-3063] - java-interop: post-compilation error for constuctor with @Throws annotation (JavaException3b)
-    * [XTENLANG-3070] - java-interop: Cannot create an X10 class that extends a Java class with no default constructor
-    * [XTENLANG-3071] - Remove redundant home() property method on globalref
-    * [XTENLANG-3081] - Implement new exception semantics in static initialization for Managed X10
-    * [XTENLANG-3083] - Closures in static methods cause post-compilation error
-    * [XTENLANG-3084] - Postcompiler error from managed backend when @Throws added to an overriding method.
-    * [XTENLANG-3085] - Post-compilation error for static fields with initial expressions like "abc" as Object etc.
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=18146
+http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=NNNNNN-TODO-TODO
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
