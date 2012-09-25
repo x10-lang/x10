@@ -22,6 +22,5 @@ import x10.lang.annotations.*;
  *   }
  * }
  * EXPERIMENTAL
- * @author Olivier Tardieu
  */
 public interface Embed extends FieldAnnotation, StatementAnnotation,ExpressionAnnotation { }

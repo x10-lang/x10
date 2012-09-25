@@ -33,7 +33,6 @@
  *     }
  * }
  *
- * @author tardieu
  */
 
 package x10.util.concurrent;

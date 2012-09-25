@@ -16,12 +16,6 @@ import x10.compiler.CompilerFlags;
 
 /**
  * Representation of a place within the APGAS model.
- *
- * @author Christian Grothoff
- * @author Raj Barik, Vivek Sarkar
- * @author tardieu
- * @author vj
- * @author Dave Cunningham
  */
 public final struct Place(id: Int)  {
     public property id():Int = id;

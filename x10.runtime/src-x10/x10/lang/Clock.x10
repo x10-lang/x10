@@ -17,8 +17,6 @@ import x10.compiler.Pinned;
 import x10.util.Map;
 
 /**
- * @author tardieu
- *
  * Ported from 2.0 to 2.1 via naive simulation of 
  *       2.0 style global object by injecting a root field
  *       that is a GlobalRef(this) and always accessing fields 

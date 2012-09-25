@@ -17,8 +17,6 @@ import x10.util.HashMap;
 
 /**
  * Runtime representation of an async. Only to be used in the runtime implementation.
- * 
- * @author tardieu
  */
 class Activity {
 

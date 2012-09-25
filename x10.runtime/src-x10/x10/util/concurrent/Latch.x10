@@ -16,8 +16,6 @@ import x10.compiler.Pinned;
 /**
  * Boolean latch.
  * Inherited look/unlock/tryLock method from superclass can be used.
- *
- * @author tardieu
  */
 @Pinned public class Latch extends Monitor implements ()=>Boolean {
     /**

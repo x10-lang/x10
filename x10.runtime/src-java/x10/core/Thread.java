@@ -23,10 +23,6 @@ import x10.x10rt.X10RT;
 import java.io.IOException;
 
 /**
- * @author Christian Grothoff
- * @author vj
- * @author Raj Barik, Vivek Sarkar
- * @author tardieu
  */
 public class Thread implements Any {
     private static final long serialVersionUID = 1L;

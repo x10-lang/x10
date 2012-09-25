@@ -32,8 +32,6 @@ import java.util.jar.JarFile;
  * The entrypoint is a static <code>preLoad()</code> method.  Calling
  * <code>preLoad(c, true)</code> will also intern all strings in the
  * classes' constant pool.
- *
- * @author Igor Peshansky
  */
 public class PreLoader {
 	

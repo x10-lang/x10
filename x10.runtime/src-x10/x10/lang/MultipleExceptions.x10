@@ -16,8 +16,6 @@ import x10.io.Printer;
 
 
 /**
- * @author Christian Grothoff
- * @author tardieu
  */
 public class MultipleExceptions(exceptions:Rail[Exception]) extends Exception {
     public property exceptions():Rail[Exception] = exceptions;

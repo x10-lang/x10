@@ -17,8 +17,6 @@ import x10.io.SerialData;
 
 /**
  * Native thread. Only to be used in the runtime implementation.
- * 
- * @author tardieu
  */
 @NativeRep("java", "x10.core.Thread", null, "x10.core.Thread.$RTT")
 @NativeRep("c++", "x10::lang::Thread*", "x10::lang::Thread", null)

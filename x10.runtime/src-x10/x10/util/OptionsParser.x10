@@ -15,8 +15,7 @@ import x10.util.HashMap;
 import x10.util.GrowableIndexedMemoryChunk;
 
 /**
- * @author Dave Cunningham
-*/
+ */
 public final class OptionsParser {
 
     public static final class Err extends Exception {

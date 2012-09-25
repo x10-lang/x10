@@ -14,7 +14,6 @@ package x10.lang;
 import x10.compiler.Native;
 
 /**
- * @author tardieu
  */
 public final class GlobalCounters {
 

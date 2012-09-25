@@ -37,8 +37,6 @@ import x10.util.concurrent.SimpleLatch;
  * - Native runtime starts worker0 thread.
  * - Native runtime invokes Runtime.start(...) from worker0 (Thread.currentThread() == worker0).
  * - Runtime.start(...) returns when application code execution has completed.
- * 
- * @author tardieu
  */
 @NativeCPPInclude("x10/lang/RuntimeNatives.h")
 public final class Runtime {

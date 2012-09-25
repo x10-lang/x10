@@ -16,7 +16,6 @@ import x10.compiler.Native;
 import x10.util.NoSuchElementException;
 
 /**
- * @author tardieu
  */
 final class Configuration {
 

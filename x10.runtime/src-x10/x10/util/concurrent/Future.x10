@@ -19,11 +19,6 @@ import x10.util.GrowableIndexedMemoryChunk;
 
 /**
  * The representation of an X10 future expression.
- * @author Christian Grothoff
- * @author Christoph von Praun
- * @author tardieu
- *
- *
  */
 public class Future[T] implements ()=>T { 
     private val root = GlobalRef[Future[T]](this);
