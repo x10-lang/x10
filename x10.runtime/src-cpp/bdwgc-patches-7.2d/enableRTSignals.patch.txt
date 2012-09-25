@@ -1,0 +1,45 @@
+diff -c -r gc-7.2/configure.ac trunk/gc-7.2/configure.ac
+*** gc-7.2/configure.ac	2012-05-11 13:09:00.000000000 -0400
+--- trunk/gc-7.2/configure.ac	2012-06-01 14:02:36.000000000 -0400
+***************
+*** 584,589 ****
+--- 584,600 ----
+      AC_DEFINE(GC_GCJ_SUPPORT, 1, [Define to include support for gcj.])
+  fi
+  
++ 
++ dnl Interaction with other programs that might use signals.
++ dnl Force the GC to use signals based on SIGRTMIN+k 
++ AC_ARG_ENABLE(sigrt-signals,
++ 	[AC_HELP_STRING([--enable-sigrt-signals], [Force the gc to use SIGRTMIN-based signals for thread suspend/resume])])
++ 
++ if test "${enable_sigrt_signals}" = yes; then
++    AC_DEFINE(GC_USESIGRT_SIGNALS)
++ fi
++ 
++ 
+  dnl Debugging
+  dnl ---------
+  
+diff -c -r gc-7.2/include/private/gc_priv.h trunk/gc-7.2/include/private/gc_priv.h
+*** gc-7.2/include/private/gc_priv.h	2012-05-11 13:09:00.000000000 -0400
+--- trunk/gc-7.2/include/private/gc_priv.h	2012-06-01 14:04:39.000000000 -0400
+***************
+*** 2190,2195 ****
+--- 2190,2205 ----
+                /* some other reason.                                     */
+  #endif /* PARALLEL_MARK */
+  
++ # if defined(GC_USESIGRT_SIGNALS)
++ #  if defined(_SIGRTMIN)
++ #   define SIG_SUSPEND _SIGRTMIN + 6
++ #   define SIG_THR_RESTART _SIGRTMIN + 5
++ #  else
++ #   define SIG_SUSPEND SIGRTMIN + 6
++ #   define SIG_THR_RESTART SIGRTMIN + 5
++ #  endif
++ # endif
++ 
+  #if defined(GC_PTHREADS) && !defined(GC_WIN32_THREADS) && !defined(NACL) \
+      && !defined(SIG_SUSPEND)
+    /* We define the thread suspension signal here, so that we can refer  */

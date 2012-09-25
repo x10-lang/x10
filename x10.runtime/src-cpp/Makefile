@@ -11,6 +11,9 @@ XARGS ?= xargs
 # Variables #
 #############
 
+DISTDIR = $(call abspath,../../x10.dist)
+INSTDIR = $(DISTDIR)/stdlib
+
 ifdef DEBUG
     GEN_DIR=gen-dbg
     INST_LIB=lib-dbg
@@ -21,14 +24,12 @@ else
     INST_INCLUDE=include
 endif
 
-INCLUDE_DIRS += -I. -I../x10rt/include
+INCLUDE_DIRS += -I. -I$(DISTDIR)/include
 
 override XRX_PROPS_LDLIBS += -lx10
 
 ifdef ENABLE_GC
   override CXXFLAGS += -DX10_USE_BDWGC
-  BDWGC_INCLUDE_DIR= ./bdwgc/install/include
-  INCLUDE_DIRS += -I"$(BDWGC_INCLUDE_DIR)"
   override XRX_PROPS_CXXFLAGS += -DX10_USE_BDWGC
   override XRX_PROPS_LDLIBS += -lgc
 endif
@@ -52,9 +53,6 @@ ifneq ($(shell uname -s),FreeBSD)
 endif
 
 override CXXFLAGS += $(INCLUDE_DIRS) -I$(GEN_DIR)
-
-DISTDIR = $(call abspath,../../x10.dist)
-INSTDIR = $(DISTDIR)/stdlib
 
 ###########
 # Targets #
