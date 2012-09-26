@@ -1326,25 +1326,6 @@ public class Emitter {
         w.end();
         w.write(")");
         
-//        // Removed throw types.
-//        if (!n.throwTypes().isEmpty()) {
-//            w.allowBreak(6);
-//            w.write("throws ");
-//            
-//            for (Iterator<TypeNode> i = n.throwTypes().iterator(); i.hasNext();) {
-//                TypeNode tn = (TypeNode) i.next();
-//                // vj 09/26/08: Changed to print out translated version of throw type
-//                // tr.print(n, tn, w);
-//                // TODO: Nate to check.
-//                printType(tn.type(), PRINT_TYPE_PARAMS);
-//                
-//                if (i.hasNext()) {
-//                    w.write(",");
-//                    w.allowBreak(4, " ");
-//                }
-//            }
-//        }
-        
         isFirst = true;
         for (Ref<? extends Type> _throws : n.methodDef().throwTypes()) {
             if (isFirst) {
@@ -1488,25 +1469,6 @@ public class Emitter {
             w.end();
             w.write(")");
             
-//            // Removed throw types.
-//            if (!n.throwTypes().isEmpty()) {
-//                w.allowBreak(6);
-//                w.write("throws ");
-//                
-//                for (Iterator<TypeNode> i = n.throwTypes().iterator(); i.hasNext();) {
-//                    TypeNode tn = (TypeNode) i.next();
-//                    // vj 09/26/08: Changed to print out translated version of throw type
-//                    // tr.print(n, tn, w);
-//                    // TODO: Nate to check.
-//                    printType(tn.type(), PRINT_TYPE_PARAMS);
-//                    
-//                    if (i.hasNext()) {
-//                        w.write(",");
-//                        w.allowBreak(4, " ");
-//                    }
-//                }
-//            }
-  
             isFirst = true;
             for (Ref<? extends Type> _throws : n.methodDef().throwTypes()) {
                 if (isFirst) {
@@ -2359,21 +2321,6 @@ public class Emitter {
 	    w.end();
 	    w.write(")");
 
-	    /* Remove throw types support
-	    if (!impl.throwTypes().isEmpty()) {
-	        w.allowBreak(6);
-	        w.write("throws ");
-	        for (Iterator<Type> i = impl.throwTypes().iterator(); i.hasNext();) {
-	            Type t = i.next();
-	            printType(t, PRINT_TYPE_PARAMS);
-	            if (i.hasNext()) {
-	                w.write(",");
-	                w.allowBreak(4, " ");
-	            }
-	        }
-	    }
-*/
-
 	    boolean isFirst = true;
 	    for (Type _throws : impl.throwTypes()) {
 	        if (isFirst) {
@@ -2487,21 +2434,6 @@ public class Emitter {
     
     	    w.end();
     	    w.write(")");
-
-    	    /* Remove throw types support.
-    	    if (!mi.throwTypes().isEmpty()) {
-    	        w.allowBreak(6);
-    	        w.write("throws ");
-    	        for (Iterator<Type> i = mi.throwTypes().iterator(); i.hasNext();) {
-    	            Type t = i.next();
-    	            printType(t, PRINT_TYPE_PARAMS);
-    	            if (i.hasNext()) {
-    	                w.write(",");
-    	                w.allowBreak(4, " ");
-    	            }
-    	        }
-    	    }
-    */
 
     	    boolean isFirst = true;
     	    for (Type _throws : mi.throwTypes()) {
@@ -3053,19 +2985,16 @@ public class Emitter {
         w.end();
         w.write(")");
 
-//        // Remove throw types support
-//        if (!dispatch.throwTypes().isEmpty()) {
-//            w.allowBreak(6);
-//            w.write("throws ");
-//            for (Iterator<Type> i = dispatch.throwTypes().iterator(); i.hasNext();) {
-//                Type t = i.next();
-//                printType(t, PRINT_TYPE_PARAMS);
-//                if (i.hasNext()) {
-//                    w.write(",");
-//                    w.allowBreak(4, " ");
-//                }
-//            }
-//        }
+        boolean isFirst = true;
+        for (Ref<? extends Type> _throws : def.throwTypes()) {
+            if (isFirst) {
+                w.write(" throws ");
+                isFirst = false;
+            } else {
+                w.write(", ");
+            }
+            printType(_throws.get(), 0);
+        }
         
         w.write(" {");
         w.newline();
