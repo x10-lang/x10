@@ -14,9 +14,6 @@ package x10.util.concurrent;
 import x10.compiler.Pinned;
 import x10.io.SerialData;
 
-/**
- * @author tardieu
- */
 @Pinned public class SimpleLatch extends Lock {
     public def this() { super(); }
 
