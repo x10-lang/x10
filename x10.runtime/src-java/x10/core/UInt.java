@@ -132,23 +132,23 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
         return 0;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(UInt ui, X10JavaDeserializer deserializer) throws IOException {
-        int value  = deserializer.readInt();
-        ui = new UInt(value);
-        deserializer.record_reference(ui);
-        return ui;
+    public static X10JavaSerializable $_deserialize_body(UInt $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        int value = $deserializer.readInt();
+        $_obj = new UInt(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
     
     // implements Arithmetic<UInt>

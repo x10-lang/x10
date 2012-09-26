@@ -185,22 +185,22 @@ final public class Short extends java.lang.Number implements StructI, java.lang.
         return (double)$value;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(Short s, X10JavaDeserializer deserializer) throws IOException {
-        short value  = deserializer.readShort();
-        s = new Short(value);
-        deserializer.record_reference(s);
-        return s;
+    public static X10JavaSerializable $_deserialize_body(Short $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        short value  = $deserializer.readShort();
+        $_obj = new Short(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 }

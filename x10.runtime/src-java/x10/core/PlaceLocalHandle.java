@@ -110,19 +110,19 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
         return $_serialization_id;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write((long) id);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write((long) id);
     }
 
-    public static X10JavaSerializable $_deserialize_body(PlaceLocalHandle placeLocalHandle, X10JavaDeserializer $deserializer) throws IOException {
-        placeLocalHandle.id = (java.lang.Long) $deserializer.readLong();
-        return placeLocalHandle;
+    public static X10JavaSerializable $_deserialize_body(PlaceLocalHandle $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        $_obj.id = (java.lang.Long) $deserializer.readLong();
+        return $_obj;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
-        PlaceLocalHandle placeLocalHandle = new PlaceLocalHandle((java.lang.System[]) null, (Type<?>) null);
-        $deserializer.record_reference(placeLocalHandle);
-        return $_deserialize_body(placeLocalHandle, $deserializer);
+        PlaceLocalHandle $_obj = new PlaceLocalHandle((java.lang.System[]) null, (Type<?>) null);
+        $deserializer.record_reference($_obj);
+        return $_deserialize_body($_obj, $deserializer);
     }
 
 }

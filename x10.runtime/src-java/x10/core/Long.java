@@ -176,22 +176,22 @@ final public class Long extends java.lang.Number implements StructI, java.lang.C
         return (double)$value;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(Long l, X10JavaDeserializer deserializer) throws IOException {
-        long value  = deserializer.readLong();
-        l = new Long(value);
-        deserializer.record_reference(l);
-        return l;
+    public static X10JavaSerializable $_deserialize_body(Long $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        long value  = $deserializer.readLong();
+        $_obj = new Long(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 }

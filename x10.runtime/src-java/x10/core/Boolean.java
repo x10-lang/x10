@@ -102,22 +102,22 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
         return (o.$value == $value ? 0 : ($value ? 1 : -1));
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(Boolean b, X10JavaDeserializer deserializer) throws IOException {
-        boolean value  = deserializer.readBoolean();
-        b = new Boolean(value);
-        deserializer.record_reference(b);
-        return b;
+    public static X10JavaSerializable $_deserialize_body(Boolean $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        boolean value  = $deserializer.readBoolean();
+        $_obj = new Boolean(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 }

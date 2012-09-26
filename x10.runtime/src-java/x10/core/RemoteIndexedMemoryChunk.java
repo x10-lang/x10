@@ -152,9 +152,9 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
     }
 
     public static X10JavaSerializable $_deserialize_body(RemoteIndexedMemoryChunk $_obj, X10JavaDeserializer $deserializer) throws IOException {
-        $_obj.T = (Type) $deserializer.readRef();
+        $_obj.T = $deserializer.readRef();
         $_obj.length = $deserializer.readInt();
-        $_obj.home = (Place) $deserializer.readRef();
+        $_obj.home = $deserializer.readRef();
         $_obj.id = (java.lang.Integer) $deserializer.readInt();
         return $_obj;
     }

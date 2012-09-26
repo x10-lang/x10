@@ -116,23 +116,23 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
         return 0;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(Char c, X10JavaDeserializer deserializer) throws IOException {
-        char value  = deserializer.readChar();
-        c = new Char(value);
-        deserializer.record_reference(c);
-        return c;
+    public static X10JavaSerializable $_deserialize_body(Char $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        char value  = $deserializer.readChar();
+        $_obj = new Char(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
     
     // implements Ordered<Char>

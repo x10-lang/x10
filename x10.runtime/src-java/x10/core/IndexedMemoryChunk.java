@@ -351,12 +351,12 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
 
         public static X10JavaSerializable $_deserialize_body($Closure$1 $_obj, X10JavaDeserializer $deserializer) throws IOException {
-            $_obj.srcT = (Type) $deserializer.readRef();
+            $_obj.srcT = $deserializer.readRef();
             $_obj.srcId = $deserializer.readInt();
             $_obj.srcLength = $deserializer.readInt();
             $_obj.srcIndex = $deserializer.readInt();
             $_obj.dstWrapperId = $deserializer.readInt();
-            $_obj.dstWrapperHome = (Place) $deserializer.readRef();
+            $_obj.dstWrapperHome = $deserializer.readRef();
             $_obj.dstIndex = $deserializer.readInt();
             $_obj.numElems = $deserializer.readInt();
             return $_obj;
@@ -470,7 +470,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     }
 
     public static X10JavaSerializable $_deserialize_body(IndexedMemoryChunk $_obj, X10JavaDeserializer $deserializer) throws IOException {
-        $_obj.T = (Type) $deserializer.readRef();
+        $_obj.T = $deserializer.readRef();
         $_obj.length = $deserializer.readInt();
 
         // If the T is a java primitive type, we use default java serialization here

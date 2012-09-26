@@ -18,6 +18,9 @@ import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
+import x10.x10rt.X10JavaDeserializer;
+import x10.x10rt.X10JavaSerializable;
+import x10.x10rt.X10JavaSerializer;
 
 public class LocalVar<T> extends x10.core.Ref {
 
@@ -97,11 +100,11 @@ public class LocalVar<T> extends x10.core.Ref {
         return LocalVar.this;
     }
         
-    public static x10.x10rt.X10JavaSerializable $_deserialize_body(Ref $_obj, x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static X10JavaSerializable $_deserialize_body(Ref $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
         return $_obj;
     }
     
-    public static x10.x10rt.X10JavaSerializable $_deserializer(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException { 
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException { 
         LocalVar $_obj = new LocalVar((java.lang.System[]) null);
         $deserializer.record_reference($_obj);
         return $_deserialize_body($_obj, $deserializer);
@@ -111,7 +114,7 @@ public class LocalVar<T> extends x10.core.Ref {
          return $_serialization_id;
     }
     
-    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
         
     }
 }

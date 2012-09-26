@@ -162,23 +162,23 @@ final public class UShort extends java.lang.Number implements StructI, java.lang
     public boolean $le$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.le($value,((UShort)a).$value); }
     public boolean $ge$Z(java.lang.Object a, Type t) { return x10.runtime.impl.java.UIntUtils.ge($value,((UShort)a).$value); }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(UShort us, X10JavaDeserializer deserializer) throws IOException {
-        short value  = deserializer.readShort();
-        us = new UShort(value);
-        deserializer.record_reference(us);
-        return us;
+    public static X10JavaSerializable $_deserialize_body(UShort $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        short value = $deserializer.readShort();
+        $_obj = new UShort(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 
     // extends abstract class java.lang.Number

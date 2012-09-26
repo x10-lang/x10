@@ -144,7 +144,7 @@ public class Thread implements Any {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         throw new UnsupportedOperationException("Cannot serialize " + getClass());
     }
 

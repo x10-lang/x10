@@ -146,22 +146,22 @@ final public class Double extends java.lang.Number implements StructI, java.lang
         return (double)$value;
     }
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        serializer.write($value);
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        $serializer.write($value);
     }
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-        return $_deserialize_body(null, deserializer);
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {
+        return $_deserialize_body(null, $deserializer);
     }
 
-    public static X10JavaSerializable $_deserialize_body(Double d, X10JavaDeserializer deserializer) throws IOException {
-        double value  = deserializer.readDouble();
-        d = new Double(value);
-        deserializer.record_reference(d);
-        return d;
+    public static X10JavaSerializable $_deserialize_body(Double $_obj, X10JavaDeserializer $deserializer) throws IOException {
+        double value  = $deserializer.readDouble();
+        $_obj = new Double(value);
+        $deserializer.record_reference($_obj);
+        return $_obj;
     }
 }
