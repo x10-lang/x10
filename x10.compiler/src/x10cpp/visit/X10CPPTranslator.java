@@ -184,16 +184,6 @@ public class X10CPPTranslator extends Translator {
 		}
 		
 		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) job.extensionInfo().getOptions();
-/* 		Statement hooks are no longer needed in the current debugger.  They were used by the "small scale" debugger, based on gdb.
-		if (opts.x10_config.DEBUG && n instanceof Stmt && !(n instanceof Assert) && !(n instanceof Block) && !(n instanceof Catch) && !(parent instanceof If) && !(n instanceof For))
-		{
-			w.write("_X10_STATEMENT_HOOK()");
-			if (!(parent instanceof For))
-				w.write("; ");
-			else
-				w.write(", ");
-		}
-*/		
 		
 		final int startLine = w.currentStream().getStreamLineNumber(); // for debug info
 
@@ -299,8 +289,7 @@ public class X10CPPTranslator extends Translator {
 			            			if (s instanceof X10ConstructorCall && ((X10ConstructorCall)s).kind().equals(Kind.SUPER))
 			            			{
 			            				String superClass = ((X10ConstructorCall)s).constructorInstance().returnType().toString();
-			            				if (!"x10.lang.Object".equals(superClass)) // don't bother pointing out an extension of x10.lang.Object in the debug maps
-			            					lineNumberMap.addClassMemberVariable(superClass, superClass, Emitter.mangled_non_method_name(thisClass), ((X10ConstructorCall)s).constructorInstance().returnType().toClass().isX10Struct(), false, true);
+			            				lineNumberMap.addClassMemberVariable(superClass, superClass, Emitter.mangled_non_method_name(thisClass), ((X10ConstructorCall)s).constructorInstance().returnType().toClass().isX10Struct(), false, true);
 			            			}
 		            			}
 		            		}
