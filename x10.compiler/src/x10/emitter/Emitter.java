@@ -938,6 +938,8 @@ public class Emitter {
         private static final String X10_CORE_ARITHMETIC = "x10.core.Arithmetic";
         public static final QName X10_LANG_BITWISE = QName.make("x10.lang.Bitwise");
         private static final String X10_CORE_BITWISE = "x10.core.Bitwise";
+        public static final QName X10_LANG_REDUCIBLE = QName.make("x10.lang.Reducible");
+        private static final String X10_CORE_REDUCIBLE = "x10.core.Reducible";
 
 	public void printType(Type type, int flags) {
 		boolean printTypeParams = (flags & PRINT_TYPE_PARAMS) != 0;
@@ -1013,25 +1015,32 @@ public class Emitter {
 		    return;
 		}
 
-		// print Arithmetic[Int] as Arithmetic.$I etc.
+		// print Arithmetic[Int] as Arithmetic.x10$lang$Int etc.
 		if (X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface && type.isClass()) {
 		    X10ClassType ct = type.toClass();
 		    QName fullName = ct.fullName();
                     List<Type> typeArguments = ct.typeArguments();
 		    if (fullName.equals(X10_LANG_ARITHMETIC)) {
 		        //assert typeArguments != null : "Suspicious Arithmetic without type parameter";
-                        if (typeArguments != null && typeArguments.size() == 1 && typeArguments.get(0).isNumeric()) {
+                        if (typeArguments != null && typeArguments.size() == 1 && isPrimitive(typeArguments.get(0))) {
                             w.write(X10_CORE_ARITHMETIC + "." + specialTypeSuffixForType(typeArguments.get(0)));
                             return;
                         }
 		    }
 		    else if (fullName.equals(X10_LANG_BITWISE)) {
 		        //assert typeArguments != null : "Suspicious Bitwise without type parameter"; 
-		        if (typeArguments != null && typeArguments.size() == 1 && (typeArguments.get(0).isSignedNumeric() || typeArguments.get(0).isUnsignedNumeric())) {
+                        if (typeArguments != null && typeArguments.size() == 1 && isPrimitive(typeArguments.get(0))) {
 		            w.write(X10_CORE_BITWISE + "." + specialTypeSuffixForType(typeArguments.get(0)));
 		            return;
 		        }
 		    }
+                    else if (fullName.equals(X10_LANG_REDUCIBLE)) {
+                        //assert typeArguments != null : "Suspicious Reducible without type parameter"; 
+                        if (typeArguments != null && typeArguments.size() == 1 && isPrimitive(typeArguments.get(0))) {
+                            w.write(X10_CORE_REDUCIBLE + "." + specialTypeSuffixForType(typeArguments.get(0)));
+                            return;
+                        }
+                    }
 		}
 
 		// Print the class name

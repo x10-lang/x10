@@ -4739,6 +4739,11 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     (OperatorNames.AMPERSAND.equals(name) || OperatorNames.BAR.equals(name) || OperatorNames.CARET.equals(name)))
                     return true;
             }
+            else if (fullName.equals(Emitter.X10_LANG_REDUCIBLE)) {
+                if (formalNames != null && formalNames.size() == 2 &&
+                    (OperatorNames.APPLY.equals(name)))
+                    return true;
+            }
         }
         return false;
     }

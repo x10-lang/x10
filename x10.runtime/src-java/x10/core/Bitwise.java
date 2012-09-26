@@ -12,7 +12,7 @@
 package x10.core;
 
 /*
- * special dispatchers for method abstract public x10.lang.Bitwise.operator{&,|,^}(that:T):T
+ * special dispatchers for method abstract public x10.lang.Bitwise.operator{&,|,^}(T):T
  */
 public interface Bitwise {
     public interface x10$lang$Byte extends x10.lang.Bitwise<Byte> {
@@ -34,6 +34,26 @@ public interface Bitwise {
         public long $ampersand$J(java.lang.Object a1, x10.rtt.Type t1);
         public long $bar$J(java.lang.Object a1, x10.rtt.Type t1);
         public long $caret$J(java.lang.Object a1, x10.rtt.Type t1);
+    }
+    public interface x10$lang$Float extends x10.lang.Arithmetic<Float> {
+        public float $ampersand$F(java.lang.Object a1, x10.rtt.Type t1);
+        public float $bar$F(java.lang.Object a1, x10.rtt.Type t1);
+        public float $caret$F(java.lang.Object a1, x10.rtt.Type t1);
+    }
+    public interface x10$lang$Double extends x10.lang.Arithmetic<Double> {
+        public double $ampersand$D(java.lang.Object a1, x10.rtt.Type t1);
+        public double $bar$D(java.lang.Object a1, x10.rtt.Type t1);
+        public double $caret$D(java.lang.Object a1, x10.rtt.Type t1);
+    }
+    public interface x10$lang$Char extends x10.lang.Reducible<Char> {
+        public char $ampersand$C(java.lang.Object a1, x10.rtt.Type t1);
+        public char $bar$C(java.lang.Object a1, x10.rtt.Type t1);
+        public char $caret$C(java.lang.Object a1, x10.rtt.Type t1);
+    }
+    public interface x10$lang$Boolean extends x10.lang.Reducible<Boolean> {
+        public boolean $ampersand$Z(java.lang.Object a1, x10.rtt.Type t1);
+        public boolean $bar$Z(java.lang.Object a1, x10.rtt.Type t1);
+        public boolean $caret$Z(java.lang.Object a1, x10.rtt.Type t1);
     }
     public interface x10$lang$UByte extends x10.lang.Bitwise<UByte> {
         public byte $ampersand$b(java.lang.Object a1, x10.rtt.Type t1);

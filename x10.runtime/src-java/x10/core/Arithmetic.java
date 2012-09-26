@@ -12,7 +12,7 @@
 package x10.core;
 
 /*
- * special dispatchers for method abstract public x10.lang.Arithmetic.operator{+,-,*,/}(that:T):T
+ * special dispatchers for method abstract public x10.lang.Arithmetic.operator{+,-,*,/}(T):T
  */
 public interface Arithmetic {
     public interface x10$lang$Byte extends x10.lang.Arithmetic<Byte> {
@@ -50,6 +50,18 @@ public interface Arithmetic {
         public double $minus$D(java.lang.Object a1, x10.rtt.Type t1);
         public double $times$D(java.lang.Object a1, x10.rtt.Type t1);
         public double $over$D(java.lang.Object a1, x10.rtt.Type t1);
+    }
+    public interface x10$lang$Char extends x10.lang.Reducible<Char> {
+        public char $plus$C(java.lang.Object a1, x10.rtt.Type t1);
+        public char $minus$C(java.lang.Object a1, x10.rtt.Type t1);
+        public char $times$C(java.lang.Object a1, x10.rtt.Type t1);
+        public char $over$C(java.lang.Object a1, x10.rtt.Type t1);
+    }
+    public interface x10$lang$Boolean extends x10.lang.Reducible<Boolean> {
+        public boolean $plus$Z(java.lang.Object a1, x10.rtt.Type t1);
+        public boolean $minus$Z(java.lang.Object a1, x10.rtt.Type t1);
+        public boolean $times$Z(java.lang.Object a1, x10.rtt.Type t1);
+        public boolean $over$Z(java.lang.Object a1, x10.rtt.Type t1);
     }
     public interface x10$lang$UByte extends x10.lang.Arithmetic<UByte> {
         public byte $plus$b(java.lang.Object a1, x10.rtt.Type t1);
