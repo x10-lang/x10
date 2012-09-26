@@ -28,7 +28,7 @@ import java.io.IOException;
 final public class ULong extends java.lang.Number implements StructI, java.lang.Comparable<ULong>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<ULong>, x10.lang.Bitwise<ULong>, x10.util.Ordered<ULong>
-    x10.core.Arithmetic.$j, x10.core.Bitwise.$j, x10.util.Ordered<ULong>
+    x10.core.Arithmetic.x10$lang$ULong, x10.core.Bitwise.x10$lang$ULong, x10.util.Ordered<ULong>
 {
     private static final long serialVersionUID = 1L;
     private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ULong.class);

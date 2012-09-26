@@ -4729,12 +4729,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         if (exposeSpecialDispatcherThroughSpecialInterface) {
             Name name = mi.name();
             List<LocalInstance> formalNames = mi.formalNames();
-            if (fullName.equals(Emitter.X10_LANG_ARITHMETIC_QNAME)) {
+            if (fullName.equals(Emitter.X10_LANG_ARITHMETIC)) {
                 if (formalNames != null && formalNames.size() == 1 &&
                     (OperatorNames.PLUS.equals(name) || OperatorNames.MINUS.equals(name) || OperatorNames.STAR.equals(name) || OperatorNames.SLASH.equals(name)))
                     return true;
             }
-            else if (fullName.equals(Emitter.X10_LANG_BITWISE_QNAME)) {
+            else if (fullName.equals(Emitter.X10_LANG_BITWISE)) {
                 if (formalNames != null && formalNames.size() == 1 &&
                     (OperatorNames.AMPERSAND.equals(name) || OperatorNames.BAR.equals(name) || OperatorNames.CARET.equals(name)))
                     return true;

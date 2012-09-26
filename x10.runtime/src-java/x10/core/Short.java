@@ -29,7 +29,7 @@ import java.io.IOException;
 final public class Short extends java.lang.Number implements StructI, java.lang.Comparable<Short>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Short>, x10.lang.Bitwise<Short>, x10.util.Ordered<Short>
-    x10.core.Arithmetic.$S, x10.core.Bitwise.$S, x10.util.Ordered<Short>
+    x10.core.Arithmetic.x10$lang$Short, x10.core.Bitwise.x10$lang$Short, x10.util.Ordered<Short>
 {
     private static final long serialVersionUID = 1L;
     private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Short.class);

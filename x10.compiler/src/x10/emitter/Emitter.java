@@ -140,9 +140,6 @@ public class Emitter {
       return "__" + i;
     }
     
-//    private static final boolean manglePrimitivesAsShortName = true;
-    private static final boolean manglePrimitivesAsShortName = false;
-    
     public static final String NATIVE_ANNOTATION_BOXED_REP_SUFFIX = "$box";
     public static final String NATIVE_ANNOTATION_RUNTIME_TYPE_SUFFIX = "$rtt";
 
@@ -499,33 +496,14 @@ public class Emitter {
             }
             return name;
         }
+        // N.B. we cannot use short name for type suffix since $b and $B become the same file on case-insensitive OSs. 
+        public static final String specialTypeSuffixForType(Type type0) {
+            Type type = Types.baseType(type0);
+            assert isSpecialTypeForDispatcher(type);
+            return mangleAndFlattenQName(type0).toString();
+        }
         private static final Name NULLTYPE_NAME = Name.make("$null"); // for NullType
         public static Name mangleAndFlattenQName(Type type) {
-            if (manglePrimitivesAsShortName) {
-                if (type.isSignedNumeric()) {
-                    Name name = null;
-                    if (type.isByte()) name = BYTE_NAME;
-                    else if (type.isShort()) name = SHORT_NAME;
-                    else if (type.isInt()) name = INT_NAME;
-                    else /*if (type.isLong())*/ name = LONG_NAME;
-                    return name;
-                } else if (type.isUnsignedNumeric()) {
-                    Name name = null;
-                    if (type.isUByte()) name = UBYTE_NAME; 
-                    else if (type.isUShort()) name = USHORT_NAME;
-                    else if (type.isUInt()) name = UINT_NAME;
-                    else /*if (type.isULong())*/ name = ULONG_NAME;
-                    return name;
-                } else if (type.isFloat()) {
-                    return FLOAT_NAME;
-                } else if (type.isDouble()) {
-                    return DOUBLE_NAME;
-                } else if (type.isChar()) {
-                    return CHAR_NAME;
-                } else if (type.isBoolean()) {
-                    return BOOLEAN_NAME;
-                }
-            }
             if (type.isNull()) {
                 return NULLTYPE_NAME;
             }
@@ -956,28 +934,10 @@ public class Emitter {
 	    }
 	}
 
-	private static final String X10_LANG_ARITHMETIC = "x10.lang.Arithmetic";
-	public static final QName X10_LANG_ARITHMETIC_QNAME = QName.make(X10_LANG_ARITHMETIC);
+	public static final QName X10_LANG_ARITHMETIC = QName.make("x10.lang.Arithmetic");
         private static final String X10_CORE_ARITHMETIC = "x10.core.Arithmetic";
-	private ClassType Arithmetic_;
-        private ClassType Arithmetic() {
-            if (Arithmetic_ == null) {
-                TypeSystem xts = tr.typeSystem();
-                Arithmetic_ = xts.load(X10_LANG_ARITHMETIC);
-            }
-            return Arithmetic_;
-        }
-        private static final String X10_LANG_BITWISE = "x10.lang.Bitwise";
-        public static final QName X10_LANG_BITWISE_QNAME = QName.make(X10_LANG_BITWISE);
+        public static final QName X10_LANG_BITWISE = QName.make("x10.lang.Bitwise");
         private static final String X10_CORE_BITWISE = "x10.core.Bitwise";
-        private ClassType Bitwise_;
-        private ClassType Bitwise() {
-            if (Bitwise_ == null) {
-                TypeSystem xts = tr.typeSystem();
-                Bitwise_ = xts.load(X10_LANG_BITWISE);
-            }
-            return Bitwise_;
-        }
 
 	public void printType(Type type, int flags) {
 		boolean printTypeParams = (flags & PRINT_TYPE_PARAMS) != 0;
@@ -1058,17 +1018,17 @@ public class Emitter {
 		    X10ClassType ct = type.toClass();
 		    QName fullName = ct.fullName();
                     List<Type> typeArguments = ct.typeArguments();
-		    if (fullName.equals(X10_LANG_ARITHMETIC_QNAME)) {
+		    if (fullName.equals(X10_LANG_ARITHMETIC)) {
 		        //assert typeArguments != null : "Suspicious Arithmetic without type parameter";
                         if (typeArguments != null && typeArguments.size() == 1 && typeArguments.get(0).isNumeric()) {
-                            w.write(X10_CORE_ARITHMETIC + "." + specialTypeSuffixForDispatcher(typeArguments.get(0)));
+                            w.write(X10_CORE_ARITHMETIC + "." + specialTypeSuffixForType(typeArguments.get(0)));
                             return;
                         }
 		    }
-		    else if (fullName.equals(X10_LANG_BITWISE_QNAME)) {
+		    else if (fullName.equals(X10_LANG_BITWISE)) {
 		        //assert typeArguments != null : "Suspicious Bitwise without type parameter"; 
 		        if (typeArguments != null && typeArguments.size() == 1 && (typeArguments.get(0).isSignedNumeric() || typeArguments.get(0).isUnsignedNumeric())) {
-		            w.write(X10_CORE_BITWISE + "." + specialTypeSuffixForDispatcher(typeArguments.get(0)));
+		            w.write(X10_CORE_BITWISE + "." + specialTypeSuffixForType(typeArguments.get(0)));
 		            return;
 		        }
 		    }
@@ -2357,7 +2317,7 @@ public class Emitter {
 
 	    // decl
 	    // print the method name
-	    printMethodName(def, isInterface, false, false, null);
+            printMethodName(def, isInterface, false, false, null);
 	    
 	    // print the formals
 	    w.write("(");

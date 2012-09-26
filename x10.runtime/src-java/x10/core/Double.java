@@ -29,7 +29,7 @@ import java.io.IOException;
 final public class Double extends java.lang.Number implements StructI, java.lang.Comparable<Double>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Double>, x10.util.Ordered<Double>
-    x10.core.Arithmetic.$D, x10.util.Ordered<Double>
+    x10.core.Arithmetic.x10$lang$Double, x10.util.Ordered<Double>
 {
     private static final long serialVersionUID = 1L;
     private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Double.class);

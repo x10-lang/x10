@@ -29,7 +29,7 @@ import java.io.IOException;
 final public class Byte extends java.lang.Number implements StructI, java.lang.Comparable<Byte>,
 // for X10PrettyPrinterVisitor.useSpecialDispatcherThroughKnownInterfaces
 //    x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
-    x10.core.Arithmetic.$B, x10.core.Bitwise.$B, x10.util.Ordered<Byte>
+    x10.core.Arithmetic.x10$lang$Byte, x10.core.Bitwise.x10$lang$Byte, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
     private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Byte.class);

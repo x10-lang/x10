@@ -29,7 +29,7 @@ import java.io.IOException;
 final public class Float extends java.lang.Number implements StructI, java.lang.Comparable<Float>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Float>, x10.util.Ordered<Float>
-    x10.core.Arithmetic.$F, x10.util.Ordered<Float>
+    x10.core.Arithmetic.x10$lang$Float, x10.util.Ordered<Float>
 {
     private static final long serialVersionUID = 1L;
     private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Float.class);

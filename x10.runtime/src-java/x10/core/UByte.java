@@ -28,7 +28,7 @@ import java.io.IOException;
 final public class UByte extends java.lang.Number implements StructI, java.lang.Comparable<UByte>,
 // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<UByte>, x10.lang.Bitwise<UByte>, x10.util.Ordered<UByte>
-    x10.core.Arithmetic.$b, x10.core.Bitwise.$b, x10.util.Ordered<UByte>
+    x10.core.Arithmetic.x10$lang$UByte, x10.core.Bitwise.x10$lang$UByte, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
     private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UByte.class);
