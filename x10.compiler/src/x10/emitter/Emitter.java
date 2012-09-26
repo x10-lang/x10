@@ -940,6 +940,10 @@ public class Emitter {
         private static final String X10_CORE_BITWISE = "x10.core.Bitwise";
         public static final QName X10_LANG_REDUCIBLE = QName.make("x10.lang.Reducible");
         private static final String X10_CORE_REDUCIBLE = "x10.core.Reducible";
+        public static final QName X10_LANG_ITERATOR = QName.make("x10.lang.Iterator");
+        private static final String X10_CORE_ITERATOR = "x10.core.Iterator";
+        public static final QName X10_LANG_SEQUENCE = QName.make("x10.lang.Sequence");
+        private static final String X10_CORE_SEQUENCE = "x10.core.Sequence";
 
 	public void printType(Type type, int flags) {
 		boolean printTypeParams = (flags & PRINT_TYPE_PARAMS) != 0;
@@ -1038,6 +1042,20 @@ public class Emitter {
                         //assert typeArguments != null : "Suspicious Reducible without type parameter"; 
                         if (typeArguments != null && typeArguments.size() == 1 && isPrimitive(typeArguments.get(0))) {
                             w.write(X10_CORE_REDUCIBLE + "." + specialTypeSuffixForType(typeArguments.get(0)));
+                            return;
+                        }
+                    }
+                    else if (fullName.equals(X10_LANG_ITERATOR)) {
+                        //assert typeArguments != null : "Suspicious Iterator without type parameter"; 
+                        if (typeArguments != null && typeArguments.size() == 1 && isPrimitive(typeArguments.get(0))) {
+                            w.write(X10_CORE_ITERATOR + "." + specialTypeSuffixForType(typeArguments.get(0)));
+                            return;
+                        }
+                    }
+                    else if (fullName.equals(X10_LANG_SEQUENCE)) {
+                        //assert typeArguments != null : "Suspicious Sequence without type parameter"; 
+                        if (typeArguments != null && typeArguments.size() == 1 && isPrimitive(typeArguments.get(0))) {
+                            w.write(X10_CORE_SEQUENCE + "." + specialTypeSuffixForType(typeArguments.get(0)));
                             return;
                         }
                     }

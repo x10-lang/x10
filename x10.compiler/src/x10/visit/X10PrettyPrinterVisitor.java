@@ -2561,8 +2561,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             MethodDef md = mi.def();
             boolean isParamReturnType = md.returnType().get().isParameterType() || instantiatesReturnType;
 
-            boolean isSpecialReturnType = isSpecialType(md.returnType().get());
-
             if (c.nonVirtual()) {
                 Name name = InlineHelper.makeSuperBridgeName(mi.container().toClass().def(), mi.name());
                 List<MethodInstance> bridges = targetType.toClass().methodsNamed(name);
@@ -2574,8 +2572,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             // call
             // XTENLANG-2993
+            // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //            Type returnTypeForDispatcher = md.returnType().get();
             Type returnTypeForDispatcher = isPrimitive(mi.returnType()) && isPrimitiveGenericMethod(mi) ? mi.returnType() : md.returnType().get();
+            // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
+//            boolean isSpecialReturnType = isSpecialType(md.returnType().get());
+            boolean isSpecialReturnType = isPrimitive(mi.returnType()) && isPrimitiveGenericMethod(mi) ? true : isSpecialType(md.returnType().get());            
             er.printMethodName(md, invokeInterface, isDispatchMethod, generateSpecialDispatcher && !generateSpecialDispatcherNotUse, returnTypeForDispatcher, isSpecialReturnType, isParamReturnType);
         }
 
@@ -4730,17 +4732,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             Name name = mi.name();
             List<LocalInstance> formalNames = mi.formalNames();
             if (fullName.equals(Emitter.X10_LANG_ARITHMETIC)) {
+                // dispatch method ($G->$I etc.)
                 if (formalNames != null && formalNames.size() == 1 &&
                     (OperatorNames.PLUS.equals(name) || OperatorNames.MINUS.equals(name) || OperatorNames.STAR.equals(name) || OperatorNames.SLASH.equals(name)))
                     return true;
             }
             else if (fullName.equals(Emitter.X10_LANG_BITWISE)) {
+                // dispatch method ($G->$I etc.)
                 if (formalNames != null && formalNames.size() == 1 &&
                     (OperatorNames.AMPERSAND.equals(name) || OperatorNames.BAR.equals(name) || OperatorNames.CARET.equals(name)))
                     return true;
             }
             else if (fullName.equals(Emitter.X10_LANG_REDUCIBLE)) {
+                // dispatch method ($G->$I etc.)
                 if (formalNames != null && formalNames.size() == 2 &&
+                    (OperatorNames.APPLY.equals(name)))
+                    return true;
+            }
+            else if (fullName.equals(Emitter.X10_LANG_ITERATOR)) {
+                // special return type ($G->$O)
+                if ((formalNames == null || formalNames.size() == 0) &&
+                    ("next".equals(name.toString())))
+                    return true;
+            }
+            else if (fullName.equals(Emitter.X10_LANG_SEQUENCE)) {
+                // special return type ($G->$O)
+                if (formalNames != null && formalNames.size() == 1 &&
                     (OperatorNames.APPLY.equals(name)))
                     return true;
             }
