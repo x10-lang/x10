@@ -13,6 +13,7 @@ package x10.visit;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -21,6 +22,8 @@ import java.util.Map.Entry;
 import polyglot.ast.Block;
 import polyglot.ast.ClassBody;
 import polyglot.ast.ClassDecl;
+import polyglot.ast.Id;
+import polyglot.ast.Id_c;
 import polyglot.ast.Node;
 import polyglot.ast.NodeFactory;
 import polyglot.frontend.Job;
@@ -37,13 +40,19 @@ import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.util.Pair;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
 import x10.ast.PropertyDecl;
 import x10.ast.TypeParamNode;
+import x10.ast.TypeParamNode_c;
+import x10.ast.X10ClassDecl_c;
 import x10.ast.X10ConstructorDecl;
+import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10MethodDecl;
+import x10.ast.X10MethodDecl_c;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -56,218 +65,183 @@ import x10.util.CollectionFactory;
 /**
  * This visitor alpha-renames type parameters that have the same name as another
  * type parameter in outer scope.
- * WARNING: this modifies the actual type objects in-place, rather than creating copies.
+ * WARNING this class modifies type objects (X10ClassDef etc) in place without copying them
+ * 
+ * Needs to be a ContextVistitor so we can use TypeSubst to change the types (even though full power of TypeSubst is not needed)
  */
-public class TypeParamAlphaRenamer extends NodeTransformingVisitor {
+public class TypeParamAlphaRenamer extends ContextVisitor {
 
-    private static NodeTransformer NONE = new NodeTransformer() { };
-
-    private TypeParamAlphaRenamer parent = null;
-    private Map<Name, ParameterType> types;
-    private Map<ParameterType, ParameterType> typeMap;
-
-    protected TypeParamAlphaRenamer(Job job, TypeSystem ts, NodeFactory nf, NodeTransformer xform, TypeParamAlphaRenamer parent) {
-        super(job, ts, nf, xform);
+	TypeParamAlphaRenamer parent;
+	// each name maps to the original and the transformed type (aliases if not being transformed)
+	private Map<Name, Pair<ParameterType,ParameterType>> map;
+	
+	protected TypeParamAlphaRenamer(Map<Name, Pair<ParameterType,ParameterType>> map, TypeParamAlphaRenamer parent) {
+		super(parent.job, parent.ts, parent.nf);
+		//this.job = parent.job;
+		//this.ts = parent.ts;
+		//this.nf = parent.nf;
+        this.map = map;
         this.parent = parent;
-        this.types = CollectionFactory.<Name, ParameterType>newHashMap(3);
-        this.typeMap = CollectionFactory.<ParameterType, ParameterType>newHashMap(10);
+        this.context = parent.context;
     }
 
-    public TypeParamAlphaRenamer(Job job, TypeSystem ts, NodeFactory nf) {
-        this(job, ts, nf, NONE, null);
+	public TypeParamAlphaRenamer(Job job, TypeSystem ts, NodeFactory nf) {
+		super(job,ts,nf);
+		//this.job = job;
+		//this.ts = ts;
+		//this.nf = nf;
+        this.map = new HashMap<Name, Pair<ParameterType,ParameterType>>();
+        this.parent = null;
+        this.context = ts.emptyContext();
     }
 
-    protected void addType(ParameterType t) {
-        types.put(t.name(), t);
+	// checks inner scopes first
+	// returns null if the type does not exist, otherwise returns the pair
+    private Pair<ParameterType,ParameterType> lookupMap(Name name) {
+    	for (TypeParamAlphaRenamer t = this; t!= null ; t = t.parent) {
+			if (t.map.containsKey(name)) return t.map.get(name);
+    	}
+		return null;
     }
 
-    protected boolean hasType(ParameterType t) {
-        if (types.containsKey(t.name())) {
-            return true;
-        }
-        if (parent != null) {
-            return parent.hasType(t);
-        }
-        return false;
-    }
-
-    protected void mapType(ParameterType f, ParameterType t) {
-        typeMap.put(f, t);
-    }
-
-    protected ParameterType getType(ParameterType f) {
-        return typeMap.get(f);
-    }
     
     protected TypeParamSubst buildSubst() {
+    	// squash maps into a single map
+    	Map<Name, Pair<ParameterType,ParameterType>> squashed = new HashMap<Name, Pair<ParameterType,ParameterType>>();
+    	for (TypeParamAlphaRenamer t = this; t!= null ; t = t.parent) {
+    	    for (Entry<Name, Pair<ParameterType,ParameterType>> e : t.map.entrySet()) {
+            	// let inner scopes overwrite outer scopes
+    	    	if (!squashed.containsKey(e.getKey()))
+	    			squashed.put(e.getKey(), e.getValue());
+            }
+    	}
+        	
+    	// build a TypeParamSubst out of it
         List<ParameterType> from = new ArrayList<ParameterType>();
         List<ParameterType> to = new ArrayList<ParameterType>();
-        for (TypeParamAlphaRenamer parent = this; parent != null; parent = parent.parent) {
-            parent.gatherTypeMappings(from, to);
+        for (Entry<Name, Pair<ParameterType,ParameterType>> e : squashed.entrySet()) {
+        	ParameterType from_ = e.getValue().fst();
+        	ParameterType to_ = e.getValue().snd();
+        	if (from_ != to_) {
+	        	from.add(from_);
+	        	to.add(to_);
+        	}
         }
+        assert from.size() == to.size() : from.size()+" != "+to.size();
+        if (from.size() == 0) return null;
         return new TypeParamSubst(ts, to, from, true);
     }
 
-    private void gatherTypeMappings(List<ParameterType> from, List<ParameterType> to) {
-        for (Entry<ParameterType, ParameterType> e : typeMap.entrySet()) {
-            from.add(e.getKey());
-            to.add(e.getValue());
-        }
-    }
-
-    private static class DelegatingTransformer extends NodeTransformer {
-        public NodeTransformer delegate;
-        public DelegatingTransformer(NodeTransformer xform) {
-            this.delegate = xform;
-        }
-        @Override
-        public Node transform(Node n, Node old, ContextVisitor v) {
-            return delegate.transform(n, old, v);
-        }
-    }
-
-    private class TypeParamRenameTransformer extends TypeParamSubstTransformer {
-        public TypeParamRenameTransformer() {
-            super(null);
-        }
-        @Override
-        public TypeParamSubst subst() {
-            return buildSubst();
-        }
-    }
     
     @Override
-    protected NodeVisitor enterCall(Node parent, Node n) throws SemanticException {
-        if (n instanceof ClassDecl) {
-            DelegatingTransformer xform = new DelegatingTransformer(this.xform);
-            TypeParamAlphaRenamer tpar = new TypeParamAlphaRenamer(job, ts, nf, xform, this);
-            TypeParamRenameTransformer tprt = tpar.new TypeParamRenameTransformer();
-            xform.delegate = tprt;
-            return tpar.context(this.context());
+    public NodeVisitor enterCall(Node parent, Node n) {
+    	List<ParameterType> bound_params = null;
+    	boolean static_scope = false;
+        if (n instanceof X10ClassDecl_c) {
+        	X10ClassDecl_c n2 = (X10ClassDecl_c) n;
+        	bound_params = n2.classDef().typeParameters();
+        	static_scope = n2.flags().flags().isStatic();
+        } else if (n instanceof X10MethodDecl_c) {
+        	X10MethodDecl_c n2 = (X10MethodDecl_c) n;
+        	bound_params = n2.methodDef().typeParameters();
+        	static_scope = n2.flags().flags().isStatic();
         }
-        if (n instanceof X10MethodDecl) {
-            DelegatingTransformer xform = new DelegatingTransformer(this.xform);
-            TypeParamAlphaRenamer pvisit = this;
-//            if  {((X10MethodDecl) n).flags().flags().isStatic()) // TODO
-//                pvisit = null;
-//            }
-            TypeParamAlphaRenamer tpar = new TypeParamAlphaRenamer(job, ts, nf, xform, pvisit);
-            TypeParamRenameTransformer tprt = tpar.new TypeParamRenameTransformer();
-            xform.delegate = tprt;
-            return tpar.context(this.context());
-        }
-        return super.enterCall(parent, n);
+        // constructors do not introduce additional type parameters
+        
+        if (bound_params == null) return this;
+        
+
+    	Map<Name, Pair<ParameterType,ParameterType>> new_scope = new HashMap<Name,Pair<ParameterType,ParameterType>>();
+    	for (ParameterType p : bound_params) {
+    		ParameterType map_to = p;
+    		Pair<ParameterType,ParameterType> outer = lookupMap(p.name());
+        	if (outer!=null && !static_scope) {
+        		// this name clashes, rewrite it
+                map_to = new ParameterType(ts, p.position(), p.position().markCompilerGenerated(), Name.makeFresh(p.name()), p.def());
+        	}
+        	new_scope.put(p.name(), new Pair<ParameterType,ParameterType>(p, map_to));
+    	}
+
+    	return new TypeParamAlphaRenamer(new_scope, this);
     }
 
+    
+    
     @Override
-    protected Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) throws SemanticException {
-        if (n instanceof TypeParamNode) {
-            if (context.currentCode() instanceof MemberDef && ((MemberDef) context.currentCode()).flags().isStatic()) {
-                return n;
-            }
-            TypeParamNode tpn = (TypeParamNode) n;
-            ParameterType pt = tpn.type();
-            if (hasType(pt)) {
-                ParameterType npt = new ParameterType(ts, pt.position(), pt.position().markCompilerGenerated(), Name.makeFresh(pt.name()), pt.def());
-                mapType(pt, npt);
-                return tpn.type(npt).name(tpn.name().id(npt.name()));
-            } else {
-                addType(pt);
-                return tpn;
-            }
+    public Node leaveCall(Node parent, Node old, Node n, NodeVisitor v) {
+    	TypeParamAlphaRenamer v2 = (TypeParamAlphaRenamer)v;
+        TypeParamSubst subst = v2.buildSubst();
+        
+        if (subst == null) return n;
+    	
+        if (n instanceof TypeParamNode_c) {
+            TypeParamNode_c n2 = (TypeParamNode_c) n;
+
+    		Pair<ParameterType,ParameterType> outer = lookupMap(n2.name().id());
+        	if (outer!=null && outer.fst() != outer.snd()) {
+        		assert outer.fst() == n2.type();
+        		ParameterType new_type = outer.snd();
+        		Id new_name = n2.name().id(new_type.name());
+        		return n2.type(new_type).name(new_name);
+        	}
         }
-        if (n instanceof ClassDecl) {
-            X10ClassDef def = ((ClassDecl) n).classDef();
-            TypeParamAlphaRenamer tpar = (TypeParamAlphaRenamer) v;
-            TypeParamSubst subst = tpar.buildSubst();
-            adjustClassDef(def, subst);
-            List<ParameterType> tps = def.typeParameters();
-            List<TypeParamNode> tpns = ((ClassDecl) n).typeParameters();
-            boolean changed = false;
-            for (int i = 0; i < tps.size(); i++) {
-                ParameterType p = tps.get(i);
-                ParameterType.Variance z = def.variances().get(i);
-                TypeParamNode tpn = tpns.get(i);
-                ParameterType np = tpar.getType(p);
-                if (np != null) {
-                    assert (tpn.type().typeEquals(np, context));
-                    def.replaceTypeParameter(i, np, z);
-                    changed = true;
-                }
+        
+        if (n instanceof X10ClassDecl_c) {
+        	X10ClassDecl_c n2 = (X10ClassDecl_c) n;
+            X10ClassDef def = (X10ClassDef)n2.classDef();
+            for (FieldDef fd : def.fields()) {
+			    adjustFieldDef(fd, subst);
+			}
+			for (MethodDef md : def.methods()) {
+			    adjustMethodDef(md, subst);
+			}
+			for (ConstructorDef cd : def.constructors()) {
+			    adjustConstructorDef(cd, subst);
+			}
+			def.superType(subst.reinstantiate(def.superType()));
+			def.setInterfaces(subst.reinstantiate(def.interfaces()));
+
+			// [DC] these guys were updated already
+			List<TypeParamNode> new_type_param_nodes = n2.typeParameters();
+
+			// [DC] whack the class def with new type parameter types
+			for (int i = 0; i < new_type_param_nodes.size(); i++) {
+				ParameterType new_param = new_type_param_nodes.get(i).type();
+                def.replaceTypeParameter(i, new_param, def.variances().get(i));
             }
-            if (changed) {
-                def.setSubst(subst);
-            }
+			
+            def.setSubst(subst); // [DC] unsure how well this works
             return n;
         }
-        if (n instanceof X10MethodDecl && !((X10MethodDecl) n).flags().flags().isStatic()) {
-            MethodDef def = ((X10MethodDecl) n).methodDef();
-            TypeParamAlphaRenamer tpar = (TypeParamAlphaRenamer) v;
-            TypeParamSubst subst = tpar.buildSubst();
+        
+        if (n instanceof X10MethodDecl_c) {
+        	X10MethodDecl_c n2 = (X10MethodDecl_c) n;
+            MethodDef def = n2.methodDef();
             adjustMethodDef(def, subst);
+
+			// [DC] these guys were updated already
+			List<TypeParamNode> new_type_param_nodes = n2.typeParameters();
+
             List<ParameterType> tps = new ArrayList<ParameterType>();
-            List<TypeParamNode> tpns = ((X10MethodDecl) n).typeParameters();
-            boolean changed = false;
-            for (int i = 0; i < def.typeParameters().size(); i++) {
-                ParameterType p = def.typeParameters().get(i);
-                TypeParamNode tpn = tpns.get(i);
-                ParameterType np = tpar.getType(p);
-                if (np != null) {
-                    assert (tpn.type().typeEquals(np, context));
-                    tps.add(np);
-                    changed = true;
-                } else {
-                    tps.add(p);
-                }
+			for (int i = 0; i < def.typeParameters().size(); i++) {
+				ParameterType new_param = new_type_param_nodes.get(i).type();
+				tps.add(new_param);
             }
-            if (changed) {
-                def.setTypeParameters(tps);
-            }
+            def.setTypeParameters(tps);
             return n;
         }
+
         //[DC] based on the MethodDecl part
         if (n instanceof X10ConstructorDecl) {
-            X10ConstructorDef def = ((X10ConstructorDecl) n).constructorDef();
-            TypeParamAlphaRenamer tpar = (TypeParamAlphaRenamer) v;
-            TypeParamSubst subst = tpar.buildSubst();
+        	X10ConstructorDecl_c n2 = (X10ConstructorDecl_c)n;
+            X10ConstructorDef def = n2.constructorDef();
             adjustConstructorDef(def, subst);
-            /* [DC] don't think that constructors can have type params of their own
-            List<ParameterType> tps = new ArrayList<ParameterType>();
-            List<TypeParamNode> tpns = ((X10ConstructorDecl) n).typeParameters();
-            boolean changed = false;
-            for (int i = 0; i < def.typeParameters().size(); i++) {
-                ParameterType p = def.typeParameters().get(i);
-                TypeParamNode tpn = tpns.get(i);
-                ParameterType np = tpar.getType(p);
-                if (np != null) {
-                    assert (tpn.type().typeEquals(np, context));
-                    tps.add(np);
-                    changed = true;
-                } else {
-                    tps.add(p);
-                }
-            }
-            if (changed) {
-                def.setTypeParameters(tps);
-            }
-            */
             return n;
-        }        
-        return super.leaveCall(parent, old, n, v);
-    }
-
-    private static void adjustClassDef(X10ClassDef def, TypeParamSubst subst) {
-        for (FieldDef fd : def.fields()) {
-            adjustFieldDef(fd, subst);
         }
-        for (MethodDef md : def.methods()) {
-            adjustMethodDef(md, subst);
-        }
-        for (ConstructorDef cd : def.constructors()) {
-            adjustConstructorDef(cd, subst);
-        }
-        def.superType(subst.reinstantiate(def.superType()));
-        def.setInterfaces(subst.reinstantiate(def.interfaces()));
+        
+        // otherwise apply the subst
+        TypeParamSubstTransformer tpst = new TypeParamSubstTransformer(subst);
+        return tpst.transform(n, old, v2);
     }
 
     private static void adjustFieldDef(FieldDef fd, TypeParamSubst subst) {
