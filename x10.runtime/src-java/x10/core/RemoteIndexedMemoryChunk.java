@@ -113,16 +113,16 @@ public final class RemoteIndexedMemoryChunk<T> extends x10.core.Struct implement
         throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
 
-    public void remoteAdd(int idx, x10.core.ULong v) {
+    public void remoteAdd__1$u(int idx, long v) {
         throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
-    public void remoteAnd(int idx, x10.core.ULong v) {
+    public void remoteAnd__1$u(int idx, long v) {
         throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
-    public void remoteOr(int idx, x10.core.ULong v) {
+    public void remoteOr__1$u(int idx, long v) {
         throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
-    public void remoteXor(int idx, x10.core.ULong v) {
+    public void remoteXor__1$u(int idx, long v) {
         throw new java.lang.UnsupportedOperationException("Remote operations are not implemented.");
     }
 

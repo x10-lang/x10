@@ -75,7 +75,7 @@ public struct RemoteIndexedMemoryChunk[T] {
 
     @Native("java", "(#this).toString()")
     @Native("c++", "(#this)->toString()")
-    public native def  toString():String;
+    public native def toString():String;
 
     @Native("java", "(#this).equals(#that)")
     @Native("c++", "(#this)->equals(#that)")
@@ -83,18 +83,18 @@ public struct RemoteIndexedMemoryChunk[T] {
 
     @Native("java", "(#this).hashCode()")
     @Native("c++", "(#this)->hash_code()")
-    public native def  hashCode():Int;
+    public native def hashCode():Int;
 
-    @Native("java", "(#this).remoteAdd(#idx,#v)")
+    @Native("java", "(#this).remoteAdd__1$u(#idx,#v)")
     @Native("c++", "(#this)->remoteAdd(#idx,#v)")
     public native def remoteAdd(idx:Int, v:ULong) : void;
-    @Native("java", "(#this).remoteAnd(#idx,#v)")
+    @Native("java", "(#this).remoteAnd__1$u(#idx,#v)")
     @Native("c++", "(#this)->remoteAnd(#idx,#v)")
     public native def remoteAnd(idx:Int, v:ULong) : void;
-    @Native("java", "(#this).remoteOr(#idx,#v)")
+    @Native("java", "(#this).remoteOr__1$u(#idx,#v)")
     @Native("c++", "(#this)->remoteOr(#idx,#v)")
     public native def remoteOr(idx:Int, v:ULong) : void;
-    @Native("java", "(#this).remoteXor(#idx,#v)")
+    @Native("java", "(#this).remoteXor__1$u(#idx,#v)")
     @Native("c++", "(#this)->remoteXor(#idx,#v)")
     public native def remoteXor(idx:Int, v:ULong) : void;
     @Native("java", "(#this).remoteAdd(#idx,#v)")
