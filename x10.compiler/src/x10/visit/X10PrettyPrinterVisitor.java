@@ -229,7 +229,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     // Expose existing special dispatcher through special interfaces (e.g. Arithmetic, Bitwise)
     public static final boolean exposeSpecialDispatcherThroughSpecialInterface = false;
 
-    // N.B. should be as short as file name length which is valid on all supported platforms.
+    // N.B. should be as short as file name length which is valid on all supported platforms (e.g. NAME_MAX on linux).
     public static final int longestTypeName = 255; // use hash code if type name becomes longer than some threshold.
 
     public static final String X10_FUN_PACKAGE = "x10.core.fun";
