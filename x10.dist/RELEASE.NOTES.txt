@@ -21,9 +21,11 @@ to improve the quality of Java interoperability.
     and a throws clauses were reintroduced.  The exception hierarchy 
     now aligns neatly with Java's, although X10 prefers using 
     unchecked exceptions as much as possible.
-For more details on these changes and some advice on porting code from
-X10 2.2.3 to X10 2.3.0, please see the Changelog section of X10 language 
-specification.
+For more details on these changes, please see the Changelog section 
+of the X10 language specification. 
+For advice on porting code from X10 2.2.3 to X10 2.3.0 please see
+the "Porting notes for X10 2.3" email message available at:
+https://sourceforge.net/mailarchive/message.php?msg_id=29741534
 
 Please consult the language specification for the details of
 any minor language changes and specification clarifications made in
