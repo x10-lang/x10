@@ -51,13 +51,13 @@ public interface Arithmetic {
         public double $times$D(java.lang.Object a1, x10.rtt.Type t1);
         public double $over$D(java.lang.Object a1, x10.rtt.Type t1);
     }
-    public interface x10$lang$Char extends x10.lang.Reducible<Char> {
+    public interface x10$lang$Char extends x10.lang.Arithmetic<Char> {
         public char $plus$C(java.lang.Object a1, x10.rtt.Type t1);
         public char $minus$C(java.lang.Object a1, x10.rtt.Type t1);
         public char $times$C(java.lang.Object a1, x10.rtt.Type t1);
         public char $over$C(java.lang.Object a1, x10.rtt.Type t1);
     }
-    public interface x10$lang$Boolean extends x10.lang.Reducible<Boolean> {
+    public interface x10$lang$Boolean extends x10.lang.Arithmetic<Boolean> {
         public boolean $plus$Z(java.lang.Object a1, x10.rtt.Type t1);
         public boolean $minus$Z(java.lang.Object a1, x10.rtt.Type t1);
         public boolean $times$Z(java.lang.Object a1, x10.rtt.Type t1);

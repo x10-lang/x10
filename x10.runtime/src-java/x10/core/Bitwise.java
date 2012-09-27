@@ -35,22 +35,22 @@ public interface Bitwise {
         public long $bar$J(java.lang.Object a1, x10.rtt.Type t1);
         public long $caret$J(java.lang.Object a1, x10.rtt.Type t1);
     }
-    public interface x10$lang$Float extends x10.lang.Arithmetic<Float> {
+    public interface x10$lang$Float extends x10.lang.Bitwise<Float> {
         public float $ampersand$F(java.lang.Object a1, x10.rtt.Type t1);
         public float $bar$F(java.lang.Object a1, x10.rtt.Type t1);
         public float $caret$F(java.lang.Object a1, x10.rtt.Type t1);
     }
-    public interface x10$lang$Double extends x10.lang.Arithmetic<Double> {
+    public interface x10$lang$Double extends x10.lang.Bitwise<Double> {
         public double $ampersand$D(java.lang.Object a1, x10.rtt.Type t1);
         public double $bar$D(java.lang.Object a1, x10.rtt.Type t1);
         public double $caret$D(java.lang.Object a1, x10.rtt.Type t1);
     }
-    public interface x10$lang$Char extends x10.lang.Reducible<Char> {
+    public interface x10$lang$Char extends x10.lang.Bitwise<Char> {
         public char $ampersand$C(java.lang.Object a1, x10.rtt.Type t1);
         public char $bar$C(java.lang.Object a1, x10.rtt.Type t1);
         public char $caret$C(java.lang.Object a1, x10.rtt.Type t1);
     }
-    public interface x10$lang$Boolean extends x10.lang.Reducible<Boolean> {
+    public interface x10$lang$Boolean extends x10.lang.Bitwise<Boolean> {
         public boolean $ampersand$Z(java.lang.Object a1, x10.rtt.Type t1);
         public boolean $bar$Z(java.lang.Object a1, x10.rtt.Type t1);
         public boolean $caret$Z(java.lang.Object a1, x10.rtt.Type t1);
