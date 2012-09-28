@@ -329,7 +329,7 @@ public class ClosureRemover extends ContextVisitor {
                     Closure cl = (Closure) n;
                     ClosureDef cld = cl.closureDef();
                     final Position pos = Position.COMPILER_GENERATED;
-                    Flags privateStatic = Flags.PRIVATE.Static();
+                    Flags privateStatic = Flags.PRIVATE.Static().Final();
                     
                     final List<VarInstance<? extends VarDef>> capturedEnv = cld.capturedEnvironment();
                     

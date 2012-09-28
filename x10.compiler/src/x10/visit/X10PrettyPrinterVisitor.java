@@ -1905,7 +1905,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     } else {
                         w.writeln("// synthetic type for parameter mangling");
                     }
-                    w.writeln("public abstract static class " + extraTypeName + " {}");
+                    w.writeln("public static final class " + extraTypeName + " {}");
                 }
             }
         }
