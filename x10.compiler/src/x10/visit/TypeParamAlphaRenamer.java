@@ -42,9 +42,12 @@ import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.TypeSystem_c;
 import polyglot.types.Types;
+import polyglot.types.VarDef;
+import polyglot.types.VarInstance;
 import polyglot.util.Pair;
 import polyglot.visit.ContextVisitor;
 import polyglot.visit.NodeVisitor;
+import x10.ast.Closure_c;
 import x10.ast.PropertyDecl;
 import x10.ast.TypeParamNode;
 import x10.ast.TypeParamNode_c;
@@ -53,6 +56,7 @@ import x10.ast.X10ConstructorDecl;
 import x10.ast.X10ConstructorDecl_c;
 import x10.ast.X10MethodDecl;
 import x10.ast.X10MethodDecl_c;
+import x10.types.ClosureDef;
 import x10.types.ParameterType;
 import x10.types.TypeParamSubst;
 import x10.types.X10ClassDef;
@@ -68,6 +72,8 @@ import x10.util.CollectionFactory;
  * WARNING this class modifies type objects (X10ClassDef etc) in place without copying them
  * 
  * Needs to be a ContextVistitor so we can use TypeSubst to change the types (even though full power of TypeSubst is not needed)
+ * 
+ * @author Dave Cunningham (originally: unknown, probably Igor)
  */
 public class TypeParamAlphaRenamer extends ContextVisitor {
 
@@ -173,7 +179,12 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
         TypeParamSubst subst = v2.buildSubst();
         
         if (subst == null) return n;
-    	
+
+        // First, apply the subst
+        TypeParamSubstTransformer tpst = new TypeParamSubstTransformer(subst);
+        n = tpst.transform(n, old, v2);
+          
+        /*
         if (n instanceof TypeParamNode_c) {
             TypeParamNode_c n2 = (TypeParamNode_c) n;
 
@@ -185,7 +196,9 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
         		return n2.type(new_type).name(new_name);
         	}
         }
+        */
         
+        // Now, fix the defs which apparently are not changed by the type substitution
         if (n instanceof X10ClassDecl_c) {
         	X10ClassDecl_c n2 = (X10ClassDecl_c) n;
             X10ClassDef def = (X10ClassDef)n2.classDef();
@@ -211,7 +224,6 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
             }
 			
             def.setSubst(subst); // [DC] unsure how well this works
-            return n;
         }
         
         if (n instanceof X10MethodDecl_c) {
@@ -228,20 +240,25 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
 				tps.add(new_param);
             }
             def.setTypeParameters(tps);
-            return n;
         }
 
-        //[DC] based on the MethodDecl part
-        if (n instanceof X10ConstructorDecl) {
+        if (n instanceof X10ConstructorDecl_c) {
         	X10ConstructorDecl_c n2 = (X10ConstructorDecl_c)n;
             X10ConstructorDef def = n2.constructorDef();
             adjustConstructorDef(def, subst);
-            return n;
         }
         
-        // otherwise apply the subst
-        TypeParamSubstTransformer tpst = new TypeParamSubstTransformer(subst);
-        return tpst.transform(n, old, v2);
+        if (n instanceof Closure_c) {
+        	Closure_c n2 = (Closure_c)n;
+            ClosureDef def = n2.closureDef();
+            List<VarInstance<? extends VarDef>> new_env = new ArrayList<VarInstance<? extends VarDef>>();
+            for (VarInstance<? extends VarDef> env_vi : def.capturedEnvironment()) {
+            	new_env.add(subst.reinstantiate(env_vi));
+            }
+            def.setCapturedEnvironment(new_env);
+        }
+        
+        return n;
     }
 
     private static void adjustFieldDef(FieldDef fd, TypeParamSubst subst) {
