@@ -207,17 +207,18 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final int NO_VARIANCE = 4;
     public static final int NO_QUALIFIER = 8;
 
-    public static final boolean isSelfDispatch = true;
+    public static final boolean useSelfDispatch = true;
     // XTENLANG-2993
     public static final boolean generateSpecialDispatcher = true;
     public static final boolean generateSpecialDispatcherNotUse = false;  // TODO to be removed
-    public static final boolean isGenericOverloading = true;
+    public static final boolean supportGenericOverloading = true;
     public static final boolean supportConstructorSplitting = true;
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
     // XTENLANG-2871
-    public static final boolean supportJavaThrowables = true;
-    public static final boolean useRethrowBlock = true;
+    // not used
+//    public static final boolean supportJavaThrowables = true;
+//    public static final boolean useRethrowBlock = true;
     // XTENLANG-3058
     public static final boolean supportTypeConstraintsWithErasure = true;
     // XTENLANG-3090 (switched back to use java assertion)
@@ -590,13 +591,13 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             List<Type> alreadyPrintedTypes = new ArrayList<Type>();
             for (Iterator<TypeNode> i = interfaces.iterator(); i.hasNext();) {
                 TypeNode tn = i.next();
-                if (!isSelfDispatch || (isSelfDispatch && !Emitter.alreadyPrinted(alreadyPrintedTypes, tn.type()))) {
+                if (!useSelfDispatch || (useSelfDispatch && !Emitter.alreadyPrinted(alreadyPrintedTypes, tn.type()))) {
                     if (alreadyPrintedTypes.size() != 0) {
                         w.write(", ");
                     }
                     alreadyPrintedTypes.add(tn.type());
                     boolean isJavaNative = Emitter.isNativeRepedToJava(tn.type());
-                    er.printType(tn.type(), (isSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES
+                    er.printType(tn.type(), (useSelfDispatch && !isJavaNative ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES
                             | NO_VARIANCE);
                 }
             }
@@ -1098,7 +1099,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.newline();
         }
 
-        if (isSelfDispatch) {
+        if (useSelfDispatch) {
             er.generateDispatchMethods(def);
         }
         er.generateBridgeMethods(def);
@@ -2495,7 +2496,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.write(")");
 
                     w.write(")");
-                } else if (isSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(containerType))) {
+                } else if (useSelfDispatch && (mi.typeParameters().size() > 0 || hasParams(containerType))) {
                     // TODO:CAST
                     w.write("(");
                     w.write("(");
@@ -2533,7 +2534,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
 
             boolean isDispatchMethod = false;
-            if (isSelfDispatch) {
+            if (useSelfDispatch) {
                 Type tt = Types.baseType(containerType);
                 if (tt.isClass() && tt.toClass().flags().isInterface()) {
                 	// XTENLANG-2723 (revert r21635)
@@ -2693,9 +2694,9 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // formal of method instance
             // i.m(a) => i.m(a,t)
             X10ClassType ct = null;
-            if (isSelfDispatch && Types.baseType(targetType).isClass()) {
+            if (useSelfDispatch && Types.baseType(targetType).isClass()) {
                 ct = Types.baseType(targetType).toClass();
-            } else if (isSelfDispatch && xts.isParameterType(targetType)) {
+            } else if (useSelfDispatch && xts.isParameterType(targetType)) {
                 ct = Types.baseType(containerType).toClass();
             }
             boolean passRTT = 
@@ -3501,7 +3502,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         boolean bridge = needBridge(n);
         if (bridge) {
             w.write("public final ");
-            if (isSelfDispatch && n.returnType().type().isVoid() && n.formals().size() != 0) {
+            if (useSelfDispatch && n.returnType().type().isVoid() && n.formals().size() != 0) {
                 w.write(JAVA_LANG_OBJECT);
             } else {
                 ret.expand(tr2);
@@ -3517,7 +3518,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 if (i != 0) w.write(",");
                 er.printFormal(tr2, n, formals.get(i), true);
 
-                if (isSelfDispatch) {
+                if (useSelfDispatch) {
                     w.write(", ");
                     w.write(X10_RUNTIME_TYPE_CLASS);
                     w.write(" ");
@@ -3545,7 +3546,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(f.name().toString());
             }
             w.write(");");
-            if (isSelfDispatch && n.returnType().type().isVoid() && n.formals().size() != 0) {
+            if (useSelfDispatch && n.returnType().type().isVoid() && n.formals().size() != 0) {
                 w.write("return null;");
             }
             w.write("}");
@@ -3553,7 +3554,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         }
 
         w.write("public final ");
-        if (isSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
+        if (useSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
             w.write(JAVA_LANG_OBJECT);
         } else {
             er.printType(n.returnType().type(), PRINT_TYPE_PARAMS);
@@ -3567,7 +3568,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         for (int i = 0; i < formals.size(); i++) {
             if (i != 0) w.write(", ");
             er.printFormal(tr2, n, formals.get(i), false);
-            if (isSelfDispatch && !bridge) {
+            if (useSelfDispatch && !bridge) {
                 w.write(", ");
                 w.write(X10_RUNTIME_TYPE_CLASS);
                 w.write(" ");
@@ -3675,7 +3676,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 //        else
             er.prettyPrint(n.body(), tr2);
 
-        if (isSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
+        if (useSelfDispatch && !bridge && n.returnType().type().isVoid() && n.formals().size() != 0) {
             w.write("return null;");
         }
 
@@ -3894,7 +3895,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(")");
             }
 
-            if (isSelfDispatch && (!newClosure || !needBridge((Closure_c) expr))) {
+            if (useSelfDispatch && (!newClosure || !needBridge((Closure_c) expr))) {
                 w.write(",");
                 new RuntimeTypeExpander(er, mi.formalTypes().get(i)).expand();
             }
@@ -4317,7 +4318,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     }
                     c.print(e, w, tr);
                     w.write(")");
-                } else if (isSelfDispatch && !castType.typeEquals(e.type(), tr.context())) {
+                } else if (useSelfDispatch && !castType.typeEquals(e.type(), tr.context())) {
                     w.write("(");
                     if (needExplicitBoxing(e.type()) && isBoxedType(defType)) {
                         er.printBoxConversion(e.type());
@@ -4513,40 +4514,42 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    // TODO OK reordering of catch blocks is no longer needed 
-    private Try_c reorderCatchBlocks(Try_c c) {
-        TypeSystem ts = tr.typeSystem();
-        Context context = tr.context();
-        List<Catch> catchBlocks = c.catchBlocks();
-        List<Catch> newCatchBlocks = new ArrayList<Catch>();
-        boolean hasJavaThrowable = false;
-        for (Catch catchBlock : catchBlocks) {
-            Type catchType = catchBlock.catchType();
-            if (false /*!ts.isJavaThrowable(catchType)*/) {
-                newCatchBlocks.add(catchBlock);
-            }
-        }
-        for (Catch catchBlock : catchBlocks) {
-            Type catchType = catchBlock.catchType();
-            if (false /*ts.isJavaThrowable(catchType)*/) {
-                newCatchBlocks.add(catchBlock);
-                hasJavaThrowable = true;
-            }
-        }
-        if (hasJavaThrowable) {
-            c = (Try_c) c.catchBlocks(newCatchBlocks);
-        }
-        return c;
-    }
+    // not used
+//    // TODO OK reordering of catch blocks is no longer needed 
+//    private Try_c reorderCatchBlocks(Try_c c) {
+//        TypeSystem ts = tr.typeSystem();
+//        Context context = tr.context();
+//        List<Catch> catchBlocks = c.catchBlocks();
+//        List<Catch> newCatchBlocks = new ArrayList<Catch>();
+//        boolean hasJavaThrowable = false;
+//        for (Catch catchBlock : catchBlocks) {
+//            Type catchType = catchBlock.catchType();
+//            if (false /*!ts.isJavaThrowable(catchType)*/) {
+//                newCatchBlocks.add(catchBlock);
+//            }
+//        }
+//        for (Catch catchBlock : catchBlocks) {
+//            Type catchType = catchBlock.catchType();
+//            if (false /*ts.isJavaThrowable(catchType)*/) {
+//                newCatchBlocks.add(catchBlock);
+//                hasJavaThrowable = true;
+//            }
+//        }
+//        if (hasJavaThrowable) {
+//            c = (Try_c) c.catchBlocks(newCatchBlocks);
+//        }
+//        return c;
+//    }
     private static boolean isUnknownJavaThrowable(Type catchType) {
         // return true for types that will be wrapped to UnknownJavaThrowable
         return !catchType.isThrowable() && !TryCatchExpander.isKnownJavaThrowable(catchType);
     }
     @Override
     public void visit(Try_c c) {
-        if (supportJavaThrowables) {
-            c = reorderCatchBlocks(c);
-        }
+        // not used
+//        if (supportJavaThrowables) {
+//            c = reorderCatchBlocks(c);
+//        }
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
         final List<Catch> catchBlocks = c.catchBlocks();
 

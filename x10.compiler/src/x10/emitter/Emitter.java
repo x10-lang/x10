@@ -1231,7 +1231,7 @@ public class Emitter {
             javaFlags = javaFlags.clearNative();
         }
 
-        boolean isDispatcher = X10PrettyPrinterVisitor.isSelfDispatch && isInterface && isDispatcher(n);
+        boolean isDispatcher = X10PrettyPrinterVisitor.useSelfDispatch && isInterface && isDispatcher(n);
         // XTENLANG-2993
         boolean isSpecialTypeForDispatcher = isSpecialTypeForDispatcher(n.returnType().type());
         boolean needSpecialDispatcher = isDispatcher && (X10PrettyPrinterVisitor.generateSpecialDispatcher && isSpecialTypeForDispatcher);
@@ -1583,7 +1583,7 @@ public class Emitter {
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
         // WIP XTENLANG-2680 (ComparableTest.x10)
         // enable it after enhancing canMangleMethodName with parameter list
-        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def)) {
+        if (X10PrettyPrinterVisitor.supportGenericOverloading && canMangleMethodName(def)) {
             w.write(getMangledMethodName(def, !isInterface));
         }
         else {
@@ -1615,7 +1615,7 @@ public class Emitter {
         // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
         // WIP XTENLANG-2680 (ComparableTest.x10)
         // enable it after enhancing canMangleMethodName with parameter list
-        if (X10PrettyPrinterVisitor.isGenericOverloading && canMangleMethodName(def)) {
+        if (X10PrettyPrinterVisitor.supportGenericOverloading && canMangleMethodName(def)) {
             w.write(getMangledMethodName(def, !isInterface));
         }
         else {
@@ -1635,7 +1635,7 @@ public class Emitter {
     }
 
     private void printMethodName(ClassType ct, MethodInstance mi) {
-        if (X10PrettyPrinterVisitor.isGenericOverloading) {
+        if (X10PrettyPrinterVisitor.supportGenericOverloading) {
             w.write(getMangledMethodName(ct, mi, true));
         } else {
             w.write(mangleToJava(mi.name()));
@@ -1653,17 +1653,17 @@ public class Emitter {
 
     public void printApplyMethodName(MethodInstance mi, boolean newClosure) {
         w.write(mangleToJava(ClosureCall.APPLY));
-        if (X10PrettyPrinterVisitor.isSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
+        if (X10PrettyPrinterVisitor.useSelfDispatch && (!newClosure && !mi.returnType().isVoid() && mi.formalTypes().size() == 0)) {
             w.write(RETURN_PARAMETER_TYPE_SUFFIX);
         }
-        else if (!X10PrettyPrinterVisitor.isSelfDispatch && !(mi.returnType().isVoid() || (newClosure && !tr.typeSystem().isParameterType(mi.returnType())))) {
+        else if (!X10PrettyPrinterVisitor.useSelfDispatch && !(mi.returnType().isVoid() || (newClosure && !tr.typeSystem().isParameterType(mi.returnType())))) {
             w.write(RETURN_PARAMETER_TYPE_SUFFIX);
         }
     }
     
     public void printApplyMethodName(final Closure_c n, boolean isParamReturyType) {
         w.write(mangleToJava(ClosureCall.APPLY));
-        if (!n.returnType().type().isVoid() && isParamReturyType && (!X10PrettyPrinterVisitor.isSelfDispatch || (X10PrettyPrinterVisitor.isSelfDispatch && n.formals().size() == 0))) {
+        if (!n.returnType().type().isVoid() && isParamReturyType && (!X10PrettyPrinterVisitor.useSelfDispatch || (X10PrettyPrinterVisitor.useSelfDispatch && n.formals().size() == 0))) {
             w.write(RETURN_PARAMETER_TYPE_SUFFIX);
         }
     }
@@ -2003,7 +2003,7 @@ public class Emitter {
         list.addAll(inheriteds);
         for (MethodInstance mi : list) {
             for (MethodInstance mi2 : mi.overrides(tr.context())) {
-                if (X10PrettyPrinterVisitor.isGenericOverloading || (ct.superClass() != null && mi2.container().typeEquals(ct.superClass(), tr.context()))) {
+                if (X10PrettyPrinterVisitor.supportGenericOverloading || (ct.superClass() != null && mi2.container().typeEquals(ct.superClass(), tr.context()))) {
                     overrides.add(mi2);
                 }
             }
@@ -2038,7 +2038,7 @@ public class Emitter {
                     if (containsInstantiatedMethod(implMethods, imi)) continue;
 
                     Type returnType = mi.returnType();
-                    if (X10PrettyPrinterVisitor.isGenericOverloading) {
+                    if (X10PrettyPrinterVisitor.supportGenericOverloading) {
                         if (
                                 returnType.typeEquals(imi.returnType() , tr.context())
                                 && isInstantiated(imi.def().returnType().get(), returnType)
@@ -2093,7 +2093,7 @@ public class Emitter {
             if (mi.container().typeEquals(impled.container(), tr.context())) continue;
 
             // Fix for XTENLANG-2940
-//            if (X10PrettyPrinterVisitor.isGenericOverloading) {
+//            if (X10PrettyPrinterVisitor.supportGenericOverloading) {
             if (false) {
                 boolean contains = false;
                 for (MethodInstance mi1 : methods) {
@@ -2113,7 +2113,7 @@ public class Emitter {
 
             if (ti.isClass() && !ti.toClass().flags().isInterface()) {
                 if (
-                        X10PrettyPrinterVisitor.isGenericOverloading
+                        X10PrettyPrinterVisitor.supportGenericOverloading
                         || (ti.typeEquals(ct.superClass(), tr.context()) || (ct.isMember() && ti.typeEquals(ct.container(), tr.context())))
                 ) {
                     Type returnType = mi.returnType();
@@ -2126,11 +2126,11 @@ public class Emitter {
                         for (int i = 0;i < types.size(); ++i) {
                             if (
                                     (
-                                            X10PrettyPrinterVisitor.isGenericOverloading
+                                            X10PrettyPrinterVisitor.supportGenericOverloading
                                             && containsTypeParam(types.get(i).get())
                                     ) 
                                     || (
-                                            !X10PrettyPrinterVisitor.isGenericOverloading
+                                            !X10PrettyPrinterVisitor.supportGenericOverloading
                                             && isPrimitive(mi.formalTypes().get(i))
                                             && isInstantiated(types.get(i).get(), mi.formalTypes().get(i))
                                     )
@@ -2162,7 +2162,7 @@ public class Emitter {
 	    if (t.typeEquals(type, tr.context())) {
 	        Type returnType = mdi.returnType();
 	        if (isInstantiated(mi.def().returnType().get(), returnType)) {
-	            if (X10PrettyPrinterVisitor.isGenericOverloading) {
+	            if (X10PrettyPrinterVisitor.supportGenericOverloading) {
 	                boolean containsTypeParam = false;
 	                List<Ref<? extends Type>> types = mi.def().formalTypes();
 	                for (int i = 0;i < types.size(); ++i) {
@@ -2176,7 +2176,7 @@ public class Emitter {
 	                return true;
 	            }
 	        }
-	        if (!X10PrettyPrinterVisitor.isGenericOverloading) {
+	        if (!X10PrettyPrinterVisitor.supportGenericOverloading) {
 	            List<Ref<? extends Type>> types = mi.def().formalTypes();
 	            for (int i = 0;i < types.size(); ++i) {
 	                if (containsTypeParam(types.get(i).get())) return false;
@@ -2297,7 +2297,7 @@ public class Emitter {
 	    // e.g int m() overrides or implements T m()
             boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
             int intflags = instantiateReturnType ? BOX_PRIMITIVES : 0;
-            if (!X10PrettyPrinterVisitor.isGenericOverloading) intflags |= PRINT_TYPE_PARAMS;
+            if (!X10PrettyPrinterVisitor.supportGenericOverloading) intflags |= PRINT_TYPE_PARAMS;
             printType(impl.returnType(), intflags);
 
 	    boolean isInterface = st.isClass() && st.toClass().flags().isInterface();
@@ -2312,7 +2312,7 @@ public class Emitter {
 	    w.write("(");
         boolean first = true;
         
-        if (X10PrettyPrinterVisitor.isGenericOverloading && def instanceof X10MethodDef && !isInterface) {
+        if (X10PrettyPrinterVisitor.supportGenericOverloading && def instanceof X10MethodDef && !isInterface) {
             X10MethodDef x10def = (X10MethodDef) def;
             for (ParameterType p : x10def.typeParameters()) {
                 if (!first) {
@@ -2335,9 +2335,9 @@ public class Emitter {
 	            w.allowBreak(0, " ");
 	        }
 	        if (def.formalTypes().get(i).get().isParameterType()) {
-	            printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES);
+	            printType(f, (X10PrettyPrinterVisitor.supportGenericOverloading ? 0 : PRINT_TYPE_PARAMS) | BOX_PRIMITIVES);
 	        } else {
-	            printType(f, X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS);
+	            printType(f, X10PrettyPrinterVisitor.supportGenericOverloading ? 0 : PRINT_TYPE_PARAMS);
 	        }
 	        w.write(" ");
 
@@ -2452,7 +2452,7 @@ public class Emitter {
     	            w.write(",");
     	            w.allowBreak(0, " ");
     	        }
-                printType(f, (X10PrettyPrinterVisitor.isGenericOverloading ? 0 : PRINT_TYPE_PARAMS));
+                printType(f, (X10PrettyPrinterVisitor.supportGenericOverloading ? 0 : PRINT_TYPE_PARAMS));
     	        w.write(" ");
     
     	        Name name = Name.make("a" + (i + 1));
@@ -2623,7 +2623,7 @@ public class Emitter {
 //            if (mi.flags().isPrivate()) continue;     // N.B. (*1) is this needed?
             if (mi.container().typeEquals(impled.container(), tr.context())) continue;
     
-            if (X10PrettyPrinterVisitor.isGenericOverloading) {
+            if (X10PrettyPrinterVisitor.supportGenericOverloading) {
                 for2:for (MethodInstance mi1 : methods) {
                     if (mi1.def().equals(impled.def())) {
                         continue for1;
@@ -2647,7 +2647,7 @@ public class Emitter {
             
             if (ti.isClass() && !ti.toClass().flags().isInterface()) {
                 if (
-                        X10PrettyPrinterVisitor.isGenericOverloading
+                        X10PrettyPrinterVisitor.supportGenericOverloading
                         || (ti.typeEquals(ct.superClass(), tr.context()) || (ct.isMember() && ti.typeEquals(ct.container(), tr.context())))
                 ) {
                     Type returnType = mi.returnType();
@@ -2710,7 +2710,7 @@ public class Emitter {
                     if (containsCovariantOverridingMethod(implMethods, imi)) continue;
                     
                     Type returnType = mi.returnType();
-                    if (X10PrettyPrinterVisitor.isGenericOverloading) {
+                    if (X10PrettyPrinterVisitor.supportGenericOverloading) {
                         if (isCovariantOverride(imi.def().returnType().get(), returnType)) {
                             boolean containsParam = false;
                             List<Ref<? extends Type>> types = imi.def().formalTypes();

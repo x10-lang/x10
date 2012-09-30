@@ -71,7 +71,7 @@ public class JavaCaster extends ContextVisitor {
         n = typeBoundsReturnCast(parent, old, n);
         n = covReturnCast(parent, n);
         n = stringReturnCast(parent, n);
-        if (X10PrettyPrinterVisitor.isSelfDispatch) {
+        if (X10PrettyPrinterVisitor.useSelfDispatch) {
             n = typeParamCast(parent, n);
         }
         return n;
