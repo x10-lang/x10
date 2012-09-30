@@ -200,7 +200,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_CORE_STRUCT = "x10.core.Struct";
     public static final String X10_CORE_ANY = "x10.core.Any";
 
-    public static final String DUMMY_PARAM_TYPE1 = "java.lang.System";
+    public static final String CONSTRUCTOR_FOR_ZERO_VALUE_DUMMY_PARAM_TYPE = "java.lang.System";
+    public static final String CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE = "java.lang.System[]";
 
     public static final int PRINT_TYPE_PARAMS = 1;
     public static final int BOX_PRIMITIVES = 2;
@@ -875,7 +876,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     if (def.isStruct()) {
                         //TODO Keith get rid of this
                         if (!Emitter.mangleToJava(def.name()).equals("PlaceLocalHandle")) {
-                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + DUMMY_PARAM_TYPE1 + "[]) null");
+                            w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
                             // N.B. in custom deserializer, initialize type params with null
                             for (ParameterType typeParam : def.typeParameters()) {
                                 w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
@@ -883,7 +884,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(");");
                             w.newline();
                         } else {
-                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + DUMMY_PARAM_TYPE1 + ") null);");
+                            w.writeln(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "(null, (" + CONSTRUCTOR_FOR_ZERO_VALUE_DUMMY_PARAM_TYPE + ") null);");
                         }
                     } else {
                         if (def.flags().isAbstract()) {
@@ -901,7 +902,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 // XTENLANG-2830
                                 /*&& !ConstructorSplitterVisitor.isUnsplittable(Types.baseType(def.asType()))*/
                                 && !def.flags().isInterface()) {
-                                w.write("(" + DUMMY_PARAM_TYPE1 + "[]) null");
+                                w.write("(" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
                                 // N.B. in custom deserializer, initialize type params with null
                                 for (ParameterType typeParam : def.typeParameters()) {
                                     w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
@@ -1008,7 +1009,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             && !def.flags().isInterface()) {
             w.write("// constructor just for allocation");
             w.newline();
-            w.write("public " + Emitter.mangleToJava(def.name()) + "(final " + DUMMY_PARAM_TYPE1 + "[] $dummy");
+            w.write("public " + Emitter.mangleToJava(def.name()) + "(final " + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + " $dummy");
             List<String> params = new ArrayList<String>();
             for (ParameterType p : def.typeParameters()) {
                 String param = Emitter.mangleParameterType(p);
@@ -1630,7 +1631,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
         if (isSplittable) {
             w.write("this");
-            w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
+            w.write("((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
             printArgumentsForTypeParamsPreComma(typeParameters, false);
             w.write(")");
             
@@ -1965,7 +1966,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     private void printAllocationCall(Type type, List<? extends Type> typeParams) {
         w.write("new ");
         er.printType(type, PRINT_TYPE_PARAMS | NO_VARIANCE);
-        w.write("((" + DUMMY_PARAM_TYPE1 + "[]) null");
+        w.write("((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
         printArgumentsForTypeParamsPreComma(typeParams, false);
         w.write(")");
     }
