@@ -115,11 +115,11 @@ public final class NativeFile extends java.io.File implements Any {
     public Type<?> $getParam(int i) { return null; }
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
     public short $_get_serialization_id() {
-        throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
 }

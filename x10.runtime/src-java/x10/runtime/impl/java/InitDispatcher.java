@@ -78,12 +78,12 @@ public abstract class InitDispatcher {
         public RuntimeType<?> $getRTT() { return $RTT; }
         public Type<?> $getParam(int i) { return null; }
 
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+            throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
         }
 
         public short $_get_serialization_id() {
-            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+            throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
         }
     }
     public static void runInitializer() {
@@ -157,8 +157,8 @@ public abstract class InitDispatcher {
         public Type<?> $getParam(int i) { return null; }
 
         // This is not meant to be serialized.
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+            throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
         }
 
         public short $_get_serialization_id() {

@@ -49,7 +49,7 @@ public class Thread implements Any {
     // constructor just for allocation
     public Thread(java.lang.System[] $dummy) {}
     public Thread(SerialData $dummy) {
-        throw new UnsupportedOperationException("Cannot deserialize Thread");
+        throw new java.lang.UnsupportedOperationException("Cannot deserialize Thread");
     }
 
     public final Thread x10$lang$Thread$$init$S(java.lang.String name) {
@@ -129,11 +129,11 @@ public class Thread implements Any {
     public static void sleep(long time, int nanos) {
         try {
             java.lang.Thread.sleep(time, nanos);
-        } catch (InterruptedException e) {
+        } catch (java.lang.InterruptedException e) {
             java.lang.RuntimeException e1 = null;
             try {
                 e1 = (java.lang.RuntimeException)Class.forName("x10.lang.InterruptedException").newInstance();
-            } catch (Exception e2) {
+            } catch (java.lang.Exception e2) {
                 e2.printStackTrace();
             }
             throw e1;
@@ -141,11 +141,11 @@ public class Thread implements Any {
     }
 
     public short $_get_serialization_id() {
-        throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
-        throw new UnsupportedOperationException("Cannot serialize " + getClass());
+        throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
     }
 
 }

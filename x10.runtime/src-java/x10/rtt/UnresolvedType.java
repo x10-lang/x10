@@ -75,75 +75,75 @@ public final class UnresolvedType implements Type, X10JavaSerializable {
     }
     
     public final int arrayLength(Object array) {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public final Object getArray(Object array, int i) {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public final Class<?> getJavaClass() {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public boolean hasZero() {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public boolean isref() {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public final boolean isInstance(Object o) {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public final boolean isAssignableTo(Type superType) {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public final Object makeArray(int dim0) {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public final Object makeArray(int dim0, int dim1) {
-    	throw new UnsupportedOperationException();
+    	throw new java.lang.UnsupportedOperationException();
     }
     
     public final Object makeArray(int dim0, int dim1, int dim2) {
-    	throw new UnsupportedOperationException();
+    	throw new java.lang.UnsupportedOperationException();
     }
     
     public final Object makeArray(int dim0, int dim1, int dim2, int dim3) {
-    	throw new UnsupportedOperationException();
+    	throw new java.lang.UnsupportedOperationException();
     }
     
     public final Object makeArray(int... dims) {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
     
     public final void setArray(Object array, int i, Object v) {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public final String typeName() {
         return toString();
     }
 
-    public void $_serialize(X10JavaSerializer serializer) {
-        throw new UnsupportedOperationException();
+    public void $_serialize(X10JavaSerializer $serializer) {
+        throw new java.lang.UnsupportedOperationException();
     }
 
-    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) {
-        throw new UnsupportedOperationException();
+    public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) {
+        throw new java.lang.UnsupportedOperationException();
     }
 
     public short $_get_serialization_id() {
-        throw new UnsupportedOperationException();
+        throw new java.lang.UnsupportedOperationException();
     }
 
-    public static X10JavaSerializable $_deserialize_body(UnresolvedType ut, X10JavaDeserializer deserializer) {
-        throw new UnsupportedOperationException();
+    public static X10JavaSerializable $_deserialize_body(UnresolvedType $_obj, X10JavaDeserializer $deserializer) {
+        throw new java.lang.UnsupportedOperationException();
     }
 
 }

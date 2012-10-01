@@ -140,12 +140,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
         public Type<?> $getParam(int i) { return null; }
 
-        public void $_serialize(X10JavaSerializer serializer) throws IOException {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
+        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+            throw new java.lang.UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
         public short $_get_serialization_id() {
-            throw new UnsupportedOperationException("Serialization not supported for " + getClass());
+            throw new java.lang.UnsupportedOperationException("Serialization not supported for " + getClass());
         }
     }
 
@@ -582,7 +582,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
-    public void $_serialize(X10JavaSerializer serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 }
