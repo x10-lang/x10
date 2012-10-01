@@ -193,12 +193,4 @@ public abstract class ThrowableUtils {
         t.printStackTrace(ps);
     }
 
-    public static <T> T UnsupportedOperationException(java.lang.String message) {
-        throw new java.lang.UnsupportedOperationException(message);
-    }
-
-    public static int UnsupportedOperationExceptionInt(java.lang.String message) {
-        throw new java.lang.UnsupportedOperationException(message);
-    }
-
 }
