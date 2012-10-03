@@ -26,7 +26,7 @@ import x10.types.MethodInstance;
  * to each type object.
  */
 public class TypeParamSubstTransformer extends TypeTransformer {
-    protected final TypeParamSubst subst;
+    protected TypeParamSubst subst;
 
     protected TypeParamSubstTransformer(TypeParamSubst subst) {
         this.subst = subst;
@@ -34,6 +34,10 @@ public class TypeParamSubstTransformer extends TypeTransformer {
 
     protected TypeParamSubst subst() {
         return subst;
+    }
+
+    protected void subst(TypeParamSubst v) {
+        this.subst = v;
     }
 
     @Override

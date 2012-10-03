@@ -130,6 +130,8 @@ public class TypeParamSubst {
 			if (typeArgs == null && forceTypeArguments && !tParams.isEmpty()) {
 			    typeArgs = new ArrayList<Type>(tParams);
 			}
+			// [DC] surely the following is an error in the compiler -- any pass that changes
+			// the def should also update the types to avoid such inconsistencies
 			if (typeArgs != null && typeArgs.size() < tParams.size()) {
 			    typeArgs = new ArrayList<Type>(typeArgs);
 			    // The def changed since the type was created; params were added

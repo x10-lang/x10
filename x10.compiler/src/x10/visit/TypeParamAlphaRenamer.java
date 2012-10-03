@@ -81,6 +81,11 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
 	// each name maps to the original and the transformed type (aliases if not being transformed)
 	private Map<Name, Pair<ParameterType,ParameterType>> map;
 	
+	// This guy keeps internal state that is generated at AST leaves and must be visible at other leaves
+	// Construct it in the root visitor (parent == null) and alias it in all children, updating the 
+	// substitution before each transform.
+	TypeParamSubstTransformer tpst;
+	
 	protected TypeParamAlphaRenamer(Map<Name, Pair<ParameterType,ParameterType>> map, TypeParamAlphaRenamer parent) {
 		super(parent.job, parent.ts, parent.nf);
 		//this.job = parent.job;
@@ -89,6 +94,7 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
         this.map = map;
         this.parent = parent;
         this.context = parent.context;
+        this.tpst = parent.tpst;
     }
 
 	public TypeParamAlphaRenamer(Job job, TypeSystem ts, NodeFactory nf) {
@@ -99,6 +105,7 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
         this.map = new HashMap<Name, Pair<ParameterType,ParameterType>>();
         this.parent = null;
         this.context = ts.emptyContext();
+        tpst = new TypeParamSubstTransformer(null);
     }
 
 	// checks inner scopes first
@@ -181,22 +188,8 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
         if (subst == null) return n;
 
         // First, apply the subst
-        TypeParamSubstTransformer tpst = new TypeParamSubstTransformer(subst);
+        tpst.subst(subst);
         n = tpst.transform(n, old, v2);
-          
-        /*
-        if (n instanceof TypeParamNode_c) {
-            TypeParamNode_c n2 = (TypeParamNode_c) n;
-
-    		Pair<ParameterType,ParameterType> outer = lookupMap(n2.name().id());
-        	if (outer!=null && outer.fst() != outer.snd()) {
-        		assert outer.fst() == n2.type();
-        		ParameterType new_type = outer.snd();
-        		Id new_name = n2.name().id(new_type.name());
-        		return n2.type(new_type).name(new_name);
-        	}
-        }
-        */
         
         // Now, fix the defs which apparently are not changed by the type substitution
         if (n instanceof X10ClassDecl_c) {
@@ -234,6 +227,7 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
 			// [DC] these guys were updated already
 			List<TypeParamNode> new_type_param_nodes = n2.typeParameters();
 
+			// [DC] whack the method def with new type parameter types
             List<ParameterType> tps = new ArrayList<ParameterType>();
 			for (int i = 0; i < def.typeParameters().size(); i++) {
 				ParameterType new_param = new_type_param_nodes.get(i).type();
@@ -248,7 +242,7 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
             adjustConstructorDef(def, subst);
         }
         
-        if (n instanceof Closure_c) {
+        /*if (n instanceof Closure_c) {
         	Closure_c n2 = (Closure_c)n;
             ClosureDef def = n2.closureDef();
             List<VarInstance<? extends VarDef>> new_env = new ArrayList<VarInstance<? extends VarDef>>();
@@ -256,7 +250,7 @@ public class TypeParamAlphaRenamer extends ContextVisitor {
             	new_env.add(subst.reinstantiate(env_vi));
             }
             def.setCapturedEnvironment(new_env);
-        }
+        }*/
         
         return n;
     }
