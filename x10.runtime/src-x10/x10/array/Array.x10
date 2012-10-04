@@ -999,7 +999,7 @@ public final class Array[T] (
             dst:RemoteArray[T], dstIndex:int, 
             numElems:int) {
         if (srcIndex < 0 || ((srcIndex+numElems) > src.raw.length())) {
-            throw new IllegalArgumentException("Specified range ("+srcIndex+" - "+srcIndex+numElems+")is beyond bounds of source array (length="+src.raw.length()+")");
+            throw new IllegalArgumentException("Specified range ("+srcIndex+" - "+srcIndex+numElems+") is beyond bounds of source array (length="+src.raw.length()+")");
         }
         if (dstIndex < 0 || ((dstIndex+numElems) > dst.rawData.length())) {
             throw new IllegalArgumentException("Specified range ("+dstIndex+" - "+dstIndex+numElems+") is beyond bounds of destination array (length="+dst.rawData.length()+")");
