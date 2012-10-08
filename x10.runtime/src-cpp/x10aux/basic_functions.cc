@@ -9,8 +9,6 @@
  *  (C) Copyright IBM Corporation 2006-2010.
  */
 
-#include <stdio.h>
-
 #include <x10aux/config.h>
 #include <x10aux/basic_functions.h>
 #include <x10aux/math.h>
@@ -18,6 +16,8 @@
 #include <x10/lang/Double.h>
 #include <x10/lang/Float.h>
 #include <x10/lang/String.h>
+
+#include <stdio.h>
 
 using namespace x10aux;
 using namespace x10::lang;

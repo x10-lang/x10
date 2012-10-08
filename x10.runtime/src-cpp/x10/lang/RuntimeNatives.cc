@@ -9,6 +9,7 @@
  *  (C) Copyright Australian National University 2012.
  */
 
+#include <x10aux/config.h>
 
 #include <cstdlib>
 #include <cstdio>
