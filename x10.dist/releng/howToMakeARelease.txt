@@ -42,7 +42,7 @@ Create the release branch and enter into final testing phase
       makeTag -rev 12500 -tag SF_RELEASE_2_0_1 -code 
 
    2. Create an RC2V3 instance from image in the Watson A-40
-      data center from the image 10028972 ("X10 Master Regression Image) 
+      data center from the image 10031082 ("X10 Master Regression Image) 
       to run release-branch regression testing.  
       Login to the image x10reg, and update scripts in bin to pull from the 
       release branch created by makeTag. 
