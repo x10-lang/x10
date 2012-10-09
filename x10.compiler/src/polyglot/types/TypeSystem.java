@@ -967,6 +967,7 @@ public interface TypeSystem {
     X10ClassType CompileTimeConstant();
 
     X10ClassType Endpoint();
+    X10ClassType RuntimeProfile();
 
     XLit FALSE();
 
@@ -1291,4 +1292,6 @@ public interface TypeSystem {
     public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
 
 	X10ClassType System();
+
+	Type Profile();
 }

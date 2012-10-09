@@ -685,7 +685,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 	    if (x10.lang.Runtime.home().id == ref.home.id) {
 		return eval.$apply(ref.$apply$G(),$T);
 	    } else {
-                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (x10.core.GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null));
+                return x10.lang.Runtime.<$U>evalAt__1$1x10$lang$Runtime$$T$2$G($U, ref.home, new $Closure$Eval<$T, $U>($T, $U, ref, eval, (x10.core.GlobalRef.LocalEval.$Closure$Eval.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$2__1$1x10$lang$GlobalRef$LocalEval$$Closure$Eval$$T$3x10$lang$GlobalRef$LocalEval$$Closure$Eval$$U$2) null), null);
 	    }
 	}
         
@@ -694,7 +694,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
             if (x10.lang.Runtime.home().id == ref.home.id) {
 		return ref.$apply$G();
 	    } else {
-                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (x10.core.GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null));
+                return x10.lang.Runtime.<$T>evalAt__1$1x10$lang$Runtime$$T$2$G($T, ref.home, new $Closure$Apply<$T>($T, ref, (x10.core.GlobalRef.LocalEval.$Closure$Apply.__0$1x10$lang$GlobalRef$LocalEval$$Closure$Apply$$T$2) null), null);
 	    }
 	}
 

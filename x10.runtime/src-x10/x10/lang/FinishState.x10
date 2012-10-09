@@ -135,7 +135,7 @@ abstract class FinishState {
                         deref[FinishState](ref).notifyActivityTermination();
                     };
                 }
-                Runtime.x10rtSendMessage(ref.home.id, closure);
+                Runtime.x10rtSendMessage(ref.home.id, closure, null);
                 Runtime.dealloc(closure);
             }
         }
@@ -207,7 +207,7 @@ abstract class FinishState {
                     deref[FinishState](ref).notifyActivityTermination();
                 };
             }
-            Runtime.x10rtSendMessage(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure, null);
             Runtime.dealloc(closure);
         }
     }
@@ -400,7 +400,7 @@ abstract class FinishState {
                 val closure = ()=>@RemoteInvocation { Runtime.finishStates.remove(root); };
                 seen(Runtime.hereInt()) = false;
                 for(var i:Int=0; i<Place.MAX_PLACES; i++) {
-                    if (seen(i)) Runtime.x10rtSendMessage(i, closure);
+                    if (seen(i)) Runtime.x10rtSendMessage(i, closure, null);
                 }
                 Runtime.dealloc(closure);
             }
@@ -549,7 +549,7 @@ abstract class FinishState {
             count = 0;
             exceptions = null;
             lock.unlock();
-            Runtime.x10rtSendMessage(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure, null);
             Runtime.dealloc(closure);
             Runtime.finishStates.remove(ref);
         }
@@ -666,10 +666,10 @@ abstract class FinishState {
             lock.unlock();
             val h = Runtime.hereInt();
             if ((Place.MAX_PLACES < 1024) || (h%32 == 0) || (h-h%32 == ref.home.id)) {
-                Runtime.x10rtSendMessage(ref.home.id, closure);
+                Runtime.x10rtSendMessage(ref.home.id, closure, null);
             } else {
-                val clx = ()=>@RemoteInvocation { Runtime.x10rtSendMessage(ref.home.id, closure); };
-                Runtime.x10rtSendMessage(h-h%32, clx);
+                val clx = ()=>@RemoteInvocation { Runtime.x10rtSendMessage(ref.home.id, closure, null); };
+                Runtime.x10rtSendMessage(h-h%32, clx, null);
                 Runtime.dealloc(clx);
             }
             Runtime.dealloc(closure);
@@ -827,7 +827,7 @@ abstract class FinishState {
             count = 0;
             exceptions = null;
             lock.unlock();
-            Runtime.x10rtSendMessage(ref.home.id, closure);
+            Runtime.x10rtSendMessage(ref.home.id, closure, null);
             Runtime.dealloc(closure);
             Runtime.finishStates.remove(ref);
         }

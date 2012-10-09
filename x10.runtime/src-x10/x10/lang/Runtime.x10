@@ -60,9 +60,9 @@ public final class Runtime {
     /**
      * Send active message to another place.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#id, #body)")
-    @Native("c++", "x10aux::run_closure_at(#id, #body)")
-    public static native def x10rtSendMessage(id:Int, body:()=>void):void;
+    @Native("java", "x10.runtime.impl.java.Runtime.runClosureAt(#id, #body, #prof)")
+    @Native("c++", "x10aux::run_closure_at(#id, #body, #prof)")
+    public static native def x10rtSendMessage(id:Int, body:()=>void, prof:Profile):void;
 
     /**
      * Send async to another place.
@@ -70,9 +70,9 @@ public final class Runtime {
      * creating an activity at the destination place with the specified body and finish state
      * and pushing this activity onto the deque of the active worker.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt(#id, #body, #finishState)")
-    @Native("c++", "x10aux::run_async_at(#id, #body, #finishState)")
-    public static native def x10rtSendAsync(id:Int, body:()=>void, finishState:FinishState):void;
+    @Native("java", "x10.runtime.impl.java.Runtime.runAsyncAt(#id, #body, #finishState, #prof)")
+    @Native("c++", "x10aux::run_async_at(#id, #body, #finishState, #prof)")
+    public static native def x10rtSendAsync(id:Int, body:()=>void, finishState:FinishState, prof:Profile):void;
 
     /**
      * Complete X10RT initialization.
@@ -102,9 +102,11 @@ public final class Runtime {
     /**
      * Return a deep copy of the parameter.
      */
-    @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o)")
-    @Native("c++", "x10aux::deep_copy<#T >(#o)")
-    public static native def deepCopy[T](o:T):T;
+    @Native("java", "x10.runtime.impl.java.Runtime.<#T$box>deepCopy(#o, #prof)")
+    @Native("c++", "x10aux::deep_copy<#T >(#o, #prof)")
+    public static native def deepCopy[T](o:T, prof:Profile):T;
+
+    public static def deepCopy[T](o:T) = deepCopy[T](o, null);
 
     // Memory management
 
@@ -619,7 +621,7 @@ public final class Runtime {
     public static def surplusActivityCount():int = worker().size();
 
     /**
-     * Run main activity in a finish
+     * Run main activity in a finish.
      * @param init Static initializers
      * @param body Main activity
      */
@@ -648,17 +650,17 @@ public final class Runtime {
                             val h = hereInt();
                             val cl = ()=> @x10.compiler.RemoteInvocation {pool.latch.release();};
                             for (var j:Int=Math.max(1, h-31); j<h; ++j) {
-                                x10rtSendMessage(j, cl);
+                                x10rtSendMessage(j, cl, null);
                             }
                             pool.latch.release();
                         };
                         for(var i:Int=Place.MAX_PLACES-1; i>0; i-=32) {
-                            x10rtSendMessage(i, cl1);
+                            x10rtSendMessage(i, cl1, null);
                         }
                     } else {
                         val cl = ()=> @x10.compiler.RemoteInvocation {pool.latch.release();};
                         for (var i:Int=Place.MAX_PLACES-1; i>0; --i) {
-                            x10rtSendMessage(i, cl);
+                            x10rtSendMessage(i, cl, null);
                         }
                     }
                 }
@@ -681,7 +683,7 @@ public final class Runtime {
     /**
      * Run asyncat
      */
-    public static def runAsync(place:Place, clocks:Rail[Clock], body:()=>void):void {
+    public static def runAsync(place:Place, clocks:Rail[Clock], body:()=>void, prof:Profile):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
@@ -690,16 +692,16 @@ public final class Runtime {
         val clockPhases = a.clockPhases().make(clocks);
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
-            executeLocal(new Activity(deepCopy(body), state, clockPhases));
+            executeLocal(new Activity(deepCopy(body, prof), state, clockPhases));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, state, clockPhases)); };
-            x10rtSendMessage(place.id, closure);
+            x10rtSendMessage(place.id, closure, prof);
             dealloc(closure);
         }
         dealloc(body);
     }
     
-    public static def runAsync(place:Place, body:()=>void):void {
+    public static def runAsync(place:Place, body:()=>void, prof:Profile):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
@@ -707,9 +709,9 @@ public final class Runtime {
         val state = a.finishState();
         state.notifySubActivitySpawn(place);
         if (place.id == hereInt()) {
-            executeLocal(new Activity(deepCopy(body), state));
+            executeLocal(new Activity(deepCopy(body, prof), state));
         } else {
-            x10rtSendAsync(place.id, body, state); // optimized case
+            x10rtSendAsync(place.id, body, state, prof); // optimized case
         }
         dealloc(body);
     }
@@ -745,16 +747,16 @@ public final class Runtime {
     /**
      * Run @Uncounted asyncat
      */
-    public static def runUncountedAsync(place:Place, body:()=>void):void {
+    public static def runUncountedAsync(place:Place, body:()=>void, prof:Profile):void {
         // Do this before anything else
         val a = activity();
         a.ensureNotInAtomic();
         
         if (place.id == hereInt()) {
-            executeLocal(new Activity(deepCopy(body), FinishState.UNCOUNTED_FINISH));
+            executeLocal(new Activity(deepCopy(body, prof), FinishState.UNCOUNTED_FINISH));
         } else {
             val closure = ()=> @x10.compiler.RemoteInvocation { execute(new Activity(body, FinishState.UNCOUNTED_FINISH)); };
-            x10rtSendMessage(place.id, closure);
+            x10rtSendMessage(place.id, closure, prof);
             dealloc(closure);
         }
         dealloc(body);
@@ -817,24 +819,24 @@ public final class Runtime {
     /**
      * Run at statement
      */
-    public static def runAt(place:Place, body:()=>void):void {
+    public static def runAt(place:Place, body:()=>void, prof:Profile):void {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
                 try {
-                    deepCopy(body)();
+                    deepCopy(body, prof)();
                     return;
                 } catch (t:AtCheckedWrapper) {
                     throw t.getCheckedCause();
                 }
             } catch (t:CheckedThrowable) {
-                throwCheckedWithoutThrows(deepCopy(t));
+                throwCheckedWithoutThrows(deepCopy(t, null));
             }
         }
         @StackAllocate val me = @StackAllocate new RemoteControl();
         val box:GlobalRef[RemoteControl] = GlobalRef(me as RemoteControl);
         val clockPhases = activity().clockPhases;
-        at(place) async {
+        @x10.compiler.Profile(prof) at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 try {
@@ -844,7 +846,7 @@ public final class Runtime {
                         me2.clockPhases = clockPhases;
                         me2.release();
                     };
-                    x10rtSendMessage(box.home.id, closure);
+                    x10rtSendMessage(box.home.id, closure, null);
                     dealloc(closure);
                 } catch (e:AtCheckedWrapper) {
                     throw e.getCheckedCause();
@@ -856,7 +858,7 @@ public final class Runtime {
                     me2.clockPhases = clockPhases;
                     me2.release();
                 };
-                x10rtSendMessage(box.home.id, closure);
+                x10rtSendMessage(box.home.id, closure, null);
                 dealloc(closure);
             }
             activity().clockPhases = null;
@@ -872,11 +874,12 @@ public final class Runtime {
     /*
      * [GlobalGC] Special version of runAt, which does not use activity, clock, exceptions
      *            Used in GlobalRef.java to implement changeRemoteCount
+     * [DC] do not allow profiling of this call: seems it is not for application use?
      */
     public static def runAtSimple(place:Place, body:()=>void, toWait:Boolean):void {
         //Console.ERR.println("Runtime.runAtSimple: place=" + place + " toWait=" + toWait);
         if (place.id == hereInt()) {
-                deepCopy(body)(); // deepCopy and apply
+                deepCopy(body, null)(); // deepCopy and apply
                 return;
         }
       if (toWait) { // synchronous exec
@@ -888,15 +891,15 @@ public final class Runtime {
                     val me2 = (box as GlobalRef[RemoteControl]{home==here})();
                     me2.release();
                 };
-                x10rtSendMessage(box.home.id, closure);
+                x10rtSendMessage(box.home.id, closure, null);
                 dealloc(closure);
             };
-        x10rtSendMessage(place.id, latchedBody);
+        x10rtSendMessage(place.id, latchedBody, null);
         dealloc(latchedBody);
         me.await(); // wait until body is executed at remote place
       } else { // asynchronous exec
         val simpleBody = () => @x10.compiler.RemoteInvocation { body(); };
-        x10rtSendMessage(place.id, simpleBody);
+        x10rtSendMessage(place.id, simpleBody, null);
         dealloc(simpleBody);
         // *not* wait until body is executed at remote place
       }
@@ -914,27 +917,35 @@ public final class Runtime {
         var t:Box[T] = null;
     }
 
+    public static class Profile {
+        public var bytes:Long;
+        public var serializationNanos:Long;
+        public var communicationNanos:Long;
+        public def reset() { bytes = 0; serializationNanos = 0; communicationNanos = 0; }
+    }
+
     /**
      * Eval at expression
      */
-    public static def evalAt[T](place:Place, eval:()=>T):T {
+    public static def evalAt[T](place:Place, eval:()=>T, prof:Profile):T {
         Runtime.ensureNotInAtomic();
         if (place.id == hereInt()) {
             try {
                 try {
                     // TODO the second deep copy is needed only if eval makes its result escaped (it is very rare).
-                    return deepCopy(deepCopy(eval)());
+                    val result = deepCopy(eval,prof)();
+                    return deepCopy(result,prof);
                 } catch (t:AtCheckedWrapper) {
                     throw t.getCheckedCause();
                 }
             } catch (t:CheckedThrowable) {
-                throwCheckedWithoutThrows(deepCopy(t));
+                throwCheckedWithoutThrows(deepCopy(t, null));
             }
         }
         @StackAllocate val me = @StackAllocate new Remote[T]();
         val box = GlobalRef(me as Remote[T]);
         val clockPhases = activity().clockPhases;
-        at(place) async {
+        @x10.compiler.Profile(prof) at(place) async {
             activity().clockPhases = clockPhases;
             try {
                 try {
@@ -946,7 +957,7 @@ public final class Runtime {
                         me2.clockPhases = clockPhases;
                         me2.release();
                     };
-                    x10rtSendMessage(box.home.id, closure);
+                    x10rtSendMessage(box.home.id, closure, null);
                     dealloc(closure);
                 } catch (t:AtCheckedWrapper) {
                     throw t.getCheckedCause();
@@ -958,7 +969,7 @@ public final class Runtime {
                     me2.clockPhases = clockPhases;
                     me2.release();
                 };
-                x10rtSendMessage(box.home.id, closure);
+                x10rtSendMessage(box.home.id, closure, null);
                 dealloc(closure);
             }
             activity().clockPhases = null;

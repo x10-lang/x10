@@ -102,7 +102,7 @@ public final class Worker {
             copy();
             Runtime.dealloc(copy);
         } else {
-            Runtime.x10rtSendMessage(id, body);
+            Runtime.x10rtSendMessage(id, body, null);
         }
         Runtime.dealloc(body);
     }
@@ -121,7 +121,7 @@ public final class Worker {
     public static def stop(){
         val body = ()=> @x10.compiler.RemoteInvocation { Runtime.wsEnd(); };
         for (var i:Int = 1; i<Place.MAX_PLACES; i++) {
-            Runtime.x10rtSendMessage(i, body);
+            Runtime.x10rtSendMessage(i, body, null);
         }
         Runtime.dealloc(body);
         Runtime.wsEnd();

@@ -16,6 +16,8 @@
 
 #include <x10/lang/Reference.h>
 
+#include <x10/lang/Runtime__Profile.h>
+
 using namespace x10aux;
 using namespace x10::lang;
 
@@ -108,6 +110,11 @@ Reference* deserialization_buffer::deserialize_reference(deserialization_buffer 
 }
 
 
+void x10aux::set_prof_data(x10::lang::Runtime__Profile *prof, unsigned long long bytes, unsigned long long nanos)
+{
+    prof->FMGL(bytes) += bytes;
+    prof->FMGL(serializationNanos) += nanos;
+}
 
 // vim:tabstop=4:shiftwidth=4:expandtab:textwidth=100
 

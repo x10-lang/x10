@@ -18,6 +18,8 @@
 #include <x10aux/serialization.h>
 #include <x10aux/deserialization_dispatcher.h>
 
+#include <x10/lang/RuntimeNatives.h>
+
 #include <x10/lang/VoidFun_0_0.h>
 #include <x10/lang/String.h> // for debug output
 
@@ -25,6 +27,7 @@
 
 #include <x10/lang/Runtime.h>
 #include <x10/lang/FinishState.h>
+
 
 #include <strings.h>
 
@@ -161,7 +164,8 @@ void x10aux::network_init (int ac, char **av) {
 }
 
 void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
-                          x10::lang::FinishState* fs, x10aux::endpoint endpoint) {
+                          x10::lang::FinishState* fs, x10::lang::Runtime__Profile *prof,
+                          x10aux::endpoint endpoint) {
 
     x10::lang::Reference* real_body = reinterpret_cast<x10::lang::Reference*>(body_fun);
     
@@ -185,7 +189,15 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     assert(DeserializationDispatcher::getClosureKind(real_sid)!=x10aux::CLOSURE_KIND_NOT_ASYNC);
     assert(DeserializationDispatcher::getClosureKind(real_sid)!=x10aux::CLOSURE_KIND_GENERAL_ASYNC);
 
+    // WRITE FINISH STATE
     buf.write(fs);
+
+    // WRITE BODY
+    unsigned long long before_nanos, before_bytes;
+    if (prof!=NULL) {
+        before_nanos = x10::lang::RuntimeNatives::nanoTime();
+        before_bytes = buf.length(); // don't include finish state
+    }
     // We're playing a sleazy trick here and not following the general
     // serialization protocol. We should be calling buf.write(real_body),
     // but instead we are just calling it's serialize_body method directly.
@@ -198,17 +210,28 @@ void x10aux::run_async_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
     // This happens when an object is reachable from both fs and real_body.
     buf.manually_record_reference(real_body);
     real_body->_serialize_body(buf);
+    if (prof!=NULL) {
+        prof->FMGL(bytes) += buf.length() - before_bytes;
+        prof->FMGL(serializationNanos) += x10::lang::RuntimeNatives::nanoTime() - before_nanos;
+    }
 
     unsigned long sz = buf.length();
     serialized_bytes += sz; asyncs_sent++;
 
     _X_(ANSI_BOLD<<ANSI_X10RT<<"async size: "<<ANSI_RESET<<sz);
 
+    if (prof!=NULL) {
+        before_nanos = x10::lang::RuntimeNatives::nanoTime();
+    }
     x10rt_msg_params params = {p, real_id, buf.borrow(), sz, endpoint};
     x10rt_send_msg(&params);
+    if (prof!=NULL) {
+        prof->FMGL(communicationNanos) += x10::lang::RuntimeNatives::nanoTime() - before_nanos;
+    }
 }
 
-void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun, x10aux::endpoint endpoint) {
+void x10aux::run_closure_at(x10aux::place p, x10::lang::VoidFun_0_0* body_fun,
+                            x10::lang::Runtime__Profile *prof, x10aux::endpoint endpoint) {
 
     x10::lang::Reference* body = reinterpret_cast<x10::lang::Reference*>(body_fun);
 
@@ -516,6 +539,5 @@ x10::util::HashMap<x10::lang::String*,x10::lang::String*>* x10aux::loadenv() {
     }
     return map;
 }
-
 
 // vim:tabstop=4:shiftwidth=4:expandtab
