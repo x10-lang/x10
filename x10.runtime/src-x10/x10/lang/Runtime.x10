@@ -917,10 +917,20 @@ public final class Runtime {
         var t:Box[T] = null;
     }
 
+    /** A class that is used to receive profiling information during various runtime communication constructs.
+     * These counters are incremented for each information, so the same profile object can be used in multiple
+     * operations to calculate a total cost.  Otherwise, call reset between operations.
+     *
+     * @see x10.compiler.Profile
+     */
     public static class Profile {
+        /** Number of bytes that were serialized. */
         public var bytes:Long;
+        /** Time spent serializing. */
         public var serializationNanos:Long;
+        /** Time spent sending the message (does not include time spent waiting for the completion notification). */
         public var communicationNanos:Long;
+        /** Set counters to zero. */
         public def reset() { bytes = 0; serializationNanos = 0; communicationNanos = 0; }
     }
 

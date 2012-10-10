@@ -2166,15 +2166,17 @@ public class X10Parser extends Object implements RuleAction
                 break;
             }
             //
-            // Rule 230:  AtExpression ::= at ( Expression ) ClosureBody
+            // Rule 230:  AtExpression ::= Annotationsopt at ( Expression ) ClosureBody
             //
             case 230: {
                 //#line 1091 "x10/parser/x10.g"
-                Object Expression = (Object) getRhsSym(3);
+                Object Annotationsopt = (Object) getRhsSym(1);
                 //#line 1091 "x10/parser/x10.g"
-                Object ClosureBody = (Object) getRhsSym(5);
+                Object Expression = (Object) getRhsSym(4);
+                //#line 1091 "x10/parser/x10.g"
+                Object ClosureBody = (Object) getRhsSym(6);
                 //#line 1093 "x10/parser/x10.g"
-		r.rule_AtExpression0(Expression,ClosureBody);
+		r.rule_AtExpression0(Annotationsopt,Expression,ClosureBody);
                 break;
             }
             //

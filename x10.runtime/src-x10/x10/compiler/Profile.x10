@@ -11,7 +11,7 @@
 
 package x10.compiler;
 
-import x10.lang.annotations.StatementAnnotation;
+import x10.lang.annotations.*;
 
 /**
  *  @Profile can be used on at statements to make information about that at operation available to applications.
@@ -23,6 +23,7 @@ import x10.lang.annotations.StatementAnnotation;
  *      }
  *      // x now populated with profiling data
  *
+ * @see x10.lang.Runtime.Profile
  */
-public interface Profile(prof:Runtime.Profile) extends StatementAnnotation {
+public interface Profile(prof:Runtime.Profile) extends StatementAnnotation, ExpressionAnnotation {
 }

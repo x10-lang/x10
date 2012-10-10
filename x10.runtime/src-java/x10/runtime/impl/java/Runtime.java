@@ -273,7 +273,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			long start = prof!=null ? System.nanoTime() : 0;
             x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
             if (prof!=null) {
-                prof.communicationNanos = System.nanoTime() - start;
+                prof.communicationNanos += System.nanoTime() - start;
             }
         } catch (IOException e) {
             java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
@@ -411,8 +411,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		if (prof != null) {
 			long stop = System.nanoTime();
 			long duration = stop-start;
-            prof.bytes = ser_bytes;
-            prof.serializationNanos = duration;
+            prof.bytes += ser_bytes;
+            prof.serializationNanos += duration;
 		}
 		if (TRACE_SER_DETAIL) {
 			System.out.println("Done with serialization for runAtAll " + body.getClass());
@@ -440,8 +440,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			if (prof!=null) {
 				long stop = System.nanoTime();
 				long duration = stop-start;
-                prof.bytes = msg.length;
-                prof.serializationNanos = duration;
+                prof.bytes += msg.length;
+                prof.serializationNanos += duration;
 			}
 			if (TRACE_SER_DETAIL) {
 				System.out.println("Done with serialization for runAtAll " + body.getClass());
@@ -455,7 +455,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             }
 			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
 			if (prof!=null) {
-                prof.communicationNanos = System.nanoTime() - start;
+                prof.communicationNanos += System.nanoTime() - start;
             }
 		} catch (java.io.IOException e) {
 			e.printStackTrace();

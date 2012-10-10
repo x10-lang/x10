@@ -61,6 +61,7 @@ import polyglot.ast.FlagsNode;
 import polyglot.parse.ParsedName;
 import x10.ast.AmbMacroTypeNode;
 import x10.ast.AnnotationNode;
+import x10.ast.AtExpr;
 import x10.ast.ClosureCall;
 import x10.ast.SettableAssign;
 import x10.ast.DepParameterExpr;
@@ -4231,10 +4232,13 @@ public class X10SemanticRules implements Parser, ParseErrorCodes
     }
     // Production: AtExpression ::= at ( Expression ) ClosureBody
     // Production: AtExpression ::= at ( Expression ; * ) ClosureBody
-    void rule_AtExpression0(Object _Expression, Object _ClosureBody) {
+    void rule_AtExpression0(Object _Annotationsopt, Object _Expression, Object _ClosureBody) {
+        List<AnnotationNode> Annotationsopt = (List<AnnotationNode>) _Annotationsopt;
         Expr Expression = (Expr) _Expression;
         Block ClosureBody = (Block) _ClosureBody;
-        setResult(nf.AtExpr(pos(), Expression, ClosureBody));
+        AtExpr r = nf.AtExpr(pos(), Expression, ClosureBody);
+        r = (AtExpr) ((X10Ext) r.ext()).annotations(Annotationsopt);
+        setResult(r);
     }
     // Production: AtExpression ::= at ( Expression ; AtCaptureDeclaratorsopt ) ClosureBody
     void rule_AtExpression1(Object _Expression, Object _AtCaptureDeclaratorsopt, Object _ClosureBody) {
