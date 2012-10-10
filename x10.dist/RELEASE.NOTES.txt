@@ -63,13 +63,60 @@ SUMMARY OF ISSUES RESOLVED IN THIS RELEASE
 
 Below is a summary of JIRA issues addressed for the X10 2.3.0
 
+** New Features and Improvements 
+    * [XTENLANG-1391] - Move .h and .cc files that contain implementation for x10.lang classes from x10aux into x10/lang
+    * [XTENLANG-2118] - Java interoperability
+    * [XTENLANG-2911] - Consolidate RuntimeException into Exception
+    * [XTENLANG-3076] - java-interop: make static fields private to avoid java programmers accidentally see uninitialized fields
+    * [XTENLANG-3012] - Java Interop Iterators
+    * [XTENLANG-3068] - java-interop: write sample applications
+    * [XTENLANG-3069] - java-interop: write test cases
+    * [XTENLANG-3079] - java-interop: if possible, don't print method return type with @Throws annotation in error message
 
-TODO FILL FROM JIRA.
+** Task
+    * [XTENLANG-3091] - introduce x10.lang.IndexOutOfBoundsException to make exception hierarchy as close as Java
+    * [XTENLANG-3102] - remove boxing of String
+    * [XTENLANG-3105] - clean up exception handling mechanism by removing nested try-catch for conversion of exceptions and removing reordering catch blocks for multiple exception hierarchies
+    * [XTENLANG-3106] - clean up runtime type system by removing ObjectType, Ref, RefI, StructType, Struct, StructI etc.
 
 
+** Bug
+    * [XTENLANG-2868] - Captured environment calculation is incorrect for anonymous inner class
+    * [XTENLANG-2892] - java.lang.IndexOutOfBoundsException in constraint system (SelfArrayReference_7)
+    * [XTENLANG-2986] - java interop: parser does not accept @Throws annotation with constructor without specifying return type (JavaException3)
+    * [XTENLANG-2989] - java-interop: Cannot call an @Throws method inside of an async or an at
+    * [XTENLANG-3062] - java exceptions not propagated through at / async
+    * [XTENLANG-3087] - Reachability test not working for generic methods that throw exceptions
+    * [XTENLANG-3089] - getCause() in @NativeRep("java") x10.lang.Throwable returns too broad type
+    * [XTENLANG-3090] - use x10.lang.AssertionError instead of java.lang.AssertionError for assertions
+    * [XTENLANG-3092] - T haszero expression broken in managed backend (HasZero1.x10)
+    * [XTENLANG-3093] - assigning null to T field broken when T is bound to struct (GenericCast14.x10)
+    * [XTENLANG-3095] - New method x10.matrix.Vector.maxNorm()
+    * [XTENLANG-3097] - java-interop: type system should consider every type has methods of Any (Any1.x10)
+    * [XTENLANG-3099] - -CHECK_INVARIANTS is broken
+    * [XTENLANG-3100] - -DEBUG_CODEGEN is broken
+    * [XTENLANG-3101] - Instance fields of clusure are not initialized when compiled with -O
+    * [XTENLANG-3104] - Initialization of properties is broken (SelfArrayReference_1.x10)
+    * [XTENLANG-3108] - Incorrect order of initialization for properties and fields (XTENLANG_215.x10)
+    * [XTENLANG-3109] - Unresolved RTT type parameter in local class inside generic class
+    * [XTENLANG-3110] - Generic method with local class causes NPE in LocalClassRemover
+    * [XTENLANG-3111] - Java arrays not serialised properly when cast to Any (JavaArray3.x10)
+    * [XTENLANG-3112] - Java exceptions stack trace not serialised via reflection-based serialisation mechanism
+    * [XTENLANG-3113] - Class extending Exception cannot be serialised in managed backend (JavaSerialization4.x10)
+    * [XTENLANG-3115] - Exception message not serialized in Java backend (ExceptionsRemote.x10)
+    * [XTENLANG-3116] - Stop instantiating abstract class with unsafe (JavaSerialization4b.x10)
+    * [XTENLANG-3121] - Serialization of Java arrays doesn't preserve isomorphism (JavaType2.x10)
+    * [XTENLANG-3123] - x10.lang.Error is not translated to x10.lang.MultipleExceptions (FinishTest3.x10)
+    * [XTENLANG-3125] - typeGuard of generic subtype should be propagated to its generic supertype (GenericsInheritance4.x10)
+    * [XTENLANG-3127] - Serialization of exceptions that has a field of Array[Exception] is broken (RootException11b)
+    * [XTENLANG-3129] - Native backend generates invalid C++ code for user-defined operator ..
+    * [XTENLANG-3130] - Ambiguous _deserialize_body
+    * [XTENLANG-3131] - Class tangle up in local class properties.
+    * [XTENLANG-3133] - Bug in typedef for RemoteRail[T] = GlobalRef[Rail[T]]
+    * [XTENLANG-3138] - class C[T] { class D[T] { } } broken
 
 For the details of JIRA issues fixed in this release, see
-http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=NNNNNN-TODO-TODO
+http://jira.codehaus.org/secure/ReleaseNote.jspa?projectId=11812&version=17009
 
 Please use the X10 JIRA to report bugs, after ensuring the problem is
 not already reported:
