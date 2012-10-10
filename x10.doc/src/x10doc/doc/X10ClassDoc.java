@@ -196,7 +196,8 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 		// obtain ClassDoc and Type objects for superclass
 		Ref<? extends polyglot.types.Type> reft = classDef.superType();
 		polyglot.types.Type t = ((reft==null) ? null : reft.get());
-		X10ClassDef cdef = (X10ClassDef) ((t == null) ? null : t.toClass().def());
+		System.out.println("The supertype of "+classDef+" is "+t);
+        X10ClassDef cdef = (X10ClassDef) ((t == null) ? null : t.toClass().def());
 		this.superclass = rootDoc.getUnspecClass(cdef);
 		this.superclassType = rootDoc.getType(t);
 		
@@ -912,21 +913,49 @@ public class X10ClassDoc extends X10Doc implements ClassDoc {
 	}
 
 	public ClassDoc superclass() {
-		if (X10RootDoc.printSwitch)
-			System.out.println("ClassDoc.superClass() called for "+name());
-		if (isInterface()) {
-			return null;
-		}
-		return superclass;
+	    if (X10RootDoc.printSwitch)
+	        System.out.println("ClassDoc.superClass() called for "+name());
+	    if (isInterface()) {
+	        return null;
+	    }
+	    // HACK:  Sidestep a bug in Javadoc 1.6 tool where the code in 
+	    // com.sun.tools.doclets.internal.toolkit.util.Util Util.getFirstVisibleSuperClass 
+	    // assumes that every class is either public or has a public ancestor
+	    // superclass.  This is not true in X10 and since it is not viable to fix
+	    // the bug in javadoc, we instead lie here and if all superclasses of this
+	    // class are not public, we lie are return null (indicating that this class
+	    // is the top of its hierarchy).
+	    if (superclass == null) return superclass;
+	    if (superclass.isPublic()) return superclass;
+	    X10ClassDoc sc = superclass;
+	    while (sc != null && !sc.isPublic()) {
+	        sc = sc.superclass;
+	    }
+	    return sc;
 	}
 
 	public Type superclassType() {
-		if (X10RootDoc.printSwitch)
-			System.out.println("ClassDoc.superClassType() called for "+name());
-		if (isInterface()) {
-			return null;
-		}
-		return superclassType;
+	    if (X10RootDoc.printSwitch)
+	        System.out.println("ClassDoc.superClassType() called for "+name());
+	    if (isInterface()) {
+	        return null;
+	    }
+	    // HACK:  Sidestep a bug in Javadoc 1.6 tool where the code in 
+	    // com.sun.tools.doclets.internal.toolkit.util.Util Util.getFirstVisibleSuperClass 
+	    // assumes that every class is either public or has a public ancestor
+	    // superclass.  This is not true in X10 and since it is not viable to fix
+	    // the bug in javadoc, we instead lie here and if all superclasses of this
+	    // class are not public, we lie are return null (indicating that this class
+	    // is the top of its hierarchy).
+	    if (superclassType == null) return superclassType;
+	    Type st = superclassType;
+	    while (st instanceof X10ClassDoc) {
+	        X10ClassDoc stdoc = (X10ClassDoc) st.asClassDoc();
+	        if (stdoc.isPublic()) return st;
+	        st = stdoc.superclassType;
+	    }
+
+	    return st;
 	}
 
 	public String typeName() {
