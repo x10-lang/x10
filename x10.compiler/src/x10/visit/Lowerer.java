@@ -1260,7 +1260,7 @@ public class Lowerer extends ContextVisitor {
                 here).methodInstance(rmi).type(rmi.returnType());
         Expr here1 = visitHere(nf.Here(bpos));
         List<VarInstance<? extends VarDef>> env = a.atDef().capturedEnvironment();
-        Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null, env, null);
+        Stmt body = async(a.body().position(), a.body(), a.clocks(), here1, null, env, nf.NullLit(bpos).type(ts.Null()));
         Stmt inner = nf.ForLoop(pos, formal, dAtPlace, body).locals(formal.explode(this));
         MethodInstance pmi = ts.findMethod(dType,
                 ts.MethodMatcher(dType, PLACES, Collections.<Type>emptyList(), context()));
@@ -1279,7 +1279,7 @@ public class Lowerer extends ContextVisitor {
         env1.add(lDef.asInstance());
         Stmt body1 = async(bpos, inner, a.clocks(),
                 nf.Local(bpos, nf.Id(bpos, pTmp)).localInstance(pDef.asInstance()).type(pType),
-                null, env1, null);
+                null, env1, nf.NullLit(bpos).type(ts.Null()));
         Stmt outer = nf.ForLoop(pos, pFormal, places, body1);
 
         // TODO: Instead of creating ForLoop's and then removing them, 
