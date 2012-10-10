@@ -58,11 +58,9 @@ case "$UNAME" in
   Linux,*86_64*,*) 
       SHORT_HOSTNAME=`hostname -s`
       if [[ "$SHORT_HOSTNAME" == "triloka4" ]]; then 
-          X10_PLATFORM='linux_rh6_x86_64'
           EXTRA_X10RT_BUILD_ARG="-DX10RT_PAMI=true"
-      else
-          X10_PLATFORM='linux_x86_64'
       fi
+      X10_PLATFORM='linux_x86_64'
       ;;
   Linux,*86*,*) X10_PLATFORM='linux_x86';;
   Linux,ppc*,*) X10_PLATFORM='linux_ppc';;
