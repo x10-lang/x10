@@ -115,10 +115,10 @@ final public class RuntimeTypeExpander extends Expander {
             Type ret = ct.returnType();
             
             // XTENLANG-1102
-            if (args.size() > 0) {
+            if (args.size() > 0 || !ret.isVoid()) {
                 er.w.write("x10.rtt.ParameterizedType.make(");
-                printFunRTT(ct, args, ret);
-                for (Type a:args) {
+                printFunRTT(ct);
+                for (Type a : args) {
                     er.w.write(",");
                     new RuntimeTypeExpander(er, a).expand(tr);
                 }
@@ -129,7 +129,7 @@ final public class RuntimeTypeExpander extends Expander {
                 er.w.write(")");
             }
             else {
-                printFunRTT(ct, args, ret);
+                printFunRTT(ct);
             }
             return;
         }
@@ -220,14 +220,14 @@ final public class RuntimeTypeExpander extends Expander {
         er.w.write(")");
     }
 
-    private void printFunRTT(FunctionType ct, List<Type> args, Type ret) {
-        if (ret.isVoid()) {
+    private void printFunRTT(FunctionType ct) {
+        if (ct.returnType().isVoid()) {
             er.w.write(X10PrettyPrinterVisitor.X10_VOIDFUN_CLASS_PREFIX);
         } else {
             er.w.write(X10PrettyPrinterVisitor.X10_FUN_CLASS_PREFIX);
         }
         er.w.write("_" + ct.typeParameters().size());
-        er.w.write("_" + args.size());
+        er.w.write("_" + ct.argumentTypes().size());
         er.w.write("." + X10PrettyPrinterVisitor.RTT_NAME);
     }
 
