@@ -235,7 +235,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final String X10_VOIDFUN_CLASS_NAME_PREFIX = "VoidFun";
     public static final String X10_FUN_CLASS_PREFIX = X10_FUN_PACKAGE+"."+X10_FUN_CLASS_NAME_PREFIX;
     public static final String X10_VOIDFUN_CLASS_PREFIX = X10_FUN_PACKAGE+"."+X10_VOIDFUN_CLASS_NAME_PREFIX;
-    public static final String X10_RUNTIME_TYPE_CLASS = "x10.rtt.Type";
+    public static final String X10_RTT_TYPE = "x10.rtt.Type";
     public static final String X10_RTT_TYPES = "x10.rtt.Types";
     public static final String X10_RUNTIME_IMPL_JAVA_X10GENERATED = "x10.runtime.impl.java.X10Generated";
     public static final String X10_RUNTIME_IMPL_JAVA_RUNTIME = "x10.runtime.impl.java.Runtime";
@@ -247,8 +247,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportConversionForJavaErrors = false;
     
     public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
-    public static final String JAVA_LANG_EXCEPTION = "java.lang.Exception";
-    public static final String JAVA_LANG_RUNTIME_EXCEPTION = "java.lang.RuntimeException";
     public static final String JAVA_LANG_ERROR = "java.lang.Error";
 
     public static final String MAIN_CLASS = "$Main";
@@ -790,7 +788,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     final Type at = i.next();
                     w.write("$_obj.");
                     er.printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-                    w.writeln(" = (" + X10_RUNTIME_TYPE_CLASS + ") $deserializer.readRef();");
+                    w.writeln(" = (" + X10_RTT_TYPE + ") $deserializer.readRef();");
                 }
 
                 // Deserialize the public variables of this class , we do not serialize transient or static variables
@@ -872,7 +870,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                             w.write(Emitter.mangleToJava(def.name()) + " $_obj = new " + Emitter.mangleToJava(def.name()) + "((" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
                             // N.B. in custom deserializer, initialize type params with null
                             for (ParameterType typeParam : def.typeParameters()) {
-                                w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
+                                w.write(", (" + X10_RTT_TYPE + ") null");
                             }
                             w.write(");");
                             w.newline();
@@ -898,7 +896,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                                 w.write("(" + CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
                                 // N.B. in custom deserializer, initialize type params with null
                                 for (ParameterType typeParam : def.typeParameters()) {
-                                    w.write(", (" + X10_RUNTIME_TYPE_CLASS + ") null");
+                                    w.write(", (" + X10_RTT_TYPE + ") null");
                                 }
                                 w.write(");");
                                 w.newline();
@@ -1004,7 +1002,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             List<String> params = new ArrayList<String>();
             for (ParameterType p : def.typeParameters()) {
                 String param = Emitter.mangleParameterType(p);
-                w.write(", final " + X10_RUNTIME_TYPE_CLASS + " " + param);
+                w.write(", final " + X10_RTT_TYPE + " " + param);
                 params.add(param);
             }
             w.write(") { ");
@@ -1103,7 +1101,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (!flags.isInterface()) {
                 for (TypeParamNode tp : typeParameters) {
                     w.write("private ");
-                    w.write(X10_RUNTIME_TYPE_CLASS);
+                    w.write(X10_RTT_TYPE);
                     // w.write("<"); n.print(tp, w, tr); w.write(">"); // TODO
                     w.write(" ");
                     w.write(Emitter.mangleParameterType(tp));
@@ -1133,7 +1131,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                 w.write(" $this");
                 for (TypeParamNode tp : typeParameters) {
                     w.write(", final ");
-                    w.write(X10_RUNTIME_TYPE_CLASS);
+                    w.write(X10_RTT_TYPE);
                     // w.write("<"); n.print(tp, w, tr); w.write(">"); // TODO
                     w.write(" ");
                     w.write(Emitter.mangleParameterType(tp));
@@ -1693,7 +1691,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         for (Iterator<ParameterType> i = ct.x10Def().typeParameters().iterator(); i.hasNext();) {
             ParameterType p = i.next();
             w.write("final ");
-            w.write(X10_RUNTIME_TYPE_CLASS);
+            w.write(X10_RTT_TYPE);
             w.write(" ");
             String name = Emitter.mangleParameterType(p);
             w.write(name);
@@ -3404,7 +3402,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
                 if (useSelfDispatch) {
                     w.write(", ");
-                    w.write(X10_RUNTIME_TYPE_CLASS);
+                    w.write(X10_RTT_TYPE);
                     w.write(" ");
                     w.write("t" + (i + 1));
                 }
@@ -3454,7 +3452,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             er.printFormal(tr2, n, formals.get(i), false);
             if (useSelfDispatch && !bridge) {
                 w.write(", ");
-                w.write(X10_RUNTIME_TYPE_CLASS);
+                w.write(X10_RTT_TYPE);
                 w.write(" ");
                 w.write("t" + (i + 1));
             }

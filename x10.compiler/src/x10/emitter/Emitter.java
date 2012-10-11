@@ -1284,7 +1284,7 @@ public class Emitter {
             }
 	        
             w.write("final ");
-            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+            w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
             w.write(" ");
             w.write(mangleParameterType(p));
         }
@@ -1329,7 +1329,7 @@ public class Emitter {
                 tr.print(n, f.name().id(name), w);
                 
                 w.write(",");
-                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                 w.write(" ");
                 Name name1 = Name.make("t" + formalNum++);
                 tr.print(n, f.name().id(name1), w);
@@ -1427,7 +1427,7 @@ public class Emitter {
                 }
                     
                 w.write("final ");
-                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                 w.write(" ");
                 w.write(mangleParameterType(p));
             }
@@ -1472,7 +1472,7 @@ public class Emitter {
                     tr.print(n, f.name().id(name), w);
                     
                     w.write(",");
-                    w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+                    w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                     w.write(" ");
                     Name name1 = Name.make("t" + formalNum++);
                     tr.print(n, f.name().id(name1), w);
@@ -2322,7 +2322,7 @@ public class Emitter {
                 first = false;
                 
                 w.write("final ");
-                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                 w.write(" ");
                 w.write(mangleParameterType(p));
             }
@@ -2965,7 +2965,7 @@ public class Emitter {
                 first = false;
             }
             w.write("final ");
-            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+            w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
             w.write(" ");
             w.write(mangleParameterType(p));
         }
@@ -2992,7 +2992,7 @@ public class Emitter {
                 
                 w.write(", ");
                 w.write("final ");
-                w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS);
+                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                 w.write(" ");
                 Name name1 = Name.make("t" + (i + 1));
                 w.write(name1.toString());
@@ -3798,7 +3798,7 @@ public class Emitter {
         w.write("private void readObject(java.io.ObjectInputStream ois) throws java.io.IOException, java.lang.ClassNotFoundException {");
         w.newline();
         for (ParameterType type : def.typeParameters()) {
-        	w.write(mangleParameterType(type) + " = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") ois.readObject();");
+        	w.write(mangleParameterType(type) + " = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") ois.readObject();");
             w.newline();
         }
         w.write(fieldName + " = (x10.io.SerialData) ois.readObject(); }");
@@ -3903,9 +3903,9 @@ public class Emitter {
         ArrayList<String> params = new ArrayList<String>();
         w.writeln("x10.io.SerialData " +  fieldName +  " = (x10.io.SerialData) $deserializer.readRef();");
         for (ParameterType at : def.typeParameters()) {
-            w.write(X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + " ");
+            w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE + " ");
             printType(at, PRINT_TYPE_PARAMS | BOX_PRIMITIVES);
-            w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") $deserializer.readRef();");
+            w.writeln(" = (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") $deserializer.readRef();");
             params.add(mangleParameterType(at));
         }
 
@@ -3952,7 +3952,7 @@ public class Emitter {
             w.write("(" + X10PrettyPrinterVisitor.CONSTRUCTOR_FOR_ALLOCATION_DUMMY_PARAM_TYPE + ") null");
             // N.B. in custom deserializer, initialize type params with null
             for (ParameterType typeParam : def.typeParameters()) {
-                w.write(", (" + X10PrettyPrinterVisitor.X10_RUNTIME_TYPE_CLASS + ") null");
+                w.write(", (" + X10PrettyPrinterVisitor.X10_RTT_TYPE + ") null");
             }
             w.write(");");
             w.newline();
