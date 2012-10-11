@@ -4403,7 +4403,7 @@ public class Emitter {
     		w.write(";");
 
     		w.writeln("}"); // XTENLANG-2686
-    		X10PrettyPrinterVisitor.generateCatchAndRethrowAsUncheckedException(w); // XTENLANG-2686
+    		X10PrettyPrinterVisitor.catchAndThrowAsX10Exception(w); // XTENLANG-2686
 
                 w.write("}");
     		w.newline();

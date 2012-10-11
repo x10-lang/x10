@@ -11,10 +11,6 @@
 
 package x10.runtime.impl.java;
 
-import x10.core.io.InputStream;
-import x10.core.io.OutputStream;
-import x10.io.InputStreamReader;
-import x10.io.OutputStreamWriter;
 import x10.io.Reader;
 import x10.io.Writer;
 import x10.lang.FinishState;
@@ -31,7 +27,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.Map;
 
@@ -140,7 +135,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
         public Type<?> $getParam(int i) { return null; }
 
-        public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+        public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
             throw new java.lang.UnsupportedOperationException("Serialization not supported for " + getClass());
         }
 
@@ -275,8 +270,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
             }
-        } catch (IOException e) {
-            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+        } catch (java.io.IOException e) {
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -324,13 +319,13 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     		}
     		return body;
     	} catch (java.io.IOException e) {
-    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+    		java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
     		xe.printStackTrace();
     		throw xe;
     	}
     }
 
-    public static <T> byte[] serialize(T body, x10.lang.Runtime.Profile prof) throws IOException {
+    public static <T> byte[] serialize(T body, x10.lang.Runtime.Profile prof) throws java.io.IOException {
     	if (TRACE_SER_DETAIL) {
     		System.out.println("Starting serialization for runAtAll  " + body.getClass());
     	}
@@ -358,7 +353,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     // not used
-//    public static <T> byte[] serializeUsingReflection(T body) throws IOException {
+//    public static <T> byte[] serializeUsingReflection(T body) throws java.io.IOException {
 //    	long start = PROF_SER ? System.nanoTime() : 0;
 //    	ByteArrayOutputStream baos = new ByteArrayOutputStream();
 //    	DataOutputStream oos = new DataOutputStream(baos);
@@ -393,7 +388,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		return hadoopWritableClass.isAssignableFrom(clazz);
 	}
 	
-	private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) throws IOException {
+	private static byte[] serialize(x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) throws java.io.IOException {
 		if (TRACE_SER_DETAIL) {
 			System.out.println("Starting serialization for runAtAll  " + body.getClass());
 		}
@@ -518,8 +513,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         try {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.InputStreamReader(new x10.core.io.InputStream(proc.getInputStream()));
-        } catch (IOException e) {
-            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+        } catch (java.io.IOException e) {
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -529,8 +524,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         try {
             Process proc = java.lang.Runtime.getRuntime().exec(command);
             return new x10.io.OutputStreamWriter(new x10.core.io.OutputStream(proc.getOutputStream()));
-        } catch (IOException e) {
-            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.getCorrespondingX10Throwable(e);
+        } catch (java.io.IOException e) {
+            java.lang.RuntimeException xe = x10.runtime.impl.java.ThrowableUtils.ensureX10Exception(e);
             xe.printStackTrace();
             throw xe;
         }
@@ -578,7 +573,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
-    public void $_serialize(X10JavaSerializer $serializer) throws IOException {
+    public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {
         throw new java.lang.UnsupportedOperationException("Cannot serialize " + getClass());
 	}
 
