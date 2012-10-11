@@ -216,10 +216,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     public static final boolean supportConstructorSplitting = true;
     public static final boolean generateFactoryMethod = false;
     public static final boolean generateOnePhaseConstructor = true;
-    // XTENLANG-2871
-    // not used
-//    public static final boolean supportJavaThrowables = true;
-//    public static final boolean useRethrowBlock = true;
     // XTENLANG-3058
     public static final boolean supportTypeConstraintsWithErasure = true;
     // XTENLANG-3090 (switched back to use java assertion)
@@ -248,9 +244,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
     public static final String X10_RUNTIME_IMPL_JAVA_THROWABLEUTILS = "x10.runtime.impl.java.ThrowableUtils";
     public static final String CONVERT_JAVA_THROWABLE_METHOD = "convertJavaThrowable";
-    public static final String CONVERT_JAVA_EXCEPTION_METHOD = "convertJavaException";
-    public static final String CONVERT_JAVA_RUNTIME_EXCEPTION_METHOD = "convertJavaRuntimeException";
-    public static final String CONVERT_JAVA_ERROR_METHOD = "convertJavaError";
     public static final boolean supportConversionForJavaErrors = false;
     
     public static final String JAVA_LANG_THROWABLE = "java.lang.Throwable";
@@ -3606,7 +3599,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // TODO remove wrapping with UnknownJavaThrowable
 //        TryCatchExpander tryCatchExpander = new TryCatchExpander(w, er, n.body(), null);
 //        if (runAsync) {
-//            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, "ex", new Expander(er) {
+//            tryCatchExpander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, "ex", new Expander(er) {
 //                public void expand(Translator tr) {
 //                    w.write("x10.lang.Runtime.pushException(ex);");
 //                }
@@ -4198,40 +4191,12 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    // MIKIO_PLEASE_SEE
-    // N.B. true for Java throwables that are supertype of x.l.Throwable at implementation level
-    private boolean isJavaThrowableAssignableFromX10Throwable(Type catchType) {
-        // FIXME always use rethrow is safe but too much
-    	return true;
-    	/*
-        TypeSystem ts = tr.typeSystem();
-        Context context = tr.context();
-        return ts.typeEquals(catchType, ts.JavaThrowable(), context) ||
-            ts.typeEquals(catchType, ts.JavaException(), context) ||
-            ts.typeEquals(catchType, ts.JavaRuntimeException(), context);
-        */
-    }
-
     @Override
     public void visit(Catch_c n) {
         w.write("catch (");
         n.printBlock(n.formal(), w, tr);
         w.write(")");
-        
-        // TODO remove x10.core.Throwable
-//        boolean rethrowX10Throwable = supportJavaThrowables && !useRethrowBlock && isJavaThrowableAssignableFromX10Throwable(n.catchType());
-//        if (rethrowX10Throwable) {
-//            w.writeln("{");
-//            String formalName = n.formal().name().toString();
-//            w.writeln("if (" + formalName + " instanceof " + X10_CORE_THROWABLE + ") { throw (" + X10_CORE_THROWABLE + ") " + formalName + "; }");
-//        }
-        
         n.printSubStmt(n.body(), w, tr);
-        
-        // TODO remove x10.core.Throwable
-//        if (rethrowX10Throwable) {
-//            w.writeln("}");
-//        }
     }
 
     @Override
@@ -4515,133 +4480,32 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    // not used
-//    // TODO OK reordering of catch blocks is no longer needed 
-//    private Try_c reorderCatchBlocks(Try_c c) {
-//        TypeSystem ts = tr.typeSystem();
-//        Context context = tr.context();
-//        List<Catch> catchBlocks = c.catchBlocks();
-//        List<Catch> newCatchBlocks = new ArrayList<Catch>();
-//        boolean hasJavaThrowable = false;
-//        for (Catch catchBlock : catchBlocks) {
-//            Type catchType = catchBlock.catchType();
-//            if (false /*!ts.isJavaThrowable(catchType)*/) {
-//                newCatchBlocks.add(catchBlock);
-//            }
-//        }
-//        for (Catch catchBlock : catchBlocks) {
-//            Type catchType = catchBlock.catchType();
-//            if (false /*ts.isJavaThrowable(catchType)*/) {
-//                newCatchBlocks.add(catchBlock);
-//                hasJavaThrowable = true;
-//            }
-//        }
-//        if (hasJavaThrowable) {
-//            c = (Try_c) c.catchBlocks(newCatchBlocks);
-//        }
-//        return c;
-//    }
     private static boolean isUnknownJavaThrowable(Type catchType) {
         // return true for types that will be wrapped to UnknownJavaThrowable
         return !catchType.isThrowable() && !TryCatchExpander.isKnownJavaThrowable(catchType);
     }
     @Override
     public void visit(Try_c c) {
-        // not used
-//        if (supportJavaThrowables) {
-//            c = reorderCatchBlocks(c);
-//        }
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
         final List<Catch> catchBlocks = c.catchBlocks();
 
-        // TODO remove wrapping with UnknownJavaThrowable
-//        boolean isUnknownJavaThrowableCaught = false;
         boolean isConstrainedThrowableCaught = false; // XTENLANG-2384
         for (int i = 0; i < catchBlocks.size(); ++i) {
             Type type = catchBlocks.get(i).catchType();
-            // TODO remove wrapping with UnknownJavaThrowable
-//            if (isUnknownJavaThrowable(type)) {
-//                // found Java checked exceptions caught here!!
-//                isUnknownJavaThrowableCaught = true;
-//            }
             if (type instanceof ConstrainedType) // XTENLANG-2384: Check if there is a constained type in catchBlocks
                 isConstrainedThrowableCaught = true;
         }
-
-        // TODO remove wrapping with UnknownJavaThrowable
-//        // unwrap and handle Java throwable
-//        if (isUnknownJavaThrowableCaught) {
-//            final String temp = "$ex";
-//            expander.addCatchBlock(X10_IMPL_UNKNOWN_JAVA_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
-//                public void expand(Translator tr) {
-//                    w.newline();
-//
-//                    boolean needElse = false;
-//                    for (int i = 0; i < catchBlocks.size(); ++i) {
-//                        Catch cb = catchBlocks.get(i);
-//                        Type type = cb.catchType();
-//                        if (!isUnknownJavaThrowable(type))
-//                            continue;
-//
-//                        if (needElse) {
-//                            w.write("else ");
-//                        } else {
-//                            needElse = true;
-//                        }
-//                        w.write("if (" + temp + ".getCause() instanceof ");
-//                        er.printType(cb.catchType(), 0);
-//                        w.write(") {");
-//                        w.newline();
-//
-//                        // stop generating redundant code for empty block
-//                        if (!cb.body().statements().isEmpty()) {
-//                        cb.formal().translate(w, tr);
-//                        w.write(" = ");
-//                        // TODO:CAST
-//                        w.write("(");
-//                        er.printType(cb.catchType(), 0);
-//                        w.write(") " + temp + ".getCause();");
-//                        w.newline();
-//
-//                        cb.body().translate(w, tr);
-//                        w.newline();
-//                        }
-//
-//                        w.write("}");
-//                        w.newline();
-//                    }
-//                    w.write("else {");
-//                    w.newline();
-//                    w.write("throw " + temp + ";");
-//                    w.newline();
-//                    w.write("}");
-//                    w.newline();
-//                }
-//            });
-//        }
 
         // XTENLANG-2384: If there is a constrained type, generate if sequence instead of catch sequence
         if (isConstrainedThrowableCaught) {
             final String temp = "$ex";
             int convRequired = 0;
-            for (int i = 0; i < catchBlocks.size(); ++i) {
-                convRequired |= TryCatchExpander.conversionRequired(catchBlocks.get(i).catchType());
-            }
-            expander.addCatchBlock(JAVA_LANG_THROWABLE, convRequired, temp, new Expander(er) {
+            expander.addCatchBlock(JAVA_LANG_THROWABLE, temp, new Expander(er) {
                 public void expand(Translator tr) {
-                    // TODO remove x10.core.Throwable
-//                    boolean generateRethrowBlock = true;
                     w.newline();
                     for (int i = 0; i < catchBlocks.size(); ++i) {
                         Catch cb = catchBlocks.get(i);
                         Type type = cb.catchType();
-                        // TODO remove x10.core.Throwable
-//                        if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(type)) {
-//                            generateRethrowBlock = false;
-//                            w.write("if (" + temp + " instanceof " + X10_CORE_THROWABLE + ") {"); w.newline();
-//                            w.write("throw (" + X10_CORE_THROWABLE + ") " + temp + ";"); w.newline();
-//                            w.write("} else "); w.newline();
-//                        }
                         w.write("if (" + temp + " instanceof ");
                         er.printType(type, 0);
                         if (type instanceof ConstrainedType) {
@@ -4658,21 +4522,8 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             });
         } else { // XTENLANG-2384: Normal case, no constrained type in catchBlocks
             final String temp = "$ex";
-            // TODO remove x10.core.Throwable
-//            boolean generateRethrowBlock = true;
             for (int i = 0; i < catchBlocks.size(); ++i) {
                 Catch catchBlock = catchBlocks.get(i);
-                // TODO remove x10.core.Throwable
-//                if (supportJavaThrowables && useRethrowBlock && generateRethrowBlock && isJavaThrowableAssignableFromX10Throwable(catchBlock.catchType())) {
-//                    generateRethrowBlock = false;
-//                    expander.addCatchBlock(X10_CORE_THROWABLE, TryCatchExpander.NO_CONVERSION, temp, new Expander(er) {
-//                        public void expand(Translator tr) {
-//                            w.newline();
-//                            w.write("throw " + temp + ";"); 
-//                            w.newline();
-//                        }
-//                    });
-//                }
                 expander.addCatchBlock(catchBlock);
             }
         }
