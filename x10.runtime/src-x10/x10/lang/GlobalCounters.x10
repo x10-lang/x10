@@ -45,7 +45,7 @@ public final class GlobalCounters {
 
     public static def serializedSize[T](v:T) {
         var r:Long;
-        @Native("java", "r = x10.runtime.impl.java.Runtime.serialize(v).length;")
+        @Native("java", "r = x10.runtime.impl.java.Runtime.serialize(v, null).length;")
         @Native("c++", "x10aux::serialization_buffer buf; buf.write(v); r = buf.length();")
         { r = -1L; }
         return r;

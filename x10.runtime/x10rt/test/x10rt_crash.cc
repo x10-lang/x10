@@ -16,7 +16,7 @@
 
 int *null_ptr = 0;
 
-static void report_fault(int signal)
+void report_fault(int signal)
 {
 	switch(signal)
 	{

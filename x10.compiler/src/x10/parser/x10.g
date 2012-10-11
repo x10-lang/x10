@@ -1088,9 +1088,9 @@
         $EndJava./
                   
                   
-    AtExpression ::= at ( Expression ) ClosureBody
+    AtExpression ::= Annotationsopt at ( Expression ) ClosureBody
         /.$BeginJava
-			r.rule_AtExpression0(Expression,ClosureBody);
+			r.rule_AtExpression0(Annotationsopt,Expression,ClosureBody);
         $EndJava./
 -- Begin XTENLANG-2660
 --                   | at ( Expression ; * ) ClosureBody

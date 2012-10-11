@@ -2419,6 +2419,20 @@ public class TypeSystem_c implements TypeSystem
         return EndpointType_;
     }
 
+    protected X10ClassType RuntimeProfileType_;
+    public X10ClassType RuntimeProfile() {
+        if (RuntimeProfileType_ == null)
+        	RuntimeProfileType_ = load("x10.lang.Runtime.Profile");
+        return RuntimeProfileType_;
+    }
+
+    protected X10ClassType ProfileType_;
+    public X10ClassType Profile() {
+        if (ProfileType_ == null)
+        	ProfileType_ = load("x10.compiler.Profile");
+        return ProfileType_;
+    }
+
     protected X10ClassType compileTimeConstantType_;
     public X10ClassType CompileTimeConstant() {
         if (compileTimeConstantType_ == null)
