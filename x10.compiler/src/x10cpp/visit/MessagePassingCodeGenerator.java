@@ -2215,13 +2215,8 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
         boolean oldSemiColon = tr.appendSemicolon(true);
         Expr e = n.result();
-        boolean gccHack = e != null && opts.x10_config.STATEMENT_EXPR_GCC_WORKAROUND && e.type().isReference();
-        if (gccHack) {
-            sw.write("x10aux::ref"+chevrons(Emitter.translateType(e.type()))+"(__extension__ ({");
-        } else {
-            sw.write("(__extension__ ({");
-        }
-	    sw.newline(4); sw.begin(0);
+        sw.write("(__extension__ ({");
+        sw.newline(4); sw.begin(0);
 	    List<Stmt> stmts = n.statements();
 	    boolean oldPrintType = tr.printType(true);
 	    for (Stmt stmt : stmts) {
@@ -2230,13 +2225,7 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 	    }
 	    tr.printType(oldPrintType);
 	    if (e != null) {
-	        if (gccHack) {
-	            sw.write("(");
-	        }
 	        n.print(e, sw, tr);
-	        if (gccHack) {
-	            sw.write(").operator->()");
-	        }
 	        sw.write(";");
 	    }
 	    sw.end(); sw.newline();
@@ -3963,9 +3952,6 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
 		}
 		sw.write(tmp);
 		X10CPPCompilerOptions opts = (X10CPPCompilerOptions) tr.job().extensionInfo().getOptions();
-		if (opts.x10_config.STATEMENT_EXPR_GCC_WORKAROUND) {
-		    sw.write(".operator->()");
-		}
 		sw.write(";");
 		sw.end(); sw.newline();
 		sw.write("}))");
