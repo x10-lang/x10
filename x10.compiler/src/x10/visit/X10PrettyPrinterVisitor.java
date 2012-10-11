@@ -989,9 +989,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             }
         }
 
-        // TODO haszero
         if (needZeroValueConstructor(def)) {
-            // if (needZeroValueConstructor2(def)) {
             er.generateZeroValueConstructor(def, n);
         }
 
@@ -1226,7 +1224,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         return subtypeOfInterface(superDef, interfaceName);
     }
 
-    // TODO haszero
     /*
      * (Definition of haszero by Yoav) Formally, the following types haszero: a
      * type that can be null (e.g., Any, closures, but not a struct or
@@ -1252,113 +1249,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         // 4) any user-defined struct that does not have zero value
         return true;
     }
-
-    // not used
-//    private static boolean needZeroValueConstructor2(X10ClassDef def) {
-//        if (!def.flags().isStruct()) return false;
-//        return hasZeroValue(def.asType());
-//    }
-//
-//    private static boolean hasZeroValue(Type type) {
-//        X10ClassType classType = (X10ClassType) type;
-//        if (classType.flags().isInterface()) return false;
-//        // if (!classType.flags().isStruct()) return false;
-//        // Note: we don't need zero value constructor for primitive structs
-//        // because they are cached in x10.rtt.Types class.
-//        if (isPrimitive(type)) return false;
-//        
-//        X10ClassDef def = classType.x10Def();
-//
-//        // TODO
-//        if (false) {
-//            // if (true) {
-//
-//            // user-defined struct type, parameter type or reference type
-//
-//            // TODO stop generating useless zero value constructor for
-//            // user-defined struct that does not have zero value
-//            // user-defined struct does not have zero value if it have a field
-//            // of type of either
-//            // 1) type parameter T that does not have haszero constraint
-//            // 2) any reference (i.e. non-struct) type that has {self != null}
-//            // consttaint
-//            // 3) any struct type (including primitive structs) that has any
-//            // constraint (e.g. Int{self != 0})
-//            // 4) any user-defined struct that does not have zero value
-//
-//            if (type instanceof ConstrainedType) {
-//                ConstrainedType constrainedType = (ConstrainedType) type;
-//                type = constrainedType.baseType().get();
-//
-//                if (type.isParameterType()) {
-//                    // parameter type T
-//                    ParameterType paramType = (ParameterType) type;
-//                    // TODO
-//                    // if (T doesn't have haszero constrait) return false;
-//                    List<SubtypeConstraint> terms = def.typeBounds().get().terms();
-//                    for (SubtypeConstraint sc : terms) {
-//                        if (sc.isHaszero()) {
-//                            Type superType = sc.supertype();
-//                            Type subType = sc.subtype();
-//                            System.out.println(superType);
-//                            System.out.println(subType);
-//                            // if (superType.equals(type)) return true;
-//                        }
-//                    }
-//                    return false;
-//                } else if (def.isStruct()) {
-//                    // user-defined struct type
-//                    return false;
-//                } else {
-//                    // reference (i.e. non-struct) type
-//                    // TODO
-//                    // if (type has {self != null} constraint) return false;
-//                    x10.types.constraints.CConstraint constraint = constrainedType.constraint().get();
-//                    Set<x10.constraint.XTerm> terms = constraint.rootTerms();
-//                    for (x10.constraint.XTerm term : terms) {
-//                        System.out.println(term);
-//                    }
-//                }
-//
-//            } else {
-//                if (type.isParameterType()) {
-//                    // parameter type T
-//                    ParameterType paramType = (ParameterType) type;
-//                    // TODO
-//                    // if (T doesn't have haszero constrait) return false;
-//                    List<SubtypeConstraint> terms = def.typeBounds().get().terms();
-//                    for (SubtypeConstraint sc : terms) {
-//                        if (sc.isHaszero()) {
-//                            Type superType = sc.supertype();
-//                            Type subType = sc.subtype();
-//                            System.out.println(superType);
-//                            System.out.println(subType);
-//                            // if (superType.equals(type)) return true;
-//                        }
-//                    }
-//                    return false;
-//                } else if (def.isStruct()) {
-//                    // user-defined struct type
-//                    // OK
-//                    // check instance fields
-//                } else {
-//                    // reference (i.e. non-struct) type
-//                    // OK
-//                    // check instance fields
-//                }
-//
-//                // check instance fields recursively
-//                for (polyglot.types.FieldInstance field : classType.fields()) {
-//                    if (field.flags().isStatic()) continue;
-//                    Type fieldType = field.type();
-//                    if (!hasZeroValue(fieldType)) return false;
-//                }
-//            }
-//
-//        }
-//
-//        return true;
-//    }
 
     private static void setConstructorIds(X10ClassDef def) {
         List<ConstructorDef> cds = def.constructors();
