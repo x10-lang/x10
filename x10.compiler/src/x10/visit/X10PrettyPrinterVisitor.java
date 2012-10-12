@@ -4454,7 +4454,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
     }
 
     public static boolean isSpecialType(Type type) {
-        return isPrimitive(Types.baseType(type)) || isString(type);
+        return isPrimitive(Types.baseType(type));
     }
     
     /**

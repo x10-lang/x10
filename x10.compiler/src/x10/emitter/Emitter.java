@@ -453,7 +453,6 @@ public class Emitter {
         private static final String USHORT_SUFFIX = SPECIALTYPE_PREFIX + "s";
         private static final String UINT_SUFFIX = SPECIALTYPE_PREFIX + "i";
         private static final String ULONG_SUFFIX = SPECIALTYPE_PREFIX + "j";
-        private static final String STRING_SUFFIX = SPECIALTYPE_PREFIX + "t";
         private static final String VOID_SUFFIX = SPECIALTYPE_PREFIX + "V";
 	private static final Name BYTE_NAME = Name.make(BYTE_SUFFIX);
         private static final Name SHORT_NAME = Name.make(SHORT_SUFFIX);
@@ -489,8 +488,6 @@ public class Emitter {
                 return CHAR_SUFFIX;
             } else if (type.isBoolean()) {
                 return BOOLEAN_SUFFIX;
-            } else if (type.isString()) {
-                return STRING_SUFFIX;
             } else if (type.isVoid()) {
                 return VOID_SUFFIX;
             }

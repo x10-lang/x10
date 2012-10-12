@@ -51,7 +51,7 @@ public abstract class Ref implements Any {
 
     @Override
     public java.lang.String toString() {
-        return x10.lang.System.identityToString$O(this);
+        return x10.lang.System.identityToString(this);
     }
 
     // not used (same as Java)
