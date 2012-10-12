@@ -1611,28 +1611,29 @@ public class Emitter {
         }
     }
     
-    public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
-        // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
-        // WIP XTENLANG-2680 (ComparableTest.x10)
-        // enable it after enhancing canMangleMethodName with parameter list
-        if (X10PrettyPrinterVisitor.supportGenericOverloading && canMangleMethodName(def)) {
-            w.write(getMangledMethodName(def, !isInterface));
-        }
-        else {
-            w.write(mangleToJava(def.name()));
-        }
-        if (!isDispatcher) {
-            if (isSpecialReturnType) {
-                if (canMangleMethodName(def)) {
-                    w.write(RETURN_SPECIAL_TYPE_SUFFIX);
-                }
-            }
-            // print $G
-            else if (isParamReturnType) {
-                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
-            }
-        }
-    }
+    // not used
+//    public void printMethodName(MethodDef def, boolean isInterface, boolean isDispatcher, boolean isSpecialReturnType, boolean isParamReturnType) {
+//        // N.B. @NativeRep'ed interface (e.g. Comparable) does not use dispatch method nor mangle method. primitives need to be boxed to allow instantiating type parameter.
+//        // WIP XTENLANG-2680 (ComparableTest.x10)
+//        // enable it after enhancing canMangleMethodName with parameter list
+//        if (X10PrettyPrinterVisitor.supportGenericOverloading && canMangleMethodName(def)) {
+//            w.write(getMangledMethodName(def, !isInterface));
+//        }
+//        else {
+//            w.write(mangleToJava(def.name()));
+//        }
+//        if (!isDispatcher) {
+//            if (isSpecialReturnType) {
+//                if (canMangleMethodName(def)) {
+//                    w.write(RETURN_SPECIAL_TYPE_SUFFIX);
+//                }
+//            }
+//            // print $G
+//            else if (isParamReturnType) {
+//                w.write(RETURN_PARAMETER_TYPE_SUFFIX);
+//            }
+//        }
+//    }
 
     private void printMethodName(ClassType ct, MethodInstance mi) {
         if (X10PrettyPrinterVisitor.supportGenericOverloading) {
