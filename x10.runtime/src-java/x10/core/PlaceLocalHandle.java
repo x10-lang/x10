@@ -78,7 +78,6 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     //        id = nextId();
     //    }
 
-    // TODO haszero
     // zero value constructor
     public PlaceLocalHandle(Type<T> T, java.lang.System $dummy) {
         id = nextId();

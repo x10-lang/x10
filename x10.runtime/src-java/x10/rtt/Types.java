@@ -788,26 +788,6 @@ public class Types {
         return ret;
     }
 
-    // TODO haszero
-    /*
-    private static Object zeroValue(Class<?> c) {
-        if (c.equals(BYTE.getJavaClass()) || c.equals(Byte.class)) return BYTE_ZERO;
-        if (c.equals(SHORT.getJavaClass()) || c.equals(Short.class)) return SHORT_ZERO;
-        if (c.equals(INT.getJavaClass()) || c.equals(Integer.class)) return INT_ZERO;
-        if (c.equals(LONG.getJavaClass()) || c.equals(Long.class)) return LONG_ZERO;
-        if (c.equals(UBYTE.getJavaClass())) return UBYTE_ZERO;
-        if (c.equals(USHORT.getJavaClass())) return USHORT_ZERO;
-        if (c.equals(UINT.getJavaClass())) return UINT_ZERO;
-        if (c.equals(ULONG.getJavaClass())) return ULONG_ZERO;
-        if (c.equals(FLOAT.getJavaClass()) || c.equals(Float.class)) return FLOAT_ZERO;
-        if (c.equals(DOUBLE.getJavaClass()) || c.equals(Double.class)) return DOUBLE_ZERO;
-        if (c.equals(CHAR.getJavaClass()) || c.equals(Character.class)) return CHAR_ZERO;
-        if (c.equals(BOOLEAN.getJavaClass()) || c.equals(Boolean.class)) return BOOLEAN_ZERO;
-        // Note: user defined structs is not supported
-//        assert !STRUCT.getJavaClass().isAssignableFrom(c) : "user defined structs is not supported";
-        return null;
-    }
-    */
     public static Object zeroValue(Type<?> rtt) {
         Type<?>[] actualTypeArguments = null;
         if (rtt instanceof ParameterizedType) {
@@ -847,19 +827,6 @@ public class Types {
                 assert ctor != null;
                 Object[] params = new Object[paramTypes.length];
                 
-                /*
-                int i = 0;
-                if (actualTypeArguments != null) {
-                    for ( ; i < actualTypeArguments.length; ++i) {
-                        // pass type params
-                        params[i] = actualTypeArguments[i];
-                    }
-                }
-                for ( ; i < paramTypes.length; ++i) {
-                    // these values are not necessarily zero value
-                    params[i] = zeroValue(paramTypes[i]);
-                }
-                */
                 assert actualTypeArguments == null ? paramTypes.length == 1/*(java.lang.System)null*/ : paramTypes.length == actualTypeArguments.length/*T1,T2,...*/ + 1/*(java.lang.System)null*/;
                 int i = 0;
                 if (actualTypeArguments != null) {
