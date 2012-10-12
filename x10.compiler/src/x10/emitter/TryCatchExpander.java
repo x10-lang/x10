@@ -113,10 +113,4 @@ public class TryCatchExpander extends Expander {
         }
     }
 
-    // N.B. ThrowableUtils.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
-    private static final Set<String> knownJavaExceptions = new HashSet<String>(Arrays.asList("java.io.NotSerializableException", "java.lang.InterruptedException"));
-    public static boolean isKnownJavaThrowable(Type type) {
-        String typeName = type.toString();
-        return knownJavaExceptions.contains(typeName);
-    }
 }

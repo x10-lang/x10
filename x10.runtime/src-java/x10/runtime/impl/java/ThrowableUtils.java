@@ -18,7 +18,6 @@ import java.util.Map;
 
 public abstract class ThrowableUtils {
     
-    // N.B. ThrowableUtils.x10{RuntimeException,Exception,Error,Throwable}s must be sync with TryCatchExpander.knownJava{RuntimeException,Exception,Error,Throwable}s
     private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
     private static Class<? extends java.lang.RuntimeException> x10_io_IOException;
     static {

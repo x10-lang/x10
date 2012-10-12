@@ -4368,10 +4368,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         n.translate(w, tr);
     }
 
-    private static boolean isUnknownJavaThrowable(Type catchType) {
-        // return true for types that will be wrapped to UnknownJavaThrowable
-        return !catchType.isThrowable() && !TryCatchExpander.isKnownJavaThrowable(catchType);
-    }
     @Override
     public void visit(Try_c c) {
         TryCatchExpander expander = new TryCatchExpander(w, er, c.tryBlock(), c.finallyBlock());
