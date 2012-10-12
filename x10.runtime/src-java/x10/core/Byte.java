@@ -27,7 +27,7 @@ import java.io.IOException;
  * as Comparable<Byte>.
  */
 final public class Byte extends java.lang.Number implements StructI, java.lang.Comparable<Byte>,
-// for X10PrettyPrinterVisitor.useSpecialDispatcherThroughKnownInterfaces
+// for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
 //    x10.lang.Arithmetic<Byte>, x10.lang.Bitwise<Byte>, x10.util.Ordered<Byte>
     x10.core.Arithmetic.x10$lang$Byte, x10.core.Bitwise.x10$lang$Byte, x10.util.Ordered<Byte>
 {
@@ -135,7 +135,7 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     public Byte $minus(java.lang.Object b, Type t) { return Byte.$box($value - ((Byte)b).$value); }
     public Byte $times(java.lang.Object b, Type t) { return Byte.$box($value * ((Byte)b).$value); }
     public Byte $over(java.lang.Object b, Type t) { return Byte.$box($value / ((Byte)b).$value); }
-    // for X10PrettyPrinterVisitor.useSpecialDispatcherThroughKnownInterfaces
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public byte $plus$B(java.lang.Object b, Type t) { return (byte) ($value + ((Byte)b).$value); }
     public byte $minus$B(java.lang.Object b, Type t) { return (byte) ($value - ((Byte)b).$value); }
     public byte $times$B(java.lang.Object b, Type t) { return (byte) ($value * ((Byte)b).$value); }
@@ -149,7 +149,7 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     public Byte $left$G(int count) { return Byte.$box($value << count); }
     public Byte $right$G(int count) { return Byte.$box($value >> count); }
     public Byte $unsigned_right$G(int count) { return Byte.$box($value >>> count); }
-    // for X10PrettyPrinterVisitor.useSpecialDispatcherThroughKnownInterfaces
+    // for X10PrettyPrinterVisitor.exposeSpecialDispatcherThroughSpecialInterface
     public byte $ampersand$B(java.lang.Object b, Type t) { return (byte) ($value & ((Byte)b).$value); }
     public byte $bar$B(java.lang.Object b, Type t) { return (byte) ($value | ((Byte)b).$value); }
     public byte $caret$B(java.lang.Object b, Type t) { return (byte) ($value ^ ((Byte)b).$value); }
