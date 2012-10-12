@@ -158,7 +158,11 @@ public class PreLoader {
 				} catch (ClassNotFoundException e) {
 //					System.err.println(i+": "+nm+" not found");
 				} catch (NoClassDefFoundError e) {
-					System.out.println("Preloader: could not load " + e.getMessage() + " (ignored).");
+					System.out.println("Preloader: could not load " + e.getMessage() + " (ignored NoClassDefFoundError).");
+				} catch (java.lang.ExceptionInInitializerError e) {
+					System.out.println("Preloader: could not load " + e.getMessage() + " (ignored ExceptionInInitializerError).");
+				} catch (java.lang.UnsatisfiedLinkError e) {
+					System.out.println("Preloader: could not load " + e.getMessage() + " (ignored UnsatisfiedLinkError).");
 				}
 			}
 		} catch (IOException e) { e.printStackTrace(System.err); assert false; }
