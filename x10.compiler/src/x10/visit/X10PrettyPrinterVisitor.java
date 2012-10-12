@@ -675,7 +675,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             if (typeParameters.size() > 0) {
                 er.printTypeParams(n, context, typeParameters);
             }
-            w.write(")super.clone(); } catch (CloneNotSupportedException e) { e.printStackTrace() ; return null; } }");
+            w.write(")super.clone(); } catch (java.lang.CloneNotSupportedException e) { e.printStackTrace() ; return null; } }");
             w.newline();
         }
 

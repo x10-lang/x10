@@ -456,7 +456,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			e.printStackTrace();
 			throw new x10.lang.WrappedThrowable(e);
 		} finally {
-			if (X10RT.VERBOSE) System.out.println("@MULTIVM: finally section");
+			if (X10RT.VERBOSE) System.out.println("@MultiVM: finally section");
 		}
 	}
 

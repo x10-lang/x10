@@ -119,10 +119,6 @@ public final class Configuration extends x10.config.Configuration {
     public boolean DEBUG_CODEGEN = false;
     private static final String DEBUG_CODEGEN_desc = "Enable HTML version of the generated source code for codegen debugging";
 
-
-//    public final boolean MULTI_NODE = true;
-//    private static final String MULTI_NODE_desc = "(Managed X10) each place is hosted by different Java VM";
-
     public boolean OPTIMIZE_COMMUNICATIONS = false;
     private static final String OPTIMIZE_COMMUNICATIONS_desc = "Communication optimizations, i.e. scalar replacement";
 

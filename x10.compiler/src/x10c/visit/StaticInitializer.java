@@ -230,14 +230,6 @@ public class StaticInitializer extends ContextVisitor {
             MethodDecl md = null; 
             if (fieldInfo.right != null) {
                 FieldDecl fdPLH = null;
-                // TODO (to be removed) for collocated multi-place
-//                if (!opts.x10_config.MULTI_NODE) {
-//                    // create PlaceLocalHandle for SingleVM MultiPlace support
-//                    fdPLH = makeFieldVar4PLH(CG, fName, classDef);
-//                    classDef.addField(fdPLH.fieldDef());
-//                    // add in the top
-//                    members.add(0, fdPLH);
-//                }
 
                 // gen new field var
                 FieldDecl fdExcept = null;
@@ -464,10 +456,6 @@ public class StaticInitializer extends ContextVisitor {
                                 return n;
                             }
                         }
-                        // TODO (to be removed) for collocated multi-place
-//                        else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
-//                            found.set(true);
-//                        }
                         else {
                             // deep analysis disabled
                             found.set(true);
@@ -662,10 +650,6 @@ public class StaticInitializer extends ContextVisitor {
                             found.set(true);
                             return n;
                         }
-                        // TODO (to be removed) for collocated multi-place
-//                        else if (!opts.x10_config.MULTI_NODE && checkMultiplexRequiredSingleVM(ci)) {
-//                            found.set(true);
-//                        }
                     }
                     // XTENLANG-3081(part2)
                     else {
