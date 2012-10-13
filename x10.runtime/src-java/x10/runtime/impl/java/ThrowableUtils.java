@@ -25,18 +25,32 @@ public abstract class ThrowableUtils {
             Class<? extends java.lang.Throwable> javaClass;
             java.lang.String x10Name;
             Class<? extends java.lang.RuntimeException> x10Class;
-            
+
             javaClass = java.io.NotSerializableException.class;
             x10Name = "x10.io.NotSerializableException";
             x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
 
+            javaClass = java.io.EOFException.class;
+            x10Name = "x10.io.EOFException";
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Exceptions.put(javaClass, x10Class);
+
+            javaClass = java.io.FileNotFoundException.class;
+            x10Name = "x10.io.FileNotFoundException";
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Exceptions.put(javaClass, x10Class);
+
+            javaClass = java.io.IOException.class;
+            x10Name = "x10.io.IOException";
+            x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
+            x10Exceptions.put(javaClass, x10Class);
+            x10_io_IOException = x10Class;
+
             javaClass = java.lang.InterruptedException.class;
             x10Name = "x10.lang.InterruptedException";
             x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
-            
-            x10_io_IOException = Class.forName("x10.io.IOException").asSubclass(java.lang.RuntimeException.class);
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
@@ -54,25 +68,33 @@ public abstract class ThrowableUtils {
         }
     }
 
+    public static java.lang.RuntimeException ensureX10Exception(java.io.IOException e) {
+        Class<? extends java.lang.RuntimeException> x10Class = x10Exceptions.get(e.getClass());
+        java.lang.String message = e.getMessage();
+        if (x10Class != null) {
+            return asX10Exception(x10Class, message, e);
+        }
+        // no corresponding x10 exception is defined
+        return asX10Exception(x10_io_IOException, message, e);                
+    }
+
     public static java.lang.RuntimeException ensureX10Exception(java.lang.Throwable e) {
         if (e instanceof java.lang.RuntimeException) {
             return (java.lang.RuntimeException) e;
+        } else if (e instanceof java.io.IOException) {
+            return ensureX10Exception((java.io.IOException) e);
         } else if (e instanceof java.lang.Exception) {
             Class<? extends java.lang.RuntimeException> x10Class = x10Exceptions.get(e.getClass());
             java.lang.String message = e.getMessage();
-            if (x10Class == null) {
-                // no corresponding x10 exception is defined
-                if (e instanceof java.io.IOException) {
-                    return asX10Exception(x10_io_IOException, message, e);                
-                }
-                return new x10.lang.WrappedThrowable(e);
+            if (x10Class != null) {
+                return asX10Exception(x10Class, message, e);
             }
-            return asX10Exception(x10Class, message, e);
+            // no corresponding x10 exception is defined
+            return new x10.lang.WrappedThrowable(e);
         } else if (e instanceof java.lang.Error) {
             // should not come here if X10PrettyPrinterVisitor.supportConversionForJavaErrors is false
             return new x10.lang.WrappedThrowable(e);
-        } else
-        /*if (e instanceof java.lang.Throwable)*/ {
+        } else {
             return new x10.lang.WrappedThrowable(e);
         }
     }
