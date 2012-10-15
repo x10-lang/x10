@@ -21,7 +21,7 @@ public enum X10RT_Transports {
     SOCKETS("Sockets", "x10rt_sockets.properties", 
             "Connects places using TCP/IP sockets as the network transport. Uses ssh to connect spawn places on multiple hosts"),
     STANDALONE("Standalone", "x10rt_standalone.properties", "Connects places using shared memory.  Only supports a single host."),
-    LAPI("LAPI", "x10rt_pgas_lapi.properties", "Uses IBM LAPI as the network transport and IBM POE for process creation."),
+    PAMI("PAMI", "x10rt_pami.properties", "Uses IBM PAMI as the network transport and IBM POE for process creation."),
     BGP("Blue Gene/P", "x10rt_pgas_bgp.properties", "Uses the BlueGene DCMF network transport and process creation mechanisms.");
     
     private final String displayName;

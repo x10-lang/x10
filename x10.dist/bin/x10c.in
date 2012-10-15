@@ -52,7 +52,7 @@ where [options] includes:
     -buildx10lib <dummy>     build an x10 library
     -config <conf>           read configuration <conf> from etc${FILE_SEP}<conf>.cfg
     -version                 print version info
-    -x10rt <impl>            select x10rt impl (lapi, pgp, sockets, mpi, standalone)
+    -x10rt <impl>            select x10rt impl (sockets, standalone, pami, mpi, bgas_bgp)
     -t -time                 display execution time
     -v -verbose --verbose    print verbose debugging information
     -h -help --help          print this message
