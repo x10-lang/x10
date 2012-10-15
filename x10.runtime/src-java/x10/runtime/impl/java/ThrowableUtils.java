@@ -91,10 +91,8 @@ public abstract class ThrowableUtils {
             }
             // no corresponding x10 exception is defined
             return new x10.lang.WrappedThrowable(e);
-        } else if (e instanceof java.lang.Error) {
-            // should not come here if X10PrettyPrinterVisitor.supportConversionForJavaErrors is false
-            return new x10.lang.WrappedThrowable(e);
         } else {
+            // assert X10PrettyPrinterVisitor.supportConversionForJavaErrors || !(e instanceof java.lang.Error)
             return new x10.lang.WrappedThrowable(e);
         }
     }
