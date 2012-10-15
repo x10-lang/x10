@@ -646,12 +646,12 @@ public class Emitter {
 		boxedPrimitives.put("x10.lang.ULong", "x10.core.ULong");
 	}
 	public static String getJavaRep(X10ClassDef def, boolean boxPrimitives) {
-	    String pat = getJavaRep(def);
+	    String pat = getJavaRep(def); // {int,int}
 	    if (pat != null && boxPrimitives) {
-	        String orig = def.fullName().toString();
-	        String boxed = boxedPrimitives.get(orig);
+	        String orig = def.fullName().toString(); // x10.lang.{Int,UInt}
+	        String boxed = boxedPrimitives.get(orig); // x10.core.{Int,UInt}
 	        if (boxed != null) {
-	        	pat = boxedPrimitives.get(orig);
+	            pat = boxed;
 	        }
 	    }
 	    return pat;
