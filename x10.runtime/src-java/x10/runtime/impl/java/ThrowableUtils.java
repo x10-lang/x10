@@ -12,13 +12,11 @@
 package x10.runtime.impl.java;
 
 
-import java.util.HashMap;
-import java.util.Map;
-
-
 public abstract class ThrowableUtils {
-    
-    private static final Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Exceptions = new HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
+
+    public static final boolean supportConversionForJavaErrors = false;
+
+    private static final java.util.Map<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>> x10Exceptions = new java.util.HashMap<Class<? extends java.lang.Throwable>,Class<? extends java.lang.RuntimeException>>();
     private static Class<? extends java.lang.RuntimeException> x10_io_IOException;
     static {
         try {
@@ -51,18 +49,18 @@ public abstract class ThrowableUtils {
             x10Name = "x10.lang.InterruptedException";
             x10Class = Class.forName(x10Name).asSubclass(java.lang.RuntimeException.class);
             x10Exceptions.put(javaClass, x10Class);
-        } catch (ClassNotFoundException e) {
+        } catch (java.lang.ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
         
     private static java.lang.RuntimeException asX10Exception(Class<? extends java.lang.RuntimeException> x10Class, java.lang.String message, java.lang.Throwable t) {
         try {
-            java.lang.RuntimeException x10t = x10Class.getConstructor(new Class[] { java.lang.String.class }).newInstance(new Object[] { message });
+            java.lang.RuntimeException xe = x10Class.getConstructor(java.lang.String.class).newInstance(message);
             if (t != null) {
-                x10t.setStackTrace(t.getStackTrace());
+                xe.setStackTrace(t.getStackTrace());
             }
-            return x10t;
+            return xe;
         } catch (java.lang.Exception e) {
             throw new java.lang.Error(e);
         }
@@ -91,8 +89,9 @@ public abstract class ThrowableUtils {
             }
             // no corresponding x10 exception is defined
             return new x10.lang.WrappedThrowable(e);
+        } else if (!supportConversionForJavaErrors && e instanceof java.lang.Error) {
+            throw (java.lang.Error) e;
         } else {
-            // assert X10PrettyPrinterVisitor.supportConversionForJavaErrors || !(e instanceof java.lang.Error)
             return new x10.lang.WrappedThrowable(e);
         }
     }
@@ -104,7 +103,7 @@ public abstract class ThrowableUtils {
     }
 
     public static x10.array.Array<java.lang.String> getStackTrace(java.lang.Throwable e) {
-        StackTraceElement[] elements = e.getStackTrace();
+        java.lang.StackTraceElement[] elements = e.getStackTrace();
         java.lang.String str[] = new java.lang.String[elements.length];
         for (int i = 0; i < elements.length; ++i) {
             str[i] = elements[i].toString();

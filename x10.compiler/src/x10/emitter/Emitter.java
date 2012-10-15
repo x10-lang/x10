@@ -673,11 +673,6 @@ public class Emitter {
 		return getJavaRepParam(def, 1);
 	}
 
-//    // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
-//    public static String getJavaZeroValueRep(X10ClassDef def) {
-//        return getJavaRepParam(def, 2);
-//    }
-
 	public static String getJavaRTTRep(X10ClassDef def) {
 		return getJavaRepParam(def, 3);
 	}
@@ -4111,10 +4106,6 @@ public class Emitter {
             }
             String lhs = "this." + field.name().toString() + " = ";
             String zero = null;
-//            // XTENLANG-2529 : use the third parameter of @NativeRep as an expression to get zero value
-//            if (type.isClass() && getJavaZeroValueRep(type.toClass().x10Def()) != null) {
-//                zero = getJavaZeroValueRep(type.toClass().x10Def());
-//            } else
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
                     zero = "(x10.core.UByte) " + X10PrettyPrinterVisitor.X10_RTT_TYPES + ".UBYTE_ZERO";
