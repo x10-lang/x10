@@ -454,18 +454,6 @@ public class Emitter {
         private static final String UINT_SUFFIX = SPECIALTYPE_PREFIX + "i";
         private static final String ULONG_SUFFIX = SPECIALTYPE_PREFIX + "j";
         private static final String VOID_SUFFIX = SPECIALTYPE_PREFIX + "V";
-	private static final Name BYTE_NAME = Name.make(BYTE_SUFFIX);
-        private static final Name SHORT_NAME = Name.make(SHORT_SUFFIX);
-        private static final Name INT_NAME = Name.make(INT_SUFFIX);
-        private static final Name LONG_NAME = Name.make(LONG_SUFFIX);
-        private static final Name FLOAT_NAME = Name.make(FLOAT_SUFFIX);
-        private static final Name DOUBLE_NAME = Name.make(DOUBLE_SUFFIX);
-        private static final Name CHAR_NAME = Name.make(CHAR_SUFFIX);
-        private static final Name BOOLEAN_NAME = Name.make(BOOLEAN_SUFFIX);
-        private static final Name UBYTE_NAME = Name.make(UBYTE_SUFFIX);
-        private static final Name USHORT_NAME = Name.make(USHORT_SUFFIX);
-        private static final Name UINT_NAME = Name.make(UINT_SUFFIX);
-        private static final Name ULONG_NAME = Name.make(ULONG_SUFFIX);
         public static final String specialTypeSuffixForDispatcher(Type type0) {
             Type type = Types.baseType(type0);
             assert isSpecialTypeForDispatcher(type);
