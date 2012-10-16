@@ -2146,12 +2146,12 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             });          
         }
 
-        final TypeConstraint mitg = Subst.subst(mi.typeGuard(), newSymbols, miSymbols);
-        final TypeConstraint mjtg = Subst.subst(mj.typeGuard(), newSymbols, mjSymbols);
+        TypeConstraint mitg = Subst.subst(mi.typeGuard(), newSymbols, miSymbols);
+        TypeConstraint mjtg = Subst.subst(mj.typeGuard(), newSymbols, mjSymbols);
         if (mjtg == null) {
             entails &= mitg == null;
-        }
-        else {
+        } else {
+        	mjtg = (TypeConstraint)tps.reinstantiate(mjtg);
             entails &= mitg == null || mjtg.entails(mitg, context);          
         }
 
