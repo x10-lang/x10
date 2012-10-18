@@ -13,6 +13,7 @@
 #define X10AUX_REFERENCE_LOGGER_H
 
 #include <x10aux/config.h>
+#include <x10aux/RTT.h>
 
 namespace x10aux {
 
