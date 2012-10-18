@@ -1491,7 +1491,8 @@ public class Types {
 	    	} catch (SemanticException z) {  		
 	    		return false;
 	    	}
-	// I have kept the logic below from 2.0.6 for now. 
+	// I have kept the logic below from 2.0.6 for now.
+	// [DC] I have changed it post 2.3 to handle generics properly
 	// TODO: Determine whether this should stay or not.
 	    // If the formal types are all equal, check the containers; otherwise p1 is more specific.
 	    XVar[] ys = toVarArray(toLocalDefList(xp2.formalNames()));
@@ -1502,19 +1503,39 @@ public class Types {
 	    XVar thisVar = ConstraintManager.getConstraintSystem().makeUQV();
 	    xp1 = orig(xp1);
 	    xp2 = orig(xp2);
-	    boolean descends2 = descends 
-	       || (t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t2), ts.classDefOf(t1)));
+	    boolean ascends = t1 != null && t2 != null && ts.descendsFrom(ts.classDefOf(t2), ts.classDefOf(t1));
+	    boolean stacked = descends || ascends;
+	    TypeParamSubst tps = null;
 	    
-	    XVar p1This = descends2 ? xp1.def().thisVar(): null;
-	    XVar p2This = descends2 ? xp2.def().thisVar() : null;
+	    List<ParameterType> tps1 = xp1.def().typeParameters();
+	    List<ParameterType> tps2 = xp2.def().typeParameters();
+	    if (tps1.size() == tps2.size()) {
+		    if (ascends) {
+		    	tps = new TypeParamSubst(ts, tps2, tps1);
+		    } else if (descends) {
+		    	tps = new TypeParamSubst(ts, tps1, tps2);
+		    }
+	    }
+	    
+	    XVar p1This = stacked ? xp1.def().thisVar(): null;
+	    XVar p2This = stacked ? xp2.def().thisVar() : null;
 	    for (int i = 0; i < xp1.formalTypes().size(); i++) {
 	    	// Need to use original type information. The current type
 	    	// information may have call specific uqv's in the constraints
 	    	// rather than the declared formals.
-	        Type f1 = xp1.formalTypes().get(i);
+
+	    	Type f1 = xp1.formalTypes().get(i);
+	        Type f2 = xp2.formalTypes().get(i);
+	        
+	        if (tps != null) {
+		        f1 = tps.reinstantiate(f1);
+		        f2 = tps.reinstantiate(f2);
+	        }
+	       
+	    	// [DC] in that case need to do the type substitution
 	        try {
 	            f1 = Subst.subst(f1, ys, xs); // , new Type[]{}, new ParameterType[]{});
-	            if (descends2) {
+	            if (stacked) {
 	                // Substitute for both p1This and p2This, since only one of them
 	                // might occur in both.
 	                f1 = Subst.subst(f1, thisVar, p1This);
@@ -1523,8 +1544,7 @@ public class Types {
 	        } catch (SemanticException e) {
 	            throw new InternalCompilerError("Unexpected exception while comparing methods", e);
 	        }
-	        Type f2 = xp2.formalTypes().get(i);
-	        if (descends2)try { 
+	        if (stacked)try { 
 	            
 	                // Substitute for both p1This and p2This, since only one of them
                     // might occur in both.

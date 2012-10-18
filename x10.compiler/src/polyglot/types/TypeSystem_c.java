@@ -1454,41 +1454,41 @@ public class TypeSystem_c implements TypeSystem
 	}
 
 	if (maximal.size() > 1) {
-	    // If exactly one method is not abstract, it is the most specific.
-	    List<T> notAbstract = new ArrayList<T>(maximal.size());
-	    for (Iterator<T> j = maximal.iterator(); j.hasNext(); ) {
-		T p = j.next();
-		if (! (p instanceof MemberInstance<?>) || ! ((MemberInstance<?>) p).flags().isAbstract()) {
-		    notAbstract.add(p);
-		}
-	    }
-
-	    if (notAbstract.size() == 1) {
-		maximal = notAbstract;
-	    }
-	    else if (notAbstract.size() == 0) {
-		// all are abstract; if all signatures match, any will do.
-		Iterator<T> j = maximal.iterator();
-		first = j.next();
-		S firstDecl = first.def();
-		List<Type> firstFormals = new TransformingList<Ref<? extends Type>,Type>(firstDecl.formalTypes(), new DerefTransform<Type>());
-		while (j.hasNext()) {
-		    T p = j.next();
-
-		    // Use the declarations to compare formals.
-		    S pDecl = p.def();
-
-		    List<Type> pFormals = new TransformingList<Ref<? extends Type>,Type>(pDecl.formalTypes(), new DerefTransform<Type>());
-
-		    if (! CollectionUtil.allElementwise(firstFormals, pFormals, new TypeEquals(context))) {
-			// not all signatures match; must be ambiguous
-			return maximal;
-		    }
+		// If exactly one method is not abstract, it is the most specific.
+		List<T> notAbstract = new ArrayList<T>(maximal.size());
+		for (Iterator<T> j = maximal.iterator(); j.hasNext(); ) {
+			T p = j.next();
+			if (! (p instanceof MemberInstance<?>) || ! ((MemberInstance<?>) p).flags().isAbstract()) {
+				notAbstract.add(p);
+			}
 		}
 
-		// all signatures match, just take the first
-		maximal = Collections.<T>singletonList(first);
-	    }
+		if (notAbstract.size() == 1) {
+			maximal = notAbstract;
+		}
+		else if (notAbstract.size() == 0) {
+			// all are abstract; if all signatures match, any will do.
+			Iterator<T> j = maximal.iterator();
+			first = j.next();
+			S firstDecl = first.def();
+			List<Type> firstFormals = new TransformingList<Ref<? extends Type>,Type>(firstDecl.formalTypes(), new DerefTransform<Type>());
+			while (j.hasNext()) {
+				T p = j.next();
+
+				// Use the declarations to compare formals.
+				S pDecl = p.def();
+
+				List<Type> pFormals = new TransformingList<Ref<? extends Type>,Type>(pDecl.formalTypes(), new DerefTransform<Type>());
+
+				if (! CollectionUtil.allElementwise(firstFormals, pFormals, new TypeEquals(context))) {
+					// not all signatures match; must be ambiguous
+					return maximal;
+				}
+			}
+
+			// all signatures match, just take the first
+			maximal = Collections.<T>singletonList(first);
+		}
 	}
 
 	return maximal;
