@@ -2239,10 +2239,6 @@ public class Emitter {
         return false;
     }
 
-    /*
-     * given interface I { f():Any; } and class C implements I { f():String; }, C.f() returns x10.core.String.
-     * given interface I[T] { f():T; } and class C[T] implements I[T] { f():String; }, C.f() returns java.lang.String.
-     */
     private void printBridgeMethod(ClassType ct, MethodInstance impl, MethodDef def, boolean isCovariantOverride) {
         // bridge method should not be needed for unmangled method
     	if (!canMangleMethodName(def)) return;
@@ -2260,20 +2256,33 @@ public class Emitter {
         
 	    ContainerType st = def.container().get();
 	    
-	    if (def instanceof X10MethodDef) {
-	        List<ParameterType> tps = ((X10MethodDef) def).typeParameters();
-	        if (tps.size() > 0) {
-	            w.write("<");
-	            String delim = "";
-	            for (ParameterType pt : tps) {
-	                w.write(delim);
-	                delim = ",";
-	                w.write(mangleParameterType(pt));
-	            }
-	            w.write(">");
-	            w.write(" ");
-	        }
-	    }
+	    // XTENLANG-3144 type parameters should be of method instance rather than of method def
+//	    if (def instanceof X10MethodDef) {
+//	        List<ParameterType> tps = ((X10MethodDef) def).typeParameters();
+//	        if (tps.size() > 0) {
+//	            w.write("<");
+//	            String delim = "";
+//	            for (ParameterType pt : tps) {
+//	                w.write(delim);
+//	                delim = ",";
+//	                w.write(mangleParameterType(pt));
+//	            }
+//	            w.write(">");
+//	            w.write(" ");
+//	        }
+//	    }
+            List<Type> tps = impl.typeParameters();
+            if (tps.size() > 0) {
+                w.write("<");
+                String delim = "";
+                for (Type t : tps) {
+                    w.write(delim);
+                    delim = ",";
+                    w.write(mangleParameterType((ParameterType) t));
+                }
+                w.write(">");
+                w.write(" ");
+            }
 	    
 	    // e.g int m() overrides or implements T m()
             boolean instantiateReturnType = isBoxedType(Types.baseType(def.returnType().get()));
@@ -2293,19 +2302,32 @@ public class Emitter {
 	    w.write("(");
         boolean first = true;
         
+        // XTENLANG-3144 type parameters should be of method instance rather than of method def (*)
+//        if (X10PrettyPrinterVisitor.supportGenericOverloading && def instanceof X10MethodDef && !isInterface) {
+//            X10MethodDef x10def = (X10MethodDef) def;
+//            for (ParameterType p : x10def.typeParameters()) {
+//                if (!first) {
+//                    w.write(",");
+//                    w.allowBreak(0, " ");
+//                }
+//                first = false;
+//                w.write("final ");
+//                w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
+//                w.write(" ");
+//                w.write(mangleParameterType(p));
+//            }
+//        }
         if (X10PrettyPrinterVisitor.supportGenericOverloading && def instanceof X10MethodDef && !isInterface) {
-            X10MethodDef x10def = (X10MethodDef) def;
-            for (ParameterType p : x10def.typeParameters()) {
+            for (Type t : impl.typeParameters()) {
                 if (!first) {
                     w.write(",");
                     w.allowBreak(0, " ");
                 }
                 first = false;
-                
                 w.write("final ");
                 w.write(X10PrettyPrinterVisitor.X10_RTT_TYPE);
                 w.write(" ");
-                w.write(mangleParameterType(p));
+                w.write(mangleParameterType((ParameterType) t));
             }
         }
 
@@ -2369,7 +2391,9 @@ public class Emitter {
 	    w.write("(");
 	    
 	    boolean first2 = true;
-	    MethodInstance dmi = def.asInstance();
+            // XTENLANG-3144 type parameters should be of method instance rather than of method def (*)
+//	    MethodInstance dmi = def.asInstance();
+            MethodInstance dmi = impl;
 	    for (Iterator<Type> i = dmi.typeParameters().iterator(); i.hasNext(); ) {
 	        final Type at = i.next();
 	        first2 = false;
