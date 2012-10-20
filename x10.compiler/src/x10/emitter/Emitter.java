@@ -2317,7 +2317,7 @@ public class Emitter {
 //                w.write(mangleParameterType(p));
 //            }
 //        }
-        if (X10PrettyPrinterVisitor.supportGenericOverloading && def instanceof X10MethodDef && !isInterface) {
+        if (X10PrettyPrinterVisitor.supportGenericOverloading && !isInterface) {
             for (Type t : impl.typeParameters()) {
                 if (!first) {
                     w.write(",");
