@@ -78,6 +78,7 @@ public class DebugCodeWriter extends CodeWriter {
 
     public void allowBreak(int n, int level, String alt, int altlen) {
         w.allowBreak(n, level, alt, altlen);
+        html.print(alt);
     }
 
     public void allowBreak(int n, String alt) {

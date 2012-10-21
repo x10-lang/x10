@@ -1783,6 +1783,7 @@ public class Emitter {
                 }
             }
             w.write(">");
+            w.write(" ");
         }
     }
     
