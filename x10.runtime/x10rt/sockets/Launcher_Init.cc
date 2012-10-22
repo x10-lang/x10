@@ -116,7 +116,12 @@ void Launcher::initialize(int argc, char ** argv)
 	if (!getenv(X10_LAUNCHER_PLACE))
 		_myproc = 0xFFFFFFFF;
 	else
+	{
 		_myproc = atoi(getenv(X10_LAUNCHER_PLACE));
+		char* host = getenv(X10_LAUNCHER_HOST);
+		if (host) strcpy(_runtimePort, host);
+		else strcpy(_runtimePort, "localhost");
+	}
 
 	/* -------------------------------------------- */
 	/*  decide who my children are                  */

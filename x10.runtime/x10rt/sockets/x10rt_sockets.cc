@@ -85,7 +85,6 @@ struct x10SocketState
 	x10rt_place myPlaceId; // which place we're at.  Also used as the index to the array below. Local per-place memory is used.
 	x10SocketCallback* callBackTable; // I'm told message ID's run from 0 to n, so a simple array using message indexes is the best solution for this table.  Local per-place memory is used.
 	x10rt_msg_type callBackTableSize; // length of the above array
-	char* myhost; // my own hostname, so I can detect places that are on the same machine and use localhost instead.
 	bool yieldAfterProbe; // a little flag that adds sched_yield() after probe, for better performance when there are more workers than processors on a machine (or when debugging).
 	bool linkAtStartup; // this flag tells us that we should establish all our connections at startup, not on-demand.  It gets flipped after all links are up.
 	pthread_mutex_t readLock; // a lock to prevent overlapping reads on each socket
@@ -484,16 +483,6 @@ int initLink(uint32_t remotePlace)
 					if (getenv(X10_HOSTFILE)) fprintf(stderr, "WARNING: "X10_HOSTFILE" is ignored when using "X10_FORCEPORTS);
 				}
 			}
-
-			// check to see if the host is our host, and if so, change it to "localhost"
-			// to take advantage of any localhost OS efficiencies
-			if (strcmp(state.myhost, link) == 0)
-			{
-				strcpy(link, "localhost\0");
-				#ifdef DEBUG
-					fprintf(stderr, "X10rt.Sockets: Place %u changed hostname for place %u to %s\n", state.myPlaceId, remotePlace, link);
-				#endif
-			}
 		}
 
 		int newFD;
@@ -579,7 +568,6 @@ void x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counte
 	state.linkAtStartup = false;
 	state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
 	state.pendingWrites = NULL;
-	state.myhost = NULL;
 	if (state.useNonblockingLinks)
 		pthread_mutex_init(&state.pendingWriteLock, NULL);
 	pthread_mutex_init(&state.readLock, NULL);
@@ -705,27 +693,24 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
 	state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
 
-	char portname[1024];
-	TCP::getname(state.socketLinks[state.myPlaceId].fd, portname, sizeof(portname));
 	if (useLauncher)
 	{   // Tell our launcher our communication port number
+		sockaddr_in addr;
+		socklen_t len = sizeof(addr);
+		if (getsockname(state.socketLinks[state.myPlaceId].fd, (sockaddr *) &addr, &len) < 0)
+			error("failed to get the local socket information");
+
 		pthread_mutex_lock(&state.writeLocks[state.myPlaceId]);
-		if (Launcher::setPort(state.myPlaceId, portname) < 0)
+		if (Launcher::setPort(state.myPlaceId, addr.sin_port) < 0)
 			error("failed to connect to the local runtime");
 		pthread_mutex_unlock(&state.writeLocks[state.myPlaceId]);
 	}
-
-	// save our hostname for later
-	char * c = strchr(portname, ':');
-	c[0] = '\0';
-	state.myhost = (char*)malloc(strlen(portname)+1);
-	strcpy(state.myhost, portname);
 
 	state.pendingWrites = NULL;
 	if (state.useNonblockingLinks)
 		pthread_mutex_init(&state.pendingWriteLock, NULL);
 	#ifdef DEBUG
-		fprintf(stderr, "X10rt.Sockets: place %u running on %s\n", state.myPlaceId, state.myhost);
+		fprintf(stderr, "X10rt.Sockets: place %u running\n", state.myPlaceId);
 	#endif
 }
 
@@ -1229,7 +1214,6 @@ void x10rt_net_finalize (void)
 		#endif
 	}
 	pthread_mutex_destroy(&state.readLock);
-	if (state.myhost) free(state.myhost);
 	free(state.socketLinks);
 	free(state.writeLocks);
 }

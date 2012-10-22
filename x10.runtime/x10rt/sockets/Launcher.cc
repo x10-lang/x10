@@ -46,12 +46,9 @@
 /* *********************************************************************** */
 const char* CTRL_MSG_TYPE_STRINGS[] = {"HELLO", "GOODBYE", "PORT_REQUEST", "PORT_RESPONSE"};
 
-int Launcher::setPort(uint32_t place, char* port)
+int Launcher::setPort(uint32_t place, int port)
 {
-	if (port == NULL)
-		return -1;
-
-	if (_singleton == NULL)
+	if (_singleton == NULL) // this call is running outside of the launcher
 	{
 		// send this out to our local launcher
 		if (_parentLauncherControlLink <= 0)
@@ -72,17 +69,23 @@ int Launcher::setPort(uint32_t place, char* port)
 		m.type = HELLO;
 		m.from = place;
 		m.to = place;
-		m.datalen = strlen(port);
+		m.datalen = sizeof(port);
 		int r = TCP::write(_parentLauncherControlLink, &m, sizeof(struct ctrl_msg));
-		if (r <= 0)
-			return -1;
-		TCP::write(_parentLauncherControlLink, port, m.datalen);
+		if (r <= 0) return -1;
+		r = TCP::write(_parentLauncherControlLink, &port, m.datalen);
+		if (r < m.datalen) return -1;
 		#ifdef DEBUG
-			fprintf(stderr, "Runtime %u: sent port data \"%s\" to launcher\n", place, port);
+			fprintf(stderr, "Runtime %u: sent port data \"%i\" to launcher\n", place, port);
 		#endif
 	}
-	else
-		strcpy(_singleton->_runtimePort, port);
+	else // this call is running within the launcher
+	{
+		int lenofName = strlen(_singleton->_runtimePort);
+		snprintf(&_singleton->_runtimePort[lenofName], sizeof(_singleton->_runtimePort)-lenofName, ":%u", port);
+		#ifdef DEBUG
+			fprintf(stderr, "Launcher %u: Runtime is at \"%s\"\n", place, _singleton->_runtimePort);
+		#endif
+	}
 	return 1;
 }
 
@@ -228,6 +231,23 @@ void Launcher::startChildren()
 	if (!_pidlst || !_childControlLinks || !_childCoutLinks || !_childCerrorLinks)
 		DIE("%u: failed in alloca()", _myproc);
 
+	char masterPort[1024];
+	if (_myproc == 0xFFFFFFFF)	// the initial launcher is not in the hostlist.  Get the hostname from the socket
+	{
+		TCP::getname(_listenSocket, masterPort, sizeof(masterPort));
+		setenv(X10_LAUNCHER_HOST, "localhost", 0);
+	}
+	else
+	{ // get hostname from the X10_LAUNCHER_HOST environment variable
+		strcpy(masterPort, getenv(X10_LAUNCHER_HOST));
+		sockaddr_in addr;
+		socklen_t len = sizeof(addr);
+		if (getsockname(_listenSocket, (sockaddr *) &addr, &len) < 0)
+			DIE("failed to get the local socket information");
+		int mplen=strlen(masterPort);
+		snprintf(&masterPort[mplen], sizeof(masterPort)-mplen, ":%u", ntohs(addr.sin_port));
+	}
+
 	for (uint32_t id=0; id <= _numchildren; id++)
 	{
 		int pid, outpipe[2], errpipe[2];
@@ -256,9 +276,6 @@ void Launcher::startChildren()
 			close(errpipe[0]);
 			if (z1 != 1 || z2 != 2)
 				DIE("Launcher %d: DUP failed", _myproc);
-
-			char masterPort[1024];
-			TCP::getname(_listenSocket, masterPort, sizeof(masterPort));
 
 			if (id == _numchildren && _myproc != 0xFFFFFFFF)
 			{ // start up the local x10 runtime
@@ -299,7 +316,7 @@ void Launcher::startChildren()
                     // launch this runtime in a debugger
                     char** newargv;
                     #ifdef DEBUG
-                        fprintf(stderr, "Runtime %u forked with jdb at port %d.  Running exec.\n", _myproc, base_port);
+                        fprintf(stderr, "Runtime %u forked with jdb at port %l.  Running exec.\n", _myproc, base_port);
                     #endif
                     int numArgs = 0;
                     while (_argv[numArgs] != NULL)
@@ -719,10 +736,12 @@ void Launcher::handleNewChildConnection(void)
 			_childControlLinks[_numchildren] = fd;
 			if (m.datalen > 0)
 			{
-				_runtimePort[m.datalen] = '\0';
-				size = TCP::read(_childControlLinks[_numchildren], _runtimePort, m.datalen);
+				int portNum;
+				size = TCP::read(_childControlLinks[_numchildren], &portNum, m.datalen);
 				if (size < m.datalen)
-					DIE("Launcher %u: could not read local runtime data", _myproc);
+					DIE("Launcher %u: could not read local runtime port number", _myproc);
+				int len=strlen(_runtimePort);
+				snprintf(&_runtimePort[len], sizeof(_runtimePort)-len, ":%u", ntohs(portNum));
 			}
 			#ifdef DEBUG
 				fprintf(stderr, "Launcher %u: new ctrl conn %d from local runtime, with runtime port=\"%s\"\n", _myproc, fd, _runtimePort);
@@ -1303,6 +1322,7 @@ void Launcher::startSSHclient(uint32_t id, char* masterPort, char* remotehost)
     argv[++z] = alloc_env_always_assign(X10_LAUNCHER_SSH, _ssh_command);
     argv[++z] = alloc_env_always_assign(X10_LAUNCHER_PARENT, masterPort);
     argv[++z] = alloc_env_always_assign(X10_LAUNCHER_PLACE, alloc_printf("%d",id));
+    argv[++z] = alloc_env_always_assign(X10_LAUNCHER_HOST, remotehost);
 	argv[++z] = cmd;
 	for (int i = 1; i < _argc; i++) {
         argv[++z] = escape_various_things2(_argv[i]);
