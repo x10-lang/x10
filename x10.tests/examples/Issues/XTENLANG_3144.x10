@@ -9,7 +9,13 @@ public class XTENLANG_3144 extends x10Test {
 
     public static class B extends A {
         public def m[V4](p:V4) {
-            m[V4](p);
+            super.m[V4](p);
+        }
+    }
+
+    public static class NotCalled extends A {
+        public def m[V5](p:V5) {
+            m[V5](p);
         }
     }
 
