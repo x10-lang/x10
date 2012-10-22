@@ -314,6 +314,12 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
         }
         ci.setFormalNames(formalNames);
 
+        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
+        for (TypeNode tn : n.throwsTypes()) {
+            throw_types.add(tn.typeRef());
+        }
+        ci.setThrowTypes(throw_types);
+        
         // add sythetic super and property call to the body (if there isn't this(...) call)
         Block body = n.body();
         if (body!=null) {
@@ -658,12 +664,7 @@ public class X10ConstructorDecl_c extends ConstructorDecl_c implements X10Constr
                 }
             }
         }
-        
-        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
-        for (TypeNode tn : throwsTypes) {
-            throw_types.add(tn.typeRef());
-        }
-        nn.constructorDef().setThrowTypes(throw_types);
+       
 
         return nn;
     }

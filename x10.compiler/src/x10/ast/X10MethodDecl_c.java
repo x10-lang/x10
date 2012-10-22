@@ -238,6 +238,13 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 
 		md.setReturnType(n.returnType().typeRef());
 		md.setFormalTypes(formalTypes);
+		
+        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
+        for (TypeNode t : n.throwsTypes()) {
+            throw_types.add(t.typeRef());
+        }
+        md.setThrowTypes(throw_types);
+		
 
 		n = (X10MethodDecl_c) X10Del_c.visitAnnotations(n, tb);
 				
@@ -1155,12 +1162,6 @@ public class X10MethodDecl_c extends MethodDecl_c implements X10MethodDecl {
 			((Ref<Type>) nn.returnType().typeRef()).update(t);
 			nn = (X10MethodDecl) nn.returnType(nf.CanonicalTypeNode(nn.returnType().position(), t));
 		}		
-		
-        List<Ref<? extends Type>> throw_types = new ArrayList<Ref<? extends Type>>();
-        for (TypeNode t : throwsTypes) {
-            throw_types.add(t.typeRef());
-        }
-        nn.methodDef().setThrowTypes(throw_types);
 
 		return nn;
 	}
