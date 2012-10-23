@@ -198,8 +198,7 @@ public class InlineHelper extends ContextVisitor {
                 md.flags().clearPrivate().clearProtected().clearNative().Public().Static(),
                 Types.ref(md.returnType().get()), pmn, argTypes, md.throwTypes());
         // check
-        List<ParameterType> rts = new ArrayList<ParameterType>();
-        rts.addAll(md.typeParameters());
+        List<ParameterType> rts = new ArrayList<ParameterType>(md.typeParameters());
         if (!md.flags().isStatic()) {
             X10ClassDef d2 = (X10ClassDef) cd;
             for (ParameterType pt : d2.typeParameters()) {
@@ -321,7 +320,6 @@ public class InlineHelper extends ContextVisitor {
                             body = (Block) ((X10Ext_c) body.ext()).annotations(((X10Ext_c) mdcl.body().ext()).annotations());
                         }
                         X10MethodDecl nmdcl = xnf.MethodDecl(pos, xnf.FlagsNode(pos, mdcl.flags().flags().clearPrivate().clearProtected().clearNative().Public().Static()), mdcl.returnType(), xnf.Id(pos, nmd.name()), formals, body);
-
                         // check
                         List<TypeParamNode> ts = new ArrayList<TypeParamNode>(mdcl.typeParameters());
                         if (!mdcl.flags().flags().isStatic()) {
@@ -375,6 +373,10 @@ public class InlineHelper extends ContextVisitor {
                     returnType = (X10CanonicalTypeNode) ((X10Ext_c) returnType.ext()).annotations(((X10Ext_c) mdcl.returnType().ext()).annotations());
                     X10MethodDecl mdcl1 = xnf.MethodDecl(pos, xnf.FlagsNode(pos, nmd.flags()), returnType, xnf.Id(pos, nmd.name()), formals, body);
                     mdcl1 = mdcl1.methodDef(nmd);
+                    // check
+                    List<TypeParamNode> typeParams = new ArrayList<TypeParamNode>(mdcl.typeParameters());
+                    // need to pass class type parameters, too?
+                    mdcl1 = mdcl1.typeParameters(typeParams);
                     nmembers.add(mdcl1);
                     cd.addMethod(nmd);
                 }
