@@ -22,16 +22,31 @@ public final class AtomicInteger {
 
     private @Volatile var value:Int;
     
-    public def this() { value = 0; }
+    public def this() { 
+        value = 0; 
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
+    }
 
-    public def this(v:Int) { value = v; }
+    public def this(v:Int) { 
+        value = v;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
+    }
 
     @Native("java", "#this.get()")
-    public def get():Int  = value;
+    public def get():Int {
+      // Memory model: acts like read of volatile field;
+      Fences.loadStoreBarrier();
+      Fences.storeLoadBarrier();
+      return value;
+    }
     
     @Native("java", "#this.set(#newV)")
     public def set(newV:Int):void {
         value = newV;
+	// Memory model: acts like store of volatile field
+	Fences.storeLoadBarrier();
     }
     
     @Native("java", "#this.compareAndSet(#expect,#update)")

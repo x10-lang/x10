@@ -20,15 +20,22 @@ x10_boolean AtomicBooleanNatives::compareAndSet(AtomicBoolean *obj,
     x10_int expectI = expect ? 1 : 0;
     x10_int updateI = update ? 1 : 0;
     x10_int oldVal = x10aux::atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expectI, updateI) == expectI;
+
+    // Memory Model: acts as both read and write of a volatile field.
+    x10aux::atomic_ops::load_store_barrier();
+    x10aux::atomic_ops::store_load_barrier();
+    
     return oldVal == 1;
 }
                     
 x10_boolean AtomicBooleanNatives::weakCompareAndSet(AtomicBoolean *obj,
                                                    x10_boolean expect, x10_boolean update) {
-    // TODO: for minor optimization on ppc we could add a weakCompareAndSet in atomic_ops and use that here
     x10_int expectI = expect ? 1 : 0;
     x10_int updateI = update ? 1 : 0;
     x10_int oldVal = x10aux::atomic_ops::compareAndSet_32(&(obj->FMGL(value)), expectI, updateI) == expectI;
+
+    // Weak variant has no memory model implications.
+    
     return oldVal == 1;
 }
 

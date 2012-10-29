@@ -22,14 +22,25 @@ public final class AtomicLong {
     private @Volatile var value:Long;
     
     public def this() { value = 0; }
-    public def this(v:Long) { value = v; }
+    public def this(v:Long) { 
+        value = v; 
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
+    }
     
     @Native("java", "#this.get()")
-    public def get():Long = value;
+    public def get():Long {
+      // Memory model: acts like read of volatile field;
+      Fences.loadStoreBarrier();
+      Fences.storeLoadBarrier();
+      return value;
+    }
     
     @Native("java", "#this.set(#newV)")
     public def set(newV:Long):void {
         value = newV;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
     
     @Native("java", "#this.compareAndSet(#expect,#update)")

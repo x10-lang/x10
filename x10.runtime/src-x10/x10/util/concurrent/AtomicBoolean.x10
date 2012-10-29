@@ -28,17 +28,28 @@ public final class AtomicBoolean {
     
     public def this():AtomicBoolean {
         value = 0;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
     public def this(v:Boolean):AtomicBoolean {
         value = v ? 1 : 0;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
     
     @Native("java", "#this.get()")
-    public def get():Boolean = value == 1;
+    public def get():Boolean {
+      // Memory model: acts like read of volatile field;
+      Fences.loadStoreBarrier();
+      Fences.storeLoadBarrier();
+      return value == 1;
+   }
 
     @Native("java", "#this.set(#v)")
     public def set(v:Boolean):void {
         value = v ? 1 : 0;
+        // Memory model: acts like store of volatile field
+        Fences.storeLoadBarrier();
     }
 
     @Native("java", "#this.compareAndSet(#expect,#update)")

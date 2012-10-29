@@ -17,11 +17,17 @@ using namespace x10aux;
 using namespace x10::util::concurrent;
 
 x10_boolean AtomicLongNatives::compareAndSet(AtomicLong* obj, x10_long expect, x10_long update) {
-    return atomic_ops::compareAndSet_64(&(obj->FMGL(value)), expect, update) == expect;
+    x10_boolean tmp = atomic_ops::compareAndSet_64(&(obj->FMGL(value)), expect, update) == expect;
+
+    // Memory Model: acts as both read and write of a volatile field.
+    x10aux::atomic_ops::load_store_barrier();
+    x10aux::atomic_ops::store_load_barrier();
+
+    return tmp;
 }
 
 x10_boolean AtomicLongNatives::weakCompareAndSet(AtomicLong* obj, x10_long expect, x10_long update) {
-    // TODO: for minor optimization on ppc we could add a weakCompareAndSet in atomic_ops and use that here
+    // Weak variant has no memory model implications.
     return atomic_ops::compareAndSet_64(&(obj->FMGL(value)), expect, update) == expect;
 }
 
@@ -30,6 +36,11 @@ x10_long AtomicLongNatives::getAndAdd(AtomicLong* obj, x10_long delta) {
     while (atomic_ops::compareAndSet_64(&(obj->FMGL(value)), oldValue, oldValue+delta) != oldValue) {
         oldValue = obj->FMGL(value);
     }
+
+    // Memory Model: acts as both read and write of a volatile field.
+    x10aux::atomic_ops::load_store_barrier();
+    x10aux::atomic_ops::store_load_barrier();
+
     return oldValue;
 }
 	
@@ -38,6 +49,11 @@ x10_long AtomicLongNatives::addAndGet(AtomicLong* obj, x10_long delta) {
     while (atomic_ops::compareAndSet_64(&(obj->FMGL(value)), oldValue, oldValue+delta) != oldValue) {
         oldValue = obj->FMGL(value);
     }
+
+    // Memory Model: acts as both read and write of a volatile field.
+    x10aux::atomic_ops::load_store_barrier();
+    x10aux::atomic_ops::store_load_barrier();
+
     return oldValue + delta;
 }
 

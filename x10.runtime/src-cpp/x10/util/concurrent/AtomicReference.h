@@ -35,6 +35,8 @@ namespace x10 {
                 private:
                     AtomicReference<T>* _constructor(T data) {
                         _data = data;
+                        // Memory model: acts like store of volatile field
+                        x10aux::atomic_ops::store_load_barrier();
                         return this;
                     }
 
@@ -80,26 +82,46 @@ namespace x10 {
                 
                 template<class T> T AtomicReference<T>::get() {
                     T tmp = const_cast<T>(_data); /* drops volatile */
+
+                    // Memory Model: acts as read of a volatile field.
+                    x10aux::atomic_ops::load_store_barrier();
+                    x10aux::atomic_ops::load_load_barrier();
+
                     return tmp;
                 }
 
                 template<class T> void AtomicReference<T>::set(T val) {
                     _data = val;
+
+                    // Memory Model: acts as both read and write of a volatile field.
+                    x10aux::atomic_ops::load_store_barrier();
+                    x10aux::atomic_ops::store_load_barrier();    
                 }
 
                 template<class T> x10_boolean AtomicReference<T>::compareAndSet(T oldVal, T newVal) {
                     T res = reinterpret_cast<T>(x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldVal, (void*)newVal));
+                    // Memory Model: acts as both read and write of a volatile field.
+                    x10aux::atomic_ops::load_store_barrier();
+                    x10aux::atomic_ops::store_load_barrier();    
+
                     return res == oldVal;
                 }
 
                 template<class T> x10_boolean AtomicReference<T>::weakCompareAndSet(T oldVal, T newVal) {
-                    // TODO: for minor optimization on ppc we could add a weakCompareAndSet_ptr in atomic_ops and use that here
-                    return compareAndSet(oldVal, newVal);
+                    T res = reinterpret_cast<T>(x10aux::atomic_ops::compareAndSet_ptr((volatile void**)&_data, (void*)oldVal, (void*)newVal));
+                    // Weak variant has no memory model implications.
+
+                    return res == oldVal;
                 }
                 
                 template<class T> T AtomicReference<T>::getAndSet(T val) {
                     T res = get();
                     set(val);
+
+                    // Memory Model: acts as both read and write of a volatile field.
+                    x10aux::atomic_ops::load_store_barrier();
+                    x10aux::atomic_ops::store_load_barrier();    
+
                     return res;
                 }
 
