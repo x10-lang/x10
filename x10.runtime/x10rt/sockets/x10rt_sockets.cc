@@ -138,8 +138,10 @@ int getPortEnv(unsigned int whichPlace)
 		{
 			for (unsigned int i=1; i<=whichPlace; i++)
 			{
-				if (end == NULL)
+				if (end == NULL) {
 					error("Not enough ports defined in "X10_FORCEPORTS);
+					return -1;
+				}
 				start = end+1;
 				end = strchr(start, ',');
 			}
@@ -187,9 +189,12 @@ bool flushPendingData()
 					if (errno == EAGAIN) break;
 					fprintf(stderr, "flush errno=%i", errno);
 					error("Unable to flush data");
+					return false;
 				}
-				if (rc == 0)
+				if (rc == 0) {
 					error("Unable to flush data - socket closed");
+					return false;
+				}
 				src += rc;
 				state.pendingWrites->remainingToWrite -= rc;
 			}
@@ -264,12 +269,18 @@ int nonBlockingWrite(int dest, void * p, unsigned cnt, bool copyBuffer=true)
 		#endif
 		// save the remaining data for later writing
 		struct x10SocketDataToWrite* pendingData = (struct x10SocketDataToWrite *)malloc(sizeof(struct x10SocketDataToWrite));
-		if (pendingData == NULL) error("Allocating memory for a pending write");
+		if (pendingData == NULL) {
+			error("Allocating memory for a pending write");
+			return -1;
+		}
 		pendingData->deleteBufferWhenComplete = copyBuffer;
 		if (copyBuffer)
 		{
 			pendingData->data = (char *)malloc(bytesleft);
-			if (pendingData->data == NULL) error("Allocating memory for pending write data");
+			if (pendingData->data == NULL) {
+				error("Allocating memory for pending write data");
+				return -1;
+			}
 			memcpy(pendingData->data, src, bytesleft);
 		}
 		else
@@ -334,7 +345,7 @@ int nonBlockingRead(int fd, void * p, unsigned cnt)
 	return cnt;
 }
 
-void handleConnectionRequest()
+int handleConnectionRequest()
 {
 	#ifdef DEBUG
 		fprintf(stderr, "X10rt.Sockets: place %u handling a connection request.\n", state.myPlaceId);
@@ -361,7 +372,7 @@ void handleConnectionRequest()
 					#ifdef DEBUG
 						fprintf(stderr, "X10rt.Sockets: place %u got a redundant connection from place %u\n", state.myPlaceId, from);
 					#endif
-					return;
+					return 0;
 				}
 				else
 				{
@@ -382,19 +393,22 @@ void handleConnectionRequest()
 			struct linger linger;
 			linger.l_onoff = 1;
 			linger.l_linger = 1;
-			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
+			if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
 				error("Error setting SO_LINGER on incoming socket");
+				return -1;
+			}
 			if (state.useNonblockingLinks)
 			{
 				int flags = fcntl(newFD, F_GETFL, 0);
 				fcntl(newFD, F_SETFL, flags | O_NONBLOCK);
 			}
-			return;
+			return 0;
 		}
 	}
 	#ifdef DEBUG
 		fprintf(stderr, "X10rt.Sockets: place %u got a bad connection request\n", state.myPlaceId);
 	#endif
+	return -1;
 }
 
 int initLink(uint32_t remotePlace)
@@ -449,6 +463,7 @@ int initLink(uint32_t remotePlace)
 					char* suicideNote = (char*)alloca(512);
 					sprintf(suicideNote, "Unable to establish a connection to place %u because %s!", remotePlace, link);
 					error(suicideNote);
+					return -1;
 				}
 				c[0] = '\0';
 				port = atoi(c + 1);
@@ -463,8 +478,10 @@ int initLink(uint32_t remotePlace)
 					char * end = strchr(start, ',');
 					for (unsigned int i=1; i<=remotePlace; i++)
 					{
-						if (end == NULL)
+						if (end == NULL) {
 							error("Not enough hosts defined in "X10_HOSTLIST);
+							return -1;
+						}
 
 						start = end+1;
 						end = strchr(start, ',');
@@ -525,8 +542,10 @@ int initLink(uint32_t remotePlace)
 				struct linger linger;
 				linger.l_onoff = 1;
 				linger.l_linger = 1;
-				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0)
+				if (setsockopt(newFD, SOL_SOCKET, SO_LINGER, &linger, sizeof(linger)) < 0) {
 					error("Error setting SO_LINGER on outgoing socket");
+					return -1;
+				}
 				if (state.useNonblockingLinks)
 				{
 					int flags = fcntl(newFD, F_GETFL, 0);
@@ -561,7 +580,7 @@ int initLink(uint32_t remotePlace)
  * We will block here, waiting for place 0 to come along and tell us our place ID and number of places.  Think of this method as
  * a partway-up X10RT waiting to join a computation.
  */
-void x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counter)
+int x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counter)
 {
 	state.runAsLibrary = true;
 	state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
@@ -578,7 +597,10 @@ void x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counte
 	char* p = getenv(X10_FORCEPORTS);
 	if (p) listenPort = atoi(p);
 	int listenSocket = TCP::listen(&listenPort, 10);
-	if (listenSocket < 0) error("cannot create listener port");
+	if (listenSocket < 0) {
+		error("cannot create listener port");
+		return -1;
+	}
 
 	while (true)
 	{
@@ -620,9 +642,13 @@ void x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counte
 					m.datalen = 0;
 					r = TCP::write(newSocket, &m, sizeof(struct ctrl_msg));
 
-					return; // operate normally
+					return 0; // operate normally
 				}
 			}
+		}
+		else {
+			error("Error accepting socket");
+			return -1;
 		}
 	}
 }
@@ -632,8 +658,10 @@ void x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counte
 *******************************************************/
 void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
-	if (checkBoolEnvVar(getenv(X10_LIBRARY_MODE)))
-		return x10rt_net_init_as_library(argc, argv, counter);
+	if (checkBoolEnvVar(getenv(X10_LIBRARY_MODE))) {
+		x10rt_net_init_as_library(argc, argv, counter);
+		return;
+	}
 	state.runAsLibrary = false;
 
 	// If this is to be a launcher process, this method will not return.
