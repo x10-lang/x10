@@ -10,6 +10,23 @@
 
 static x10rt_msg_type counter = 0;
 
+int x10rt_library_init (uint placeID, uint numPlaces) {
+	// Because we don't want to break the old PGAS-BG/P implementation of x10rt_net.h, we
+	// can't add methods to lower API layers.  So instead, we set environment variables
+	// to pass & return values needed inside the regular x10rt_init method call of sockets.
+	// Yuck.
+	char str[64];
+	sprintf(str,"%d",numPlaces);
+	setenv("X10_NPLACES", str, 1);
+	sprintf(str,"%d",placeID);
+	setenv("X10_LAUNCHER_PLACE", str, 1);
+	setenv("X10_LIBRARY_MODE", "true", 1);
+	x10rt_lgl_init(NULL, NULL, &counter);
+	int port = atoi(getenv("X10_LIBRARY_MODE"));
+	unsetenv("X10_LIBRARY_MODE");
+	return port;
+}
+
 void x10rt_init (int *argc, char ***argv)
 { x10rt_lgl_init(argc, argv, &counter); }
 

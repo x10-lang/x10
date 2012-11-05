@@ -575,102 +575,23 @@ int initLink(uint32_t remotePlace)
 	return state.socketLinks[remotePlace].fd;
 }
 
-/*
- * This version of the init operates outside of our own launcher, and allows X10 to run as a library in some non-X10 program
- * We will block here, waiting for place 0 to come along and tell us our place ID and number of places.  Think of this method as
- * a partway-up X10RT waiting to join a computation.
- */
-int x10rt_net_init_as_library (int * argc, char ***argv, x10rt_msg_type *counter)
-{
-	state.runAsLibrary = true;
-	state.yieldAfterProbe = !checkBoolEnvVar(getenv(X10_NOYIELD));
-	state.linkAtStartup = false;
-	state.useNonblockingLinks = !checkBoolEnvVar(getenv(X10_NOWRITEBUFFER));
-	state.pendingWrites = NULL;
-	if (state.useNonblockingLinks)
-		pthread_mutex_init(&state.pendingWriteLock, NULL);
-	pthread_mutex_init(&state.readLock, NULL);
-	state.nextSocketToCheck = 0;
-
-	// open local listen port.
-	unsigned listenPort;
-	char* p = getenv(X10_FORCEPORTS);
-	if (p) listenPort = atoi(p);
-	int listenSocket = TCP::listen(&listenPort, 10);
-	if (listenSocket < 0) {
-		error("cannot create listener port");
-		return -1;
-	}
-
-	while (true)
-	{
-		int newSocket = TCP::accept(listenSocket, true); // this is a BLOCKING call.  We wait until the connection is established
-		if (newSocket > 0)
-		{
-			struct ctrl_msg m;
-			int r = TCP::read(newSocket, &m, sizeof(struct ctrl_msg));
-			if (r == sizeof(struct ctrl_msg))
-			{
-				if (m.from == 0 && m.type == HELLO)
-				{
-					// now we have everything needed to start running
-					state.myPlaceId = m.to;
-					state.numPlaces = m.datalen; // number of places, not size of data
-					state.linkInformation = safe_malloc<x10SocketLink>(m.datalen);
-					// read in all IP+port information, for every place
-					TCP::read(newSocket, state.linkInformation, m.datalen*sizeof(struct x10SocketLink));
-
-					// initialize structures
-					state.socketLinks = safe_malloc<pollfd>(state.numPlaces);
-					state.writeLocks = safe_malloc<pthread_mutex_t>(state.numPlaces);
-					for (unsigned int i=0; i<state.numPlaces; i++)
-					{
-						state.socketLinks[i].fd = -1;
-						state.socketLinks[i].events = 0;
-					}
-					state.socketLinks[state.myPlaceId].fd = listenSocket;
-					pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
-					state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
-
-					state.socketLinks[0].fd = newSocket;
-					pthread_mutex_init(&state.writeLocks[0], NULL);
-					state.socketLinks[0].events = POLLIN | POLLPRI;
-
-					// respond to place 0
-					m.to = 0;
-					m.from = state.myPlaceId;
-					m.datalen = 0;
-					r = TCP::write(newSocket, &m, sizeof(struct ctrl_msg));
-
-					return 0; // operate normally
-				}
-			}
-		}
-		else {
-			error("Error accepting socket");
-			return -1;
-		}
-	}
-}
-
 /******************************************************
  *  Main API calls.  See x10rt_net.h for documentation
 *******************************************************/
 void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 {
-	if (checkBoolEnvVar(getenv(X10_LIBRARY_MODE))) {
-		x10rt_net_init_as_library(argc, argv, counter);
-		return;
+	if (checkBoolEnvVar(getenv(X10_LIBRARY_MODE)))
+		state.runAsLibrary = true;
+	else {
+		state.runAsLibrary = false;
+
+		// If this is to be a launcher process, this method will not return.
+		Launcher::Setup(*argc, *argv);
+
+		// give parallel debugger opportunity to attach...
+		if (getenv(X10_DEBUGGER_ID))
+			DebugHelper::attachDebugger();
 	}
-	state.runAsLibrary = false;
-
-	// If this is to be a launcher process, this method will not return.
-	Launcher::Setup(*argc, *argv);
-
-	// give parallel debugger opportunity to attach...
-	if (getenv(X10_DEBUGGER_ID))
-		DebugHelper::attachDebugger();
-
 	// determine the number of places
 	char* NPROCS = getenv(X10_NPLACES);
 	if (NPROCS == NULL)
@@ -721,7 +642,16 @@ void x10rt_net_init (int * argc, char ***argv, x10rt_msg_type *counter)
 	pthread_mutex_init(&state.writeLocks[state.myPlaceId], NULL);
 	state.socketLinks[state.myPlaceId].events = POLLIN | POLLPRI;
 
-	if (useLauncher)
+	if (state.runAsLibrary) {
+		sockaddr_in addr;
+		socklen_t len = sizeof(addr);
+		if (getsockname(state.socketLinks[state.myPlaceId].fd, (sockaddr *) &addr, &len) < 0)
+			error("failed to get the local socket information");
+		char str[64];
+		sprintf(str,"%d",addr.sin_port);
+		setenv(X10_LIBRARY_MODE, str, 1);
+	}
+	else if (useLauncher)
 	{   // Tell our launcher our communication port number
 		sockaddr_in addr;
 		socklen_t len = sizeof(addr);
