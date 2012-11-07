@@ -10,7 +10,7 @@
 
 static x10rt_msg_type counter = 0;
 
-int x10rt_library_init (uint placeID, uint numPlaces) {
+int x10rt_library_init (int placeID, int numPlaces) {
 	// Because we don't want to break the old PGAS-BG/P implementation of x10rt_net.h, we
 	// can't add methods to lower API layers.  So instead, we set environment variables
 	// to pass & return values needed inside the regular x10rt_init method call of sockets.
