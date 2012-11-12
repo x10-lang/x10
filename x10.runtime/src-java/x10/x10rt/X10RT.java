@@ -37,6 +37,72 @@ public class X10RT {
      * methods on this class or on any other X10RT related class can be successfully
      * invoked.
      */
+    public static synchronized int init_library(int placeID, int numPlaces) {
+    	if (state != State.UNINITIALIZED) return 0;
+
+        // load libraries
+        String property = System.getProperty("x10.LOAD");
+        if (null != property) {
+            String[] libs = property.split(":");
+            for (int i = libs.length - 1; i >= 0; i--)
+                System.loadLibrary(libs[i]);
+        }
+
+        String libName = System.getProperty("X10RT_IMPL", "x10rt_sockets");
+        if (libName.equals("disabled")) {
+            forceSinglePlace = true;
+        } else {
+            try {
+                System.loadLibrary(libName);
+            } catch (UnsatisfiedLinkError e) {
+                System.err.println("Unable to load "+libName+". Forcing single place execution");
+                forceSinglePlace = true;
+            }
+        }
+        
+        x10.lang.Runtime.get$staticMonitor();
+        x10.lang.Runtime.get$STRICT_FINISH();
+        x10.lang.Runtime.get$NTHREADS();
+        x10.lang.Runtime.get$MAX_THREADS();
+        x10.lang.Runtime.get$STATIC_THREADS();
+        x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
+        x10.lang.Runtime.get$BUSY_WAITING();
+
+        int port = 0;
+        if (forceSinglePlace) {
+            if (0 != placeID || 1 != numPlaces)
+            	return -1;
+        } 
+        else {
+        	port = x10rt_library_init(placeID, numPlaces);
+        	if (port <= 0) return -1;
+        	
+            TeamSupport.initialize();
+
+            // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
+            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
+                public void run() {
+                    synchronized(X10RT.class) {
+                        state = State.TEARING_DOWN;
+                        if (X10_EXITING_NORMALLY) {
+                            if (VERBOSE) System.err.println("Normal exit; x10rt_finalize called");
+                            x10rt_finalize();
+                            if (VERBOSE) System.err.println("Normal exit; x10rt_finalize returned");
+                        } else {
+                            if (VERBOSE) System.err.println("Abnormal exit; skipping call to x10rt_finalize");
+                        }
+                        state = State.TORN_DOWN;
+                        System.err.flush();
+                        System.out.flush();
+                    }
+                }}));
+        }
+        X10RT.here = placeID;
+        X10RT.numPlaces = numPlaces;
+        state = State.BOOTED;
+        return port;
+    }
+    
     public static synchronized void init() {
       if (state != State.UNINITIALIZED) return;
 
@@ -142,6 +208,8 @@ public class X10RT {
      * See X10RT API at x10-lang.org for semantics. 
      */
     private static native int x10rt_init(int numArgs, String[] args);
+    
+    private static native int x10rt_library_init(int placeID, int numPlaces);
     
     private static native int x10rt_finalize();
 
