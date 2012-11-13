@@ -30,7 +30,11 @@ public class OutputGoal extends SourceGoal_c
      * whose names are added to the collection <code>outputFiles</code>.
      */
     public OutputGoal(Job job, Translator translator) {
-    	super("CodeGenerated", job);
+    	this(job, translator, "CodeGenerated");
+    }
+
+    public OutputGoal(Job job, Translator translator, String name) {
+    	super(name, job);
         this.translator = translator;
     }
 

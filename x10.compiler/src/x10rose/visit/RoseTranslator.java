@@ -13,6 +13,7 @@ package x10rose.visit;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -62,14 +63,18 @@ import polyglot.ast.TopLevelDecl;
 import polyglot.ast.Try_c;
 import polyglot.ast.TypeNode_c;
 import polyglot.ast.While_c;
+import polyglot.frontend.Compiler;
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
 import polyglot.frontend.TargetFactory;
+import polyglot.main.Options;
 import polyglot.types.TypeSystem;
 import polyglot.util.CodeWriter;
 import polyglot.util.ErrorInfo;
+import polyglot.util.ErrorQueue;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
+import x10.ExtensionInfo.X10Scheduler.X10Job;
 import x10.ast.AmbDepTypeNode_c;
 import x10.ast.AnnotationNode_c;
 import x10.ast.AssignPropertyCall_c;
@@ -128,21 +133,24 @@ import x10.ast.X10Unary_c;
 import x10.ast.X10While_c;
 import x10.visit.X10DelegatingVisitor;
 
-public class DotTranslator extends Translator {
-
-	public DotTranslator(Job job, TypeSystem ts, NodeFactory nf,
-			TargetFactory tf) {
+public class RoseTranslator extends Translator {
+	
+	public RoseTranslator(Job job, TypeSystem ts, NodeFactory nf, TargetFactory tf) {
 		super(job, ts, nf, tf);
 	}
 
 	protected boolean translateSource(SourceFile sfn) {
-		Source src = sfn.source();
-		String in_file_name = sfn.source().path();
-		String out_file_name = in_file_name + ".dot";
-
 		TypeSystem ts = typeSystem();
 		NodeFactory nf = nodeFactory();
 		TargetFactory tf = this.tf;
+		ErrorQueue eq = job.compiler().errorQueue();
+		Compiler compiler = job.compiler();
+		Options options = job.extensionInfo().getOptions();
+		
+		Source src = sfn.source();
+		String in_file_name = sfn.source().path();
+		String out_file_name = in_file_name + ".Rose.dot";
+
 
 		// Find the public declarations in the file. We'll use these to
 		// derive the names of the target files. There will be one
@@ -170,7 +178,7 @@ public class DotTranslator extends Translator {
 
 		} catch (IOException e) {
 
-			job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR, "I/O error while translating: " + e.getMessage());
+			eq.enqueue(ErrorInfo.IO_ERROR, "I/O error while translating: " + e.getMessage());
 
 			return false;
 
@@ -179,10 +187,54 @@ public class DotTranslator extends Translator {
 			if (w != null) {
 				try {
 					w.close();
+					
+					String[] cmdline = {"dot", "-Tpng", "-O", out_file_name};
+			        try {
+			            Runtime runtime = Runtime.getRuntime();
+			        	Process proc = runtime.exec(cmdline, null, options.output_directory);
+
+			        	InputStreamReader err = new InputStreamReader(proc.getErrorStream());
+
+			        	String output = null;
+			        	try {
+			        		char[] c = new char[72];
+			        		int len;
+			        		StringBuffer sb = new StringBuffer();
+			        		while((len = err.read(c)) > 0) {
+			        			sb.append(String.valueOf(c, 0, len));
+			        		}
+
+			        		if (sb.length() != 0) {
+			        			output = sb.toString();
+			        		}
+			        	}
+			        	finally {
+			        		err.close();
+			        	}
+
+			        	proc.waitFor();
+
+			        	if (!options.keep_output_files) {
+			        		String[] rmCmd = new String[] {"rm", out_file_name};
+			        		runtime.exec(rmCmd, null, options.output_directory);
+			        	}
+
+			        	if (output != null)
+			        		eq.enqueue(proc.exitValue()>0 ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
+			        	if (proc.exitValue() > 0) {
+			        		eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + proc.exitValue());
+			        		return false;
+			        	}
+			        } catch(Exception e) {
+			        	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
+			        	return false;
+			        }						
 				} catch (IOException e) {
 					job.compiler().errorQueue().enqueue(ErrorInfo.IO_ERROR, "I/O error while closing output file: " + e.getMessage());
 				}
 			}
+			
+			
 
 		}
 

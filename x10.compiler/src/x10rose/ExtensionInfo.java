@@ -13,11 +13,8 @@ package x10rose;
 
 
 import java.io.File;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 
 import polyglot.ast.ClassMember;
@@ -26,27 +23,23 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.SourceFile;
 import polyglot.ast.TopLevelDecl;
 import polyglot.ast.TypeNode;
-import polyglot.frontend.AllBarrierGoal;
 import polyglot.frontend.Compiler;
 import polyglot.frontend.CyclicDependencyException;
 import polyglot.frontend.ForgivingVisitorGoal;
 import polyglot.frontend.Goal;
 import polyglot.frontend.JLScheduler;
 import polyglot.frontend.Job;
-import polyglot.frontend.JobExt;
 import polyglot.frontend.OutputGoal;
 import polyglot.frontend.ParserGoal;
 import polyglot.frontend.Scheduler;
 import polyglot.frontend.Source;
 import polyglot.frontend.SourceGoal;
 import polyglot.frontend.SourceGoal_c;
-import polyglot.frontend.TargetFactory;
 import polyglot.frontend.VisitorGoal;
 import polyglot.main.Options;
 import polyglot.types.Flags;
 import polyglot.types.SemanticException;
 import polyglot.types.TypeSystem;
-import polyglot.util.ErrorInfo;
 import polyglot.util.ErrorQueue;
 import polyglot.util.Position;
 import polyglot.visit.ConformanceChecker;
@@ -58,7 +51,6 @@ import polyglot.visit.InitChecker;
 import polyglot.visit.PostCompiled;
 import polyglot.visit.PruningVisitor;
 import polyglot.visit.ReachChecker;
-import polyglot.visit.Translator;
 import x10.Version;
 import x10.X10CompilerOptions;
 import x10.ast.X10ClassDecl;
@@ -67,12 +59,9 @@ import x10.visit.AnnotationChecker;
 import x10.visit.CheckEscapingThis;
 import x10.visit.ErrChecker;
 import x10.visit.IfdefVisitor;
-import x10.visit.X10MLVerifier;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
-import x10cpp.X10CPPCompilerOptions;
-import x10cpp.visit.X10CPPTranslator;
-import x10rose.visit.DotTranslator;
+import x10rose.visit.RoseTranslator;
 
 /**
  * Extension information for x10 extension.
@@ -149,7 +138,7 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			goals.add(CheckASTForErrors(job));
 
 
-			goals.add(CodeGenerated(job));
+			goals.add(RoseHandoff(job));
 
 			goals.add(End(job));
 
@@ -163,59 +152,11 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 				protected boolean invokePostCompiler(Options options, Compiler compiler, ErrorQueue eq) {
 					if (System.getProperty("x10.postcompile", "TRUE").equals("FALSE"))
 						return true;
-					for (String key : compiler.outputFiles().keySet()) {
-						for (String outfile : compiler.outputFiles().get(key)) {
-							String[] cmdline = {"dot", "-Tpng", "-O", outfile};
-					        try {
-					            Runtime runtime = Runtime.getRuntime();
-					        	Process proc = runtime.exec(cmdline, null, options.output_directory);
-
-					        	InputStreamReader err = new InputStreamReader(proc.getErrorStream());
-
-					        	String output = null;
-					        	try {
-					        		char[] c = new char[72];
-					        		int len;
-					        		StringBuffer sb = new StringBuffer();
-					        		while((len = err.read(c)) > 0) {
-					        			sb.append(String.valueOf(c, 0, len));
-					        		}
-
-					        		if (sb.length() != 0) {
-					        			output = sb.toString();
-					        		}
-					        	}
-					        	finally {
-					        		err.close();
-					        	}
-
-					        	proc.waitFor();
-
-					        	if (!options.keep_output_files) {
-					        		String[] rmCmd = new String[] {"rm", outfile};
-					        		runtime.exec(rmCmd, null, options.output_directory);
-					        	}
-
-					        	if (output != null)
-					        		eq.enqueue(proc.exitValue()>0 ? ErrorInfo.POST_COMPILER_ERROR : ErrorInfo.WARNING, output);
-					        	if (proc.exitValue() > 0) {
-					        		eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, "Non-zero return code: " + proc.exitValue());
-					        		return false;
-					        	}
-					        } catch(Exception e) {
-					        	eq.enqueue(ErrorInfo.POST_COMPILER_ERROR, e.getMessage() != null ? e.getMessage() : e.toString());
-					        	return false;
-					        }						
-						}
-					}
+					// invoke rose postcompiler
 					return true;
 				}
 			}.intern(this);
 		}		
-
-		protected Goal EndAll() {
-			return PostCompiled();
-		}
 
 		public Goal CheckASTForErrors(Job job) {
 			return new SourceGoal_c("CheckASTForErrors", job) {
@@ -242,25 +183,8 @@ public class ExtensionInfo extends x10.ExtensionInfo {
 			return new ForgivingVisitorGoal("InitializationsChecked", job, new InitChecker(job, ts, nf)).intern(this);
 		}
 
-		public static class ValidatingOutputGoal extends OutputGoal {
-			private static final long serialVersionUID = -7021152686342225925L;
-			public ValidatingOutputGoal(Job job, Translator translator) {
-				super(job, translator);
-			}
-			public boolean runTask() {
-				Node ast = job().ast();
-				if (ast != null && !((X10Ext)ast.ext()).subtreeValid()) {
-					return false;
-				}
-				return super.runTask();
-			}
-		}
-
-		@Override
-		public Goal CodeGenerated(Job job) {
-			TypeSystem ts = extInfo.typeSystem();
-			NodeFactory nf = extInfo.nodeFactory();
-			Goal cg = new ValidatingOutputGoal(job, new DotTranslator(job, ts, nf, extInfo.targetFactory()));
+		public Goal RoseHandoff(Job job) {
+			Goal cg = new OutputGoal(job, new RoseTranslator(job, extInfo.typeSystem(), extInfo.nodeFactory(), extInfo.targetFactory()));
 			return cg.intern(this);
 		}
 
