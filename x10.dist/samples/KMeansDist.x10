@@ -13,7 +13,7 @@ import x10.io.Console;
 import x10.util.Random;
 
 /**
- * A formulation of KMeans using DistArray.
+ * A low performance formulation of KMeans using DistArray.
  *
  * For a scalable, high-performance version of this benchmark see
  * KMeans.x10 in the X10 Benchmarks (separate download from x10-lang.org)
@@ -73,7 +73,7 @@ public class KMeansDist {
                 // compute new clusters and counters
                 for (var p_:Int=0 ; p_<POINTS ; ++p_) {
                     val p = p_;
-                    async at(points_dist(p,0)) {
+                    at (points_dist(p,0)) async {
                         var closest:Int = -1;
                         var closest_dist:Float = Float.MAX_VALUE;
                         for (var k:Int=0 ; k<CLUSTERS ; ++k) { 
@@ -87,10 +87,12 @@ public class KMeansDist {
                                 closest = k;
                             }
                         }
-                        for (var d:Int=0 ; d<DIM ; ++d) { 
-                            local_new_clusters()(closest*DIM+d) += points(Point.make(p,d));
+			atomic {
+                            for (var d:Int=0 ; d<DIM ; ++d) { 
+                                local_new_clusters()(closest*DIM+d) += points(Point.make(p,d));
+                            }
+                            local_cluster_counts()(closest)++;
                         }
-                        local_cluster_counts()(closest)++;
                     }
                 }
             }
