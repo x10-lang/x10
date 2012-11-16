@@ -52,6 +52,7 @@ import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
 import x10.ast.Closure_c;
 import x10.ast.Here;
+import x10.ast.Here_c;
 import x10.ast.IsRefTest;
 import x10.ast.ParExpr;
 import x10.ast.SubtypeTest;
@@ -133,8 +134,8 @@ public class XTypeTranslator {
             return null;
         if (term instanceof Lit)
             return translate((Lit) term);
-        if (term instanceof Here)
-            return trans(c, (Here) term, xc, tl);
+        if (term instanceof Here_c)
+            return trans(c, (Here_c) term, xc, tl);
         if (term instanceof Variable)
             return trans(c, (Variable) term, xc, tl);
         if (term instanceof X10Special)
@@ -523,7 +524,7 @@ public class XTypeTranslator {
     
     // *********************************************************************************************
     // *********************************** private help routines for translation********************
-    private XTerm trans(CConstraint c, Here h, Context xc, boolean tl) {
+    private XTerm trans(CConstraint c, Here_c h, Context xc, boolean tl) {
         XConstrainedTerm placeTerm = xc.currentPlaceTerm();
         //XConstrainedTerm placeTerm = h.placeTerm();
         if (placeTerm == null) return ConstraintManager.getConstraintSystem().makeEQV();

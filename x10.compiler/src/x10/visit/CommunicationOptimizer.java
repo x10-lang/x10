@@ -783,7 +783,7 @@ public class CommunicationOptimizer extends ContextVisitor {
         } else if (indexExpr instanceof IntLit_c)
             // This is the case for integer constant
             return true;
-        else if (indexExpr instanceof Here) 
+        else if (indexExpr instanceof Here_c) 
             // This is the case for here operation
             return true;
         else if (indexExpr instanceof X10Binary_c)

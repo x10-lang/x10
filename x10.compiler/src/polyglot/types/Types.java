@@ -47,6 +47,7 @@ import polyglot.util.TransformingList;
 import polyglot.visit.ContextVisitor;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
+import x10.ast.Here_c;
 import x10.ast.IsRefTest;
 import x10.ast.ParExpr;
 
@@ -411,7 +412,7 @@ public class Types {
 			return ((Variable) r).flags().isFinal();
 		if (r instanceof Field)
 			return contextKnowsType( ((Field) r).target());
-		if (r instanceof Special || r instanceof Here || r instanceof Lit)
+		if (r instanceof Special || r instanceof Here_c || r instanceof Lit)
 			return true;
 		if (r instanceof ParExpr) 
 			return contextKnowsType(((ParExpr) r).expr());

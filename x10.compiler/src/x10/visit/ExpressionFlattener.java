@@ -48,6 +48,7 @@ import polyglot.ast.Lit;
 import polyglot.ast.Local;
 import polyglot.ast.LocalAssign;
 import polyglot.ast.LocalDecl;
+import polyglot.ast.Local_c;
 import polyglot.ast.Loop;
 import polyglot.ast.New;
 import polyglot.ast.Node;
@@ -56,6 +57,7 @@ import polyglot.ast.ProcedureCall;
 import polyglot.ast.Return;
 import polyglot.ast.SourceFile;
 import polyglot.ast.Special;
+import polyglot.ast.Special_c;
 import polyglot.ast.Stmt;
 import polyglot.ast.Switch;
 import polyglot.ast.SwitchBlock;
@@ -87,6 +89,7 @@ import x10.ast.Finish;
 import x10.ast.ForLoop;
 import x10.ast.HasZeroTest;
 import x10.ast.Here;
+import x10.ast.Here_c;
 import x10.ast.Next;
 import x10.ast.Offer;
 import x10.ast.ParExpr;
@@ -303,9 +306,9 @@ public final class ExpressionFlattener extends ContextVisitor {
      */
     private Expr flattenExpr(Expr expr) {
         if (expr instanceof Lit)                 return flattenPrimary(expr);
-        else if (expr instanceof Local)          return flattenPrimary(expr);
-        else if (expr instanceof Special)        return flattenPrimary(expr);
-        else if (expr instanceof Here)           return flattenPrimary(expr);
+        else if (expr instanceof Local_c)        return flattenPrimary(expr);
+        else if (expr instanceof Special_c)      return flattenPrimary(expr);
+        else if (expr instanceof Here_c)         return flattenPrimary(expr);
         else if (expr instanceof ParExpr)        return flattenParExpr((ParExpr) expr);
         else if (expr instanceof Field)          return flattenField((Field) expr);
         else if (expr instanceof ArrayAccess)    return flattenArrayAccess((ArrayAccess) expr);
@@ -1374,7 +1377,7 @@ public final class ExpressionFlattener extends ContextVisitor {
         if (expr instanceof Lit) return true;
         if (expr instanceof Local) return ((Local) expr).flags().contains(Flags.FINAL);
         if (expr instanceof Special) return true;
-        if (expr instanceof Here) return true;
+        if (expr instanceof Here_c) return true;
         return false;
     }
 

@@ -79,6 +79,7 @@ import x10.ast.DepParameterExpr;
 import x10.ast.Finish;
 import x10.ast.FinishExpr;
 import x10.ast.Here;
+import x10.ast.Here_c;
 import x10.ast.Next;
 import x10.ast.Offer;
 import x10.ast.Resume;
@@ -363,8 +364,8 @@ public class Lowerer extends ContextVisitor {
             return visitAtStmt((AtStmt) n);
         if (n instanceof AtExpr)
             return visitAtExpr((AtExpr) n);
-        if (n instanceof Here)
-            return visitHere((Here) n);
+        if (n instanceof Here_c)
+            return visitHere((Here_c) n);
         if (n instanceof Next)
             return visitNext((Next) n);
         if (n instanceof Atomic)
@@ -845,7 +846,7 @@ public class Lowerer extends ContextVisitor {
 
 
     // here -> Runtime.home()
-    private Expr visitHere(Here h) throws SemanticException {
+    private Expr visitHere(Here_c h) throws SemanticException {
         Position pos = h.position();
         return call(pos, HOME, ts.Place());
     }

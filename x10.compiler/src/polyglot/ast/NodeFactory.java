@@ -275,7 +275,7 @@ public interface NodeFactory
     Async Async(Position pos, List<Expr> clocks, Stmt body);
     Async Async(Position pos, Stmt body, boolean clocked);
     Atomic Atomic(Position pos, Expr place, Stmt body);
-    Here Here(Position pos);
+    Here_c Here(Position pos);
 
     /**
      * Return an immutable representation of a 1-armed When.

@@ -19,6 +19,6 @@ import x10.types.constraints.XConstrainedTerm;
  */
 public interface Here extends Expr {
     XConstrainedTerm placeTerm();
-    Here placeTerm(XConstrainedTerm pt);
+    Here_c placeTerm(XConstrainedTerm pt);
 }
 

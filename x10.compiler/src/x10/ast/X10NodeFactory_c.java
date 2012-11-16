@@ -290,10 +290,10 @@ public class X10NodeFactory_c extends NodeFactory_c {
 	    return f;
 	}
 	
-	public Here Here(Position pos) {
-		Here f = new Here_c(pos);
-		f = (Here) f.ext(extFactory().extStmt());
-		return (Here) f.del(delFactory().delStmt());
+	public Here_c Here(Position pos) {
+		Here_c f = new Here_c(pos);
+		f = (Here_c) f.ext(extFactory().extStmt());
+		return (Here_c) f.del(delFactory().delStmt());
 	}
 
 	// Wrap the body of a When in a conditional to facilitate code transformations
