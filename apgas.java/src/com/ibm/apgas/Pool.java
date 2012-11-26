@@ -60,7 +60,7 @@ public class Pool extends x10.runtime.impl.java.Runtime {
      */
     public static void runAsync(int place, Task task) {
         Place p =  x10.lang.Place.place(place);
-        x10.lang.Runtime.runAsync(p, new TaskWrapper(task));
+        x10.lang.Runtime.runAsync(p, new TaskWrapper(task), null);
     }
 
     /**
