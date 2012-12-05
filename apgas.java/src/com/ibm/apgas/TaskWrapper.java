@@ -19,11 +19,11 @@ package com.ibm.apgas;
  */
 @x10.runtime.impl.java.X10Generated
 public class TaskWrapper extends x10.core.Ref implements
-		x10.core.fun.VoidFun_0_0, x10.x10rt.X10JavaSerializable {
+		x10.core.fun.VoidFun_0_0, x10.serialization.X10JavaSerializable {
 	private static final long serialVersionUID = 1L;
-	private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher
+	private static final short $_serialization_id = x10.serialization.DeserializationDispatcher
 			.addDispatcher(
-					x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC,
+					x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC,
 					TaskWrapper.class);
 
 	public static final x10.rtt.RuntimeType<TaskWrapper> $RTT = x10.rtt.NamedType
@@ -49,8 +49,8 @@ public class TaskWrapper extends x10.core.Ref implements
 		oos.defaultWriteObject();
 	}
 
-	public static x10.x10rt.X10JavaSerializable $_deserialize_body(
-			TaskWrapper $_obj, x10.x10rt.X10JavaDeserializer $deserializer)
+	public static x10.serialization.X10JavaSerializable $_deserialize_body(
+			TaskWrapper $_obj, x10.serialization.X10JavaDeserializer $deserializer)
 			throws java.io.IOException {
 
 		if (x10.runtime.impl.java.Runtime.TRACE_SER) {
@@ -65,8 +65,8 @@ public class TaskWrapper extends x10.core.Ref implements
 
 	}
 
-	public static x10.x10rt.X10JavaSerializable $_deserializer(
-			x10.x10rt.X10JavaDeserializer $deserializer)
+	public static x10.serialization.X10JavaSerializable $_deserializer(
+			x10.serialization.X10JavaDeserializer $deserializer)
 			throws java.io.IOException {
 
 		TaskWrapper $_obj = new TaskWrapper((java.lang.System[]) null);
@@ -81,7 +81,7 @@ public class TaskWrapper extends x10.core.Ref implements
 
 	}
 
-	public void $_serialize(x10.x10rt.X10JavaSerializer $serializer)
+	public void $_serialize(x10.serialization.X10JavaSerializer $serializer)
 			throws java.io.IOException {
 
 		$serializer.writeObjectUsingReflection(this.task);

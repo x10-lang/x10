@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-package x10.x10rt;
+package x10.serialization;
 
 import x10.runtime.impl.java.Runtime;
 
@@ -24,25 +24,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DeserializationDispatcher {
-
-    public static final short NULL_ID = 0;
-    public static final short STRING_ID = 1;
-    public static final short FLOAT_ID = 2;
-    public static final short DOUBLE_ID = 3;
-    public static final short INTEGER_ID = 4;
-    public static final short BOOLEAN_ID = 5;
-    public static final short BYTE_ID = 6;
-    public static final short SHORT_ID = 7;
-    public static final short LONG_ID = 8;
-    public static final short CHARACTER_ID = 9;
-    public static final short MAX_ID_FOR_PRIMITIVE = 9;
-    // not used
-//    public static final String NULL_VALUE = "__NULL__";
-
-    public static final short refValue = Short.MAX_VALUE;
-    public static final short javaClassID = refValue - 1;
-    public static final short javaArrayID = refValue - 2;
+public class DeserializationDispatcher implements SerializationConstants {
 
     // Should start issuing serializationID's from 1 cause the serializationID 0 is used to indicate a null value.
     // We first increment nextSerializationID before issuing the serializationID hence initialize to NULL_ID
@@ -59,7 +41,7 @@ public class DeserializationDispatcher {
     public static enum ClosureKind {
         CLOSURE_KIND_NOT_ASYNC,    // is not a closure, or is a closure that is not created in place of an async by the desugarer
         CLOSURE_KIND_SIMPLE_ASYNC, // is an async with just finish state
-        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with generial XRX closure
+        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with general XRX closure
     };
 
     public static short addDispatcher(ClosureKind closureKind, Class clazz) {

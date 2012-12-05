@@ -14,9 +14,9 @@ package x10.rtt;
 
 import java.lang.reflect.Array;
 
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 public final class UShortType extends RuntimeType<x10.core.UShort> {
 //public final class UShortType extends RuntimeType<x10.core.UShort> implements X10JavaSerializable {

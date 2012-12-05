@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.x10rt;
+package x10.serialization;
 
 import java.io.DataInput;
 import java.io.DataInputStream;
@@ -35,7 +35,7 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
 
-public class X10JavaDeserializer {
+public class X10JavaDeserializer implements SerializationConstants {
         
     private static ConcurrentHashMap<Class<?>, DeserializerThunk> thunks = new ConcurrentHashMap<Class<?>, DeserializerThunk>(50);
 
@@ -84,42 +84,42 @@ public class X10JavaDeserializer {
     }
 
     public Object readRef(short serializationID) throws IOException {
-        if (serializationID == DeserializationDispatcher.NULL_ID) {
+        if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null reference");
             }
             return null;
         }
-        if (serializationID == DeserializationDispatcher.refValue) {
+        if (serializationID == refValue) {
             return getObjectAtPosition(readInt());
         }
 //        if (Runtime.TRACE_SER) {
 //            Runtime.printTraceMessage("Dispatching deserialization using id " + serializationID);
 //        }
-        if (serializationID == DeserializationDispatcher.javaClassID) {
+        if (serializationID == javaClassID) {
             return deserializeRefUsingReflection(serializationID);
         }
-        if (serializationID == DeserializationDispatcher.javaArrayID) {
+        if (serializationID == javaArrayID) {
             short componentTypeID = readShort();
-            if (componentTypeID == DeserializationDispatcher.INTEGER_ID) {
+            if (componentTypeID == INTEGER_ID) {
                 return readIntArray();
-            } else if (componentTypeID == DeserializationDispatcher.DOUBLE_ID) {
+            } else if (componentTypeID == DOUBLE_ID) {
                 return readDoubleArray();
-            } else if (componentTypeID == DeserializationDispatcher.FLOAT_ID) {
+            } else if (componentTypeID == FLOAT_ID) {
                 return readFloatArray();
-            } else if (componentTypeID == DeserializationDispatcher.BOOLEAN_ID) {
+            } else if (componentTypeID == BOOLEAN_ID) {
                 return readBooleanArray();
-            } else if (componentTypeID == DeserializationDispatcher.BYTE_ID) {
+            } else if (componentTypeID == BYTE_ID) {
                 return readByteArray();
-            } else if (componentTypeID == DeserializationDispatcher.SHORT_ID) {
+            } else if (componentTypeID == SHORT_ID) {
                 return readShortArray();
-            } else if (componentTypeID == DeserializationDispatcher.LONG_ID) {
+            } else if (componentTypeID == LONG_ID) {
                 return readLongArray();
-            } else if (componentTypeID == DeserializationDispatcher.CHARACTER_ID) {
+            } else if (componentTypeID == CHARACTER_ID) {
                 return readCharArray();
-            } else if (componentTypeID == DeserializationDispatcher.STRING_ID) {
+            } else if (componentTypeID == STRING_ID) {
                 return readStringArray();
-            } else if (componentTypeID == DeserializationDispatcher.javaClassID) {
+            } else if (componentTypeID == javaClassID) {
                 Class<?> componentType = DeserializationDispatcher.getClassForID(componentTypeID, this);
                 int length = readInt();
                 Object obj = Array.newInstance(componentType, length);
@@ -301,16 +301,16 @@ public class X10JavaDeserializer {
 
     public String readString() throws IOException {
         short serializationID = readShort();
-        if (serializationID == DeserializationDispatcher.NULL_ID) {
+        if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null reference");
             }
             return null;
         }
-        if (serializationID == DeserializationDispatcher.refValue) {
+        if (serializationID == refValue) {
             return (String) getObjectAtPosition(readInt());
         }
-        assert serializationID == DeserializationDispatcher.STRING_ID;
+        assert serializationID == STRING_ID;
         String str = readStringValue();
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Deserializing a " + Runtime.ANSI_CYAN + "String" + Runtime.ANSI_RESET + ": " + str);
@@ -338,16 +338,16 @@ public class X10JavaDeserializer {
 
     public Object readRefUsingReflection() throws IOException {
         short serializationID = readShort();
-        if (serializationID == DeserializationDispatcher.NULL_ID) {
+        if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null reference");
             }
             return null;
         }
-        if (serializationID == DeserializationDispatcher.refValue) {
+        if (serializationID == refValue) {
             return getObjectAtPosition(readInt());
         }
-        if (serializationID <= DeserializationDispatcher.MAX_ID_FOR_PRIMITIVE) {
+        if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
             return DeserializationDispatcher.deserializePrimitive(serializationID, this);
         }
 
@@ -524,13 +524,13 @@ public class X10JavaDeserializer {
 
     public Object readArrayUsingReflection(Class<?> componentType) throws IOException {
         short serializationID = readShort();
-        if (serializationID == DeserializationDispatcher.NULL_ID) {
+        if (serializationID == NULL_ID) {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("Deserializing a null array");
             }
             return null;
         }
-        if (serializationID == DeserializationDispatcher.refValue) {
+        if (serializationID == refValue) {
             return getObjectAtPosition(readInt());
         }
         if (componentType.isPrimitive()) {

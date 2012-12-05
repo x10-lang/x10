@@ -17,7 +17,7 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.X10JavaSerializer;
 import x10.x10rt.X10RT;
 
 import java.io.IOException;

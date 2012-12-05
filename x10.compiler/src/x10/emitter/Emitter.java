@@ -388,10 +388,10 @@ public class Emitter {
 		map.put(OperatorNames.inverse(OperatorNames.STARSTAR), Name.make("$inv_starstar"));
 	}
 
-	public static final String X10_JAVA_SERIALIZABLE_CLASS = "x10.x10rt.X10JavaSerializable";
-	public static final String X10_JAVA_SERIALIZER_CLASS = "x10.x10rt.X10JavaSerializer";
-	public static final String X10_JAVA_DESERIALIZER_CLASS = "x10.x10rt.X10JavaDeserializer";
-	public static final String DESERIALIZATION_DISPATCHER_CLASS = "x10.x10rt.DeserializationDispatcher";
+	public static final String X10_JAVA_SERIALIZABLE_CLASS = "x10.serialization.X10JavaSerializable";
+	public static final String X10_JAVA_SERIALIZER_CLASS = "x10.serialization.X10JavaSerializer";
+	public static final String X10_JAVA_DESERIALIZER_CLASS = "x10.serialization.X10JavaDeserializer";
+	public static final String DESERIALIZATION_DISPATCHER_CLASS = "x10.serialization.DeserializationDispatcher";
 
     public static final String SERIALIZE_ID_METHOD = "$_get_serialization_id";
     public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";

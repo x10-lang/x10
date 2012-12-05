@@ -19,21 +19,21 @@ import x10.rtt.Type;
 public class OutputStream extends Ref {
   
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, OutputStream.class);
+    private static final short $_serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, OutputStream.class);
 
     public short $_get_serialization_id() {
         return $_serialization_id;
     }
-    public void $_serialize(x10.x10rt.X10JavaSerializer $serializer) throws java.io.IOException {
+    public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
         // TODO need check
         $serializer.write(stream);
     }
-    public static x10.x10rt.X10JavaSerializable $_deserialize_body(OutputStream $_obj, x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static x10.serialization.X10JavaSerializable $_deserialize_body(OutputStream $_obj, x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
         // TODO need check
         $_obj.stream = (java.io.OutputStream) $deserializer.readRef();
         return $_obj;
     }
-    public static x10.x10rt.X10JavaSerializable $_deserializer(x10.x10rt.X10JavaDeserializer $deserializer) throws java.io.IOException {
+    public static x10.serialization.X10JavaSerializable $_deserializer(x10.serialization.X10JavaDeserializer $deserializer) throws java.io.IOException {
         OutputStream $_obj = new OutputStream((java.lang.System[]) null);
         $deserializer.record_reference($_obj);
         return $_deserialize_body($_obj, $deserializer);

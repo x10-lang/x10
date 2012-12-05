@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2011.
  */
 
-package x10.x10rt;
+package x10.serialization;
 
 
 import java.io.IOException;

@@ -15,7 +15,7 @@
  *  limitations under the License.
  */
 
-package x10.x10rt;
+package x10.serialization;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -35,8 +35,11 @@ import java.util.Set;
 /**
  * X10IdentityHashMap is an implementation of Map. All optional operations are supported,
  * adding and removing. Keys and values can be any objects.
+ * 
+ * This map is used to implement duplicate object serialization by the X10
+ * serialization protocol.
  */
-public class X10IdentityHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>,
+class X10IdentityHashMap<K, V> extends AbstractMap<K, V> implements Map<K, V>,
         Cloneable, Serializable {
     private static final long serialVersionUID = 362498820763181265L;
 

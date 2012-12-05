@@ -21,11 +21,11 @@ import java.util.List;
 
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
+import x10.serialization.DeserializationDispatcher;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
-import x10.x10rt.DeserializationDispatcher;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
 
 // TODO: Code cleanup.  Much of this class is unused with the change to 
 //       per-place static initialization semantics.  Once new implementation

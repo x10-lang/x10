@@ -9,7 +9,7 @@
  *  (C) Copyright IBM Corporation 2006-2012.
  */
 
-package x10.x10rt;
+package x10.serialization;
 
 import java.io.DataOutput;
 import java.io.DataOutputStream;
@@ -21,7 +21,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
-import java.util.IdentityHashMap;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -30,7 +29,7 @@ import x10.io.CustomSerialization;
 import x10.io.SerialData;
 import x10.runtime.impl.java.Runtime;
 
-public class X10JavaSerializer {
+public class X10JavaSerializer implements SerializationConstants {
         
     private static ConcurrentHashMap<Class<?>, SerializerThunk> thunks = new ConcurrentHashMap<Class<?>, X10JavaSerializer.SerializerThunk>(50);
 
@@ -78,7 +77,7 @@ public class X10JavaSerializer {
     }
 
     private void writeNull() throws IOException {
-        write(DeserializationDispatcher.NULL_ID);
+        write(NULL_ID);
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a null reference");
         }
@@ -121,7 +120,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing an " + Runtime.ANSI_CYAN + "Integer" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.INTEGER_ID);
+        out.writeShort(INTEGER_ID);
         out.writeInt(p.intValue());
     }
 
@@ -151,7 +150,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Boolean" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.BOOLEAN_ID);
+        out.writeShort(BOOLEAN_ID);
         out.writeBoolean(p.booleanValue());
     }
 
@@ -181,7 +180,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Character" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.CHARACTER_ID);
+        out.writeShort(CHARACTER_ID);
         out.writeChar(p.charValue());
     }
 
@@ -211,7 +210,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Byte" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.BYTE_ID);
+        out.writeShort(BYTE_ID);
         out.writeByte(p.byteValue());
     }
 
@@ -243,7 +242,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Short" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.SHORT_ID);
+        out.writeShort(SHORT_ID);
         out.writeShort(p.shortValue());
     }
 
@@ -273,7 +272,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Long" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.LONG_ID);
+        out.writeShort(LONG_ID);
         out.writeLong(p.longValue());
     }
 
@@ -303,7 +302,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Double" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.DOUBLE_ID);
+        out.writeShort(DOUBLE_ID);
         out.writeDouble(p.doubleValue());
     }
 
@@ -333,7 +332,7 @@ public class X10JavaSerializer {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing a " + Runtime.ANSI_CYAN + "Float" + Runtime.ANSI_RESET + ": " + p);
         }
-        out.writeShort(DeserializationDispatcher.FLOAT_ID);
+        out.writeShort(FLOAT_ID);
         out.writeFloat(p.floatValue());
     }
 
@@ -370,7 +369,7 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        write(DeserializationDispatcher.STRING_ID);
+        write(STRING_ID);
         writeStringValue(str);
     }
 
@@ -398,7 +397,7 @@ public class X10JavaSerializer {
             }
             // We have serialized this object before hence no need to do it again
             if (writeRef) {
-                write(DeserializationDispatcher.refValue);
+                write(refValue);
                 write(pos.intValue());
             }
         } else {
@@ -495,7 +494,7 @@ public class X10JavaSerializer {
     public void writeClassID(String className) throws IOException {
         short serializationID = DeserializationDispatcher.getSerializationIDForClassName(className);
         if (serializationID < 0) {
-            write(DeserializationDispatcher.javaClassID);
+            write(javaClassID);
             writeStringValue(className);
         } else {
             write(serializationID);
@@ -595,7 +594,7 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        write(DeserializationDispatcher.javaArrayID);
+        write(javaArrayID);
         int length = Array.getLength(obj);
         write(length);
         Class<?> componentType = obj.getClass().getComponentType();
@@ -660,36 +659,36 @@ public class X10JavaSerializer {
         if (pos != null) {
             return;
         }
-        write(DeserializationDispatcher.javaArrayID);
+        write(javaArrayID);
         Class<?> componentType = obj.getClass().getComponentType();
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {
-                write(DeserializationDispatcher.INTEGER_ID);
+                write(INTEGER_ID);
                 write((int[]) obj);
             } else if ("double".equals(componentType.getName())) {
-                write(DeserializationDispatcher.DOUBLE_ID);
+                write(DOUBLE_ID);
                 write((double[]) obj);
             } else if ("float".equals(componentType.getName())) {
-                write(DeserializationDispatcher.FLOAT_ID);
+                write(FLOAT_ID);
                 write((float[]) obj);
             } else if ("boolean".equals(componentType.getName())) {
-                write(DeserializationDispatcher.BOOLEAN_ID);
+                write(BOOLEAN_ID);
                 write((boolean[]) obj);
             } else if ("byte".equals(componentType.getName())) {
-                write(DeserializationDispatcher.BYTE_ID);
+                write(BYTE_ID);
                 write((byte[]) obj);
             } else if ("short".equals(componentType.getName())) {
-                write(DeserializationDispatcher.SHORT_ID);
+                write(SHORT_ID);
                 write((short[]) obj);
             } else if ("long".equals(componentType.getName())) {
-                write(DeserializationDispatcher.LONG_ID);
+                write(LONG_ID);
                 write((long[]) obj);
             } else if ("char".equals(componentType.getName())) {
-                write(DeserializationDispatcher.CHARACTER_ID);
+                write(CHARACTER_ID);
                 write((char[]) obj);
             }
         } else if ("java.lang.String".equals(componentType.getName())) {
-            write(DeserializationDispatcher.STRING_ID);
+            write(STRING_ID);
             write((java.lang.String[]) obj);
         } else {            
             writeClassID(componentType.getName());

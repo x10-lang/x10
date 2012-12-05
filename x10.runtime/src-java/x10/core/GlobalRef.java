@@ -28,10 +28,10 @@ import x10.rtt.RuntimeType;
 import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.DeserializationDispatcher;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.DeserializationDispatcher;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 /*
  * [GlobalGC] Managed X10 (X10 on Java) supports distributed GC, which is mainly implemented here, in GlobalRef.java.
@@ -39,7 +39,7 @@ import x10.x10rt.X10JavaSerializer;
  */
 public final class GlobalRef<T> extends x10.core.Struct implements Externalizable, X10JavaSerializable {
 	
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, GlobalRef.class, "x10.lang.GlobalRef");
+    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, GlobalRef.class, "x10.lang.GlobalRef");
 
     public static final RuntimeType<GlobalRef<?>> $RTT = x10.rtt.NamedType.<GlobalRef<?>> make(
         "x10.lang.GlobalRef",
@@ -351,10 +351,10 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
         // Closure for calling GlobalizedObjectTracker.changeRemoteCount(id, delta)
         // modified from the compiled code of "async at (place) { changeRemoteCount(id, delta); }"
         private /*@@public@@*/ static class $Closure$0 extends x10.core.Ref implements x10.core.fun.VoidFun_0_0,
-                x10.x10rt.X10JavaSerializable {
+                x10.serialization.X10JavaSerializable {
             private static final long serialVersionUID = 1L;
-            private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher
-                    .addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC,
+            private static final short $_serialization_id = x10.serialization.DeserializationDispatcher
+                    .addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC,
                                    $Closure$0.class);
 
             public static final x10.rtt.RuntimeType<$Closure$0> $RTT = x10.rtt.StaticVoidFunType.<$Closure$0> make(
@@ -370,7 +370,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
                 oos.defaultWriteObject();
             }
 
-            public static x10.x10rt.X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
+            public static x10.serialization.X10JavaSerializable $_deserialize_body($Closure$0 $_obj, X10JavaDeserializer $deserializer) throws java.io.IOException {
                 if (x10.runtime.impl.java.Runtime.TRACE_SER) {
                     x10.runtime.impl.java.Runtime.printTraceMessage("X10JavaSerializable: $_deserialize_body() of "
                             + $Closure$0.class + " calling");
@@ -380,7 +380,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
                 return $_obj;
             }
 
-            public static x10.x10rt.X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
+            public static x10.serialization.X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws java.io.IOException {
                 $Closure$0 $_obj = new $Closure$0((java.lang.System[]) null);
                 $deserializer.record_reference($_obj);
                 return $_deserialize_body($_obj, $deserializer);
@@ -661,7 +661,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
     public static class LocalEval extends x10.core.Ref {
 
 	private static final long serialVersionUID = 1L;
-	private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalEval.class);
+	private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalEval.class);
 	public static final RuntimeType<LocalEval> $RTT = x10.rtt.NamedType.<LocalEval> make("x10.lang.GlobalRef.LocalEval", LocalEval.class);
 	public RuntimeType<?> $getRTT() {return $RTT;}
 	public Type<?> $getParam(int i) {return null;}
@@ -718,7 +718,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
 
 	public static class $Closure$Eval<$T, $U> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
-	    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Eval.class);
+	    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Eval.class);
 	    public static final RuntimeType<$Closure$Eval> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Eval> make($Closure$Eval.class, 
 							 RuntimeType.INVARIANTS(2),
@@ -781,7 +781,7 @@ public final class GlobalRef<T> extends x10.core.Struct implements Externalizabl
             
 	public static class $Closure$Apply<$T> extends x10.core.Ref implements x10.core.fun.Fun_0_0 {
 	    private static final long serialVersionUID = 1L;
-	    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Apply.class);
+	    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$Apply.class);
 	    public static final RuntimeType<$Closure$Apply> $RTT =
 		x10.rtt.StaticFunType.<$Closure$Apply> make($Closure$Apply.class,
                                                           RuntimeType.INVARIANTS(1),

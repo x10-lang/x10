@@ -20,15 +20,15 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.x10rt.DeserializationDispatcher;
-import x10.x10rt.X10JavaDeserializer;
-import x10.x10rt.X10JavaSerializable;
-import x10.x10rt.X10JavaSerializer;
+import x10.serialization.DeserializationDispatcher;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, IndexedMemoryChunk.class, "x10.util.IndexedMemoryChunk");
+    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, IndexedMemoryChunk.class, "x10.util.IndexedMemoryChunk");
 
     public Type<T> T;
     public int length;
@@ -173,7 +173,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     // static nested class version of copyBody
     public static class $Closure$0 extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
-        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$0.class);
+        private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$0.class);
         public Object srcData;
         public int dstId;
         public int dstIndex;
@@ -280,7 +280,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     // static nested class version of copyBody1
     public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
-        private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$1.class);
+        private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, $Closure$1.class);
         public Type<T> srcT;
         public int srcId;
         public int srcLength;

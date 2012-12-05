@@ -16,6 +16,8 @@ import java.io.InputStream;
 
 import x10.lang.FinishState;
 import x10.runtime.impl.java.Runtime;
+import x10.serialization.DeserializationDispatcher;
+import x10.serialization.X10JavaDeserializer;
 
 /**
  * A class to contain the Java portion of message send/receive pairs.
