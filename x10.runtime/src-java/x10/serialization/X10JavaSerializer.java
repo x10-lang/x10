@@ -397,7 +397,7 @@ public class X10JavaSerializer implements SerializationConstants {
             }
             // We have serialized this object before hence no need to do it again
             if (writeRef) {
-                write(refValue);
+                write(REF_VALUE);
                 write(pos.intValue());
             }
         } else {
@@ -494,7 +494,7 @@ public class X10JavaSerializer implements SerializationConstants {
     public void writeClassID(String className) throws IOException {
         short serializationID = DeserializationDispatcher.getSerializationIDForClassName(className);
         if (serializationID < 0) {
-            write(javaClassID);
+            write(JAVA_CLASS_ID);
             writeStringValue(className);
         } else {
             write(serializationID);
@@ -594,7 +594,7 @@ public class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(javaArrayID);
+        write(JAVA_ARRAY_ID);
         int length = Array.getLength(obj);
         write(length);
         Class<?> componentType = obj.getClass().getComponentType();
@@ -659,7 +659,7 @@ public class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        write(javaArrayID);
+        write(JAVA_ARRAY_ID);
         Class<?> componentType = obj.getClass().getComponentType();
         if (componentType.isPrimitive()) {
             if ("int".equals(componentType.getName())) {

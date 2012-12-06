@@ -90,16 +90,16 @@ public class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == refValue) {
+        if (serializationID == REF_VALUE) {
             return getObjectAtPosition(readInt());
         }
 //        if (Runtime.TRACE_SER) {
 //            Runtime.printTraceMessage("Dispatching deserialization using id " + serializationID);
 //        }
-        if (serializationID == javaClassID) {
+        if (serializationID == JAVA_CLASS_ID) {
             return deserializeRefUsingReflection(serializationID);
         }
-        if (serializationID == javaArrayID) {
+        if (serializationID == JAVA_ARRAY_ID) {
             short componentTypeID = readShort();
             if (componentTypeID == INTEGER_ID) {
                 return readIntArray();
@@ -119,7 +119,7 @@ public class X10JavaDeserializer implements SerializationConstants {
                 return readCharArray();
             } else if (componentTypeID == STRING_ID) {
                 return readStringArray();
-            } else if (componentTypeID == javaClassID) {
+            } else if (componentTypeID == JAVA_CLASS_ID) {
                 Class<?> componentType = DeserializationDispatcher.getClassForID(componentTypeID, this);
                 int length = readInt();
                 Object obj = Array.newInstance(componentType, length);
@@ -307,7 +307,7 @@ public class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == refValue) {
+        if (serializationID == REF_VALUE) {
             return (String) getObjectAtPosition(readInt());
         }
         assert serializationID == STRING_ID;
@@ -344,7 +344,7 @@ public class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == refValue) {
+        if (serializationID == REF_VALUE) {
             return getObjectAtPosition(readInt());
         }
         if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
@@ -530,7 +530,7 @@ public class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == refValue) {
+        if (serializationID == REF_VALUE) {
             return getObjectAtPosition(readInt());
         }
         if (componentType.isPrimitive()) {

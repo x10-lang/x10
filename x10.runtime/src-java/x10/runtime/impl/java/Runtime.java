@@ -263,12 +263,10 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     }
 
     public static void runAsyncAt(int place, x10.core.fun.VoidFun_0_0 body, FinishState finishState, x10.lang.Runtime.Profile prof) {
-        short sid = body.$_get_serialization_id();
-        int messageID = DeserializationDispatcher.getMessageID(sid);
         try {
             byte[] bytes = serialize(body, finishState, prof);
 			long start = prof!=null ? System.nanoTime() : 0;
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, bytes.length, bytes, messageID);
+            x10.x10rt.MessageHandlers.runSimpleAsyncAtSend(place, bytes.length, bytes);
             if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
             }
@@ -400,8 +398,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		X10JavaSerializer serializer = new X10JavaSerializer(oos);
 		serializer.write(finishState);
         long before_bytes = baos.size();
-		serializer.recordReference(body);
-		body.$_serialize(serializer);
+        serializer.write(body);
         long ser_bytes = baos.size() - before_bytes;
 		oos.close();
 		byte[] ba = baos.toByteArray();
@@ -417,12 +414,9 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 		return ba;
 	}
     
-    // @MultiVM, add this method
 	public static void runAt(int place, x10.core.fun.VoidFun_0_0 body, x10.lang.Runtime.Profile prof) {
 		byte[] msg;
 		try {
-			// Cannot use the serialize() method here cause we need to serialize the outer serialization ID too
-			// (This is not serialized by the serialize method as an optimization)
 			if (TRACE_SER_DETAIL) {
 				System.out.println("Starting serialization for runAtAll  " + body.getClass());
 			}
@@ -430,8 +424,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 			ByteArrayOutputStream baos = new ByteArrayOutputStream();
 			DataOutputStream oos = new DataOutputStream(baos);
 			X10JavaSerializer serializer = new X10JavaSerializer(oos);
-			serializer.recordReference(body);
-			body.$_serialize(serializer);
+			serializer.write(body);
 			oos.close();
 			msg = baos.toByteArray();
 			if (prof!=null) {
@@ -444,13 +437,12 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 				System.out.println("Done with serialization for runAtAll " + body.getClass());
 			}
 
-			int msg_id = DeserializationDispatcher.getMessageID(body.$_get_serialization_id());
 			int msgLen = msg.length;
 			if (X10RT.VERBOSE) System.out.println("@MultiVM: sendJavaRemote");
 			if (prof!=null) {
                 start = System.nanoTime();
             }
-			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg, msg_id);
+			x10.x10rt.MessageHandlers.runClosureAtSend(place, msgLen, msg);
 			if (prof!=null) {
                 prof.communicationNanos += System.nanoTime() - start;
             }
@@ -465,15 +457,14 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     // Special version of runAt for broadcast type communication
     // (Serialize once, run everywhere)
 
-    public static void runAtAll(boolean includeHere, byte[] msg, short serializationID) {
-        int msg_id = DeserializationDispatcher.getMessageID(serializationID);
+    public static void runAtAll(boolean includeHere, byte[] msg) {
         int hereId = X10RT.here();
         for (int place = hereId + 1; place < Runtime.MAX_PLACES; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
         }
         int endPlace = includeHere ? hereId : hereId - 1;
         for (int place = 0; place <= endPlace; ++place) {
-            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg, msg_id);
+            x10.x10rt.MessageHandlers.runClosureAtSend(place, msg.length, msg);
         }
     }
 

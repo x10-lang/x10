@@ -98,7 +98,7 @@ public class DeserializationDispatcher implements SerializationConstants {
             }
             return null;
         }
-        if (serializationID == refValue) {
+        if (serializationID == REF_VALUE) {
             return deserializer.getObjectAtPosition(deserializer.readInt());
         }
         if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
@@ -173,7 +173,7 @@ public class DeserializationDispatcher implements SerializationConstants {
     }
 
     public static String getClassNameForID(short serializationID, X10JavaDeserializer deserializer) {
-         if (serializationID == javaClassID) {
+         if (serializationID == JAVA_CLASS_ID) {
             try {
                 return deserializer.readStringValue();
             } catch (IOException e) {
@@ -184,7 +184,7 @@ public class DeserializationDispatcher implements SerializationConstants {
     }
 
     public static Class getClassForID(short serializationID, X10JavaDeserializer deserializer) {
-        if (serializationID == javaClassID) {
+        if (serializationID == JAVA_CLASS_ID) {
             try {
                 String className = deserializer.readStringValue();
                 return Class.forName(className);
@@ -218,18 +218,7 @@ public class DeserializationDispatcher implements SerializationConstants {
     }
 
     public static void registerHandlers() {
-        x10.x10rt.MessageHandlers.registerHandlers(asyncs.size());
-    }
-
-    public static void registerHandlersCallback(int[] ids) {
-        int j = 0;
-        for (DeserializationInfo deserializationInfo : asyncs) {
-            deserializationInfo.msgType = ids[j];
-            messageIdToSID.put(deserializationInfo.msgType, deserializationInfo.serializationID);
-            j++;
-        }
-        // We no longer need this data structure
-        asyncs = null;
+        x10.x10rt.MessageHandlers.registerHandlers();
     }
 
     public static int getMessageID(short serializationID) {
@@ -244,25 +233,13 @@ public class DeserializationDispatcher implements SerializationConstants {
         return idToDeserializationInfo.get(serializationID).closureKind;
     }
 
-    public static void setStaticInitializer(short serializationID) {
-        idToDeserializationInfo.get(serializationID).isStaticInitializer = true;
-    }
-
-    public static boolean isStaticInitializer(short serializationID) {
-        return idToDeserializationInfo.get(serializationID).isStaticInitializer;
-    }
-
     private static class DeserializationInfo {
         public ClosureKind closureKind;
-        public Class clazz;
+        public Class<?> clazz;
         public int msgType;
         public short serializationID;
 
-        // We need to deserialize static initializers using custom serialization, this is a marker to know whether
-        // this is a static serialization
-        public boolean isStaticInitializer = false;
-
-        private DeserializationInfo(ClosureKind closureKind, Class clazz, short serializationID) {
+        private DeserializationInfo(ClosureKind closureKind, Class<?> clazz, short serializationID) {
             this.closureKind = closureKind;
             this.clazz = clazz;
             this.serializationID = serializationID;

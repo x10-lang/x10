@@ -20,7 +20,8 @@
  * 
  *************************************************************************/
 
-static methodDescription runClosureAt;
+static methodDescription runClosure;
+static methodDescription runSimpleAsync;
 
 #define DEBUG 0
 
@@ -30,7 +31,7 @@ static methodDescription runClosureAt;
  * 
  *************************************************************************/
 
-void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
+void jni_messageReceiver_runClosure(const x10rt_msg_params *msg) {
     JNIEnv *env = jniHelper_getEnv();
     MessageReader reader(msg);
 
@@ -45,7 +46,25 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
 
     env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
 
-    env->CallStaticVoidMethod(runClosureAt.targetClass, runClosureAt.targetMethod, arg, jtype);
+    env->CallStaticVoidMethod(runClosure.targetClass, runClosure.targetMethod, arg, jtype);
+}
+
+void jni_messageReceiver_runSimpleAsync(const x10rt_msg_params *msg) {
+    JNIEnv *env = jniHelper_getEnv();
+    MessageReader reader(msg);
+
+    jint numElems = msg->len;
+    int type = msg->type;
+    jint jtype = type;
+    jbyteArray arg = env->NewByteArray(numElems);
+    if (NULL == arg) {
+        fprintf(stderr, "OOM from NewByteArray (num elements = %d)\n", (int)numElems);
+        abort();
+    }
+
+    env->SetByteArrayRegion(arg, 0, numElems, (jbyte*)reader.cursor);
+
+    env->CallStaticVoidMethod(runSimpleAsync.targetClass, runSimpleAsync.targetMethod, arg, jtype);
 }
 
 /*************************************************************************
@@ -60,16 +79,17 @@ void jni_messageReceiver_runClosureAt(const x10rt_msg_params *msg) {
  * Method:    sendJavaRemote
  * Signature: (III[B)V
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEnv *env, jclass klazz,
-                                                                           jint place,
-                                                                           jint arrayLen, jbyteArray array, jint msg_id) {
+JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_sendMessage(JNIEnv *env, jclass klazz,
+                                                                  jint place,
+                                                                  jint msg_id,
+                                                                  jint arrayLen, jbyteArray array) {
 
 
 #if DEBUG
-    fprintf(stdout, "MessageHandlers.runClosureAtSendImpl is invoked from jni_message.cc\n");
+    fprintf(stdout, "MessageHandlers.sendMessage is invoked from jni_message.cc\n");
     //FILE *fp;
     //fp = fopen("/tmp/jnilog.txt","a");
-    fprintf(stdout, "jni_message:cc: runClosureAtSendImpl is called\n");
+    fprintf(stdout, "jni_message:cc: sendMessage is called\n");
     fprintf(stdout, "jni_message:cc: messagewriter: placeId=%d, arraylen=%d\n", place, arrayLen);
 #endif
     
@@ -80,11 +100,11 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
     // the actual byte array while GetByteArrayElements will return a pointer to the
     // actual array if the underlying GC supports pinning, if it does not it creates a
     // copy and returns it. On both hotspot and J9 GetByteArrayElements returns a copy
-     // of the array while GetPrimitiveArrayCritical returns the pointer to the actual array.
-     // The caveat is that GetPrimitiveArrayCritical pauses the GC and x10rt_send_msg
-     // blocks until the message is written out  thus if there are more threads running
-     // and doing allocation the user could run in to a memory issue. Thus making this
-      // configurable via a environment variable.
+    // of the array while GetPrimitiveArrayCritical returns the pointer to the actual array.
+    // The caveat is that GetPrimitiveArrayCritical pauses the GC and x10rt_send_msg
+    // blocks until the message is written out  thus if there are more threads running
+    // and doing allocation the user could run in to a memory issue. Thus making this
+    // configurable via a environment variable.
 
     if (X10_PAUSE_GC_ON_SEND) {
         buffer = (void *) env->GetPrimitiveArrayCritical(array, 0);
@@ -121,13 +141,17 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_runClosureAtSendImpl(JNIEn
  *       therefore we can freely update the backing C data
  *       structures without additional locking in the native level.
  */
-JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *env, jclass klazz,
-                                                                           jint arrayLen) {
+JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *env, jclass klazz) {
 
     /* Get a hold of MessageHandlers.receiveAsync and stash away its invoke information */
-    jmethodID receiveId1 = env->GetStaticMethodID(klazz, "receiveAsync", "([BI)V");
+    jmethodID receiveId1 = env->GetStaticMethodID(klazz, "runClosureAtReceive", "([B)V");
     if (NULL == receiveId1) {
-        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.receiveAsync");
+        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.runClosureAtReceive");
+        abort();
+    }
+    jmethodID receiveId2 = env->GetStaticMethodID(klazz, "runSimpleAsyncAtReceive", "([B)V");
+    if (NULL == receiveId1) {
+        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.runSimpleAsyncAtReceive");
         abort();
     }
     jclass globalClass = (jclass)env->NewGlobalRef(klazz);
@@ -135,38 +159,32 @@ JNIEXPORT void JNICALL Java_x10_x10rt_MessageHandlers_registerHandlers(JNIEnv *e
         fprintf(stderr, "OOM while attempting to allocate global reference for MessageHandlers class\n");
         abort();
     }
-    runClosureAt.targetClass  = globalClass;
-    runClosureAt.targetMethod = receiveId1;
+    runClosure.targetClass  = globalClass;
+    runClosure.targetMethod = receiveId1;
 
-    int i;
-    int len = arrayLen;
-    jint * jids = new jint[len];
-    for (i = 0; i < arrayLen; i++) {
-        // Register each async  and obtain a message ID
-        x10rt_msg_type msg_id =  x10rt_register_msg_receiver(&jni_messageReceiver_runClosureAt, NULL, NULL, NULL, NULL);
-        int id = msg_id;
-        jids[i] = id;
-    }
+    runSimpleAsync.targetClass  = globalClass;
+    runSimpleAsync.targetMethod = receiveId2;
 
-    jmethodID callback = env->GetStaticMethodID(klazz, "registerHandlersCallback", "([I)V");
-    if (NULL == callback) {
-        fprintf(stderr, "Unable to resolve methodID for MessageHandlers.registerHandlersCallback");
+    jint closureId = x10rt_register_msg_receiver(&jni_messageReceiver_runClosure, NULL, NULL, NULL, NULL);
+    jint simpleAsyncId = x10rt_register_msg_receiver(&jni_messageReceiver_runSimpleAsync, NULL, NULL, NULL, NULL);
+
+    fprintf(stderr, "\nAJA %d %d\n", closureId, simpleAsyncId);
+    
+    jfieldID clsFieldId = env->GetStaticFieldID(klazz, "closureMessageID", "I");
+    if (NULL == clsFieldId) {
+        fprintf(stderr, "Unable to resolve fieldID for MessageHandlers.closureMessageID");
         abort();
     }
 
-    jintArray arg = env->NewIntArray(arrayLen);
-    if (NULL == arg) {
-        fprintf(stderr, "OOM from NewIntArray (num elements = %d)\n", (int)arrayLen);
+    jfieldID asyncFieldId = env->GetStaticFieldID(klazz, "simpleAsyncMessageID", "I");
+    if (NULL == asyncFieldId) {
+        fprintf(stderr, "Unable to resolve fieldID for MessageHandlers.simpleAsyncMessageID");
         abort();
     }
-
-    env->SetIntArrayRegion(arg, 0, arrayLen, jids);
-
-    delete [] jids;
-
-    // Pass the obtained message ID's to Java
-    env->CallStaticVoidMethod(klazz, callback, arg);
-
+    
+    env->SetStaticIntField(klazz, clsFieldId, closureId);
+    env->SetStaticIntField(klazz, asyncFieldId, simpleAsyncId);
+    
     // We are done with registering message handlers
     x10rt_registration_complete();
 }

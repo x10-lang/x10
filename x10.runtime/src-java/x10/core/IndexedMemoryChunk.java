@@ -206,7 +206,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             if (this.numElems > 0) {
                 Class<?> componentType = this.srcData.getClass().getComponentType();
                 if (componentType.isPrimitive()) {
-                    $serializer.write(DeserializationDispatcher.javaClassID);
+                    $serializer.write(DeserializationDispatcher.JAVA_CLASS_ID);
                     $serializer.writeObject(this.srcData);
                 } else if (componentType.equals(java.lang.String.class)) {
                     $serializer.write(DeserializationDispatcher.STRING_ID);
@@ -232,7 +232,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             $_obj.numElems = $deserializer.readInt();
             if ($_obj.numElems > 0) {
                 short serializationID = $deserializer.readShort();
-                if (serializationID == DeserializationDispatcher.javaClassID) {
+                if (serializationID == DeserializationDispatcher.JAVA_CLASS_ID) {
                     $_obj.srcData = $deserializer.readObject();
                 } else if (serializationID == DeserializationDispatcher.STRING_ID) {
                     $_obj.srcData = $deserializer.readStringArray();
