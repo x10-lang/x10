@@ -1519,7 +1519,7 @@ public class Emitter {
         if (def.flags().isStatic()) {            
             // N.B. following methods are executed with Java reflection during static initialization phase, therefore their names are important  
             String methodName = def.name().toString();
-            if (methodName.startsWith(StaticInitializer.initializerPrefix) || methodName.startsWith(StaticInitializer.deserializerPrefix)) return false;/*intrinsic*/
+            if (methodName.startsWith(StaticInitializer.initializerPrefix)) return false;/*intrinsic*/
             return true;
         }
 
