@@ -77,7 +77,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         }
     }
 
-    public static <T> IndexedMemoryChunk<T> allocate(Type<T> T, long length, boolean zeroed) {
+    public static <T> IndexedMemoryChunk<T> allocate(Type/*<T>*/ T, long length, boolean zeroed) {
         if (length > Integer.MAX_VALUE) {
             // TODO
             throw new java.lang.OutOfMemoryError("Array length must be shorter than 2^31");
@@ -85,7 +85,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         return new IndexedMemoryChunk<T>(T, (int) length, zeroed);
     }
 
-    public static <T> IndexedMemoryChunk<T> allocate(Type<T> T, int length, boolean zeroed) {
+    public static <T> IndexedMemoryChunk<T> allocate(Type/*<T>*/ T, int length, boolean zeroed) {
         return new IndexedMemoryChunk<T>(T, length, zeroed);
     }
 
