@@ -34,54 +34,40 @@ public class DeserializationDispatcher implements SerializationConstants {
     private static List<Method> idToDeserializermethod = new ArrayList<Method>();
     private static Map<String, Short> classNameToId = new HashMap<String, Short>();
 
-    // Keep track of the asyncs that need to be registered with the X10 RT implementation
-    private static List<DeserializationInfo> asyncs = new ArrayList<DeserializationInfo>();
-    private static Map<Integer, Short> messageIdToSID = new HashMap<Integer, Short>();
-
-    public static enum ClosureKind {
-        CLOSURE_KIND_NOT_ASYNC,    // is not a closure, or is a closure that is not created in place of an async by the desugarer
-        CLOSURE_KIND_SIMPLE_ASYNC, // is an async with just finish state
-        CLOSURE_KIND_GENERAL_ASYNC // is an async represented with general XRX closure
-    };
-
-    public static short addDispatcher(ClosureKind closureKind, Class clazz) {
+    public static short addDispatcher(Class<?> clazz) {
         if (nextSerializationID == NULL_ID) {
             classNameToId.put(null, nextSerializationID);
             idToDeserializationInfo.add(nextSerializationID, null);
             idToDeserializermethod.add(nextSerializationID, null);
             nextSerializationID++;
             try {
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.String"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Float"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Double"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Integer"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Boolean"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Byte"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Short"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Long"), false);
-                add(ClosureKind.CLOSURE_KIND_NOT_ASYNC, Class.forName("java.lang.Character"), false);
+                add(Class.forName("java.lang.String"), false);
+                add(Class.forName("java.lang.Float"), false);
+                add(Class.forName("java.lang.Double"), false);
+                add(Class.forName("java.lang.Integer"), false);
+                add(Class.forName("java.lang.Boolean"), false);
+                add(Class.forName("java.lang.Byte"), false);
+                add(Class.forName("java.lang.Short"), false);
+                add(Class.forName("java.lang.Long"), false);
+                add(Class.forName("java.lang.Character"), false);
             } catch (ClassNotFoundException e) {
                 // This will never happen
             }
         }
-        add(closureKind, clazz, true);
+        add(clazz, true);
         return (short) (nextSerializationID-1);
     }
 
-    public static short addDispatcher(ClosureKind closureKind, Class clazz, String alternate) {
-        short serializationID = addDispatcher(closureKind, clazz);
+    public static short addDispatcher(Class<?> clazz, String alternate) {
+        short serializationID = addDispatcher(clazz);
         classNameToId.put(alternate, serializationID);
         return serializationID;
     }
 
-    private static void add(ClosureKind closureKind, Class clazz, boolean addDeserializerMethod) {
+    private static void add(Class<?> clazz, boolean addDeserializerMethod) {
         classNameToId.put(clazz.getName(), nextSerializationID);
-        DeserializationInfo deserializationInfo = new DeserializationInfo(closureKind, clazz, nextSerializationID);
+        DeserializationInfo deserializationInfo = new DeserializationInfo(clazz, nextSerializationID);
         idToDeserializationInfo.add(nextSerializationID, deserializationInfo);
-        if (deserializationInfo.closureKind != ClosureKind.CLOSURE_KIND_NOT_ASYNC) {
-            // This class needs a message ID
-            asyncs.add(deserializationInfo);
-        }
         if (addDeserializerMethod && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
             idToDeserializermethod.add(nextSerializationID, getDeserializerMethod(clazz));
         } else {
@@ -183,7 +169,7 @@ public class DeserializationDispatcher implements SerializationConstants {
         return getClassForID(serializationID, deserializer).getName();
     }
 
-    public static Class getClassForID(short serializationID, X10JavaDeserializer deserializer) {
+    public static Class<?> getClassForID(short serializationID, X10JavaDeserializer deserializer) {
         if (serializationID == JAVA_CLASS_ID) {
             try {
                 String className = deserializer.readStringValue();
@@ -225,22 +211,12 @@ public class DeserializationDispatcher implements SerializationConstants {
         return idToDeserializationInfo.get(serializationID).msgType;
     }
 
-    public static short getSerializationID(int msg_id) {
-        return messageIdToSID.get(msg_id);
-    }
-
-    public static ClosureKind getClosureKind(short serializationID) {
-        return idToDeserializationInfo.get(serializationID).closureKind;
-    }
-
     private static class DeserializationInfo {
-        public ClosureKind closureKind;
         public Class<?> clazz;
         public int msgType;
         public short serializationID;
 
-        private DeserializationInfo(ClosureKind closureKind, Class<?> clazz, short serializationID) {
-            this.closureKind = closureKind;
+        private DeserializationInfo(Class<?> clazz, short serializationID) {
             this.clazz = clazz;
             this.serializationID = serializationID;
         }

@@ -31,7 +31,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, PlaceLocalHandle.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(PlaceLocalHandle.class);
 
     private static final HashMap<java.lang.Long,Object> data = new HashMap<java.lang.Long,Object>();
 

@@ -32,7 +32,7 @@ final public class Long extends java.lang.Number implements StructI, java.lang.C
     x10.core.Arithmetic.x10$lang$Long, x10.core.Bitwise.x10$lang$Long, x10.util.Ordered<Long>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Long.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Long.class);
     
     public static final RuntimeType<?> $RTT = Types.LONG;
     public RuntimeType<?> $getRTT() {return $RTT;}

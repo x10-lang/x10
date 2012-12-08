@@ -29,7 +29,7 @@ import java.io.IOException;
 final public class Boolean extends Struct implements java.lang.Comparable<Boolean>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Boolean.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Boolean.class);
     
     public static final RuntimeType<?> $RTT = Types.BOOLEAN;
     public RuntimeType<?> $getRTT() {return $RTT;}

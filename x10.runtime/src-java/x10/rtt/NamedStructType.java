@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class NamedStructType<T> extends RuntimeType<T> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, NamedStructType.class);
+    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(NamedStructType.class);
     
     public String typeName;
 

@@ -32,7 +32,7 @@ final public class Short extends java.lang.Number implements StructI, java.lang.
     x10.core.Arithmetic.x10$lang$Short, x10.core.Bitwise.x10$lang$Short, x10.util.Ordered<Short>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Short.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Short.class);
     
     public static final RuntimeType<?> $RTT = Types.SHORT;
     public RuntimeType<?> $getRTT() {return $RTT;}

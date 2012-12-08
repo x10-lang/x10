@@ -22,9 +22,7 @@ public class TaskWrapper extends x10.core.Ref implements
 		x10.core.fun.VoidFun_0_0, x10.serialization.X10JavaSerializable {
 	private static final long serialVersionUID = 1L;
 	private static final short $_serialization_id = x10.serialization.DeserializationDispatcher
-			.addDispatcher(
-					x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC,
-					TaskWrapper.class);
+	        .addDispatcher(TaskWrapper.class);
 
 	public static final x10.rtt.RuntimeType<TaskWrapper> $RTT = x10.rtt.NamedType
 			.<TaskWrapper> make("TaskWrapper", /* base class */

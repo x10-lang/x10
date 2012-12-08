@@ -27,7 +27,7 @@ public abstract class Ref implements Any {
     private static final long serialVersionUID = 1L;
     
     // not used (really?)
-//    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(x10.x10rt.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Ref.class);
+//    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Ref.class);
 
     // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}

@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ParameterizedType.class);
+    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(ParameterizedType.class);
 
     public RuntimeType<T> rawType;
     public Type<?>[] actualTypeArguments;

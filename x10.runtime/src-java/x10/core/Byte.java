@@ -32,7 +32,7 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     x10.core.Arithmetic.x10$lang$Byte, x10.core.Bitwise.x10$lang$Byte, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Byte.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Byte.class);
     
     public static final RuntimeType<?> $RTT = Types.BYTE;
     public RuntimeType<?> $getRTT() {return $RTT;}

@@ -19,7 +19,7 @@ import x10.rtt.Type;
 public class InputStream extends Ref {
   
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, InputStream.class);
+    private static final short $_serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(InputStream.class);
 
     public short $_get_serialization_id() {
         return $_serialization_id;

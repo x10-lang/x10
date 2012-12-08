@@ -27,7 +27,7 @@ import java.io.IOException;
 public final class Vec<T> extends x10.core.Struct {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Vec.class);
+    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(Vec.class);
 
     public int size;
     public x10.array.Array<T> backing;

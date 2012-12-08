@@ -26,7 +26,7 @@ public class LocalVar<T> extends x10.core.Ref {
 
     private static final long serialVersionUID = 1L;
     
-    private static final short $_serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, LocalVar.class);
+    private static final short $_serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(LocalVar.class);
 
     public static final RuntimeType<LocalVar<?>> $RTT =
         x10.rtt.NamedType.<LocalVar<?>> make(

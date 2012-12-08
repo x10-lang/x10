@@ -615,24 +615,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
         w.newline(4);
         w.begin(0);
 
-        // Determine which closure kind this class belongs to and register it accordingly
-        String closureKind = Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_NOT_ASYNC, ";
-        try {
-            if (!((X10Ext)(n.body()).ext()).annotationMatching(xts.systemResolver().findOne(ASYNC_CLOSURE)).isEmpty()) {
-                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
-            } else if (!((X10Ext)(n).ext()).annotationMatching(xts.systemResolver().findOne(ASYNC_CLOSURE)).isEmpty()) {
-                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_SIMPLE_ASYNC, ";
-            }
-
-            if (!((X10Ext) (n.body()).ext()).annotationMatching(xts.systemResolver().findOne(REMOTE_INVOCATION)).isEmpty()) {
-                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
-            } else if (!((X10Ext) (n).ext()).annotationMatching(xts.systemResolver().findOne(REMOTE_INVOCATION)).isEmpty()) {
-                closureKind =  Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".ClosureKind.CLOSURE_KIND_GENERAL_ASYNC, ";
-            }
-        } catch (SemanticException e) {
-        }
-
-        // print the serialVersionUID
+       // print the serialVersionUID
         if (!flags.isInterface()) {
             // TODO compute serialVersionUID with the same logic as javac
             long serialVersionUID = 1L;
@@ -641,7 +624,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
 
             // _serialization_id
             w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(" + closureKind);
+            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
             w.newline();
@@ -649,7 +632,7 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             // We need to assign ID's even for interfaces cause they could be used ad parameterized types
             // _serialization_id
             w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(" + closureKind);
+            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(");
             w.write(Emitter.mangleToJava(def.name()));
             w.writeln(".class);");
             w.newline();

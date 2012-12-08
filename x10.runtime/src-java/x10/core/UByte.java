@@ -31,7 +31,7 @@ final public class UByte extends java.lang.Number implements StructI, java.lang.
     x10.core.Arithmetic.x10$lang$UByte, x10.core.Bitwise.x10$lang$UByte, x10.util.Ordered<UByte>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UByte.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(UByte.class);
     
     public static final RuntimeType<?> $RTT = Types.UBYTE;
     public RuntimeType<?> $getRTT() {return $RTT;}

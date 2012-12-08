@@ -31,7 +31,7 @@ final public class UInt extends java.lang.Number implements StructI, java.lang.C
     x10.core.Arithmetic.x10$lang$UInt, x10.core.Bitwise.x10$lang$UInt, x10.util.Ordered<UInt>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UInt.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(UInt.class);
     
     public static final RuntimeType<?> $RTT = Types.UINT;
     public RuntimeType<?> $getRTT() {return $RTT;}

@@ -29,7 +29,7 @@ import java.io.IOException;
 final public class Char extends Struct implements java.lang.Comparable<Char>, x10.util.Ordered<Char>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Char.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Char.class);
     
     public static final RuntimeType<?> $RTT = Types.CHAR;
     public RuntimeType<?> $getRTT() {return $RTT;}

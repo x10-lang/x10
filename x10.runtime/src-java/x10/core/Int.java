@@ -32,7 +32,7 @@ final public class Int extends java.lang.Number implements StructI, java.lang.Co
     x10.core.Arithmetic.x10$lang$Int, x10.core.Bitwise.x10$lang$Int, x10.util.Ordered<Int>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Int.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Int.class);
     
     public static final RuntimeType<?> $RTT = Types.INT;
     public RuntimeType<?> $getRTT() {return $RTT;}

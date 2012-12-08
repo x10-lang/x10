@@ -25,7 +25,7 @@ import java.io.IOException;
 public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, AtomicBoolean.class);
+    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(AtomicBoolean.class);
 
     // constructor just for allocation
     public AtomicBoolean(java.lang.System[] $dummy) {

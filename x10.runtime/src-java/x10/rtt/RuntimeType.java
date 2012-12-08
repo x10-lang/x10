@@ -24,7 +24,7 @@ import x10.serialization.X10JavaSerializer;
 public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(x10.serialization.DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, RuntimeType.class);
+    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(RuntimeType.class);
 
     public enum Variance {INVARIANT, COVARIANT, CONTRAVARIANT}
     private static final Variance[][] invariants = {

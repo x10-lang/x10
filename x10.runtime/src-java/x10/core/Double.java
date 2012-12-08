@@ -32,7 +32,7 @@ final public class Double extends java.lang.Number implements StructI, java.lang
     x10.core.Arithmetic.x10$lang$Double, x10.util.Ordered<Double>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, Double.class);
+    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Double.class);
     
     public static final RuntimeType<?> $RTT = Types.DOUBLE;
     public RuntimeType<?> $getRTT() {return $RTT;}
