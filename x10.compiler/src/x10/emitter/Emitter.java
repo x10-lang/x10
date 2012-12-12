@@ -4117,7 +4117,7 @@ public class Emitter {
             if (type instanceof ConstrainedType) {
                 type = ((ConstrainedType) type).baseType().get();
             }
-            String lhs = "this." + field.name().toString() + " = ";
+            String lhs = "this." + mangleToJava(field.name()) + " = ";
             String zero = null;
             if (xts.isStruct(type)) {
                 if (xts.isUByte(type)) {
