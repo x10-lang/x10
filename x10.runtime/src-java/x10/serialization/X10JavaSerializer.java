@@ -11,6 +11,7 @@
 
 package x10.serialization;
 
+import java.io.ByteArrayOutputStream;
 import java.io.DataOutput;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -21,6 +22,8 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
+import java.util.HashMap;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.concurrent.ConcurrentHashMap;
@@ -29,26 +32,82 @@ import x10.io.CustomSerialization;
 import x10.io.SerialData;
 import x10.runtime.impl.java.Runtime;
 
-public class X10JavaSerializer implements SerializationConstants {
+public final class X10JavaSerializer implements SerializationConstants {
         
     private static ConcurrentHashMap<Class<?>, SerializerThunk> thunks = new ConcurrentHashMap<Class<?>, X10JavaSerializer.SerializerThunk>(50);
 
+    protected final DataOutputStream out;
+    protected final ByteArrayOutputStream b_out;
+    
     // When a Object is serialized record its position
     // N.B. use custom IdentityHashMap class, as standard one has poor performance on J9
     X10IdentityHashMap<Object, Integer> objectMap = new X10IdentityHashMap<Object, Integer>();
-    DataOutputStream out;
     int counter = 0;
+    
     // [GlobalGC] Table to remember serialized GlobalRefs, set and used in GlobalRef.java and InitDispatcher.java
     X10IdentityHashMap<x10.core.GlobalRef<?>, Integer> grefMap = new X10IdentityHashMap<x10.core.GlobalRef<?>, Integer>(); // for GlobalGC
     public void addToGrefMap(x10.core.GlobalRef<?> gr, int weight) { grefMap.put(gr, weight); }
     public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
+    
+    // Build up per-message id dictionary
+    HashMap<Class<?>,Short> idDictionary = new HashMap<Class<?>,Short>();
+    short nextId = FIRST_DYNAMIC_ID;
 
-    public X10JavaSerializer(DataOutputStream out) {
-        this.out = out;
+    public X10JavaSerializer() {
+        this.b_out = new ByteArrayOutputStream();
+        this.out = new DataOutputStream(this.b_out);
     }
 
     public DataOutput getOutForHadoop() {
         return out;
+    }
+    
+    public int numBytesWritten() {
+        return b_out.size();
+    }
+    
+    public byte[] toMessage() throws IOException {
+        if (PER_MESSAGE_IDS) {
+            out.close();
+            
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Sending per-message serialization ids: "+idDictionary);
+            }
+            
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            DataOutputStream dos = new DataOutputStream(baos);
+            dos.writeShort(idDictionary.size());
+            for (Entry<Class<?>, Short> es  : idDictionary.entrySet()) {
+                dos.writeShort(es.getValue());
+                String name = es.getKey().getName();
+                dos.writeInt(name.length());
+                dos.write(name.getBytes());
+            }
+            dos.close();
+            
+            byte[] dictBytes = baos.toByteArray();
+            byte[] dataBytes = b_out.toByteArray();
+            byte[] message = new byte[dictBytes.length + dataBytes.length];
+            System.arraycopy(dictBytes, 0, message, 0, dictBytes.length);
+            System.arraycopy(dataBytes, 0, message, dictBytes.length, dataBytes.length);
+            return message;
+        } else {
+            out.close();
+            return b_out.toByteArray();
+        }
+    }
+    
+    short getSerializationId(Class<?> clazz, X10JavaSerializable obj) {
+        if (PER_MESSAGE_IDS) {
+            Short id = idDictionary.get(clazz);
+            if (null == id) {
+                id = Short.valueOf(nextId++);
+                idDictionary.put(clazz, id);
+            }
+            return id.shortValue();
+        } else {
+            return obj.$_get_serialization_id();
+        }
     }
     
     public void write(X10JavaSerializable obj) throws IOException {
@@ -57,15 +116,12 @@ public class X10JavaSerializer implements SerializationConstants {
             return;
         }
 
-//        if (obj.getClass().toString().equals("java.lang.Object")) {
-//            // should never happen
-//            return;
-//        }
         Integer pos = previous_position(obj, true);
         if (pos != null) {
             return;
         }
-        short i = obj.$_get_serialization_id();
+        
+        short i = getSerializationId(obj.getClass(), obj);
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "serialization_id_t" + Runtime.ANSI_RESET + ": " + i);
         }

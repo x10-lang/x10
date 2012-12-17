@@ -23,6 +23,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -35,21 +36,35 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
 
-public class X10JavaDeserializer implements SerializationConstants {
+public final class X10JavaDeserializer implements SerializationConstants {
         
     private static ConcurrentHashMap<Class<?>, DeserializerThunk> thunks = new ConcurrentHashMap<Class<?>, DeserializerThunk>(50);
 
+    private static Unsafe unsafe = getUnsafe();
+    private static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$initForReflection";
 
     // When a Object is deserialized record its position
     private List<Object> objectList;
     private DataInputStream in;
     private int counter = 0;
-    private static Unsafe unsafe = getUnsafe();
-    private static final String CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION = "$initForReflection";
-
+    
+    // Per message deserialization mapping;
+    private HashMap<Short,Method> idsToMethod = new HashMap<Short,Method>();
+    
     public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
         objectList = new ArrayList<Object>();
+        if (PER_MESSAGE_IDS) {
+            try {
+                readMessageDictionary();
+            } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            } catch (ClassNotFoundException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+            }
+        }
     }
 
     public DataInput getInpForHadoop() {
@@ -78,6 +93,23 @@ public class X10JavaDeserializer implements SerializationConstants {
         return obj;
     }
 
+    void readMessageDictionary() throws IOException, ClassNotFoundException {
+        short numEntries = in.readShort();
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("\tReceiving "+numEntries+" serialization ids");                
+        }
+        for (short i=0; i<numEntries; i++) {
+            short id = in.readShort();
+            String name = readStringValue();
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
+            }
+            Method m = DeserializationDispatcher.getDeserializerMethod(name);
+            idsToMethod.put(Short.valueOf(id), m);
+        }
+    }
+    
+    @SuppressWarnings("unchecked")
     public <T> T readRef() throws IOException {
         short serializationID = readShort();
         return (T) readRef(serializationID);
@@ -90,12 +122,11 @@ public class X10JavaDeserializer implements SerializationConstants {
             }
             return null;
         }
+        
         if (serializationID == REF_VALUE) {
             return getObjectAtPosition(readInt());
         }
-//        if (Runtime.TRACE_SER) {
-//            Runtime.printTraceMessage("Dispatching deserialization using id " + serializationID);
-//        }
+
         if (serializationID == JAVA_CLASS_ID) {
             return deserializeRefUsingReflection(serializationID);
         }
@@ -139,7 +170,38 @@ public class X10JavaDeserializer implements SerializationConstants {
                 return null;
             }
         }
-        return DeserializationDispatcher.getInstanceForId(serializationID, this);
+        if (serializationID == DeserializationDispatcher.NULL_ID) {
+            if (Runtime.TRACE_SER) {
+                Runtime.printTraceMessage("Deserializing a null reference");
+            }
+            return null;
+        }
+        if (serializationID == DeserializationDispatcher.REF_VALUE) {
+            return this.getObjectAtPosition(this.readInt());
+        }
+        if (serializationID <= DeserializationDispatcher.MAX_ID_FOR_PRIMITIVE) {
+            return X10JavaDeserializer.deserializePrimitive(serializationID, this);
+        }
+        
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
+        }
+        try {
+            Method method = idsToMethod.get(Short.valueOf(serializationID));
+            if (null == method) {
+                throw new RuntimeException("Unexpected serializationID "+serializationID);
+            }
+            return method.invoke(null, this);
+        } catch (InvocationTargetException e) {
+            // This should never happen
+            throw new RuntimeException("Error in deserializing non-null value with id " + serializationID, e);
+        } catch (SecurityException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        } catch (IllegalAccessException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -348,7 +410,7 @@ public class X10JavaDeserializer implements SerializationConstants {
             return getObjectAtPosition(readInt());
         }
         if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
-            return DeserializationDispatcher.deserializePrimitive(serializationID, this);
+            return X10JavaDeserializer.deserializePrimitive(serializationID, this);
         }
 
         if (Runtime.TRACE_SER) {
@@ -602,6 +664,44 @@ public class X10JavaDeserializer implements SerializationConstants {
         }
     }
     
+    public static Object deserializePrimitive(short serializationID, X10JavaDeserializer deserializer) throws IOException {
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
+        }
+        Object obj = null;
+        switch (serializationID) {
+            case STRING_ID:
+                obj = deserializer.readStringValue();
+                break;
+            case FLOAT_ID:
+                obj = deserializer.readFloat();
+                break;
+            case DOUBLE_ID:
+                obj = deserializer.readDouble();
+                break;
+            case INTEGER_ID:
+                obj = deserializer.readInt();
+                break;
+            case BOOLEAN_ID:
+                obj = deserializer.readBoolean();
+                break;
+            case BYTE_ID:
+                obj = deserializer.readByte();
+                break;
+            case SHORT_ID:
+                obj = deserializer.readShort();
+                break;
+            case CHARACTER_ID:
+                obj = deserializer.readChar();
+                break;
+            case LONG_ID:
+                obj = deserializer.readLong();
+                break;
+        }
+        deserializer.record_reference(obj);
+        return obj;
+    }
+
     private abstract static class DeserializerThunk {
         protected final DeserializerThunk superThunk;
         

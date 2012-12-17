@@ -15,6 +15,8 @@ package x10.serialization;
  * Constants used in the X10 serialization/deserialization protocol
  */
 interface SerializationConstants {
+    public static final boolean PER_MESSAGE_IDS = true;
+    
     public static final short NULL_ID = 0;
     public static final short STRING_ID = 1;
     public static final short FLOAT_ID = 2;
@@ -26,6 +28,8 @@ interface SerializationConstants {
     public static final short LONG_ID = 8;
     public static final short CHARACTER_ID = 9;
     public static final short MAX_ID_FOR_PRIMITIVE = 9;
+     
+    public static final short FIRST_DYNAMIC_ID = 100;
 
     public static final short REF_VALUE = Short.MAX_VALUE;
     public static final short JAVA_CLASS_ID = REF_VALUE - 1;

@@ -11,12 +11,8 @@
 
 package x10.serialization;
 
-import x10.runtime.impl.java.Runtime;
 
 import java.io.IOException;
-import java.lang.RuntimeException;
-import java.lang.Short;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -33,6 +29,8 @@ public class DeserializationDispatcher implements SerializationConstants {
     private static List<DeserializationInfo> idToDeserializationInfo = new ArrayList<DeserializationInfo>();
     private static List<Method> idToDeserializermethod = new ArrayList<Method>();
     private static Map<String, Short> classNameToId = new HashMap<String, Short>();
+    
+    private static Map<String,Method> deserializerMethods = new HashMap<String,Method>();
 
     public static short addDispatcher(Class<?> clazz) {
         if (nextSerializationID == NULL_ID) {
@@ -76,39 +74,29 @@ public class DeserializationDispatcher implements SerializationConstants {
         nextSerializationID++;
     }
 
-    public static Object getInstanceForId(short serializationID, X10JavaDeserializer deserializer) throws IOException {
-
-        if (serializationID == NULL_ID) {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Deserializing a null reference");
+    public static synchronized Method getDeserializerMethod(String className) {
+        Method m = deserializerMethods.get(className);
+        if (null == m) {
+            Class<?> clazz;
+            try {
+                clazz = Class.forName(className);
+            } catch (ClassNotFoundException e) {
+                System.err.println("DeserializationDispatcher: failed to load class "+className);
+                throw new RuntimeException(e);
             }
-            return null;
+            try {
+                m = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
+            } catch (NoSuchMethodException e) {
+                System.err.println("DeserializationDispatcher: class "+className+" does not have a $_deserializer method");
+                throw new RuntimeException(e);
+            }
+            m.setAccessible(true);            
+            
+            deserializerMethods.put(className,m);
         }
-        if (serializationID == REF_VALUE) {
-            return deserializer.getObjectAtPosition(deserializer.readInt());
-        }
-        if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
-            return deserializePrimitive(serializationID, deserializer);
-        }
-
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
-        }
-        try {
-            Method method = idToDeserializermethod.get(serializationID);
-            return method.invoke(null, deserializer);
-        } catch (InvocationTargetException e) {
-            // This should never happen
-            throw new RuntimeException("Error in deserializing non-null value with id " + serializationID, e);
-        } catch (SecurityException e) {
-            // This should never happen
-            throw new RuntimeException(e);
-        } catch (IllegalAccessException e) {
-            // This should never happen
-            throw new RuntimeException(e);
-        }
+        return m;
     }
-
+    
     public static Method getDeserializerMethod(Class<?> clazz) {
         try {
             Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
@@ -118,44 +106,6 @@ public class DeserializationDispatcher implements SerializationConstants {
             // This should never happen
             throw new RuntimeException(e);
         }
-    }
-
-    public static Object deserializePrimitive(short serializationID, X10JavaDeserializer deserializer) throws IOException {
-        if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
-        }
-        Object obj = null;
-        switch (serializationID) {
-            case STRING_ID:
-                obj = deserializer.readStringValue();
-                break;
-            case FLOAT_ID:
-                obj = deserializer.readFloat();
-                break;
-            case DOUBLE_ID:
-                obj = deserializer.readDouble();
-                break;
-            case INTEGER_ID:
-                obj = deserializer.readInt();
-                break;
-            case BOOLEAN_ID:
-                obj = deserializer.readBoolean();
-                break;
-            case BYTE_ID:
-                obj = deserializer.readByte();
-                break;
-            case SHORT_ID:
-                obj = deserializer.readShort();
-                break;
-            case CHARACTER_ID:
-                obj = deserializer.readChar();
-                break;
-            case LONG_ID:
-                obj = deserializer.readLong();
-                break;
-        }
-        deserializer.record_reference(obj);
-        return obj;
     }
 
     public static String getClassNameForID(short serializationID, X10JavaDeserializer deserializer) {
@@ -207,13 +157,8 @@ public class DeserializationDispatcher implements SerializationConstants {
         x10.x10rt.MessageHandlers.registerHandlers();
     }
 
-    public static int getMessageID(short serializationID) {
-        return idToDeserializationInfo.get(serializationID).msgType;
-    }
-
     private static class DeserializationInfo {
         public Class<?> clazz;
-        public int msgType;
         public short serializationID;
 
         private DeserializationInfo(Class<?> clazz, short serializationID) {
