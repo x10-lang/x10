@@ -3177,15 +3177,11 @@ public class MessagePassingCodeGenerator extends X10DelegatingVisitor {
             sw.write(SAVED_THIS);
             context.saveEnvVariableInfo(THIS);
         } else {
+            assert n.kind().equals(X10Special_c.THIS) || n.kind().equals(X10Special_c.SUPER) : "Should be this or super";
             if (Types.isX10Struct(n.type())) {
-                sw.write("(*"+n.kind().toString()+")");
+                sw.write("(*this)");
             } else {
-                if (n.kind().equals(X10Special_c.THIS)) {
-                    sw.write("(("+Emitter.translateType(n.type(),true)+")"+n.kind()+")");
-                } else {
-                    assert n.kind().equals(X10Special_c.SUPER);
-                    sw.write("(("+Emitter.translateType(context.currentClass().superClass(),true)+")this)");
-                }
+                sw.write("this");
             }
         }
     }
