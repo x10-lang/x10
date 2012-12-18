@@ -19,23 +19,14 @@ import java.io.ObjectOutputStream;
 import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.lang.reflect.TypeVariable;
 import java.util.HashMap;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.concurrent.ConcurrentHashMap;
 
 import x10.io.CustomSerialization;
-import x10.io.SerialData;
 import x10.runtime.impl.java.Runtime;
 
 public final class X10JavaSerializer implements SerializationConstants {
         
-    private static ConcurrentHashMap<Class<?>, SerializerThunk> thunks = new ConcurrentHashMap<Class<?>, X10JavaSerializer.SerializerThunk>(50);
-
     protected final DataOutputStream out;
     protected final ByteArrayOutputStream b_out;
     
@@ -429,7 +420,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         writeStringValue(str);
     }
 
-    private void writeStringValue(String str) throws IOException {
+    void writeStringValue(String str) throws IOException {
         write(str.length());
         out.write(str.getBytes());
     }
@@ -498,7 +489,7 @@ public final class X10JavaSerializer implements SerializationConstants {
 
         try {
             writeClassID(bodyClass.getName());
-            SerializerThunk st = getSerializerThunk(bodyClass);
+            SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
             st.serializeObject(body, bodyClass, this);
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -524,7 +515,7 @@ public final class X10JavaSerializer implements SerializationConstants {
     // This method is called from generated code when an X10 class has a Java superclass
     public <T> void serializeClassUsingReflection(T obj, Class<T> clazz) throws IOException {
         try {
-            SerializerThunk st = getSerializerThunk(clazz);
+            SerializerThunk st = SerializerThunk.getSerializerThunk(clazz);
             st.serializeObject(obj, clazz, this);
         } catch (SecurityException e) {
             e.printStackTrace();
@@ -557,89 +548,9 @@ public final class X10JavaSerializer implements SerializationConstants {
         }
     }
 
-    private static SerializerThunk getSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-        SerializerThunk ans = thunks.get(clazz);
-        if (ans == null) {
-            ans = getSerializerThunkHelper(clazz);
-            thunks.put(clazz, ans);
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Creating serialization thunk "+ans.getClass()+" for "+clazz);
-            }
-        }
-        return ans;
-    }
-
     static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
     static final boolean THROWABLES_SERIALIZE_STACKTRACE = true;
     static final boolean THROWABLES_SERIALIZE_CAUSE = true;
-
-    private static SerializerThunk getSerializerThunkHelper(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
-        
-        // We need to handle these classes in a special way because their 
-        // implementation of serialization/deserialization is not straight forward.
-        if ("java.lang.String".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
-            SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
-            return new SpecialCaseSerializerThunk(clazz, superThunk);
-        } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
-            SerializerThunk superThunk = getSerializerThunk(clazz.getSuperclass());
-            return new SpecialCaseSerializerThunk(clazz, superThunk);
-        } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-            // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//        } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
-//            return new SpecialCaseSerializerThunk(clazz);
-        } else if ("java.lang.Throwable".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        } else if ("java.lang.Class".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        } else if ("java.lang.Object".equals(clazz.getName())) {
-            return new SpecialCaseSerializerThunk(clazz);
-        }
-
-        Class<?>[] interfaces = clazz.getInterfaces();
-        boolean isCustomSerializable = false;
-        boolean isHadoopSerializable = false;
-        for (Class<?> aInterface : interfaces) {
-            if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
-                isCustomSerializable = true;
-                break;
-            }
-        }
-
-        if (Runtime.implementsHadoopWritable(clazz)) {
-            isHadoopSerializable = true;
-        }
-
-        if (isCustomSerializable && isHadoopSerializable) {
-            throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
-        }
-
-        if (isCustomSerializable) {
-            return new CustomSerializerThunk(clazz);
-        }
-        
-        if (isHadoopSerializable) {
-            return new HadoopSerializerThunk(clazz);
-        }
-        
-        Class<?> superclass = clazz.getSuperclass();
-        SerializerThunk superThunk = null;
-        if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
-            superThunk = getSerializerThunk(clazz.getSuperclass());
-        }
-
-        return new FieldBasedSerializerThunk(clazz, superThunk);
-    }
 
     public void writeArrayUsingReflection(Object obj) throws IOException {
         if (obj == null) {
@@ -761,12 +672,12 @@ public final class X10JavaSerializer implements SerializationConstants {
         }
     }
 
-    private <T> void writeStringUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
+    <T> void writeStringUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
         String str = (String) field.get(obj);
         write(str);
     }
 
-    private <T> void writePrimitiveUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
+    <T> void writePrimitiveUsingReflection(Field field, T obj) throws IllegalAccessException, IOException {
         Class<?> type = field.getType();
         if ("int".equals(type.getName())) {
             write(field.getInt(obj));
@@ -791,166 +702,5 @@ public final class X10JavaSerializer implements SerializationConstants {
     public void writeObject(Object obj) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(this.out);
         oos.writeObject(obj);
-    }
-    
-    private static abstract class SerializerThunk {
-        protected final SerializerThunk superThunk;
-        
-        SerializerThunk(SerializerThunk st) {
-            superThunk = st;
-        }
-        
-        <T> void serializeObject(T obj, Class<? extends Object > clazz, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
-            if (superThunk != null) {
-                superThunk.serializeObject(obj, clazz.getSuperclass(), xjs);
-            }
-            serializeBody(obj, clazz, xjs);
-        }
-        
-        abstract <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException;
-    }
-    
-    private static class FieldBasedSerializerThunk extends SerializerThunk {
-        protected final Field[] fields;
-        
-        FieldBasedSerializerThunk(Class<? extends Object> clazz, SerializerThunk st) {
-            super(st);
-
-            // XTENLANG-2982,2983 transient fields may be initialized with readObject method. 
-            Method readObjectMethod = null;
-            try {
-                readObjectMethod = clazz.getDeclaredMethod("readObject", java.io.ObjectInputStream.class);
-            } catch (Exception e) {}
-
-            // Sort the fields to get JVM-independent ordering.
-            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-            Field[] declaredFields = clazz.getDeclaredFields();
-            for (Field field : declaredFields) {
-                int modifiers = field.getModifiers();
-                if (Modifier.isStatic(modifiers) || (Modifier.isTransient(modifiers) && readObjectMethod == null)) {
-                    continue;
-                }
-                field.setAccessible(true);
-                flds.add(field);
-            }
-            fields = flds.toArray(new Field[flds.size()]);
-        }
-        
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalAccessException, IOException {
-            for (Field field : fields) {
-                Class<?> type = field.getType();
-                if (type.isPrimitive()) {
-                    xjs.writePrimitiveUsingReflection(field, obj);
-                } else if (type.isArray()) {
-                    xjs.writeArrayUsingReflection(field.get(obj));
-                } else if ("java.lang.String".equals(type.getName())) {
-                    xjs.writeStringUsingReflection(field, obj);
-                } else {
-                    xjs.writeObjectUsingReflection(field.get(obj));
-                }
-            }
-        }
-    }
-        
-    private static class HadoopSerializerThunk extends SerializerThunk {
-        protected final Method writeMethod;
-
-        HadoopSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchMethodException {
-            super(null);
-            writeMethod = clazz.getMethod("write", java.io.DataOutput.class);
-            writeMethod.setAccessible(true);
-        }
-
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("\tInvoking "+writeMethod);
-            }
-            writeMethod.invoke(obj, xjs.out);
-        }
-    }
-
-    private static class CustomSerializerThunk extends SerializerThunk {
-        protected final Field[] fields;
-
-        CustomSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException {
-            super(null);
-
-            // Sort the fields to get JVM-independent ordering.
-            // Need to serialize the fields related to RTT's since they
-            // are specific to the Java backend.
-            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
-            TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                Field field = clazz.getDeclaredField(typeParameter.getName());
-                field.setAccessible(true);
-                flds.add(field);
-            }
-            fields = flds.toArray(new Field[flds.size()]);                      
-        }
-
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {
-            for (Field field: fields) {
-                xjs.writeObjectUsingReflection(field.get(obj));
-            }
-            CustomSerialization cs = (CustomSerialization)obj;
-            SerialData serialData = cs.serialize();
-            xjs.writeObjectUsingReflection(serialData);
-        }
-    }
-    
-    private static class SpecialCaseSerializerThunk extends SerializerThunk {
-
-        SpecialCaseSerializerThunk(Class <? extends Object> clazz) {
-            super(null);
-        }
-
-        SpecialCaseSerializerThunk(Class <? extends Object> clazz, SerializerThunk st) {
-            super(st);
-        }
-
-        @SuppressWarnings("rawtypes")
-        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IOException, SecurityException, NoSuchFieldException, IllegalArgumentException, IllegalAccessException {
-            if ("java.lang.String".equals(clazz.getName())) {
-                xjs.writeStringValue((String) obj);
-            } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
-                Field typeNameField = clazz.getDeclaredField("typeName");
-                String typeName = (String) typeNameField.get(obj);
-                xjs.writeClassID(typeName);
-            } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
-                Field typeNameField = clazz.getDeclaredField("typeName");
-                String typeName = (String) typeNameField.get(obj);
-                xjs.writeClassID(typeName);
-            } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
-                Field javaClassField = clazz.getDeclaredField("javaClass");
-                Class<?> javaClass = (Class<?>) javaClassField.get(obj);
-                xjs.writeClassID(javaClass.getName());
-            } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
-                ((x10.core.IndexedMemoryChunk) obj).$_serialize(xjs);
-            } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {
-                ((x10.core.IndexedMemoryChunk.$Closure$0) obj).$_serialize(xjs);
-            } else if ("x10.core.IndexedMemoryChunk$$Closure$1".equals(clazz.getName())) {
-                ((x10.core.IndexedMemoryChunk.$Closure$1) obj).$_serialize(xjs);
-            } else if (x10.core.GlobalRef.class.getName().equals(clazz.getName())) {
-                ((x10.core.GlobalRef) obj).$_serialize(xjs);
-                // TODO CHECKED_THROWABLE stop converting Java exception types that are mapped (i.e. not wrapped) to x10 exception types. 
-//            } else if (x10.core.X10Throwable.class.getName().equals(clazz.getName())) {
-//                ((x10.core.X10Throwable) obj).$_serialize(xjs);
-            } else if ("java.lang.Throwable".equals(clazz.getName())) {
-                java.lang.Throwable t = (java.lang.Throwable) obj;
-                if (THROWABLES_SERIALIZE_MESSAGE) {
-                    xjs.write(t.getMessage());
-                }
-                if (THROWABLES_SERIALIZE_STACKTRACE) {
-                    xjs.writeArrayUsingReflection(t.getStackTrace());
-                }
-                if (THROWABLES_SERIALIZE_CAUSE) {
-                    xjs.write(t.getCause());
-                }
-            } else if ("java.lang.Class".equals(clazz.getName())) {
-                xjs.write(((Class)obj).getName());
-//            } else if ("java.lang.Object".equals(clazz.getName())) {
-//                // NOP 
-            }
-        }
     }
 }
