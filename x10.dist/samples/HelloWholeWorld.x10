@@ -18,7 +18,7 @@ import x10.io.Console;
 class HelloWholeWorld {
   public static def main(Array[String]):void {
      finish for (p in Place.places()) {
-     	async at (p) Console.OUT.println("Hello World from place "+p.id);
+     	at (p) async Console.OUT.println("Hello World from place "+p.id);
      }
   }
 }

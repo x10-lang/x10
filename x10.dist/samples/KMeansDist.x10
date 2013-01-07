@@ -58,7 +58,7 @@ public class KMeansDist {
 
             finish {
                 // reset state
-                for (d in points_dist.places()) async at(d) {
+                for (d in points_dist.places()) at (d) async {
                     for (var j:Int=0 ; j<DIM*CLUSTERS ; ++j) {
                         local_curr_clusters()(j) = central_clusters(j);
                         local_new_clusters()(j) = 0;
