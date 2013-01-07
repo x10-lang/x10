@@ -12,22 +12,22 @@
 package x10.rtt;
 
 
-import x10.serialization.X10JavaDeserializer;
-import x10.serialization.X10JavaSerializable;
-import x10.serialization.X10JavaSerializer;
-
-import java.io.IOException;
 import java.lang.reflect.Array;
 
+import x10.serialization.SerializationConstants;
+
 public final class BooleanType extends RuntimeType<x10.core.Boolean> {
-//public final class BooleanType extends RuntimeType<x10.core.Boolean> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, BooleanType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.BOOLEAN;
+    }
+    
+    @Override
+    public short $_get_serialization_id() {
+        return SerializationConstants.RTT_BOOLEAN_ID;
     }
 
     public BooleanType() {
@@ -93,21 +93,4 @@ public final class BooleanType extends RuntimeType<x10.core.Boolean> {
     public boolean isref() {
         return false;
     }
-
-//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-//    }
-//
-//    public short $_get_serialization_id() {
-//        return _serialization_id;
-//    }
-//
-//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-//		return $_deserialize_body(null, deserializer);
-//	}
-//
-//    public static X10JavaSerializable $_deserialize_body(BooleanType t, X10JavaDeserializer deserializer) throws IOException {
-//        BooleanType booleanType = (BooleanType) Types.BOOLEAN;
-//        deserializer.record_reference(booleanType);
-//        return booleanType;
-//    }
 }

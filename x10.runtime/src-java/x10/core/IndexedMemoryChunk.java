@@ -212,7 +212,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
                     $serializer.write(DeserializationDispatcher.STRING_ID);
                     $serializer.write((java.lang.String[]) this.srcData);
                 } else if (this.srcData instanceof X10JavaSerializable[]) {
-                //} else if (X10JavaSerializable.class.isAssignableFrom(componentType)) {
                     $serializer.write((X10JavaSerializable[]) this.srcData);
                 } else {
                     $serializer.write((Object[]) this.srcData);

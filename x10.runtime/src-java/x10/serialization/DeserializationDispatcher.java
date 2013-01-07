@@ -48,6 +48,21 @@ public class DeserializationDispatcher implements SerializationConstants {
                 add(Class.forName("java.lang.Short"), false);
                 add(Class.forName("java.lang.Long"), false);
                 add(Class.forName("java.lang.Character"), false);
+                
+                add(Class.forName("x10.rtt.AnyType"), false);
+                add(Class.forName("x10.rtt.BooleanType"), false);
+                add(Class.forName("x10.rtt.ByteType"), false);
+                add(Class.forName("x10.rtt.CharType"), false);
+                add(Class.forName("x10.rtt.DoubleType"), false);
+                add(Class.forName("x10.rtt.FloatType"), false);
+                add(Class.forName("x10.rtt.IntType"), false);
+                add(Class.forName("x10.rtt.LongType"), false);
+                add(Class.forName("x10.rtt.ShortType"), false);
+                add(Class.forName("x10.rtt.StringType"), false);
+                add(Class.forName("x10.rtt.UByteType"), false);
+                add(Class.forName("x10.rtt.UIntType"), false);
+                add(Class.forName("x10.rtt.ULongType"), false);
+                add(Class.forName("x10.rtt.UShortType"), false);
             } catch (ClassNotFoundException e) {
                 // This will never happen
             }

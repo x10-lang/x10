@@ -11,22 +11,21 @@
 
 package x10.rtt;
 
-import x10.serialization.X10JavaDeserializer;
-import x10.serialization.X10JavaSerializable;
-import x10.serialization.X10JavaSerializer;
+import x10.serialization.SerializationConstants;
 
-import java.io.IOException;
 
 
 public final class StringType extends RuntimeType<java.lang.String> {
-//public final class StringType extends RuntimeType<java.lang.String> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, StringType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.STRING;
+    }
+    @Override
+    public short $_get_serialization_id() {
+        return SerializationConstants.RTT_STRING_ID;
     }
 
     public StringType() {
@@ -46,21 +45,4 @@ public final class StringType extends RuntimeType<java.lang.String> {
     public java.lang.String typeName() {
         return "x10.lang.String";
     }
-
-//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-//    }
-//
-//    public short $_get_serialization_id() {
-//        return _serialization_id;
-//    }
-//
-//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-//		return $_deserialize_body(null, deserializer);
-//	}
-//
-//    public static X10JavaSerializable $_deserialize_body(StringType s, X10JavaDeserializer deserializer) throws IOException {
-//        StringType stringType = (StringType) Types.STRING;
-//        deserializer.record_reference(stringType);
-//        return stringType;
-//    }
 }

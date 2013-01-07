@@ -12,22 +12,21 @@
 package x10.rtt;
 
 
-import x10.serialization.X10JavaDeserializer;
-import x10.serialization.X10JavaSerializable;
-import x10.serialization.X10JavaSerializer;
-
-import java.io.IOException;
 import java.lang.reflect.Array;
 
+import x10.serialization.SerializationConstants;
+
 public final class UIntType extends RuntimeType<x10.core.UInt> {
-//public final class UIntType extends RuntimeType<x10.core.UInt> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, UIntType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.UINT;
+    }
+    @Override
+    public short $_get_serialization_id() {
+        return SerializationConstants.RTT_UINT_ID;
     }
 
     public UIntType() {
@@ -96,22 +95,4 @@ public final class UIntType extends RuntimeType<x10.core.UInt> {
     public boolean isref() {
         return false;
     }
-
-//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-//    }
-//
-//    public short $_get_serialization_id() {
-//        return _serialization_id;
-//    }
-//
-//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-//		return $_deserialize_body(null, deserializer);
-//	}
-//
-//    public static X10JavaSerializable $_deserialize_body(UIntType t, X10JavaDeserializer deserializer) throws IOException {
-//        UIntType uIntType = (UIntType) Types.UINT;
-//        deserializer.record_reference(uIntType);
-//        return uIntType;
-//    }
-    
 }

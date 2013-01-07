@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
+import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 
 public final class X10JavaDeserializer implements SerializationConstants {
@@ -163,7 +164,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         if (serializationID == DeserializationDispatcher.REF_VALUE) {
             return this.getObjectAtPosition(this.readInt());
         }
-        if (serializationID <= DeserializationDispatcher.MAX_ID_FOR_PRIMITIVE) {
+        if (serializationID <= DeserializationDispatcher.MAX_HARDCODED_ID) {
             return X10JavaDeserializer.deserializePrimitive(serializationID, this);
         }
         
@@ -393,7 +394,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         if (serializationID == REF_VALUE) {
             return getObjectAtPosition(readInt());
         }
-        if (serializationID <= MAX_ID_FOR_PRIMITIVE) {
+        if (serializationID <= MAX_HARDCODED_ID) {
             return X10JavaDeserializer.deserializePrimitive(serializationID, this);
         }
 
@@ -405,28 +406,6 @@ public final class X10JavaDeserializer implements SerializationConstants {
 
     private Object deserializeRefUsingReflection(short serializationID) throws IOException {
         Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
-        String className = clazz.getName();
-
-        if (className.startsWith("x10.rtt.") &&
-            ("x10.rtt.FloatType".equals(className) 
-             || "x10.rtt.IntType".equals(className)
-             || "x10.rtt.DoubleType".equals(className)
-             || "x10.rtt.LongType".equals(className)
-             || "x10.rtt.BooleanType".equals(className)
-             || "x10.rtt.StringType".equals(className)
-             || "x10.rtt.CharType".equals(className)
-             || "x10.rtt.ByteType".equals(className)
-             || "x10.rtt.ShortType".equals(className)
-             || "x10.rtt.ObjectType".equals(className)
-             || "x10.rtt.UByteType".equals(className)
-             || "x10.rtt.UIntType".equals(className)
-             || "x10.rtt.ULongType".equals(className)
-             || "x10.rtt.UShortType".equals(className)
-             )) {
-            // These classes don't implement the serialization/deserialization routines, hence we deserialize the superclass
-            readShort();
-            clazz = clazz.getSuperclass();
-        }
             
         try {
             DeserializerThunk thunk = DeserializerThunk.getDeserializerThunk(clazz);
@@ -562,33 +541,85 @@ public final class X10JavaDeserializer implements SerializationConstants {
         switch (serializationID) {
             case STRING_ID:
                 obj = deserializer.readStringValue();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case FLOAT_ID:
                 obj = deserializer.readFloat();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case DOUBLE_ID:
                 obj = deserializer.readDouble();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case INTEGER_ID:
                 obj = deserializer.readInt();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case BOOLEAN_ID:
                 obj = deserializer.readBoolean();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case BYTE_ID:
                 obj = deserializer.readByte();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case SHORT_ID:
                 obj = deserializer.readShort();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case CHARACTER_ID:
                 obj = deserializer.readChar();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
             case LONG_ID:
                 obj = deserializer.readLong();
+                deserializer.record_reference(obj); // TODO: consider avoid recording this as a reference; it can't be cyclic.
                 break;
+            case RTT_ANY_ID:
+                obj = Types.ANY;
+                break;
+            case RTT_BOOLEAN_ID:
+                obj = Types.BOOLEAN;
+                break;
+            case RTT_BYTE_ID:
+                obj = Types.BYTE;
+                break;
+            case RTT_CHAR_ID:
+                obj = Types.CHAR;
+                break;
+            case RTT_DOUBLE_ID:
+                obj = Types.DOUBLE;
+                break;
+            case RTT_FLOAT_ID:
+                obj = Types.FLOAT;
+                break;
+            case RTT_INT_ID:
+                obj = Types.INT;
+                break;
+            case RTT_LONG_ID:
+                obj = Types.LONG;
+                break;
+            case RTT_SHORT_ID:
+                obj = Types.SHORT;
+                break;
+            case RTT_STRING_ID:
+                obj = Types.STRING;
+                break;
+            case RTT_UBYTE_ID:
+                obj = Types.UBYTE;
+                break;
+            case RTT_UINT_ID:
+                obj = Types.UINT;
+                break;
+            case RTT_ULONG_ID:
+                obj = Types.ULONG;
+                break;
+            case RTT_USHORT_ID:
+                obj = Types.USHORT;
+                break;
+            default:
+                throw new RuntimeException("Unhandled hard-wired serialization id in readPrimitive!");    
         }
-        deserializer.record_reference(obj);
         return obj;
     }
 }

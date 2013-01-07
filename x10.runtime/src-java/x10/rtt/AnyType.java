@@ -11,6 +11,8 @@
 
 package x10.rtt;
 
+import x10.serialization.SerializationConstants;
+
 
 public final class AnyType extends RuntimeType<Object> {
 
@@ -19,6 +21,11 @@ public final class AnyType extends RuntimeType<Object> {
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.ANY;
+    }
+    
+    @Override
+    public short $_get_serialization_id() {
+        return SerializationConstants.RTT_ANY_ID;
     }
 
     public AnyType() {

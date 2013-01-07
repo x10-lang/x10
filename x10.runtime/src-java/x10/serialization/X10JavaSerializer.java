@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map.Entry;
 
 import x10.io.CustomSerialization;
+import x10.rtt.RuntimeType;
 import x10.runtime.impl.java.Runtime;
 
 public final class X10JavaSerializer implements SerializationConstants {
@@ -89,6 +90,9 @@ public final class X10JavaSerializer implements SerializationConstants {
     }
     
     short getSerializationId(Class<?> clazz, X10JavaSerializable obj) {
+        if (obj instanceof RuntimeType<?> &&  obj.$_get_serialization_id() <= MAX_HARDCODED_ID) {
+            return obj.$_get_serialization_id();
+        }
         if (PER_MESSAGE_IDS) {
             Short id = idDictionary.get(clazz);
             if (null == id) {
@@ -107,12 +111,40 @@ public final class X10JavaSerializer implements SerializationConstants {
             return;
         }
 
+        short i = getSerializationId(obj.getClass(), obj);
+        if (i <= MAX_HARDCODED_ID) {
+            switch (i) {
+            case RTT_ANY_ID: 
+                case RTT_BOOLEAN_ID:
+                case RTT_BYTE_ID:
+                case RTT_CHAR_ID:
+                case RTT_DOUBLE_ID:
+                case RTT_FLOAT_ID:
+                case RTT_INT_ID:
+                case RTT_LONG_ID:
+                case RTT_SHORT_ID:
+                case RTT_STRING_ID:
+                case RTT_UBYTE_ID:
+                case RTT_UINT_ID:
+                case RTT_ULONG_ID: 
+                case RTT_USHORT_ID:
+                    out.writeShort(i);
+                    if (Runtime.TRACE_SER) {
+                        Runtime.printTraceMessage("Optimized serializing [**] a " + Runtime.ANSI_CYAN + "serialization_id_t" + Runtime.ANSI_RESET + ": " + i);
+                    }
+                    return;
+            
+            default:
+                System.err.println("Unhanlded hardcoded serialization id");
+                throw new RuntimeException("Unhandled hard-wired serialization id in write(X10JavaSerializable)");    
+            }            
+        }
+        
         Integer pos = previous_position(obj, true);
         if (pos != null) {
             return;
         }
         
-        short i = getSerializationId(obj.getClass(), obj);
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Serializing [**] a " + Runtime.ANSI_CYAN + "serialization_id_t" + Runtime.ANSI_RESET + ": " + i);
         }
@@ -466,28 +498,18 @@ public final class X10JavaSerializer implements SerializationConstants {
         if (pos != null) {
             return;
         }
-        Class<? extends Object> bodyClass = body.getClass();
-        String className = bodyClass.getName();
-
-        if (className.startsWith("x10.rtt.") &&
-            ("x10.rtt.FloatType".equals(bodyClass.getName()) 
-             || "x10.rtt.IntType".equals(bodyClass.getName())
-             || "x10.rtt.DoubleType".equals(bodyClass.getName())
-             || "x10.rtt.LongType".equals(bodyClass.getName())
-             || "x10.rtt.BooleanType".equals(bodyClass.getName())
-             || "x10.rtt.StringType".equals(bodyClass.getName())
-             || "x10.rtt.CharType".equals(bodyClass.getName())
-             || "x10.rtt.ByteType".equals(bodyClass.getName())
-             || "x10.rtt.ShortType".equals(bodyClass.getName())
-             || "x10.rtt.UByteType".equals(bodyClass.getName())
-             || "x10.rtt.UIntType".equals(bodyClass.getName())
-             || "x10.rtt.ULongType".equals(bodyClass.getName())
-             || "x10.rtt.UShortType".equals(bodyClass.getName()))) {
-            // These classes don't implement the serialization/deserialization routines, hence we serialize the superclass
-            bodyClass = bodyClass.getSuperclass();
+        
+        // Special case: optimize transmission of RTT's for primitives
+        if (body instanceof x10.rtt.RuntimeType<?>) {
+            int id = ((x10.rtt.RuntimeType<?>) body).$_get_serialization_id();
+            if (id <= MAX_HARDCODED_ID) {
+                write(id);
+                return;
+            }   
         }
 
         try {
+            Class<? extends Object> bodyClass = body.getClass();
             writeClassID(bodyClass.getName());
             SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
             st.serializeObject(body, bodyClass, this);

@@ -11,22 +11,21 @@
 
 package x10.rtt;
 
-import x10.serialization.X10JavaDeserializer;
-import x10.serialization.X10JavaSerializable;
-import x10.serialization.X10JavaSerializer;
-
-import java.io.IOException;
 import java.lang.reflect.Array;
 
+import x10.serialization.SerializationConstants;
+
 public final class ShortType extends RuntimeType<x10.core.Short> {
-//public final class ShortType extends RuntimeType<x10.core.Short> implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-//    private static final short _serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(DeserializationDispatcher.ClosureKind.CLOSURE_KIND_NOT_ASYNC, ShortType.class.getName());
 
     // make sure deserialized RTT object is not duplicated
     private Object readResolve() throws java.io.ObjectStreamException {
         return Types.SHORT;
+    }
+    @Override
+    public short $_get_serialization_id() {
+        return SerializationConstants.RTT_SHORT_ID;
     }
 
     public ShortType() {
@@ -95,22 +94,4 @@ public final class ShortType extends RuntimeType<x10.core.Short> {
     public boolean isref() {
         return false;
     }
-
-//    public void $_serialize(X10JavaSerializer serializer) throws IOException {
-//    }
-//
-//    public short $_get_serialization_id() {
-//        return _serialization_id;
-//    }
-//
-//    public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
-//		return $_deserialize_body(null, deserializer);
-//	}
-//
-//    public static X10JavaSerializable $_deserialize_body(ShortType t, X10JavaDeserializer deserializer) throws IOException {
-//        ShortType shortType = (ShortType) Types.SHORT;
-//        deserializer.record_reference(shortType);
-//        return shortType;
-//    }
-    
 }
