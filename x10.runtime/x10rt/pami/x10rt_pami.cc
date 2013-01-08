@@ -979,17 +979,13 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 		fprintf(stderr, "Hello from process %u of %u\n", state.myPlaceId, state.numPlaces);
 	#endif
 
-#if !defined(__bgq__)
+	state.hfi_update = NULL;
+#if defined(_POWER) && !defined(__bgq__)
 	// see if HFI should be used
-	if (checkBoolEnvVar(getenv(X10RT_PAMI_DISABLE_HFI)))
-		state.hfi_update = NULL;
-	else
+	if (!checkBoolEnvVar(getenv(X10RT_PAMI_DISABLE_HFI)))
 	{
 		if (sizeof(x10rt_remote_op_params)!=sizeof(hfi_remote_update_info_t))
-		{
 			fprintf(stderr, "HFI present but the structures don't match at place %u\n", state.myPlaceId);
-			state.hfi_update = NULL;
-		}
 		else
 		{
 			status = PAMI_Extension_open (state.client, "EXT_hfi_extension", &state.hfi_extension);
@@ -1001,10 +997,7 @@ void x10rt_net_init (int *argc, char ***argv, x10rt_msg_type *counter)
 				state.hfi_update = (hfi_remote_update_fn) PAMI_Extension_symbol(state.hfi_extension, "hfi_remote_update"); // This may succeed even if HFI is not available
 			}
 			else
-			{
 				fprintf(stderr, "HFI present but disabled at place %u because PAMI_Extension_open status=%u\n", state.myPlaceId, status);
-				state.hfi_update = NULL;
-			}
 		}
 	}
 #endif
