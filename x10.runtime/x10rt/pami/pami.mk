@@ -35,10 +35,12 @@ endif
 ifeq ($(X10RT_PLATFORM), linux_x86_64)
   MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib64/pami64
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
+  PAMI_MPCC += -pami
 endif
 ifeq ($(X10RT_PLATFORM), linux_x86_32)
   MOV_LDFLAGS_PAMI    += -L/opt/ibmhpc/pecurrent/ppe.pami/gnu/lib/pami
   MOV_LDLIBS_PAMI    += -lpoe -lmpi_ibm -lpami
+  PAMI_MPCC += -pami
 endif
 ifeq ($(X10RT_PLATFORM), aix_gcc)
   MOV_LDFLAGS_PAMI     += -L/opt/ibmhpc/pecurrent/ppe.poe/lib64
