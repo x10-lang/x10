@@ -244,9 +244,9 @@ fi
 command=("$JAVA" "${java_args[@]}" $config "${args[@]}")
 [ -n "$verbose" ] && echo "${command[*]}"
 if [[ "$UNAME" = CYGWIN* && -z "$ENABLE_CYGWIN_MULTIVM" ]]; then
-    $time$timelimit "${command[@]}"
+    exec $time$timelimit "${command[@]}"
 else 
-    $time$timelimit$launcher "${command[@]}"
+    exec $time$timelimit$launcher "${command[@]}"
 fi
 
 exit $?
