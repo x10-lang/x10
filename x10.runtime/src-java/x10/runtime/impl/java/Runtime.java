@@ -69,10 +69,6 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
                 System.loadLibrary(libs[i]);
         }
 
-        // @MultiVM, the following is right ??
-        // FIXME: By here it is already too late because statics in Runtime
-        // refer to X10RT. Need to restructure this so that we can call
-        // X10RT.init explicitly from here.
         X10RT.init();
 
         x10.lang.Runtime.get$staticMonitor();
@@ -213,7 +209,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
     /**
      * The number of places in the system
      */
-    public static int MAX_PLACES = X10RT.numPlaces();
+    public static int MAX_PLACES = 0; // updated in initialization
     
     /**
      * Disable Assertions

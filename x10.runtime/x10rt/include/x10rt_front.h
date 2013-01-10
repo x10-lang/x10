@@ -153,6 +153,17 @@
 
 /** \{ */
 
+
+/**
+ * This preinit method allows the runtime network code to be partially initialized ahead of the 
+ * rest of the runtime.  The return value is a connection string (likely hostname:port), which can 
+ * be used by other runtimes to find this one.  When this method is called ahead of the regular 
+ * x10rt_init(), it puts the runtime into a library mode, so that the runtime can be used more as 
+ * a library in other programs, by using less CPU, and not calling system exit when errors occur.
+ */
+X10RT_C char* x10rt_preinit();
+
+
 /** Initialize the X10RT API.
  *
  * This should be the first call made by a process into X10RT.  This allows the X10RT implementation
@@ -174,15 +185,6 @@
  * \param argv A pointer to the argv parameter from the application's ``main'' function.
 */
 X10RT_C void x10rt_init (int *argc, char ***argv);
-
-/**
- * This initialization is similar to the above, but causes the runtime to initialize in a more 
- * library-friendly way (no calls to exit, non-main arguments, etc).  
- * 
- * \param placeID Which Place this specific runtime will be in the X10 computation
- * \param numPlaces The total number of places in the X10 computation
- */
-X10RT_C int x10rt_library_init (int placeID, int numPlaces);
 
 /** Register a new type of 'plain' message.  Messages are used to send serialized object graphs to
  * another place.  They are intended for when the data is not organized in a sequential fashion and

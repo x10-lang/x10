@@ -18,6 +18,19 @@
 #include "x10rt_jni_helpers.h"
 
 #include <x10rt_front.h>
+#include <string.h>
+
+
+/*
+ * Class:     x10_x10rt_X10RT
+ * Method:    x10rt_net_preinit
+ * Signature: ()java/lang/String
+ */
+JNIEXPORT jstring JNICALL Java_x10_x10rt_X10RT_x10rt_1preinit(JNIEnv *env, jclass) {
+    initCachedJVM(env);
+    char* connInfo = x10rt_preinit();
+    return env->NewStringUTF(connInfo);
+}
 
 /*
  * Class:     x10_x10rt_X10RT
@@ -26,8 +39,6 @@
  */
 JNIEXPORT jint JNICALL Java_x10_x10rt_X10RT_x10rt_1init(JNIEnv *env, jclass, jint numArgs, jobjectArray args) {
     initCachedJVM(env);
-
-    assert(numArgs == 0);
 #ifdef __CYGWIN__
     char exe[MAX_PATH];
     long res = GetModuleFileName(NULL, exe, MAX_PATH);

@@ -12,7 +12,7 @@
 package x10.x10rt;
 
 public class X10RT {
-    private enum State { UNINITIALIZED, BOOTED, TEARING_DOWN, TORN_DOWN };
+    private enum State { UNINITIALIZED, INITIALIZED, RUNNING, TEARING_DOWN, TORN_DOWN };
 
     private static State state = State.UNINITIALIZED;
     private static int here;
@@ -24,21 +24,14 @@ public class X10RT {
     static final boolean REPORT_UNCAUGHT_USER_EXCEPTIONS = true;
     
     public static final boolean VERBOSE = false;
-
-    // TODO: We would like to avoid doing this via a clinit method.
-    //       But right now, the clinit method of x10.runtime.impl.java.Runtime
-    //       references X10RT, so we have to do it this way...
-    static {
-    	init();
-    }
     
     /**
-     * Initialize the X10RT runtime.  This method must be called before any other
-     * methods on this class or on any other X10RT related class can be successfully
-     * invoked.
+     * Initialize the X10RT runtime.  This method, or the standard init() method below 
+     * must be called before any other methods on this class or on any other X10RT 
+     * related class can be successfully invoked.
      */
-    public static synchronized int init_library(int placeID, int numPlaces) {
-    	if (state != State.UNINITIALIZED) return 0;
+    public static synchronized String init_library() {
+    	if (state != State.UNINITIALIZED) return null;
 
         // load libraries
         String property = System.getProperty("x10.LOAD");
@@ -60,48 +53,45 @@ public class X10RT {
             }
         }
         
-        x10.lang.Runtime.get$staticMonitor();
+/*    	x10.lang.Runtime.get$staticMonitor();
         x10.lang.Runtime.get$STRICT_FINISH();
         x10.lang.Runtime.get$NTHREADS();
         x10.lang.Runtime.get$MAX_THREADS();
         x10.lang.Runtime.get$STATIC_THREADS();
         x10.lang.Runtime.get$WARN_ON_THREAD_CREATION();
         x10.lang.Runtime.get$BUSY_WAITING();
+*/
 
-        int port = 0;
+        state = State.INITIALIZED;
         if (forceSinglePlace) {
-            if (0 != placeID || 1 != numPlaces)
-            	return -1;
-        } 
-        else {
-        	port = x10rt_library_init(placeID, numPlaces);
-        	if (port <= 0) return -1;
-        	
-            TeamSupport.initialize();
-
-            // Add a shutdown hook to automatically teardown X10RT as part of JVM teardown
-            Runtime.getRuntime().addShutdownHook(new Thread(new Runnable(){
-                public void run() {
-                    synchronized(X10RT.class) {
-                        state = State.TEARING_DOWN;
-                        if (X10_EXITING_NORMALLY) {
-                            if (VERBOSE) System.err.println("Normal exit; x10rt_finalize called");
-                            x10rt_finalize();
-                            if (VERBOSE) System.err.println("Normal exit; x10rt_finalize returned");
-                        } else {
-                            if (VERBOSE) System.err.println("Abnormal exit; skipping call to x10rt_finalize");
-                        }
-                        state = State.TORN_DOWN;
-                        System.err.flush();
-                        System.out.flush();
-                    }
-                }}));
+        	here = 0;
+        	numPlaces = 1;
+        	x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
+            state = State.RUNNING;
+        	return null;
         }
-        X10RT.here = placeID;
-        X10RT.numPlaces = numPlaces;
-        state = State.BOOTED;
-        return port;
+        else
+        	return x10rt_preinit();
     }
+    
+    /*
+     * This method is the second phase of the init_library() call above.  Init_library only initializes
+     * internal variables, minus what is needed for communication with other places.
+     * 
+     * myPlace is which place this runtime is in the whole computation.
+     * connectionInfo is an array the size of nplaces, and contains the connection string for each
+     * remote place.  The connection string for myPlace may be null.
+     */
+    public static synchronized void connect_library(int myPlace, String[] connectionInfo) {
+    	if (state != State.INITIALIZED) return;
+    	x10rt_init(0, null); // TODO: fill in properly, using the arguments
+        TeamSupport.initialize();
+        here = myPlace;
+        numPlaces = connectionInfo.length;
+        x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
+        state = State.RUNNING;
+    }
+
     
     public static synchronized void init() {
       if (state != State.UNINITIALIZED) return;
@@ -126,6 +116,7 @@ public class X10RT {
           //       the program's main method into X10RT.  We really can't easily do this
           //       until we change this code to be run via an explicit static method in
           //       X10RT instead of doing it in the class initializer.  
+    	  // bherta: fix in progress, via the init_library() and connect_library() methods above
 
           x10rt_init(0, null);
 
@@ -152,8 +143,8 @@ public class X10RT {
                   }
               }}));
       }
-
-      state = State.BOOTED;
+      x10.runtime.impl.java.Runtime.MAX_PLACES = numPlaces;
+      state = State.RUNNING;
     }
 
     /**
@@ -192,7 +183,7 @@ public class X10RT {
     }
 
     static boolean isBooted() {
-      return state.compareTo(State.BOOTED) >= 0;
+      return state.compareTo(State.RUNNING) >= 0;
     }
 
     /**
@@ -207,9 +198,9 @@ public class X10RT {
      * related to initialization and finalization of the X10RT library.
      * See X10RT API at x10-lang.org for semantics. 
      */
-    private static native int x10rt_init(int numArgs, String[] args);
+    private static native String x10rt_preinit();
     
-    private static native int x10rt_library_init(int placeID, int numPlaces);
+    private static native int x10rt_init(int numArgs, String[] args);
     
     private static native int x10rt_finalize();
 
