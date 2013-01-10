@@ -111,7 +111,9 @@ public abstract class MethodDef_c extends ProcedureDef_c implements MethodDef
     } 
     @Override
 	public String getName() {
-		return Types.baseTypeRec(container().get()).toString() + "." + name().toString(); 
+    	// for XField name (a method def is used as a field if it is a property def and has no params)
+		//return Types.baseTypeRec(container().get()).toString() + "." + name().toString();
+    	return name().toString()+"()";
 	} 
     
     

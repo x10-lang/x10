@@ -12,40 +12,33 @@ import x10.constraint.XDef;
 import x10.constraint.XExpr;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
-import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.smt.XSmtConstraintSystem;
 import x10.constraint.smt.XSmtExpr;
 import x10.constraint.smt.XSmtLit;
+import x10.constraint.smt.XSmtUQV;
 import x10.constraint.smt.XSmtVar;
-import x10.constraint.xnative.XNativeUQV;
 import x10.types.ConstrainedType;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraintSystem;
 import x10.types.constraints.CQualifiedVar;
-import x10.types.constraints.CSelf;
-import x10.types.constraints.CThis;
 import x10.types.constraints.QualifierDef;
 import x10.types.constraints.XTypeLit;
 
 public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements CConstraintSystem {
 	private static int idCounter = 0;
 	
-	@Override
-	public XVar<Type> makeSelf(Type t) {
-		t = Types.baseTypeRec(t); 
-		assert ! (t instanceof ConstrainedType);
-		return makeUQV(t); 
+    @Override
+    public XSmtUQV<Type> makeSelf(Type t) {
+    	return makeUQV(t, "self");
 	}
 
-	@Override
-	public XVar<Type> makeThis(Type t) {
-		t = Types.baseTypeRec(t);
-		assert ! (t instanceof ConstrainedType);
-		return new CSmtThis(t, idCounter++);
-	}
-
+    @Override
+    public XSmtUQV<Type> makeThis(Type t) {
+    	return makeUQV(t, "this");
+    }
+    
 	@Override
 	public CSmtLocal makeLocal(X10LocalDef def) {
 		assert def != null;

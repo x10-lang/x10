@@ -106,5 +106,14 @@ public abstract class XCommonTerm<T extends XType> implements XTerm<T> {
 		XLit<T,Object> lit_this = (XLit<T,Object>) this; 
 		return lit_this.val().equals(v);
 	}
+
+	@Override
+	public boolean isUQVOfName(String name) {
+		if (!(this instanceof XUQV<?>)) return false;
+		@SuppressWarnings("unchecked")
+		XUQV<T> uqv = (XUQV<T>) this; 
+		return uqv.name().equals(name);
+	}
+
 	
 }

@@ -103,5 +103,9 @@ public interface XTerm<T extends XType> {
 	 */
 	boolean isLit();
 
+	/** Is this term a UQV with the given name.
+	 */
+	boolean isUQVOfName(String name);
+
 }
 	

@@ -13,13 +13,12 @@ package x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.HashSet;
 
 import polyglot.frontend.Job;
 import polyglot.frontend.Source;
-import polyglot.types.VarDef;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassDef_c;
 import polyglot.types.ClassType;
@@ -50,7 +49,6 @@ import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.TypeConstraint;
 

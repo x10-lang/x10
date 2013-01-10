@@ -1,15 +1,17 @@
 package x10.types.constraints;
 
 import polyglot.types.Type;
-import polyglot.types.Types;
 import x10.constraint.XDef;
-import x10.constraint.XStringDef;
 
 public class QualifierDef implements XDef<Type> {
 	
 	private Type type;
-
-	public QualifierDef (Type t) { this.type = t; }
+	private String name;
+	
+	public QualifierDef (Type t) {
+		this.type = t;
+		this.name = "outerThis<"+type.toString()+">";
+	}
 
 	@Override
 	public Type resultType() {
@@ -18,11 +20,11 @@ public class QualifierDef implements XDef<Type> {
 
 	@Override
 	public String getName() {
-		return type.toString();
+		return toString();
 	}
 
 	@Override
-	public String toString() { return type.toString(); }
+	public String toString() { return name; }
 	
 	@Override
 	public boolean equals(Object o) {

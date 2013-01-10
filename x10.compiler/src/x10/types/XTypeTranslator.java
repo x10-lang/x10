@@ -59,6 +59,7 @@ import x10.constraint.XStringDef;
 import x10.constraint.XTerm;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
+import x10.constraint.xnative.XNativeField;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
 import x10.types.constants.ClosureValue;
@@ -66,9 +67,8 @@ import x10.types.constants.ConstantValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CQualifiedVar;
-import x10.types.constraints.CSelf;
-import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
+import x10.types.constraints.QualifierDef;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
@@ -242,7 +242,7 @@ public class XTypeTranslator {
         XTerm<Type> receiver = args.get(0);
         if (isThisOrSelf) {
             // for methods (checking overriding) we replace "this.p(...)"
-            if (!(receiver instanceof CThis)) return term;
+            if (!(receiver.isUQVOfName("this"))) return term;
         } else {
             // for subtyping tests we replace "self.p(...)"
         	if (!receiver.equals(originalConst.self())) return term;
@@ -773,6 +773,7 @@ public class XTypeTranslator {
         */
       }
 
+	@SuppressWarnings("unchecked")
 	public XTerm<Type> translateSpecialAsQualified(CConstraint c, X10Special t, Context xc0) {
         Context xc = xc0;
         if (t.kind() == X10Special.SELF) {
@@ -805,7 +806,7 @@ public class XTypeTranslator {
             return null;
         }
        if (baseThisVar instanceof CQualifiedVar) {
-            CQualifiedVar qVar = (CQualifiedVar) baseThisVar;
+			XNativeField<Type,QualifierDef> qVar = (XNativeField<Type,QualifierDef>) baseThisVar;
             if (qVar.field() == ((Typed) qVar.receiver()).type())
                 baseThisVar = (XVar<Type>)qVar.receiver();
         }

@@ -42,7 +42,6 @@ import polyglot.ast.NodeFactory;
 import polyglot.ast.Receiver;
 import polyglot.ast.Stmt;
 import polyglot.ast.TypeNode;
-import polyglot.ast.Typed;
 import polyglot.ast.Unary;
 import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
@@ -107,8 +106,6 @@ import x10.types.constants.StringValue;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.CQualifiedVar;
-import x10.types.constraints.CSelf;
-import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
 import x10.visit.X10TypeBuilder;
 import x10.visit.X10TypeChecker;
@@ -1447,7 +1444,7 @@ public class Synthesizer {
             final XTerm<Type> receiver = field.get(0);
             res.addAll(getLocals(receiver));
 
-            if (receiver instanceof CThis && field.field() instanceof VarDef) {  
+            if (receiver.isUQVOfName("this") && field.field() instanceof VarDef) {  
                 res.add((VarDef) field.field());
             }
         } else if (t instanceof CLocal) {
@@ -1471,27 +1468,27 @@ public class Synthesizer {
     @SuppressWarnings("unchecked")
 	Expr makeExpr(CConstraint c, XTerm<Type> t, Type baseType, Position pos) {
     	if (t instanceof CQualifiedVar) 
-            return makeExpr((CQualifiedVar) t, baseType, pos);
+            return makeExpr((CQualifiedVar) t, pos);
         if (t instanceof XLit)
-            return makeExpr((XLit<Type, ?>) t, baseType, pos);
+            return makeExpr((XLit<Type, ?>) t, pos);
         //if (t instanceof CSelf)
         //	assert false;
             //return makeExpr((CSelf) t, baseType, pos); // this must occur before XLocal_c
-        if (t instanceof CThis)
+        //if (t instanceof CThis)
             // If we were able to ensure that a CThis without an enclosing QVar
             // always represents a non-qualified this, then we should pass null here.
             // However, an occurrence of a qualified this in an arg to a macro call
             // is treated as if it is not in a deptype, and for such a qualified this
             // we get a CThis from XTypeTranslaor, not a QualifiedVar.
             // So we pass ((CThis) t).type(). It is safe to do so.
-        	return makeExpr((CThis) t, ((CThis)t).type(), baseType, pos); // this must occur before XLocal_c
+        	//return makeExpr((CThis) t, ((CThis)t).type(), baseType, pos); // this must occur before XLocal_c
         if (t instanceof XEQV)
         	assert false;
             //return makeExpr((XEQV<Type>) t, baseType, pos); // this must occur before XLocal_c
         if (t instanceof XUQV)
-            return makeExpr(c, (XUQV<Type>) t, baseType, pos); // this must occur before XLocal_c
+            return makeExpr((XUQV<Type>) t, pos); // this must occur before XLocal_c
         if (t instanceof CLocal)
-            return makeExpr((CLocal) t, baseType, pos);
+            return makeExpr((CLocal) t, pos);
         if (t instanceof XExpr)
             return makeExpr(c, (XExpr<Type>) t, baseType, pos);
         
@@ -1533,13 +1530,20 @@ public class Synthesizer {
     }*/
     
     // lshadare w
-    Expr makeExpr(CQualifiedVar v, Type baseType, Position pos) {
+    Expr makeExpr(CQualifiedVar v, Position pos) {
         TypeNode tn = null;
         ClassType ct = v.type().toClass();
+        
         XTerm<Type> var = v.receiver();
-        if (var instanceof CThis)  // use old code, but with type taken from v
-            return makeExpr((CThis) var, v.type(), baseType, pos);
-        Type varType = var.type();
+        
+        if (var.isUQVOfName("this")) {
+        	// create a C.this AST
+            return makeExpr((XUQV<Type>) var, pos);
+        }
+        
+        // otherwise, we're accessing the outer this on a generic expression
+        // make a call to the outer this accessor we generate earlier 
+    	Type varType = var.type();
         ClassType varClassType = Types.getClassType(varType, xts);
         ClassDef varDef = varClassType.def();
         return xnf.Call(pos, 
@@ -1547,7 +1551,7 @@ public class Synthesizer {
                         xnf.Id(pos, X10ClassDecl_c.getThisMethod(varDef.fullName(), 
                                                                  ct.fullName())));
     }
-    
+    /*
     Expr makeExpr(CThis ct, Type type, Type baseType, Position pos) {
         TypeNode tn = null;
         if (type != null) {
@@ -1556,27 +1560,26 @@ public class Synthesizer {
         return tn == null ? xnf.Special(pos, X10Special.THIS)
                 : xnf.Special(pos, X10Special.THIS, tn);
     }
-    Expr makeExpr(XEQV<Type> t, Type baseType, Position pos) {
-        assert false;
-        return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
-    }
-    Expr makeExpr(CConstraint c, XUQV<Type> t, Type baseType, Position pos) {
-    	if (t.equals(c.self()))
+    */
+    Expr makeExpr(XUQV<Type> t, Position pos) {
+    	if (t.name().equals("self"))
     		return xnf.Special(pos, X10Special.SELF);
+    	if (t.name().equals("this"))
+            return xnf.Special(pos, X10Special.THIS);
         
         String str = t.toString();
-        if (t == PlaceChecker.here(baseType.typeSystem()))
+        if (t == PlaceChecker.here(t.type().typeSystem()))
             return xnf.Here(pos);
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
 
     // FIXME: merge with makeExpr(XEQV, Position)
-    Expr makeExpr(CLocal t, Type baseType, Position pos) {
+    Expr makeExpr(CLocal t, Position pos) {
         String str = t.def().toString();
         return xnf.AmbExpr(pos, xnf.Id(pos,t.def().name()));
     }
 
-    Expr makeExpr(XLit<Type, ?> t, Type baseType, Position pos) {
+    Expr makeExpr(XLit<Type, ?> t, Position pos) {
     	Type lit_type = t.type();
         Object val = t.val();
         if (val == null)

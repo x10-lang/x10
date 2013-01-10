@@ -25,8 +25,6 @@ import x10.types.X10LocalDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CLocal;
-import x10.types.constraints.CSelf;
-import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
@@ -41,7 +39,6 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	@Override
 	public TypeSystem ts() { return (TypeSystem) super.ts(); }
 	
-	@SuppressWarnings("unchecked")
 	CSmtConstraint(CSmtConstraintSystem sys, Type t, TypeSystem ts) {
 		super(sys, ts);
 		// FIXME: sometimes the null type is passed in. We assume that if we do not know the
@@ -395,7 +392,6 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
                 res.addIn(ci.constraintProjection(m, depth+1));
             }
         } else if (t instanceof XLit) { // no new info to contribute
-        } else if (t instanceof CThis){ // no new info to contribute
         } else if (t instanceof XEQV) { // no new info to contribute
         } else if (t instanceof XUQV) { // no new info to contribute
         } else if (t instanceof XVar) { // no new info to contribute

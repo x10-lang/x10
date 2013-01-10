@@ -157,7 +157,7 @@ public class CNativeConstraintSystem extends XNativeConstraintSystem<Type> imple
 	@Override
 	public CQualifiedVar makeQualifiedVar(Type qualifier, XTerm<Type> base) {
 		QualifierDef q = new QualifierDef(qualifier);
-    	return new QualifiedVar(q, (XNativeTerm<Type>)base, false); 
+    	return new CNativeQualifiedVar(q, (XNativeTerm<Type>)base, false); 
     }
 
 }

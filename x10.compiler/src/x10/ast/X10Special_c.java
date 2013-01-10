@@ -16,37 +16,24 @@ import polyglot.ast.Special_c;
 import polyglot.ast.TypeNode;
 import polyglot.types.ClassType;
 import polyglot.types.CodeDef;
-import polyglot.types.LazyRef_c;
-import polyglot.types.SemanticException;
+import polyglot.types.Context;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.visit.ContextVisitor;
-import x10.constraint.XFailure;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.errors.Errors.IllegalConstraint;
-import x10.types.ConstrainedType;
-import x10.types.X10ConstructorDef;
-import polyglot.types.Context;
 import x10.types.ThisDef;
-
+import x10.types.X10ConstructorDef;
 import x10.types.X10MemberDef;
-import x10.types.X10MethodDef;
-import x10.types.X10ParsedClassType;
 import x10.types.X10ProcedureDef;
-
-import polyglot.types.TypeSystem;
 import x10.types.XTypeTranslator;
-import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CConstraint;
-import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintManager;
-import x10.types.constraints.XConstrainedTerm;
 
 public class X10Special_c extends Special_c implements X10Special {
 
