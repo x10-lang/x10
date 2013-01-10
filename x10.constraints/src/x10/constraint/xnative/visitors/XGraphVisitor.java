@@ -3,11 +3,13 @@ package x10.constraint.xnative.visitors;
 import java.util.HashMap;
 import java.util.Map;
 import x10.constraint.XField;
+import x10.constraint.XTypeSystem;
+import x10.constraint.xnative.XNativeConstraintSystem;
 import x10.constraint.xnative.XNativeField;
 import x10.constraint.xnative.XNativeTerm;
 import x10.constraint.XTerm;
 import x10.constraint.XTerm.TermVisitor;
-import x10.constraint.XVar;
+import x10.constraint.XType;
 
 /**
  * An XGraphVisitor may visit the graph underlying a representation of 
@@ -25,11 +27,23 @@ import x10.constraint.XVar;
  * @author vj
  *
  */
-public abstract class XGraphVisitor {
-    Map<XTerm, XTerm> eqvVarRep; 
+public abstract class XGraphVisitor<T extends XType> {
+	
+    Map<XNativeTerm<T>, XNativeTerm<T>> eqvVarRep; 
+    final boolean hideEQV;
+    final boolean hideFake;
+	protected XNativeConstraintSystem<T> sys;
+	protected XTypeSystem<T> ts;
 
-    protected void addVarRep(XTerm eqv, XTerm rep) {
-        if (eqvVarRep == null) eqvVarRep = new HashMap<XTerm, XTerm>();
+    protected XGraphVisitor(XNativeConstraintSystem<T> sys, XTypeSystem<T> ts, boolean hideEQV, boolean hideFake) {
+        this.hideEQV=hideEQV;
+        this.hideFake=hideFake;
+    	this.ts = ts;
+    	this.sys = sys;
+}
+
+    protected void addVarRep(XNativeTerm<T> eqv, XNativeTerm<T> rep) {
+        if (eqvVarRep == null) eqvVarRep = new HashMap<XNativeTerm<T>, XNativeTerm<T>>();
         if (eqvVarRep.get(eqv)==null) eqvVarRep.put(eqv, rep);
     }
     /**
@@ -40,12 +54,12 @@ public abstract class XGraphVisitor {
      * @param eqv
      * @return
      */
-    protected XTerm varRep(XTerm eqv) {
+    protected XNativeTerm<T> varRep(XNativeTerm <T>eqv) {
         if (eqvVarRep == null) return null;
-        XTerm result = eqvVarRep.get(eqv);
+        XNativeTerm<T> result = eqvVarRep.get(eqv);
         if (result == null) return null;
-        while (result.hasEQV()) {
-            XTerm temp = eqvVarRep.get(result);
+        while (sys.hasEQV(result)) {
+            XNativeTerm<T> temp = eqvVarRep.get(result);
             if (temp == null) return result;
             result = temp;
         }
@@ -55,26 +69,21 @@ public abstract class XGraphVisitor {
      * in the hash table. The normal form for e.f1...fn is x.f1...fn 
      * if e is bound to x in the table.
      */
-    protected XTerm nf(XTerm eqv) {
-        XTerm z = varRep(eqv);
+    @SuppressWarnings("unchecked")
+	protected XNativeTerm<T> nf(XNativeTerm<T> eqv) {
+        XNativeTerm<T> z = varRep(eqv);
         if (z != null) return z;
 
-        if (eqv instanceof XField<?> ) {
-            XField<?> t = (XField<?>) eqv;
-            XTerm rt = t.receiver();
-            XTerm tz =nf((XTerm)rt);
+        if (eqv instanceof XField<?,?> ) {
+			XNativeField<T,?> t = (XNativeField<T,?>) eqv;
+            XNativeTerm<T> rt = t.receiver();
+            XNativeTerm<T> tz = nf(rt);
             if (tz == null) return null;
-            return (XTerm)t.copyReceiver((XVar) tz);
+            return t.copyReceiver(sys, tz);
         }
         return null;
     }
-    boolean hideEQV;
-    boolean hideFake;
-    protected XGraphVisitor(boolean hideEQV, boolean hideFake) {
-        this.hideEQV=hideEQV;
-        this.hideFake=hideFake;
-    }
-
+    
     /**
      * Visiting the graph encounters a formula t.  
      * Process this information.
@@ -82,8 +91,8 @@ public abstract class XGraphVisitor {
      * @param t -- the formula encountered.
      * @return false -- the visit should be terminated.
      */
-    protected abstract boolean visitAtomicFormula(XTerm t);
-    public boolean rawVisitAtomicFormula(XTerm t) {
+    protected abstract boolean visitAtomicFormula(XTerm<T> t);
+    public boolean rawVisitAtomicFormula(XTerm<T> t) {
         return visitAtomicFormula(t);
     }
 
@@ -95,38 +104,38 @@ public abstract class XGraphVisitor {
      * @param t2 --  
      * @return false -- the visit should be terminated.
      */
-    protected abstract boolean visitEquals(XTerm t1, XTerm t2);
+    protected abstract boolean visitEquals(XTerm<T> t1, XTerm<T> t2);
 
-    protected void addEQVBinding(final XTerm t1, final XTerm t2) {
+    protected void addEQVBinding(final XNativeTerm<T> t1, final XNativeTerm<T> t2) {
         if (eqvVarRep!=null) {
-            TermVisitor tv = new TermVisitor() {
-                public XTerm visit(XTerm t) {return t.equals(t1) ? t2: null;}
+            TermVisitor<T> tv = new TermVisitor<T>() {
+                public XTerm<T> visit(XTerm<T> t) {return t.equals(t1) ? t2: null;}
             };
-            for ( Map.Entry<XTerm,XTerm> t: eqvVarRep.entrySet()) {
-                XTerm src = t.getKey();
-                XTerm dest = t.getValue();
-                XTerm tp = (XTerm)src.accept(tv);
-                if ((! tp.hasEQV()) && (! dest.hasEQV())) visitEquals(tp, dest);   
+            for ( Map.Entry<XNativeTerm<T>,XNativeTerm<T>> t: eqvVarRep.entrySet()) {
+            	XNativeTerm<T> src = t.getKey();
+            	XNativeTerm<T> dest = t.getValue();
+            	XNativeTerm<T> tp = src.accept(tv);
+                if ((! sys.hasEQV(tp)) && (! sys.hasEQV(dest))) visitEquals(tp, dest);   
             }
         }
         addVarRep(t1, t2);
     }
-    public boolean rawVisitEquals(XTerm t1, XTerm t2) {
+    public boolean rawVisitEquals(XNativeTerm<T> t1, XNativeTerm<T> t2) {
         //assert t1 != null && t2 != null;
         if (hideEQV) {
-            if (t1.hasEQV()) {
-                XTerm t1b = nf(t1);
+            if (sys.hasEQV(t1)) {
+            	XNativeTerm<T> t1b = nf(t1);
                 if (t1b != null) t1=t1b;
             }
-            if (t2.hasEQV()) {
-                XTerm t2b = nf(t2);
+            if (sys.hasEQV(t2)) {
+            	XNativeTerm<T> t2b = nf(t2);
                 if (t2b != null) t2 = t2b;
             }
-            if (t1.hasEQV()) {addEQVBinding(t1, t2);return true;}
-            if (t2.hasEQV()) {addEQVBinding(t2, t1);return true;}
+            if (sys.hasEQV(t1)) {addEQVBinding(t1, t2);return true;}
+            if (sys.hasEQV(t2)) {addEQVBinding(t2, t1);return true;}
         }
-        if (hideFake && t1 instanceof XNativeField && ((XNativeField<?>) t1).isHidden()) return true;
-        if (hideFake && t2 instanceof XNativeField && ((XNativeField<?>) t2).isHidden()) return true;
+        if (hideFake && t1 instanceof XNativeField && ((XNativeField<?,?>) t1).isHidden()) return true;
+        if (hideFake && t2 instanceof XNativeField && ((XNativeField<?,?>) t2).isHidden()) return true;
         return visitEquals(t1, t2);
     }
 
@@ -137,22 +146,22 @@ public abstract class XGraphVisitor {
      * @param t -- the formula encountered.
      * @return false -- the visit should be terminated.
      */
-    protected abstract boolean visitDisEquals(XTerm t1, XTerm t2);
+    protected abstract boolean visitDisEquals(XTerm<T> t1, XTerm<T> t2);
 
-    public boolean rawVisitDisEquals(XTerm t1, XTerm t2) {
+    public boolean rawVisitDisEquals(XNativeTerm<T> t1, XNativeTerm<T> t2) {
         assert t1 != null && t2 != null;
         if (hideEQV) {
-            if (t1.hasEQV()) {
-                XTerm t1b = nf(t1);
+            if (sys.hasEQV(t1)) {
+            	XNativeTerm<T> t1b = nf(t1);
                 if (t1b != null) {
                     t1=t1b;
                 }
             }
-            if (t2.hasEQV()) {
-                XTerm t2b = nf(t2);
+            if (sys.hasEQV(t2)) {
+            	XNativeTerm<T> t2b = nf(t2);
                 if (t2b != null) t2 = t2b;
             }
-            if (t1.hasEQV()) {
+            if (sys.hasEQV(t1)) {
                 // ugh. Of course, cannot add t1 --> t2 when we are processing t1 != t2!!!
                 //	addVarRep(t1, t2);
                 // Ignoring is ok. If we have a term s that is not EQV that is
@@ -163,13 +172,13 @@ public abstract class XGraphVisitor {
                 // can be deduced between s and u from the above.
                 return true;
             }
-            if (t2.hasEQV()) {
+            if (sys.hasEQV(t2)) {
                 //	addVarRep(t2, t1);
                 return true;
             }
         }
-        if (hideFake && t1 instanceof XNativeField && ((XNativeField<?>) t1).isHidden()) return true;
-        if (hideFake && t2 instanceof XNativeField && ((XNativeField<?>) t2).isHidden()) return true;
+        if (hideFake && t1 instanceof XNativeField && ((XNativeField<?,?>) t1).isHidden()) return true;
+        if (hideFake && t2 instanceof XNativeField && ((XNativeField<?,?>) t2).isHidden()) return true;
         return visitDisEquals(t1, t2);
     }
 

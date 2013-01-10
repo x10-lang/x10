@@ -34,7 +34,7 @@ public final class NullValue extends ConstantValue {
     
     @Override
     public NullLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(getLitType(ts), toJavaObject()));
         return (NullLit)nf.NullLit(pos).type(type);
     }
 

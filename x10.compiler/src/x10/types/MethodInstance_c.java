@@ -423,7 +423,7 @@ public class MethodInstance_c extends FunctionInstance_c<MethodDef> implements M
                 else {
                     CConstraint rc = Types.xclause(t);
                     if (rc == null)
-                        rc = ConstraintManager.getConstraintSystem().makeCConstraint(t);
+                        rc = ConstraintManager.getConstraintSystem().makeCConstraint(t,xts);
 
                     XTerm<Type> receiver;
 

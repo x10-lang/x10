@@ -273,7 +273,7 @@ public class X10ConstructorCall_c extends ConstructorCall_c implements X10Constr
 	            // The constructor *within which this super call happens*.
 	            X10ConstructorDef thisConstructor = (X10ConstructorDef) ctx.currentCode();
 	            Type returnType = ci.returnType();
-	            CConstraint c = Types.realX(returnType);
+	            CConstraint c = Types.realX(returnType,ctx.typeSystem());
 	            thisConstructor.setSupType(returnType);
 	            
 	            // Also make this information available downstream within this constructor.

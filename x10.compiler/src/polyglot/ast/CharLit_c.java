@@ -58,7 +58,7 @@ public class CharLit_c extends NumLit_c implements CharLit
 		TypeSystem xts = (TypeSystem) tc.typeSystem();
 		Type charType = xts.Char();
 
-		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(charType);
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(charType,xts);
 		try {
 			XTerm<Type> term = xts.xtypeTranslator().translate(c, this.type(charType),  tc.context());
 			c.addSelfEquality(term);

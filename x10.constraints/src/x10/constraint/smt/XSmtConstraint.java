@@ -6,13 +6,12 @@ import java.util.List;
 import java.util.Set;
 
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraintManager;
-import x10.constraint.XConstraintSystem;
 import x10.constraint.XEQV;
 import x10.constraint.XExpr;
 import x10.constraint.XFailure;
 import x10.constraint.XTerm;
 import x10.constraint.XType;
+import x10.constraint.XTypeSystem;
 
 /**
  * Implementation of XConstraints to be used by an SMT solver. The constraint
@@ -23,12 +22,23 @@ import x10.constraint.XType;
  * @param <T>
  */
 public class XSmtConstraint<T extends XType> implements XConstraint<T> {
-	/**
-	 * Helper method to get the constraint System. 
-	 */
-	protected XConstraintSystem<T> cs() {
-		return XConstraintManager.<T>getConstraintSystem();
+	
+	protected XSmtConstraintSystem<T> sys;
+	protected XTypeSystem<T> ts;
+	
+	protected XSmtConstraint(XSmtConstraintSystem<T> sys, XTypeSystem<T> ts) {
+		conjuncts = new ArrayList<XSmtTerm<T>>();
+		status = Status.UNKNOWN;
+		this.sys = sys;
+		this.ts = ts;
 	}
+
+	@Override
+	public XSmtConstraintSystem<T> sys() { return sys; }
+
+	@Override
+	public XTypeSystem<T> ts() { return ts; }
+
 	/**
 	 * The conjunction of XSmtTerms representing the constraint. Maintains the
 	 * invariant that none of the terms in conjuncts are a top level AND 
@@ -48,16 +58,13 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	 * changed to unknown whenever the constraint is strengthen.  
 	 */
 	transient Status status; 
-	
-	protected XSmtConstraint() {
-		conjuncts = new ArrayList<XSmtTerm<T>>();
-		status = Status.UNKNOWN;
-	}
-	
+		
 	protected XSmtConstraint(XSmtConstraint<T> other) {
+		this.sys = other.sys;
+		this.ts = other.ts;
 		this.conjuncts = new ArrayList<XSmtTerm<T>>(other.terms().size());
 		for (XSmtTerm<T> ch : other.terms()) {
-			conjuncts.add(XConstraintManager.<T>getConstraintSystem().copy(ch));
+			conjuncts.add(ch.copy());
 		}
 		this.status = Status.UNKNOWN; 
 	}
@@ -73,9 +80,9 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 		if (terms().isEmpty())
 			return true; 
 		
-		XTerm<T> conjunction = cs().makeAnd(terms()); 
+		XTerm<T> conjunction = sys.makeAnd(ts(), terms()); 
 		try {
-			return XSolverEngine.isValid((XSmtTerm<T>)conjunction);
+			return XSolverEngine.isValid(sys(), ts(), (XSmtTerm<T>)conjunction);
 		} catch (XSmtFailure e) {
 			throw new IllegalStateException("Validity check failed: " +  e);
 		}
@@ -101,14 +108,14 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	@Override
 	public void addEquality(XTerm<T> left, XTerm<T> right) {
 		status = Status.UNKNOWN;
-		XTerm<T> eq = cs().makeEquals(left, right);
+		XTerm<T> eq = sys.makeEquals(ts(), left, right);
 		conjuncts.add((XSmtTerm<T>)eq);
 	}
 
 	@Override
 	public void addDisEquality(XTerm<T> left, XTerm<T> right) {
 		status = Status.UNKNOWN;
-		XTerm<T> eq = cs().makeDisEquals(left, right);
+		XTerm<T> eq = sys.makeDisEquals(ts(), left, right);
 		conjuncts.add((XSmtTerm<T>)eq);
 	}
 
@@ -117,7 +124,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 		// any constraint entails the empty constraint
 		if (other == null || other.terms().size() == 0)
 			return true;
-		XTerm<T> other_and = cs().makeAnd(other.terms());
+		XTerm<T> other_and = sys.makeAnd(ts(), other.terms());
 		return entails(other_and);
 	}
 
@@ -125,10 +132,10 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 	public boolean entails(XTerm<T> term) {
 		try {		
 			if (terms().size() == 0) 
-				return XSolverEngine.isValid((XSmtTerm<T>)term);
+				return XSolverEngine.isValid(sys(), ts(), (XSmtTerm<T>)term);
 			
-			XTerm<T> this_and = cs().makeAnd(terms());
-			return XSolverEngine.entails((XSmtTerm<T>)this_and, (XSmtTerm<T>)term);
+			XTerm<T> this_and = sys.makeAnd(ts(), terms());
+			return XSolverEngine.entails(sys(), ts(), (XSmtTerm<T>)this_and, (XSmtTerm<T>)term);
 		} catch (XSmtFailure e) {
 			throw new IllegalStateException("Entails check failed " +  e);
 		}
@@ -136,13 +143,13 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 
 	@Override
 	public boolean entailsDisEquality(XTerm<T> left, XTerm<T> right) {
-		XTerm<T> diseq = cs().makeDisEquals(left, right);
+		XTerm<T> diseq = sys.makeDisEquals(ts(), left, right);
 		return entails(diseq); 
 	}
 
 	@Override
 	public boolean entailsEquality(XTerm<T> left, XTerm<T> right) {
-		XTerm<T> eq = cs().makeEquals(left, right);
+		XTerm<T> eq = sys.makeEquals(ts(), left, right);
 		return entails(eq); 
 	}
 
@@ -157,7 +164,7 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 		// naive implementation that checks which individual conjuncts in other
 		// are entailed by the current constraint (could do better by iterating 
 		// through atoms?)
-		XConstraint<T> result = cs().makeConstraint();
+		XConstraint<T> result = sys.makeConstraint(ts);
 		for (XTerm<T> constraint : other.terms()) {
 			if (!entails(constraint)) {
 				try {
@@ -275,11 +282,12 @@ public class XSmtConstraint<T extends XType> implements XConstraint<T> {
 		StringBuilder sb = new StringBuilder(); 
 		sb.append("{");
 		for (int i = 0; i < terms().size(); ++i) {
-			XTerm<T> t = terms().get(i); 
-			sb.append((i == 0? "" : ", ") + t.prettyPrint());
+			XSmtTerm<T> t = terms().get(i); 
+			sb.append((i == 0? "" : ", ") + t.toSmtString());
 		}
 		sb.append("}");
 		
 		return sb.toString();
 	}
+
 }

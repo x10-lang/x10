@@ -26,8 +26,8 @@ import static x10cpp.visit.SharedVarsMethods.SERIALIZE_ID_METHOD;
 import static x10cpp.visit.SharedVarsMethods.SERIALIZE_METHOD;
 import static x10cpp.visit.SharedVarsMethods.THIS;
 import static x10cpp.visit.SharedVarsMethods.chevrons;
-import static x10cpp.visit.SharedVarsMethods.make_ref;
 import static x10cpp.visit.SharedVarsMethods.make_captured_lval;
+import static x10cpp.visit.SharedVarsMethods.make_ref;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -44,66 +44,52 @@ import polyglot.ast.FieldDecl_c;
 import polyglot.ast.Formal;
 import polyglot.ast.Formal_c;
 import polyglot.ast.LocalDecl_c;
-import polyglot.ast.Local_c;
 import polyglot.ast.New_c;
 import polyglot.ast.Node;
 import polyglot.ast.Receiver;
-import polyglot.ast.TypeNode;
-import polyglot.types.ClassDef;
 import polyglot.types.ClassType;
 import polyglot.types.Context;
+import polyglot.types.Def;
 import polyglot.types.FieldInstance;
 import polyglot.types.Flags;
-
-import polyglot.types.Def;
 import polyglot.types.Name;
 import polyglot.types.QName;
-import polyglot.types.Ref;
 import polyglot.types.SemanticException;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
+import polyglot.types.TypeSystem_c.BaseTypeEquals;
 import polyglot.types.Types;
 import polyglot.types.VarDef;
 import polyglot.types.VarInstance;
 import polyglot.util.CodeWriter;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
-import polyglot.util.ErrorInfo;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
 import polyglot.util.Position;
 import polyglot.util.StringUtil;
 import polyglot.visit.Translator;
 import x10.ast.X10ClassDecl_c;
 import x10.ast.X10MethodDecl_c;
-import x10.ast.X10Special;
 import x10.ast.X10Special_c;
+import x10.constraint.XDef;
+import x10.constraint.XField;
+import x10.constraint.XLabeledOp;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
-import x10.constraint.XVar;
-import x10.constraint.XLabeledOp;
 import x10.errors.Warnings;
 import x10.extension.X10Ext;
-import x10.types.ClosureDef;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
+import x10.types.MethodInstance;
 import x10.types.ParameterType;
 import x10.types.X10ClassDef;
 import x10.types.X10ClassType;
-import x10.types.X10ConstructorDef;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldInstance;
-
-import x10.types.X10LocalDef;
 import x10.types.X10MethodDef;
-import x10.types.MethodInstance;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CField;
-import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c.BaseTypeEquals;
-import x10.visit.StaticNestedClassRemover;
-import x10.visit.X10PrettyPrinterVisitor;
 import x10.util.ClassifiedStream;
 import x10.util.StreamWrapper;
-import x10cpp.X10CPPCompilerOptions;
-import x10cpp.debug.LineNumberMap;
+import x10.visit.StaticNestedClassRemover;
 import x10cpp.types.X10CPPContext_c;
 
 public class Emitter {
@@ -273,14 +259,15 @@ public class Emitter {
 		CConstraint projected = cc; //context.constraintProjection(cc);
 		if (!projected.consistent()) return r;
 		for (XTerm<Type> xvar : projected.getVarsAndFields()) {
-			if (!(xvar instanceof CField)) continue;
-			CField xvarf = (CField)xvar;
+			if (!(xvar instanceof XField<?,?>)) continue;
+			@SuppressWarnings("unchecked")
+			XField<Type,XDef<Type>> xvarf = (XField<Type,XDef<Type>>)xvar;
 			// [DC] I believe that since we are only looking at constraints of the form self.f,
 			// there is no need to check the type of the class which this field is attached to as it will
 			// always be the type we are translating.
 			if (!xvarf.receiver().toString().equals("self")) continue;
 			@SuppressWarnings("unchecked")
-			Def def = ((XLabeledOp<Type, Def>)xvarf.op()).getLabel(); 
+			XDef<Type> def = ((XLabeledOp<Type, XDef<Type>>)xvarf.op()).getLabel(); 
 			if (! (def instanceof X10FieldDef)) continue; // only support # within @Native on property fields, not methods
 			String property_name = ((X10FieldDef)def).name().toString();
 			// resolve to another variable, keep going

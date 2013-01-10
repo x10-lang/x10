@@ -14,7 +14,6 @@ package x10.types.constraints;
 import java.util.HashMap;
 
 import polyglot.ast.Field;
-import polyglot.types.Def;
 import polyglot.types.FieldDef;
 import polyglot.types.FieldInstance;
 import polyglot.types.LocalDef;
@@ -55,6 +54,7 @@ import x10.types.X10LocalDef;
 import polyglot.types.TypeSystem;
 import polyglot.util.Position;
 import x10.types.checker.PlaceChecker;
+import x10.types.constraints.xnative.CNativeConstraintSystem;
 
 
 /**
@@ -71,15 +71,24 @@ import x10.types.checker.PlaceChecker;
  *
  */
 public interface CConstraint extends XConstraint<Type> {
+	
+	/** Return the constraint system used to create this constraint.
+	 */
+	public CConstraintSystem sys();
 
+    public TypeSystem ts();
+    
     /**
      * Variable to use for self in the constraint.
      */
-     public XTerm<Type> self(); 
+     public XVar<Type> self(); 
     /**
      * Variable to use for this in the constraint (often is null). 
      */
-    public XTerm<Type> thisVar(); 
+    public XVar<Type> thisVar(); 
+    /** Return the var of this name, or null if the constraint doesn't mention it
+     */
+    //public XVar<Type> varByName(String name);
     /**
      * Return what, if anything, self is bound to in the current constraint.
      * @return
@@ -166,14 +175,14 @@ public interface CConstraint extends XConstraint<Type> {
      * terms in the constraint. So there should not be terms referring to the old thisVar.
      * @param var
      */
-    public void setThisVar(XTerm<Type> var);
+    public void setThisVar(XVar<Type> var);
     /**
      * Set self to var (if var is non-null). Note that this does not change the terms in the
      * constraint (to do that use instantiateSelf) 
      * @param self
      */
     
-    public void setSelf(XTerm<Type> var);
+    public void setSelf(XVar<Type> var);
     
     /**
      * Add the binding s=t.term(), and add in the constraints of t into this. This constraint
@@ -275,14 +284,14 @@ public interface CConstraint extends XConstraint<Type> {
     
     /**
      * Return the constraint obtained by existentially quantifying out the 
-     * variable v.
+     * term v.
      * 
      * The self var of the resulting constraint is guaranteed different from
      * the self var of this.
      * @param v
      * @return
      */
-    public CConstraint project(XTerm<Type> v);
+    public CConstraint project(XVar<Type> v);
 
     /**
      * Return exists self.this. Guaranteed that the self var of the

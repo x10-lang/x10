@@ -48,7 +48,7 @@ public class CSmtThis extends XSmtVar<Type> implements CThis {
 		return true;
 	}
 	@Override
-	public String prettyPrint() {
+	public String toSmtString() {
 		return THIS_VAR_PREFIX; 
 	}
 	

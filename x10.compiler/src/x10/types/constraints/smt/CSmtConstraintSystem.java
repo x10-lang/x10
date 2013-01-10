@@ -3,84 +3,68 @@ package x10.types.constraints.smt;
 import java.util.ArrayList;
 import java.util.List;
 
-import polyglot.ast.IntLit.Kind;
 import polyglot.ast.IntLit;
-import polyglot.types.Def;
+import polyglot.ast.IntLit.Kind;
 import polyglot.types.Type;
 import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import x10.constraint.XDef;
 import x10.constraint.XExpr;
-import x10.constraint.XLit;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
+import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.smt.XSmtConstraintSystem;
 import x10.constraint.smt.XSmtExpr;
-import x10.constraint.smt.XSmtField;
 import x10.constraint.smt.XSmtLit;
-import x10.constraint.smt.XSmtTerm;
 import x10.constraint.smt.XSmtVar;
+import x10.constraint.xnative.XNativeUQV;
 import x10.types.ConstrainedType;
-import x10.types.FunctionType;
+import x10.types.X10LocalDef;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.CConstraintSystem;
-import x10.types.constraints.CField;
 import x10.types.constraints.CQualifiedVar;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CThis;
-import x10.types.constraints.ConstraintManager;
-import x10.types.constraints.CLocal;
+import x10.types.constraints.QualifierDef;
 import x10.types.constraints.XTypeLit;
 
 public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements CConstraintSystem {
 	private static int idCounter = 0;
 	
 	@Override
-	public CSelf makeSelf(Type t) {
+	public XVar<Type> makeSelf(Type t) {
 		t = Types.baseTypeRec(t); 
 		assert ! (t instanceof ConstrainedType);
-		return new CSmtSelf(t, idCounter++); 
+		return makeUQV(t); 
 	}
 
 	@Override
-	public CThis makeThis(Type t) {
+	public XVar<Type> makeThis(Type t) {
 		t = Types.baseTypeRec(t);
 		assert ! (t instanceof ConstrainedType);
 		return new CSmtThis(t, idCounter++);
 	}
 
 	@Override
-	public <D extends XDef<Type>> CSmtLocal<Type, D> makeLocal(D def) {
+	public CSmtLocal makeLocal(X10LocalDef def) {
 		assert def != null;
-		return new CSmtLocal<Type,D>(def, Types.baseTypeRec(def.resultType()));
+		return new CSmtLocal(def, Types.baseTypeRec(Types.get(def.type())));
 	}
 
 	@Override
-	public <D extends XDef<Type>> CSmtLocal<Type, D> makeLocal(D def, String name) {
-		return new CSmtLocal<Type,D>(def, name, Types.baseTypeRec(def.resultType()));
+	public CSmtLocal makeLocal(X10LocalDef def, String name) {
+		return new CSmtLocal(def, name, Types.baseTypeRec(def.resultType()));
 	}
 
 	@Override
-	public <D extends XDef<Type>> XSmtField<Type,D> makeField(XTerm<Type> receiver, D label) {
-		assert receiver!= null && label!= null;
-		return new XSmtField<Type,D>(label, (XSmtTerm<Type>)receiver, Types.baseTypeRec(label.resultType()));
-	}
-
-	@Override
-	public <D extends XDef<Type>> XSmtField<Type,D> makeFakeField(XTerm<Type> receiver, D label) {
-		assert receiver!= null && label!= null;
-		return new XSmtField<Type,D>(label, (XSmtTerm<Type>)receiver, Types.baseTypeRec(label.resultType()), true);
-	}
-
-	@Override
-	public <D extends XDef<Type>> XSmtExpr<Type> makeMethod(D md, XTerm<Type> receiver, List<? extends XTerm<Type>> terms) {
+	public XSmtExpr<Type> makeMethod(XDef<Type> md, XTerm<Type> receiver, List<? extends XTerm<Type>> terms) {
 		XTerm<Type> method = makeField(receiver, md);
 		List<XTerm<Type>> args = new ArrayList<XTerm<Type>>(terms.size() +1);
 		args.add(method);
 		for (XTerm<Type> t : terms)
 			args.add(t); 
-		return makeExpr(XOp.<Type>APPLY(), terms);
+		return makeExpr(XOp.<Type>APPLY(md.resultType()), terms);
 	}
 	
 
@@ -91,23 +75,10 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 	}
 
 	@Override
-	public <D extends XDef<Type>> CField<D> makeCField(XTerm<Type> receiver, D field) {
-		if (field.toString().contains("IntRange")) {
-			System.out.println("IntRange");
-		}
-		
-		return new CSmtField<D>(field, (XSmtTerm<Type>)receiver, false);
-	}
-
-	@Override
-	public <D extends XDef<Type>> CField<D> makeFakeCField(XTerm<Type> receiver, D field) {
-		return new CSmtField<D>(field, (XSmtTerm<Type>)receiver, true);
-	}
-
-	@Override
 	public CQualifiedVar makeQualifiedVar(Type qualifier, XTerm<Type> base) {
 		assert ! (qualifier instanceof ConstrainedType);
-		return new CSmtQualifiedVar(base.type(), qualifier, (XSmtVar<Type>)base);
+		QualifierDef q = new QualifierDef(qualifier);
+		return new CSmtQualifiedVar(q, (XSmtVar<Type>)base);
 	}
 
 	@Override
@@ -116,11 +87,11 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 		assert ! (type instanceof ConstrainedType); 
         TypeSystem ts = type.typeSystem();
         if (type.isBoolean()) return xfalse(ts);
-        else if (type.isChar()) return makeLit(Character.valueOf('\0'), type);
-        else if (type.isIntOrLess() || type.isUInt()) return makeLit(0, type);
-        else if (type.isLongOrLess()) return makeLit(0L, type);
-        else if (type.isFloat()) return makeLit(0.0f, type);
-        else if (type.isDouble())return makeLit(0.0, type);
+        else if (type.isChar()) return makeLit(type, Character.valueOf('\0'));
+        else if (type.isIntOrLess() || type.isUInt()) return makeLit(type, 0);
+        else if (type.isLongOrLess()) return makeLit(type, 0L);
+        else if (type.isFloat()) return makeLit(type, 0.0f);
+        else if (type.isDouble())return makeLit(type, 0.0);
         else if (ts.isObjectOrInterfaceType(type, ts.emptyContext())) 
         	return xnull(ts); 
         else return null;		
@@ -128,8 +99,8 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 
 	@Override
 	public XTypeLit makeTypeLit(Type type) {
-		type = Types.baseTypeRec(type);
-		return new CSmtTypeLit(type, type);
+		Type kind = type; // [DC] HACK!!! need to use a proper 'kind' type
+		return new CSmtTypeLit(kind, Types.baseTypeRec(type));
 	}
 
 	@Override
@@ -146,15 +117,20 @@ public class CSmtConstraintSystem extends XSmtConstraintSystem<Type> implements 
 	}
 
 	@Override
-	public CConstraint makeCConstraint(Type type) {
+	public CConstraint makeCConstraint(Type type, TypeSystem ts) {
 		type = Types.baseTypeRec(type); 
 		assert ! (type instanceof ConstrainedType);
-		return new CSmtConstraint(type);
+		return new CSmtConstraint(this,type,ts);
 	}
 
 	@Override
-	public CConstraint makeCConstraint(XTerm<Type> self) {
-		return new CSmtConstraint((XSmtTerm<Type>)self); 
+	public CConstraint makeCConstraint(XVar<Type> self, TypeSystem ts) {
+		return new CSmtConstraint(this, (XSmtVar<Type>)self, ts); 
+	}
+
+	@Override
+	public CConstraint makeCConstraint(TypeSystem ts) {
+		return new CSmtConstraint(this, ts); 
 	}
 
 

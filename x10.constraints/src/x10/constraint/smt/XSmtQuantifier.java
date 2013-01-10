@@ -3,7 +3,6 @@ package x10.constraint.smt;
 import java.util.HashSet;
 import java.util.Set;
 
-import x10.constraint.XConstraintManager;
 import x10.constraint.XType;
 import x10.constraint.XVar;
 
@@ -22,7 +21,7 @@ public class XSmtQuantifier<T extends XType> extends XSmtTerm<T> {
 	
 	protected XSmtQuantifier(XSmtQuantifier<T> other) {
 		super(other); 
-		this.body = XConstraintManager.<T>getConstraintSystem().copy(other.body); 
+		this.body = other.body.copy(); 
 		collectQuantifiers(this.body); 
 	}
 	
@@ -66,34 +65,34 @@ public class XSmtQuantifier<T extends XType> extends XSmtTerm<T> {
 	}
 
 	@Override
-	public String prettyPrint() {
+	public String toSmtString() {
 		StringBuilder sb = new StringBuilder(); 
 		if (!uqv.isEmpty()) {
 			sb.append("forall");
 			for (XSmtTerm<T> t : uqv) {
-				sb.append(" "+t.prettyPrint()); 
+				sb.append(" "+t.toSmtString()); 
 			}
 			sb.append(".");
 		}
 		if (!eqv.isEmpty()) {
 			sb.append("exists");
 			for (XSmtTerm<T> t : eqv) {
-				sb.append(" "+t.prettyPrint()); 
+				sb.append(" "+t.toSmtString()); 
 			}
 			sb.append(".");
 		}
-		sb.append(body.prettyPrint());
+		sb.append(body.toSmtString());
 		return sb.toString(); 
 	}
 
 	@Override
-	protected void print(XPrinter<T> p) {
+	protected void print(XSmtConstraintSystem<T> cs, XPrinter<T> p) {
 		int parenCount = 0; 
 		if (!uqv.isEmpty()) {
 			p.append("(forall (");
 			for (XSmtTerm<T> t: uqv) {
 				p.append(" (");
-				t.print(p);
+				t.print(cs, p);
 				p.append(" " + p.printType(t.type()));
 				p.append(")");
 			}
@@ -105,7 +104,7 @@ public class XSmtQuantifier<T extends XType> extends XSmtTerm<T> {
 			p.append("(exists (");
 			for (XSmtTerm<T> t: eqv) {
 				p.append(" (");
-				t.print(p);
+				t.print(cs, p);
 				p.append(" " + p.printType(t.type()));
 				p.append(")");
 			}
@@ -113,15 +112,15 @@ public class XSmtQuantifier<T extends XType> extends XSmtTerm<T> {
 			parenCount++; 
 		}
 		
-		body.print(p);
+		body.print(cs, p);
 		// closing parenthesis
 		for (int i = 0; i < parenCount; ++i)
 			p.append(")");
 	}
 
 	@Override
-	protected void declare(XPrinter<T> p) {
-		body.declare(p); 
+	protected void declare(XSmtConstraintSystem<T> cs, XPrinter<T> p) {
+		body.declare(cs, p); 
 	}
 
 
@@ -156,7 +155,7 @@ public class XSmtQuantifier<T extends XType> extends XSmtTerm<T> {
 
 	@Override
 	public String toString() {
-		return prettyPrint(); 
+		return toSmtString(); 
 	}
 
 }

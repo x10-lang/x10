@@ -218,7 +218,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
         // into curr, with argi/self.
         
         CConstraint cxtCurr = cxt.currentConstraint();  
-        CConstraint curr = ConstraintManager.getConstraintSystem().makeCConstraint(cxtCurr.self());
+        CConstraint curr = ConstraintManager.getConstraintSystem().makeCConstraint(cxtCurr.self(),xts);
 
         for (int i=0; i < args.size() && i < props.size(); ++i) {
             Type yType = args.get(i).type();
@@ -236,7 +236,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                 CConstraint c = Types.xclause(yType);
                 curr.addIn(symbol, c);
             } 
-            curr.addEquality(ConstraintManager.getConstraintSystem().makeCField(thisVar, props.get(i).def()), symbol);
+            curr.addEquality(ConstraintManager.getConstraintSystem().makeField(thisVar, props.get(i).def()), symbol);
 
             if (! curr.consistent()) {
                 Errors.issue(tc.job(),
@@ -270,8 +270,8 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
 
         {
             Type supType = thisConstructor.supType();
-            CConstraint known = Types.realX(supType);
-            known = (known==null ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(supType)) : known.copy());
+            CConstraint known = Types.realX(supType,ts);
+            known = (known==null ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(supType),ts) : known.copy());
             try {
                 known.addIn(Types.get(thisConstructor.guard()));
 
@@ -284,7 +284,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
                     XTerm<Type> prop = (XTerm<Type>) ts.xtypeTranslator().translate(known.self(), fii);
 
                     // Add in the real clause of the initializer with [self.prop/self]
-                    CConstraint c = Types.realX(initType);
+                    CConstraint c = Types.realX(initType,ts);
                     if (! c.consistent()) {
                         Errors.issue(tc.job(), 
                                      new Errors.InconsistentContext(initType, pos));
@@ -355,7 +355,7 @@ public class AssignPropertyCall_c extends Stmt_c implements AssignPropertyCall {
              
                  
                  for (Type intfc : ctype.interfaces()) {
-                	 CConstraint cc = Types.realX(intfc);
+                	 CConstraint cc = Types.realX(intfc,ts);
                      cc = cc.instantiateSelf(thisVar); // for some reason, the invariant has "self" instead of this, so I fix it here.
                 	 if (thisVar != null) {
                 		 XVar<Type> intfcThisVar = ((X10ClassType) intfc.toClass()).x10Def().thisVar();

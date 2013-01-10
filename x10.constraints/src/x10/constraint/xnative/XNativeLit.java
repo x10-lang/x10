@@ -11,13 +11,11 @@
 
 package x10.constraint.xnative;
 
-import java.util.Collections;
-import java.util.List;
-
+import x10.constraint.XConstraintSystem;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
+import x10.constraint.XType;
 import x10.constraint.XVar;
-import x10.util.CollectionFactory;
 
 /**
  * A representation of a literal. A literal is an XVar carrying a
@@ -27,42 +25,40 @@ import x10.util.CollectionFactory;
  * @author vijay
  *
  */
-public class XNativeLit extends XNativeVar implements XLit  {
+public class XNativeLit<T extends XType, V> extends XNativeTerm<T> implements XLit<T,V>  {
     private static final long serialVersionUID = 566522638402563631L;
-    final protected Object val;
+    final protected V val;
     
+/* These can only be implemented by the concrete type CNativeLit (or whatever)
     public static XNativeLit TRUE = new XNativeLit(true);
     public static XNativeLit FALSE = new XNativeLit(false);
     public static XNativeLit NULL = new XNativeLit(null);
-
-	public XNativeLit(Object l) {val = l;}
+*/
+    
+	public XNativeLit(V l, T type) {
+		super(type);
+		val = l;
+	}
+    
+	public XNativeLit(XNativeLit<T,V> other) {
+		super(other);
+		val = other.val();
+	}
+	
 	@Override
-	public Object val() {return val;}
+	public V val() {return val;}
 	/**
 	 * Pro-actively intern literals since they may end up having fields.
 	 */
-	@Override
-	public XPromise nfp(XNativeConstraint c) {
-		assert c != null;
-		XPromise p = null;
-		if (c.roots == null) {
-			c.roots = CollectionFactory.<XNativeTerm, XPromise> newHashMap();
-			p = c.intern(this);
-		} else {
-			p = c.roots.get(this);
-			if (p == null) p = c.intern(this);
-		}
-		return p.lookup();
-	}
+
 	// public boolean hasDisBindings() { return false; }
 
+	//@Override
+	//public XTermKind kind()  {return XTermKind.LITERAL;}
+	/*
 	@Override
-	public XTermKind kind()  {return XTermKind.LITERAL;}
-	@Override
-	public List<XNativeEQV> eqvs() {return Collections.emptyList();}
-
-	@Override
-	public int prefersBeingBound() {return XNativeTerm.TERM_MUST_NOT_BE_BOUND;}
+	public List<XNativeEQV<T>> eqvs() {return Collections.emptyList();}
+*/
 	
 	public String toString(String prefix) {return toString();}
 	@Override
@@ -80,31 +76,50 @@ public class XNativeLit extends XNativeVar implements XLit  {
 	@Override
 	public boolean okAsNestedTerm() { return true;}
 	@Override
-	public boolean hasVar(XVar v) { return v.equals(this);}
+	public boolean hasVar(XVar<T> v) { return v.equals(this);}
 
 	@Override
 	public boolean equals(Object o) {
 	    if (this == o) return true;
-	    if (!(o instanceof XNativeLit)) return false;
-	    XNativeLit other = (XNativeLit) o;
-	    return val == null ? o == null : val == other.val || val.equals(other.val);
+	    if (!(o instanceof XNativeLit<?,?>)) return false;
+	    // no reified generics so no way to check V -- just check val directly instead
+	    XNativeLit<?,?> other = (XNativeLit<?,?>) o;
+	    if (val == null) return other.val == null; // avoid NPE on the next line
+	    return val.equals(other.val);
 	}
 
+
 	@Override
-	public XNativeTerm subst(XTerm y, XVar x, boolean propagate) {
-	    return super.subst(y, x, propagate);
-	}
-	
+	public XNativeTerm<T> subst(XConstraintSystem<T> sys, XTerm<T> t1, XTerm<T> t2) {
+		return equals(t2) ? (XNativeTerm<T>)t1 : this;
+	}	
+
 	public String instance() {return toString();}
 
-	XNativeVar[] vars;
+	/*
+	XNativeTerm<T>[] vars;
+	*/
 	/** In case this is a field selection x.f1...fn, return x, x.f1, x.f1.f2, ... x.f1.f2...fn */
+	/*
 	@Override
-	public XNativeVar[] vars() {
-	    if (vars==null) vars = new XNativeVar[]{this};
+	public XNativeTerm<T>[] vars() {
+	    if (vars==null) vars = new XNativeTerm<T>[]{this};
 	    return vars;
 	}
+	*/
 
 	/** In case this is a field selection x.f1...fn, return x, else this. */
-	public XNativeVar rootVar() {return this;}
+	//@Override
+	//public XNativeTerm<T> rootVar() {return this;}
+
+	@Override
+	public boolean isProjection() {
+		return false;
+	}
+
+	@Override
+	public XNativeLit<T,V> copy() {
+		return new XNativeLit<T,V>(this);
+	}
+
 }

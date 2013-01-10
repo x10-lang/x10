@@ -3,7 +3,7 @@ package x10.constraint.smt;
 import x10.constraint.XType;
 import x10.constraint.XVar;
 
-public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
+public abstract class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 	private String name; 
 	
 	public XSmtVar(T t, String name) {
@@ -28,13 +28,13 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 	}
 
 	@Override
-	protected void print(XPrinter<T> p) {
+	protected void print(XSmtConstraintSystem<T> cs, XPrinter<T> p) {
 		p.append(p.mangle(toString()));
 	}
 	
 	@Override
-	protected void declare(XPrinter<T> p) {
-		p.declare(this); 
+	protected void declare(XSmtConstraintSystem<T> cs, XPrinter<T> p) {
+		p.declare(cs, this); 
 	}
 
 	@Override
@@ -71,13 +71,8 @@ public class XSmtVar<T extends XType> extends XSmtTerm<T> implements XVar<T> {
 	}
 	
 	@Override
-	public String prettyPrint() {
+	public String toSmtString() {
 		return name; 
-	}
-
-	@Override
-	public XSmtVar<T> copy() {
-		return new XSmtVar<T>(this); 
 	}
 
 

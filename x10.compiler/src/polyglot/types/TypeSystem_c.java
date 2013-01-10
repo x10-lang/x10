@@ -15,21 +15,36 @@
 package polyglot.types;
 
 import java.lang.reflect.Modifier;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import polyglot.ast.Binary;
-import polyglot.frontend.*;
-import polyglot.main.Report;
+import polyglot.frontend.ExtensionInfo;
+import polyglot.frontend.Goal;
+import polyglot.frontend.Source;
 import polyglot.main.Reporter;
 import polyglot.types.reflect.ClassFile;
 import polyglot.types.reflect.ClassFileLazyClassInitializer;
-import polyglot.util.*;
+import polyglot.util.CollectionUtil;
+import polyglot.util.ErrorInfo;
+import polyglot.util.InternalCompilerError;
+import polyglot.util.Position;
+import polyglot.util.Predicate2;
+import polyglot.util.StringUtil;
+import polyglot.util.TransformingList;
 import x10.constraint.XExpr;
 import x10.constraint.XLit;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.types.constraints.XTypeLit;
-
 import x10.errors.Errors;
 import x10.types.AsyncDef;
 import x10.types.AsyncDef_c;
@@ -43,6 +58,7 @@ import x10.types.ClosureType;
 import x10.types.ConstrainedType;
 import x10.types.FunctionType;
 import x10.types.MacroType;
+import x10.types.MethodInstance;
 import x10.types.MethodInstance_c;
 import x10.types.ParameterType;
 import x10.types.ThisDef;
@@ -51,47 +67,44 @@ import x10.types.ThisInstance;
 import x10.types.ThisInstance_c;
 import x10.types.TypeDefMatcher;
 import x10.types.TypeParamSubst;
-import x10.types.X10ConstructorInstance_c;
-import x10.types.X10FieldDef_c;
-import x10.types.X10FieldInstance_c;
-import x10.types.X10LocalDef_c;
-import x10.types.X10LocalInstance_c;
-import x10.types.X10MethodDef_c;
 import x10.types.VoidType;
-import x10.types.X10ClassDef_c;
 import x10.types.X10ClassDef;
+import x10.types.X10ClassDef_c;
 import x10.types.X10ClassType;
 import x10.types.X10ConstructorDef;
 import x10.types.X10ConstructorDef_c;
 import x10.types.X10ConstructorInstance;
+import x10.types.X10ConstructorInstance_c;
 import x10.types.X10Def;
 import x10.types.X10FieldDef;
+import x10.types.X10FieldDef_c;
 import x10.types.X10FieldInstance;
-import x10.types.MethodInstance;
+import x10.types.X10FieldInstance_c;
 import x10.types.X10InitializerDef;
 import x10.types.X10InitializerDef_c;
 import x10.types.X10LocalDef;
+import x10.types.X10LocalDef_c;
 import x10.types.X10LocalInstance;
+import x10.types.X10LocalInstance_c;
 import x10.types.X10MethodDef;
+import x10.types.X10MethodDef_c;
 import x10.types.X10ParsedClassType;
 import x10.types.X10ParsedClassType_c;
+import x10.types.X10ProcedureInstance;
 import x10.types.X10TypeEnv;
 import x10.types.X10TypeEnv_c;
-
 import x10.types.XTypeTranslator;
-import x10.types.X10ProcedureInstance;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CField;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
 import x10.types.constraints.XConstrainedTerm;
-import x10.types.constraints.CLocal;
-
-import x10.types.matcher.*;
+import x10.types.matcher.Subst;
+import x10.types.matcher.X10FieldMatcher;
+import x10.types.matcher.X10MemberTypeMatcher;
+import x10.types.matcher.X10TypeMatcher;
 import x10.util.ClosureSynthesizer;
 import x10.util.CollectionFactory;
-import x10.X10CompilerOptions;
 
 
 /**
@@ -3679,7 +3692,7 @@ public class TypeSystem_c implements TypeSystem
 
         context = context.pushBlock();
         CConstraint cc = context.currentConstraint();
-        cc.addIn(thisVar, Types.realX(ct));
+        cc.addIn(thisVar, Types.realX(ct,this));
         context.setCurrentConstraint(cc);
         ContainerType curr = ct;
         while (curr != null) {
@@ -3740,8 +3753,8 @@ public class TypeSystem_c implements TypeSystem
 
     
     public Type performBinaryOperation(Type t, Type l, Type r, Binary.Operator op) {
-        CConstraint cl = Types.realX(l);
-        CConstraint cr = Types.realX(r);
+        CConstraint cl = Types.realX(l,this);
+        CConstraint cr = Types.realX(r,this);
         TypeSystem xts = (TypeSystem) t.typeSystem();
         CConstraint c = xts.xtypeTranslator().binaryOp(op, cl, cr);
         return Types.xclause(Types.baseType(t), c);
@@ -3749,7 +3762,7 @@ public class TypeSystem_c implements TypeSystem
 
     
     public Type performUnaryOperation(Type t, Type a, polyglot.ast.Unary.Operator op) {
-        CConstraint ca = Types.realX(a);
+        CConstraint ca = Types.realX(a,this);
         TypeSystem xts = (TypeSystem) t.typeSystem();
         CConstraint c = xts.xtypeTranslator().unaryOp(op, ca);
         if (c == null)

@@ -30,6 +30,7 @@ import polyglot.util.Pair;
 import polyglot.util.Position;
 import polyglot.util.UniqueID;
 import polyglot.util.CollectionUtil;
+import x10.types.X10ClassType;
 import x10.util.CollectionFactory;
 
 // TODO:
@@ -125,12 +126,14 @@ public abstract class InnerClassRemover extends ContextVisitor {
     protected Expr fixSpecial(Special s) {
         if (s.qualifier() == null)
             return s;
-        assert s.qualifier().type().toClass() != null;
+        X10ClassType qual_class = s.qualifier().type().toClass();
+        assert qual_class != null;
         Context context = this.context();
-        if (s.qualifier().type().toClass().def() == context.currentClassDef())
+        if (qual_class.def() == context.currentClassDef())
             return s;
         Position pos = s.position().markCompilerGenerated();
-        return getContainer(pos, nf.This(pos).type(context.currentClass()), context.currentClass(), s.qualifier().type().toClass());
+        X10ClassType currentClass = context.currentClass();
+        return getContainer(pos, nf.This(pos).type(currentClass), currentClass, qual_class);
     }
 
     protected Node fixField(Field f) {
@@ -498,7 +501,7 @@ public abstract class InnerClassRemover extends ContextVisitor {
         FieldDef fi = outerFieldInstance.get(currClass.def());
         if (fi != null) return fi;
         
-        Position pos = outerClass.position();
+        Position pos = outerClass.def().position();
         
         fi = ts.fieldDef(pos, Types.ref(currClass), Flags.FINAL.Private(), Types.ref(outerClass), OUTER_FIELD_NAME);
         fi.setNotConstant();

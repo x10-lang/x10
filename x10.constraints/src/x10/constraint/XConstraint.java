@@ -14,6 +14,11 @@ import java.util.Set;
  * @param <T> type of XTerms
  */
 public interface XConstraint <T extends XType> {
+	
+	public XTypeSystem<? extends XType> ts();
+	
+	public XConstraintSystem<T> sys();
+	
 	/**
 	 * Check if the constraint is currently consistent. 
 	 * @return true if consistent. 
@@ -115,9 +120,9 @@ public interface XConstraint <T extends XType> {
 	public XConstraint<T> copy();
 	/**
 	 * Return a term v is equal to in the constraint, and null if such
-	 * a term could not be "easily" computed. 
+	 * a term could not be "easily" computed.
 	 * 
-	 * @param v
+	 * @param v An arbitrary term.  There is code using a field here.
 	 * @return t such that this |- t = v
 	 */
 	public XTerm<T> bindingForVar(XTerm<T> v);

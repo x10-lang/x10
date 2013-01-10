@@ -149,7 +149,7 @@ public class PlaceChecker {
 	public static CConstraint ThisHomeEqualsHere(XTerm<Type> thisVar, TypeSystem ts) {
 
 		XTerm<Type> h =  PlaceChecker.homeVar(thisVar, ts);
-		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place());
+		CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(ts.Place(),ts);
 		if (h != null) {
 			c.addEquality(h, here(ts));
 		}
@@ -290,7 +290,7 @@ public class PlaceChecker {
 	    // XTENLANG-2725: in X10 2.2, all methods are "global"
 	    boolean isGlobal = true; // || md.flags().isStatic() || Types.isX10Struct(ct.asType());
 	    XTerm<Type> term = isGlobal ? makePlace(md.typeSystem()) : homeVar(md.thisVar(), md.typeSystem());
-	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(md.typeSystem().Place());
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(md.typeSystem().Place(),md.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
 	    } catch (XFailure z) {
@@ -299,7 +299,7 @@ public class PlaceChecker {
 	}
 
 	public static XConstrainedTerm constructorPlaceTerm(ConstructorDef cd) {
-	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place());
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place(),cd.typeSystem());
 	    XTerm<Type> term = homeVar(cd.thisVar(), cd.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -309,7 +309,7 @@ public class PlaceChecker {
 	}
 	
 	public static XConstrainedTerm closurePlaceTerm(ClosureDef cd) {
-	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place());
+	    CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint(cd.typeSystem().Place(),cd.typeSystem());
 	    XTerm<Type> term = makePlace(cd.typeSystem());
 	    try {
 	        return XConstrainedTerm.instantiate(d, term);
@@ -388,7 +388,7 @@ public class PlaceChecker {
 	public static XConstrainedTerm computePlaceTerm(Expr place, Context xc, TypeSystem ts) throws SemanticException {
 		Type placeType = place.type();
 		CConstraint d = Types.xclause(placeType);
-		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(placeType)) : d.copy();
+		d = (d==null) ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(placeType),ts) : d.copy();
 		CConstraint pc = null;
 		XTerm<Type> term = null;
 		XConstrainedTerm pt = null;

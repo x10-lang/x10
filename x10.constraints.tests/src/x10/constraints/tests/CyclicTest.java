@@ -11,34 +11,29 @@
 
 package x10.constraints.tests;
 
-import junit.framework.TestCase;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraintManager;
-import x10.constraint.XTerm;
-import x10.constraint.XVar;
+import x10.constraint.XField;
+import x10.constraint.XStringDef;
 
-public class CyclicTest extends TestCase {
+public class CyclicTest extends BaseTest {
 	public CyclicTest() {
 		super("CyclicTest");
 	}
-	XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
-	XTerm one = XConstraintManager.getConstraintSystem().makeLit(new Integer(1));
-	XTerm two = XConstraintManager.getConstraintSystem().makeLit(new Integer(2));
-	XVar v0 = XConstraintManager.getConstraintSystem().makeUQV("v0");
-	XVar v1 = XConstraintManager.getConstraintSystem().makeUQV("v1");
-	XVar v2 = XConstraintManager.getConstraintSystem().makeUQV("v2");
-	XVar v0a = XConstraintManager.getConstraintSystem().makeField(v0, "a");
-	XVar v1b = XConstraintManager.getConstraintSystem().makeField(v1, "b");
+
 	
 	/**
-	 * v0=v1,v1=v2 |- v0=v2
+	 * v0.a==v1, v1.a==v0 must be inconsistent
 	 * @throws Throwable
 	 */
 	public void test1() throws Throwable {
-		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-		c.addBinding(v0a, v1);
-		c.addBinding(v1b, v0);
+		XField<TestType,XStringDef<TestType>> v0a = xcs.makeField(v0, new XStringDef<TestType>("a", objType));
+		XField<TestType,XStringDef<TestType>> v1b = xcs.makeField(v1, new XStringDef<TestType>("b", objType));
+
+		XConstraint<TestType> c = xcs.makeConstraint(ts);
+		c.addEquality(v0a, v1);
 		System.out.println("c is|" + c+ "|");
-		assertTrue(c.consistent());
+		c.addEquality(v1b, v0);
+		System.out.println("c is|" + c+ "|");
+		assertFalse(c.consistent());
 	}
 }

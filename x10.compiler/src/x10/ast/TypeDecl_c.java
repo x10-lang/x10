@@ -253,7 +253,7 @@ public class TypeDecl_c extends Term_c implements TypeDecl {
 		    cref.setResolver(new Runnable() {
 		        public void run() {
 		        	Type baseType = Types.baseType(f2.type().type());
-		        	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType);
+		        	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType,ts);
 		            c.addSelfEquality(ts.xtypeTranslator().translate(f2.localDef().asInstance()));
 		            cref.update(c);
 		        }

@@ -11,21 +11,23 @@ import x10.constraint.smt.XPrinter;
  *
  */
 public class XSimpleOp<T extends XType> extends XOp<T> {
+
+	T type;
+	
 	/**
 	 * Constructs a simple operator with the given kind. Note that the
 	 * kind must not be a kind that is parameterized. 
 	 * @param kind
 	 */
-	XSimpleOp(XOp.Kind kind) {
+	XSimpleOp(XOp.Kind kind, T type) {
 		super(kind);
+		this.type = type;
 		assert kind!= XOp.Kind.APPLY_LABEL; 
 	}
 
 	@Override
-	public T type(XTypeSystem<? extends T> ts) {
-		return ts.Boolean();
-	}
-
+	public T type() { return type; }
+	
 	@Override
 	public String toString() {
 		return kind.name();
@@ -40,5 +42,5 @@ public class XSimpleOp<T extends XType> extends XOp<T> {
 	public String print(XPrinter<T> p) {
 		return kind.print(p);
 	}
-
+	
 }

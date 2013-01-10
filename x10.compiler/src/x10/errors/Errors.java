@@ -241,7 +241,7 @@ public class Errors {
                     + "\n\t Found base type: " + bType
                     , pos);
         }
-		CannotAssign(Expr expr, Type type, XConstraint con, Position pos) {
+		CannotAssign(Expr expr, Type type, XConstraint<Type> con, Position pos) {
             super("Cannot assign expression to target; constraints not satisfied."
                     + "\n\t Expression: " + expr
                     + "\n\t Type: " + type
@@ -352,7 +352,7 @@ public class Errors {
 		    c = Types.xclause(actual), 
 		    d = Types.xclause(formal);
 		    c.addIn(cxt.currentConstraint());
-		    XConstraint residue = c.residue(d);
+		    CConstraint residue = c.residue(d);
 		    return new InvalidParameter(i, formal, residue, me, pos);
 		}
 

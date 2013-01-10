@@ -23,7 +23,7 @@ public class XSmtEQV<T extends XType> extends XSmtVar<T> implements XEQV<T>{
 	}
 	
 	@Override
-	public String prettyPrint() {
+	public String toSmtString() {
 		return EQV_PREFIX+num; 
 	}
 	

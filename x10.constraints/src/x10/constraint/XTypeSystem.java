@@ -7,14 +7,17 @@ package x10.constraint;
  * @param <T>
  */
 public interface XTypeSystem<T extends XType> {
+	
 	/**
 	 * Return the Boolean type. 
 	 * @return
 	 */
 	T Boolean(); 
+
 	/**
 	 * Return the Null Type. 
 	 * @return
 	 */
-	T Null(); 
+	T Null();
+
 }

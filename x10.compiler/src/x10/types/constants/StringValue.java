@@ -41,7 +41,7 @@ public class StringValue extends ConstantValue {
 
     @Override
     public StringLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(getLitType(ts), toJavaObject()));
         return (StringLit)nf.StringLit(pos, val).type(type);
     }
 

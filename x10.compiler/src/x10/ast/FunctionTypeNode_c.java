@@ -109,7 +109,7 @@ public class FunctionTypeNode_c extends TypeNode_c implements FunctionTypeNode {
 		        typeParams, formalTypes, formalNames,
 		        //lshadare this should probably a reference
 		        guard != null ? guard.valueConstraint() : 
-		        	     Types.lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(returnType.typeRef().get())))
+		        	     Types.lazyRef(ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(returnType.typeRef().get()), ts))
 		        // guard != null ? guard.typeConstraint() : null,
 		);
 

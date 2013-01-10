@@ -44,7 +44,6 @@
         <javac destdir="${build}" source="1.5" target="1.5" debug="on">
             <src path="${src}"/>
             <include name="x10/**"/>
-        	<exclude name="x10/constraint/xnative/**"/>
             <exclude name="x10/constraint/test/**"/>
             <exclude name="x10/constraint/tests/**"/>
             <classpath>

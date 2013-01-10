@@ -345,7 +345,7 @@ public class AltSynthesizer {
         Field f       = nf.Field(pos, receiver, nf.Id(pos, fi.name())).fieldInstance(fi);
         Type type     = fi.rightType();
         // propagate self binding (if any)
-        CConstraint c = Types.realX(receiver.type());
+        CConstraint c = Types.realX(receiver.type(),ts);
         XTerm<Type> term    = Types.selfVarBinding(c);  // the RHS of {self==x} in c
         if (term != null) {
             type = addSelfConstraint(type, ts.xtypeTranslator().translate(term, fi));

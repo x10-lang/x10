@@ -713,7 +713,7 @@ public class X10New_c extends New_c implements X10New {
                 if (ct.isLocal()) {
                     Type outerT = ct.outer();
                     Type outerTB = Types.baseType(outerT);
-                    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(outerTB);
+                    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(outerTB,tc.typeSystem());
                     if (outerTB instanceof X10ClassType) {
                         X10ClassType outerct = (X10ClassType) outerTB;
                         c.addSelfEquality(outerct.def().thisVar());

@@ -62,6 +62,7 @@ public abstract class Type_c extends TypeObject_c implements Type
 
     public boolean isType() { return true; }
     public boolean isPackage() { return false; }
+    public boolean isKind() { return false; }
     public Type toType() { return this; }
     public Package toPackage() { return null; }
 

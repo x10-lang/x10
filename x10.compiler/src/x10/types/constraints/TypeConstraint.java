@@ -173,11 +173,11 @@ public class TypeConstraint implements Copy, Serializable {
 
         TypeConstraint tenv = new TypeConstraint();
 
-        XTerm<Type> ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
+        XVar<Type> ythis = thisType instanceof ConstrainedType ? Types.selfVar((ConstrainedType) thisType) : null;
 
         if (ythis == null) {
             CConstraint c = Types.xclause(thisType);
-            c = (c == null) ? ConstraintManager.getConstraintSystem().makeCConstraint(thisType) : c.copy();
+            c = (c == null) ? ConstraintManager.getConstraintSystem().makeCConstraint(thisType,xts) : c.copy();
 
             ythis = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(thisType));  
             c.addSelfEquality(ythis);
@@ -221,7 +221,7 @@ public class TypeConstraint implements Copy, Serializable {
             // Be sure to copy the constraints since we use the self vars
             // in other constraints and don't want to conflate them if
             // realX returns the same constraint twice.
-            final CConstraint yc = Types.realX(ytype).copy();
+            final CConstraint yc = Types.realX(ytype,xts).copy();
             XTerm<Type> yi = Types.selfVar(yc);
             if (yi == null) {
                 // This must mean that yi was not final, hence it cannot occur in 

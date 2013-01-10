@@ -20,11 +20,14 @@ import x10.types.ThisDef;
 import x10.types.X10FieldDef;
 import x10.types.X10FieldDef_c;
 import x10.types.constraints.CConstraint;
+import x10.types.constraints.CConstraintSystem;
+import x10.types.constraints.ConstraintManager;
 import junit.framework.TestCase;
 
-public class X10TestCase extends TestCase {
+public abstract class X10TestCase extends TestCase {
     protected ExtensionInfo ext;
     protected TypeSystem ts;
+    protected CConstraintSystem sys = ConstraintManager.getConstraintSystem();
     Compiler compiler;
     public X10TestCase(String name) {
         super(name);
@@ -35,10 +38,9 @@ public class X10TestCase extends TestCase {
         ext = compiler.sourceExtension();
         ts = ext.typeSystem();
     }
-    public X10FieldDef makeField(String name) {
-        return makeField(name, null);
-    }
+
     public X10FieldDef makeField(String name, Type type) {
+    	assert type != null;
         return new X10FieldDef_c(ts, Position.COMPILER_GENERATED, 
                           (Ref <? extends ContainerType>) Types.ref((ContainerType) null), 
                           Flags.NONE, 
@@ -49,9 +51,9 @@ public class X10TestCase extends TestCase {
     public void print(CConstraint c) {
         System.out.print("{");
         boolean notFirst=false;
-        List<? extends XTerm> terms = c.constraints();
-        for (XTerm x : terms) {
-            System.out.print((notFirst? ",":"") + x);
+        List<? extends XTerm<?>> terms = c.extTerms();
+        for (XTerm<?> x : terms) {
+            System.out.print((notFirst? ", ":"") + x);
             notFirst=true;
         }
         System.out.println("}");

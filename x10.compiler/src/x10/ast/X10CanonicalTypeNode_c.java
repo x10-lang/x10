@@ -187,7 +187,7 @@ public class X10CanonicalTypeNode_c extends CanonicalTypeNode_c implements X10Ca
     public Node conformanceCheck(ContextVisitor tc) {
         Type t = type();
         
-        XConstraint c = Types.realX(t);
+        XConstraint<Type> c = Types.realX(t,tc.typeSystem());
         
         if (! c.consistent()) {
             Errors.issue(tc.job(),

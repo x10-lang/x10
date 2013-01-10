@@ -1,35 +1,39 @@
 package x10.types.constraints.smt;
 
+import polyglot.types.Def;
+import polyglot.types.Type;
 import x10.constraint.XDef;
+import x10.constraint.XTerm;
 import x10.constraint.XType;
 import x10.constraint.smt.XSmtVar;
+import x10.types.X10LocalDef;
 import x10.types.constraints.CLocal;
 
-public class CSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> implements CLocal<T, D> {
-	private final D def; 
+public class CSmtLocal extends XSmtVar<Type> implements CLocal {
+	private final X10LocalDef def; 
 	private final String s; // just for documentation
 
-	public CSmtLocal(D def, T type) {
+	public CSmtLocal(X10LocalDef def, Type type) {
 		super(type, def.getName());
 		this.def = def;
 		this.s = null; 
 	}
 
-	public CSmtLocal(D def, String s, T type) {
+	public CSmtLocal(X10LocalDef def, String s, Type type) {
 		super(type, def.getName());
 		this.def = def;
 		this.s = s; 
 	}
 
 	
-	CSmtLocal(CSmtLocal<T, D> other) {
+	CSmtLocal(CSmtLocal other) {
 		super(other);
 		this.def = other.def;
 		this.s = other.s; 
 	}
 	
 	@Override
-	public D def() {
+	public X10LocalDef def() {
 		return def; 
 	}
 
@@ -49,7 +53,7 @@ public class CSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 			return false;
 		if (getClass() != obj.getClass())
 			return false;
-		CSmtLocal<?,?> other = (CSmtLocal<?,?>) obj;
+		CSmtLocal other = (CSmtLocal) obj;
 		if (def == null) {
 			if (other.def != null)
 				return false;
@@ -64,7 +68,8 @@ public class CSmtLocal<T extends XType, D extends XDef<T>> extends XSmtVar<T> im
 	}
 	
 	@Override
-	public CSmtLocal<T,D> copy() {
-		return new CSmtLocal<T,D>(this); 
+	public CSmtLocal copy() {
+		return new CSmtLocal(this); 
 	}
+
 }

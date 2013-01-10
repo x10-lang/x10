@@ -430,8 +430,7 @@ public class Context implements Resolver, Cloneable
 
     CConstraint outerThisEquivalences() {
         Type curr = currentClass();
-    	CConstraint result = curr == null? ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null) :
-    									   ConstraintManager.getConstraintSystem().makeCConstraint(curr);
+    	CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(curr,typeSystem());
         
         List<X10ClassDef> outers = Types.outerTypes(curr); 
         for (int i=0; i < outers.size(); i++) {
@@ -451,7 +450,7 @@ public class Context implements Resolver, Cloneable
         CConstraint result = currentConstraint;
         if (result == null) {
         	// CONSTRAINT_QUESTION: what is the original type of the currentConstraint
-            result = ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null);
+            result = ConstraintManager.getConstraintSystem().makeCConstraint(typeSystem());
             if (! inStaticContext()) {
                 result.setThisVar(thisVar());
                 CConstraint d = outerThisEquivalences();
@@ -575,7 +574,7 @@ public class Context implements Resolver, Cloneable
         }
         Type type = Types.baseType(this.currentDepType());
         if (r == null) 
-            r = ConstraintManager.getConstraintSystem().makeCConstraint(type);
+            r = ConstraintManager.getConstraintSystem().makeCConstraint(type,typeSystem());
         // fold in the current constraint
         r.addSigma(currentConstraint(), m);
         r.addSigma(currentPlaceTerm, typeSystem().Place(), m);
@@ -584,7 +583,7 @@ public class Context implements Resolver, Cloneable
         // fold in the real clause of the base type
         Type selfType = this.currentDepType();
         if (selfType != null) {
-            CConstraint selfConstraint = Types.realX(selfType);
+            CConstraint selfConstraint = Types.realX(selfType,ts);
             if (selfConstraint != null) {
                 r.addIn(selfConstraint.instantiateSelf(r.self()));
             }
@@ -1142,7 +1141,7 @@ public class Context implements Resolver, Cloneable
      */
     public Context pushClass(X10ClassDef classScope, X10ClassType type) {
         assert (depType == null);
-
+        //assert classScope.position() != null;
         Context result = this;
         // Pushing a nested (non-inner) class should be done in a static context
         if (classScope.isMember() && classScope.flags().isStatic()) {

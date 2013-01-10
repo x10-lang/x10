@@ -111,8 +111,7 @@ public class TypeTransformer extends NodeTransformer {
         List<XTerm<Type>> newvars = new ArrayList<XTerm<Type>>();
         for (XTerm<Type> v : c.getVarsAndFields()) {
             if (v instanceof CLocal) {
-                @SuppressWarnings("unchecked")
-		CLocal<Type, X10LocalDef> l = (CLocal<Type, X10LocalDef>) v;
+                CLocal l = (CLocal) v;
                 X10LocalDef ld = l.def();
                 X10LocalDef newld = vars.get(ld);
                 if (ld == currentLocal) { // we are in the declaration for this variable

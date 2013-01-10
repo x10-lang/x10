@@ -15,7 +15,7 @@ public interface XPrinter<T extends XType> {
 	 * Examine the term and collect necessary declaration information. 
 	 * @param term
 	 */
-	public void declare(XSmtTerm<T> term);
+	public void declare(XSmtConstraintSystem<T> cs, XSmtTerm<T> term);
 	/**
 	 * Append the particular sequence to the output stream of this printer. 
 	 * @param string
@@ -26,14 +26,14 @@ public interface XPrinter<T extends XType> {
 	 * @param type
 	 * @return
 	 */
-	public XSmtVar<T> nullVar(XTypeSystem<? extends T> ts);
+	public XSmtVar<T> nullVar(XSmtConstraintSystem<T> cs, XTypeSystem<? extends T> ts);
 	/**
 	 * Construct a fresh variable to represent the string constant.
 	 * @param name
 	 * @param type
 	 * @return
 	 */
-	public XSmtVar<T> stringVar(String strConst, T type);
+	public XSmtVar<T> stringVar(XSmtConstraintSystem<T> cs, String strConst, T type);
 	/**
 	 * Removes illegal characters from the string making it a valid 
 	 * variable name for the particular format being used. 
@@ -44,7 +44,7 @@ public interface XPrinter<T extends XType> {
 	/**
 	 * Write the output to file.
 	 */
-	public void dump(XSmtTerm<T> query);
+	public void dump(XSmtConstraintSystem<T> cs, XSmtTerm<T> query);
 	/**
 	 * Returns the String representation of this particular type. 
 	 * (required by XSmtQuantifier)

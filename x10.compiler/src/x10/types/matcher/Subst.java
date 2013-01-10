@@ -109,7 +109,7 @@ public class Subst {
         return Types.xclause(base, c);
     }
 
-    public static Type project(Type t, XTerm<Type> v) {
+    public static Type project(Type t, XVar<Type> v) {
         if (t == null)
             return null;
 

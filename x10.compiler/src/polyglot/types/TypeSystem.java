@@ -1293,4 +1293,5 @@ public interface TypeSystem extends XTypeSystem<Type> {
     X10ClassType JavaRuntimeException();
 
     public <T extends ProcedureDef> boolean throwsSubset(ProcedureInstance<T> p1, ProcedureInstance<T> p2);
+
 }

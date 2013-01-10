@@ -11,11 +11,8 @@
 
 package x10.constraint.xnative;
 
-import java.util.Collections;
-import java.util.List;
-
 import x10.constraint.XEQV;
-import x10.constraint.XVar;
+import x10.constraint.XType;
 
 
 
@@ -31,27 +28,30 @@ import x10.constraint.XVar;
  * @see XNativeUQV
  *
  */
-public class XNativeEQV extends XRoot implements XEQV {
+public class XNativeEQV<T extends XType> extends XNativeVar<T> implements XEQV<T> {
     private static final long serialVersionUID = -5701688546973148631L;
-    public final int num;
-    public XNativeEQV(int n) {this.num=n;}
+    public final int num; // num is an optimisation
+    public XNativeEQV(T type, int n) {
+    	super(type, "eqv#" + n);
+        this.num=n;
+    }  
+    public XNativeEQV(XNativeEQV<T> other) {
+    	super(other.type(), other.name);
+    	this.num = other.num;
+    }  
     
-    @Override public XTermKind kind() { return XTermKind.LOCAL;}
-    @Override public int prefersBeingBound() {return XNativeTerm.TERM_PREFERS_BEING_BOUND;}
-    @Override public boolean hasVar(XVar v) {return equals(v);}
-    @Override public boolean hasEQV() {return true;}
-    @Override public boolean isEQV() {return true;}
-    @Override public List<XNativeEQV> eqvs() {return Collections.<XNativeEQV>singletonList(this);}
-
-
-    @Override public boolean okAsNestedTerm() {return true;}
+    // [DC] use cached int field (optimisation)
     @Override public int hashCode() {return num;}
+
+    // [DC] use cached int field (optimisation)
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (o instanceof XNativeEQV) return num == ((XNativeEQV) o).num;
+        if (o instanceof XNativeEQV<?>) return num == ((XNativeEQV<?>) o).num;
         return false;
     }
-    
-    @Override public String toString() {return "eqv#" + num;}
+
+    public XNativeEQV<T> copy() {
+    	return new XNativeEQV<T>(type(),num);
+    }
 }

@@ -250,16 +250,18 @@ public class Matcher {
 		// Start assembling the pieces of the PI with actual information.
 		X10ProcedureInstance<?> newMe = me.typeParameters(Arrays.asList(Y));
 
-		final XVar<Type>[] x2 = isStatic ? x : new XVar[x.length+2];
-		final XTerm<Type>[] y2eqv = isStatic ? ySymbols  : new XTerm[ySymbols.length+2];
+		final XVar<Type>[] x2 = isStatic ? x : new XVar[x.length+1];
+		final XTerm<Type>[] y2eqv = isStatic ? ySymbols  : new XTerm[ySymbols.length+1];
 		if (! isStatic) {
+			// [DC] why was this replacing this twice?
+			// this causes a major problem in the case of [this.f / this] where we end up with this.f.f
 	        	x2[0] = xthis;
-	        	x2[1] = Types.thisVar(xthis, thisType);
-	        	System.arraycopy(x, 0, x2, 2, x.length);
+	        	//x2[1] = Types.thisVar(xthis, thisType);
+	        	System.arraycopy(x, 0, x2, 1, x.length);
 
 	        	y2eqv[0] = ythiseqv;
-	        	y2eqv[1] = ythiseqv;
-	        	System.arraycopy(ySymbols, 0, y2eqv, 2, ySymbols.length);
+	        	//y2eqv[1] = ythiseqv;
+	        	System.arraycopy(ySymbols, 0, y2eqv, 1, ySymbols.length);
 		}
 		{ // set up the return type.
 	        	final LazyRef_c<Type> newReturnTypeRef = new LazyRef_c<Type>(null);
@@ -293,16 +295,16 @@ public class Matcher {
 	        				    if (xts.consistent(nrt, context))
 	        				        newReturnType = nrt;
 	        				    if ((! isStatic) && (! yeqvIsSymbol) ) {
-	        				        nrt = Subst.project(newReturnType, ythiseqv);
+	        				        nrt = Subst.project(newReturnType, (XVar<Type>)ythiseqv);
 	        				        if (xts.consistent(nrt, context))
 	        				            newReturnType = nrt;
 	        				    }
 	        				    for (int i= 1; i < actuals.size()+1; ++i) {
-	        				        nrt = Subst.project(newReturnType, (XVar) ys[i]);  
+	        				        nrt = Subst.project(newReturnType, (XVar<Type>) ys[i]);  
 	        				        if (xts.consistent(nrt, context))
 	        				            newReturnType = nrt;
 	        				        Type t = actualsIn.get(i-1);
-	        				        XTerm<Type> self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
+	        				        XVar<Type> self = t instanceof ConstrainedType ? Types.selfVar((ConstrainedType) t) : null;
 	        				        if (self != null) {
 	        				            nrt = Subst.project(newReturnType, self);
 	        				            if (xts.consistent(nrt, context))
@@ -508,14 +510,14 @@ public class Matcher {
 		}
 		if (env == null) {
 			if (thisType != null)
-				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType));
+				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType),xts);
 			else
 				// the self variable will be substituted anyway (I hope)
-				env = ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null);
+				env = ConstraintManager.getConstraintSystem().makeCConstraint(xts);
 		}
 	    for (int i = 0; i < actuals.size(); i++) { // conjoin ytype's realX
 	    		Type ytype = actuals.get(i);
-	    		final CConstraint yc = Types.realX(ytype);
+	    		final CConstraint yc = Types.realX(ytype,xts);
 	    		if (yc != null && ! yc.valid()) {
 	    		    env.addIn(y[i], yc);
 	    		    if (! env.consistent())
@@ -550,17 +552,17 @@ public class Matcher {
 		}
 		if (env == null) {
 			if (thisType != null)
-				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType));
+				env = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(thisType),xts);
 			else
 				// the self variable will be substituted anyway (I hope)
-				env = ConstraintManager.getConstraintSystem().makeCConstraint((XTerm<Type>)null);
+				env = ConstraintManager.getConstraintSystem().makeCConstraint(xts);
 		}
 	
 		//To do: Not sure these need to be added to Gamma. Constraint projection will retrieve them
 		// from the types of the variables.
 	    for (int i = 0; i < actuals.size(); i++) { // update Gamma
 	    		Type ytype = actuals.get(i);
-	    		final CConstraint yc = Types.realX(ytype);
+	    		final CConstraint yc = Types.realX(ytype,xts);
 	    		if (yc != null && ! yc.valid()) {
 	    		    env.addIn(y[i], yc);
 	    		    if (! env.consistent()) {
@@ -578,16 +580,14 @@ public class Matcher {
 	 * information) and return it. 
 	 * @param type
 	 * @param prefix
-	 * @return
+	 * @return The XVar or XField (in the case of qualified var) bound to self in this type.
 	 */
 	private static XTerm<Type> getSymbolVar(Type type) {
 		if (type == null)
 			return null; 
 		XTerm<Type> symbol = Types.selfVarBinding(type);
-		if (symbol == null) {
-			symbol = ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(type));  
-		}
-		return symbol;
+		if (symbol != null) return symbol;
+		return ConstraintManager.getConstraintSystem().makeUQV(Types.baseTypeRec(type));  
 	}
     private static X10LocalInstance getSymbol( Type type) {
     	TypeSystem ts = type.typeSystem();

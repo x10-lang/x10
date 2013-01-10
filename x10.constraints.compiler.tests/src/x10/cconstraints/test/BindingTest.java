@@ -2,68 +2,53 @@ package x10.cconstraints.test;
 
 import java.util.List;
 
-import polyglot.types.ContainerType;
-import polyglot.types.Flags;
-import polyglot.types.Name;
-import polyglot.types.Ref;
 import polyglot.types.Type;
-import polyglot.types.TypeSystem;
-import polyglot.types.TypeSystem_c;
-import polyglot.types.Types;
-import polyglot.util.Position;
-
+import x10.constraint.XDef;
+import x10.constraint.XEQV;
+import x10.constraint.XField;
+import x10.constraint.XOp;
 import x10.constraint.XTerm;
-
+import x10.constraint.XUQV;
 import x10.constraint.XVar;
-import x10.constraint.xnative.XPromise;
-import x10.constraint.xnative.XNativeVar;
-import x10.types.ThisDef;
-import x10.types.X10FieldDef;
-import x10.types.X10FieldDef_c;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CNativeConstraint;
-import x10.types.constraints.ConstraintManager;
-
-import x10c.ExtensionInfo;
-import junit.framework.TestCase;
 
 public class BindingTest extends X10TestCase {
     public BindingTest() {
         super("BindingTest");
     }
-    XTerm zero = ConstraintManager.getConstraintSystem().makeLit(new Integer(0));
-    XTerm one = ConstraintManager.getConstraintSystem().makeLit(new Integer(1));
-    XTerm two = ConstraintManager.getConstraintSystem().makeLit(new Integer(2));
-    XTerm NULL = ConstraintManager.getConstraintSystem().makeLit(null);
+    XTerm<Type> zero = sys.makeLit(ts.Int(), new Integer(0));
+    XTerm<Type> one = sys.makeLit(ts.Int(), new Integer(1));
+    XTerm<Type> two = sys.makeLit(ts.Int(), new Integer(2));
+    XTerm<Type> NULL = sys.makeLit(ts.Null(), null);
 
-    XVar e0 = ConstraintManager.getConstraintSystem().makeEQV();
+    XEQV<Type> e0 = sys.makeEQV(ts.GlobalRef());
 
-    X10FieldDef home = makeField("home"); 
-    X10FieldDef rank = makeField("rank"); 
-    X10FieldDef size = makeField("size"); 
-    X10FieldDef region= makeField("region"); 
-    X10FieldDef N= makeField("N"); 
-    X10FieldDef af= makeField("af"); 
-    X10FieldDef here= makeField("here"); 
+    XDef<Type> home = makeField("home",ts.Place()); 
+    XDef<Type> rank = makeField("rank",ts.Int()); 
+    XDef<Type> size = makeField("size",ts.Int()); 
+    XDef<Type> region= makeField("region",ts.Region()); 
+    XDef<Type> N= makeField("N",ts.Int()); 
+    XDef<Type> af= makeField("af",ts.Any()); 
+    XDef<Type> here= makeField("here",ts.Place()); 
 
 
-    XVar e0home = ConstraintManager.getConstraintSystem().makeField(e0, home);
-    XVar a = ConstraintManager.getConstraintSystem().makeUQV("a");
-    XVar u = ConstraintManager.getConstraintSystem().makeUQV("u");
-    XVar v = ConstraintManager.getConstraintSystem().makeUQV("v");
-    XVar s = ConstraintManager.getConstraintSystem().makeUQV("s");
+    XField<Type,XDef<Type>> e0home = sys.makeField(e0, home);
+    XUQV<Type> a = sys.makeUQV(ts.Any(),"a");
+    XUQV<Type> u = sys.makeUQV(ts.Any(),"u");
+    XUQV<Type> v = sys.makeUQV(ts.Any(),"v");
+    XUQV<Type> s = sys.makeUQV(ts.Any(),"s");
 
     /**
      * self==e0.home, e0==a |- self==a.home
      * @throws Throwable
      */
     public void test1() throws Throwable {
-        CNativeConstraint c = new CNativeConstraint();
-        c.addSelfBinding(e0home);
-        c.addBinding(e0, a);
-        XPromise xp  = ((XNativeVar)c.self()).nfp(c);
+        CConstraint c = sys.makeCConstraint(ts.Place(),ts);
+        c.addSelfEquality(e0home);
+        c.addEquality(e0, a);
+        //XPromise xp  = (c.self()).nfp(c);
         System.out.print("(test1: Should print self==a.home) "); print(c);
-        assertTrue(c.entails(c.self(), ConstraintManager.getConstraintSystem().makeField(a,home)));
+        assertTrue(c.entailsEquality(c.self(), sys.makeField(a,home)));
     }
 
     /**
@@ -71,45 +56,46 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test2() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        c.addBinding(ConstraintManager.getConstraintSystem().makeField(c.self(), rank), one);
-        c.addBinding(c.self(), a);
-        assertTrue(c.entails(ConstraintManager.getConstraintSystem().makeField(a, rank), one));
+        CConstraint c = sys.makeCConstraint(ts.Any(), ts);
+        c.addEquality(sys.makeField(c.self(), rank), one);
+        c.addEquality(c.self(), a);
+        assertTrue(c.entailsEquality(sys.makeField(a, rank), one));
     }
     /**
      * a=u, v=u | a=v
      * @throws Throwable
      */
     public void test3() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        c.addBinding(a,u);
-        c.addBinding(v, u);
-
-        assertTrue(c.entails(a, v));
+        CConstraint c = sys.makeCConstraint(ts);
+        c.addEquality(a,u);
+        System.out.print("(test3: Should print a=u) "); print(c);
+        c.addEquality(v, u);
+        System.out.print("(test3: Should print a==u, v==u) "); print(c);
+        assertTrue(c.entailsEquality(a, v));
     }
     /**
      * exists u(a=u, v=u) | a=v
      * @throws Throwable
      */
     public void test4() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        c.addBinding(a,u);
-        c.addBinding(v,u);
+        CConstraint c = sys.makeCConstraint(ts);
+        c.addEquality(a,u);
+        c.addEquality(v,u);
         c=c.substitute(e0,u);
         System.out.print("(test4: Should print a=v) "); print(c);
-        assertTrue(c.entails(a, v));
+        assertTrue(c.entailsEquality(a, v));
     }
     /**
      * exists u(u=a, u=v) | a=v
      * @throws Throwable
      */
     public void test5() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        c.addBinding(u,a);
-        c.addBinding(u,v);
+        CConstraint c = sys.makeCConstraint(ts);
+        c.addEquality(u,a);
+        c.addEquality(u,v);
         c=c.substitute(e0,u);
         System.out.print("(test5: Should print a=v) "); print(c);
-        assertTrue(c.entails(a, v));
+        assertTrue(c.entailsEquality(a, v));
     }
 
     /**
@@ -117,16 +103,16 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test6() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XTerm ar = ConstraintManager.getConstraintSystem().makeField(a, rank);
-        XTerm ur = ConstraintManager.getConstraintSystem().makeField(u, rank);
-        XTerm vr = ConstraintManager.getConstraintSystem().makeField(v, rank);
+        CConstraint c = sys.makeCConstraint(ts);
+        XField<Type,XDef<Type>> ar = sys.makeField(a, rank);
+        XField<Type,XDef<Type>>  ur = sys.makeField(u, rank);
+        XField<Type,XDef<Type>>  vr = sys.makeField(v, rank);
 
-        c.addBinding(ar,ur);
-        c.addBinding(vr,ur);
+        c.addEquality(ar,ur);
+        c.addEquality(vr,ur);
         c=c.substitute(e0,u);
         System.out.print("(test6: Should print a.rank==v.rank)"); print(c);
-        assertTrue(c.entails(ar, vr));
+        assertTrue(c.entailsEquality(ar, vr));
     }
 
     /**
@@ -134,16 +120,16 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test7() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XTerm ar = ConstraintManager.getConstraintSystem().makeField(a, rank);
-        XTerm ur = ConstraintManager.getConstraintSystem().makeField(u, rank);
-        XTerm vr = ConstraintManager.getConstraintSystem().makeField(v, rank);
+        CConstraint c = sys.makeCConstraint(ts);
+        XField<Type,XDef<Type>>  ar = sys.makeField(a, rank);
+        XField<Type,XDef<Type>>  ur = sys.makeField(u, rank);
+        XField<Type,XDef<Type>>  vr = sys.makeField(v, rank);
 
-        c.addBinding(ur,ar);
-        c.addBinding(ur,vr);
+        c.addEquality(ur,ar);
+        c.addEquality(ur,vr);
         c=c.substitute(e0,u);
         System.out.print("(test7: Should print a.rank==v.rank) "); print(c);
-        assertTrue(c.entails(ar, vr));
+        assertTrue(c.entailsEquality(ar, vr));
     }
 
     /**
@@ -151,22 +137,27 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test8() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XVar aRegion = ConstraintManager.getConstraintSystem().makeField(a, region);
-        XVar aRegionRank = ConstraintManager.getConstraintSystem().makeField(aRegion, rank);
-        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
-        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
+        CConstraint c = sys.makeCConstraint(ts);
+        XField<Type,XDef<Type>> aRegion = sys.makeField(a, region);
+        XField<Type,XDef<Type>> aRegionRank = sys.makeField(aRegion, rank);
+        XField<Type,XDef<Type>> uRegion = sys.makeField(u, region);
+        XField<Type,XDef<Type>> uRegionRank = sys.makeField(uRegion, rank);
 
-        XVar vRank = ConstraintManager.getConstraintSystem().makeField(v, rank);
-        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(s, region);
-        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
-        c.addBinding(sRegion, aRegion);
-        c.addBinding(aRegionRank,uRegionRank);
-        c.addBinding(vRank,uRegionRank);
+        XField<Type,XDef<Type>> vRank = sys.makeField(v, rank);
+        XField<Type,XDef<Type>> sRegion = sys.makeField(s, region);
+        XField<Type,XDef<Type>> sRegionRank = sys.makeField(sRegion, rank);
+        c.addEquality(sRegion, aRegion);
+        c.addEquality(aRegionRank,uRegionRank);
+        c.addEquality(vRank,uRegionRank);
+        System.out.print("(test8: Should print s.region == a.region, s.region.rank == a.region.rank, v.rank == u.region.rank) "); 
+        print(c);
+        // Existentially quantify 'a'.  This means the print should not mention a anymore, so the first
+        // conjunct vanishes, and the second on has u.region substituted for a.region
         c=c.project(a);
         System.out.print("(test8: Should print s.region.rank==u.region.rank, v.rank==u.region.rank) "); 
         print(c);
-        assertTrue(c.entails(sRegionRank, uRegionRank)&&c.entails(vRank, uRegionRank));
+        assertTrue(c.entailsEquality(sRegionRank, uRegionRank));
+        assertTrue(c.entailsEquality(vRank, uRegionRank));
     }
 
     /**
@@ -174,20 +165,20 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test9() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XVar aRank = ConstraintManager.getConstraintSystem().makeField(a, rank);
-        XVar uRank = ConstraintManager.getConstraintSystem().makeField(u, rank);
-        XVar uSize = ConstraintManager.getConstraintSystem().makeField(u, size);
-        XVar aSize = ConstraintManager.getConstraintSystem().makeField(a, size);
+        CConstraint c = sys.makeCConstraint(ts);
+        XField<Type,XDef<Type>> aRank = sys.makeField(a, rank);
+        XField<Type,XDef<Type>> uRank = sys.makeField(u, rank);
+        XField<Type,XDef<Type>> uSize = sys.makeField(u, size);
+        XField<Type,XDef<Type>> aSize = sys.makeField(a, size);
 
-        c.addBinding(aRank, one);
-        c.addBinding(uSize,two);
-        c.addBinding(a,u);
+        c.addEquality(aRank, one);
+        c.addEquality(uSize,two);
+        c.addEquality(a,u);
         System.out.print("(test9: Should print a=u,u.size==2,u.rank==1) "); print(c);
-        assertTrue(c.entails(aRank, one)
-                   && c.entails(aSize,two)
-                   && c.entails(uSize,two)
-                   && c.entails(uRank,one));
+        assertTrue(c.entailsEquality(aRank, one)
+                   && c.entailsEquality(aSize,two)
+                   && c.entailsEquality(uSize,two)
+                   && c.entailsEquality(uRank,one));
     }
 
     /**
@@ -195,119 +186,126 @@ public class BindingTest extends X10TestCase {
      * @throws Throwable
      */
     public void test10() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XVar aRegion = ConstraintManager.getConstraintSystem().makeField(a, region);
-        XVar aRegionRank = ConstraintManager.getConstraintSystem().makeField(aRegion, rank);
-        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
-        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
-        XVar uSize = ConstraintManager.getConstraintSystem().makeField(u, size);
-        XVar aSize = ConstraintManager.getConstraintSystem().makeField(a, size);
+        CConstraint c = sys.makeCConstraint(ts);
+        XField<Type,XDef<Type>> aRegion = sys.makeField(a, region);
+        XField<Type,XDef<Type>> aRegionRank = sys.makeField(aRegion, rank);
+        XField<Type,XDef<Type>> uRegion = sys.makeField(u, region);
+        XField<Type,XDef<Type>> uRegionRank = sys.makeField(uRegion, rank);
+        XField<Type,XDef<Type>> uSize = sys.makeField(u, size);
+        XField<Type,XDef<Type>> aSize = sys.makeField(a, size);
 
-        c.addBinding(aRegionRank, one);
-        c.addBinding(uSize,two);
-        c.addBinding(a,u);
+        c.addEquality(aRegionRank, one);
+        c.addEquality(uSize,two);
+        c.addEquality(a,u);
         System.out.print("(test10: Should print a=u,u.region.rank==1,u.size==2) "); 
         print(c);
-        assertTrue(c.entails(aRegionRank, one)
-                   && c.entails(aSize,two)
-                   && c.entails(uSize,two)
-                   && c.entails(uRegionRank,one));
+        assertTrue(c.entailsEquality(aRegionRank, one)
+                   && c.entailsEquality(aSize,two)
+                   && c.entailsEquality(uSize,two)
+                   && c.entailsEquality(uRegionRank,one));
     }
     /**
      * a.region.rank=1, u.size=2, u=a | a.region.rank=1, b.region.rank=1, a.size=2, b.size=2
      * @throws Throwable
      */
     public void test11() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XVar aRegion = ConstraintManager.getConstraintSystem().makeField(a, region);
-        XVar aRegionRank = ConstraintManager.getConstraintSystem().makeField(aRegion, rank);
-        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
-        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
-        XVar uSize = ConstraintManager.getConstraintSystem().makeField(u, size);
-        XVar aSize = ConstraintManager.getConstraintSystem().makeField(a, size);
+        CConstraint c = sys.makeCConstraint(ts);
+        XField<Type,XDef<Type>> aRegion = sys.makeField(a, region);
+        XField<Type,XDef<Type>> aRegionRank = sys.makeField(aRegion, rank);
+        XField<Type,XDef<Type>> uRegion = sys.makeField(u, region);
+        XField<Type,XDef<Type>> uRegionRank = sys.makeField(uRegion, rank);
+        XField<Type,XDef<Type>> uSize = sys.makeField(u, size);
+        XField<Type,XDef<Type>> aSize = sys.makeField(a, size);
 
-        c.addBinding(aRegionRank, one);
-        c.addBinding(uSize,two);
-        c.addBinding(u,a); // flip order.
+        c.addEquality(aRegionRank, one);
+        c.addEquality(uSize,two);
+        c.addEquality(u,a); // flip order.
         System.out.print("(test11: Should print u=a,a.region.rank==1,a.size=2) "); 
         print(c);
-        assertTrue(c.entails(aRegionRank, one)
-                   && c.entails(aSize,two)
-                   && c.entails(uSize,two)
-                   && c.entails(uRegionRank,one));
+        assertTrue(c.entailsEquality(aRegionRank, one)
+                   && c.entailsEquality(aSize,two)
+                   && c.entailsEquality(uSize,two)
+                   && c.entailsEquality(uRegionRank,one));
     }
 
 
     public void test13() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XTerm[] terms = new XTerm[]{
-                //  ConstraintManager.getConstraintSystem().makeEquals(ConstraintManager.getConstraintSystem().makeField(u,N), zero),
-                //ConstraintManager.getConstraintSystem().makeEquals(ConstraintManager.getConstraintSystem().makeField(ConstraintManager.getConstraintSystem().makeField(u,af), here), 
-                //	    				 ConstraintManager.getConstraintSystem().makeField(u, here)),
-                ConstraintManager.getConstraintSystem().makeDisEquals(ConstraintManager.getConstraintSystem().makeField(u,af), NULL),
-                ConstraintManager.getConstraintSystem().makeEquals(c.self(), ConstraintManager.getConstraintSystem().makeField(u,af))
-                //  ConstraintManager.getConstraintSystem().makeEquals(ConstraintManager.getConstraintSystem().makeField(v, here), ConstraintManager.getConstraintSystem().makeField(u,here)),
-                // ConstraintManager.getConstraintSystem().makeDisEquals(c.self(), NULL)
+        CConstraint c = sys.makeCConstraint(ts.Any(), ts);
+        @SuppressWarnings("unchecked")
+		XTerm<Type>[] terms = new XTerm[]{
+                //  sys.makeEquals(sys.makeField(u,N), zero),
+                //sys.makeEquals(sys.makeField(sys.makeField(u,af), here), 
+                //	    				 sys.makeField(u, here)),
+                sys.makeExpr(XOp.EQ(ts.Boolean()), sys.makeField(u,af), NULL),
+                sys.makeExpr(XOp.NEQ(ts.Boolean()), c.self(), sys.makeField(u,af))
+                //  sys.makeEquals(sys.makeField(v, here), sys.makeField(u,here)),
+                // sys.makeDisEquals(c.self(), NULL)
         };
-        for (XTerm term : terms) {
+        for (XTerm<Type> term : terms) {
             c.addTerm(term);
         }
-        CConstraint d = ConstraintManager.getConstraintSystem().makeCConstraint();
-        List<? extends XTerm> terms1 = c.constraints();
-        for (XTerm term : terms1) {
-            term = term.subst((XVar) e0, (XVar) u);
+        System.out.println(c);
+        CConstraint d = sys.makeCConstraint(ts.Any(), ts);
+        List<? extends XTerm<Type>> terms1 = c.extTerms();
+        for (XTerm<Type> term : terms1) {
+        	XTerm<Type> term2 = term.subst(sys, (XVar<Type>) e0, (XVar<Type>) u);
             //	term = term.subst(d.self(), c.self(), true);
-            d.addTerm(term);
-            System.out.println("test13 (term= " + term + "): " + d);
+            d.addTerm(term2);
+            System.out.println("test13 (term= " + term2 + "): " + d);
         }
+        System.out.println(d);
         CConstraint e = d.copy();
         assertTrue(e.consistent());
     }
 
     public void test14() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(c.self(), region);
-        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
+        CConstraint c = sys.makeCConstraint(ts.Any(),ts);
+        XField<Type,XDef<Type>> sRegion = sys.makeField(c.self(), region);
+        XField<Type,XDef<Type>> sRegionRank = sys.makeField(sRegion, rank);
 
-        c.addBinding(sRegionRank, zero); // self.region.rank==0
-        c.addBinding(c.self(), u); // now we should have self==u, u.region.rank==0
+        c.addEquality(sRegionRank, zero); // self.region.rank==0
+        c.addEquality(c.self(), u); // now we should have self==u, u.region.rank==0
+        System.out.print("(test14: Should print self==u, u.region.rank==0) ");
+        print(c);
         CConstraint d=c.project(u); // now we should be back to self.region.rank==0
+        System.out.print("(test14: Should print self.region.rank==0) ");
+        print(d);
         d = d.instantiateSelf(c.self());
         System.out.print("(test14: Should print self.region.rank==0) ");
         print(d);
-        assertTrue(d.entails(sRegionRank,zero));
+        assertTrue(d.entailsEquality(sRegionRank,zero));
     }
 
     public void test15() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XVar uRegion = ConstraintManager.getConstraintSystem().makeField(u, region);
-        XVar uRegionRank = ConstraintManager.getConstraintSystem().makeField(uRegion, rank);
+        CConstraint c = sys.makeCConstraint(ts.Any(), ts);
+        XField<Type,XDef<Type>> uRegion = sys.makeField(u, region);
+        XField<Type,XDef<Type>> uRegionRank = sys.makeField(uRegion, rank);
 
-        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(c.self(), region);
-        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
+        XField<Type,XDef<Type>> sRegion = sys.makeField(c.self(), region);
+        XField<Type,XDef<Type>> sRegionRank = sys.makeField(sRegion, rank);
 
-        c.addBinding(uRegionRank, zero); // u.region.rank -> 0
-        c.addBinding(u,c.self()); // now we should have self -> u, u.region.rank -> 0
+        c.addEquality(uRegionRank, zero); // u.region.rank -> 0
+        c.addEquality(u,c.self()); // now we should have self -> u, u.region.rank -> 0
         CConstraint d=c.project(u); // we should still get self.region.rank==0
         d = d.instantiateSelf(c.self());
         System.out.print("(test15: Should print self.region.rank==0) ");
         print(d);
-        assertTrue(d.entails(sRegionRank,zero));
+        assertTrue(d.entailsEquality(sRegionRank,zero));
     }
     public void test16() throws Throwable {
-        CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint();
-        XVar eRegion = ConstraintManager.getConstraintSystem().makeField(e0, region);
-        XVar eRegionRank = ConstraintManager.getConstraintSystem().makeField(eRegion, rank);
+        CConstraint c = sys.makeCConstraint(ts.Any(), ts);
+        XField<Type,XDef<Type>> eRegion = sys.makeField(e0, region);
+        XField<Type,XDef<Type>> eRegionRank = sys.makeField(eRegion, rank);
 
-        XVar sRegion = ConstraintManager.getConstraintSystem().makeField(c.self(), region);
-        XVar sRegionRank = ConstraintManager.getConstraintSystem().makeField(sRegion, rank);
+        XField<Type,XDef<Type>> sRegion = sys.makeField(c.self(), region);
+        XField<Type,XDef<Type>> sRegionRank = sys.makeField(sRegion, rank);
 
-        c.addBinding(eRegionRank, zero); // e.region.rank -> 0
-        c.addBinding(e0,c.self()); // now we should have self -> u, u.region.rank -> 0
+        c.addEquality(eRegionRank, zero); // e.region.rank -> 0
+        c.addEquality(e0,c.self()); // now we should have self -> u, u.region.rank -> 0
         //  CConstraint d=c.project(u); // we should still get self.region.rank==0
         //  d = d.instantiateSelf(c.self());
         System.out.print("(test16: Should print self.region.rank==0) "); print(c);
-        assertTrue(c.entails(sRegionRank,zero));
+        assertTrue(c.entailsEquality(sRegionRank,zero));
     }
    
 

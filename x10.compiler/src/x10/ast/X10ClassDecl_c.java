@@ -581,7 +581,7 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
     }
     
     @Override
-    public X10ClassDecl_c postBuildTypes(TypeBuilder tb) {
+    public X10ClassDecl_c postBuildTypes(final TypeBuilder tb) {
         
     	X10ClassDecl_c n = (X10ClassDecl_c) this.copy();
     	
@@ -614,12 +614,12 @@ public class X10ClassDecl_c extends ClassDecl_c implements X10ClassDecl {
         final DepParameterExpr ci = (DepParameterExpr) n.visitChild(n.classInvariant, childTb);
         n = (X10ClassDecl_c) n.classInvariant(ci);
 
-        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(def.asType())));
+        final LazyRef<CConstraint> c = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(def.asType()),tb.typeSystem()));
 
         final X10ClassDecl_c nn = n;
         c.setResolver(new Runnable() {
         	public void run() {
-        	    CConstraint x = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(def.asType()));
+        	    CConstraint x = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(def.asType()),tb.typeSystem());
         	    if (ci != null) {
         	        CConstraint xi = ci.valueConstraint().get();
         	        if (xi != null && ! xi.valid())

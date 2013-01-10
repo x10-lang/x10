@@ -66,7 +66,7 @@ public class XConstrainedTerm  {
      */
     public static XConstrainedTerm make(XTerm<Type> t, Type type) {
         try {
-            return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(type), t);
+            return instantiate(ConstraintManager.getConstraintSystem().makeCConstraint(type,type.typeSystem()), t);
         } catch (XFailure r) {
             throw new InternalCompilerError("Cannot constrain " + t);
         }
@@ -97,7 +97,7 @@ public class XConstrainedTerm  {
      */
     public boolean entails(XConstrainedTerm t) {
         assert t!= null;
-        XTerm<Type> eq = ConstraintManager.getConstraintSystem().makeEquals(term(), t.term());
+        XTerm<Type> eq = ConstraintManager.getConstraintSystem().makeEquals(t.constraint().ts(), term(), t.term());
         return constraint.entails(eq) && constraint.entails(t.constraint());
     }
     /**
@@ -117,7 +117,7 @@ public class XConstrainedTerm  {
      */
     public CConstraint xconstraint(Type t) {
         CConstraint s = constraint();
-        s = s == null ? ConstraintManager.getConstraintSystem().makeCConstraint(t) : s.copy();
+        s = s == null ? ConstraintManager.getConstraintSystem().makeCConstraint(t,t.typeSystem()) : s.copy();
         s = s.instantiateSelf(term());
         return s;
     }

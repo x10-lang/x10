@@ -295,7 +295,15 @@
             <antcall target="dist-cpp-no-x10rt"/>
         </parallel>
     </target>
-    <target name="jar" depends="build-xrx">
+    <target name="x10-jar">
+        <jar jarfile="${gen}/${jar}">
+            <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>
+        </jar>
+        <copy todir="${build}"><!-- copy x10.jar into classes to let scripts find it there too -->
+            <fileset dir="${gen}" includes="${jar}"/>
+        </copy>
+    </target>
+    <target name="jar" depends="build-xrx,x10-jar">
         <jar jarfile="${gen}/${jar}">
             <fileset dir="${build}" includes="x10/**/*.class" excludes="${jar}"/>
             <fileset dir="${basedir}/src-x10" includes="x10/**" excludes="${jar}"/>

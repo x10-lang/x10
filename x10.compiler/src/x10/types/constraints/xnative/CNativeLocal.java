@@ -7,10 +7,9 @@ import polyglot.ast.Typed;
 import polyglot.types.Type;
 import polyglot.types.Types;
 import x10.constraint.XDef;
-import x10.constraint.XLocal;
 import x10.constraint.XTerm;
 import x10.constraint.XVar;
-import x10.constraint.xnative.XNativeLocal;
+import x10.constraint.xnative.XNativeVar;
 import x10.types.X10LocalDef;
 import x10.types.constraints.CLocal;
 import x10.types.constraints.ConstraintManager;
@@ -22,25 +21,30 @@ import x10.types.constraints.ConstraintManager;
  * @author vj
  */
 
-public class CNativeLocal extends XNativeLocal<X10LocalDef> implements CLocal,Typed {
+public class CNativeLocal extends XNativeVar<Type> implements CLocal,Typed {
     private static final long serialVersionUID = 127892741748021961L;
-    String s; // just for documentation
-
+    X10LocalDef def;
+    
     public CNativeLocal(X10LocalDef ld) {
-        super(ld);
-        s=ld.name().toString();
+        this(ld, ld.name().toString());
     }
     public CNativeLocal(X10LocalDef ld, String s) {
-        super(ld);
-        this.s=s;
+        super(Types.get(ld.type()), s);
+        def = ld;
     }
+    private CNativeLocal(CNativeLocal other) {
+        super(other);
+        def = other.def();
+    }
+
     @Override
-    public X10LocalDef localDef() {return name;}
-    /** Return the type of this variable.
-     * 
-     */
-    @Override
-    public Type type() {return Types.get(name.type());}
-    @Override 
-    public String toString() {return s;}
+    public X10LocalDef def() {return def;}
+
+    
+	@Override
+	public CNativeLocal copy() {
+		return new CNativeLocal(this);
+	}
+
+    
 }

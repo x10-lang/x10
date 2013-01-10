@@ -11,20 +11,17 @@
 
 package x10.constraints.tests;
 
-import junit.framework.TestCase;
 import junit.framework.TestSuite;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraintManager;
+import x10.constraint.XEQV;
 import x10.constraint.XField;
-import x10.constraint.XTerm;
-import x10.constraint.XVar;
+import x10.constraint.XStringDef;
+import x10.constraint.XUQV;
 
-public class EQVEntailmentTests extends TestCase {
+public class EQVEntailmentTests extends BaseTest {
 	public EQVEntailmentTests() {
 		super("EQVEntailmentTests");
 	}
-	 XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
-	 XTerm one = XConstraintManager.getConstraintSystem().makeLit(new Integer(1));
 
 	/**
 	 * |- exists X. X.a=X.b
@@ -33,17 +30,17 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test1() throws Throwable {
 		 System.out.println();
 		 System.out.println("test1: |- exists X. X.a=X.b");
-         XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-         XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-         XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-         String fieldA = "a";
-         String fieldB = "b";
-         XField<String> Xa = XConstraintManager.getConstraintSystem().makeField(X, fieldA);
-         XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, fieldB);
-         d.addBinding(Xa, Xb); 
+         XConstraint<TestType> c = xcs.makeConstraint(ts);
+         XConstraint<TestType> d = xcs.makeConstraint(ts);
+         XEQV<TestType> X = xcs.makeEQV(intType);
+         XStringDef<TestType> fieldA = new XStringDef<TestType>("a", intType);
+         XStringDef<TestType> fieldB = new XStringDef<TestType>("b", intType);
+         XField<TestType,XStringDef<TestType>> Xa = xcs.makeField(X, fieldA);
+         XField<TestType,XStringDef<TestType>> Xb = xcs.makeField(X, fieldB);
+         d.addEquality(Xa, Xb); 
          System.out.println("c:" + c);
          System.out.println("d:" + d);
-         System.out.println("d.extConstraints() ():" + d.extConstraints());
+         System.out.println("d.terms() ():" + d.terms());
          assertTrue(c.entails(d));
      }
 	 
@@ -54,15 +51,14 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test2() throws Throwable {
 		 System.out.println();
 		 System.out.println("test2: |- exists X. X.a=0");
-         XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-         XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-         XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-         XField<String> Xa = XConstraintManager.getConstraintSystem().makeField(X, "a");
-         XTerm zero = XConstraintManager.getConstraintSystem().makeLit(new Integer(0));
-         d.addBinding(Xa, zero); 
+         XConstraint<TestType> c = xcs.makeConstraint(ts);
+         XConstraint<TestType> d = xcs.makeConstraint(ts);
+         XEQV<TestType> X = xcs.makeEQV(intType);
+         XField<TestType,XStringDef<TestType>> Xa = xcs.makeField(X, new XStringDef<TestType>("a", intType));
+         d.addEquality(Xa, zero); 
          System.out.println("c:" + c);
          System.out.println("d:" + d);
-         System.out.println("d.extConstraints() ():" + d.extConstraints());
+         System.out.println("d.terms() ():" + d.terms());
          assertTrue(c.entails(d));
      }
 	 /**
@@ -72,18 +68,18 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test3() throws Throwable {
 		 System.out.println();
 		 System.out.println("test3: Y=1 |- exists X. (X.a=0,Y=1)");
-		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar Y = XConstraintManager.getConstraintSystem().makeUQV("Y");
-		 c.addBinding(Y, one);
+		 XConstraint<TestType> c = xcs.makeConstraint(ts);
+		 XConstraint<TestType> d = xcs.makeConstraint(ts);
+		 XUQV<TestType> Y = xcs.makeUQV(intType, "Y");
+		 c.addEquality(Y, one);
 		 System.out.println("c:" + c);
 		 
-		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Xa = XConstraintManager.getConstraintSystem().makeField(X, "a");
-		 d.addBinding(Xa, zero); 
-		 d.addBinding(Y, one);
+		 XEQV<TestType> X = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Xa = xcs.makeField(X, new XStringDef<TestType>("a", intType));
+		 d.addEquality(Xa, zero); 
+		 d.addEquality(Y, one);
 		 System.out.println("d:" + d);
-		 System.out.println("d.extConstraints() (Y=1):" + d.extConstraints());
+		 System.out.println("d.terms() (Y=1):" + d.terms());
 		 assertTrue(c.entails(d));
 	 }
 	 
@@ -95,22 +91,22 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test4() throws Throwable {
 		 System.out.println();
 		 System.out.println("test4: Y.a=0, Y.b=1 |/- exists X. X=Y.a,X=Y.b)");
-		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar Y = XConstraintManager.getConstraintSystem().makeUQV("Y");
-		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
-		 c.addBinding(Ya, zero);
-		 c.addBinding(Yb, one);
+		 XConstraint<TestType> c = xcs.makeConstraint(ts);
+		 XUQV<TestType> Y = xcs.makeUQV(intType, "Y");
+		 XField<TestType,XStringDef<TestType>> Ya = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 XField<TestType,XStringDef<TestType>> Yb = xcs.makeField(Y, new XStringDef<TestType>("b", intType));
+		 c.addEquality(Ya, zero);
+		 c.addEquality(Yb, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 XField<String> Ydb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
-		 d.addBinding(X, Yda); 
-		 d.addBinding(X, Ydb);
+		 XConstraint<TestType> d = xcs.makeConstraint(ts);
+		 XEQV<TestType> X = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Yda = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 XField<TestType,XStringDef<TestType>> Ydb = xcs.makeField(Y, new XStringDef<TestType>("b", intType));
+		 d.addEquality(X, Yda); 
+		 d.addEquality(X, Ydb);
 		 System.out.println("d:" + d);
-		 System.out.println("d.extConstraints() (Y.a=Y.b):" + d.extConstraints());
+		 System.out.println("d.terms() (Y.a=Y.b):" + d.terms());
 		 assertFalse(c.entails(d));
 	 }
 	 
@@ -122,21 +118,21 @@ public class EQVEntailmentTests extends TestCase {
 	 public void test5() throws Throwable {
 		 System.out.println();
 		 System.out.println("test5: Y.a=0, Y.b=1 |- exists X. X=Y.a,X=0)");
-		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar Y = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
-		 c.addBinding(Ya, zero);
-		 c.addBinding(Yb, one);
+		 XConstraint<TestType> c = xcs.makeConstraint(ts);
+		 XEQV<TestType> Y = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Ya = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 XField<TestType,XStringDef<TestType>> Yb = xcs.makeField(Y, new XStringDef<TestType>("b", intType));
+		 c.addEquality(Ya, zero);
+		 c.addEquality(Yb, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 d.addBinding(X, Yda); 
-		 d.addBinding(X, zero);
+		 XConstraint<TestType> d = xcs.makeConstraint(ts);
+		 XEQV<TestType> X = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Yda = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 d.addEquality(X, Yda); 
+		 d.addEquality(X, zero);
 		 System.out.println("d:" + d);
-		 System.out.println("d.extConstraints() (Y.a=0):" + d.extConstraints());
+		 System.out.println("d.terms() (Y.a=0):" + d.terms());
 		 assertTrue(c.entails(d));
 	 }
 	 /**  d has an implied equality between c terms. Check that that equality
@@ -148,24 +144,24 @@ public class EQVEntailmentTests extends TestCase {
 		 System.out.println();
 		 System.out.println("test6: Y.a.b=0, Y.b.c=1 |- exists X. X=Y.a,X.b=0)");
 		
-		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar Y = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 XField<String> Yab = XConstraintManager.getConstraintSystem().makeField(Ya, "b");
-		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
-		 XField<String> Ybc = XConstraintManager.getConstraintSystem().makeField(Yb, "c");
-		 c.addBinding(Yab, zero);
-		 c.addBinding(Ybc, one);
+		 XConstraint<TestType> c = xcs.makeConstraint(ts);
+		 XEQV<TestType> Y = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Ya = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 XField<TestType,XStringDef<TestType>> Yab = xcs.makeField(Ya, new XStringDef<TestType>("b", intType));
+		 XField<TestType,XStringDef<TestType>> Yb = xcs.makeField(Y, new XStringDef<TestType>("b", intType));
+		 XField<TestType,XStringDef<TestType>> Ybc = xcs.makeField(Yb, new XStringDef<TestType>("c", intType));
+		 c.addEquality(Yab, zero);
+		 c.addEquality(Ybc, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 d.addBinding(X, Yda); 
-		 XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, "b");
-		 d.addBinding(Xb, zero);
+		 XConstraint<TestType> d = xcs.makeConstraint(ts);
+		 XEQV<TestType> X = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Yda = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 d.addEquality(X, Yda); 
+		 XField<TestType,XStringDef<TestType>> Xb = xcs.makeField(X, new XStringDef<TestType>("b", intType));
+		 d.addEquality(Xb, zero);
 		 System.out.println("d:" + d);
-		 System.out.println("d.extConstraints() (Y.a.b=0):" + d.extConstraints());
+		 System.out.println("d.terms() (Y.a.b=0):" + d.terms());
 		 assertTrue(c.entails(d));
 	 }
 	 /**  d has an implied equality between c terms. Check that that equality
@@ -177,24 +173,24 @@ public class EQVEntailmentTests extends TestCase {
 		 System.out.println();
 		 System.out.println("test7: Y.a.b=0, Y.b.c=1 |/- exists X. X=Y.a,X.b=1)");
 		
-		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar Y = XConstraintManager.getConstraintSystem().makeUQV();
-		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 XField<String> Yab = XConstraintManager.getConstraintSystem().makeField(Ya, "b");
-		 XField<String> Yb = XConstraintManager.getConstraintSystem().makeField(Y, "b");
-		 XField<String> Ybc = XConstraintManager.getConstraintSystem().makeField(Yb, "c");
-		 c.addBinding(Yab, zero);
-		 c.addBinding(Ybc, one);
+		 XConstraint<TestType> c = xcs.makeConstraint(ts);
+		 XUQV<TestType> Y = xcs.makeUQV(intType, "Y");
+		 XField<TestType,XStringDef<TestType>> Ya = xcs.makeField(Y, new XStringDef<TestType>("a",intType));
+		 XField<TestType,XStringDef<TestType>> Yab = xcs.makeField(Ya, new XStringDef<TestType>("b",intType));
+		 XField<TestType,XStringDef<TestType>> Yb = xcs.makeField(Y, new XStringDef<TestType>("b",intType));
+		 XField<TestType,XStringDef<TestType>> Ybc = xcs.makeField(Yb, new XStringDef<TestType>("c",intType));
+		 c.addEquality(Yab, zero);
+		 c.addEquality(Ybc, one);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 d.addBinding(X, Yda); 
-		 XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, "b");
-		 d.addBinding(Xb, one);
+		 XConstraint<TestType> d = xcs.makeConstraint(ts);
+		 XEQV<TestType> X = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Yda = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 d.addEquality(X, Yda); 
+		 XField<TestType,XStringDef<TestType>> Xb = xcs.makeField(X, new XStringDef<TestType>("b", intType));
+		 d.addEquality(Xb, one);
 		 System.out.println("d:" + d);
-		 System.out.println("d.extConstraints() (Y.a.b=1):" + d.extConstraints());
+		 System.out.println("d.terms() (Y.a.b=1):" + d.terms());
 
 		 assertFalse(c.entails(d));
 	 }
@@ -210,23 +206,23 @@ public class EQVEntailmentTests extends TestCase {
 		 System.out.println();
 		 System.out.println("test8: " + cString + " |- " + dString);
 		
-		 XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar Y = XConstraintManager.getConstraintSystem().makeEQV();
-		 XVar Z = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Ya = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 XField<String> Zb = XConstraintManager.getConstraintSystem().makeField(Z, "b");
-		 c.addBinding(Ya, Z);
-		 c.addBinding(Zb, zero);
+		 XConstraint<TestType> c = xcs.makeConstraint(ts);
+		 XEQV<TestType> Y = xcs.makeEQV(intType);
+		 XEQV<TestType> Z = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Ya = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 XField<TestType,XStringDef<TestType>> Zb = xcs.makeField(Z, new XStringDef<TestType>("b", intType));
+		 c.addEquality(Ya, Z);
+		 c.addEquality(Zb, zero);
 		 System.out.println("c:" + c);
 		 
-		 XConstraint d = XConstraintManager.getConstraintSystem().makeConstraint();
-		 XVar X = XConstraintManager.getConstraintSystem().makeEQV();
-		 XField<String> Yda = XConstraintManager.getConstraintSystem().makeField(Y, "a");
-		 d.addBinding(X, Yda); 
-		 XField<String> Xb = XConstraintManager.getConstraintSystem().makeField(X, "b");
-		 d.addBinding(Xb, zero);
+		 XConstraint<TestType> d = xcs.makeConstraint(ts);
+		 XEQV<TestType> X = xcs.makeEQV(intType);
+		 XField<TestType,XStringDef<TestType>> Yda = xcs.makeField(Y, new XStringDef<TestType>("a", intType));
+		 d.addEquality(X, Yda); 
+		 XField<TestType,XStringDef<TestType>> Xb = xcs.makeField(X, new XStringDef<TestType>("b", intType));
+		 d.addEquality(Xb, zero);
 		 System.out.println("d:" + d);
-		 System.out.println("d.extConstraints() (Y.a.b=0):" + d.extConstraints());
+		 System.out.println("d.terms() (Y.a.b=0):" + d.terms());
 		 assertTrue(c.entails(d));
 	 }
 	  public static TestSuite suite() {

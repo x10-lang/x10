@@ -38,7 +38,7 @@ public final class BooleanValue extends ConstantValue {
 
 	@Override
 	public BooleanLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-	    type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
+	    type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(getLitType(ts), toJavaObject()));
 	    return (BooleanLit)nf.BooleanLit(pos, val).type(type);
 	}
 

@@ -135,7 +135,11 @@ public class FieldDef_c extends VarDef_c implements FieldDef
 	
 	@Override
 	public String getName() {
-		return Types.baseTypeRec(container().get()).toString()+ "." +name().toString(); 
+		/*
+		if (container()==null) return name().toString();
+		return Types.baseTypeRec(container().get()).toString()+ "." +name().toString();
+		*/
+		return name().toString();
 	}
 
 }

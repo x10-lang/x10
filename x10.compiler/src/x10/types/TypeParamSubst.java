@@ -319,7 +319,7 @@ public class TypeParamSubst {
 				xs[i] = (XVar<Type>) p;
 			}
 			else {
-				xs[i] = ConstraintManager.getConstraintSystem().makeLit("error", ts.String());
+				xs[i] = ConstraintManager.getConstraintSystem().makeLit(ts.String(), "error");
 			}
 		}
 
@@ -329,7 +329,7 @@ public class TypeParamSubst {
 			result = c.substitute(ys, xs);
 		}
 		catch (XFailure e) {
-			result = ConstraintManager.getConstraintSystem().makeCConstraint(c.self().type());
+			result = ConstraintManager.getConstraintSystem().makeCConstraint(c.self().type(),c.ts());
 			result.setInconsistent();
 		}
 
@@ -370,7 +370,7 @@ public class TypeParamSubst {
 			XTerm<Type> a = ts.xtypeTranslator().translate(at);
 
 			if (p instanceof XVar) {
-				t = t.subst(p, a);
+				t = t.subst(ConstraintManager.getConstraintSystem(), p, a);
 			}
 		}
 

@@ -6,11 +6,10 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import x10.constraint.XConstraintManager;
-import x10.constraint.XConstraintSystem;
 import x10.constraint.XOp;
 import x10.constraint.XTerm;
 import x10.constraint.XType;
+import x10.constraint.XTypeSystem;
 
 /**
  * Static class that calls out to one or more external SMT solvers. 
@@ -28,15 +27,15 @@ public class XSolverEngine<T extends XType> {
 	protected static final String outFile = path + "temp/x10-constraint.smt2";
 	
 	private static boolean solving = false; 
-	private static <T extends XType> Result solve(XSmtTerm<T> query) {
+	private static <T extends XType> Result solve(XSmtConstraintSystem<T> cs, XTypeSystem<T> ts, XSmtTerm<T> query) {
 		if (solving)
 			throw new IllegalStateException("Cannot call solve while in solving");
 		solving = true; 
 		// we only need the axioms if the query has quantifiers 
 		if (query instanceof XSmtQuantifier)
-			query = instantiateAxioms(query);
+			query = instantiateAxioms(cs, ts, query);
 		XSmtPrinter<T> p = new XSmtPrinter<T>(outFile);
-		p.dump(query); 
+		p.dump(cs, query);
 		Result res = run(); 
 		solving = false;
 		return res; 
@@ -47,8 +46,7 @@ public class XSolverEngine<T extends XType> {
 	 * solver. 
 	 * @param query
 	 */
-	private static <T extends XType> XSmtTerm<T> instantiateAxioms(XSmtTerm<T> query) {
-		XConstraintSystem<T> cs = XConstraintManager.<T>getConstraintSystem(); 
+	private static <T extends XType> XSmtTerm<T> instantiateAxioms(XSmtConstraintSystem<T> cs, XTypeSystem<T> ts, XSmtTerm<T> query) {
 		
 		Set<XSmtField<T,?>> fields = new HashSet<XSmtField<T,?>>(); 
 		collectFieldAccess(query, fields);
@@ -58,17 +56,15 @@ public class XSolverEngine<T extends XType> {
 			// forall v exists b (b.f = v) 
 			XTerm<T> v = cs.makeUQV(f.type());
 			XTerm<T> b = cs.makeEQV(f.receiver().type()); 
-			XTerm<T> bf = cs.makeField(b, f.field(), f.type()); 
-			@SuppressWarnings("unchecked")
-			XSmtTerm<T> eq = (XSmtTerm<T>)cs.makeEquals(v, bf);
+			XTerm<T> bf = cs.makeField(b, f.field(), false); 
+			XSmtTerm<T> eq = cs.makeEquals(ts, v, bf);
 			// make the quantifiers explicit
 			conjuncts.add(new XSmtQuantifier<T>(eq)); 
 		}
 		// if we have some axioms add them as assumptions 
 		if (! conjuncts.isEmpty()) {
-			XTerm<T> axioms = cs.makeAnd(conjuncts);
-			@SuppressWarnings("unchecked")
-			XSmtTerm<T> res = (XSmtTerm<T>)cs.makeExpr(XOp.<T>IMPL(), axioms, query);
+			XTerm<T> axioms = cs.makeAnd(ts, conjuncts);
+			XSmtTerm<T> res = cs.makeExpr(XOp.<T>IMPL(ts.Boolean()), axioms, query);
 			return res;
 		}
 		return query;
@@ -96,20 +92,18 @@ public class XSolverEngine<T extends XType> {
 	 * @return
 	 * @throws XSmtFailure if there was a problem calling the external solver.
 	 */
-	public static <T extends XType> boolean isValid(XSmtTerm<T> formula) throws XSmtFailure {
-		XConstraintSystem<T> cs = XConstraintManager.<T>getConstraintSystem(); 
+	public static <T extends XType> boolean isValid(XSmtConstraintSystem<T> cs, XTypeSystem<T> ts, XSmtTerm<T> formula) throws XSmtFailure {
 		// make sure the quantifiers are top level
 		
 		XSmtQuantifier<T> query = new XSmtQuantifier<T>(formula);
 		if (query.onlyUniversal()) {
-			@SuppressWarnings("unchecked")
-			XSmtTerm<T> makeNot = (XSmtTerm<T>)cs.makeNot(formula);
-			return solve(makeNot) == Result.UNSAT;
+			XSmtTerm<T> makeNot = cs.makeNot(ts, formula);
+			return solve(cs, ts, makeNot) == Result.UNSAT;
 		}
 		if (query.onlyExistential()) 
-			return solve(formula) == Result.SAT;
+			return solve(cs, ts, formula) == Result.SAT;
 		
-		Result res = solve(query);
+		Result res = solve(cs, ts, query);
 		if (res == Result.UKNOWN)
 			throw new XSmtFailure("Unknown result");
 		return res == Result.SAT;
@@ -123,8 +117,8 @@ public class XSolverEngine<T extends XType> {
 	 * @return
 	 * @throws XSmtFailure if there was a problem calling the external solver.
 	 */
-	public static <T extends XType> boolean isSatisfiable(XSmtTerm<T> formula) throws XSmtFailure {
-		Result res = solve(new XSmtQuantifier<T>(formula)); 
+	public static <T extends XType> boolean isSatisfiable(XSmtConstraintSystem<T> cs, XTypeSystem<T> ts, XSmtTerm<T> formula) throws XSmtFailure {
+		Result res = solve(cs, ts, new XSmtQuantifier<T>(formula)); 
 
 		if (res == Result.UKNOWN)
 			throw new XSmtFailure("Unknown result");
@@ -132,17 +126,15 @@ public class XSolverEngine<T extends XType> {
 		return res == Result.SAT;
 	}
 
-	public static <T extends XType> boolean entails(XSmtTerm<T> t1, XSmtTerm<T> t2) throws XSmtFailure {
-		XConstraintSystem<T> cs = XConstraintManager.<T>getConstraintSystem(); 
-		@SuppressWarnings("unchecked")
-		XSmtTerm<T> impl = (XSmtTerm<T>)cs.makeExpr(XOp.<T>IMPL(), t1, t2);
+	public static <T extends XType> boolean entails(XSmtConstraintSystem<T> cs, XTypeSystem<T> ts, XSmtTerm<T> t1, XSmtTerm<T> t2) throws XSmtFailure {
+		XSmtTerm<T> impl = cs.makeExpr(XOp.<T>IMPL(ts.Boolean()), t1, t2);
 		XSmtTerm<T> query = new XSmtQuantifier<T>(impl);
 		try {
-			return isValid(query);
+			return isValid(cs,ts,query);
 		} catch (XSmtFailure e) {
 			// try to check if the second term is valid. 
 			try {
-				return isValid(new XSmtQuantifier<T>(t2));
+				return isValid(cs,ts,new XSmtQuantifier<T>(t2));
 			} catch(XSmtFailure f) {
 				throw new UndeclaredThrowableException(e); 	
 			}

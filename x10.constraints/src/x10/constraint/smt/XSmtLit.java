@@ -23,11 +23,11 @@ public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, 
 	}
 
 	@Override
-	public void print(XPrinter<T> p) {
+	public void print(XSmtConstraintSystem<T> cs, XPrinter<T> p) {
 		if (val == null) {
 			// we treat null as a variable that the printer keeps track of
-			XSmtVar<T> var = p.nullVar(type().<T>xTypeSystem());
-			var.print(p);
+			XSmtVar<T> var = p.nullVar(cs, type().<T>xTypeSystem());
+			var.print(cs, p);
 		} 
 		else if (val instanceof Number) {
 			String str = val.toString();
@@ -43,16 +43,16 @@ public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, 
 		}
 		else if (val instanceof String){
 			// we treat string constants as fresh variables 
-			XSmtVar<T> var = p.stringVar(val.toString(), type());
-			var.print(p);
+			XSmtVar<T> var = p.stringVar(cs, val.toString(), type());
+			var.print(cs, p);
 		} else {
 			p.append(val.toString());
 		}
 	}
 	
 	@Override
-	protected void declare(XPrinter<T> p) {
-		p.declare(this); 
+	protected void declare(XSmtConstraintSystem<T> cs, XPrinter<T> p) {
+		p.declare(cs, this); 
 	}
 	
 	@Override
@@ -101,7 +101,7 @@ public class XSmtLit<T extends XType, V> extends XSmtTerm<T> implements XLit<T, 
 	}
 
 	@Override
-	public String prettyPrint() {
+	public String toSmtString() {
 		if (val == null)
 			return "null";
 		return val.toString(); 

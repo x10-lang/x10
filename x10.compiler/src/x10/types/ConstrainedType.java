@@ -110,7 +110,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		/**
 		 * Check that the basetype and constraint agree on thisVar.
 		 */
-		public XTerm<Type> thisVar() {
+		public XVar<Type> thisVar() {
 			if (realXClause == null)
 				realXClause = realX();
 			if (! realXClause.consistent())
@@ -190,7 +190,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		
 		protected CConstraint realX() {
 			// Now get the root clause and join it with the dep clause.
-			CConstraint rootClause = Types.realX(Types.get(this.baseType()));
+			CConstraint rootClause = Types.realX(Types.get(this.baseType()),ts);
 			if (!rootClause.consistent())
 			    return rootClause;
 			CConstraint depClause = Types.xclause(this);
@@ -306,7 +306,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			return new TransformingList<Type, Type>(l, new Transformation<Type, Type>() {
 				public Type transform(Type o) {
 					CConstraint c2 = Types.xclause(o);
-					c2 = c2 != null ? c2.copy() : ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(o));
+					c2 = c2 != null ? c2.copy() : ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(o),typeSystem());
 					if (c2.thisVar() != null)
 					    c2.addEquality(c2.thisVar(), tt);
 					//c2.addSelfBinding(tt);
@@ -339,7 +339,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			    final XTerm<Type> t = c.bindingForVar(c.self());
 			    if (t != null) {
 			        CConstraint c2 = Types.xclause(o);
-			        c2 = c2 != null ? c2.copy() : ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(o));
+			        c2 = c2 != null ? c2.copy() : ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(o),typeSystem());
 			        TypeSystem xts = (TypeSystem) o.typeSystem();
 			        c2.addSelfEquality(t);
 			        return Types.xclause(o, c2);
@@ -437,13 +437,13 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		 * @return
 		 */
 		public ConstrainedType addRank(int x) {
-		    return addRank(ConstraintManager.getConstraintSystem().makeLit(x, ts.Int()));
+		    return addRank(ConstraintManager.getConstraintSystem().makeLit(ts.Int(), x));
 		}
 		public ConstrainedType addSize(int x) {
 		    return addIntProperty(x, Name.make("size"));
 		}
 		public ConstrainedType addIntProperty(int x, Name name) {
-		    return addProperty(ConstraintManager.getConstraintSystem().makeLit(x, ts.Int()), name);
+		    return addProperty(ConstraintManager.getConstraintSystem().makeLit(ts.Int(), x), name);
 		}
 
 		/**
@@ -470,7 +470,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		 * Find the term t, if any, such that t entails {self.propName==t}.
 		 */
 		public XTerm<Type> findProperty(Name name) {
-			CConstraint c = Types.realX(this);
+			CConstraint c = Types.realX(this,ts);
 			if (c == null || ! c.consistent()) 
 			    return null;
 			
@@ -497,7 +497,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		
 		    if (val == null) {
 		        TypeSystem xts = typeSystem();
-		        CConstraint c = Types.realX(this);
+		        CConstraint c = Types.realX(this,ts);
 		     
 		        if (c != null) {
 		            // build the synthetic term.
@@ -518,7 +518,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    }
             if (val!=null) {                   
                 // expand it in order to handle Dist.rank()
-                val = XTypeTranslator.expandSelfPropertyMethod(val);
+                val = XTypeTranslator.expandSelfPropertyMethod(Types.realX(this,ts), val);
             }
 		    return val; // todo: val can be null! if we build a synthetic term, then why not always build it???
 		}
@@ -529,25 +529,25 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		
 		public ConstrainedType addEquality(XTerm<Type> t1, XTerm<Type> t2) {
 		    CConstraint c = Types.xclause(this);
-		    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get()) :c.copy();
+		    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get(), ts) :c.copy();
 		    c.addEquality(t1, t2);
 		    return (ConstrainedType) Types.xclause(Types.baseType(this), c);
 		}
 
 		public ConstrainedType addEquality(XTerm<Type> t1, XConstrainedTerm t2) {
-		    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get());
+		    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get(), ts);
 		    c.addEquality(t1, t2);
 		    return (ConstrainedType) Types.xclause(this, c);
 		}
 		public ConstrainedType addSelfEquality(XTerm<Type> t1) {
 			CConstraint c = Types.xclause(this);
-			c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get()) :c.copy();
+			c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get(), ts) :c.copy();
 			c.addSelfEquality(t1);
 			return (ConstrainedType) Types.xclause(Types.baseType(this), c); 
 		}
 		public ConstrainedType addSelfDisEquality(XTerm<Type> t1) {
 			CConstraint c = Types.xclause(this);
-			c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get()) :c.copy();
+			c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get(), ts) :c.copy();
 			c.addSelfDisEquality(t1);
 			return (ConstrainedType) Types.xclause(Types.baseType(this), c); 
 		}
@@ -585,7 +585,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		        CConstraint newc = Types.get(c);
 		
 		        if (newc == null)
-		            return new ConstrainedType(ts, tx.position(), tx.position(), Types.ref(tx), Types.ref(ConstraintManager.getConstraintSystem().makeCConstraint(tx)));
+		            return new ConstrainedType(ts, tx.position(), tx.position(), Types.ref(tx), Types.ref(ConstraintManager.getConstraintSystem().makeCConstraint(tx, ts)));
 		        
 		        if (oldc == null) {
 		            return new ConstrainedType(ts, tx.position(), tx.position(), t, c);
@@ -648,7 +648,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 			if (t == null)
 				return null;
 			if (c == null /*|| c.valid()*/) {
-				c = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t));
+				c = ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t), t.typeSystem());
 			}
 			return xclause(Types.ref(t), Types.ref(c));
 		}
@@ -764,7 +764,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		    X10FieldInstance fi = Types.getProperty(this, propName);
 		    if (fi != null) {
 
-		        final CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get());
+		        final CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get(), xts);
 		        XTerm<Type> term = xts.xtypeTranslator().translate(c.self(), fi);
 		        c.addEquality(term, lit);
 		        if (! c.consistent())
@@ -784,8 +784,8 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		                                                 Collections.<Type>emptyList(), 
 		                                                 xts.emptyContext()));
 		            XTerm<Type> body = mi.body();
-		            final CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get());
-		            body = body.subst(c.self(), mi.x10Def().thisVar());
+		            final CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get(), xts);
+		            body = body.subst(c.sys(), c.self(), mi.x10Def().thisVar());
 		            c.addTerm(body);
 		            return r.entails(c, new ConstraintMaker() {
 		                public CConstraint make() throws XFailure {
@@ -834,7 +834,7 @@ public class ConstrainedType extends ReferenceType_c implements ObjectType, X10T
 		 public boolean equalsImpl(TypeObject o) {
 			 if (this == o) return true;
 			 if (baseType().get().equalsImpl(o)) {
-				 CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get());
+				 CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType.get(), ts);
 				 if (c.entails(constraint().get()))
 					 return true;
 			 }

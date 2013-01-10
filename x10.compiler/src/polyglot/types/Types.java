@@ -137,14 +137,14 @@ public class Types {
 	public static Type addBinding(Type t, XTerm<Type> t1, XTerm<Type> t2) {
 		//assert (! (t instanceof UnknownType));
 	    CConstraint c = Types.xclause(t);
-	    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t)) :c.copy();
+	    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem()) :c.copy();
 	    c.addEquality(t1, t2);
 	    return Types.xclause(Types.baseType(t), c);
 	}
 
 	public static Type addBinding(Type t, XTerm<Type> t1, XConstrainedTerm t2) {
 	 	assert (! (t instanceof UnknownType));
-	 	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+	 	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
 	 	c.addEquality(t1, t2);
 	 	return Types.xclause(t, c);
 	}
@@ -152,7 +152,7 @@ public class Types {
 	public static Type addSelfBinding(Type t, XTerm<Type> t1) {
 	    assert (! (t instanceof UnknownType));
 	    CConstraint c = Types.xclause(t);
-	    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t)) :c.copy();
+	    c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem()) :c.copy();
 	    c.addSelfEquality(t1);
 	    return Types.xclause(Types.baseType(t), c); 
 	}
@@ -168,7 +168,7 @@ public class Types {
 	public static Type addDisBinding(Type t, XTerm<Type> t1, XTerm<Type> t2) {
 	 	assert (! (t instanceof UnknownType));
 	 	CConstraint c = Types.xclause(t);
-	 	c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t)) :c.copy();
+	 	c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem()) :c.copy();
 	 	c.addDisEquality(t1, t2);
 	 	return Types.xclause(Types.baseType(t), c);
 	}
@@ -189,7 +189,7 @@ public class Types {
 	public static Type addTerm(Type t, XTerm<Type> term) {
 	    try {
 	        CConstraint c = Types.xclause(t);
-	        c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t)) :c.copy();
+	        c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem()) :c.copy();
 	        c.addTerm(term);
 	        return Types.xclause(Types.baseType(t), c);
 	    }
@@ -333,25 +333,25 @@ public class Types {
 	}
 
 	public static boolean entails(Type t, XTerm<Type> t1, XTerm<Type> t2) {
-		 CConstraint c = Types.realX(t);
+		 CConstraint c = Types.realX(t, t.typeSystem());
 		 if (c==null) 
-			 c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+			 c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
 		 
 		 return c.entailsEquality(t1, t2);
 	  }
 
 	public static boolean disEntails(Type t, XTerm<Type> t1, XTerm<Type> t2) {
-		 CConstraint c = Types.realX(t);
+		 CConstraint c = Types.realX(t, t.typeSystem());
 		 if (c==null) 
-			 c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
-		 XTerm<Type> eq = ConstraintManager.getConstraintSystem().makeEquals(t1, t2);
+			 c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
+		 XTerm<Type> eq = ConstraintManager.getConstraintSystem().makeEquals(t.typeSystem(), t1, t2);
 		 return c.entailsDisEquality(t1, t2);
 	  }
 
 	public static boolean disEntailsSelf(Type t, XTerm<Type> t2) {
-		 CConstraint c = Types.realX(t);
+		 CConstraint c = Types.realX(t, t.typeSystem());
 		 if (c==null) 
-			 c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+			 c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
 		 return c.entailsDisEquality(c.self(), t2);
 	  }
 
@@ -566,13 +566,13 @@ public class Types {
 		return thisVar;
 	}
 
-	public static XTerm<Type> getThisVar(List<Type> typeArgs) throws XFailure {
-		XTerm<Type> thisVar = null;
+	public static XVar<Type> getThisVar(List<Type> typeArgs) throws XFailure {
+		XVar<Type> thisVar = null;
 		if (typeArgs != null)
 			for (Type type : typeArgs) {
 				if (type instanceof X10ThisVar) {
 					X10ThisVar xtype = (X10ThisVar)type;
-					XTerm<Type> o = xtype.thisVar();
+					XVar<Type> o = xtype.thisVar();
 					if (thisVar == null) {
 						thisVar = o;
 					} else {
@@ -755,7 +755,7 @@ public class Types {
 	    if (zeroLit == null) return false;
 	    if (!isConstrained(t)) return true;
 	    final CConstraint constraint = Types.xclause(t);
-	    final CConstraint zeroCons = ConstraintManager.getConstraintSystem().makeCConstraint(constraint.self());
+	    final CConstraint zeroCons = ConstraintManager.getConstraintSystem().makeCConstraint(constraint.self(), ts);
 	    // make sure the zeroLit is not in the constraint
 	    zeroCons.addSelfEquality(zeroLit);
 	    return zeroCons.entails(constraint);
@@ -884,7 +884,7 @@ public class Types {
 	        throw new InternalCompilerError("Could not find size field of " + t, pos);
 	    try {
 	        XTerm<Type> selfSize = ts.xtypeTranslator().translate(c.self(), sizeField);
-	        XLit<Type, ?> sizeLiteral = ConstraintManager.getConstraintSystem().makeLit(size, ts.Int());
+	        XLit<Type, ?> sizeLiteral = ConstraintManager.getConstraintSystem().makeLit(ts.Int(), size);
 	        c.addEquality(selfSize, sizeLiteral);
 	        Type result = Types.xclause(t, c);
 	        return result;
@@ -902,7 +902,7 @@ public class Types {
 	public static Type makeArrayRailOf(Type type, Position pos) {
 	    TypeSystem ts = type.typeSystem();
 	    X10ClassType t = ts.Array(type);
-	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
 	    FieldInstance regionField = t.fieldNamed(Name.make("region"));
 	    if (regionField == null)
 	        throw new InternalCompilerError("Could not find region field of " + t, pos);
@@ -926,7 +926,7 @@ public class Types {
 	    XTerm<Type> selfZeroBased = xt.translate(self, zeroBasedField);
 	    XTerm<Type> selfRail = xt.translate(self, railField);
 
-	    XLit<Type, ?> rankLiteral = ConstraintManager.getConstraintSystem().makeLit(1, ts.Int());
+	    XLit<Type, ?> rankLiteral = ConstraintManager.getConstraintSystem().makeLit(ts.Int(), 1);
 	    c.addEquality(selfRank, rankLiteral);
 	    c.addEquality(selfRect, ConstraintManager.getConstraintSystem().xtrue(ts));
 	    c.addEquality(selfZeroBased, ConstraintManager.getConstraintSystem().xtrue(ts));
@@ -971,15 +971,16 @@ public class Types {
 	 * <p>If t has a constraint clause (is a ConstrainedType) 
 	 * then the returned constraint will have the same 
 	 * self var as t's clause. 
-	 * @param t - the type whose real clause is needed
+	 * @param t - the type whose real clause is needed (can be null)
 	 * @return -- always a non-null constraint. May be inconsistent.
 	 */
-	public static CConstraint realX(Type t) {
-	if (t instanceof ParameterType) {
-	    return ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
-	}
-	else if (t instanceof ConstrainedType) {
-	        return ((ConstrainedType) t).getRealXClause().copy();
+	public static CConstraint realX(Type t, TypeSystem ts) {
+		// [DC] note: t can be null
+		if (t instanceof ParameterType) {
+			return ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
+		}
+		else if (t instanceof ConstrainedType) {
+			return ((ConstrainedType) t).getRealXClause().copy();
 		}
 		else if (t instanceof X10ClassType) {
 			X10ClassType ct = (X10ClassType) t;
@@ -987,17 +988,17 @@ public class Types {
 			return TypeParamSubst.reinstantiateConstraint(ct, c);
 		}
 		else if (t instanceof MacroType) {
-		    MacroType mt = (MacroType) t;
-		    CConstraint c = realX(mt.definedType());
-		    CConstraint w = mt.guard();
-		    if (w != null && ! w.valid()) {
-              // c = c.copy();
-               c.addIn(w); // c may have become inconsistent.
-		    }
-		    return c;
+			MacroType mt = (MacroType) t;
+			CConstraint c = realX(mt.definedType(),ts);
+			CConstraint w = mt.guard();
+			if (w != null && ! w.valid()) {
+				// c = c.copy();
+				c.addIn(w); // c may have become inconsistent.
+			}
+			return c;
 		}
-	
-		return ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+
+		return ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), ts);
 	}
 
 	/**
@@ -1053,11 +1054,11 @@ public class Types {
 		}
 	}
 
-	public static XTerm<Type> selfVar(ConstrainedType thisType) {
+	public static XVar<Type> selfVar(ConstrainedType thisType) {
 		return selfVar(thisType.constraint().get());
 	}
 
-	public static XTerm<Type> selfVar(CConstraint c) {
+	public static XVar<Type> selfVar(CConstraint c) {
 	    if (c == null) return null;
 	    return c.self();
 	}
@@ -1073,7 +1074,8 @@ public class Types {
 	}
 
 	public static XTerm<Type> selfBinding(Type thisType) {
-	    CConstraint c = realX(thisType);
+		if (thisType == null) return null;
+	    CConstraint c = realX(thisType,thisType.typeSystem());
 	    return selfBinding(c);
 	}
 
@@ -1085,7 +1087,7 @@ public class Types {
 	public static Type setSelfVar(Type t, XVar<Type> v) throws SemanticException {
 		CConstraint c = Types.xclause(t);
 		if (c == null) {
-			c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+			c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
 		}
 		else {
 			c = c.copy();
@@ -1097,7 +1099,7 @@ public class Types {
 	public static Type setThisVar(Type t, XVar<Type> v) throws SemanticException {
 	    CConstraint c = Types.xclause(t);
 	    if (c == null) {
-	        c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+	        c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), t.typeSystem());
 	    }
 	    else {
 	        c = c.copy();
@@ -1181,7 +1183,8 @@ public class Types {
 	}
 
 	public static XTerm<Type> self(Type t) {
-	    CConstraint c = realX(t);
+		if (t==null) return null;
+	    CConstraint c = realX(t, t.typeSystem());
 	    if (c == null)
 		    return null;
 	    return selfVar(c);
@@ -1653,7 +1656,7 @@ public class Types {
 
 	public static CConstraint tryAddingConstraint(Type t, CConstraint xc)  {
 		 CConstraint c = Types.xclause(t);
-	     c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t)) :c.copy();
+	     c = c == null ? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t), t.typeSystem()) :c.copy();
 	     c.addIn(xc);
 	     return c;
 	}
@@ -1663,7 +1666,7 @@ public class Types {
 		if (t instanceof ConstrainedType) {
 			result=(ConstrainedType) t;
 		} else {
-			result = constrainedType(t, ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t)));
+			result = constrainedType(t, ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(t), t.typeSystem()));
 		}
 		return result;
 	}
@@ -1853,7 +1856,8 @@ public class Types {
 	 * @return
 	 */
 	public static CConstraint removeLocals(Context cxt, CConstraint c0) {
-	    CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(c0.self().type());
+		CConstraint c = c0.self() == null ? ConstraintManager.getConstraintSystem().makeCConstraint(cxt.typeSystem())
+				                          : ConstraintManager.getConstraintSystem().makeCConstraint(c0.self(), cxt.typeSystem());
 	    c.addIn(c0); // ensure that this has a different selfVar.
 	    Set<? extends XTerm<Type>> roots = c.getVarsAndFields();
 	    if (roots.size() > 0) {
@@ -1862,8 +1866,7 @@ public class Types {
 	        	if (term instanceof XVar || term.isProjection()) {
 	        		XTerm<Type> t = term.isProjection()? ((XExpr<Type>)term).get(0) : term;
 	        		if (t instanceof CLocal) {
-	        			@SuppressWarnings("unchecked")
-						CLocal<Type, X10LocalDef> local = (CLocal<Type, X10LocalDef>) t;
+						CLocal local = (CLocal) t;
 	        			X10LocalDef name = local.def();
 	        			if (! cxt.isFormalParameter(name) && cxt.isLocalExcludingAsyncAt(name.name())) {
 	        				// This is a local variable. Eliminate!
@@ -1944,7 +1947,7 @@ public class Types {
     	CConstraint c0 = xclause(t);
     	if (c0==null)
     		return t;
-    	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t));
+    	CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(t), cxt.typeSystem());
     	c.addIn(c0); // ensure that this has a different selfVar.
     	Set<? extends XTerm<Type>> roots = c.getVarsAndFields();
     	if (roots.size() > 0) {
@@ -1957,8 +1960,7 @@ public class Types {
     			if (term instanceof XVar || term.isProjection()) {
     				XTerm<Type> root = term.isProjection() ? ((XExpr<Type>)term).get(0) : term; 
     				if (root instanceof CLocal) {
-    					@SuppressWarnings("unchecked")
-						CLocal<Type,X10LocalDef> rootL = (CLocal<Type,X10LocalDef>)root;
+						CLocal rootL = (CLocal)root;
     					X10LocalDef name = rootL.def();
     					if (formals != null && ! formals.contains(name)) {
     						// This is a local variable. Eliminate!
@@ -1978,7 +1980,7 @@ public class Types {
         CConstraint xclause = Types.xclause(outer);
         if (xclause != null && ! xclause.valid()) {
             // there is some information to transfer.
-            CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(type));
+            CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(baseType(type), type.typeSystem());
             XTerm<Type> qvar = ConstraintManager.getConstraintSystem().makeQualifiedVar(Types.baseType(outer), result.self());
             xclause = xclause.instantiateSelf(qvar);
             result.addIn(xclause);
@@ -1986,7 +1988,8 @@ public class Types {
         }
         return type;
     }
-    public static Type container(Type type, ClassType newContainer) {
+    @SuppressWarnings("unchecked")
+	public static Type container(Type type, ClassType newContainer) {
         if (type instanceof ClassType) 
             return ((ClassType) type).container(newContainer);
         if (type instanceof ConstrainedType) {

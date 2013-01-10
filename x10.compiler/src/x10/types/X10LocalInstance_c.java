@@ -86,9 +86,9 @@ public class X10LocalInstance_c extends LocalInstance_c implements X10LocalInsta
         // If the local variable is final, replace T by T{self==t}, 
         // do this even if depclause==null.
         CConstraint c = Types.xclause(rightType);
-        c = c==null? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(rightType)) : c.copy();
+        c = c==null? ConstraintManager.getConstraintSystem().makeCConstraint(Types.baseType(rightType),xts) : c.copy();
 
-        CLocal<Type, ?> var = xts.xtypeTranslator().translate(this.type(rightType));
+        CLocal var = xts.xtypeTranslator().translate(this.type(rightType));
         c.addSelfEquality(var);
         rightType = Types.xclause(Types.baseType(rightType), c);
 

@@ -15,28 +15,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
-import junit.framework.TestCase;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraintManager;
-import x10.constraint.XEquals;
+import x10.constraint.XExpr;
 import x10.constraint.XFailure;
+import x10.constraint.XLabeledOp;
+import x10.constraint.XOp;
+import x10.constraint.XStringDef;
 import x10.constraint.XTerm;
-import x10.constraint.XVar;
+import x10.constraint.XUQV;
 
-public class FormulaTest extends TestCase {
+public class FormulaTest extends BaseTest {
 	public FormulaTest() {
 		super("FormulaTest");
 	}
 		
-	HashMap<String, XVar> vars = new HashMap<String, XVar>();
-	XVar makeUQV(String id) {
-		XVar v = vars.get(id);
+	HashMap<String, XUQV<TestType>> vars = new HashMap<String, XUQV<TestType>>();
+	XUQV<TestType> makeUQV(String id) {
+		XUQV<TestType> v = vars.get(id);
 		if (v !=null) return v;
-		v = XConstraintManager.getConstraintSystem().makeUQV(id);
+		v = xcs.makeUQV(intType, id);
 		vars.put(id, v);
 		return v;
 	}
-	public XConstraint parse(String s) {
+	public XConstraint<TestType> parse(String s) {
 		char[] buf = s.toCharArray();
 		int i = 0;
 		
@@ -51,15 +52,15 @@ public class FormulaTest extends TestCase {
 			assert false : "cannot parse " + s;
 		}
 		
-		XConstraint c = XConstraintManager.getConstraintSystem().makeConstraint();
+		XConstraint<TestType> c = xcs.makeConstraint(ts);
 
-		Pair<Integer,XTerm> p = parse(buf, i);
-		XTerm t = p.snd;
+		Pair<Integer,XTerm<TestType>> p = parse(buf, i);
+		XTerm<TestType> t = p.snd;
 	
 		if (t != null) {
 			try {
-				if (t instanceof XEquals) {
-					c.addBinding(((XEquals) t).left(), ((XEquals) t).right());
+				if (t.isEquals()) {
+					c.addEquality(((XExpr<TestType>) t).get(0), ((XExpr<TestType>) t).get(1));
 				}
 				else {
 					c.addTerm(t);
@@ -88,11 +89,11 @@ public class FormulaTest extends TestCase {
 		return new Pair<Integer, String>(i, id);
 	}
 	
-	public Pair<Integer,XTerm> parse(char[] buf, int i) {
+	public Pair<Integer,XTerm<TestType>> parse(char[] buf, int i) {
 		int n = buf.length;
 		
 		if (i >= n) {
-			return new Pair<Integer,XTerm>(n, null);
+			return new Pair<Integer,XTerm<TestType>>(n, null);
 		}
 		
 		char c = buf[i];
@@ -139,10 +140,10 @@ public class FormulaTest extends TestCase {
 			return null;
 		}
 		
-		List<XTerm> terms = new ArrayList<XTerm>();
+		List<XTerm<TestType>> terms = new ArrayList<XTerm<TestType>>();
 
 		while (true) {
-			XTerm t = null;
+			XTerm<TestType> t = null;
 			
 			while (Character.isWhitespace(c)) {
 				i++;
@@ -150,13 +151,13 @@ public class FormulaTest extends TestCase {
 			}
 		
 			if (c == '(') {
-				Pair<Integer,XTerm> p = parse(buf, i+1);
+				Pair<Integer,XTerm<TestType>> p = parse(buf, i+1);
 				t = p.snd;
 				i = p.fst;
 				c = buf[i];
 			}
 
-			XVar left = null;
+			XTerm<TestType> left = null;
 
 			while (Character.isLetter(c)) {
 				Pair<Integer,String> p = parseId(buf, i);
@@ -165,7 +166,7 @@ public class FormulaTest extends TestCase {
 				String id = p.snd;
 
 				if (left != null) {
-					left = XConstraintManager.getConstraintSystem().makeField(left, id);
+					left = xcs.makeField(left, new XStringDef<TestType>(id, intType), false);
 				}
 				else {
 					left = makeUQV(id);
@@ -195,36 +196,37 @@ public class FormulaTest extends TestCase {
 		}
 		
 		if (op.toString().equals("==")) {
-			XTerm left = terms.get(0);
+			XTerm<TestType> left = terms.get(0);
 			for (int k = 1; k < terms.size(); k++) {
-				left = XConstraintManager.getConstraintSystem().makeEquals(left, terms.get(k));
+				left = xcs.makeEquals(ts, left, terms.get(k));
 			}
-			return new Pair<Integer,XTerm>(i, left);
+			return new Pair<Integer,XTerm<TestType>>(i, left);
 		}
 		if (op.toString().equals("&&")) {
-			XTerm left = terms.get(0);
+			XTerm<TestType> left = terms.get(0);
 			for (int k = 1; k < terms.size(); k++) {
-				left = XConstraintManager.getConstraintSystem().makeAnd(left, terms.get(k));
+				left = xcs.makeAnd(ts, left, terms.get(k));
 			}
-			return new Pair<Integer,XTerm>(i, left);
+			return new Pair<Integer,XTerm<TestType>>(i, left);
 		}
 		if (op.toString().equals("!")) {
-			return new Pair<Integer,XTerm>(i, XConstraintManager.getConstraintSystem().makeNot(terms.get(0)));
+			return new Pair<Integer,XTerm<TestType>>(i, xcs.makeNot(ts, terms.get(0)));
 		}
 
-		return new Pair<Integer,XTerm>(i, XConstraintManager.getConstraintSystem().makeAtom(op, terms.toArray(new XTerm[0])));
+		XLabeledOp<TestType, XStringDef<TestType>> xop = XOp.<TestType,XStringDef<TestType>>makeLabelOp(new XStringDef<TestType>(op,intType));
+		return new Pair<Integer,XTerm<TestType>>(i, xcs.makeExpr(xop, terms));
 	}
 
-	XConstraint c1 = parse("(== x y)");
-	XConstraint c2 = parse("(== y x)");
-	XConstraint c3 = parse("(== y x)");
-	XConstraint c4 = parse("(&& (== y x) (== x.f z))");
-	XConstraint c5 = parse("(== y.f z)");
-	XConstraint c6 = parse("(&& (F x.f z) (== x.f z) (== y x))");
-	XConstraint c7 = parse("(F y.f z)");
-	XConstraint c8 = parse("(F z x.f)");
+	XConstraint<TestType> c1 = parse("(== x y)");
+	XConstraint<TestType> c2 = parse("(== y x)");
+	XConstraint<TestType> c3 = parse("(== y x)");
+	XConstraint<TestType> c4 = parse("(&& (== y x) (== x.f z))");
+	XConstraint<TestType> c5 = parse("(== y.f z)");
+	XConstraint<TestType> c6 = parse("(&& (F x.f z) (== x.f z) (== y x))");
+	XConstraint<TestType> c7 = parse("(F y.f z)");
+	XConstraint<TestType> c8 = parse("(F z x.f)");
 	
-	XConstraint c9 = parse("(! (! (== x y)))");
+	XConstraint<TestType> c9 = parse("(! (! (== x y)))");
 	public void test1() throws Throwable {
 		assertTrue(c1.entails(c2));
 	}

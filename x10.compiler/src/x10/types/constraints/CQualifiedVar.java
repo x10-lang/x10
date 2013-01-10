@@ -8,20 +8,16 @@ import x10.constraint.XVar;
 /**
  * A qualified variable is a variable used to refer to the outer scopes
  * in nested classes. The qualifier is the type of the outer class. Note 
- * that the type of the variable is not necessarily the type of the qualifier. 
+ * that the type of the variable is not necessarily the type of the qualifier.
+ * 
+ *  E.g. class A { class B { def m() { A.this } } is represented with var()==this and qualifier()==A
  * @author lshadare
  *
  */
-public interface CQualifiedVar extends XField<Type, Type> {
-	/**
-	 * Return the qualifier of the variable i.e. the type corresponding to
-	 * the outer class.
-	 * @return
-	 */
-	Type qualifier(); 
+public interface CQualifiedVar extends XField<Type, QualifierDef> {
 	/**
 	 * Return the variable itself. 
 	 * @return
 	 */
-	XVar<Type> var();
+	//XVar<Type> var();
 }

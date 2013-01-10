@@ -194,7 +194,7 @@ public abstract class X10Loop_c extends Loop_c implements X10Loop {
             XTerm<Type> self = Types.xclause(indexType).self();
             Synthesizer synth = new Synthesizer(nf, ts);
             XTerm<Type> v = synth.makePointRankTerm((XVar<Type>) self);
-            XTerm<Type> rank = ConstraintManager.getConstraintSystem().makeLit(length, ts.Int());
+            XTerm<Type> rank = ConstraintManager.getConstraintSystem().makeLit(ts.Int(), length);
             indexType = Types.addBinding(indexType, v, rank);
             r.update(indexType);
             return;

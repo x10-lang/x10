@@ -6,7 +6,7 @@ package x10.constraint;
  * @param <T> 
  * @param <F>
  */
-public interface XField<T extends XType, F> extends XExpr<T> {
+public interface XField<T extends XType, F extends XDef<T>> extends XExpr<T> {
 	F field(); 
 	XTerm<T> receiver(); 
 }

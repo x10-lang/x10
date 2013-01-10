@@ -46,7 +46,7 @@ public class CSmtSelf extends XSmtVar<Type> implements CSelf {
 		return SELF_VAR_PREFIX + num + ":" + type();
 	}
 	@Override
-	public String prettyPrint() {
+	public String toSmtString() {
 		return SELF_VAR_PREFIX; 
 	}
 	

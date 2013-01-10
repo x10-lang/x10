@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import x10.constraint.XConstraintManager;
+import x10.constraint.XDef;
 import x10.constraint.XLabeledOp;
 import x10.constraint.XType;
 import x10.constraint.XTypeSystem;
@@ -30,7 +30,7 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	/**
 	 * Set containing all the function symbols that need to be declared. 
 	 */
-	private final Map<XLabeledOp<T,Object>, List<T>> funDeclarations; 
+	private final Map<XLabeledOp<T,XDef<T>>, List<T>> funDeclarations; 
 	/**
 	 * Set containing the names of all the sorts that need to be declared. 
 	 */
@@ -76,7 +76,7 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	public XSmtPrinter(String outFile) {
 		this.outFile = outFile; 
 		this.varDeclarations = new HashSet<XSmtVar<T>>(); 
-		this.funDeclarations = new HashMap<XLabeledOp<T, Object>, List<T>>();
+		this.funDeclarations = new HashMap<XLabeledOp<T, XDef<T>>, List<T>>();
 		this.sortDeclarations = new HashSet<String>();
 		this.stringVariables = new HashSet<XSmtVar<T>>();
 		initialize(); 
@@ -94,7 +94,7 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	}
 
 	@Override
-	public void declare(XSmtTerm<T> term) {
+	public void declare(XSmtConstraintSystem<T> cs, XSmtTerm<T> term) {
 //		if (term instanceof XSmtEQV || 
 //			term instanceof XSmtUQV) {
 //			// don't need to declare the variables but may need to 
@@ -118,10 +118,9 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 				for (XSmtTerm<T> t : exp.children()) 
 					types.add(t.type());
 				// adding the result type
-				XTypeSystem<? extends T> ts = term.type().xTypeSystem();
-				types.add(exp.op().type(ts));
+				types.add(exp.op().type());
 				@SuppressWarnings("unchecked")
-				XLabeledOp<T,Object> op = (XLabeledOp<T,Object>)exp.op();
+				XLabeledOp<T,XDef<T>> op = (XLabeledOp<T,XDef<T>>)exp.op();
 				funDeclarations.put(op, types); 
 			}
 		}
@@ -132,11 +131,11 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 			XSmtLit<T, ?> lit = (XSmtLit<T, Object>) term; 
 			// create a special variable for null
 			if (lit.val() == null)
-				declare(nullVar(lit.type().<T>xTypeSystem()));
+				declare(cs, nullVar(cs, lit.type().<T>xTypeSystem()));
 			// create one variable for each string constant
 			else if (lit.val() instanceof String) {
-				XSmtVar<T> strVar = stringVar(lit.val().toString(), lit.type());
-				declare(strVar); 
+				XSmtVar<T> strVar = stringVar(cs, lit.val().toString(), lit.type());
+				declare(cs, strVar); 
 			}
 		}
 	}
@@ -155,7 +154,7 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	}
 
 	@Override
-	public void dump(XSmtTerm<T> query) {
+	public void dump(XSmtConstraintSystem<T> cs, XSmtTerm<T> query) {
 		assert initialized; 
 		
 		try {
@@ -165,13 +164,13 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 			ow.append(prelude);
 			ow.flush(); 
 			// print out the declarations
-			query.declare(this); 
+			query.declare(cs, this); 
 			generateDeclarations();
 			
 			// print out the actual formula we are asserting
 			ow.append("(assert ");
 			ow.flush(); 
-			query.print(this);
+			query.print(cs, this);
 			writer.append(")\n");
 			writer.flush();
 			// TODO: add String constants disequalities 
@@ -193,7 +192,7 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 			declWriter.append(declareVar(var));
 		}
 
-		for (XLabeledOp<T, Object> op : funDeclarations.keySet()) {
+		for (XLabeledOp<T, XDef<T>> op : funDeclarations.keySet()) {
 			declWriter.append(declareFun(op, funDeclarations.get(op)));
 		}
 		declWriter.flush(); 
@@ -242,20 +241,18 @@ public class XSmtPrinter<T extends XType> implements XPrinter<T> {
 	}
 	
 	@Override
-	public XSmtVar<T> nullVar(XTypeSystem<? extends T> ts) {
+	public XSmtVar<T> nullVar(XSmtConstraintSystem<T> cs, XTypeSystem<? extends T> ts) {
 		if (nullVar == null) {
-			@SuppressWarnings("unchecked")
-			XSmtVar<T> makeVar = (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(ts.Null(), "null");
+			XSmtVar<T> makeVar = cs.makeUQV(ts.Null(), "null");
 			nullVar = makeVar;
 		}
 		return nullVar; 
 	}
 	
 	@Override
-	public XSmtVar<T> stringVar(String name, T type) {
+	public XSmtVar<T> stringVar(XSmtConstraintSystem<T> cs, String name, T type) {
 		String var = mangle(name); 
-		@SuppressWarnings("unchecked")
-		XSmtVar<T> makeVar = (XSmtVar<T>)XConstraintManager.getConstraintSystem().makeVar(type, var);
+		XSmtVar<T> makeVar = cs.makeUQV(type, var);
 		return makeVar;
 	}
 

@@ -13,16 +13,17 @@ package x10.types;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.HashSet;
 
 import polyglot.main.Reporter;
 import polyglot.types.ClassType;
 import polyglot.types.ConstructorInstance;
+import polyglot.types.ContainerType;
 import polyglot.types.Context;
 import polyglot.types.DerefTransform;
 import polyglot.types.Flags;
@@ -40,45 +41,37 @@ import polyglot.types.ProcedureInstance;
 import polyglot.types.ProcedureInstance_c;
 import polyglot.types.Ref;
 import polyglot.types.SemanticException;
-import polyglot.types.ContainerType;
 import polyglot.types.Type;
 import polyglot.types.TypeEnv_c;
 import polyglot.types.TypeObject;
-import polyglot.types.TypeSystem_c;
-import polyglot.types.Types;
 import polyglot.types.TypeSystem;
-import polyglot.types.Def;
-import polyglot.types.MemberDef;
+import polyglot.types.TypeSystem_c;
+import polyglot.types.TypeSystem_c.Bound;
 import polyglot.types.TypeSystem_c.ConstructorMatcher;
+import polyglot.types.TypeSystem_c.Kind;
 import polyglot.types.TypeSystem_c.TypeEquals;
+import polyglot.types.Types;
 import polyglot.util.CodedErrorInfo;
-import polyglot.util.CollectionUtil; import x10.util.CollectionFactory;
+import polyglot.util.CollectionUtil;
 import polyglot.util.InternalCompilerError;
-import polyglot.util.TransformingList;
 import polyglot.util.Transformation;
+import polyglot.util.TransformingList;
 import x10.constraint.XEQV;
 import x10.constraint.XFailure;
 import x10.constraint.XLit;
-import x10.types.constraints.ConstraintManager;
-import x10.constraint.XVar;
 import x10.constraint.XTerm;
+import x10.constraint.XVar;
 import x10.errors.Errors;
 import x10.types.ParameterType.Variance;
-import polyglot.types.TypeSystem_c.Bound;
-import polyglot.types.TypeSystem_c.Kind;
-import polyglot.ast.Expr;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
 import x10.types.constraints.ConstraintMaker;
+import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.SubtypeConstraint;
 import x10.types.constraints.TypeConstraint;
-import x10.types.constraints.CField;
-import x10.types.constraints.CThis;
-import x10.types.constraints.CSelf;
-
 import x10.types.matcher.Matcher;
 import x10.types.matcher.Subst;
-import x10.visit.Desugarer;
+import x10.util.CollectionFactory;
 
 /**
  * A TypeSystem implementation for X10.
@@ -760,14 +753,14 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             t2 = Types.xclause(Types.baseType(t2), newConstraint);
         return t2;
     }
-    public CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, CConstraint originalConst) {
+    public CConstraint expandProperty(final boolean isMethod, final ClassType t1ClassType, final CConstraint originalConst) {
         final List<? extends XTerm<Type>> terms = originalConst.terms();
         final ArrayList<XTerm<Type>> newTerms = new ArrayList<XTerm<Type>>(terms.size());
         boolean wasNew = false;
         for (XTerm<Type> xTerm : terms) {
             final XTerm.TermVisitor<Type> visitor = new XTerm.TermVisitor<Type>() {
                 public XTerm<Type> visit(XTerm<Type> term) {
-                    XTerm<Type> res = XTypeTranslator.expandPropertyMethod(term,isMethod,ts,t1ClassType,context);
+                    XTerm<Type> res = XTypeTranslator.expandPropertyMethod(originalConst,term,isMethod,ts,t1ClassType,context);
                     return res==term ? null : res;
                 }
             };
@@ -776,7 +769,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
             newTerms.add(newXterm);
         }
         if (wasNew) {
-            final CConstraint newConstraint = ConstraintManager.getConstraintSystem().makeCConstraint(originalConst.self());
+            final CConstraint newConstraint = ConstraintManager.getConstraintSystem().makeCConstraint(originalConst.self(),originalConst.ts());
             newConstraint.setThisVar(originalConst.thisVar());
             for (XTerm<Type> xTerm : newTerms) {
                 try {
@@ -904,7 +897,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     		return true;
     	
     	Type baseType2 = Types.baseType(t2);
-    	CConstraint c1 = Types.realX(t1);
+    	CConstraint c1 = Types.realX(t1,ts);
     	if (c1!= null && x != null) {
     		c1 = c1.instantiateSelf(x);
     	}
@@ -930,7 +923,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     			x = c2.selfVarBinding();
     		}*/
     		if (x == null) {
-    			x =  ConstraintManager.getConstraintSystem().makeUQV(baseType2); 
+    			x =  ConstraintManager.getConstraintSystem().makeSelf(baseType2); 
     		}
     		t2 = Types.instantiateSelf(x, t2);
     		c2 = Types.xclause(t2);
@@ -1286,8 +1279,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         // We must take the realX because if I have a definition:
         // class A(i:Int) {i==1} {}
         // then the types A and A{self.i==1} are equal!
-        CConstraint c1 = Types.realX(t1);
-        CConstraint c2 = Types.realX(t2);
+        CConstraint c1 = Types.realX(t1,ts);
+        CConstraint c2 = Types.realX(t2,ts);
 
         if (c1 != null && c1.valid()) { c1 = null; t1 = baseType1; }
         if (c2 != null && c2.valid()) { c2 = null; t2 = baseType2; }
@@ -1343,8 +1336,8 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
 
         Type t1 = Types.baseType(fromType);
         Type t2 = Types.baseType(toType);
-        CConstraint c1 = Types.realX(fromType);
-        CConstraint c2 = Types.realX(toType);
+        CConstraint c1 = Types.realX(fromType,ts);
+        CConstraint c2 = Types.realX(toType,ts);
 
 
         Type baseType1 = t1;
@@ -1409,9 +1402,9 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
     /** Return true if there is a conversion from fromType to toType.  Returns false if the two types are not both value types. */
     public boolean isPrimitiveConversionValid(Type fromType, Type toType) {
         Type baseType1 = Types.baseType(fromType);
-        CConstraint c1 = Types.realX(fromType);
+        CConstraint c1 = Types.realX(fromType,ts);
         Type baseType2 = Types.baseType(toType);
-        CConstraint c2 = Types.realX(toType);
+        CConstraint c2 = Types.realX(toType,ts);
 
         if (c1 != null && c1.valid()) { c1 = null; }
         if (c2 != null && c2.valid()) { c2 = null; }
@@ -1578,11 +1571,11 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
                     
             // Check if adding self==value makes the constraint on t inconsistent.
             
-            XLit<Type, ?> val = ConstraintManager.getConstraintSystem().makeLit(value, base);
+            XLit<Type, ?> val = ConstraintManager.getConstraintSystem().makeLit(base, value);
 
-            CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(base);
+            CConstraint c = ConstraintManager.getConstraintSystem().makeCConstraint(base,ts);
             c.addSelfEquality(val);
-            return entails(c, Types.realX(toType));
+            return entails(c, Types.realX(toType,ts));
     }
 
     protected boolean typeRefListEquals(List<Ref<? extends Type>> l1, List<Ref<? extends Type>> l2) {
@@ -1624,7 +1617,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
      */
     public boolean entailsClause(Type me, Type other) {
         try {
-            CConstraint c1 = Types.realX(me);
+            CConstraint c1 = Types.realX(me,ts);
             CConstraint c2 = Types.xclause(other);
             return entails(c1, c2);
         }
@@ -1677,7 +1670,7 @@ public class X10TypeEnv_c extends TypeEnv_c implements X10TypeEnv {
         t = leastCommonAncestorBase(Types.baseType(type1), Types.baseType(type2));
         
     	
-    	CConstraint c1 = Types.realX(type1), c2 = Types.realX(type2);
+    	CConstraint c1 = Types.realX(type1,ts), c2 = Types.realX(type2,ts);
     	CConstraint c = c1.leastUpperBound(c2, t);
     	if (! c.valid())
     		t = Types.addConstraint(t, c);

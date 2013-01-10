@@ -35,7 +35,8 @@ public abstract class XOp<T extends XType> {
 		NOT("!", "not", Arity.ONE),
 		AND("&&", "and", Arity.ANY),
 		OR("||", "or", Arity.ANY),
-		IMPL("=>", "=>", Arity.TWO);
+		IMPL("=>", "=>", Arity.TWO),
+		NEQ("!=", "!=", Arity.TWO);
 
 		String prettyName; 
 		String smt2; // the smt2 representation of the kind
@@ -83,28 +84,31 @@ public abstract class XOp<T extends XType> {
 	 * e.g. for EQ the returned type would be Boolean. 
 	 * @return
 	 */
-	public abstract T type(XTypeSystem<? extends T> ts); 
+	public abstract T type(); 
 
 	/**
 	 * Some useful operators. 
 	 */
-	public static <T extends XType> XSimpleOp<T> EQ() {
-		return new XSimpleOp<T>(Kind.EQ);
+	public static <T extends XType> XSimpleOp<T> EQ(T type) {
+		return new XSimpleOp<T>(Kind.EQ, type);
 	}
-	public static <T extends XType> XSimpleOp<T> NOT() {
-		return new XSimpleOp<T>(Kind.NOT);
+	public static <T extends XType> XOp<T> NEQ(T type) {
+		return new XSimpleOp<T>(Kind.NEQ, type);
 	}
-	public static <T extends XType> XSimpleOp<T> AND() {
-		return new XSimpleOp<T>(Kind.AND);
+	public static <T extends XType> XSimpleOp<T> NOT(T type) {
+		return new XSimpleOp<T>(Kind.NOT, type);
 	}
-	public static <T extends XType> XSimpleOp<T> OR() {
-		return new XSimpleOp<T>(Kind.OR);
+	public static <T extends XType> XSimpleOp<T> AND(T type) {
+		return new XSimpleOp<T>(Kind.AND, type);
 	}
-	public static <T extends XType> XSimpleOp<T> IMPL() {
-		return new XSimpleOp<T>(Kind.IMPL);
+	public static <T extends XType> XSimpleOp<T> OR(T type) {
+		return new XSimpleOp<T>(Kind.OR, type);
 	}
-	public static <T extends XType> XSimpleOp<T> APPLY() {
-		return new XSimpleOp<T>(Kind.APPLY);
+	public static <T extends XType> XSimpleOp<T> IMPL(T type) {
+		return new XSimpleOp<T>(Kind.IMPL, type);
+	}
+	public static <T extends XType> XSimpleOp<T> APPLY(T type) {
+		return new XSimpleOp<T>(Kind.APPLY, type);
 	}
 
 	/**
@@ -115,8 +119,8 @@ public abstract class XOp<T extends XType> {
 	 * @param type the type of the member 
 	 * @return 
 	 */
-	public static <T extends XType, D> XLabeledOp<T,D> makeLabelOp(D def, T type) {
-		return new XLabeledOp<T,D>(def, type);
+	public static <T extends XType, D extends XDef<T>> XLabeledOp<T,D> makeLabelOp(D def) {
+		return new XLabeledOp<T,D>(def, def.resultType());
 	}
 
 	@Override

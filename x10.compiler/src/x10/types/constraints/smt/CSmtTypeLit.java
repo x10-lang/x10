@@ -6,8 +6,8 @@ import x10.types.constraints.XTypeLit;
 
 public class CSmtTypeLit extends XSmtLit<Type, Type> implements XTypeLit {
 
-	CSmtTypeLit(Type t, Type val) {
-		super(t, val);
+	CSmtTypeLit(Type kind, Type val) {
+		super(kind, val);
 	}
 
 }

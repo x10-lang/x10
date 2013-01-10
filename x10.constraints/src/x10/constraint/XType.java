@@ -5,10 +5,11 @@ package x10.constraint;
  * purpose of the interface rather than using polyglot.types.Type 
  * directly is to avoid package dependencies. 
  *  
- * @author lshadare
+ * @author lshadare, dcunnin
  *
  */
 public interface XType {
+
 	/**
 	 * Returns true if boolean
 	 */

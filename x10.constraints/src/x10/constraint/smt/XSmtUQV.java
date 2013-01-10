@@ -29,8 +29,13 @@ public class XSmtUQV<T extends XType> extends XSmtVar<T> implements XUQV<T> {
 	}
 	
 	@Override
-	public String prettyPrint() {
+	public String toSmtString() {
 		return uqvName == null? UQV_PREFIX+ num : uqvName; 
+	}
+	
+	@Override
+	public XSmtUQV<T> copy() {
+		return new XSmtUQV<T>(this);
 	}
 
 //	@Override

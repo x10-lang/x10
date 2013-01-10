@@ -16,32 +16,11 @@ import polyglot.types.Types;
  *
  */
 
-public class XNativeTypeLit extends XNativeLit implements XTypeLit {
+public class XNativeTypeLit extends XNativeLit<Type,Type> implements XTypeLit {
 	private static final long serialVersionUID = -1222245257474719757L;
 
-	public XNativeTypeLit(Type l) {
-		super(l);
-	}
-	@Override
-	public Type type() {
-		return (Type) val;
-	}
-
-	@Override
-	public boolean hasVar(XVar<Type> v) {
-		return Types.hasVar(type(), v);
-	}
-
-	@Override
-	public XNativeTypeLit subst(XTerm<Type> y, XVar<Type> x, boolean propagate) {
-		XNativeTypeLit n = (XNativeTypeLit) super.subst(y, x, propagate);
-		Type newVal = n.type();
-		try {
-			newVal = Subst.subst(type(), y, x);
-		} catch (SemanticException e) { }
-		if (newVal == n.type())
-			return n;
-		return new XNativeTypeLit(newVal);
+	public XNativeTypeLit(Type kind, Type val) {
+		super(kind,val);
 	}
 
 }

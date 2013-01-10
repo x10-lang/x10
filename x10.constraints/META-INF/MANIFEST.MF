@@ -5,5 +5,6 @@ Bundle-SymbolicName: x10.constraints
 Bundle-Version: 2.2.3.qualifier
 Require-Bundle: x10.common;visibility:=reexport
 Export-Package: x10.constraint,
- x10.constraint.smt
+ x10.constraint.smt,
+ x10.constraint.xnative.visitors
 Bundle-RequiredExecutionEnvironment: J2SE-1.5

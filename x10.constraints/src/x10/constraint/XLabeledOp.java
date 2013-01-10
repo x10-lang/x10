@@ -11,7 +11,7 @@ import x10.constraint.smt.XPrinter;
  *
  * @param <D>
  */
-public class XLabeledOp<T extends XType, D> extends XOp<T> {
+public class XLabeledOp<T extends XType, D extends XDef<T>> extends XOp<T> {
 	D def; 
 	T resultType; 
 	
@@ -26,7 +26,7 @@ public class XLabeledOp<T extends XType, D> extends XOp<T> {
 	}
 
 	@Override
-	public T type(XTypeSystem<? extends T> ts) {
+	public T type() {
 		return resultType; 
 	}
 
@@ -63,21 +63,12 @@ public class XLabeledOp<T extends XType, D> extends XOp<T> {
 
 	@Override
 	public String prettyPrint() {
-		if (def instanceof XDef) {
-			XDef<T> d = (XDef<T>) def; 
-			return d.getName();
-		}
-		return def.toString();
+		return def.getName();
 	}
 
 	@Override
 	public String print(XPrinter<T> p) {
-		if (def instanceof XDef) {
-			@SuppressWarnings("unchecked")
-			XDef<T> d = (XDef<T>)def; 
-			return p.mangle(d.getName());
-		}
-		return p.mangle(def.toString());
+		return p.mangle(def.getName());
 	}
 	
 }

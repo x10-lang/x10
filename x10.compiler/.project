@@ -3,6 +3,7 @@
 	<name>x10.compiler</name>
 	<comment></comment>
 	<projects>
+		<project>x10.constraints</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

@@ -42,7 +42,7 @@ public final class CharValue extends ConstantValue {
 
     @Override
     public CharLit toLit(NodeFactory nf, TypeSystem ts, Type type, Position pos) {
-        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(toJavaObject(), getLitType(ts)));
+        type = Types.addSelfBinding(type, ConstraintManager.getConstraintSystem().makeLit(getLitType(ts), toJavaObject()));
         return (CharLit)nf.CharLit(pos, val).type(type);
     }
 

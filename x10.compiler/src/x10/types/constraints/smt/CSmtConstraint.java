@@ -2,11 +2,10 @@ package x10.types.constraints.smt;
 
 import java.util.Map;
 
-import polyglot.types.Def;
 import polyglot.types.Type;
+import polyglot.types.TypeSystem;
 import polyglot.types.Types;
 import x10.constraint.XConstraint;
-import x10.constraint.XConstraintManager;
 import x10.constraint.XDef;
 import x10.constraint.XEQV;
 import x10.constraint.XExpr;
@@ -17,41 +16,53 @@ import x10.constraint.XTerm;
 import x10.constraint.XUQV;
 import x10.constraint.XVar;
 import x10.constraint.smt.XSmtConstraint;
-import x10.constraint.smt.XSmtExpr;
 import x10.constraint.smt.XSmtPrinter;
 import x10.constraint.smt.XSmtTerm;
 import x10.constraint.smt.XSmtVar;
+import x10.types.X10ClassDef;
+import x10.types.X10FieldDef;
 import x10.types.X10LocalDef;
 import x10.types.checker.PlaceChecker;
 import x10.types.constraints.CConstraint;
-import x10.types.constraints.CField;
+import x10.types.constraints.CLocal;
 import x10.types.constraints.CSelf;
 import x10.types.constraints.CThis;
 import x10.types.constraints.ConstraintMaker;
 import x10.types.constraints.ConstraintManager;
 import x10.types.constraints.XConstrainedTerm;
-import x10.types.constraints.CLocal;
 
 public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint {
-	XSmtTerm<Type> self; 
-	XSmtTerm<Type> thisVar;
+	XSmtVar<Type> self; 
+	XSmtVar<Type> thisVar;
+	
+	@Override
+	public CSmtConstraintSystem sys() { return (CSmtConstraintSystem) super.sys(); }
+
+	@Override
+	public TypeSystem ts() { return (TypeSystem) super.ts(); }
 	
 	@SuppressWarnings("unchecked")
-	CSmtConstraint(Type t) {
-		super();
-		// FIXME: somtimes te null type is passed in. We assume that if we do not know the
+	CSmtConstraint(CSmtConstraintSystem sys, Type t, TypeSystem ts) {
+		super(sys, ts);
+		// FIXME: sometimes the null type is passed in. We assume that if we do not know the
 		// type associated with this constraint, self will be substituted. 
 		if (t == null) {
 			this.self = null;
 		} else {
-			this.self = (XSmtTerm<Type>)ConstraintManager.getConstraintSystem().makeSelf(t);
+			this.self = (XSmtVar<Type>)ConstraintManager.getConstraintSystem().makeSelf(t);
 		}
 		this.thisVar = null; 
 	}
 	
-	CSmtConstraint(XSmtTerm<Type> self) {
-		super(); 
+	CSmtConstraint(CSmtConstraintSystem sys, XSmtVar<Type> self, TypeSystem ts) {
+		super(sys, ts);
 		this.self = self; 
+		this.thisVar = null; 
+	}
+	
+	CSmtConstraint(CSmtConstraintSystem sys, TypeSystem ts) {
+		super(sys,ts);
+		this.self = null; 
 		this.thisVar = null; 
 	}
 	
@@ -62,12 +73,12 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	}
 
 	@Override
-	public XSmtTerm<Type> self() {
+	public XSmtVar<Type> self() {
 		return self; 
 	}
 
 	@Override
-	public XSmtTerm<Type> thisVar() {
+	public XSmtVar<Type> thisVar() {
 		return thisVar; 
 	}
 
@@ -94,7 +105,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 			return; 
 		//FIXME: sketchy hack for when we don't know the self of a constraint?
 		if (self() == null && c.self() != null) {
-			XTerm<Type> newself = ConstraintManager.getConstraintSystem().makeSelf(c.self().type());
+			XVar<Type> newself = sys().makeSelf(c.self().type());
 			setSelf(newself); 
 		}
 		// if both are null we don't need to substitute anything so we're good
@@ -115,7 +126,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 		if (c.valid()) return; 
 		
 		for (XTerm<Type> term : c.terms()) {
-			XTerm<Type> newterm = term.subst(newSelf, c.self());
+			XTerm<Type> newterm = term.subst(sys(), newSelf, c.self());
 			assert newterm != null; 
 			conjuncts.add((XSmtTerm<Type>)newterm);
 		}
@@ -142,13 +153,13 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	}
 
 	@Override
-	public void setThisVar(XTerm<Type> var) {
-		this.thisVar = (XSmtTerm<Type>)var; 
+	public void setThisVar(XVar<Type> var) {
+		this.thisVar = (XSmtVar<Type>)var; 
 	}
 	@Override
-	public void setSelf(XTerm<Type> self) {
+	public void setSelf(XVar<Type> self) {
 		assert this.self == null;
-		this.self = (XSmtTerm<Type>)self; 
+		this.self = (XSmtVar<Type>)self; 
 	}
 
 	@Override
@@ -187,10 +198,10 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 				return this.copy(); 
 			}
 		}
-		CSmtConstraint result = new CSmtConstraint(newSelf.type()); 
+		CSmtConstraint result = new CSmtConstraint(sys(), newSelf.type(),ts()); 
 		try {
 			for (XSmtTerm<Type> c : conjuncts) {
-				XSmtTerm<Type> newc = c.subst(newSelf, self);
+				XSmtTerm<Type> newc = c.subst(sys(),newSelf, self);
 				result.addTerm(newc); 
 			}
 		} catch (XFailure x) {
@@ -240,16 +251,16 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 			return this; 
 		// when we cannot figure out the type of the constraint, we just have a null self
 		// the assumption is that self will be substituted in
-		CSmtConstraint result = self() == null ? new CSmtConstraint(self()) :
-												 new CSmtConstraint(self().type()); 
+		CSmtConstraint result = self() == null ? new CSmtConstraint(sys(),self(),ts()) :
+												 new CSmtConstraint(sys(),self().type(),ts()); 
 		for (XTerm<Type> term : terms()) {
 			XTerm<Type> t = term; 
 			for (int i = 0; i < ys.length; ++i) {
 				XTerm<Type> y= ys[i];
 				XTerm<Type> x = xs[i];
-				t = t.subst(y, x);
+				t = t.subst(sys(), y, x);
 			}
-			t = t.subst(result.self(), self());
+			t = t.subst(sys(), result.self(), self());
 			result.addTerm(t);
 		}
 		
@@ -277,7 +288,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 
 	@Override
 	public XTerm<Type> bindingForSelfField(XDef<Type> fd) {
-		XTerm<Type> field = ConstraintManager.getConstraintSystem().makeCField(self(), fd);
+		XTerm<Type> field = sys().makeField(self(), fd);
 		return bindingForVar(field);
 	}
 
@@ -285,13 +296,13 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	public CConstraint leastUpperBound(CConstraint other, Type t) {
 		//FIXME: this is a temporary sketchy solution to see how it gets called
 		XTerm<Type> otherSelf = other.self(); 
-		CSmtConstraint result = new CSmtConstraint(t); 
+		CSmtConstraint result = new CSmtConstraint(sys(),t,ts()); 
 		XTerm<Type> resultSelf = result.self(); 
 		try {
 			for (XTerm<Type> term : other.terms()) {
-				term = term.subst(otherSelf, self()); 
+				term = term.subst(sys(), otherSelf, self()); 
 				if (entails(term)) {
-					term = term.subst(self(), resultSelf);
+					term = term.subst(sys(), self(), resultSelf);
 					result.addTerm(term);
 				}
 			}
@@ -304,7 +315,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	}
 
 	@Override
-	public CConstraint project(XTerm<Type> v) {
+	public CConstraint project(XVar<Type> v) {
 		XVar<Type> eqv = ConstraintManager.getConstraintSystem().makeEQV(v.type());
 		CSmtConstraint result = null;
 		try {
@@ -345,8 +356,8 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	}
 
 	private CSmtConstraint constraintProjection(Map<XTerm<Type>, CConstraint> m, int depth) {
-		CSmtConstraint result = self() == null? new CSmtConstraint((XSmtTerm<Type>)null) :
-												new CSmtConstraint(self().type()); 
+		CSmtConstraint result = self() == null? new CSmtConstraint(sys(),(XSmtVar<Type>)null,ts()) :
+												new CSmtConstraint(sys(),self().type(),ts()); 
 		for (XTerm<Type> t : terms()) {
 			CSmtConstraint termConstraint = constraintProjection(t, m, depth); 
 			if (termConstraint != null)
@@ -357,42 +368,41 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
 	
 	private static int MAX_DEPTH = 15;
 	
-	private static CSmtConstraint constraintProjection(XTerm<Type> t, Map<XTerm<Type>, CConstraint> m, int depth) {
+	private CSmtConstraint constraintProjection(XTerm<Type> t, Map<XTerm<Type>, CConstraint> m, int depth) {
         if (t == null) return null;
         if (depth > MAX_DEPTH) {
         	// because the constraint returned by this method is in a sense "temporary"
         	// (it will be added to another constraint and its self will be substituted)
         	// we do not care what baseType it is associated with
-            return new CSmtConstraint((XSmtTerm<Type>)null);
+            return new CSmtConstraint(sys(),(XSmtVar<Type>)null,ts());
         }
         CSmtConstraint res = (CSmtConstraint)m.get(t);
         if (res != null) 
         	return res;
         
-        m.put(t, new CSmtConstraint((XSmtTerm<Type>)null));
+        m.put(t, new CSmtConstraint(sys(),(XSmtVar<Type>)null,ts()));
         
         if (t instanceof CLocal) {
-            @SuppressWarnings("unchecked")
-			CLocal<Type, X10LocalDef> v = (CLocal<Type, X10LocalDef>) t;
+			CLocal v = (CLocal) t;
             X10LocalDef ld = v.def();
             if (ld != null) {
                 Type ty = Types.get(ld.type());
                 ty = PlaceChecker.ReplaceHereByPlaceTerm(ty, ld.placeTerm());
-                CSmtConstraint ci = (CSmtConstraint)Types.realX(ty);
-                res = new CSmtConstraint((XSmtTerm<Type>)null);
+                CSmtConstraint ci = (CSmtConstraint)Types.realX(ty,ts());
+                res = new CSmtConstraint(sys(),(XSmtVar<Type>)null,ts());
                 ci = ci.instantiateSelf(v);
                 res.addIn(ci);
                 res.addIn(ci.constraintProjection(m, depth+1));
             }
         } else if (t instanceof XLit) { // no new info to contribute
-        } else if (t instanceof CSelf){ // no new info to contribute
         } else if (t instanceof CThis){ // no new info to contribute
         } else if (t instanceof XEQV) { // no new info to contribute
         } else if (t instanceof XUQV) { // no new info to contribute
         } else if (t instanceof XVar) { // no new info to contribute
         } else if (t instanceof XField<?,?>) { // no new info to contribute
-        } else if (t instanceof CField){
-            CField<XDef<Type>> f = (CField<XDef<Type>>) t;
+        } else if (t instanceof XField<?,?>){
+        	@SuppressWarnings("unchecked")
+			XField<Type,XDef<Type>> f = (XField<Type,XDef<Type>>) t;
             XTerm<Type> target = f.receiver();
             CSmtConstraint targetConstraint = constraintProjection(target, m, depth+1); 
             
@@ -401,9 +411,9 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
             if (baseType == null) 
             	res = targetConstraint;
             else {
-                ci = (CSmtConstraint)Types.realX(baseType);
-                XTerm<Type> v = f.thisVar();
-                res = new CSmtConstraint((XSmtTerm<Type>)null);
+                ci = (CSmtConstraint)Types.realX(baseType,ts());
+                XTerm<Type> v = thisVar(f);
+                res = new CSmtConstraint(sys(),(XSmtVar<Type>)null,ts());
                 if (v != null) {
                 	try {
                 		ci = ci.substitute(target, v);
@@ -425,7 +435,7 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
                 CSmtConstraint argConstraint = constraintProjection(a, m, depth+1); //ancestors);
                 if (argConstraint != null) {
                     if (res == null) 
-                    	res = new CSmtConstraint((XSmtTerm<Type>)null);
+                    	res = new CSmtConstraint(sys(),(XSmtVar<Type>)null,ts());
                     res.addIn(argConstraint);
                 }
             }
@@ -438,6 +448,12 @@ public class CSmtConstraint extends XSmtConstraint<Type> implements CConstraint 
         return res;
 	}
 	
+	private static XTerm<Type> thisVar(XField<Type,XDef<Type>> f) {
+        if (f.field() instanceof X10FieldDef)
+            return ((X10ClassDef) Types.get(((X10FieldDef) f.field()).container()).toClass().def()).thisVar();
+        return null;
+	}
+
 	@Override
 	public CSmtConstraint copy() {
 		return new CSmtConstraint(this);

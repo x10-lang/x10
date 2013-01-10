@@ -16,5 +16,5 @@ import x10.constraint.XTerm;
 import x10.constraint.XVar;
 
 public interface X10ThisVar {
-	XTerm<Type> thisVar();
+	XVar<Type> thisVar();
 }

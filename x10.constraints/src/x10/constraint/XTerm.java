@@ -21,14 +21,14 @@ public interface XTerm<T extends XType> {
 	
 	/**
 	 * Returns a new XTerm that is identical with the current XTerm
-	 * but has all occurrences of t1 replaced by t2. The resulting 
-	 * XTerm will have no occurrences of t1. 
+	 * but has all occurrences of t2 replaced by t1. The resulting 
+	 * XTerm will have no occurrences of t2. 
 	 *  
-	 * @param t1 term to substitute out 
-	 * @param t2 term to substitute with 
+	 * @param t1 term to substitute with 
+	 * @param t2 term to substitute out 
 	 * @return
 	 */
-	XTerm<T> subst(XTerm<T> t1, XTerm<T> t2);
+	XTerm<T> subst(XConstraintSystem<T> sys, XTerm<T> t1, XTerm<T> t2);
 	
 	/**
 	 * Checks whether the XTerm contains the given variable.
@@ -66,6 +66,11 @@ public interface XTerm<T extends XType> {
 	 */
 	boolean isEquals(); 
 	/**
+	 * Check whether the term represents a disequality. 
+	 * @return true if disequality
+	 */
+	boolean isDisEquals();
+	/**
 	 * Check whether the term represents a conjunction 
 	 * @return true if conjunction
 	 */
@@ -85,12 +90,18 @@ public interface XTerm<T extends XType> {
 	 * @return
 	 */
 	XTerm<T> copy();
-	
-	String toString();
-	String prettyPrint(); 	
 
-	boolean equals(Object o);
-	int hashCode();
-	
+	/** Check if we are a literal and the literal value is v.
+	 */
+	boolean isLiteralValue(Object v);
+
+	/** Is this term a boolean literal (i.e. true or false).
+	 */
+	boolean isBooleanLit();
+
+	/** Is this term a literal.
+	 */
+	boolean isLit();
+
 }
 	

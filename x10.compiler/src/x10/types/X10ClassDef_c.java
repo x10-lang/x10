@@ -174,7 +174,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     
     private Ref<CConstraint> setRealClauseWithThis() {
     	// lshadare this will fail I believe because the position is null 
-      	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(asType()));
+      	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(asType(),typeSystem()));
         final Runnable runnable = new Runnable() {
             public void run() {
                 CConstraint c = X10ClassDef_c.this.realClause.get();
@@ -201,7 +201,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
      */
     private Ref<CConstraint> setRealClause() {
     	//lshadare this will probably result in a nullpointer exception 
-    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(asType()));
+    	final LazyRef<CConstraint> ref = new LazyRef_c<CConstraint>(ConstraintManager.getConstraintSystem().makeCConstraint(asType(),typeSystem()));
     	Runnable runnable = new Runnable() {
     		boolean computing = false;
     		public void run() {
@@ -210,7 +210,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     		    }
     		    computing = true;
     		    Type selfType = Types.baseType(asType());
-    		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(selfType);
+    		    CConstraint result = ConstraintManager.getConstraintSystem().makeCConstraint(selfType,typeSystem());
     		    try {
     			    List<X10FieldDef> properties = properties();
     			    XVar<Type> oldThis = thisVar(); // xts.xtypeTranslator().translateThisWithoutTypeConstraint();
@@ -223,7 +223,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				    {
     					    Type type = Types.get(superType());
     					    if (type != null) {
-    						CConstraint rs = Types.realX(type);
+    						CConstraint rs = Types.realX(type,asType().typeSystem());
     						if (rs != null && ! rs.valid()) {
     							if (rs.thisVar() != null)
     								rs = rs.substitute(oldThis, rs.thisVar());
@@ -235,7 +235,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				    // Add in constraints from the interfaces.
     				    for (Iterator<Ref<? extends Type>> i = interfaces().iterator(); i.hasNext(); ) {
     					    Ref<? extends Type> it = (Ref<? extends Type>) i.next();
-    					    CConstraint rs = Types.realX(it.get());
+    					    CConstraint rs = Types.realX(it.get(),asType().typeSystem());
     					    // no need to change self, and no occurrence of this is possible in 
     					    // a type's base constraint.
     					    if (rs != null && ! rs.valid()) {
@@ -248,7 +248,7 @@ public class X10ClassDef_c extends ClassDef_c implements X10ClassDef {
     				    for (X10FieldDef fi : properties) {
     					    Type type = fi.asInstance().type();   // ### check for recursive call here
     					    XVar<Type> fiThis = fi.thisVar();
-    					    CConstraint rs = Types.realX(type);
+    					    CConstraint rs = Types.realX(type,asType().typeSystem());
     					    if (rs != null) {
     						    // Given: f:C{c}
     						    // Add in: c[self.f/self,self/this]

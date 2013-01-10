@@ -57,7 +57,7 @@ public class X10FieldMatcher {
         	c = c.copy().instantiateSelf(v);*/
 
         { // Update t
-            CConstraint tconst = Types.realX(t);
+            CConstraint tconst = Types.realX(t,container.typeSystem());
        
             if (! contextKnowsReceiver) {
             	tconst.addIn(v, c);
@@ -79,7 +79,7 @@ public class X10FieldMatcher {
                                 new XTerm[] {vv},
                                 new Type[] {}, new ParameterType[] {});
             }
-            final CConstraint tmpTc = Types.realX(t).copy();
+            final CConstraint tmpTc = Types.realX(t,container.typeSystem()).copy();
             tmpTc.addIn(v,c);
             if (! tmpTc.consistent()) {
                 throw new Errors.InconsistentType(t, t.position());
