@@ -225,7 +225,11 @@ if [ -n "${ibmj9vm}" ]; then
             ibmj9vmjitopts="${ibmj9vmjitopts},"
         fi
         ibmj9vmjitopts="${ibmj9vmjitopts}count=1000,bcount=250,milcount=1"
-        java_args=("-Xgcpolicy:balanced" "${java_args[@]}")
+        if [ -n "${ibmj9vm64bit}" ]; then
+            java_args=("-Xgcpolicy:balanced" "${java_args[@]}")
+        else
+            java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
+        fi
     else
         java_args=("-Xgcpolicy:gencon" "${java_args[@]}")
     fi
