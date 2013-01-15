@@ -65,6 +65,8 @@ public class Java {
     public static native def setStaticField[T](name:String,value:Char):void;
     @Native("java", "do { try { #T$rtt.getJavaClass().getDeclaredField(#name).setBoolean(null,#value); } catch (java.lang.Exception e) { java.lang.RuntimeException re = (e instanceof java.lang.RuntimeException) ? ((java.lang.RuntimeException) e) : new x10.lang.WrappedThrowable(e); throw re; } } while (false)")
     public static native def setStaticField[T](name:String,value:Boolean):void;
+    @Native("java", "#o.getClass()")
+    public static native def getClass(o:Any):java.lang.Class;
     
     // Java exceptions
     @Native("java", "do { throw #e; } while (false)")
