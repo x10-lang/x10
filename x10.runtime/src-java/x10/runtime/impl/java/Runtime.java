@@ -91,7 +91,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         worker.start();
         try {
             worker.join();
-        } catch (InterruptedException e) {
+        } catch (java.lang.InterruptedException e) {
+            // Note: since this isn't user visible, java.lang.InterruptedException is used.
         }
 
         // shutdown

@@ -87,7 +87,8 @@ public class Thread implements Any {
         jthread.start();
     }
 
-    public void join() throws InterruptedException {
+    // Note: since this isn't user visible, java.lang.InterruptedException is used.
+    public void join() throws java.lang.InterruptedException {
         jthread.join();
     }
 
