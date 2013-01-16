@@ -39,16 +39,12 @@ public final class X10JavaDeserializer implements SerializationConstants {
     public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
         objectList = new ArrayList<Object>();
-        if (PER_MESSAGE_IDS) {
-            try {
-                readMessageDictionary();
-            } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            } catch (ClassNotFoundException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-            }
+        try {
+            readMessageDictionary();
+        } catch (IOException e) {
+            throw new RuntimeException("Failure while reading message dictionary", e);
+        } catch (ClassNotFoundException e) {
+            throw new RuntimeException("Failure while reading message dictionary", e);
         }
     }
 
@@ -535,7 +531,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     
     public static Object deserializePrimitive(short serializationID, X10JavaDeserializer deserializer) throws IOException {
         if (Runtime.TRACE_SER) {
-            Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
+            Runtime.printTraceMessage("Deserializing primitive/special value with id " + serializationID);
         }
         Object obj = null;
         switch (serializationID) {

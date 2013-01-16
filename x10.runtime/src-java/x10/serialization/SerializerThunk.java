@@ -211,17 +211,22 @@ abstract class SerializerThunk {
         CustomSerializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException {
             super(null);
 
-            // Sort the fields to get JVM-independent ordering.
-            // Need to serialize the fields related to RTT's since they
-            // are specific to the Java backend.
-            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+            // Even though this class implements a custom serialization protocol,
+            // the runtime needs to invisibly serialize those instance fields that
+            // are used to provide RTT information for generic types (not visible at the user-level).
             TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                Field field = clazz.getDeclaredField(typeParameter.getName());
-                field.setAccessible(true);
-                flds.add(field);
-            }
-            fields = flds.toArray(new Field[flds.size()]);                      
+            if (typeParameters.length > 0) {
+                // Must sort the fields to get JVM-independent ordering.
+                Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+                for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+                    Field field = clazz.getDeclaredField(typeParameter.getName());
+                    field.setAccessible(true);
+                    flds.add(field);                  
+                }
+                fields = flds.toArray(new Field[flds.size()]);    
+            } else {
+                fields = new Field[0];
+            }                     
         }
 
         <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IOException, IllegalAccessException {

@@ -31,22 +31,6 @@ public class NamedType<T> extends RuntimeType<T> implements X10JavaSerializable 
         super();
     }
     
-    // not used
-//    protected NamedType(String typeName, Class<?> javaClass) {
-//        super(javaClass);
-//        this.typeName = typeName;
-//    }
-//
-//    protected NamedType(String typeName, Class<?> javaClass, Variance[] variances) {
-//        super(javaClass, variances);
-//        this.typeName = typeName;
-//    }
-//
-//    protected NamedType(String typeName, Class<?> javaClass, Type<?>[] parents) {
-//        super(javaClass, parents);
-//        this.typeName = typeName;
-//    }
-    
     // N.B. this is also used to implement readResolve() in place for Types.COMPARABLE
     protected NamedType(String typeName, Class<?> javaClass, Variance[] variances, Type<?>[] parents) {
         super(javaClass, variances, parents);

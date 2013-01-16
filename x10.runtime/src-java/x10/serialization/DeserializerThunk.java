@@ -285,17 +285,22 @@ abstract class DeserializerThunk {
         CustomDeserializerThunk(Class<? extends Object> clazz) throws SecurityException, NoSuchFieldException, NoSuchMethodException {
             super(null);
 
-            // Sort the fields to get JVM-independent ordering.
-            // Need to serialize the fields related to RTT's since they
-            // are specific to the Java backend.
-            Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+            // Even though this class implements a custom serialization protocol,
+            // the runtime needs to invisibly serialize those instance fields that
+            // are used to provide RTT information for generic types (not visible at the user-level).
             TypeVariable<? extends Class<? extends Object>>[] typeParameters = clazz.getTypeParameters();
-            for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
-                Field field = clazz.getDeclaredField(typeParameter.getName());
-                field.setAccessible(true);
-                flds.add(field);
+            if (typeParameters.length > 0) {
+                // Must sort the fields to get JVM-independent ordering.
+                Set<Field> flds = new TreeSet<Field>(new FieldComparator());
+                for (TypeVariable<? extends Class<? extends Object>> typeParameter: typeParameters) {
+                    Field field = clazz.getDeclaredField(typeParameter.getName());
+                    field.setAccessible(true);
+                    flds.add(field);
+                }
+                fields = flds.toArray(new Field[flds.size()]); 
+            } else {
+                fields = new Field[0];
             }
-            fields = flds.toArray(new Field[flds.size()]);      
 
             // We can't use the same method name in all classes cause it creates an endless loop cause when super.init is called it calls back to this method
             makeMethod = clazz.getMethod(clazz.getName().replace(".", "$") + "$" + DeserializerThunk.CONSTRUCTOR_METHOD_NAME_FOR_REFLECTION, SerialData.class);

@@ -24,6 +24,7 @@ import java.util.Map.Entry;
 
 import x10.io.CustomSerialization;
 import x10.rtt.RuntimeType;
+import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 
 public final class X10JavaSerializer implements SerializationConstants {
@@ -42,8 +43,8 @@ public final class X10JavaSerializer implements SerializationConstants {
     public java.util.Map<x10.core.GlobalRef<?>, Integer> getGrefMap() { return grefMap; }
     
     // Build up per-message id dictionary
-    HashMap<Class<?>,Short> idDictionary = new HashMap<Class<?>,Short>();
-    short nextId = FIRST_DYNAMIC_ID;
+    protected HashMap<Class<?>,Short> idDictionary = new HashMap<Class<?>,Short>();
+    protected short nextId = FIRST_DYNAMIC_ID;
 
     public X10JavaSerializer() {
         this.b_out = new ByteArrayOutputStream();
@@ -59,50 +60,42 @@ public final class X10JavaSerializer implements SerializationConstants {
     }
     
     public byte[] toMessage() throws IOException {
-        if (PER_MESSAGE_IDS) {
-            out.close();
-            
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Sending per-message serialization ids: "+idDictionary);
-            }
-            
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            DataOutputStream dos = new DataOutputStream(baos);
-            dos.writeShort(idDictionary.size());
-            for (Entry<Class<?>, Short> es  : idDictionary.entrySet()) {
-                dos.writeShort(es.getValue());
-                String name = es.getKey().getName();
-                dos.writeInt(name.length());
-                dos.write(name.getBytes());
-            }
-            dos.close();
-            
-            byte[] dictBytes = baos.toByteArray();
-            byte[] dataBytes = b_out.toByteArray();
-            byte[] message = new byte[dictBytes.length + dataBytes.length];
-            System.arraycopy(dictBytes, 0, message, 0, dictBytes.length);
-            System.arraycopy(dataBytes, 0, message, dictBytes.length, dataBytes.length);
-            return message;
-        } else {
-            out.close();
-            return b_out.toByteArray();
+        out.close();
+
+        if (Runtime.TRACE_SER) {
+            Runtime.printTraceMessage("Sending per-message serialization ids: "+idDictionary);
         }
+
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        DataOutputStream dos = new DataOutputStream(baos);
+        dos.writeShort(idDictionary.size());
+        for (Entry<Class<?>, Short> es  : idDictionary.entrySet()) {
+            dos.writeShort(es.getValue());
+            String name = es.getKey().getName();
+            dos.writeInt(name.length());
+            dos.write(name.getBytes());
+        }
+        dos.close();
+
+        byte[] dictBytes = baos.toByteArray();
+        byte[] dataBytes = b_out.toByteArray();
+        byte[] message = new byte[dictBytes.length + dataBytes.length];
+        System.arraycopy(dictBytes, 0, message, 0, dictBytes.length);
+        System.arraycopy(dataBytes, 0, message, dictBytes.length, dataBytes.length);
+        return message;
     }
     
     short getSerializationId(Class<?> clazz, X10JavaSerializable obj) {
         if (obj instanceof RuntimeType<?> &&  obj.$_get_serialization_id() <= MAX_HARDCODED_ID) {
-            return obj.$_get_serialization_id();
+            short tmp =  obj.$_get_serialization_id();
+            return tmp;
         }
-        if (PER_MESSAGE_IDS) {
-            Short id = idDictionary.get(clazz);
-            if (null == id) {
-                id = Short.valueOf(nextId++);
-                idDictionary.put(clazz, id);
-            }
-            return id.shortValue();
-        } else {
-            return obj.$_get_serialization_id();
+        Short id = idDictionary.get(clazz);
+        if (null == id) {
+            id = Short.valueOf(nextId++);
+            idDictionary.put(clazz, id);
         }
+        return id.shortValue();
     }
     
     public void write(X10JavaSerializable obj) throws IOException {

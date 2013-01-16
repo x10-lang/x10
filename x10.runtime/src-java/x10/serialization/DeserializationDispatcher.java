@@ -15,9 +15,7 @@ package x10.serialization;
 import java.io.IOException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class DeserializationDispatcher implements SerializationConstants {
@@ -26,49 +24,48 @@ public class DeserializationDispatcher implements SerializationConstants {
     // We first increment nextSerializationID before issuing the serializationID hence initialize to NULL_ID
     private static short nextSerializationID = NULL_ID;
 
-    private static List<DeserializationInfo> idToDeserializationInfo = new ArrayList<DeserializationInfo>();
-    private static List<Method> idToDeserializermethod = new ArrayList<Method>();
+    private static HashMap<Short,DeserializationInfo> idToDeserializationInfo = new HashMap<Short, DeserializationInfo>();
+    private static HashMap<Short,Method> idToDeserializermethod = new HashMap<Short, Method>();
     private static Map<String, Short> classNameToId = new HashMap<String, Short>();
     
     private static Map<String,Method> deserializerMethods = new HashMap<String,Method>();
 
-    public static short addDispatcher(Class<?> clazz) {
+    public static synchronized short addDispatcher(Class<?> clazz) {
         if (nextSerializationID == NULL_ID) {
-            classNameToId.put(null, nextSerializationID);
-            idToDeserializationInfo.add(nextSerializationID, null);
-            idToDeserializermethod.add(nextSerializationID, null);
-            nextSerializationID++;
+            nextSerializationID = MAX_HARDCODED_ID + 1;
+
             try {
-                add(Class.forName("java.lang.String"), false);
-                add(Class.forName("java.lang.Float"), false);
-                add(Class.forName("java.lang.Double"), false);
-                add(Class.forName("java.lang.Integer"), false);
-                add(Class.forName("java.lang.Boolean"), false);
-                add(Class.forName("java.lang.Byte"), false);
-                add(Class.forName("java.lang.Short"), false);
-                add(Class.forName("java.lang.Long"), false);
-                add(Class.forName("java.lang.Character"), false);
+                add(Class.forName("java.lang.String"), false, STRING_ID);
+                add(Class.forName("java.lang.Float"), false, FLOAT_ID);
+                add(Class.forName("java.lang.Double"), false, DOUBLE_ID);
+                add(Class.forName("java.lang.Integer"), false, INTEGER_ID);
+                add(Class.forName("java.lang.Boolean"), false, BOOLEAN_ID);
+                add(Class.forName("java.lang.Byte"), false, BYTE_ID);
+                add(Class.forName("java.lang.Short"), false, SHORT_ID);
+                add(Class.forName("java.lang.Long"), false, LONG_ID);
+                add(Class.forName("java.lang.Character"), false, CHARACTER_ID);
                 
-                add(Class.forName("x10.rtt.AnyType"), false);
-                add(Class.forName("x10.rtt.BooleanType"), false);
-                add(Class.forName("x10.rtt.ByteType"), false);
-                add(Class.forName("x10.rtt.CharType"), false);
-                add(Class.forName("x10.rtt.DoubleType"), false);
-                add(Class.forName("x10.rtt.FloatType"), false);
-                add(Class.forName("x10.rtt.IntType"), false);
-                add(Class.forName("x10.rtt.LongType"), false);
-                add(Class.forName("x10.rtt.ShortType"), false);
-                add(Class.forName("x10.rtt.StringType"), false);
-                add(Class.forName("x10.rtt.UByteType"), false);
-                add(Class.forName("x10.rtt.UIntType"), false);
-                add(Class.forName("x10.rtt.ULongType"), false);
-                add(Class.forName("x10.rtt.UShortType"), false);
+                add(Class.forName("x10.rtt.AnyType"), false, RTT_ANY_ID);
+                add(Class.forName("x10.rtt.BooleanType"), false, RTT_BOOLEAN_ID);
+                add(Class.forName("x10.rtt.ByteType"), false, RTT_BYTE_ID);
+                add(Class.forName("x10.rtt.CharType"), false, RTT_CHAR_ID);
+                add(Class.forName("x10.rtt.DoubleType"), false, RTT_DOUBLE_ID);
+                add(Class.forName("x10.rtt.FloatType"), false, RTT_FLOAT_ID);
+                add(Class.forName("x10.rtt.IntType"), false, RTT_INT_ID);
+                add(Class.forName("x10.rtt.LongType"), false, RTT_LONG_ID);
+                add(Class.forName("x10.rtt.ShortType"), false, RTT_SHORT_ID);
+                add(Class.forName("x10.rtt.StringType"), false, RTT_STRING_ID);
+                add(Class.forName("x10.rtt.UByteType"), false, RTT_UBYTE_ID);
+                add(Class.forName("x10.rtt.UIntType"), false, RTT_UINT_ID);
+                add(Class.forName("x10.rtt.ULongType"), false, RTT_ULONG_ID);
+                add(Class.forName("x10.rtt.UShortType"), false, RTT_USHORT_ID);
             } catch (ClassNotFoundException e) {
                 // This will never happen
             }
         }
-        add(clazz, true);
-        return (short) (nextSerializationID-1);
+        short id = nextSerializationID++;
+        add(clazz, true, id);
+        return id;
     }
 
     public static short addDispatcher(Class<?> clazz, String alternate) {
@@ -77,16 +74,13 @@ public class DeserializationDispatcher implements SerializationConstants {
         return serializationID;
     }
 
-    private static void add(Class<?> clazz, boolean addDeserializerMethod) {
-        classNameToId.put(clazz.getName(), nextSerializationID);
-        DeserializationInfo deserializationInfo = new DeserializationInfo(clazz, nextSerializationID);
-        idToDeserializationInfo.add(nextSerializationID, deserializationInfo);
+    private static void add(Class<?> clazz, boolean addDeserializerMethod, short id) {
+        classNameToId.put(clazz.getName(), id);
+        DeserializationInfo deserializationInfo = new DeserializationInfo(clazz, id);
+        idToDeserializationInfo.put(id, deserializationInfo);
         if (addDeserializerMethod && !(clazz.isInterface() || Modifier.isAbstract(clazz.getModifiers()))) {
-            idToDeserializermethod.add(nextSerializationID, getDeserializerMethod(clazz));
-        } else {
-            idToDeserializermethod.add(nextSerializationID, null);
+            idToDeserializermethod.put(id, getDeserializerMethod(clazz));
         }
-        nextSerializationID++;
     }
 
     public static synchronized Method getDeserializerMethod(String className) {

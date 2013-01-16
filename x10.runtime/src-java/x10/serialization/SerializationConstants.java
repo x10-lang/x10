@@ -15,8 +15,6 @@ package x10.serialization;
  * Constants used in the X10 serialization/deserialization protocol
  */
 public interface SerializationConstants {
-    public static final boolean PER_MESSAGE_IDS = true;
-    
     public static final short NULL_ID = 0;
     public static final short STRING_ID = 1;
     public static final short FLOAT_ID = 2;
