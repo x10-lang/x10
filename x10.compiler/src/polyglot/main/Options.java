@@ -196,10 +196,8 @@ public class Options {
         else if (args[i].equals("-classpath") ||
                  args[i].equals("-cp")) {
             i++;
-            classpath = args[i] + System.getProperty("path.separator") +
-                        default_classpath;
-            output_classpath = args[i] + System.getProperty("path.separator") +
-                        default_output_classpath;
+            classpath = args[i] + File.pathSeparator + default_classpath;
+            output_classpath = args[i] + File.pathSeparator + default_output_classpath;
             i++;
         }
         else if (args[i].equals("-bootclasspath")) {
@@ -551,6 +549,7 @@ public class Options {
       StringBuffer fullcp = new StringBuffer();
       if (bootclasspath != null) {
 	  fullcp.append(bootclasspath);
+	  fullcp.append(File.pathSeparator);
       }
       fullcp.append(classpath);
       return fullcp.toString();
