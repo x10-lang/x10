@@ -1209,6 +1209,8 @@ public interface TypeSystem {
     boolean isObjectOrInterfaceType(Type t, Context context);
 
     boolean isInterfaceType(Type t, Context context);
+    
+    public boolean isHandOptimizedInterface(Type t);
 
     boolean isParameterType(Type toType);
 
