@@ -124,6 +124,7 @@ import x10.util.ClosureSynthesizer;
 import x10.util.Synthesizer;
 import x10.util.synthesizer.InstanceCallSynth;
 import x10.visit.Desugarer.Substitution;
+import x10cuda.ast.CUDAKernel;
 
 /**
  * Visitor to desugar the AST before code generation.
@@ -771,33 +772,43 @@ public class Lowerer extends ContextVisitor {
     		annotations = new ArrayList<X10ClassType>(1);
     	annotations.add((X10ClassType) ts.systemResolver().findOne(ASYNC_CLOSURE));
 
-    	// try { async_body }
-        Block tryBlock = synth.toBlock(async_body);
+        Stmt closure_body = async_body;
 
-        List<Catch> catches = new ArrayList<Catch>();
-        { // catch (e:Error) { throw e; }
-	        Name catchFormalName = getTmp();
-	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Error()), catchFormalName);
-	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
-	                nf.CanonicalTypeNode(pos, ts.Error()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
-	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
-	        Block catchBlock = nf.Block(pos, nf.Throw(pos, catchLocal));
-	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
-        }
-        { // catch (e:CheckedThrowable) { throw Exception.ensureException(e); }
-	        Name catchFormalName = getTmp();
-	        LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
-	        Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
-	                nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
-	        Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
-	        Expr wrap = synth.makeStaticCall(pos, ts.Exception(), Name.make("ensureException"), Collections.singletonList(catchLocal), ts.Exception(), context());
-	        Block catchBlock = nf.Block(pos, nf.Throw(pos, wrap));
-	        catches.add(nf.Catch(pos, catchFormal, catchBlock));
-        }
-	        
-        Block closure_body = synth.toBlock(nf.Try(pos, tryBlock, catches, null));
+        // [DC] don't add the try/catch if this is a CUDA kernel
+        // rationale: CUDA kernels may not throw exceptions (although this is not enforced)
+        // in particular, it is hard to think of why an interop exception would emerge from a CUDA kernel
+        // So, the lack of enforcement is very unlikely to create a noticable problem.
 
-        Closure closure = synth.makeClosure(async_body.position(), ts.Void(), closure_body, context(), annotations);
+        if (!(async_body instanceof CUDAKernel)) {
+
+            // try { async_body }
+            Block tryBlock = synth.toBlock(async_body);
+
+            List<Catch> catches = new ArrayList<Catch>();
+            { // catch (e:Error) { throw e; }
+                Name catchFormalName = getTmp();
+                LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.Error()), catchFormalName);
+                Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+                        nf.CanonicalTypeNode(pos, ts.Error()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
+                Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
+                Block catchBlock = nf.Block(pos, nf.Throw(pos, catchLocal));
+                catches.add(nf.Catch(pos, catchFormal, catchBlock));
+            }
+            { // catch (e:CheckedThrowable) { throw Exception.ensureException(e); }
+                Name catchFormalName = getTmp();
+                LocalDef catchFormalLocalDef = ts.localDef(pos, ts.NoFlags(), Types.ref(ts.CheckedThrowable()), catchFormalName);
+                Formal catchFormal = nf.Formal(pos, nf.FlagsNode(pos, ts.NoFlags()),
+                        nf.CanonicalTypeNode(pos, ts.CheckedThrowable()), nf.Id(pos, catchFormalName)).localDef(catchFormalLocalDef);                
+                Expr catchLocal = nf.Local(pos, nf.Id(pos, catchFormalName)).localInstance(catchFormalLocalDef.asInstance()).type(ts.Error());
+                Expr wrap = synth.makeStaticCall(pos, ts.Exception(), Name.make("ensureException"), Collections.singletonList(catchLocal), ts.Exception(), context());
+                Block catchBlock = nf.Block(pos, nf.Throw(pos, wrap));
+                catches.add(nf.Catch(pos, catchFormal, catchBlock));
+            }
+                
+            closure_body = nf.Try(pos, tryBlock, catches, null);
+        }
+
+        Closure closure = synth.makeClosure(async_body.position(), ts.Void(), synth.toBlock(closure_body), context(), annotations);
         
         closure.closureDef().setCapturedEnvironment(env);
         CodeInstance<?> mi = findEnclosingCode(Types.get(closure.closureDef().methodContainer()));

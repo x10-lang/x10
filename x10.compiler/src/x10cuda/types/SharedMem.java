@@ -154,7 +154,7 @@ public class SharedMem implements Cloneable {
 		@Override
 		public void generateCMemPop(StreamWrapper out, Translator tr) {
 			// TODO Auto-generated method stub
-			out.write("pop.populateArr<"+elementType+", x10::array::Array<"+elementType+">*(");
+			out.write("pop.populateArr<"+elementType+", x10::array::Array<"+elementType+">*>(");
             tr.print(null, init, out);
 			out.write(");");
 		}
@@ -254,9 +254,11 @@ public class SharedMem implements Cloneable {
         if (decls.size()==0) return;
 
 		out.write("x10aux::CMemPopulator pop(__cmemv);");
+        out.newline();
 
         for (SharedMem.Decl d : decls) {
             d.generateCMemPop(out, tr);
+            out.newline();
         }
     }
 
