@@ -699,6 +699,8 @@ public class Desugarer extends ContextVisitor {
                 newCheck.add( (Expr)e.visit(replace) );
             } catch (OuterLocalUsed e1) {
                 // ignore expressions that have outer locals (constraint system bugs like XTENLANG_2638)
+            	// [DC] since the above jira is fixed, making this a hard error
+            	throw new InternalCompilerError("Dynamic check of constraint "+e+" was malformed");
             }
         }
         

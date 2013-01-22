@@ -1592,7 +1592,11 @@ public class Synthesizer {
     }
     Expr makeExpr(XUQV t, Type baseType, Position pos) {
         String str = t.toString();
+        // [DC] the following check doesn't always work -- we get 'here' that does match the 'global'
         if (t == PlaceChecker.here())
+            return xnf.Here(pos);
+        // [DC] this seems like a reasonable hack at this point:
+        if (str.equals("here"))
             return xnf.Here(pos);
         return xnf.AmbExpr(pos, xnf.Id(pos,Name.make(t.toString())));
     }
