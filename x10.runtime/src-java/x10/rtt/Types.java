@@ -694,7 +694,7 @@ public class Types {
         if (isNumericType(origRTT)) {
         	return ((java.lang.Number) typeParamOrAny).intValue();
         } else {
-        	if (typeParamOrAny instanceof x10.core.UInt) {return x10.core.UInt.$unbox((x10.core.Byte)typeParamOrAny);}
+        	if (typeParamOrAny instanceof x10.core.UInt) {return x10.core.UInt.$unbox((x10.core.UInt)typeParamOrAny);}
         	else if (typeParamOrAny instanceof java.lang.Integer) {return (java.lang.Integer)typeParamOrAny;}
         }
         throw new java.lang.ClassCastException("x10.lang.UInt");
