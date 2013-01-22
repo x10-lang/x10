@@ -42,8 +42,9 @@ public interface SerializationConstants {
     public static final short RTT_USHORT_ID = 23;
     
     public static final short MAX_HARDCODED_ID = 23;
+    public static final short NO_PREASSIGNED_ID = MAX_HARDCODED_ID+1;
 
-    public static final short FIRST_DYNAMIC_ID = 100;
+    public static final short FIRST_DYNAMIC_ID = 100; // must be > NO_PREASSIGNED_ID
 
     public static final short REF_VALUE = Short.MAX_VALUE;
     public static final short JAVA_CLASS_ID = REF_VALUE - 1;

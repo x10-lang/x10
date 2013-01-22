@@ -16,5 +16,4 @@ import java.io.IOException;
 
 public interface X10JavaSerializable {
 	public void $_serialize(X10JavaSerializer serializer) throws IOException;
-	public short $_get_serialization_id();
 }

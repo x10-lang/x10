@@ -106,7 +106,7 @@ public class DeserializationDispatcher implements SerializationConstants {
         return m;
     }
     
-    public static Method getDeserializerMethod(Class<?> clazz) {
+    private static Method getDeserializerMethod(Class<?> clazz) {
         try {
             Method method = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
             method.setAccessible(true);

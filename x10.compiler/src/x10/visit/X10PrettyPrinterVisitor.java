@@ -705,16 +705,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             w.writeln("}");
             w.newline();
             
-            // _serialize_id()
-            w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
-            w.newline(4);
-            w.begin(0);
-            w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
-            w.end();
-            w.newline();
-            w.writeln("}");
-            w.newline();
-            
             // _serialize()
             w.writeln("public void " + Emitter.SERIALIZE_METHOD + "(" + Emitter.X10_JAVA_SERIALIZER_CLASS + " $serializer) throws java.io.IOException {");
             w.newline(4);
@@ -890,16 +880,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
                     w.writeln("$deserializer.record_reference($_obj);");
                     w.writeln("return " + Emitter.DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
                 }
-                w.end();
-                w.newline();
-                w.writeln("}");
-                w.newline();
-
-                // _serialize_id()
-                w.writeln("public short " + Emitter.SERIALIZE_ID_METHOD + "() {");
-                w.newline(4);
-                w.begin(0);
-                w.writeln(" return " + Emitter.SERIALIZATION_ID_FIELD + ";");
                 w.end();
                 w.newline();
                 w.writeln("}");

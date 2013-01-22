@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import x10.core.Any;
 import x10.serialization.DeserializationDispatcher;
+import x10.serialization.SerializationConstants;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -611,6 +612,10 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
         }
     }
 
+    public short $_get_serialization_id() {
+        return SerializationConstants.NO_PREASSIGNED_ID;
+    }
+    
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         String name = javaClass.getName();
         serializer.writeClassID(name);
@@ -624,10 +629,6 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
             deserializer.update_reference(i, x10JavaSerializable);
         }
         return x10JavaSerializable;
-    }
-
-    public short $_get_serialization_id() {
-        return _serialization_id;
     }
 
     public static X10JavaSerializable $_deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {

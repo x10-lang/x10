@@ -393,7 +393,6 @@ public class Emitter {
 	public static final String X10_JAVA_DESERIALIZER_CLASS = "x10.serialization.X10JavaDeserializer";
 	public static final String DESERIALIZATION_DISPATCHER_CLASS = "x10.serialization.DeserializationDispatcher";
 
-    public static final String SERIALIZE_ID_METHOD = "$_get_serialization_id";
     public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";
     public static final String SERIALIZE_METHOD = "$_serialize";
     public static final String DESERIALIZE_BODY_METHOD = "$_deserialize_body";
@@ -3970,16 +3969,6 @@ public class Emitter {
         }
         w.writeln("$deserializer.record_reference($_obj);");
         w.writeln("return " + DESERIALIZE_BODY_METHOD + "($_obj, $deserializer);");
-        w.end();
-        w.newline();
-        w.writeln("}");
-        w.newline();
-
-        // _serialize_id()
-        w.writeln("public short " + SERIALIZE_ID_METHOD + "() {");
-        w.newline(4);
-        w.begin(0);
-        w.writeln(" return " + SERIALIZATION_ID_FIELD + ";");
         w.end();
         w.newline();
         w.writeln("}");

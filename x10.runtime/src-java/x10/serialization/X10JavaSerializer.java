@@ -24,7 +24,6 @@ import java.util.Map.Entry;
 
 import x10.io.CustomSerialization;
 import x10.rtt.RuntimeType;
-import x10.rtt.Types;
 import x10.runtime.impl.java.Runtime;
 
 public final class X10JavaSerializer implements SerializationConstants {
@@ -86,9 +85,11 @@ public final class X10JavaSerializer implements SerializationConstants {
     }
     
     short getSerializationId(Class<?> clazz, X10JavaSerializable obj) {
-        if (obj instanceof RuntimeType<?> &&  obj.$_get_serialization_id() <= MAX_HARDCODED_ID) {
-            short tmp =  obj.$_get_serialization_id();
-            return tmp;
+        if (obj instanceof RuntimeType<?>) {
+            short sid = ((RuntimeType<?>)obj).$_get_serialization_id();
+            if (sid <= MAX_HARDCODED_ID) {
+                return sid;
+            }
         }
         Short id = idDictionary.get(clazz);
         if (null == id) {
