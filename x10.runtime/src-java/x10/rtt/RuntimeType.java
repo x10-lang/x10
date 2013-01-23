@@ -16,7 +16,6 @@ import java.lang.reflect.Array;
 import java.util.concurrent.ConcurrentHashMap;
 
 import x10.core.Any;
-import x10.serialization.DeserializationDispatcher;
 import x10.serialization.SerializationConstants;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
@@ -620,8 +619,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
     }
     
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
-        String name = javaClass.getName();
-        serializer.writeClassID(name);
+        short sid = serializer.getSerializationId(javaClass, null);
+        serializer.write(sid);
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
@@ -636,43 +635,8 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     public static X10JavaSerializable $_deserialize_body(RuntimeType rt, X10JavaDeserializer deserializer) throws IOException {
         short classId = deserializer.readShort();
-        String className = DeserializationDispatcher.getClassNameForID(classId, deserializer);
-        if (className == null) {
-            return null;
-        } else if ("x10.core.Boolean".equals(className)) {
-            return Types.BOOLEAN;
-        } else if ("x10.core.Byte".equals(className)) {
-            return Types.BYTE;
-        } else if ("x10.core.Char".equals(className)) {
-            return Types.CHAR;
-        } else if ("x10.core.Double".equals(className)) {
-            return Types.DOUBLE;
-        } else if ("x10.core.Float".equals(className)) {
-            return Types.FLOAT;
-        } else if ("x10.core.Int".equals(className)) {
-            return Types.INT;
-        } else if ("x10.core.Long".equals(className)) {
-            return Types.LONG;
-        } else if ("x10.core.Short".equals(className)) {
-            return Types.SHORT;
-        } else if ("x10.core.String".equals(className)) {
-            return Types.STRING;
-        } else if ("x10.core.UByte".equals(className)) {
-            return Types.UBYTE;
-        } else if ("x10.core.UInt".equals(className)) {
-            return Types.UINT;
-        } else if ("x10.core.ULong".equals(className)) {
-            return Types.ULONG;
-        } else if ("x10.core.UShort".equals(className)) {
-            return Types.USHORT;
-        }
-        try {
-            Class<?> aClass = Class.forName(className);
-            rt.javaClass = aClass;
-        } catch (ClassNotFoundException e) {
-            // This should not happen though
-            throw new RuntimeException(e);
-        }
+        Class<?> clazz = deserializer.getClassForID(classId);
+        rt.javaClass = clazz;
         return rt;
     }
 }

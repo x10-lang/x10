@@ -47,6 +47,6 @@ public interface SerializationConstants {
     public static final short FIRST_DYNAMIC_ID = 100; // must be > NO_PREASSIGNED_ID
 
     public static final short REF_VALUE = Short.MAX_VALUE;
-    public static final short JAVA_CLASS_ID = REF_VALUE - 1;
+    public static final short JAVA_OBJECT_STREAM_ID = REF_VALUE - 1;
     public static final short JAVA_ARRAY_ID = REF_VALUE - 2;
 }

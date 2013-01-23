@@ -124,7 +124,7 @@ public class NamedStructType<T> extends RuntimeType<T> implements X10JavaSeriali
     @Override
     public void $_serialize(X10JavaSerializer serializer) throws IOException {
         super.$_serialize(serializer);
-        serializer.writeClassID(typeName);
+        serializer.write(typeName);
     }
 
     @Override
@@ -140,8 +140,7 @@ public class NamedStructType<T> extends RuntimeType<T> implements X10JavaSeriali
 
     public static X10JavaSerializable $_deserialize_body(NamedStructType nt, X10JavaDeserializer deserializer) throws IOException {
         RuntimeType.$_deserialize_body(nt, deserializer);
-        short classId = deserializer.readShort();
-        nt.typeName = DeserializationDispatcher.getClassNameForID(classId, deserializer);
+        nt.typeName = deserializer.readString();
         return nt;
     }
 }

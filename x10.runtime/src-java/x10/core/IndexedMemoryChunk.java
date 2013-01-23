@@ -206,8 +206,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             if (this.numElems > 0) {
                 Class<?> componentType = this.srcData.getClass().getComponentType();
                 if (componentType.isPrimitive()) {
-                    $serializer.write(DeserializationDispatcher.JAVA_CLASS_ID);
-                    $serializer.writeObject(this.srcData);
+                    $serializer.write(DeserializationDispatcher.JAVA_OBJECT_STREAM_ID);
+                    $serializer.writeUsingObjectOutputStream(this.srcData);
                 } else if (componentType.equals(java.lang.String.class)) {
                     $serializer.write(DeserializationDispatcher.STRING_ID);
                     $serializer.write((java.lang.String[]) this.srcData);
@@ -231,8 +231,8 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             $_obj.numElems = $deserializer.readInt();
             if ($_obj.numElems > 0) {
                 short serializationID = $deserializer.readShort();
-                if (serializationID == DeserializationDispatcher.JAVA_CLASS_ID) {
-                    $_obj.srcData = $deserializer.readObject();
+                if (serializationID == DeserializationDispatcher.JAVA_OBJECT_STREAM_ID) {
+                    $_obj.srcData = $deserializer.readUsingObjectInputStream();
                 } else if (serializationID == DeserializationDispatcher.STRING_ID) {
                     $_obj.srcData = $deserializer.readStringArray();
                 } else {
@@ -440,7 +440,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         // If the T is a java primitive type, we use default java serialization here
         // cause its much faster than writing a single element at a time
         if (Types.isPrimitiveType(T)) {
-            $serializer.writeObject(value);
+            $serializer.writeUsingObjectOutputStream(value);
         } else if (Types.isStringType(T)) {
             java.lang.String[] castValue = (java.lang.String[]) value;
             for (java.lang.String v : castValue) {
@@ -475,7 +475,7 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         // If the T is a java primitive type, we use default java serialization here
         // cause its much faster than reading a single element at a time
         if (Types.isPrimitiveType($_obj.T)) {
-            $_obj.value = $deserializer.readObject();
+            $_obj.value = $deserializer.readUsingObjectInputStream();
         } else if (Types.isStringType($_obj.T)) {
             java.lang.String[] values = (java.lang.String[]) $_obj.T.makeArray($_obj.length);
             for (int i = 0; i < $_obj.length; i++) {

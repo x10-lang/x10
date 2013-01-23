@@ -68,8 +68,7 @@ abstract class SerializerThunk {
      * 
      * @param obj The object to serialize
      * @param clazz The class of obj
-     * @param xjs The serializer into which the object should be serialized.
-     * 
+     * @param xjs The serializer into which the object should be serialized. 
      */
     <T> void serializeObject(T obj, Class<? extends Object > clazz, X10JavaSerializer xjs) throws IllegalAccessException, IOException, IllegalArgumentException, InvocationTargetException, SecurityException, NoSuchFieldException {
         if (superThunk != null) {
@@ -112,7 +111,8 @@ abstract class SerializerThunk {
 
         Class<?>[] interfaces = clazz.getInterfaces();
         boolean isCustomSerializable = false;
-        boolean isHadoopSerializable = false;
+        boolean isHadoopSerializable = Runtime.implementsHadoopWritable(clazz);
+        boolean isX10JavaSerializable = x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz);
         for (Class<?> aInterface : interfaces) {
             if ("x10.io.CustomSerialization".equals(aInterface.getName())) {
                 isCustomSerializable = true;
@@ -120,22 +120,30 @@ abstract class SerializerThunk {
             }
         }
 
-        if (Runtime.implementsHadoopWritable(clazz)) {
-            isHadoopSerializable = true;
-        }
-
-        if (isCustomSerializable && isHadoopSerializable) {
-            throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
+        // Error checking. We don't support classes that try to implement both Hadoop and X10 serialization protocols
+        if (isHadoopSerializable) {
+            if (isCustomSerializable) {
+                throw new RuntimeException("serializer: " + clazz + " implements both x10.io.CustomSerialization and org.apache.hadoop.io.Writable.");
+            }
+            if (isX10JavaSerializable) {
+                throw new RuntimeException("serializer: " + clazz + " implements both x10.serialization.X10JavaSerializable and org.apache.hadoop.io.Writable.");                
+            }
         }
 
         if (isCustomSerializable) {
             return new SerializerThunk.CustomSerializerThunk(clazz);
+        }
+        
+        if (isX10JavaSerializable) {
+            return new X10JavaSerializableSerializerThunk(clazz);
         }
 
         if (isHadoopSerializable) {
             return new SerializerThunk.HadoopSerializerThunk(clazz);
         }
 
+        // A vanilla Java class that doesn't implement a special protocol.
+        // We are going to serialize if via reflective access to its instance fields.
         Class<?> superclass = clazz.getSuperclass();
         SerializerThunk superThunk = null;
         if (!("java.lang.Object".equals(superclass.getName()) || "x10.core.Ref".equals(superclass.getName()) || "x10.core.Struct".equals(superclass.getName()))) {
@@ -143,6 +151,30 @@ abstract class SerializerThunk {
         }
 
         return new SerializerThunk.FieldBasedSerializerThunk(clazz, superThunk);
+    }
+
+
+    /**
+     * A thunk for a vanilla X10 class (supports compiler-generated serialization code).
+     */
+    private static class X10JavaSerializableSerializerThunk extends SerializerThunk {
+        protected final Method serializeMethod;
+
+        public X10JavaSerializableSerializerThunk(Class<?> clazz) {
+            super(null); // The compiler-generated serialization code will invoke the superclass serializer directly
+            try {
+                serializeMethod = clazz.getMethod("$_serialize", X10JavaSerializer.class);
+            } catch (NoSuchMethodException e) {
+                System.err.println("SerializerThunk: class "+clazz+" does not have a $_serialize method");
+                throw new RuntimeException(e);
+            }
+            serializeMethod.setAccessible(true);
+        }
+
+        @Override
+        <T> void serializeBody(T obj, Class<? extends Object> clazz, X10JavaSerializer xjs) throws IllegalArgumentException, IllegalAccessException, InvocationTargetException {
+            serializeMethod.invoke(obj, xjs);
+        }
     }
 
 
@@ -256,15 +288,16 @@ abstract class SerializerThunk {
             } else if ("x10.rtt.NamedType".equals(clazz.getName())) {
                 Field typeNameField = clazz.getDeclaredField("typeName");
                 String typeName = (String) typeNameField.get(obj);
-                xjs.writeClassID(typeName);
+                xjs.write(typeName);
             } else if ("x10.rtt.NamedStructType".equals(clazz.getName())) {
                 Field typeNameField = clazz.getDeclaredField("typeName");
                 String typeName = (String) typeNameField.get(obj);
-                xjs.writeClassID(typeName);
+                xjs.write(typeName);
             } else if ("x10.rtt.RuntimeType".equals(clazz.getName())) {
                 Field javaClassField = clazz.getDeclaredField("javaClass");
                 Class<?> javaClass = (Class<?>) javaClassField.get(obj);
-                xjs.writeClassID(javaClass.getName());
+                short sid = xjs.getSerializationId(javaClass, null);
+                xjs.write(sid);
             } else if ("x10.core.IndexedMemoryChunk".equals(clazz.getName())) {
                 ((x10.core.IndexedMemoryChunk) obj).$_serialize(xjs);
             } else if ("x10.core.IndexedMemoryChunk$$Closure$0".equals(clazz.getName())) {

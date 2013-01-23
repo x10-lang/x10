@@ -35,6 +35,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
     
     // Per message deserialization mapping;
     private HashMap<Short,Method> idsToMethod = new HashMap<Short,Method>();
+    private HashMap<Short,Class<?>> idsToClass = new HashMap<Short,Class<?>>();
     
     public X10JavaDeserializer(DataInputStream in) {
         this.in = in;
@@ -74,6 +75,14 @@ public final class X10JavaDeserializer implements SerializationConstants {
         return obj;
     }
 
+    public Class<?> getClassForID(short sid) {
+        Class<?> clazz = idsToClass.get(Short.valueOf(sid));
+        if (clazz == null) {
+            throw new RuntimeException("MessageDictionary: id "+sid+" is not mapped to a class!");
+        }
+        return clazz;
+    }
+    
     void readMessageDictionary() throws IOException, ClassNotFoundException {
         short numEntries = in.readShort();
         if (Runtime.TRACE_SER) {
@@ -85,8 +94,25 @@ public final class X10JavaDeserializer implements SerializationConstants {
             if (Runtime.TRACE_SER) {
                 Runtime.printTraceMessage("\tserialization id: "+id+" = "+name);                
             }
-            Method m = DeserializationDispatcher.getDeserializerMethod(name);
-            idsToMethod.put(Short.valueOf(id), m);
+            Class<?> clazz;
+            try {
+                clazz = Class.forName(name);
+            } catch (ClassNotFoundException e) {
+                System.err.println("readMessageDictionary: failed to load class "+name);
+                throw new RuntimeException(e);
+            }
+            idsToClass.put(Short.valueOf(id), clazz);
+            if (x10.serialization.X10JavaSerializable.class.isAssignableFrom(clazz)) {
+                Method m;
+                try {
+                    m = clazz.getMethod("$_deserializer", X10JavaDeserializer.class);
+                } catch (NoSuchMethodException e) {
+                    throw new RuntimeException("readMessageDictionary: class "+clazz+
+                                               " implements X10JavaSerializable but does not have a $_deserializer method", e);
+                }
+                m.setAccessible(true);
+                idsToMethod.put(Short.valueOf(id), m);
+            }
         }
     }
     
@@ -107,10 +133,11 @@ public final class X10JavaDeserializer implements SerializationConstants {
         if (serializationID == REF_VALUE) {
             return getObjectAtPosition(readInt());
         }
-
-        if (serializationID == JAVA_CLASS_ID) {
-            return deserializeRefUsingReflection(serializationID);
+        
+        if (serializationID <= DeserializationDispatcher.MAX_HARDCODED_ID) {
+            return X10JavaDeserializer.deserializePrimitive(serializationID, this);
         }
+
         if (serializationID == JAVA_ARRAY_ID) {
             short componentTypeID = readShort();
             if (componentTypeID == INTEGER_ID) {
@@ -131,8 +158,8 @@ public final class X10JavaDeserializer implements SerializationConstants {
                 return readCharArray();
             } else if (componentTypeID == STRING_ID) {
                 return readStringArray();
-            } else if (componentTypeID == JAVA_CLASS_ID) {
-                Class<?> componentType = DeserializationDispatcher.getClassForID(componentTypeID, this);
+            } else {
+                Class<?> componentType = getClassForID(componentTypeID);
                 int length = readInt();
                 Object obj = Array.newInstance(componentType, length);
                 record_reference(obj);
@@ -146,33 +173,26 @@ public final class X10JavaDeserializer implements SerializationConstants {
                     }
                 }
                 return obj;
-            } else {
-                assert false : "should not come here";
-                return null;
             }
-        }
-        if (serializationID == DeserializationDispatcher.NULL_ID) {
-            if (Runtime.TRACE_SER) {
-                Runtime.printTraceMessage("Deserializing a null reference");
-            }
-            return null;
-        }
-        if (serializationID == DeserializationDispatcher.REF_VALUE) {
-            return this.getObjectAtPosition(this.readInt());
-        }
-        if (serializationID <= DeserializationDispatcher.MAX_HARDCODED_ID) {
-            return X10JavaDeserializer.deserializePrimitive(serializationID, this);
         }
         
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
         }
+        
         try {
             Method method = idsToMethod.get(Short.valueOf(serializationID));
-            if (null == method) {
-                throw new RuntimeException("Unexpected serializationID "+serializationID);
+            if (method != null) {
+                // A class that implements X10JavaSerializable.  Call _deserialize
+                return method.invoke(null, this);
+            } else {
+                Class<?> clazz = idsToClass.get(serializationID);
+                if (null == clazz) {
+                    throw new RuntimeException("Unexpected serializationID "+serializationID+" "+idsToClass.get(serializationID));
+                }
+                DeserializerThunk dt = DeserializerThunk.getDeserializerThunk(clazz);
+                return dt.deserializeObject(clazz, this);
             }
-            return method.invoke(null, this);
         } catch (InvocationTargetException e) {
             // This should never happen
             throw new RuntimeException("Error in deserializing non-null value with id " + serializationID, e);
@@ -180,6 +200,18 @@ public final class X10JavaDeserializer implements SerializationConstants {
             // This should never happen
             throw new RuntimeException(e);
         } catch (IllegalAccessException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        } catch (NoSuchFieldException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        } catch (NoSuchMethodException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        } catch (IllegalArgumentException e) {
+            // This should never happen
+            throw new RuntimeException(e);
+        } catch (InstantiationException e) {
             // This should never happen
             throw new RuntimeException(e);
         }
@@ -397,11 +429,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
         if (Runtime.TRACE_SER) {
             Runtime.printTraceMessage("Deserializing non-null value with id " + serializationID);
         }
-        return deserializeRefUsingReflection(serializationID);
-    }
-
-    private Object deserializeRefUsingReflection(short serializationID) throws IOException {
-        Class<?> clazz = DeserializationDispatcher.getClassForID(serializationID, this);
+        Class<?> clazz = getClassForID(serializationID);
             
         try {
             DeserializerThunk thunk = DeserializerThunk.getDeserializerThunk(clazz);
@@ -519,8 +547,9 @@ public final class X10JavaDeserializer implements SerializationConstants {
         return readString();
     }
 
-    // Read the object using java serialization. This is used by IMC to read primitive arrays
-    public Object readObject() throws IOException {
+    // Read an object using java serialization. 
+    // This is used by IMC to optimize the serialization of primitive arrays
+    public Object readUsingObjectInputStream() throws IOException {
         ObjectInputStream ois = new ObjectInputStream(this.in);
         try {
             return ois.readObject();

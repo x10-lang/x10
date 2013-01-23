@@ -84,7 +84,7 @@ public final class X10JavaSerializer implements SerializationConstants {
         return message;
     }
     
-    short getSerializationId(Class<?> clazz, X10JavaSerializable obj) {
+    public short getSerializationId(Class<?> clazz, Object obj) {
         if (obj instanceof RuntimeType<?>) {
             short sid = ((RuntimeType<?>)obj).$_get_serialization_id();
             if (sid <= MAX_HARDCODED_ID) {
@@ -504,7 +504,7 @@ public final class X10JavaSerializer implements SerializationConstants {
 
         try {
             Class<? extends Object> bodyClass = body.getClass();
-            writeClassID(bodyClass.getName());
+            write(getSerializationId(bodyClass, body));
             SerializerThunk st = SerializerThunk.getSerializerThunk(bodyClass);
             st.serializeObject(body, bodyClass, this);
         } catch (SecurityException e) {
@@ -552,16 +552,6 @@ public final class X10JavaSerializer implements SerializationConstants {
             e.printStackTrace();
             throw new RuntimeException(e);
         }       
-    }
-    
-    public void writeClassID(String className) throws IOException {
-        short serializationID = DeserializationDispatcher.getSerializationIDForClassName(className);
-        if (serializationID < 0) {
-            write(JAVA_CLASS_ID);
-            writeStringValue(className);
-        } else {
-            write(serializationID);
-        }
     }
 
     static final boolean THROWABLES_SERIALIZE_MESSAGE = true;
@@ -673,8 +663,8 @@ public final class X10JavaSerializer implements SerializationConstants {
         } else if ("java.lang.String".equals(componentType.getName())) {
             write(STRING_ID);
             write((java.lang.String[]) obj);
-        } else {            
-            writeClassID(componentType.getName());
+        } else {
+            write(getSerializationId(componentType, null));
             if (componentType.isArray()) {
                 int length = Array.getLength(obj);
                 write(length);
@@ -714,8 +704,9 @@ public final class X10JavaSerializer implements SerializationConstants {
         }
     }
 
-    // Write the object using java serialization. This is used by IMC to write primitive arrays
-    public void writeObject(Object obj) throws IOException {
+    // Write an object using java serialization. 
+    // This is used by IMC to optimize the serialization of primitive arrays
+    public void writeUsingObjectOutputStream(Object obj) throws IOException {
         ObjectOutputStream oos = new ObjectOutputStream(this.out);
         oos.writeObject(obj);
     }
