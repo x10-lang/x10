@@ -467,7 +467,7 @@ public class XPromise implements Cloneable, Serializable{
             disEquals = CollectionFactory.newHashSet();
         disEquals.add(other);
     }
-    public boolean hasDisBindings() { return disEquals != null || ! disEquals.isEmpty();}
+    public boolean hasDisBindings() { return disEquals != null && ! disEquals.isEmpty();}
     
     /**
      * Is this promise asserted to be disequal to other?
