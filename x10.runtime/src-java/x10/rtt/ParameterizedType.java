@@ -242,38 +242,41 @@ public final class ParameterizedType<T> implements Type<T>, X10JavaSerializable 
 
     // called from Static{Void}FunType.typeName(Object)
     public final String typeNameForFun(Object o) {
-        String str = "(";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
         int i;
         for (i = 0; i < actualTypeArguments.length - 1; i++) {
-            if (i != 0) str += ",";
-            str += printType(actualTypeArguments[i], o);
+            if (i != 0) sb.append(",");
+            sb.append(printType(actualTypeArguments[i], o));
         }
-        str += ")=>";
-        str += printType(actualTypeArguments[i], o);
-        return str;
+        sb.append(")=>");
+        sb.append(printType(actualTypeArguments[i], o));
+        return sb.toString();
     }
 
     public final String typeNameForVoidFun(Object o) {
-        String str = "(";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
         if (actualTypeArguments != null && actualTypeArguments.length > 0) {
             for (int i = 0; i < actualTypeArguments.length; i++) {
-                if (i != 0) str += ",";
-                str += printType(actualTypeArguments[i], o);
+                if (i != 0) sb.append(",");
+                sb.append(printType(actualTypeArguments[i], o));
             }
         }
-        str += ")=>void";
-        return str;
+        sb.append(")=>void");
+        return sb.toString();
     }
     
     public final String typeNameForOthers(Object o) {
-        String str = rawType.typeName();
-        str += "[";
+        StringBuilder sb = new StringBuilder();
+        sb.append(rawType.typeName());
+        sb.append("[");
         for (int i = 0; i < actualTypeArguments.length; i ++) {
-            if (i != 0) str += ",";
-            str += printType(actualTypeArguments[i], o);
+            if (i != 0) sb.append(",");
+            sb.append(printType(actualTypeArguments[i], o));
         }
-        str += "]";
-        return str;
+        sb.append("]");
+        return sb.toString();
     }
 
     public void $_serialize(X10JavaSerializer serializer) throws IOException {

@@ -470,42 +470,45 @@ public class RuntimeType<T> implements Type<T>, X10JavaSerializable {
 
     protected final String typeNameForFun(Object o) {
         int numParams = numParams();
-        String str = "(";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
         int i;
         for (i = 0; i < numParams - 1; i++) {
-            if (i != 0) str += ",";
-            str += ((Any) o).$getParam(i).typeName();
+            if (i != 0) sb.append(",");
+            sb.append(((Any) o).$getParam(i).typeName());
         }
-        str += ")=>";
-        str += ((Any) o).$getParam(i).typeName();
-        return str;
+        sb.append(")=>");
+        sb.append(((Any) o).$getParam(i).typeName());
+        return sb.toString();
     }
     protected final String typeNameForVoidFun(Object o) {
         int numParams = numParams();
-        String str = "(";
+        StringBuilder sb = new StringBuilder();
+        sb.append("(");
         if (numParams > 0) {
             for (int i = 0; i < numParams; i++) {
-                if (i != 0) str += ",";
-                str += ((Any) o).$getParam(i).typeName();
+                if (i != 0) sb.append(",");
+                sb.append(((Any) o).$getParam(i).typeName());
             }
         }
-        str += ")=>void";
-        return str;
+        sb.append(")=>void");
+        return sb.toString();
     }
     protected final String typeNameForOthers(Object o) {
         int numParams = numParams();
-        String str = typeName();
+        StringBuilder sb = new StringBuilder();
+        sb.append(typeName());
         if (numParams > 0) {
             if (o instanceof Any) {
-                str += "[";
+                sb.append("[");
                 for (int i = 0; i < numParams; i++) {
-                    if (i != 0) str += ",";
-                    str += Types.getParam(o, i).typeName();
+                    if (i != 0) sb.append(",");
+                    sb.append(Types.getParam(o, i).typeName());
                 }
-                str += "]";
+                sb.append("]");
             }
         }
-        return str;
+        return sb.toString();
     }
     // should be overridden by RTT of all function types
     public String typeName(Object o) {
