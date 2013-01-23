@@ -161,7 +161,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
             x10.runtime.impl.java.PreLoader.preLoad(userMain, extraClasses, Boolean.getBoolean("x10.PRELOAD_STRINGS"));
         }
 
-        // Obtain message ID's for each async
+        // x10rt-level registration of MessageHandlers
         if (X10RT.numPlaces() > 1) {
             x10.x10rt.MessageHandlers.registerHandlers();
         }
