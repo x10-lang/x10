@@ -26,8 +26,6 @@ public class LocalVar<T> extends x10.core.Ref {
 
     private static final long serialVersionUID = 1L;
     
-    private static final short $_serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(LocalVar.class);
-
     public static final RuntimeType<LocalVar<?>> $RTT =
         x10.rtt.NamedType.<LocalVar<?>> make(
                 "x10.compiler.LocalVar",
@@ -108,10 +106,6 @@ public class LocalVar<T> extends x10.core.Ref {
         LocalVar $_obj = new LocalVar((java.lang.System[]) null);
         $deserializer.record_reference($_obj);
         return $_deserialize_body($_obj, $deserializer);
-    }
-    
-    public short $_get_serialization_id() {
-         return $_serialization_id;
     }
     
     public void $_serialize(X10JavaSerializer $serializer) throws java.io.IOException {

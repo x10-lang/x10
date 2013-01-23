@@ -11,15 +11,14 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.serialization.DeserializationDispatcher;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
-
-import java.io.IOException;
 
 /**
  * Represents a boxed Char value. Boxed representation is used when casting
@@ -29,7 +28,6 @@ import java.io.IOException;
 final public class Char extends Struct implements java.lang.Comparable<Char>, x10.util.Ordered<Char>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Char.class);
     
     public static final RuntimeType<?> $RTT = Types.CHAR;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -118,10 +116,6 @@ final public class Char extends Struct implements java.lang.Comparable<Char>, x1
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         $serializer.write($value);
-    }
-
-    public short $_get_serialization_id() {
-        return $_serialization_id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {

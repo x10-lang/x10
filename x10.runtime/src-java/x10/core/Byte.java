@@ -11,15 +11,14 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.serialization.DeserializationDispatcher;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
-
-import java.io.IOException;
 
 /**
  * Represents a boxed Byte value. Boxed representation is used when casting
@@ -32,7 +31,6 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
     x10.core.Arithmetic.x10$lang$Byte, x10.core.Bitwise.x10$lang$Byte, x10.util.Ordered<Byte>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Byte.class);
     
     public static final RuntimeType<?> $RTT = Types.BYTE;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -185,10 +183,6 @@ final public class Byte extends java.lang.Number implements StructI, java.lang.C
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         $serializer.write($value);
-    }
-
-    public short $_get_serialization_id() {
-        return $_serialization_id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {

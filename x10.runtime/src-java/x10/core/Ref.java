@@ -11,14 +11,6 @@
 
 package x10.core;
 
-import x10.rtt.NamedType;
-import x10.rtt.RuntimeType;
-import x10.rtt.Type;
-import x10.rtt.Types;
-import x10.serialization.X10JavaSerializable;
-import x10.serialization.X10JavaSerializer;
-
-import java.io.IOException;
 
 
 // Base class of all X10 ref objects -- should be generated, but we need this class to get Box to compile.
@@ -26,9 +18,6 @@ public abstract class Ref implements Any {
     
     private static final long serialVersionUID = 1L;
     
-    // not used (really?)
-//    private static final short $_serialization_id = x10.x10rt.DeserializationDispatcher.addDispatcher(Ref.class);
-
     // N.B. this is called implicitly by all subclasses of Ref
     public Ref() {}
 

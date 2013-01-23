@@ -5,9 +5,6 @@ import java.io.*;
 
 public class Basic {
 
-    private static final short _RunnableWithBuf_id = x10.serialization.DeserializationDispatcher.addDispatcher(RunnableWithBuf.class);
-    private static final short _Handler_id = x10.serialization.DeserializationDispatcher.addDispatcher(Handler.class);
-
     private static class RunnableWithBuf implements Serializable, x10.serialization.X10JavaSerializable {
         public static final int Ping = 1;
         public static final int Pong = 2;
@@ -33,7 +30,6 @@ public class Basic {
             deserializer.record_reference(_obj);
             return $_deserialize_body(_obj, deserializer);
         }
-        public short $_get_serialization_id() { return _RunnableWithBuf_id; }
         public void $_serialize(x10.serialization.X10JavaSerializer serializer) throws java.io.IOException {
             serializer.write(this.id);
         }

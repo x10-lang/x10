@@ -22,7 +22,6 @@ import x10.lang.FinishState;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.serialization.DeserializationDispatcher;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -164,7 +163,7 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
 
         // Obtain message ID's for each async
         if (X10RT.numPlaces() > 1) {
-            DeserializationDispatcher.registerHandlers();
+            x10.x10rt.MessageHandlers.registerHandlers();
         }
 
         // build up Array[String] for args

@@ -391,9 +391,7 @@ public class Emitter {
 	public static final String X10_JAVA_SERIALIZABLE_CLASS = "x10.serialization.X10JavaSerializable";
 	public static final String X10_JAVA_SERIALIZER_CLASS = "x10.serialization.X10JavaSerializer";
 	public static final String X10_JAVA_DESERIALIZER_CLASS = "x10.serialization.X10JavaDeserializer";
-	public static final String DESERIALIZATION_DISPATCHER_CLASS = "x10.serialization.DeserializationDispatcher";
 
-    public static final String SERIALIZATION_ID_FIELD = "$_serialization_id";
     public static final String SERIALIZE_METHOD = "$_serialize";
     public static final String DESERIALIZE_BODY_METHOD = "$_deserialize_body";
     public static final String DESERIALIZER_METHOD = "$_deserializer";

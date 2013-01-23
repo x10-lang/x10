@@ -19,11 +19,7 @@ import x10.rtt.Type;
 public class OutputStream extends Ref {
   
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(OutputStream.class);
 
-    public short $_get_serialization_id() {
-        return $_serialization_id;
-    }
     public void $_serialize(x10.serialization.X10JavaSerializer $serializer) throws java.io.IOException {
         // TODO need check
         $serializer.write(stream);

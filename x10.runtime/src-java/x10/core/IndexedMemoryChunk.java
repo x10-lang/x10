@@ -20,7 +20,7 @@ import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.serialization.DeserializationDispatcher;
+import x10.serialization.SerializationConstants;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
@@ -28,7 +28,6 @@ import x10.serialization.X10JavaSerializer;
 public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(IndexedMemoryChunk.class, "x10.util.IndexedMemoryChunk");
 
     public Type<T> T;
     public int length;
@@ -173,7 +172,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     // static nested class version of copyBody
     public static class $Closure$0 extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
-        private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher($Closure$0.class);
         public Object srcData;
         public int dstId;
         public int dstIndex;
@@ -206,10 +204,10 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             if (this.numElems > 0) {
                 Class<?> componentType = this.srcData.getClass().getComponentType();
                 if (componentType.isPrimitive()) {
-                    $serializer.write(DeserializationDispatcher.JAVA_OBJECT_STREAM_ID);
+                    $serializer.write(SerializationConstants.JAVA_OBJECT_STREAM_ID);
                     $serializer.writeUsingObjectOutputStream(this.srcData);
                 } else if (componentType.equals(java.lang.String.class)) {
-                    $serializer.write(DeserializationDispatcher.STRING_ID);
+                    $serializer.write(SerializationConstants.STRING_ID);
                     $serializer.write((java.lang.String[]) this.srcData);
                 } else if (this.srcData instanceof X10JavaSerializable[]) {
                     $serializer.write((X10JavaSerializable[]) this.srcData);
@@ -231,9 +229,9 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             $_obj.numElems = $deserializer.readInt();
             if ($_obj.numElems > 0) {
                 short serializationID = $deserializer.readShort();
-                if (serializationID == DeserializationDispatcher.JAVA_OBJECT_STREAM_ID) {
+                if (serializationID == SerializationConstants.JAVA_OBJECT_STREAM_ID) {
                     $_obj.srcData = $deserializer.readUsingObjectInputStream();
-                } else if (serializationID == DeserializationDispatcher.STRING_ID) {
+                } else if (serializationID == SerializationConstants.STRING_ID) {
                     $_obj.srcData = $deserializer.readStringArray();
                 } else {
                     $_obj.srcData = $deserializer.readRef();
@@ -242,10 +240,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             $_obj.dstId = $deserializer.readInt();
             $_obj.dstIndex = $deserializer.readInt();
             return $_obj;
-        }
-
-        public short $_get_serialization_id() {
-            return _serialization_id;
         }
     }
 
@@ -279,7 +273,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
     // static nested class version of copyBody1
     public static class $Closure$1<T> extends x10.core.Ref implements VoidFun_0_0 {
         private static final long serialVersionUID = 1L;
-        private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher($Closure$1.class);
         public Type<T> srcT;
         public int srcId;
         public int srcLength;
@@ -359,10 +352,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
             $_obj.dstIndex = $deserializer.readInt();
             $_obj.numElems = $deserializer.readInt();
             return $_obj;
-        }
-
-        public short $_get_serialization_id() {
-            return _serialization_id;
         }
     }
 
@@ -462,10 +451,6 @@ public final class IndexedMemoryChunk<T> extends x10.core.Struct implements X10J
         IndexedMemoryChunk $_obj = new IndexedMemoryChunk((java.lang.System[]) null);
         $deserializer.record_reference($_obj);
         return $_deserialize_body($_obj, $deserializer);
-    }
-
-    public short $_get_serialization_id() {
-        return _serialization_id;
     }
 
     public static X10JavaSerializable $_deserialize_body(IndexedMemoryChunk $_obj, X10JavaDeserializer $deserializer) throws IOException {

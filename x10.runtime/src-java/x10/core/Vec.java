@@ -11,23 +11,20 @@
 
 package x10.core;
 
-import x10.array.Array;
+import java.io.IOException;
+
 import x10.rtt.NamedType;
 import x10.rtt.ParameterizedType;
 import x10.rtt.RuntimeType;
-import x10.rtt.RuntimeType.Variance;
 import x10.rtt.Type;
 import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
-import java.io.IOException;
-
 public final class Vec<T> extends x10.core.Struct {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(Vec.class);
 
     public int size;
     public x10.array.Array<T> backing;
@@ -194,10 +191,6 @@ public final class Vec<T> extends x10.core.Struct {
         $serializer.write(T);
         $serializer.write(size);
         $serializer.write(backing);
-    }
-
-    public short $_get_serialization_id() {
-        return _serialization_id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {

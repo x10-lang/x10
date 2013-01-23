@@ -11,21 +11,19 @@
 
 package x10.core.concurrent;
 
+import java.io.IOException;
+
 import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
-import java.io.IOException;
-
 public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoolean implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(AtomicBoolean.class);
 
     // constructor just for allocation
     public AtomicBoolean(java.lang.System[] $dummy) {
@@ -72,9 +70,4 @@ public final class AtomicBoolean extends java.util.concurrent.atomic.AtomicBoole
         deserializer.record_reference(ab);
         return ab;
     }
-
-	public short $_get_serialization_id() {
-		return _serialization_id;
-	}
-
 }

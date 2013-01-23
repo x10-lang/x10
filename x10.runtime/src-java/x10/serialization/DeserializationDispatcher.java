@@ -23,8 +23,4 @@ public class DeserializationDispatcher implements SerializationConstants {
         return NO_PREASSIGNED_ID;
      }
 
-    public static void registerHandlers() {
-        x10.x10rt.MessageHandlers.registerHandlers();
-    }
-
 }

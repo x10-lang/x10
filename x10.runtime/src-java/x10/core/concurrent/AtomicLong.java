@@ -11,21 +11,19 @@
 
 package x10.core.concurrent;
 
+import java.io.IOException;
+
 import x10.core.Any;
 import x10.rtt.NamedType;
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
-import x10.rtt.Types;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
 
-import java.io.IOException;
-
 public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(AtomicLong.class);
 
     // constructor just for allocation
     public AtomicLong(java.lang.System[] $dummy) {
@@ -65,10 +63,6 @@ public final class AtomicLong extends java.util.concurrent.atomic.AtomicLong imp
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {
         return $_deserialize_body(null, deserializer);
     }
-
-	public short $_get_serialization_id() {
-		return _serialization_id;
-	}
 
     public static X10JavaSerializable $_deserialize_body(AtomicLong atomicLong, X10JavaDeserializer deserializer) throws IOException {
         long l = deserializer.readLong();

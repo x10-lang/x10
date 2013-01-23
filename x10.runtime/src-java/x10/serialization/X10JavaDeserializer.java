@@ -134,7 +134,7 @@ public final class X10JavaDeserializer implements SerializationConstants {
             return getObjectAtPosition(readInt());
         }
         
-        if (serializationID <= DeserializationDispatcher.MAX_HARDCODED_ID) {
+        if (serializationID <= MAX_HARDCODED_ID) {
             return X10JavaDeserializer.deserializePrimitive(serializationID, this);
         }
 

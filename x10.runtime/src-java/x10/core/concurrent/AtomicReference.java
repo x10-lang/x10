@@ -24,7 +24,6 @@ import x10.serialization.X10JavaSerializer;
 public final class AtomicReference<T> extends java.util.concurrent.atomic.AtomicReference<T> implements Any, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short _serialization_id = x10.serialization.DeserializationDispatcher.addDispatcher(AtomicReference.class);
 
     // constructor just for allocation
     public AtomicReference(java.lang.System[] $dummy) {
@@ -69,10 +68,6 @@ public final class AtomicReference<T> extends java.util.concurrent.atomic.Atomic
 	public void $_serialize(X10JavaSerializer serializer) throws IOException {
 		serializer.write(this.T);
 		serializer.write(get());
-	}
-
-	public short $_get_serialization_id() {
-		return _serialization_id;
 	}
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer deserializer) throws IOException {

@@ -11,15 +11,14 @@
 
 package x10.core;
 
+import java.io.IOException;
+
 import x10.rtt.RuntimeType;
 import x10.rtt.Type;
 import x10.rtt.Types;
-import x10.serialization.DeserializationDispatcher;
 import x10.serialization.X10JavaDeserializer;
 import x10.serialization.X10JavaSerializable;
 import x10.serialization.X10JavaSerializer;
-
-import java.io.IOException;
 
 /**
  * Represents a boxed Boolean value. Boxed representation is used when casting
@@ -29,7 +28,6 @@ import java.io.IOException;
 final public class Boolean extends Struct implements java.lang.Comparable<Boolean>
 {
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(Boolean.class);
     
     public static final RuntimeType<?> $RTT = Types.BOOLEAN;
     public RuntimeType<?> $getRTT() {return $RTT;}
@@ -104,10 +102,6 @@ final public class Boolean extends Struct implements java.lang.Comparable<Boolea
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
         $serializer.write($value);
-    }
-
-    public short $_get_serialization_id() {
-        return $_serialization_id;
     }
 
     public static X10JavaSerializable $_deserializer(X10JavaDeserializer $deserializer) throws IOException {

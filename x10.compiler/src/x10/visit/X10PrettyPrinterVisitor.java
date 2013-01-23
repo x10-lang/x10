@@ -621,21 +621,6 @@ public class X10PrettyPrinterVisitor extends X10DelegatingVisitor {
             long serialVersionUID = 1L;
             w.write("private static final long serialVersionUID = " + serialVersionUID + "L;");
             w.newline();
-
-            // _serialization_id
-            w.write("private static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(");
-            w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class);");
-            w.newline();
-        } else {
-            // We need to assign ID's even for interfaces cause they could be used ad parameterized types
-            // _serialization_id
-            w.write("public static final short " + Emitter.SERIALIZATION_ID_FIELD + " = ");
-            w.write(Emitter.DESERIALIZATION_DISPATCHER_CLASS + ".addDispatcher(");
-            w.write(Emitter.mangleToJava(def.name()));
-            w.writeln(".class);");
-            w.newline();
         }
 
         // print the clone method

@@ -11,18 +11,14 @@
 
 package x10.core;
 
-import x10.core.Thread;
-
-import x10.rtt.Type;
-import x10.serialization.DeserializationDispatcher;
-import x10.serialization.X10JavaDeserializer;
-import x10.serialization.X10JavaSerializable;
-import x10.serialization.X10JavaSerializer;
-
-
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicLong;
+
+import x10.rtt.Type;
+import x10.serialization.X10JavaDeserializer;
+import x10.serialization.X10JavaSerializable;
+import x10.serialization.X10JavaSerializer;
 
 
 /**
@@ -31,8 +27,7 @@ import java.util.concurrent.atomic.AtomicLong;
 public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaSerializable {
 
     private static final long serialVersionUID = 1L;
-    private static final short $_serialization_id = DeserializationDispatcher.addDispatcher(PlaceLocalHandle.class);
-
+ 
     private static final HashMap<java.lang.Long,Object> data = new HashMap<java.lang.Long,Object>();
 
     private static final int placeShift = 48;
@@ -103,10 +98,6 @@ public final class PlaceLocalHandle<T> implements java.io.Serializable, X10JavaS
     @Override
     public String toString() {
         return "PlaceLocalHandle(" + this.id + ")";
-    }
-
-    public short $_get_serialization_id() {
-        return $_serialization_id;
     }
 
     public void $_serialize(X10JavaSerializer $serializer) throws IOException {
