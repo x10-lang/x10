@@ -31,9 +31,9 @@ public class XNativeLit extends XNativeVar implements XLit  {
     private static final long serialVersionUID = 566522638402563631L;
     final protected Object val;
     
-    public static XNativeLit TRUE = new XNativeLit(true);
-    public static XNativeLit FALSE = new XNativeLit(false);
-    public static XNativeLit NULL = new XNativeLit(null);
+    public static final XNativeLit TRUE = new XNativeLit(true);
+    public static final XNativeLit FALSE = new XNativeLit(false);
+    public static final XNativeLit NULL = new XNativeLit(null);
 
 	public XNativeLit(Object l) {val = l;}
 	@Override

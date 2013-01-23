@@ -107,9 +107,9 @@ public abstract class XNativeTerm implements XTerm, Serializable, Cloneable {
 		return false;
 	}*/
 
-	public static int TERM_MUST_NOT_BE_BOUND=-1;
-	public static int TERM_PREFERS_BEING_BOUND=1;
-	public static int TERM_SHRUGS_ABOUT_BEING_BOUND=0;
+	public static final int TERM_MUST_NOT_BE_BOUND=-1;
+	public static final int TERM_PREFERS_BEING_BOUND=1;
+	public static final int TERM_SHRUGS_ABOUT_BEING_BOUND=0;
 	/**
 	 * 0 == dont care, bind me if you want
 	 * -1 == must not bind me!
