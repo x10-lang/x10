@@ -303,7 +303,7 @@ public class XPromise implements Cloneable, Serializable{
                                        + " cannot be bound to the already disequated " 
                                        + target + ".");
             }
-        if (!(target.equals(value)) && !target.equals(nodeLabel)) {
+        if (!target.equals(value) /*&& !target.equals(nodeLabel)*//*always true*/) {
             if (forwarded()) throw new XFailure("The promise " + this + 
                                    " is already bound to " + value 
                                    + "; cannot bind it to " + target + ".");
