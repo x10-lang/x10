@@ -143,7 +143,8 @@ public abstract class Runtime implements x10.core.fun.VoidFun_0_0 {
         // (ClassNotFoundException e) { }
 
         // preload classes by default
-        if (!Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
+        // TODO: Dave.  I will delete this functionality tomorrow assuming no large-scale regressions tonight
+        if (false && !Boolean.getBoolean("x10.NO_PRELOAD_CLASSES")) {
             // System.out.println("start preloading of classes");
             Class<?> userMain = this.getClass().getEnclosingClass();
             String extraClassesString = System.getProperty("x10.EXTRA_PRELOAD_CLASSES");
